@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import disscount.user.dto.UserDto;
 import disscount.user.dto.UserRequest;
+import disscount.user.service.AccountErasureService;
 import disscount.user.service.UserService;
 import disscount.util.SecurityUtils;
 
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final AccountErasureService accountErasureService;
 
     @Operation(summary = "Get current authenticated user")
     @GetMapping("/me")
@@ -44,7 +46,7 @@ public class UserController {
     @DeleteMapping("/me")
     public ResponseEntity<Map<String, String>> deleteCurrentUser() {
         UUID authenticatedUserId = SecurityUtils.getCurrentUserId();
-        userService.deleteAccount(authenticatedUserId);
+        accountErasureService.erase(authenticatedUserId);
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
     }
 }

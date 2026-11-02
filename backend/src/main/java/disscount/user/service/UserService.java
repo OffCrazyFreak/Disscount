@@ -263,7 +263,8 @@ public class UserService {
         favoriteStoreService.deleteAllForUser(userId);
 
         if (!erasureLedger.existsById(userId)) {
-            erasureLedger.save(new ErasureLedgerEntry(userId, nowUtc()));
+            // Flushed so a concurrent deletion's tombstone collides here, where AccountErasureService can catch it.
+            erasureLedger.saveAndFlush(new ErasureLedgerEntry(userId, nowUtc()));
         }
     }
 

@@ -1,6 +1,7 @@
 package disscount.user.rest;
 
 import disscount.config.SecurityConfig;
+import disscount.user.service.AccountErasureService;
 import disscount.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ class UserControllerErasureTokenTest {
 
     @Autowired MockMvc mvc;
     @MockBean UserService userService;
+    @MockBean AccountErasureService accountErasureService;
 
     private final UUID userId = UUID.randomUUID();
 
@@ -34,7 +36,7 @@ class UserControllerErasureTokenTest {
         mvc.perform(delete("/api/users/me").with(jwt().jwt(j -> j.subject(userId.toString()))))
                 .andExpect(status().isForbidden());
 
-        verify(userService, never()).deleteAccount(any());
+        verify(accountErasureService, never()).erase(any());
     }
 
     @Test
@@ -43,7 +45,7 @@ class UserControllerErasureTokenTest {
                         .claim("purpose", "something-else"))))
                 .andExpect(status().isForbidden());
 
-        verify(userService, never()).deleteAccount(any());
+        verify(accountErasureService, never()).erase(any());
     }
 
     @Test
@@ -52,7 +54,7 @@ class UserControllerErasureTokenTest {
                         .claim("purpose", "account-erasure"))))
                 .andExpect(status().isOk());
 
-        verify(userService).deleteAccount(userId);
+        verify(accountErasureService).erase(userId);
     }
 
     @Test
@@ -93,6 +95,6 @@ class UserControllerErasureTokenTest {
     void anAnonymousCallerIsRejected() throws Exception {
         mvc.perform(delete("/api/users/me")).andExpect(status().isUnauthorized());
 
-        verify(userService, never()).deleteAccount(any());
+        verify(accountErasureService, never()).erase(any());
     }
 }
