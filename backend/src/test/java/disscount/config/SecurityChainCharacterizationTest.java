@@ -99,7 +99,9 @@ class SecurityChainCharacterizationTest {
 
     @Test
     void anUnknownPathIs404ForASignedInCaller() throws Exception {
-        mvc.perform(get("/api/does-not-exist").with(jwt())).andExpect(status().isNotFound());
+        mvc.perform(get("/api/does-not-exist").with(jwt()))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.type").value("urn:disscount:not-found"));
     }
 
     @Test
