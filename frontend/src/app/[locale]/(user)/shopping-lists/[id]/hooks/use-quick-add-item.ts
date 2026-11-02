@@ -44,18 +44,17 @@ export function useQuickAddItem(listId: string) {
     if (!name) return;
 
     setText("");
-    addItemMutation.mutate(
-      { listId, data: { name, amount: 1, isChecked: false } },
-      {
-        onSuccess: () =>
-          setLastAdded((previous) => ({ name, count: previous.count + 1 })),
-        onError: (error) => {
+    // mutate's own callbacks fire only for the latest call, so a quick second add would swallow the first one's failure.
+    addItemMutation
+      .mutateAsync({ listId, data: { name, amount: 1, isChecked: false } })
+      .then(
+        () => setLastAdded((previous) => ({ name, count: previous.count + 1 })),
+        (error: Error) => {
           // Hand the text back unless the user already started the next item.
           setText((current) => current || name);
           listWriteFailed(error, tUi);
         },
-      },
-    );
+      );
   }
 
   function pickSuggestion(product: ProductResponse) {

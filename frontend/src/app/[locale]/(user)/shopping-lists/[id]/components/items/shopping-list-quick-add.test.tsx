@@ -160,6 +160,58 @@ describe("ShoppingListQuickAdd", () => {
     await waitFor(() => expect(status.textContent).not.toBe(first));
   });
 
+  it("moves focus back to the field after a keyboard add with the button", async () => {
+    const user = userEvent.setup();
+    const adds = captureAdds();
+    server.use(signedOut, serveSearch([]), adds.handler);
+    renderWithProviders(<ShoppingListQuickAdd listId="list-1" />);
+
+    const input = screen.getByRole("combobox");
+    await user.type(input, "Staklenke");
+    await user.tab();
+    expect(screen.getByRole("button", { name: "Dodaj" })).toHaveFocus();
+    await user.keyboard("{Enter}");
+
+    await waitFor(() => expect(adds.bodies).toHaveLength(1));
+    expect(input).toHaveFocus();
+  });
+
+  it("hands back a failed add's text even after a second add went out", async () => {
+    const user = userEvent.setup();
+    let releaseFirst = () => {};
+    const firstHeld = new Promise<void>((resolve) => {
+      releaseFirst = resolve;
+    });
+    server.use(
+      signedOut,
+      serveSearch([]),
+      http.post("*/api/shopping-lists/:listId/items", async ({ request }) => {
+        const body = (await request.json()) as { name: string };
+        if (body.name === "kruh") {
+          await firstHeld;
+          return HttpResponse.json({ status: 500 }, { status: 500 });
+        }
+        return HttpResponse.json({
+          id: "item",
+          shoppingListId: "list-1",
+          createdAt: "2026-11-02T10:00:00",
+          ...body,
+        });
+      }),
+    );
+    renderWithProviders(<ShoppingListQuickAdd listId="list-1" />);
+
+    const input = screen.getByRole("combobox");
+    await user.type(input, "kruh{Enter}");
+    await user.type(input, "mlijeko{Enter}");
+    await waitFor(() =>
+      expect(screen.getByRole("status")).toHaveTextContent("Dodano: mlijeko"),
+    );
+    releaseFirst();
+
+    await waitFor(() => expect(input).toHaveValue("kruh"));
+  });
+
   it("keeps the add button off until there is text", async () => {
     const user = userEvent.setup();
     server.use(signedOut, serveSearch([]));

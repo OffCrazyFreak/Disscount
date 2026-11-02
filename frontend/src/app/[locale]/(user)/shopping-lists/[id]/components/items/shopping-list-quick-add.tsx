@@ -121,7 +121,11 @@ export default function ShoppingListQuickAdd({
 
       <Button
         type="button"
-        onClick={addTypedText}
+        onClick={() => {
+          addTypedText();
+          // Clearing the text disables this button, which would drop focus to the page.
+          document.getElementById(inputId)?.focus();
+        }}
         disabled={!text.trim()}
         className="h-10 shrink-0"
       >
