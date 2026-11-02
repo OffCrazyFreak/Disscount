@@ -31,6 +31,17 @@ public interface DigitalCardRepository extends JpaRepository<DigitalCard, UUID> 
             + "AND c.deletedAt IS NULL AND (c.lastUsedAt IS NULL OR c.lastUsedAt < :usedAt)")
     int touchLastUsed(UUID id, UUID userId, LocalDateTime usedAt);
 
+    // Bulk updates for the same reason: pinning or archiving is not an edit, so updated_at stays.
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("UPDATE DigitalCard c SET c.pinnedAt = :pinnedAt WHERE c.id = :id AND c.user.id = :userId "
+            + "AND c.deletedAt IS NULL")
+    int updatePinnedAt(UUID id, UUID userId, LocalDateTime pinnedAt);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("UPDATE DigitalCard c SET c.archivedAt = :archivedAt WHERE c.id = :id AND c.user.id = :userId "
+            + "AND c.deletedAt IS NULL")
+    int updateArchivedAt(UUID id, UUID userId, LocalDateTime archivedAt);
+
     @Query("SELECT c FROM DigitalCard c WHERE c.deletedAt IS NOT NULL AND c.deletedAt < :cutoff")
     List<DigitalCard> findDeletedBefore(LocalDateTime cutoff);
 

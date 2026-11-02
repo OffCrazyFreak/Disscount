@@ -8,6 +8,7 @@ import { isAdmin } from "@/lib/api/schemas/auth-user";
 import AdminUsersStats from "@/app/[locale]/dashboard/components/admin-users-stats";
 import AdminUsersTable from "@/app/[locale]/dashboard/components/admin-users-table";
 import AdminContactTable from "@/app/[locale]/dashboard/components/admin-contact-table";
+import PhotoQueueTab from "@/app/[locale]/dashboard/components/product-photos/photo-queue-tab";
 
 // Feature plans add their own tab (Kontakt, Bug reports, Ideje) beside Korisnici.
 export default function DashboardContent() {
@@ -26,6 +27,7 @@ export default function DashboardContent() {
           <TabsList>
             <TabsTrigger value="users">{t("content.tabUsers")}</TabsTrigger>
             <TabsTrigger value="contact">{t("content.tabContact")}</TabsTrigger>
+            <TabsTrigger value="photos">{t("content.tabPhotos")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="users" className="space-y-4">
@@ -35,6 +37,10 @@ export default function DashboardContent() {
 
           <TabsContent value="contact" className="space-y-3">
             <AdminContactTable />
+          </TabsContent>
+
+          <TabsContent value="photos">
+            <PhotoQueueTab />
           </TabsContent>
         </Tabs>
       ) : (

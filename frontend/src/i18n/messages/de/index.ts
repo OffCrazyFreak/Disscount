@@ -9,6 +9,7 @@ import locale from "./locale.json";
 import map from "./map.json";
 import metadata from "./metadata.json";
 import productDetail from "./productDetail.json";
+import productPhotos from "./productPhotos.json";
 import products from "./products.json";
 import scanner from "./scanner.json";
 import settings from "./settings.json";
@@ -34,6 +35,7 @@ const messages = {
   map,
   metadata,
   productDetail,
+  productPhotos,
   products,
   scanner,
   settings,

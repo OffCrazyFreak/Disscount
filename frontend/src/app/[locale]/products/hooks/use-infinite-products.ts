@@ -3,7 +3,10 @@
 import { useMemo } from "react";
 import { useGetProductByName } from "@/lib/cijene-api";
 import type { IProductListItem } from "@/app/[locale]/products/typings/product-list-price-types";
-import { productMatchesFilters } from "@/app/[locale]/products/utils/product-filters";
+import {
+  hasMatchOutsideLocations,
+  productMatchesFilters,
+} from "@/app/[locale]/products/utils/product-filters";
 import sortProductsByRelevance from "@/app/[locale]/products/utils/product-relevance";
 import { PRODUCT_SEARCH_LIMIT } from "@/constants/products";
 import useFilteredProductPrices from "@/app/[locale]/products/hooks/use-filtered-product-prices";
@@ -13,6 +16,8 @@ import { splitIntoBatches } from "@/app/[locale]/products/utils/product-batches"
 interface IUseInfiniteProductsOptions {
   /** Resolved chain+location filter (null = unfiltered, empty = no overlap) */
   allowedChains?: string[] | null;
+  /** The chain filter alone, before the location narrows it */
+  selectedChains?: string[];
   selectedCategories?: string[];
   selectedBrands?: string[];
   selectedLocations?: string[];
@@ -28,6 +33,8 @@ interface IUseInfiniteProductsResult {
   isLoading: boolean;
   error: unknown;
   hasPartialPriceData: boolean;
+  /** A location filter is set and the search has matches once it is dropped */
+  hasMatchesOutsideLocations: boolean;
 }
 
 const EMPTY_SELECTION: string[] = [];
@@ -38,6 +45,7 @@ export default function useInfiniteProducts(
 ): IUseInfiniteProductsResult {
   const {
     allowedChains = null,
+    selectedChains = EMPTY_SELECTION,
     selectedCategories = EMPTY_SELECTION,
     selectedBrands = EMPTY_SELECTION,
     selectedLocations = EMPTY_SELECTION,
@@ -115,6 +123,14 @@ export default function useInfiniteProducts(
   ].join("\0");
   const batchesToShow = useRevealedBatches(batchKey, batchedItems.length);
 
+  const hasMatchesOutsideLocations = hasMatchOutsideLocations(allProducts, {
+    selectedChains,
+    selectedLocations,
+    selectedCategories,
+    selectedBrands,
+    isPriceDataPartial: hasPartialError,
+  });
+
   const visibleItems = useMemo(() => {
     return batchedItems.slice(0, batchesToShow).flatMap((batch) => batch);
   }, [batchedItems, batchesToShow]);
@@ -126,5 +142,6 @@ export default function useInfiniteProducts(
     isLoading: isLoading || pricesLoading,
     error: error || pricesError,
     hasPartialPriceData: hasPartialError,
+    hasMatchesOutsideLocations,
   };
 }

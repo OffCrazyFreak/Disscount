@@ -119,3 +119,40 @@ export function productMatchesFilters(
 
   return true;
 }
+
+interface ISelectedFilters {
+  selectedChains: string[];
+  selectedLocations: string[];
+  selectedCategories: string[];
+  selectedBrands: string[];
+  isPriceDataPartial: boolean;
+}
+
+/**
+ * Whether a location filter is set and dropping it alone would show products,
+ * so an empty page means those places price none of them.
+ */
+export function hasMatchOutsideLocations(
+  products: ProductResponse[],
+  {
+    selectedChains,
+    selectedLocations,
+    selectedCategories,
+    selectedBrands,
+    isPriceDataPartial,
+  }: ISelectedFilters,
+): boolean {
+  // A city that failed to answer may price these products, so only a complete answer proves none do
+  if (selectedLocations.length === 0 || isPriceDataPartial) return false;
+
+  const allowedChains = selectedChains.length > 0 ? selectedChains : null;
+
+  return products.some((product) =>
+    productMatchesFilters(
+      product,
+      allowedChains,
+      selectedCategories,
+      selectedBrands,
+    ),
+  );
+}

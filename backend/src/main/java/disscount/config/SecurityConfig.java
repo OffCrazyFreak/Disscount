@@ -151,6 +151,8 @@ public class SecurityConfig {
                 // Only better-auth's deleteUser hook mints this token, after its own checks,
                 // so an ordinary session token cannot erase the profile and keep its login.
                 .requestMatchers(HttpMethod.DELETE, "/api/users/me").access(SecurityConfig::isAccountErasureToken)
+                // Product photos are public like the prices; uploads and reports still need a login.
+                .requestMatchers(HttpMethod.GET, "/api/products/*/images", "/api/products/images/thumbnails").permitAll()
                 .requestMatchers(
                     "/actuator/health",
                     "/v3/api-docs/**",

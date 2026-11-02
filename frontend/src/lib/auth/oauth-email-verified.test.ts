@@ -88,7 +88,14 @@ async function signInWithGoogle(emailVerified: boolean) {
 
 describe("Google sign-up email verification", () => {
   beforeEach(() => {
-    for (const model of ["user", "account", "session", "verification", "jwks"])
+    for (const model of [
+      "user",
+      "account",
+      "session",
+      "verification",
+      "jwks",
+      "rateLimit",
+    ])
       tables[model] = [];
   });
 

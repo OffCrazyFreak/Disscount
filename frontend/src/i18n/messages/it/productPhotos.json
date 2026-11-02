@@ -1,0 +1,130 @@
+{
+  "photo": {
+    "open": "Apri le foto: {name}",
+    "alt": "{name}, foto del prodotto",
+    "altNumbered": "{name}, foto {index}",
+    "thumbnail": "Mostra la foto {index} di {total}",
+    "unverified": "Foto non verificata",
+    "none": "Ancora nessuna foto",
+    "noneHint": "Fotografa il fronte della confezione e aiuta gli altri a riconoscere il prodotto.",
+    "add": "Aggiungi foto",
+    "manage": "Modifica foto"
+  },
+  "viewer": {
+    "previous": "Foto precedente",
+    "next": "Foto successiva",
+    "close": "Chiudi",
+    "zoomIn": "Ingrandisci",
+    "zoomOut": "Riduci",
+    "lightbox": "Visualizzatore foto",
+    "carousel": "Foto del prodotto",
+    "slide": "Foto",
+    "thumbnails": "Miniature",
+    "slideOf": "Foto {index} di {total}",
+    "gallery": "Galleria di foto",
+    "report": "Segnala foto",
+    "reported": "Grazie, daremo un'occhiata a quella foto.",
+    "reportFailed": "La segnalazione non è andata a buon fine.",
+    "setMain": "Imposta come principale",
+    "isMain": "Foto principale",
+    "setMainDone": "La foto principale è cambiata."
+  },
+  "upload": {
+    "title": "Aggiungi foto",
+    "description": "Fotografa il fronte della confezione, meglio su una superficie chiara e senza persone nell'inquadratura.",
+    "takePhoto": "Scatta",
+    "chooseFile": "Scegli dalla galleria",
+    "previewAlt": "Anteprima della foto scelta",
+    "change": "Scegline un'altra",
+    "submit": "Invia foto",
+    "submitting": "Invio della foto",
+    "preparing": "Preparazione della foto",
+    "public": "La foto è pubblica. Viene verificata quando un altro utente aggiunge una propria foto dello stesso prodotto o quando la controlla un amministratore.",
+    "adminNote": "Le foto degli amministratori diventano subito principali.",
+    "done": "Grazie! La foto è stata aggiunta.",
+    "failed": "La foto non è stata inviata.",
+    "errors": {
+      "cannotOpen": "Non è possibile aprire questa immagine.",
+      "cannotProcess": "Non è possibile elaborare questa immagine.",
+      "cannotSave": "Non è possibile salvare l'immagine.",
+      "tooLarge": "L'immagine è ancora troppo grande dopo la riduzione."
+    }
+  },
+  "manager": {
+    "title": "Foto del prodotto",
+    "ean": "EAN {ean}",
+    "listings": "{count, plural, one {# prezzo nei negozi} other {# prezzi nei negozi}}",
+    "chains": "{count, plural, one {# catena} other {# catene}}",
+    "refresh": "Recupera da Open Food Facts",
+    "refreshed": "Le foto da Open Food Facts sono state recuperate.",
+    "markReviewed": "Segna come controllato",
+    "reviewedAt": "Controllato {date}",
+    "notReviewed": "Non ancora controllato",
+    "pinned": "La foto principale è stata scelta a mano",
+    "empty": "Nessuna foto. Recuperale da Open Food Facts o aggiungine una tua.",
+    "setMain": "Imposta come principale",
+    "main": "Principale",
+    "crop": "Ritaglia",
+    "hide": "Nascondi",
+    "restore": "Ripristina",
+    "approve": "Verifica",
+    "reports": "{count, plural, one {# segnalazione} other {# segnalazioni}}",
+    "openProduct": "Apri il prodotto",
+    "actionFailed": "La modifica non è andata a buon fine.",
+    "photoLabel": "Foto {index}: {source}, {status}",
+    "source": {
+      "OPEN_FOOD_FACTS": "Open Food Facts",
+      "USER": "Utente",
+      "ADMIN": "Admin"
+    },
+    "status": {
+      "CANDIDATE": "Non copiata",
+      "PENDING": "Non verificata",
+      "VERIFIED": "Verificata",
+      "HIDDEN": "Nascosta"
+    }
+  },
+  "crop": {
+    "title": "Ritaglia foto",
+    "description": "Trascina la cornice attorno al prodotto. La rotazione viene applicata prima del ritaglio.",
+    "rotateLeft": "Ruota a sinistra",
+    "rotateRight": "Ruota a destra",
+    "reset": "Foto intera",
+    "save": "Salva",
+    "saving": "Salvataggio",
+    "loading": "Caricamento dell'originale",
+    "loadFailed": "Non è stato possibile caricare l'originale.",
+    "saved": "La foto è stata ritagliata.",
+    "handles": {
+      "area": "Area di ritaglio, spostala con le frecce",
+      "nw": "Angolo in alto a sinistra",
+      "n": "Bordo superiore",
+      "ne": "Angolo in alto a destra",
+      "e": "Bordo destro",
+      "se": "Angolo in basso a destra",
+      "s": "Bordo inferiore",
+      "sw": "Angolo in basso a sinistra",
+      "w": "Bordo sinistro",
+      "image": "Originale da ritagliare"
+    }
+  },
+  "queue": {
+    "filterLabel": "Mostra",
+    "filters": {
+      "todo": "Da controllare",
+      "pending": "Non verificate",
+      "reported": "Segnalate"
+    },
+    "reviewedCount": "Controllati: {count}",
+    "total": "{count, plural, one {# prodotto} other {# prodotti}}",
+    "rank": "#{rank}",
+    "noPhoto": "Senza foto",
+    "empty": "Qui non c'è niente da controllare.",
+    "reviewedNext": "Controllato, avanti",
+    "previousPage": "Pagina precedente",
+    "nextPage": "Pagina successiva",
+    "page": "Pagina {page} di {pages}",
+    "listLabel": "Prodotti da controllare",
+    "keyboardHint": "Tasti: J e K per spostarti, R per segnare come controllato e proseguire."
+  }
+}
