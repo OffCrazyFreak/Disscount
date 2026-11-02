@@ -27,6 +27,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +38,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static disscount.digitalCard.service.CardServiceTestSupport.request;
@@ -71,6 +73,7 @@ class DigitalCardServiceTest {
     @Autowired StoreNameUsageRepository storeNameUsages;
     @Autowired PhotoStore store;
     @Autowired PhotoCleanupRepository cleanupRows;
+    @Autowired JdbcTemplate jdbc;
 
     User owner;
     User stranger;
@@ -175,6 +178,28 @@ class DigitalCardServiceTest {
         assertThat(service.setPinned(owner.getId(), id, false).getPinnedAt()).isNull();
         assertThat(service.setArchived(owner.getId(), id, true).getArchivedAt()).isNotNull();
         assertThat(service.setArchived(owner.getId(), id, false).getArchivedAt()).isNull();
+    }
+
+    @Test
+    void writesReturnTheUpdatedAtTheyStored() {
+        UUID id = UUID.randomUUID();
+        service.upsert(owner.getId(), id, request("Kartica"));
+        List<Supplier<DigitalCardDto>> writes = List.of(
+                () -> service.upsert(owner.getId(), id, request("Preimenovana")),
+                () -> service.setPinned(owner.getId(), id, true),
+                () -> service.setArchived(owner.getId(), id, true));
+
+        for (Supplier<DigitalCardDto> write : writes) {
+            // Backdated so a reply built before the flush cannot match by luck.
+            jdbc.update("UPDATE wallet_card SET updated_at = ? WHERE id = ?",
+                    Timestamps.nowUtc().minusHours(1), id);
+
+            DigitalCardDto returned = write.get();
+
+            // The database rounds to microseconds; a reply built before the flush misses the commit stamp by far more.
+            assertThat(returned.getUpdatedAt())
+                    .isCloseTo(service.get(owner.getId(), id).getUpdatedAt(), within(1, ChronoUnit.MICROS));
+        }
     }
 
     @Test

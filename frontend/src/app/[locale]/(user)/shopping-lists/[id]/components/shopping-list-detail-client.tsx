@@ -9,9 +9,11 @@ import ShoppingListPriceHistory from "@/app/[locale]/(user)/shopping-lists/[id]/
 import ShoppingListInfoTable from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-info-table";
 import ShoppingListAccessBanner from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-access-banner";
 import ShoppingListUnavailable from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-unavailable";
+import ShoppingListUpdateStatus from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-update-status";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import { useUser } from "@/context/user-context";
 import { useShoppingListData } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-shopping-list-data";
+import { isDeadListLink } from "@/lib/api/shopping-lists/is-dead-list-link";
 
 interface IShoppingListDetailClientProps {
   listId: string;
@@ -48,7 +50,7 @@ export default function ShoppingListDetailClient({
     );
   }
 
-  if (error || !shoppingList) {
+  if (!shoppingList || isDeadListLink(error)) {
     return (
       <ShoppingListUnavailable
         error={error}
@@ -66,6 +68,11 @@ export default function ShoppingListDetailClient({
       <ShoppingListAccessBanner
         myAccess={shoppingList.myAccess}
         isSignedIn={isAuthenticated}
+      />
+
+      <ShoppingListUpdateStatus
+        shoppingList={shoppingList}
+        fetchedAt={listUpdatedAt}
       />
 
       <section>

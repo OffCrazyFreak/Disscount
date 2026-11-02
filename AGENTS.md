@@ -9,13 +9,12 @@ The repository is public under BUSL-1.1, so it is source-available. Never call i
 Never:
 
 - Run deploy or Dokploy commands; a push deploys automatically.
-- Commit or push unless I ask, and then only the requested task's changes.
+- Merge a PR unless I say so, or commit a change that is not the task's.
 - Commit secrets, credentials, the server IP or the SSH user; docs use placeholders.
 - Reference or quote the gitignored private notes under `docs/` from a tracked file. Only `.gitignore` may name them, because the repository is public.
 - Hand-edit dependency entries or lockfiles, use npm, or generate a `package-lock.json`.
 - Commit with `--no-verify` or push to `main`. The hooks in `frontend/.husky/` format staged files and reject trailers and dashes in commit messages; fix what they flag.
 - Touch unrelated changes already in the worktree: do not revert, reformat, stage, or claim them.
-- Drive a browser for visual verification unless I ask in that same message.
 
 Ask first:
 
@@ -84,6 +83,7 @@ Tests run on H2 and touch nothing outside the module, so none needs a nod.
 
 - `kysely` is a direct dependency only to pin better-auth's required peer. Nothing imports it.
 - `dotenv` is read only by `drizzle.config.ts`, to load `.env.local` outside Next.
+- `esbuild` is a direct devDependency only so `frontend/Dockerfile` can bundle `scripts/migrate.mjs` into the migrator image; drizzle-kit's own copy is not linked into `node_modules/.bin`.
 - `baseline-browser-mapping` is a direct dependency only so `frontend/pnpm-workspace.yaml` can exempt it from pnpm's release-age gate.
 - `@vitejs/plugin-react` and `@rolldown/plugin-babel` exist only so Vitest compiles `.tsx` tests through the React Compiler. Next.js builds with its own compiler integration and never loads them. `@vitest/coverage-v8` stays on the exact `vitest` version, because its peer dependency is exact.
 - Import `server-only` in any module that must never reach the client.
@@ -139,7 +139,10 @@ Before wiring an API call, confirm the endpoint exists in `backend/` or upstream
 
 - Work lands on `dev`; a release is a `dev` into `main` PR. Before one, dev-vs-main gets a code review (a few Claude subagents plus the CodeRabbit CLI and Greptile) whose findings land as their own `fix:` PR, artifacts in `reviews/`.
 - Move one change to another branch by cherry-picking it, not merging, because `dev` usually carries unrelated work.
-- Open or merge a PR only when I ask.
+- One worktree and one branch per PR into `dev`. Commit, push and open the PR yourself; merge only when I say so.
+- Before any merge, read every comment and review on the PR, bots included, and settle each one: fix it, or reply with the reason you decline. Unsure about one, ask me before merging.
+- A PR body says why it exists and which issue it belongs to, what changed, how it was tested (checks run and the browser flows walked), the screenshots, and its risks: migrations or manual database steps, config or env steps, follow-ups.
+- UI change in a T3 Code thread: run the worktree's dev server and open every changed screen in the T3 preview. Then ask me how to handle PR screenshots: you attach them, I attach them myself, or none.
 - Attach PR screenshots with `gh pr create`, `gh pr edit` or `gh pr comment` and `--attach '<file>#<alt text>'`. Never host them on a branch: once it is deleted, GitHub can garbage collect the commits the image links point to. `--attach` rewrites Markdown image references but not HTML `<img>` tags.
 - Before adding to the project board, ask me which column. Never leave Status empty.
 
@@ -159,7 +162,7 @@ Keep each example file structurally in sync with its real counterpart, with no r
 
 ## Commit message
 
-End every response that changed code with a suggested message, written from `git status --short` and the diff, covering only this task's changes.
+Every commit uses this template, written from the staged diff and covering one purpose. Do not repeat the message in chat.
 
 ```text
 type(scope): Short summary in imperative mood

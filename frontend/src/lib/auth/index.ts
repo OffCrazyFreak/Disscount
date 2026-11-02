@@ -24,6 +24,7 @@ import {
 } from "@/constants/auth";
 import { assertPasswordAcceptable } from "@/lib/auth/breached-password";
 import { refuseBreachedSignIn } from "@/lib/auth/refuse-breached-sign-in";
+import { recordLastLogin } from "@/lib/auth/record-last-login";
 import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password-policy";
 
 const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
@@ -67,7 +68,7 @@ export const auth = betterAuth({
     minPasswordLength: PASSWORD_MIN_LENGTH,
     // Backstop only: better-auth counts UTF-16 units, our policy caps at 128 code points.
     maxPasswordLength: 512,
-    // Gates credential login only; OAuth emails are verified on creation below.
+    // Gates credential login only; OAuth users take the provider's email_verified claim.
     requireEmailVerification: true,
     resetPasswordTokenExpiresIn: RESET_TOKEN_TTL_SECONDS,
     revokeSessionsOnPasswordReset: true,
@@ -117,9 +118,8 @@ export const auth = betterAuth({
   account: {
     accountLinking: {
       enabled: true,
-      // Auto-links by shared email; the gate requires the EXISTING account verified,
-      // satisfied by marking OAuth emails verified below rather than the deprecated
-      // requireLocalEmailVerified flag.
+      // Auto-links by shared email; the gate requires the EXISTING account verified.
+      // An OAuth user is verified only if the provider's email_verified claim says so.
       trustedProviders: FACEBOOK_COMING_SOON
         ? ["google"]
         : ["google", "facebook"],
@@ -148,19 +148,7 @@ export const auth = betterAuth({
             RESET_TOKEN_TTL_SECONDS,
           );
         },
-      },
-    },
-    account: {
-      create: {
-        // The provider owns the email, so verify it on OAuth account creation. Checking
-        // providerId here (not the request path) can't accidentally verify a credential signup.
-        after: async (createdAccount, ctx) => {
-          if (!ctx || createdAccount.providerId === "credential") return;
-
-          await ctx.context.internalAdapter.updateUser(createdAccount.userId, {
-            emailVerified: true,
-          });
-        },
+        after: recordLastLogin,
       },
     },
     user: {

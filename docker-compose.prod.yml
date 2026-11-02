@@ -14,6 +14,7 @@ x-frontend-build: &frontend-build
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID}
     NEXT_PUBLIC_ENABLE_REACT_SCAN: ${NEXT_PUBLIC_ENABLE_REACT_SCAN}
     NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
+    SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-local}
 
 services:
   db:
@@ -76,9 +77,12 @@ services:
       timeout: 5s
       retries: 12
       start_period: 40s
+    # The backend reads better-auth columns natively, so it must not start before their migration.
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
   frontend:
     build:

@@ -42,7 +42,7 @@ public class User {
     @Column(name = "notifications_email_enabled_at")
     private LocalDateTime notificationsEmailEnabledAt;
 
-    // Marketing consents - default OFF (null) per GDPR opt-in.
+    // New profiles: newsletter starts null (marketing email needs opt-in consent), feedback contact starts on.
     @Column(name = "newsletter_enabled_at")
     private LocalDateTime newsletterEnabledAt;
 

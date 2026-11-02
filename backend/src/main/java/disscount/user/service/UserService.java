@@ -94,7 +94,8 @@ public class UserService {
                     ? AccountType.ADMIN
                     : AccountType.CONSUMER;
             String username = seedUsername(name, email);
-            // Every switch starts ON; the stamped timestamp is what the settings form reads back.
+            // Newsletter stays null: marketing email needs prior opt-in consent, and a pre-set
+            // switch is not consent (GDPR Recital 32, ZEK Art. 50). The other three start ON.
             LocalDateTime now = nowUtc();
             User.UserBuilder profile = User.builder()
                     .id(id)
@@ -102,7 +103,6 @@ public class UserService {
                     .accountType(accountType)
                     .notificationsPushEnabledAt(now)
                     .notificationsEmailEnabledAt(now)
-                    .newsletterEnabledAt(now)
                     .feedbackContactEnabledAt(now)
                     .lastActiveAt(now);
 

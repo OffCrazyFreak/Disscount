@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { SidebarMenuBadge, SidebarMenuButton } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { PLACEHOLDER_HREF, type INavigationItem } from "@/constants/navigation";
+import { formatBadgeCount } from "@/utils/badge-count";
 import SidebarNavLink from "@/components/custom/sidebar/sidebar-nav-link";
 import { SIDEBAR_ICON_CLASS } from "@/components/custom/sidebar/sidebar-styles";
 
@@ -18,6 +19,8 @@ interface ISidebarNavItemProps {
   isLocked?: boolean;
   /** Shown as a badge when the item opts in through `badge` */
   badgeCount?: number;
+  /** The link's accessible name while it shows a count, so the number is not visual only */
+  badgeLabel?: string;
 }
 
 /** A sidebar link with its coming-soon or notification badge. */
@@ -26,6 +29,7 @@ export default function SidebarNavItem({
   isActive = false,
   isLocked = false,
   badgeCount,
+  badgeLabel,
 }: ISidebarNavItemProps) {
   const t = useTranslations("shell");
   const Icon = item.icon;
@@ -61,6 +65,7 @@ export default function SidebarNavItem({
           href={item.href}
           isActive={isActive}
           isLocked={isLocked}
+          ariaLabel={showCount ? badgeLabel : undefined}
           className={cn(labelSpace, SIDEBAR_ICON_CLASS)}
         >
           {label}
@@ -74,8 +79,11 @@ export default function SidebarNavItem({
       )}
 
       {showCount && (
-        <SidebarMenuBadge className={cn(BADGE_CLASS, "rounded-full")}>
-          {badgeCount}
+        <SidebarMenuBadge
+          aria-hidden="true"
+          className={cn(BADGE_CLASS, "rounded-full")}
+        >
+          {formatBadgeCount(badgeCount ?? 0)}
         </SidebarMenuBadge>
       )}
     </>

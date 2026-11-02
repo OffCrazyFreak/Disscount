@@ -170,6 +170,7 @@
     "searchPlaceholder": "Pretraži proizvode...",
     "resultsTitle": "Rezultati pretrage za \"{query}\"",
     "resultsTitleWithCount": "Rezultati pretrage za \"{query}\" ({count}{suffix})",
+    "resultsStatus": "{count, plural, =0 {Nema rezultata} one {# rezultat} few {# rezultata} other {# rezultata}}{truncated, select, yes { ili više} other {}}",
     "partialPricesTitle": "Neke cijene nisu dostupne",
     "partialPricesText": "Prikazujemo dostupne cijene, ali jednu ili više odabranih lokacija trenutno nismo uspjeli dohvatiti.",
     "errorTitle": "Greška pri pretraživanju",

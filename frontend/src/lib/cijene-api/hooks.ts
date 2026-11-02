@@ -53,7 +53,6 @@ export function useAllLocations() {
       cityData.sourceCities.add(city);
     });
 
-    // Convert to array and sort
     return Array.from(cityMap.entries())
       .map(([standardizedLocationName, data]) => ({
         name: standardizedLocationName,

@@ -2,17 +2,14 @@ package disscount.notification.rest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import disscount.notification.dto.NotificationDto;
-import disscount.notification.dto.NotificationRequest;
 import disscount.notification.service.NotificationService;
 import disscount.util.SecurityUtils;
 
@@ -26,15 +23,6 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    // temporary for testing (TODO: remove)
-    @Operation(summary = "Create a new notification")
-    @PostMapping
-    public ResponseEntity<NotificationDto> createNotification(@Valid @RequestBody NotificationRequest request) {
-        UUID userId = SecurityUtils.getCurrentUserId();
-        NotificationDto created = notificationService.createNotification(userId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }
-
     @Operation(summary = "Get current user's notifications with pagination")
     @GetMapping("/me")
     public ResponseEntity<Page<NotificationDto>> getCurrentUserNotifications(
@@ -47,7 +35,7 @@ public class NotificationController {
     @Operation(summary = "Mark notification as read")
     @PatchMapping("/{id}/read")
     public ResponseEntity<Void> markAsRead(@PathVariable UUID id) {
-        notificationService.markAsRead(id);
+        notificationService.markAsRead(id, SecurityUtils.getCurrentUserId());
         return ResponseEntity.noContent().build();
     }
 
@@ -62,7 +50,7 @@ public class NotificationController {
     @Operation(summary = "Delete notification")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotification(@PathVariable UUID id) {
-        notificationService.deleteNotification(id);
+        notificationService.deleteNotification(id, SecurityUtils.getCurrentUserId());
         return ResponseEntity.noContent().build();
     }
 }

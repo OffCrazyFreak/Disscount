@@ -18,9 +18,6 @@ public interface ShoppingListItemRepository extends JpaRepository<ShoppingListIt
     @Query("SELECT sli FROM ShoppingListItem sli WHERE sli.shoppingList = :shoppingList AND sli.deletedAt IS NULL ORDER BY sli.createdAt ASC")
     List<ShoppingListItem> findActiveByShoppingList(ShoppingList shoppingList);
 
-    @Query("SELECT sli FROM ShoppingListItem sli WHERE sli.id = :id AND sli.deletedAt IS NULL")
-    Optional<ShoppingListItem> findActiveById(UUID id);
-
     @Query("SELECT sli FROM ShoppingListItem sli WHERE sli.id = :id AND sli.shoppingList = :shoppingList AND sli.deletedAt IS NULL")
     Optional<ShoppingListItem> findActiveByIdAndShoppingList(UUID id, ShoppingList shoppingList);
 
