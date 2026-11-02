@@ -3,7 +3,7 @@ import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 
 import { UserProvider, useUser } from "@/context/user-context";
-import apiClient from "@/lib/api/api-base";
+import apiClient, { setAuthTokenUser } from "@/lib/api/api-base";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 
@@ -121,13 +121,115 @@ describe("UserProvider backend token", () => {
     issueToken = async () => tokenB;
     pendingTokenA.release?.(tokenA);
 
-    // Both loads that waited on A's token go out bare, then retry with B's after the 401.
+    // The load that waited on A's token goes out bare and retries with B's after the 401.
     await waitFor(() =>
       expect(
         authorizations.filter((header) => header === `Bearer ${tokenB}`),
       ).toHaveLength(2),
     );
     expect(authorizations).not.toContain(`Bearer ${tokenA}`);
+  });
+
+  it("fetches a new token for a request made after the switch instead of reusing the previous account's fetch", async () => {
+    session.userId = "user-a";
+    session.error = null;
+    const pendingTokenA: { release?: (token: string) => void } = {};
+    let issueToken = () =>
+      new Promise<string>((resolve) => {
+        pendingTokenA.release = resolve;
+      });
+    const authorizations = recordProfileRequests(() => issueToken());
+    const probeAuthorizations: (string | null)[] = [];
+    // Answers anonymous callers too, like the shared shopping list routes, so nothing retries.
+    server.use(
+      http.get("*/api/probe", ({ request }) => {
+        probeAuthorizations.push(request.headers.get("Authorization"));
+        return HttpResponse.json({});
+      }),
+    );
+
+    const view = renderWithProviders(
+      <UserProvider>
+        <></>
+      </UserProvider>,
+    );
+    await waitFor(() => expect(pendingTokenA.release).toBeDefined());
+
+    session.userId = "user-b";
+    issueToken = async () => tokenB;
+    view.rerender(
+      <UserProvider>
+        <></>
+      </UserProvider>,
+    );
+    const probe = apiClient.get("/api/probe");
+    pendingTokenA.release?.(tokenA);
+    await probe;
+
+    // Lets both profile loads finish first, so none lands in the next test.
+    await waitFor(() =>
+      expect(
+        authorizations.filter((header) => header === `Bearer ${tokenB}`),
+      ).toHaveLength(2),
+    );
+    expect(probeAuthorizations).toEqual([`Bearer ${tokenB}`]);
+  });
+
+  it("keeps the token fetch that began before the first session resolved", async () => {
+    let tokenRequests = 0;
+    const pendingToken: { release?: (token: string) => void } = {};
+    const probeAuthorizations: (string | null)[] = [];
+    server.use(
+      http.get("*/api/auth/token", async () => {
+        tokenRequests += 1;
+        const token = await new Promise<string>((resolve) => {
+          pendingToken.release = resolve;
+        });
+        return HttpResponse.json({ token });
+      }),
+      http.get("*/api/probe", ({ request }) => {
+        probeAuthorizations.push(request.headers.get("Authorization"));
+        return HttpResponse.json({});
+      }),
+    );
+
+    const probeBeforeSession = apiClient.get("/api/probe");
+    await waitFor(() => expect(pendingToken.release).toBeDefined());
+    setAuthTokenUser("user-a");
+    const probeAfterSession = apiClient.get("/api/probe");
+    pendingToken.release?.(tokenA);
+    await Promise.all([probeBeforeSession, probeAfterSession]);
+
+    expect(probeAuthorizations).toEqual([
+      `Bearer ${tokenA}`,
+      `Bearer ${tokenA}`,
+    ]);
+    expect(tokenRequests).toBe(1);
+  });
+
+  it("waits out the cooldown after refusing another account's token instead of fetching on every request", async () => {
+    let tokenRequests = 0;
+    const authorizations = recordProfileRequests(async () => {
+      tokenRequests += 1;
+      return tokenA;
+    });
+    server.use(http.get("*/api/probe", () => HttpResponse.json({})));
+    setAuthTokenUser("user-b");
+    // A frozen clock keeps every call inside the cooldown however slow the run.
+    vi.useFakeTimers({ toFake: ["Date"] });
+
+    try {
+      await apiClient.get("/api/probe");
+      await apiClient.get("/api/probe");
+      // Login-required calls answer 401, and their retry must not force a fetch either.
+      await expect(apiClient.get("/api/users/me")).rejects.toThrow();
+      await expect(apiClient.get("/api/users/me")).rejects.toThrow();
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(tokenRequests).toBe(1);
+    expect(authorizations).toEqual([null, null]);
   });
 
   it("attaches the new account's token when sign-in reloads the profile before the session lands", async () => {
