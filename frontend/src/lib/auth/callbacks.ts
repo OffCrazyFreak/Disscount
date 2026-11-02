@@ -4,6 +4,7 @@ import { and, eq, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { account, user } from "@/db/auth-schema";
 import type { AppLocale } from "@/i18n/locales";
+import { localePath } from "@/i18n/locale-path";
 import { emailService } from "@/lib/email";
 import {
   claimResetEmail,
@@ -65,12 +66,30 @@ export async function dispatchVerificationEmail(
   if (!release) return;
 
   try {
-    await emailService.sendVerificationEmail({ to: email, locale, url, token });
+    await emailService.sendVerificationEmail({
+      to: email,
+      locale,
+      url: withEmailVerifiedLanding(url, locale),
+      token,
+    });
   } catch (error) {
     // The send error is the one worth logging, not a failed release.
     await release().catch(() => {});
     throw error;
   }
+}
+
+// Links sent on sign-in carry better-auth's default "/" callback, because a callbackURL on
+// signIn.email would also redirect every successful sign-in; land them like the sign-up link.
+function withEmailVerifiedLanding(url: string, locale: AppLocale) {
+  const link = new URL(url);
+  if (link.searchParams.get("callbackURL") !== "/") return url;
+
+  link.searchParams.set(
+    "callbackURL",
+    localePath(locale, "/?modal=email-verified"),
+  );
+  return link.toString();
 }
 
 // A completed reset proves the inbox, so it verifies the address and drops every social

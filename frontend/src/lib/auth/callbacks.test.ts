@@ -7,7 +7,7 @@ vi.mock("server-only", () => ({}));
 const mocks = vi.hoisted(() => ({
   credentialRows: [{ id: "credential-1" }] as { id: string }[],
   sendPasswordReset: vi.fn(async () => {}),
-  sendVerificationEmail: vi.fn(async () => {}),
+  sendVerificationEmail: vi.fn(async (_message: { url: string }) => {}),
   claimResetEmail: vi.fn(),
   claimVerificationEmail: vi.fn(),
   updateUser: vi.fn(async (_values: unknown) => {}),
@@ -134,6 +134,48 @@ describe("dispatchVerificationEmail", () => {
 
     await expect(dispatchVerificationEmail(...args)).rejects.toThrow("capped");
     expect(release).toHaveBeenCalledOnce();
+  });
+});
+
+describe("verification link landing", () => {
+  const signInLink =
+    "https://disscount.me/api/auth/verify-email?token=jwt.part.sig&callbackURL=%2F";
+
+  it("lands a link sent on sign-in on the email-verified modal", async () => {
+    mocks.claimVerificationEmail.mockResolvedValueOnce(async () => {});
+
+    await dispatchVerificationEmail(
+      "user-1",
+      "person@example.com",
+      signInLink,
+      "token-1",
+      "en",
+    );
+
+    const [message] = mocks.sendVerificationEmail.mock.calls.at(-1) ?? [];
+    const link = new URL(message?.url ?? "");
+    expect(link.searchParams.get("callbackURL")).toBe(
+      "/en?modal=email-verified",
+    );
+    expect(link.searchParams.get("token")).toBe("jwt.part.sig");
+  });
+
+  it("keeps a callback the caller chose, such as the change-email modal", async () => {
+    mocks.claimVerificationEmail.mockResolvedValueOnce(async () => {});
+    const changeLink =
+      "https://disscount.me/api/auth/verify-email?token=t&callbackURL=%2F%3Fmodal%3Demail-changed";
+
+    await dispatchVerificationEmail(
+      "user-1",
+      "person@example.com",
+      changeLink,
+      "token-1",
+      "hr",
+    );
+
+    expect(mocks.sendVerificationEmail).toHaveBeenLastCalledWith(
+      expect.objectContaining({ url: changeLink }),
+    );
   });
 });
 
