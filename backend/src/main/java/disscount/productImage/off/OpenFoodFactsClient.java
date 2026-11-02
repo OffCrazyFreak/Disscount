@@ -102,7 +102,7 @@ public class OpenFoodFactsClient {
     /** The gzipped tab-separated export of every product, about 1.5 GB; the caller streams and closes it. */
     public InputStream openProductsExport() throws IOException, InterruptedException {
         HttpResponse<InputStream> response =
-                http.send(request(exportUrl).build(), HttpResponse.BodyHandlers.ofInputStream());
+                http.send(request(exportUrl).timeout(Duration.ofSeconds(60)).build(), HttpResponse.BodyHandlers.ofInputStream());
         if (response.statusCode() != 200) {
             response.body().close();
             throw new IOException("Open Food Facts export answered " + response.statusCode());

@@ -94,6 +94,7 @@ public class CatalogImportService {
     private InputStream open(String url) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder(URI.create(url))
                 .header("User-Agent", "Disscount/1.0 (https://disscount.me)")
+                .timeout(Duration.ofSeconds(60))
                 .GET()
                 .build();
         HttpResponse<InputStream> response = http.send(request, HttpResponse.BodyHandlers.ofInputStream());
