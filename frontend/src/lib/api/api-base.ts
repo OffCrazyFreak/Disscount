@@ -31,6 +31,10 @@ let cachedSubject: string | null = null;
 let sessionUserId: string | null | undefined;
 let inflightTokenPromise: Promise<string | null> | null = null;
 let lastFailedAttemptAt = 0;
+// Bumped on sign-out and deletion, so a fetch started before either cannot refill the cache.
+let tokenGeneration = 0;
+// Requests whose caller set the Authorization header; a 401 must not swap in another token.
+const pinnedTokenRequests = new WeakSet<InternalAxiosRequestConfig>();
 
 function decodeBase64Url(value: string): string {
   const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
@@ -78,8 +82,11 @@ function clearTokenCache() {
 }
 
 async function requestFreshToken(): Promise<string | null> {
+  const generation = tokenGeneration;
   try {
     const token = await fetchAuthToken();
+    // A sign-out or account deletion landed while this fetch was in flight.
+    if (generation !== tokenGeneration) return null;
 
     if (!token) {
       clearTokenCache();
@@ -127,6 +134,7 @@ export function peekFreshAuthToken(): string | null {
 }
 
 export function clearAuthToken() {
+  tokenGeneration += 1;
   clearTokenCache();
   lastFailedAttemptAt = Date.now();
 }
@@ -153,9 +161,12 @@ export function expectNewAuthTokenUser() {
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     if (config.headers) {
-      const token = await getToken();
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      // A caller's token wins: account deletion pins one taken before its session ends.
+      if (config.headers.has("Authorization")) {
+        pinnedTokenRequests.add(config);
+      } else {
+        const token = await getToken();
+        if (token) config.headers.Authorization = `Bearer ${token}`;
       }
 
       // The backend localises its error messages from this; <html lang> always
@@ -176,7 +187,8 @@ apiClient.interceptors.response.use(
     if (!originalRequest) return Promise.reject(error);
 
     const alreadyRetried = originalRequest.headers?.["X-Retry-After-Refresh"];
-    if (error.response?.status === 401 && !alreadyRetried) {
+    const isTokenPinned = pinnedTokenRequests.has(originalRequest);
+    if (error.response?.status === 401 && !alreadyRetried && !isTokenPinned) {
       const freshToken = await getToken(true);
       if (freshToken && originalRequest.headers) {
         originalRequest.headers.Authorization = `Bearer ${freshToken}`;
