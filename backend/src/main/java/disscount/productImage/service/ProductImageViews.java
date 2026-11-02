@@ -42,13 +42,23 @@ class ProductImageViews {
     AdminProductDto adminView(ProductImageSet set, List<ProductImage> all) {
         List<AdminImageDto> images = all.stream()
                 .sorted(Comparator.comparing((ProductImage i) -> !i.getId().equals(set.getMainImageId()))
-                        .thenComparing(i -> i.getStatus().ordinal())
+                        .thenComparing(ProductImageViews::adminRank)
                         .thenComparing(ProductImage::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder())))
                 .map(i -> toAdmin(i, set.getMainImageId()))
                 .toList();
         return new AdminProductDto(set.getEan(), set.getName(), set.getBrand(), set.getStoreListings(), set.getChainCount(),
                 set.getMainImageId(), set.isPinned(), set.isNeedsReview(), set.getReviewedAt(), set.getOffDetailsFetchedAt(),
                 images);
+    }
+
+    /** Shown photos first, then what awaits a decision, then raw Open Food Facts shots, hidden last. */
+    private static int adminRank(ProductImage image) {
+        return switch (image.getStatus()) {
+            case VERIFIED -> 0;
+            case PENDING -> 1;
+            case CANDIDATE -> image.getExternalKey() != null && image.getExternalKey().startsWith("front_") ? 2 : 3;
+            case HIDDEN -> 4;
+        };
     }
 
     String previewUrl(ProductImage image) {
