@@ -101,3 +101,35 @@ describe("Google sign-up email verification", () => {
     expect(user).toMatchObject({ emailVerified: true });
   });
 });
+
+describe("Google sign-in linking into an existing account", () => {
+  beforeEach(() => {
+    for (const model of ["user", "account", "session", "verification", "jwks"])
+      tables[model] = [];
+
+    tables.user.push({
+      id: "existing-user",
+      email: "person@example.com",
+      emailVerified: true,
+      name: "Existing",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+  });
+
+  function googleAccounts() {
+    return tables.account.filter((account) => account.providerId === "google");
+  }
+
+  it("refuses to link when Google has not verified the email", async () => {
+    await signInWithGoogle(false);
+
+    expect(googleAccounts()).toEqual([]);
+  });
+
+  it("links when Google has verified the email", async () => {
+    await signInWithGoogle(true);
+
+    expect(googleAccounts()).toMatchObject([{ userId: "existing-user" }]);
+  });
+});

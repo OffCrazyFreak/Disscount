@@ -119,9 +119,8 @@ export const auth = betterAuth({
       enabled: true,
       // Auto-links by shared email; the gate requires the EXISTING account verified.
       // An OAuth user is verified only if the provider's email_verified claim says so.
-      trustedProviders: FACEBOOK_COMING_SOON
-        ? ["google"]
-        : ["google", "facebook"],
+      // A trusted provider skips that claim when linking, so Google stays untrusted.
+      trustedProviders: FACEBOOK_COMING_SOON ? [] : ["facebook"],
     },
   },
 

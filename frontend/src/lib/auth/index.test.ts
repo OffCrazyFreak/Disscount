@@ -31,7 +31,7 @@ describe("Facebook behind FACEBOOK_COMING_SOON", () => {
 
   it("trusts Facebook for email-match linking only once it is launched", () => {
     expect(auth.options.account?.accountLinking?.trustedProviders).toEqual(
-      expectedProviders,
+      FACEBOOK_COMING_SOON ? [] : ["facebook"],
     );
   });
 
