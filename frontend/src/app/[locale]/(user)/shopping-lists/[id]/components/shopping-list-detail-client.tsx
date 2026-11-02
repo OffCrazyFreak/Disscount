@@ -39,6 +39,9 @@ export default function ShoppingListDetailClient({
     cheapestStores,
     averagePrices,
     storePrices,
+    priceStates,
+    retryFailedPrices,
+    isRetryingPrices,
     isPricesLoading,
   } = useShoppingListData(listId);
 
@@ -105,6 +108,9 @@ export default function ShoppingListDetailClient({
           isPricesLoading={isPricesLoading}
           averagePrices={averagePrices}
           storePrices={storePrices}
+          priceStates={priceStates}
+          isRetryingPrices={isRetryingPrices}
+          onRetryPrices={retryFailedPrices}
         />
       </section>
 
@@ -113,7 +119,10 @@ export default function ShoppingListDetailClient({
       </section>
 
       <section>
-        <ShoppingListStoreSummary shoppingList={shoppingList} />
+        <ShoppingListStoreSummary
+          shoppingList={shoppingList}
+          hasFailedPrices={Object.values(priceStates).includes("failed")}
+        />
       </section>
     </div>
   );

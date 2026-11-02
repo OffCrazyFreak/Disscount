@@ -3,12 +3,14 @@
 import ShoppingListItem from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-item";
 import type { IShoppingListItemUpdate } from "@/app/[locale]/(user)/shopping-lists/[id]/typings/shopping-list-item-types";
 import type { ShoppingListItemDto } from "@/lib/api/types";
+import type { ItemPriceState } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
 
 export interface IShoppingListItemRowsProps {
   items: ShoppingListItemDto[];
   cheapestStores: Record<string, string>;
   averagePrices: Record<string, number>;
   storePrices: Record<string, Record<string, number>>;
+  priceStates: Record<string, ItemPriceState>;
   onUpdate: (itemId: string, item: IShoppingListItemUpdate) => void;
   onDelete: (itemId: string) => void;
   deletingItemId: string | null;
@@ -22,6 +24,7 @@ export default function ShoppingListItemRows({
   cheapestStores,
   averagePrices,
   storePrices,
+  priceStates,
   onUpdate,
   onDelete,
   deletingItemId,
@@ -40,6 +43,7 @@ export default function ShoppingListItemRows({
           cheapestStore={cheapestStores[item.id]}
           averagePrice={averagePrices[item.id]}
           storePrices={storePrices[item.id] || {}}
+          priceState={priceStates[item.id] ?? "loading"}
           isFirst={index === 0}
           isLast={index === items.length - 1}
           showSeparator={index < items.length - 1}
