@@ -64,18 +64,28 @@ async function sendCompleteSignUp(
   const token = randomBytes(32).toString("base64url");
   const identifier = `reset-password:${token}`;
 
+  // Same row shape requestPasswordReset writes, so the stock /reset-password consumes it.
+  // Written before the claim, so a concurrent forgot-password request sees this link as live.
+  await db.insert(verification).values({
+    identifier,
+    value: userId,
+    expiresAt: new Date(Date.now() + RESET_TOKEN_TTL_SECONDS * 1000),
+  });
+
+  const releaseReset = await claimResetEmail(userId, token).catch(
+    async (error: unknown) => {
+      await deleteResetRow(identifier);
+      throw error;
+    },
+  );
+
   // A live reset link already reaches this inbox, and it does the same job.
-  const releaseReset = await claimResetEmail(userId, token);
-  if (!releaseReset) return false;
+  if (!releaseReset) {
+    await deleteResetRow(identifier);
+    return false;
+  }
 
   try {
-    // Same row shape requestPasswordReset writes, so the stock /reset-password consumes it.
-    await db.insert(verification).values({
-      identifier,
-      value: userId,
-      expiresAt: new Date(Date.now() + RESET_TOKEN_TTL_SECONDS * 1000),
-    });
-
     const callbackURL = encodeURIComponent(
       `${appUrl()}${localePath(locale, "/reset-password")}`,
     );
@@ -88,12 +98,16 @@ async function sendCompleteSignUp(
     });
   } catch (error) {
     await releaseReset().catch(() => {});
-    await db
-      .delete(verification)
-      .where(eq(verification.identifier, identifier))
-      .catch(() => {});
+    await deleteResetRow(identifier);
     throw error;
   }
 
   return true;
+}
+
+async function deleteResetRow(identifier: string) {
+  await db
+    .delete(verification)
+    .where(eq(verification.identifier, identifier))
+    .catch(() => {});
 }

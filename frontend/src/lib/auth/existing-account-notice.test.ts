@@ -108,6 +108,7 @@ describe("notifyExistingAccount", () => {
 
     expect(mocks.sendCompleteSignUp).not.toHaveBeenCalled();
     expect(releaseNotice).toHaveBeenCalledOnce();
+    expect(mocks.deleted).toHaveBeenCalledOnce();
   });
 
   it("undoes both claims and the reset row when the send fails", async () => {
