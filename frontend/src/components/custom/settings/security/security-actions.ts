@@ -6,8 +6,6 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 import { authClient } from "@/lib/auth/client";
-import fetchAuthToken from "@/lib/auth/token";
-import { userService } from "@/lib/api";
 import { clearAuthToken } from "@/lib/api/api-base";
 import { useUser } from "@/context/user-context";
 
@@ -34,25 +32,15 @@ export function useSecurityActions() {
   async function deleteAccount() {
     setDeleting(true);
     try {
-      // Taken first because deleting the identity ends the session that mints backend tokens.
-      const token = await fetchAuthToken();
-      if (!token) throw new Error("no backend token");
-
-      // Identity first: better-auth refuses a stale session before deleting anything, and ends
-      // every session, so no new token can be minted to revive the profile afterwards.
+      // The server erases the backend data inside deleteUser for the session's own user and
+      // deletes the identity only after that, so a refusal leaves the account safe to retry.
       const { error } = await authClient.deleteUser();
       if (error) throw new Error(error.message ?? "delete failed");
       // This tab's cached token outlives the identity; a request using it would revive the profile.
       clearAuthToken();
 
-      // The identity is gone either way, so this tab signs out even if the profile delete fails.
-      try {
-        await userService.deleteCurrentUser(token);
-      } finally {
-        await logout();
-        router.replace("/");
-      }
-
+      await logout();
+      router.replace("/");
       toast.success(t("security.actions.deleted"));
     } catch {
       toast.error(t("security.actions.deleteFailed"));

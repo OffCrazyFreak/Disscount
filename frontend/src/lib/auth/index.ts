@@ -25,6 +25,10 @@ import {
 import { assertPasswordAcceptable } from "@/lib/auth/breached-password";
 import { refuseBreachedSignIn } from "@/lib/auth/refuse-breached-sign-in";
 import { recordLastLogin } from "@/lib/auth/record-last-login";
+import {
+  eraseBackendAccount,
+  type SignJwt,
+} from "@/lib/auth/erase-backend-account";
 import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password-policy";
 
 const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
@@ -42,6 +46,12 @@ const NEW_PASSWORD_FIELDS: Record<string, string> = {
   "/sign-up/email": "password",
   "/reset-password": "newPassword",
   "/change-password": "newPassword",
+};
+
+// Signed with better-auth's own JWKS keys, which the backend already trusts.
+const signAccountErasureToken: SignJwt = async (payload) => {
+  const { token } = await auth.api.signJWT({ body: { payload } });
+  return token;
 };
 
 export const auth = betterAuth({
@@ -192,7 +202,11 @@ export const auth = betterAuth({
         validator: { input: z.enum(LOCALES) },
       },
     },
-    deleteUser: { enabled: true },
+    deleteUser: {
+      enabled: true,
+      beforeDelete: (deletedUser) =>
+        eraseBackendAccount(deletedUser.id, signAccountErasureToken),
+    },
     changeEmail: {
       enabled: true,
       // Sent to the CURRENT address to approve the change before it applies.
