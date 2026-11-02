@@ -2,7 +2,12 @@
 
 import { ReactNode, useRef, type RefObject } from "react";
 
-import { Drawer, DrawerContent, DrawerFooter } from "@/components/ui/drawer";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerFooter,
+  DrawerVirtualKeyboardProvider,
+} from "@/components/ui/drawer";
 import SheetShellHeader, {
   type ISheetShellHeaderProps,
 } from "@/components/custom/modal/sheet-shell-header";
@@ -24,7 +29,10 @@ const HANDLE_CLASS = "[&>[data-slot=drawer-handle]]:bg-muted-foreground/40";
  */
 const CONTENT_CLASS =
   "max-h-[85dvh] bg-background/85 backdrop-blur-xs pb-[var(--sheet-bottom-clearance)]";
-const VIEWPORT_CLASS = "z-[var(--z-bottom-sheet)]";
+// A sheet opened from inside another drawer, such as the install sheet in the
+// mobile sidebar, has to clear that drawer's layer rather than sit under it.
+const VIEWPORT_CLASS =
+  "z-[var(--z-bottom-sheet)] data-nested:z-[var(--z-overlay)]";
 const OVERLAY_CLASS = "z-[var(--z-bottom-sheet-scrim)]";
 const BODY_CLASS = "flex flex-1 flex-col gap-3 px-4";
 
@@ -91,48 +99,59 @@ export default function SheetShell({
       // must not close the sheet, so it needs its own way out.
       disablePointerDismissal={!modal}
     >
-      <DrawerContent
-        ref={popupRef}
-        className={cn(CONTENT_CLASS, HANDLE_CLASS, className)}
-        overlayClassName={OVERLAY_CLASS}
-        viewportClassName={VIEWPORT_CLASS}
-        // Focus the named field, or the sheet itself: focusing the first control
-        // instead would pop its tooltip.
-        initialFocus={() => initialFocusRef?.current ?? popupRef.current}
-        // Only reclaim focus the sheet still holds. A press that closed a
-        // non-modal sheet has already put focus where the user wanted it, and
-        // pulling it back would drop the phone keyboard off a field.
-        finalFocus={() => {
-          const active = document.activeElement;
-          const isFocusLeftBehind =
-            !active ||
-            active === document.body ||
-            !!popupRef.current?.contains(active);
+      {/* Keeps a focused field in view above a phone's software keyboard. */}
+      <DrawerVirtualKeyboardProvider>
+        <DrawerContent
+          ref={popupRef}
+          className={cn(CONTENT_CLASS, HANDLE_CLASS, className)}
+          overlayClassName={OVERLAY_CLASS}
+          viewportClassName={VIEWPORT_CLASS}
+          // Focus the named field, or the sheet itself: focusing the first control
+          // instead would pop its tooltip.
+          // preventScroll by hand: Base UI only passes it when focusing the popup.
+          initialFocus={() => {
+            const field = initialFocusRef?.current;
+            if (!field) return popupRef.current;
 
-          if (!isFocusLeftBehind) return false;
+            field.focus({ preventScroll: true });
 
-          return returnFocusRef?.current ?? true;
-        }}
-        {...dragUpProps}
-      >
-        <SheetShellHeader {...header} />
+            return false;
+          }}
+          // Only reclaim focus the sheet still holds. A press that closed a
+          // non-modal sheet has already put focus where the user wanted it, and
+          // pulling it back would drop the phone keyboard off a field.
+          finalFocus={() => {
+            const active = document.activeElement;
+            const isFocusLeftBehind =
+              !active ||
+              active === document.body ||
+              !!popupRef.current?.contains(active);
 
-        {/* The fades end at the body's own bottom, so they stop above the footer
+            if (!isFocusLeftBehind) return false;
+
+            return returnFocusRef?.current ?? true;
+          }}
+          {...dragUpProps}
+        >
+          <SheetShellHeader {...header} />
+
+          {/* The fades end at the body's own bottom, so they stop above the footer
             and the nav clearance. */}
-        {children && (
-          <ScrollFadeArea
-            className={cn(BODY_CLASS, bodyClassName)}
-            wrapperClassName="flex-1"
-            fadeClassName="from-background/85 h-12"
-          >
-            {children}
-          </ScrollFadeArea>
-        )}
+          {children && (
+            <ScrollFadeArea
+              className={cn(BODY_CLASS, bodyClassName)}
+              wrapperClassName="flex-1"
+              fadeClassName="from-background/85 h-12"
+            >
+              {children}
+            </ScrollFadeArea>
+          )}
 
-        {footer && (
-          <DrawerFooter className="px-4 pt-3 pb-0">{footer}</DrawerFooter>
-        )}
-      </DrawerContent>
+          {footer && (
+            <DrawerFooter className="px-4 pt-3 pb-0">{footer}</DrawerFooter>
+          )}
+        </DrawerContent>
+      </DrawerVirtualKeyboardProvider>
     </Drawer>
   );
 }

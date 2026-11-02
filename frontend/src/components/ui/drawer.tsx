@@ -61,7 +61,9 @@ function Drawer({
           // on, so a Radix dialog, menu or tooltip over it would close with it.
           const isEscapeForAnotherLayer =
             details.reason === "escape-key" &&
-            ((target instanceof Node && !popupRef.current?.contains(target)) ||
+            ((target instanceof Node &&
+              target !== document.body &&
+              !popupRef.current?.contains(target)) ||
               document.querySelector(RADIX_POPPER_SELECTOR) !== null);
 
           if (!open && isEscapeForAnotherLayer) {
@@ -79,6 +81,12 @@ function Drawer({
 
 function DrawerTrigger({ ...props }: DrawerPrimitive.Trigger.Props) {
   return <DrawerPrimitive.Trigger data-slot="drawer-trigger" {...props} />;
+}
+
+function DrawerVirtualKeyboardProvider({
+  ...props
+}: React.ComponentProps<typeof DrawerPrimitive.VirtualKeyboardProvider>) {
+  return <DrawerPrimitive.VirtualKeyboardProvider {...props} />;
 }
 
 function DrawerPortal({ ...props }: DrawerPrimitive.Portal.Props) {
@@ -231,4 +239,5 @@ export {
   DrawerFooter,
   DrawerTitle,
   DrawerDescription,
+  DrawerVirtualKeyboardProvider,
 };
