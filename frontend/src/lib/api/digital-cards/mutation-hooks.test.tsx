@@ -2,7 +2,7 @@ import { act } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { useSaveDigitalCard } from "@/lib/api/digital-cards/hooks";
+import { useSaveDigitalCard } from "@/lib/api/digital-cards/mutation-hooks";
 import type { DigitalCardRequest } from "@/lib/api/types";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";

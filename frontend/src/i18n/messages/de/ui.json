@@ -13,6 +13,7 @@
     "copied": "Link kopiert",
     "failed": "Teilen hat nicht geklappt"
   },
+  "toaster": { "label": "Meldungen" },
   "offline": {
     "writeFailed": "Die Änderung wurde nicht gespeichert. Versuche es erneut.",
     "writeFailedLostAccess": "Die Änderung wurde nicht gespeichert. Vielleicht hast du keinen Zugriff mehr auf diese Liste.",

@@ -13,6 +13,7 @@
     "copied": "Link copiato",
     "failed": "Non siamo riusciti a condividere"
   },
+  "toaster": { "label": "Messaggi" },
   "offline": {
     "writeFailed": "Modifica non salvata. Riprova.",
     "writeFailedLostAccess": "Modifica non salvata. Forse non hai più accesso a questa lista.",

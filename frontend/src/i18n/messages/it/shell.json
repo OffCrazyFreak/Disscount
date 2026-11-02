@@ -9,6 +9,7 @@
     "watchlist": "Prodotti seguiti",
     "watchlistShort": "Seguiti",
     "watchlistShortcut": "Guarda i prodotti che segui",
+    "watchlistPriceDrops": "{label}, {count, plural, one {# nuovo calo di prezzo} other {# nuovi cali di prezzo}}",
     "digitalCards": "Carte fedeltà",
     "digitalCardsShort": "Carte",
     "digitalCardsShortcut": "Apri le tue carte fedeltà",

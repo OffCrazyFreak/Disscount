@@ -1,7 +1,7 @@
 "use client";
 
 import { onlineManager } from "@tanstack/react-query";
-import type { UseFormReturn } from "react-hook-form";
+import { useFormState, type UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
@@ -37,11 +37,11 @@ export function useSettingsSave({
 }: IUseSettingsSaveProps) {
   const t = useTranslations("settings");
   const { runners, saving } = useSettingsSaveRunners();
+  const { defaultValues } = useFormState({ control: form.control });
 
   async function save(mode: SaveMode): Promise<boolean> {
     const values = form.getValues();
-    const defaults = (form.formState.defaultValues ??
-      {}) as Partial<SettingsFormValues>;
+    const defaults = (defaultValues ?? {}) as Partial<SettingsFormValues>;
     const dirty = dirtySections(values, defaults, avatarTouched);
 
     if (mode === "settings") closeModalUrl();

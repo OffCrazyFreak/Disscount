@@ -170,6 +170,7 @@
     "searchPlaceholder": "Išči izdelke...",
     "resultsTitle": "Rezultati iskanja za »{query}«",
     "resultsTitleWithCount": "Rezultati iskanja za »{query}« ({count}{suffix})",
+    "resultsStatus": "{count, plural, =0 {Ni rezultatov} one {# rezultat} two {# rezultata} few {# rezultati} other {# rezultatov}}{truncated, select, yes { ali več} other {}}",
     "partialPricesTitle": "Nekatere cene niso na voljo",
     "partialPricesText": "Prikazujemo razpoložljive cene, vendar ene ali več izbranih lokacij trenutno nismo mogli pridobiti.",
     "errorTitle": "Napaka pri iskanju",

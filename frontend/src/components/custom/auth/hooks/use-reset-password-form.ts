@@ -11,6 +11,12 @@ import {
 } from "@/lib/auth/password-policy";
 import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
 import { authClient } from "@/lib/auth/client";
+import {
+  clearStoredResetToken,
+  readStoredResetToken,
+  removeResetTokenFromUrl,
+  storeResetToken,
+} from "@/lib/auth/reset-token-storage";
 import { swapModalUrl } from "@/lib/modal/modal-navigation";
 
 const resetPasswordSchema = z
@@ -22,23 +28,10 @@ const resetPasswordSchema = z
 
 export type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
-// The token leaves the URL once read, so a language switch, which remounts the modal
-// under the new [locale], would otherwise lose it. Session-scoped, cleared on close.
-const TOKEN_KEY = "disscount-reset-token";
-
-// Storage can be full or blocked; the URL token must still work from memory then.
-function stored<T>(action: () => T): T | null {
-  try {
-    return action();
-  } catch {
-    return null;
-  }
-}
-
 function readToken(): string | null {
   const fromUrl = new URLSearchParams(window.location.search).get("token");
-  if (fromUrl) stored(() => sessionStorage.setItem(TOKEN_KEY, fromUrl));
-  return fromUrl ?? stored(() => sessionStorage.getItem(TOKEN_KEY));
+  if (fromUrl) storeResetToken(fromUrl);
+  return fromUrl ?? readStoredResetToken();
 }
 
 export function useResetPasswordForm(open: boolean) {
@@ -65,17 +58,11 @@ export function useResetPasswordForm(open: boolean) {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!open) {
-      stored(() => sessionStorage.removeItem(TOKEN_KEY));
+      clearStoredResetToken();
       return;
     }
 
-    const params = new URLSearchParams(window.location.search);
-    if (!params.has("token")) return;
-
-    params.delete("token");
-    const query = params.toString().replace(/%2F/g, "/");
-    const url = window.location.pathname + (query ? `?${query}` : "");
-    window.history.replaceState(window.history.state, "", url);
+    removeResetTokenFromUrl();
   }, [open]);
 
   async function onSubmit(data: ResetPasswordForm) {
@@ -100,7 +87,7 @@ export function useResetPasswordForm(open: boolean) {
       return;
     }
 
-    stored(() => sessionStorage.removeItem(TOKEN_KEY));
+    clearStoredResetToken();
     toast.success(t("resetPassword.success"));
     swapModalUrl({ name: "login" });
   }

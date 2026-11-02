@@ -96,7 +96,6 @@ export default function ShoppingListItem({
             )}
           </div>
 
-          {/* Remove button - hidden on mobile, shown on larger screens */}
           {canEditItems && (
             <RemoveItemButton
               visibilityClassName="relative z-20 hidden sm:flex"

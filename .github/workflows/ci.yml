@@ -5,6 +5,9 @@ on:
     branches: [main, dev]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   frontend:
     name: Frontend checks
@@ -72,7 +75,9 @@ jobs:
       - name: Format check (docs & root markdown)
         run: pnpm exec prettier --check --ignore-path ../.prettierignore "../README.md" "../AGENTS.md" "../CLAUDE.md" "../docs/**/*.md" "../.github/**/*.md" "../.agents/**/*.md"
 
+      # On a dev push the image build compiles the same code with the real values.
       - name: Production build
+        if: github.event_name != 'push' || github.ref != 'refs/heads/dev'
         run: pnpm build
         env:
           DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
@@ -107,3 +112,103 @@ jobs:
           cache: maven
 
       - run: mvn -B verify
+
+  images:
+    name: Image (${{ matrix.image }})
+    needs: [frontend, backend]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    # Reads the dev values without recording a deployment; the deploy job records it.
+    environment:
+      name: dev
+      deployment: false
+    permissions:
+      contents: read
+      packages: write
+    concurrency:
+      group: images-${{ github.ref }}-${{ matrix.image }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - image: frontend
+            context: frontend
+            target: runner
+          - image: migrator
+            context: frontend
+            target: migrator
+          - image: backend
+            context: backend
+            target: runtime
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ghcr.io/offcrazyfreak/disscount-${{ matrix.image }}
+          # The moving dev tag is set by the deploy job, once all three images exist.
+          tags: type=sha,format=long
+
+      # Only the frontend stages read these; the other images ignore them.
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: ${{ matrix.context }}
+          target: ${{ matrix.target }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-${{ matrix.image }}:buildcache
+          cache-to: type=registry,ref=ghcr.io/offcrazyfreak/disscount-${{ matrix.image }}:buildcache,mode=max
+          build-args: |
+            GIT_SHA=${{ github.sha }}
+            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_APP_URL=${{ vars.NEXT_PUBLIC_APP_URL }}
+            NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ vars.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+            NEXT_PUBLIC_UMAMI_WEBSITE_ID=${{ vars.NEXT_PUBLIC_UMAMI_WEBSITE_ID }}
+            NEXT_PUBLIC_ENABLE_REACT_SCAN=${{ vars.NEXT_PUBLIC_ENABLE_REACT_SCAN }}
+            NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+            SENTRY_ENVIRONMENT=${{ vars.SENTRY_ENVIRONMENT }}
+          secrets: |
+            sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}
+
+  deploy:
+    name: Deploy (dev)
+    needs: images
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+      url: ${{ vars.NEXT_PUBLIC_APP_URL }}
+    permissions:
+      contents: read
+      packages: write
+    # A deploy in flight always finishes; a newer one waits behind it.
+    concurrency:
+      group: deploy-dev
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/actions
+
+      - uses: ./.github/actions/dokploy-deploy
+        with:
+          release-id: ${{ github.sha }}
+          environment-tag: dev
+          registry-token: ${{ secrets.GITHUB_TOKEN }}
+          dokploy-url: ${{ secrets.DOKPLOY_URL }}
+          api-key: ${{ secrets.DOKPLOY_API_KEY }}
+          compose-id: ${{ secrets.DOKPLOY_COMPOSE_ID }}
+          app-url: ${{ vars.NEXT_PUBLIC_APP_URL }}

@@ -9,6 +9,7 @@
   },
   "backToLists": "Natrag na popise za kupnju",
   "lastSynced": "Popis osvježen {time}",
+  "updatedByOthers": "Popis je ažuriran",
   "access": {
     "view": "Ovaj popis možeš samo pregledavati.",
     "shop": "Možeš označiti što je kupljeno i birati trgovinu, ali ne možeš mijenjati popis.",

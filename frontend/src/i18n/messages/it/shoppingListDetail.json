@@ -9,6 +9,7 @@
   },
   "backToLists": "Torna alle liste della spesa",
   "lastSynced": "Lista aggiornata {time}",
+  "updatedByOthers": "Lista aggiornata",
   "access": {
     "view": "Puoi solo visualizzare questa lista.",
     "shop": "Puoi segnare cosa hai preso e scegliere il negozio, ma non modificare la lista.",

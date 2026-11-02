@@ -40,9 +40,7 @@ export default function ItemPriceDisplay({
     return (
       <div className="text-nowrap">
         <div className="flex flex-shrink-0 items-center gap-2 text-gray-700 text-right text-sm sm:text-md">
-          <span className="">
-            {`${formatQuantity(item.quantity)} ${item.unit}`}
-          </span>
+          <span>{`${formatQuantity(item.quantity)} ${item.unit}`}</span>
 
           <span>{approxPrice}</span>
         </div>

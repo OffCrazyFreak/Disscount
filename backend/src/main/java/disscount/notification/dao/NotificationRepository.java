@@ -19,8 +19,9 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
     @Query("SELECT n FROM Notification n WHERE n.user.id = :userId AND n.deletedAt IS NULL ORDER BY n.createdAt DESC")
     Page<Notification> findByUserId(@Param("userId") UUID userId, Pageable pageable);
 
-    @Query("SELECT n FROM Notification n WHERE n.id = :id AND n.deletedAt IS NULL")
-    Optional<Notification> findById(@Param("id") UUID id);
+    // Ownership lives in the query, so another user's notification is indistinguishable from a missing one.
+    @Query("SELECT n FROM Notification n WHERE n.id = :id AND n.user.id = :userId AND n.deletedAt IS NULL")
+    Optional<Notification> findActiveByIdAndUserId(@Param("id") UUID id, @Param("userId") UUID userId);
 
     @Modifying
     @Query("UPDATE Notification n SET n.isRead = true WHERE n.user.id = :userId AND n.isRead = false AND n.deletedAt IS NULL")

@@ -30,7 +30,6 @@ export const shoppingListItemDtoSchema = shoppingListItemRequestSchema.extend({
   updatedByUserId: z.string().nullable().optional(),
 });
 
-// Type exports
 export type ShoppingListItemRequest = z.infer<
   typeof shoppingListItemRequestSchema
 >;
