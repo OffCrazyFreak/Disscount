@@ -32,7 +32,9 @@ Sentry.init({
             // The shopping-lists layout blocks the list DOM itself; this hook only sees
             // Replay's breadcrumb and span events, so it drops those on list pages.
             beforeAddRecordingEvent: (event) =>
-              /^(\/[a-z]{2})?\/shopping-lists\//.test(window.location.pathname)
+              /^(\/[a-z]{2})?\/shopping-lists(\/|$)/.test(
+                window.location.pathname,
+              )
                 ? null
                 : scrubSensitiveData(event),
           }),
