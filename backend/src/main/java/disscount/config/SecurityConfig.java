@@ -143,8 +143,8 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
-                // Only better-auth's deleteUser hook mints this token, after its own checks
-                // passed, so erasing the profile alone can never leave a working login behind.
+                // Only better-auth's deleteUser hook mints this token, after its own checks,
+                // so an ordinary session token cannot erase the profile and keep its login.
                 .requestMatchers(HttpMethod.DELETE, "/api/users/me").access(SecurityConfig::isAccountErasureToken)
                 .requestMatchers(
                     "/actuator/health",

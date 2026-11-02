@@ -15,6 +15,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class UserServiceNewProfileDefaultsTest {
@@ -39,5 +40,13 @@ class UserServiceNewProfileDefaultsTest {
         assertThat(profile.getNotificationsPushEnabledAt()).isNotNull();
         assertThat(profile.getNotificationsEmailEnabledAt()).isNotNull();
         assertThat(profile.getFeedbackContactEnabledAt()).isNotNull();
+    }
+
+    // The account erasure token carries no email, and must not provision a profile it is about to erase.
+    @Test
+    void aTokenWithoutEmailNeitherCreatesNorRevivesAProfile() {
+        userService.ensureActiveProfile(UUID.randomUUID(), null, null, null);
+
+        verifyNoInteractions(userRepository, profileCreator);
     }
 }
