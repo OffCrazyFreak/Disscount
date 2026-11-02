@@ -141,6 +141,13 @@ describe("ShoppingListItems price states", () => {
     expect(onRetry).toHaveBeenCalledOnce();
   });
 
+  it("shows no empty price beside an unavailable store select", () => {
+    renderItems([item("a", { quantity: "1", unit: "kg" })], { a: "noPrices" });
+
+    expect(screen.queryByText(/~/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/\/kg/)).not.toBeInTheDocument();
+  });
+
   it("keeps the reason visible next to a store the item already has", () => {
     renderItems([item("a", { chainCode: "konzum" })], { a: "offline" });
 

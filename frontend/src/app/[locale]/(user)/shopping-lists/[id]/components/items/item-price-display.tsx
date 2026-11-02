@@ -27,12 +27,12 @@ export default function ItemPriceDisplay({
       ? displayPrice / parseFloat(item.quantity)
       : undefined;
 
+  // An item with no price shows nothing here; its store select says why.
   const approxPrice = isPriceLoading ? (
     <PriceSkeleton />
   ) : (
-    t("items.approxPrice", {
-      price: displayPrice == null ? "" : formatPrice(displayPrice, locale),
-    })
+    displayPrice != null &&
+    t("items.approxPrice", { price: formatPrice(displayPrice, locale) })
   );
 
   if (item.quantity && item.unit) {
@@ -50,11 +50,9 @@ export default function ItemPriceDisplay({
           {isPriceLoading ? (
             <PriceSkeleton />
           ) : (
+            avgPricePerUnit !== undefined &&
             t("items.pricePerUnit", {
-              price:
-                avgPricePerUnit === undefined
-                  ? ""
-                  : formatPrice(avgPricePerUnit, locale),
+              price: formatPrice(avgPricePerUnit, locale),
               unit: item.unit,
             })
           )}

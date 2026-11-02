@@ -43,6 +43,8 @@ export function useStoreChainAnalysis({
     );
   }, [shoppingList.items]);
 
+  const activeEans = new Set(activeItems.map((item) => item.ean));
+
   // combine is memoised by TanStack, so productsData keeps a stable identity between renders.
   const { productsData, productsLoading, productsError } = useQueries({
     queries: eans.map((ean) => ({
@@ -57,8 +59,15 @@ export function useStoreChainAnalysis({
       productsLoading: results.some(
         (result) => result.isLoading && result.errorUpdatedAt === 0,
       ),
+      // Only unbought items' lookups, the ones the list banner can retry. A refetch clears
+      // the error until it answers, so a failed lookup counts as failed until then.
       productsError: results.some(
-        (result) => result.error && !isProductNotFound(result.error),
+        (result, index) =>
+          activeEans.has(eans[index]) &&
+          result.data === undefined &&
+          (result.status === "error"
+            ? !isProductNotFound(result.error)
+            : result.errorUpdatedAt > 0 && result.fetchStatus !== "idle"),
       ),
     }),
   });

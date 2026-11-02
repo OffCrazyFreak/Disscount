@@ -280,7 +280,7 @@ describe("useShoppingListData price states", () => {
     expect(result.current.priceStates.broken).toBe("failed");
   });
 
-  it("keeps the store summary out of loading while a retry runs", async () => {
+  it("keeps the store summary failed, not loading, while a retry runs", async () => {
     const requests: string[] = [];
     answerProducts(requests);
 
@@ -315,6 +315,31 @@ describe("useShoppingListData price states", () => {
       expect(result.current.data.isRetryingPrices).toBe(true),
     );
     expect(result.current.summary.productsLoading).toBe(false);
+    expect(result.current.summary.productsError).toBe(true);
+  });
+
+  it("does not report the store summary as failed for a bought item alone", async () => {
+    answerProducts([]);
+    const boughtOnly: ShoppingListDto = {
+      ...list,
+      items: [
+        item("priced", "111"),
+        { ...item("bought", "222"), isChecked: true },
+      ],
+    };
+
+    const { result } = renderHookWithProviders(
+      () =>
+        useStoreChainAnalysis({
+          shoppingList: boughtOnly,
+          pinnedStores: null,
+          optimizeBy: "total",
+        }),
+      { queryClient: appLikeQueryClient() },
+    );
+
+    await waitFor(() => expect(result.current.productsLoading).toBe(false));
+    expect(result.current.productsError).toBe(false);
   });
 
   it("does not report the store summary as failed for a 404 alone", async () => {
