@@ -9,6 +9,7 @@
     "watchlist": "Praćeni proizvodi",
     "watchlistShort": "Praćenje",
     "watchlistShortcut": "Pogledaj proizvode koje pratiš",
+    "watchlistPriceDrops": "{label}, {count, plural, one {# novo sniženje} few {# nova sniženja} other {# novih sniženja}}",
     "digitalCards": "Kartice vjernosti",
     "digitalCardsShort": "Kartice",
     "digitalCardsShortcut": "Otvori svoje kartice vjernosti",
