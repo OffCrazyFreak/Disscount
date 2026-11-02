@@ -109,7 +109,6 @@ const userNavTable = [
     labelKey: "nav.spending",
     icon: PiggyBank,
     shortcutDescriptionKey: "nav.spendingShortcut",
-    // TODO(#127): generate its PWA shortcut icon before dropping this flag.
     comingSoon: true,
 
     showInHeader: false,
@@ -153,8 +152,6 @@ const productNavTable = [
     href: "/map",
     labelKey: "nav.map",
     icon: MapIcon,
-    // TODO(#127): manifest.ts only reads userNavItems, so a PWA shortcut for
-    // this one needs adding by hand.
 
     showInHeader: false,
 
