@@ -19,7 +19,8 @@ const FUTURE_SKEW_TOLERANCE_MILLISECONDS = 60 * 60 * 1000;
 
 /**
  * Users seen within the trailing window. Only the latest activity per user is stored,
- * so the window has to end now - a past-to-past range would miss anyone seen since.
+ * so the window has to reach the present (plus the skew tolerance): a past-to-past range
+ * would miss anyone seen since.
  */
 export function countActiveUsers(
   users: UserDto[] | undefined,
