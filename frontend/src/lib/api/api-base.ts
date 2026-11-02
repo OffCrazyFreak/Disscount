@@ -31,7 +31,7 @@ let cachedSubject: string | null = null;
 let sessionUserId: string | null | undefined;
 let inflightTokenPromise: Promise<string | null> | null = null;
 let lastFailedAttemptAt = 0;
-// Bumped on every clear, so a fetch started before it cannot refill the cache.
+// Bumped on sign-out and deletion, so a fetch started before either cannot refill the cache.
 let tokenGeneration = 0;
 // Requests whose caller set the Authorization header; a 401 must not swap in another token.
 const pinnedTokenRequests = new WeakSet<InternalAxiosRequestConfig>();
@@ -76,7 +76,6 @@ function isCachedTokenFresh(): boolean {
 }
 
 function clearTokenCache() {
-  tokenGeneration += 1;
   cachedToken = null;
   cachedExp = null;
   cachedSubject = null;
@@ -135,6 +134,7 @@ export function peekFreshAuthToken(): string | null {
 }
 
 export function clearAuthToken() {
+  tokenGeneration += 1;
   clearTokenCache();
   lastFailedAttemptAt = Date.now();
 }

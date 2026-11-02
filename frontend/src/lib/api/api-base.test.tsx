@@ -1,7 +1,10 @@
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it } from "vitest";
 
-import apiClient, { clearAuthToken } from "@/lib/api/api-base";
+import apiClient, {
+  clearAuthToken,
+  setAuthTokenUser,
+} from "@/lib/api/api-base";
 import { server } from "@/test/msw-server";
 
 // Named .tsx only for the jsdom project: the client attaches no token without a window.
@@ -107,5 +110,31 @@ describe("apiClient bearer token", () => {
     await apiClient.get("/api/probe");
 
     expect(authorizations).toEqual([null, null]);
+  });
+
+  it("keeps a token whose fetch was in flight when the session named its user", async () => {
+    let releaseToken: () => void = () => {};
+    const tokenHeld = new Promise<void>((resolve) => {
+      releaseToken = resolve;
+    });
+    const sessionToken = unsignedJwt({
+      sub: "user-1",
+      exp: Math.floor(Date.now() / 1000) + 600,
+    });
+    const authorizations = recordAuthorizations();
+    server.use(
+      http.get("*/api/auth/token", async () => {
+        await tokenHeld;
+        return HttpResponse.json({ token: sessionToken });
+      }),
+    );
+
+    const requestDuringSessionLoad = apiClient.get("/api/probe");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    setAuthTokenUser("user-1");
+    releaseToken();
+    await requestDuringSessionLoad;
+
+    expect(authorizations).toEqual([`Bearer ${sessionToken}`]);
   });
 });
