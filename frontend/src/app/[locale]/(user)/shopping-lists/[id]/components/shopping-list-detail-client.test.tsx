@@ -9,6 +9,7 @@ import { renderWithProviders } from "@/test/render";
 const data = vi.hoisted(() => ({
   error: null as Error | null,
   shoppingList: undefined as ShoppingListDto | undefined,
+  priceStates: {} as Record<string, string>,
 }));
 
 vi.mock(
@@ -22,7 +23,6 @@ vi.mock(
       cheapestStores: {},
       averagePrices: {},
       storePrices: {},
-      priceStates: {},
       isPricesLoading: false,
     }),
   }),
@@ -59,7 +59,10 @@ vi.mock(
 );
 vi.mock(
   "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-list",
-  () => ({ default: () => null }),
+  () => ({
+    default: ({ hasFailedPrices }: { hasFailedPrices: boolean }) =>
+      hasFailedPrices && <p>summary error</p>,
+  }),
 );
 vi.mock(
   "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-unavailable",
@@ -108,4 +111,19 @@ describe("ShoppingListDetailClient", () => {
     expect(screen.getByText("unavailable")).toBeInTheDocument();
     expect(screen.queryByRole("heading")).not.toBeInTheDocument();
   });
+
+  it.each([
+    [{ bought: "ready", unknown: "noPrices" }, false],
+    [{ priced: "ready", broken: "failed" }, true],
+  ])(
+    "shows the store summary error only for a failed row (%o)",
+    (priceStates, hasError) => {
+      data.shoppingList = LIST;
+      data.error = null;
+      data.priceStates = priceStates;
+      renderWithProviders(<ShoppingListDetailClient listId={LIST.id} />);
+
+      expect(screen.queryByText("summary error") !== null).toBe(hasError);
+    },
+  );
 });

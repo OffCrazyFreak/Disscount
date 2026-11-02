@@ -10,7 +10,7 @@ function isNotKnownMissing(query: { state: { error: unknown } }) {
 /**
  * One set of options for both observers of a list's lookups on this page, since TanStack
  * refetches through whichever observer allows it: a 404 is never asked again, and any other
- * failure waits for the retry button. Observers elsewhere (the watchlist) can still refetch,
+ * failure waits for the retry button or the next window focus. Observers elsewhere (the watchlist) can still refetch,
  * which is why useShoppingListData remembers each lookup's last answer.
  */
 export function productLookupQuery(ean: string) {
