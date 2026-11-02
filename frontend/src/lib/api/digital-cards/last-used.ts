@@ -125,10 +125,17 @@ export function recordCardUsed(id: string): void {
 
   // The backend reads usedAt as an Instant, so the queue keeps the offset-bearing form.
   const entry: IQueuedUse = { id, usedAt: new Date().toISOString() };
-  const key = `${getCacheIdentity()}:${id}`;
+  const identity = getCacheIdentity();
+  const key = `${identity}:${id}`;
 
   void whenPurgesSettled()
-    .then(() => set(key, entry, queueStore()))
-    .then(scheduleFlush)
+    .then(async () => {
+      // A use recorded just before a sign out would otherwise land after the purge and
+      // put the departed account's card history back on disk.
+      if (getCacheIdentity() !== identity) return;
+
+      await set(key, entry, queueStore());
+      scheduleFlush();
+    })
     .catch(() => undefined);
 }
