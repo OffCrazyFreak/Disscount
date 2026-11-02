@@ -1,4 +1,5 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw/http";
 import * as Sentry from "@sentry/nextjs";
 import { describe, expect, it, vi } from "vitest";
@@ -335,6 +336,7 @@ describe("UserProvider Sentry user", () => {
       ),
     );
 
+    const user = userEvent.setup();
     renderWithProviders(
       <UserProvider>
         <SignOutButton />
@@ -344,7 +346,7 @@ describe("UserProvider Sentry user", () => {
       expect(Sentry.setUser).toHaveBeenLastCalledWith({ id: "user-a" }),
     );
 
-    fireEvent.click(screen.getByText("sign out"));
+    await user.click(screen.getByRole("button", { name: "sign out" }));
 
     await waitFor(() => expect(Sentry.setUser).toHaveBeenLastCalledWith(null));
   });
