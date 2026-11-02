@@ -1133,7 +1133,7 @@ Carried over from the build spec this feature was written against, which is why 
 
 - [ ] All five sheets end the same distance above the bar, and none covers it
 - [ ] Each sheet caps at 85% of the **dynamic** viewport, not 80% of the static one
-- [ ] The gap below the grab handle is 16px in all three, including the one with a hidden title
+- [ ] The gap below the grab handle is 16px in all five, including those with a hidden title
 - [ ] A modal sheet's scrim covers the bar, leaving it inert underneath
 - [ ] With the products or map store sheet open, Tab and a screen reader reach the page and the bar, and nothing behind the sheet is `aria-hidden`
 - [ ] Escape in a dialog or menu opened over a sheet or the sidebar closes only that layer
