@@ -73,11 +73,19 @@ export default function useBadgeOverflow(
   const containerRef = useCallback(
     (node: HTMLDivElement) => {
       valueRef.current = node;
+      let isDetached = false;
 
       const observer = new ResizeObserver(checkOverflow);
       observer.observe(node);
 
+      // A web font that arrives after the first measurement widens the badges
+      // but not the row, so the observer never fires. jsdom has no FontFaceSet.
+      document.fonts?.ready.then(() => {
+        if (!isDetached) checkOverflow();
+      });
+
       return () => {
+        isDetached = true;
         observer.disconnect();
         valueRef.current = null;
       };
