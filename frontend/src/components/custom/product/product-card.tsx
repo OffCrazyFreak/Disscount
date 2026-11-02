@@ -5,6 +5,7 @@ import { type ComponentProps, type ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import HoldProgressRing from "@/components/custom/common/hold-progress-ring";
 import ProductSummary from "@/components/custom/product/product-summary";
+import { useProductThumbnail } from "@/lib/api/product-images/hooks";
 import { cn } from "@/lib/utils";
 import { productPath } from "@/utils/product-links";
 
@@ -61,6 +62,11 @@ export default function ProductCard({
   pressProps,
   actionProps,
 }: IProductCardProps) {
+  // Rows ask for their own thumbnail; the loader batches a whole list into one request.
+  const { data: thumbnail } = useProductThumbnail(
+    imageUrl === undefined ? ean : undefined,
+  );
+
   return (
     <Card
       {...pressProps}
@@ -77,7 +83,7 @@ export default function ProductCard({
         brand={brand}
         category={category}
         quantity={quantity}
-        imageUrl={imageUrl}
+        imageUrl={imageUrl ?? thumbnail}
         isLoading={isLoading}
         trailing={trailing}
         actions={actions}

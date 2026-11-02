@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-
+import PhotoTile from "@/components/custom/product-photos/photo-tile";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductInfo from "@/components/custom/product/product-info";
 import ProductSummaryAside, {
@@ -51,12 +50,11 @@ export default function ProductSummary({
       >
         <div className="flex min-w-0 flex-1 items-center gap-4">
           {imageUrl && (
-            <Image
+            // The name sits right beside it, so the thumbnail is decorative.
+            <PhotoTile
               src={imageUrl}
-              alt={name ?? ""}
-              width={80}
-              height={80}
-              className="hidden @md:block size-16 shrink-0 rounded-lg object-contain"
+              alt=""
+              className="hidden size-16 shrink-0 rounded-lg @md:block"
             />
           )}
 

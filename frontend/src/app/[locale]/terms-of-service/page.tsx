@@ -17,7 +17,7 @@ export default function TermsOfServicePage() {
     <LegalPage
       title="Uvjeti korištenja"
       intro="Korištenjem aplikacije Disscount prihvaćaš ove uvjete."
-      lastUpdated="21. lipnja 2026."
+      lastUpdated="2. studenoga 2026."
     >
       <LegalSection heading="Prihvaćanje uvjeta">
         <p>
@@ -38,6 +38,39 @@ export default function TermsOfServicePage() {
         <p>
           Za aktivnosti na svom računu odgovaraš ti. Račun možeš obrisati u bilo
           kojem trenutku unutar aplikacije.
+        </p>
+      </LegalSection>
+
+      <LegalSection heading="Slike proizvoda">
+        <p>
+          Dio slika proizvoda preuzet je iz baze{" "}
+          <a
+            className="text-primary underline"
+            href="https://world.openfoodfacts.org"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open Food Facts
+          </a>{" "}
+          i dostupan je pod licencom{" "}
+          <a
+            className="text-primary underline"
+            href="https://creativecommons.org/licenses/by-sa/4.0/deed.hr"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            CC BY-SA 4.0
+          </a>
+          . Te slike prilagođavamo (obrezujemo, smanjujemo i stavljamo na bijelu
+          podlogu) i dijelimo ih pod istom licencom. Dizajn pakiranja i
+          zaštitni znakovi na slikama pripadaju njihovim vlasnicima.
+        </p>
+        <p>
+          Kad dodaš sliku proizvoda, potvrđuješ da je slika tvoja i da na njoj
+          nema ljudi ni osobnih podataka. Dodavanjem nam dopuštaš da je
+          besplatno i bez vremenskog ograničenja prikazujemo u aplikaciji i
+          prilagođavamo na isti način. Slike koje ne prikazuju proizvod ili
+          krše ova pravila možemo ukloniti.
         </p>
       </LegalSection>
 

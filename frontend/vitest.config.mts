@@ -12,6 +12,9 @@ export default defineConfig({
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
+  // A component that imports a library stylesheet would otherwise load postcss.config.mjs, whose
+  // string-form Tailwind plugin only Next understands; tests never need the processed CSS.
+  css: { postcss: { plugins: [] } },
   test: {
     restoreMocks: true,
     unstubEnvs: true,
