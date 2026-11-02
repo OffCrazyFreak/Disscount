@@ -5,13 +5,9 @@ import axios, {
 } from "axios";
 
 import fetchAuthToken from "@/lib/auth/token";
+import { serverApiUrl } from "@/lib/env";
 
-const API_PUBLIC_BASE = process.env.NEXT_PUBLIC_API_URL;
-
-const API_BASE_URL =
-  typeof window !== "undefined"
-    ? ""
-    : API_PUBLIC_BASE || "http://localhost:8080";
+const API_BASE_URL = typeof window !== "undefined" ? "" : serverApiUrl();
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
