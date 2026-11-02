@@ -10,6 +10,7 @@ import {
   type StoreOptimizeMode,
 } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 import { productLookupQuery } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/product-lookup-query";
+import { isProductNotFound } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
 import { buildChainAggregates } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/store-chain-aggregate";
 import { computeAbsolutePrices } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/store-chain-completeness";
 import {
@@ -52,8 +53,13 @@ export function useStoreChainAnalysis({
       productsData: results
         .map((result) => result.data)
         .filter((data): data is ProductResponse => data !== undefined),
-      productsLoading: results.some((result) => result.isLoading),
-      productsError: results.some((result) => result.error),
+      // Matches the rows: a refetch after a failure is not a first load, and a 404 is no prices.
+      productsLoading: results.some(
+        (result) => result.isLoading && result.errorUpdatedAt === 0,
+      ),
+      productsError: results.some(
+        (result) => result.error && !isProductNotFound(result.error),
+      ),
     }),
   });
 

@@ -87,8 +87,9 @@ export function useShoppingListData(listId: string) {
           );
           return outcomes.every((outcome) => outcome.isSuccess);
         },
+        // A retry paused offline is still running; it resumes on reconnect.
         isRetryingPrices: failedIndexes.some(
-          (index) => results[index].fetchStatus === "fetching",
+          (index) => results[index].fetchStatus !== "idle",
         ),
         // A refetch resets a failed query to pending; the list must not ungroup or blank its totals for it.
         isPricesLoading: results.some(

@@ -40,12 +40,13 @@ export function lookupPriceState(
   lookup: ProductLookup,
   lastError: ItemPriceState | undefined,
 ): ItemPriceState {
-  // React Query pauses a fetch it cannot send offline, and nothing was saved to show instead.
-  if (lookup.fetchStatus === "paused") return "offline";
-  // The row, the banner and its button stay put until the refetch actually answers.
-  if (lookup.errorUpdatedAt > 0 && lookup.fetchStatus === "fetching") {
+  // The row, the banner and its button stay put until the refetch actually answers, even
+  // when it pauses offline, so a retry pressed without a connection keeps focus where it was.
+  if (lookup.errorUpdatedAt > 0 && lookup.fetchStatus !== "idle") {
     return lastError ?? "failed";
   }
+  // React Query pauses a fetch it cannot send offline, and nothing was saved to show instead.
+  if (lookup.fetchStatus === "paused") return "offline";
   if (lookup.status === "error") {
     return isProductNotFound(lookup.error) ? "noPrices" : "failed";
   }

@@ -258,6 +258,88 @@ describe("useShoppingListData price states", () => {
     expect(result.current.priceStates.broken).toBe("failed");
   });
 
+  it("keeps a failed item failed when its retry pauses offline", async () => {
+    const requests: string[] = [];
+    answerProducts(requests);
+
+    const { result } = renderHookWithProviders(
+      () => useShoppingListData(LIST_ID),
+      { queryClient: appLikeQueryClient() },
+    );
+
+    await waitFor(() =>
+      expect(result.current.priceStates.broken).toBe("failed"),
+    );
+
+    act(() => {
+      onlineManager.setOnline(false);
+      void result.current.retryFailedPrices();
+    });
+
+    await waitFor(() => expect(result.current.isRetryingPrices).toBe(true));
+    expect(result.current.priceStates.broken).toBe("failed");
+  });
+
+  it("keeps the store summary out of loading while a retry runs", async () => {
+    const requests: string[] = [];
+    answerProducts(requests);
+
+    const { result } = renderHookWithProviders(
+      () => ({
+        summary: useStoreChainAnalysis({
+          shoppingList: list,
+          pinnedStores: null,
+          optimizeBy: "total",
+        }),
+        data: useShoppingListData(LIST_ID),
+      }),
+      { queryClient: appLikeQueryClient() },
+    );
+
+    await waitFor(() =>
+      expect(result.current.data.priceStates.broken).toBe("failed"),
+    );
+    expect(result.current.summary.productsError).toBe(true);
+
+    server.use(
+      http.get("*/api/cijene/products/:ean", async () => {
+        await new Promise(() => {});
+        return HttpResponse.json(null);
+      }),
+    );
+    act(() => {
+      void result.current.data.retryFailedPrices();
+    });
+
+    await waitFor(() =>
+      expect(result.current.data.isRetryingPrices).toBe(true),
+    );
+    expect(result.current.summary.productsLoading).toBe(false);
+  });
+
+  it("does not report the store summary as failed for a 404 alone", async () => {
+    server.use(
+      http.get("*/api/cijene/products/:ean", ({ params }) =>
+        params.ean === "333"
+          ? HttpResponse.json({ error: "x" }, { status: 404 })
+          : HttpResponse.json(product(String(params.ean))),
+      ),
+    );
+
+    const { result } = renderHookWithProviders(
+      () =>
+        useStoreChainAnalysis({
+          shoppingList: list,
+          pinnedStores: null,
+          optimizeBy: "total",
+        }),
+      { queryClient: appLikeQueryClient() },
+    );
+
+    await waitFor(() => expect(result.current.productsLoading).toBe(false));
+    expect(result.current.productsError).toBe(false);
+  });
+
   it("reports prices that were never saved while offline", () => {
     onlineManager.setOnline(false);
 
