@@ -9,6 +9,7 @@ const fake = vi.hoisted(() => ({
   selectResults: [] as { value?: string; id?: string }[][],
   selectWheres: [] as unknown[],
   inserted: vi.fn(),
+  executed: vi.fn(),
   deleted: vi.fn(),
 }));
 
@@ -22,7 +23,7 @@ vi.mock("@/db", () => {
     }),
   });
   const client = {
-    execute: async () => {},
+    execute: async (query: unknown) => fake.executed(query),
     select,
     delete: () => ({
       where: async (condition: unknown) => fake.deleted(condition),
@@ -65,6 +66,10 @@ describe("claimResetEmail", () => {
       '("verification"."identifier" = $1 and "verification"."expires_at" > $2)',
     );
     expect(lookup.params[0]).toBe("reset-email:user-1");
+
+    const lock = render(fake.executed.mock.calls[0][0]);
+    expect(lock.sql).toContain("pg_advisory_xact_lock");
+    expect(lock.params).toEqual(["reset-email:user-1"]);
   });
 
   it("skips while the marked link's reset row is still live", async () => {
@@ -87,6 +92,9 @@ describe("claimResetEmail", () => {
       }),
     );
     const usedRowLookup = render(fake.selectWheres.at(-1));
+    expect(usedRowLookup.sql).toBe(
+      '("verification"."identifier" = $1 and "verification"."expires_at" > $2)',
+    );
     expect(usedRowLookup.params[0]).toBe("reset-password:token-1");
   });
 

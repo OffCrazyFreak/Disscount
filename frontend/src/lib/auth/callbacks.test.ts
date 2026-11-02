@@ -82,7 +82,21 @@ describe("dispatchVerificationEmail", () => {
 
     await dispatchVerificationEmail(...args);
 
+    expect(mocks.claimVerificationEmail).toHaveBeenCalledWith(
+      "user-1",
+      "person@example.com",
+      "token-1",
+    );
     expect(mocks.sendVerificationEmail).not.toHaveBeenCalled();
+  });
+
+  it("keeps the send error when the release fails too", async () => {
+    mocks.claimVerificationEmail.mockResolvedValueOnce(async () => {
+      throw new Error("release failed");
+    });
+    mocks.sendVerificationEmail.mockRejectedValueOnce(new Error("capped"));
+
+    await expect(dispatchVerificationEmail(...args)).rejects.toThrow("capped");
   });
 
   it("releases its claim when the send fails", async () => {

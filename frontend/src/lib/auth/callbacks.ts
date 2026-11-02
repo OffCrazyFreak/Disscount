@@ -24,7 +24,8 @@ export async function dispatchResetPasswordEmail(
   try {
     await sendResetOrSetPassword(userId, email, url, token, locale);
   } catch (error) {
-    await release();
+    // The send error is the one worth logging, not a failed release.
+    await release().catch(() => {});
     throw error;
   }
 }
@@ -65,7 +66,8 @@ export async function dispatchVerificationEmail(
   try {
     await emailService.sendVerificationEmail({ to: email, locale, url, token });
   } catch (error) {
-    await release();
+    // The send error is the one worth logging, not a failed release.
+    await release().catch(() => {});
     throw error;
   }
 }
