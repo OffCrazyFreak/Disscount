@@ -69,7 +69,9 @@ describe("ShoppingListQuickAdd", () => {
     server.use(signedOut, serveSearch([]), adds.handler);
     renderWithProviders(<ShoppingListQuickAdd listId="list-1" />);
 
-    const input = screen.getByRole("combobox", { name: "Dodaj stavku" });
+    const input = screen.getByRole("combobox", {
+      name: "Dodaj proizvod ili stavku",
+    });
     await user.type(input, "  Staklenke {Enter}");
 
     await waitFor(() => expect(adds.bodies).toHaveLength(1));

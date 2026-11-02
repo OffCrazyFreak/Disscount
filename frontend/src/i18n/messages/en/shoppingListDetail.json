@@ -131,7 +131,7 @@
   },
   "quickAdd": {
     "added": "Added: {name}",
-    "label": "Add an item",
+    "label": "Add a product or item",
     "add": "Add",
     "searching": "Searching products…",
     "suggestions": "{count, plural, =0 {No products by that name. Press Enter to add it as an item.} one {# product} other {# products}}"

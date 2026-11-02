@@ -131,7 +131,7 @@
   },
   "quickAdd": {
     "added": "Dodano: {name}",
-    "label": "Dodaj postavko",
+    "label": "Dodaj izdelek ali postavko",
     "add": "Dodaj",
     "searching": "Iščemo izdelke…",
     "suggestions": "{count, plural, =0 {Ni izdelkov s tem imenom. Pritisni Enter, da ga dodaš kot postavko.} one {# izdelek} two {# izdelka} few {# izdelki} other {# izdelkov}}"

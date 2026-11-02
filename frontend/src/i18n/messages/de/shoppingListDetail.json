@@ -131,7 +131,7 @@
   },
   "quickAdd": {
     "added": "Hinzugefügt: {name}",
-    "label": "Artikel hinzufügen",
+    "label": "Produkt oder Artikel hinzufügen",
     "add": "Hinzufügen",
     "searching": "Wir suchen Produkte…",
     "suggestions": "{count, plural, =0 {Keine Produkte mit diesem Namen. Drück Enter, um ihn als Artikel hinzuzufügen.} one {# Produkt} other {# Produkte}}"
