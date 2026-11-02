@@ -113,13 +113,14 @@ export default function SheetShell({
           // instead would pop its tooltip.
           // preventScroll by hand: Base UI only passes it when focusing the popup.
           initialFocus={() => {
+            // Reopened mid-exit, focus is still inside: keep the first opener.
             const opener = document.activeElement;
-            openerRef.current =
-              opener instanceof HTMLElement &&
-              opener !== document.body &&
-              !popupRef.current?.contains(opener)
-                ? opener
-                : null;
+            if (!popupRef.current?.contains(opener)) {
+              openerRef.current =
+                opener instanceof HTMLElement && opener !== document.body
+                  ? opener
+                  : null;
+            }
 
             const field = initialFocusRef?.current;
             if (!field) return popupRef.current;
