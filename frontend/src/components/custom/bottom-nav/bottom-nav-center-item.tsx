@@ -9,7 +9,6 @@ import BottomNavIndicator from "@/components/custom/bottom-nav/bottom-nav-indica
 import HoldProgressRing from "@/components/custom/common/hold-progress-ring";
 import {
   CELL_BUTTON_CLASS,
-  CELL_DISC_CLASS,
   CELL_ITEM_CLASS,
   CELL_LABEL_CLASS,
 } from "@/components/custom/bottom-nav/bottom-nav-classes";
@@ -73,18 +72,19 @@ export default function BottomNavCenterItem({
       >
         {showsDisc && <BottomNavIndicator opacity={indicatorOpacity} />}
 
-        {/* Always present, since holding this cell always opens the scanner */}
-        <HoldProgressRing
-          progress="var(--press-progress, 0)"
-          className={cn(CELL_DISC_CLASS, "stroke-primary")}
-        />
-
         <span
           className={cn(
             "bg-primary text-primary-foreground relative flex size-[2.8rem] -translate-y-[0.2rem] items-center justify-center rounded-full transition-transform duration-150 motion-reduce:transition-none",
             isScrubbed && "scale-105",
           )}
         >
+          {/* On the face: outside the raised circle it would cross the pill's edge.
+              Always present, since holding this cell always opens the scanner. */}
+          <HoldProgressRing
+            progress="var(--press-progress, 0)"
+            className="stroke-primary-foreground absolute top-[0.2rem] left-[0.2rem] size-[2.4rem]"
+          />
+
           <Search
             className={cn(
               ICON_CLASS,

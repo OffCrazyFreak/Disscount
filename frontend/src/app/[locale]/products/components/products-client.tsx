@@ -8,6 +8,7 @@ import useInfiniteProducts from "@/app/[locale]/products/hooks/use-infinite-prod
 import useProductFilters from "@/app/[locale]/products/hooks/use-product-filters";
 import ProductFiltersBar from "@/app/[locale]/products/components/product-filters-bar";
 import ProductsResults from "@/app/[locale]/products/components/products-results";
+import ProductsResultsStatus from "@/app/[locale]/products/components/products-results-status";
 import { Suspense } from "react";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
@@ -26,6 +27,7 @@ export default function ProductsClient({ query }: IProductsClientProps) {
 
   const filters = useProductFilters();
   const {
+    selectedChains,
     selectedCategories,
     selectedBrands,
     selectedLocations,
@@ -35,6 +37,7 @@ export default function ProductsClient({ query }: IProductsClientProps) {
     locationsError,
     activeFilterCount,
     clearFilters,
+    setFilter,
   } = filters;
 
   const {
@@ -44,8 +47,10 @@ export default function ProductsClient({ query }: IProductsClientProps) {
     isLoading,
     error,
     hasPartialPriceData,
+    hasMatchesOutsideLocations,
   } = useInfiniteProducts(query, {
     allowedChains,
+    selectedChains,
     selectedCategories,
     selectedBrands,
     selectedLocations,
@@ -88,6 +93,15 @@ export default function ProductsClient({ query }: IProductsClientProps) {
         {/* <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} /> */}
       </div>
 
+      <ProductsResultsStatus
+        query={query}
+        isPending={isPending}
+        hasError={Boolean(pageError)}
+        total={total}
+        isTruncated={isTruncated}
+        noPriceLocations={hasMatchesOutsideLocations ? selectedLocations : []}
+      />
+
       {showPartialPricesBanner && (
         <Banner
           role="status"
@@ -106,6 +120,9 @@ export default function ProductsClient({ query }: IProductsClientProps) {
         total={total}
         activeFilterCount={activeFilterCount}
         clearFilters={clearFilters}
+        selectedLocations={selectedLocations}
+        hasMatchesOutsideLocations={hasMatchesOutsideLocations}
+        showAllLocations={() => setFilter("location", [])}
         visibleItems={visibleItems}
         viewMode={viewMode}
       />

@@ -19,6 +19,8 @@ export const user = pgTable("user", {
   image: text("image"),
   // BCP 47 language tag (hr, en, it, sl, de); null until the person picks one.
   locale: text("locale"),
+  // Stamped on every new session, because better-auth deletes session rows on sign-out and expiry.
+  lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()

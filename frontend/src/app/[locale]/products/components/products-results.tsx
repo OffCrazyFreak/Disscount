@@ -2,11 +2,10 @@
 
 import { useTranslations } from "next-intl";
 import { Search, SlidersHorizontal } from "lucide-react";
-import NoResults from "@/components/custom/common/no-results";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import { Button } from "@/components/ui/button";
 import ProductsGrid from "@/app/[locale]/products/components/products-grid";
 import ProductsStatusMessage from "@/app/[locale]/products/components/products-status-message";
+import ProductsEmptyResults from "@/app/[locale]/products/components/products-empty-results";
 import type { IProductListItem } from "@/app/[locale]/products/typings/product-list-price-types";
 import type { ViewMode } from "@/typings/view-mode";
 
@@ -17,6 +16,9 @@ interface IProductsResultsProps {
   total: number;
   activeFilterCount: number;
   clearFilters: () => void;
+  selectedLocations: string[];
+  hasMatchesOutsideLocations: boolean;
+  showAllLocations: () => void;
   visibleItems: IProductListItem[];
   viewMode: ViewMode;
 }
@@ -28,6 +30,9 @@ export default function ProductsResults({
   total,
   activeFilterCount,
   clearFilters,
+  selectedLocations,
+  hasMatchesOutsideLocations,
+  showAllLocations,
   visibleItems,
   viewMode,
 }: IProductsResultsProps) {
@@ -51,26 +56,14 @@ export default function ProductsResults({
     );
   }
 
-  if (query && total === 0 && activeFilterCount > 0) {
-    return (
-      <div>
-        <NoResults
-          icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
-          description={t("list.noResultsForFilters")}
-        />
-        <div className="text-center">
-          <Button type="button" variant="outline" onClick={clearFilters}>
-            {t("list.clearFilters")}
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   if (query && total === 0) {
     return (
-      <NoResults
-        icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
+      <ProductsEmptyResults
+        activeFilterCount={activeFilterCount}
+        clearFilters={clearFilters}
+        selectedLocations={selectedLocations}
+        hasMatchesOutsideLocations={hasMatchesOutsideLocations}
+        showAllLocations={showAllLocations}
       />
     );
   }

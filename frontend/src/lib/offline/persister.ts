@@ -27,6 +27,10 @@ const indexedDbStorage = {
   setItem: async (key: string, value: string) => {
     const scoped = scopedCacheKey(key);
     await whenPurgesSettled();
+    // The value was serialized for the account that was current before the wait; after a
+    // sign out it would put that account's data back on disk.
+    if (scopedCacheKey(key) !== scoped) return;
+
     await set(scoped, value);
   },
   removeItem: (key: string) => del(scopedCacheKey(key)),

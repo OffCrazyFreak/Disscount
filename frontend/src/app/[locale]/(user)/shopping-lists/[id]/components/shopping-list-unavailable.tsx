@@ -6,7 +6,7 @@ import { ArrowLeft, Lock, WifiOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import NoResults from "@/components/custom/common/no-results";
-import { parseProblem } from "@/lib/api/problem-details";
+import { isDeadListLink } from "@/lib/api/shopping-lists/is-dead-list-link";
 
 interface IShoppingListUnavailableProps {
   error: Error | null;
@@ -25,7 +25,7 @@ export default function ShoppingListUnavailable({
   isSignedIn,
 }: IShoppingListUnavailableProps) {
   const t = useTranslations("shoppingListDetail");
-  const isDeadLink = parseProblem(error)?.status === 404;
+  const isDeadLink = isDeadListLink(error);
 
   if (isDeadLink) {
     return (
