@@ -112,7 +112,7 @@ describe("claimVerificationEmail", () => {
   const signUpToken = verificationToken({ email: "person@example.com", exp });
   const changeToken = verificationToken({
     email: "old@example.com",
-    updateTo: "new@example.com",
+    updateTo: "new+deals@example.com",
     exp,
   });
 
@@ -143,22 +143,31 @@ describe("claimVerificationEmail", () => {
   });
 
   it("skips a reloaded change-email confirmation while its link is live", async () => {
-    fake.selectResults.push([{ value: "old@example.com new@example.com" }]);
+    fake.selectWheres.length = 0;
+    fake.selectResults.push([{ value: "old@example.com" }]);
 
     expect(await claimVerificationEmail("user-1", changeToken)).toBeNull();
+    // Plus tags reach one inbox, so alternating between two such links shares one marker.
+    expect(render(fake.selectWheres[0]).params[0]).toBe(
+      "change-email:user-1:new@example.com",
+    );
   });
 
   it("sends a change-email link once the current address has changed", async () => {
-    fake.selectResults.push([{ value: "older@example.com new@example.com" }]);
+    fake.selectResults.push([{ value: "older@example.com" }]);
 
     expect(await claimVerificationEmail("user-1", changeToken)).toBeTypeOf(
       "function",
     );
     expect(fake.inserted).toHaveBeenCalledWith(
       expect.objectContaining({
-        identifier: "change-email:user-1",
-        value: "old@example.com new@example.com",
+        identifier: "change-email:user-1:new@example.com",
+        value: "old@example.com",
       }),
     );
+    // The stale marker goes first, so a later lookup never meets two rows.
+    expect(render(fake.deleted.mock.calls[0][0]).params).toEqual([
+      "change-email:user-1:new@example.com",
+    ]);
   });
 });

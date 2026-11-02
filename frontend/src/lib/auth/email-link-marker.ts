@@ -5,6 +5,7 @@ import { and, eq, gt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { verification } from "@/db/auth-schema";
 import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth";
+import { inboxKey } from "@/lib/email/recipient-send-cap";
 
 type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -89,13 +90,13 @@ function readVerificationToken(token: string): IVerificationTokenClaims {
 }
 
 // Verification links are stateless JWTs, so the marker carries what the link is for and
-// the token's expiry. A change-email link (`updateTo`) gets its own marker, since its
-// confirmation link needs no session and mails the new address on every reload; it names
-// the current address too, because the link stops working once that changes.
+// the token's expiry. A change-email link (`updateTo`) gets a marker per target inbox, since
+// its confirmation link needs no session and mails the new address on every reload; the
+// value is the current address, because the link stops working once that changes.
 export async function claimVerificationEmail(userId: string, token: string) {
   const { email, exp, updateTo } = readVerificationToken(token);
   const [identifier, value] = updateTo
-    ? [`change-email:${userId}`, `${email} ${updateTo}`]
+    ? [`change-email:${userId}:${inboxKey(updateTo)}`, email]
     : [`verification-email:${userId}`, email];
 
   return claimMarker(

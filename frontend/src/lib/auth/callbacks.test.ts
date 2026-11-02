@@ -89,6 +89,14 @@ describe("dispatchVerificationEmail", () => {
     expect(mocks.sendVerificationEmail).not.toHaveBeenCalled();
   });
 
+  it("sends when no other link is live", async () => {
+    mocks.claimVerificationEmail.mockResolvedValueOnce(async () => {});
+
+    await dispatchVerificationEmail(...args);
+
+    expect(mocks.sendVerificationEmail).toHaveBeenCalledOnce();
+  });
+
   it("keeps the send error when the release fails too", async () => {
     mocks.claimVerificationEmail.mockResolvedValueOnce(async () => {
       throw new Error("release failed");
