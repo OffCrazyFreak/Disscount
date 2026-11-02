@@ -8,10 +8,11 @@
 const FILTERED = "[Filtered]";
 
 const SENSITIVE_QUERY_PARAM =
-  /(^|[?&#])(token|code|state|access_token|id_token)=[^&#\s]*/gi;
+  /(^|[?&#])(token|code|state|access_token|id_token)=[^&#\s"'\\]*/gi;
 
 // better-auth's reset email links to this route with the token as a path segment.
-const RESET_PASSWORD_PATH_TOKEN = /(\/api\/auth\/reset-password\/)[^/?#\s]+/gi;
+const RESET_PASSWORD_PATH_TOKEN =
+  /(\/api\/auth\/reset-password\/)[^/?#\s"'\\]+/gi;
 
 const SENSITIVE_FIELD_NAMES = [
   "token",

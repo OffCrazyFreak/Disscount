@@ -41,6 +41,19 @@ describe("scrubString", () => {
     );
   });
 
+  it("stops a filtered value at the end of a quoted string", () => {
+    expect(
+      scrubString(
+        '{"url":"/?token=abc","link":"/api/auth/reset-password/def","status":500}',
+      ),
+    ).toBe(
+      '{"url":"/?token=[Filtered]","link":"/api/auth/reset-password/[Filtered]","status":500}',
+    );
+    expect(scrubString('"{\\"url\\":\\"/?token=abc\\"}"')).toBe(
+      '"{\\"url\\":\\"/?token=[Filtered]\\"}"',
+    );
+  });
+
   it("leaves lookalike keys and plain text alone", () => {
     expect(scrubString("/products?barcode=123&tokens=2")).toBe(
       "/products?barcode=123&tokens=2",
