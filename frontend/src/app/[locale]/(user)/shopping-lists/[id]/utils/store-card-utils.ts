@@ -5,7 +5,7 @@ import {
   PriceExtreme,
 } from "@/app/[locale]/products/utils/product-utils";
 import { ChainSummary } from "@/app/[locale]/(user)/shopping-lists/[id]/typings/store-chain-types";
-import { isCatalogItem } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
+import { itemsToCompare } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
 
 interface IStoreCardMetricsParams {
   chain: ChainSummary;
@@ -45,11 +45,7 @@ export function getStoreCardMetrics({
   const storeAvgPrice = parseFloat(chain.avg_price);
   const storeMaxPrice = parseFloat(chain.max_price);
 
-  // Coverage compares against items still to buy, not the whole list.
-  // Plain items have no prices anywhere, so no store could ever cover them.
-  const totalItemsInList =
-    shoppingList.items?.filter((item) => !item.isChecked && isCatalogItem(item))
-      .length || 0;
+  const totalItemsInList = itemsToCompare(shoppingList.items).length;
   const hasAllItems = chain.itemCount === totalItemsInList;
 
   // Coloring only means something when the store covers every item.

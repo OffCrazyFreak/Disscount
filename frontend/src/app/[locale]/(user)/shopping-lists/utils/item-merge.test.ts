@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import type { ShoppingListItemDto } from "@/lib/api/schemas/shopping-list-item";
 import { mergesIntoExisting } from "@/app/[locale]/(user)/shopping-lists/utils/item-merge";
-import { catalogEans } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
+import {
+  catalogEans,
+  itemsToCompare,
+} from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
 
 function item(ean: string | null, name: string): ShoppingListItemDto {
   return {
@@ -57,6 +60,18 @@ describe("catalogEans", () => {
   it("skips plain items and repeats", () => {
     expect(
       catalogEans([item("1", "a"), item(null, "b"), item("1", "c")]),
+    ).toEqual(["1"]);
+  });
+});
+
+describe("itemsToCompare", () => {
+  it("keeps only products still to buy", () => {
+    const bought = { ...item("2", "b"), isChecked: true };
+
+    expect(
+      itemsToCompare([item("1", "a"), bought, item(null, "c")]).map(
+        (entry) => entry.ean,
+      ),
     ).toEqual(["1"]);
   });
 });

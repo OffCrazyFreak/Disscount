@@ -20,10 +20,12 @@ export function useQuickAddItem(listId: string) {
   const tUi = useTranslations("ui");
   const [text, setText] = useState("");
   const query = useDebouncedValue(text.trim(), SUGGESTION_DEBOUNCE_MS);
-  // Checks the live text too, so a just-cleared field drops the old suggestions at once.
+  // Checks the live text too, so a cleared or retyped field never shows the last item's
+  // suggestions while the debounce catches up.
   const hasQuery =
-    query.length >= MIN_QUERY_LENGTH && text.trim().length >= MIN_QUERY_LENGTH;
-  const [lastAdded, setLastAdded] = useState("");
+    query.length >= MIN_QUERY_LENGTH &&
+    text.trim().toLowerCase().startsWith(query.toLowerCase());
+  const [lastAdded, setLastAdded] = useState({ name: "", count: 0 });
 
   const suggestionsQuery = useGetProductByName({
     q: hasQuery ? query : "",
@@ -40,7 +42,8 @@ export function useQuickAddItem(listId: string) {
     addItemMutation.mutate(
       { listId, data: { name, amount: 1, isChecked: false } },
       {
-        onSuccess: () => setLastAdded(name),
+        onSuccess: () =>
+          setLastAdded((previous) => ({ name, count: previous.count + 1 })),
         onError: (error) => {
           // Hand the text back unless the user already started the next item.
           setText((current) => current || name);

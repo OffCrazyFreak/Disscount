@@ -131,6 +131,26 @@ describe("ShoppingListQuickAdd", () => {
     ).toBeInTheDocument();
   });
 
+  it("announces a second add of the same name as a new message", async () => {
+    const user = userEvent.setup();
+    const adds = captureAdds();
+    server.use(signedOut, serveSearch([]), adds.handler);
+    renderWithProviders(<ShoppingListQuickAdd listId="list-1" />);
+
+    const input = screen.getByRole("combobox");
+    await user.type(input, "kruh{Enter}");
+    await waitFor(() => expect(adds.bodies).toHaveLength(1));
+    const status = screen.getByRole("status");
+    const first = await waitFor(() => {
+      expect(status).toHaveTextContent("Dodano: kruh");
+      return status.textContent;
+    });
+
+    await user.type(input, "kruh{Enter}");
+    await waitFor(() => expect(adds.bodies).toHaveLength(2));
+    await waitFor(() => expect(status.textContent).not.toBe(first));
+  });
+
   it("keeps the add button off until there is text", async () => {
     const user = userEvent.setup();
     server.use(signedOut, serveSearch([]));

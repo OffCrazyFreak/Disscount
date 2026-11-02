@@ -15,3 +15,12 @@ export function catalogEans(
     ...new Set((items ?? []).filter(isCatalogItem).map((item) => item.ean)),
   ];
 }
+
+/** What a store comparison covers: products still to buy. Plain items have no prices. */
+export function itemsToCompare(
+  items: ShoppingListItemDto[] | undefined,
+): CatalogItem[] {
+  return (items ?? []).filter(
+    (item): item is CatalogItem => !item.isChecked && isCatalogItem(item),
+  );
+}

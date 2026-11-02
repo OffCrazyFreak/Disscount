@@ -119,7 +119,7 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
       // openings, so a reused instance handed product B product A's draft.
       return (
         <AddToShoppingListModal
-          key={rendered.ean}
+          key={`${rendered.ean}.${rendered.listId}`}
           open={open}
           ean={rendered.ean}
           listId={rendered.listId}
@@ -129,7 +129,7 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
       // Keyed on the name so a new empty search starts from its own query.
       return (
         <AddPlainItemModal
-          key={rendered.itemName ?? ""}
+          key={rendered.itemName}
           open={open}
           itemName={rendered.itemName}
         />

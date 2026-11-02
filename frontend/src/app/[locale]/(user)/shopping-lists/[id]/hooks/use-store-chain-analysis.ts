@@ -1,6 +1,9 @@
 "use client";
 
-import { catalogEans } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
+import {
+  catalogEans,
+  itemsToCompare,
+} from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
 import { useMemo } from "react";
 import { useQueries } from "@tanstack/react-query";
 import cijeneService, { productByEanQueryKey } from "@/lib/cijene-api";
@@ -32,7 +35,7 @@ export function useStoreChainAnalysis({
   distanceByChain,
 }: IUseStoreChainAnalysisParams) {
   const activeItems = useMemo(
-    () => (shoppingList.items ?? []).filter((item) => !item.isChecked),
+    () => itemsToCompare(shoppingList.items),
     [shoppingList.items],
   );
 
@@ -106,7 +109,6 @@ export function useStoreChainAnalysis({
   ]);
 
   return {
-    activeItems,
     allChains,
     productsLoading,
     productsError,

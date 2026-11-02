@@ -97,7 +97,7 @@ export default function ShoppingListQuickAdd({
                   key={product.ean}
                   value={product}
                   onClick={() => pickSuggestion(product)}
-                  className="flex-col items-start gap-0"
+                  className="cursor-pointer flex-col items-start gap-0 hover:bg-accent"
                 >
                   <span lang="hr">{product.name}</span>
                   {product.brand && (
@@ -114,7 +114,9 @@ export default function ShoppingListQuickAdd({
 
       {/* The new row only appears after a refetch, so the add is announced here. */}
       <p role="status" className="sr-only">
-        {lastAdded && t("added", { name: lastAdded })}
+        {lastAdded.name && t("added", { name: lastAdded.name })}
+        {/* Screen readers skip a repeat of identical text, so every other add differs. */}
+        {lastAdded.count % 2 === 1 && "\u00A0"}
       </p>
 
       <Button
