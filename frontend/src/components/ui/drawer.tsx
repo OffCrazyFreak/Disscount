@@ -19,14 +19,15 @@ const DrawerContext = React.createContext<IDrawerContext>({
   popupRef: { current: null },
 });
 
-// Base UI feeds the swipe offset through its CSS variables; starting and ending
-// styles slide the popup fully off its own edge.
+// Positioned with `transform`, not Tailwind's `translate-*`: Base UI writes an
+// inline transform while swiping, which replaces this one, whereas the separate
+// `translate` property would stack with it and move the sheet twice as far.
 const POPUP_DIRECTION_CLASS: Record<SwipeDirection, string> = {
-  down: "inset-x-0 bottom-0 [--drawer-max-h:80vh] rounded-t-lg border-t translate-y-(--drawer-swipe-movement-y) data-starting-style:translate-y-[calc(100%+2px)] data-ending-style:translate-y-[calc(100%+2px)]",
-  up: "inset-x-0 top-0 [--drawer-max-h:80vh] rounded-b-lg border-b translate-y-(--drawer-swipe-movement-y) data-starting-style:-translate-y-[calc(100%+2px)] data-ending-style:-translate-y-[calc(100%+2px)]",
-  left: "inset-y-0 left-0 w-3/4 border-r sm:max-w-sm translate-x-(--drawer-swipe-movement-x) data-starting-style:-translate-x-[calc(100%+2px)] data-ending-style:-translate-x-[calc(100%+2px)]",
+  down: "inset-x-0 bottom-0 [--drawer-max-h:80vh] rounded-t-lg border-t [transform:translateY(var(--drawer-swipe-movement-y,0px))] data-starting-style:[transform:translateY(calc(100%+2px))] data-ending-style:[transform:translateY(calc(100%+2px))]",
+  up: "inset-x-0 top-0 [--drawer-max-h:80vh] rounded-b-lg border-b [transform:translateY(var(--drawer-swipe-movement-y,0px))] data-starting-style:[transform:translateY(calc(-100%-2px))] data-ending-style:[transform:translateY(calc(-100%-2px))]",
+  left: "inset-y-0 left-0 w-3/4 border-r sm:max-w-sm [transform:translateX(var(--drawer-swipe-movement-x,0px))] data-starting-style:[transform:translateX(calc(-100%-2px))] data-ending-style:[transform:translateX(calc(-100%-2px))]",
   right:
-    "inset-y-0 right-0 w-3/4 border-l sm:max-w-sm translate-x-(--drawer-swipe-movement-x) data-starting-style:translate-x-[calc(100%+2px)] data-ending-style:translate-x-[calc(100%+2px)]",
+    "inset-y-0 right-0 w-3/4 border-l sm:max-w-sm [transform:translateX(var(--drawer-swipe-movement-x,0px))] data-starting-style:[transform:translateX(calc(100%+2px))] data-ending-style:[transform:translateX(calc(100%+2px))]",
 };
 
 const HANDLE_DIRECTION_CLASS: Record<SwipeDirection, string> = {
@@ -36,13 +37,8 @@ const HANDLE_DIRECTION_CLASS: Record<SwipeDirection, string> = {
   right: "absolute top-1/2 left-2 h-[100px] w-2 -translate-y-1/2",
 };
 
-function isInsidePopper(target: EventTarget | null | undefined): boolean {
-  if (!(target instanceof Node)) return false;
-
-  return Array.from(
-    document.querySelectorAll("[data-radix-popper-content-wrapper]"),
-  ).some((popper) => popper.contains(target));
-}
+/** Any open Radix tooltip, menu, popover or select, all portalled to the body */
+const RADIX_POPPER_SELECTOR = "[data-radix-popper-content-wrapper]";
 
 function Drawer({
   modal = true,
@@ -61,20 +57,14 @@ function Drawer({
         onOpenChange={(open, details) => {
           const target = details.event.target;
 
-          // Radix dropdowns and popovers portal to the body, so a press inside
-          // one reads as an outside press. Keep the drawer open and let the
-          // layer above it close on its own.
-          const isPressInPopper =
-            details.reason === "outside-press" && isInsidePopper(target);
-
           // Radix layers keep their own Escape stack, which this drawer is not
-          // on, so a Radix dialog or menu over it would close both at once.
-          const isEscapeElsewhere =
+          // on, so a Radix dialog, menu or tooltip over it would close with it.
+          const isEscapeForAnotherLayer =
             details.reason === "escape-key" &&
-            target instanceof Node &&
-            !popupRef.current?.contains(target);
+            ((target instanceof Node && !popupRef.current?.contains(target)) ||
+              document.querySelector(RADIX_POPPER_SELECTOR) !== null);
 
-          if (!open && (isPressInPopper || isEscapeElsewhere)) {
+          if (!open && isEscapeForAnotherLayer) {
             details.cancel();
             return;
           }
@@ -158,7 +148,7 @@ function DrawerContent({
           ref={setPopupRef}
           data-slot="drawer-popup"
           className={cn(
-            "group/drawer-popup pointer-events-auto fixed flex max-h-(--drawer-max-h,none) min-h-0 flex-col bg-background outline-none transition-[translate] duration-450 ease-[cubic-bezier(0.32,0.72,0,1)] data-swiping:select-none data-swiping:duration-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength,1)*400ms)] motion-reduce:transition-none",
+            "group/drawer-popup pointer-events-auto fixed flex max-h-(--drawer-max-h,none) min-h-0 flex-col bg-background outline-none transition-transform duration-450 ease-[cubic-bezier(0.32,0.72,0,1)] data-swiping:select-none data-swiping:duration-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength,1)*400ms)] motion-reduce:transition-none",
             POPUP_DIRECTION_CLASS[swipeDirection],
             className,
           )}
