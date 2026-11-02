@@ -53,7 +53,8 @@
     "saved": "Ušteđeno:",
     "overpaid": "Preplaćeno:",
     "priceRange": "<low>{min}</low><mid> | {avg} | </mid><high>{max}</high>",
-    "savings": "{amount} ({percent}%)"
+    "savings": "{amount} ({percent}%)",
+    "unpricedItems": "{count, plural, one {# stavka bez cijene} few {# stavke bez cijene} other {# stavki bez cijene}}"
   },
   "items": {
     "titleWithChecked": "Proizvodi ({checked}/{total} kupljeno)",
@@ -68,7 +69,17 @@
     "decreaseAmount": "Smanji količinu za 1",
     "increaseAmount": "Povećaj količinu za 1",
     "approxPrice": "~ {price}",
-    "pricePerUnit": "{price}/{unit}"
+    "pricePerUnit": "{price}/{unit}",
+    "noPrice": "Bez cijene"
+  },
+  "prices": {
+    "failed": "Cijene nisu dostupne",
+    "offline": "Cijene nisu spremljene za izvanmrežni rad",
+    "noPrices": "Nema cijena u trgovinama",
+    "failedCount": "{count, plural, one {Cijene za # stavku nisu dostupne.} few {Cijene za # stavke nisu dostupne.} other {Cijene za # stavki nisu dostupne.}}",
+    "retry": "Pokušaj ponovno",
+    "retrySucceeded": "Cijene su učitane.",
+    "withStore": "{store}: {reason}"
   },
   "priceHistory": {
     "title": "Povijest cijena",
@@ -115,6 +126,14 @@
     "toggle": "Po trgovinama",
     "other": "Ostalo",
     "onMap": "Na karti",
-    "summary": "{count, plural, one {# proizvod} few {# proizvoda} other {# proizvoda}}{partial, select, yes { · najmanje {subtotal}} none {} other { · {subtotal}}}"
+    "summary": "{count, plural, one {# proizvod} few {# proizvoda} other {# proizvoda}}{partial, select, yes { · najmanje {subtotal}} none {} other { · {subtotal}}}",
+    "otherSummary": "{count, plural, one {# stavka} few {# stavke} other {# stavki}}{partial, select, yes { · najmanje {subtotal}} none {} other { · {subtotal}}}"
+  },
+  "quickAdd": {
+    "added": "Dodano: {name}",
+    "label": "Dodaj proizvod ili stavku",
+    "add": "Dodaj",
+    "searching": "Tražimo proizvode…",
+    "suggestions": "{count, plural, =0 {Nema proizvoda s tim nazivom. Pritisni Enter da ga dodaš kao stavku.} one {# proizvod} few {# proizvoda} other {# proizvoda}}"
   }
 }

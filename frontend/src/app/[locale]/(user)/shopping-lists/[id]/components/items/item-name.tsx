@@ -17,18 +17,23 @@ export default function ItemName({ item, isFirst, isLast }: IItemNameProps) {
           item.isChecked ? "line-through text-gray-500" : ""
         }`}
       >
-        <StretchedLink
-          href={productPath(item.ean)}
-          // The row is padded by its container, so the hit area bleeds past
-          // it to cover the whole strip, rounding off at the list's ends.
-          className={cn(
-            "after:-left-4 after:-right-4",
-            isFirst ? "after:-top-4 after:rounded-t-xl" : "after:top-0",
-            isLast ? "after:-bottom-4 after:rounded-b-xl" : "after:bottom-0",
-          )}
-        >
-          <span lang="hr">{item.name}</span>
-        </StretchedLink>
+        {item.ean ? (
+          <StretchedLink
+            href={productPath(item.ean)}
+            // The row is padded by its container, so the hit area bleeds past
+            // it to cover the whole strip, rounding off at the list's ends.
+            className={cn(
+              "after:-left-4 after:-right-4",
+              isFirst ? "after:-top-4 after:rounded-t-xl" : "after:top-0",
+              isLast ? "after:-bottom-4 after:rounded-b-xl" : "after:bottom-0",
+            )}
+          >
+            <span lang="hr">{item.name}</span>
+          </StretchedLink>
+        ) : (
+          // Typed by the user, so it is in the language they wrote it in, not Croatian.
+          <span>{item.name}</span>
+        )}
       </p>
       {item.brand && (
         <p

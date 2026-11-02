@@ -52,25 +52,30 @@ runs:
         for image in $images; do
           docker buildx imagetools create \
             --tag "ghcr.io/offcrazyfreak/disscount-$image:$ENVIRONMENT_TAG" \
-            "ghcr.io/offcrazyfreak/disscount-$image:sha-$RELEASE_ID"
+            "ghcr.io/offcrazyfreak/disscount-$image:sha-$RELEASE_ID" || {
+            echo "::error::Moving $ENVIRONMENT_TAG failed at $image, so the tags may mix commits; re-run this job if this commit is still the dev tip, otherwise run Rollback (or, before Rollback is on main, push a revert to dev) before any Redeploy."
+            exit 1
+          }
         done
 
-    # Only the status code is printed: Dokploy responses and curl errors would put service
-    # settings or the panel host into a public log.
+    # Only the status code is printed, because Dokploy's response bodies can echo service
+    # settings into a public log.
     - name: Trigger the deploy
       shell: bash
       env:
         DOKPLOY_URL: ${{ inputs.dokploy-url }}
+        RELEASE_ID: ${{ inputs.release-id }}
+        ENVIRONMENT_TAG: ${{ inputs.environment-tag }}
         DOKPLOY_API_KEY: ${{ inputs.api-key }}
         COMPOSE_ID: ${{ inputs.compose-id }}
       run: |
-        status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+        status=$(curl --silent --max-time 30 --output /dev/null --write-out '%{http_code}' \
           --request POST "$DOKPLOY_URL/api/compose.deploy" \
           --header "x-api-key: $DOKPLOY_API_KEY" \
           --header "Content-Type: application/json" \
           --data "{\"composeId\":\"$COMPOSE_ID\"}" || true)
         if [[ "$status" != 2* ]]; then
-          echo "::error::Dokploy did not accept the deploy (HTTP $status)."
+          echo "::error::Dokploy did not accept the deploy (HTTP $status). The $ENVIRONMENT_TAG tag already points at $RELEASE_ID; run Rollback with the last good commit (or, before Rollback is on main, push a revert to dev) before any Redeploy."
           exit 1
         fi
 
@@ -80,6 +85,7 @@ runs:
       env:
         APP_URL: ${{ inputs.app-url }}
         RELEASE_ID: ${{ inputs.release-id }}
+        ENVIRONMENT_TAG: ${{ inputs.environment-tag }}
       run: |
         deadline=$((SECONDS + 15 * 60))
         while [ "$SECONDS" -lt "$deadline" ]; do
@@ -90,5 +96,5 @@ runs:
           fi
           sleep 15
         done
-        echo "::error::$APP_URL did not report $RELEASE_ID within 15 minutes."
+        echo "::error::$APP_URL did not report $RELEASE_ID within 15 minutes. The $ENVIRONMENT_TAG tag already points at it; run Rollback with the last good commit (or, before Rollback is on main, push a revert to dev) before any Redeploy."
         exit 1

@@ -123,7 +123,6 @@
   "validation": {
     "titleMin": "Inserisci un nome di almeno 3 caratteri",
     "titleMax": "Inserisci un nome di al massimo 100 caratteri",
-    "eanRequired": "Il codice EAN è obbligatorio",
     "nameRequired": "Il nome del prodotto è obbligatorio",
     "amountMin": "La quantità deve essere maggiore di 0",
     "amountMax": "La quantità non può superare 999"

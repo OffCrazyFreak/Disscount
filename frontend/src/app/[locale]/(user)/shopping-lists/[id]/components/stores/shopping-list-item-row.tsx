@@ -3,7 +3,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { TableCell, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { ShoppingListItemDto } from "@/lib/api/types";
+import type { CatalogItem } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
 import {
   ProductResponse,
   ChainProductResponse,
@@ -22,7 +22,7 @@ const TOTAL_PRICE_TONES = {
 };
 
 interface IShoppingListItemRowProps {
-  item: ShoppingListItemDto;
+  item: CatalogItem;
   chain: ChainProductResponse;
   productsData: ProductResponse[];
   isMobile: boolean;

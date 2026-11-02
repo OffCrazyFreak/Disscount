@@ -1,8 +1,11 @@
 "use client";
 
+import {
+  catalogEans,
+  itemsToCompare,
+} from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
 import { useMemo } from "react";
 import { useQueries } from "@tanstack/react-query";
-import cijeneService, { productByEanQueryKey } from "@/lib/cijene-api";
 import { ShoppingListDto } from "@/lib/api/types";
 import { PinnedStoreDto } from "@/lib/api/schemas/preferences";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
@@ -10,6 +13,7 @@ import {
   compareStoreChains,
   type StoreOptimizeMode,
 } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
+import { productLookupQuery } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/product-lookup-query";
 import { buildChainAggregates } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/store-chain-aggregate";
 import { computeAbsolutePrices } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/store-chain-completeness";
 import {
@@ -31,31 +35,29 @@ export function useStoreChainAnalysis({
   distanceByChain,
 }: IUseStoreChainAnalysisParams) {
   const activeItems = useMemo(
-    () => (shoppingList.items ?? []).filter((item) => !item.isChecked),
+    () => itemsToCompare(shoppingList.items),
     [shoppingList.items],
   );
 
-  const eans = useMemo(() => {
-    return (
-      shoppingList.items?.filter((item) => item.ean).map((item) => item.ean) ||
-      []
-    );
-  }, [shoppingList.items]);
+  const eans = useMemo(
+    () => catalogEans(shoppingList.items),
+    [shoppingList.items],
+  );
 
   // combine is memoised by TanStack, so productsData keeps a stable identity between renders.
-  const { productsData, productsLoading, productsError } = useQueries({
+  const { productsData, productsLoading } = useQueries({
     queries: eans.map((ean) => ({
-      queryKey: productByEanQueryKey(ean),
-      queryFn: () => cijeneService.getProductByEan({ ean }),
+      ...productLookupQuery(ean),
       enabled: Boolean(ean),
-      staleTime: 6 * 60 * 60 * 1000, // 6 hours
     })),
     combine: (results) => ({
       productsData: results
         .map((result) => result.data)
         .filter((data): data is ProductResponse => data !== undefined),
-      productsLoading: results.some((result) => result.isLoading),
-      productsError: results.some((result) => result.error),
+      // Matches the rows: a refetch after a failure is not a first load.
+      productsLoading: results.some(
+        (result) => result.isLoading && result.errorUpdatedAt === 0,
+      ),
     }),
   });
 
@@ -107,10 +109,8 @@ export function useStoreChainAnalysis({
   ]);
 
   return {
-    activeItems,
     allChains,
     productsLoading,
-    productsError,
     productsData,
     storesWithLowestPriceItems,
     storesWithHighestPriceItems,

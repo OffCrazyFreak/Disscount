@@ -15,6 +15,7 @@ import { emailService } from "@/lib/email";
 import { userLocale } from "@/lib/email/email-copy";
 import {
   dispatchResetPasswordEmail,
+  dispatchVerificationEmail,
   hasLinkedSocialAccount,
   logEmailFailure,
 } from "@/lib/auth/callbacks";
@@ -111,14 +112,13 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url, token }) => {
-      void emailService
-        .sendVerificationEmail({
-          to: user.email,
-          locale: userLocale(user),
-          url,
-          token,
-        })
-        .catch(logEmailFailure("verification"));
+      void dispatchVerificationEmail(
+        user.id,
+        user.email,
+        url,
+        token,
+        userLocale(user),
+      ).catch(logEmailFailure("verification"));
     },
   },
 

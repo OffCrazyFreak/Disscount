@@ -18,10 +18,13 @@ import { useStoreOptimizeMode } from "@/app/[locale]/(user)/shopping-lists/[id]/
 
 interface IShoppingListStoreSummaryProps {
   shoppingList: ShoppingListDto;
+  /** From the rows' price states, so the summary and the list banner never disagree. */
+  hasFailedPrices: boolean;
 }
 
 export default function ShoppingListStoreSummary({
   shoppingList,
+  hasFailedPrices,
 }: IShoppingListStoreSummaryProps) {
   const t = useTranslations("shoppingListDetail");
   const { user } = useUser();
@@ -39,10 +42,8 @@ export default function ShoppingListStoreSummary({
   }
 
   const {
-    activeItems,
     allChains,
     productsLoading,
-    productsError,
     productsData,
     storesWithLowestPriceItems,
     storesWithHighestPriceItems,
@@ -64,8 +65,11 @@ export default function ShoppingListStoreSummary({
       <ShoppingListStoresBody
         isLoading={productsLoading}
         hasItems={!!shoppingList.items && shoppingList.items.length > 0}
-        hasActiveItems={activeItems.length > 0}
-        hasError={!!productsError}
+        // Any item still to buy, plain ones too: only unpriced ones left means "no prices".
+        hasActiveItems={
+          shoppingList.items?.some((item) => !item.isChecked) ?? false
+        }
+        hasError={hasFailedPrices}
         hasChains={allChains.length > 0}
       >
         <div className="space-y-4">

@@ -116,6 +116,22 @@ describe("parseModalParam", () => {
     },
   );
 
+  it("keeps the list an add-to-list modal should preselect", () => {
+    expect(parse("modal=add-to-list&ean=385&list=abc")).toEqual({
+      name: "add-to-list",
+      ean: "385",
+      listId: "abc",
+    });
+  });
+
+  it("parses add-plain-item with an optional prefilled name", () => {
+    expect(parse("modal=add-plain-item&item=staklenke")).toEqual({
+      name: "add-plain-item",
+      itemName: "staklenke",
+    });
+    expect(parse("modal=add-plain-item")).toEqual({ name: "add-plain-item" });
+  });
+
   it("parses watchlist with an optional valid watch type", () => {
     expect(parse("modal=watchlist")).toBeNull();
     expect(parse("modal=watchlist&ean=385")).toEqual({

@@ -107,9 +107,9 @@ The centre cell is different: a raised, filled, brand-green 44.8px circle with `
 
 ### Why the teaser cells sit on the outside
 
-`Karta` is not shipped yet (`Kartice` shipped with digital cards, see [DIGITAL-CARDS.md](DIGITAL-CARDS.md)), and when both were teasers the outside positions were chosen for them. The outer positions keep the arrangement symmetric with search dead centre, and put the least useful cells in the hardest thumb positions.
+Both have shipped since (`Kartice` with digital cards, see [DIGITAL-CARDS.md](DIGITAL-CARDS.md), and `Karta` as the stores map), but the outside positions were chosen for them while both were teasers. The outer positions keep the arrangement symmetric with search dead centre, and put the least useful cells in the hardest thumb positions.
 
-The left cell was `Potrošnja` at first. Both it and `Karta` are `comingSoon` teasers with a real `ComingSoon` page behind them, so the swap is a judgement about which one people will reach for, and a map of nearby stores and their opening hours beats a spending breakdown for a shopper standing in the street. `bottomNavItems` looks up ids across both `userNavItems` and `productNavItems` for it, since `map` lives in the catalogue group.
+The left cell was `Potrošnja` at first. Both were `comingSoon` teasers then, with a real `ComingSoon` page behind them (Karta has since shipped as the stores map), so the swap is a judgement about which one people will reach for, and a map of nearby stores and their opening hours beats a spending breakdown for a shopper standing in the street. `bottomNavItems` looks up ids across both `userNavItems` and `productNavItems` for it, since `map` lives in the catalogue group.
 
 One knock-on: `/spending` is in `PROTECTED_ROUTE_PREFIXES` and `/map` is not, so the left cell is now reachable signed out.
 

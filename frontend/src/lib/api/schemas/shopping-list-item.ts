@@ -2,7 +2,8 @@ import { z } from "zod";
 import { MAX_SHOPPING_LIST_ITEM_AMOUNT } from "@/constants/shopping-list";
 
 const shoppingListItemRequestSchema = z.object({
-  ean: z.string().min(1, "shoppingLists.validation.eanRequired"),
+  // Null for a plain item, typed by the user, that no store in the catalog sells.
+  ean: z.string().nullable().optional(),
   name: z.string().min(1, "shoppingLists.validation.nameRequired"),
   brand: z.string().nullable().optional(),
   quantity: z.string().nullable().optional(),
