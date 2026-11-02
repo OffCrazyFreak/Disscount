@@ -1,11 +1,9 @@
 "use client";
 
-import { Link } from "@/i18n/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { ChevronDown, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -23,6 +21,7 @@ import {
   getShoppingListItemsOpen,
   setShoppingListItemsOpen,
 } from "@/utils/browser/local-storage";
+import ShoppingListItemsEmpty from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-items-empty";
 import ShoppingListQuickAdd from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-quick-add";
 
 interface IShoppingListItemsProps {
@@ -125,21 +124,7 @@ export default function ShoppingListItems({
         )}
 
         {shoppingList.items.length === 0 ? (
-          <div className="p-4 text-center">
-            <p className="mb-4 text-gray-600">
-              {isOwner ? t("items.emptyOwner") : t("items.empty")}
-            </p>
-
-            {/* Only the owner can add items, so nobody else gets an invitation to try. */}
-            {isOwner && (
-              <Button asChild effect="shineHover">
-                <Link href="/products">
-                  <Search aria-hidden="true" className="size-5" />
-                  {t("items.searchProducts")}
-                </Link>
-              </Button>
-            )}
-          </div>
+          <ShoppingListItemsEmpty isOwner={isOwner} />
         ) : (
           <div className="space-y-3">
             <ShoppingListPriceStatus
