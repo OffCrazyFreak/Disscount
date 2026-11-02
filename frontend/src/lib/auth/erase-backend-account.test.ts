@@ -3,6 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
+const { captureException } = vi.hoisted(() => ({
+  captureException: vi.fn(),
+}));
+vi.mock("@sentry/nextjs", () => ({ captureException }));
+
 const { eraseBackendAccount } =
   await import("@/lib/auth/erase-backend-account");
 const { server } = await import("@/test/msw-server");
@@ -49,6 +54,35 @@ describe("eraseBackendAccount", () => {
     await expect(
       eraseBackendAccount(USER_ID, signedAs([])),
     ).rejects.toMatchObject({ statusCode: 500 });
+  });
+
+  it("reports a refusal to Sentry with only the account id", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    server.use(
+      http.delete("*/api/users/me", () =>
+        HttpResponse.json(null, { status: 503 }),
+      ),
+    );
+
+    await expect(eraseBackendAccount(USER_ID, signedAs([]))).rejects.toThrow();
+
+    expect(captureException).toHaveBeenCalledOnce();
+    expect(captureException).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Backend account erasure failed: 503",
+      }),
+      { tags: { flow: "account-erasure" }, user: { id: USER_ID } },
+    );
+  });
+
+  it("does not report a successful erasure", async () => {
+    server.use(
+      http.delete("*/api/users/me", () => HttpResponse.json({ message: "ok" })),
+    );
+
+    await eraseBackendAccount(USER_ID, signedAs([]));
+
+    expect(captureException).not.toHaveBeenCalled();
   });
 
   it("aborts the deletion when the backend cannot be reached", async () => {

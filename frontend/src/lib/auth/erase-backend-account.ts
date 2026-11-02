@@ -1,5 +1,6 @@
 import "server-only";
 
+import * as Sentry from "@sentry/nextjs";
 import { APIError } from "better-auth/api";
 
 import { BACKEND_ORIGIN } from "@/lib/api/backend-origin";
@@ -44,6 +45,11 @@ export async function eraseBackendAccount(
   }
 
   console.error("Backend account erasure failed:", status);
+  // The account id only, as elsewhere in Sentry; every deletion fails while this keeps firing.
+  Sentry.captureException(
+    new Error(`Backend account erasure failed: ${status}`),
+    { tags: { flow: "account-erasure" }, user: { id: userId } },
+  );
   throw new APIError("INTERNAL_SERVER_ERROR", {
     message: "Account erasure failed; nothing was deleted",
   });
