@@ -128,7 +128,7 @@ Worth knowing before changing any of this:
 - **`linkAccess` is owner-only**, so a recipient cannot read or change the level its owner
   granted. The share and edit modals additionally refuse to render for a non-owner, since
   the by-id read they sit on now succeeds for link visitors too.
-- **The list id is not scrubbed from telemetry, on purpose.** See [§3](#3-the-id-is-the-link-and-what-that-costs). Sentry attaches page URLs and records fetch breadcrumbs, so a shared list's id reaches it. Redacting the app's own identifier would blind every shopping-list trace, and the id is inert once the list is not shared.
+- **The list id is not scrubbed from telemetry, on purpose.** See [§3](#3-the-id-is-the-link-and-what-that-costs). Sentry attaches page URLs and records fetch breadcrumbs, so a shared list's id reaches it. The list's contents do not: `shopping-lists/layout.tsx` wraps every list page in `data-sentry-block`, so Replay records a blank box in its place, and `instrumentation-client.ts` drops Replay's breadcrumb and span records on list pages. Sheets and dialogs render in portals outside that wrapper, so for them only Replay's default text masking applies. Click and input breadcrumbs are dropped on list pages too (`lib/sentry/shopping-list-privacy.ts`), because they quote control labels that name the item. Redacting the app's own identifier would blind every shopping-list trace, and the id is inert once the list is not shared.
 - **Proxy access logs record the full path** for the same reason. A Traefik log-format
   change on the Dokploy side could drop it, and the same trade applies.
 
