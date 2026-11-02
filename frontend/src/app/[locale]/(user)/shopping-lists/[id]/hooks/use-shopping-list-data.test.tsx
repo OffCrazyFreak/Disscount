@@ -158,6 +158,8 @@ describe("useShoppingListData price states", () => {
     });
 
     await waitFor(() => expect(result.current.isRetryingPrices).toBe(true));
+    // answerRetry is a no-op until the request reaches the handler.
+    await waitFor(() => expect(retried).toEqual(["222"]));
     expect(result.current.priceStates.broken).toBe("failed");
     // The list would otherwise ungroup and blank its totals for the length of the retry.
     expect(result.current.isPricesLoading).toBe(false);
