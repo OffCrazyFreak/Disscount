@@ -1,19 +1,14 @@
 import "server-only";
 
-import { createHash } from "node:crypto";
 import { and, count, desc, eq, gt, lt, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import { emailSend } from "@/db/email-send-schema";
+import { hashRecipient } from "@/lib/email/recipient-hash";
 import {
   hasRecipientBudget,
-  inboxKey,
   IRecipientSendGate,
 } from "@/lib/email/recipient-send-cap";
-
-function hashRecipient(recipient: string) {
-  return createHash("sha256").update(inboxKey(recipient)).digest("hex");
-}
 
 // Postgres-backed so the cap holds across deploys and every route bundle.
 export const recipientSendLog: IRecipientSendGate = {
