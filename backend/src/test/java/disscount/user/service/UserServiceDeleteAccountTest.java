@@ -235,18 +235,14 @@ class UserServiceDeleteAccountTest {
             }));
             await(firstHasWritten);
             // The second one sees no committed tombstone, so it writes one too and has to wait.
-            long secondStartedAt = System.nanoTime();
-            Future<Long> second = pool.submit(() -> {
-                accountErasureService.erase(neverProvisioned);
-                return System.nanoTime();
-            });
+            Future<?> second = pool.submit(() -> accountErasureService.erase(neverProvisioned));
             Thread.sleep(300);
+            // Still waiting on the first one's uncommitted tombstone, so the collision really happens.
+            assertThat(second.isDone()).isFalse();
             releaseFirst.countDown();
 
             first.get(10, TimeUnit.SECONDS);
-            long secondFinishedAt = second.get(10, TimeUnit.SECONDS);
-            // It had to wait on the first one's uncommitted tombstone, so the collision really happened.
-            assertThat(TimeUnit.NANOSECONDS.toMillis(secondFinishedAt - secondStartedAt)).isGreaterThanOrEqualTo(250);
+            second.get(10, TimeUnit.SECONDS);
         } finally {
             releaseFirst.countDown();
             pool.shutdownNow();
