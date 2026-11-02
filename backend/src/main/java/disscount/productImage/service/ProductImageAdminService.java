@@ -1,0 +1,223 @@
+package disscount.productImage.service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import disscount.digitalCard.storage.PhotoStore;
+import disscount.digitalCard.storage.StoredPhoto;
+import disscount.exceptions.BadRequestException;
+import disscount.exceptions.NotFoundException;
+import disscount.productImage.dao.ProductImageReportRepository;
+import disscount.productImage.dao.ProductImageRepository;
+import disscount.productImage.dao.ProductImageSetRepository;
+import disscount.productImage.domain.ImageSource;
+import disscount.productImage.domain.ImageStatus;
+import disscount.productImage.domain.ProductImage;
+import disscount.productImage.domain.ProductImageSet;
+import disscount.productImage.dto.ProductImageDtos.AdminProductDto;
+import disscount.productImage.dto.ProductImageDtos.AdminQueueItemDto;
+import disscount.productImage.dto.ProductImageDtos.AdminQueuePageDto;
+import disscount.productImage.dto.ProductImageDtos.CropDto;
+import disscount.productImage.off.OffProductPhotos;
+import disscount.productImage.off.OpenFoodFactsClient;
+import disscount.productImage.render.ProductImageRenderer;
+import disscount.util.Timestamps;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class ProductImageAdminService {
+
+    static final int MAX_PAGE_SIZE = 100;
+
+    public enum QueueFilter { TODO, PENDING, REPORTED }
+
+    private final ProductImageRepository images;
+    private final ProductImageSetRepository sets;
+    private final ProductImageReportRepository reports;
+    private final ProductImageRendering rendering;
+    private final ProductImageViews views;
+    private final OpenFoodFactsClient off;
+    private final OffCandidateWriter candidates;
+    private final PhotoStore originals;
+
+    @Transactional(readOnly = true)
+    public AdminQueuePageDto queue(String filter, int page, int size) {
+        PageRequest request = PageRequest.of(Math.max(0, page), Math.min(MAX_PAGE_SIZE, Math.max(1, size)));
+        Page<ProductImageSet> result = switch (parseFilter(filter)) {
+            case TODO -> sets.findToReview(request);
+            case PENDING -> sets.findWithPending(ImageStatus.PENDING, request);
+            case REPORTED -> sets.findWithReports(ImageStatus.HIDDEN, request);
+        };
+
+        List<String> eans = result.getContent().stream().map(ProductImageSet::getEan).toList();
+        Map<String, List<ProductImage>> byEan = eans.isEmpty()
+                ? Map.of()
+                : images.findByEanIn(eans).stream().collect(Collectors.groupingBy(ProductImage::getEan));
+
+        List<AdminQueueItemDto> items = result.getContent().stream()
+                .map(set -> queueItem(set, byEan.getOrDefault(set.getEan(), List.of())))
+                .toList();
+        return new AdminQueuePageDto(items, result.getTotalElements(), request.getPageNumber(), request.getPageSize(),
+                sets.countReviewed());
+    }
+
+    @Transactional(readOnly = true)
+    public AdminProductDto product(String ean) {
+        ProductImageQueryService.requireEan(ean);
+        ProductImageSet set = sets.findById(ean).orElseGet(() -> ProductImageSet.builder().ean(ean).build());
+        return views.adminView(set, images.findByEanOrderByCreatedAtAsc(ean));
+    }
+
+    /** Adds every front and recent raw photo Open Food Facts has, so the admin can choose among them. */
+    @Transactional
+    public AdminProductDto refreshFromOpenFoodFacts(String ean) {
+        ProductImageQueryService.requireEan(ean);
+        ProductImageSet set = loadOrCreate(ean);
+
+        Optional<OffProductPhotos> photos = off.fetchPhotos(ean);
+        photos.ifPresent(found -> {
+            found.fronts().forEach(p -> candidates.upsert(ean, p.externalKey(), p.rev(), p.lang()));
+            found.raws().forEach(p -> candidates.upsert(ean, p.externalKey(), p.rev(), p.lang()));
+        });
+        set.setOffDetailsFetchedAt(Timestamps.nowUtc());
+
+        if (!set.isPinned()) {
+            MainPicker.pick(images.findByEanOrderByCreatedAtAsc(ean)).ifPresent(best -> set.setMainImageId(best.getId()));
+        }
+        sets.save(set);
+        return product(ean);
+    }
+
+    @Transactional
+    public AdminProductDto setMain(UUID adminId, String ean, UUID imageId) {
+        ProductImage image = imageOf(ean, imageId);
+        approve(adminId, image);
+
+        ProductImageSet set = loadOrCreate(ean);
+        set.setMainImageId(image.getId());
+        set.setPinned(true);
+        markReviewed(set, adminId);
+        return product(ean);
+    }
+
+    @Transactional
+    public AdminProductDto setStatus(UUID adminId, UUID imageId, String status) {
+        ProductImage image = images.findById(imageId).orElseThrow(ProductImageAdminService::notFound);
+        ProductImageSet set = loadOrCreate(image.getEan());
+
+        switch (status) {
+            case "VERIFIED" -> approve(adminId, image);
+            case "HIDDEN" -> {
+                image.setStatus(ImageStatus.HIDDEN);
+                images.save(image);
+                if (image.getId().equals(set.getMainImageId())) {
+                    // The admin rejected the shown photo, so the automatic pick takes over again.
+                    set.setPinned(false);
+                    set.setMainImageId(MainPicker.pick(images.findByEanOrderByCreatedAtAsc(image.getEan()))
+                            .map(ProductImage::getId).orElse(null));
+                }
+            }
+            default -> throw new BadRequestException("error.productImage.invalidStatus");
+        }
+        sets.save(set);
+        return product(image.getEan());
+    }
+
+    @Transactional
+    public AdminProductDto crop(UUID adminId, UUID imageId, int rotation, CropDto crop) {
+        ProductImage image = images.findById(imageId).orElseThrow(ProductImageAdminService::notFound);
+        image.setRotation(ProductImageRenderer.normalizeRotation(rotation));
+        image.setCropX(crop == null ? null : crop.x());
+        image.setCropY(crop == null ? null : crop.y());
+        image.setCropWidth(crop == null ? null : crop.width());
+        image.setCropHeight(crop == null ? null : crop.height());
+        if (image.getStatus() == ImageStatus.PENDING) {
+            image.setConfirmedById(adminId);
+            image.setStatus(ImageStatus.VERIFIED);
+        }
+        rendering.render(image);
+        return product(image.getEan());
+    }
+
+    @Transactional
+    public AdminProductDto reviewed(UUID adminId, String ean) {
+        ProductImageQueryService.requireEan(ean);
+        markReviewed(loadOrCreate(ean), adminId);
+        return product(ean);
+    }
+
+    /** The private upload behind a user or admin photo, for the crop screen; Open Food Facts serves its own. */
+    @Transactional(readOnly = true)
+    public StoredPhoto original(UUID imageId) {
+        ProductImage image = images.findById(imageId)
+                .filter(i -> i.getSource() != ImageSource.OPEN_FOOD_FACTS && i.getOriginalKey() != null)
+                .orElseThrow(ProductImageAdminService::notFound);
+        return originals.get(image.getOriginalKey()).orElseThrow(ProductImageAdminService::notFound);
+    }
+
+    private void approve(UUID adminId, ProductImage image) {
+        if (image.getStatus() == ImageStatus.PENDING) image.setConfirmedById(adminId);
+        if (image.getStatus() != ImageStatus.CANDIDATE) image.setStatus(ImageStatus.VERIFIED);
+        image.setReportCount(0);
+        image.setFlaggedAt(null);
+        reports.deleteByImageId(image.getId());
+
+        // Rendering moves a candidate to VERIFIED once its copy is in our bucket.
+        if (!image.isRendered()) {
+            rendering.render(image);
+        } else {
+            images.save(image);
+        }
+    }
+
+    private void markReviewed(ProductImageSet set, UUID adminId) {
+        set.setReviewedAt(Timestamps.nowUtc());
+        set.setReviewedById(adminId);
+        set.setNeedsReview(false);
+        sets.save(set);
+    }
+
+    private AdminQueueItemDto queueItem(ProductImageSet set, List<ProductImage> all) {
+        String preview = all.stream()
+                .filter(i -> i.getId().equals(set.getMainImageId()))
+                .findFirst()
+                .map(views::previewUrl)
+                .orElse(null);
+        int pending = (int) all.stream().filter(i -> i.getStatus() == ImageStatus.PENDING).count();
+        int reported = (int) all.stream()
+                .filter(i -> i.getReportCount() > 0 && i.getStatus() != ImageStatus.HIDDEN).count();
+        int visible = (int) all.stream().filter(i -> i.getStatus() != ImageStatus.HIDDEN).count();
+        return new AdminQueueItemDto(set.getEan(), set.getName(), set.getBrand(), set.getStoreListings(),
+                set.getChainCount(), preview, visible, pending, reported, set.isNeedsReview(), set.getReviewedAt());
+    }
+
+    private ProductImage imageOf(String ean, UUID imageId) {
+        return images.findById(imageId)
+                .filter(i -> i.getEan().equals(ean))
+                .orElseThrow(ProductImageAdminService::notFound);
+    }
+
+    private ProductImageSet loadOrCreate(String ean) {
+        return sets.findById(ean).orElseGet(() -> sets.save(ProductImageSet.builder().ean(ean).build()));
+    }
+
+    private static QueueFilter parseFilter(String filter) {
+        try {
+            return QueueFilter.valueOf(filter == null ? "TODO" : filter.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("error.productImage.invalidFilter");
+        }
+    }
+
+    private static NotFoundException notFound() {
+        return new NotFoundException("error.productImage.notFound");
+    }
+}

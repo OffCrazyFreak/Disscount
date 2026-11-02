@@ -26,6 +26,7 @@ import { assertPasswordAcceptable } from "@/lib/auth/breached-password";
 import { refuseBreachedSignIn } from "@/lib/auth/refuse-breached-sign-in";
 import { recordLastLogin } from "@/lib/auth/record-last-login";
 import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password-policy";
+import { CLIENT_IP_HEADER } from "@/lib/client-ip/client-ip";
 
 const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
 const BETTER_AUTH_SECRET = requireEnv("BETTER_AUTH_SECRET");
@@ -54,6 +55,18 @@ export const auth = betterAuth({
     database: {
       generateId: "uuid",
     },
+    // The auth route rewrites this header from the trusted proxy hop before
+    // better-auth sees it, so a forged value never reaches the limiter.
+    ipAddress: {
+      ipAddressHeaders: [CLIENT_IP_HEADER],
+    },
+  },
+
+  // Built-in rules and limits; enabled outside production too, and stored in Postgres
+  // so counters survive a deploy and every route bundle shares them.
+  rateLimit: {
+    enabled: true,
+    storage: "database",
   },
 
   session: {
@@ -120,9 +133,8 @@ export const auth = betterAuth({
       enabled: true,
       // Auto-links by shared email; the gate requires the EXISTING account verified.
       // An OAuth user is verified only if the provider's email_verified claim says so.
-      trustedProviders: FACEBOOK_COMING_SOON
-        ? ["google"]
-        : ["google", "facebook"],
+      // A trusted provider skips that claim when linking, so Google stays untrusted.
+      trustedProviders: FACEBOOK_COMING_SOON ? [] : ["facebook"],
     },
   },
 

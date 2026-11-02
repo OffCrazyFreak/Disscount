@@ -61,12 +61,12 @@ flowchart LR
     BE -.->|fetch JWKS, internal| FE
 ```
 
-| Service    | Tech                      | Internal address | Public?               | Role                                                                                   |
-| ---------- | ------------------------- | ---------------- | --------------------- | -------------------------------------------------------------------------------------- |
-| `frontend` | Next.js 16 (standalone)   | `frontend:3000`  | **yes** (via Traefik) | UI + **better-auth** identity provider; proxies `/api/*` to backend                    |
-| `backend`  | Spring Boot 3.1 / Java 21 | `backend:8080`   | no                    | REST API; validates better-auth JWTs (resource server)                                 |
-| `db`       | Postgres 17               | `db:5432`        | no                    | one shared database, used by both                                                      |
-| `migrate`  | (frontend build image)    | n/a              | no                    | one-shot: runs drizzle migrations (auth tables, store locations) on deploy, then exits |
+| Service    | Tech                                                  | Internal address | Public?               | Role                                                                                   |
+| ---------- | ----------------------------------------------------- | ---------------- | --------------------- | -------------------------------------------------------------------------------------- |
+| `frontend` | Next.js 16 (standalone)                               | `frontend:3000`  | **yes** (via Traefik) | UI + **better-auth** identity provider; proxies `/api/*` to backend                    |
+| `backend`  | Spring Boot 3.1 / Java 21                             | `backend:8080`   | no                    | REST API; validates better-auth JWTs (resource server)                                 |
+| `db`       | Postgres 17                                           | `db:5432`        | no                    | one shared database, used by both                                                      |
+| `migrate`  | (frontend build image; `disscount-migrator` on `dev`) | n/a              | no                    | one-shot: runs drizzle migrations (auth tables, store locations) on deploy, then exits |
 
 **Why the backend isn't public:** the browser only ever calls `https://disscount.me/api/...` (relative URLs). Next.js `rewrites()` forwards those to `backend:8080` _server-side_, inside the Docker network. This means no CORS config is needed and the backend/DB have no internet-facing attack surface.
 
@@ -75,7 +75,8 @@ flowchart LR
 **Compose files:**
 
 - `docker-compose.yml`: **local development** (publishes ports to localhost, named container names).
-- `docker-compose.prod.yml`: **Dokploy** (no host ports, joins the external `dokploy-network`, no `container_name`, and Traefik handles routing). This is the file Dokploy deploys.
+- `docker-compose.prod.yml`: **Dokploy** (no host ports, joins the external `dokploy-network`, no `container_name`, and Traefik handles routing). This is the file Dokploy deploys for `main`, which still builds on the server.
+- `docker-compose.images.yml`: the same stack, pulling the CI-built GHCR images by `IMAGE_TAG` instead of building. This is the file Dokploy deploys for `dev` ([§4](#4-how-a-deploy-works-git-to-live)).
 
 ---
 
@@ -111,12 +112,12 @@ flowchart LR
     H --> I[disscount.me updated]
 ```
 
-- **`dev` deploys from prebuilt images** ([#74](https://github.com/OffCrazyFreak/Disscount/issues/74)). After the checks pass, the `images` job in `.github/workflows/ci.yml` builds the frontend, backend and migrator images and pushes them to GHCR as `ghcr.io/offcrazyfreak/disscount-<image>:sha-<commit>`. The `deploy` job then points the moving `dev` tag at all three at once, calls Dokploy's `compose.deploy` API with the key of a Dokploy member user limited to the development service, and waits until `https://dev.disscount.me/health` reports the commit as `releaseId`. The dev service uses `docker-compose.images.yml` with `IMAGE_TAG=dev` and has Dokploy autodeploy **off**, so nothing builds on the server.
+- **`dev` deploys from prebuilt images** ([#74](https://github.com/OffCrazyFreak/Disscount/issues/74)). After the checks pass, the `images` job in `.github/workflows/ci.yml` builds the frontend, backend and migrator images and pushes them to GHCR as `ghcr.io/offcrazyfreak/disscount-<image>:sha-<commit>`. The `deploy` job then points the moving `dev` tag at all three at once, calls Dokploy's `compose.deploy` API with the key of a Dokploy member user limited to the development service, and waits until `https://dev.disscount.me/health` reports the commit as `releaseId`. A run whose commit is no longer the tip of `dev` builds its images but skips the deploy, so a slow older run never replaces a newer one. A failed deploy leaves the `dev` tag on the failed commit; run **Rollback** with the last good commit, or push a revert to `dev` while Rollback is not on `main` yet. Re-running an old deploy job repeats the tip check, so it cannot roll `dev` back, but it can still displace a newer deploy waiting in the queue, so re-run only the tip's own run. If the newest commit fails its checks, nothing deploys until it is fixed, even when the commit before it was good. The dev service uses `docker-compose.images.yml` with `IMAGE_TAG=dev` and has Dokploy autodeploy **off**, so nothing builds on the server.
 - **`main` still builds on the VPS** until dev has run clean on images for a week: autodeploy is ON, and pushing triggers Dokploy (via GitHub webhook) to rebuild production from `docker-compose.prod.yml` (`pnpm install` + `next build --webpack` for the frontend, Maven for the backend). The frontend is pinned to **webpack on purpose** (see the [webpack gotcha](#13-gotchas--lessons-learned)); the Dockerfile runs `pnpm build`, so that flag flows into the image either way.
-- Server builds take **5 to 11 minutes** of CPU plus the 4 GB swap, competing with the live containers; that is why dev moved off them first.
+- Server builds now take **8 to 11 minutes** of CPU plus the 4 GB swap, competing with the live containers; that is why dev moved off them first.
 - **Images are public** on GHCR (the repo is source-available anyway), so the server needs no registry login. `frontend/.dockerignore` keeps every `.env*` file out, and the Sentry auth token reaches the build only as a BuildKit secret, never as a layer.
 - Each environment is **fully isolated:** its own containers **and its own database/volume**. Dev data never touches prod data.
-- **CI gate before merge:** every push and PR runs `.github/workflows/ci.yml` (frontend typecheck + unit tests + lint + Fallow audit + translation catalog check + format + a real `next build`, plus a backend `mvn -B verify`, which compiles, packages and runs the backend tests). `main` is branch-protected, so a PR into `main` cannot merge until **Frontend checks** and **Backend checks** pass. This is a separate quality gate from the Dokploy build above, which is what actually ships the image.
+- **CI gate before merge:** every push and PR runs `.github/workflows/ci.yml` (frontend typecheck + unit tests + lint + Fallow audit + translation catalog check + format + a real `next build`, skipped on `dev` pushes where the image build compiles the same code, plus a backend `mvn -B verify`, which compiles, packages and runs the backend tests). `main` is branch-protected, so a PR into `main` cannot merge until **Frontend checks** and **Backend checks** pass. The image jobs on `dev` run only after these checks pass.
 
 > ⚠️ **After any deploy, hard-refresh the browser** (Ctrl/Cmd+Shift+R). Otherwise you may see Next.js `Failed to find Server Action ...`, which is just your old cached page hitting the new build.
 
@@ -158,7 +159,7 @@ There are **two kinds** of env vars, and mixing them up causes the most confusin
 | **Build-time, baked** (`NEXT_PUBLIC_*`, plus the `env` keys in `next.config.ts`) | `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `NEXT_PUBLIC_SENTRY_DSN`, the frontend's `SENTRY_ENVIRONMENT`                                                    | compiled **into the JS bundle** during `next build`    | you **must REDEPLOY** (rebuild): editing the value alone does nothing |
 | **Runtime, secret**                                                              | `DATABASE_URL`, `BETTER_AUTH_SECRET`, `GOOGLE_CLIENT_SECRET`, `RESEND_API_KEY`, `SENTRY_DSN`, optional `GEOAPIFY_API_KEY` (store geocoding, see [MAP.md](MAP.md)), etc. | read by the server **when it starts/handles requests** | takes effect on the next container restart                            |
 
-- **Where they're set:** in **Dokploy, your service, Environment** (one set per environment). The local `.env` files, seeded from the tracked `.env.example` / `frontend/.env.local.example` / `backend/.env.example`, are only for local dev.
+- **Where they're set:** in **Dokploy, your service, Environment** (one set per environment). On `dev` the `NEXT_PUBLIC_*` values live in two places: the GitHub `dev` environment bakes them into the bundle, and Dokploy still passes them to the running server, which reads some of them (better-auth reads `NEXT_PUBLIC_GOOGLE_CLIENT_ID`). Change both together. The local `.env` files, seeded from the tracked `.env.example` / `frontend/.env.local.example` / `backend/.env.example`, are only for local dev.
 - **Production vs dev difference:** prod uses `https://disscount.me`, dev uses `https://dev.disscount.me` for `BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` / `BETTER_AUTH_ISSUER`; each has its **own** strong `POSTGRES_PASSWORD` + `BETTER_AUTH_SECRET`.
 - **Indexing follows `NEXT_PUBLIC_APP_URL`:** only a build with exactly `https://disscount.me` is indexable; any other value (dev, a typo, `www.`) sends `noindex, nofollow` on every page, header and meta tag alike.
 - **Internal URLs stay the same** in every environment (they're Docker service names): `NEXT_PUBLIC_API_URL=http://backend:8080`, `BETTER_AUTH_JWKS_URI=http://frontend:3000/api/auth/jwks`, `...@db:5432/disscount`.
@@ -179,6 +180,19 @@ Digital card photos live in their own Cloudflare R2 bucket, separate from the ba
 All four are **optional**. If any one is blank the backend runs without photos (uploads answer 503 and the form hides the photo fields); the rest of the wallet is unaffected. They are backend-only and read at startup, so a change needs a backend restart, not a rebuild. Locally they live in `backend/.env.example`.
 
 > Both compose files forward the four `R2_*` variables to the backend, blank by default, and the root `.env.example` lists them. Photos stay off until all four are set.
+
+### Product photo env vars
+
+Product photos are public, so they live in a second R2 bucket that is readable through its own domain and has its own token; the card photo bucket stays private. It uses the same EU endpoint (`R2_ENDPOINT`). Create the bucket with **jurisdiction EU**, connect a custom domain (for example `images.disscount.me`) under the bucket's **Settings, Custom Domains**, and disable its `r2.dev` URL. Details are in [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md).
+
+| Var                           | Service | Kind            | Notes                                                    |
+| ----------------------------- | ------- | --------------- | -------------------------------------------------------- |
+| `R2_PUBLIC_BUCKET`            | backend | runtime         | Name of the public product photo bucket                  |
+| `R2_PUBLIC_ACCESS_KEY_ID`     | backend | runtime, secret | Token scoped to that one bucket, object read and write   |
+| `R2_PUBLIC_SECRET_ACCESS_KEY` | backend | runtime, secret | Secret of the same token                                 |
+| `R2_PUBLIC_URL`               | backend | runtime         | The bucket's public `https://` domain, no trailing slash |
+
+All four are **optional**. If any one (or `R2_ENDPOINT`) is blank, product pages show no photos, uploads answer 503 and the background jobs do nothing. The URL must be `https://`: the frontend's Content Security Policy only allows images from `https:` origins. Backend-only and read at startup, so a change needs a backend restart.
 
 ---
 
@@ -201,7 +215,7 @@ All four are **optional**. If any one is blank the backend runs without photos (
 - **Cloudflare to VPS (origin):** Traefik's **Let's Encrypt** cert. Cloudflare SSL mode = **Full (strict)**, which means Cloudflare verifies the origin's real cert.
 - **Cert renewal (~every 60 days):** Traefik renews via an HTTP-01 challenge, which still works _through_ Cloudflare. If a renewal ever fails (you'd see a cert-expiry warning), flip that record to **DNS-only** for a few minutes so it renews, then re-proxy. (Bulletproof alternative: Cloudflare **DNS-01** challenge in Traefik, see [TODOs](#14-future-improvements--todos).)
 
-> 💡 **Why grey-cloud first for new certs:** Let's Encrypt validates by hitting the domain on port 80. Set a new subdomain to **DNS only** so the challenge reaches the VPS, let the cert issue, _then_ optionally flip it to Proxied + Full(strict).
+> 💡 **Why grey-cloud first for new certs:** Let's Encrypt validates by hitting the domain on port 80. Set a new subdomain to **DNS only** so the challenge reaches the VPS, let the cert issue, _then_ optionally flip it to Proxied + Full(strict). This stops working once the firewall only admits Cloudflare (see [Client IP and rate limiting](#client-ip-and-rate-limiting)).
 
 **Adding a domain to a service:** done in **Dokploy, service, Domains** (Host + Service + Container Port + HTTPS/Let's Encrypt). ⚠️ For **Compose** services you must **redeploy once** afterward so the Traefik routing labels actually attach to the container.
 
@@ -243,6 +257,18 @@ It began in monitor mode (`p=none`) and moved to `p=quarantine` once the aggrega
 | **Cloudflare proxy**                         | Hides the origin IP + DDoS protection for proxied records.                                                                                                        |
 
 Other: **4 GB swap** for build headroom; the Dokploy admin panel is reachable only via its HTTPS domain (login-protected), not the raw `:3000` port.
+
+### Client IP and rate limiting
+
+The app keys its rate limits on the visitor's address, read from Cloudflare's `CF-Connecting-IP` header. It trusts that header only when the last `X-Forwarded-For` hop, which Traefik always writes as the peer it accepted the connection from, is a Cloudflare address; any other caller is keyed on its own address. How the frontend and backend apply this, and what the limits are, is in [AUTH.md](AUTH.md#83-rate-limits-and-the-visitors-address).
+
+The app check works on its own, but these owner steps finish the job. None of them is done yet:
+
+1. **Hetzner Cloud Firewall** (`disscount-web`): change the inbound TCP 80 and 443 rules from "any" to Cloudflare's IPv4 and IPv6 ranges from https://www.cloudflare.com/ips/, leaving 22 as it is. Then a direct request to `YOUR_VPS_IP` with a made-up `CF-Connecting-IP` should time out, while the site still loads through Cloudflare.
+2. **Cloudflare rate limiting rule** (free plan, one rule): POST requests to the auth paths, counted by IP, more than 20 requests in 10 seconds, block for 10 seconds. The exact expression is deliberately not published here.
+3. **Optional, Traefik `forwardedHeaders.trustedIPs`**: Dokploy's static config (`/etc/dokploy/traefik/traefik.yml`, Traefik v3) has no `forwardedHeaders` block, so Traefik discards incoming `X-Forwarded-*` headers. Listing Cloudflare's ranges under `entryPoints.web.forwardedHeaders.trustedIPs` and `entryPoints.websecure.forwardedHeaders.trustedIPs` keeps Cloudflare's own `X-Forwarded-For` chain. The app does not need it, because the last hop is the same either way.
+
+> ⚠️ **After step 1, new subdomains need DNS-01 certificates.** Let's Encrypt's HTTP-01 check connects from its own servers, which the firewall then refuses, so the grey-cloud trick in [§6](#6-domains-dns--https) stops working. Set up the Cloudflare DNS-01 challenge in Traefik (see [TODOs](#14-future-improvements--todos)) before adding a domain. Renewals for the proxied domains still reach the origin through Cloudflare, but watch the first one after the change.
 
 ### Nightly updates and reboots
 
@@ -341,7 +367,7 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 | `SENTRY_ENVIRONMENT`     | backend, frontend | backend runtime, frontend build arg | `production` (dev env: `staging`)       | Drives the environment filter in the Sentry UI. Unset, the backend and the compose build use `local`; a frontend built outside compose falls back to `NODE_ENV`. The frontend bakes it in through `env` in `next.config.ts`, so changing it needs a redeploy.    |
 | `SENTRY_DEBUG`           | backend           | runtime                             | `false`                                 | Defaults to `false` (`sentry.debug=${SENTRY_DEBUG:false}` in `application.properties`). Set `true` only to confirm the SDK is initialising (see the verification bullet below), then set it back: it logs on every event. Takes effect on container **restart**. |
 | `NEXT_PUBLIC_SENTRY_DSN` | frontend          | build-time, baked                   | DSN of the `disscount-frontend` project | Public by design (ships in the JS bundle). Changing it requires a **redeploy**, not a restart.                                                                                                                                                                   |
-| `SENTRY_AUTH_TOKEN`      | frontend build    | build-time                          | org auth token                          | Only for source-map upload; stored but **not wired into the build yet** (see TODOs). Secret - never commit.                                                                                                                                                      |
+| `SENTRY_AUTH_TOKEN`      | frontend build    | build-time                          | org auth token                          | Only for source-map upload. The `dev` image build reads it from the GitHub `dev` environment as a BuildKit secret; the `main` server build does not use it yet (see TODOs). Secret - never commit.                                                               |
 
 - Backend tracing is sampled at **10%** (`sentry.traces-sample-rate=0.1` in `application.properties`), so the `disscount-backend` project should show transactions under any real traffic. **A project showing 0 transactions + 0 issues for days almost always means the DSN env var isn't reaching the container** - check Dokploy env, then restart the backend.
 - Quick verification: temporarily set `SENTRY_DEBUG=true` on the backend and check the container logs for the SDK init lines, or trigger any 5xx and watch the project's Issues feed.
@@ -368,8 +394,9 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 | Uptime checks                                                                        | ✅ auto    | UptimeRobot, published as a [public status page](https://stats.uptimerobot.com/ej4ROz2eMo)                                                                |
 | **Non-security OS updates (`-updates` channel)**                                     | ❌ manual  | `sudo apt update && sudo apt full-upgrade`; the next nightly run reboots if needed                                                                        |
 | **Creating the EU photo bucket + token, setting `R2_*`**                             | ❌ manual  | Cloudflare once, then Dokploy env per environment; photos stay off until all four are set (see [Card photo env vars](#card-photo-env-vars))               |
+| **Creating the public product photo bucket, domain + token, setting `R2_PUBLIC_*`**  | ❌ manual  | Cloudflare once, then Dokploy env per environment; product photos stay off until all four are set (see [Product photo env vars](#product-photo-env-vars)) |
 | **Dropping the old `digital_card` table**                                            | ❌ manual  | after the cards rebuild deploys and nothing reads it; `ddl-auto=update` never drops it (see [§10.1](#101-dropping-a-column))                              |
-| **Adding/Changing a `NEXT_PUBLIC_*` var**                                            | ❌ manual  | `dev`: GitHub `dev` environment variable **+ a new image build**; `main`: Dokploy env **+ redeploy**                                                      |
+| **Adding/Changing a `NEXT_PUBLIC_*` var**                                            | ❌ manual  | `dev`: GitHub `dev` environment **and** Dokploy env, then push; `main`: Dokploy env **+ redeploy**                                                        |
 | **Adding a new domain/subdomain**                                                    | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                                                                                                 |
 | **New OAuth provider redirect URIs**                                                 | ❌ manual  | add in Google/Meta consoles                                                                                                                               |
 | **Hard-refresh after deploy**                                                        | ❌ manual  | avoids stale-bundle errors                                                                                                                                |
@@ -412,18 +439,18 @@ Open a DB shell the same way as for a restore, see [§8](#8-backups--restore).
 
 ## 11. Common operations (how-to)
 
-| I want to                     | Do this                                                                                                                                            |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Deploy a change**           | push to `dev` (test), PR `dev` to `main`, merge (autodeploys)                                                                                      |
-| **Force a redeploy**          | `dev`: re-run the CI **Deploy (dev)** job; `main`: Dokploy, service, **Redeploy**                                                                  |
-| **Roll back**                 | `dev`: run the **Rollback** workflow with an earlier commit SHA (GitHub lists it once it is on `main`); `main`: Dokploy, **Deployments**, redeploy |
-| **See logs**                  | Dokploy, service, **Logs**; or `ssh YOUR_USER@YOUR_VPS_IP` then `docker logs <container>`                                                          |
-| **List containers**           | `ssh YOUR_USER@YOUR_VPS_IP`, then `docker ps`                                                                                                      |
-| **Open a DB shell**           | `docker exec -it <db-container> psql -U postgres -d disscount`                                                                                     |
-| **Add a runtime secret**      | Dokploy, service, Environment, add, redeploy                                                                                                       |
-| **Add a `NEXT_PUBLIC_*` var** | `dev`: GitHub `dev` environment, then push; `main`: Environment, add, **redeploy** (it's baked)                                                    |
-| **Reach the Dokploy panel**   | `https://dokploy.disscount.me`                                                                                                                     |
-| **Run a backup now**          | Dokploy, Backups, Run, or the Schedule, Run                                                                                                        |
+| I want to                     | Do this                                                                                                                                                                                                                                      |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Deploy a change**           | push to `dev` (test), PR `dev` to `main`, merge (autodeploys)                                                                                                                                                                                |
+| **Force a redeploy**          | Dokploy, service, **Redeploy** (on `dev` it pulls whatever the `dev` tag points at, so after a failed CI deploy run **Rollback** or push a revert first; for a one-off failure on the newest commit, re-run its failed **Deploy (dev)** job) |
+| **Roll back**                 | `dev`: run the **Rollback** workflow with an earlier commit SHA (GitHub lists it once it is on `main`); `main`: Dokploy, **Deployments**, redeploy                                                                                           |
+| **See logs**                  | Dokploy, service, **Logs**; or `ssh YOUR_USER@YOUR_VPS_IP` then `docker logs <container>`                                                                                                                                                    |
+| **List containers**           | `ssh YOUR_USER@YOUR_VPS_IP`, then `docker ps`                                                                                                                                                                                                |
+| **Open a DB shell**           | `docker exec -it <db-container> psql -U postgres -d disscount`                                                                                                                                                                               |
+| **Add a runtime secret**      | Dokploy, service, Environment, add, redeploy                                                                                                                                                                                                 |
+| **Add a `NEXT_PUBLIC_*` var** | `dev`: GitHub `dev` environment and Dokploy Environment, then push; `main`: Environment, add, **redeploy** (it's baked)                                                                                                                      |
+| **Reach the Dokploy panel**   | `https://dokploy.disscount.me`                                                                                                                                                                                                               |
+| **Run a backup now**          | Dokploy, Backups, Run, or the Schedule, Run                                                                                                                                                                                                  |
 
 ### Disk management (don't let the VPS fill up)
 
@@ -466,7 +493,7 @@ flowchart LR
 
 **Step-by-step:**
 
-1. **DNS** (Cloudflare): add `something.disscount.me`, A, `YOUR_VPS_IP`, **DNS only (grey)** first (so the cert can issue), proxy later if you want.
+1. **DNS** (Cloudflare): add `something.disscount.me`, A, `YOUR_VPS_IP`, **DNS only (grey)** first (so the cert can issue), proxy later if you want. Once the firewall only admits Cloudflare this needs DNS-01 instead (see [Client IP and rate limiting](#client-ip-and-rate-limiting)).
 2. **Create the app in Dokploy:**
    - **Templates** (easiest): Dokploy has a one-click **Umami** template (and Plausible, etc.). Create, pick the template, it sets up the app + its DB.
    - **From a Docker image:** Create, Application, set the image + env.
@@ -489,7 +516,7 @@ These are the things that actually cost us time, worth remembering:
 
 | Gotcha                                               | What happened / fix                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`NEXT_PUBLIC_*` is baked at build**                | Changing it in env does nothing until a **redeploy**.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **`NEXT_PUBLIC_*` is baked at build**                | Changing it in env does nothing until a **rebuild**: a `main` redeploy, or a new push on `dev`, where the value also has to change in the GitHub `dev` environment.                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Hard-refresh after deploy**                        | Stale browser bundle causes `Failed to find Server Action`. Ctrl+Shift+R. A service-worker "update available" prompt (see [`PWA.md`](PWA.md) TODOs) would remove the need for this.                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Frontend builds with `--webpack`**                 | Next.js 16 defaults `next build` to **Turbopack**, but Serwist (the PWA service worker) and Sentry's webpack options need webpack, so the frontend `build` script is `next build --webpack`. Do **not** revert it to plain `next build`, the service worker silently stops being generated. See [`PWA.md`](PWA.md).                                                                                                                                                                                                                                                                      |
 | **Docker bypasses UFW**                              | Published container ports ignore UFW, so rely on the **Hetzner Cloud Firewall** to truly close ports.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -508,7 +535,7 @@ These are the things that actually cost us time, worth remembering:
 **Security / housekeeping**
 
 - [ ] **IP-filter the R2 API token** to the VPS egress IP (least privilege).
-- [ ] **Before serious traffic:** add Cloudflare rate-limiting (free plan includes one rule) on the auth and API routes, then app-level rate limiting in Spring Boot. (Keep the exact endpoint list in a private note, not in this public doc.)
+- [ ] **Before serious traffic:** add the Cloudflare rate limiting rule (free plan includes one rule) and restrict the Hetzner firewall to Cloudflare, as listed in [Client IP and rate limiting](#client-ip-and-rate-limiting). The app-level limits (Better Auth, per-recipient email cap, contact form) are in place. The exact endpoint list is deliberately not published here.
 
 **Reliability / ops**
 

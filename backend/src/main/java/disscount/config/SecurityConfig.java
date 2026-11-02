@@ -124,6 +124,8 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
+                // Product photos are public like the prices; uploads and reports still need a login.
+                .requestMatchers(HttpMethod.GET, "/api/products/*/images", "/api/products/images/thumbnails").permitAll()
                 .requestMatchers(
                     "/actuator/health",
                     "/v3/api-docs/**",

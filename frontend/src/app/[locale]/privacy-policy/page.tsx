@@ -17,7 +17,7 @@ export default function PrivacyPolicyPage() {
     <LegalPage
       title="Pravila privatnosti"
       intro="Ova pravila objašnjavaju koje podatke Disscount prikuplja i kako ih koristi."
-      lastUpdated="13. listopada 2026."
+      lastUpdated="2. studenoga 2026."
     >
       <LegalSection heading="Koje podatke prikupljamo">
         <p>
@@ -48,6 +48,17 @@ export default function PrivacyPolicyPage() {
           Ako dopustiš pristup lokaciji u pregledniku, točna lokacija ostaje na
           tvom uređaju. Njome se trgovine poredaju po udaljenosti, a nama se ne
           šalje.
+        </p>
+      </LegalSection>
+
+      <LegalSection heading="Slike proizvoda">
+        <p>
+          Kad dodaš sliku proizvoda, spremamo je bez metapodataka poput mjesta
+          snimanja i povezujemo je s tvojim računom kako bismo spriječili
+          zlouporabu. Slika je javno vidljiva, bez tvog imena. Slike čuvamo kod
+          Cloudflarea (R2) u Europskoj uniji. Ako obrišeš račun, slike ostaju
+          kao dio podataka o proizvodu, ali više nisu povezane s tvojim imenom.
+          Ako želiš da uklonimo neku tvoju sliku, javi nam se.
         </p>
       </LegalSection>
 

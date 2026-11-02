@@ -6,7 +6,9 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 import { authClient } from "@/lib/auth/client";
+import fetchAuthToken from "@/lib/auth/token";
 import { userService } from "@/lib/api";
+import { clearAuthToken } from "@/lib/api/api-base";
 import { useUser } from "@/context/user-context";
 
 // The Sigurnost actions that sit outside the credentials form.
@@ -32,14 +34,25 @@ export function useSecurityActions() {
   async function deleteAccount() {
     setDeleting(true);
     try {
-      // Backend profile first: deleting auth first would orphan the row and lock the user out.
-      await userService.deleteCurrentUser();
+      // Taken first because deleting the identity ends the session that mints backend tokens.
+      const token = await fetchAuthToken();
+      if (!token) throw new Error("no backend token");
 
+      // Identity first: better-auth refuses a stale session before deleting anything, and ends
+      // every session, so no new token can be minted to revive the profile afterwards.
       const { error } = await authClient.deleteUser();
       if (error) throw new Error(error.message ?? "delete failed");
+      // This tab's cached token outlives the identity; a request using it would revive the profile.
+      clearAuthToken();
 
-      await logout();
-      router.replace("/");
+      // The identity is gone either way, so this tab signs out even if the profile delete fails.
+      try {
+        await userService.deleteCurrentUser(token);
+      } finally {
+        await logout();
+        router.replace("/");
+      }
+
       toast.success(t("security.actions.deleted"));
     } catch {
       toast.error(t("security.actions.deleteFailed"));

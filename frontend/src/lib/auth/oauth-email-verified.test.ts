@@ -73,31 +73,74 @@ async function signInWithGoogle(emailVerified: boolean) {
     .map((setCookie) => setCookie.split(";")[0])
     .join("; ");
 
-  await auth.handler(
+  const callback = await auth.handler(
     new Request(
       `http://localhost:3000/api/auth/callback/google?code=code&state=${state}`,
       { headers: { cookie } },
     ),
   );
 
-  return tables.user.find((user) => user.email === "person@example.com");
+  return {
+    user: tables.user.find((user) => user.email === "person@example.com"),
+    redirect: callback.headers.get("location") ?? "",
+  };
 }
 
 describe("Google sign-up email verification", () => {
   beforeEach(() => {
-    for (const model of ["user", "account", "session", "verification", "jwks"])
+    for (const model of [
+      "user",
+      "account",
+      "session",
+      "verification",
+      "jwks",
+      "rateLimit",
+    ])
       tables[model] = [];
   });
 
   it("keeps the email unverified when Google has not verified it", async () => {
-    const user = await signInWithGoogle(false);
+    const { user } = await signInWithGoogle(false);
 
     expect(user).toMatchObject({ emailVerified: false });
   });
 
   it("marks the email verified when Google has verified it", async () => {
-    const user = await signInWithGoogle(true);
+    const { user } = await signInWithGoogle(true);
 
     expect(user).toMatchObject({ emailVerified: true });
+  });
+});
+
+describe("Google sign-in linking into an existing account", () => {
+  beforeEach(() => {
+    for (const model of ["user", "account", "session", "verification", "jwks"])
+      tables[model] = [];
+
+    tables.user.push({
+      id: "existing-user",
+      email: "person@example.com",
+      emailVerified: true,
+      name: "Existing",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+  });
+
+  function googleAccounts() {
+    return tables.account.filter((account) => account.providerId === "google");
+  }
+
+  it("refuses to link when Google has not verified the email", async () => {
+    const { redirect } = await signInWithGoogle(false);
+
+    expect(redirect).toContain("error=account_not_linked");
+    expect(googleAccounts()).toEqual([]);
+  });
+
+  it("links when Google has verified the email", async () => {
+    await signInWithGoogle(true);
+
+    expect(googleAccounts()).toMatchObject([{ userId: "existing-user" }]);
   });
 });

@@ -114,16 +114,18 @@ public class DigitalCardService {
 
     public DigitalCardDto setPinned(UUID userId, UUID id, boolean pinned) {
         userLock.acquire(userId);
-        DigitalCard card = requireActive(userId, id);
-        card.setPinnedAt(pinned ? Timestamps.nowUtc() : null);
-        return toDto(cardRepository.saveAndFlush(card));
+        if (cardRepository.updatePinnedAt(id, userId, pinned ? Timestamps.nowUtc() : null) == 0) {
+            throw new NotFoundException(NOT_FOUND);
+        }
+        return toDto(requireActive(userId, id));
     }
 
     public DigitalCardDto setArchived(UUID userId, UUID id, boolean archived) {
         userLock.acquire(userId);
-        DigitalCard card = requireActive(userId, id);
-        card.setArchivedAt(archived ? Timestamps.nowUtc() : null);
-        return toDto(cardRepository.saveAndFlush(card));
+        if (cardRepository.updateArchivedAt(id, userId, archived ? Timestamps.nowUtc() : null) == 0) {
+            throw new NotFoundException(NOT_FOUND);
+        }
+        return toDto(requireActive(userId, id));
     }
 
     public void delete(UUID userId, UUID id) {

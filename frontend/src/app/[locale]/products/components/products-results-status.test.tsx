@@ -9,6 +9,7 @@ const SETTLED = {
   isPending: false,
   hasError: false,
   isTruncated: false,
+  noPriceLocations: [],
 };
 
 describe("ProductsResultsStatus", () => {
@@ -42,5 +43,19 @@ describe("ProductsResultsStatus", () => {
     );
 
     expect(screen.getByRole("status")).toBeEmptyDOMElement();
+  });
+
+  it("announces which places have no price for a search found elsewhere", () => {
+    renderWithProviders(
+      <ProductsResultsStatus
+        {...SETTLED}
+        total={0}
+        noPriceLocations={["Đakovo"]}
+      />,
+    );
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "nijedna trgovina u mjestu Đakovo nema objavljenu cijenu",
+    );
   });
 });

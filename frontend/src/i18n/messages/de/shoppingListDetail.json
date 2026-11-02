@@ -72,6 +72,15 @@
     "pricePerUnit": "{price}/{unit}",
     "noPrice": "Ohne Preis"
   },
+  "prices": {
+    "failed": "Preise nicht verfügbar",
+    "offline": "Preise nicht offline gespeichert",
+    "noPrices": "Keine Preise in Geschäften",
+    "failedCount": "{count, plural, one {Preise für # Artikel sind nicht verfügbar.} other {Preise für # Artikel sind nicht verfügbar.}}",
+    "retry": "Erneut versuchen",
+    "retrySucceeded": "Preise geladen.",
+    "withStore": "{store}: {reason}"
+  },
   "priceHistory": {
     "title": "Preisverlauf",
     "noData": "Keine Verlaufsdaten verfügbar."

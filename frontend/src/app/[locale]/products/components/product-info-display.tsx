@@ -6,6 +6,8 @@ import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { getMostFrequentCategory } from "@/app/[locale]/products/utils/product-utils";
 import ProductActionButtons from "@/app/[locale]/products/components/product-action-buttons";
 import ProductInfoTable from "@/app/[locale]/products/components/product-info-table";
+import ProductPhotoGallery from "@/app/[locale]/products/components/product-photos/product-photo-gallery";
+import ProductPhotoThumbnail from "@/app/[locale]/products/components/product-photos/product-photo-thumbnail";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 
@@ -33,6 +35,7 @@ export default function ProductInfoDisplay({
   }
 
   const category = getMostFrequentCategory(product);
+  const displayName = product.name || t("productInfo.unknown");
 
   return (
     <div className="space-y-4">
@@ -52,10 +55,10 @@ export default function ProductInfoDisplay({
             </Button>
           )}
 
-          {/* TODO: Product Image */}
-          {/* <div className="hidden sm:grid place-items-center size-16 bg-gray-100 shadow-sm rounded-lg">
-            <span className="text-gray-400 text-sm">IMG</span>
-          </div> */}
+          {/* Inside modals the full gallery would crowd the form, so a thumbnail stands in. */}
+          {!enableActionButtons && (
+            <ProductPhotoThumbnail ean={product.ean} name={displayName} />
+          )}
 
           {/* Product Name and Category */}
           <div className="text-pretty">
@@ -83,7 +86,14 @@ export default function ProductInfoDisplay({
         )}
       </div>
 
-      <ProductInfoTable product={product} />
+      {enableActionButtons ? (
+        <div className="grid gap-6 md:grid-cols-[minmax(0,17rem)_1fr] md:items-start">
+          <ProductPhotoGallery ean={product.ean} productName={displayName} />
+          <ProductInfoTable product={product} />
+        </div>
+      ) : (
+        <ProductInfoTable product={product} />
+      )}
     </div>
   );
 }

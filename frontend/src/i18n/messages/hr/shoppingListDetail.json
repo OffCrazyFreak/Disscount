@@ -72,6 +72,15 @@
     "pricePerUnit": "{price}/{unit}",
     "noPrice": "Bez cijene"
   },
+  "prices": {
+    "failed": "Cijene nisu dostupne",
+    "offline": "Cijene nisu spremljene za izvanmrežni rad",
+    "noPrices": "Nema cijena u trgovinama",
+    "failedCount": "{count, plural, one {Cijene za # stavku nisu dostupne.} few {Cijene za # stavke nisu dostupne.} other {Cijene za # stavki nisu dostupne.}}",
+    "retry": "Pokušaj ponovno",
+    "retrySucceeded": "Cijene su učitane.",
+    "withStore": "{store}: {reason}"
+  },
   "priceHistory": {
     "title": "Povijest cijena",
     "noData": "Nema dostupnih povijesnih podataka."
