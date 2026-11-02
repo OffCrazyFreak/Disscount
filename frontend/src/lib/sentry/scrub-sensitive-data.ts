@@ -27,10 +27,10 @@ const SENSITIVE_FIELD_NAMES = [
 // Every better-auth cookie (session_token, session_data, dont_remember, ...), including the
 // __Secure- and __Host- forms it uses over HTTPS. The value ends where a cookie header's does.
 const BETTER_AUTH_COOKIE =
-  /((?:__Secure-|__Host-)?better-auth\.[\w.-]+=)[^;,\s"'\\]*/gi;
+  /((?:__Secure-|__Host-)?better-auth\.[\w.-]+=)"?[^;,\s"'\\]*"?/gi;
 
-// RFC 6750 token68 characters.
-const BEARER_TOKEN = /(\bBearer\s+)[\w.~+/-]+=*/gi;
+// RFC 6750 token68 characters; the length floor spares prose like "the bearer of".
+const BEARER_TOKEN = /(\bBearer\s+)[\w.~+/-]{8,}=*/gi;
 
 const URL_SECRET_PARAMS = ["code", "state", "access_token", "id_token"];
 

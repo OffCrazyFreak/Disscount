@@ -182,6 +182,18 @@ describe("scrubString on session cookies and bearer tokens in text", () => {
     );
   });
 
+  it("filters a quoted cookie value whole", () => {
+    expect(scrubString('better-auth.session_token="abc.sig"; x=1')).toBe(
+      "better-auth.session_token=[Filtered]; x=1",
+    );
+  });
+
+  it("leaves the word bearer in prose alone", () => {
+    expect(scrubString("the bearer of this card")).toBe(
+      "the bearer of this card",
+    );
+  });
+
   it("filters the token in a Set-Cookie line and keeps its attributes", () => {
     expect(
       scrubString(
