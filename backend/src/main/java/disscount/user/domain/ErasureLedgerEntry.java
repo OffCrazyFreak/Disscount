@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * Tombstone of an erased account: the only record kept once its data is gone, so a retry, a
- * backup restore or a stale token can tell the account was deleted. Holds no personal data.
+ * Tombstone of an erased account: the only record kept once its data is gone. Holds no personal
+ * data. Nothing reads it yet; it is the record a backup restore or a stale token check can use.
  */
 @Entity
 @Table(name = "erasure_ledger")
