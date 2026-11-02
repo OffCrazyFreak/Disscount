@@ -3,7 +3,11 @@ import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 
 import { UserProvider, useUser } from "@/context/user-context";
-import apiClient, { setAuthTokenUser } from "@/lib/api/api-base";
+import apiClient, {
+  clearAuthToken,
+  peekFreshAuthToken,
+  setAuthTokenUser,
+} from "@/lib/api/api-base";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 
@@ -207,6 +211,27 @@ describe("UserProvider backend token", () => {
     expect(tokenRequests).toBe(1);
   });
 
+  it("never caches a token whose fetch was running when the token was cleared", async () => {
+    const pendingToken: { release?: (token: string) => void } = {};
+    server.use(
+      http.get("*/api/auth/token", async () => {
+        const token = await new Promise<string>((resolve) => {
+          pendingToken.release = resolve;
+        });
+        return HttpResponse.json({ token });
+      }),
+      http.get("*/api/probe", () => HttpResponse.json({})),
+    );
+
+    const probe = apiClient.get("/api/probe");
+    await waitFor(() => expect(pendingToken.release).toBeDefined());
+    clearAuthToken();
+    pendingToken.release?.(tokenA);
+    await probe;
+
+    expect(peekFreshAuthToken()).toBeNull();
+  });
+
   it("waits out the cooldown after refusing another account's token instead of fetching on every request", async () => {
     let tokenRequests = 0;
     const authorizations = recordProfileRequests(async () => {
@@ -215,12 +240,18 @@ describe("UserProvider backend token", () => {
     });
     server.use(http.get("*/api/probe", () => HttpResponse.json({})));
     setAuthTokenUser("user-b");
+    // A frozen clock keeps every call inside the cooldown however slow the run.
+    vi.useFakeTimers({ toFake: ["Date"] });
 
-    await apiClient.get("/api/probe");
-    await apiClient.get("/api/probe");
-    // Login-required calls answer 401, and their retry must not force a fetch either.
-    await expect(apiClient.get("/api/users/me")).rejects.toThrow();
-    await expect(apiClient.get("/api/users/me")).rejects.toThrow();
+    try {
+      await apiClient.get("/api/probe");
+      await apiClient.get("/api/probe");
+      // Login-required calls answer 401, and their retry must not force a fetch either.
+      await expect(apiClient.get("/api/users/me")).rejects.toThrow();
+      await expect(apiClient.get("/api/users/me")).rejects.toThrow();
+    } finally {
+      vi.useRealTimers();
+    }
 
     expect(tokenRequests).toBe(1);
     expect(authorizations).toEqual([null, null]);
