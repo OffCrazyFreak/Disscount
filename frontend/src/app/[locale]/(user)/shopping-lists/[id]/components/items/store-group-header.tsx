@@ -56,7 +56,8 @@ export default function StoreGroupHeader({ group }: IStoreGroupHeaderProps) {
           {chain ? getChainLabel(chain) : t("other")}
         </h3>
         <p className="text-sm text-muted-foreground">
-          {t("summary", {
+          {/* The no store group holds plain items too, which are not products. */}
+          {t(chain ? "summary" : "otherSummary", {
             count: group.items.length,
             subtotal: formatPrice(group.subtotal, locale),
             // Prices are positive, so a zero partial total means none is known.

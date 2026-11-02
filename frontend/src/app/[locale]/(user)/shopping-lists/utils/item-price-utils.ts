@@ -1,4 +1,4 @@
-import { ShoppingListItemDto } from "@/lib/api/types";
+import type { CatalogItem } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
 import { PinnedStoreDto } from "@/lib/api/schemas/preferences";
 import cijenesApi from "@/lib/cijene-api";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
@@ -43,7 +43,7 @@ function pickCheapestChain(chains: ProductResponse["chains"]): string | null {
  * @returns Record of chain code -> price
  */
 export async function getStorePricesForItem(
-  item: ShoppingListItemDto,
+  item: CatalogItem,
 ): Promise<Record<string, number>> {
   try {
     // Fetch product pricing data by EAN
@@ -66,7 +66,7 @@ export async function getStorePricesForItem(
  * @returns The average price across all stores, or null if not found
  */
 export async function getAveragePriceForItem(
-  item: ShoppingListItemDto,
+  item: CatalogItem,
 ): Promise<number | null> {
   try {
     // Fetch product pricing data by EAN
@@ -83,7 +83,7 @@ export async function getAveragePriceForItem(
 }
 
 export async function findCheapestStoreForItem(
-  item: ShoppingListItemDto,
+  item: CatalogItem,
   pinnedStores: PinnedStoreDto[] | undefined,
 ): Promise<string | null> {
   try {

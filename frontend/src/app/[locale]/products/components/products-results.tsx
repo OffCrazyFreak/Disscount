@@ -59,6 +59,7 @@ export default function ProductsResults({
   if (query && total === 0) {
     return (
       <ProductsEmptyResults
+        query={query}
         activeFilterCount={activeFilterCount}
         clearFilters={clearFilters}
         selectedLocations={selectedLocations}

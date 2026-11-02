@@ -183,7 +183,9 @@
     "enterQueryTitle": "Vpiši iskalni izraz",
     "enterQueryText": "Filtri so nastavljeni, rezultati bodo prikazani po iskanju",
     "startTitle": "Išči izdelke",
-    "startText": "Vpiši ime izdelka, ki ga iščeš"
+    "startText": "Vpiši ime izdelka, ki ga iščeš",
+    "noResultsAddPlain": "Nismo našli izdelka s tem imenom. Še vedno ga lahko dodaš na seznam.",
+    "addPlainItem": "Dodaj »{query}« na seznam"
   },
   "viewSwitcher": {
     "label": "Način prikaza",
@@ -219,5 +221,14 @@
   },
   "storeChainSelect": {
     "multiPlaceholder": "Izberi trgovce..."
+  },
+  "addPlainItem": {
+    "title": "Dodaj postavko na seznam",
+    "description": "Postavka nima cene, a ostane na seznamu, da je ne pozabiš.",
+    "nameLabel": "Ime",
+    "toast": {
+      "added": "Postavka je dodana na seznam »{name}«",
+      "quantityIncreased": "Količina postavke je povečana na seznamu »{name}«"
+    }
   }
 }

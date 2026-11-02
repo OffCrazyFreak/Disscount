@@ -78,16 +78,18 @@ export default function ShoppingListItem({
               />
             </div>
 
-            {/* Store Chain Select */}
-            <ItemStoreSelect
-              item={item}
-              onUpdate={onUpdate}
-              priceState={priceState}
-              cheapestStore={cheapestStore}
-              averagePrice={averagePrice}
-              storePrices={storePrices}
-              canCheck={canCheck}
-            />
+            {/* A plain item has no prices, so there is no store to pick by price. */}
+            {item.ean && (
+              <ItemStoreSelect
+                item={item}
+                onUpdate={onUpdate}
+                priceState={priceState}
+                cheapestStore={cheapestStore}
+                averagePrice={averagePrice}
+                storePrices={storePrices}
+                canCheck={canCheck}
+              />
+            )}
           </div>
 
           {canEditItems && (

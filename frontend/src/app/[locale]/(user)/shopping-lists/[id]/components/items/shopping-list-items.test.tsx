@@ -14,6 +14,12 @@ vi.mock("@/i18n/navigation", () => ({
   ),
 }));
 
+// The owner's quick add field is a combobox with its own status line; it has its own tests.
+vi.mock(
+  "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-quick-add",
+  () => ({ default: () => null }),
+);
+
 // Radix measures the select trigger, and jsdom has no ResizeObserver.
 beforeEach(() => {
   vi.stubGlobal(
@@ -48,7 +54,7 @@ function renderItems(
     listItems(items, priceStates, onRetryPrices),
   );
 
-  return { onRetryPrices, rerender: view.rerender };
+  return { onRetryPrices, rerender: view.rerender, container: view.container };
 }
 
 function listItems(
@@ -218,5 +224,15 @@ describe("ShoppingListItems price states", () => {
 
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
     expect(screen.getByRole("status")).toBeEmptyDOMElement();
+  });
+
+  it("shows a plain item as having no price, with no store select or skeleton", () => {
+    // A plain item has no lookup, so useShoppingListData gives it no price state.
+    const { container } = renderItems([item("staklenke", { ean: null })], {});
+
+    expect(screen.getByText("Bez cijene")).toBeInTheDocument();
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /staklenke/ })).toBeNull();
+    expect(container.querySelector('[data-slot="skeleton"]')).toBeNull();
   });
 });
