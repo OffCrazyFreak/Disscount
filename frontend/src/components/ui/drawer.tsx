@@ -143,7 +143,11 @@ function DrawerContent({
   // cannot reach them otherwise. Re-apply them after any `shadcn add drawer`.
   return (
     <DrawerPortal>
-      {modal === true && <DrawerOverlay className={overlayClassName} />}
+      {/* forceRender: Base UI skips a nested drawer's backdrop, which left a
+          modal sheet opened from the sidebar with no scrim to close it. */}
+      {modal === true && (
+        <DrawerOverlay forceRender className={overlayClassName} />
+      )}
       <DrawerPrimitive.Viewport
         data-slot="drawer-viewport"
         data-modal={String(modal)}

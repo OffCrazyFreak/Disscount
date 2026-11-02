@@ -33,7 +33,9 @@ const CONTENT_CLASS =
 // mobile sidebar, has to clear that drawer's layer rather than sit under it.
 const VIEWPORT_CLASS =
   "z-[var(--z-bottom-sheet)] data-nested:z-[var(--z-overlay)]";
-const OVERLAY_CLASS = "z-[var(--z-bottom-sheet-scrim)]";
+// A nested sheet's scrim follows its sheet up, so it also covers the drawer below.
+const OVERLAY_CLASS =
+  "z-[var(--z-bottom-sheet-scrim)] has-[+[data-nested]]:z-[var(--z-overlay)]";
 const BODY_CLASS = "flex flex-1 flex-col gap-3 px-4";
 
 export interface ISheetShellProps extends ISheetShellHeaderProps {
@@ -89,6 +91,7 @@ export default function SheetShell({
 }: ISheetShellProps) {
   const dragUpProps = useSheetDragUp(onDragUp);
   const popupRef = useRef<HTMLDivElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
 
   return (
     <Drawer
@@ -110,6 +113,12 @@ export default function SheetShell({
           // instead would pop its tooltip.
           // preventScroll by hand: Base UI only passes it when focusing the popup.
           initialFocus={() => {
+            const opener = document.activeElement;
+            openerRef.current =
+              opener instanceof HTMLElement && opener !== document.body
+                ? opener
+                : null;
+
             const field = initialFocusRef?.current;
             if (!field) return popupRef.current;
 
@@ -129,7 +138,9 @@ export default function SheetShell({
 
             if (!isFocusLeftBehind) return false;
 
-            return returnFocusRef?.current ?? true;
+            // Nothing was focused when it opened (a tap on iOS, a shared link),
+            // so there is nothing to go back to.
+            return returnFocusRef?.current ?? openerRef.current ?? false;
           }}
           {...dragUpProps}
         >
