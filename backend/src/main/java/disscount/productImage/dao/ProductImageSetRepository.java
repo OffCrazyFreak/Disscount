@@ -15,8 +15,8 @@ public interface ProductImageSetRepository extends JpaRepository<ProductImageSet
     @Query("select s.ean from ProductImageSet s")
     List<String> findAllEans();
 
-    /** EANs some chain priced in the latest catalogue import; a product that left every chain drops to 0. */
-    @Query("select s.ean from ProductImageSet s where s.chainCount > 0 order by s.ean")
+    /** EANs with a store price in the latest catalogue import; chain_count also counts unpriced catalogue rows. */
+    @Query("select s.ean from ProductImageSet s where s.storeListings > 0 order by s.ean")
     List<String> findListedEans();
 
     @Query("""

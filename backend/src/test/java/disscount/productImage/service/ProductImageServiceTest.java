@@ -272,10 +272,11 @@ class ProductImageServiceTest {
     }
 
     @Test
-    void listedEansSkipProductsNoChainPricesAnyMore() {
-        sets.save(ProductImageSet.builder().ean("5449000000996").chainCount(1).build());
-        sets.save(ProductImageSet.builder().ean(EAN).chainCount(3).build());
-        sets.save(ProductImageSet.builder().ean("3856021300547").chainCount(0).build());
+    void listedEansSkipProductsNoStorePricesAnyMore() {
+        sets.save(ProductImageSet.builder().ean("5449000000996").chainCount(1).storeListings(1).build());
+        sets.save(ProductImageSet.builder().ean(EAN).chainCount(3).storeListings(40).build());
+        // Listed in a chain's products.csv but priced in no store.
+        sets.save(ProductImageSet.builder().ean("3856021300547").chainCount(1).storeListings(0).build());
 
         assertThat(queries.listedEans().eans()).containsExactly("5449000000996", EAN);
     }
