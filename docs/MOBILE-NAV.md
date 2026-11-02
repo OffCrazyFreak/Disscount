@@ -103,7 +103,7 @@ Each non-centre cell stacks, from back to front:
 4. the **label**, bold when the cell is active,
 5. the **USKORO chip** for teaser cells, rotated off the right edge.
 
-The centre cell is different: a raised, filled, brand-green 44.8px circle with `Proizvodi` underneath, which opens a sheet instead of navigating.
+The centre cell is different: a raised, filled, brand-green 44.8px circle with `Proizvodi` underneath, which opens a sheet instead of navigating. The raise is a 0.2rem upward transform on the circle, and the long-press ring is drawn on the circle's face in `primary-foreground`, inside the raised element: a transform moves no layout, so a ring outside it would stay centred on the unraised cell, and a ring around the circle would cross the pill's top edge, which the raised circle all but touches.
 
 ### Why the teaser cells sit on the outside
 
