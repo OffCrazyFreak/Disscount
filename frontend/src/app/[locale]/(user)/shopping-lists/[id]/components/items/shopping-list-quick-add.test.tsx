@@ -102,7 +102,9 @@ describe("ShoppingListQuickAdd", () => {
   it("opens the add-to-list modal for a chosen suggestion instead of adding text", async () => {
     const user = userEvent.setup();
     const adds = captureAdds();
-    const queryClient = new QueryClient();
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
     server.use(signedOut, serveSearch([milk]), adds.handler);
     renderWithProviders(<ShoppingListQuickAdd listId="list-1" />, {
       queryClient,
