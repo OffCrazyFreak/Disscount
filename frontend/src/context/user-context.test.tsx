@@ -290,3 +290,51 @@ describe("UserProvider backend token", () => {
     expect(authorizations).not.toContain(`Bearer ${tokenA}`);
   });
 });
+
+describe("UserProvider erased account", () => {
+  function answerProfileWithAccountErased(deleteStatus: number) {
+    const authCalls: string[] = [];
+    server.use(
+      http.get("*/api/auth/token", () => HttpResponse.json({ token: tokenA })),
+      http.get("*/api/users/me", () =>
+        HttpResponse.json({ code: "account_erased" }, { status: 410 }),
+      ),
+      http.post("*/api/auth/delete-user", () => {
+        authCalls.push("delete-user");
+        return HttpResponse.json(
+          deleteStatus === 200
+            ? { success: true }
+            : { code: "SESSION_EXPIRED" },
+          { status: deleteStatus },
+        );
+      }),
+      http.post("*/api/auth/sign-out", () => {
+        authCalls.push("sign-out");
+        return HttpResponse.json({ success: true });
+      }),
+    );
+    return authCalls;
+  }
+
+  it("finishes the deletion when Spring says the account was already erased", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    session.userId = "user-a";
+    session.error = null;
+    const authCalls = answerProfileWithAccountErased(200);
+
+    renderWithProviders(<UserProvider>{null}</UserProvider>);
+
+    await waitFor(() => expect(authCalls).toEqual(["delete-user"]));
+  });
+
+  it("signs out when the surviving login is too old to delete", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    session.userId = "user-a";
+    session.error = null;
+    const authCalls = answerProfileWithAccountErased(400);
+
+    renderWithProviders(<UserProvider>{null}</UserProvider>);
+
+    await waitFor(() => expect(authCalls).toEqual(["delete-user", "sign-out"]));
+  });
+});
