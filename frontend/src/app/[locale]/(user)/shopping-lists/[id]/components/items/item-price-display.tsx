@@ -1,9 +1,9 @@
 import { useLocale, useTranslations } from "next-intl";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import { formatQuantity } from "@/utils/strings";
 import { formatPrice } from "@/utils/price";
+import PriceSkeleton from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/price-skeleton";
 
 interface IItemPriceDisplayProps {
   item: ShoppingListItemDto;
@@ -65,14 +65,5 @@ export default function ItemPriceDisplay({
     <div className="flex-shrink-0 text-sm font-medium text-gray-700">
       <div>{approxPrice}</div>
     </div>
-  );
-}
-
-function PriceSkeleton() {
-  return (
-    <Skeleton
-      aria-hidden="true"
-      className="inline-block h-4 w-14 align-middle motion-reduce:animate-none"
-    />
   );
 }
