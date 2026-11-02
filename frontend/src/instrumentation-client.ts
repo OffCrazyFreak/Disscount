@@ -2,11 +2,14 @@
 // redeploy) and no-ops cleanly when unset.
 import * as Sentry from "@sentry/nextjs";
 
+import { moveResetTokenOutOfUrl } from "@/lib/auth/reset-token-storage";
 import { isServiceWorkerRegistrationNoise } from "@/lib/sentry/ignore-service-worker-noise";
 import {
   scrubSensitiveData,
   sentryScrubbingOptions,
 } from "@/lib/sentry/scrub-sensitive-data";
+
+moveResetTokenOutOfUrl();
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
