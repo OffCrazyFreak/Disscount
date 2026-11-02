@@ -327,7 +327,7 @@ No extra request either way: `useProductFacets` reuses the query key the page al
 
 ### Dragging up
 
-A bottom drawer only swipes down to dismiss, so the gesture had to be added. Base UI's `snapPoints` do not cover it: they move a sheet between preset heights, and this sheet grows because its content does. `useSheetDragUp` returns plain React pointer props that `SheetShell` spreads onto `DrawerContent`, which is safe because **Base UI merges a caller's handlers with its own swipe handlers** rather than replacing them. So no native listeners, no ref juggling, and swipe-to-close is untouched.
+A bottom drawer only swipes down to dismiss, so the gesture had to be added. Base UI's `snapPoints` do not cover it: they move a sheet between preset heights, and this sheet grows because its content does. `useSheetDragUp` returns plain React pointer props that `SheetShell` spreads onto `DrawerContent`, which is safe because **Base UI's swipe handlers sit on the drawer's viewport**, not on the popup these go on, so the two run side by side. So no native listeners, no ref juggling, and swipe-to-close is untouched.
 
 The threshold is 40px, far enough that a scroll, a wobble or a tap cannot trigger it, and it fires **mid-drag** rather than on release so the sheet expands while your finger is still moving. Verified: a 20px nudge does nothing.
 
@@ -431,7 +431,7 @@ That split also matches `ModalShell`'s own line: its consumers are self-containe
 
 What non-modal means for the products sheet:
 
-- **No outside press dismisses it**, because the shell sets `disablePointerDismissal` on every non-modal sheet, which also stops focus moving to the page from closing it. It therefore needs an explicit way out, which is the bar's centre cell. `Escape` and the grab handle work throughout.
+- **No outside press dismisses it**, because the shell sets `disablePointerDismissal` on every non-modal sheet, which also stops focus moving to the page from closing it. It therefore needs an explicit way out, which is the bar's centre cell. `Escape` closes it while focus is inside it, and the grab handle works throughout.
 - **The page stays usable for every input.** Base UI's `modal={false}` adds no scrim, no scroll lock, no focus trap and no `aria-hidden` on the page, so a keyboard or screen-reader user can leave the sheet for the bar just as a thumb can. Under vaul it was non-modal for pointers only, which was #134; `sheet-shell.test.tsx` now fails if the page behind is hidden again.
 - **The bar needs no opt-in.** It stays live above a non-modal sheet, and inert under modal sheets and real dialogs, whose overlays cover it anyway.
 
@@ -989,9 +989,9 @@ Together those are the general rule: a measured-overflow container can only meas
 
 **Dev overlays sat exactly on the bar.** Next's indicator lands bottom-left over the left cell and the React Query button bottom-right over Kartice, which makes the bar impossible to judge or test. Both are now off by default, see [§14](#14-config-env-vars-and-flags).
 
-**Radix and Base UI keep separate Escape stacks.** Each library closes only its own topmost layer, but neither knows about the other's, so Escape in a Radix dialog or menu open over a Base UI drawer used to close both at once. The `Drawer` wrapper in `ui/drawer.tsx` now cancels an `escape-key` close whose target is outside its own popup, which is also the APG rule: Escape closes the dialog that has focus.
+**Radix and Base UI keep separate Escape stacks.** Each library closes only its own topmost layer, but neither knows about the other's, so Escape in a Radix dialog, menu or tooltip open over a Base UI drawer used to close both at once. The `Drawer` wrapper in `ui/drawer.tsx` now cancels an `escape-key` close whose target is outside its own popup, or that arrives while any Radix popper is open. That is also the APG rule: Escape closes the layer that has focus.
 
-**A press inside a Radix popper reads as an outside press to the drawer.** Radix dropdowns and popovers portal to `<body>`, so picking a language in the mobile sidebar's menu would close the sidebar. The same wrapper cancels an `outside-press` close whose target sits inside `[data-radix-popper-content-wrapper]`, as the vaul version did with `onPointerDownOutside`.
+**A press inside a Radix popper does not close a modal drawer.** Base UI closes a modal drawer only on a press that lands on its own backdrop, and a Radix menu or popover portalled to `<body>` sits above that backdrop. So the veto the vaul version needed in `onPointerDownOutside` is gone; picking a language in the mobile sidebar's menu leaves the sidebar open.
 
 **A scripted swipe has to be dispatched on the drawer itself.** Base UI captures the pointer for a swipe, and synthetic events cannot, so moves and the release sent to whatever is under the pointer leave the sheet following the drag and never dismiss it. Dispatch them on the handle, as pointer capture would.
 
