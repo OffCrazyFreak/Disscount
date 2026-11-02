@@ -160,7 +160,6 @@ export function useShoppingListData(listId: string) {
   const { cheapestStores, averagePrices, storePrices, priceStates } =
     itemPrices;
 
-  // Calculate total savings from checked items
   const { totalSavings, totalPotentialCost } = shoppingList?.items
     ?.filter((item) => item.isChecked && item.avgPrice && item.storePrice)
     .reduce(

@@ -9,6 +9,7 @@
   },
   "backToLists": "Back to shopping lists",
   "lastSynced": "List refreshed {time}",
+  "updatedByOthers": "List updated",
   "access": {
     "view": "You can only view this list.",
     "shop": "You can check off what you've bought and choose a store, but you can't change the list.",

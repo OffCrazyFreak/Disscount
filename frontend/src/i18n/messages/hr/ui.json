@@ -13,6 +13,7 @@
     "copied": "Poveznica je kopirana",
     "failed": "Dijeljenje nije uspjelo"
   },
+  "toaster": { "label": "Poruke" },
   "offline": {
     "writeFailed": "Promjena nije spremljena. Pokušaj ponovno.",
     "writeFailedLostAccess": "Promjena nije spremljena. Možda više nemaš pristup ovom popisu.",

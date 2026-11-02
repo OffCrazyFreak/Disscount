@@ -77,6 +77,10 @@ describe("placedAddressesAgree", () => {
     expect(agree("ZELJEZNICKA 0", "Željeznička ul. 10")).toBe(false);
   });
 
+  it("does not match a bb street named for a date to its house 1", () => {
+    expect(agree("Ulica 1. svibnja bb", "Ulica 1. svibnja 1")).toBe(false);
+  });
+
   it("reads a two-letter Croatian initial", () => {
     expect(agree("LJ.GAJA 5", "Ul. Ljudevita Gaja 5")).toBe(true);
   });

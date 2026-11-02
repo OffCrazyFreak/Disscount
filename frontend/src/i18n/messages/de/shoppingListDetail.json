@@ -9,6 +9,7 @@
   },
   "backToLists": "Zurück zu den Einkaufslisten",
   "lastSynced": "Liste {time} aktualisiert",
+  "updatedByOthers": "Liste aktualisiert",
   "access": {
     "view": "Diese Liste kannst du nur ansehen.",
     "shop": "Du kannst Artikel als gekauft markieren und den Händler wählen, aber die Liste nicht ändern.",

@@ -1,11 +1,15 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import SearchBarField, {
   type ISearchBarFieldOptions,
 } from "@/components/custom/search/search-bar-field";
 import SearchActionButton from "@/components/custom/search/search-action-button";
+import {
+  dismissTouchKeyboard,
+  isTouchPointer,
+} from "@/components/custom/search/dismiss-touch-keyboard";
 import { useSearchBarQuery } from "@/components/custom/search/use-search-bar-query";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -57,9 +61,27 @@ export default function SearchBar({
 
     const query = data.query?.trim() ?? "";
 
+    dismissTouchKeyboard();
     setOpen(false);
     search(query);
     onSubmitted?.(query);
+  }
+
+  // formId means the owner renders the search button outside the form.
+  const hasSearchButton = submitButtonLocation !== "none" || Boolean(formId);
+
+  // The button never searches an unchanged query (it is disabled, or back to top
+  // once scrolled), so Enter on a touch keyboard only closes it rather than
+  // doing nothing or, with no submit button left in the form, searching again.
+  function handleKeyDown(event: KeyboardEvent<HTMLFormElement>) {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
+    // Enter on the clear or scan button is that button's own click.
+    if (!(event.target instanceof HTMLInputElement)) return;
+    if (!hasSearchButton || !isUnchanged(queryValue ?? "")) return;
+    if (!isTouchPointer()) return;
+
+    event.preventDefault();
+    dismissTouchKeyboard();
   }
 
   function handleClear() {
@@ -69,6 +91,7 @@ export default function SearchBar({
 
   const handleScan = useCallback(
     (code: IScannedCode) => {
+      dismissTouchKeyboard();
       setOpen(false);
       openResult(code.rawValue);
       onSubmitted?.(code.rawValue);
@@ -81,6 +104,7 @@ export default function SearchBar({
       <form
         id={formId}
         onSubmit={handleSubmit(submit)}
+        onKeyDown={handleKeyDown}
         className="relative flex items-center gap-4 flex-wrap"
       >
         <SearchBarField
