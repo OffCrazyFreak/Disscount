@@ -161,7 +161,7 @@ To re-check a ratio, mask the generated PNG against circles at 80% and 66.7% and
 
 Long-pressing the installed icon opens a shortcut menu. Ours is built in `constants/pwa-shortcuts.ts` from one hand-written entry (Skeniraj) plus the navigation items listed in `shortcutNavIds`, in that order, kept only when released (`!comingSoon`) and carrying a `shortcutDescriptionKey`, so a listed feature joins the menu on its own once both hold.
 
-**There are fewer slots than it looks.** Chrome for Android shows **3** shortcuts. It allowed 4 until Chrome 92 started injecting its own "Site settings" entry, which takes a slot. Desktop Chrome and Edge show up to 10. Shortcuts render in manifest order, so the order of `shortcutNavIds` is what decides which three a phone actually surfaces. The order is the owner's call from [#127](https://github.com/OffCrazyFreak/Disscount/issues/127): Skeniraj, Popisi and Kartice take the phone slots (loyalty cards are needed fast at the till), and the rest show on desktop. Every row has its tiles, but some stay out of the manifest until they qualify:
+**There are fewer slots than it looks.** Chrome for Android shows **3** shortcuts. It allowed 4 until Chrome 92 started injecting its own "Site settings" entry, which takes a slot. Desktop Chrome and Edge show up to 10. Shortcuts render in manifest order, so the order of `shortcutNavIds` is what decides which three a phone actually surfaces. The order is the owner's call from [#127](https://github.com/OffCrazyFreak/Disscount/issues/127): Skeniraj, Popisi and Kartice take the phone slots (loyalty cards are needed fast at the till), and the rest show on desktop. Every row has its tiles, but a row stays out of the manifest until it qualifies:
 
 | Order | Shortcut  | Url               | Icon          |
 | ----- | --------- | ----------------- | ------------- |
@@ -172,7 +172,7 @@ Long-pressing the installed icon opens a shortcut menu. Ours is built in `consta
 | 5     | Karta     | `/map`            | `Map`         |
 | 6     | Potrošnja | `/spending`       | `PiggyBank`   |
 
-Karta is not emitted yet because it has no `shortcutDescriptionKey`, and Potrošnja because it is still `comingSoon`.
+Potrošnja is not emitted yet because it is still `comingSoon`, so the manifest carries the first five today.
 
 That "Site settings" entry and its black gear come from Chrome, not from us. No manifest key can recolour, reorder or remove it.
 
@@ -189,7 +189,7 @@ The masked one has to stay full bleed. Chrome hands a maskable icon to Android a
 
 **Skeniraj has no route of its own.** The scanner is imperative (`context/scanner-context.tsx`), so the shortcut points at `/?scan=1` and `components/custom/pwa/scan-shortcut.tsx` picks the flag up, strips it from the URL with `replaceState` before opening the camera (so a refresh or a back navigation does not reopen it), and routes the scanned code through `useProductNavigation`.
 
-Praćenje is the fourth entry, so Android drops it in favour of Chrome's own "Site settings" slot; desktop Chrome and Edge show it.
+Praćenje and Karta come after the three phone slots, so Android drops them in favour of Chrome's own "Site settings" slot; desktop Chrome and Edge show them.
 
 ### The install UX (`src/components/custom/pwa/`)
 
