@@ -247,4 +247,42 @@ describe("AddPlainItemModal", () => {
     expect(getFormDraft("add-plain-item.kruh")).toBeNull();
     expect(getFormDraft("add-plain-item.kruh integralni")).toBeNull();
   });
+  it("moves an edited name's choices to the submitted name when the add fails", async () => {
+    const user = userEvent.setup();
+    server.use(
+      http.get("*/api/auth/token", () =>
+        HttpResponse.json(null, { status: 401 }),
+      ),
+      http.get("*/api/shopping-lists/me", () =>
+        HttpResponse.json([newest, older]),
+      ),
+      http.get("*/api/shopping-lists/:id", ({ params }) =>
+        HttpResponse.json(params.id === older.id ? older : newest),
+      ),
+      http.post("*/api/shopping-lists/:id/items", () =>
+        HttpResponse.json({ status: 500 }, { status: 500 }),
+      ),
+    );
+
+    const edited = renderWithProviders(
+      <AddPlainItemModal open itemName="Kruh integralni" />,
+    );
+    const trigger = await screen.findByRole("combobox", {
+      name: "Popis za kupnju",
+    });
+    await waitFor(() => expect(trigger).toHaveTextContent("Tjedna kupnja"));
+    await user.click(trigger);
+    await user.click(await screen.findByRole("option", { name: /Vikendica/ }));
+    const nameInput = screen.getByRole("textbox", { name: "Naziv" });
+    await user.clear(nameInput);
+    await user.type(nameInput, "Kruh");
+    await user.click(screen.getByRole("button", { name: "Dodaj" }));
+    await waitFor(() => expect(openModalUrl).toHaveBeenCalled());
+    edited.unmount();
+
+    expect(getFormDraft("add-plain-item.kruh")?.values.shoppingListId).toBe(
+      older.id,
+    );
+    expect(getFormDraft("add-plain-item.kruh integralni")).toBeNull();
+  });
 });
