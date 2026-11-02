@@ -8,6 +8,7 @@ import {
 
 // A slow backend must not hold back the product page just for its share image.
 const PHOTO_TIMEOUT_MS = 3_000;
+const LISTED_EANS_TIMEOUT_MS = 15_000;
 
 /** Full-size main photo of a product, or null when it has none or the backend is unreachable */
 export const getMainPhotoUrl = cache(
@@ -33,6 +34,7 @@ export const getMainPhotoUrl = cache(
 export async function getListedEans(): Promise<string[]> {
   const response = await fetch(`${serverApiUrl()}/api/products/catalog/eans`, {
     next: { revalidate: 60 * 60 },
+    signal: AbortSignal.timeout(LISTED_EANS_TIMEOUT_MS),
   });
 
   // Throwing makes the sitemap answer 500, which crawlers retry, instead of an empty list.
