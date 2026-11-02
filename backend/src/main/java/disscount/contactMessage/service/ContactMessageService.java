@@ -40,7 +40,7 @@ public class ContactMessageService {
         }
 
         User sender = SecurityUtils.getCurrentUserIdOptional()
-                .flatMap(userRepository::findById)
+                .flatMap(userRepository::findByIdAndDeletedAtIsNull)
                 .orElse(null);
 
         ContactMessage message = ContactMessage.builder()
