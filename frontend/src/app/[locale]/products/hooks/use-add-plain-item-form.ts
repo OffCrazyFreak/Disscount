@@ -12,6 +12,8 @@ import { shoppingListService } from "@/lib/api";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { stashModalError } from "@/lib/modal/modal-error-bus";
 import { useModalError } from "@/hooks/use-modal-error";
+import { useFormDraft } from "@/hooks/use-form-draft";
+import { getFormDraft } from "@/utils/browser/local-storage";
 import {
   type AddToListFormData,
   addToListFormSchema,
@@ -28,7 +30,7 @@ const EMPTY_FORM_VALUES: AddToListFormData = {
   chainCode: null,
 };
 
-const ERROR_KEY = "add-plain-item";
+const DRAFT_KEY = "add-plain-item";
 
 /** Adds an item no store sells to a list of the user's choice. */
 export function useAddPlainItemForm(open: boolean, initialName: string) {
@@ -45,8 +47,27 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
     mode: "onChange",
     defaultValues: EMPTY_FORM_VALUES,
   });
-  const selection = useSelectedShoppingList(form, undefined, !!user, null);
-  useModalError(open, ERROR_KEY, form);
+  // Read once on mount, as add to list does.
+  const [restoredListId] = useState(() => {
+    const drafted = getFormDraft(DRAFT_KEY)?.values.shoppingListId;
+
+    return typeof drafted === "string" ? drafted : null;
+  });
+  const selection = useSelectedShoppingList(
+    form,
+    undefined,
+    !!user,
+    restoredListId,
+  );
+  // Gated until lists load, so the auto-selected default isn't drafted as a change.
+  const isFormReady = open && !selection.isLoadingLists;
+  const { clearDraft, flushDraft } = useFormDraft({
+    draftKey: DRAFT_KEY,
+    form,
+    enabled: isFormReady,
+  });
+  // Same gate: restoring the draft resets the form, which would wipe an error shown earlier.
+  useModalError(isFormReady, DRAFT_KEY, form);
   const createListMutation = shoppingListService.useCreateShoppingList();
   const addItemMutation = shoppingListService.useAddItemToShoppingList();
 
@@ -57,7 +78,8 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
       title: data.customListTitle.trim(),
     });
     // A failed item add retries into this list instead of creating another one.
-    form.setValue("shoppingListId", created.id);
+    form.setValue("shoppingListId", created.id, { shouldDirty: true });
+    flushDraft();
     return created.id;
   }
 
@@ -75,6 +97,8 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
       mergesIntoExisting(existingList?.items, { name: itemName });
 
     // Optimistic close, as in the add to list modal: an offline add pauses until reconnect.
+    // Drafted first, so a failure reopens a fresh form with the same list and amount.
+    flushDraft();
     closeModalUrl();
 
     try {
@@ -88,6 +112,7 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
         },
       });
 
+      clearDraft();
       toast.success(
         isQuantityIncrease
           ? t("addPlainItem.toast.quantityIncreased", { name: listTitle })
@@ -105,7 +130,7 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
         },
       );
     } catch (error) {
-      stashModalError(ERROR_KEY, error);
+      stashModalError(DRAFT_KEY, error);
       openModalUrl({ name: "add-plain-item", itemName });
     }
   }
