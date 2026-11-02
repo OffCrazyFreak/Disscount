@@ -86,7 +86,6 @@ export default function StoreChainSelect({
     }
   }, [value, defaultValue, onChange, disabled]);
 
-  // Calculate price difference for a store
   const getPriceDifference = (chainCode: string) => {
     // When item is checked, use database prices
     if (isChecked) {

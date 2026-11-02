@@ -40,7 +40,6 @@ const StoreItem = memo(
   ({ stat, isExpanded, onToggle, isLast }: IStoreItemProps) => {
     const t = useTranslations("statistics");
 
-    // Fetch stores for this specific chain when the item is rendered
     const { data: storesData, isLoading: storesLoading } =
       cijeneService.useListStoresByChain(stat.chain_code);
 
