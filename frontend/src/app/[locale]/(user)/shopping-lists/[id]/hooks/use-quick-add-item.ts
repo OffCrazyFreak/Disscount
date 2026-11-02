@@ -21,10 +21,13 @@ export function useQuickAddItem(listId: string) {
   const [text, setText] = useState("");
   const query = useDebouncedValue(text.trim(), SUGGESTION_DEBOUNCE_MS);
   // Checks the live text too, so a cleared or retyped field never shows the last item's
-  // suggestions while the debounce catches up.
+  // suggestions while the debounce catches up; typing on or deleting back keeps them.
+  const live = text.trim().toLowerCase();
+  const settled = query.toLowerCase();
   const hasQuery =
-    query.length >= MIN_QUERY_LENGTH &&
-    text.trim().toLowerCase().startsWith(query.toLowerCase());
+    live.length >= MIN_QUERY_LENGTH &&
+    settled.length >= MIN_QUERY_LENGTH &&
+    (live.startsWith(settled) || settled.startsWith(live));
   const [lastAdded, setLastAdded] = useState({ name: "", count: 0 });
 
   const suggestionsQuery = useGetProductByName({
