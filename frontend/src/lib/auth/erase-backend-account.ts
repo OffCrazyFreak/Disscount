@@ -45,7 +45,7 @@ export async function eraseBackendAccount(
   }
 
   console.error("Backend account erasure failed:", status);
-  // The account id only, as elsewhere in Sentry; every deletion fails while this keeps firing.
+  // Only the account id identifies the user; every deletion fails while this keeps firing.
   Sentry.captureException(
     new Error(`Backend account erasure failed: ${status}`),
     { tags: { flow: "account-erasure" }, user: { id: userId } },
