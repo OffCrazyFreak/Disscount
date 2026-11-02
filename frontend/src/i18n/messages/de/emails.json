@@ -55,7 +55,7 @@
     "subject": "Schließe deine Registrierung bei Disscount ab",
     "preview": "Lege ein Passwort fest und schließe die Registrierung ab. Der Link ist {minutes, plural, one {# Minute} other {# Minuten}} gültig.",
     "heading": "Schließe deine Registrierung ab",
-    "intro": "Gerade wollte sich jemand mit dieser E-Mail-Adresse bei Disscount registrieren. Dafür gibt es schon ein Konto, aber die Adresse ist noch nicht bestätigt. Wenn das Konto dir gehört, lege mit dem Button unten ein Passwort fest: Damit bestätigst du die Adresse, und ein vorher eingegebenes Passwort gilt nicht mehr. Der Link ist {minutes, plural, one {# Minute} other {# Minuten}} gültig.",
+    "intro": "Gerade wollte sich jemand mit dieser E-Mail-Adresse bei Disscount registrieren. Dafür gibt es schon ein Konto, aber die Adresse ist noch nicht bestätigt. Wenn das Konto dir gehört, lege mit dem Button unten ein Passwort fest und bestätige damit die Adresse. Der Link ist {minutes, plural, one {# Minute} other {# Minuten}} gültig.",
     "button": "Passwort festlegen",
     "footnote": "Das warst nicht du? Dann kannst du diese E-Mail einfach ignorieren. Solange die Adresse nicht bestätigt ist, kann sich niemand mit einem Passwort in dieses Konto einloggen."
   }

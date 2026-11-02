@@ -55,7 +55,7 @@
     "subject": "Finish signing up for Disscount",
     "preview": "Set a password to finish signing up. The link expires in {minutes, plural, one {# minute} other {# minutes}}.",
     "heading": "Finish signing up",
-    "intro": "Someone just tried to sign up for Disscount with this email address. An account for it already exists, but the address isn't confirmed yet. If the account is yours, set a password with the button below: that confirms the address, and any password entered before stops working. This link expires in {minutes, plural, one {# minute} other {# minutes}}.",
+    "intro": "Someone just tried to sign up for Disscount with this email address. An account for it already exists, but the address isn't confirmed yet. If the account is yours, set a password with the button below to confirm the address. This link expires in {minutes, plural, one {# minute} other {# minutes}}.",
     "button": "Set password",
     "footnote": "If this wasn't you, you can ignore this email. Until the address is confirmed, nobody can sign in to this account with a password."
   }

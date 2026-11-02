@@ -55,7 +55,7 @@
     "subject": "Dovrši registraciju na Disscountu",
     "preview": "Postavi lozinku i dovrši registraciju. Poveznica vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
     "heading": "Dovrši registraciju",
-    "intro": "Netko se upravo pokušao registrirati na Disscount s ovom email adresom. Račun za nju već postoji, ali adresa još nije potvrđena. Ako je račun tvoj, postavi lozinku putem gumba ispod: time potvrđuješ adresu, a ranije unesena lozinka prestaje vrijediti. Poveznica vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
+    "intro": "Netko se upravo pokušao registrirati na Disscount s ovom email adresom. Račun za nju već postoji, ali adresa još nije potvrđena. Ako je račun tvoj, postavi lozinku putem gumba ispod i time potvrdi adresu. Poveznica vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
     "button": "Postavi lozinku",
     "footnote": "Ovo nije od tebe? Slobodno zanemari ovaj email. Dok adresa nije potvrđena, nitko se ne može prijaviti lozinkom u ovaj račun."
   }

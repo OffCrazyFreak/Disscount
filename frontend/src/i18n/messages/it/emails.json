@@ -55,7 +55,7 @@
     "subject": "Completa la registrazione a Disscount",
     "preview": "Imposta una password per completare la registrazione. Il link scade tra {minutes, plural, one {# minuto} other {# minuti}}.",
     "heading": "Completa la registrazione",
-    "intro": "Qualcuno ha appena provato a registrarsi su Disscount con questo indirizzo email. Esiste già un account, ma l'indirizzo non è ancora confermato. Se l'account è tuo, imposta una password con il pulsante qui sotto: così confermi l'indirizzo e la password inserita prima smette di funzionare. Il link scade tra {minutes, plural, one {# minuto} other {# minuti}}.",
+    "intro": "Qualcuno ha appena provato a registrarsi su Disscount con questo indirizzo email. Esiste già un account, ma l'indirizzo non è ancora confermato. Se l'account è tuo, imposta una password con il pulsante qui sotto per confermare l'indirizzo. Il link scade tra {minutes, plural, one {# minuto} other {# minuti}}.",
     "button": "Imposta password",
     "footnote": "Non è opera tua? Ignora questa email. Finché l'indirizzo non è confermato, nessuno può accedere a questo account con una password."
   }
