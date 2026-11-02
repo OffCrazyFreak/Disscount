@@ -107,9 +107,13 @@ flowchart TD
     Linked -->|"Yes"| SignIn["Sign in to the linked user"]
     Linked -->|"No"| Exists{"User with this email exists?"}
     Exists -->|"No"| Create["Create the user with<br/>emailVerified = provider's email_verified claim"]
-    Exists -->|"Yes"| Gate{"Local email verified, and<br/>trusted provider or verified claim?"}
-    Gate -->|"Yes"| Link["Auto-link to the existing account"]
-    Gate -->|"No"| Refuse["account_not_linked"]
+    Exists -->|"Yes"| Local{"Local email verified?"}
+    Local -->|"No"| Refuse["account_not_linked"]
+    Local -->|"Yes"| Trusted{"Provider in trustedProviders?<br/>(none while Facebook is off)"}
+    Trusted -->|"Yes"| Link["Auto-link to the existing account"]
+    Trusted -->|"No (Google)"| Claim{"Provider's email_verified<br/>claim true?"}
+    Claim -->|"Yes"| Link
+    Claim -->|"No"| Refuse
 ```
 
 Why this shape:
@@ -117,6 +121,7 @@ Why this shape:
 - Better Auth stores the provider's `email_verified` claim on the new user, and marks the user verified on a later sign-in through an already linked provider that now reports the email as verified. We add no hook on top.
 - An earlier `databaseHooks.account.create.after` hook marked every OAuth email verified. It was removed because it overrode the provider: a Google account with an unverified email would have been stored as verified, and the real owner of that address could then be auto-linked into it.
 - Facebook sends no `email_verified` claim, so a new Facebook user is stored unverified and an existing account cannot auto-link to it. The other direction is the risk: while `facebook` is in `trustedProviders`, any Facebook login whose email matches a verified account links into that account. Facebook stays disabled until #43 settles this.
+- Google is deliberately not in `trustedProviders`. Google sends `email_verified`, so a Google login whose email Google has verified still links into the matching account, and one whose email Google has not verified is refused instead of being trusted blindly. The same check applies when a signed-in user links Google from the Security tab: Better Auth refuses an untrusted provider whose email is unverified.
 - Email/password sign-ups still have to verify via the emailed link.
 
 Linking failures are surfaced to the user by a global toast (see [Section 6](#6-the-oauth-error-toast)).
