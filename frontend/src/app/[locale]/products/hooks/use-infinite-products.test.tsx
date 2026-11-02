@@ -147,4 +147,20 @@ describe("useInfiniteProducts while the next search loads", () => {
     await waitFor(() => expect(result.current.total).toBe(1));
     expect(result.current.isRefreshing).toBe(false);
   });
+
+  it("stays loading when filters hid every previous result", async () => {
+    serveSlowSugar();
+    let q = "šećer";
+    const { result, rerender } = renderHookWithProviders(() =>
+      useInfiniteProducts(q, { selectedBrands: ["Dukat"] }),
+    );
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.total).toBe(0);
+
+    q = "šećer smeđi";
+    rerender();
+
+    expect(result.current.isRefreshing).toBe(true);
+    expect(result.current.isLoading).toBe(true);
+  });
 });

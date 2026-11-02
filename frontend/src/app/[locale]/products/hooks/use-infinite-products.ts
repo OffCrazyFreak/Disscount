@@ -41,6 +41,14 @@ interface IUseInfiniteProductsResult {
 
 const EMPTY_SELECTION: string[] = [];
 
+// An old "no results" would read as the answer to the new search, so it counts as loading.
+function isShowingPreviousEmptyResults(
+  isPlaceholderData: boolean,
+  itemCount: number,
+) {
+  return isPlaceholderData && itemCount === 0;
+}
+
 export default function useInfiniteProducts(
   q: string,
   options?: IUseInfiniteProductsOptions,
@@ -141,7 +149,10 @@ export default function useInfiniteProducts(
     visibleItems,
     total: filteredItems.length,
     isTruncated,
-    isLoading: isLoading || pricesLoading,
+    isLoading:
+      isLoading ||
+      pricesLoading ||
+      isShowingPreviousEmptyResults(isPlaceholderData, filteredItems.length),
     isRefreshing: isPlaceholderData,
     error: error || pricesError,
     hasPartialPriceData: hasPartialError,

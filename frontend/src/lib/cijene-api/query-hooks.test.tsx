@@ -50,21 +50,6 @@ describe("useGetProductByName", () => {
     expect(result.current.data?.products[0].name).toBe("Kruh bijeli");
   });
 
-  it("does not carry over a search that found nothing", async () => {
-    serveSearch();
-    let q = "nepostojeće";
-    const { result, rerender } = renderHookWithProviders(() =>
-      useGetProductByName({ q }),
-    );
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-    q = "kruh";
-    rerender();
-
-    expect(result.current.isPlaceholderData).toBe(false);
-    expect(result.current.isLoading).toBe(true);
-  });
-
   it("shows no old results once the search is cleared", async () => {
     serveSearch();
     let q = "mlijeko";
