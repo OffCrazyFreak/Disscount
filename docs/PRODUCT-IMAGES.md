@@ -42,7 +42,7 @@ Their API allows 15 product reads a minute per IP and may ban an IP that goes ov
 
 - A user's photo confirms any other user's pending photo of the same EAN: two different people uploaded from the same barcode page. The pixels are not compared.
 - An admin's choice confirms a pending photo. Setting a main photo pins it, and automatic picks never replace a pinned one.
-- Without a pin, the main photo is the best of: an admin photo, a Croatian front, an English front, any front, a verified user photo, a pending user photo, then an uncopied front (which the background job copies next).
+- Without a pin, the main photo is the best of: an admin photo, a Croatian front, an English front, any front, a verified user photo, an uncopied front (which the background job copies next), then a pending user photo. A new upload never takes the main spot from an uncopied front, so an Open Food Facts photo is not pushed out by an unconfirmed one.
 - Hiding the main photo unpins and hands the choice back to the automatic pick.
 
 ## 4. Rendering and the white background
@@ -61,7 +61,7 @@ All in `ProductImageJobs`, all off when the public bucket is not configured or `
 | Render main photos | every 15 s, 10 at a time                                     | copies uncopied main photos into the bucket, most widely sold first, one download at a time                       |
 | Limiter sweep      | every 5 min                                                  | clears the upload rate limiter                                                                                    |
 
-The last import is stored in `product_image_import_run`, so a redeploy does not download the export again. A photo that cannot be read or is gone on Open Food Facts (404 or 410) is hidden so it cannot block the queue; network trouble pauses the batch and retries at the next tick.
+The last import is stored in `product_image_import_run`, so a redeploy does not download the export again. A photo that cannot be read, is gone on Open Food Facts (404 or 410), is over the download size cap or has a key that forms no valid URL is hidden so it cannot block the queue; network trouble pauses the batch and retries at the next tick. The jobs share a scheduler pool of four threads (`spring.task.scheduling.pool.size`), so the long weekly import never holds back card purges or photo copying.
 
 ## 6. API
 
