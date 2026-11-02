@@ -192,19 +192,16 @@ jobs:
     outputs:
       is-tip: ${{ steps.tip.outputs.is-tip }}
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/actions
+
       - id: tip
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
-          RELEASE_ID: ${{ github.sha }}
-        run: |
-          tip=$(gh api "repos/$REPOSITORY/commits/dev" --jq .sha)
-          if [ "$tip" = "$RELEASE_ID" ]; then
-            echo "is-tip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "::notice::dev has moved on to $tip; that run deploys instead of this one."
-            echo "is-tip=false" >> "$GITHUB_OUTPUT"
-          fi
+        uses: ./.github/actions/dev-tip
+        with:
+          release-id: ${{ github.sha }}
+          token: ${{ github.token }}
 
   deploy:
     name: Deploy (dev)
@@ -227,7 +224,15 @@ jobs:
           persist-credentials: false
           sparse-checkout: .github/actions
 
-      - uses: ./.github/actions/dokploy-deploy
+      # Checked again inside the lock: re-running this job reuses the freshness job's old answer.
+      - id: tip
+        uses: ./.github/actions/dev-tip
+        with:
+          release-id: ${{ github.sha }}
+          token: ${{ github.token }}
+
+      - if: steps.tip.outputs.is-tip == 'true'
+        uses: ./.github/actions/dokploy-deploy
         with:
           release-id: ${{ github.sha }}
           environment-tag: dev

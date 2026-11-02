@@ -72,7 +72,7 @@ runs:
           --header "Content-Type: application/json" \
           --data "{\"composeId\":\"$COMPOSE_ID\"}" || true)
         if [[ "$status" != 2* ]]; then
-          echo "::error::Dokploy did not accept the deploy (HTTP $status). The $ENVIRONMENT_TAG tag already points at $RELEASE_ID; run Rollback with the last good commit before any Redeploy."
+          echo "::error::Dokploy did not accept the deploy (HTTP $status). The $ENVIRONMENT_TAG tag already points at $RELEASE_ID; run Rollback with the last good commit (or, before Rollback is on main, push a revert to dev) before any Redeploy."
           exit 1
         fi
 
@@ -93,5 +93,5 @@ runs:
           fi
           sleep 15
         done
-        echo "::error::$APP_URL did not report $RELEASE_ID within 15 minutes. The $ENVIRONMENT_TAG tag already points at it; run Rollback with the last good commit before any Redeploy."
+        echo "::error::$APP_URL did not report $RELEASE_ID within 15 minutes. The $ENVIRONMENT_TAG tag already points at it; run Rollback with the last good commit (or, before Rollback is on main, push a revert to dev) before any Redeploy."
         exit 1
