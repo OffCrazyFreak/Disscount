@@ -73,14 +73,17 @@ async function signInWithGoogle(emailVerified: boolean) {
     .map((setCookie) => setCookie.split(";")[0])
     .join("; ");
 
-  await auth.handler(
+  const callback = await auth.handler(
     new Request(
       `http://localhost:3000/api/auth/callback/google?code=code&state=${state}`,
       { headers: { cookie } },
     ),
   );
 
-  return tables.user.find((user) => user.email === "person@example.com");
+  return {
+    user: tables.user.find((user) => user.email === "person@example.com"),
+    redirect: callback.headers.get("location") ?? "",
+  };
 }
 
 describe("Google sign-up email verification", () => {
@@ -90,13 +93,13 @@ describe("Google sign-up email verification", () => {
   });
 
   it("keeps the email unverified when Google has not verified it", async () => {
-    const user = await signInWithGoogle(false);
+    const { user } = await signInWithGoogle(false);
 
     expect(user).toMatchObject({ emailVerified: false });
   });
 
   it("marks the email verified when Google has verified it", async () => {
-    const user = await signInWithGoogle(true);
+    const { user } = await signInWithGoogle(true);
 
     expect(user).toMatchObject({ emailVerified: true });
   });
@@ -122,8 +125,9 @@ describe("Google sign-in linking into an existing account", () => {
   }
 
   it("refuses to link when Google has not verified the email", async () => {
-    await signInWithGoogle(false);
+    const { redirect } = await signInWithGoogle(false);
 
+    expect(redirect).toContain("error=account_not_linked");
     expect(googleAccounts()).toEqual([]);
   });
 
