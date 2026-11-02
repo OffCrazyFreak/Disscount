@@ -5,6 +5,7 @@ import { Send } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 import EmailField from "@/components/custom/auth/components/fields/email-field";
 import InboxNotice from "@/components/custom/common/inbox-notice";
 import { useForgotPasswordForm } from "@/components/custom/auth/hooks/use-forgot-password-form";
@@ -31,35 +32,33 @@ export default function ForgotPasswordForm({
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
-      <p className="text-sm text-muted-foreground">{t("forgot.intro")}</p>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+        <p className="text-sm text-muted-foreground">{t("forgot.intro")}</p>
 
-      <EmailField
-        id="forgot-email"
-        registration={form.register("email")}
-        error={formState.errors.email?.message}
-      />
+        <EmailField control={form.control} name="email" />
 
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full"
-        icon={Send}
-        iconPlacement="left"
-        loading={formState.isSubmitting}
-        loadingText={t("forgot.sending")}
-        loadingIconPlacement="left"
-      >
-        {t("forgot.submit")}
-      </Button>
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full"
+          icon={Send}
+          iconPlacement="left"
+          loading={formState.isSubmitting}
+          loadingText={t("forgot.sending")}
+          loadingIconPlacement="left"
+        >
+          {t("forgot.submit")}
+        </Button>
 
-      <button
-        type="button"
-        onClick={onBackToLogin}
-        className="cursor-pointer text-sm text-primary underline hover:text-primary/80"
-      >
-        {t("forgot.backToLogin")}
-      </button>
-    </form>
+        <button
+          type="button"
+          onClick={onBackToLogin}
+          className="cursor-pointer text-sm text-primary underline hover:text-primary/80"
+        >
+          {t("forgot.backToLogin")}
+        </button>
+      </form>
+    </Form>
   );
 }

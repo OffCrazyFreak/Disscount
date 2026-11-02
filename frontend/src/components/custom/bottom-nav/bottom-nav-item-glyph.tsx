@@ -2,6 +2,7 @@ import { ChevronDown } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { formatBadgeCount } from "@/utils/badge-count";
 
 interface IBottomNavItemGlyphProps {
   icon: LucideIcon;
@@ -32,8 +33,13 @@ export default function BottomNavItemGlyph({
       />
 
       {badgeCount !== undefined && (
-        <Badge size="count" className="absolute -top-2 -right-3">
-          {badgeCount}
+        // The cell's own accessible name carries the count.
+        <Badge
+          size="count"
+          aria-hidden="true"
+          className="absolute -top-2 -right-3"
+        >
+          {formatBadgeCount(badgeCount)}
         </Badge>
       )}
 

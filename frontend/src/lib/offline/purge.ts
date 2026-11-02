@@ -5,6 +5,7 @@ import { trackPurge } from "@/lib/offline/purge-gate";
 import { deleteForIdentity } from "@/lib/offline/card-photo-store";
 import { deleteOutboxForIdentity } from "@/lib/offline/card-photo-outbox";
 import { removePersistedCacheFor } from "@/lib/offline/persister";
+import { setWatchlistPriceSnapshot } from "@/utils/browser/storage/watchlist";
 
 // Public data is identical logged in or out, so it survives logout.
 const PUBLIC_QUERY_ROOT = "cijene";
@@ -66,6 +67,8 @@ async function runPurge(queryClient: QueryClient, identity: string) {
     deleteOutboxForIdentity(identity),
     deleteUsedQueueForIdentity(identity),
     purgeServiceWorkerCaches(),
+    // The baseline lists every watched EAN, the same leak the buckets above guard against.
+    Promise.resolve().then(() => setWatchlistPriceSnapshot(identity, null)),
   ]);
 
   // Never let a failed purge block logout / auth-loss handling.

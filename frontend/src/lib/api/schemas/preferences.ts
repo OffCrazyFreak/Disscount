@@ -30,7 +30,6 @@ export const bulkPinnedPlaceRequestSchema = z.object({
   places: z.array(pinnedPlaceRequestSchema),
 });
 
-// Type exports
 export type PinnedStoreDto = z.infer<typeof pinnedStoreDtoSchema>;
 export type BulkPinnedStoreRequest = z.infer<
   typeof bulkPinnedStoreRequestSchema

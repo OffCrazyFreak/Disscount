@@ -61,6 +61,9 @@ export function parseAddress(
   let number: string | null = null;
 
   for (let index = words.length - 1; index >= 0; index--) {
+    // A number before "bb" belongs to the street ("Ulica 1. svibnja bb").
+    if (words[index] === "bb") break;
+
     if (/^\d+[a-z]?$/.test(words[index])) {
       // Upstream writes "0" where a street has no number, same as "bb".
       number = /^0+$/.test(words[index]) ? null : words[index];

@@ -33,13 +33,6 @@ function typeChanged(current: unknown, draftValue: unknown): boolean {
   );
 }
 
-// isSubmitting covers optimistic close, where the modal unmounts before clearDraft runs.
-function isClosingWithoutSubmit<T extends FieldValues>(
-  form: UseFormReturn<T>,
-): boolean {
-  return !form.formState.isSubmitted && !form.formState.isSubmitting;
-}
-
 /**
  * Persists a modal form's changed values to localStorage (24h TTL) so users can
  * close a modal and resume later. "Changed" is computed by comparing current
@@ -57,13 +50,20 @@ export function useFormDraft<T extends FieldValues>({
   const [dismissed, setDismissed] = useState(false);
   const restoredKeyRef = useRef<string | null>(null);
 
-  // A subscription, not form.formState: the React Compiler would cache a read off the
-  // stable form object and keep serving the first defaults.
-  const { defaultValues } = useFormState({ control: form.control });
-  const stateRef = useRef({ exclude, defaultValues });
+  // A subscription, not form.formState: the React Compiler caches reads off the stable
+  // form object, and RHF never refreshes a flag that no render has read.
+  const { defaultValues, isSubmitted, isSubmitting } = useFormState({
+    control: form.control,
+  });
+  const stateRef = useRef({
+    exclude,
+    defaultValues,
+    isSubmitted,
+    isSubmitting,
+  });
 
   useEffect(() => {
-    stateRef.current = { exclude, defaultValues };
+    stateRef.current = { exclude, defaultValues, isSubmitted, isSubmitting };
   });
 
   useEffect(() => {
@@ -120,7 +120,9 @@ export function useFormDraft<T extends FieldValues>({
     return () => {
       clearTimeout(timer);
       subscription.unsubscribe();
-      if (isClosingWithoutSubmit(form)) flushDraft();
+      // A finished submit already cleared the draft, but a failed optimistic submit reopens from it.
+      const latest = stateRef.current;
+      if (!latest.isSubmitted || latest.isSubmitting) flushDraft();
     };
   }, [enabled, draftKey, form, flushDraft]);
 

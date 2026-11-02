@@ -56,11 +56,12 @@ export function useSecuritySettings(active: boolean) {
     },
   });
 
-  // Keep the email field in sync with the loaded account unless mid-edit.
+  // reset, since resetField skips a field the closed tab has not registered; keepDirtyValues here, not in resetOptions, so the footer's Reset still discards edits.
   useEffect(() => {
-    if (!form.formState.dirtyFields.email) {
-      form.resetField("email", { defaultValue: currentEmail });
-    }
+    form.reset(
+      { email: currentEmail, newPassword: "", currentPassword: "" },
+      { keepDirtyValues: true, keepDirty: true },
+    );
   }, [currentEmail, form]);
 
   const { submit } = useCredentialsSubmit({

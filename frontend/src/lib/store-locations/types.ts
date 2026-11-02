@@ -1,6 +1,9 @@
+import type { z } from "zod";
+
+import type { locationSourceSchema } from "@/lib/api/schemas";
+
 /** Where a store's coordinates came from, best first. */
-export type LocationSource =
-  "upstream" | "chain_locator" | "dgu" | "geoapify" | "nominatim" | "manual";
+export type LocationSource = z.infer<typeof locationSourceSchema>;
 
 /** How exactly the coordinates pin the store. */
 export type LocationPrecision = "building" | "street" | "settlement";

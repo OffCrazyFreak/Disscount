@@ -99,11 +99,11 @@ Each non-centre cell stacks, from back to front:
 
 1. the **active disc**, a `motion.span` with a shared `layoutId` so it slides between cells rather than reappearing,
 2. the **completion ring** and the **long-press ring**, both circles sharing the disc's geometry so they stay concentric,
-3. the **icon** at 24px, with the notification **badge** and the re-tap **chevron** hung off it,
+3. the **icon** at 24px, with the price-drop **badge** and the re-tap **chevron** hung off it,
 4. the **label**, bold when the cell is active,
 5. the **USKORO chip** for teaser cells, rotated off the right edge.
 
-The centre cell is different: a raised, filled, brand-green 44.8px circle with `Proizvodi` underneath, which opens a sheet instead of navigating.
+The centre cell is different: a raised, filled, brand-green 44.8px circle with `Proizvodi` underneath, which opens a sheet instead of navigating. The raise is a 0.2rem upward transform on the circle, and the long-press ring is drawn on the circle's face in `primary-foreground`, inside the raised element: a transform moves no layout, so a ring outside it would stay centred on the unraised cell, and a ring around the circle would cross the pill's top edge, which the raised circle all but touches.
 
 ### Why the teaser cells sit on the outside
 
@@ -522,7 +522,7 @@ The timer lives outside React because the bar and the product cards own very dif
 
 | Indicator                     | Source                                                                            | Behaviour                                                             |
 | ----------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Badge on **Praćenje**         | `useNotifications()`, the same count the desktop header shows                     | only when the count is above zero                                     |
+| Badge on **Praćenje**         | `useWatchlistPriceDropCount()`, the same count the sidebar and header show        | only above zero, shown as `9+` from ten, cleared on `/watchlist`      |
 | Completion ring on **Popisi** | `useGetShoppingListById`, keyed off the pathname                                  | only on `/shopping-lists/[id]`, and only for a list that has items    |
 | Active disc                   | `isRouteActive(pathname, item.href)`, the scrubbed cell, or a settling navigation | slides between cells via `layoutId`, and fades out on the search cell |
 | Chevron on the active icon    | `useTabReentry`                                                                   | only while a return position is held                                  |
@@ -557,7 +557,15 @@ return { from: wasSearchActive ? 0 : 1, to: isSearchActive ? 0 : 1 };
 
 The completion ring is scoped to a list's own page on purpose: it tracks the list you are actually shopping, so you can glance at the bar in a store and see how far through you are without opening anything.
 
-The badge is a placeholder. It reuses the notification count so the bar and the desktop header can never disagree, and so the bar needs no new endpoint. Making it a real price-drop count is tracked on the project board.
+The badge counts watched products whose best price fell since you last opened `/watchlist` on this device. "Best price" is the cheapest chain inside your scope: your pinned stores' chains if you have any, otherwise every chain. It is computed in the browser from the product prices the app already fetches for the watchlist, so it adds no price requests and needs no endpoint (each surface does observe the watchlist query, so opening the mobile drawer refetches `/api/watchlist/me` when it is stale):
+
+- `lib/watchlist/use-watchlist-price-drop-count.ts` compares today's prices with a per-account snapshot in localStorage (`watchlistPriceSnapshots`, see [STATE-PERSISTENCE.md](STATE-PERSISTENCE.md#4b-device-preferences)).
+- Opening `/watchlist` resets the snapshot to today's prices, which clears the badge. Only a visible tab counts as a visit, so a background tab left on the page that refetches on reconnect does not clear drops nobody saw. Elsewhere, a product seen for the first time only gets its baseline, so it never counts on the day you add it. A product whose price failed to load keeps its old baseline, so it can still count after a visit. Unwatched products leave the snapshot, so re-watching one starts fresh.
+- The snapshot records the store scope (the sorted pinned chain codes) its prices were read in. Pinning or unpinning a store rebases it silently instead of reporting every product that is cheaper at another chain.
+- A tab writes the snapshot only when its own prices, watchlist, scope or route change, and merges against a fresh read when it does, so a visit in one tab survives and two tabs that disagree never overwrite each other in a loop. Other tabs pick the write up through the `storage` event. Nothing is written while the pinned stores failed to load, since that would read as "every chain" and rebase away unseen drops. The sign-out purge deletes the departing account's snapshot, because it lists every watched EAN, and a write only happens while the cache identity matches the account, so a profile that has not caught up with a switch cannot recreate it.
+- The visual badge stops at `9+` (`utils/badge-count.ts`) and is `aria-hidden`. The cell's accessible name carries the exact count instead (`Praćenje, 12 novih sniženja`), and one polite `role="status"` region in the layout (`components/custom/watchlist/price-drop-status.tsx`) announces a change, since a changed `aria-label` is never read out. It stays quiet about the first count each account settles on (no fetch in flight, and no product still waiting for its first price), so a cold start or a sign-in does not talk over the page.
+- The header bell still shows threshold alerts from `useNotifications()`. The two numbers answer different questions: "what is on sale for me now" and "what got cheaper since I last looked".
+- It is per device: a visit on the phone does not clear the laptop. The server-side inbox (#222) is meant to replace the hook's body with an unseen count shared across devices, and the app icon badge (#133) should read that same source.
 
 ---
 
@@ -678,7 +686,7 @@ Recorded so the next person does not re-litigate them. Each of these was an expl
 | Karta holds the store preferences                | Nothing map-specific, since the map will load pinned stores and centre on the user by itself. A "nearby stores" hold was considered and dropped as redundant for the same reason                                                                                                        |
 | Compaction on scroll, never hiding               | iOS 26's full minimize behaviour, which trades away the discoverability this feature exists to buy                                                                                                                                                                                      |
 | Completion ring on Popisi                        | A full "active list" accessory strip above the bar (iOS 26's `tabViewBottomAccessory`), which is higher value but needs a product answer for what "active" means                                                                                                                        |
-| Reuse the notification count for the badge       | A real price-drop count, which needs backend work; or a dot; or no badge                                                                                                                                                                                                                |
+| A client-side price-drop count for the badge     | A last-seen timestamp on the user (a backend column, plus one extra historical price fetch per watched product to know what the price was), or a snapshot column on each watchlist row (half of the server-side inbox, in a shape it would not keep)                                    |
 | No haptics                                       | Android-only `navigator.vibrate`, which is inconsistent across platforms for no gain                                                                                                                                                                                                    |
 | Sheet runs behind the bar                        | Ending the sheet at the bar's top edge (a visible gap), or covering the bar like a normal modal sheet                                                                                                                                                                                   |
 | Only the products sheet is non-modal             | All four non-modal, which was shipped first and made three sheets pay for a property only one needed; or all modal, which contradicts what the products sheet is for. Cost paid: two modes to remember, keyed on one question, does the page behind change                              |
@@ -713,6 +721,7 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 | `components/custom/bottom-nav/bottom-nav-item.tsx`          | One plain cell: icon, label, badge, rings, USKORO chip              |
 | `components/custom/bottom-nav/bottom-nav-center-item.tsx`   | The raised filled search cell with its `Proizvodi` label            |
 | `components/custom/bottom-nav/bottom-nav-item-glyph.tsx`    | The icon with its badge and return chevron                          |
+| `lib/watchlist/use-watchlist-price-drop-count.ts`           | The Praćenje badge count, shared with the sidebar and header        |
 | `components/custom/bottom-nav/bottom-nav-indicator.tsx`     | The `layoutId` active disc                                          |
 | `components/custom/common/hold-progress-ring.tsx`           | One ring, shared by long-press feedback and list completion         |
 | `components/custom/bottom-nav/bottom-nav-classes.ts`        | The class strings both cell components share                        |
@@ -866,7 +875,7 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 | Unlocking Karta's hold when the map ships     | ✅ auto    | Its target already works; dropping `comingSoon` is all that gates it                        |
 | **Adding or reordering a cell**               | ❌ manual  | Edit `bottom-nav-items.ts`, and remember a shipped tab set should not change                |
 | **Enabling a long press on a new cell**       | ❌ manual  | Flip `longPressEnabled` in `bottom-nav-items.ts`, and drop `comingSoon` so the cell unlocks |
-| **A real price-drop badge count**             | ❌ manual  | Needs an endpoint or a per-user last-seen timestamp                                         |
+| Clearing the price-drop badge on a visit      | ✅ auto    | `useWatchlistPriceDropCount` resets the snapshot while `/watchlist` is open                 |
 | **Turning the React Query devtools back on**  | ❌ manual  | `NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS=true`, then restart the dev server                 |
 | **Verifying the iOS keyboard and safe areas** | ❌ manual  | Needs a real iPhone; DevTools emulation cannot show either                                  |
 
@@ -967,6 +976,8 @@ Together those are the general rule: a measured-overflow container can only meas
 
 **The iOS keyboard will not always open by itself.** iOS raises it only when `.focus()` runs inside the same task as the gesture, and a sheet that mounts on open, a router transition and Next's history sync are all async. The cursor lands in the field, but on iOS the user may need one tap. Android and desktop open it directly. Avoiding this needs an always-mounted field or a decoy-input hack, both traded away for one consistent sheet shell.
 
+**The keyboard does not close by itself after a search either.** react-hook-form's `handleSubmit` prevents the native submit and `router.push` never unmounts the field in the persistent header or sidebar, so nothing moved focus and the keyboard covered the results. `SearchBar` now calls `dismissTouchKeyboard()` (`components/custom/search/dismiss-touch-keyboard.ts`) on a submit by Enter or the button and on a scan result, which blurs the focused input only under `(pointer: coarse)`; a mouse or hardware keyboard keeps focus in the field. Live typing on `autoSearch` surfaces never blurs. Enter over an unchanged or empty query is the exception to the submit path on a bar with a search button: the button is disabled then, which blocks Enter's implicit submit, or once scrolled it is back to top, which leaves the form with no submit button so Enter would search again. On a touch pointer `SearchBar`'s `onKeyDown` prevents that Enter and blurs the field itself, without running the search. Because focus no longer follows the search, the products page reads the settled count out through `ProductsResultsStatus`, a polite `role="status"` region that stays mounted and empties while a search loads. A search React Query answers from cache never loads, so if its announcement matches the previous one word for word, nothing is read out.
+
 **`scrollToTop` never honoured reduced motion.** Its comment claimed it did, but browsers apply `prefers-reduced-motion` to the CSS `scroll-behavior` property and never to the JS `behavior` option. `scrollWindowTo` now chooses explicitly.
 
 **The by-ean cache must be seeded before opening a product modal.** Those modals are URL-driven and take no props, so without the seed they refetch what the caller already has and open empty. `useProductModals` is the one place that does it.
@@ -993,11 +1004,10 @@ Together those are the general rule: a measured-overflow container can only meas
 
 ### On the Disscount Roadmap board, in Backlog
 
-| Item                                                    | Domain         | Notes                                                                                                                                                    |
-| ------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Price-drop count badge on Praćenje                      | Watchlist      | Swap the notification count for "watched products cheaper since your last visit", cleared on visit, capped at 9+, with the number in the accessible name |
-| Price-drop pulse on the Praćenje icon                   | Watchlist      | One 300ms scale pulse when a watched price drops while the app is open, at most once a minute, off under reduced motion. Blocked by the badge above      |
-| Selection mode: the bar becomes a contextual action bar | Shopping Lists | On `/shopping-lists/[id]`, long-press an item to get "N odabrano" plus move, delete, mark bought, and "nađi najjeftiniji lanac za ovih N"                |
+| Item                                                    | Domain         | Notes                                                                                                                                                      |
+| ------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Price-drop pulse on the Praćenje icon                   | Watchlist      | One 300ms scale pulse when a watched price drops while the app is open, at most once a minute, off under reduced motion. Uses `useWatchlistPriceDropCount` |
+| Selection mode: the bar becomes a contextual action bar | Shopping Lists | On `/shopping-lists/[id]`, long-press an item to get "N odabrano" plus move, delete, mark bought, and "nađi najjeftiniji lanac za ovih N"                  |
 
 Selection mode is the one with real product upside: costing a subset of a list across chains is something no competing Croatian price app does. It is also its own feature, needing selection state and back-button semantics, so it is a separate PR rather than a line item.
 
@@ -1052,7 +1062,6 @@ A four-reviewer sweep (Claude Opus 5 subagents, Codex `gpt-5.6-sol`, CodeRabbit 
 
 **Still open**
 
-- **`findNavItem` takes a `string`.** A wrong id is a runtime throw at module evaluation rather than a compile error. A real fix needs the item arrays converted to `as const` assertions, which is wider than this pass.
 - **Relevance ranking only ever sorts one page.** `sortProductsByRelevance` can reorder only what the capped request returned, so a better match beyond the limit cannot surface. Blocked on the price API: raised upstream on [senko/cijene-api#65](https://github.com/senko/cijene-api/issues/65#issuecomment-5083698321), asking for relevance-ordered results before the limit, plus `offset` and `total` so a client can rank across the whole set.
 - **`viewportFit: "cover"` beyond the bottom inset.** The bar now consumes the horizontal insets, which are 0 except on a notched device in landscape, but the fixed header and side controls have not been checked on real hardware.
 

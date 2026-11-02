@@ -90,7 +90,6 @@ export function useShoppingListData(listId: string) {
     };
   }, [productsData, shoppingList?.items, user?.pinnedStores]);
 
-  // Calculate total savings from checked items
   const { totalSavings, totalPotentialCost } = shoppingList?.items
     ?.filter((item) => item.isChecked && item.avgPrice && item.storePrice)
     .reduce(

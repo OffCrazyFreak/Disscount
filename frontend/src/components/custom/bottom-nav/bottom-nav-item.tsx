@@ -21,6 +21,8 @@ interface IBottomNavItemProps extends IBottomNavItemRingsProps {
   /** A coming-soon cell nobody but an admin may open */
   isLocked: boolean;
   badgeCount?: number;
+  /** The cell's accessible name while it shows a count, so the number is not visual only */
+  badgeLabel?: string;
   /** A re-tap would return to the saved scroll position */
   canReturn?: boolean;
   onKeyboardActivate: () => void;
@@ -38,6 +40,7 @@ export default function BottomNavItem({
   isScrubbed,
   isLocked,
   badgeCount,
+  badgeLabel,
   canReturn,
   onKeyboardActivate,
   ...rings
@@ -59,6 +62,7 @@ export default function BottomNavItem({
         aria-disabled={isLocked || undefined}
         tabIndex={isLocked ? -1 : undefined}
         aria-current={isActive ? "page" : undefined}
+        aria-label={badgeCount !== undefined ? badgeLabel : undefined}
         onClick={(event) => {
           if (isKeyboardClick(event)) onKeyboardActivate();
         }}

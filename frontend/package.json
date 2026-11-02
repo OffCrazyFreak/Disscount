@@ -90,6 +90,7 @@
     "baseline-browser-mapping": "^2.10.14",
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
+    "esbuild": "^0.28.2",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
     "eslint-plugin-i18next": "^6.1.5",
