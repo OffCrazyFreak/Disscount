@@ -84,7 +84,6 @@ describe("dispatchVerificationEmail", () => {
 
     expect(mocks.claimVerificationEmail).toHaveBeenCalledWith(
       "user-1",
-      "person@example.com",
       "token-1",
     );
     expect(mocks.sendVerificationEmail).not.toHaveBeenCalled();

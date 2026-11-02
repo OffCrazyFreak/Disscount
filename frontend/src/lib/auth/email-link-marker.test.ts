@@ -109,28 +109,32 @@ describe("claimResetEmail", () => {
 });
 
 describe("claimVerificationEmail", () => {
+  const signUpToken = verificationToken({ email: "person@example.com", exp });
+  const changeToken = verificationToken({
+    email: "old@example.com",
+    updateTo: "new@example.com",
+    exp,
+  });
+
   it("skips while a live marker covers the same address", async () => {
+    fake.selectWheres.length = 0;
     fake.selectResults.push([{ value: "person@example.com" }]);
 
-    const release = await claimVerificationEmail(
-      "user-1",
-      "person@example.com",
-      verificationToken({ email: "person@example.com", exp }),
-    );
+    expect(await claimVerificationEmail("user-1", signUpToken)).toBeNull();
 
-    expect(release).toBeNull();
+    const lookup = render(fake.selectWheres[0]);
+    expect(lookup.sql).toBe(
+      '("verification"."identifier" = $1 and "verification"."expires_at" > $2)',
+    );
+    expect(lookup.params[0]).toBe("verification-email:user-1");
   });
 
   it("sends to a different address and marks the token's expiry", async () => {
     fake.selectResults.push([{ value: "old@example.com" }]);
 
-    const release = await claimVerificationEmail(
-      "user-1",
-      "person@example.com",
-      verificationToken({ email: "person@example.com", exp }),
+    expect(await claimVerificationEmail("user-1", signUpToken)).toBeTypeOf(
+      "function",
     );
-
-    expect(release).toBeTypeOf("function");
     expect(fake.inserted).toHaveBeenCalledWith({
       identifier: "verification-email:user-1",
       value: "person@example.com",
@@ -138,18 +142,23 @@ describe("claimVerificationEmail", () => {
     });
   });
 
-  it("always lets a change-email link through", async () => {
-    const release = await claimVerificationEmail(
-      "user-1",
-      "new@example.com",
-      verificationToken({
-        email: "old@example.com",
-        updateTo: "new@example.com",
-        exp,
+  it("skips a reloaded change-email confirmation while its link is live", async () => {
+    fake.selectResults.push([{ value: "old@example.com new@example.com" }]);
+
+    expect(await claimVerificationEmail("user-1", changeToken)).toBeNull();
+  });
+
+  it("sends a change-email link once the current address has changed", async () => {
+    fake.selectResults.push([{ value: "older@example.com new@example.com" }]);
+
+    expect(await claimVerificationEmail("user-1", changeToken)).toBeTypeOf(
+      "function",
+    );
+    expect(fake.inserted).toHaveBeenCalledWith(
+      expect.objectContaining({
+        identifier: "change-email:user-1",
+        value: "old@example.com new@example.com",
       }),
     );
-
-    expect(release).toBeTypeOf("function");
-    expect(fake.inserted).not.toHaveBeenCalled();
   });
 });

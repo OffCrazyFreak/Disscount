@@ -77,6 +77,7 @@ export function claimResetEmail(userId: string, token: string) {
 }
 
 interface IVerificationTokenClaims {
+  email: string;
   exp: number;
   updateTo?: string;
 }
@@ -87,22 +88,20 @@ function readVerificationToken(token: string): IVerificationTokenClaims {
   return JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
 }
 
-const noRelease = async () => {};
-
-// Verification links are stateless JWTs, so the marker carries the address and the token's
-// expiry. Change-email tokens carry `updateTo` and need a signed-in user, so they always send.
-export async function claimVerificationEmail(
-  userId: string,
-  email: string,
-  token: string,
-) {
-  const { exp, updateTo } = readVerificationToken(token);
-  if (updateTo) return noRelease;
+// Verification links are stateless JWTs, so the marker carries what the link is for and
+// the token's expiry. A change-email link (`updateTo`) gets its own marker, since its
+// confirmation link needs no session and mails the new address on every reload; it names
+// the current address too, because the link stops working once that changes.
+export async function claimVerificationEmail(userId: string, token: string) {
+  const { email, exp, updateTo } = readVerificationToken(token);
+  const [identifier, value] = updateTo
+    ? [`change-email:${userId}`, `${email} ${updateTo}`]
+    : [`verification-email:${userId}`, email];
 
   return claimMarker(
-    `verification-email:${userId}`,
-    email,
+    identifier,
+    value,
     new Date(exp * 1000),
-    async (_tx, markedEmail) => markedEmail === email,
+    async (_tx, markedValue) => markedValue === value,
   );
 }

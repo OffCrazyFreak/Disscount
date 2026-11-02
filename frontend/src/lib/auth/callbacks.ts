@@ -60,7 +60,7 @@ export async function dispatchVerificationEmail(
   token: string,
   locale: AppLocale,
 ) {
-  const release = await claimVerificationEmail(userId, email, token);
+  const release = await claimVerificationEmail(userId, token);
   if (!release) return;
 
   try {
