@@ -9,6 +9,7 @@
     "watchlist": "Merkliste",
     "watchlistShort": "Merkliste",
     "watchlistShortcut": "Sieh dir die Produkte auf deiner Merkliste an",
+    "watchlistPriceDrops": "{label}, {count, plural, one {# neue Preissenkung} other {# neue Preissenkungen}}",
     "digitalCards": "Kundenkarten",
     "digitalCardsShort": "Karten",
     "digitalCardsShortcut": "Öffne deine Kundenkarten",

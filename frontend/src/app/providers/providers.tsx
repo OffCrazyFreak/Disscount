@@ -4,8 +4,8 @@ import { type ReactNode } from "react";
 import ReactQueryProviderWrapper from "@/app/providers/react-query-provider";
 import SidebarProvider from "@/app/providers/sidebar-provider";
 import ToasterProvider from "@/app/providers/toaster-provider";
-import UserContextProvider from "@/app/providers/user-provider";
 import ReactScan from "@/app/providers/react-scan";
+import { UserProvider } from "@/context/user-context";
 import { CameraScannerProvider } from "@/context/scanner-context";
 import { NotificationsProvider } from "@/context/notifications-context";
 import { ProductsSheetProvider } from "@/context/products-sheet-context";
@@ -19,7 +19,7 @@ interface IProvidersProps {
 export default function Providers({ children }: IProvidersProps) {
   return (
     <ReactQueryProviderWrapper>
-      <UserContextProvider>
+      <UserProvider>
         <NotificationsProvider>
           <SidebarProvider>
             <CameraScannerProvider>
@@ -35,7 +35,7 @@ export default function Providers({ children }: IProvidersProps) {
             </CameraScannerProvider>
           </SidebarProvider>
         </NotificationsProvider>
-      </UserContextProvider>
+      </UserProvider>
     </ReactQueryProviderWrapper>
   );
 }

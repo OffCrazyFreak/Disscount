@@ -61,7 +61,7 @@ export default async function PostDetailPage(
             src={post.imageUrl}
             alt={post.title}
             fill
-            priority
+            preload
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 48rem"
           />

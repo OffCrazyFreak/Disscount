@@ -9,6 +9,7 @@
     "watchlist": "Watchlist",
     "watchlistShort": "Watchlist",
     "watchlistShortcut": "Open your watchlist",
+    "watchlistPriceDrops": "{label}, {count, plural, one {# new price drop} other {# new price drops}}",
     "digitalCards": "Loyalty cards",
     "digitalCardsShort": "Cards",
     "digitalCardsShortcut": "Open your loyalty cards",

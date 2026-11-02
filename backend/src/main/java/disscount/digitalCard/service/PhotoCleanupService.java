@@ -42,7 +42,7 @@ public class PhotoCleanupService {
         repository.findOldest(PageRequest.of(0, BATCH)).forEach(this::attempt);
     }
 
-    /** A re-uploaded photo reuses its content addressed keys, so a queued delete of them must not fire. */
+    /** Defence in depth: PhotoKeys gives every upload fresh keys, but a queued delete of a just stored key must never fire. */
     public void cancelKeys(Collection<String> keys) {
         List<String> real = keys.stream().filter(Objects::nonNull).toList();
         if (!real.isEmpty()) repository.removePendingKeys(real);

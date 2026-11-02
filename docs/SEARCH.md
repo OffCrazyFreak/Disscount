@@ -68,7 +68,7 @@ The important idea, and the one that took two wrong attempts to get right: **fol
 
 `scoreFields(fields, preparedQuery)` returns `0` for no match, higher is better.
 
-1. **Fold both sides.** `normalizeForSearch` lowercases, strips combining marks, and maps the letters that are not decompositions (`đ` to `d`, `ß` to `ss`, the German umlauts).
+1. **Fold both sides.** `normalizeForSearch` lowercases, strips combining marks (which also folds the German umlauts), and maps the letters that have no decomposition (`đ` to `d`, `ß` to `ss`).
 2. **Require every token.** Each whitespace-separated word of the query must appear in at least one field, so `bas put` still finds `Baška Krivi Put`.
 3. **Score by where the whole query sits.** The tier ladder, best first: exact, prefix, word-prefix, contains.
 4. **Fall back to sub-sequence matching** when nothing literal hit, so the letters of `vgorica` can be found in order across `Velika Gorica`, but only above a density floor: the query must account for at least `MIN_DENSITY` (0.15) of the haystack. Without it the fallback is a coincidence detector rather than a search, since the letters of any query appear in order somewhere inside any paragraph of Croatian prose. An abbreviation is dense (`vgorica` is more than half of `velika gorica`); eight letters scattered through 600 characters are not.

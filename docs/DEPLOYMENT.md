@@ -101,16 +101,20 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A[Push to dev] --> B[Dokploy auto-builds dev]
-    B --> C[dev.disscount.me updated]
-    C --> D[Open PR dev to main]
-    D --> E[Merge to main]
-    E --> F[Dokploy auto-builds main]
-    F --> G[disscount.me updated]
+    A[Push to dev] --> B[CI checks]
+    B --> C[CI builds images, pushes to GHCR]
+    C --> D[CI calls Dokploy, server pulls]
+    D --> E[dev.disscount.me reports the new commit]
+    E --> F[Open PR dev to main]
+    F --> G[Merge to main]
+    G --> H[Dokploy builds main on the VPS]
+    H --> I[disscount.me updated]
 ```
 
-- **Autodeploy** is ON: pushing to a branch triggers Dokploy (via GitHub webhook) to **rebuild that environment on the VPS** (`pnpm install` + `next build --webpack` for the frontend, Maven for the backend). The frontend is pinned to **webpack on purpose** (see the [webpack gotcha](#13-gotchas--lessons-learned)); the Dockerfile runs `pnpm build`, so that flag flows into the production image.
-- Builds run **on the server** (~2-4 min, uses CPU + the 4 GB swap). This is fine for now; see [TODOs](#14-future-improvements--todos) for moving builds to CI later.
+- **`dev` deploys from prebuilt images** ([#74](https://github.com/OffCrazyFreak/Disscount/issues/74)). After the checks pass, the `images` job in `.github/workflows/ci.yml` builds the frontend, backend and migrator images and pushes them to GHCR as `ghcr.io/offcrazyfreak/disscount-<image>:sha-<commit>`. The `deploy` job then points the moving `dev` tag at all three at once, calls Dokploy's `compose.deploy` API with the key of a Dokploy member user limited to the development service, and waits until `https://dev.disscount.me/health` reports the commit as `releaseId`. The dev service uses `docker-compose.images.yml` with `IMAGE_TAG=dev` and has Dokploy autodeploy **off**, so nothing builds on the server.
+- **`main` still builds on the VPS** until dev has run clean on images for a week: autodeploy is ON, and pushing triggers Dokploy (via GitHub webhook) to rebuild production from `docker-compose.prod.yml` (`pnpm install` + `next build --webpack` for the frontend, Maven for the backend). The frontend is pinned to **webpack on purpose** (see the [webpack gotcha](#13-gotchas--lessons-learned)); the Dockerfile runs `pnpm build`, so that flag flows into the image either way.
+- Server builds take **5 to 11 minutes** of CPU plus the 4 GB swap, competing with the live containers; that is why dev moved off them first.
+- **Images are public** on GHCR (the repo is source-available anyway), so the server needs no registry login. `frontend/.dockerignore` keeps every `.env*` file out, and the Sentry auth token reaches the build only as a BuildKit secret, never as a layer.
 - Each environment is **fully isolated:** its own containers **and its own database/volume**. Dev data never touches prod data.
 - **CI gate before merge:** every push and PR runs `.github/workflows/ci.yml` (frontend typecheck + unit tests + lint + Fallow audit + translation catalog check + format + a real `next build`, plus a backend `mvn -B verify`, which compiles, packages and runs the backend tests). `main` is branch-protected, so a PR into `main` cannot merge until **Frontend checks** and **Backend checks** pass. This is a separate quality gate from the Dokploy build above, which is what actually ships the image.
 
@@ -309,6 +313,7 @@ docker exec pg-test psql -U postgres -d restoretest -c '\dt'   # verify
 
 - The UptimeRobot checks are published as a **public status page** at https://stats.uptimerobot.com/ej4ROz2eMo, linked from the README so anyone can see uptime and response times without an account.
 - `/health` (frontend) is a lightweight liveness route; the backend also has `/actuator/health` (internal only, used by the container healthcheck).
+- Auth secrets in URLs (the reset `?token=`, verify-email and OAuth `code` and `state`) are filtered by `frontend/src/lib/sentry/scrub-sensitive-data.ts` in all three Sentry inits and in Replay's network records, and the reset token leaves the page URL before Sentry starts; see [AUTH.md](AUTH.md).
 - Sentry `send-default-pii=false` (privacy). Source-map upload is **not** enabled yet (see TODOs), so frontend stack traces arrive minified: expect frames like `app:///_next/static/chunks/6506-….js:1:34191 (o.register)` and be ready to grep the built chunk in `.next/static` to place them.
 
 #### Staying inside the free plan
@@ -349,12 +354,12 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 
 | Task                                                                                 | Automatic? | Notes                                                                                                                                                     |
 | ------------------------------------------------------------------------------------ | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Build & deploy on `git push`                                                         | ✅ auto    | Dokploy autodeploy (per branch)                                                                                                                           |
+| Build & deploy on `git push`                                                         | ✅ auto    | `dev`: CI builds images and calls Dokploy ([§4](#4-how-a-deploy-works-git-to-live)); `main`: Dokploy autodeploy builds on the VPS                         |
 | CI checks (typecheck, unit tests, lint, Fallow audit, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main`                                                                                |
 | PR previews (head branch is not `main` or `dev`)                                     | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-pr-previews))                                                                                |
 | HTTPS certificate issuance + renewal                                                 | ✅ auto    | Traefik + Let's Encrypt                                                                                                                                   |
 | HTTP to HTTPS redirect                                                               | ✅ auto    | Cloudflare                                                                                                                                                |
-| DB migrations (auth tables + app tables)                                             | ✅ auto    | `migrate` service (drizzle) + Hibernate `ddl-auto=update` on each deploy. **Additive only**: see the dropped-column row below                             |
+| DB migrations (auth tables + app tables)                                             | ✅ auto    | `migrate` service (drizzle; on `dev` the bundled `disscount-migrator` image) + Hibernate `ddl-auto=update` on each deploy. **Additive only**: see below   |
 | Nightly DB backups (R2 + local) + rotation                                           | ✅ auto    | Dokploy Backups + Schedule                                                                                                                                |
 | Dependency update PRs (npm, Maven, Actions, Docker images)                           | ✅ auto    | Renovate (`renovate.json`) on the 1st of each month into `dev`; security PRs open immediately; majors wait for approval on the Dependency Dashboard issue |
 | OS security updates                                                                  | ✅ auto    | unattended-upgrades, nightly at 01:30 UTC (see [Nightly updates and reboots](#nightly-updates-and-reboots))                                               |
@@ -364,7 +369,7 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 | **Non-security OS updates (`-updates` channel)**                                     | ❌ manual  | `sudo apt update && sudo apt full-upgrade`; the next nightly run reboots if needed                                                                        |
 | **Creating the EU photo bucket + token, setting `R2_*`**                             | ❌ manual  | Cloudflare once, then Dokploy env per environment; photos stay off until all four are set (see [Card photo env vars](#card-photo-env-vars))               |
 | **Dropping the old `digital_card` table**                                            | ❌ manual  | after the cards rebuild deploys and nothing reads it; `ddl-auto=update` never drops it (see [§10.1](#101-dropping-a-column))                              |
-| **Adding/Changing a `NEXT_PUBLIC_*` var**                                            | ❌ manual  | edit in Dokploy env **+ redeploy**                                                                                                                        |
+| **Adding/Changing a `NEXT_PUBLIC_*` var**                                            | ❌ manual  | `dev`: GitHub `dev` environment variable **+ a new image build**; `main`: Dokploy env **+ redeploy**                                                      |
 | **Adding a new domain/subdomain**                                                    | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                                                                                                 |
 | **New OAuth provider redirect URIs**                                                 | ❌ manual  | add in Google/Meta consoles                                                                                                                               |
 | **Hard-refresh after deploy**                                                        | ❌ manual  | avoids stale-bundle errors                                                                                                                                |
@@ -407,22 +412,22 @@ Open a DB shell the same way as for a restore, see [§8](#8-backups--restore).
 
 ## 11. Common operations (how-to)
 
-| I want to                     | Do this                                                                                                     |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| **Deploy a change**           | push to `dev` (test), PR `dev` to `main`, merge (autodeploys)                                               |
-| **Force a redeploy**          | Dokploy, service, **Redeploy**                                                                              |
-| **Roll back**                 | Dokploy, service, **Deployments**, redeploy a previous successful build (or revert the git commit and push) |
-| **See logs**                  | Dokploy, service, **Logs**; or `ssh YOUR_USER@YOUR_VPS_IP` then `docker logs <container>`                   |
-| **List containers**           | `ssh YOUR_USER@YOUR_VPS_IP`, then `docker ps`                                                               |
-| **Open a DB shell**           | `docker exec -it <db-container> psql -U postgres -d disscount`                                              |
-| **Add a runtime secret**      | Dokploy, service, Environment, add, redeploy                                                                |
-| **Add a `NEXT_PUBLIC_*` var** | Environment, add, **redeploy** (it's baked), hard-refresh                                                   |
-| **Reach the Dokploy panel**   | `https://dokploy.disscount.me`                                                                              |
-| **Run a backup now**          | Dokploy, Backups, Run, or the Schedule, Run                                                                 |
+| I want to                     | Do this                                                                                                                                            |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Deploy a change**           | push to `dev` (test), PR `dev` to `main`, merge (autodeploys)                                                                                      |
+| **Force a redeploy**          | `dev`: re-run the CI **Deploy (dev)** job; `main`: Dokploy, service, **Redeploy**                                                                  |
+| **Roll back**                 | `dev`: run the **Rollback** workflow with an earlier commit SHA (GitHub lists it once it is on `main`); `main`: Dokploy, **Deployments**, redeploy |
+| **See logs**                  | Dokploy, service, **Logs**; or `ssh YOUR_USER@YOUR_VPS_IP` then `docker logs <container>`                                                          |
+| **List containers**           | `ssh YOUR_USER@YOUR_VPS_IP`, then `docker ps`                                                                                                      |
+| **Open a DB shell**           | `docker exec -it <db-container> psql -U postgres -d disscount`                                                                                     |
+| **Add a runtime secret**      | Dokploy, service, Environment, add, redeploy                                                                                                       |
+| **Add a `NEXT_PUBLIC_*` var** | `dev`: GitHub `dev` environment, then push; `main`: Environment, add, **redeploy** (it's baked)                                                    |
+| **Reach the Dokploy panel**   | `https://dokploy.disscount.me`                                                                                                                     |
+| **Run a backup now**          | Dokploy, Backups, Run, or the Schedule, Run                                                                                                        |
 
 ### Disk management (don't let the VPS fill up)
 
-Builds run on the VPS, so old images and build cache accumulate and can fill the 80 GB disk, a common cause of failed deploys on small servers. Safeguards:
+Production still builds on the VPS, and every deploy leaves old images behind, so images and build cache can fill the 80 GB disk, a common cause of failed deploys on small servers. Safeguards:
 
 - **Docker log rotation:** cap container log size in `/etc/docker/daemon.json` so logs cannot grow forever:
   ```json
@@ -432,7 +437,7 @@ Builds run on the VPS, so old images and build cache accumulate and can fill the
   }
   ```
   then `sudo systemctl restart docker` (restarts containers briefly).
-- **Scheduled cleanup:** enable **Daily Docker Cleanup** (Dokploy, Settings, Web Server). It prunes stopped containers, unused images, dangling volumes, and build cache daily. Data-safe (in-use DB volumes are never pruned); the only cost is that build cache is cleared, so the next build is slower.
+- **Scheduled cleanup:** enable **Daily Docker Cleanup** (Dokploy, Settings, Web Server). It prunes stopped containers, unused images, build cache and unused networks daily; volumes are never pruned, so the databases are safe. The cost is that build cache is cleared, so the next server build is slower, and an image a rollback needs is pulled from GHCR again.
 
 Inspect first, then prune (understand what each removes before running it):
 
@@ -508,7 +513,7 @@ These are the things that actually cost us time, worth remembering:
 **Reliability / ops**
 
 - [ ] **Hetzner snapshots** (whole-VM image) in addition to DB backups.
-- [ ] Move builds to **GitHub Actions CI** (build image, push to registry, Dokploy pulls) to take build CPU off the VPS, especially once preview/dev deploys are frequent. (A `.github/workflows/ci.yml` quality gate already runs the frontend typecheck + lint + format + production build and a backend `mvn -B verify` on every push and PR, with both required before merging to `main`; this item is specifically about moving the Docker _image build/deploy_ off the VPS.) Planned in detail in [#74](https://github.com/OffCrazyFreak/Disscount/issues/74), deferred until VPS load justifies it.
+- [ ] Move **production** to the image path (build in GitHub Actions, push to GHCR, Dokploy pulls), as `dev` already does ([§4](#4-how-a-deploy-works-git-to-live), [#74](https://github.com/OffCrazyFreak/Disscount/issues/74)). Once dev has run clean for a week: a `prod` GitHub environment with the production values, the image and deploy jobs extended to `main`, a member user and key for the production service, then `docker-compose.prod.yml` deleted.
 - [ ] Consider **Flyway/Liquibase** instead of Hibernate `ddl-auto=update` for safer prod schema changes.
 - [ ] **Cloudflare DNS-01 challenge** in Traefik (a Cloudflare API token) so certs renew without relying on inbound HTTP through the proxy, more robust now that all domains are proxied.
 - [ ] **Backup-failure alerting** (dead-man's switch, e.g. healthchecks.io), since per-backup notifications are off to avoid spam.
@@ -516,7 +521,7 @@ These are the things that actually cost us time, worth remembering:
 **Product / auth**
 
 - [ ] **Facebook public login**: complete **Meta Business Verification** (needs a registered entity, e.g. a Croatian _obrt_), then flip `FACEBOOK_COMING_SOON` to `false`. Until then Google + email cover login.
-- [ ] **Sentry source-map upload** (readable prod stack traces): `SENTRY_AUTH_TOKEN` is already stored, wire it into the frontend build.
+- [ ] **Sentry source-map upload** (readable prod stack traces): the image build passes `SENTRY_AUTH_TOKEN` as a BuildKit secret and names the release after the commit; it starts uploading once a Sentry organization token is stored as that GitHub secret.
 
 **Nice-to-have**
 
