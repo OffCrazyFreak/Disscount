@@ -30,6 +30,8 @@ let cachedSubject: string | null = null;
 // Undefined until a session first resolves; null once it resolved to nobody.
 let sessionUserId: string | null | undefined;
 let inflightTokenPromise: Promise<string | null> | null = null;
+// Bumped when the account changes, so a fetch begun for the previous one is neither reused nor cached.
+let tokenGeneration = 0;
 let lastFailedAttemptAt = 0;
 
 function decodeBase64Url(value: string): string {
@@ -58,12 +60,12 @@ function parseTokenClaims(token: string): {
 
 // The backend acts as whoever `sub` names, so a token minted before an account switch
 // would read and write the previous account's data.
-function isCachedTokenForSessionUser(): boolean {
-  return sessionUserId === undefined || cachedSubject === sessionUserId;
+function isTokenForSessionUser(subject: string | null): boolean {
+  return sessionUserId === undefined || subject === sessionUserId;
 }
 
 function isCachedTokenFresh(): boolean {
-  if (!cachedToken || !cachedExp || !isCachedTokenForSessionUser()) {
+  if (!cachedToken || !cachedExp || !isTokenForSessionUser(cachedSubject)) {
     return false;
   }
 
@@ -78,22 +80,26 @@ function clearTokenCache() {
 }
 
 async function requestFreshToken(): Promise<string | null> {
+  const generation = tokenGeneration;
   try {
     const token = await fetchAuthToken();
+    if (generation !== tokenGeneration) return null;
 
-    if (!token) {
+    const claims = parseTokenClaims(token ?? "");
+    // A refused token counts as a failure, so a tab behind an account switch backs off.
+    if (!token || !isTokenForSessionUser(claims.sub)) {
       clearTokenCache();
       lastFailedAttemptAt = Date.now();
       return null;
     }
 
-    const claims = parseTokenClaims(token);
     cachedToken = token;
     cachedExp = claims.exp;
     cachedSubject = claims.sub;
     lastFailedAttemptAt = 0;
     return token;
   } catch {
+    if (generation !== tokenGeneration) return null;
     clearTokenCache();
     lastFailedAttemptAt = Date.now();
     return null;
@@ -111,14 +117,18 @@ async function getToken(forceRefresh = false): Promise<string | null> {
 
   // Dedupe concurrent callers so a burst of requests triggers a single token fetch
   if (!inflightTokenPromise) {
-    inflightTokenPromise = requestFreshToken().finally(() => {
-      inflightTokenPromise = null;
+    const tokenPromise = requestFreshToken().finally(() => {
+      if (inflightTokenPromise === tokenPromise) inflightTokenPromise = null;
     });
+    inflightTokenPromise = tokenPromise;
   }
 
-  // A fetch that began before an account switch can finish after it.
-  const token = await inflightTokenPromise;
-  return token && isCachedTokenForSessionUser() ? token : null;
+  return inflightTokenPromise;
+}
+
+function startNewTokenGeneration() {
+  tokenGeneration += 1;
+  inflightTokenPromise = null;
 }
 
 /** The cached bearer token if it is still fresh, with no network call. */
@@ -140,6 +150,8 @@ export function resetAuthToken() {
 export function setAuthTokenUser(userId: string | null | undefined) {
   if (userId === sessionUserId) return;
 
+  // The first session to resolve is the account an unknown-user fetch was already for.
+  if (sessionUserId !== undefined) startNewTokenGeneration();
   sessionUserId = userId;
   // A newly signed-in account can mint its token at once, without the signed-out cooldown.
   if (userId && cachedSubject !== userId) resetAuthToken();
@@ -147,7 +159,10 @@ export function setAuthTokenUser(userId: string | null | undefined) {
 
 /** After a sign-in, accepts the new account's token until its session names the user. */
 export function expectNewAuthTokenUser() {
-  if (sessionUserId === null) sessionUserId = undefined;
+  if (sessionUserId !== null) return;
+
+  startNewTokenGeneration();
+  sessionUserId = undefined;
 }
 
 apiClient.interceptors.request.use(

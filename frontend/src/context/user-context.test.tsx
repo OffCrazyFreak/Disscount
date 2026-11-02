@@ -130,6 +130,71 @@ describe("UserProvider backend token", () => {
     expect(authorizations).not.toContain(`Bearer ${tokenA}`);
   });
 
+  it("fetches a new token for a request made after the switch instead of reusing the previous account's fetch", async () => {
+    session.userId = "user-a";
+    session.error = null;
+    const pendingTokenA: { release?: (token: string) => void } = {};
+    let issueToken = () =>
+      new Promise<string>((resolve) => {
+        pendingTokenA.release = resolve;
+      });
+    recordProfileRequests(() => issueToken());
+    const probeAuthorizations: (string | null)[] = [];
+    // Answers anonymous callers too, like the shared shopping list routes, so nothing retries.
+    server.use(
+      http.get("*/api/probe", ({ request }) => {
+        probeAuthorizations.push(request.headers.get("Authorization"));
+        return HttpResponse.json({});
+      }),
+    );
+
+    const view = renderWithProviders(
+      <UserProvider>
+        <></>
+      </UserProvider>,
+    );
+    await waitFor(() => expect(pendingTokenA.release).toBeDefined());
+
+    session.userId = "user-b";
+    issueToken = async () => tokenB;
+    view.rerender(
+      <UserProvider>
+        <></>
+      </UserProvider>,
+    );
+    const probe = apiClient.get("/api/probe");
+    pendingTokenA.release?.(tokenA);
+    await probe;
+
+    expect(probeAuthorizations).toEqual([`Bearer ${tokenB}`]);
+  });
+
+  it("waits out the cooldown after refusing another account's token instead of fetching on every request", async () => {
+    session.userId = "user-b";
+    session.error = null;
+    let tokenRequests = 0;
+    recordProfileRequests(async () => {
+      tokenRequests += 1;
+      return tokenA;
+    });
+    server.use(http.get("*/api/probe", () => HttpResponse.json({})));
+
+    renderWithProviders(
+      <UserProvider>
+        <></>
+      </UserProvider>,
+    );
+    await waitFor(() => expect(tokenRequests).toBeGreaterThan(0));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    const tokenRequestsBeforeProbes = tokenRequests;
+
+    await apiClient.get("/api/probe");
+    await apiClient.get("/api/probe");
+    await apiClient.get("/api/probe");
+
+    expect(tokenRequests).toBe(tokenRequestsBeforeProbes);
+  });
+
   it("attaches the new account's token when sign-in reloads the profile before the session lands", async () => {
     session.userId = null;
     session.error = null;
