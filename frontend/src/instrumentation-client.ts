@@ -9,7 +9,7 @@ import {
   sentryScrubbingOptions,
 } from "@/lib/sentry/scrub-sensitive-data";
 
-moveResetTokenOutOfUrl();
+const isResetTokenInUrl = moveResetTokenOutOfUrl();
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -18,14 +18,18 @@ Sentry.init({
 
   // List ids reach Sentry unscrubbed by decision, recorded in docs/SHARING.md. Replay is
   // not covered by that: it records the DOM, so a shared list's contents would go with it.
-  integrations: [
-    Sentry.replayIntegration({
-      beforeAddRecordingEvent: (event) =>
-        /^(\/[a-z]{2})?\/shopping-lists\//.test(window.location.pathname)
-          ? null
-          : scrubSensitiveData(event),
-    }),
-  ],
+  // Replay records the page URL with no hook to scrub it, so a reset token that blocked
+  // storage left in the URL keeps Replay off for this page load.
+  integrations: isResetTokenInUrl
+    ? []
+    : [
+        Sentry.replayIntegration({
+          beforeAddRecordingEvent: (event) =>
+            /^(\/[a-z]{2})?\/shopping-lists\//.test(window.location.pathname)
+              ? null
+              : scrubSensitiveData(event),
+        }),
+      ],
 
   ...sentryScrubbingOptions,
 
