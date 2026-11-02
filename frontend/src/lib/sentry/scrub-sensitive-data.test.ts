@@ -188,6 +188,12 @@ describe("scrubString on session cookies and bearer tokens in text", () => {
     );
   });
 
+  it("keeps the JSON around a cookie line intact", () => {
+    expect(scrubString('{"h":"better-auth.session_token=abc","b":"x"}')).toBe(
+      '{"h":"better-auth.session_token=[Filtered]","b":"x"}',
+    );
+  });
+
   it("leaves the word bearer in prose alone", () => {
     expect(scrubString("the bearer of this card")).toBe(
       "the bearer of this card",
