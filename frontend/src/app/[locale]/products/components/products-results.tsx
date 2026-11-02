@@ -12,6 +12,7 @@ import type { ViewMode } from "@/typings/view-mode";
 interface IProductsResultsProps {
   query: string;
   isPending: boolean;
+  isRefreshing: boolean;
   hasError: boolean;
   total: number;
   activeFilterCount: number;
@@ -26,6 +27,7 @@ interface IProductsResultsProps {
 export default function ProductsResults({
   query,
   isPending,
+  isRefreshing,
   hasError,
   total,
   activeFilterCount,
@@ -68,7 +70,16 @@ export default function ProductsResults({
     );
   }
 
-  if (query) return <ProductsGrid items={visibleItems} viewMode={viewMode} />;
+  if (query) {
+    return (
+      <div
+        aria-busy={isRefreshing}
+        className="transition-opacity motion-reduce:transition-none aria-busy:opacity-60"
+      >
+        <ProductsGrid items={visibleItems} viewMode={viewMode} />
+      </div>
+    );
+  }
 
   if (activeFilterCount > 0) {
     return (

@@ -13,6 +13,7 @@ function renderEmptyResults(hasMatchesOutsideLocations: boolean) {
     <ProductsResults
       query="šećer"
       isPending={false}
+      isRefreshing={false}
       hasError={false}
       total={0}
       activeFilterCount={2}

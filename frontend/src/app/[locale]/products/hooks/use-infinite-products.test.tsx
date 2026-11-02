@@ -1,4 +1,5 @@
 import { waitFor } from "@testing-library/react";
+import { delay } from "msw";
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it } from "vitest";
 
@@ -98,5 +99,52 @@ describe("useInfiniteProducts outside the selected locations", () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.hasPartialPriceData).toBe(true);
     expect(result.current.hasMatchesOutsideLocations).toBe(false);
+  });
+});
+
+describe("useInfiniteProducts while the next search loads", () => {
+  function serveSlowSugar() {
+    server.use(
+      http.get("*/api/cijene/products", async ({ request }) => {
+        const q = new URL(request.url).searchParams.get("q");
+        if (q !== "šećer") return HttpResponse.json({ products: [] });
+
+        await delay(50);
+        return HttpResponse.json({ products: [sugar] });
+      }),
+    );
+  }
+
+  it("keeps showing the previous results, marked as refreshing", async () => {
+    serveSlowSugar();
+    let q = "šećer";
+    const { result, rerender } = renderHookWithProviders(() =>
+      useInfiniteProducts(q),
+    );
+    await waitFor(() => expect(result.current.total).toBe(1));
+
+    q = "šećer smeđi";
+    rerender();
+
+    expect(result.current.isRefreshing).toBe(true);
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.visibleItems).toHaveLength(1);
+  });
+
+  it("stays loading when the previous search found nothing", async () => {
+    serveSlowSugar();
+    let q = "šećr";
+    const { result, rerender } = renderHookWithProviders(() =>
+      useInfiniteProducts(q),
+    );
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.total).toBe(0);
+
+    q = "šećer";
+    rerender();
+
+    expect(result.current.isLoading).toBe(true);
+    await waitFor(() => expect(result.current.total).toBe(1));
+    expect(result.current.isRefreshing).toBe(false);
   });
 });

@@ -31,6 +31,8 @@ interface IUseInfiniteProductsResult {
   /** The search filled the API's result cap, so further matches may exist */
   isTruncated: boolean;
   isLoading: boolean;
+  /** The previous search's results are shown while the new one loads */
+  isRefreshing: boolean;
   error: unknown;
   hasPartialPriceData: boolean;
   /** A location filter is set and the search has matches once it is dropped */
@@ -58,7 +60,7 @@ export default function useInfiniteProducts(
     Number.isInteger(batchSize) && batchSize > 0 ? batchSize : 50;
 
   // One unfiltered request, filtered client-side, so facet counts match results.
-  const { data, isLoading, error } = useGetProductByName({
+  const { data, isLoading, isPlaceholderData, error } = useGetProductByName({
     q,
     limit: PRODUCT_SEARCH_LIMIT, // Raising this needs paging upstream: >100 is a 422.
   });
@@ -140,6 +142,7 @@ export default function useInfiniteProducts(
     total: filteredItems.length,
     isTruncated,
     isLoading: isLoading || pricesLoading,
+    isRefreshing: isPlaceholderData,
     error: error || pricesError,
     hasPartialPriceData: hasPartialError,
     hasMatchesOutsideLocations,
