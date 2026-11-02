@@ -32,6 +32,7 @@ export default function AddPlainItemModal({
     form,
     name,
     setName,
+    isNameEdited,
     selection,
     restored,
     resetForm,
@@ -65,7 +66,7 @@ export default function AddPlainItemModal({
       }
       cancelLabel={t("addToList.cancel")}
       resetLabel={t("addToList.reset")}
-      resetDisabled={!isDirty && !restored}
+      resetDisabled={!isDirty && !restored && !isNameEdited}
       onReset={resetForm}
     >
       <Form {...form}>

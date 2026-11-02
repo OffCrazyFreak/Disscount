@@ -50,9 +50,8 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
   const { user } = useUser();
   const draftKey = draftKeyFor(initialName);
   // The name can arrive from the URL, which no input maxLength guards.
-  const [name, setName] = useState(() =>
-    initialName.slice(0, MAX_SHOPPING_LIST_ITEM_NAME_LENGTH),
-  );
+  const startName = initialName.slice(0, MAX_SHOPPING_LIST_ITEM_NAME_LENGTH);
+  const [name, setName] = useState(startName);
 
   const form = useForm<AddToListFormData>({
     resolver: zodResolver(addToListFormSchema),
@@ -85,6 +84,7 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
 
   function resetForm() {
     clearDraft();
+    setName(startName);
     selection.resetSelection();
     form.reset(EMPTY_FORM_VALUES);
   }
@@ -94,9 +94,10 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
     flushDraft();
     const submittedKey = draftKeyFor(itemName);
     const draft = getFormDraft(draftKey);
-    if (submittedKey !== draftKey && draft) {
-      setFormDraft(submittedKey, draft.values);
-    }
+    if (submittedKey === draftKey) return;
+    // No draft means the defaults were kept, so an older draft for that name must not win.
+    if (draft) setFormDraft(submittedKey, draft.values);
+    else removeFormDraft(submittedKey);
   }
 
   async function resolveListId(data: AddToListFormData, itemName: string) {
@@ -159,7 +160,11 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
         },
       );
     } catch (error) {
-      stashModalError(draftKeyFor(itemName), error);
+      // Only the submitted name reopens. The close's cleanup flush already ran by now, so
+      // this removal is not written back over.
+      const submittedKey = draftKeyFor(itemName);
+      if (submittedKey !== draftKey) removeFormDraft(draftKey);
+      stashModalError(submittedKey, error);
       openModalUrl({ name: "add-plain-item", itemName });
     }
   }
@@ -168,6 +173,7 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
     form,
     name,
     setName,
+    isNameEdited: name !== startName,
     selection,
     restored,
     resetForm,
