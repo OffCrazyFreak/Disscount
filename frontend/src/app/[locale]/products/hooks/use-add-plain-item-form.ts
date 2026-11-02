@@ -13,14 +13,21 @@ import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { stashModalError } from "@/lib/modal/modal-error-bus";
 import { useModalError } from "@/hooks/use-modal-error";
 import { useFormDraft } from "@/hooks/use-form-draft";
-import { getFormDraft } from "@/utils/browser/local-storage";
+import {
+  getFormDraft,
+  removeFormDraft,
+  setFormDraft,
+} from "@/utils/browser/local-storage";
 import {
   type AddToListFormData,
   addToListFormSchema,
 } from "@/app/[locale]/products/typings/add-to-list";
 import { useSelectedShoppingList } from "@/app/[locale]/products/hooks/use-selected-shopping-list";
 import { MAX_SHOPPING_LIST_ITEM_NAME_LENGTH } from "@/constants/shopping-list";
-import { mergesIntoExisting } from "@/app/[locale]/(user)/shopping-lists/utils/item-merge";
+import {
+  mergesIntoExisting,
+  nameKey,
+} from "@/app/[locale]/(user)/shopping-lists/utils/item-merge";
 
 const EMPTY_FORM_VALUES: AddToListFormData = {
   shoppingListId: "",
@@ -30,13 +37,18 @@ const EMPTY_FORM_VALUES: AddToListFormData = {
   chainCode: null,
 };
 
-const DRAFT_KEY = "add-plain-item";
+// One draft per item, matched the way items merge, so a list picked for one name never
+// preselects itself for another.
+function draftKeyFor(itemName: string) {
+  return `add-plain-item.${nameKey(itemName)}`;
+}
 
 /** Adds an item no store sells to a list of the user's choice. */
 export function useAddPlainItemForm(open: boolean, initialName: string) {
   const t = useTranslations("products");
   const router = useRouter();
   const { user } = useUser();
+  const draftKey = draftKeyFor(initialName);
   // The name can arrive from the URL, which no input maxLength guards.
   const [name, setName] = useState(() =>
     initialName.slice(0, MAX_SHOPPING_LIST_ITEM_NAME_LENGTH),
@@ -49,7 +61,7 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
   });
   // Read once on mount, as add to list does.
   const [restoredListId] = useState(() => {
-    const drafted = getFormDraft(DRAFT_KEY)?.values.shoppingListId;
+    const drafted = getFormDraft(draftKey)?.values.shoppingListId;
 
     return typeof drafted === "string" ? drafted : null;
   });
@@ -61,17 +73,33 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
   );
   // Gated until lists load, so the auto-selected default isn't drafted as a change.
   const isFormReady = open && !selection.isLoadingLists;
-  const { clearDraft, flushDraft } = useFormDraft({
-    draftKey: DRAFT_KEY,
+  const { restored, clearDraft, flushDraft } = useFormDraft({
+    draftKey,
     form,
     enabled: isFormReady,
   });
   // Same gate: restoring the draft resets the form, which would wipe an error shown earlier.
-  useModalError(isFormReady, DRAFT_KEY, form);
+  useModalError(isFormReady, draftKey, form);
   const createListMutation = shoppingListService.useCreateShoppingList();
   const addItemMutation = shoppingListService.useAddItemToShoppingList();
 
-  async function resolveListId(data: AddToListFormData) {
+  function resetForm() {
+    clearDraft();
+    selection.resetSelection();
+    form.reset(EMPTY_FORM_VALUES);
+  }
+
+  /** A failure reopens the modal for the submitted name, which the user may have edited. */
+  function saveDraftFor(itemName: string) {
+    flushDraft();
+    const submittedKey = draftKeyFor(itemName);
+    const draft = getFormDraft(draftKey);
+    if (submittedKey !== draftKey && draft) {
+      setFormDraft(submittedKey, draft.values);
+    }
+  }
+
+  async function resolveListId(data: AddToListFormData, itemName: string) {
     if (data.shoppingListId !== "new") return data.shoppingListId;
 
     const created = await createListMutation.mutateAsync({
@@ -79,7 +107,7 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
     });
     // A failed item add retries into this list instead of creating another one.
     form.setValue("shoppingListId", created.id, { shouldDirty: true });
-    flushDraft();
+    saveDraftFor(itemName);
     return created.id;
   }
 
@@ -98,11 +126,11 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
 
     // Optimistic close, as in the add to list modal: an offline add pauses until reconnect.
     // Drafted first, so a failure reopens a fresh form with the same list and amount.
-    flushDraft();
+    saveDraftFor(itemName);
     closeModalUrl();
 
     try {
-      const listId = await resolveListId(data);
+      const listId = await resolveListId(data, itemName);
       await addItemMutation.mutateAsync({
         listId,
         data: {
@@ -113,6 +141,7 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
       });
 
       clearDraft();
+      removeFormDraft(draftKeyFor(itemName));
       toast.success(
         isQuantityIncrease
           ? t("addPlainItem.toast.quantityIncreased", { name: listTitle })
@@ -130,7 +159,7 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
         },
       );
     } catch (error) {
-      stashModalError(DRAFT_KEY, error);
+      stashModalError(draftKeyFor(itemName), error);
       openModalUrl({ name: "add-plain-item", itemName });
     }
   }
@@ -140,6 +169,8 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
     name,
     setName,
     selection,
+    restored,
+    resetForm,
     onSubmit,
     isSubmitting: createListMutation.isPending || addItemMutation.isPending,
   };

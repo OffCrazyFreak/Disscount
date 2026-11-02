@@ -2,7 +2,7 @@ import type { ShoppingListItemDto } from "@/lib/api/schemas/shopping-list-item";
 
 // Mirrors the backend's ShoppingListItemMatcher, so a toast can say whether an add
 // bumped an existing row's amount instead of creating a new one.
-function nameKey(name: string | null | undefined): string {
+export function nameKey(name: string | null | undefined): string {
   return (name ?? "").trim().toLowerCase();
 }
 

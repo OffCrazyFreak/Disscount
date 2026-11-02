@@ -102,4 +102,95 @@ describe("AddPlainItemModal", () => {
     expect(screen.getByRole("spinbutton", { name: "Količina" })).toHaveValue(2);
     expect(await screen.findByRole("alert")).toBeInTheDocument();
   });
+  it("keeps a cancelled choice to its own item name", async () => {
+    const user = userEvent.setup();
+    server.use(
+      http.get("*/api/auth/token", () =>
+        HttpResponse.json(null, { status: 401 }),
+      ),
+      http.get("*/api/shopping-lists/me", () =>
+        HttpResponse.json([newest, older]),
+      ),
+      http.get("*/api/shopping-lists/:id", ({ params }) =>
+        HttpResponse.json(params.id === older.id ? older : newest),
+      ),
+    );
+
+    const first = renderWithProviders(
+      <AddPlainItemModal open itemName="Staklenke" />,
+    );
+    const trigger = await screen.findByRole("combobox", {
+      name: "Popis za kupnju",
+    });
+    await waitFor(() => expect(trigger).toHaveTextContent("Tjedna kupnja"));
+    await user.click(trigger);
+    await user.click(await screen.findByRole("option", { name: /Vikendica/ }));
+    await user.click(screen.getByRole("button", { name: "Povećaj za 1" }));
+    first.unmount();
+
+    renderWithProviders(<AddPlainItemModal open itemName="Mlijeko" />);
+
+    const other = await screen.findByRole("combobox", {
+      name: "Popis za kupnju",
+    });
+    await waitFor(() => expect(other).toHaveTextContent("Tjedna kupnja"));
+    expect(screen.getByRole("spinbutton", { name: "Količina" })).toHaveValue(1);
+  });
+
+  it("retries a failed add into the list it already created", async () => {
+    const user = userEvent.setup();
+    const created = list("list-c", "Za vikend", "2026-11-03T10:00:00");
+    const createdLists: unknown[] = [];
+    const addedTo: string[] = [];
+    server.use(
+      http.get("*/api/auth/token", () =>
+        HttpResponse.json(null, { status: 401 }),
+      ),
+      http.get("*/api/shopping-lists/me", () =>
+        HttpResponse.json(
+          createdLists.length > 0 ? [created, newest, older] : [newest, older],
+        ),
+      ),
+      http.get("*/api/shopping-lists/:id", ({ params }) =>
+        HttpResponse.json(
+          [created, newest, older].find((entry) => entry.id === params.id),
+        ),
+      ),
+      http.post("*/api/shopping-lists", async ({ request }) => {
+        createdLists.push(await request.json());
+        return HttpResponse.json(created);
+      }),
+      http.post("*/api/shopping-lists/:id/items", ({ params }) => {
+        addedTo.push(String(params.id));
+        return HttpResponse.json({ status: 500 }, { status: 500 });
+      }),
+    );
+
+    const first = renderWithProviders(
+      <AddPlainItemModal open itemName="Staklenke" />,
+    );
+    const trigger = await screen.findByRole("combobox", {
+      name: "Popis za kupnju",
+    });
+    await waitFor(() => expect(trigger).toHaveTextContent("Tjedna kupnja"));
+    await user.click(trigger);
+    await user.type(
+      await screen.findByPlaceholderText(/Pretraži svoje popise/),
+      "Za vikend",
+    );
+    await user.click(await screen.findByRole("option", { name: /Za vikend/ }));
+    await user.click(screen.getByRole("button", { name: "Dodaj" }));
+    await waitFor(() => expect(openModalUrl).toHaveBeenCalled());
+    first.unmount();
+
+    renderWithProviders(<AddPlainItemModal open itemName="Staklenke" />);
+    const reopened = await screen.findByRole("combobox", {
+      name: "Popis za kupnju",
+    });
+    await waitFor(() => expect(reopened).toHaveTextContent("Za vikend"));
+    await user.click(screen.getByRole("button", { name: "Dodaj" }));
+
+    await waitFor(() => expect(addedTo).toEqual(["list-c", "list-c"]));
+    expect(createdLists).toHaveLength(1);
+  });
 });

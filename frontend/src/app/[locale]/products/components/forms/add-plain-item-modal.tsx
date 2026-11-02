@@ -28,9 +28,17 @@ export default function AddPlainItemModal({
   itemName = "",
 }: IAddPlainItemModalProps) {
   const t = useTranslations("products");
-  const { form, name, setName, selection, onSubmit, isSubmitting } =
-    useAddPlainItemForm(open, itemName);
-  const { isValid, errors } = useFormState({ control: form.control });
+  const {
+    form,
+    name,
+    setName,
+    selection,
+    restored,
+    resetForm,
+    onSubmit,
+    isSubmitting,
+  } = useAddPlainItemForm(open, itemName);
+  const { isValid, isDirty, errors } = useFormState({ control: form.control });
   const shoppingListId = useWatch({
     control: form.control,
     name: "shoppingListId",
@@ -56,6 +64,9 @@ export default function AddPlainItemModal({
         (shoppingListId === "new" && !customListTitle.trim())
       }
       cancelLabel={t("addToList.cancel")}
+      resetLabel={t("addToList.reset")}
+      resetDisabled={!isDirty && !restored}
+      onReset={resetForm}
     >
       <Form {...form}>
         <form
