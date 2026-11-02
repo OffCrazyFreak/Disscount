@@ -126,4 +126,23 @@ describe("useSecurityActions deleteAccount", () => {
     expect(profileDeletes).toEqual([]);
     expect(toastError).toHaveBeenCalledOnce();
   });
+
+  it("still signs this tab out when the profile delete fails after the identity is gone", async () => {
+    auth.sessionToken = "session-jwt";
+    server.use(
+      http.get("*/api/auth/token", () =>
+        HttpResponse.json({ token: auth.sessionToken }),
+      ),
+      http.delete("*/api/users/me", () =>
+        HttpResponse.json(null, { status: 500 }),
+      ),
+    );
+    auth.deleteUser.mockResolvedValue({ error: null });
+
+    const { result } = renderHookWithProviders(() => useSecurityActions());
+    await result.current.deleteAccount();
+
+    expect(logout).toHaveBeenCalledOnce();
+    expect(toastError).toHaveBeenCalledOnce();
+  });
 });

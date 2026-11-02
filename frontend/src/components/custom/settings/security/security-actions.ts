@@ -45,10 +45,14 @@ export function useSecurityActions() {
       // This tab's cached token outlives the identity; a request using it would revive the profile.
       clearAuthToken();
 
-      await userService.deleteCurrentUser(token);
+      // The identity is gone either way, so this tab signs out even if the profile delete fails.
+      try {
+        await userService.deleteCurrentUser(token);
+      } finally {
+        await logout();
+        router.replace("/");
+      }
 
-      await logout();
-      router.replace("/");
       toast.success(t("security.actions.deleted"));
     } catch {
       toast.error(t("security.actions.deleteFailed"));
