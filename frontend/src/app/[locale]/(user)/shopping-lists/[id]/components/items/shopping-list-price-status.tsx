@@ -28,6 +28,13 @@ export default function ShoppingListPriceStatus({
   const successRef = useRef<HTMLParagraphElement>(null);
   const isRecovered = hasRetryLoadedAll && failedCount === 0;
 
+  // A new failure retires the old success, so removing that item later cannot revive it.
+  const [previousFailedCount, setPreviousFailedCount] = useState(failedCount);
+  if (failedCount !== previousFailedCount) {
+    setPreviousFailedCount(failedCount);
+    if (failedCount > previousFailedCount) setHasRetryLoadedAll(false);
+  }
+
   // The retry button unmounts once every price loads; when it took focus with it, hand focus
   // to the outcome instead of the page top, but never pull focus away from anything else.
   useEffect(() => {

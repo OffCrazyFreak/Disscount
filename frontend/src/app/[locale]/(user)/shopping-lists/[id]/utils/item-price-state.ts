@@ -27,14 +27,24 @@ export const UNAVAILABLE_PRICE_KEYS = {
   noPrices: "prices.noPrices",
 } as const satisfies Record<ItemPriceState, string | undefined>;
 
-/** The state of a product lookup that has no data to show yet. */
-export function lookupPriceState(lookup: ProductLookup): ItemPriceState {
+/** Whether a state is a lookup's answer worth remembering through its next refetch. */
+export function isSettledLookupError(state: ItemPriceState): boolean {
+  return state === "failed" || state === "noPrices";
+}
+
+/**
+ * The state of a product lookup that has no data to show yet. `lastError` is the answer it
+ * settled on before, since a refetch from any observer clears the error until it answers.
+ */
+export function lookupPriceState(
+  lookup: ProductLookup,
+  lastError: ItemPriceState | undefined,
+): ItemPriceState {
   // React Query pauses a fetch it cannot send offline, and nothing was saved to show instead.
   if (lookup.fetchStatus === "paused") return "offline";
-  // A refetch (retry button or window focus) resets a failed query to pending, but the row,
-  // the banner and its button must stay put until it actually answers.
+  // The row, the banner and its button stay put until the refetch actually answers.
   if (lookup.errorUpdatedAt > 0 && lookup.fetchStatus === "fetching") {
-    return "failed";
+    return lastError ?? "failed";
   }
   if (lookup.status === "error") {
     return isProductNotFound(lookup.error) ? "noPrices" : "failed";

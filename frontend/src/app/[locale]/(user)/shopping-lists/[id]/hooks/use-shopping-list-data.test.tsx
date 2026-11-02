@@ -10,6 +10,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { useShoppingListData } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-shopping-list-data";
 import { useStoreChainAnalysis } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-store-chain-analysis";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
+import { productByEanQueryKey } from "@/lib/cijene-api";
 import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
@@ -215,6 +216,46 @@ describe("useShoppingListData price states", () => {
     await waitFor(() => expect(result.current.isRetryingPrices).toBe(true));
     expect(result.current.priceStates.broken).toBe("failed");
     expect(result.current.isPricesLoading).toBe(false);
+  });
+
+  it("keeps a 404 as no prices while another screen refetches it", async () => {
+    const requests: string[] = [];
+    answerProducts(requests);
+    const queryClient = appLikeQueryClient();
+
+    const { result } = renderHookWithProviders(
+      () => useShoppingListData(LIST_ID),
+      { queryClient },
+    );
+
+    await waitFor(() =>
+      expect(result.current.priceStates.unknown).toBe("noPrices"),
+    );
+
+    let refetching = false;
+    server.use(
+      http.get("*/api/cijene/products/:ean", async () => {
+        refetching = true;
+        await new Promise(() => {});
+        return HttpResponse.json(null);
+      }),
+    );
+
+    // The watchlist and product modal observe the same key with the default options.
+    act(() => {
+      void queryClient.refetchQueries({
+        queryKey: productByEanQueryKey("333"),
+      });
+    });
+
+    await waitFor(() => expect(refetching).toBe(true));
+    await waitFor(() =>
+      expect(
+        queryClient.getQueryState(productByEanQueryKey("333"))?.fetchStatus,
+      ).toBe("fetching"),
+    );
+    expect(result.current.priceStates.unknown).toBe("noPrices");
+    expect(result.current.priceStates.broken).toBe("failed");
   });
 
   it("reports prices that were never saved while offline", () => {

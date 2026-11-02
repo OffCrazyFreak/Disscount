@@ -173,6 +173,20 @@ describe("ShoppingListItems price states", () => {
     expect(screen.queryByText("Cijene su učitane.")).not.toBeInTheDocument();
   });
 
+  it("retires the success line once a new failure appears", async () => {
+    const user = userEvent.setup();
+    const { rerender } = renderItems([item("a")], { a: "failed" });
+
+    await user.click(screen.getByRole("button", { name: "Pokušaj ponovno" }));
+    rerender(listItems([item("a")], { a: "ready" }));
+    expect(screen.getByText("Cijene su učitane.")).toBeInTheDocument();
+
+    rerender(listItems([item("a"), item("b")], { a: "ready", b: "failed" }));
+    rerender(listItems([item("a")], { a: "ready" }));
+
+    expect(screen.queryByText("Cijene su učitane.")).not.toBeInTheDocument();
+  });
+
   it("shows a skeleton instead of a store select while prices load", () => {
     renderItems([item("a")], { a: "loading" });
 

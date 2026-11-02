@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { shoppingListService } from "@/lib/api";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
@@ -9,6 +9,7 @@ import {
 } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 import { getAveragePrice } from "@/app/[locale]/products/utils/product-utils";
 import {
+  isSettledLookupError,
   itemPriceState,
   lookupPriceState,
   type ItemPriceState,
@@ -46,11 +47,19 @@ export function useShoppingListData(listId: string) {
       .map((item) => item.ean),
   );
 
+  const [lastErrors, setLastErrors] = useState<
+    Readonly<Record<string, ItemPriceState>>
+  >({});
+
   const productLookups = useQueries({
     queries: eans.map(productLookupQuery),
     combine: (results) => {
       const lookups = results.map(
-        (result, index) => [eans[index], lookupPriceState(result)] as const,
+        (result, index) =>
+          [
+            eans[index],
+            lookupPriceState(result, lastErrors[eans[index]]),
+          ] as const,
       );
       const failedIndexes = results.flatMap((_, index) =>
         // A query that keeps its data after a failed background refetch still shows prices.
@@ -95,6 +104,14 @@ export function useShoppingListData(listId: string) {
     isRetryingPrices,
     isPricesLoading,
   } = productLookups;
+
+  // Stored during render, React's pattern for keeping information from earlier renders.
+  const newErrors = lookupStates.filter(
+    ([ean, state]) => isSettledLookupError(state) && lastErrors[ean] !== state,
+  );
+  if (newErrors.length > 0) {
+    setLastErrors({ ...lastErrors, ...Object.fromEntries(newErrors) });
+  }
 
   const itemPrices = useMemo(() => {
     const productsByEan = new Map(productsData);
