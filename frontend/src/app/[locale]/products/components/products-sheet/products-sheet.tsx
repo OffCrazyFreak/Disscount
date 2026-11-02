@@ -58,8 +58,7 @@ export default function ProductsSheet() {
     close();
   }, [pathname, close]);
 
-  // md:hidden only hides it. Left open, Radix keeps the focus trap alive inside a
-  // display:none container and the bar's toggle state goes stale.
+  // md:hidden only hides it. Left open, the bar's toggle state goes stale.
   useEffect(() => {
     if (!isMobile) close();
   }, [isMobile, close]);
@@ -71,8 +70,8 @@ export default function ProductsSheet() {
       title={t("productsSheet.title")}
       srOnlyTitle
       description={t("productsSheet.description")}
-      // The one non-modal sheet: picking a facet re-filters the list behind it
-      // live, so it must neither cover the page nor lock it.
+      // Non-modal: picking a facet re-filters the list behind it live, so it
+      // must neither cover the page nor lock it.
       modal={false}
       // Opened for the filters, the field is not what you came for, and focusing
       // it would raise the keyboard over the facets you asked to see.

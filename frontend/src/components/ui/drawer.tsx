@@ -1,44 +1,113 @@
 "use client";
 
 import * as React from "react";
-import { Drawer as DrawerPrimitive } from "vaul";
+import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer";
 
 import { cn } from "@/lib/utils";
-import { PortalContainerProvider } from "@/context/portal-container-context";
 
-function Drawer({
-  ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Root>) {
-  return <DrawerPrimitive.Root data-slot="drawer" {...props} />;
+type SwipeDirection = NonNullable<DrawerPrimitive.Root.Props["swipeDirection"]>;
+
+interface IDrawerContext {
+  modal: DrawerPrimitive.Root.Props["modal"];
+  swipeDirection: SwipeDirection;
+  popupRef: React.RefObject<HTMLDivElement | null>;
 }
 
-function DrawerTrigger({
+const DrawerContext = React.createContext<IDrawerContext>({
+  modal: true,
+  swipeDirection: "down",
+  popupRef: { current: null },
+});
+
+// Base UI feeds the swipe offset through its CSS variables; starting and ending
+// styles slide the popup fully off its own edge.
+const POPUP_DIRECTION_CLASS: Record<SwipeDirection, string> = {
+  down: "inset-x-0 bottom-0 [--drawer-max-h:80vh] rounded-t-lg border-t translate-y-(--drawer-swipe-movement-y) data-starting-style:translate-y-[calc(100%+2px)] data-ending-style:translate-y-[calc(100%+2px)]",
+  up: "inset-x-0 top-0 [--drawer-max-h:80vh] rounded-b-lg border-b translate-y-(--drawer-swipe-movement-y) data-starting-style:-translate-y-[calc(100%+2px)] data-ending-style:-translate-y-[calc(100%+2px)]",
+  left: "inset-y-0 left-0 w-3/4 border-r sm:max-w-sm translate-x-(--drawer-swipe-movement-x) data-starting-style:-translate-x-[calc(100%+2px)] data-ending-style:-translate-x-[calc(100%+2px)]",
+  right:
+    "inset-y-0 right-0 w-3/4 border-l sm:max-w-sm translate-x-(--drawer-swipe-movement-x) data-starting-style:translate-x-[calc(100%+2px)] data-ending-style:translate-x-[calc(100%+2px)]",
+};
+
+const HANDLE_DIRECTION_CLASS: Record<SwipeDirection, string> = {
+  down: "mx-auto mt-4 h-2 w-[100px]",
+  up: "order-last mx-auto mb-4 h-2 w-[100px]",
+  left: "absolute top-1/2 right-2 h-[100px] w-2 -translate-y-1/2",
+  right: "absolute top-1/2 left-2 h-[100px] w-2 -translate-y-1/2",
+};
+
+function isInsidePopper(target: EventTarget | null | undefined): boolean {
+  if (!(target instanceof Node)) return false;
+
+  return Array.from(
+    document.querySelectorAll("[data-radix-popper-content-wrapper]"),
+  ).some((popper) => popper.contains(target));
+}
+
+function Drawer({
+  modal = true,
+  swipeDirection = "down",
+  onOpenChange,
   ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Trigger>) {
+}: DrawerPrimitive.Root.Props) {
+  const popupRef = React.useRef<HTMLDivElement | null>(null);
+
+  return (
+    <DrawerContext.Provider value={{ modal, swipeDirection, popupRef }}>
+      <DrawerPrimitive.Root
+        data-slot="drawer"
+        modal={modal}
+        swipeDirection={swipeDirection}
+        onOpenChange={(open, details) => {
+          const target = details.event.target;
+
+          // Radix dropdowns and popovers portal to the body, so a press inside
+          // one reads as an outside press. Keep the drawer open and let the
+          // layer above it close on its own.
+          const isPressInPopper =
+            details.reason === "outside-press" && isInsidePopper(target);
+
+          // Radix layers keep their own Escape stack, which this drawer is not
+          // on, so a Radix dialog or menu over it would close both at once.
+          const isEscapeElsewhere =
+            details.reason === "escape-key" &&
+            target instanceof Node &&
+            !popupRef.current?.contains(target);
+
+          if (!open && (isPressInPopper || isEscapeElsewhere)) {
+            details.cancel();
+            return;
+          }
+
+          onOpenChange?.(open, details);
+        }}
+        {...props}
+      />
+    </DrawerContext.Provider>
+  );
+}
+
+function DrawerTrigger({ ...props }: DrawerPrimitive.Trigger.Props) {
   return <DrawerPrimitive.Trigger data-slot="drawer-trigger" {...props} />;
 }
 
-function DrawerPortal({
-  ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Portal>) {
+function DrawerPortal({ ...props }: DrawerPrimitive.Portal.Props) {
   return <DrawerPrimitive.Portal data-slot="drawer-portal" {...props} />;
 }
 
-function DrawerClose({
-  ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Close>) {
+function DrawerClose({ ...props }: DrawerPrimitive.Close.Props) {
   return <DrawerPrimitive.Close data-slot="drawer-close" {...props} />;
 }
 
 function DrawerOverlay({
   className,
   ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Overlay>) {
+}: DrawerPrimitive.Backdrop.Props) {
   return (
-    <DrawerPrimitive.Overlay
+    <DrawerPrimitive.Backdrop
       data-slot="drawer-overlay"
       className={cn(
-        "fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
+        "fixed inset-0 z-50 min-h-dvh bg-black/50 opacity-[calc(1-var(--drawer-swipe-progress,0))] transition-opacity duration-450 ease-[cubic-bezier(0.32,0.72,0,1)] data-starting-style:opacity-0 data-ending-style:opacity-0 data-swiping:duration-0 motion-reduce:transition-none",
         className,
       )}
       {...props}
@@ -46,74 +115,71 @@ function DrawerOverlay({
   );
 }
 
-function isInsidePopper(target: Node): boolean {
-  return Array.from(
-    document.querySelectorAll("[data-radix-popper-content-wrapper]"),
-  ).some((popper) => popper.contains(target));
-}
-
-interface IDrawerContentProps extends React.ComponentProps<
-  typeof DrawerPrimitive.Content
-> {
+interface IDrawerContentProps extends DrawerPrimitive.Popup.Props {
   /** Restyles the scrim, which the content renders and so nothing else can reach */
   overlayClassName?: string;
+  /** Sets the layer: the viewport is fixed, so it is the stacking context */
+  viewportClassName?: string;
 }
 
 function DrawerContent({
   className,
   overlayClassName,
+  viewportClassName,
   children,
-  onPointerDownOutside,
   ref,
   ...props
 }: IDrawerContentProps) {
-  const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
+  const { modal, swipeDirection, popupRef } = React.useContext(DrawerContext);
 
-  // Compose the caller's ref with the internal one so {...props} can't drop it.
-  function setContentRef(node: HTMLDivElement | null) {
-    setContainer(node);
+  // Compose the caller's ref with the root's, so {...props} cannot drop either.
+  function setPopupRef(node: HTMLDivElement | null) {
+    popupRef.current = node;
 
     if (typeof ref === "function") ref(node);
     else if (ref) ref.current = node;
   }
 
+  // DEVIATION from upstream shadcn, deliberately kept: overlayClassName and
+  // viewportClassName, since both elements are rendered here and a caller
+  // cannot reach them otherwise. Re-apply them after any `shadcn add drawer`.
   return (
-    <DrawerPortal data-slot="drawer-portal">
-      <DrawerOverlay className={overlayClassName} />
-      <DrawerPrimitive.Content
-        ref={setContentRef}
-        data-slot="drawer-content"
-        onPointerDownOutside={(event) => {
-          onPointerDownOutside?.(event);
-
-          // Dropdowns and popovers are portalled outside the drawer, so
-          // dismissing one reads as an outside click. Keep the drawer open and
-          // let the layer above it close on its own.
-          if (event.target instanceof Node && isInsidePopper(event.target)) {
-            event.preventDefault();
-          }
-        }}
+    <DrawerPortal>
+      {modal === true && <DrawerOverlay className={overlayClassName} />}
+      <DrawerPrimitive.Viewport
+        data-slot="drawer-viewport"
+        data-modal={String(modal)}
         className={cn(
-          "group/drawer-content fixed z-50 flex h-auto flex-col bg-background",
-          "data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-b-lg data-[vaul-drawer-direction=top]:border-b",
-          "data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[80vh] data-[vaul-drawer-direction=bottom]:rounded-t-lg data-[vaul-drawer-direction=bottom]:border-t",
-          "data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=right]:sm:max-w-sm",
-          "data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=left]:sm:max-w-sm",
-          className,
+          "pointer-events-none fixed inset-0 z-50",
+          viewportClassName,
         )}
-        {...props}
       >
-        {/* Grab handles: horizontal for bottom drawers, vertical for side ones.
-            DEVIATION from upstream shadcn, deliberately kept: overlayClassName,
-            since the overlay is rendered internally and a caller cannot reach it
-            otherwise. Re-apply it after any `shadcn add drawer`. */}
-        <div className="mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full bg-muted group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
-        <div className="absolute top-1/2 right-2 hidden h-[100px] w-2 -translate-y-1/2 rounded-full bg-muted group-data-[vaul-drawer-direction=left]/drawer-content:block" />
-        <div className="absolute top-1/2 left-2 hidden h-[100px] w-2 -translate-y-1/2 rounded-full bg-muted group-data-[vaul-drawer-direction=right]/drawer-content:block" />
-        <PortalContainerProvider container={container}>
-          {children}
-        </PortalContainerProvider>
-      </DrawerPrimitive.Content>
+        <DrawerPrimitive.Popup
+          ref={setPopupRef}
+          data-slot="drawer-popup"
+          className={cn(
+            "group/drawer-popup pointer-events-auto fixed flex max-h-(--drawer-max-h,none) min-h-0 flex-col bg-background outline-none transition-[translate] duration-450 ease-[cubic-bezier(0.32,0.72,0,1)] data-swiping:select-none data-swiping:duration-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength,1)*400ms)] motion-reduce:transition-none",
+            POPUP_DIRECTION_CLASS[swipeDirection],
+            className,
+          )}
+          {...props}
+        >
+          <div
+            data-slot="drawer-handle"
+            aria-hidden="true"
+            className={cn(
+              "shrink-0 rounded-full bg-muted",
+              HANDLE_DIRECTION_CLASS[swipeDirection],
+            )}
+          />
+          <DrawerPrimitive.Content
+            data-slot="drawer-content"
+            className="flex min-h-0 flex-1 flex-col"
+          >
+            {children}
+          </DrawerPrimitive.Content>
+        </DrawerPrimitive.Popup>
+      </DrawerPrimitive.Viewport>
     </DrawerPortal>
   );
 }
@@ -123,7 +189,7 @@ function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="drawer-header"
       className={cn(
-        "flex flex-col gap-0.5 p-4 group-data-[vaul-drawer-direction=bottom]/drawer-content:text-center group-data-[vaul-drawer-direction=top]/drawer-content:text-center md:gap-1.5 md:text-left",
+        "flex flex-col gap-0.5 p-4 md:gap-1.5 md:text-left",
         className,
       )}
       {...props}
@@ -141,10 +207,7 @@ function DrawerFooter({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function DrawerTitle({
-  className,
-  ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Title>) {
+function DrawerTitle({ className, ...props }: DrawerPrimitive.Title.Props) {
   return (
     <DrawerPrimitive.Title
       data-slot="drawer-title"
@@ -157,7 +220,7 @@ function DrawerTitle({
 function DrawerDescription({
   className,
   ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Description>) {
+}: DrawerPrimitive.Description.Props) {
   return (
     <DrawerPrimitive.Description
       data-slot="drawer-description"

@@ -7,13 +7,12 @@ const SHEET_DRAG_EXPAND_PX = 40;
 
 /**
  * Pointer props that fire once per gesture when the sheet is dragged upward,
- * which vaul itself ignores: a bottom drawer clamps upward movement.
+ * which the drawer itself ignores: a bottom drawer only swipes down to dismiss.
  *
- * Plain React handlers rather than native listeners, because vaul composes its
- * own: its `onPointerDown`, `onPointerMove` and `onPointerUp` each call the
- * caller's first and then run the drag logic, so passing these through costs it
- * nothing. It fires mid-drag rather than on release, so the sheet grows under the
- * finger that asked for it.
+ * Plain React handlers rather than native listeners, because Base UI merges a
+ * caller's handlers with its own swipe handlers rather than replacing them. It
+ * fires mid-drag rather than on release, so the sheet grows under the finger
+ * that asked for it.
  */
 export default function useSheetDragUp(onDragUp?: () => void) {
   const startY = useRef<number | null>(null);
