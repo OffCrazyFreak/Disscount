@@ -53,7 +53,7 @@ runs:
           docker buildx imagetools create \
             --tag "ghcr.io/offcrazyfreak/disscount-$image:$ENVIRONMENT_TAG" \
             "ghcr.io/offcrazyfreak/disscount-$image:sha-$RELEASE_ID" || {
-            echo "::error::Moving $ENVIRONMENT_TAG failed at $image, so the tags may mix commits; run Rollback with the last good commit (or, before Rollback is on main, push a revert to dev) before any Redeploy."
+            echo "::error::Moving $ENVIRONMENT_TAG failed at $image, so the tags may mix commits; re-run this job if this commit is still the dev tip, otherwise run Rollback (or, before Rollback is on main, push a revert to dev) before any Redeploy."
             exit 1
           }
         done
