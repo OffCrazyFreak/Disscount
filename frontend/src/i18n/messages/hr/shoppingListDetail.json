@@ -126,7 +126,8 @@
     "toggle": "Po trgovinama",
     "other": "Ostalo",
     "onMap": "Na karti",
-    "summary": "{count, plural, one {# proizvod} few {# proizvoda} other {# proizvoda}}{partial, select, yes { · najmanje {subtotal}} none {} other { · {subtotal}}}"
+    "summary": "{count, plural, one {# proizvod} few {# proizvoda} other {# proizvoda}}{partial, select, yes { · najmanje {subtotal}} none {} other { · {subtotal}}}",
+    "otherSummary": "{count, plural, one {# stavka} few {# stavke} other {# stavki}}{partial, select, yes { · najmanje {subtotal}} none {} other { · {subtotal}}}"
   },
   "quickAdd": {
     "added": "Dodano: {name}",

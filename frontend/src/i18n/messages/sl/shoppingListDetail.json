@@ -126,7 +126,8 @@
     "toggle": "Po trgovinah",
     "other": "Drugo",
     "onMap": "Na zemljevidu",
-    "summary": "{count, plural, one {# izdelek} two {# izdelka} few {# izdelki} other {# izdelkov}}{partial, select, yes { · vsaj {subtotal}} none {} other { · {subtotal}}}"
+    "summary": "{count, plural, one {# izdelek} two {# izdelka} few {# izdelki} other {# izdelkov}}{partial, select, yes { · vsaj {subtotal}} none {} other { · {subtotal}}}",
+    "otherSummary": "{count, plural, one {# postavka} two {# postavki} few {# postavke} other {# postavk}}{partial, select, yes { · vsaj {subtotal}} none {} other { · {subtotal}}}"
   },
   "quickAdd": {
     "added": "Dodano: {name}",

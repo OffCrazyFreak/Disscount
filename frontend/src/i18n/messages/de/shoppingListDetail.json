@@ -126,7 +126,8 @@
     "toggle": "Nach Geschäft",
     "other": "Sonstiges",
     "onMap": "Auf der Karte",
-    "summary": "{count, plural, one {# Produkt} other {# Produkte}}{partial, select, yes { · mindestens {subtotal}} none {} other { · {subtotal}}}"
+    "summary": "{count, plural, one {# Produkt} other {# Produkte}}{partial, select, yes { · mindestens {subtotal}} none {} other { · {subtotal}}}",
+    "otherSummary": "{count, plural, one {# Artikel} other {# Artikel}}{partial, select, yes { · mindestens {subtotal}} none {} other { · {subtotal}}}"
   },
   "quickAdd": {
     "added": "Hinzugefügt: {name}",

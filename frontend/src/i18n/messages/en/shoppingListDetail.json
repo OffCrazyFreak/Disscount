@@ -126,7 +126,8 @@
     "toggle": "By store",
     "other": "Other",
     "onMap": "On the map",
-    "summary": "{count, plural, one {# product} other {# products}}{partial, select, yes { · at least {subtotal}} none {} other { · {subtotal}}}"
+    "summary": "{count, plural, one {# product} other {# products}}{partial, select, yes { · at least {subtotal}} none {} other { · {subtotal}}}",
+    "otherSummary": "{count, plural, one {# item} other {# items}}{partial, select, yes { · at least {subtotal}} none {} other { · {subtotal}}}"
   },
   "quickAdd": {
     "added": "Added: {name}",
