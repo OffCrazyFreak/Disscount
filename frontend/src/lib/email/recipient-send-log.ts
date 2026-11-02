@@ -65,7 +65,9 @@ export const recipientSendLog: IRecipientSendGate = {
       .from(emailSend)
       .where(eq(emailSend.recipientHash, hashRecipient(recipient)))
       .orderBy(desc(emailSend.sentAt))
-      .limit(1);
+      .limit(1)
+      // Two overlapping releases would otherwise pick the same row, and one slot stays spent.
+      .for("update", { skipLocked: true });
 
     await db.delete(emailSend).where(eq(emailSend.id, sql`(${latest})`));
   },

@@ -75,6 +75,16 @@ describe("EmailService recipient cap", () => {
 
     expect(gate.tryReserve).toHaveBeenCalledWith("victim@example.com");
     expect(provider.send).toHaveBeenCalledOnce();
+    expect(gate.release).not.toHaveBeenCalled();
+  });
+
+  it("still reports the provider error when giving the slot back fails", async () => {
+    const { gate, service } = serviceWith(true, "Resend is down");
+    gate.release.mockRejectedValue(new Error("database down"));
+
+    await expect(service.sendVerificationEmail(email)).rejects.toThrow(
+      "Resend is down",
+    );
   });
 
   it("gives the slot back when the provider fails, so an outage does not spend the budget", async () => {
