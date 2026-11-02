@@ -8,6 +8,7 @@ import useInfiniteProducts from "@/app/[locale]/products/hooks/use-infinite-prod
 import useProductFilters from "@/app/[locale]/products/hooks/use-product-filters";
 import ProductFiltersBar from "@/app/[locale]/products/components/product-filters-bar";
 import ProductsResults from "@/app/[locale]/products/components/products-results";
+import ProductsResultsStatus from "@/app/[locale]/products/components/products-results-status";
 import { Suspense } from "react";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
@@ -87,6 +88,14 @@ export default function ProductsClient({ query }: IProductsClientProps) {
         {/* TODO: re-enable with personalisable list views (see view-switcher.tsx) */}
         {/* <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} /> */}
       </div>
+
+      <ProductsResultsStatus
+        query={query}
+        isPending={isPending}
+        hasError={Boolean(pageError)}
+        total={total}
+        isTruncated={isTruncated}
+      />
 
       {showPartialPricesBanner && (
         <Banner
