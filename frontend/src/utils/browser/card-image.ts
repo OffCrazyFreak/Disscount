@@ -55,14 +55,18 @@ export async function firstWithinLimit(
   return undefined;
 }
 
-function toBlob(canvas: HTMLCanvasElement, type: string, quality: number) {
+export function toBlob(
+  canvas: HTMLCanvasElement,
+  type: string,
+  quality: number,
+) {
   return new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, type, quality),
   );
 }
 
 /** JPEG has no alpha, so transparent pixels would encode as black. */
-function paintWhiteBehind(canvas: HTMLCanvasElement) {
+export function paintWhiteBehind(canvas: HTMLCanvasElement) {
   const context = canvas.getContext("2d");
   if (!context) return;
 
@@ -113,7 +117,10 @@ function draw(
   return canvas;
 }
 
-function scaled(bitmap: ImageBitmap, longEdge: number): HTMLCanvasElement {
+export function scaled(
+  bitmap: ImageBitmap,
+  longEdge: number,
+): HTMLCanvasElement {
   // Never upscale: a small photo gains nothing from more pixels.
   const scale = Math.min(1, longEdge / Math.max(bitmap.width, bitmap.height));
   const whole = { x: 0, y: 0, width: bitmap.width, height: bitmap.height };
@@ -137,7 +144,7 @@ function centerCropped(bitmap: ImageBitmap, size: number): HTMLCanvasElement {
   return draw(bitmap, crop, size, size);
 }
 
-async function decode(file: File): Promise<ImageBitmap> {
+export async function decode(file: File): Promise<ImageBitmap> {
   try {
     return await createImageBitmap(file, { imageOrientation: "from-image" });
   } catch {

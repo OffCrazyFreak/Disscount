@@ -180,6 +180,19 @@ All four are **optional**. If any one is blank the backend runs without photos (
 
 > Both compose files forward the four `R2_*` variables to the backend, blank by default, and the root `.env.example` lists them. Photos stay off until all four are set.
 
+### Product photo env vars
+
+Product photos are public, so they live in a second R2 bucket that is readable through its own domain and has its own token; the card photo bucket stays private. It uses the same EU endpoint (`R2_ENDPOINT`). Create the bucket with **jurisdiction EU**, connect a custom domain (for example `images.disscount.me`) under the bucket's **Settings, Custom Domains**, and disable its `r2.dev` URL. Details are in [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md).
+
+| Var                           | Service | Kind            | Notes                                                    |
+| ----------------------------- | ------- | --------------- | -------------------------------------------------------- |
+| `R2_PUBLIC_BUCKET`            | backend | runtime         | Name of the public product photo bucket                  |
+| `R2_PUBLIC_ACCESS_KEY_ID`     | backend | runtime, secret | Token scoped to that one bucket, object read and write   |
+| `R2_PUBLIC_SECRET_ACCESS_KEY` | backend | runtime, secret | Secret of the same token                                 |
+| `R2_PUBLIC_URL`               | backend | runtime         | The bucket's public `https://` domain, no trailing slash |
+
+All four are **optional**. If any one (or `R2_ENDPOINT`) is blank, product pages show no photos, uploads answer 503 and the background jobs do nothing. The URL must be `https://`: the frontend's Content Security Policy only allows images from `https:` origins. Backend-only and read at startup, so a change needs a backend restart.
+
 ---
 
 ## 6. Domains, DNS & HTTPS
@@ -380,6 +393,7 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 | Uptime checks                                                                        | ✅ auto    | UptimeRobot, published as a [public status page](https://stats.uptimerobot.com/ej4ROz2eMo)                                                                |
 | **Non-security OS updates (`-updates` channel)**                                     | ❌ manual  | `sudo apt update && sudo apt full-upgrade`; the next nightly run reboots if needed                                                                        |
 | **Creating the EU photo bucket + token, setting `R2_*`**                             | ❌ manual  | Cloudflare once, then Dokploy env per environment; photos stay off until all four are set (see [Card photo env vars](#card-photo-env-vars))               |
+| **Creating the public product photo bucket, domain + token, setting `R2_PUBLIC_*`**  | ❌ manual  | Cloudflare once, then Dokploy env per environment; product photos stay off until all four are set (see [Product photo env vars](#product-photo-env-vars)) |
 | **Dropping the old `digital_card` table**                                            | ❌ manual  | after the cards rebuild deploys and nothing reads it; `ddl-auto=update` never drops it (see [§10.1](#101-dropping-a-column))                              |
 | **Adding/Changing a `NEXT_PUBLIC_*` var**                                            | ❌ manual  | `dev`: GitHub `dev` environment variable **+ a new image build**; `main`: Dokploy env **+ redeploy**                                                      |
 | **Adding a new domain/subdomain**                                                    | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                                                                                                 |
