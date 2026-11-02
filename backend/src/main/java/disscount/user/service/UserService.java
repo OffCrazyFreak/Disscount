@@ -65,12 +65,22 @@ public class UserService {
 
     /**
      * Idempotent upsert called on every authenticated request via UserProvisioningFilter.
-     * Creates the profile row on first login, or revives a soft-deleted one.
+     * Creates the profile row on first login, or revives a soft-deleted one, unless the
+     * account was erased: then the login outlived a failed deletion, and the caller is told
+     * so the browser can finish it.
+     *
+     * @throws AccountErasedException when the id has a tombstone
      */
     public void ensureActiveProfile(UUID id, String email, String name, String image) {
         if (email == null) return;
 
         Optional<User> existing = userRepository.findById(id);
+        // Checked only off the hot path: an active profile cannot have been erased.
+        boolean mayBeErased = existing.map(user -> user.getDeletedAt() != null).orElse(true);
+        if (mayBeErased && erasureLedger.existsById(id)) {
+            throw new AccountErasedException();
+        }
+
         if (existing.isPresent()) {
             User user = existing.get();
             boolean changed = false;

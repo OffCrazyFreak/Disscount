@@ -181,6 +181,28 @@ class UserServiceDeleteAccountTest {
     }
 
     @Test
+    void aStaleLoginForAnErasedAccountIsToldSoInsteadOfRevivingIt() {
+        User user = users.save(User.builder().id(UUID.randomUUID()).username("marko").build());
+        userService.deleteAccount(user.getId());
+
+        assertThatThrownBy(() -> userService.ensureActiveProfile(user.getId(), "marko@example.com", "Marko", null))
+                .isInstanceOf(AccountErasedException.class);
+
+        assertThat(users.findById(user.getId()).orElseThrow().getDeletedAt()).isNotNull();
+    }
+
+    @Test
+    void anErasedIdentityWithoutAProfileGetsNoNewOne() {
+        UUID neverProvisioned = UUID.randomUUID();
+        userService.deleteAccount(neverProvisioned);
+
+        assertThatThrownBy(() -> userService.ensureActiveProfile(neverProvisioned, "ana@example.com", "Ana", null))
+                .isInstanceOf(AccountErasedException.class);
+
+        assertThat(users.findById(neverProvisioned)).isEmpty();
+    }
+
+    @Test
     void anAdminCannotDeleteAnUnknownUser() {
         User admin = users.save(User.builder().id(UUID.randomUUID()).username("admin").build());
         UUID unknown = UUID.randomUUID();

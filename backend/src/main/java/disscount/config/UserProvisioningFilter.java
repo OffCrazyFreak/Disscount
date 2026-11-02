@@ -1,5 +1,6 @@
 package disscount.config;
 
+import disscount.user.service.AccountErasedException;
 import disscount.user.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -41,6 +42,12 @@ public class UserProvisioningFilter extends OncePerRequestFilter {
 
             try {
                 userService.ensureActiveProfile(UUID.fromString(sub), email, name, image);
+            } catch (AccountErasedException erased) {
+                // Gone rather than 401, so the client finishes the deletion instead of refreshing its token.
+                response.setStatus(HttpServletResponse.SC_GONE);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"code\":\"account_erased\"}");
+                return;
             } catch (IllegalArgumentException ignored) {
                 // sub is not a UUID - token not issued by our better-auth instance
             } catch (Exception e) {
