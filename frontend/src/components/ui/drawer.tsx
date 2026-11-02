@@ -37,9 +37,6 @@ const HANDLE_DIRECTION_CLASS: Record<SwipeDirection, string> = {
   right: "absolute top-1/2 left-2 h-[100px] w-2 -translate-y-1/2",
 };
 
-/** Any open Radix tooltip, menu, popover or select, all portalled to the body */
-const RADIX_POPPER_SELECTOR = "[data-radix-popper-content-wrapper]";
-
 function Drawer({
   modal = true,
   swipeDirection = "down",
@@ -59,14 +56,21 @@ function Drawer({
 
           // Radix layers keep their own Escape stack, which this drawer is not
           // on, so a Radix dialog, menu or tooltip over it would close with it.
+          // Radix marks the Escape it consumed with preventDefault.
           const isEscapeForAnotherLayer =
             details.reason === "escape-key" &&
-            ((target instanceof Node &&
-              target !== document.body &&
-              !popupRef.current?.contains(target)) ||
-              document.querySelector(RADIX_POPPER_SELECTOR) !== null);
+            (details.event.defaultPrevented ||
+              (target instanceof Node &&
+                target !== document.body &&
+                !popupRef.current?.contains(target)));
 
-          if (!open && isEscapeForAnotherLayer) {
+          // A modal Radix menu sets pointer-events: none on the body, which the
+          // backdrop inherits, so the tap meant to close the menu hits <html>.
+          const isPressForAnotherLayer =
+            details.reason === "outside-press" &&
+            target === document.documentElement;
+
+          if (!open && (isEscapeForAnotherLayer || isPressForAnotherLayer)) {
             details.cancel();
             return;
           }

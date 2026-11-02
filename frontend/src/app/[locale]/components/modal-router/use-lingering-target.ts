@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-/** A Radix dialog animates for 200ms; ui/drawer.tsx slides for 450ms. */
+/** A Radix dialog animates for 200ms; ui/drawer.tsx slides out within 400ms. */
 const DIALOG_EXIT_MS = 200;
 export const SHEET_EXIT_MS = 450;
 

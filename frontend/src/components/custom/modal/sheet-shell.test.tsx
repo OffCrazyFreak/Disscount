@@ -10,6 +10,12 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { renderWithProviders } from "@/test/render";
 
 interface IHarnessProps {
@@ -17,12 +23,15 @@ interface IHarnessProps {
   withDialog?: boolean;
   /** Close the sheet as the dialog opens, which is what the quick actions do */
   swapsToDialog?: boolean;
+  /** A Radix menu inside the sheet, like the mobile sidebar's language switcher */
+  withMenu?: boolean;
 }
 
 function Harness({
   modal,
   withDialog = false,
   swapsToDialog = false,
+  withMenu = false,
 }: IHarnessProps) {
   const [isOpen, setOpen] = useState(false);
   const [isDialogOpen, setDialogOpen] = useState(false);
@@ -43,6 +52,15 @@ function Harness({
         initialFocusRef={fieldRef}
       >
         <input ref={fieldRef} aria-label="sheet field" />
+
+        {withMenu && (
+          <DropdownMenu>
+            <DropdownMenuTrigger>language</DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem>English</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
 
         {withDialog && (
           <button
@@ -167,5 +185,24 @@ describe("SheetShell", () => {
     );
     const dialog = screen.getByRole("dialog", { name: "dialog" });
     expect(dialog).toContainElement(document.activeElement as HTMLElement);
+  });
+
+  // A modal Radix menu sets pointer-events: none on the body, which the scrim
+  // inherits, so the press meant to close the menu lands on <html>.
+  it("closes only a Radix menu when its outside press lands on the scrim", async () => {
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
+    renderWithProviders(<Harness withMenu />);
+
+    await user.click(screen.getByRole("button", { name: "open sheet" }));
+    await user.click(await screen.findByRole("button", { name: "language" }));
+    expect(await screen.findByRole("menu")).toBeInTheDocument();
+
+    // jsdom does no hit testing, so press where the browser would land.
+    await user.click(document.documentElement);
+
+    await waitFor(() =>
+      expect(screen.queryByRole("menu")).not.toBeInTheDocument(),
+    );
+    expect(screen.getByRole("dialog", { name: "sheet" })).toBeInTheDocument();
   });
 });

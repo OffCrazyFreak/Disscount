@@ -115,7 +115,9 @@ export default function SheetShell({
           initialFocus={() => {
             const opener = document.activeElement;
             openerRef.current =
-              opener instanceof HTMLElement && opener !== document.body
+              opener instanceof HTMLElement &&
+              opener !== document.body &&
+              !popupRef.current?.contains(opener)
                 ? opener
                 : null;
 
