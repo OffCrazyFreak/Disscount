@@ -143,7 +143,12 @@ export default function SheetShell({
 
             // Nothing was focused when it opened (a tap on iOS, a shared link),
             // so there is nothing to go back to.
-            return returnFocusRef?.current ?? openerRef.current ?? false;
+            // Base UI checks isConnected only on its own fallbacks, not on ours.
+            const opener = openerRef.current?.isConnected
+              ? openerRef.current
+              : null;
+
+            return returnFocusRef?.current ?? opener ?? false;
           }}
           {...dragUpProps}
         >
