@@ -46,6 +46,9 @@ import disscount.favoriteStore.service.FavoriteStoreService;
 import static disscount.digitalCard.service.CardServiceTestSupport.request;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 // Not transactional on purpose: the bug only shows when the service's own transaction really commits.
 @DataJpaTest(showSql = false)
@@ -199,7 +202,7 @@ class UserServiceDeleteAccountTest {
         assertThatThrownBy(() -> userService.ensureActiveProfile(neverProvisioned, "ana@example.com", "Ana", null))
                 .isInstanceOf(AccountErasedException.class);
 
-        assertThat(users.findById(neverProvisioned)).isEmpty();
+        verify(profileCreator, never()).create(any());
     }
 
     @Test

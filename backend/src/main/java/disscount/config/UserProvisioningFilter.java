@@ -46,7 +46,8 @@ public class UserProvisioningFilter extends OncePerRequestFilter {
                 // Gone rather than 401, so the client finishes the deletion instead of refreshing its token.
                 response.setStatus(HttpServletResponse.SC_GONE);
                 response.setContentType("application/json");
-                response.getWriter().write("{\"code\":\"account_erased\"}");
+                // The id lets the browser check its session still names this account before deleting it.
+                response.getWriter().write("{\"code\":\"account_erased\",\"userId\":\"" + UUID.fromString(sub) + "\"}");
                 return;
             } catch (IllegalArgumentException ignored) {
                 // sub is not a UUID - token not issued by our better-auth instance

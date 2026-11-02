@@ -45,7 +45,7 @@ class UserProvisioningFilterTest {
         filter.doFilter(new MockHttpServletRequest("GET", "/api/users/me"), response, chain);
 
         assertThat(response.getStatus()).isEqualTo(410);
-        assertThat(response.getContentAsString()).isEqualTo("{\"code\":\"account_erased\"}");
+        assertThat(response.getContentAsString()).isEqualTo("{\"code\":\"account_erased\",\"userId\":\"" + userId + "\"}");
         assertThat(chain.getRequest()).isNull();
     }
 }
