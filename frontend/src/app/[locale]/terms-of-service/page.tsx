@@ -62,15 +62,15 @@ export default function TermsOfServicePage() {
             CC BY-SA 4.0
           </a>
           . Te slike prilagođavamo (obrezujemo, smanjujemo i stavljamo na bijelu
-          podlogu) i dijelimo ih pod istom licencom. Dizajn pakiranja i
-          zaštitni znakovi na slikama pripadaju njihovim vlasnicima.
+          podlogu) i dijelimo ih pod istom licencom. Dizajn pakiranja i zaštitni
+          znakovi na slikama pripadaju njihovim vlasnicima.
         </p>
         <p>
           Kad dodaš sliku proizvoda, potvrđuješ da je slika tvoja i da na njoj
           nema ljudi ni osobnih podataka. Dodavanjem nam dopuštaš da je
           besplatno i bez vremenskog ograničenja prikazujemo u aplikaciji i
-          prilagođavamo na isti način. Slike koje ne prikazuju proizvod ili
-          krše ova pravila možemo ukloniti.
+          prilagođavamo na isti način. Slike koje ne prikazuju proizvod ili krše
+          ova pravila možemo ukloniti.
         </p>
       </LegalSection>
 
