@@ -520,7 +520,7 @@ These are the things that actually cost us time, worth remembering:
 **Security / housekeeping**
 
 - [ ] **IP-filter the R2 API token** to the VPS egress IP (least privilege).
-- [ ] **Before serious traffic:** add the Cloudflare rate limiting rule (free plan includes one rule) and restrict the Hetzner firewall to Cloudflare, as listed in [Client IP and rate limiting](#client-ip-and-rate-limiting). The app-level limits (Better Auth, per-recipient email cap, contact form) are in place. (Keep the exact endpoint list in a private note, not in this public doc.)
+- [ ] **Before serious traffic:** add the Cloudflare rate limiting rule (free plan includes one rule) and restrict the Hetzner firewall to Cloudflare, as listed in [Client IP and rate limiting](#client-ip-and-rate-limiting). The app-level limits (Better Auth, per-recipient email cap, contact form) are in place. The exact endpoint list is deliberately not published here.
 
 **Reliability / ops**
 
