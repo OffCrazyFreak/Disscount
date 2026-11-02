@@ -4,9 +4,35 @@ import { db } from "@/db";
 import { account } from "@/db/auth-schema";
 import type { AppLocale } from "@/i18n/locales";
 import { emailService } from "@/lib/email";
+import {
+  discardResetLink,
+  hasEarlierLiveResetLink,
+} from "@/lib/auth/live-reset-link";
+import { claimVerificationEmail } from "@/lib/auth/verification-email-marker";
 
 // One token mechanism, two wordings: "set" for OAuth-only accounts, "reset" otherwise.
 export async function dispatchResetPasswordEmail(
+  userId: string,
+  email: string,
+  url: string,
+  token: string,
+  locale: AppLocale,
+) {
+  // A live link already sits in the inbox: a repeat costs the address none of its email cap.
+  if (await hasEarlierLiveResetLink(userId, token)) {
+    await discardResetLink(token);
+    return;
+  }
+
+  try {
+    await sendResetOrSetPassword(userId, email, url, token, locale);
+  } catch (error) {
+    await discardResetLink(token);
+    throw error;
+  }
+}
+
+async function sendResetOrSetPassword(
   userId: string,
   email: string,
   url: string,
@@ -25,6 +51,25 @@ export async function dispatchResetPasswordEmail(
     await emailService.sendPasswordReset({ to: email, locale, url, token });
   } else {
     await emailService.sendSetPassword({ to: email, locale, url, token });
+  }
+}
+
+// Same rule as the reset link: no new verification email while the last one is still live.
+export async function dispatchVerificationEmail(
+  userId: string,
+  email: string,
+  url: string,
+  token: string,
+  locale: AppLocale,
+) {
+  const release = await claimVerificationEmail(userId, email, token);
+  if (!release) return;
+
+  try {
+    await emailService.sendVerificationEmail({ to: email, locale, url, token });
+  } catch (error) {
+    await release();
+    throw error;
   }
 }
 
