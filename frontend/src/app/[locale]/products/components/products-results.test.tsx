@@ -56,6 +56,9 @@ describe("ProductsResults with no price in the selected places", () => {
 
     expect(showAllLocations).toHaveBeenCalledOnce();
     expect(clearFilters).not.toHaveBeenCalled();
+    expect(
+      screen.queryByRole("button", { name: /na popis/ }),
+    ).not.toBeInTheDocument();
   });
 
   it("keeps the generic filter message when nothing matches anywhere", () => {
