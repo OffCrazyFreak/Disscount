@@ -152,6 +152,7 @@ const productNavTable = [
     href: "/map",
     labelKey: "nav.map",
     icon: MapIcon,
+    shortcutDescriptionKey: "nav.mapShortcut",
 
     showInHeader: false,
 

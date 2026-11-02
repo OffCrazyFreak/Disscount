@@ -29,6 +29,14 @@ describe("pwaShortcuts", () => {
     expect(emitted).toEqual(ownerOrder.filter((url) => emitted.includes(url)));
   });
 
+  it("emits Karta fifth, after the watchlist, with its description", () => {
+    expect(pwaShortcuts[4]).toMatchObject({
+      url: "/map",
+      name: "Karta",
+      description: "Otvori kartu trgovina",
+    });
+  });
+
   // Covers the gated ones too, so releasing a feature can never ship a broken icon.
   it("has both icon tiles on disk for every shortcut it can emit", () => {
     for (const id of ["scan", ...shortcutNavIds]) {
