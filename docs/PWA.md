@@ -104,17 +104,17 @@ Disscount ships a Web App Manifest and a registered service worker, which togeth
 
 A Next.js dynamic manifest (a function returning `MetadataRoute.Manifest`) served at `/manifest.webmanifest`. Key fields:
 
-| Field              | Value                                                     | Why                                                                                                                  |
-| ------------------ | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `display`          | `standalone`                                              | opens without browser chrome, like an app                                                                            |
-| `orientation`      | `portrait`                                                | shopping is a phone-in-hand, portrait activity (also means we only need portrait splash screens)                     |
-| `background_color` | `#ffffff`                                                 | the splash background while the app boots (white, to match the iOS launch screens)                                   |
-| `theme_color`      | `#ffffff`                                                 | neutral title bar (the light/dark pair is set in `layout.tsx` `viewport.themeColor`)                                 |
-| `icons`            | 192 + 512 `any`, and 192 + 512 **maskable**               | maskable avoids the icon being shrunk onto Android's own white plate; see [Icon sizing](#icon-sizing)                |
-| `shortcuts`        | Skeniraj, then `shortcutNavIds` filtered by `!comingSoon` | long-press the icon to scan a barcode or jump to Shopping lists / Loyalty cards; see [App shortcuts](#app-shortcuts) |
-| `screenshots`      | one `narrow` + one `wide` (each `label`ed)                | Chrome's richer, app-store-like install dialog                                                                       |
-| `share_target`     | GET to `/share-target`                                    | registers Disscount in the system share sheet; the route handler funnels shared text/title/url into `/products?q=`   |
-| `launch_handler`   | `{ client_mode: "navigate-existing" }`                    | reuse an open window instead of spawning a duplicate, **and** navigate it to the shortcut's url                      |
+| Field              | Value                                          | Why                                                                                                                  |
+| ------------------ | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `display`          | `standalone`                                   | opens without browser chrome, like an app                                                                            |
+| `orientation`      | `portrait`                                     | shopping is a phone-in-hand, portrait activity (also means we only need portrait splash screens)                     |
+| `background_color` | `#ffffff`                                      | the splash background while the app boots (white, to match the iOS launch screens)                                   |
+| `theme_color`      | `#ffffff`                                      | neutral title bar (the light/dark pair is set in `layout.tsx` `viewport.themeColor`)                                 |
+| `icons`            | 192 + 512 `any`, and 192 + 512 **maskable**    | maskable avoids the icon being shrunk onto Android's own white plate; see [Icon sizing](#icon-sizing)                |
+| `shortcuts`        | Skeniraj, then the qualifying `shortcutNavIds` | long-press the icon to scan a barcode or jump to Shopping lists / Loyalty cards; see [App shortcuts](#app-shortcuts) |
+| `screenshots`      | one `narrow` + one `wide` (each `label`ed)     | Chrome's richer, app-store-like install dialog                                                                       |
+| `share_target`     | GET to `/share-target`                         | registers Disscount in the system share sheet; the route handler funnels shared text/title/url into `/products?q=`   |
+| `launch_handler`   | `{ client_mode: "navigate-existing" }`         | reuse an open window instead of spawning a duplicate, **and** navigate it to the shortcut's url                      |
 
 Icons are generated from the happy-cart source (`public/brand/logo/cart/cart-rgb.svg`) by `scripts/generate-pwa-icons.mjs` (uses `sharp`), into `public/brand/icons` (plus the legacy `src/app/favicon.ico`). See `docs/BRAND.md` for the full asset map.
 
@@ -159,9 +159,9 @@ To re-check a ratio, mask the generated PNG against circles at 80% and 66.7% and
 
 ### App shortcuts
 
-Long-pressing the installed icon opens a shortcut menu. Ours is built in `constants/pwa-shortcuts.ts` from one hand-written entry (Skeniraj) plus the navigation items listed in `shortcutNavIds`, in that order, filtered by `!comingSoon`, so a listed feature joins the menu on its own once it ships.
+Long-pressing the installed icon opens a shortcut menu. Ours is built in `constants/pwa-shortcuts.ts` from one hand-written entry (Skeniraj) plus the navigation items listed in `shortcutNavIds`, in that order, kept only when released (`!comingSoon`) and carrying a `shortcutDescriptionKey`, so a listed feature joins the menu on its own once both hold.
 
-**There are fewer slots than it looks.** Chrome for Android shows **3** shortcuts. It allowed 4 until Chrome 92 started injecting its own "Site settings" entry, which takes a slot. Desktop Chrome and Edge show up to 10. Shortcuts render in manifest order, so the order of `shortcutNavIds` is what decides which three a phone actually surfaces. The order is the owner's call from [#127](https://github.com/OffCrazyFreak/Disscount/issues/127): Skeniraj, Popisi and Kartice take the phone slots (loyalty cards are needed fast at the till), and the rest show on desktop. Rows marked "not emitted" are listed and have tiles, but stay out of the manifest until they qualify:
+**There are fewer slots than it looks.** Chrome for Android shows **3** shortcuts. It allowed 4 until Chrome 92 started injecting its own "Site settings" entry, which takes a slot. Desktop Chrome and Edge show up to 10. Shortcuts render in manifest order, so the order of `shortcutNavIds` is what decides which three a phone actually surfaces. The order is the owner's call from [#127](https://github.com/OffCrazyFreak/Disscount/issues/127): Skeniraj, Popisi and Kartice take the phone slots (loyalty cards are needed fast at the till), and the rest show on desktop. Every row has its tiles, but some stay out of the manifest until they qualify:
 
 | Order | Shortcut  | Url               | Icon          |
 | ----- | --------- | ----------------- | ------------- |
