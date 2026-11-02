@@ -15,14 +15,18 @@ describe("pwaShortcuts", () => {
     ]);
   });
 
-  it("follows the owner's order for the rest", () => {
-    expect(shortcutNavIds).toEqual([
-      "shopping-lists",
-      "digital-cards",
-      "watchlist",
-      "map",
-      "spending",
-    ]);
+  it("emits the rest in the owner's order as each feature qualifies", () => {
+    const ownerOrder = [
+      "/?scan=1",
+      "/shopping-lists",
+      "/digital-cards",
+      "/watchlist",
+      "/map",
+      "/spending",
+    ];
+    const emitted = pwaShortcuts.map((shortcut) => shortcut.url);
+
+    expect(emitted).toEqual(ownerOrder.filter((url) => emitted.includes(url)));
   });
 
   // Covers the gated ones too, so releasing a feature can never ship a broken icon.

@@ -32,7 +32,7 @@ const GLYPH = Math.round(SIZE * 0.66);
 // Same corner ratio as brand/icons/icon.svg (rx 96 on 512).
 const RADIUS = Math.round(SIZE * (96 / 512));
 
-// Keyed by navigation item id, since manifest.ts derives each src from it.
+// Keyed by navigation item id, since constants/pwa-shortcuts.ts derives each src from it.
 const SHORTCUTS = {
   scan: ScanBarcode,
   "shopping-lists": ListChecks,
