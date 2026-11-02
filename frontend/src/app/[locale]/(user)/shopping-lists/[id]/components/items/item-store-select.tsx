@@ -91,9 +91,7 @@ export default function ItemStoreSelect({
             })
           : reason
       }
-      reason={reason}
       describedById={describedById}
-      isReasonDescribed={priceState !== "failed"}
       className={STORE_SELECT_CLASS_NAME}
     />
   );

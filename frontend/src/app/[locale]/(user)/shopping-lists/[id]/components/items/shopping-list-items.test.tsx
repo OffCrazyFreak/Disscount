@@ -90,19 +90,17 @@ describe("ShoppingListItems price states", () => {
     // Rows sort by name, so the selects come back as a, b, c.
     const [failed, offline, noPrices] = screen.getAllByRole("combobox");
 
-    expect(failed).toHaveTextContent("Cijene nisu dostupne");
+    expect(failed).toHaveAccessibleName("Trgovina Cijene nisu dostupne");
     expect(failed).toHaveAccessibleDescription(
       "Cijene za 1 stavku nisu dostupne.",
     );
 
-    expect(offline).toHaveTextContent(
-      "Cijene nisu spremljene za izvanmrežni rad",
+    expect(offline).toHaveAccessibleName(
+      "Trgovina Cijene nisu spremljene za izvanmrežni rad",
     );
-    expect(offline).toHaveAccessibleDescription(
-      "Cijene nisu spremljene za izvanmrežni rad",
-    );
+    expect(offline).toHaveAccessibleDescription("");
 
-    expect(noPrices).toHaveTextContent("Nema cijena u trgovinama");
+    expect(noPrices).toHaveAccessibleName("Trgovina Nema cijena u trgovinama");
 
     for (const select of [failed, offline, noPrices]) {
       expect(select).toHaveAttribute("aria-disabled", "true");
@@ -110,16 +108,19 @@ describe("ShoppingListItems price states", () => {
     }
   });
 
-  it("does not open an unavailable select from the keyboard", async () => {
-    const user = userEvent.setup();
-    renderItems([item("a")], { a: "noPrices" });
+  it.each(["noPrices", "failed"] as const)(
+    "does not open a %s select from the keyboard",
+    async (priceState) => {
+      const user = userEvent.setup();
+      renderItems([item("a")], { a: priceState });
 
-    screen.getByRole("combobox").focus();
-    await user.keyboard("{Enter}{ArrowDown} ");
+      screen.getByRole("combobox").focus();
+      await user.keyboard("{Enter}{ArrowDown} ");
 
-    expect(screen.getByRole("combobox")).toHaveFocus();
-    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
-  });
+      expect(screen.getByRole("combobox")).toHaveFocus();
+      expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    },
+  );
 
   it("counts failed items in one status with one retry", async () => {
     const user = userEvent.setup();
