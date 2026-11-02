@@ -13,6 +13,7 @@ interface ISidebarNavLinkProps {
   href: string;
   isActive: boolean;
   isLocked: boolean;
+  ariaLabel?: string;
   className: string;
   children: ReactNode;
 }
@@ -21,6 +22,7 @@ export default function SidebarNavLink({
   href,
   isActive,
   isLocked,
+  ariaLabel,
   className,
   children,
 }: ISidebarNavLinkProps) {
@@ -32,6 +34,7 @@ export default function SidebarNavLink({
         href={href}
         // data-active styles it, but says nothing to a screen reader.
         aria-current={isCurrent ? "page" : undefined}
+        aria-label={ariaLabel}
         aria-disabled={isLocked ? true : undefined}
         tabIndex={isLocked ? -1 : undefined}
         onClick={isLocked ? preventNavigation : undefined}

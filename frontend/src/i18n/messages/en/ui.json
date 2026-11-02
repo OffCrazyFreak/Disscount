@@ -13,6 +13,7 @@
     "copied": "Link copied",
     "failed": "Couldn't share"
   },
+  "toaster": { "label": "Messages" },
   "offline": {
     "writeFailed": "The change wasn't saved. Try again.",
     "writeFailedLostAccess": "The change wasn't saved. You may no longer have access to this list.",

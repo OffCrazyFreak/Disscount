@@ -42,26 +42,22 @@ export function formatShoppingListForSharing(
 ): string {
   // Sort items: unchecked first, then by shop, brand, and name
   const sortedItems = [...shoppingList.items].sort((a, b) => {
-    // First sort by checked status (unchecked items first)
     if (a.isChecked !== b.isChecked) {
       return a.isChecked ? 1 : -1;
     }
 
-    // Sort by shop (chainCode)
     const shopA = a.chainCode || "";
     const shopB = b.chainCode || "";
     if (shopA !== shopB) {
       return compareHr(shopA, shopB);
     }
 
-    // Then by brand
     const brandA = a.brand || "";
     const brandB = b.brand || "";
     if (brandA !== brandB) {
       return compareHr(brandA, brandB);
     }
 
-    // Then by name
     return compareHr(a.name, b.name);
   });
 
@@ -71,7 +67,6 @@ export function formatShoppingListForSharing(
   shareText += `${t("shareText.created", { date: formatDate(shoppingList.createdAt, locale) })}\n`;
   shareText += `${t("shareText.updated", { date: formatDate(shoppingList.updatedAt, locale) })}\n\n`;
 
-  // Format items
   sortedItems.forEach((item, index) => {
     const number = index + 1;
     const checkbox = item.isChecked ? "✅" : "⬜";
@@ -89,7 +84,6 @@ export function formatShoppingListForSharing(
             : "";
     const amount = item.amount > 1 ? ` x${item.amount}` : "";
 
-    // Get store name from chainCode
     const storeName = item.chainCode
       ? neutraliseMarkers(getChainLabel(item.chainCode))
       : "";
@@ -100,7 +94,6 @@ export function formatShoppingListForSharing(
     shareText += `${number}. ${checkbox} ${strikeWhenChecked(details, item.isChecked)}\n`;
   });
 
-  // Add branding footer
   shareText += `\n╔${RULE}\n`;
   shareText += `${t("shareText.footerCreatedWith")}\n`;
   shareText += `${t("shareText.footerCompare")}\n`;

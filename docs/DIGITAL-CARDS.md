@@ -336,7 +336,7 @@ A loyalty card number is personal data, and a photo of a card more so.
 | `backend/.../digitalCard/storage/`                                                             | `PhotoStore`, `R2PhotoStore`, `DisabledPhotoStore`, `PhotoStoreConfig`            |
 | `backend/.../storeName/`                                                                       | Community store-name list, normalizer and controller                              |
 | `backend/.../config/SchedulingConfig.java`                                                     | `@EnableScheduling` (the first scheduled job in the app)                          |
-| `frontend/src/lib/api/digital-cards/`                                                          | Query keys, queries, hooks, optimistic patches, last-used queue, photo queries    |
+| `frontend/src/lib/api/digital-cards/`                                                          | Keys, queries, query and mutation hooks, optimistic patches, last-used, photos    |
 | `frontend/src/lib/api/schemas/digital-card.ts`, `store-name.ts`                                | Zod request and response schemas                                                  |
 | `frontend/src/lib/offline/card-photo-store.ts`, `card-photo-outbox.ts`, `purge.ts`             | Photo blobs, upload outbox, logout purge                                          |
 | `frontend/src/lib/offline/failure-policy.ts`, `card-retry.ts`, `slot-lock.ts`, `purge-gate.ts` | Keep or drop rules and card retries; per-slot photo ordering; purge ordering gate |

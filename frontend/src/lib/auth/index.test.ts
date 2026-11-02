@@ -16,6 +16,7 @@ vi.stubEnv("EMAIL_FROM", "test@example.com");
 const { FACEBOOK_COMING_SOON } = await import("@/constants/auth");
 const { auth } = await import("@/lib/auth");
 const { CLIENT_IP_HEADER } = await import("@/lib/client-ip/client-ip");
+const { recordLastLogin } = await import("@/lib/auth/record-last-login");
 
 const expectedProviders = FACEBOOK_COMING_SOON
   ? ["google"]
@@ -61,5 +62,14 @@ describe("rate limiting", () => {
     expect(auth.options.advanced?.ipAddress?.ipAddressHeaders).toEqual([
       CLIENT_IP_HEADER,
     ]);
+  });
+});
+
+// better-auth deletes session rows on sign-out and expiry, so last login lives on the user row.
+describe("last login", () => {
+  it("is recorded whenever a session is created", () => {
+    expect(auth.options.databaseHooks?.session?.create?.after).toBe(
+      recordLastLogin,
+    );
   });
 });

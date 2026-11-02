@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Toaster } from "sonner";
 import type { ReactNode } from "react";
 
@@ -8,6 +9,8 @@ interface IToasterProviderProps {
 }
 
 export default function ToasterProvider({ children }: IToasterProviderProps) {
+  const t = useTranslations("ui");
+
   return (
     <>
       {children}
@@ -17,6 +20,7 @@ export default function ToasterProvider({ children }: IToasterProviderProps) {
           inset without sonner needing a breakpoint of its own. */}
       <Toaster
         richColors
+        containerAriaLabel={t("toaster.label")}
         position="bottom-right"
         offset={{ bottom: "calc(var(--bottom-nav-total) + 0.5rem)" }}
         mobileOffset={{ bottom: "calc(var(--bottom-nav-total) + 0.5rem)" }}

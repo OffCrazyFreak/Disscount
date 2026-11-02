@@ -34,6 +34,7 @@ export async function scanZipMembers(
   };
 
   const reader = body.getReader();
+  let isFinished = false;
 
   try {
     while (true) {
@@ -44,9 +45,15 @@ export async function scanZipMembers(
       unzip.push(value ?? new Uint8Array(0), done);
 
       if (failure !== null) throw failure;
-      if (done) return;
+      if (done) {
+        isFinished = true;
+        return;
+      }
     }
   } finally {
+    // Releasing the lock alone leaves the rest of the 84 MB zip downloading.
+    if (!isFinished) await reader.cancel().catch(() => {});
+
     reader.releaseLock();
   }
 }

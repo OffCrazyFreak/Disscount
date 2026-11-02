@@ -71,7 +71,6 @@ export function usePriceHistoryChart(product: ProductResponse) {
     });
   }, [chartPrefs.period, chartPrefs.chains, isPriceHistoryOpen, product.ean]);
 
-  // Calculate days to show based on selected period
   const daysToShow: number = useMemo(() => {
     return periodOptions[chartPrefs.period as PeriodOption]?.days || 7;
   }, [chartPrefs.period]);
@@ -98,7 +97,6 @@ export function usePriceHistoryChart(product: ProductResponse) {
     // If no chains are selected, keep the current selection unchanged
   }, []);
 
-  // Calculate price change
   const priceChange = useMemo(() => {
     if (priceHistoryData.length === 0) {
       return null;

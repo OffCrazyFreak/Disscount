@@ -40,15 +40,22 @@
     {
       "idx": 5,
       "version": "7",
-      "when": 1793576018376,
-      "tag": "0005_rate_limit",
+      "when": 1793568090889,
+      "tag": "0005_user_last_login",
       "breakpoints": true
     },
     {
       "idx": 6,
       "version": "7",
-      "when": 1793576018992,
-      "tag": "0006_email_send",
+      "when": 1793598572386,
+      "tag": "0006_rate_limit",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793598573020,
+      "tag": "0007_email_send",
       "breakpoints": true
     }
   ]
