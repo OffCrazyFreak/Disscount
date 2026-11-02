@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { DEFAULT_LOCALE, LOCALES } from "./src/i18n/locales";
+import { SENTRY_APPLICATION_KEY } from "./src/lib/sentry/application-key";
 import { isIndexableOrigin } from "./src/utils/indexing";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
@@ -128,6 +129,8 @@ export default withSerwist(
     org: "disscount",
 
     project: "disscount-frontend",
+
+    applicationKey: SENTRY_APPLICATION_KEY,
 
     // Both are empty outside CI image builds, which skips the upload and auto-detects the release.
     authToken: process.env.SENTRY_AUTH_TOKEN,

@@ -3,6 +3,7 @@
 import * as Sentry from "@sentry/nextjs";
 
 import { moveResetTokenOutOfUrl } from "@/lib/auth/reset-token-storage";
+import { SENTRY_APPLICATION_KEY } from "@/lib/sentry/application-key";
 import { isServiceWorkerRegistrationNoise } from "@/lib/sentry/ignore-service-worker-noise";
 import {
   scrubSensitiveData,
@@ -16,20 +17,27 @@ Sentry.init({
 
   environment: process.env.SENTRY_ENVIRONMENT || undefined,
 
-  // Replay records the page URL with no hook to scrub it, so a reset token that blocked
-  // storage left in the URL keeps Replay off for this page load.
-  integrations: isResetTokenInUrl
-    ? []
-    : [
-        Sentry.replayIntegration({
-          // The shopping-lists layout blocks the list DOM itself; this hook only sees
-          // Replay's breadcrumb and span events, so it drops those on list pages.
-          beforeAddRecordingEvent: (event) =>
-            /^(\/[a-z]{2})?\/shopping-lists\//.test(window.location.pathname)
-              ? null
-              : scrubSensitiveData(event),
-        }),
-      ],
+  integrations: [
+    // Errors raised only by code outside our build (extensions, injected scripts) are not ours to fix.
+    Sentry.thirdPartyErrorFilterIntegration({
+      filterKeys: [SENTRY_APPLICATION_KEY],
+      behaviour: "drop-error-if-exclusively-contains-third-party-frames",
+    }),
+    // Replay records the page URL with no hook to scrub it, so a reset token that blocked
+    // storage left in the URL keeps Replay off for this page load.
+    ...(isResetTokenInUrl
+      ? []
+      : [
+          Sentry.replayIntegration({
+            // The shopping-lists layout blocks the list DOM itself; this hook only sees
+            // Replay's breadcrumb and span events, so it drops those on list pages.
+            beforeAddRecordingEvent: (event) =>
+              /^(\/[a-z]{2})?\/shopping-lists\//.test(window.location.pathname)
+                ? null
+                : scrubSensitiveData(event),
+          }),
+        ]),
+  ],
 
   ...sentryScrubbingOptions,
 
