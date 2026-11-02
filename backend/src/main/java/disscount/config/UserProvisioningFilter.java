@@ -32,7 +32,8 @@ public class UserProvisioningFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if (auth instanceof JwtAuthenticationToken jwtAuth) {
+        // A purpose scoped token, such as the account erasure one, must never create or revive a profile.
+        if (auth instanceof JwtAuthenticationToken jwtAuth && !TokenPurpose.isPurposeScoped(jwtAuth.getToken())) {
             String sub = jwtAuth.getToken().getSubject();
             String email = jwtAuth.getToken().getClaimAsString("email");
             String name = jwtAuth.getToken().getClaimAsString("name");

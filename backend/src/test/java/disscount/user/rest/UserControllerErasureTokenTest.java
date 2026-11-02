@@ -17,6 +17,7 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
@@ -61,6 +62,23 @@ class UserControllerErasureTokenTest {
                 .andExpect(status().isForbidden());
 
         verify(userService, never()).findById(any());
+    }
+
+    // Security answers before routing, so the contact controller need not be in this slice.
+    @Test
+    void theAccountErasureTokenIsRefusedOnPublicRoutesToo() throws Exception {
+        mvc.perform(post("/api/contact").with(jwt().jwt(j -> j.subject(userId.toString())
+                        .claim("purpose", "account-erasure"))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void theAccountErasureTokenNeverProvisionsAProfile() throws Exception {
+        mvc.perform(delete("/api/users/me").with(jwt().jwt(j -> j.subject(userId.toString())
+                        .claim("email", "a@example.com").claim("purpose", "account-erasure"))))
+                .andExpect(status().isOk());
+
+        verify(userService, never()).ensureActiveProfile(any(), any(), any(), any());
     }
 
     @Test

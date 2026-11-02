@@ -126,6 +126,16 @@ public class SecurityConfig {
         return new AuthorizationDecision(isOrdinary);
     }
 
+    /** The public routes' rule: anyone, signed in or not, except a purpose scoped token. */
+    private static AuthorizationDecision isNotPurposeScoped(
+            Supplier<Authentication> authentication,
+            RequestAuthorizationContext context
+    ) {
+        boolean isPurposeScoped = authentication.get() instanceof JwtAuthenticationToken jwt
+                && TokenPurpose.isPurposeScoped(jwt.getToken());
+        return new AuthorizationDecision(!isPurposeScoped);
+    }
+
     /** Unlisted methods fall through to the authenticated chain, so the default is deny. */
     private static RequestMatcher shoppingListByIdMatcher() {
         return new OrRequestMatcher(
@@ -147,12 +157,12 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/contact").access(SecurityConfig::isNotPurposeScoped)
                 // Only better-auth's deleteUser hook mints this token, after its own checks,
                 // so an ordinary session token cannot erase the profile and keep its login.
                 .requestMatchers(HttpMethod.DELETE, "/api/users/me").access(SecurityConfig::isAccountErasureToken)
                 // Product photos are public like the prices; uploads and reports still need a login.
-                .requestMatchers(HttpMethod.GET, "/api/products/*/images", "/api/products/images/thumbnails").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/products/*/images", "/api/products/images/thumbnails").access(SecurityConfig::isNotPurposeScoped)
                 .requestMatchers(
                     "/actuator/health",
                     "/v3/api-docs/**",
