@@ -18,6 +18,7 @@ import disscount.storeName.dao.StoreNameSuggestionRepository;
 import disscount.storeName.dao.StoreNameUsageRepository;
 import disscount.storeName.service.StoreNameService;
 import disscount.storeName.service.StoreNameUpsert;
+import disscount.exceptions.BadRequestException;
 import disscount.user.dao.AuthIdentityDao;
 import disscount.user.dao.ErasureLedgerRepository;
 import disscount.user.dao.UserRepository;
@@ -44,6 +45,7 @@ import disscount.favoriteStore.service.FavoriteStoreService;
 
 import static disscount.digitalCard.service.CardServiceTestSupport.request;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 // Not transactional on purpose: the bug only shows when the service's own transaction really commits.
 @DataJpaTest(showSql = false)
@@ -176,6 +178,17 @@ class UserServiceDeleteAccountTest {
 
         assertThat(users.findById(neverProvisioned)).isEmpty();
         assertThat(erasureLedger.findById(neverProvisioned)).isPresent();
+    }
+
+    @Test
+    void anAdminCannotDeleteAnUnknownUser() {
+        User admin = users.save(User.builder().id(UUID.randomUUID()).username("admin").build());
+        UUID unknown = UUID.randomUUID();
+
+        assertThatThrownBy(() -> userService.deleteUserAsAdmin(unknown, admin.getId()))
+                .isInstanceOf(BadRequestException.class);
+
+        assertThat(erasureLedger.findAll()).isEmpty();
     }
 
     private static BulkFavoriteStoreRequest favorites(String... keys) {

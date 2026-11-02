@@ -314,6 +314,11 @@ public class UserService {
             throw new BadRequestException("error.user.cannotDeleteSelf");
         }
 
+        // deleteAccount tolerates a missing profile for the deleteUser hook; an admin names a listed user.
+        if (!userRepository.existsById(targetUserId)) {
+            throw new BadRequestException("error.user.notFound");
+        }
+
         authIdentityDao.deleteById(targetUserId);
 
         deleteAccount(targetUserId);
