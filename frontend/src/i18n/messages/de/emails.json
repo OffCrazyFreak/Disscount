@@ -42,5 +42,21 @@
     "intro": "Gerade hat jemand versucht, sich mit dem richtigen Passwort bei deinem Disscount-Konto anzumelden. Dieses Passwort haben wir in einem bekannten Datenleck einer anderen Website gefunden, deshalb haben wir die Anmeldung nicht zugelassen. Leg mit dem Button unten ein neues Passwort fest. Danach melden wir dich auf allen Geräten ab. Der Link ist {minutes, plural, one {# Minute} other {# Minuten}} gültig.",
     "button": "Neues Passwort festlegen",
     "footnote": "Warst du das nicht, leg trotzdem ein neues Passwort fest. Wenn du dieses Passwort auch anderswo nutzt, ändere es dort ebenfalls."
+  },
+  "accountExists": {
+    "subject": "Du hast schon ein Disscount-Konto",
+    "preview": "Jemand wollte sich mit deiner E-Mail-Adresse registrieren.",
+    "heading": "Zu dieser Adresse gibt es schon ein Konto",
+    "intro": "Gerade wollte sich jemand mit dieser E-Mail-Adresse bei Disscount registrieren, aber dafür gibt es schon ein Konto. Wenn du das warst, melde dich einfach an. Passwort nicht mehr im Kopf? Wähle im Anmeldefenster \"Passwort vergessen\".",
+    "button": "Anmelden",
+    "footnote": "Das warst nicht du? Dann kannst du diese E-Mail einfach ignorieren. Dein Konto bleibt, wie es ist."
+  },
+  "completeSignUp": {
+    "subject": "Schließe deine Registrierung bei Disscount ab",
+    "preview": "Lege ein Passwort fest und schließe die Registrierung ab. Der Link ist {minutes, plural, one {# Minute} other {# Minuten}} gültig.",
+    "heading": "Schließe deine Registrierung ab",
+    "intro": "Gerade wollte sich jemand mit dieser E-Mail-Adresse bei Disscount registrieren. Dafür gibt es schon ein Konto, aber die Adresse ist noch nicht bestätigt. Wenn das Konto dir gehört, lege mit dem Button unten ein Passwort fest: Damit bestätigst du die Adresse, und ein vorher eingegebenes Passwort gilt nicht mehr. Der Link ist {minutes, plural, one {# Minute} other {# Minuten}} gültig.",
+    "button": "Passwort festlegen",
+    "footnote": "Das warst nicht du? Dann kannst du diese E-Mail einfach ignorieren. Solange die Adresse nicht bestätigt ist, kann sich niemand mit einem Passwort in dieses Konto einloggen."
   }
 }

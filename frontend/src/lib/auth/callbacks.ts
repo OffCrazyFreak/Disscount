@@ -1,7 +1,7 @@
 import { and, eq, ne } from "drizzle-orm";
 
 import { db } from "@/db";
-import { account } from "@/db/auth-schema";
+import { account, user } from "@/db/auth-schema";
 import type { AppLocale } from "@/i18n/locales";
 import { emailService } from "@/lib/email";
 import {
@@ -69,6 +69,27 @@ export async function dispatchVerificationEmail(
     // The send error is the one worth logging, not a failed release.
     await release().catch(() => {});
     throw error;
+  }
+}
+
+// A completed reset proves the inbox, so it also verifies the address. Never throws:
+// better-auth revokes the sessions only after this callback returns.
+export async function markEmailVerifiedOnReset(resetUser: {
+  id: string;
+  emailVerified: boolean;
+}) {
+  if (resetUser.emailVerified) return;
+
+  try {
+    await db
+      .update(user)
+      .set({ emailVerified: true })
+      .where(eq(user.id, resetUser.id));
+  } catch (error) {
+    console.error(
+      "Failed to mark email verified after reset:",
+      error instanceof Error ? error.name : typeof error,
+    );
   }
 }
 

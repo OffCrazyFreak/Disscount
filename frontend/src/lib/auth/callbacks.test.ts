@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   sendVerificationEmail: vi.fn(async () => {}),
   claimResetEmail: vi.fn(),
   claimVerificationEmail: vi.fn(),
+  updateUser: vi.fn(async (_values: unknown) => {}),
 }));
 
 vi.mock("@/db", () => ({
@@ -15,6 +16,11 @@ vi.mock("@/db", () => ({
     select: () => ({
       from: () => ({
         where: () => ({ limit: async () => mocks.credentialRows }),
+      }),
+    }),
+    update: () => ({
+      set: (values: unknown) => ({
+        where: async () => mocks.updateUser(values),
       }),
     }),
   },
@@ -33,8 +39,11 @@ vi.mock("@/lib/auth/email-link-marker", () => ({
   claimVerificationEmail: mocks.claimVerificationEmail,
 }));
 
-const { dispatchResetPasswordEmail, dispatchVerificationEmail } =
-  await import("@/lib/auth/callbacks");
+const {
+  dispatchResetPasswordEmail,
+  dispatchVerificationEmail,
+  markEmailVerifiedOnReset,
+} = await import("@/lib/auth/callbacks");
 
 const args = [
   "user-1",
@@ -113,5 +122,31 @@ describe("dispatchVerificationEmail", () => {
 
     await expect(dispatchVerificationEmail(...args)).rejects.toThrow("capped");
     expect(release).toHaveBeenCalledOnce();
+  });
+});
+
+describe("markEmailVerifiedOnReset", () => {
+  it("verifies the address the reset link just proved", async () => {
+    await markEmailVerifiedOnReset({ id: "user-1", emailVerified: false });
+
+    expect(mocks.updateUser).toHaveBeenCalledWith({ emailVerified: true });
+  });
+
+  it("skips the write for an address that is already verified", async () => {
+    mocks.updateUser.mockClear();
+
+    await markEmailVerifiedOnReset({ id: "user-1", emailVerified: true });
+
+    expect(mocks.updateUser).not.toHaveBeenCalled();
+  });
+
+  // better-auth revokes the sessions only after this callback returns.
+  it("never throws, so the session revocation after it still runs", async () => {
+    mocks.updateUser.mockRejectedValueOnce(new Error("db down"));
+    vi.spyOn(console, "error").mockImplementationOnce(() => {});
+
+    await expect(
+      markEmailVerifiedOnReset({ id: "user-1", emailVerified: false }),
+    ).resolves.toBeUndefined();
   });
 });
