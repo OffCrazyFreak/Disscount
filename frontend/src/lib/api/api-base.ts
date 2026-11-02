@@ -33,6 +33,7 @@ let inflightTokenPromise: Promise<string | null> | null = null;
 // Bumped on an account change or an explicit clear, so a fetch begun before it is neither reused nor cached.
 let tokenGeneration = 0;
 let lastFailedAttemptAt = 0;
+let wasLastTokenRefused = false;
 
 function decodeBase64Url(value: string): string {
   const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
@@ -90,6 +91,7 @@ async function requestFreshToken(): Promise<string | null> {
     if (!token || !isTokenForSessionUser(claims.sub)) {
       clearTokenCache();
       lastFailedAttemptAt = Date.now();
+      wasLastTokenRefused = Boolean(token);
       return null;
     }
 
@@ -102,6 +104,7 @@ async function requestFreshToken(): Promise<string | null> {
     if (generation !== tokenGeneration) return null;
     clearTokenCache();
     lastFailedAttemptAt = Date.now();
+    wasLastTokenRefused = false;
     return null;
   }
 }
@@ -111,9 +114,9 @@ async function getToken(forceRefresh = false): Promise<string | null> {
 
   if (!forceRefresh && isCachedTokenFresh()) return cachedToken;
 
-  if (!forceRefresh && Date.now() - lastFailedAttemptAt < RETRY_COOLDOWN_MS) {
-    return null;
-  }
+  // A 401 retry forces a fetch, but would only be refused again until the session catches up.
+  const isCoolingDown = Date.now() - lastFailedAttemptAt < RETRY_COOLDOWN_MS;
+  if (isCoolingDown && (!forceRefresh || wasLastTokenRefused)) return null;
 
   // Dedupe concurrent callers so a burst of requests triggers a single token fetch
   if (!inflightTokenPromise) {
@@ -140,6 +143,7 @@ export function clearAuthToken() {
   startNewTokenGeneration();
   clearTokenCache();
   lastFailedAttemptAt = Date.now();
+  wasLastTokenRefused = false;
 }
 
 export function resetAuthToken() {

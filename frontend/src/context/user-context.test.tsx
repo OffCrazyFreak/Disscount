@@ -166,13 +166,13 @@ describe("UserProvider backend token", () => {
     pendingTokenA.release?.(tokenA);
     await probe;
 
-    expect(probeAuthorizations).toEqual([`Bearer ${tokenB}`]);
-    // Lets both profile loads finish, so none lands in the next test.
+    // Lets both profile loads finish first, so none lands in the next test.
     await waitFor(() =>
       expect(
         authorizations.filter((header) => header === `Bearer ${tokenB}`),
       ).toHaveLength(2),
     );
+    expect(probeAuthorizations).toEqual([`Bearer ${tokenB}`]);
   });
 
   it("keeps the token fetch that began before the first session resolved", async () => {
@@ -208,29 +208,22 @@ describe("UserProvider backend token", () => {
   });
 
   it("waits out the cooldown after refusing another account's token instead of fetching on every request", async () => {
-    session.userId = "user-b";
-    session.error = null;
     let tokenRequests = 0;
-    recordProfileRequests(async () => {
+    const authorizations = recordProfileRequests(async () => {
       tokenRequests += 1;
       return tokenA;
     });
     server.use(http.get("*/api/probe", () => HttpResponse.json({})));
-
-    renderWithProviders(
-      <UserProvider>
-        <></>
-      </UserProvider>,
-    );
-    await waitFor(() => expect(tokenRequests).toBeGreaterThan(0));
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    const tokenRequestsBeforeProbes = tokenRequests;
+    setAuthTokenUser("user-b");
 
     await apiClient.get("/api/probe");
     await apiClient.get("/api/probe");
-    await apiClient.get("/api/probe");
+    // Login-required calls answer 401, and their retry must not force a fetch either.
+    await expect(apiClient.get("/api/users/me")).rejects.toThrow();
+    await expect(apiClient.get("/api/users/me")).rejects.toThrow();
 
-    expect(tokenRequests).toBe(tokenRequestsBeforeProbes);
+    expect(tokenRequests).toBe(1);
+    expect(authorizations).toEqual([null, null]);
   });
 
   it("attaches the new account's token when sign-in reloads the profile before the session lands", async () => {
