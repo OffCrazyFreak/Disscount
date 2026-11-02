@@ -9,8 +9,9 @@ import { toast } from "sonner";
 import { useUser } from "@/context/user-context";
 import { useRouter } from "@/i18n/navigation";
 import { shoppingListService } from "@/lib/api";
-import { applyProblemToForm } from "@/lib/api/problem-details";
-import { closeModalUrl } from "@/lib/modal/modal-navigation";
+import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
+import { stashModalError } from "@/lib/modal/modal-error-bus";
+import { useModalError } from "@/hooks/use-modal-error";
 import {
   type AddToListFormData,
   addToListFormSchema,
@@ -27,10 +28,11 @@ const EMPTY_FORM_VALUES: AddToListFormData = {
   chainCode: null,
 };
 
+const ERROR_KEY = "add-plain-item";
+
 /** Adds an item no store sells to a list of the user's choice. */
-export function useAddPlainItemForm(initialName: string) {
+export function useAddPlainItemForm(open: boolean, initialName: string) {
   const t = useTranslations("products");
-  const tAuth = useTranslations("auth");
   const router = useRouter();
   const { user } = useUser();
   // The name can arrive from the URL, which no input maxLength guards.
@@ -44,6 +46,7 @@ export function useAddPlainItemForm(initialName: string) {
     defaultValues: EMPTY_FORM_VALUES,
   });
   const selection = useSelectedShoppingList(form, undefined, !!user, null);
+  useModalError(open, ERROR_KEY, form);
   const createListMutation = shoppingListService.useCreateShoppingList();
   const addItemMutation = shoppingListService.useAddItemToShoppingList();
 
@@ -71,6 +74,9 @@ export function useAddPlainItemForm(initialName: string) {
       data.shoppingListId !== "new" &&
       mergesIntoExisting(existingList?.items, { name: itemName });
 
+    // Optimistic close, as in the add to list modal: an offline add pauses until reconnect.
+    closeModalUrl();
+
     try {
       const listId = await resolveListId(data);
       await addItemMutation.mutateAsync({
@@ -82,7 +88,6 @@ export function useAddPlainItemForm(initialName: string) {
         },
       });
 
-      closeModalUrl();
       toast.success(
         isQuantityIncrease
           ? t("addPlainItem.toast.quantityIncreased", { name: listTitle })
@@ -100,7 +105,8 @@ export function useAddPlainItemForm(initialName: string) {
         },
       );
     } catch (error) {
-      applyProblemToForm(error, form, undefined, tAuth("errors.checkInput"));
+      stashModalError(ERROR_KEY, error);
+      openModalUrl({ name: "add-plain-item", itemName });
     }
   }
 

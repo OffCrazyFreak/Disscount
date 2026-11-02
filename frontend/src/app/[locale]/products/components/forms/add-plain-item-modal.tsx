@@ -29,7 +29,7 @@ export default function AddPlainItemModal({
 }: IAddPlainItemModalProps) {
   const t = useTranslations("products");
   const { form, name, setName, selection, onSubmit, isSubmitting } =
-    useAddPlainItemForm(itemName);
+    useAddPlainItemForm(open, itemName);
   const { isValid, errors } = useFormState({ control: form.control });
   const shoppingListId = useWatch({
     control: form.control,
