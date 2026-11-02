@@ -36,7 +36,7 @@ export function useSecurityActions() {
       // deletes the identity only after that, so a refusal leaves the account safe to retry.
       const { error } = await authClient.deleteUser();
       if (error) throw new Error(error.message ?? "delete failed");
-      // This tab's cached token outlives the identity; a request using it would revive the profile.
+      // This tab's cached token outlives the identity; requests using it would only get account_erased.
       clearAuthToken();
 
       await logout();

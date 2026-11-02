@@ -25,8 +25,8 @@ import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
 import { isProtectedRoute } from "@/constants/protected-routes";
 import { loadUserProfile } from "@/context/load-user-profile";
 import {
+  erasedAccountId,
   finishErasedAccountDeletion,
-  isAccountErased,
 } from "@/lib/auth/finish-erased-account";
 import { mergeSessionUser } from "@/context/merge-session-user";
 import {
@@ -88,9 +88,10 @@ export function UserProvider({ children }: IUserProviderProps) {
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
       setUser(null);
-      // Spring erased this account but the login survived a failed deletion; either outcome
-      // ends the session, which the session effect then clears like any sign-out.
-      if (isAccountErased(error)) await finishErasedAccountDeletion();
+      // Spring erased this account but the login survived a failed deletion; ending the session
+      // lets the session effect clear the tab like any sign-out.
+      const erasedUserId = erasedAccountId(error);
+      if (erasedUserId) await finishErasedAccountDeletion(erasedUserId);
     } finally {
       setIsLoading(false);
       setHasResolvedAuth(true);
