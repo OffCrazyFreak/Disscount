@@ -209,7 +209,7 @@ The hash in the key means a replaced photo gets a new key, so a cached copy can 
 
 ### The R2 client
 
-`PhotoStoreConfig` builds an AWS SDK v2 `S3Client` pointed at R2: `endpointOverride`, region `auto`, path-style access, chunked encoding off, request and response checksums set to `WHEN_REQUIRED`, and `UrlConnectionHttpClient` (the Netty and Apache clients are excluded in `pom.xml` to keep the image small). The client has an `apiCallTimeout` of 20 seconds and an `apiCallAttemptTimeout` of 10 seconds, so a stalled R2 call cannot hold a request thread for the SDK default of minutes. R2 deletes are queued with the database change and attempted **after** the commit (`AfterCommit`), so a rolled-back transaction never loses a photo.
+`PhotoStoreConfig` gets its AWS SDK v2 `S3Client` from the shared `storage/R2Clients.java`, which the product photo bucket uses too. The client points at R2 with `endpointOverride`, region `auto`, path-style access, chunked encoding off, request and response checksums set to `WHEN_REQUIRED`, and `UrlConnectionHttpClient` (the Netty and Apache clients are excluded in `pom.xml` to keep the image small). The client has an `apiCallTimeout` of 20 seconds and an `apiCallAttemptTimeout` of 10 seconds, so a stalled R2 call cannot hold a request thread for the SDK default of minutes. R2 deletes are queued with the database change and attempted **after** the commit (`AfterCommit`), so a rolled-back transaction never loses a photo.
 
 `R2PhotoStore.deletePrefix` lists the prefix and issues one `DeleteObject` per key, not the batch `DeleteObjects` call, because the batch call needs a checksum header that R2 handles differently from S3.
 
@@ -322,34 +322,34 @@ A loyalty card number is personal data, and a photo of a card more so.
 
 ## 12. Key files
 
-| Path                                                                                           | Role                                                                              |
-| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `backend/.../digitalCard/domain/`                                                              | `DigitalCard`, `DigitalCardPhoto` entities                                        |
-| `backend/.../digitalCard/rest/`                                                                | `DigitalCardController`, `DigitalCardPhotoController`                             |
-| `backend/.../digitalCard/service/DigitalCardService.java`                                      | Upsert, ownership checks, soft delete, used-at, account purge                     |
-| `backend/.../digitalCard/service/DigitalCardPhotoService.java`                                 | Upload (validate, put to R2), download, delete; calls the validator and store     |
-| `backend/.../digitalCard/service/CardPhotoWriter.java`, `CardUserLock.java`                    | The short row-write transaction; the per-user lock                                |
-| `backend/.../digitalCard/service/PhotoCleanupService.java`                                     | Queues R2 deletes in `photo_cleanup`, attempts them, retries                      |
-| `backend/.../digitalCard/service/DigitalCardCleanupJob.java`                                   | Daily 30-day hard delete; sweeps the rate limiter; retries photo cleanup          |
-| `backend/.../digitalCard/service/PhotoUploadRateLimiter.java`                                  | 20 uploads per minute per user                                                    |
-| `backend/.../digitalCard/photo/`                                                               | `PhotoValidator`, `WebpSanitizer`, `JpegSanitizer`                                |
-| `backend/.../digitalCard/storage/`                                                             | `PhotoStore`, `R2PhotoStore`, `DisabledPhotoStore`, `PhotoStoreConfig`            |
-| `backend/.../storeName/`                                                                       | Community store-name list, normalizer and controller                              |
-| `backend/.../config/SchedulingConfig.java`                                                     | `@EnableScheduling` (the first scheduled job in the app)                          |
-| `frontend/src/lib/api/digital-cards/`                                                          | Query keys, queries, hooks, optimistic patches, last-used queue, photo queries    |
-| `frontend/src/lib/api/schemas/digital-card.ts`, `store-name.ts`                                | Zod request and response schemas                                                  |
-| `frontend/src/lib/offline/card-photo-store.ts`, `card-photo-outbox.ts`, `purge.ts`             | Photo blobs, upload outbox, logout purge                                          |
-| `frontend/src/lib/offline/failure-policy.ts`, `card-retry.ts`, `slot-lock.ts`, `purge-gate.ts` | Keep or drop rules and card retries; per-slot photo ordering; purge ordering gate |
-| `frontend/src/constants/card-codes.ts`                                                         | Code types, card types, photo slots and their labels                              |
-| `frontend/src/app/[locale]/(user)/digital-cards/`                                              | The page, tiles, view and form modals, hooks and utils                            |
-| `frontend/src/utils/card-code/generate-code-svg.ts`                                            | bwip-js rendering                                                                 |
-| `frontend/src/app/[locale]/(user)/digital-cards/utils/card-palette.ts`                         | The 19 colours                                                                    |
-| `frontend/src/components/scanner/`                                                             | Shared scanner: consensus, confirm step, manual entry                             |
-| `frontend/src/utils/barcode/`                                                                  | Check digits and normalization                                                    |
-| `frontend/src/utils/browser/card-image.ts`                                                     | Photo resize and WebP or JPEG encoding                                            |
-| `frontend/src/components/reui/autocomplete.tsx`                                                | The store field's Autocomplete (reui, built on `@base-ui/react`)                  |
-| `frontend/src/hooks/use-wake-lock.ts`                                                          | Keeps the screen on in the view modal                                             |
-| `backend/src/test/`                                                                            | The backend suite (H2)                                                            |
+| Path                                                                                           | Role                                                                                                          |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `backend/.../digitalCard/domain/`                                                              | `DigitalCard`, `DigitalCardPhoto` entities                                                                    |
+| `backend/.../digitalCard/rest/`                                                                | `DigitalCardController`, `DigitalCardPhotoController`                                                         |
+| `backend/.../digitalCard/service/DigitalCardService.java`                                      | Upsert, ownership checks, soft delete, used-at, account purge                                                 |
+| `backend/.../digitalCard/service/DigitalCardPhotoService.java`                                 | Upload (validate, put to R2), download, delete; calls the validator and store                                 |
+| `backend/.../digitalCard/service/CardPhotoWriter.java`, `CardUserLock.java`                    | The short row-write transaction; the per-user lock                                                            |
+| `backend/.../digitalCard/service/PhotoCleanupService.java`                                     | Queues R2 deletes in `photo_cleanup`, attempts them, retries                                                  |
+| `backend/.../digitalCard/service/DigitalCardCleanupJob.java`                                   | Daily 30-day hard delete; sweeps the rate limiter; retries photo cleanup                                      |
+| `backend/.../digitalCard/service/PhotoUploadRateLimiter.java`                                  | 20 uploads per minute per user                                                                                |
+| `backend/.../digitalCard/photo/`                                                               | `PhotoValidator`, `WebpSanitizer`, `JpegSanitizer`                                                            |
+| `backend/.../digitalCard/storage/`                                                             | `PhotoStore`, `R2PhotoStore`, `DisabledPhotoStore`, `PhotoStoreConfig` (client from `storage/R2Clients.java`) |
+| `backend/.../storeName/`                                                                       | Community store-name list, normalizer and controller                                                          |
+| `backend/.../config/SchedulingConfig.java`                                                     | `@EnableScheduling` (the first scheduled job in the app)                                                      |
+| `frontend/src/lib/api/digital-cards/`                                                          | Query keys, queries, hooks, optimistic patches, last-used queue, photo queries                                |
+| `frontend/src/lib/api/schemas/digital-card.ts`, `store-name.ts`                                | Zod request and response schemas                                                                              |
+| `frontend/src/lib/offline/card-photo-store.ts`, `card-photo-outbox.ts`, `purge.ts`             | Photo blobs, upload outbox, logout purge                                                                      |
+| `frontend/src/lib/offline/failure-policy.ts`, `card-retry.ts`, `slot-lock.ts`, `purge-gate.ts` | Keep or drop rules and card retries; per-slot photo ordering; purge ordering gate                             |
+| `frontend/src/constants/card-codes.ts`                                                         | Code types, card types, photo slots and their labels                                                          |
+| `frontend/src/app/[locale]/(user)/digital-cards/`                                              | The page, tiles, view and form modals, hooks and utils                                                        |
+| `frontend/src/utils/card-code/generate-code-svg.ts`                                            | bwip-js rendering                                                                                             |
+| `frontend/src/app/[locale]/(user)/digital-cards/utils/card-palette.ts`                         | The 19 colours                                                                                                |
+| `frontend/src/components/scanner/`                                                             | Shared scanner: consensus, confirm step, manual entry                                                         |
+| `frontend/src/utils/barcode/`                                                                  | Check digits and normalization                                                                                |
+| `frontend/src/utils/browser/card-image.ts`                                                     | Photo resize and WebP or JPEG encoding                                                                        |
+| `frontend/src/components/reui/autocomplete.tsx`                                                | The store field's Autocomplete (reui, built on `@base-ui/react`)                                              |
+| `frontend/src/hooks/use-wake-lock.ts`                                                          | Keeps the screen on in the view modal                                                                         |
+| `backend/src/test/`                                                                            | The backend suite (H2)                                                                                        |
 
 ---
 
@@ -429,7 +429,7 @@ At the time of writing `mvn -B verify` runs 87 backend tests and `pnpm test` run
 | **`ddl-auto=update` and enum columns**              | `card_type` and `code_type` are Strings, not Java enums, so adding a type later is an allowlist change, not a stale `CHECK` constraint that 500s on write                                                                                                                              |
 | **Safari returns PNG for a WebP request**           | `canvas.toBlob("image/webp")` silently gives PNG on Safari, and the server rejects PNG. `card-image.ts` checks `blob.type` and falls back to JPEG. Never remove that check                                                                                                             |
 | **bwip-js is large**                                | Import only the named encoders from `@bwip-js/browser` (as `generate-code-svg.ts` does) rather than pulling in every symbology, or the bundle carries code for barcode types no card uses. This is a size concern I did not measure here                                               |
-| **R2 and the AWS SDK checksums**                    | Since SDK 2.30 the default adds checksum trailers that R2 rejects. `PhotoStoreConfig` sets request and response checksums to `WHEN_REQUIRED` and turns chunked encoding off. Upgrading the SDK means re-testing a real upload                                                          |
+| **R2 and the AWS SDK checksums**                    | Since SDK 2.30 the default adds checksum trailers that R2 rejects. `R2Clients` sets request and response checksums to `WHEN_REQUIRED` and turns chunked encoding off, for both buckets. Upgrading the SDK means re-testing a real upload                                               |
 | **R2 batch delete**                                 | `DeleteObjects` needs a checksum header R2 treats differently from S3, so `deletePrefix` deletes key by key                                                                                                                                                                            |
 | **The EU jurisdiction is fixed at bucket creation** | A bucket made without it cannot be moved. The endpoint also differs (`.eu.` in the host), and the default endpoint will not find an EU bucket                                                                                                                                          |
 | **Photos are not a paused mutation**                | Bytes in a persisted mutation would bloat the single cache blob, so photos use their own outbox. Keep new photo work out of the mutation cache                                                                                                                                         |

@@ -69,6 +69,7 @@ The config sets `restoreMocks`, `unstubEnvs` and `unstubGlobals`, and Vitest 5 c
 - `vi.mock` inside a `describe` or a function throws in Vitest 5. Keep it at the top of the file.
 - jsdom 30 needs Node `^22.22.2`, `^24.15.0` or `>=26.0.0`, so Node 25 and early 24 releases cannot run the DOM tests. CI uses Node 24.
 - A `.tsx` test that renders a component with `useForm` reads the same compiled code as production, so the `useWatch` and `useFormState` rules in `AGENTS.md` matter in tests too.
+- `vitest.config.mts` sets an empty inline PostCSS config. Without it, a component that imports a library stylesheet (`react-image-crop/dist/ReactCrop.css`) makes Vite load the app's Tailwind PostCSS config, which fails under Vitest.
 
 ## Sources
 
