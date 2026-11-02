@@ -16,7 +16,12 @@ describe("hashRecipient", () => {
 
     expect(hashRecipient("person@example.com")).not.toBe(plainHash);
     expect(hashRecipient("person@example.com")).toBe(
-      createHmac("sha256", SECRET).update("person@example.com").digest("hex"),
+      createHmac(
+        "sha256",
+        createHmac("sha256", SECRET).update("email-send-log").digest(),
+      )
+        .update("person@example.com")
+        .digest("hex"),
     );
   });
 
