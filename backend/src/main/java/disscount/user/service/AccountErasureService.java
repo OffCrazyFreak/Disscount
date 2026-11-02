@@ -20,12 +20,14 @@ public class AccountErasureService {
     private final ErasureLedgerRepository erasureLedger;
 
     public void erase(UUID userId) {
+        // With a tombstone already there no tombstone is written, so any violation is unrelated.
+        boolean couldCollideOnTombstone = !erasureLedger.existsById(userId);
         try {
             userService.deleteAccount(userId);
         } catch (DataIntegrityViolationException collision) {
             // An identity with no profile row has nothing to lock, so a concurrent deletion can
             // commit the tombstone first; its committed erasure is this one, so this one is done.
-            if (!erasureLedger.existsById(userId)) throw collision;
+            if (!couldCollideOnTombstone || !erasureLedger.existsById(userId)) throw collision;
         }
     }
 }

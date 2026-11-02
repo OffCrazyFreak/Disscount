@@ -31,6 +31,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
@@ -54,6 +55,8 @@ import static disscount.digitalCard.service.CardServiceTestSupport.request;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -232,12 +235,18 @@ class UserServiceDeleteAccountTest {
             }));
             await(firstHasWritten);
             // The second one sees no committed tombstone, so it writes one too and has to wait.
-            Future<?> second = pool.submit(() -> accountErasureService.erase(neverProvisioned));
+            long secondStartedAt = System.nanoTime();
+            Future<Long> second = pool.submit(() -> {
+                accountErasureService.erase(neverProvisioned);
+                return System.nanoTime();
+            });
             Thread.sleep(300);
             releaseFirst.countDown();
 
             first.get(10, TimeUnit.SECONDS);
-            second.get(10, TimeUnit.SECONDS);
+            long secondFinishedAt = second.get(10, TimeUnit.SECONDS);
+            // It had to wait on the first one's uncommitted tombstone, so the collision really happened.
+            assertThat(TimeUnit.NANOSECONDS.toMillis(secondFinishedAt - secondStartedAt)).isGreaterThanOrEqualTo(250);
         } finally {
             releaseFirst.countDown();
             pool.shutdownNow();
@@ -245,6 +254,22 @@ class UserServiceDeleteAccountTest {
 
         assertThat(erasureLedger.findAll()).singleElement()
                 .satisfies(entry -> assertThat(entry.getUserId()).isEqualTo(neverProvisioned));
+    }
+
+    @Test
+    void aRetryDoesNotHideAnUnrelatedIntegrityViolation() {
+        UUID erased = UUID.randomUUID();
+        userService.deleteAccount(erased);
+        AccountErasureService withFailingErase = new AccountErasureService(failingUserService(), erasureLedger);
+
+        assertThatThrownBy(() -> withFailingErase.erase(erased))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    private static UserService failingUserService() {
+        UserService failing = mock(UserService.class);
+        doThrow(new DataIntegrityViolationException("card constraint")).when(failing).deleteAccount(any());
+        return failing;
     }
 
     private static void await(CountDownLatch latch) {
