@@ -41,7 +41,7 @@ export default function ItemPriceDisplay({
         <div className="flex flex-shrink-0 items-center gap-2 text-gray-700 text-right text-sm sm:text-md">
           <span>{`${formatQuantity(item.quantity)} ${item.unit}`}</span>
 
-          <span>{approxPrice}</span>
+          <div>{approxPrice}</div>
         </div>
 
         <Separator className="mb-1" />
@@ -63,7 +63,7 @@ export default function ItemPriceDisplay({
 
   return (
     <div className="flex-shrink-0 text-sm font-medium text-gray-700">
-      <span>{approxPrice}</span>
+      <div>{approxPrice}</div>
     </div>
   );
 }

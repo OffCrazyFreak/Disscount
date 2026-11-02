@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react";
-import { screen } from "@testing-library/react";
+import { act, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -191,6 +191,24 @@ describe("ShoppingListItems price states", () => {
 
     rerender(listItems([item("a"), item("b")], { a: "ready", b: "failed" }));
     rerender(listItems([item("a")], { a: "ready" }));
+
+    expect(screen.queryByText("Cijene su učitane.")).not.toBeInTheDocument();
+  });
+
+  it("claims nothing for a retry that a newer failure overtook", async () => {
+    const user = userEvent.setup();
+    let finishRetry: (loadedAll: boolean) => void = () => {};
+    const onRetry = vi.fn(
+      () => new Promise<boolean>((resolve) => (finishRetry = resolve)),
+    );
+    const { rerender } = renderItems([item("a")], { a: "failed" }, onRetry);
+
+    await user.click(screen.getByRole("button", { name: "Pokušaj ponovno" }));
+    rerender(
+      listItems([item("a"), item("b")], { a: "failed", b: "failed" }, onRetry),
+    );
+    await act(async () => finishRetry(true));
+    rerender(listItems([item("a")], { a: "ready" }, onRetry));
 
     expect(screen.queryByText("Cijene su učitane.")).not.toBeInTheDocument();
   });

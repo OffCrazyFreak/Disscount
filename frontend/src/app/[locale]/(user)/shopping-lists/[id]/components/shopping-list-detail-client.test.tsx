@@ -22,6 +22,7 @@ vi.mock(
       cheapestStores: {},
       averagePrices: {},
       storePrices: {},
+      priceStates: {},
       isPricesLoading: false,
     }),
   }),

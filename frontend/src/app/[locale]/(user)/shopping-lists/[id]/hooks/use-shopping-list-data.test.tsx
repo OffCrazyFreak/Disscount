@@ -262,9 +262,10 @@ describe("useShoppingListData price states", () => {
     const requests: string[] = [];
     answerProducts(requests);
 
+    const queryClient = appLikeQueryClient();
     const { result } = renderHookWithProviders(
       () => useShoppingListData(LIST_ID),
-      { queryClient: appLikeQueryClient() },
+      { queryClient },
     );
 
     await waitFor(() =>
@@ -276,11 +277,17 @@ describe("useShoppingListData price states", () => {
       void result.current.retryFailedPrices();
     });
 
-    await waitFor(() => expect(result.current.isRetryingPrices).toBe(true));
+    await waitFor(() =>
+      expect(
+        queryClient.getQueryState(productByEanQueryKey("222"))?.fetchStatus,
+      ).toBe("paused"),
+    );
     expect(result.current.priceStates.broken).toBe("failed");
+    // Nothing is in flight, so the button does not spin until the connection returns.
+    expect(result.current.isRetryingPrices).toBe(false);
   });
 
-  it("keeps the store summary failed, not loading, while a retry runs", async () => {
+  it("keeps the store summary out of loading while a retry runs", async () => {
     const requests: string[] = [];
     answerProducts(requests);
 
@@ -299,7 +306,6 @@ describe("useShoppingListData price states", () => {
     await waitFor(() =>
       expect(result.current.data.priceStates.broken).toBe("failed"),
     );
-    expect(result.current.summary.productsError).toBe(true);
 
     server.use(
       http.get("*/api/cijene/products/:ean", async () => {
@@ -315,54 +321,6 @@ describe("useShoppingListData price states", () => {
       expect(result.current.data.isRetryingPrices).toBe(true),
     );
     expect(result.current.summary.productsLoading).toBe(false);
-    expect(result.current.summary.productsError).toBe(true);
-  });
-
-  it("does not report the store summary as failed for a bought item alone", async () => {
-    answerProducts([]);
-    const boughtOnly: ShoppingListDto = {
-      ...list,
-      items: [
-        item("priced", "111"),
-        { ...item("bought", "222"), isChecked: true },
-      ],
-    };
-
-    const { result } = renderHookWithProviders(
-      () =>
-        useStoreChainAnalysis({
-          shoppingList: boughtOnly,
-          pinnedStores: null,
-          optimizeBy: "total",
-        }),
-      { queryClient: appLikeQueryClient() },
-    );
-
-    await waitFor(() => expect(result.current.productsLoading).toBe(false));
-    expect(result.current.productsError).toBe(false);
-  });
-
-  it("does not report the store summary as failed for a 404 alone", async () => {
-    server.use(
-      http.get("*/api/cijene/products/:ean", ({ params }) =>
-        params.ean === "333"
-          ? HttpResponse.json({ error: "x" }, { status: 404 })
-          : HttpResponse.json(product(String(params.ean))),
-      ),
-    );
-
-    const { result } = renderHookWithProviders(
-      () =>
-        useStoreChainAnalysis({
-          shoppingList: list,
-          pinnedStores: null,
-          optimizeBy: "total",
-        }),
-      { queryClient: appLikeQueryClient() },
-    );
-
-    await waitFor(() => expect(result.current.productsLoading).toBe(false));
-    expect(result.current.productsError).toBe(false);
   });
 
   it("reports prices that were never saved while offline", () => {

@@ -119,7 +119,10 @@ export default function ShoppingListDetailClient({
       </section>
 
       <section>
-        <ShoppingListStoreSummary shoppingList={shoppingList} />
+        <ShoppingListStoreSummary
+          shoppingList={shoppingList}
+          hasFailedPrices={Object.values(priceStates).includes("failed")}
+        />
       </section>
     </div>
   );

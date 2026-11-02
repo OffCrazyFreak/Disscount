@@ -24,16 +24,24 @@ export default function ShoppingListPriceStatus({
   onRetry,
 }: IShoppingListPriceStatusProps) {
   const t = useTranslations("shoppingListDetail");
-  const [hasRetryLoadedAll, setHasRetryLoadedAll] = useState(false);
   const successRef = useRef<HTMLParagraphElement>(null);
-  const isRecovered = hasRetryLoadedAll && failedCount === 0;
 
-  // A new failure retires the old success, so removing that item later cannot revive it.
+  // Each new failure starts a generation, and a retry only counts for the one it was pressed
+  // in, so a failure arriving mid-retry, then removed, cannot surface a stale success.
+  const [failureGeneration, setFailureGeneration] = useState(0);
   const [previousFailedCount, setPreviousFailedCount] = useState(failedCount);
   if (failedCount !== previousFailedCount) {
     setPreviousFailedCount(failedCount);
-    if (failedCount > previousFailedCount) setHasRetryLoadedAll(false);
+    if (failedCount > previousFailedCount) {
+      setFailureGeneration(failureGeneration + 1);
+    }
   }
+
+  const [recoveredGeneration, setRecoveredGeneration] = useState<number | null>(
+    null,
+  );
+  const isRecovered =
+    recoveredGeneration === failureGeneration && failedCount === 0;
 
   // The retry button unmounts once every price loads; when it took focus with it, hand focus
   // to the outcome instead of the page top, but never pull focus away from anything else.
@@ -45,8 +53,9 @@ export default function ShoppingListPriceStatus({
 
   async function retry() {
     if (isRetrying) return;
-    setHasRetryLoadedAll(false);
-    setHasRetryLoadedAll(await onRetry());
+    const generation = failureGeneration;
+    setRecoveredGeneration(null);
+    if (await onRetry()) setRecoveredGeneration(generation);
   }
 
   return (

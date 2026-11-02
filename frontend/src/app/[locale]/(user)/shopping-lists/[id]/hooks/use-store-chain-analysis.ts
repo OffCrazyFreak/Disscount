@@ -10,7 +10,6 @@ import {
   type StoreOptimizeMode,
 } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 import { productLookupQuery } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/product-lookup-query";
-import { isProductNotFound } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
 import { buildChainAggregates } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/store-chain-aggregate";
 import { computeAbsolutePrices } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/store-chain-completeness";
 import {
@@ -43,10 +42,8 @@ export function useStoreChainAnalysis({
     );
   }, [shoppingList.items]);
 
-  const activeEans = new Set(activeItems.map((item) => item.ean));
-
   // combine is memoised by TanStack, so productsData keeps a stable identity between renders.
-  const { productsData, productsLoading, productsError } = useQueries({
+  const { productsData, productsLoading } = useQueries({
     queries: eans.map((ean) => ({
       ...productLookupQuery(ean),
       enabled: Boolean(ean),
@@ -55,19 +52,9 @@ export function useStoreChainAnalysis({
       productsData: results
         .map((result) => result.data)
         .filter((data): data is ProductResponse => data !== undefined),
-      // Matches the rows: a refetch after a failure is not a first load, and a 404 is no prices.
+      // Matches the rows: a refetch after a failure is not a first load.
       productsLoading: results.some(
         (result) => result.isLoading && result.errorUpdatedAt === 0,
-      ),
-      // Only unbought items' lookups, the ones the list banner can retry. A refetch clears
-      // the error until it answers, so a failed lookup counts as failed until then.
-      productsError: results.some(
-        (result, index) =>
-          activeEans.has(eans[index]) &&
-          result.data === undefined &&
-          (result.status === "error"
-            ? !isProductNotFound(result.error)
-            : result.errorUpdatedAt > 0 && result.fetchStatus !== "idle"),
       ),
     }),
   });
@@ -123,7 +110,6 @@ export function useStoreChainAnalysis({
     activeItems,
     allChains,
     productsLoading,
-    productsError,
     productsData,
     storesWithLowestPriceItems,
     storesWithHighestPriceItems,
