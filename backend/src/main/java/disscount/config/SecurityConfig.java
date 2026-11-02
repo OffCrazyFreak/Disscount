@@ -32,10 +32,6 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    // Shared with frontend/src/lib/auth/erase-backend-account.ts, which signs the token.
-    private static final String PURPOSE_CLAIM = "purpose";
-    private static final String ACCOUNT_ERASURE_PURPOSE = "account-erasure";
-
     private final UserProvisioningFilter userProvisioningFilter;
 
     @Bean
@@ -117,8 +113,17 @@ public class SecurityConfig {
             RequestAuthorizationContext context
     ) {
         boolean isErasureToken = authentication.get() instanceof JwtAuthenticationToken jwt
-                && ACCOUNT_ERASURE_PURPOSE.equals(jwt.getToken().getClaimAsString(PURPOSE_CLAIM));
+                && TokenPurpose.isAccountErasure(jwt.getToken());
         return new AuthorizationDecision(isErasureToken);
+    }
+
+    private static AuthorizationDecision isOrdinarySessionToken(
+            Supplier<Authentication> authentication,
+            RequestAuthorizationContext context
+    ) {
+        boolean isOrdinary = authentication.get() instanceof JwtAuthenticationToken jwt
+                && !TokenPurpose.isPurposeScoped(jwt.getToken());
+        return new AuthorizationDecision(isOrdinary);
     }
 
     /** Unlisted methods fall through to the authenticated chain, so the default is deny. */
@@ -153,7 +158,7 @@ public class SecurityConfig {
                     "/swagger-ui/**",
                     "/swagger-ui.html"
                 ).permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().access(SecurityConfig::isOrdinarySessionToken)
             )
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint((req, res, authEx) ->

@@ -16,6 +16,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
@@ -51,6 +52,23 @@ class UserControllerErasureTokenTest {
                 .andExpect(status().isOk());
 
         verify(userService).deleteAccount(userId);
+    }
+
+    @Test
+    void theAccountErasureTokenIsRefusedEverywhereElse() throws Exception {
+        mvc.perform(get("/api/users/me").with(jwt().jwt(j -> j.subject(userId.toString())
+                        .claim("purpose", "account-erasure"))))
+                .andExpect(status().isForbidden());
+
+        verify(userService, never()).findById(any());
+    }
+
+    @Test
+    void anOrdinarySessionTokenStillReadsTheProfile() throws Exception {
+        mvc.perform(get("/api/users/me").with(jwt().jwt(j -> j.subject(userId.toString()))))
+                .andExpect(status().isNotFound());
+
+        verify(userService).findById(userId);
     }
 
     @Test
