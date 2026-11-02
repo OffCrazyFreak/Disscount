@@ -1,7 +1,6 @@
 import { useMemo } from "react";
-import { useQueries, type Query } from "@tanstack/react-query";
+import { useQueries } from "@tanstack/react-query";
 import { shoppingListService } from "@/lib/api";
-import cijeneService, { productByEanQueryKey } from "@/lib/cijene-api";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { useUser } from "@/context/user-context";
 import {
@@ -10,11 +9,11 @@ import {
 } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 import { getAveragePrice } from "@/app/[locale]/products/utils/product-utils";
 import {
-  isProductNotFound,
   itemPriceState,
   lookupPriceState,
   type ItemPriceState,
 } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
+import { productLookupQuery } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/product-lookup-query";
 
 /**
  * One read for owners and link visitors alike. The endpoint resolves the caller's access
@@ -48,27 +47,16 @@ export function useShoppingListData(listId: string) {
   );
 
   const productLookups = useQueries({
-    queries: eans.map((ean) => ({
-      queryKey: productByEanQueryKey(ean),
-      queryFn: () => cijeneService.getProductByEan({ ean }),
-      staleTime: 6 * 60 * 60 * 1000,
-      // The app default of one retry, minus a 404, which asking again cannot change.
-      retry: (failureCount: number, error: Error) =>
-        !isProductNotFound(error) && failureCount < 1,
-      // A refetch clears the error until it answers, which would show a known 404 as failed,
-      // so a 404 is never asked again here, and a failure waits for the retry button.
-      retryOnMount: false,
-      refetchOnWindowFocus: (query: Query) =>
-        !isProductNotFound(query.state.error),
-      refetchOnReconnect: (query: Query) =>
-        !isProductNotFound(query.state.error),
-    })),
+    queries: eans.map(productLookupQuery),
     combine: (results) => {
       const lookups = results.map(
         (result, index) => [eans[index], lookupPriceState(result)] as const,
       );
       const failedIndexes = results.flatMap((_, index) =>
-        lookups[index][1] === "failed" && unboughtEans.has(eans[index])
+        // A query that keeps its data after a failed background refetch still shows prices.
+        results[index].data === undefined &&
+        lookups[index][1] === "failed" &&
+        unboughtEans.has(eans[index])
           ? [index]
           : [],
       );

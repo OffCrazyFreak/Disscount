@@ -8,6 +8,7 @@ import { http, HttpResponse } from "msw/http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useShoppingListData } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-shopping-list-data";
+import { useStoreChainAnalysis } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-store-chain-analysis";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
 import { server } from "@/test/msw-server";
@@ -174,8 +175,17 @@ describe("useShoppingListData price states", () => {
     const requests: string[] = [];
     answerProducts(requests);
 
+    // The store summary watches the same lookups on this page, and TanStack refetches
+    // through whichever observer allows it.
     const { result } = renderHookWithProviders(
-      () => useShoppingListData(LIST_ID),
+      () => {
+        useStoreChainAnalysis({
+          shoppingList: list,
+          pinnedStores: null,
+          optimizeBy: "total",
+        });
+        return useShoppingListData(LIST_ID);
+      },
       { queryClient: appLikeQueryClient() },
     );
 
