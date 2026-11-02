@@ -3,6 +3,7 @@ package disscount.user.service;
 import disscount.digitalCard.service.DigitalCardService;
 import disscount.favoriteStore.service.FavoriteStoreService;
 import disscount.user.dao.AuthIdentityDao;
+import disscount.user.dao.ErasureLedgerRepository;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,8 @@ class UserServiceNewProfileDefaultsTest {
     private final UserRepository userRepository = mock(UserRepository.class);
     private final UserProfileCreator profileCreator = mock(UserProfileCreator.class);
     private final UserService userService = new UserService(userRepository, mock(AuthIdentityDao.class),
-            profileCreator, mock(DigitalCardService.class), mock(FavoriteStoreService.class));
+            profileCreator, mock(DigitalCardService.class), mock(FavoriteStoreService.class),
+            mock(ErasureLedgerRepository.class));
 
     @Test
     void newProfileStartsWithTheNewsletterOffAndTheOtherSwitchesOn() {

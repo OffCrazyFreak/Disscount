@@ -9,7 +9,9 @@ import disscount.favoriteStore.service.FavoriteStoreService;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.ConflictException;
 import disscount.user.dao.AuthIdentityDao;
+import disscount.user.dao.ErasureLedgerRepository;
 import disscount.user.dao.UserRepository;
+import disscount.user.domain.ErasureLedgerEntry;
 import disscount.user.domain.User;
 import disscount.user.domain.enums.AccountType;
 import disscount.user.dto.AuthIdentity;
@@ -45,6 +47,7 @@ public class UserService {
     private final UserProfileCreator profileCreator;
     private final DigitalCardService digitalCardService;
     private final FavoriteStoreService favoriteStoreService;
+    private final ErasureLedgerRepository erasureLedger;
 
     // Compared against better-auth's UTC session timestamps, so the JVM zone must not leak in.
     private static LocalDateTime nowUtc() {
@@ -230,23 +233,28 @@ public class UserService {
      * Anonymizes the profile: nulls PII fields and soft-deletes.
      * The row is kept so business data (watchlists, shopping lists, etc.) remains intact,
      * except digital cards, which are hard deleted together with their photos.
-     * better-auth identity must be deleted separately via authClient.deleteUser() on the frontend.
+     * Records a tombstone in the same transaction. Idempotent, and succeeds for an identity
+     * that never got a profile, because better-auth's beforeDelete hook calls it and only
+     * deletes the identity once this has committed, so any refusal here blocks the deletion.
      */
     public void deleteAccount(UUID userId) {
         // Locked so a card write racing the deletion waits and then finds a deleted user.
-        User user = userRepository.findByIdForUpdate(userId)
-                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
-
-        user.setUsername(null);
-        user.setImage(null);
-        user.setDeletedAt(nowUtc());
-        // Flushed now because the card purge below clears the persistence context, dropping any unsaved change.
-        userRepository.saveAndFlush(user);
+        userRepository.findByIdForUpdate(userId).ifPresent(user -> {
+            user.setUsername(null);
+            user.setImage(null);
+            user.setDeletedAt(nowUtc());
+            // Flushed now because the card purge below clears the persistence context, dropping any unsaved change.
+            userRepository.saveAndFlush(user);
+        });
 
         // Cards hold card numbers and photos, which must not outlive the account.
         digitalCardService.deleteAllForUser(userId);
         // Favourite stores show where the person shops.
         favoriteStoreService.deleteAllForUser(userId);
+
+        if (!erasureLedger.existsById(userId)) {
+            erasureLedger.save(new ErasureLedgerEntry(userId, nowUtc()));
+        }
     }
 
     /**

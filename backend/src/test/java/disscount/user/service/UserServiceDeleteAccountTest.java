@@ -19,6 +19,7 @@ import disscount.storeName.dao.StoreNameUsageRepository;
 import disscount.storeName.service.StoreNameService;
 import disscount.storeName.service.StoreNameUpsert;
 import disscount.user.dao.AuthIdentityDao;
+import disscount.user.dao.ErasureLedgerRepository;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,6 +77,7 @@ class UserServiceDeleteAccountTest {
     @Autowired PhotoStore store;
     @Autowired FavoriteStoreService favoriteStoreService;
     @Autowired FavoriteStoreRepository favoriteStores;
+    @Autowired ErasureLedgerRepository erasureLedger;
 
     @BeforeEach
     void setUp() {
@@ -85,6 +87,7 @@ class UserServiceDeleteAccountTest {
         storeNameUsages.deleteAll();
         storeNames.deleteAll();
         favoriteStores.deleteAll();
+        erasureLedger.deleteAll();
         users.deleteAll();
         ((FakePhotoStore) store).objects.clear();
     }
@@ -138,6 +141,41 @@ class UserServiceDeleteAccountTest {
 
         assertThat(favoriteStores.findAll()).singleElement()
                 .satisfies(f -> assertThat(f.getUser().getId()).isEqualTo(staying.getId()));
+    }
+
+    @Test
+    void deleteAccountLeavesATombstoneWithOnlyTheIdAndTime() {
+        User user = users.save(User.builder().id(UUID.randomUUID()).username("marko").build());
+
+        userService.deleteAccount(user.getId());
+
+        assertThat(erasureLedger.findAll()).singleElement().satisfies(entry -> {
+            assertThat(entry.getUserId()).isEqualTo(user.getId());
+            assertThat(entry.getErasedAt()).isNotNull();
+        });
+    }
+
+    @Test
+    void aRetriedDeletionSucceedsAndKeepsOneTombstone() {
+        User user = users.save(User.builder().id(UUID.randomUUID()).username("marko").build());
+        userService.deleteAccount(user.getId());
+        var firstErasedAt = erasureLedger.findById(user.getId()).orElseThrow().getErasedAt();
+
+        userService.deleteAccount(user.getId());
+
+        assertThat(erasureLedger.findAll()).singleElement()
+                .satisfies(entry -> assertThat(entry.getErasedAt()).isEqualTo(firstErasedAt));
+        assertThat(users.findById(user.getId()).orElseThrow().getDeletedAt()).isNotNull();
+    }
+
+    @Test
+    void anIdentityThatNeverGotAProfileCanStillBeDeleted() {
+        UUID neverProvisioned = UUID.randomUUID();
+
+        userService.deleteAccount(neverProvisioned);
+
+        assertThat(users.findById(neverProvisioned)).isEmpty();
+        assertThat(erasureLedger.findById(neverProvisioned)).isPresent();
     }
 
     private static BulkFavoriteStoreRequest favorites(String... keys) {

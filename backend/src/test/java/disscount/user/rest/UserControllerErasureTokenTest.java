@@ -1,0 +1,62 @@
+package disscount.user.rest;
+
+import disscount.config.SecurityConfig;
+import disscount.user.service.UserService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.UUID;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(UserController.class)
+@Import(SecurityConfig.class)
+class UserControllerErasureTokenTest {
+
+    @Autowired MockMvc mvc;
+    @MockBean UserService userService;
+
+    private final UUID userId = UUID.randomUUID();
+
+    @Test
+    void anOrdinarySessionTokenCannotEraseTheProfile() throws Exception {
+        mvc.perform(delete("/api/users/me").with(jwt().jwt(j -> j.subject(userId.toString()))))
+                .andExpect(status().isForbidden());
+
+        verify(userService, never()).deleteAccount(any());
+    }
+
+    @Test
+    void aTokenForAnotherPurposeCannotEraseTheProfile() throws Exception {
+        mvc.perform(delete("/api/users/me").with(jwt().jwt(j -> j.subject(userId.toString())
+                        .claim("purpose", "something-else"))))
+                .andExpect(status().isForbidden());
+
+        verify(userService, never()).deleteAccount(any());
+    }
+
+    @Test
+    void theAccountErasureTokenErasesItsOwnSubject() throws Exception {
+        mvc.perform(delete("/api/users/me").with(jwt().jwt(j -> j.subject(userId.toString())
+                        .claim("purpose", "account-erasure"))))
+                .andExpect(status().isOk());
+
+        verify(userService).deleteAccount(userId);
+    }
+
+    @Test
+    void anAnonymousCallerIsRejected() throws Exception {
+        mvc.perform(delete("/api/users/me")).andExpect(status().isUnauthorized());
+
+        verify(userService, never()).deleteAccount(any());
+    }
+}

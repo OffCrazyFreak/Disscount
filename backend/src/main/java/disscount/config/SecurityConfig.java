@@ -8,23 +8,33 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+
+import java.util.function.Supplier;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    // Shared with frontend/src/lib/auth/erase-backend-account.ts, which signs the token.
+    private static final String PURPOSE_CLAIM = "purpose";
+    private static final String ACCOUNT_ERASURE_PURPOSE = "account-erasure";
 
     private final UserProvisioningFilter userProvisioningFilter;
 
@@ -102,6 +112,15 @@ public class SecurityConfig {
         return http.build();
     }
 
+    private static AuthorizationDecision isAccountErasureToken(
+            Supplier<Authentication> authentication,
+            RequestAuthorizationContext context
+    ) {
+        boolean isErasureToken = authentication.get() instanceof JwtAuthenticationToken jwt
+                && ACCOUNT_ERASURE_PURPOSE.equals(jwt.getToken().getClaimAsString(PURPOSE_CLAIM));
+        return new AuthorizationDecision(isErasureToken);
+    }
+
     /** Unlisted methods fall through to the authenticated chain, so the default is deny. */
     private static RequestMatcher shoppingListByIdMatcher() {
         return new OrRequestMatcher(
@@ -124,6 +143,9 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
+                // Only better-auth's deleteUser hook mints this token, after its own checks
+                // passed, so erasing the profile alone can never leave a working login behind.
+                .requestMatchers(HttpMethod.DELETE, "/api/users/me").access(SecurityConfig::isAccountErasureToken)
                 .requestMatchers(
                     "/actuator/health",
                     "/v3/api-docs/**",

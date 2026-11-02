@@ -40,7 +40,7 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
-    @Operation(summary = "Anonymize and soft-delete current user's profile")
+    @Operation(summary = "Erase the current user's app data; only better-auth's account erasure token may call it")
     @DeleteMapping("/me")
     public ResponseEntity<Map<String, String>> deleteCurrentUser() {
         UUID authenticatedUserId = SecurityUtils.getCurrentUserId();
