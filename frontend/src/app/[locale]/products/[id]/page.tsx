@@ -1,11 +1,6 @@
 import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
 import ProductDetailClient from "@/app/[locale]/products/[id]/components/product-detail-client";
 import ProductJsonLd from "@/app/[locale]/products/[id]/components/product-json-ld";
 import {
@@ -14,7 +9,6 @@ import {
 } from "@/app/[locale]/products/[id]/utils/product-metadata";
 import { getMainPhotoUrl } from "@/lib/api/product-images/server";
 import { getServerProduct } from "@/lib/cijene-api/server/get-product";
-import { productByEanQueryKey } from "@/lib/cijene-api/query-hooks";
 import { BRAND_OG_IMAGE_ID } from "@/app/og/localized-og";
 import { appUrl } from "@/lib/env";
 import { localePath } from "@/i18n/locale-path";
@@ -53,8 +47,9 @@ export async function generateMetadata(
   const name = product.name || product.ean;
   const lowPrice = getMinPrice(product);
 
+  // Upstream strips leading zeros, so its EAN is the one canonical form of the URL.
   return productMetadata({
-    ean: id,
+    ean: product.ean,
     locale,
     title: t("meta.productTitle", { name }),
     description:
@@ -65,7 +60,7 @@ export async function generateMetadata(
             chains: product.chains.length,
             price: formatPrice(lowPrice, locale),
           }),
-    photoUrl: await getMainPhotoUrl(id),
+    photoUrl: await getMainPhotoUrl(product.ean),
     parent: await parent,
   });
 }
@@ -74,6 +69,8 @@ export default async function ProductDetailsPage(
   props: PageProps<"/[locale]/products/[id]">,
 ) {
   // The client keeps the raw segment it always had; only server lookups and URLs decode it.
+  // It still renders the body itself: its price history and stores sections read saved
+  // preferences from localStorage on first render, which would not match server HTML.
   const { id: rawId } = await props.params;
   const ean = decodeProductId(rawId);
   const result = await getServerProduct(ean);
@@ -85,27 +82,22 @@ export default async function ProductDetailsPage(
     return <ProductDetailClient ean={rawId} />;
   }
 
+  const { product } = result;
   const locale = await getLocale();
-  const photoUrl = await getMainPhotoUrl(ean);
-
-  // Seeds the query the client reads, so the first HTML already holds the product.
-  const queryClient = new QueryClient();
-  queryClient.setQueryData(productByEanQueryKey(rawId), result.product);
+  const photoUrl = await getMainPhotoUrl(product.ean);
 
   return (
     <>
       <ProductJsonLd
-        product={result.product}
-        url={productPageUrl(ean, locale)}
+        product={product}
+        url={productPageUrl(product.ean, locale)}
         image={
           photoUrl ??
           `${appUrl()}${localePath(locale, `/opengraph-image/${BRAND_OG_IMAGE_ID}`)}`
         }
       />
 
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <ProductDetailClient ean={rawId} />
-      </HydrationBoundary>
+      <ProductDetailClient ean={rawId} />
     </>
   );
 }

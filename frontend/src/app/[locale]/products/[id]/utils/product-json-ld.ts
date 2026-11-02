@@ -1,7 +1,16 @@
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
+import { gs1CheckDigit } from "@/utils/barcode/check-digits";
 import { getMaxPrice, getMinPrice } from "@/utils/product-price-utils";
 
-const DIGITS_ONLY = /^\d+$/;
+const GTIN_SHAPE = /^(?:\d{8}|\d{12,14})$/;
+
+// Mirrors the backend's Barcodes.isPublicGtin: prefix 2 marks in-store codes, not GTINs.
+function isPublicGtin(ean: string): boolean {
+  if (!GTIN_SHAPE.test(ean)) return false;
+  if (ean.length === 13 && ean.startsWith("2")) return false;
+
+  return gs1CheckDigit(ean.slice(0, -1)) === Number(ean.slice(-1));
+}
 
 interface IProductJsonLdInput {
   product: ProductResponse;
@@ -24,8 +33,8 @@ export function productJsonLd({ product, url, image }: IProductJsonLdInput) {
     name: product.name || product.ean,
     url,
     image,
-    // "chain:code" ids are cijene's own keys for products without a barcode.
-    ...(DIGITS_ONLY.test(product.ean) && { gtin: product.ean }),
+    // cijene also keys products by "chain:code" and by in-store codes, neither a GTIN.
+    ...(isPublicGtin(product.ean) && { gtin: product.ean }),
     ...(product.brand && {
       brand: { "@type": "Brand", name: product.brand },
     }),

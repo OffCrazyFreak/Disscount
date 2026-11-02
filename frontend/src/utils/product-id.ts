@@ -1,5 +1,6 @@
-// Barcodes are 8 to 14 digits; cijene gives products sold without one a "<chain>:<code>" id.
-const PRODUCT_ID = /^(?:\d{8,14}|[a-z0-9_-]+:[^\s/]{1,64})$/;
+// cijene keeps any barcode of 8 or more digits and gives products sold without one a
+// "<chain>:<code>" id.
+const PRODUCT_ID = /^(?:\d{8,64}|[a-z0-9_-]+:[^\s/]{1,64})$/;
 
 /** Shape check only: in-store codes fail the GS1 check digit yet are real products */
 export function isWellFormedProductId(id: string): boolean {

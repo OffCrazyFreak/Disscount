@@ -68,4 +68,13 @@ describe("productJsonLd", () => {
     expect(markup).not.toHaveProperty("brand");
     expect(markup).not.toHaveProperty("offers");
   });
+
+  it.each(["2831201000000", "5449000000997"])(
+    "gives no gtin for the non-GTIN code %s",
+    (ean) => {
+      expect(
+        productJsonLd({ product: product({ ean }), ...input }),
+      ).not.toHaveProperty("gtin");
+    },
+  );
 });
