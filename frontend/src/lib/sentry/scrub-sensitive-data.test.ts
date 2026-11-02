@@ -122,6 +122,20 @@ describe("scrubSensitiveData on server request bodies", () => {
   });
 });
 
+describe("scrubSensitiveData on the sign-in body", () => {
+  it("filters the password a breached password timeout event carries", () => {
+    const event = {
+      request: { data: '{"email":"a@b.c","password":"hunter22"}' },
+      extra: { password: "hunter22" },
+    };
+
+    expect(scrubSensitiveData(event)).toEqual({
+      request: { data: '{"email":"a@b.c","password":"[Filtered]"}' },
+      extra: { password: "[Filtered]" },
+    });
+  });
+});
+
 describe("scrubSensitiveData on Replay network events", () => {
   it("filters the URL in a recorded fetch", () => {
     const networkEvent = {
