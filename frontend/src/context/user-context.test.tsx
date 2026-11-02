@@ -3,7 +3,7 @@ import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 
 import { UserProvider, useUser } from "@/context/user-context";
-import apiClient from "@/lib/api/api-base";
+import apiClient, { setAuthTokenUser } from "@/lib/api/api-base";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 
@@ -121,7 +121,7 @@ describe("UserProvider backend token", () => {
     issueToken = async () => tokenB;
     pendingTokenA.release?.(tokenA);
 
-    // Both loads that waited on A's token go out bare, then retry with B's after the 401.
+    // The load that waited on A's token goes out bare and retries with B's after the 401.
     await waitFor(() =>
       expect(
         authorizations.filter((header) => header === `Bearer ${tokenB}`),
@@ -138,7 +138,7 @@ describe("UserProvider backend token", () => {
       new Promise<string>((resolve) => {
         pendingTokenA.release = resolve;
       });
-    recordProfileRequests(() => issueToken());
+    const authorizations = recordProfileRequests(() => issueToken());
     const probeAuthorizations: (string | null)[] = [];
     // Answers anonymous callers too, like the shared shopping list routes, so nothing retries.
     server.use(
@@ -167,6 +167,44 @@ describe("UserProvider backend token", () => {
     await probe;
 
     expect(probeAuthorizations).toEqual([`Bearer ${tokenB}`]);
+    // Lets both profile loads finish, so none lands in the next test.
+    await waitFor(() =>
+      expect(
+        authorizations.filter((header) => header === `Bearer ${tokenB}`),
+      ).toHaveLength(2),
+    );
+  });
+
+  it("keeps the token fetch that began before the first session resolved", async () => {
+    let tokenRequests = 0;
+    const pendingToken: { release?: (token: string) => void } = {};
+    const probeAuthorizations: (string | null)[] = [];
+    server.use(
+      http.get("*/api/auth/token", async () => {
+        tokenRequests += 1;
+        const token = await new Promise<string>((resolve) => {
+          pendingToken.release = resolve;
+        });
+        return HttpResponse.json({ token });
+      }),
+      http.get("*/api/probe", ({ request }) => {
+        probeAuthorizations.push(request.headers.get("Authorization"));
+        return HttpResponse.json({});
+      }),
+    );
+
+    const probeBeforeSession = apiClient.get("/api/probe");
+    await waitFor(() => expect(pendingToken.release).toBeDefined());
+    setAuthTokenUser("user-a");
+    const probeAfterSession = apiClient.get("/api/probe");
+    pendingToken.release?.(tokenA);
+    await Promise.all([probeBeforeSession, probeAfterSession]);
+
+    expect(probeAuthorizations).toEqual([
+      `Bearer ${tokenA}`,
+      `Bearer ${tokenA}`,
+    ]);
+    expect(tokenRequests).toBe(1);
   });
 
   it("waits out the cooldown after refusing another account's token instead of fetching on every request", async () => {

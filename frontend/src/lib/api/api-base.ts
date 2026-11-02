@@ -30,7 +30,7 @@ let cachedSubject: string | null = null;
 // Undefined until a session first resolves; null once it resolved to nobody.
 let sessionUserId: string | null | undefined;
 let inflightTokenPromise: Promise<string | null> | null = null;
-// Bumped when the account changes, so a fetch begun for the previous one is neither reused nor cached.
+// Bumped on an account change or an explicit clear, so a fetch begun before it is neither reused nor cached.
 let tokenGeneration = 0;
 let lastFailedAttemptAt = 0;
 
@@ -137,11 +137,13 @@ export function peekFreshAuthToken(): string | null {
 }
 
 export function clearAuthToken() {
+  startNewTokenGeneration();
   clearTokenCache();
   lastFailedAttemptAt = Date.now();
 }
 
 export function resetAuthToken() {
+  startNewTokenGeneration();
   clearTokenCache();
   lastFailedAttemptAt = 0;
 }
@@ -154,7 +156,10 @@ export function setAuthTokenUser(userId: string | null | undefined) {
   if (sessionUserId !== undefined) startNewTokenGeneration();
   sessionUserId = userId;
   // A newly signed-in account can mint its token at once, without the signed-out cooldown.
-  if (userId && cachedSubject !== userId) resetAuthToken();
+  if (userId && cachedSubject !== userId) {
+    clearTokenCache();
+    lastFailedAttemptAt = 0;
+  }
 }
 
 /** After a sign-in, accepts the new account's token until its session names the user. */
