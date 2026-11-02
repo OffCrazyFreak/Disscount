@@ -1,11 +1,13 @@
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { QueryClient } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw/http";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import ShoppingListQuickAdd from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-quick-add";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
+import { productByEanQueryKey } from "@/lib/cijene-api";
 
 const { openModalUrl } = vi.hoisted(() => ({ openModalUrl: vi.fn() }));
 vi.mock("@/lib/modal/modal-navigation", () => ({ openModalUrl }));
@@ -100,8 +102,11 @@ describe("ShoppingListQuickAdd", () => {
   it("opens the add-to-list modal for a chosen suggestion instead of adding text", async () => {
     const user = userEvent.setup();
     const adds = captureAdds();
+    const queryClient = new QueryClient();
     server.use(signedOut, serveSearch([milk]), adds.handler);
-    renderWithProviders(<ShoppingListQuickAdd listId="list-1" />);
+    renderWithProviders(<ShoppingListQuickAdd listId="list-1" />, {
+      queryClient,
+    });
 
     await user.type(screen.getByRole("combobox"), "mlijeko");
     await screen.findByRole("option", { name: /Mlijeko 2,8% 1L/ });
@@ -115,6 +120,10 @@ describe("ShoppingListQuickAdd", () => {
       }),
     );
     expect(adds.bodies).toHaveLength(0);
+    // Seeded so the modal shows the product at once, offline too.
+    expect(queryClient.getQueryData(productByEanQueryKey(milk.ean))).toEqual(
+      milk,
+    );
   });
 
   it("says when nothing matches, so Enter adds the text", async () => {
