@@ -135,6 +135,42 @@ describe("scrubSensitiveData on server request bodies", () => {
   });
 });
 
+describe("scrubSensitiveData on form-encoded bodies and session headers", () => {
+  it("filters passwords in a form-encoded body", () => {
+    const event = {
+      request: { data: "email=a%40b.c&password=hunter22&newPassword=x" },
+    };
+
+    expect(scrubSensitiveData(event).request.data).toBe(
+      "email=a%40b.c&password=[Filtered]&newPassword=[Filtered]",
+    );
+  });
+
+  it("filters cookies and the Authorization header, keeping other headers", () => {
+    const event = {
+      request: {
+        cookies: { "better-auth.session_token": "abc" },
+        headers: {
+          Cookie: "better-auth.session_token=abc",
+          authorization: "Bearer abc",
+          "user-agent": "Firefox",
+        },
+      },
+    };
+
+    expect(scrubSensitiveData(event)).toEqual({
+      request: {
+        cookies: "[Filtered]",
+        headers: {
+          Cookie: "[Filtered]",
+          authorization: "[Filtered]",
+          "user-agent": "Firefox",
+        },
+      },
+    });
+  });
+});
+
 describe("scrubSensitiveData on the sign-in body", () => {
   it("filters the password a breached password timeout event carries", () => {
     const event = {

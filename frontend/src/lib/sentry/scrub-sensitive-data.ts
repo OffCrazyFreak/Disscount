@@ -3,12 +3,10 @@
  * link lands on a page as `?token=`, and verify-email and OAuth callbacks carry `token`,
  * `code` and `state` in request URLs, so URLs are scrubbed by their structure (query key,
  * reset path segment), never by matching message text. The server SDK attaches request
- * bodies as raw JSON strings, so sensitive fields are filtered there as well as as keys.
+ * bodies as raw JSON or form-encoded strings, so sensitive fields are filtered there as
+ * well as as keys. Cookies and the Authorization header carry the session, so they go too.
  */
 const FILTERED = "[Filtered]";
-
-const SENSITIVE_QUERY_PARAM =
-  /(^|[?&#])(token|code|state|access_token|id_token)=[^&#\s"'\\]*/gi;
 
 // better-auth's reset email links to this route with the token as a path segment.
 const RESET_PASSWORD_PATH_TOKEN =
@@ -19,7 +17,19 @@ const SENSITIVE_FIELD_NAMES = [
   "password",
   "newPassword",
   "currentPassword",
+  "cookie",
+  "cookies",
+  "set-cookie",
+  "authorization",
 ];
+
+const URL_SECRET_PARAMS = ["code", "state", "access_token", "id_token"];
+
+// Also matches form-encoded bodies, which share the query string syntax.
+const SENSITIVE_QUERY_PARAM = new RegExp(
+  `(^|[?&#])(${[...URL_SECRET_PARAMS, ...SENSITIVE_FIELD_NAMES].join("|")})=[^&#\\s"'\\\\]*`,
+  "gi",
+);
 
 const SENSITIVE_FIELDS = new Set(
   SENSITIVE_FIELD_NAMES.map((name) => name.toLowerCase()),
