@@ -305,12 +305,13 @@ describe("UserProvider erased account", () => {
           { status: 410 },
         ),
       ),
-      http.get("*/api/auth/get-session", () =>
-        HttpResponse.json({
+      http.get("*/api/auth/get-session", () => {
+        authCalls.push("get-session");
+        return HttpResponse.json({
           user: { id: sessionUserId },
           session: { userId: sessionUserId },
-        }),
-      ),
+        });
+      }),
       http.post("*/api/auth/delete-user", () => {
         authCalls.push("delete-user");
         return HttpResponse.json(deleteAnswer.body, {
@@ -341,7 +342,7 @@ describe("UserProvider erased account", () => {
   it("finishes the deletion when Spring says the account was already erased", async () => {
     const authCalls = answerProfileWithAccountErased();
 
-    await renderAndSettle(authCalls, ["delete-user"]);
+    await renderAndSettle(authCalls, ["get-session", "delete-user"]);
   });
 
   it("signs out when the surviving login is too old to delete", async () => {
@@ -349,7 +350,11 @@ describe("UserProvider erased account", () => {
       deleteAnswer: { status: 400, body: { code: "SESSION_EXPIRED" } },
     });
 
-    await renderAndSettle(authCalls, ["delete-user", "sign-out"]);
+    await renderAndSettle(authCalls, [
+      "get-session",
+      "delete-user",
+      "sign-out",
+    ]);
   });
 
   it("stays signed in when the retry fails for another reason", async () => {
@@ -357,7 +362,7 @@ describe("UserProvider erased account", () => {
       deleteAnswer: { status: 500, body: { code: "INTERNAL_SERVER_ERROR" } },
     });
 
-    await renderAndSettle(authCalls, ["delete-user"]);
+    await renderAndSettle(authCalls, ["get-session", "delete-user"]);
   });
 
   it("never deletes an account the session cookie no longer names", async () => {
@@ -365,12 +370,6 @@ describe("UserProvider erased account", () => {
       sessionUserId: "user-b",
     });
 
-    vi.spyOn(console, "error").mockImplementation(() => {});
-    session.userId = "user-a";
-    session.error = null;
-    renderWithProviders(<UserProvider>{null}</UserProvider>);
-    await new Promise((resolve) => setTimeout(resolve, 200));
-
-    expect(authCalls).toEqual([]);
+    await renderAndSettle(authCalls, ["get-session"]);
   });
 });
