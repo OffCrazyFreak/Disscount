@@ -23,6 +23,5 @@ export const watchlistItemDtoSchema = watchlistItemRequestSchema.extend({
   updatedAt: z.string().optional(),
 });
 
-// Type exports
 export type WatchlistItemRequest = z.infer<typeof watchlistItemRequestSchema>;
 export type WatchlistItemDto = z.infer<typeof watchlistItemDtoSchema>;

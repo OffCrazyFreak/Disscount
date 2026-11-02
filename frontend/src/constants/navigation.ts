@@ -38,40 +38,40 @@ export interface INavigationItem {
   shortcutDescriptionKey?: NavKey; // Read out by assistive tech; its presence opts the item into a PWA shortcut
   showInHeader: boolean; // Show in desktop header navigation
   isCollapsible?: boolean; // Has sub-menu (Kategorije, Trgovine, Lokacije)
-  children?: INavigationItem[]; // Nested items shown indented under this one
+  children?: readonly INavigationItem[]; // Nested items shown indented under this one
 }
 
-export const homeNavItem: INavigationItem = {
+export const homeNavItem = {
   id: "home",
   href: "/",
   labelKey: "nav.home",
   icon: House,
 
   showInHeader: false,
-};
+} as const satisfies INavigationItem;
 
 // Lives in the desktop header, so the sidebar only surfaces it on mobile
-export const dashboardNavItem: INavigationItem = {
+export const dashboardNavItem = {
   id: "dashboard",
   href: "/dashboard",
   labelKey: "nav.dashboard",
   icon: LayoutDashboard,
 
   showInHeader: false,
-};
+} as const satisfies INavigationItem;
 
 // The catalogue itself, which productNavItems only ever reached through filters
-export const productsNavItem: INavigationItem = {
+export const productsNavItem = {
   id: "products",
   href: "/products",
   labelKey: "nav.products",
   icon: Package,
 
   showInHeader: false,
-};
+} as const satisfies INavigationItem;
 
 // Primary navigation items (shown in header on desktop, top of sidebar on mobile)
-export const userNavItems: INavigationItem[] = [
+const userNavTable = [
   {
     id: "shopping-lists",
     href: "/shopping-lists",
@@ -114,9 +114,10 @@ export const userNavItems: INavigationItem[] = [
 
     showInHeader: false,
   },
-];
+] as const satisfies readonly INavigationItem[];
+export const userNavItems: readonly INavigationItem[] = userNavTable;
 
-export const productNavItems: INavigationItem[] = [
+const productNavTable = [
   {
     id: "discounted",
     href: "/products?discounted=true",
@@ -198,10 +199,11 @@ export const productNavItems: INavigationItem[] = [
 
     showInHeader: false,
   },
-];
+] as const satisfies readonly INavigationItem[];
+export const productNavItems: readonly INavigationItem[] = productNavTable;
 
 // Support entry points, shared with the footer; coming-soon until their pages/modals ship.
-export const supportNavItems: INavigationItem[] = [
+const supportNavTable = [
   {
     id: "suggestions",
     href: "/suggestions",
@@ -236,28 +238,40 @@ export const supportNavItems: INavigationItem[] = [
 
     showInHeader: false,
   },
-];
+] as const satisfies readonly INavigationItem[];
+export const supportNavItems: readonly INavigationItem[] = supportNavTable;
 
-const ALL_NAV_ITEMS: INavigationItem[] = [
+const ALL_NAV_ITEMS = [
   homeNavItem,
   dashboardNavItem,
   productsNavItem,
-  ...userNavItems,
-  ...productNavItems,
-  ...supportNavItems,
-];
+  ...userNavTable,
+  ...productNavTable,
+  ...supportNavTable,
+] as const satisfies readonly INavigationItem[];
+
+type TopLevelNavItem = (typeof ALL_NAV_ITEMS)[number];
+
+/** Derived from the table, so a mistyped or renamed id fails to compile. */
+export type NavItemId =
+  | TopLevelNavItem["id"]
+  | Extract<
+      TopLevelNavItem,
+      { children: readonly INavigationItem[] }
+    >["children"][number]["id"];
 
 /**
  * Every group and their children, so an id cannot resolve on one surface and
  * throw on another. The throw is deliberate fail-fast: the table is hardcoded, so
  * a bad id is a bug to surface at import rather than render as an empty cell.
  */
-export function findNavItem(id: string): INavigationItem {
+export function findNavItem(id: NavItemId): INavigationItem {
+  const items: readonly INavigationItem[] = ALL_NAV_ITEMS;
   const found =
-    ALL_NAV_ITEMS.find((item) => item.id === id) ??
-    ALL_NAV_ITEMS.flatMap((item) => item.children ?? []).find(
-      (child) => child.id === id,
-    );
+    items.find((item) => item.id === id) ??
+    items
+      .flatMap((item) => item.children ?? [])
+      .find((child) => child.id === id);
   if (!found) throw new Error(`Unknown navigation item: ${id}`);
 
   return found;

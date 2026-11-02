@@ -1,0 +1,94 @@
+name: Dokploy deploy
+description: Points an environment's moving tag at one commit's images, redeploys the Dokploy compose service and waits until /health reports that commit.
+
+inputs:
+  release-id:
+    description: Full commit SHA whose sha- images go live
+    required: true
+  environment-tag:
+    description: Moving tag the compose file pulls (dev or prod)
+    required: true
+  registry-token:
+    description: Token that may push to the GHCR packages
+    required: true
+  dokploy-url:
+    description: Base URL of the Dokploy panel
+    required: true
+  api-key:
+    description: API key of the Dokploy user limited to this service
+    required: true
+  compose-id:
+    description: Dokploy compose service id
+    required: true
+  app-url:
+    description: Public URL of the site whose /health is checked
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ inputs.registry-token }}
+
+    # All three tags move together, and only once every image exists, so the server never
+    # pulls a frontend from one commit and a backend or migrator from another.
+    - name: Point the moving tag at this commit
+      shell: bash
+      env:
+        RELEASE_ID: ${{ inputs.release-id }}
+        ENVIRONMENT_TAG: ${{ inputs.environment-tag }}
+      run: |
+        if ! [[ "$RELEASE_ID" =~ ^[0-9a-f]{40}$ ]]; then
+          echo "::error::release-id must be a full 40 character commit SHA."
+          exit 1
+        fi
+        images="frontend migrator backend"
+        for image in $images; do
+          docker buildx imagetools inspect "ghcr.io/offcrazyfreak/disscount-$image:sha-$RELEASE_ID" >/dev/null
+        done
+        for image in $images; do
+          docker buildx imagetools create \
+            --tag "ghcr.io/offcrazyfreak/disscount-$image:$ENVIRONMENT_TAG" \
+            "ghcr.io/offcrazyfreak/disscount-$image:sha-$RELEASE_ID"
+        done
+
+    # Only the status code is printed: Dokploy responses and curl errors would put service
+    # settings or the panel host into a public log.
+    - name: Trigger the deploy
+      shell: bash
+      env:
+        DOKPLOY_URL: ${{ inputs.dokploy-url }}
+        DOKPLOY_API_KEY: ${{ inputs.api-key }}
+        COMPOSE_ID: ${{ inputs.compose-id }}
+      run: |
+        status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+          --request POST "$DOKPLOY_URL/api/compose.deploy" \
+          --header "x-api-key: $DOKPLOY_API_KEY" \
+          --header "Content-Type: application/json" \
+          --data "{\"composeId\":\"$COMPOSE_ID\"}" || true)
+        if [[ "$status" != 2* ]]; then
+          echo "::error::Dokploy did not accept the deploy (HTTP $status)."
+          exit 1
+        fi
+
+    # compose.deploy only queues the job, so success means the site reporting the new commit.
+    - name: Wait for the new release
+      shell: bash
+      env:
+        APP_URL: ${{ inputs.app-url }}
+        RELEASE_ID: ${{ inputs.release-id }}
+      run: |
+        deadline=$((SECONDS + 15 * 60))
+        while [ "$SECONDS" -lt "$deadline" ]; do
+          live=$(curl --silent --max-time 10 "$APP_URL/health" | jq -r '.releaseId // empty' || true)
+          if [ "$live" = "$RELEASE_ID" ]; then
+            echo "Live on $RELEASE_ID."
+            exit 0
+          fi
+          sleep 15
+        done
+        echo "::error::$APP_URL did not report $RELEASE_ID within 15 minutes."
+        exit 1

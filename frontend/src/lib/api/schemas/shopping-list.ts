@@ -53,7 +53,6 @@ export const shoppingListCopyRequestSchema = z.object({
   includeSharing: z.boolean(),
 });
 
-// Type exports
 export type LinkAccess = z.infer<typeof linkAccessSchema>;
 export type ListAccess = z.infer<typeof listAccessSchema>;
 

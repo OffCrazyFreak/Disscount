@@ -36,10 +36,7 @@ export default function AuthFormShell<T extends IEmailValues>({
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
         <FormRootError message={formState.errors.root?.message} />
 
-        <EmailField
-          registration={form.register(email)}
-          error={form.getFieldState(email, formState).error?.message}
-        />
+        <EmailField control={form.control} name={email} />
 
         {children}
       </form>

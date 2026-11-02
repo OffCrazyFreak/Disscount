@@ -25,20 +25,28 @@ export default function AdminUsersTable() {
   const updateAccountType = adminService.useUpdateUserAccountType();
   const deleteUser = adminService.useDeleteUser();
 
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [updatingIds, setUpdatingIds] = useState<ReadonlySet<string>>(
+    new Set(),
+  );
   const [deleteTarget, setDeleteTarget] = useState<UserDto | null>(null);
 
   function handleChange(userId: string, accountType: AccountType) {
-    setUpdatingId(userId);
+    setUpdatingIds((ids) => new Set(ids).add(userId));
 
-    updateAccountType.mutate(
-      { userId, accountType },
-      {
-        onSuccess: () => toast.success(t("users.accountTypeUpdated")),
-        onError: () => toast.error(t("users.accountTypeError")),
-        onSettled: () => setUpdatingId(null),
-      },
-    );
+    // mutateAsync, not mutate options: those fire only for the latest call, so a row saved earlier would roll back without a toast.
+    updateAccountType
+      .mutateAsync({ userId, accountType })
+      .then(
+        () => toast.success(t("users.accountTypeUpdated")),
+        () => toast.error(t("users.accountTypeError")),
+      )
+      .finally(() =>
+        setUpdatingIds((ids) => {
+          const next = new Set(ids);
+          next.delete(userId);
+          return next;
+        }),
+      );
   }
 
   function handleDelete() {
@@ -87,7 +95,7 @@ export default function AdminUsersTable() {
                 key={user.id}
                 user={user}
                 isSelf={user.id === currentUser?.id}
-                isUpdating={updatingId === user.id}
+                isUpdating={updatingIds.has(user.id)}
                 onAccountTypeChange={handleChange}
                 onDelete={setDeleteTarget}
               />

@@ -33,7 +33,6 @@ function useUpdateCurrentUser() {
 
 const userService = {
   getCurrentUser,
-  updateCurrentUser,
   deleteCurrentUser,
   useUpdateCurrentUser,
 };

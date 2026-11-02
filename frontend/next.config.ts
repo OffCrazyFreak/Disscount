@@ -129,8 +129,13 @@ export default withSerwist(
 
     project: "disscount-frontend",
 
-    // Only print logs for uploading source maps in CI
-    silent: !process.env.CI,
+    // Both are empty outside CI image builds, which skips the upload and auto-detects the release.
+    authToken: process.env.SENTRY_AUTH_TOKEN,
+
+    release: { name: process.env.GIT_SHA },
+
+    // Image builds run inside BuildKit without CI set, so the token is what marks an upload.
+    silent: !process.env.SENTRY_AUTH_TOKEN,
 
     // For all available options, see:
     // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
