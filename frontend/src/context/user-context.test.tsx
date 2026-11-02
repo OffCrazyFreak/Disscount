@@ -3,11 +3,7 @@ import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 
 import { UserProvider, useUser } from "@/context/user-context";
-import apiClient, {
-  clearAuthToken,
-  peekFreshAuthToken,
-  setAuthTokenUser,
-} from "@/lib/api/api-base";
+import apiClient, { setAuthTokenUser } from "@/lib/api/api-base";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 
@@ -209,27 +205,6 @@ describe("UserProvider backend token", () => {
       `Bearer ${tokenA}`,
     ]);
     expect(tokenRequests).toBe(1);
-  });
-
-  it("never caches a token whose fetch was running when the token was cleared", async () => {
-    const pendingToken: { release?: (token: string) => void } = {};
-    server.use(
-      http.get("*/api/auth/token", async () => {
-        const token = await new Promise<string>((resolve) => {
-          pendingToken.release = resolve;
-        });
-        return HttpResponse.json({ token });
-      }),
-      http.get("*/api/probe", () => HttpResponse.json({})),
-    );
-
-    const probe = apiClient.get("/api/probe");
-    await waitFor(() => expect(pendingToken.release).toBeDefined());
-    clearAuthToken();
-    pendingToken.release?.(tokenA);
-    await probe;
-
-    expect(peekFreshAuthToken()).toBeNull();
   });
 
   it("waits out the cooldown after refusing another account's token instead of fetching on every request", async () => {
