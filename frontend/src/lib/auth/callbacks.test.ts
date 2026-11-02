@@ -6,8 +6,7 @@ const mocks = vi.hoisted(() => ({
   credentialRows: [{ id: "credential-1" }] as { id: string }[],
   sendPasswordReset: vi.fn(async () => {}),
   sendVerificationEmail: vi.fn(async () => {}),
-  hasEarlierLiveResetLink: vi.fn(async () => false),
-  discardResetLink: vi.fn(async () => {}),
+  claimResetEmail: vi.fn(),
   claimVerificationEmail: vi.fn(),
 }));
 
@@ -29,12 +28,8 @@ vi.mock("@/lib/email", () => ({
   },
 }));
 
-vi.mock("@/lib/auth/live-reset-link", () => ({
-  hasEarlierLiveResetLink: mocks.hasEarlierLiveResetLink,
-  discardResetLink: mocks.discardResetLink,
-}));
-
-vi.mock("@/lib/auth/verification-email-marker", () => ({
+vi.mock("@/lib/auth/email-link-marker", () => ({
+  claimResetEmail: mocks.claimResetEmail,
   claimVerificationEmail: mocks.claimVerificationEmail,
 }));
 
@@ -51,28 +46,33 @@ const args = [
 
 describe("dispatchResetPasswordEmail", () => {
   it("sends nothing while an earlier reset link is still live", async () => {
-    mocks.hasEarlierLiveResetLink.mockResolvedValueOnce(true);
+    mocks.claimResetEmail.mockResolvedValueOnce(null);
 
     await dispatchResetPasswordEmail(...args);
 
+    expect(mocks.claimResetEmail).toHaveBeenCalledWith("user-1", "token-1");
     expect(mocks.sendPasswordReset).not.toHaveBeenCalled();
-    expect(mocks.discardResetLink).toHaveBeenCalledWith("token-1");
   });
 
   it("sends when no other link is live", async () => {
+    const release = vi.fn(async () => {});
+    mocks.claimResetEmail.mockResolvedValueOnce(release);
+
     await dispatchResetPasswordEmail(...args);
 
     expect(mocks.sendPasswordReset).toHaveBeenCalledOnce();
-    expect(mocks.discardResetLink).not.toHaveBeenCalled();
+    expect(release).not.toHaveBeenCalled();
   });
 
-  it("discards the link when the send fails, so the next request can send", async () => {
+  it("releases its claim when the send fails, so the next request can send", async () => {
+    const release = vi.fn(async () => {});
+    mocks.claimResetEmail.mockResolvedValueOnce(release);
     mocks.sendPasswordReset.mockRejectedValueOnce(new Error("provider down"));
 
     await expect(dispatchResetPasswordEmail(...args)).rejects.toThrow(
       "provider down",
     );
-    expect(mocks.discardResetLink).toHaveBeenCalledWith("token-1");
+    expect(release).toHaveBeenCalledOnce();
   });
 });
 

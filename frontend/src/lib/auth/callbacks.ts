@@ -5,10 +5,9 @@ import { account } from "@/db/auth-schema";
 import type { AppLocale } from "@/i18n/locales";
 import { emailService } from "@/lib/email";
 import {
-  discardResetLink,
-  hasEarlierLiveResetLink,
-} from "@/lib/auth/live-reset-link";
-import { claimVerificationEmail } from "@/lib/auth/verification-email-marker";
+  claimResetEmail,
+  claimVerificationEmail,
+} from "@/lib/auth/email-link-marker";
 
 // One token mechanism, two wordings: "set" for OAuth-only accounts, "reset" otherwise.
 export async function dispatchResetPasswordEmail(
@@ -19,15 +18,13 @@ export async function dispatchResetPasswordEmail(
   locale: AppLocale,
 ) {
   // A live link already sits in the inbox: a repeat costs the address none of its email cap.
-  if (await hasEarlierLiveResetLink(userId, token)) {
-    await discardResetLink(token);
-    return;
-  }
+  const release = await claimResetEmail(userId, token);
+  if (!release) return;
 
   try {
     await sendResetOrSetPassword(userId, email, url, token, locale);
   } catch (error) {
-    await discardResetLink(token);
+    await release();
     throw error;
   }
 }
