@@ -171,6 +171,49 @@ describe("scrubSensitiveData on form-encoded bodies and session headers", () => 
   });
 });
 
+describe("scrubString on session cookies and bearer tokens in text", () => {
+  it("filters every better-auth cookie value, with or without the secure prefix", () => {
+    expect(
+      scrubString(
+        "Cookie: NEXT_LOCALE=en; __Secure-better-auth.session_token=abc.sig; better-auth.session_data=eyJ; better-auth.dont_remember=true",
+      ),
+    ).toBe(
+      "Cookie: NEXT_LOCALE=en; __Secure-better-auth.session_token=[Filtered]; better-auth.session_data=[Filtered]; better-auth.dont_remember=[Filtered]",
+    );
+  });
+
+  it("filters the token in a Set-Cookie line and keeps its attributes", () => {
+    expect(
+      scrubString(
+        "set-cookie: __Host-better-auth.session_token=abc; Path=/; HttpOnly",
+      ),
+    ).toBe(
+      "set-cookie: __Host-better-auth.session_token=[Filtered]; Path=/; HttpOnly",
+    );
+  });
+
+  it("filters a bearer token wherever it appears", () => {
+    expect(
+      scrubString("request failed with Authorization: Bearer eyJh.eyJz.c2ln"),
+    ).toBe("request failed with Authorization: Bearer [Filtered]");
+    expect(scrubString('{"auth":"bearer abc-123_x~+/="}')).toBe(
+      '{"auth":"bearer [Filtered]"}',
+    );
+  });
+
+  it("filters cookies sent as header tuples", () => {
+    const event = {
+      request: {
+        headers: [["x-session", "better-auth.session_token=abc"]],
+      },
+    };
+
+    expect(scrubSensitiveData(event).request.headers).toEqual([
+      ["x-session", "better-auth.session_token=[Filtered]"],
+    ]);
+  });
+});
+
 describe("scrubSensitiveData on the sign-in body", () => {
   it("filters the password a breached password timeout event carries", () => {
     const event = {
