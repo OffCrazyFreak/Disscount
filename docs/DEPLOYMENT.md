@@ -201,7 +201,7 @@ All four are **optional**. If any one is blank the backend runs without photos (
 - **Cloudflare to VPS (origin):** Traefik's **Let's Encrypt** cert. Cloudflare SSL mode = **Full (strict)**, which means Cloudflare verifies the origin's real cert.
 - **Cert renewal (~every 60 days):** Traefik renews via an HTTP-01 challenge, which still works _through_ Cloudflare. If a renewal ever fails (you'd see a cert-expiry warning), flip that record to **DNS-only** for a few minutes so it renews, then re-proxy. (Bulletproof alternative: Cloudflare **DNS-01** challenge in Traefik, see [TODOs](#14-future-improvements--todos).)
 
-> 💡 **Why grey-cloud first for new certs:** Let's Encrypt validates by hitting the domain on port 80. Set a new subdomain to **DNS only** so the challenge reaches the VPS, let the cert issue, _then_ optionally flip it to Proxied + Full(strict).
+> 💡 **Why grey-cloud first for new certs:** Let's Encrypt validates by hitting the domain on port 80. Set a new subdomain to **DNS only** so the challenge reaches the VPS, let the cert issue, _then_ optionally flip it to Proxied + Full(strict). This stops working once the firewall only admits Cloudflare (see [Client IP and rate limiting](#client-ip-and-rate-limiting)).
 
 **Adding a domain to a service:** done in **Dokploy, service, Domains** (Host + Service + Container Port + HTTPS/Let's Encrypt). ⚠️ For **Compose** services you must **redeploy once** afterward so the Traefik routing labels actually attach to the container.
 
@@ -243,6 +243,18 @@ It began in monitor mode (`p=none`) and moved to `p=quarantine` once the aggrega
 | **Cloudflare proxy**                         | Hides the origin IP + DDoS protection for proxied records.                                                                                                        |
 
 Other: **4 GB swap** for build headroom; the Dokploy admin panel is reachable only via its HTTPS domain (login-protected), not the raw `:3000` port.
+
+### Client IP and rate limiting
+
+The app keys its rate limits on the visitor's address, read from Cloudflare's `CF-Connecting-IP` header. It trusts that header only when the last `X-Forwarded-For` hop, which Traefik always writes as the peer it accepted the connection from, is a Cloudflare address; any other caller is keyed on its own address. How the frontend and backend apply this, and what the limits are, is in [AUTH.md](AUTH.md#83-rate-limits-and-the-visitors-address).
+
+The app check works on its own, but these owner steps finish the job. None of them is done yet:
+
+1. **Hetzner Cloud Firewall** (`disscount-web`): change the inbound TCP 80 and 443 rules from "any" to Cloudflare's IPv4 and IPv6 ranges from https://www.cloudflare.com/ips/, leaving 22 as it is. Then a direct request to `YOUR_VPS_IP` with a made-up `CF-Connecting-IP` should time out, while the site still loads through Cloudflare.
+2. **Cloudflare rate limiting rule** (free plan, one rule): POST requests to the auth paths, counted by IP, more than 20 requests in 10 seconds, block for 10 seconds. The exact expression is deliberately not published here.
+3. **Optional, Traefik `forwardedHeaders.trustedIPs`**: Dokploy's static config (`/etc/dokploy/traefik/traefik.yml`, Traefik v3) has no `forwardedHeaders` block, so Traefik discards incoming `X-Forwarded-*` headers. Listing Cloudflare's ranges under `entryPoints.web.forwardedHeaders.trustedIPs` and `entryPoints.websecure.forwardedHeaders.trustedIPs` keeps Cloudflare's own `X-Forwarded-For` chain. The app does not need it, because the last hop is the same either way.
+
+> ⚠️ **After step 1, new subdomains need DNS-01 certificates.** Let's Encrypt's HTTP-01 check connects from its own servers, which the firewall then refuses, so the grey-cloud trick in [§6](#6-domains-dns--https) stops working. Set up the Cloudflare DNS-01 challenge in Traefik (see [TODOs](#14-future-improvements--todos)) before adding a domain. Renewals for the proxied domains still reach the origin through Cloudflare, but watch the first one after the change.
 
 ### Nightly updates and reboots
 
@@ -466,7 +478,7 @@ flowchart LR
 
 **Step-by-step:**
 
-1. **DNS** (Cloudflare): add `something.disscount.me`, A, `YOUR_VPS_IP`, **DNS only (grey)** first (so the cert can issue), proxy later if you want.
+1. **DNS** (Cloudflare): add `something.disscount.me`, A, `YOUR_VPS_IP`, **DNS only (grey)** first (so the cert can issue), proxy later if you want. Once the firewall only admits Cloudflare this needs DNS-01 instead (see [Client IP and rate limiting](#client-ip-and-rate-limiting)).
 2. **Create the app in Dokploy:**
    - **Templates** (easiest): Dokploy has a one-click **Umami** template (and Plausible, etc.). Create, pick the template, it sets up the app + its DB.
    - **From a Docker image:** Create, Application, set the image + env.
@@ -508,7 +520,7 @@ These are the things that actually cost us time, worth remembering:
 **Security / housekeeping**
 
 - [ ] **IP-filter the R2 API token** to the VPS egress IP (least privilege).
-- [ ] **Before serious traffic:** add Cloudflare rate-limiting (free plan includes one rule) on the auth and API routes, then app-level rate limiting in Spring Boot. (Keep the exact endpoint list in a private note, not in this public doc.)
+- [ ] **Before serious traffic:** add the Cloudflare rate limiting rule (free plan includes one rule) and restrict the Hetzner firewall to Cloudflare, as listed in [Client IP and rate limiting](#client-ip-and-rate-limiting). The app-level limits (Better Auth, per-recipient email cap, contact form) are in place. The exact endpoint list is deliberately not published here.
 
 **Reliability / ops**
 

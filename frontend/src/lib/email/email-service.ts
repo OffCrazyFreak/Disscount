@@ -1,5 +1,9 @@
 import { IEmailMessage, IEmailProvider } from "@/lib/email/provider";
 import { buildActionEmail } from "@/lib/email/email-copy";
+import {
+  IRecipientSendGate,
+  RecipientCapReachedError,
+} from "@/lib/email/recipient-send-cap";
 import type { AppLocale } from "@/i18n/locales";
 import VerificationEmail from "@/emails/_templates/verification-email";
 import PasswordResetEmail from "@/emails/_templates/password-reset-email";
@@ -21,12 +25,32 @@ interface IChangeEmailArgs extends ITokenEmailArgs {
 
 // Call sites depend on this, not on Resend, so a provider swap touches only ./index.
 export class EmailService {
-  constructor(private readonly provider: IEmailProvider) {}
+  constructor(
+    private readonly provider: IEmailProvider,
+    private readonly recipientGate: IRecipientSendGate,
+  ) {}
 
   // Provider returns { error } instead of throwing; surface it so .catch(logEmailFailure) fires.
+  // A spent recipient cap throws the same way, so callers stay silent and enumeration-safe.
   private async send(message: IEmailMessage): Promise<void> {
+    if (!(await this.recipientGate.tryReserve(message.to)))
+      throw new RecipientCapReachedError();
+
     const { error } = await this.provider.send(message);
-    if (error) throw new Error(error);
+    if (error) {
+      // The provider's error is the one worth logging, not a failed give-back.
+      await this.recipientGate
+        .release(message.to)
+        .catch((releaseError: unknown) =>
+          console.warn(
+            "Failed to release a recipient email slot:",
+            releaseError instanceof Error
+              ? releaseError.name
+              : typeof releaseError,
+          ),
+        );
+      throw new Error(error);
+    }
   }
 
   async sendVerificationEmail({ to, locale, url, token }: ITokenEmailArgs) {

@@ -5,6 +5,8 @@ import {
   timestamp,
   boolean,
   uuid,
+  bigint,
+  integer,
   index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
@@ -107,6 +109,16 @@ export const jwks = pgTable("jwks", {
   privateKey: text("private_key").notNull(),
   createdAt: timestamp("created_at").notNull(),
   expiresAt: timestamp("expires_at"),
+});
+
+// better-auth's rateLimit model (rateLimit.storage "database"); keys are "<ip>|<path>".
+export const rateLimit = pgTable("rate_limit", {
+  id: uuid("id")
+    .default(sql`pg_catalog.gen_random_uuid()`)
+    .primaryKey(),
+  key: text("key").notNull().unique(),
+  count: integer("count").notNull(),
+  lastRequest: bigint("last_request", { mode: "number" }).notNull(),
 });
 
 export const userRelations = relations(user, ({ many }) => ({
