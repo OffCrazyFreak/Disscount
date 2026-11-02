@@ -99,6 +99,7 @@ export default function ProductsClient({ query }: IProductsClientProps) {
         hasError={Boolean(pageError)}
         total={total}
         isTruncated={isTruncated}
+        noPriceLocations={hasMatchesOutsideLocations ? selectedLocations : []}
       />
 
       {showPartialPricesBanner && (

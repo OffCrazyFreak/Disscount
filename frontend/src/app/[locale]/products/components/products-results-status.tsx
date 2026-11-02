@@ -1,4 +1,4 @@
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 
 interface IProductsResultsStatusProps {
   query: string;
@@ -6,6 +6,8 @@ interface IProductsResultsStatusProps {
   hasError: boolean;
   total: number;
   isTruncated: boolean;
+  /** Places with no price for a search that matches elsewhere, empty otherwise */
+  noPriceLocations: string[];
 }
 
 /**
@@ -18,9 +20,22 @@ export default function ProductsResultsStatus({
   hasError,
   total,
   isTruncated,
+  noPriceLocations,
 }: IProductsResultsStatusProps) {
   const t = useTranslations("products.list");
+  const format = useFormatter();
   const hasSettledResults = Boolean(query) && !isPending && !hasError;
+
+  if (hasSettledResults && total === 0 && noPriceLocations.length > 0) {
+    return (
+      <p role="status" className="sr-only">
+        {t("noPriceInLocationsText", {
+          count: noPriceLocations.length,
+          locations: format.list(noPriceLocations, { type: "conjunction" }),
+        })}
+      </p>
+    );
+  }
 
   return (
     <p role="status" className="sr-only">

@@ -31,13 +31,14 @@ const sugar = {
 
 function serveSearch(
   locationPrices: Record<string, { min: number; max: number }>,
+  partial = false,
 ) {
   server.use(
     http.get("*/api/cijene/products", () =>
       HttpResponse.json({ products: [sugar] }),
     ),
     http.get("*/api/cijene/location-prices", () =>
-      HttpResponse.json({ prices: locationPrices, partial: false }),
+      HttpResponse.json({ prices: locationPrices, partial }),
     ),
   );
 }
@@ -84,6 +85,18 @@ describe("useInfiniteProducts outside the selected locations", () => {
     );
 
     await waitFor(() => expect(result.current.total).toBe(1));
+    expect(result.current.hasMatchesOutsideLocations).toBe(false);
+  });
+
+  it("reports none when a selected city failed to answer", async () => {
+    serveSearch({}, true);
+
+    const { result } = renderHookWithProviders(() =>
+      useInfiniteProducts("šećer", inDakovo),
+    );
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.hasPartialPriceData).toBe(true);
     expect(result.current.hasMatchesOutsideLocations).toBe(false);
   });
 });

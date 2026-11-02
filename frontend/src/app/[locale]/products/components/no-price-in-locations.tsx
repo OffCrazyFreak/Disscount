@@ -20,21 +20,19 @@ export default function NoPriceInLocations({
 
   return (
     <div>
-      <div role="status">
-        <NoResults
-          icon={
-            <MapPinOff
-              aria-hidden="true"
-              className="size-12 text-gray-400 mx-auto mb-4"
-            />
-          }
-          title={t("noPriceInLocationsTitle", { count: locations.length })}
-          description={t("noPriceInLocationsText", {
-            count: locations.length,
-            locations: format.list(locations, { type: "conjunction" }),
-          })}
-        />
-      </div>
+      <NoResults
+        icon={
+          <MapPinOff
+            aria-hidden="true"
+            className="size-12 text-gray-400 mx-auto mb-4"
+          />
+        }
+        title={t("noPriceInLocationsTitle", { count: locations.length })}
+        description={t("noPriceInLocationsText", {
+          count: locations.length,
+          locations: format.list(locations, { type: "conjunction" }),
+        })}
+      />
 
       <div className="text-center">
         <Button type="button" variant="outline" onClick={onShowAllLocations}>

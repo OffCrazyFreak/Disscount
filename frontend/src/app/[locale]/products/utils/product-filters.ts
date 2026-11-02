@@ -125,6 +125,7 @@ interface ISelectedFilters {
   selectedLocations: string[];
   selectedCategories: string[];
   selectedBrands: string[];
+  isPriceDataPartial: boolean;
 }
 
 /**
@@ -138,9 +139,11 @@ export function hasMatchOutsideLocations(
     selectedLocations,
     selectedCategories,
     selectedBrands,
+    isPriceDataPartial,
   }: ISelectedFilters,
 ): boolean {
-  if (selectedLocations.length === 0) return false;
+  // A city that failed to answer may price these products, so only a complete answer proves none do
+  if (selectedLocations.length === 0 || isPriceDataPartial) return false;
 
   const allowedChains = selectedChains.length > 0 ? selectedChains : null;
 

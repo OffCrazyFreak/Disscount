@@ -33,12 +33,14 @@ describe("ProductsResults with no price in the selected places", () => {
     const user = userEvent.setup();
     const { showAllLocations, clearFilters } = renderEmptyResults(true);
 
-    expect(screen.getByRole("status")).toHaveTextContent(
-      "Nema cijena u odabranim mjestima",
-    );
-    expect(screen.getByRole("status")).toHaveTextContent(
-      "nijedna trgovina u mjestima Đakovo i Osijek nema objavljenu cijenu",
-    );
+    expect(
+      screen.getByText("Nema cijena u odabranim mjestima"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /nijedna trgovina u mjestima Đakovo i Osijek nema objavljenu cijenu/,
+      ),
+    ).toBeInTheDocument();
 
     await user.click(
       screen.getByRole("button", {

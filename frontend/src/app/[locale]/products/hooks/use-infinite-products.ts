@@ -128,6 +128,7 @@ export default function useInfiniteProducts(
     selectedLocations,
     selectedCategories,
     selectedBrands,
+    isPriceDataPartial: hasPartialError,
   });
 
   const visibleItems = useMemo(() => {
