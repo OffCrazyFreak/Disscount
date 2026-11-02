@@ -1,0 +1,123 @@
+# Image-based stack for Dokploy: GitHub Actions builds and pushes the images to GHCR, so the
+# server only pulls them. Same services, networks and environment as docker-compose.prod.yml,
+# which the environments not yet moved to this file keep building on the server.
+# IMAGE_TAG is the moving tag per environment (dev or prod); /health reports the exact commit.
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # One-shot drizzle migration (better-auth tables); Hibernate creates the app tables.
+  migrate:
+    image: ghcr.io/offcrazyfreak/disscount-migrator:${IMAGE_TAG:?IMAGE_TAG must be set}
+    # The tag moves, so a cached copy would silently redeploy the previous build.
+    pull_policy: always
+    restart: "no"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    networks: [internal]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  backend:
+    image: ghcr.io/offcrazyfreak/disscount-backend:${IMAGE_TAG:?IMAGE_TAG must be set}
+    pull_policy: always
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      BETTER_AUTH_JWKS_URI: ${BETTER_AUTH_JWKS_URI}
+      BETTER_AUTH_ISSUER: ${BETTER_AUTH_ISSUER}
+      SENTRY_DSN: ${SENTRY_DSN}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT}
+      # Verbose SDK init/transport logging for debugging; leave unset normally
+      SENTRY_DEBUG: ${SENTRY_DEBUG:-false}
+      # Card photos in a private R2 bucket; blank disables photos.
+      R2_ENDPOINT: ${R2_ENDPOINT:-}
+      R2_BUCKET: ${R2_BUCKET:-}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
+    networks: [internal]
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:8080/actuator/health || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    image: ghcr.io/offcrazyfreak/disscount-frontend:${IMAGE_TAG:?IMAGE_TAG must be set}
+    pull_policy: always
+    restart: unless-stopped
+    environment:
+      # Runtime secrets (server-only)
+      DATABASE_URL: ${DATABASE_URL}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      FACEBOOK_CLIENT_ID: ${FACEBOOK_CLIENT_ID}
+      FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_SECRET}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      EMAIL_FROM: ${EMAIL_FROM}
+      CIJENE_API_URL: ${CIJENE_API_URL}
+      CIJENE_API_TOKEN: ${CIJENE_API_TOKEN}
+      GEOAPIFY_API_KEY: ${GEOAPIFY_API_KEY:-}
+      # NEXT_PUBLIC_* also read server-side at runtime
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
+      NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+      NEXT_PUBLIC_ENABLE_REACT_SCAN: ${NEXT_PUBLIC_ENABLE_REACT_SCAN}
+    expose:
+      - "3000"
+    networks: [internal, dokploy-network]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      backend:
+        condition: service_healthy
+
+networks:
+  internal:
+  dokploy-network:
+    external: true
+
+volumes:
+  pgdata:
