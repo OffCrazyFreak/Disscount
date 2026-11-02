@@ -1,5 +1,6 @@
 package disscount.exceptions;
 
+import disscount.config.SentryReleaseConfig;
 import io.sentry.ITransportFactory;
 import io.sentry.NoOpTransportFactory;
 import io.sentry.SentryEvent;
@@ -21,8 +22,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(
-        classes = {GlobalExceptionHandler.class, GlobalExceptionHandlerSentryTest.CapturedEvents.class},
-        properties = "sentry.dsn=https://key@sentry.invalid/1")
+        classes = {GlobalExceptionHandler.class, SentryReleaseConfig.class, GlobalExceptionHandlerSentryTest.CapturedEvents.class},
+        properties = {"sentry.dsn=https://key@sentry.invalid/1", "GIT_SHA=0123abcd"})
 @ImportAutoConfiguration({SentryAutoConfiguration.class, SentryLogbackAppenderAutoConfiguration.class})
 class GlobalExceptionHandlerSentryTest {
 
@@ -54,13 +55,15 @@ class GlobalExceptionHandlerSentryTest {
     }
 
     @Test
-    void anUnhandledExceptionTurnedInto500IsReported() {
+    void anUnhandledExceptionTurnedInto500IsReportedWithTheCommitAsRelease() {
         IllegalStateException failure = new IllegalStateException("boom");
 
         assertThat(handler.handleGenericException(failure).getStatus()).isEqualTo(500);
 
-        assertThat(captured.events).singleElement()
-                .satisfies(event -> assertThat(event.getThrowable()).isSameAs(failure));
+        assertThat(captured.events).singleElement().satisfies(event -> {
+            assertThat(event.getThrowable()).isSameAs(failure);
+            assertThat(event.getRelease()).isEqualTo("0123abcd");
+        });
     }
 
     @Test
