@@ -104,17 +104,17 @@ Disscount ships a Web App Manifest and a registered service worker, which togeth
 
 A Next.js dynamic manifest (a function returning `MetadataRoute.Manifest`) served at `/manifest.webmanifest`. Key fields:
 
-| Field              | Value                                                     | Why                                                                                                                |
-| ------------------ | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `display`          | `standalone`                                              | opens without browser chrome, like an app                                                                          |
-| `orientation`      | `portrait`                                                | shopping is a phone-in-hand, portrait activity (also means we only need portrait splash screens)                   |
-| `background_color` | `#ffffff`                                                 | the splash background while the app boots (white, to match the iOS launch screens)                                 |
-| `theme_color`      | `#ffffff`                                                 | neutral title bar (the light/dark pair is set in `layout.tsx` `viewport.themeColor`)                               |
-| `icons`            | 192 + 512 `any`, and 192 + 512 **maskable**               | maskable avoids the icon being shrunk onto Android's own white plate; see [Icon sizing](#icon-sizing)              |
-| `shortcuts`        | Skeniraj, then `shortcutNavIds` filtered by `!comingSoon` | long-press the icon to scan a barcode or jump to Shopping lists / Watchlist; see [App shortcuts](#app-shortcuts)   |
-| `screenshots`      | one `narrow` + one `wide` (each `label`ed)                | Chrome's richer, app-store-like install dialog                                                                     |
-| `share_target`     | GET to `/share-target`                                    | registers Disscount in the system share sheet; the route handler funnels shared text/title/url into `/products?q=` |
-| `launch_handler`   | `{ client_mode: "navigate-existing" }`                    | reuse an open window instead of spawning a duplicate, **and** navigate it to the shortcut's url                    |
+| Field              | Value                                                     | Why                                                                                                                  |
+| ------------------ | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `display`          | `standalone`                                              | opens without browser chrome, like an app                                                                            |
+| `orientation`      | `portrait`                                                | shopping is a phone-in-hand, portrait activity (also means we only need portrait splash screens)                     |
+| `background_color` | `#ffffff`                                                 | the splash background while the app boots (white, to match the iOS launch screens)                                   |
+| `theme_color`      | `#ffffff`                                                 | neutral title bar (the light/dark pair is set in `layout.tsx` `viewport.themeColor`)                                 |
+| `icons`            | 192 + 512 `any`, and 192 + 512 **maskable**               | maskable avoids the icon being shrunk onto Android's own white plate; see [Icon sizing](#icon-sizing)                |
+| `shortcuts`        | Skeniraj, then `shortcutNavIds` filtered by `!comingSoon` | long-press the icon to scan a barcode or jump to Shopping lists / Loyalty cards; see [App shortcuts](#app-shortcuts) |
+| `screenshots`      | one `narrow` + one `wide` (each `label`ed)                | Chrome's richer, app-store-like install dialog                                                                       |
+| `share_target`     | GET to `/share-target`                                    | registers Disscount in the system share sheet; the route handler funnels shared text/title/url into `/products?q=`   |
+| `launch_handler`   | `{ client_mode: "navigate-existing" }`                    | reuse an open window instead of spawning a duplicate, **and** navigate it to the shortcut's url                      |
 
 Icons are generated from the happy-cart source (`public/brand/logo/cart/cart-rgb.svg`) by `scripts/generate-pwa-icons.mjs` (uses `sharp`), into `public/brand/icons` (plus the legacy `src/app/favicon.ico`). See `docs/BRAND.md` for the full asset map.
 
@@ -176,7 +176,7 @@ Karta is not emitted yet because it has no `shortcutDescriptionKey`, and Potroš
 
 That "Site settings" entry and its black gear come from Chrome, not from us. No manifest key can recolour, reorder or remove it.
 
-**Icons.** Chrome accepts **PNG only** here and asks for 192x192. `scripts/generate-shortcut-icons.mjs` renders the same `lucide-react` component the nav uses through `renderToStaticMarkup`, then rasterizes it with `sharp` into `public/brand/shortcuts/`: a white glyph on a brand-green tile, glyph at 66% (see [Icon sizing](#icon-sizing)). Rendering the component rather than a copied path is what keeps a shortcut icon from drifting away from its nav icon. `constants/pwa-shortcuts.ts` derives each `src` from the nav item's `id` and emits a shortcut only for a released item that carries a `shortcutDescription`, so a missing description drops the shortcut rather than shipping one with no accessible name. Adding a shortcut therefore takes three manual steps: put its id in `shortcutNavIds` at the right position, give it a `shortcutDescriptionKey` in `constants/navigation.ts` if it has none, and add its glyph to `generate-shortcut-icons.mjs` and re-run it. Dropping the `comingSoon` flag does the rest. `constants/pwa-shortcuts.test.ts` fails if a listed shortcut is missing either tile.
+**Icons.** Chrome accepts **PNG only** here and asks for 192x192. `scripts/generate-shortcut-icons.mjs` renders the same `lucide-react` component the nav uses through `renderToStaticMarkup`, then rasterizes it with `sharp` into `public/brand/shortcuts/`: a white glyph on a brand-green tile, glyph at 66% (see [Icon sizing](#icon-sizing)). Rendering the component rather than a copied path is what keeps a shortcut icon from drifting away from its nav icon. `constants/pwa-shortcuts.ts` derives each `src` from the nav item's `id` and emits a shortcut only for a released item that carries a `shortcutDescriptionKey`, so a missing description drops the shortcut rather than shipping one with no accessible name. Adding a shortcut therefore takes three manual steps: put its id in `shortcutNavIds` at the right position, give it a `shortcutDescriptionKey` in `constants/navigation.ts` if it has none, and add its glyph to `generate-shortcut-icons.mjs` and re-run it. Dropping the `comingSoon` flag does the rest. `constants/pwa-shortcuts.test.ts` fails if a listed shortcut is missing either tile.
 
 **Each shortcut ships two tiles**, because one image cannot do both jobs:
 
