@@ -13,6 +13,7 @@
     "copied": "Povezava je kopirana",
     "failed": "Deljenje ni uspelo"
   },
+  "toaster": { "label": "Sporočila" },
   "offline": {
     "writeFailed": "Spremembe ni bilo mogoče shraniti. Poskusi znova.",
     "writeFailedLostAccess": "Spremembe ni bilo mogoče shraniti. Morda nimaš več dostopa do tega seznama.",

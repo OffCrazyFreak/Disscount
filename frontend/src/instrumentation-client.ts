@@ -26,8 +26,6 @@ Sentry.init({
   // 100% of traces in dev, 10% in production
   tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
 
-  enableLogs: true,
-
   // Session Replay: 1% of sessions, 100% of sessions with an error. The two rates are
   // decided in sequence rather than independently: the session one runs first, and the
   // error buffer only applies to the sessions it skipped. So the session rate is the one
