@@ -84,7 +84,13 @@ export default function ProductChainsSection({
             </Link>
           </div>
 
-          <DistanceSortNote id={sortNoteId} state={detail.distanceState} />
+          <DistanceSortNote
+            id={sortNoteId}
+            state={detail.distanceState}
+            origin={detail.distanceOrigin}
+            towns={detail.distanceTowns}
+            onPickTown={detail.sortFromTown}
+          />
 
           {detail.sortedChains.map((chain) => (
             <StoreItem

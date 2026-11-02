@@ -1,8 +1,9 @@
 "use client";
 
+import { useDistanceOrigin } from "@/hooks/use-distance-origin";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useStoreDirectory } from "@/lib/api/store-directory";
-import { useGeolocation } from "@/app/[locale]/map/hooks/use-geolocation";
+import { useGeolocation } from "@/hooks/use-geolocation";
 import { useMapDefaults } from "@/app/[locale]/map/hooks/use-map-defaults";
 import {
   ALL_CHAINS,
@@ -22,19 +23,20 @@ import { isVisitableStore } from "@/app/[locale]/map/utils/visitable-store";
 export function useMapViewModel(ipLocation: IIpLocation | null) {
   const directory = useStoreDirectory();
   const url = useMapUrlState();
-  const geolocation = useGeolocation(ipLocation);
+  const geolocation = useGeolocation(ipLocation, { watchWhenAllowed: true });
   const { search } = useSearchNavigation("/map", { shallow: true });
 
   const stores = (directory.data?.stores ?? []).filter(isVisitableStore);
 
   const defaults = useMapDefaults(stores);
   const chains = url.chainFilter ?? defaults.defaultChains ?? ALL_CHAINS;
+  const { town } = useDistanceOrigin(stores, geolocation.position);
 
-  // A guess the user asked for by tapping near-me beats their pinned place.
   const origin = resolveMapOrigin(
     geolocation.position,
-    geolocation.guess ?? ipLocation,
-    defaults.placeCenter != null && !geolocation.guess,
+    geolocation.guess,
+    town,
+    ipLocation,
   );
 
   const { listed, mappable, unplacedCount } = useVisibleStores({
@@ -57,7 +59,7 @@ export function useMapViewModel(ipLocation: IIpLocation | null) {
     mappable,
     unplacedCount,
     selected: findSelectedStore(stores, url.selectedKey, origin),
-    initialView: resolveInitialView(defaults.placeCenter, ipLocation),
+    initialView: resolveInitialView(town, ipLocation),
     origin,
     geolocation,
     recentSearches: recent.recent,

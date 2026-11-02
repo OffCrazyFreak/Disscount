@@ -1,4 +1,4 @@
-import type { IGpsPosition } from "@/app/[locale]/map/hooks/use-geolocation";
+import type { IGpsPosition } from "@/hooks/use-geolocation";
 import { ILatLon } from "@/utils/distance";
 
 // Android and iOS "approximate" grants are 2 km or coarser: that pins a town,
@@ -12,13 +12,16 @@ export interface IMapOrigin {
 }
 
 /**
- * GPS beats everything. Without it the IP guess sorts the list, unless the
- * user pinned a place: that is their own choice and beats a guess.
+ * GPS beats everything, then the guess a near-me tap fell back to. Without
+ * either, a picked or saved town sorts the list: that is the user's own
+ * choice and beats the IP guess. None of these is precise enough for a
+ * kilometre figure.
  */
 export function resolveMapOrigin(
   gps: IGpsPosition | null,
+  tapGuess: ILatLon | null,
+  town: ILatLon | null,
   ip: ILatLon | null,
-  hasPinnedPlace: boolean,
 ): IMapOrigin {
   if (gps) {
     return {
@@ -27,12 +30,10 @@ export function resolveMapOrigin(
     };
   }
 
-  if (ip && !hasPinnedPlace) {
-    return {
-      origin: { lat: ip.lat, lon: ip.lon },
-      showDistances: false,
-    };
-  }
+  const fallback = tapGuess ?? town ?? ip;
 
-  return { origin: null, showDistances: false };
+  return {
+    origin: fallback ? { lat: fallback.lat, lon: fallback.lon } : null,
+    showDistances: false,
+  };
 }

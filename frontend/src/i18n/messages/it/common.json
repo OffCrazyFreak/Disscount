@@ -167,10 +167,18 @@
   "distanceSort": {
     "locating": "Stiamo cercando la tua posizione per ordinare per distanza…",
     "ready": "Ordinato per distanza dalla tua posizione. Non la salviamo né la inviamo.",
+    "readyFromTown": "Ordinato per distanza dal centro di {town}.",
+    "readyFromSavedPlace": "La tua posizione non è disponibile, quindi l'ordine segue la distanza da {town} (il tuo luogo salvato).",
     "denied": "L'accesso alla posizione è bloccato, quindi resta l'ordine predefinito. Consentilo nelle impostazioni del browser e scegli di nuovo la distanza.",
     "unavailable": "La tua posizione non è disponibile al momento, quindi resta l'ordine predefinito. Scegli di nuovo la distanza per riprovare.",
     "timeout": "Non riusciamo a determinare la tua posizione, quindi resta l'ordine predefinito. Controlla che la localizzazione sia attiva sul dispositivo e scegli di nuovo la distanza.",
     "noStores": "Le posizioni dei negozi non sono disponibili al momento, quindi resta l'ordine predefinito.",
-    "nearest": "Negozio più vicino: {distance}"
+    "nearest": "Negozio più vicino: {distance}",
+    "pickTown": "Scegli una località",
+    "changeTown": "Cambia",
+    "changeTownLabel": "Cambia località",
+    "townSearch": "Cerca una località o un CAP",
+    "townList": "Località con negozi",
+    "townEmpty": "Nessuna località con negozi corrisponde."
   }
 }

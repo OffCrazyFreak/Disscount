@@ -1,8 +1,9 @@
-import { act, waitFor } from "@testing-library/react";
+import { act, cleanup, waitFor } from "@testing-library/react";
 import { QueryClient } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw/http";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { useDistanceOrigin } from "@/hooks/use-distance-origin";
 import { useDistanceSort } from "@/hooks/use-distance-sort";
 import type { StorePrice } from "@/lib/cijene-api/schemas";
 import { server } from "@/test/msw-server";
@@ -34,6 +35,9 @@ function pricedAt(chain: string, code: string) {
   } satisfies StorePrice;
 }
 
+let user: { pinnedPlaces?: { placeApiId: string }[] } | null = null;
+vi.mock("@/context/user-context", () => ({ useUser: () => ({ user }) }));
+
 const DENIED = 1;
 const ZAGREB = { latitude: 45.81, longitude: 15.98 };
 
@@ -51,35 +55,73 @@ const directory = {
       lon: 15.97,
       locationSource: "upstream",
     },
+    {
+      chain: "spar",
+      code: "2",
+      type: null,
+      address: null,
+      city: "Zagreb",
+      zipcode: "10000",
+      phone: null,
+      lat: 45.81,
+      lon: 15.98,
+      locationSource: "upstream",
+    },
+    {
+      chain: "studenac",
+      code: "3",
+      type: null,
+      address: null,
+      city: "Split",
+      zipcode: "21000",
+      phone: null,
+      lat: 43.51,
+      lon: 16.44,
+      locationSource: "upstream",
+    },
   ],
   generatedAt: "2026-01-01T00:00:00.000Z",
 };
 
 // The browser API is a boundary the suite cannot run: each test decides how
-// the one request answers.
+// the watch answers.
 function fakeGeolocation() {
   let success: PositionCallback = () => {};
   let failure: PositionErrorCallback = () => {};
-  const getCurrentPosition = vi.fn(
+  const watchPosition = vi.fn(
     (onSuccess: PositionCallback, onError: PositionErrorCallback) => {
       success = onSuccess;
       failure = onError;
+      return 1;
     },
   );
 
   vi.stubGlobal("navigator", {
     ...navigator,
-    geolocation: { getCurrentPosition },
+    geolocation: {
+      watchPosition,
+      clearWatch: vi.fn(),
+      getCurrentPosition: vi.fn(),
+    },
+    permissions: {
+      query: () => Promise.resolve({ state: "prompt", onchange: null }),
+    },
   });
 
   return {
-    getCurrentPosition,
-    fix: () => act(() => success({ coords: ZAGREB } as GeolocationPosition)),
+    watchPosition,
+    fix: () =>
+      act(() =>
+        success({
+          coords: { ...ZAGREB, accuracy: 20 },
+        } as GeolocationPosition),
+      ),
     deny: () =>
       act(() =>
         failure({
           code: DENIED,
           PERMISSION_DENIED: DENIED,
+          POSITION_UNAVAILABLE: 2,
           TIMEOUT: 3,
           message: "",
         } as GeolocationPositionError),
@@ -103,6 +145,12 @@ describe("useDistanceSort", () => {
   });
 
   afterEach(() => {
+    // Unmount first: the hook clears its watch on the stubbed navigator.
+    cleanup();
+    user = null;
+    renderHookWithProviders(() =>
+      useDistanceOrigin(undefined, null),
+    ).result.current.pickTown(null);
     vi.unstubAllGlobals();
   });
 
@@ -110,9 +158,9 @@ describe("useDistanceSort", () => {
     const geo = fakeGeolocation();
     const { result } = mount();
 
-    expect(geo.getCurrentPosition).not.toHaveBeenCalled();
+    expect(geo.watchPosition).not.toHaveBeenCalled();
     act(() => result.current.choose("distance"));
-    expect(geo.getCurrentPosition).toHaveBeenCalledOnce();
+    expect(geo.watchPosition).toHaveBeenCalledOnce();
   });
 
   it("keeps the fallback order until the location and stores are in", async () => {
@@ -129,15 +177,15 @@ describe("useDistanceSort", () => {
     expect(result.current.distanceByChain?.get("konzum")).toBeCloseTo(1.4, 0);
   });
 
-  it("returns to the fallback with a reason when the location is denied", () => {
+  it("returns to the fallback with a reason when the location is denied", async () => {
     const geo = fakeGeolocation();
     const { result } = mount();
 
     act(() => result.current.choose("distance"));
     geo.deny();
 
+    await waitFor(() => expect(result.current.state).toBe("denied"));
     expect(result.current.chosen).toBe("stores");
-    expect(result.current.state).toBe("denied");
 
     act(() => result.current.choose("price"));
     expect(result.current.state).toBe("idle");
@@ -222,5 +270,57 @@ describe("useDistanceSort", () => {
 
     await waitFor(() => expect(result.current.state).toBe("ready"));
     expect(calls).toBe(2);
+  });
+
+  it("sorts from the first saved place when the location is denied", async () => {
+    user = { pinnedPlaces: [{ placeApiId: "Split" }] };
+    const geo = fakeGeolocation();
+    const { result } = mount();
+
+    act(() => result.current.choose("distance"));
+    geo.deny();
+
+    await waitFor(() => expect(result.current.state).toBe("ready"));
+    expect(result.current.chosen).toBe("distance");
+    expect(result.current.origin).toMatchObject({
+      source: "saved",
+      town: "Split",
+    });
+    expect(result.current.distanceByChain?.get("studenac")).toBeCloseTo(0, 1);
+  });
+
+  it("sorts from a town picked after the location was denied", async () => {
+    const geo = fakeGeolocation();
+    const { result } = mount();
+
+    act(() => result.current.choose("distance"));
+    geo.deny();
+    await waitFor(() => expect(result.current.state).toBe("denied"));
+    expect(result.current.towns.map((town) => town.name)).toEqual([
+      "Split",
+      "Zagreb",
+    ]);
+
+    act(() => result.current.chooseTown("Zagreb"));
+
+    await waitFor(() => expect(result.current.state).toBe("ready"));
+    expect(result.current.chosen).toBe("distance");
+    expect(result.current.origin).toMatchObject({
+      source: "picked",
+      town: "Zagreb",
+    });
+    expect(geo.watchPosition).toHaveBeenCalledOnce();
+  });
+
+  it("stops reading the position once another sort is picked", async () => {
+    const geo = fakeGeolocation();
+    const { result } = mount();
+
+    act(() => result.current.choose("distance"));
+    geo.fix();
+    await waitFor(() => expect(result.current.state).toBe("ready"));
+
+    act(() => result.current.choose("price"));
+    expect(vi.mocked(navigator.geolocation.clearWatch)).toHaveBeenCalled();
   });
 });

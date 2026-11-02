@@ -2,15 +2,17 @@
 
 import { useMemo, useState } from "react";
 import { useStoreDirectory } from "@/lib/api/store-directory";
+import type { DirectoryStoreDto } from "@/lib/api/schemas";
 import type { StorePrice } from "@/lib/cijene-api/schemas";
 import {
   locatePricedStores,
   nearestDistanceByChain,
 } from "@/utils/nearest-chain-distance";
 import {
-  useCurrentPosition,
-  type CurrentPositionStatus,
-} from "@/hooks/use-current-position";
+  useGeolocation,
+  type GeolocationStatus,
+} from "@/hooks/use-geolocation";
+import { useDistanceOrigin } from "@/hooks/use-distance-origin";
 
 export type DistanceSortState =
   | "idle"
@@ -41,17 +43,48 @@ interface IDirectoryQuery {
 }
 
 function readState(
-  locationStatus: CurrentPositionStatus,
+  locationStatus: GeolocationStatus,
+  hasOrigin: boolean,
   directory: IDirectoryQuery,
   distanceByChain: Map<string, number> | null,
 ): DistanceSortState {
-  if (locationStatus !== "located") return locationStatus;
-  if (!directory.data) {
-    return directory.isError && !directory.isFetching ? "noStores" : "locating";
+  if (locationStatus === "idle" || locationStatus === "locating") {
+    return locationStatus;
   }
+
+  const isLocated = locationStatus === "located";
+  // "approximate" needs an IP guess, which this hook never passes.
+  const locationFailure =
+    locationStatus === "denied" || locationStatus === "timeout"
+      ? locationStatus
+      : "unavailable";
+
+  if (!directory.data) {
+    if (directory.isFetching || !directory.isError) return "locating";
+
+    return isLocated ? "noStores" : locationFailure;
+  }
+  // Without a fix, a town's centre stands in once the store pins can place it.
+  // A fix revoked in the site settings leaves "located" with no position.
+  if (!hasOrigin) return locationFailure;
   if (!distanceByChain) return "locating";
 
   return distanceByChain.size > 0 ? "ready" : "noStores";
+}
+
+function measureChains(
+  lat: number | undefined,
+  lon: number | undefined,
+  stores: DirectoryStoreDto[] | undefined,
+  pricedStores: StorePrice[] | null | undefined,
+): Map<string, number> | null {
+  if (lat === undefined || lon === undefined) return null;
+  if (!stores || pricedStores === null) return null;
+
+  return nearestDistanceByChain(
+    { lat, lon },
+    pricedStores ? locatePricedStores(pricedStores, stores) : stores,
+  );
 }
 
 interface IDistanceSortOptions {
@@ -65,8 +98,9 @@ interface IDistanceSortOptions {
 /**
  * The chosen sort, and the location and store pins a "distance" sort needs,
  * fetched only once the shopper picks it. Until the location, the pins and
- * any priced stores are in, the list keeps the fallback order. When one fails
- * or no store is located, the choice returns to the fallback and the reason
+ * any priced stores are in, the list keeps the fallback order. Without a fix,
+ * distances start from a picked or saved town instead. When that fails too or
+ * no store is located, the choice returns to the fallback and the reason
  * stays until the next pick, so picking "distance" again retries.
  */
 export function useDistanceSort<TMode extends string>(
@@ -77,22 +111,24 @@ export function useDistanceSort<TMode extends string>(
   const [chosen, setChosen] = useState(initial);
   const [failure, setFailure] = useState<DistanceSortFailure | null>(null);
   const selected = chosen === "distance";
-  const location = useCurrentPosition();
+  const location = useGeolocation(null);
   const directory = useStoreDirectory({ enabled: selected });
-
-  const origin = location.position;
   const stores = directory.data?.stores;
-  const distanceByChain = useMemo(() => {
-    if (!origin || !stores || pricedStores === null) return null;
+  // Null whenever the status is a failure: only a tap with no fix can fail.
+  const { origin, towns, pickTown } = useDistanceOrigin(
+    stores,
+    location.position,
+  );
 
-    return nearestDistanceByChain(
-      origin,
-      pricedStores ? locatePricedStores(pricedStores, stores) : stores,
-    );
-  }, [origin, stores, pricedStores]);
+  const lat = origin?.lat;
+  const lon = origin?.lon;
+  const distanceByChain = useMemo(
+    () => measureChains(lat, lon, stores, pricedStores),
+    [lat, lon, stores, pricedStores],
+  );
 
   const state = selected
-    ? readState(location.status, directory, distanceByChain)
+    ? readState(location.status, origin != null, directory, distanceByChain)
     : (failure ?? "idle");
 
   // Adjusting state while rendering, as React documents for derived resets,
@@ -105,19 +141,34 @@ export function useDistanceSort<TMode extends string>(
   function choose(mode: TMode) {
     setFailure(null);
     setChosen(mode);
-    if (mode !== "distance") return;
+    // The position is read only while it orders the list.
+    if (mode !== "distance") {
+      location.clear();
+      return;
+    }
 
     // Asked on the pick itself, so the prompt follows a clear intent.
-    location.request();
+    location.locate();
     if (directory.isError) void directory.refetch();
   }
+
+  // A town is picked instead of the location, so it sorts without asking again.
+  function chooseTown(town: string) {
+    pickTown(town);
+    setFailure(null);
+    setChosen("distance" as TMode);
+  }
+
+  const isReady = state === "ready";
 
   return {
     chosen,
     choose,
+    chooseTown,
+    towns,
+    origin: isReady ? origin : null,
     state,
-    sortMode: selected && state !== "ready" ? fallback : chosen,
-    distanceByChain:
-      state === "ready" && distanceByChain ? distanceByChain : undefined,
+    sortMode: selected && !isReady ? fallback : chosen,
+    distanceByChain: (isReady && distanceByChain) || undefined,
   };
 }

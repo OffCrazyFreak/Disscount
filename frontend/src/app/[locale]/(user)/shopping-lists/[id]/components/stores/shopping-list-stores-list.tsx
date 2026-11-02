@@ -77,7 +77,13 @@ export default function ShoppingListStoreSummary({
             describedById={sortNoteId}
           />
 
-          <DistanceSortNote id={sortNoteId} state={distance.state} />
+          <DistanceSortNote
+            id={sortNoteId}
+            state={distance.state}
+            origin={distance.origin}
+            towns={distance.towns}
+            onPickTown={distance.chooseTown}
+          />
 
           {sortedChains.map((chain) => (
             <ShoppingListStoreItem
