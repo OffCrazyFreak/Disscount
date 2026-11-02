@@ -54,13 +54,21 @@ export function productMetadata({
       description,
       images: photo ?? parent.twitter?.images,
     },
-    // Translations repeat the Croatian product data around translated boilerplate,
-    // which Google treats as thin duplicates, so only Croatian is indexed.
-    ...(locale !== DEFAULT_LOCALE && {
-      robots: {
-        index: false,
-        follow: isIndexableOrigin(process.env.NEXT_PUBLIC_APP_URL),
-      },
-    }),
+    ...translatedProductRobots(locale),
+  };
+}
+
+/**
+ * Translations repeat the Croatian product data around translated boilerplate, which
+ * Google treats as thin duplicates, so only Croatian is indexed.
+ */
+export function translatedProductRobots(locale: AppLocale): Metadata {
+  if (locale === DEFAULT_LOCALE) return {};
+
+  return {
+    robots: {
+      index: false,
+      follow: isIndexableOrigin(process.env.NEXT_PUBLIC_APP_URL),
+    },
   };
 }

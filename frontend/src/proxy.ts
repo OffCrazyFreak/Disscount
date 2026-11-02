@@ -15,6 +15,15 @@ const PRODUCT_PATH = new RegExp(
   `^(?:/(${LOCALES.join("|")}))?/products/([^/]+)/?$`,
 );
 
+function hasValidEscapes(segment: string): boolean {
+  try {
+    decodeURIComponent(segment);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * loading.tsx streams a 200 before the page can look a product up, so only a check
  * here can send a real 404. It stays a shape check: the upstream lookup happens in
@@ -24,10 +33,10 @@ function malformedProductResponse(request: NextRequest): NextResponse | null {
   const match = PRODUCT_PATH.exec(request.nextUrl.pathname);
   if (!match) return null;
 
-  const id = decodeProductId(match[2]);
   // Next cannot route a broken percent escape at all, so it gets a bare 404.
-  if (id === null) return new NextResponse(null, { status: 404 });
-  if (isWellFormedProductId(id)) return null;
+  if (!hasValidEscapes(match[2]))
+    return new NextResponse(null, { status: 404 });
+  if (isWellFormedProductId(decodeProductId(match[2]))) return null;
 
   const locale = match[1] ?? DEFAULT_LOCALE;
   // Any unmatched path under the locale reaches [...rest], which renders the localised 404.

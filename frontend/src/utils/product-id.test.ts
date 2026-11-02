@@ -10,6 +10,7 @@ describe("isWellFormedProductId", () => {
     "2831201000000",
     "spar:385864",
     "djelo_vodice:012474",
+    "trgovina-krk:123",
   ])("accepts %s", (id) => {
     expect(isWellFormedProductId(id)).toBe(true);
   });
