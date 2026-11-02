@@ -53,7 +53,7 @@ The modal is public by design. `PUBLIC_MODAL_NAMES` prevents the authentication 
 
 ### Sidebar
 
-`supportNavItems` drives the `Pomoć i podrška` group in the app sidebar. The `donate` item comes after `Kontakt`, so it is discoverable without competing with shopping and account navigation. It deliberately carries no `shortcutDescription`, the field whose presence opts an item into a PWA shortcut, because voluntary support is not a core app task.
+`supportNavItems` drives the `Pomoć i podrška` group in the app sidebar. The `donate` item comes after `Kontakt`, so it is discoverable without competing with shopping and account navigation. It deliberately carries no `shortcutDescriptionKey`, the field whose presence opts an item into a PWA shortcut, because voluntary support is not a core app task.
 
 ### Footer
 
