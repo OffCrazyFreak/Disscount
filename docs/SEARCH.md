@@ -189,6 +189,8 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 
 **Client ranking cannot fix a truncated server response.** Products come back capped at 100 rows chosen by the upstream API's own opaque ranking, so `sortProductsByRelevance` only reorders what already arrived. A better match beyond the cap cannot surface.
 
+**Placeholder results are not settled results.** `useGetProductByName` keeps the previous search's products as placeholder data while the next query loads, so the list does not blank on every search. While that is on screen React Query reports `isLoading` false, so `useInfiniteProducts` exposes `isRefreshing` (`isPlaceholderData`), and the products page holds the count in the title and the screen reader status back until it clears; the grid is dimmed and `aria-busy` meanwhile. A previous search that found nothing is not carried over, because its empty state would read as the answer to the new query.
+
 ## 11. Future improvements & TODOs
 
 - **Sorting rework** (in sprint on the roadmap). The comparator layer in `rank.ts` exists for this. The item asks for sort-by controls on products, the watchlist and shopping lists, with the default product order being match ranking, then popularity, then chain count, then location count. The first three terms are already expressible; **popularity does not exist yet** and needs a backend counter over watchlists and shopping lists, deduplicated per user so one person cannot inflate it.
