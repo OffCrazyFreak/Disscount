@@ -271,6 +271,15 @@ class ProductImageServiceTest {
         assertThatThrownBy(() -> queries.thumbnails(List.of("abc"))).hasMessage("error.productImage.invalidEan");
     }
 
+    @Test
+    void listedEansSkipProductsNoChainPricesAnyMore() {
+        sets.save(ProductImageSet.builder().ean("5449000000996").chainCount(1).build());
+        sets.save(ProductImageSet.builder().ean(EAN).chainCount(3).build());
+        sets.save(ProductImageSet.builder().ean("3856021300547").chainCount(0).build());
+
+        assertThat(queries.listedEans().eans()).containsExactly("5449000000996", EAN);
+    }
+
     private ProductImage candidate(String key, String rev, String lang) {
         String ean = "front_en".equals(key) && "1129".equals(rev) ? "5449000000996" : EAN;
         ProductImage image = images.save(ProductImage.builder().ean(ean).source(ImageSource.OPEN_FOOD_FACTS)

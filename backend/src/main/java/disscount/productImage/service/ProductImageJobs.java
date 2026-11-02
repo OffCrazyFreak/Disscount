@@ -59,16 +59,19 @@ public class ProductImageJobs {
         this.limiter = limiter;
     }
 
-    /** Checked every few hours but runs weekly; the last run is stored so restarts do not repeat it. */
+    /**
+     * Checked every few hours but runs weekly; the last run is stored so restarts do not repeat it.
+     * The catalogue also feeds the product sitemap, so it runs without the photo bucket; only the photo seed needs it.
+     */
     @Scheduled(fixedDelay = 6 * 3_600_000L, initialDelay = 10 * 60_000L)
     public void weeklyImport() {
-        if (!enabled || !store.enabled() || !importing.compareAndSet(false, true)) return;
+        if (!enabled || !importing.compareAndSet(false, true)) return;
         try {
             LocalDateTime last = runs.findById(WEEKLY_IMPORT).map(ProductImageImportRun::getFinishedAt).orElse(null);
             if (last != null && last.isAfter(Timestamps.nowUtc().minus(IMPORT_EVERY))) return;
 
             catalog.importLatest();
-            seed.seed();
+            if (store.enabled()) seed.seed();
             runs.save(new ProductImageImportRun(WEEKLY_IMPORT, Timestamps.nowUtc()));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

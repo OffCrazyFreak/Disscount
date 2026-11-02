@@ -125,7 +125,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
                 // Product photos are public like the prices; uploads and reports still need a login.
-                .requestMatchers(HttpMethod.GET, "/api/products/*/images", "/api/products/images/thumbnails").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/products/*/images", "/api/products/images/thumbnails",
+                        "/api/products/catalog/eans").permitAll()
                 .requestMatchers(
                     "/actuator/health",
                     "/v3/api-docs/**",
