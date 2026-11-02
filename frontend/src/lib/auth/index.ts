@@ -18,7 +18,7 @@ import {
   dispatchVerificationEmail,
   hasLinkedSocialAccount,
   logEmailFailure,
-  markEmailVerifiedOnReset,
+  claimUnverifiedAccountOnReset,
 } from "@/lib/auth/callbacks";
 import { notifyExistingAccount } from "@/lib/auth/existing-account-notice";
 import {
@@ -89,7 +89,7 @@ export const auth = betterAuth({
     resetPasswordTokenExpiresIn: RESET_TOKEN_TTL_SECONDS,
     revokeSessionsOnPasswordReset: true,
     onPasswordReset: async ({ user }) => {
-      await markEmailVerifiedOnReset(user);
+      await claimUnverifiedAccountOnReset(user);
     },
     // Fire-and-forget like the sends below, so a registered address answers no slower.
     onExistingUserSignUp: async ({ user }) => {

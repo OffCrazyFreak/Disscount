@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { and, eq, ne } from "drizzle-orm";
 
 import { db } from "@/db";
@@ -72,23 +73,37 @@ export async function dispatchVerificationEmail(
   }
 }
 
-// A completed reset proves the inbox, so it also verifies the address. Never throws:
-// better-auth revokes the sessions only after this callback returns.
-export async function markEmailVerifiedOnReset(resetUser: {
+// A completed reset proves the inbox, so it verifies the address and drops every social
+// link, which on an unverified account may be a squatter's. Never throws: better-auth
+// revokes the sessions only after this callback returns.
+export async function claimUnverifiedAccountOnReset(resetUser: {
   id: string;
   emailVerified: boolean;
 }) {
   if (resetUser.emailVerified) return;
 
   try {
-    await db
-      .update(user)
-      .set({ emailVerified: true })
-      .where(eq(user.id, resetUser.id));
+    // One transaction, so the address is never verified with a squatter's link still on it.
+    await db.transaction(async (tx) => {
+      await tx
+        .delete(account)
+        .where(
+          and(
+            eq(account.userId, resetUser.id),
+            ne(account.providerId, "credential"),
+          ),
+        );
+      await tx
+        .update(user)
+        .set({ emailVerified: true })
+        .where(eq(user.id, resetUser.id));
+    });
   } catch (error) {
-    console.error(
-      "Failed to mark email verified after reset:",
-      error instanceof Error ? error.name : typeof error,
+    const reason = error instanceof Error ? error.name : typeof error;
+    console.error("Failed to claim the account after reset:", reason);
+    Sentry.captureMessage(
+      `Account claim after reset failed: ${reason}`,
+      "error",
     );
   }
 }

@@ -1,3 +1,5 @@
+import { PgDialect } from "drizzle-orm/pg-core";
+import type { SQL } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
@@ -9,7 +11,11 @@ const mocks = vi.hoisted(() => ({
   claimResetEmail: vi.fn(),
   claimVerificationEmail: vi.fn(),
   updateUser: vi.fn(async (_values: unknown) => {}),
+  deleteAccounts: vi.fn(async (_condition: unknown) => {}),
+  captureMessage: vi.fn(),
 }));
+
+vi.mock("@sentry/nextjs", () => ({ captureMessage: mocks.captureMessage }));
 
 vi.mock("@/db", () => ({
   db: {
@@ -18,11 +24,17 @@ vi.mock("@/db", () => ({
         where: () => ({ limit: async () => mocks.credentialRows }),
       }),
     }),
-    update: () => ({
-      set: (values: unknown) => ({
-        where: async () => mocks.updateUser(values),
+    transaction: async (run: (tx: unknown) => Promise<void>) =>
+      run({
+        delete: () => ({
+          where: async (condition: unknown) => mocks.deleteAccounts(condition),
+        }),
+        update: () => ({
+          set: (values: unknown) => ({
+            where: async () => mocks.updateUser(values),
+          }),
+        }),
       }),
-    }),
   },
 }));
 
@@ -42,7 +54,7 @@ vi.mock("@/lib/auth/email-link-marker", () => ({
 const {
   dispatchResetPasswordEmail,
   dispatchVerificationEmail,
-  markEmailVerifiedOnReset,
+  claimUnverifiedAccountOnReset,
 } = await import("@/lib/auth/callbacks");
 
 const args = [
@@ -125,28 +137,42 @@ describe("dispatchVerificationEmail", () => {
   });
 });
 
-describe("markEmailVerifiedOnReset", () => {
-  it("verifies the address the reset link just proved", async () => {
-    await markEmailVerifiedOnReset({ id: "user-1", emailVerified: false });
+describe("claimUnverifiedAccountOnReset", () => {
+  it("drops every social link and verifies the address the reset just proved", async () => {
+    mocks.deleteAccounts.mockClear();
 
+    await claimUnverifiedAccountOnReset({ id: "user-1", emailVerified: false });
+
+    const [condition] = mocks.deleteAccounts.mock.calls[0];
+    const query = new PgDialect().sqlToQuery(condition as SQL);
+    expect(query.sql).toBe(
+      '("account"."user_id" = $1 and "account"."provider_id" <> $2)',
+    );
+    expect(query.params).toEqual(["user-1", "credential"]);
     expect(mocks.updateUser).toHaveBeenCalledWith({ emailVerified: true });
   });
 
-  it("skips the write for an address that is already verified", async () => {
+  it("leaves a verified account's links alone", async () => {
     mocks.updateUser.mockClear();
+    mocks.deleteAccounts.mockClear();
 
-    await markEmailVerifiedOnReset({ id: "user-1", emailVerified: true });
+    await claimUnverifiedAccountOnReset({ id: "user-1", emailVerified: true });
 
+    expect(mocks.deleteAccounts).not.toHaveBeenCalled();
     expect(mocks.updateUser).not.toHaveBeenCalled();
   });
 
   // better-auth revokes the sessions only after this callback returns.
-  it("never throws, so the session revocation after it still runs", async () => {
-    mocks.updateUser.mockRejectedValueOnce(new Error("db down"));
+  it("never throws and reports the failure, so the session revocation still runs", async () => {
+    mocks.deleteAccounts.mockRejectedValueOnce(new Error("db down"));
     vi.spyOn(console, "error").mockImplementationOnce(() => {});
 
     await expect(
-      markEmailVerifiedOnReset({ id: "user-1", emailVerified: false }),
+      claimUnverifiedAccountOnReset({ id: "user-1", emailVerified: false }),
     ).resolves.toBeUndefined();
+    expect(mocks.captureMessage).toHaveBeenCalledWith(
+      "Account claim after reset failed: Error",
+      "error",
+    );
   });
 });
