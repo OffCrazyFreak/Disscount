@@ -1,7 +1,7 @@
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it } from "vitest";
 
-import apiClient from "@/lib/api/api-base";
+import apiClient, { clearAuthToken } from "@/lib/api/api-base";
 import { server } from "@/test/msw-server";
 
 // Named .tsx only for the jsdom project: the client attaches no token without a window.
@@ -63,5 +63,49 @@ describe("apiClient bearer token", () => {
     });
 
     expect(authorizations.at(-1)).toBe("Bearer pinned-token");
+  });
+
+  it("never swaps a caller's token for a fresh one after a 401", async () => {
+    const authorizations: (string | null)[] = [];
+    server.use(
+      http.get("*/api/auth/token", () =>
+        HttpResponse.json({ token: cachedToken }),
+      ),
+      http.delete("*/api/probe", ({ request }) => {
+        authorizations.push(request.headers.get("Authorization"));
+        return HttpResponse.json(null, { status: 401 });
+      }),
+    );
+
+    await expect(
+      apiClient.delete("/api/probe", {
+        headers: { Authorization: "Bearer pinned-token" },
+      }),
+    ).rejects.toMatchObject({ response: { status: 401 } });
+
+    expect(authorizations).toEqual(["Bearer pinned-token"]);
+  });
+
+  it("does not cache a token whose fetch was in flight when the cache was cleared", async () => {
+    let releaseToken: () => void = () => {};
+    const tokenHeld = new Promise<void>((resolve) => {
+      releaseToken = resolve;
+    });
+    const authorizations = recordAuthorizations();
+    server.use(
+      http.get("*/api/auth/token", async () => {
+        await tokenHeld;
+        return HttpResponse.json({ token: cachedToken });
+      }),
+    );
+
+    const requestDuringClear = apiClient.get("/api/probe");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    clearAuthToken();
+    releaseToken();
+    await requestDuringClear;
+    await apiClient.get("/api/probe");
+
+    expect(authorizations).toEqual([null, null]);
   });
 });
