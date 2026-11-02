@@ -13,7 +13,12 @@ const SENSITIVE_QUERY_PARAM =
 // better-auth's reset email links to this route with the token as a path segment.
 const RESET_PASSWORD_PATH_TOKEN = /(\/api\/auth\/reset-password\/)[^/?#\s]+/gi;
 
-const SENSITIVE_FIELD_NAMES = ["token", "newPassword", "password"];
+const SENSITIVE_FIELD_NAMES = [
+  "token",
+  "password",
+  "newPassword",
+  "currentPassword",
+];
 
 const SENSITIVE_FIELDS = new Set(
   SENSITIVE_FIELD_NAMES.map((name) => name.toLowerCase()),

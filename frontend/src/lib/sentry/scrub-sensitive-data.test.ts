@@ -126,12 +126,12 @@ describe("scrubSensitiveData on the sign-in body", () => {
   it("filters the password a breached password timeout event carries", () => {
     const event = {
       request: { data: '{"email":"a@b.c","password":"hunter22"}' },
-      extra: { password: "hunter22" },
+      extra: { password: "hunter22", currentPassword: "old" },
     };
 
     expect(scrubSensitiveData(event)).toEqual({
       request: { data: '{"email":"a@b.c","password":"[Filtered]"}' },
-      extra: { password: "[Filtered]" },
+      extra: { password: "[Filtered]", currentPassword: "[Filtered]" },
     });
   });
 });
