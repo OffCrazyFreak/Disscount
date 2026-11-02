@@ -81,10 +81,12 @@ describe("EmailService recipient cap", () => {
   it("still reports the provider error when giving the slot back fails", async () => {
     const { gate, service } = serviceWith(true, "Resend is down");
     gate.release.mockRejectedValue(new Error("database down"));
+    vi.spyOn(console, "warn").mockImplementation(() => {});
 
     await expect(service.sendVerificationEmail(email)).rejects.toThrow(
       "Resend is down",
     );
+    expect(gate.release).toHaveBeenCalledWith("victim@example.com");
   });
 
   it("gives the slot back when the provider fails, so an outage does not spend the budget", async () => {

@@ -39,7 +39,16 @@ export class EmailService {
     const { error } = await this.provider.send(message);
     if (error) {
       // The provider's error is the one worth logging, not a failed give-back.
-      await this.recipientGate.release(message.to).catch(() => {});
+      await this.recipientGate
+        .release(message.to)
+        .catch((releaseError: unknown) =>
+          console.warn(
+            "Failed to release a recipient email slot:",
+            releaseError instanceof Error
+              ? releaseError.name
+              : typeof releaseError,
+          ),
+        );
       throw new Error(error);
     }
   }
