@@ -88,7 +88,8 @@ public class ProductImageJobs {
             for (ProductImage image : batch) {
                 try {
                     rendering.render(image);
-                } catch (BadRequestException | OffImageGoneException e) {
+                } catch (BadRequestException | OffImageGoneException | IllegalArgumentException e) {
+                    // IllegalArgumentException: a stored key that cannot form a valid image URL.
                     skip(image, e);
                 } catch (RuntimeException e) {
                     // Network or bucket trouble: stop here and try the same photos at the next tick.

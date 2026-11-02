@@ -87,7 +87,7 @@ public class OpenFoodFactsClient {
                 }
                 byte[] bytes = body.readNBytes(MAX_IMAGE_BYTES + 1);
                 if (bytes.length > MAX_IMAGE_BYTES) {
-                    throw new IllegalStateException("Image larger than " + MAX_IMAGE_BYTES + " bytes");
+                    throw new OffImageGoneException(url + " is larger than " + MAX_IMAGE_BYTES + " bytes");
                 }
                 return bytes;
             }
