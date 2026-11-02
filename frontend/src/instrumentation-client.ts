@@ -16,14 +16,14 @@ Sentry.init({
 
   environment: process.env.SENTRY_ENVIRONMENT || undefined,
 
-  // List ids reach Sentry unscrubbed by decision, recorded in docs/SHARING.md. Replay is
-  // not covered by that: it records the DOM, so a shared list's contents would go with it.
   // Replay records the page URL with no hook to scrub it, so a reset token that blocked
   // storage left in the URL keeps Replay off for this page load.
   integrations: isResetTokenInUrl
     ? []
     : [
         Sentry.replayIntegration({
+          // The shopping-lists layout blocks the list DOM itself; this hook only sees
+          // Replay's breadcrumb and span events, so it drops those on list pages.
           beforeAddRecordingEvent: (event) =>
             /^(\/[a-z]{2})?\/shopping-lists\//.test(window.location.pathname)
               ? null
