@@ -46,7 +46,7 @@ _Last verified end-to-end on 2026-07-26 against `feat/mobile-bottom-nav`, measur
 | Active indicator      | a 57.6px disc enclosing icon and label, sliding between cells and fading out on the search cell                                                                                                                                               |
 | Surface               | a floating pill matching the scrolled header's translucent blurred treatment                                                                                                                                                                  |
 | z-index               | scroll fade 40, install banner 41, FAB 42, sheet scrim 43, bottom sheets 44, **bar 45**, dialogs and popovers 50, offline indicator 60. Tokens live in `globals.css`                                                                          |
-| Bottom sheets         | four, all behind the bar and clearing it by `--sheet-bottom-clearance`; the products and map store sheets are non-modal, for every input (see [§7](#7-sheetshell-the-shared-bottom-sheet))                                                    |
+| Bottom sheets         | five, all behind the bar and clearing it by `--sheet-bottom-clearance`; the products and map store sheets are non-modal, for every input (see [§7](#7-sheetshell-the-shared-bottom-sheet))                                                    |
 | Element type per cell | `<button>`, never `<a href>` (see [§18](#18-gotchas--lessons-learned))                                                                                                                                                                        |
 | Long press            | two of five today (Proizvodi opens the scanner, Popisi adds the open product), plus Praćenje on a product page; Kartice opens a new card; Karta unlocks for admins. Fires at 450ms, silent for the first 200ms, cancels past 10px of movement |
 | Contextual holds      | on `/products/<ean>` Praćenje watches that product and Popisi adds it to a list (see [§8](#8-long-press-gestures))                                                                                                                            |
@@ -335,7 +335,7 @@ The threshold is 40px, far enough that a scroll, a wobble or a tap cannot trigge
 
 ## 7. SheetShell, the shared bottom sheet
 
-`SheetShell` is `ModalShell`'s bottom-sheet counterpart. Four sheets had grown four different shapes, differing in layer, modality, surface, bottom padding and the gap under the grab handle. All of it is now fixed by the shell, so a call site supplies content and nothing else. Three of those four remain, since the products filters sheet was folded into the products sheet ([§6.1](#61-the-filters-panel)), and the map store sheet joined them later.
+`SheetShell` is `ModalShell`'s bottom-sheet counterpart. Four sheets had grown four different shapes, differing in layer, modality, surface, bottom padding and the gap under the grab handle. All of it is now fixed by the shell, so a call site supplies content and nothing else. Three of those four remain, since the products filters sheet was folded into the products sheet ([§6.1](#61-the-filters-panel)), and the shopping list actions and map store sheets joined them later.
 
 | Fixed by the shell | Value                                       | Why it cannot be per call site                                                                                                  |
 | ------------------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -363,12 +363,13 @@ The threshold is 40px, far enough that a scroll, a wobble or a tap cannot trigge
 
 Current users, identical apart from their content and their modality:
 
-| Sheet                    | File                                                                 | Modal | Explicit dismissal beyond the handle      |
-| ------------------------ | -------------------------------------------------------------------- | ----- | ----------------------------------------- |
-| Search                   | `app/[locale]/products/components/products-sheet/products-sheet.tsx` | no    | the bar's centre cell; also `md:hidden`   |
-| Product quick actions    | `components/custom/product/product-quick-actions.tsx`                | yes   | an outside press, plus any action it runs |
-| PWA install instructions | `components/custom/pwa/install-instructions-sheet.tsx`               | yes   | an outside press and `showCloseButton`    |
-| Map store                | `app/[locale]/map/components/map-store-sheet.tsx`                    | no    | the X beside the store; also `md:hidden`  |
+| Sheet                    | File                                                                            | Modal | Explicit dismissal beyond the handle      |
+| ------------------------ | ------------------------------------------------------------------------------- | ----- | ----------------------------------------- |
+| Search                   | `app/[locale]/products/components/products-sheet/products-sheet.tsx`            | no    | the bar's centre cell; also `md:hidden`   |
+| Product quick actions    | `components/custom/product/product-quick-actions.tsx`                           | yes   | an outside press, plus any action it runs |
+| PWA install instructions | `components/custom/pwa/install-instructions-sheet.tsx`                          | yes   | an outside press and `showCloseButton`    |
+| Shopping list actions    | `app/[locale]/(user)/shopping-lists/components/shopping-list-actions-sheet.tsx` | yes   | an outside press, plus any action it runs |
+| Map store                | `app/[locale]/map/components/map-store-sheet.tsx`                               | no    | the X beside the store; also `md:hidden`  |
 
 ### Why the surface is muted
 
@@ -691,7 +692,7 @@ Recorded so the next person does not re-litigate them. Each of these was an expl
 | A client-side price-drop count for the badge         | A last-seen timestamp on the user (a backend column, plus one extra historical price fetch per watched product to know what the price was), or a snapshot column on each watchlist row (half of the server-side inbox, in a shape it would not keep)                                    |
 | No haptics                                           | Android-only `navigator.vibrate`, which is inconsistent across platforms for no gain                                                                                                                                                                                                    |
 | Sheet runs behind the bar                            | Ending the sheet at the bar's top edge (a visible gap), or covering the bar like a normal modal sheet                                                                                                                                                                                   |
-| Only the products and map store sheets are non-modal | All four non-modal, which was shipped first and made the modal sheets pay for a property they do not need; or all modal, which contradicts what the products sheet is for. Cost paid: two modes to remember, keyed on one question, does the page behind change                         |
+| Only the products and map store sheets are non-modal | All non-modal, which was shipped first and made the modal sheets pay for a property they do not need; or all modal, which contradicts what the products sheet is for. Cost paid: two modes to remember, keyed on one question, does the page behind change                              |
 | Filters expand inline in the products sheet          | A second sheet stacked over it, which NN/g warns disorients; or replacing the sheet's content with a back arrow, which hides the query you just typed                                                                                                                                   |
 | One filters surface, not two                         | Keeping the products page's own filters sheet as a second entry point, which was shipped first: two sheets built from the same four controls, so a query and the facets narrowing it sat on separate layers. The page button now opens the products sheet expanded                      |
 | Pretraži pinned in the sheet's footer                | Leaving it under the field, where expanding the filters pushed it out of thumb reach; or last in the body, which scrolls away on a short phone. Cost paid: it lives outside the form and needs a `form` attribute                                                                       |
@@ -851,7 +852,7 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 | Icon-only controls   | "Očisti filtere" keeps its name in both `aria-label` and a tooltip below `md`, and renders the label outright above it                                                                                                                     |
 | Focus order          | The bar is last in DOM order, so keyboard users reach content first. Its visual position is the bottom anyway                                                                                                                              |
 | Reduced motion       | The disc, the compaction, every scroll and every drawer's slide and scrim fade are all instant under `prefers-reduced-motion`                                                                                                              |
-| Escape               | Closes the drawer that has focus, or the topmost one when focus has dropped to `<body>`. A Radix dialog or menu open over a drawer closes on its own and leaves the drawer open, see [§18](#18-gotchas--lessons-learned)                   |
+| Escape               | Closes the drawer that has focus, or one of the open drawers when focus has dropped to `<body>`. A Radix dialog or menu open over a drawer closes on its own and leaves the drawer open, see [§18](#18-gotchas--lessons-learned)           |
 | Inert under dialogs  | The non-modal sheets leave the page and the bar live for every input, with nothing `aria-hidden`. A modal sheet or dialog makes the page inert, and the bar drops below the scrim rather than sitting on top of it fully visible and inert |
 
 **Do not** reach for `role="tablist"` and `role="tab"` here. Those are for in-page tab panels and imply roving-tabindex arrow-key navigation. A bottom nav is a list of destinations, so `<nav><ul><li><button>` is correct.
@@ -1130,7 +1131,7 @@ Carried over from the build spec this feature was written against, which is why 
 
 ### Sheets and layers
 
-- [ ] All four sheets end the same distance above the bar, and none covers it
+- [ ] All five sheets end the same distance above the bar, and none covers it
 - [ ] Each sheet caps at 85% of the **dynamic** viewport, not 80% of the static one
 - [ ] The gap below the grab handle is 16px in all three, including the one with a hidden title
 - [ ] A modal sheet's scrim covers the bar, leaving it inert underneath
