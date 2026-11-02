@@ -22,7 +22,7 @@ Inside a git worktree, call `./node_modules/.bin/vitest run` instead, since the 
 
 A hook test is a `.tsx` file even when it renders no JSX of its own, because it needs the providers.
 
-Both projects share `src/test/setup.ts`, which starts the MSW server. The `dom` project adds `src/test/setup-dom.ts`, which loads the jest-dom matchers and, after every test, unmounts what was rendered, clears cookies and web storage, and resets the API client's cached auth token.
+Both projects share `src/test/setup.ts`, which starts the MSW server. The `dom` project adds `src/test/setup-dom.ts`, which loads the jest-dom matchers and, after every test, unmounts what was rendered, clears cookies and web storage, and resets the API client's cached auth token and the session user it is checked against.
 
 The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Croatia, and a zone with an offset catches UTC-versus-local mistakes that a UTC machine would hide.
 

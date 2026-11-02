@@ -3,7 +3,7 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterEach } from "vitest";
 
-import { resetAuthToken } from "@/lib/api/api-base";
+import { resetAuthToken, setAuthTokenUser } from "@/lib/api/api-base";
 
 // Testing Library only unmounts on its own when afterEach is a global, and the
 // suite imports it from vitest instead.
@@ -16,4 +16,5 @@ afterEach(() => {
   localStorage.clear();
   // The API client caches the token and a signed-out cooldown at module level.
   resetAuthToken();
+  setAuthTokenUser(undefined);
 });
