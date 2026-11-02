@@ -75,6 +75,8 @@ export default function SearchBar({
   // doing nothing or, with no submit button left in the form, searching again.
   function handleKeyDown(event: KeyboardEvent<HTMLFormElement>) {
     if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
+    // Enter on the clear or scan button is that button's own click.
+    if (!(event.target instanceof HTMLInputElement)) return;
     if (!hasSearchButton || !isUnchanged(queryValue ?? "")) return;
     if (!isTouchPointer()) return;
 

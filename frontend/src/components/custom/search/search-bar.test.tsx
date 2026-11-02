@@ -96,4 +96,25 @@ describe("SearchBar", () => {
     expect(field).not.toHaveFocus();
     expect(router.push).not.toHaveBeenCalled();
   });
+
+  it("still clears the search on Enter over the clear button on a touch device", async () => {
+    router.search = "q=mlijeko";
+    stubPointer(true);
+    const user = userEvent.setup();
+    // The clear button's tooltip measures itself when focus opens it.
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
+    renderSearchBar();
+
+    screen.getByRole("button", { name: "Očisti pretragu" }).focus();
+    await user.keyboard("{Enter}");
+
+    expect(router.push).toHaveBeenCalledWith("/products");
+  });
 });
