@@ -128,6 +128,15 @@ class ProductImageServiceTest {
     }
 
     @Test
+    void anUnconfirmedUploadDoesNotTakeMainFromAnOpenFoodFactsFrontWaitingToBeCopied() {
+        ProductImage front = candidate("front_hr", "4", "hr");
+
+        writes.upload(ana, EAN, jpeg());
+
+        assertThat(sets.findById(EAN)).get().extracting(ProductImageSet::getMainImageId).isEqualTo(front.getId());
+    }
+
+    @Test
     void adminPhotoIsVerifiedPinnedAndShownFirst() {
         writes.upload(ana, EAN, jpeg());
         ProductImagesDto shown = writes.upload(adminId, EAN, jpeg());

@@ -87,7 +87,9 @@ public class ProductImageWriteService {
                 other.setConfirmedById(userId);
             }
             set.setNeedsReview(true);
-            if (!mainIsShown(set)) set.setMainImageId(image.getId());
+            if (!mainIsShown(set)) {
+                MainPicker.pick(images.findByEanOrderByCreatedAtAsc(ean)).ifPresent(best -> set.setMainImageId(best.getId()));
+            }
         }
         sets.save(set);
 

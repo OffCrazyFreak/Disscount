@@ -41,9 +41,9 @@ final class MainPicker {
         if (image.getSource() == ImageSource.ADMIN && image.isRendered()) return 0;
         if (front && status == ImageStatus.VERIFIED && image.isRendered()) return 1 + lang;
         if (image.getSource() == ImageSource.USER && status == ImageStatus.VERIFIED && image.isRendered()) return 4;
-        if (image.getSource() == ImageSource.USER && status == ImageStatus.PENDING && image.isRendered()) return 5;
         // Not copied yet: the background job renders a main photo in this state.
-        if (front && status == ImageStatus.CANDIDATE) return 6 + lang;
+        if (front && status == ImageStatus.CANDIDATE) return 5 + lang;
+        if (image.getSource() == ImageSource.USER && status == ImageStatus.PENDING && image.isRendered()) return 8;
         return Integer.MAX_VALUE;
     }
 }
