@@ -31,11 +31,15 @@ function stubPointer(isCoarse: boolean) {
   }));
 }
 
-function renderSearchBar() {
+function renderSearchBar(submitButtonLocation?: "none" | "auto" | "block") {
   renderWithProviders(
     <SidebarProvider>
       <CameraScannerProvider>
-        <SearchBar searchRoute="/products" placeholder="Pretraži" />
+        <SearchBar
+          searchRoute="/products"
+          placeholder="Pretraži"
+          submitButtonLocation={submitButtonLocation}
+        />
       </CameraScannerProvider>
     </SidebarProvider>,
   );
@@ -116,5 +120,17 @@ describe("SearchBar", () => {
     await user.keyboard("{Enter}");
 
     expect(router.push).toHaveBeenCalledWith("/products");
+  });
+
+  it("keeps searching on Enter over the same query in a bar with no button", async () => {
+    router.search = "q=mlijeko";
+    stubPointer(true);
+    const user = userEvent.setup();
+    const field = renderSearchBar("none");
+
+    await user.click(field);
+    await user.keyboard("{Enter}");
+
+    expect(router.push).toHaveBeenCalledWith("/products?q=mlijeko");
   });
 });
