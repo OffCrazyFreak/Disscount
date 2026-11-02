@@ -125,9 +125,8 @@ jobs:
     permissions:
       contents: read
       packages: write
-    concurrency:
-      group: images-${{ github.ref }}-${{ matrix.image }}
-      cancel-in-progress: true
+    # No cancelling: a later push's run could finish its checks first, and an older run starting
+    # its builds afterwards would cancel the newer images. Each commit builds its own sha- tags.
     strategy:
       matrix:
         # The dokploy-deploy action moves the dev tag for exactly these images.
@@ -183,10 +182,34 @@ jobs:
           secrets: |
             sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}
 
-  deploy:
-    name: Deploy (dev)
+  # Runs before the deploy job queues, because a stale deploy waiting in the group would replace
+  # the newer pending one and then have nothing to do.
+  freshness:
+    name: Still the dev tip
     needs: images
     if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    outputs:
+      is-tip: ${{ steps.tip.outputs.is-tip }}
+    steps:
+      - id: tip
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          RELEASE_ID: ${{ github.sha }}
+        run: |
+          tip=$(gh api "repos/$REPOSITORY/commits/dev" --jq .sha)
+          if [ "$tip" = "$RELEASE_ID" ]; then
+            echo "is-tip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::dev has moved on to $tip; that run deploys instead of this one."
+            echo "is-tip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy:
+    name: Deploy (dev)
+    needs: [images, freshness]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev' && needs.freshness.outputs.is-tip == 'true'
     runs-on: ubuntu-latest
     environment:
       name: dev
