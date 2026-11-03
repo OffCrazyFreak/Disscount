@@ -5,9 +5,11 @@ import { watchServiceWorkerUpdate } from "@/lib/pwa/service-worker-update";
 function setup({ isWaitingAtStart = false } = {}) {
   const waitingListeners = new Set<() => void>();
   const controllerListeners: (() => void)[] = [];
+  const visibilityListeners = new Set<() => void>();
   const waitingWorker = { postMessage: vi.fn() };
   const registration = {
     waiting: isWaitingAtStart ? waitingWorker : null,
+    update: vi.fn(async () => undefined),
   } as unknown as ServiceWorkerRegistration;
 
   const serwist = {
@@ -24,12 +26,22 @@ function setup({ isWaitingAtStart = false } = {}) {
       controllerListeners.push(listener);
     }),
   };
+  const visibility = {
+    visibilityState: "visible" as DocumentVisibilityState,
+    addEventListener: vi.fn((_type: string, listener: () => void) => {
+      visibilityListeners.add(listener);
+    }),
+    removeEventListener: vi.fn((_type: string, listener: () => void) => {
+      visibilityListeners.delete(listener);
+    }),
+  };
   const onUpdateReady = vi.fn<(applyUpdate: () => Promise<void>) => void>();
   const reload = vi.fn();
 
   const stop = watchServiceWorkerUpdate({
     serwist: serwist as never,
     serviceWorker: serviceWorker as never,
+    visibility: visibility as never,
     onUpdateReady,
     reload,
   });
@@ -40,6 +52,12 @@ function setup({ isWaitingAtStart = false } = {}) {
     onUpdateReady,
     waitingWorker,
     registration,
+    serviceWorker,
+    visibility,
+    showTab(state: DocumentVisibilityState) {
+      visibility.visibilityState = state;
+      visibilityListeners.forEach((listener) => listener());
+    },
     fireWaiting() {
       (registration as { waiting: unknown }).waiting = waitingWorker;
       waitingListeners.forEach((listener) => listener());
@@ -103,14 +121,35 @@ describe("watchServiceWorkerUpdate", () => {
   });
 
   it("stops offering after cleanup, including the pending startup check", async () => {
-    const { stop, onUpdateReady, fireWaiting } = setup({
+    const { stop, onUpdateReady, fireWaiting, showTab, registration } = setup({
       isWaitingAtStart: true,
     });
 
     stop();
     fireWaiting();
+    showTab("visible");
     await Promise.resolve();
 
     expect(onUpdateReady).not.toHaveBeenCalled();
+    expect(registration.update).not.toHaveBeenCalled();
+  });
+
+  it("looks for a new worker each time the tab comes back into view", async () => {
+    const { showTab, registration } = setup();
+
+    showTab("hidden");
+    showTab("visible");
+
+    await vi.waitFor(() => expect(registration.update).toHaveBeenCalledOnce());
+  });
+
+  it("reloads when activating the update fails, rather than doing nothing", async () => {
+    const { onUpdateReady, fireWaiting, serviceWorker, reload } = setup();
+    fireWaiting();
+    serviceWorker.getRegistration.mockRejectedValueOnce(new Error("gone"));
+
+    await applyUpdateFrom(onUpdateReady)();
+
+    expect(reload).toHaveBeenCalledOnce();
   });
 });

@@ -73,6 +73,16 @@ describe("reloadAfterChunkLoadError", () => {
     expect(reload).toHaveBeenCalledTimes(2);
   });
 
+  it("leaves the boundary's retry to an offline user", () => {
+    vi.stubGlobal("navigator", { onLine: false });
+    const reload = vi.fn();
+
+    expect(reloadAfterChunkLoadError(chunkLoadError(), reload, 1_000)).toBe(
+      false,
+    );
+    expect(reload).not.toHaveBeenCalled();
+  });
+
   it("leaves other errors to the boundary", () => {
     const reload = vi.fn();
 

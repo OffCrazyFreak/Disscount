@@ -33,6 +33,10 @@ export function reloadAfterChunkLoadError(
 ): boolean {
   if (!isChunkLoadError(error)) return false;
 
+  // Offline, a reload would only swap the page for the offline fallback; the
+  // boundary's retry button is the better offer.
+  if (navigator.onLine === false) return false;
+
   try {
     const lastReload = readLastReload(sessionStorage);
     if (lastReload !== null && now - lastReload < RELOAD_COOLDOWN_MS) {
