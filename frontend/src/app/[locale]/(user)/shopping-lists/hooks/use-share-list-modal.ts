@@ -98,7 +98,6 @@ export function useShareListModal(id: string) {
   return {
     shoppingList,
     isLoading: listQuery.isLoading,
-    isError: listQuery.isError,
     linkAccess,
     setLinkAccess,
     isSaving,

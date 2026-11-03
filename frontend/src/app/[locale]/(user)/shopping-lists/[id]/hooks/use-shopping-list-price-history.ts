@@ -43,7 +43,8 @@ export function useShoppingListPriceHistory(
   });
 
   const isLoading = queries.some((q) => q.isLoading);
-  const hasError = queries.some((q) => q.isError);
+  // Only a series with nothing cached is missing; a failed refetch keeps its last answer.
+  const hasError = queries.some((q) => q.isError && q.data === undefined);
   const areChainsReady = queries.every((q) => q.isSuccess || q.isError);
 
   const priceHistoriesByEan = useMemo(() => {
