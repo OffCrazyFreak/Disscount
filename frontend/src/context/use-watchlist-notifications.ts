@@ -5,7 +5,7 @@ import { buildWatchlistNotifications } from "@/context/build-watchlist-notificat
 import { INotificationsContext } from "@/context/notifications-types";
 
 export function useWatchlistNotifications(): INotificationsContext {
-  const { user, isAuthenticated } = useUser();
+  const { accountUser, isAuthenticated } = useUser();
   const [openMenuSignal, setOpenMenuSignal] = useState(0);
 
   const requestOpenMenu = useCallback(() => {
@@ -19,7 +19,7 @@ export function useWatchlistNotifications(): INotificationsContext {
     pinnedStoreChainCodes,
     hasPinnedStores,
     productQueries,
-  } = useWatchedProducts(isAuthenticated, user?.pinnedStores);
+  } = useWatchedProducts(isAuthenticated, accountUser?.pinnedStores);
 
   const productQueriesStateKey = productQueries
     .map(

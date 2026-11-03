@@ -14,7 +14,7 @@ import { useWatchlistSuggestions } from "@/app/[locale]/(user)/watchlist/hooks/u
 
 export function useWatchlistData(query: string) {
   const {
-    user,
+    accountUser,
     isAuthenticated,
     canShowAccountData,
     isLoading: userLoading,
@@ -25,7 +25,7 @@ export function useWatchlistData(query: string) {
     pinnedStoreChainCodes,
     hasPinnedStores,
     productQueries,
-  } = useWatchedProducts(isAuthenticated, user?.pinnedStores);
+  } = useWatchedProducts(isAuthenticated, accountUser?.pinnedStores);
 
   const hasWatchedProducts = groupedWatchlistItems.length > 0;
 

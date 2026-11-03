@@ -32,6 +32,7 @@ import {
   isUnverifiedAccount,
   syncCacheIdentity,
 } from "@/context/sync-cache-identity";
+import { useAccountUser } from "@/context/use-account-user";
 import { useLogout } from "@/context/use-logout";
 import { useUserUpdaters } from "@/context/use-user-updaters";
 
@@ -48,6 +49,11 @@ interface IUserContext {
   hasUnverifiedAccount: boolean;
   /** Signed in, or an unverified account: the account's saved data may be shown. */
   canShowAccountData: boolean;
+  /**
+   * The signed-in user, or for an unverified account the profile this device saved. For
+   * showing the account and its preferences (pinned stores) only, never for acting on it.
+   */
+  accountUser: UserDto | null;
   refreshUser: () => Promise<UserDto | undefined>;
   setUser: (user: UserDto | null) => void;
   /**
@@ -170,6 +176,7 @@ export function UserProvider({ children }: IUserProviderProps) {
     sessionError,
     cacheIdentity,
   );
+  const accountUser = useAccountUser(mergedUser, hasUnverifiedAccount);
 
   const value: IUserContext = {
     user: mergedUser,
@@ -178,6 +185,7 @@ export function UserProvider({ children }: IUserProviderProps) {
     isAuthenticated: !!mergedUser,
     hasUnverifiedAccount,
     canShowAccountData: !!mergedUser || hasUnverifiedAccount,
+    accountUser,
     refreshUser,
     setUser,
     mergeUser,

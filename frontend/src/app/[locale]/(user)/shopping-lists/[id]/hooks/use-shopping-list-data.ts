@@ -22,7 +22,7 @@ import { productLookupQuery } from "@/app/[locale]/(user)/shopping-lists/[id]/ut
  * from the id, so there is no second path and nothing to choose between here.
  */
 export function useShoppingListData(listId: string) {
-  const { user } = useUser();
+  const { accountUser } = useUser();
 
   const {
     data: shoppingList,
@@ -134,7 +134,7 @@ export function useShoppingListData(listId: string) {
       const averagePrice = getAveragePrice(product);
       const cheapestStore = findCheapestStoreFromProduct(
         product,
-        user?.pinnedStores,
+        accountUser?.pinnedStores,
       );
 
       if (averagePrice !== null) {
@@ -156,7 +156,12 @@ export function useShoppingListData(listId: string) {
       storePrices: nextStorePrices,
       priceStates: nextPriceStates,
     };
-  }, [productsData, lookupStates, shoppingList?.items, user?.pinnedStores]);
+  }, [
+    productsData,
+    lookupStates,
+    shoppingList?.items,
+    accountUser?.pinnedStores,
+  ]);
   const { cheapestStores, averagePrices, storePrices, priceStates } =
     itemPrices;
 
