@@ -1,6 +1,11 @@
 import "server-only";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
+import {
+  parsePlodineHours,
+  plodinePageUrl,
+} from "@/lib/store-hours/sources/plodine-hours";
+import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 import { fetchText } from "@/lib/store-locations/http";
 import type {
   ILocatorStore,
@@ -38,6 +43,7 @@ export const plodineLocator: IStoreLocator = {
     const html = await fetchText(URL, signal);
     const coordinates = readCoordinates(html);
     const stores: ILocatorStore[] = [];
+    const { date: today } = zagrebClock(new Date());
 
     for (const card of html.split('<li class="market ').slice(1)) {
       const id = ID_PATTERN.exec(card)?.[1];
@@ -58,6 +64,8 @@ export const plodineLocator: IStoreLocator = {
         address: lines[0],
         city: place?.[2],
         zipcode: place?.[1],
+        hours: parsePlodineHours(card, today),
+        pageUrl: plodinePageUrl(card),
         ...point,
       });
     }

@@ -3,6 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
+import { parseTrgocentarWeek } from "@/lib/store-hours/sources/trgocentar-hours";
 import { fetchText } from "@/lib/store-locations/http";
 import type {
   ILocatorStore,
@@ -81,7 +82,11 @@ export const trgocentarLocator: IStoreLocator = {
 
       if (!coordinates || !postal) continue;
 
-      result.push({ ...postal, ...coordinates });
+      result.push({
+        ...postal,
+        hours: parseTrgocentarWeek(place.address),
+        ...coordinates,
+      });
     }
 
     return result;

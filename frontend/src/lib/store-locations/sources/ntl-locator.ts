@@ -3,6 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
+import { weekFromLabelled } from "@/lib/store-hours/sources/hours-text";
 import { fetchText } from "@/lib/store-locations/http";
 import { readPlacedAddress } from "@/lib/store-locations/sync/address-place";
 import type {
@@ -20,6 +21,9 @@ const storeSchema = z.object({
     lat: z.coerce.number(),
     lng: z.coerce.number(),
   }),
+  working_hours: z
+    .array(z.object({ name: z.string(), time: z.string() }))
+    .catch([]),
 });
 
 // The page hands its map script the whole store list as a JS literal.
@@ -109,6 +113,16 @@ export const ntlLocator: IStoreLocator = {
         approximate: isNumberless(parsed.data.street),
         address: parsed.data.street,
         ...splitPlace(parsed.data.place),
+        // The page sits in a week-long LiteSpeed cache, so its "open this
+        // Sunday" flag may describe a past Sunday and is not used.
+        hours: parsed.data.working_hours.length
+          ? {
+              weekly: weekFromLabelled(
+                parsed.data.working_hours.map(({ name, time }) => [name, time]),
+              ),
+              dated: [],
+            }
+          : undefined,
         ...coordinates,
       });
     }

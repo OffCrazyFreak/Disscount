@@ -3,6 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
+import { parseEurospinHours } from "@/lib/store-hours/sources/eurospin-hours";
 import { fetchText } from "@/lib/store-locations/http";
 import type {
   ILocatorStore,
@@ -18,6 +19,7 @@ const storesSchema = z.array(
     // "Street 1<br>47250, Duga Resa KA<div ...>"
     content: z.string(),
     brochure: z.object({ url: z.string() }).optional(),
+    url: z.string().optional(),
   }),
 );
 
@@ -55,6 +57,10 @@ export const eurospinLocator: IStoreLocator = {
         address: address.trim(),
         zipcode: parts?.[1],
         city: parts?.[2],
+        hours: parseEurospinHours(store.content),
+        pageUrl: store.url?.startsWith("https://www.eurospin.hr/")
+          ? store.url
+          : undefined,
         ...coordinates,
       });
     }
