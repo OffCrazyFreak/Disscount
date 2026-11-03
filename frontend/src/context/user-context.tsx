@@ -36,6 +36,11 @@ interface IUserContext {
   /** True only until auth first resolves; stays false through later refreshes */
   isInitializing: boolean;
   isAuthenticated: boolean;
+  /**
+   * The session could not be checked (offline) while this device's offline cache still
+   * belongs to an account, so screens may show that saved data until the check passes.
+   */
+  hasUnverifiedAccount: boolean;
   refreshUser: () => Promise<UserDto | undefined>;
   setUser: (user: UserDto | null) => void;
   /**
@@ -167,6 +172,12 @@ export function UserProvider({ children }: IUserProviderProps) {
     isLoading: isLoading || sessionPending,
     isInitializing: !hasResolvedAuth,
     isAuthenticated: !!mergedUser,
+    // A failed lookup is not a sign-out, the rule the cache purge follows too.
+    hasUnverifiedAccount:
+      !mergedUser &&
+      !sessionPending &&
+      !!sessionError &&
+      persistedCacheIdentity() !== null,
     refreshUser,
     setUser,
     mergeUser,
