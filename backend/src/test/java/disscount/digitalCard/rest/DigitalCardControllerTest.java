@@ -120,7 +120,7 @@ class DigitalCardControllerTest {
                 .andExpect(jsonPath("$.fieldErrors.note").value("Bilješka može imati najviše 500 znakova"))
                 .andExpect(jsonPath("$.fieldErrors.balance").value("Iznos ne može biti negativan"))
                 .andExpect(jsonPath("$.fieldErrors.balanceUnit").value("Valuta nije valjana"))
-                .andExpect(jsonPath("$.fieldErrors.expiresOn").value("Kartica ne može isteći prije početka"));
+                .andExpect(jsonPath("$.fieldErrors.expiresOn").value("Datum isteka mora biti nakon početka"));
         verifyNoInteractions(cardService);
     }
 
@@ -156,7 +156,7 @@ class DigitalCardControllerTest {
         mvc.perform(put("/api/digital-cards/{id}", cardId).with(auth())
                         .contentType(MediaType.APPLICATION_JSON).content(validBody()))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.detail").value("Dosegnut je najveći broj kartica"))
+                .andExpect(jsonPath("$.detail").value("Imaš najviše kartica koje možeš spremiti. Obriši neku koju ne koristiš."))
                 .andExpect(jsonPath("$.code").value("error.card.limitReached"));
     }
 
