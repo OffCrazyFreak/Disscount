@@ -32,6 +32,11 @@ async function photoDataUri(photoUrl: string): Promise<string> {
 
 /** The photo sits in the middle because chat apps may crop a card to its centre square. */
 export default async function renderProductOg(photoUrl: string) {
+  // Loaded here, not at the top: a missing native binary then rejects this call, which the
+  // route turns into the brand image, instead of failing the route module for every request.
+  // First, so that case fails before the photo fetch and the render are spent.
+  const { default: sharp } = await import("sharp");
+
   const [photo, fonts] = await Promise.all([
     photoDataUri(photoUrl),
     loadFonts(),
@@ -105,10 +110,6 @@ export default async function renderProductOg(photoUrl: string) {
   // ImageResponse renders lazily inside its stream, so without this a failed render would
   // be a 200 that Cloudflare caches for a year, and the caller's fallback would never run.
   const png = Buffer.from(await card.arrayBuffer());
-
-  // Loaded here, not at the top: a missing native binary then rejects this call, which the
-  // route turns into the brand image, instead of failing the route module for every request.
-  const { default: sharp } = await import("sharp");
 
   // next/og only writes PNG, which reached 563 KB against WhatsApp's 600 KB preview limit.
   const jpeg = await sharp(png).jpeg(JPEG_OPTIONS).toBuffer();
