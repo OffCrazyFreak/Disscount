@@ -20,6 +20,10 @@ export default async function PrivacyPolicyPage() {
     locale: DEFAULT_LOCALE,
     namespace: "privacyPolicy.errorTracking",
   });
+  const tIpAddresses = await getTranslations({
+    locale: DEFAULT_LOCALE,
+    namespace: "privacyPolicy.ipAddresses",
+  });
 
   return (
     <LegalPage
@@ -57,6 +61,10 @@ export default async function PrivacyPolicyPage() {
           tvom uređaju. Njome se trgovine poredaju po udaljenosti, a nama se ne
           šalje.
         </p>
+      </LegalSection>
+
+      <LegalSection heading={tIpAddresses("heading")}>
+        <p>{tIpAddresses("body")}</p>
       </LegalSection>
 
       <LegalSection heading="Slike proizvoda">
