@@ -231,9 +231,9 @@ All four are **optional**. If any one (or `R2_ENDPOINT`) is blank, product pages
 
 - **Browser to Cloudflare:** Cloudflare's edge cert. **All public domains are now Proxied (orange):** prod, `www`/`app`, `dev`, and the Dokploy panel, so everything goes through Cloudflare (IP hidden + CDN/DDoS).
 - **Cloudflare to VPS (origin):** Traefik's **Let's Encrypt** cert. Cloudflare SSL mode = **Full (strict)**, which means Cloudflare verifies the origin's real cert.
-- **Cert renewal (~every 60 days):** Traefik renews via an HTTP-01 challenge, which still works _through_ Cloudflare. If a renewal ever fails (you'd see a cert-expiry warning), flip that record to **DNS-only** for a few minutes so it renews, then re-proxy. (Bulletproof alternative: Cloudflare **DNS-01** challenge in Traefik, see [TODOs](#14-future-improvements--todos).)
+- **Cert renewal (~every 60 days):** Traefik renews via an HTTP-01 challenge, which still works _through_ Cloudflare. If a renewal ever fails (you'd see a cert-expiry warning), flipping the record to **DNS-only** no longer helps, because the firewall refuses Let's Encrypt's own servers; the fix is the Cloudflare **DNS-01** challenge in Traefik (see [TODOs](#14-future-improvements--todos)).
 
-> 💡 **Why grey-cloud first for new certs:** Let's Encrypt validates by hitting the domain on port 80. Set a new subdomain to **DNS only** so the challenge reaches the VPS, let the cert issue, _then_ optionally flip it to Proxied + Full(strict). This stops working once the firewall only admits Cloudflare (see [Client IP and rate limiting](#client-ip-and-rate-limiting)).
+> 💡 **Why grey-cloud first for new certs:** Let's Encrypt validates by hitting the domain on port 80. Set a new subdomain to **DNS only** so the challenge reaches the VPS, let the cert issue, _then_ optionally flip it to Proxied + Full(strict). This no longer works: since 3 November 2026 the firewall admits only Cloudflare on 80 and 443, so a new subdomain needs DNS-01 (see [Client IP and rate limiting](#client-ip-and-rate-limiting)).
 
 **Adding a domain to a service:** done in **Dokploy, service, Domains** (Host + Service + Container Port + HTTPS/Let's Encrypt). ⚠️ For **Compose** services you must **redeploy once** afterward so the Traefik routing labels actually attach to the container.
 
@@ -265,14 +265,14 @@ It began in monitor mode (`p=none`) and is now at `p=quarantine`. `np=reject` is
 
 **Defense in layers** (important: **Docker bypasses UFW** for published ports, so the _Hetzner Cloud Firewall_ is the authoritative network filter):
 
-| Layer                                        | What it does                                                                                                                                                      |
-| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Hetzner Cloud Firewall** (`disscount-web`) | Network-level; allows **only inbound TCP 22 / 80 / 443** (+ ICMP). This is what actually keeps the Dokploy panel port (3000) and backend (8080) off the internet. |
-| **UFW** (on the VM)                          | Same 22/80/443 allow-list as a second layer (note: Docker can punch through UFW, hence the Hetzner firewall above).                                               |
-| **fail2ban**                                 | Bans IPs after repeated failed SSH logins.                                                                                                                        |
-| **SSH hardening**                            | Key-only auth; **root login + password login disabled**. Login as your non-root **sudo user**.                                                                    |
-| **unattended-upgrades**                      | Automatic OS security updates every night at 01:30 UTC, with a reboot when an update needs one. See [Nightly updates and reboots](#nightly-updates-and-reboots).  |
-| **Cloudflare proxy**                         | Hides the origin IP + DDoS protection for proxied records.                                                                                                        |
+| Layer                                        | What it does                                                                                                                                                                                                          |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Hetzner Cloud Firewall** (`disscount-web`) | Network-level; allows **only inbound TCP 22** (any source), **80 and 443 from Cloudflare's IP ranges only**, and ICMP. This is what actually keeps the Dokploy panel port (3000) and backend (8080) off the internet. |
+| **UFW** (on the VM)                          | A 22/80/443 allow-list as a second layer, not narrowed to Cloudflare; Docker can punch through UFW, so the Hetzner firewall above is the filter that limits 80 and 443.                                               |
+| **fail2ban**                                 | Bans IPs after repeated failed SSH logins.                                                                                                                                                                            |
+| **SSH hardening**                            | Key-only auth; **root login + password login disabled**. Login as your non-root **sudo user**.                                                                                                                        |
+| **unattended-upgrades**                      | Automatic OS security updates every night at 01:30 UTC, with a reboot when an update needs one. See [Nightly updates and reboots](#nightly-updates-and-reboots).                                                      |
+| **Cloudflare proxy**                         | Hides the origin IP + DDoS protection for proxied records.                                                                                                                                                            |
 
 Other: **4 GB swap** for build headroom; the Dokploy admin panel is reachable only via its HTTPS domain (login-protected), not the raw `:3000` port.
 
@@ -280,13 +280,13 @@ Other: **4 GB swap** for build headroom; the Dokploy admin panel is reachable on
 
 The app keys its rate limits on the visitor's address, read from Cloudflare's `CF-Connecting-IP` header. It trusts that header only when the last `X-Forwarded-For` hop, which Traefik always writes as the peer it accepted the connection from, is a Cloudflare address; any other caller is keyed on its own address. How the frontend and backend apply this, and what the limits are, is in [AUTH.md](AUTH.md#83-rate-limits-and-the-visitors-address).
 
-The app check works on its own, but these owner steps finish the job. Step 2 is done (rule created on 3 November 2026); steps 1 and 3 are not:
+The app check works on its own, but these owner steps finish the job. Steps 1 and 2 are done (3 November 2026); step 3 is not:
 
-1. **Hetzner Cloud Firewall** (`disscount-web`): change the inbound TCP 80 and 443 rules from "any" to Cloudflare's IPv4 and IPv6 ranges from https://www.cloudflare.com/ips/, leaving 22 as it is. Then a direct request to `YOUR_VPS_IP` with a made-up `CF-Connecting-IP` should time out, while the site still loads through Cloudflare.
+1. **Hetzner Cloud Firewall** (`disscount-web`): change the inbound TCP 80 and 443 rules from "any" to Cloudflare's IPv4 and IPv6 ranges from https://www.cloudflare.com/ips/, leaving 22 as it is. Then a direct request to `YOUR_VPS_IP` with a made-up `CF-Connecting-IP` should time out, while the site still loads through Cloudflare. Checked after the change: the direct request timed out, every site loaded, and new sessions stored the visitor's real address. Cloudflare publishes changes to its ranges on that page, so recheck it now and then: a range missing from the firewall makes visitors served from it time out.
 2. **Cloudflare rate limiting rule** (free plan, one rule): POST requests to the auth paths, counted by IP, more than 20 requests in 10 seconds, block for 10 seconds. The exact expression is deliberately not published here.
 3. **Optional, Traefik `forwardedHeaders.trustedIPs`**: Dokploy's static config (`/etc/dokploy/traefik/traefik.yml`, Traefik v3) has no `forwardedHeaders` block, so Traefik discards incoming `X-Forwarded-*` headers. Listing Cloudflare's ranges under `entryPoints.web.forwardedHeaders.trustedIPs` and `entryPoints.websecure.forwardedHeaders.trustedIPs` keeps Cloudflare's own `X-Forwarded-For` chain. The app does not need it, because the last hop is the same either way.
 
-> ⚠️ **After step 1, new subdomains need DNS-01 certificates.** Let's Encrypt's HTTP-01 check connects from its own servers, which the firewall then refuses, so the grey-cloud trick in [§6](#6-domains-dns--https) stops working. Set up the Cloudflare DNS-01 challenge in Traefik (see [TODOs](#14-future-improvements--todos)) before adding a domain. Renewals for the proxied domains still reach the origin through Cloudflare, but watch the first one after the change.
+> ⚠️ **Since step 1, new subdomains need DNS-01 certificates.** Let's Encrypt's HTTP-01 check connects from its own servers, which the firewall then refuses, so the grey-cloud trick in [§6](#6-domains-dns--https) stops working. Set up the Cloudflare DNS-01 challenge in Traefik (see [TODOs](#14-future-improvements--todos)) before adding a domain. Renewals for the proxied domains still reach the origin through Cloudflare, but watch the first one after the change.
 
 ### Nightly updates and reboots
 
@@ -330,9 +330,9 @@ Traffic is encrypted in transit (Cloudflare to the browser, Traefik's certificat
 
 - The app DB dumps use the consistent logical dump `pg_dump -Fc --no-acl --no-owner ... | gzip` (no downtime).
 - **Why back up Dokploy too:** the app DB alone cannot rebuild your _setup_. The **Web Server backup** captures Dokploy's internal database (projects, services, domains, env vars, schedules) plus `/etc/dokploy`, so if the VPS dies you reinstall Dokploy and restore all of it. Restore from **Web Server, Backups**.
-- **R2 lifecycle backstops:** two R2 rules cap storage and cost even if Dokploy's own pruning ever fails. `Clear old db backups` deletes `disscount-prod/` objects after 60 days, and `Clear old dokploy backups` deletes `dokploy/` objects after 15 days. Each is set longer than its Dokploy keep-count, so it only ever removes stragglers, never a backup Dokploy still wants.
+- **R2 lifecycle backstops (current setup, replaced by the #486 plan below):** two R2 rules cap storage and cost even if Dokploy's own pruning ever fails. `Clear old db backups` deletes `disscount-prod/` objects after 60 days, and `Clear old dokploy backups` deletes `dokploy/` objects after 15 days. Each is set longer than its Dokploy keep-count, so it only ever removes stragglers, never a backup Dokploy still wants.
 - **Alerts:** Dokploy, Settings, Notifications (Resend) emails you on **deploy failures**. Per-backup notifications are intentionally **off** (Dokploy fires one on _every_ backup = daily spam), see [Monitoring](#9-monitoring--alerts) for how to catch a _failed_ backup instead.
-- **Personal data in dumps:** the dumps include the auth tables, so a session row or address the app already removed survives in a backup until that backup rotates out (30 days off-site, 60 at most through the R2 rule, 7 locally).
+- **Personal data in dumps:** the dumps include the auth tables, so a session row or address the app already removed survives in a backup until that backup rotates out (today 30 days off-site, 60 at most through the R2 rule, 7 locally; under the #486 plan at most 30 days plus the day R2 takes to delete).
 - ✅ **Restore-tested:** confirmed a dump restores cleanly (all tables + rows) into a throwaway container.
 
 ### Measured on 3 November 2026, and the decided plan
@@ -343,10 +343,10 @@ Traffic is encrypted in transit (Cloudflare to the browser, Traefik's certificat
 - **Decided by the owner (not built yet):** dump the database **hourly, keep 48**, plus **nightly, keep 30**, and ping a **healthchecks.io** check from every backup job so a missing run emails the owner. WAL archiving was rejected for now: it ships whole 16 MB segments, which at this size costs more storage than hourly dumps for little gain.
 - **Decided for photos and the rest (3 November 2026, tracked in #486, not built yet):**
   - Card photos, product originals and public product photos move from R2 to plain folders on the VPS local disk (two named Docker volumes, private and public). Public photos are served by a read-only nginx container behind Cloudflare. A Hetzner Volume is suggested for later in #483.
-  - R2 becomes the backup only: one EU bucket, encrypted with rclone crypt, a 35-day Bucket Lock, written by a token scoped to that bucket.
-  - Photos: a full copy every month into a new generation prefix, plus an hourly `rclone copy` of new files. Each generation expires after 60 days, so two monthly copies always exist and an erased photo leaves the backup within about 60 days.
-  - Database: hourly (keep 48) and nightly (keep 30) dumps to the same bucket, encrypted with age (private key kept offline by the owner), with a nightly scratch restore. Dokploy's config backup is rebuilt without `.git` folders and encrypted.
-  - The jobs run from a script in the repo through Dokploy server schedules, not Dokploy's own backup feature, and each pings healthchecks.io.
+  - R2 becomes the backup only: one EU bucket, encrypted with rclone crypt, written by a token scoped to that bucket. Bucket Lock and lifecycle rules are set per prefix: a lock blocks every deletion until it ends, lifecycle rules included, so each prefix's lock is shorter than or equal to its expiry. Cloudflare removes an expired object within about a day.
+  - Photos: a full copy every 14 days into a new generation prefix, plus an hourly `rclone copy` of new files. Locked 28 days and deleted at 30, so two full copies exist as long as the 14-day job runs (healthchecks.io alerts on a missed run), and an erased photo leaves the backup within about 31 days. Nothing in the backup is kept longer than 30 days plus that removal day.
+  - Database: hourly dumps under their own prefix, locked and deleted at 2 days (so about 48 exist), and nightly dumps locked 28 days and deleted at 30, in the same bucket, encrypted with age (private key kept offline by the owner), with a nightly scratch restore. Dokploy's config backup runs nightly with the same 28 and 30 days, rebuilt without `.git` folders and encrypted.
+  - The jobs run in a backup sidecar: a `backup` service in `docker-compose.images.yml` whose image CI builds next to the app images, so it deploys and rolls back with them. supercronic runs a crontab from the repo, the service starts only where `COMPOSE_PROFILES=backup` is set (production), its `BACKUP_*` settings live in the Dokploy compose environment, and each job pings healthchecks.io. Dokploy schedules were rejected because of scheduler bugs where jobs silently never run.
   - Erasures are recorded in a log without personal data and replayed after any restore; the privacy policy states the backup periods.
 
 > ⚠️ Do **NOT** use Dokploy **Volume Backups** for Postgres: copying the live data volume risks a corrupt backup (it'd need to stop the DB). The `pg_dump` approach above is the correct one.
@@ -556,7 +556,7 @@ flowchart LR
 
 **Step-by-step:**
 
-1. **DNS** (Cloudflare): add `something.disscount.me`, A, `YOUR_VPS_IP`, **DNS only (grey)** first (so the cert can issue), proxy later if you want. Once the firewall only admits Cloudflare this needs DNS-01 instead (see [Client IP and rate limiting](#client-ip-and-rate-limiting)).
+1. **DNS** (Cloudflare): add `something.disscount.me`, A, `YOUR_VPS_IP`, **DNS only (grey)** first (so the cert can issue), proxy later if you want. The firewall now admits only Cloudflare, so this needs DNS-01 instead (see [Client IP and rate limiting](#client-ip-and-rate-limiting)).
 2. **Create the app in Dokploy:**
    - **Templates** (easiest): Dokploy has a one-click **Umami** template (and Plausible, etc.). Create, pick the template, it sets up the app + its DB.
    - **From a Docker image:** Create, Application, set the image + env.
@@ -599,14 +599,14 @@ These are the things that actually cost us time, worth remembering:
 **Security / housekeeping**
 
 - [ ] **IP-filter the R2 API tokens** to the VPS egress IP (least privilege).
-- [ ] **Before serious traffic:** restrict the Hetzner firewall to Cloudflare (the Cloudflare rate limiting rule already exists), as listed in [Client IP and rate limiting](#client-ip-and-rate-limiting). The app-level limits (Better Auth, per-recipient email cap, contact form) are in place. The exact endpoint list is deliberately not published here.
+- [x] **Before serious traffic:** restrict the Hetzner firewall to Cloudflare (done 3 November 2026; the Cloudflare rate limiting rule already exists), as listed in [Client IP and rate limiting](#client-ip-and-rate-limiting). The app-level limits (Better Auth, per-recipient email cap, contact form) are in place. The exact endpoint list is deliberately not published here.
 
 **Reliability / ops**
 
 - [ ] **Hetzner server backups** (whole-VM images, 7 slots, about 20% of the server price): decided for later, once the app has about 1,000 real users.
 - [ ] Move **production** to the image path (build in GitHub Actions, push to GHCR, Dokploy pulls), as `dev` already does ([§4](#4-how-a-deploy-works-git-to-live), [#74](https://github.com/OffCrazyFreak/Disscount/issues/74)). Once dev has run clean for a week: a `prod` GitHub environment with the production values, the image and deploy jobs extended to `main`, a member user and key for the production service, then `docker-compose.prod.yml` deleted.
 - [ ] Consider **Flyway/Liquibase** instead of Hibernate `ddl-auto=update` for safer prod schema changes.
-- [ ] **Cloudflare DNS-01 challenge** in Traefik (a Cloudflare API token) so certs renew without relying on inbound HTTP through the proxy, more robust now that all domains are proxied.
+- [ ] **Cloudflare DNS-01 challenge** in Traefik (a Cloudflare API token) now required before adding a subdomain or fixing a failing certificate, because the firewall refuses Let's Encrypt's HTTP-01 check from its own servers; renewals of the proxied domains still pass through Cloudflare.
 - [ ] **Backup-failure alerting** with healthchecks.io (decided 3 November 2026), since per-backup notifications are off to avoid spam.
 
 **Product / auth**
