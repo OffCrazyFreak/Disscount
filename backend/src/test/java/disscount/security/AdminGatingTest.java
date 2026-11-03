@@ -125,6 +125,16 @@ class AdminGatingTest extends FullStackTest {
         mvc.perform(call(route).with(as(admin))).andExpect(status().is2xxSuccessful());
     }
 
+    // The admin check runs before the lookup, so a consumer cannot tell a real message id from an unknown one.
+    @ParameterizedTest
+    @EnumSource(value = Route.class, names = {"GET_CONTACT", "MARK_CONTACT_READ", "MARK_CONTACT_UNREAD", "DELETE_CONTACT", "RESTORE_CONTACT"})
+    void anUnknownContactMessageIs404ForAnAdminAnd403ForAConsumer(Route route) throws Exception {
+        messageId = UUID.randomUUID();
+
+        mvc.perform(call(route).with(as(admin))).andExpect(status().isNotFound());
+        mvc.perform(call(route).with(as(consumer))).andExpect(status().isForbidden());
+    }
+
     @Test
     void aDeletedAdminIs403() throws Exception {
         admin.setDeletedAt(java.time.LocalDateTime.now());

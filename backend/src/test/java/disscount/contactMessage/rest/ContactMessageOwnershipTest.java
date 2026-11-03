@@ -1,8 +1,10 @@
 package disscount.contactMessage.rest;
 
+import disscount.contactMessage.dao.ContactMessageRepository;
 import disscount.support.FullStackTest;
 import disscount.user.domain.User;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import tools.jackson.databind.JsonNode;
@@ -11,6 +13,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -18,6 +21,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Reading messages back is admin only and is pinned in AdminGatingTest.
  */
 class ContactMessageOwnershipTest extends FullStackTest {
+
+    @Autowired ContactMessageRepository messages;
 
     // A fresh address per request, so the per-IP limit never trips across tests sharing the context.
     private static MockHttpServletRequestBuilder submit(String body) {
@@ -50,5 +55,17 @@ class ContactMessageOwnershipTest extends FullStackTest {
                 .andExpect(status().isOk()));
 
         assertThat(created.get("userId").isNull()).isTrue();
+    }
+
+    // A bot gets a success so it has no reason to retry, but nothing is stored.
+    @Test
+    void aHoneypotHitIsA204WithAnEmptyBodyAndStoresNothing() throws Exception {
+        long before = messages.count();
+
+        mvc.perform(submit("{\"subject\":\"Pitanje\",\"message\":\"Poruka\",\"honeypot\":\"x\"}").with(as(newUser("bot"))))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        assertThat(messages.count()).isEqualTo(before);
     }
 }
