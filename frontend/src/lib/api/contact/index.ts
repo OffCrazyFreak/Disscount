@@ -18,12 +18,16 @@ const ADMIN_BASE_PATH = "/api/admin/contact";
 // Public: submit a contact message (no auth header sent when logged out).
 async function createContactMessage(
   data: ContactMessageRequest,
-): Promise<ContactMessageDto> {
+): Promise<ContactMessageDto | null> {
   const validated = contactMessageRequestSchema.parse(data);
   const response = await apiClient.post<ContactMessageDto>(
     "/api/contact",
     validated,
   );
+
+  // The backend drops a honeypot-filled submission and answers 204 with no body, so a bot cannot tell it was caught.
+  if (response.status === 204) return null;
+
   return contactMessageDtoSchema.parse(response.data);
 }
 
@@ -57,7 +61,7 @@ async function softDeleteContactMessage(
 }
 
 function useCreateContactMessage() {
-  return useMutation<ContactMessageDto, Error, ContactMessageRequest>({
+  return useMutation<ContactMessageDto | null, Error, ContactMessageRequest>({
     mutationFn: createContactMessage,
   });
 }
