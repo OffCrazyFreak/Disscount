@@ -1,15 +1,20 @@
 import { QueryClient } from "@tanstack/react-query";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useListShareText } from "@/app/[locale]/(user)/shopping-lists/hooks/use-list-share-text";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
+import type { PinnedStoreDto } from "@/lib/api/schemas/preferences";
 import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
 import { renderHookWithProviders } from "@/test/render";
 import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
 
+const signedIn = vi.hoisted(() => ({
+  user: null as { pinnedStores: PinnedStoreDto[] } | null,
+}));
+
 vi.mock("@/context/user-context", () => ({
-  useUser: () => ({ user: null }),
+  useUser: () => signedIn,
 }));
 
 const LIST_ID = "list-1";
@@ -84,6 +89,10 @@ function shareTextFor(items: ShoppingListItemDto[], cachedEans: string[]) {
 }
 
 describe("useListShareText", () => {
+  afterEach(() => {
+    signedIn.user = null;
+  });
+
   it("names the suggested chain for an item nobody picked a store for", () => {
     const text = shareTextFor([item("Mlijeko", "111")], ["111"]);
 
@@ -108,10 +117,36 @@ describe("useListShareText", () => {
     expect(text).toContain("~Mlijeko~");
   });
 
+  it("keeps a ticked item's saved chain", () => {
+    const text = shareTextFor(
+      [item("Mlijeko", "111", { isChecked: true, chainCode: "konzum" })],
+      ["111"],
+    );
+
+    expect(text).toContain("~Mlijeko - Konzum~");
+  });
+
+  it("suggests the cheapest pinned chain, as the list page does", () => {
+    signedIn.user = {
+      pinnedStores: [
+        {
+          id: "pin-1",
+          userId: "user-1",
+          storeApiId: "konzum-1",
+          storeName: "Konzum Vukovarska",
+        },
+      ],
+    };
+
+    const text = shareTextFor([item("Mlijeko", "111")], ["111"]);
+
+    expect(text).toContain("Mlijeko - Konzum");
+  });
+
   it("names no store when the prices are not loaded", () => {
     const text = shareTextFor([item("Mlijeko", "111")], []);
 
-    expect(text).toMatch(/Mlijeko\n/);
+    expect(text).not.toContain("Mlijeko - ");
   });
 
   it("orders unpicked items by their suggested chain", () => {
