@@ -27,9 +27,9 @@ const TOASTER_THEME_STYLE = {
 // height is spelled out because the spacing scale is shrunk, so h-11 is not 44px.
 const TOAST_CLASS_NAMES = {
   actionButton:
-    "min-h-[2.75rem]! px-3! bg-primary! text-primary-foreground! hover:bg-primary/90! focus-visible:ring-2! focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "min-h-[2.75rem]! bg-primary! text-primary-foreground! hover:bg-primary/90! focus-visible:ring-2! focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   cancelButton:
-    "min-h-[2.75rem]! px-3! border! border-primary/40! bg-primary/10! text-foreground! hover:bg-primary/15! focus-visible:ring-2! focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "min-h-[2.75rem]! border! border-primary/40! bg-primary/10! text-foreground! hover:bg-primary/15! focus-visible:ring-2! focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
 };
 
 export default function ToasterProvider({ children }: IToasterProviderProps) {

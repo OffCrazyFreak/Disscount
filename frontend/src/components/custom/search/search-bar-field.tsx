@@ -70,7 +70,7 @@ export default function SearchBarField({
         aria-label={placeholder || t("search.submit")}
         disabled={disabled}
         size="lg"
-        className="pl-10 pr-22 text-muted-foreground focus:text-foreground bg-background [&::-webkit-search-cancel-button]:hidden"
+        className="pl-10 pr-22 text-muted-foreground focus:text-foreground bg-popover [&::-webkit-search-cancel-button]:hidden"
         autoComplete="off"
         autoCapitalize="off"
         autoCorrect="off"
