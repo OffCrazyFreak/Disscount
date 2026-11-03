@@ -37,6 +37,27 @@ const HANDLE_DIRECTION_CLASS: Record<SwipeDirection, string> = {
   right: "absolute top-1/2 left-2 h-[100px] w-2 -translate-y-1/2",
 };
 
+// An open Radix dialog, alert dialog, menu, popover or select. Tooltips carry
+// "delayed-open" or "instant-open" instead, so a stray one never takes a close.
+const OPEN_RADIX_LAYER_SELECTOR =
+  '[role="dialog"][data-state="open"], [role="alertdialog"][data-state="open"], [data-radix-popper-content-wrapper] > [data-state="open"]';
+
+// Escape is the close request Radix understands, so it closes whichever of
+// its layers is on top, exactly as the key would on a desktop.
+function closeTopRadixLayer() {
+  const target = document.activeElement ?? document.body;
+
+  target.dispatchEvent(
+    new KeyboardEvent("keydown", {
+      key: "Escape",
+      code: "Escape",
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+    }),
+  );
+}
+
 function Drawer({
   modal = true,
   swipeDirection = "down",
@@ -72,6 +93,21 @@ function Drawer({
 
           if (!open && (isEscapeForAnotherLayer || isPressForAnotherLayer)) {
             details.cancel();
+            return;
+          }
+
+          // Android's back gesture reaches only Base UI's close watcher, never
+          // Radix, so a dialog or menu over the drawer would be skipped. Hand
+          // the request to the top layer instead. The browser lets a page veto
+          // one close request per user activation; past that, the drawer closes.
+          const isBackForAnotherLayer =
+            details.reason === "close-watcher" &&
+            details.event.cancelable &&
+            document.querySelector(OPEN_RADIX_LAYER_SELECTOR) !== null;
+
+          if (!open && isBackForAnotherLayer) {
+            details.cancel();
+            closeTopRadixLayer();
             return;
           }
 
