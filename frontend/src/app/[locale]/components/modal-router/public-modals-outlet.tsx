@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import ResetPasswordModal from "@/components/custom/auth/reset-password-modal";
 import AuthStatusModal from "@/components/custom/auth/auth-status-modal";
 import ContactModal from "@/components/custom/contact/contact-modal";
@@ -15,12 +17,26 @@ export default function PublicModalsOutlet({
   target,
 }: IPublicModalsOutletProps) {
   const name = target?.name;
+  // Held after close, not on a timer, so the exit animation never flips to the success copy.
+  const [linkError, setLinkError] = useState<string>();
+  if (name === "email-verified" || name === "email-changed") {
+    const nextLinkError = "linkError" in target ? target.linkError : undefined;
+    if (nextLinkError !== linkError) setLinkError(nextLinkError);
+  }
 
   return (
     <>
       <ResetPasswordModal open={name === "reset-password"} />
-      <AuthStatusModal open={name === "email-verified"} kind="email-verified" />
-      <AuthStatusModal open={name === "email-changed"} kind="email-changed" />
+      <AuthStatusModal
+        open={name === "email-verified"}
+        kind="email-verified"
+        linkError={linkError}
+      />
+      <AuthStatusModal
+        open={name === "email-changed"}
+        kind="email-changed"
+        linkError={linkError}
+      />
 
       <ContactModal open={name === "contact"} />
       <DonationModal open={name === "donate"} />

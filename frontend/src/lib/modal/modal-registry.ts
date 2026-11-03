@@ -16,8 +16,9 @@ export type ModalTarget =
   | { name: "signup" }
   | { name: "forgot-password" }
   | { name: "reset-password" }
-  | { name: "email-verified" }
-  | { name: "email-changed" }
+  // better-auth appends ?error=<CODE> when the verification link fails.
+  | { name: "email-verified"; linkError?: string }
+  | { name: "email-changed"; linkError?: string }
   | { name: "contact" }
   | { name: "donate" }
   | { name: "onboarding"; mode: "required" | "replay" }

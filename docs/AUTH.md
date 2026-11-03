@@ -86,7 +86,7 @@ flowchart TD
 
 **Verification is a hard gate.** `emailAndPassword.requireEmailVerification: true` blocks email/password login until the address is verified. An unverified login attempt with the right password returns `403` and, because `emailVerification.sendOnSignIn` is on, re-sends the verification link (at most one live link, see the email limits below); the login form says so. That link carries Better Auth's default `/` callback, because a `callbackURL` on `signIn.email` would also redirect every successful sign-in, so `dispatchVerificationEmail` rewrites `/` to the localized `?modal=email-verified`, the same landing as the sign-up link. Once the user clicks the verification link, `autoSignInAfterVerification` logs them in automatically. OAuth logins are not affected by this gate; an OAuth user's `emailVerified` comes from the provider's own claim (see next section).
 
-The register endpoint passes `callbackURL: "/?modal=email-verified"` to `signUpEmail`, so after verifying the user lands on the homepage with a small "Email potvrđen" success modal (they are already signed in by then). See [Section 8](#8-password-reset-set-password-and-change-email) for how the whole reset/verify/change flow lives in the URL-modal system.
+The register endpoint passes `callbackURL: "/?modal=email-verified"` to `signUpEmail`, so after verifying the user lands on the homepage with a small "Email potvrđen" success modal (they are already signed in by then). A link that fails lands on the same callback with better-auth's `&error=<CODE>` appended (`TOKEN_EXPIRED`, `INVALID_TOKEN`, `USER_NOT_FOUND` or `INVALID_USER` in 1.6.25). The parser carries that code on the target as `linkError`, and `auth-status-modal.tsx` then shows a failure state instead: the sign-up landing offers sign-in (which re-sends the link), the change-email landing opens security settings to start again. A reused sign-up link is no failure: better-auth treats an already verified address as success. See [Section 8](#8-password-reset-set-password-and-change-email) for how the whole reset/verify/change flow lives in the URL-modal system.
 
 ### 4.1 Password policy and breached passwords
 
@@ -137,6 +137,7 @@ Two non-obvious design choices, both learned the hard way:
 
 - It is mounted **app-wide** in `app/[locale]/layout.tsx` (inside a `Suspense`), not in the auth modal. Account-linking happens while logged in, and a logged-in user does not render the login modal, so a toast living there would never fire.
 - It reads the code with **`useSearchParams()`** (Next's router snapshot), not `window.location`. During session load something rewrites the URL, and reading `window.location` loses that race; the router snapshot survives it.
+- It **skips** an `?error=` that rides on `?modal=email-verified` or `?modal=email-changed`: that is a failed verification link, and its status modal shows it. Toasting would show a wrong OAuth message and strip the code the modal reads.
 
 Mapped codes: `email_not_found`, `email_doesn't_match`, `account_already_linked_to_different_user`, `account_not_linked`, `please_restart_the_process`, plus a generic fallback.
 
