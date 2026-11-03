@@ -39,10 +39,6 @@
     "resend": {
       "type": "http",
       "url": "https://mcp.resend.com/mcp"
-    },
-    "netlify": {
-      "type": "http",
-      "url": "https://netlify-mcp.netlify.app/mcp"
     }
   }
 }

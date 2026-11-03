@@ -121,33 +121,6 @@ flowchart LR
 
 > **After a deploy, open tabs offer the new version** with a "Dostupna je nova verzija Disscounta." toast and an Osvježi button, instead of needing a hard refresh. A tab that asks for a chunk the new build no longer has reloads itself once, and on images built in CI (`dev`) `deploymentId` turns a navigation from an older build into a full page load. See [`PWA.md`](PWA.md#5-offline-reads-caching-and-persistence). A hard refresh (Ctrl/Cmd+Shift+R) is still the quick way to skip the prompt.
 
-### Netlify PR previews
-
-**Dokploy owns `main` and `dev`. Netlify builds only PR previews whose head branch is neither `main` nor `dev`.** The old Netlify waitlist site is retired, but the project itself is kept and repurposed as a throwaway PR preview environment. Ordinary feature-branch pushes do not build on Netlify, so a preview URL becomes available only after opening a PR.
-
-The split is enforced in the repo, not in the dashboard, by `frontend/netlify.toml`:
-
-```toml
-[build]
-  ignore = 'case "$PULL_REQUEST:$HEAD:$BRANCH" in true:dev:*|true:main:*|true:*:dev|true:*:main) exit 0 ;; true:*) exit 1 ;; *) exit 0 ;; esac'
-```
-
-| Detail                               | Why it is like that                                                                                                                                                                                                                                                                                                                                                                         |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PULL_REQUEST` is the primary gate   | Netlify sets this read-only variable to `true` only for pull or merge request builds. Production and ordinary branch deploys therefore stop before the build command.                                                                                                                                                                                                                       |
-| `$HEAD` **and** `$BRANCH`            | Netlify defines `$BRANCH` as the "reference to check out" and `$HEAD` as the "name of the head branch received from a Git provider". On a Deploy Preview the checkout is `pull/<n>/head`, so `$BRANCH` is that ref and only `$HEAD` holds `dev`. Netlify's own branch-skipping example still uses `$BRANCH`, so the rule tests both: matching one and guessing wrong fails open and builds. |
-| `main` and `dev` are still excluded  | A `dev` to `main` release PR is skipped, while a `fix/x` into `dev` PR builds exactly once.                                                                                                                                                                                                                                                                                                 |
-| `build.ignore`, not a UI branch list | Netlify always attempts to deploy its production branch. The ignore command is the supported repository-controlled opt-out and also prevents duplicate branch deploys alongside PR previews.                                                                                                                                                                                                |
-| Exit `0` skips, exit `1` builds      | Inverted from normal shell convention. This is the usual trap when editing the rule.                                                                                                                                                                                                                                                                                                        |
-| File lives in `frontend/`            | Netlify's base directory is `frontend`, and it looks for `netlify.toml` there. Paths inside `ignore` also resolve from the base directory.                                                                                                                                                                                                                                                  |
-| **Branch deploys** is set to `dev`   | Do not remove this. Netlify only creates a Deploy Preview when "the base branch must either be a production branch, or a branch that has branch deploys enabled". Production here is `main`, so PRs targeting `dev` get a preview only because `dev` is on that list. The `dev` branch deploys it also creates are cancelled by the rule above and cost nothing.                            |
-
-Skipped production and branch deploys still appear in Netlify's deploy list, marked **Canceled**, with `Canceled build due to no content change` as the reason. That is what a successful skip looks like, not a completed build.
-
-> ⚠️ **How to tell the rule has regressed.** The first version of this file matched `$BRANCH` instead of `$HEAD`, so the long-lived `dev` into `main` release PR rebuilt its preview on every single push to `dev`: 17 full builds and 47 build minutes in the first six days of August 2026, about a third of the project's usage against a 300 minute monthly team allowance. The tell is a **Deploy Preview** in the deploy list whose branch is `dev` and whose deploy time is a real number rather than `Canceled`. Branch deploys of `dev` showing up **Canceled** are fine and cost nothing. Confirm from the deploy list after changing this rule, because a rule that silently never matches looks identical to no rule at all.
-
-> ⚠️ **Netlify has its own environment variables, and it cannot see Dokploy's.** Previews are built from the same code, so a missing required variable still throws at module load (see [§5](#5-environment-variables-the-1-gotcha)), and `NEXT_PUBLIC_*` is still baked at build time. A preview with an incomplete env either fails the build or quietly ships a bundle pointing at the wrong API. Keep Netlify's env in sync with Dokploy's **dev** values.
-
 ---
 
 ## 5. Environment variables (the #1 gotcha)
@@ -218,14 +191,14 @@ All four are **optional**. If any one (or `R2_ENDPOINT`) is blank, product pages
 
 **DNS lives in Cloudflare.** Records pointing at the VPS:
 
-| Record                             | Type  | Value             | Cloudflare proxy | Purpose                                            |
-| ---------------------------------- | ----- | ----------------- | ---------------- | -------------------------------------------------- |
-| `disscount.me`                     | A     | `YOUR_VPS_IP`     | 🟠 Proxied       | production app                                     |
-| `www` / `app`                      | A     | `YOUR_VPS_IP`     | 🟠 Proxied       | aliases, **301 redirect** to apex (Redirect Rules) |
-| `dev`                              | A     | `YOUR_VPS_IP`     | 🟠 Proxied       | staging                                            |
-| `dokploy`                          | A     | `YOUR_VPS_IP`     | 🟠 Proxied       | Dokploy admin panel                                |
-| `get`/`waitlist`/`zelim`/`želim`   | CNAME | Netlify (retired) | 🟠 Proxied       | old waitlist, **301 redirect** to apex (see below) |
-| MX / TXT (`_domainkey`, SPF, etc.) | n/a   | Cloudflare/Resend | n/a              | **email, leave untouched**                         |
+| Record                             | Type | Value               | Cloudflare proxy | Purpose                                            |
+| ---------------------------------- | ---- | ------------------- | ---------------- | -------------------------------------------------- |
+| `disscount.me`                     | A    | `YOUR_VPS_IP`       | 🟠 Proxied       | production app                                     |
+| `www` / `app`                      | A    | `YOUR_VPS_IP`       | 🟠 Proxied       | aliases, **301 redirect** to apex (Redirect Rules) |
+| `dev`                              | A    | `YOUR_VPS_IP`       | 🟠 Proxied       | staging                                            |
+| `dokploy`                          | A    | `YOUR_VPS_IP`       | 🟠 Proxied       | Dokploy admin panel                                |
+| `get`/`waitlist`/`zelim`/`želim`   | AAAA | `100::` (no origin) | 🟠 Proxied       | old waitlist, **301 redirect** to apex (see below) |
+| MX / TXT (`_domainkey`, SPF, etc.) | n/a  | Cloudflare/Resend   | n/a              | **email, leave untouched**                         |
 
 **Two SSL layers** (this confuses people):
 
@@ -241,15 +214,15 @@ All four are **optional**. If any one (or `R2_ENDPOINT`) is blank, product pages
 
 **Visitor location headers** (Rules, Settings, Managed Transforms, "Add visitor location headers") must be on for the stores map to open near the visitor without GPS. Cloudflare then adds `cf-iplatitude`, `cf-iplongitude` and `cf-ipcity` to requests that reach the origin. It works on this zone; with it off, the map simply opens on all of Croatia. Details in [MAP.md](MAP.md).
 
-**Retired waitlist subdomains:** `get` / `waitlist` / `zelim` / `želim` (the last is an IDN stored as an `xn--…` name) were CNAMEs to a Netlify waitlist site. They now **301-redirect to `https://disscount.me/`** via a Cloudflare **Redirect Rule** (Rules, Redirect Rules) whose expression is:
+**Retired waitlist subdomains:** `get` / `waitlist` / `zelim` / `želim` (the last is an IDN stored as an `xn--…` name) pointed at the retired Netlify waitlist site. They are now proxied `AAAA 100::` records (Cloudflare's placeholder for a hostname with no origin), and they **301-redirect to `https://disscount.me/`** via a Cloudflare **Redirect Rule** (Rules, Redirect Rules) whose expression is:
 
 ```
 (http.host in {"get.disscount.me" "waitlist.disscount.me" "zelim.disscount.me"}) or (starts_with(http.host, "xn--") and ends_with(http.host, ".disscount.me"))
 ```
 
-Keep the CNAMEs **Proxied** so Cloudflare answers for the names and the rule fires at the edge (before Netlify is reached). This fixed a Google Search Console _"Duplicate without user-selected canonical"_ flag caused by one page served under four hostnames.
+Keep the records **Proxied**: `100::` is not routable, so the names only work because Cloudflare answers them and the rule fires at the edge. This fixed a Google Search Console _"Duplicate without user-selected canonical"_ flag caused by one page served under four hostnames.
 
-> The waitlist **site** is retired, but do **not** delete the Netlify project: it now builds PR previews whose head branch is neither `main` nor `dev`. See [Netlify PR previews](#netlify-pr-previews).
+> Netlify is fully disconnected: no project builds this repository, and nothing on the domain points at it.
 
 **Email anti-spoofing (SPF/DKIM/DMARC):** SPF + DKIM already exist for the three senders: Resend (transactional mail, on `send.` and the root domain; Amazon SES is only Resend's backend, not a separate sender), MailerLite (the newsletter, on `newsletter.`) and Cloudflare Email Routing. DMARC is a `_dmarc` TXT record, currently:
 
@@ -430,7 +403,6 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 | ------------------------------------------------------------------------------------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Build & deploy on `git push`                                                         | ✅ auto    | `dev`: CI builds images and calls Dokploy ([§4](#4-how-a-deploy-works-git-to-live)); `main`: Dokploy autodeploy builds on the VPS                                                         |
 | CI checks (typecheck, unit tests, lint, Fallow audit, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main`                                                                                                                |
-| PR previews (head branch is not `main` or `dev`)                                     | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-pr-previews))                                                                                                                |
 | HTTPS certificate issuance + renewal                                                 | ✅ auto    | Traefik + Let's Encrypt                                                                                                                                                                   |
 | HTTP to HTTPS redirect                                                               | ✅ auto    | Cloudflare                                                                                                                                                                                |
 | DB migrations (auth tables + app tables)                                             | ✅ auto    | `migrate` service (drizzle; on `dev` the bundled `disscount-migrator` image) + Hibernate `ddl-auto=update` on each deploy. **Additive only**: see below                                   |

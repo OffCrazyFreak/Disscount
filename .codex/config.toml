@@ -18,6 +18,3 @@ url = "https://mcp.sentry.dev/mcp/disscount"
 
 [mcp_servers.resend]
 url = "https://mcp.resend.com/mcp"
-
-[mcp_servers.netlify]
-url = "https://netlify-mcp.netlify.app/mcp"
