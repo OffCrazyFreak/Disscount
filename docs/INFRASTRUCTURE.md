@@ -251,13 +251,13 @@ Keep the CNAMEs **Proxied** so Cloudflare answers for the names and the rule fir
 
 > The waitlist **site** is retired, but do **not** delete the Netlify project: it now builds PR previews whose head branch is neither `main` nor `dev`. See [Netlify PR previews](#netlify-pr-previews).
 
-**Email anti-spoofing (SPF/DKIM/DMARC):** SPF + DKIM already exist (Resend, Cloudflare, SES on `send.`). DMARC is a `_dmarc` TXT record, currently:
+**Email anti-spoofing (SPF/DKIM/DMARC):** SPF + DKIM already exist for the three senders: Resend (transactional mail, on `send.` and the root domain; Amazon SES is only Resend's backend, not a separate sender), MailerLite (the newsletter, on `newsletter.`) and Cloudflare Email Routing. DMARC is a `_dmarc` TXT record, currently:
 
 ```
 v=DMARC1; p=quarantine; np=reject; rua=mailto:<id>@dmarc-reports.cloudflare.net
 ```
 
-It began in monitor mode (`p=none`) and moved to `p=quarantine` once the aggregate reports confirmed the legitimate senders align. `np=reject` is stricter than the main policy on purpose: it covers non-existent subdomains, which never send legitimate mail, so nothing can break by rejecting them outright. Aggregate reports go to Cloudflare's hosted DMARC Management rather than an inbox. The remaining step is `p=reject`, which should wait until the reports stay clean across all three senders (Resend for transactional, Cloudflare, SES on `send.`), since any one of them falling out of alignment under `reject` means silent delivery failure rather than a spam-folder warning.
+It began in monitor mode (`p=none`) and is now at `p=quarantine`. `np=reject` is stricter than the main policy on purpose: it covers non-existent subdomains, which never send legitimate mail, so nothing can break by rejecting them outright. Aggregate reports go to Cloudflare's hosted DMARC Management rather than an inbox. It stays at `p=quarantine` until real test mail from each sender has produced aggregate reports; there are none yet, because nothing has sent real mail. The remaining step is `p=reject`, which should wait until those reports stay clean across all three senders (Resend, MailerLite, Cloudflare Email Routing), since any one of them falling out of alignment under `reject` means silent delivery failure rather than a spam-folder warning.
 
 ---
 
