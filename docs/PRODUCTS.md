@@ -32,18 +32,18 @@ A reference for how product data reaches the app: where it comes from, how the p
 
 ## 1. Quick reference
 
-| Thing                | Value                                                                                                                      |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Routes               | `/products` (search and list), `/products/<ean>` (product page), both public                                               |
-| Product modals       | `?modal=add-to-list&ean=`, `?modal=watchlist&ean=`, `?modal=product-actions&ean=` (built by `hooks/use-product-modals.ts`) |
-| Data source          | The upstream cijene API (https://github.com/senko/cijene-api), called only from our Next.js server                         |
-| Our proxy            | `frontend/src/app/api/cijene/**`, one route handler per upstream resource                                                  |
-| Product id           | The EAN as cijene gives it (leading zeros stripped), or a `<chain>:<code>` id for products sold without a barcode          |
-| Backend additions    | Product photos (see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)), watchlist items, shopping list items, the catalogue EAN list  |
-| Price data freshness | Upstream publishes once a day; we treat an hour old as current                                                             |
-| Env vars             | `CIJENE_API_URL`, `CIJENE_API_TOKEN` (frontend, server only); `NEXT_PUBLIC_API_URL` for the backend                        |
-| Offline              | Products, prices and history you have seen stay readable; watchlist add and remove queue and replay                        |
-| Tests                | `pnpm test` (frontend), `mvn -B verify` (backend)                                                                          |
+| Thing                | Value                                                                                                                                   |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Routes               | `/products` (search and list), `/products/<ean>` (product page), both public                                                            |
+| Product modals       | `?modal=add-to-list&ean=`, `?modal=watchlist&ean=`, `?modal=product-actions&ean=` (built by `frontend/src/hooks/use-product-modals.ts`) |
+| Data source          | The upstream cijene API (https://github.com/senko/cijene-api), called only from our Next.js server                                      |
+| Our proxy            | `frontend/src/app/api/cijene/**`, one route handler per upstream resource                                                               |
+| Product id           | The EAN as cijene gives it (leading zeros stripped), or a `<chain>:<code>` id for products sold without a barcode                       |
+| Backend additions    | Product photos (see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)), watchlist items, shopping list items, the catalogue EAN list               |
+| Price data freshness | Upstream publishes once a day; we treat an hour old as current                                                                          |
+| Env vars             | `CIJENE_API_URL`, `CIJENE_API_TOKEN` (frontend, server only); `NEXT_PUBLIC_API_URL` for the backend                                     |
+| Offline              | Products, prices and history you have seen stay readable; watchlist add and remove queue and replay                                     |
+| Tests                | `pnpm test` (frontend), `mvn -B verify` (backend)                                                                                       |
 
 **Daily workflow:** nothing to configure. The upstream token is set once per environment in Dokploy, and the weekly catalogue import that feeds the sitemap runs by itself.
 
@@ -64,13 +64,13 @@ flowchart LR
 
 What each side adds:
 
-| Layer          | What it adds on top of upstream                                                                                                                                                                                                                                    |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Next.js server | A proxy that keeps the token on the server, validates every response with zod, maps errors, merges exact and fuzzy search, reduces store prices per city with an in-memory cache, and renders the product page with its data                                       |
-| Spring backend | Never calls the price endpoints. It reads the upstream daily archive once a week for the photo catalogue (name, brand, how many chains sell each EAN), stores photos, watchlist items and shopping list items keyed by EAN, and serves the EAN list to the sitemap |
-| Browser        | Ranks and filters search results locally, computes discounts and watchlist alerts, and keeps what it has seen in IndexedDB                                                                                                                                         |
+| Layer          | What it adds on top of upstream                                                                                                                                                                                                                                                        |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Next.js server | A proxy that keeps the token on the server, validates every response with zod, maps errors, merges exact and fuzzy search, reduces store prices per city with an in-memory cache, and renders the product page with its data                                                           |
+| Spring backend | Never calls the price endpoints. It reads the upstream daily archive once a week for the photo catalogue (name, brand, and how many priced store listings carry each EAN), stores photos, watchlist items and shopping list items keyed by EAN, and serves the EAN list to the sitemap |
+| Browser        | Ranks and filters search results locally, computes discounts and watchlist alerts, and keeps what it has seen in IndexedDB                                                                                                                                                             |
 
-The product shape (`productResponseSchema` in `frontend/src/lib/cijene-api/schemas.ts`) is `{ ean, brand, name, quantity, unit, chains[] }`. Each chain entry carries that chain's own `code`, `name`, `brand`, `category`, `unit`, `quantity`, `min_price`, `max_price`, `avg_price` (prices are strings) and `price_date`. A store price (`storePriceSchema`) adds `regular_price`, `special_price`, `unit_price`, `best_price_30` (the lowest price in the last 30 days, which Croatian law requires on a sale), `anchor_price` and the store itself.
+The product shape (`productResponseSchema` in `frontend/src/lib/cijene-api/schemas.ts`) is `{ ean, brand, name, quantity, unit, chains[] }`. Each chain entry carries `chain` (the chain id) and that chain's own `code` (its product code), `name`, `brand`, `category`, `unit`, `quantity`, `min_price`, `max_price`, `avg_price` (prices are strings) and `price_date`. A store price (`storePriceSchema`) adds `regular_price`, `special_price`, `unit_price`, `best_price_30` (the lowest price in the last 30 days, which Croatian law requires on a sale), `anchor_price` and the store itself.
 
 ---
 
@@ -91,7 +91,7 @@ The browser never calls cijene directly. It calls same-origin routes under `/api
 | `GET /api/cijene/health`                        | `/health`                              | 10 second timeout instead of 30                                                                                              |
 | `GET /api/cijene/store-directory`               | (our own data)                         | The only route that sends a public `Cache-Control`; see [MAP.md](MAP.md)                                                     |
 
-**Error mapping.** An upstream 4xx the caller could fix keeps its status. Upstream 401 and 403 become 502, because our own token authenticates the call, so they mean the proxy is misconfigured, and passing them on would tell the user they are logged out. A payload that fails the zod schema is a 502 too. Every other route answers with `Cache-Control: no-cache` (`createApiResponse` in `utils/response-utils.ts`), so freshness is decided by React Query and the service worker, not the HTTP cache.
+**Error mapping.** An upstream 4xx the caller could fix keeps its status. Upstream 401 and 403 become 502, because our own token authenticates the call, so they mean the proxy is misconfigured, and passing them on would tell the user they are logged out. A payload that fails the zod schema is a 502 too. Every other route answers `Cache-Control: no-cache` on success and `no-store` on an error (`createApiResponse` in `utils/response-utils.ts`), so freshness is decided by React Query and the service worker, not the HTTP cache.
 
 **Three axios clients** live in `lib/cijene-api/client.ts`: v1 (bearer token, 30 s timeout), v0 (no token, 30 s) and health (10 s). They log every call in development and always throw a `CijeneApiError` carrying the upstream status (`errors.ts`). The module warns at startup when the token is missing.
 
@@ -116,7 +116,7 @@ The matching, ranking and diacritic folding are covered in [SEARCH.md](SEARCH.md
 
 ```mermaid
 flowchart TD
-    R[Request /products/ean] --> L[loading.tsx streams a spinner with status 200]
+    R[Request /products/ean] --> L["[locale]/loading.tsx streams a spinner with status 200"]
     R --> M[generateMetadata]
     R --> P[Page component]
     M --> GP["getServerProduct(ean)<br/>React cache(), shared with the page"]
@@ -233,7 +233,7 @@ So an alert reaches the user only when they open the app. The backend's `notific
 
 ## 10. Shopping list integration
 
-"Dodaj na popis" opens `?modal=add-to-list&ean=` (`add-to-shopping-list-form.tsx`, hooks `use-add-to-list-form.ts`, `use-add-to-list-prices.ts`, `use-add-to-list-submit.ts`). The user picks a list (or creates one, which is a `POST /api/shopping-lists` first), an amount, and optionally marks the item as already bought.
+"Dodaj na popis za kupnju" opens `?modal=add-to-list&ean=` (`add-to-shopping-list-form.tsx`, hooks `use-add-to-list-form.ts`, `use-add-to-list-prices.ts`, `use-add-to-list-submit.ts`). The user picks a list (or creates one, which is a `POST /api/shopping-lists` first), an amount, and optionally marks the item as already bought.
 
 `buildShoppingListItemRequest` (`utils/shopping-list-item-request.ts`) always sends `ean`, `name`, `brand`, `quantity`, `unit`, `amount` and `isChecked`. Only for an item marked bought, and only when a chain is known, it adds `chainCode` (the chosen chain, or the cheapest one, pinned stores preferred), `avgPrice` (the mean of the chains' averages) and `storePrice` (that chain's price). Those prices are a snapshot taken when the item was ticked off; an unbought row sends none.
 
@@ -243,7 +243,7 @@ The backend stores them in `shopping_list_item` (`ean` nullable for plain text i
 
 ## 11. Caching and offline
 
-Three layers keep product data fast and available. [PWA.md](PWA.md) describes the machinery; this is what it does for products.
+Three browser layers and one server layer keep product data fast and available. [PWA.md](PWA.md) describes the machinery; this is what it does for products.
 
 | Layer                       | What it holds for products                                                                                                                                                                | Where                                          |
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
@@ -281,7 +281,7 @@ All copy is in the next-intl catalogs, in all five languages ([I18N.md](I18N.md)
 | `frontend/src/lib/cijene-api/utils/`                                                                          | `withCijeneRoute`, the fuzzy fallback, response helpers               |
 | `frontend/src/lib/cijene-api/location-prices/`                                                                | City price reduction and its in-memory cache                          |
 | `frontend/src/app/api/cijene/`                                                                                | The proxy route handlers                                              |
-| `frontend/src/app/[locale]/products/page.tsx`, `components/`, `hooks/`, `utils/`                              | The product list, facets, cards and the product modals                |
+| `frontend/src/app/[locale]/products/page.tsx`, `components/`, `hooks/`, `utils/`                              | The product list, facets, cards and the product modal forms           |
 | `frontend/src/app/[locale]/products/[id]/page.tsx`                                                            | The server rendered product page and its metadata                     |
 | `frontend/src/app/[locale]/products/[id]/utils/`                                                              | Metadata, JSON-LD, cache seeding                                      |
 | `frontend/src/app/[locale]/products/[id]/components/`                                                         | Detail client, chains section, store rows, price history              |
@@ -301,11 +301,11 @@ All copy is in the next-intl catalogs, in all five languages ([I18N.md](I18N.md)
 
 ## 14. Config and env vars
 
-| Var                   | Side                          | Required                                 | What it controls                                                         |
-| --------------------- | ----------------------------- | ---------------------------------------- | ------------------------------------------------------------------------ |
-| `CIJENE_API_URL`      | frontend, server only         | No, defaults to `https://api.cijene.dev` | The upstream base URL                                                    |
-| `CIJENE_API_TOKEN`    | frontend, server only, secret | In practice yes: v1 needs it             | Sent as `Authorization: Bearer` on v1 calls                              |
-| `NEXT_PUBLIC_API_URL` | frontend, public              | Yes                                      | The backend origin the server uses for photos and the sitemap's EAN list |
+| Var                   | Side                          | Required                                                                         | What it controls                                                         |
+| --------------------- | ----------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `CIJENE_API_URL`      | frontend, server only         | No, defaults to `https://api.cijene.dev`                                         | The upstream base URL                                                    |
+| `CIJENE_API_TOKEN`    | frontend, server only, secret | In practice yes: v1 needs it                                                     | Sent as `Authorization: Bearer` on v1 calls                              |
+| `NEXT_PUBLIC_API_URL` | frontend, public              | Defaults to `http://localhost:8080`; set it per environment, baked at build time | The backend origin the server uses for photos and the sitemap's EAN list |
 
 `CIJENE_API_*` are validated in `frontend/src/lib/server-env.ts` and listed with placeholders in `frontend/.env.local.example` and the root `.env.example`; [DEPLOYMENT.md](DEPLOYMENT.md) has the full table. They are runtime values, so a change needs a restart, not a rebuild. The backend reads no cijene variable; the catalogue import's archive list URL is the property `product-images.catalog.list-url`, defaulting to the public `v0/list`.
 
@@ -362,7 +362,7 @@ Not covered: the proxy routes against real upstream responses, the fuzzy fallbac
 | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **One shared upstream token with a daily quota**         | Every visitor's request spends it. Count requests, not bytes: that is why city prices switch to one country wide request above three cities, and why 1Y and ALL history are off                    |
 | **An outage is not a 404**                               | `getServerProduct` keeps `unavailable` apart from `missing`. Treating both as not found would serve real products as noindex 404s during an upstream blip                                          |
-| **`loading.tsx` has already sent a 200**                 | By the time the page calls `notFound()`, the status is on the wire, so Next marks the page noindex instead of sending a 404                                                                        |
+| **`loading.tsx` has already sent a 200**                 | The locale layout's `app/[locale]/loading.tsx` streams first, so by the time the page calls `notFound()`, the status is on the wire, so Next marks the page noindex instead of sending a 404       |
 | **Upstream strips leading zeros**                        | Use the EAN from the response for canonicals, sitemaps and photos; the backend matches barcodes without leading zeros too                                                                          |
 | **Not every product id is a barcode**                    | cijene keys products sold without one as `<chain>:<code>`, and in-store codes fail the GS1 check digit. `isWellFormedProductId` checks the shape only; JSON-LD emits `gtin` only for a public GTIN |
 | **Next decodes `[id]` differently in metadata and page** | Always go through `decodeProductId`, or the two make separate upstream calls and can build different canonicals                                                                                    |
