@@ -138,4 +138,22 @@ describe("SheetShell on Android back", () => {
       expect(screen.queryByText("search")).not.toBeInTheDocument(),
     );
   });
+
+  // Past one veto per user activation the browser closes regardless, like a
+  // native dialog, so the sheet goes and the dialog is left for the next back.
+  it("closes the sheet when the browser will not let the close be vetoed", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<Harness />);
+
+    await screen.findByText("search");
+    await user.click(screen.getByRole("button", { name: "open dialog" }));
+    await screen.findByRole("dialog", { name: "dialog" });
+
+    pressBack(false);
+
+    await waitFor(() =>
+      expect(screen.queryByText("search")).not.toBeInTheDocument(),
+    );
+    expect(screen.getByRole("dialog", { name: "dialog" })).toBeInTheDocument();
+  });
 });
