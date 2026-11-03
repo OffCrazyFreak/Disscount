@@ -33,7 +33,7 @@ describe("proxyProblem", () => {
     const response = proxyProblem("csrf_rejected", requestIn("fr"));
 
     expect((await response.json()).title).toBe(
-      "Osvježi stranicu i pokušaj ponovno",
+      "Nešto nije u redu. Osvježi stranicu i pokušaj ponovno",
     );
   });
 });

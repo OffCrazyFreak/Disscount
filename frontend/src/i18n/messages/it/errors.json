@@ -5,7 +5,7 @@
   "proxy": {
     "sessionChanged": "Un altro account ha effettuato l'accesso. Aggiorniamo i tuoi dati.",
     "notFound": "Non lo troviamo",
-    "refreshPage": "Ricarica la pagina e riprova",
+    "refreshPage": "Qualcosa è andato storto. Ricarica la pagina e riprova",
     "unavailable": "Servizio non disponibile"
   }
 }

@@ -5,7 +5,7 @@
   "proxy": {
     "sessionChanged": "Prijavljen je drug račun. Osvežujemo podatke.",
     "notFound": "Tega ne najdemo",
-    "refreshPage": "Osveži stran in poskusi znova",
+    "refreshPage": "Nekaj je šlo narobe. Osveži stran in poskusi znova",
     "unavailable": "Storitev ni na voljo"
   }
 }
