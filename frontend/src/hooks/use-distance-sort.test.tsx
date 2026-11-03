@@ -185,7 +185,10 @@ describe("useDistanceSort", () => {
     await waitFor(() => expect(result.current.state).toBe("ready"));
     expect(result.current.sortMode).toBe("distance");
     expect(result.current.distanceByChain?.get("konzum")).toBeCloseTo(1.4, 0);
-    expect(result.current.shownDistances?.get("konzum")).toBeCloseTo(1.4, 0);
+    expect(result.current.shownNearestStores?.get("konzum")?.km).toBeCloseTo(
+      1.4,
+      0,
+    );
   });
 
   it("returns to the fallback with a reason when the location is denied", async () => {
@@ -298,7 +301,7 @@ describe("useDistanceSort", () => {
       town: "Split",
     });
     expect(result.current.distanceByChain?.get("studenac")).toBeCloseTo(0, 1);
-    expect(result.current.shownDistances).toBeUndefined();
+    expect(result.current.shownNearestStores).toBeUndefined();
   });
 
   it("keeps the saved place when a fix lands after the location gave up", async () => {

@@ -74,6 +74,6 @@ export function useProductDetail(ean: string) {
     distanceOrigin: distance.origin,
     distanceTowns: distance.towns,
     sortFromTown: distance.chooseTown,
-    shownDistances: distance.shownDistances,
+    shownNearestStores: distance.shownNearestStores,
   };
 }

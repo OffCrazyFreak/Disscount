@@ -26,6 +26,7 @@ import StorePricesDetails, {
 } from "@/app/[locale]/products/[id]/components/store-item/store-prices-details";
 import NearestStoreDistance from "@/components/custom/distance-sort/nearest-store-distance";
 import { TIME_ZONE } from "@/i18n/formatting";
+import type { INearestStore } from "@/utils/nearest-chain-distance";
 
 interface IStoreItemProps {
   store: ChainProductResponse;
@@ -35,8 +36,8 @@ interface IStoreItemProps {
   product: ProductResponse;
   isExpanded?: boolean;
   onToggle?: () => void;
-  /** Kilometres to the nearest store carrying it, while sorting by distance. */
-  distanceKm?: number;
+  /** The nearest store carrying it, while sorting by distance from a location fix. */
+  nearest?: INearestStore;
 }
 
 const StoreItem = memo(
@@ -47,7 +48,7 @@ const StoreItem = memo(
     storePrices,
     pricesStatus,
     product,
-    distanceKm,
+    nearest,
   }: IStoreItemProps) => {
     const t = useTranslations("productDetail.storeItem");
     const locale = useLocale();
@@ -106,9 +107,9 @@ const StoreItem = memo(
                       <StorePriceSummary store={store} product={product} />
                     </div>
 
-                    {distanceKm !== undefined && (
+                    {nearest && (
                       <div className="mt-1">
-                        <NearestStoreDistance km={distanceKm} />
+                        <NearestStoreDistance nearest={nearest} />
                       </div>
                     )}
                   </div>

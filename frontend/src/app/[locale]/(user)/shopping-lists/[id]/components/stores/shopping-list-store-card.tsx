@@ -13,6 +13,7 @@ import ShoppingListItemsTable from "@/app/[locale]/(user)/shopping-lists/[id]/co
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { ChainSummary } from "@/app/[locale]/(user)/shopping-lists/[id]/typings/store-chain-types";
 import { getStoreCardMetrics } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/store-card-utils";
+import type { INearestStore } from "@/utils/nearest-chain-distance";
 import StoreCardHeader from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/store-card-header";
 
 interface IShoppingListStoreItemProps {
@@ -23,8 +24,8 @@ interface IShoppingListStoreItemProps {
   productsData: ProductResponse[];
   hasLowestPriceItem: boolean;
   hasHighestPriceItem: boolean;
-  /** Kilometres to the chain's nearest store, while sorting by distance. */
-  distanceKm?: number;
+  /** The chain's nearest store, while sorting by distance from a location fix. */
+  nearest?: INearestStore;
 }
 
 function ShoppingListStoreItemComponent({
@@ -35,7 +36,7 @@ function ShoppingListStoreItemComponent({
   productsData,
   hasLowestPriceItem,
   hasHighestPriceItem,
-  distanceKm,
+  nearest,
 }: IShoppingListStoreItemProps) {
   const { user } = useUser();
   const [expandedStore, setExpandedStore] = useState<string | null>(null);
@@ -69,7 +70,7 @@ function ShoppingListStoreItemComponent({
               hasLowestPriceItem={hasLowestPriceItem}
               hasHighestPriceItem={hasHighestPriceItem}
               isExpanded={expandedStore === chain.chain}
-              distanceKm={distanceKm}
+              nearest={nearest}
             />
           </button>
         </CollapsibleTrigger>

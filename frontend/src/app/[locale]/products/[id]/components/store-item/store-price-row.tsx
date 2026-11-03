@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { toStoreKey } from "@/utils/store-key";
 import { StorePrice } from "@/lib/cijene-api/schemas";
 import { getLocationLabel } from "@/utils/labels";
+import StoreOpeningBadge from "@/components/custom/store-hours/store-opening-badge";
 import StorePriceCell from "@/app/[locale]/products/[id]/components/store-item/store-price-cell";
 
 interface IStorePriceRowProps {
@@ -53,6 +54,10 @@ export default function StorePriceRow({
           />
           <span className="sr-only">{t("showOnMap")}</span>
         </Link>
+
+        <StoreOpeningBadge
+          storeKey={toStoreKey(price.chain, price.store.code)}
+        />
       </TableCell>
 
       <TableCell className="text-center">
