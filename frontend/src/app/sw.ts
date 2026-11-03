@@ -84,7 +84,9 @@ const runtimeCaching: RuntimeCaching[] = [
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
-  skipWaiting: true,
+  // Off so a deploy waits for the reload the app offers; the old worker keeps
+  // serving the chunks open tabs still ask for until then.
+  skipWaiting: false,
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching,

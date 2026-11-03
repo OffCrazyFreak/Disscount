@@ -156,6 +156,11 @@
       "desktopMenu": "Se non vedi l'icona, apri il menu <vdots></vdots> e scegli <b>Trasmetti, salva e condividi</b> › <b>Installa pagina come app</b>."
     }
   },
+  "appUpdate": {
+    "message": "È pronta una nuova versione di Disscount.",
+    "reload": "Ricarica",
+    "later": "Più tardi"
+  },
   "validation": {
     "emailInvalid": "Inserisci un indirizzo email valido",
     "fullNameMax": "Il nome può avere al massimo 255 caratteri",

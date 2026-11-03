@@ -11,6 +11,7 @@ import { NotificationsProvider } from "@/context/notifications-context";
 import { ProductsSheetProvider } from "@/context/products-sheet-context";
 import RequestPersistentStorage from "@/components/custom/pwa/request-persistent-storage";
 import ScanShortcut from "@/components/custom/pwa/scan-shortcut";
+import AppUpdatePrompt from "@/components/custom/pwa/app-update-prompt";
 
 interface IProvidersProps {
   children: ReactNode;
@@ -28,6 +29,7 @@ export default function Providers({ children }: IProvidersProps) {
                   <ReactScan />
                   <RequestPersistentStorage />
                   <ScanShortcut />
+                  <AppUpdatePrompt />
 
                   {children}
                 </ToasterProvider>
