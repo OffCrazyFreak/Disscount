@@ -237,7 +237,7 @@ So an alert reaches the user only when they open the app. The backend has no not
 
 `buildShoppingListItemRequest` (`utils/shopping-list-item-request.ts`) always sends `ean`, `name`, `brand`, `quantity`, `unit`, `amount` and `isChecked`. Only for an item marked bought, and only when a chain is known, it adds `chainCode` (the chosen chain, or the cheapest one, pinned stores preferred), `avgPrice` (the mean of the chains' averages) and `storePrice` (that chain's price). Those prices are a snapshot taken when the item was ticked off; an unbought row sends none.
 
-The backend stores them in `shopping_list_item` (`ean` nullable for plain text items, `brand`, `name`, `quantity`, `unit`, `amount` up to 999, `is_checked`, `chain_code`, `avg_price`, `store_price`). Adding a product that is already on the list merges by EAN (`ShoppingListItemMatcher`), and a catalogue product takes over a plain row with the same name. Plain text items are added with `add-plain-item-modal.tsx`. Sharing a list is covered in [SHARING.md](SHARING.md).
+The backend stores them in `shopping_list_item` (`ean` nullable for plain text items, `brand`, `name`, `quantity`, `unit`, `amount` up to 999, `is_checked`, `chain_code`, `avg_price`, `store_price`). Adding a product that is already on the list merges by EAN (`ShoppingListItemMatcher`), and a catalogue product takes over a plain row with the same name. Plain text items are added with `add-plain-item-modal.tsx`. The list side (the merge rule, ticking, offline writes, grouping by store and the list's price history chart) is covered in [SHOPPING-LISTS.md](SHOPPING-LISTS.md), and sharing a list in [SHARING.md](SHARING.md).
 
 ---
 
