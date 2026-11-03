@@ -1,11 +1,21 @@
 "use client";
 
 import { useRef } from "react";
+import { motion } from "motion/react";
 import { useFormatter } from "next-intl";
 import ResponsiveLabel from "@/components/custom/common/responsive-label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useHashTab } from "@/hooks/use-hash-tab";
+import { useIsStuck } from "@/hooks/use-is-stuck";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
+import { cn } from "@/lib/utils";
 import type { ISectionTab } from "@/typings/section-tabs";
+
+const LAYOUT_TRANSITION = {
+  type: "spring",
+  bounce: 0.15,
+  duration: 0.45,
+} as const;
 
 const SINGLE_PANEL_PROPS = {
   role: undefined,
@@ -20,14 +30,19 @@ interface ISectionTabsProps {
 }
 
 /**
- * A page's sections as tabs in a bar that sticks just under the header. Only
- * the open panel renders, so a heavy one such as price history loads on open.
+ * A page's sections as tabs in a bar that sticks just under the header, where it
+ * morphs into a centred pill like the chart period tabs. Only the open panel
+ * renders, so a heavy one such as price history loads on open.
  */
 export default function SectionTabs({ label, tabs }: ISectionTabsProps) {
   const format = useFormatter();
   const rootRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
   const { activeId, selectTab } = useHashTab(tabs.map((tab) => tab.id));
+  const isStuck = useIsStuck(rootRef, barRef);
+  const transition = useReducedMotionSafe()
+    ? { duration: 0 }
+    : LAYOUT_TRANSITION;
 
   // One section needs no tabs and reads as the page itself. The tree stays the same, so
   // content does not remount (losing focus and drafts) when a second section appears.
@@ -35,11 +50,11 @@ export default function SectionTabs({ label, tabs }: ISectionTabsProps) {
 
   function handleChange(id: string) {
     const root = rootRef.current;
-    const list = listRef.current;
+    const bar = barRef.current;
 
     // Opened from the stuck bar, the new panel starts under it, not scrolled past.
-    if (root && list) {
-      const stuckTop = parseFloat(getComputedStyle(list).top) || 0;
+    if (root && bar) {
+      const stuckTop = parseFloat(getComputedStyle(bar).top) || 0;
       const overshoot = root.getBoundingClientRect().top - stuckTop;
       if (overshoot < 0)
         window.scrollBy({ top: overshoot, behavior: "instant" });
@@ -56,50 +71,79 @@ export default function SectionTabs({ label, tabs }: ISectionTabsProps) {
       className="gap-4"
     >
       {hasTabs && (
-        <TabsList
-          ref={listRef}
-          variant="line"
-          aria-label={label}
-          className="sticky top-[calc(var(--header-bottom)+--spacing(3))] z-[var(--z-section-nav)] h-12 w-full justify-start rounded-none border-b bg-background p-0"
+        // The bar holds its height while the list inside changes shape, so the page never shifts.
+        <div
+          ref={barRef}
+          className="sticky top-[calc(var(--header-bottom)+--spacing(3))] z-[var(--z-section-nav)] h-12"
         >
-          {tabs.map((tab) => {
-            const isActive = tab.id === activeId;
-            const hasCount = !!tab.count && tab.count > 0;
+          <TabsList
+            asChild
+            variant={isStuck ? "default" : "line"}
+            aria-label={label}
+            className={cn(
+              "h-full",
+              isStuck
+                ? "mx-auto flex rounded-xl border bg-muted p-1 shadow-md"
+                : "w-full justify-start rounded-none border-b bg-background p-0",
+            )}
+          >
+            <motion.div layout transition={transition}>
+              {tabs.map((tab) => {
+                const isActive = tab.id === activeId;
+                const hasCount = !!tab.count && tab.count > 0;
 
-            return (
-              <TabsTrigger
-                key={tab.id}
-                value={tab.id}
-                aria-label={tab.accessibleName}
-                className="h-full min-w-0 rounded-none px-3 font-normal sm:flex-none data-[state=active]:font-semibold group-data-[orientation=horizontal]/tabs:after:bottom-0 group-data-[orientation=horizontal]/tabs:after:h-0.75 after:rounded-t-full after:bg-primary after:forced-color-adjust-none forced-colors:after:bg-[Highlight]"
-              >
-                <span className="truncate">
-                  {tab.shortLabel ? (
-                    <ResponsiveLabel full={tab.label} short={tab.shortLabel} />
-                  ) : (
-                    tab.label
-                  )}
-                </span>
-
-                {/* Flex drops this space, but the accessible name keeps it: "Trgovine 3", not "Trgovine3". */}
-                {hasCount && " "}
-
-                {hasCount && (
-                  <span
-                    className={
-                      isActive
-                        ? "shrink-0 rounded-full bg-primary/10 px-1.5 text-xs leading-5 font-medium text-primary tabular-nums"
-                        : "shrink-0 rounded-full bg-muted px-1.5 text-xs leading-5 font-medium text-muted-foreground tabular-nums"
-                    }
+                return (
+                  <TabsTrigger
+                    key={tab.id}
+                    value={tab.id}
+                    asChild
+                    aria-label={tab.accessibleName}
+                    className={cn(
+                      "h-full min-w-0 font-normal transition-[color,background-color,box-shadow] data-[state=active]:font-semibold",
+                      isStuck
+                        ? "flex-none rounded-lg px-4 text-base"
+                        : "rounded-none px-3 sm:flex-none group-data-[orientation=horizontal]/tabs:after:bottom-0 group-data-[orientation=horizontal]/tabs:after:h-0.75 after:rounded-t-full after:bg-primary after:forced-color-adjust-none forced-colors:after:bg-[Highlight]",
+                    )}
                   >
-                    {format.number(tab.count ?? 0)}
-                    {tab.total !== undefined && `/${format.number(tab.total)}`}
-                  </span>
-                )}
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
+                    <motion.button layout="position" transition={transition}>
+                      <span className="truncate">
+                        {tab.shortLabel ? (
+                          <ResponsiveLabel
+                            full={tab.label}
+                            short={tab.shortLabel}
+                          />
+                        ) : (
+                          tab.label
+                        )}
+                      </span>
+
+                      {/* Flex drops this space, but the accessible name keeps it: "Trgovine 3", not "Trgovine3". */}
+                      {hasCount && " "}
+
+                      {hasCount && (
+                        <span
+                          className={cn(
+                            "shrink-0 rounded-full px-1.5 text-xs leading-5 font-medium tabular-nums",
+                            !isActive && "bg-background text-muted-foreground",
+                            isActive &&
+                              !isStuck &&
+                              "bg-primary/10 text-primary",
+                            // On the stuck pill the open tab is filled green.
+                            isActive && isStuck && "bg-white/20 text-white",
+                          )}
+                        >
+                          {format.number(tab.count ?? 0)}
+                          {tab.total !== undefined &&
+                            `/${format.number(tab.total)}`}
+                        </span>
+                      )}
+                    </motion.button>
+                  </TabsTrigger>
+                );
+              })}
+            </motion.div>
+          </TabsList>
+        </div>
       )}
 
       {tabs.map((tab) => (
