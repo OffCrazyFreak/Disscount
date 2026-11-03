@@ -290,6 +290,15 @@ Worth knowing:
 - **Reboot now instead of tonight:** run `sudo unattended-upgrade -v`. It goes through the same steps as the nightly run and reboots at the end if the flag is set. Starting `apt-daily-upgrade.service` by hand does nothing on a day the timer already ran, because its stamp check counts whole days.
 - **Check that it worked:** after a reboot, `uname -r` shows the new kernel, `/var/run/reboot-required` is gone, and `sudo journalctl -u traefik-boot-check -b` prints `dokploy-traefik is running`, or a line saying it had to start it.
 
+### What is encrypted and why
+
+Traffic is encrypted in transit (Cloudflare to the browser, Traefik's certificate to Cloudflare, see [§6](#6-domains-dns--https)). At rest, only the secrets that would be dangerous on their own are encrypted; the rest of the data relies on the firewall, SSH hardening and access control above.
+
+- **OAuth tokens: encrypted.** better-auth encrypts the Google and Facebook access and refresh tokens before writing them to the `account` table, with a key derived from `BETTER_AUTH_SECRET`. The `id_token` column is not encrypted by this option, and rows written before the switch stay plaintext until that user signs in again. Rotating that secret needs care, see [AUTH.md](AUTH.md#13-gotchas-and-lessons). Passwords were never stored: better-auth keeps only a scrypt hash.
+- **Emails, usernames and display names: not encrypted per field.** GDPR Article 32 asks for measures appropriate to the risk, and here the key would sit on the same host as the data, so it adds little against someone who has the server. Login by email would also need a custom better-auth adapter to look users up through an encrypted column.
+- **Full-disk encryption: not used, an accepted risk.** An encrypted disk waits for a passphrase at boot, which would stop the nightly unattended reboot in [Nightly updates and reboots](#nightly-updates-and-reboots) until someone typed it in.
+- **Off-host backups: not encrypted by us yet.** R2 encrypts objects with keys Cloudflare holds; encrypting the dumps ourselves before upload is a suggestion on the project board, not done.
+
 ---
 
 ## 8. Backups & restore

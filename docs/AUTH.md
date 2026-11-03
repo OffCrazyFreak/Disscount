@@ -265,16 +265,16 @@ While `true`, Facebook is shown as "uskoro" and disabled in the login modal and 
 
 Frontend (`frontend/.env.local`, mirrored in `.env.local.example`). They are validated by the zod schema in `lib/server-env.ts`, read at module load and checked as a whole when the server starts, so a missing value fails the boot rather than a request:
 
-| Variable                                                | Purpose                                                                                       |
-| ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `BETTER_AUTH_URL`                                       | Base URL Better Auth builds links and callbacks from.                                         |
-| `BETTER_AUTH_SECRET`                                    | Signs Better Auth internals. Keep secret; 32+ chars.                                          |
-| `NEXT_PUBLIC_APP_URL`                                   | Public app origin, used for email links and trusted origins.                                  |
-| `DATABASE_URL`                                          | Shared Postgres, used by Better Auth via Drizzle.                                             |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth app.                                                                             |
-| `FACEBOOK_CLIENT_ID` / `FACEBOOK_CLIENT_SECRET`         | Meta app (server only, no `NEXT_PUBLIC_`).                                                    |
-| `RESEND_API_KEY`                                        | Resend API key for sending email.                                                             |
-| `EMAIL_FROM`                                            | Sender, must exactly match a verified Resend domain, e.g. `Disscount <noreply@disscount.me>`. |
+| Variable                                                | Purpose                                                                                         |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `BETTER_AUTH_URL`                                       | Base URL Better Auth builds links and callbacks from.                                           |
+| `BETTER_AUTH_SECRET`                                    | Signs Better Auth internals and keys the stored OAuth token encryption. Keep secret; 32+ chars. |
+| `NEXT_PUBLIC_APP_URL`                                   | Public app origin, used for email links and trusted origins.                                    |
+| `DATABASE_URL`                                          | Shared Postgres, used by Better Auth via Drizzle.                                               |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth app.                                                                               |
+| `FACEBOOK_CLIENT_ID` / `FACEBOOK_CLIENT_SECRET`         | Meta app (server only, no `NEXT_PUBLIC_`).                                                      |
+| `RESEND_API_KEY`                                        | Resend API key for sending email.                                                               |
+| `EMAIL_FROM`                                            | Sender, must exactly match a verified Resend domain, e.g. `Disscount <noreply@disscount.me>`.   |
 
 Backend (`backend/.env`, referenced in `application.properties`):
 
@@ -380,6 +380,8 @@ Backend: Spring Boot `4.1.2` on Java `21`, using `spring-boot-starter-security-o
 - **The stack stores naive timestamps, so a zone has to be chosen explicitly on both sides.** `app_user` and Better Auth's drizzle `session` / `user` tables are all `timestamp` without a time zone, and Drizzle writes UTC. Spring must match: `UserService.nowUtc()` stamps in UTC rather than the JVM default zone, otherwise the same column carries a different clock base per environment and comparisons against `MAX(session.updated_at)` silently favour whichever side is ahead.
 - **`UserDto.lastLoginAt` and `lastActiveAt` are `Instant`, not `LocalDateTime`, and that is deliberate.** Jackson serialises a `LocalDateTime` with no offset, and `new Date("2026-07-24T13:05:11.123")` in the browser reads that as **local** time. The admin dashboard does date maths on both fields, so an offset-less value made a just-signed-in user render as "prije 2 sata" and shifted the WAU/MAU window by each admin's UTC offset. Any future field the frontend compares against `Date.now()` needs the same treatment.
 - **`lastLoginAt` is stored on the better-auth `user` row, not derived from sessions.** Signing out and session expiry delete `session` rows, so `databaseHooks.session.create.after` (`record-last-login.ts`) stamps `user.last_login_at` with each new session's `created_at` (migration `0005_user_last_login`). A failed write is logged, never thrown, because the sign-in has already succeeded. `AuthIdentityDao` reads it for the admin list and takes the later of it and `MAX(session.created_at)`, so users not signed in since the column was added, and a stamp that failed to write, still show their latest surviving session. `lastActiveAt` is the stamped `app_user` column.
+
+- **Stored OAuth tokens are encrypted, and the key is `BETTER_AUTH_SECRET`.** `account.encryptOAuthTokens` is on, so better-auth 1.6.25 encrypts the `access_token` and `refresh_token` columns (XChaCha20-Poly1305 under a SHA-256 of the secret, stored as hex) whenever it writes them: on sign-up, on every sign-in (`updateAccountOnSignIn` defaults to true), on linking and on a token refresh. The `id_token` column is never encrypted by this option. The app itself never reads the stored tokens. Rows written before the switch stay plaintext until that user signs in again, and keep working meanwhile: better-auth decrypts only a value that is all hex or starts with its `$ba$` envelope prefix and passes anything else through, and Google and Facebook tokens are neither. Changing `BETTER_AUTH_SECRET` outright makes every encrypted token undecryptable: better-auth's `/get-access-token` and `/refresh-token` then fail, while sign-in still works and overwrites the tokens. To keep them readable, rotate through better-auth's versioned secrets instead: keep the old value in `BETTER_AUTH_SECRET` and set `BETTER_AUTH_SECRETS=2:<new>` (newest first), which better-auth reads from the environment itself. New writes then carry a `$ba$2$` envelope, and old bare hex values still decrypt with the old secret ([options](https://www.better-auth.com/docs/reference/options#secrets), [security](https://www.better-auth.com/docs/reference/security#secret-rotation)). Session cookies are signed with the newest secret, so either way a rotation signs everyone out. `BETTER_AUTH_SECRETS` is not in `server-env.ts` or the example env files yet; adding it is a new environment variable.
 
 ## 14. Future improvements and TODOs
 

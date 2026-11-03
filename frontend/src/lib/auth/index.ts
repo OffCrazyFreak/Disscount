@@ -180,6 +180,8 @@ export const auth = betterAuth({
   },
 
   account: {
+    // Keyed by BETTER_AUTH_SECRET; rotating it needs `secrets` with the old one kept, see AUTH.md.
+    encryptOAuthTokens: true,
     accountLinking: {
       enabled: true,
       // Auto-links by shared email; the gate requires the EXISTING account verified.
