@@ -104,7 +104,7 @@ public class DigitalCardPhotoService {
         DigitalCardPhoto row = photoRepository.findByCardIdAndSlot(cardId, slot)
                 .orElseThrow(() -> new NotFoundException("error.cardPhoto.notFound"));
 
-        // The URL is cached as immutable, so an old version must 404 instead of serving the new bytes under it.
+        // The client caches photo bytes by version, so an old version must 404 instead of serving the new bytes under it.
         if (version != null && !version.equals(row.getSha256())) {
             throw new NotFoundException("error.cardPhoto.notFound");
         }
