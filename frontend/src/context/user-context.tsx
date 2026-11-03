@@ -4,7 +4,6 @@ import {
   createContext,
   useContext,
   useEffect,
-  useState,
   useCallback,
   useRef,
   useSyncExternalStore,
@@ -22,24 +21,26 @@ import {
 } from "@/lib/offline/cache-identity";
 import { sessionIdentity } from "@/lib/auth/pending-sign-out";
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
-import { loadUserProfile } from "@/context/load-user-profile";
 import {
-  erasedAccountId,
-  finishErasedAccountDeletion,
-} from "@/lib/auth/finish-erased-account";
-import { mergeSessionUser } from "@/context/merge-session-user";
+  isProfileOfAnotherAccount,
+  mergeSessionUser,
+} from "@/context/merge-session-user";
 import {
   isUnverifiedAccount,
   syncCacheIdentity,
 } from "@/context/sync-cache-identity";
 import { useAccountUser } from "@/context/use-account-user";
 import { useLogout } from "@/context/use-logout";
+import { useProfileLoader } from "@/context/use-profile-loader";
 import { useUserUpdaters } from "@/context/use-user-updaters";
 
 interface IUserContext {
   user: UserDto | null;
   isLoading: boolean;
-  /** True only until auth first resolves; stays false through later refreshes */
+  /**
+   * True until auth first resolves and while a newly signed-in account's profile loads;
+   * stays false through refreshes of the same account.
+   */
   isInitializing: boolean;
   isAuthenticated: boolean;
   /**
@@ -75,9 +76,8 @@ interface IUserProviderProps {
 }
 
 export function UserProvider({ children }: IUserProviderProps) {
-  const [user, setUser] = useState<UserDto | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasResolvedAuth, setHasResolvedAuth] = useState(false);
+  const { user, setUser, isLoading, hasResolvedAuth, refreshUser, clearUser } =
+    useProfileLoader();
   // Seeded from the persisted value so a reload as the same account is not read as a
   // change of identity, which would purge the cache it just restored.
   const cacheIdentityRef = useRef<string | null>(persistedCacheIdentity());
@@ -88,26 +88,6 @@ export function UserProvider({ children }: IUserProviderProps) {
     isPending: sessionPending,
     error: sessionError,
   } = useSession();
-
-  const refreshUser = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const userData = await loadUserProfile();
-
-      setUser(userData);
-      return userData;
-    } catch (error) {
-      console.error("Failed to fetch user profile:", error);
-      setUser(null);
-      // Spring erased this account but the login survived a failed deletion; ending the session
-      // lets the session effect clear the tab like any sign-out.
-      const erasedUserId = erasedAccountId(error);
-      if (erasedUserId) await finishErasedAccountDeletion(erasedUserId);
-    } finally {
-      setIsLoading(false);
-      setHasResolvedAuth(true);
-    }
-  }, []);
 
   useEffect(() => {
     if (sessionPending) return;
@@ -121,16 +101,12 @@ export function UserProvider({ children }: IUserProviderProps) {
       Sentry.setUser(identity ? { id: identity } : null);
     }
 
-    // The directive covers this whole effect, not just the line under it: the else
-    // branch clears user state synchronously too. Both sides react to an auth result
-    // that only exists after the session resolves, so neither is derivable.
+    // Both sides react to an auth result that only exists after the session resolves,
+    // so neither is derivable.
     if (identity) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       refreshUser();
     } else {
-      setUser(null);
-      setIsLoading(false);
-      setHasResolvedAuth(true);
+      clearUser();
     }
     // Keyed on the user id, not the user object the lint asks for: better-auth hands
     // back a new session object on every poll, so depending on it would refetch the
@@ -142,6 +118,7 @@ export function UserProvider({ children }: IUserProviderProps) {
     sessionPending,
     sessionError,
     refreshUser,
+    clearUser,
     queryClient,
   ]);
 
@@ -169,7 +146,11 @@ export function UserProvider({ children }: IUserProviderProps) {
     getCacheIdentity,
     () => ANONYMOUS_IDENTITY,
   );
-  const mergedUser = mergeSessionUser(user, session?.user);
+  // Withheld, with the flags reading as loading and never as signed out.
+  const isSwitchingAccount = isProfileOfAnotherAccount(user, session?.user);
+  const mergedUser = isSwitchingAccount
+    ? null
+    : mergeSessionUser(user, session?.user);
   const hasUnverifiedAccount = isUnverifiedAccount(
     !!mergedUser,
     sessionPending,
@@ -180,11 +161,12 @@ export function UserProvider({ children }: IUserProviderProps) {
 
   const value: IUserContext = {
     user: mergedUser,
-    isLoading: isLoading || sessionPending,
-    isInitializing: !hasResolvedAuth,
-    isAuthenticated: !!mergedUser,
+    isLoading: isLoading || sessionPending || isSwitchingAccount,
+    isInitializing: !hasResolvedAuth || isSwitchingAccount,
+    isAuthenticated: !!mergedUser || isSwitchingAccount,
     hasUnverifiedAccount,
-    canShowAccountData: !!mergedUser || hasUnverifiedAccount,
+    canShowAccountData:
+      !!mergedUser || hasUnverifiedAccount || isSwitchingAccount,
     accountUser,
     refreshUser,
     setUser,
