@@ -60,7 +60,9 @@ flowchart TD
     J --> R[ProductImageRenderer<br/>rotate, crop, white square]
     R --> P["Public bucket<br/>products/ean/hash.jpg and -thumb.jpg"]
     P -->|thumbUrl, fullUrl| B[Browser img tags]
-    P -->|fullUrl of the main photo| SEO[og:image and JSON-LD image]
+    P -->|fullUrl of the main photo| LD[JSON-LD image]
+    P -->|fullUrl of the main photo| CARD["Share card route<br/>1200x630 PNG"]
+    CARD --> SEO[og:image and twitter:image]
 ```
 
 Step by step:
@@ -129,7 +131,7 @@ The white is part of the file on purpose. Dark Reader's default mode recolours C
 
 ## 7. How photos reach the page
 
-**Direct URLs, no image optimizer.** The backend answers with absolute URLs on `R2_PUBLIC_URL` (`R2ProductImageStore.publicUrl`). The browser loads them with a plain `<img>` in `PhotoTile` (`components/custom/product-photos/photo-tile.tsx`), never `next/image`, so no request goes through our servers and `next.config.ts` needs no `images` setting. The files are already the right sizes and formats, so an optimizer would only add a hop.
+**Direct URLs, no image optimizer.** The one exception is the share card below, which crawlers fetch from our server. The backend answers with absolute URLs on `R2_PUBLIC_URL` (`R2ProductImageStore.publicUrl`). The browser loads them with a plain `<img>` in `PhotoTile` (`components/custom/product-photos/photo-tile.tsx`), never `next/image`, so no request goes through our servers and `next.config.ts` needs no `images` setting. The files are already the right sizes and formats, so an optimizer would only add a hop.
 
 | Where                                          | File used                   | How it gets the URL                                                                                                                                 |
 | ---------------------------------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -137,9 +139,18 @@ The white is part of the file on purpose. Dark Reader's default mode recolours C
 | Product page gallery, thumbnails strip         | `thumbUrl`                  | Same response                                                                                                                                       |
 | Viewer (lightbox)                              | `fullUrl` (1080 px)         | Same response                                                                                                                                       |
 | Product rows, shopping list rows, modal header | thumbnail                   | `useProductThumbnail(ean)`; `thumbnail-batcher.ts` gathers every ask within 15 ms into one `GET /api/products/images/thumbnails?eans=` of up to 100 |
-| `og:image`, Twitter card, JSON-LD              | `fullUrl` of the main photo | `getMainPhotoUrl` on the server (`lib/api/product-images/server.ts`), 3 second timeout, `null` on any failure                                       |
+| JSON-LD `image`                                | `fullUrl` of the main photo | `getMainPhotoUrl` on the server (`lib/api/product-images/server.ts`), 3 second timeout, `null` on any failure                                       |
+| `og:image`, `twitter:image`                    | 1200x630 share card         | `/og/products/<ean>/<version>.png`, composed from `fullUrl` at request time; see below                                                              |
 
-The gallery is fetched in the browser, not seeded by the server render, so the server HTML of a product page shows a skeleton where the photo goes. Only the share image and JSON-LD use the photo on the server, and they fall back to the brand OG image when there is none.
+The gallery is fetched in the browser, not seeded by the server render, so the server HTML of a product page shows a skeleton where the photo goes. Only the share card and JSON-LD use the photo on the server, and they fall back to the brand OG image when there is none.
+
+**The share card.** Photos are square, which Meta shows as a small image and X crops to 2:1, while [Meta asks for about 1.91:1 at 1200x630](https://developers.facebook.com/docs/sharing/webmasters/images/). So `og:image` and `twitter:image` point at a card that `app/og/render-product-og.tsx` composes with `next/og`: the brand gradient, the wordmark, and the photo on a white tile in the middle, because a chat app may crop to the centre square. JSON-LD keeps the real photo, because it describes the product, not a link preview. The tags carry width, height, type and alt, which lets Meta show the image on the very first share.
+
+- **The URL follows the photo.** The file name is a hash of `fullUrl` (`app/og/product-share-image.ts`), so a new main photo gets a new URL, and platforms and Cloudflare, which all cache by URL, pick it up. That is what makes the year-long `immutable` cache safe. A link already shared on Meta keeps its old preview until someone refreshes it in the Sharing Debugger.
+- **It ends in `.png` on purpose.** `proxy.ts` skips paths with a file extension, so next-intl never redirects it, and [Cloudflare caches `.png` by default](https://developers.cloudflare.com/cache/concepts/default-cache-behavior/). Without a Cache Rule, a card renders once per Cloudflare location, not once per crawler.
+- **Only the current file name renders.** Any other name for that EAN gets an uncached 302 to the current one, and an EAN without a photo gets one to the brand image, so random URLs cannot force renders past the CDN.
+- **No text but the wordmark.** Platforms print `og:title` right next to the card, a name on the card would need layout rules for long names, and without translated copy all five locales share one cached file.
+- **Size.** A PNG holding a photo compresses poorly. The tile is sized so 31 random dev photos stayed under [WhatsApp's 600 KB limit](https://developers.facebook.com/documentation/business-messaging/whatsapp/link-previews/) (median 345 KB, largest 563 KB), but `next/og` cannot write JPEG, so nothing guarantees it for every photo.
 
 **Caching.**
 
@@ -216,12 +227,12 @@ The browser reaches all of them through the backend proxy ([BACKEND-PROXY.md](BA
 
 ## 12. Tests
 
-| Suite             | What it covers                                                                                                                                                                                                                                                                                                                                                                 |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Backend (H2)      | `ProductImageRendererTest`, `ProductImageServiceTest`, `ProductImageControllerTest`, `ProductImageWireFormatTest`, `ProductImageJobsTest`, `ProductImageJobsRenderTest`, `ProductImageJobsStaleWriteTest`, `CatalogArchiveReaderTest`, `OpenFoodFactsParsingTest`, with `FakeProductImageStore` in place of R2                                                                 |
-| Frontend (Vitest) | `crop-math.test.ts`, `product-images/hooks.test.tsx`, `product-thumbnail.test.tsx` (one request per list, the placeholder for no photo, a typed item, a failed request, a broken image, and the retry after reconnecting), `product-info-display.test.tsx` (the modal header keeps its photo box without a photo), `product-photo-gallery.test.tsx`, `use-queue-keys.test.tsx` |
+| Suite             | What it covers                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Backend (H2)      | `ProductImageRendererTest`, `ProductImageServiceTest`, `ProductImageControllerTest`, `ProductImageWireFormatTest`, `ProductImageJobsTest`, `ProductImageJobsRenderTest`, `ProductImageJobsStaleWriteTest`, `CatalogArchiveReaderTest`, `OpenFoodFactsParsingTest`, with `FakeProductImageStore` in place of R2                                                                                                                                                                                    |
+| Frontend (Vitest) | `crop-math.test.ts`, `product-images/hooks.test.tsx`, `product-thumbnail.test.tsx` (one request per list, the placeholder for no photo, a typed item, a failed request, a broken image, and the retry after reconnecting), `product-info-display.test.tsx` (the modal header keeps its photo box without a photo), `product-photo-gallery.test.tsx`, `use-queue-keys.test.tsx`, `og/products/[ean]/[file]/route.test.ts` (the share card's redirects), `product-metadata.test.ts` (its meta tags) |
 
-Not covered by tests: a real upload to R2, the real Open Food Facts export, and how photos look under dark mode extensions; those need a manual check.
+Not covered by tests: a real upload to R2, the real Open Food Facts export, how photos look under dark mode extensions, and how the share card renders (the route test stubs the renderer); those need a manual check.
 
 ---
 
@@ -239,6 +250,9 @@ Not covered by tests: a real upload to R2, the real Open Food Facts export, and 
 | `frontend/src/app/[locale]/products/components/product-photos/`  | The product page gallery                                                 |
 | `frontend/src/app/[locale]/dashboard/components/product-photos/` | The review queue                                                         |
 | `frontend/src/lib/api/product-images/`                           | Fetchers, hooks, thumbnail batcher, server helpers                       |
+| `frontend/src/app/og/products/[ean]/[file]/route.tsx`            | The share card route: fallbacks and redirects                            |
+| `frontend/src/app/og/render-product-og.tsx`                      | The share card layout and its cache header                               |
+| `frontend/src/app/og/product-share-image.ts`                     | The card's versioned URL                                                 |
 | `frontend/src/lib/api/schemas/product-image.ts`                  | Zod schemas for every response                                           |
 | `frontend/src/utils/browser/product-photo.ts`                    | Upload preparation settings                                              |
 
@@ -289,6 +303,7 @@ Versions read from `frontend/package.json` and `backend/pom.xml`.
 | An admin edits a photo while the job downloads it                                                   | The admin's change wins                                     | The job reads the row again before writing and drops its result when the photo is no longer an uncopied candidate, has a new revision or a new crop                                                                                                                      |
 | A crop is rolled back                                                                               | The old files keep showing                                  | Replaced files are deleted only after the database commit                                                                                                                                                                                                                |
 | The backend is slow or down during a product page render                                            | The page renders; share image falls back to the brand image | `getMainPhotoUrl` gives up after 3 seconds and returns `null`                                                                                                                                                                                                            |
+| The bucket or backend fails while a share card is requested                                         | The preview shows the brand image                           | The card route answers an uncached 302 to the brand image, so the next request tries again                                                                                                                                                                               |
 | The backend is down when a crawler fetches a product sitemap                                        | Sitemap answers 500                                         | Deliberate: crawlers retry a 500, an empty sitemap would drop every URL                                                                                                                                                                                                  |
 | The thumbnails request fails                                                                        | Cards show no photo                                         | Not retried; the next list load asks again                                                                                                                                                                                                                               |
 | A user uploads too often                                                                            | 429 with a message                                          | 10 per 10 minutes per user, swept every 5 minutes                                                                                                                                                                                                                        |
