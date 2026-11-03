@@ -30,7 +30,7 @@ export function useAddToListForm(
   ean: string,
   preferredListId?: string,
 ) {
-  const { user } = useUser();
+  const { user, accountUser } = useUser();
   // Opened from a list, its own draft, so a draft naming another list cannot win.
   const draftKey = preferredListId
     ? `add-to-list.${ean}.${preferredListId}`
@@ -84,7 +84,7 @@ export function useAddToListForm(
 
   const pricing = useAddToListPrices(
     product,
-    user?.pinnedStores ?? undefined,
+    accountUser?.pinnedStores ?? undefined,
     form,
   );
 

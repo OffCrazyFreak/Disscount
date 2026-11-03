@@ -19,21 +19,21 @@ export default function useSeedPreferredFilters(enabled = true): void {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useUser();
+  const { accountUser } = useUser();
   const hasSeeded = useRef(false);
 
   useEffect(() => {
     // The profile arrives after first render, so this waits for it.
-    if (!enabled || hasSeeded.current || !user) return;
+    if (!enabled || hasSeeded.current || !accountUser) return;
 
     hasSeeded.current = true;
 
     if (FILTER_KEYS.some((key) => searchParams.has(key))) return;
 
-    const pinnedChains = (user.pinnedStores ?? [])
+    const pinnedChains = (accountUser.pinnedStores ?? [])
       .map((store) => store.storeApiId)
       .filter(Boolean);
-    const pinnedPlaces = (user.pinnedPlaces ?? [])
+    const pinnedPlaces = (accountUser.pinnedPlaces ?? [])
       .map((place) => place.placeName)
       .filter(Boolean);
 
@@ -45,5 +45,5 @@ export default function useSeedPreferredFilters(enabled = true): void {
     pinnedPlaces.forEach((place) => params.append("location", place));
 
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [enabled, user, searchParams, pathname, router]);
+  }, [enabled, accountUser, searchParams, pathname, router]);
 }

@@ -19,7 +19,7 @@ interface IChartPrefs {
 }
 
 export function usePriceHistoryChart(product: ProductResponse) {
-  const { user } = useUser();
+  const { accountUser } = useUser();
   // Read through the store, not lazily: the open section is in the server HTML, which has only defaults.
   const saved = useProductPreferences(product.ean);
 
@@ -27,7 +27,8 @@ export function usePriceHistoryChart(product: ProductResponse) {
     product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
 
   // If EAN isn't in preferences yet, default to preferred stores only (if any exist)
-  const preferredStoreIds = user?.pinnedStores?.map((s) => s.storeApiId) || [];
+  const preferredStoreIds =
+    accountUser?.pinnedStores?.map((s) => s.storeApiId) || [];
   const preferredChains = availableChains.filter((chain) =>
     preferredStoreIds.includes(chain),
   );

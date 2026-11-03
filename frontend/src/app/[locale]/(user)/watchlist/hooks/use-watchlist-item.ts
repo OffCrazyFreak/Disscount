@@ -19,7 +19,7 @@ export function useWatchlistItem(item: IWatchlistItemWithProduct) {
   const { watchlistItems, productApiId, product, discountInfo, isLoading } =
     item;
   const t = useTranslations("watchlist");
-  const { user } = useUser();
+  const { accountUser } = useUser();
 
   const { isRemoving, handleRemove } = useWatchlistRemoval(watchlistItems);
 
@@ -33,7 +33,7 @@ export function useWatchlistItem(item: IWatchlistItemWithProduct) {
       : null;
 
   const pinnedStoreChainCodes = extractPinnedStoreChainCodes(
-    user?.pinnedStores,
+    accountUser?.pinnedStores,
   );
   const hasPinnedStores = pinnedStoreChainCodes.length > 0;
 

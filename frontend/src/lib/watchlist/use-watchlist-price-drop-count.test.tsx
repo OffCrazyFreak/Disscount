@@ -27,6 +27,9 @@ vi.mock("@/context/user-context", () => ({
     user: session.isAuthenticated
       ? { id: session.userId, pinnedStores: session.pinnedStores }
       : null,
+    accountUser: session.isAuthenticated
+      ? { id: session.userId, pinnedStores: session.pinnedStores }
+      : null,
   }),
 }));
 vi.mock("@/i18n/navigation", () => ({
