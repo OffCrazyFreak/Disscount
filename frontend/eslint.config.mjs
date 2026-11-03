@@ -109,7 +109,7 @@ const eslintConfig = defineConfig([
   // Every variable goes through the validated env modules. NODE_ENV and NEXT_RUNTIME stay
   // literal because the bundler replaces them and drops the dead branch.
   {
-    files: ["src/**/*.{ts,tsx}"],
+    files: ["src/**/*.{ts,tsx}", "sentry.*.config.ts"],
     ignores: [
       "src/lib/env.ts",
       "src/lib/server-env.ts",

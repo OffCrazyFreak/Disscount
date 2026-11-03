@@ -29,18 +29,19 @@ _Last verified on branch `feat/pwa`, 2026-07-04: installable on Android/iOS, off
 
 ## 1. Quick reference
 
-| Thing                        | Value                                                                                               |
-| ---------------------------- | --------------------------------------------------------------------------------------------------- |
-| Service worker library       | **Serwist** (`@serwist/next`), the maintained successor to `next-pwa`                               |
-| Service worker source        | `frontend/src/app/sw.ts` (compiled to `public/sw.js` at build)                                      |
-| Service worker active in     | **production builds only** (disabled in dev, since it fights Turbopack/HMR)                         |
-| Web app manifest             | `frontend/src/app/manifest.ts` (served at `/manifest.webmanifest`)                                  |
-| Offline data store           | IndexedDB via a persisted React Query cache (`idb-keyval` + `@tanstack/react-query-persist-client`) |
-| Build command                | `next build --webpack` (Serwist needs webpack; dev stays on Turbopack)                              |
-| Status-bar / theme color     | `#ffffff` (neutral white, set in both `manifest.ts` and the `viewport` export)                      |
-| Install UX                   | floating dismissible banner + sidebar and landing cards + a four-platform instructions sheet        |
-| Icons / splash / screenshots | `public/brand/icons`, `public/splash` (18 iOS sizes), `public/screenshots` (2); see `docs/BRAND.md` |
-| What is NOT built yet        | push notifications, app badging, wake lock (see [TODOs](#14-future-improvements-and-todos))         |
+| Thing                        | Value                                                                                                                                                                                                                                 |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Service worker library       | **Serwist** (`@serwist/next`), the maintained successor to `next-pwa`                                                                                                                                                                 |
+| Service worker source        | `frontend/src/app/sw.ts` (compiled to `public/sw.js` at build)                                                                                                                                                                        |
+| Service worker active in     | **production builds only** (disabled in dev, since it fights Turbopack/HMR)                                                                                                                                                           |
+| Web app manifest             | `frontend/src/app/manifest.ts` (served at `/manifest.webmanifest`)                                                                                                                                                                    |
+| Offline data store           | IndexedDB via a persisted React Query cache (`idb-keyval` + `@tanstack/react-query-persist-client`)                                                                                                                                   |
+| Build command                | `next build --webpack` (Serwist needs webpack; dev stays on Turbopack)                                                                                                                                                                |
+| Status-bar / theme color     | `#ffffff` (neutral white, set in both `manifest.ts` and the `viewport` export)                                                                                                                                                        |
+| Install UX                   | floating dismissible banner + sidebar and landing cards + a four-platform instructions sheet                                                                                                                                          |
+| Icons / splash / screenshots | `public/brand/icons`, `public/splash` (18 iOS sizes), `public/screenshots` (2); see `docs/BRAND.md`                                                                                                                                   |
+| Screen wake lock             | `frontend/src/hooks/use-wake-lock.ts`, held while the digital card view modal is open and requested again when the tab returns to view; where it is unsupported or refused, the modal's brightness hint warns that the screen may dim |
+| What is NOT built yet        | push notifications, app badging (see [TODOs](#14-future-improvements-and-todos))                                                                                                                                                      |
 
 **The one rule that explains most decisions:** public data may be cached by the service worker; **private (authenticated) data is never written to the HTTP Cache Storage**, it lives only in the React Query IndexedDB cache and is wiped on logout.
 
