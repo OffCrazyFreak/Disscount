@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import disscount.config.SecurityConfig;
 import disscount.exceptions.ForbiddenException;
+import disscount.productImage.dto.ProductImageDtos.ListedEansDto;
 import disscount.productImage.dto.ProductImageDtos.ProductImageDto;
 import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
 import disscount.productImage.dto.ProductImageDtos.ProductThumbnailsDto;
@@ -65,6 +66,15 @@ class ProductImageControllerTest {
         mvc.perform(get("/api/products/images/thumbnails").param("eans", "8076800195057, 5449000000996,"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.thumbnails.8076800195057").value("https://i/thumb.jpg"));
+    }
+
+    @Test
+    void listedEansAreReadableWithoutLogin() throws Exception {
+        when(queries.listedEans()).thenReturn(new ListedEansDto(List.of("5449000000996", "8076800195057")));
+
+        mvc.perform(get("/api/products/catalog/eans"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.eans[1]").value("8076800195057"));
     }
 
     @Test

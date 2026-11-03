@@ -107,9 +107,9 @@ The centre cell is different: a raised, filled, brand-green 44.8px circle with `
 
 ### Why the teaser cells sit on the outside
 
-`Karta` is not shipped yet (`Kartice` shipped with digital cards, see [DIGITAL-CARDS.md](DIGITAL-CARDS.md)), and when both were teasers the outside positions were chosen for them. The outer positions keep the arrangement symmetric with search dead centre, and put the least useful cells in the hardest thumb positions.
+Both have shipped since (`Kartice` with digital cards, see [DIGITAL-CARDS.md](DIGITAL-CARDS.md), and `Karta` as the stores map), but the outside positions were chosen for them while both were teasers. The outer positions keep the arrangement symmetric with search dead centre, and put the least useful cells in the hardest thumb positions.
 
-The left cell was `Potrošnja` at first. Both it and `Karta` are `comingSoon` teasers with a real `ComingSoon` page behind them, so the swap is a judgement about which one people will reach for, and a map of nearby stores and their opening hours beats a spending breakdown for a shopper standing in the street. `bottomNavItems` looks up ids across both `userNavItems` and `productNavItems` for it, since `map` lives in the catalogue group.
+The left cell was `Potrošnja` at first. Both were `comingSoon` teasers then, with a real `ComingSoon` page behind them (Karta has since shipped as the stores map), so the swap is a judgement about which one people will reach for, and a map of nearby stores and their opening hours beats a spending breakdown for a shopper standing in the street. `bottomNavItems` looks up ids across both `userNavItems` and `productNavItems` for it, since `map` lives in the catalogue group.
 
 One knock-on: `/spending` is in `PROTECTED_ROUTE_PREFIXES` and `/map` is not, so the left cell is now reachable signed out.
 
@@ -321,7 +321,7 @@ Five things make this work without touching the controls:
 - **`useProductFilters({ seedPreferred: false })`.** `ProductsClient` already owns the pinned-store seeding on that route; two readers racing it would double-append params.
 - **The expanded state lives in `ProductsSheetContext`**, not in the panel and not in `ProductsSheet`, because two entry points have to decide it. `open()` collapses the filters and `openFilters()` expands them, each in the same batch that flips `isOpen`, so the sheet never renders at the wrong size for a frame and no effect is needed. The centre cell therefore always lands on the compact sheet, whatever you left expanded last time.
 
-No extra request either way: `useProductFacets` reuses the query key the page already holds, and `useGetProductByName` is gated on `enabled: Boolean(params.q)`, so an empty query fetches nothing. Below `md`, which is the only width this sheet exists at, each select expands its list **inline** rather than opening a popover, so there is nothing floating to scroll and nothing to portal. That is also why the old `PortalContainerProvider`, which existed so popovers inside a vaul drawer could scroll by touch, could be deleted with vaul.
+No extra request either way: `useProductFacets` reuses the query key the page already holds, and `useGetProductByName` trims `q` and is enabled only when something is left, so an empty or whitespace-only query fetches nothing. Below `md`, which is the only width this sheet exists at, each select expands its list **inline** rather than opening a popover, so there is nothing floating to scroll and nothing to portal. That is also why the old `PortalContainerProvider`, which existed so popovers inside a vaul drawer could scroll by touch, could be deleted with vaul.
 
 **Očisti filtere is icon-only**, an outlined X naming itself through a tooltip, shared by all three filter surfaces. It reuses `RemoveIconButton`, which already was a tooltip wrapped around an icon button and gained a `tone` so a reset outlines where a deletion stays red. Beside the `flex-1` Filteri button on a 360px screen, a labelled button took as much room as the control it sat next to.
 

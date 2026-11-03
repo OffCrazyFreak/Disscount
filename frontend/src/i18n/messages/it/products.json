@@ -170,7 +170,9 @@
     "enterQueryTitle": "Scrivi cosa cercare",
     "enterQueryText": "I filtri sono impostati, i risultati appaiono dopo la ricerca",
     "startTitle": "Cerca prodotti",
-    "startText": "Scrivi il nome del prodotto che cerchi"
+    "startText": "Scrivi il nome del prodotto che cerchi",
+    "noResultsAddPlain": "Non abbiamo trovato nessun prodotto con questo nome. Puoi comunque aggiungerlo a una lista.",
+    "addPlainItem": "Aggiungi «{query}» a una lista"
   },
   "viewSwitcher": {
     "label": "Modalità di visualizzazione",
@@ -198,6 +200,15 @@
     "month": "1M",
     "year": "1A",
     "all": "Tutto"
+  },
+  "addPlainItem": {
+    "title": "Aggiungi un articolo a una lista",
+    "description": "Non ha un prezzo, ma resta nella lista così non lo dimentichi.",
+    "nameLabel": "Nome",
+    "toast": {
+      "added": "Articolo aggiunto a «{name}»",
+      "quantityIncreased": "Quantità dell'articolo aumentata in «{name}»"
+    }
   },
   "storeChainSelect": { "multiPlaceholder": "Scegli le catene..." }
 }

@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { GeolocationStatus } from "@/app/[locale]/map/hooks/use-geolocation";
+import { GeolocationStatus } from "@/hooks/use-geolocation";
 import { geolocationMessageKey } from "@/app/[locale]/map/utils/geolocation-message";
 import { cn } from "@/lib/utils";
 

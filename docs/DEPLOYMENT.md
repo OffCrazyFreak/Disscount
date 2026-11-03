@@ -64,7 +64,7 @@ flowchart LR
 | Service    | Tech                                                  | Internal address | Public?               | Role                                                                                   |
 | ---------- | ----------------------------------------------------- | ---------------- | --------------------- | -------------------------------------------------------------------------------------- |
 | `frontend` | Next.js 16 (standalone)                               | `frontend:3000`  | **yes** (via Traefik) | UI + **better-auth** identity provider; proxies `/api/*` to backend                    |
-| `backend`  | Spring Boot 3.1 / Java 21                             | `backend:8080`   | no                    | REST API; validates better-auth JWTs (resource server)                                 |
+| `backend`  | Spring Boot 3.5 / Java 21                             | `backend:8080`   | no                    | REST API; validates better-auth JWTs (resource server)                                 |
 | `db`       | Postgres 17                                           | `db:5432`        | no                    | one shared database, used by both                                                      |
 | `migrate`  | (frontend build image; `disscount-migrator` on `dev`) | n/a              | no                    | one-shot: runs drizzle migrations (auth tables, store locations) on deploy, then exits |
 

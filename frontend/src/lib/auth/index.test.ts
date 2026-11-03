@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
+vi.mock("@/lib/auth/erase-backend-account", () => ({
+  eraseBackendAccount: vi.fn(),
+}));
 
 // Module load requires these; pg's Pool only connects on the first query, so none runs.
 vi.stubEnv("DATABASE_URL", "postgres://test:test@localhost:5432/test");
@@ -17,6 +20,8 @@ const { FACEBOOK_COMING_SOON } = await import("@/constants/auth");
 const { auth } = await import("@/lib/auth");
 const { CLIENT_IP_HEADER } = await import("@/lib/client-ip/client-ip");
 const { recordLastLogin } = await import("@/lib/auth/record-last-login");
+const { eraseBackendAccount } =
+  await import("@/lib/auth/erase-backend-account");
 
 const expectedProviders = FACEBOOK_COMING_SOON
   ? ["google"]
@@ -70,6 +75,42 @@ describe("last login", () => {
   it("is recorded whenever a session is created", () => {
     expect(auth.options.databaseHooks?.session?.create?.after).toBe(
       recordLastLogin,
+    );
+  });
+});
+
+describe("register flow", () => {
+  it("re-sends the verification link when an unverified owner signs in", () => {
+    expect(auth.options.emailVerification?.sendOnSignIn).toBe(true);
+  });
+
+  it("answers a registered address like a new one and mails its owner", () => {
+    expect(auth.options.emailAndPassword?.requireEmailVerification).toBe(true);
+    expect(auth.options.emailAndPassword?.onExistingUserSignUp).toBeTypeOf(
+      "function",
+    );
+  });
+
+  it("signs every device out after a reset", () => {
+    expect(auth.options.emailAndPassword?.revokeSessionsOnPasswordReset).toBe(
+      true,
+    );
+  });
+});
+
+// beforeDelete runs after better-auth's own checks and before the identity goes.
+describe("account deletion", () => {
+  it("erases the backend data for the deleted user before the identity", async () => {
+    const beforeDelete = auth.options.user?.deleteUser?.beforeDelete;
+    const deletedUser = { id: "user-1" } as Parameters<
+      NonNullable<typeof beforeDelete>
+    >[0];
+
+    await beforeDelete?.(deletedUser);
+
+    expect(eraseBackendAccount).toHaveBeenCalledWith(
+      "user-1",
+      expect.any(Function),
     );
   });
 });

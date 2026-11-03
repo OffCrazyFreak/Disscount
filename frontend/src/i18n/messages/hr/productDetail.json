@@ -1,7 +1,9 @@
 {
   "meta": {
     "title": "Detalji proizvoda",
-    "description": "Usporedba cijena proizvoda."
+    "description": "Usporedba cijena proizvoda.",
+    "productTitle": "{name}: usporedi cijene",
+    "productDescription": "Usporedi cijene za {name} u {chains, plural, one {# trgovačkom lancu} few {# trgovačka lanca} other {# trgovačkih lanaca}}. Najniža cijena: {price}."
   },
   "notFound": {
     "title": "Proizvod nije pronađen",

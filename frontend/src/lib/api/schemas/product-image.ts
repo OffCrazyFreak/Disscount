@@ -30,6 +30,10 @@ export const productThumbnailsResponseSchema = z.object({
   thumbnails: z.record(z.string(), z.string()),
 });
 
+export const listedEansResponseSchema = z.object({
+  eans: z.array(z.string()),
+});
+
 export const productImageCropSchema = z.object({
   x: z.number().int(),
   y: z.number().int(),

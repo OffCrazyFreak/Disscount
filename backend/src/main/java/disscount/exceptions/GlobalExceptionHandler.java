@@ -19,6 +19,7 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,6 +69,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ProblemDetail handleNotFoundException(NotFoundException ex) {
         return problem(HttpStatus.NOT_FOUND, "not-found", message(ex.getMessage()));
+    }
+
+    /** Spring 6.1 raises this for an unmatched URL, which the catch-all below would turn into a 500. */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ProblemDetail handleNoResource(NoResourceFoundException ex) {
+        return problem(HttpStatus.NOT_FOUND, "not-found", message("problem.title.not-found"));
     }
 
     @ExceptionHandler(ConflictException.class)

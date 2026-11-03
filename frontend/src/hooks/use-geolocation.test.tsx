@@ -1,7 +1,7 @@
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useGeolocation } from "@/app/[locale]/map/hooks/use-geolocation";
+import { useGeolocation } from "@/hooks/use-geolocation";
 
 const ZAGREB = { lat: 45.81, lon: 15.98 };
 const ERROR_CODES = {
@@ -74,8 +74,8 @@ function fakeGeolocation(permission: PermissionState = "prompt") {
   };
 }
 
-async function mount(fallback: typeof ZAGREB | null) {
-  const hook = renderHook(() => useGeolocation(fallback));
+async function mount(fallback: typeof ZAGREB | null, watchWhenAllowed = true) {
+  const hook = renderHook(() => useGeolocation(fallback, { watchWhenAllowed }));
   // Lets the permission query settle.
   await act(async () => {});
   return hook;
@@ -228,6 +228,16 @@ describe("useGeolocation", () => {
       auto: false,
     });
     expect(geo.watchPosition).toHaveBeenCalledTimes(1);
+  });
+
+  it("reads nothing before a tap unless asked to watch when allowed", async () => {
+    const geo = fakeGeolocation("granted");
+    const hook = await mount(null, false);
+
+    expect(geo.watchPosition).not.toHaveBeenCalled();
+
+    act(() => hook.result.current.locate());
+    expect(geo.watchPosition).toHaveBeenCalledOnce();
   });
 
   it("ignores jitter but follows a real move", async () => {

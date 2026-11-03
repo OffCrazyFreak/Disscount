@@ -43,7 +43,7 @@ vi.mock("@/db", () => {
   };
 });
 
-const { claimResetEmail, claimVerificationEmail } =
+const { claimResetEmail, claimSignUpNotice, claimVerificationEmail } =
   await import("@/lib/auth/email-link-marker");
 
 function render(condition: unknown) {
@@ -169,5 +169,34 @@ describe("claimVerificationEmail", () => {
     expect(render(fake.deleted.mock.calls[0][0]).params).toEqual([
       "change-email:user-1:new@example.com",
     ]);
+  });
+});
+
+describe("claimSignUpNotice", () => {
+  it("skips while any notice from the last hour is unexpired", async () => {
+    fake.selectWheres.length = 0;
+    fake.selectResults.push([{ value: "notice-1" }]);
+
+    expect(await claimSignUpNotice("user-1", "notice-2")).toBeNull();
+    expect(render(fake.selectWheres[0]).params[0]).toBe(
+      "sign-up-notice:user-1",
+    );
+  });
+
+  it("claims an hour once the last notice expired", async () => {
+    fake.inserted.mockClear();
+    const before = Date.now();
+
+    expect(await claimSignUpNotice("user-1", "notice-2")).toBeTypeOf(
+      "function",
+    );
+    const [row] = fake.inserted.mock.calls[0];
+    expect(row).toMatchObject({
+      identifier: "sign-up-notice:user-1",
+      value: "notice-2",
+    });
+    expect(row.expiresAt.getTime()).toBeGreaterThanOrEqual(
+      before + 60 * 60 * 1000,
+    );
   });
 });

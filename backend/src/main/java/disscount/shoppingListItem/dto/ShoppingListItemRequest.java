@@ -11,7 +11,6 @@ import lombok.Data;
 @Data
 public class ShoppingListItemRequest {
 
-    @NotBlank(message = "{validation.ean.required}")
     private String ean;
 
     private String brand;

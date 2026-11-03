@@ -16,7 +16,9 @@ export type EmailKind =
   | "passwordReset"
   | "setPassword"
   | "changeEmail"
-  | "breachedPassword";
+  | "breachedPassword"
+  | "accountExists"
+  | "completeSignUp";
 
 // A null or unknown stored locale falls back to Croatian rather than failing a send.
 function resolveLocale(value: unknown): AppLocale {
