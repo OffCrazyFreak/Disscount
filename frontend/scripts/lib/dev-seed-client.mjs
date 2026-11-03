@@ -7,11 +7,17 @@ const PRODUCTION_HOSTS = new Set(["disscount.me", "www.disscount.me"]);
 
 export function readBaseUrl(argv, env) {
   const flagIndex = argv.indexOf("--base-url");
-  const raw = flagIndex >= 0 ? argv[flagIndex + 1] : env.NEXT_PUBLIC_APP_URL;
+  const inline = argv.find((arg) => arg.startsWith("--base-url="));
+  const raw = inline
+    ? inline.slice("--base-url=".length)
+    : flagIndex >= 0
+      ? argv[flagIndex + 1]
+      : env.NEXT_PUBLIC_APP_URL;
   if (!raw) throw new Error("Pass --base-url or set NEXT_PUBLIC_APP_URL.");
 
   const url = new URL(raw);
-  if (PRODUCTION_HOSTS.has(url.hostname)) {
+  // A trailing dot is the same host to DNS, so it must not slip past the set.
+  if (PRODUCTION_HOSTS.has(url.hostname.replace(/\.$/, ""))) {
     throw new Error(`Refusing to seed production (${url.hostname}).`);
   }
   return url.origin;
@@ -63,7 +69,11 @@ export async function signOut(baseUrl, cookie) {
 async function readJson(response, label) {
   if (!response.ok) {
     const detail = (await response.text()).slice(0, 300);
-    throw new Error(`${label} failed with ${response.status}: ${detail}`);
+    const error = new Error(
+      `${label} failed with ${response.status}: ${detail}`,
+    );
+    error.status = response.status;
+    throw error;
   }
   const text = await response.text();
   return text ? JSON.parse(text) : null;

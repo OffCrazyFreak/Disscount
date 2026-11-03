@@ -1,7 +1,8 @@
 -- Optional follow-up to seed-dev-account.mjs: spreads the seeded rows over the past six
 -- weeks, so the account looks used rather than created a minute ago. The APIs stamp
 -- everything "now" and expose no way to set it, hence plain SQL on a dev database.
--- Rerunnable: every offset is fixed relative to now, so a second run lands on the same days.
+-- Rerunnable: every offset is relative to now, so a same-day rerun lands on the same days
+-- and a later one moves the whole history forward with it.
 -- Columns are zone-less UTC (Timestamps.nowUtc), so "now" is taken in UTC as well.
 --
 -- Usage: psql -v email=<DEV_ACCOUNT_EMAIL> -f seed-dev-account-backdate.sql
@@ -21,7 +22,6 @@ update account a set created_at = s.now_utc - interval '42 days'
   from seed_user s where a.user_id = s.id;
 update app_user a set created_at = s.now_utc - interval '42 days',
     onboarding_completed_at = s.now_utc - interval '42 days' + interval '6 minutes',
-    newsletter_enabled_at = s.now_utc - interval '42 days' + interval '6 minutes',
     last_active_at = s.now_utc - interval '3 hours'
   from seed_user s where a.id = s.id;
 
@@ -47,16 +47,17 @@ update shopping_list_item i
         + case when i.is_checked then interval '1 day' else interval '0' end
   from ordered o where i.id = o.id;
 
--- Watchlist: added over five weeks; every third one has already fired a price alert.
+-- Watchlist: added over five weeks; every third one has already fired a price alert,
+-- and an alert the account really received is left alone.
 with ordered as (
   select w.id, row_number() over (order by w.created_at) as n, s.now_utc
   from watchlist_item w join seed_user s on w.user_id = s.id
 )
 update watchlist_item w
-  set created_at = o.now_utc - (40 - o.n * 3) * interval '1 day',
-      updated_at = o.now_utc - (40 - o.n * 3) * interval '1 day',
+  set created_at = o.now_utc - greatest(40 - o.n * 3, 1) * interval '1 day',
+      updated_at = o.now_utc - greatest(40 - o.n * 3, 1) * interval '1 day',
       last_notified_at = case when o.n % 3 = 0
-        then o.now_utc - (o.n % 5 + 1) * interval '1 day' end
+        then o.now_utc - (o.n % 5 + 1) * interval '1 day' else w.last_notified_at end
   from ordered o where w.id = o.id;
 
 with ordered as (
@@ -67,7 +68,9 @@ update wallet_card c
   set created_at = o.now_utc - (array[39, 31, 20])[least(o.n, 3)] * interval '1 day',
       updated_at = o.now_utc - (array[39, 31, 20])[least(o.n, 3)] * interval '1 day',
       pinned_at = case when c.pinned_at is not null
-        then o.now_utc - interval '37 days' end
+        then o.now_utc - interval '37 days' end,
+      last_used_at = case when c.last_used_at is not null
+        then o.now_utc - (array[2, 6, 15])[least(o.n, 3)] * interval '1 day' end
   from ordered o where c.id = o.id;
 
 update wallet_card_photo p set created_at = c.created_at + interval '2 minutes'

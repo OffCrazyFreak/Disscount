@@ -99,7 +99,6 @@ async function seedProfile(api) {
     patch.acquisitionChannel = PROFILE.acquisitionChannel;
   if (!me.onboardingCompletedAt)
     patch.onboardingOutcome = PROFILE.onboardingOutcome;
-  if (!me.newsletterEnabledAt) patch.newsletter = true;
   if (Object.keys(patch).length === 0) return;
 
   await api.patch("/api/users/me", patch);
@@ -173,7 +172,7 @@ async function itemRequest(item) {
     return {
       name: item.name,
       amount: item.amount,
-      isChecked: Boolean(item.checkedAt),
+      ...(item.checkedAt && { isChecked: true, chainCode: item.checkedAt }),
     };
   }
 
@@ -258,7 +257,12 @@ async function seedCards(api, userId) {
     const id = cardId(userId, slug);
     let saved = cards.find((c) => c.id === id);
     if (!saved) {
-      saved = await api.put(`/api/digital-cards/${id}`, card);
+      // A seeded card deleted in the app keeps its id until the purge job, and the upsert refuses it.
+      saved = await api.put(`/api/digital-cards/${id}`, card).catch((error) => {
+        if (error.status !== 404) throw error;
+        console.log(`Card ${slug} was deleted and awaits purge; skipping it.`);
+      });
+      if (!saved) continue;
       if (pinned)
         await api.put(`/api/digital-cards/${id}/pin`, { pinned: true });
       const usedAt = new Date(Date.now() - usedDaysAgo * DAY_MS).toISOString();
