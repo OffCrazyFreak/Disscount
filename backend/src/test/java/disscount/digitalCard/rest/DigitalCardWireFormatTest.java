@@ -17,6 +17,7 @@ import static disscount.support.WireFormat.LOCAL_DATE_TIME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,6 +40,10 @@ class DigitalCardWireFormatTest extends FullStackTest {
                 """)).andExpect(status().isOk());
         mvc.perform(put("/api/digital-cards/{id}/pin", cardId).with(as(owner)).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"pinned\":true}")).andExpect(status().isOk());
+        mvc.perform(put("/api/digital-cards/{id}/archive", cardId).with(as(owner)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"archived\":true}")).andExpect(status().isOk());
+        mvc.perform(post("/api/digital-cards/used").with(as(owner)).contentType(MediaType.APPLICATION_JSON)
+                .content("[{\"id\":\"" + cardId + "\",\"usedAt\":\"2026-03-01T10:15:30Z\"}]")).andExpect(status().isNoContent());
         JsonNode photo = body(mvc.perform(multipart(HttpMethod.PUT, "/api/digital-cards/{id}/photos/{slot}", cardId, "icon")
                 .file(new MockMultipartFile("full", "icon.webp", "image/webp", TestImages.webp(32, 32)))
                 .with(as(owner))).andExpect(status().isOk()));
@@ -52,6 +57,10 @@ class DigitalCardWireFormatTest extends FullStackTest {
         assertThat(card.get("balance").isNumber()).isTrue();
         assertThat(card.get("balance").decimalValue()).isEqualByComparingTo("12.50");
         assertThat(card.get("pinnedAt").asString()).matches(LOCAL_DATE_TIME);
+        assertThat(card.get("archivedAt").asString()).matches(LOCAL_DATE_TIME);
+        assertThat(card.get("lastUsedAt").asString()).matches(LOCAL_DATE_TIME);
+        assertThat(card.get("expiresOn").asString()).isEqualTo("2027-03-01");
+        assertThat(card.get("balanceUnit").asString()).isEqualTo("EUR");
         assertThat(card.get("createdAt").asString()).matches(LOCAL_DATE_TIME);
         assertThat(card.get("updatedAt").asString()).matches(LOCAL_DATE_TIME);
 

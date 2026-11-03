@@ -43,6 +43,18 @@ class UserWireFormatTest extends FullStackTest {
         assertThat(me.get("lastLoginAt").isNull()).isTrue();
     }
 
+    // The column is zone-less but stamped in UTC, so it leaves as an instant with the same clock time.
+    @Test
+    void theStampedActivityTimeLeavesAsAUtcInstant() throws Exception {
+        User user = newUser("eva");
+        user.setLastActiveAt(java.time.LocalDateTime.of(2026, 3, 1, 10, 15, 30));
+        users.save(user);
+
+        JsonNode me = body(mvc.perform(get("/api/users/me").with(as(user))).andExpect(status().isOk()));
+
+        assertThat(me.get("lastActiveAt").asString()).isEqualTo("2026-03-01T10:15:30Z");
+    }
+
     @Test
     void anUpdateAnswersWithTheSameShapeAndTimestampsAsZoneLessStrings() throws Exception {
         User user = newUser("ivo");

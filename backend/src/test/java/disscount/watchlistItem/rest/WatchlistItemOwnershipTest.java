@@ -29,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 // Real service and H2 repository behind the controller, because the bug lives in the query.
@@ -111,6 +112,19 @@ class WatchlistItemOwnershipTest {
         assertThat(idsIn(mvc.perform(get("/api/watchlist/product/{productApiId}", "3850123456789").with(as(alice)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString()))
                 .containsExactly(own.getId().toString());
+    }
+
+    @Test
+    void addingTheSameWatchCreatesAnOwnItemAndLeavesTheOtherUsersAlone() throws Exception {
+        WatchlistItem bobsItem = itemOf(bob);
+
+        mvc.perform(post("/api/watchlist").with(as(alice)).contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"productApiId\":\"3850123456789\",\"watchType\":\"PERCENTAGE\",\"thresholdValue\":25}"))
+                .andExpect(status().isOk());
+
+        assertThat(watchlist.findById(bobsItem.getId()).orElseThrow().getThresholdValue()).isEqualTo(10.0);
+        assertThat(watchlist.findByUserId(alice.getId())).singleElement()
+                .satisfies(item -> assertThat(item.getThresholdValue()).isEqualTo(25.0));
     }
 
     private List<String> idsIn(String body) {

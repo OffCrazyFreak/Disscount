@@ -135,6 +135,17 @@ class AdminGatingTest extends FullStackTest {
         mvc.perform(call(route).with(as(consumer))).andExpect(status().isForbidden());
     }
 
+    // The dashboard lets ENTERPRISE and PUBLIC_SECTOR in; the admin API must not.
+    @ParameterizedTest
+    @EnumSource(value = disscount.user.domain.enums.AccountType.class, names = "ADMIN", mode = EnumSource.Mode.EXCLUDE)
+    void everyNonAdminAccountTypeIs403(disscount.user.domain.enums.AccountType accountType) throws Exception {
+        User caller = newUser("caller", accountType);
+
+        for (Route route : Route.values()) {
+            mvc.perform(call(route).with(as(caller))).andExpect(status().isForbidden());
+        }
+    }
+
     @Test
     void aDeletedAdminIs403() throws Exception {
         admin.setDeletedAt(java.time.LocalDateTime.now());

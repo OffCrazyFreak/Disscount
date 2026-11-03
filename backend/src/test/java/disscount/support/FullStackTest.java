@@ -27,8 +27,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 /**
  * The whole application on H2 behind MockMvc, shared by the behaviour pinning tests so they
- * run in one cached context and name no class a package move could rename. Every test makes
- * its own users, so leftovers from other tests never change an answer.
+ * run in one cached context and never list the services a slice would have to import. Every
+ * test makes its own users, so leftovers from other tests never change an answer.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -38,7 +38,7 @@ public abstract class FullStackTest {
     @Autowired protected ObjectMapper json;
     @Autowired protected UserRepository users;
 
-    // The better-auth tables are not in H2; PR 9a covers this native SQL on Postgres.
+    // The better-auth tables are not in H2, so this native SQL cannot run here.
     @MockitoBean protected AuthIdentityDao authIdentityDao;
     // Never reach the network from a test.
     @MockitoBean protected OpenFoodFactsClient openFoodFacts;

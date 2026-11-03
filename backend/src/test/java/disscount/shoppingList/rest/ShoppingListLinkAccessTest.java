@@ -119,6 +119,26 @@ class ShoppingListLinkAccessTest extends FullStackTest {
                 .andExpect(status().isNoContent());
     }
 
+    // Adding items and deleting the list are owner rights at every link level; copying is open to any signed-in visitor.
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"VIEW", "SHOP"})
+    void lowerLinksNeverGrantOwnerRightsButMayCopy(String level) throws Exception {
+        lists.share(owner, listId, "Zajednička", level);
+
+        mvc.perform(withJson(post("/api/shopping-lists/{id}/items", listId), "{\"name\":\"Kruh\"}").with(as(visitor)))
+                .andExpect(status().isForbidden());
+        mvc.perform(delete("/api/shopping-lists/{id}", listId).with(as(visitor))).andExpect(status().isForbidden());
+        mvc.perform(rename("{\"title\":\"Zajednička\",\"linkAccess\":\"EDIT\"}").with(as(visitor)))
+                .andExpect(status().isForbidden());
+        mvc.perform(withJson(post("/api/shopping-lists/{id}/copy", listId), "{\"title\":\"Kopija\",\"includeSharing\":true}")
+                        .with(as(visitor)))
+                .andExpect(status().isForbidden());
+
+        JsonNode copy = body(mvc.perform(withJson(post("/api/shopping-lists/{id}/copy", listId), "{\"title\":\"Kopija\"}")
+                .with(as(visitor))).andExpect(status().isOk()));
+        assertThat(copy.get("ownerId").asString()).isEqualTo(visitor.getId().toString());
+    }
+
     @Test
     void turningTheLinkOffHidesTheListAgain() throws Exception {
         lists.share(owner, listId, "Zajednička", "EDIT");

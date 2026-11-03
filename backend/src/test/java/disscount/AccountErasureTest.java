@@ -121,6 +121,21 @@ class AccountErasureTest extends FullStackTest {
         assertThat(useCountOf(store)).isEqualTo(1);
         assertThat(cards.findActiveByUserId(staying.getId())).hasSize(1);
         assertThat(favoriteStores.findByUserId(staying.getId())).hasSize(1);
+        assertThat(shoppingLists.findActiveByOwner(staying)).hasSize(1);
+        assertThat(watchlist.findByUserId(staying.getId())).hasSize(1);
+        assertThat(pinnedStores.findByUserId(staying.getId())).hasSize(1);
+    }
+
+    // better-auth calls this before deleting any identity, including one that never made a request here.
+    @Test
+    void anIdentityWithoutAProfileIsErasedAndTombstoned() throws Exception {
+        UUID neverSeen = UUID.randomUUID();
+
+        mvc.perform(delete("/api/users/me").with(jwt().jwt(j -> j.subject(neverSeen.toString()).claim("purpose", "account-erasure"))))
+                .andExpect(status().isOk());
+
+        assertThat(users.findById(neverSeen)).isEmpty();
+        assertThat(erasureLedger.findById(neverSeen)).isPresent();
     }
 
     @Test

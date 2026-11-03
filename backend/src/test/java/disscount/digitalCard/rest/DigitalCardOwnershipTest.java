@@ -69,6 +69,12 @@ class DigitalCardOwnershipTest extends FullStackTest {
 
         JsonNode card = body(mvc.perform(get("/api/digital-cards/{id}", cardId).with(as(owner))).andExpect(status().isOk()));
         assertThat(card.get("lastUsedAt").isNull()).isTrue();
+
+        mvc.perform(post("/api/digital-cards/used").with(as(owner)).contentType(MediaType.APPLICATION_JSON)
+                        .content("[{\"id\":\"" + cardId + "\",\"usedAt\":\"2026-03-01T10:15:30Z\"}]"))
+                .andExpect(status().isNoContent());
+        card = body(mvc.perform(get("/api/digital-cards/{id}", cardId).with(as(owner))).andExpect(status().isOk()));
+        assertThat(card.get("lastUsedAt").isNull()).isFalse();
     }
 
     @Test
