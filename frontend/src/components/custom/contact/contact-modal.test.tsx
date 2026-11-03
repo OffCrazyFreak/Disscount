@@ -74,4 +74,21 @@ describe("ContactModal", () => {
     expect(screen.getByLabelText("Email")).toHaveValue("drugi@example.com");
     expect(screen.getByLabelText(/Naslov/)).toHaveValue("Cijene");
   });
+
+  it("restores a draft the map wrote while the modal was closed", async () => {
+    userState.current = { user: PROFILE, isLoading: false };
+    const view = renderWithProviders(<ContactModal open />);
+    await waitFor(() =>
+      expect(screen.getByLabelText("Email")).toHaveValue(PROFILE.email),
+    );
+
+    view.rerender(<ContactModal open={false} />);
+    setFormDraft("contact", { subject: "Prijava lokacije" });
+    view.rerender(<ContactModal open />);
+
+    await waitFor(() =>
+      expect(screen.getByLabelText(/Naslov/)).toHaveValue("Prijava lokacije"),
+    );
+    expect(screen.getByLabelText("Email")).toHaveValue(PROFILE.email);
+  });
 });
