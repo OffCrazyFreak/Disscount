@@ -57,6 +57,7 @@ export default function ReauthDialog({
       footer={
         <div className="flex items-center justify-between gap-2 px-6 pb-6 pt-3">
           <Button
+            type="button"
             variant="outline"
             icon={X}
             iconPlacement="left"
