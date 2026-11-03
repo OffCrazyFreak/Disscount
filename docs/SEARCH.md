@@ -2,7 +2,7 @@
 
 How every "type something and see it filter" surface in the app works, why they all now go through one matcher, and what is deliberately not built yet.
 
-This is a frontend document. There is no backend search at the time of writing, see [§9](#9-the-backend-has-no-search).
+This is a frontend document. There is no backend search at the time of writing, see [§9](#9-the-backend-has-no-search). Where product results come from (the upstream API, the exact then fuzzy proxy search) is in [PRODUCTS.md](PRODUCTS.md#4-product-search-and-the-product-list).
 
 ## Table of contents
 
