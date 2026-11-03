@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { serverEnv } from "@/lib/server-env";
 
-// Dependency-free liveness probe for the Docker healthcheck and UptimeRobot, so a
-// backend blip can't flap this container; DB readiness is covered by the backend's /actuator/health.
+// Liveness only, so no backend or DB call, and serverEnv parses just the optional GIT_SHA: a backend blip or unrelated env var can't flap this container.
 export const dynamic = "force-dynamic";
 
 export function GET() {
