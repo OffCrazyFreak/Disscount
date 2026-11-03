@@ -50,6 +50,26 @@ describe("LocaleSuggestion", () => {
     ).toBeInTheDocument();
   });
 
+  it("takes its own space instead of floating over the page", async () => {
+    browserLanguages("en-GB");
+    renderWithProviders(<LocaleSuggestion />);
+
+    const offer = await screen.findByRole("button", {
+      name: "Show in English",
+    });
+    const region = screen.getByRole("status");
+
+    for (
+      let element: HTMLElement | null = offer;
+      element && element !== region.parentElement;
+      element = element.parentElement
+    ) {
+      for (const outOfFlow of ["absolute", "fixed", "h-0"]) {
+        expect(element).not.toHaveClass(outOfFlow);
+      }
+    }
+  });
+
   it("stays hidden when the page already matches", () => {
     session.current = { user: { locale: "hr" } };
     browserLanguages("de");
