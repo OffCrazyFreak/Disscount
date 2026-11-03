@@ -22,6 +22,7 @@ Ask first:
 - Anything needing a backend endpoint that does not exist yet.
 - Widening scope beyond what I asked.
 - A reading of my instruction that leads to materially different work. Routine judgment calls are yours.
+- Changing how the app looks: size, spacing, colour or layout, including a change made for accessibility or as a side effect of another task. Show me before and after screenshots first. White text on the brand green is my deliberate choice: do not reopen it.
 
 **Ask means ask.** Put each item above to me as a question. Never route around it by working around a missing endpoint, hand-rolling the dependency, or narrowing the task: I say yes far more often than no, so the quiet workaround costs me the better answer. Everything else is your call: decide, finish the whole task, and say in your summary what you decided and why.
 
@@ -114,6 +115,8 @@ Check these before handing over UI work; accessibility is what I most often fix 
 - Dialogs move focus in on open and restore it on close.
 - Counts and status that change without a navigation are announced.
 - Motion respects `prefers-reduced-motion`.
+
+These checks never license a visual change on their own: a fix that would alter size, spacing or colour goes to me first (see Ask first).
 
 Copy in every language uses informal singular address and ungendered forms: Croatian "ti" (never "vi"), "you", "tu", "ti", "du". The company voice ("mi") stays. This covers accessible names, `alt` and `title` too. The app ships in Croatian, English, Italian, Slovenian and German through next-intl; `docs/I18N.md` explains the setup.
 
