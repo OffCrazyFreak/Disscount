@@ -11,8 +11,8 @@ interface ILastLoginBadgeProps {
 }
 
 const variantStyles: Record<LastLoginVariant, string> = {
-  solid: "bg-primary text-white",
-  inverse: "bg-white text-primary",
+  solid: "bg-primary text-primary-foreground",
+  inverse: "bg-primary-foreground text-primary",
 };
 
 export default function LastLoginBadge({

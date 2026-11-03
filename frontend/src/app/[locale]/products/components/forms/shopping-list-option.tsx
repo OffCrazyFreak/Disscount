@@ -39,14 +39,14 @@ export default function ShoppingListOption({
         </Tooltip>
       </TooltipProvider>
       {list.updatedAt && (
-        <span className="text-gray-500 text-xs">
+        <span className="text-muted-foreground text-xs">
           {t("listSelector.updatedAt", {
             date: formatDate(list.updatedAt, locale),
           })}
         </span>
       )}
 
-      <span className="ml-auto text-xs text-gray-500">
+      <span className="ml-auto text-xs text-muted-foreground">
         {t("listSelector.progress", {
           checked:
             list.items?.reduce(

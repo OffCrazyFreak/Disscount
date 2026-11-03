@@ -24,7 +24,7 @@ export default function NoPriceInLocations({
         icon={
           <MapPinOff
             aria-hidden="true"
-            className="size-12 text-gray-400 mx-auto mb-4"
+            className="size-12 text-muted-foreground mx-auto mb-4"
           />
         }
         title={t("noPriceInLocationsTitle", { count: locations.length })}

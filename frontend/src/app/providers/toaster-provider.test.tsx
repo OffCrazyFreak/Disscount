@@ -47,4 +47,42 @@ describe("ToasterProvider", () => {
       "text-foreground!",
     );
   });
+
+  it("tints success toasts with the brand green instead of sonner's own", async () => {
+    renderWithProviders(<ToasterProvider>{null}</ToasterProvider>);
+
+    act(() => {
+      toast.success("Saved");
+    });
+
+    await screen.findByText("Saved");
+    const toaster = document.querySelector<HTMLElement>(
+      "[data-sonner-toaster]",
+    );
+
+    expect(toaster?.style.getPropertyValue("--success-bg")).toContain(
+      "var(--primary)",
+    );
+    expect(toaster?.style.getPropertyValue("--success-text")).toBe(
+      "var(--foreground)",
+    );
+  });
+
+  it("gives toast buttons a 44px touch target", async () => {
+    renderWithProviders(<ToasterProvider>{null}</ToasterProvider>);
+
+    act(() => {
+      toast("Update ready", {
+        action: { label: "Reload", onClick: () => {} },
+        cancel: { label: "Later", onClick: () => {} },
+      });
+    });
+
+    expect(await screen.findByRole("button", { name: "Reload" })).toHaveClass(
+      "min-h-[2.75rem]!",
+    );
+    expect(screen.getByRole("button", { name: "Later" })).toHaveClass(
+      "min-h-[2.75rem]!",
+    );
+  });
 });
