@@ -1,7 +1,7 @@
 {
   "ipAddresses": {
     "heading": "IP-naslovi",
-    "body": "Ob prijavi skupaj s sejo shranimo IP-naslov tvoje naprave, da lahko preverimo sumljive prijave v tvoj račun. Naslov izbrišemo najpozneje 30 dni po prijavi, potečeno sejo pa izbrišemo v celoti. Za zaščito pred zlorabo IP-naslov kratek čas uporabljamo tudi za omejevanje ponavljajočih se poskusov: pri prijavi in podobnih dejanjih približno eno minuto, pri obrazcu za stik pa do 24 ur, in sicer samo v pomnilniku strežnika. Ko varna povezava z našim strežnikom ne uspe, dnevnik napak strežnika zabeleži naslov te povezave. Te zapise uporabljamo samo za odpravljanje okvar. Varnostne kopije baze lahko te podatke vsebujejo še največ 60 dni. Pravna podlaga je zakoniti interes (člen 6(1)(f) GDPR)."
+    "body": "Ob prijavi skupaj s sejo shranimo IP-naslov tvoje naprave, da lahko preverimo sumljive prijave v tvoj račun. Naslov izbrišemo najpozneje 30 dni po prijavi, potečeno sejo pa izbrišemo v celoti. Za zaščito pred zlorabo IP-naslov kratek čas uporabljamo tudi za omejevanje ponavljajočih se poskusov: pri prijavi in podobnih dejanjih do 15 minut, pri obrazcu za stik pa do 24 ur, in sicer samo v pomnilniku strežnika. Ko varna povezava z našim strežnikom ne uspe, dnevnik napak strežnika zabeleži naslov te povezave. Te zapise uporabljamo samo za odpravljanje okvar. Varnostne kopije baze lahko te podatke vsebujejo še največ 60 dni. Pravna podlaga je zakoniti interes (člen 6(1)(f) GDPR)."
   },
   "errorTracking": {
     "heading": "Spremljanje napak",
