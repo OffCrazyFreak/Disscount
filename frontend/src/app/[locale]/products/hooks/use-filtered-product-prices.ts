@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { getLocationPrices } from "@/lib/cijene-api/queries";
+import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import type { IProductListItem } from "@/app/[locale]/products/typings/product-list-price-types";
 import { summarizeChainPrices } from "@/app/[locale]/products/utils/product-list-prices";
 import { normalizeChainCode } from "@/app/[locale]/products/utils/product-filters";
@@ -40,7 +41,7 @@ export default function useFilteredProductPrices({
   const needsLocationPrices = selectedLocations.length > 0;
 
   const priceQuery = useQuery({
-    queryKey: ["cijene", "prices", "locations", { eans, chains, cities }],
+    queryKey: CIJENE_QUERY_KEYS.locationPrices({ eans, chains, cities }),
     queryFn: () => getLocationPrices({ eans, chains, cities }),
     enabled:
       needsLocationPrices &&

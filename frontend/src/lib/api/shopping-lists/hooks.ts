@@ -1,4 +1,5 @@
 import {
+  queryOptions,
   useIsMutating,
   useMutation,
   useQuery,
@@ -56,14 +57,37 @@ export function useCreateShoppingList() {
   });
 }
 
+function currentUserShoppingListsQueryOptions() {
+  return queryOptions({
+    queryKey: SHOPPING_LIST_QUERY_KEYS.me,
+    queryFn: getCurrentUserShoppingLists,
+  });
+}
+
+// Shorter than the rest of the app wants, because this route serves link visitors as
+// well as the owner and two people can be shopping off one list. A shared list also
+// polls so their ticks show up live; a private one only refetches on focus, a remount
+// or an invalidation. Ticks skip a hidden tab, since refetchIntervalInBackground is off.
+function shoppingListByIdQueryOptions(id: string) {
+  return queryOptions({
+    queryKey: SHOPPING_LIST_QUERY_KEYS.byId(id),
+    queryFn: () => getShoppingListById(id),
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+  });
+}
+
+function allUserShoppingListItemsQueryOptions() {
+  return queryOptions({
+    queryKey: SHOPPING_LIST_QUERY_KEYS.myItems,
+    queryFn: getAllUserShoppingListItems,
+  });
+}
+
 export function useGetCurrentUserShoppingLists({
   enabled = true,
 }: { enabled?: boolean } = {}) {
-  return useQuery<ShoppingListDto[], Error>({
-    queryKey: SHOPPING_LIST_QUERY_KEYS.me,
-    queryFn: getCurrentUserShoppingLists,
-    enabled,
-  });
+  return useQuery({ ...currentUserShoppingListsQueryOptions(), enabled });
 }
 
 // enabled is explicit so a caller that does not want this query can say so, rather than
@@ -75,16 +99,9 @@ export function useGetShoppingListById(id: string, { enabled = true } = {}) {
   const isWritingLists =
     useIsMutating({ mutationKey: SHOPPING_LIST_QUERY_KEYS.all }) > 0;
 
-  return useQuery<ShoppingListDto, Error>({
-    queryKey: SHOPPING_LIST_QUERY_KEYS.byId(id),
-    queryFn: () => getShoppingListById(id),
+  return useQuery({
+    ...shoppingListByIdQueryOptions(id),
     enabled: enabled && !!id && id !== "new",
-    // Shorter than the rest of the app wants, because this route serves link visitors as
-    // well as the owner and two people can be shopping off one list. A shared list also
-    // polls so their ticks show up live; a private one only refetches on focus, a remount
-    // or an invalidation. Ticks skip a hidden tab, since refetchIntervalInBackground is off.
-    staleTime: 30_000,
-    refetchOnWindowFocus: true,
     refetchInterval: (query) =>
       sharedListRefetchInterval(query, isWritingLists),
   });
@@ -228,9 +245,5 @@ export function useDeleteShoppingListItem() {
 }
 
 export function useGetAllUserShoppingListItems({ enabled = true } = {}) {
-  return useQuery<ShoppingListItemDto[], Error>({
-    queryKey: SHOPPING_LIST_QUERY_KEYS.myItems,
-    queryFn: getAllUserShoppingListItems,
-    enabled,
-  });
+  return useQuery({ ...allUserShoppingListItemsQueryOptions(), enabled });
 }

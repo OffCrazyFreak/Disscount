@@ -22,6 +22,7 @@ import {
 } from "@/lib/api/digital-cards/queries";
 import { DIGITAL_CARD_QUERY_KEYS } from "@/lib/api/digital-cards/keys";
 import { addToWatchlist, removeFromWatchlist } from "@/lib/api/watchlist";
+import { WATCHLIST_QUERY_KEYS } from "@/lib/api/watchlist/keys";
 import type {
   DigitalCardRequest,
   ShoppingListRequest,
@@ -193,12 +194,12 @@ export function registerOfflineMutationDefaults(
   defineOfflineMutation(
     OFFLINE_MUTATION_KEYS.watchlistAdd,
     (data: WatchlistItemRequest) => addToWatchlist(data),
-    () => [["watchlist"]],
+    () => [WATCHLIST_QUERY_KEYS.all],
   );
 
   defineOfflineMutation(
     OFFLINE_MUTATION_KEYS.watchlistRemove,
     (id: string) => removeFromWatchlist(id),
-    () => [["watchlist"]],
+    () => [WATCHLIST_QUERY_KEYS.all],
   );
 }

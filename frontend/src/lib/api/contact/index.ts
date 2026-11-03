@@ -1,5 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import apiClient from "@/lib/api/api-base";
+import { CONTACT_QUERY_KEYS } from "@/lib/api/contact/keys";
 import {
   ContactMessageRequest,
   ContactMessageDto,
@@ -8,12 +14,6 @@ import {
 } from "@/lib/api/types";
 
 const ADMIN_BASE_PATH = "/api/admin/contact";
-
-const CONTACT_QUERY_KEYS = {
-  all: ["admin", "contact"] as const,
-  list: (includeDeleted: boolean) =>
-    ["admin", "contact", { includeDeleted }] as const,
-};
 
 // Public: submit a contact message (no auth header sent when logged out).
 async function createContactMessage(
@@ -62,15 +62,18 @@ function useCreateContactMessage() {
   });
 }
 
+function contactMessagesQueryOptions(includeDeleted: boolean) {
+  return queryOptions({
+    queryKey: CONTACT_QUERY_KEYS.list(includeDeleted),
+    queryFn: () => getContactMessages(includeDeleted),
+  });
+}
+
 function useGetContactMessages(
   includeDeleted = false,
   { enabled = true } = {},
 ) {
-  return useQuery<ContactMessageDto[], Error>({
-    queryKey: CONTACT_QUERY_KEYS.list(includeDeleted),
-    queryFn: () => getContactMessages(includeDeleted),
-    enabled,
-  });
+  return useQuery({ ...contactMessagesQueryOptions(includeDeleted), enabled });
 }
 
 function useContactAction(action: (id: string) => Promise<ContactMessageDto>) {

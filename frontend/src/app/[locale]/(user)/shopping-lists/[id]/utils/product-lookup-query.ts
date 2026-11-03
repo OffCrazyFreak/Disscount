@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import cijeneService, { productByEanQueryKey } from "@/lib/cijene-api";
+import cijeneService from "@/lib/cijene-api";
+import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import { isProductNotFound } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
 
 function isNotKnownMissing(query: { state: { error: unknown } }) {
@@ -15,7 +16,7 @@ function isNotKnownMissing(query: { state: { error: unknown } }) {
  */
 export function productLookupQuery(ean: string) {
   return queryOptions({
-    queryKey: productByEanQueryKey(ean),
+    queryKey: CIJENE_QUERY_KEYS.productByEan(ean),
     queryFn: () => cijeneService.getProductByEan({ ean }),
     staleTime: 6 * 60 * 60 * 1000,
     // The app default of one retry, minus a 404, which asking again cannot change.

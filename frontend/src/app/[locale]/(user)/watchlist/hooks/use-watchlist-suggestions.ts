@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { shoppingListService } from "@/lib/api";
-import { getProductByEan, productByEanQueryKey } from "@/lib/cijene-api";
+import { productByEanQueryOptions } from "@/lib/cijene-api";
 import { rankByFields, type IRankedItem } from "@/utils/generic";
 import { byDesc, chainComparators } from "@/utils/search/rank";
 import {
@@ -73,10 +73,8 @@ export function useWatchlistSuggestions({
   const suggestionProductQueries = useQueries({
     queries: suggestionProductApiIds.map((productApiId) => ({
       // Shared key with the product page/modal, so a suggestion is a cache hit, not a refetch.
-      queryKey: productByEanQueryKey(productApiId),
-      queryFn: () => getProductByEan({ ean: productApiId }),
+      ...productByEanQueryOptions({ ean: productApiId }),
       enabled: Boolean(productApiId) && isAuthenticated,
-      staleTime: 6 * 60 * 60 * 1000,
     })),
   });
 

@@ -3,7 +3,7 @@ import { waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 
-import { productByEanQueryKey } from "@/lib/cijene-api";
+import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-drop-count";
 import { server } from "@/test/msw-server";
@@ -85,7 +85,7 @@ function useCountAndProduct() {
   return {
     ...useWatchlistPriceDropCount(),
     product: useQuery({
-      queryKey: productByEanQueryKey(EAN),
+      queryKey: CIJENE_QUERY_KEYS.productByEan(EAN),
       queryFn: skipToken,
     }).data,
   };

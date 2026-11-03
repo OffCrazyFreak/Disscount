@@ -10,7 +10,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { useShoppingListData } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-shopping-list-data";
 import { useStoreChainAnalysis } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-store-chain-analysis";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
-import { productByEanQueryKey } from "@/lib/cijene-api";
+import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
@@ -266,14 +266,15 @@ describe("useShoppingListData price states", () => {
     // The watchlist and product modal observe the same key with the default options.
     act(() => {
       void queryClient.refetchQueries({
-        queryKey: productByEanQueryKey("333"),
+        queryKey: CIJENE_QUERY_KEYS.productByEan("333"),
       });
     });
 
     await waitFor(() => expect(refetching).toBe(true));
     await waitFor(() =>
       expect(
-        queryClient.getQueryState(productByEanQueryKey("333"))?.fetchStatus,
+        queryClient.getQueryState(CIJENE_QUERY_KEYS.productByEan("333"))
+          ?.fetchStatus,
       ).toBe("fetching"),
     );
     expect(result.current.priceStates.unknown).toBe("noPrices");
@@ -301,7 +302,8 @@ describe("useShoppingListData price states", () => {
 
     await waitFor(() =>
       expect(
-        queryClient.getQueryState(productByEanQueryKey("222"))?.fetchStatus,
+        queryClient.getQueryState(CIJENE_QUERY_KEYS.productByEan("222"))
+          ?.fetchStatus,
       ).toBe("paused"),
     );
     expect(result.current.priceStates.broken).toBe("failed");
