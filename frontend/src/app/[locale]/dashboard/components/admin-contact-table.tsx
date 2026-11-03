@@ -60,19 +60,6 @@ export default function AdminContactTable() {
     ]);
   }, [data, view, search]);
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-12">
-        <BlockLoadingSpinner size={24} />
-      </div>
-    );
-  }
-
-  // Only an inbox with nothing cached is missing; a failed refetch keeps its last answer.
-  if (isError && data === undefined) {
-    return <p className="text-destructive text-sm">{t("contact.loadError")}</p>;
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
@@ -102,37 +89,55 @@ export default function AdminContactTable() {
         </label>
       </div>
 
+      {/* The controls stay outside, so a failed view can still be switched away from. */}
       <div className="rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{t("contact.colMessage")}</TableHead>
-              <TableHead>{t("contact.colSender")}</TableHead>
-              <TableHead>{t("contact.colSent")}</TableHead>
-              <TableHead>{t("contact.colStatus")}</TableHead>
-              <TableHead className="text-right">
-                {t("contact.colActions")}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {messages.map((message) => (
-              <AdminContactRow
-                key={message.id}
-                message={message}
-                onOpen={setDetail}
-                onToggleRead={inbox.toggleRead}
-                onDelete={inbox.remove}
-                onRestore={inbox.restore}
-              />
-            ))}
-          </TableBody>
-        </Table>
+        {isLoading && (
+          <div className="flex justify-center py-12">
+            <BlockLoadingSpinner size={24} />
+          </div>
+        )}
 
-        {messages.length === 0 && (
-          <p className="text-muted-foreground p-6 text-center text-sm">
-            {t("contact.empty")}
+        {/* Only an inbox with nothing cached is missing; a failed refetch keeps its last answer. */}
+        {isError && data === undefined && (
+          <p role="alert" className="text-destructive p-6 text-center text-sm">
+            {t("contact.loadError")}
           </p>
+        )}
+
+        {data !== undefined && (
+          <>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("contact.colMessage")}</TableHead>
+                  <TableHead>{t("contact.colSender")}</TableHead>
+                  <TableHead>{t("contact.colSent")}</TableHead>
+                  <TableHead>{t("contact.colStatus")}</TableHead>
+                  <TableHead className="text-right">
+                    {t("contact.colActions")}
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {messages.map((message) => (
+                  <AdminContactRow
+                    key={message.id}
+                    message={message}
+                    onOpen={setDetail}
+                    onToggleRead={inbox.toggleRead}
+                    onDelete={inbox.remove}
+                    onRestore={inbox.restore}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+
+            {messages.length === 0 && (
+              <p className="text-muted-foreground p-6 text-center text-sm">
+                {t("contact.empty")}
+              </p>
+            )}
+          </>
         )}
       </div>
 
