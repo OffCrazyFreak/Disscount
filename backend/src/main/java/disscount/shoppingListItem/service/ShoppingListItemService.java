@@ -139,7 +139,7 @@ public class ShoppingListItemService {
     }
 
     public List<ShoppingListItemDto> getUserShoppingListItems(UUID ownerId) {
-        User owner = userRepository.findById(ownerId)
+        User owner = userRepository.findByIdAndDeletedAtIsNull(ownerId)
                 .orElseThrow(() -> new UnauthorizedException("error.user.notFound"));
 
         return shoppingListItemRepository.findAllActiveItemsByUser(owner)

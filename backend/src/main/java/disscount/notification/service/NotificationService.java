@@ -27,7 +27,7 @@ public class NotificationService {
     private final UserRepository userRepository;
 
     public NotificationDto createNotification(UUID userId, NotificationRequest request) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         Notification notification = Notification.builder()
