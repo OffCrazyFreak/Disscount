@@ -115,10 +115,6 @@ export function useAddToListSubmit({
           ? t("addToList.toast.quantityIncreased", { name: target.name })
           : t("addToList.toast.added", { name: target.name }),
         {
-          classNames: {
-            actionButton:
-              "bg-primary! text-primary-foreground! hover:bg-primary/90!",
-          },
           action: {
             label: t("addToList.toast.open"),
             onClick: () =>
