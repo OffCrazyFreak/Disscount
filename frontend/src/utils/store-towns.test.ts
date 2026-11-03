@@ -83,6 +83,16 @@ describe("listStoreTowns", () => {
       { key: "Plaški", name: "Plaški", county: null, zipcodes: ["47304"] },
     ]);
   });
+
+  it("prefers a spelling in normal case over one in capitals", () => {
+    expect(
+      listStoreTowns([
+        { city: "ŠIBENIK", zipcode: "22000", lat: 43.73, lon: 15.89 },
+        { city: "ŠIBENIK", zipcode: "22000", lat: 43.73, lon: 15.89 },
+        { city: "Šibenik", zipcode: "22000", lat: 43.73, lon: 15.89 },
+      ]),
+    ).toMatchObject([{ name: "Šibenik" }]);
+  });
 });
 
 describe("townCenter", () => {

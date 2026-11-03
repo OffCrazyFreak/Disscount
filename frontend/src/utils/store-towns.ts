@@ -62,6 +62,10 @@ function countAccents(name: string) {
   ).length;
 }
 
+function isCapitals(name: string) {
+  return name === name.toUpperCase() && name !== name.toLowerCase();
+}
+
 interface ISpelledGroup {
   spellings: Map<string, number>;
   stores: PinnedStore[];
@@ -86,11 +90,15 @@ function groupByFoldedName(stores: ITownStore[]) {
     byName.set(folded, group);
   }
 
-  // The accented spelling wins, then the one most stores send.
+  // The accented spelling wins, then one not in capitals, then the one most
+  // stores send.
   return [...byName.values()].map(({ spellings, stores: inTown }) => ({
     name: [...spellings].sort(
       ([a, aCount], [b, bCount]) =>
-        countAccents(b) - countAccents(a) || bCount - aCount || compareHr(a, b),
+        countAccents(b) - countAccents(a) ||
+        Number(isCapitals(a)) - Number(isCapitals(b)) ||
+        bCount - aCount ||
+        compareHr(a, b),
     )[0][0],
     stores: inTown,
   }));
