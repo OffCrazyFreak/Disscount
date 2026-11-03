@@ -108,7 +108,7 @@ Admin, under `/api/admin/product-images`: `GET /queue?filter=todo|pending|report
 - **Product photos are JPEG only.** The JDK cannot write WebP without a native library; the browser always sends JPEG.
 - **`R2_PUBLIC_URL` must be `https://`.** The Content Security Policy in `next.config.ts` allows images only from `https:`, so a local `http://` S3 stand-in shows broken images unless you widen `img-src` while testing.
 - **The crop height limit sits on `ReactCrop`, not the `<img>`.** `ReactCrop.css` makes the image inherit `max-height`, so a class on the image is ignored and a tall photo pushes the buttons off screen.
-- **Statuses are stored as text with a converter.** `ddl-auto=update` would keep the CHECK constraint Hibernate adds for enum columns.
+- **A fresh database gets a CHECK on the status and source values.** Since Hibernate 7 the converter no longer keeps it out, so a database created from scratch has `product_image_status_check` and `product_image_source_check`. Production's table is older and has neither. `ddl-auto=update` never refreshes a CHECK, so until the move to Flyway, adding an `ImageStatus` or `ImageSource` value means updating that constraint by hand in every database that has it.
 
 ## 11. Future work
 
