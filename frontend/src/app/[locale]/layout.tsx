@@ -8,6 +8,9 @@ import PriceDropStatus from "@/components/custom/watchlist/price-drop-status";
 import ProductsSheet from "@/app/[locale]/products/components/products-sheet/products-sheet";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/common/footer";
+import SkipLink, {
+  MAIN_CONTENT_ID,
+} from "@/components/custom/common/skip-link";
 import WindowScrollFade from "@/components/custom/common/window-scroll-fade";
 import BackToTopButton from "@/components/custom/fab/back-to-top-button";
 import OAuthErrorToast from "@/components/custom/common/oauth-error-toast";
@@ -161,6 +164,8 @@ export default async function RootLayout({
       <body
         className={`${sairaStencil.variable} ${huninn.variable} antialiased bg-zinc-50 relative`}
       >
+        <SkipLink />
+
         {/* Chrome fires beforeinstallprompt before React hydrates, and never
             re-fires it, so the React-side listener alone can miss it and lose
             the native prompt. use-install-prompt.ts adopts whatever this
@@ -220,7 +225,11 @@ export default async function RootLayout({
                 heights inside resolve and the page itself never scrolls; only a
                 screen shorter than 40rem scrolls, so the map never shrinks to
                 nothing. */}
-              <main className="max-w-4xl has-[[data-page-width=full]]:max-w-none has-[[data-page-width=full]]:flex has-[[data-page-width=full]]:flex-1 has-[[data-page-width=full]]:min-h-0 has-[[data-page-width=full]]:flex-col mx-auto px-4 pt-4 mt-24 w-full overflow-x-clip">
+              <main
+                id={MAIN_CONTENT_ID}
+                tabIndex={-1}
+                className="scroll-mt-24 outline-none max-w-4xl has-[[data-page-width=full]]:max-w-none has-[[data-page-width=full]]:flex has-[[data-page-width=full]]:flex-1 has-[[data-page-width=full]]:min-h-0 has-[[data-page-width=full]]:flex-col mx-auto px-4 pt-4 mt-24 w-full overflow-x-clip"
+              >
                 <Suspense fallback={null}>
                   <LocaleSuggestion />
                 </Suspense>
