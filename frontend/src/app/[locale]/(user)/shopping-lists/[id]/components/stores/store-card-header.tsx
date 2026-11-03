@@ -1,6 +1,8 @@
+import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
+import StretchedCollapsibleTrigger from "@/components/custom/common/stretched-collapsible-trigger";
 import { CardHeader } from "@/components/ui/card";
 import { getChainLabel } from "@/utils/labels";
 import { cn } from "@/lib/utils";
@@ -31,6 +33,7 @@ export default function StoreCardHeader({
   nearest,
 }: IStoreCardHeaderProps) {
   const t = useTranslations("shoppingListDetail");
+  const id = useId();
 
   const {
     isPreferred,
@@ -45,10 +48,25 @@ export default function StoreCardHeader({
     maxExtreme,
   } = metrics;
 
+  const describedBy = [
+    `${id}-extremes`,
+    `${id}-badges`,
+    `${id}-prices`,
+    nearest && `${id}-nearest`,
+    `${id}-action`,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <CardHeader className="flex items-center justify-between gap-4">
+    // The toggle stretches over the header instead of wrapping it, so the
+    // opening badge can be its own button beside it.
+    <CardHeader className="relative isolate flex items-center justify-between gap-4 py-4">
       <div className="flex items-center gap-4">
-        <div className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm">
+        <div
+          className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm"
+          aria-hidden="true"
+        >
           <StoreChainLogo
             chain={chain.chain}
             className={cn(
@@ -61,40 +79,46 @@ export default function StoreCardHeader({
         <div className="flex-1 min-w-0">
           <div className="flex flex-col items-start gap-1 sm:flex-row sm:flex-wrap sm:items-center">
             <div className="flex items-center gap-1">
-              {hasLowestPriceItem && (
-                <>
-                  <ArrowBigDownDash
-                    className="size-5 text-green-600 flex-shrink-0"
-                    aria-hidden="true"
-                  />
-                  <span className="sr-only">{t("stores.hasLowest")}</span>
-                </>
-              )}
-              {hasHighestPriceItem && (
-                <>
-                  <ArrowBigUpDash
-                    className="size-5 text-red-700 flex-shrink-0"
-                    aria-hidden="true"
-                  />
-                  <span className="sr-only">{t("stores.hasHighest")}</span>
-                </>
-              )}
+              <span id={`${id}-extremes`} className="contents">
+                {hasLowestPriceItem && (
+                  <>
+                    <ArrowBigDownDash
+                      className="size-5 text-green-600 flex-shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span className="sr-only">{t("stores.hasLowest")}</span>
+                  </>
+                )}
+                {hasHighestPriceItem && (
+                  <>
+                    <ArrowBigUpDash
+                      className="size-5 text-red-700 flex-shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span className="sr-only">{t("stores.hasHighest")}</span>
+                  </>
+                )}
+              </span>
 
               <h3 lang="hr" className="font-semibold text-foreground">
-                {getChainLabel(chain.chain)}
+                <StretchedCollapsibleTrigger aria-describedby={describedBy}>
+                  {getChainLabel(chain.chain)}
+                </StretchedCollapsibleTrigger>
               </h3>
             </div>
 
-            <StoreCardBadges
-              hasAllItems={hasAllItems}
-              itemCount={chain.itemCount}
-              totalItemsInList={totalItemsInList}
-              isDataFromToday={isDataFromToday}
-              priceDate={chain.price_date}
-            />
+            <div id={`${id}-badges`}>
+              <StoreCardBadges
+                hasAllItems={hasAllItems}
+                itemCount={chain.itemCount}
+                totalItemsInList={totalItemsInList}
+                isDataFromToday={isDataFromToday}
+                priceDate={chain.price_date}
+              />
+            </div>
           </div>
 
-          <div className="mt-2">
+          <div id={`${id}-prices`} className="mt-2">
             <StoreCardPriceRow
               minPrice={storeMinPrice}
               avgPrice={storeAvgPrice}
@@ -106,7 +130,7 @@ export default function StoreCardHeader({
           </div>
 
           {nearest && (
-            <div className="mt-1">
+            <div id={`${id}-nearest`} className="mt-1">
               <NearestStoreDistance nearest={nearest} />
             </div>
           )}
@@ -114,15 +138,19 @@ export default function StoreCardHeader({
       </div>
 
       <div className="flex-1 flex items-center justify-end gap-4">
-        <p className="hidden sm:inline text-gray-700 text-sm text-pretty text-right">
+        <p
+          id={`${id}-action`}
+          className="hidden sm:inline text-gray-700 text-sm text-pretty text-right"
+        >
           {t("stores.availability")}
         </p>
 
         <ChevronDown
           className={cn(
-            "size-8 text-gray-500 transition-transform flex-shrink-0",
+            "size-8 text-gray-500 transition-transform motion-reduce:transition-none flex-shrink-0",
             isExpanded && "rotate-180",
           )}
+          aria-hidden="true"
         />
       </div>
     </CardHeader>

@@ -73,7 +73,7 @@ export default function OpeningStatusDetail({
           onFocus={focus}
           onBlur={() => setIsOpen(false)}
           onClick={click}
-          className="relative z-10 inline-flex rounded-full after:absolute after:-inset-x-2 after:-inset-y-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          className="relative z-10 inline-flex cursor-pointer rounded-full after:absolute after:-inset-x-2 after:-inset-y-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           {children}
         </button>
