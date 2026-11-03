@@ -328,6 +328,22 @@ describe("ShoppingListItems focus", () => {
     );
   });
 
+  it("focuses the items section when no tab panel is left", async () => {
+    const user = userEvent.setup();
+    const onRetry = vi.fn(async () => false);
+    const view = renderWithProviders(
+      listItems([item("a")], { a: "failed" }, onRetry),
+    );
+
+    await user.click(screen.getByRole("button", { name: "Pokušaj ponovno" }));
+    view.rerender(listItems([], {}, onRetry));
+
+    // A list left with only its products renders no tab panel around them.
+    await waitFor(() =>
+      expect(document.activeElement).toHaveAttribute("tabindex", "-1"),
+    );
+  });
+
   it("leaves focus alone when the retry button no longer had it", async () => {
     const user = userEvent.setup();
     const items = [item("a")];
