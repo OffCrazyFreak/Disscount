@@ -2,9 +2,10 @@ import { waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it } from "vitest";
 
-import { setAuthTokenUser } from "@/lib/api/api-base";
 import { useGetShoppingListById } from "@/lib/api/shopping-lists/hooks";
 import type { ShoppingListDto } from "@/lib/api/types";
+import { setCacheIdentity } from "@/lib/offline/cache-identity";
+import { ANONYMOUS, actingAs } from "@/test/backend-identity";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
 
@@ -21,44 +22,40 @@ const sharedList: ShoppingListDto = {
   items: [],
 };
 
-/** Spring's by-id route lets anyone with the link in; it records whether a bearer came along. */
+/** Spring's by-id route lets anyone with the link in; it records whom each call acted as. No session cookie is set. */
 function serveSharedList() {
-  const authorizations: (string | null)[] = [];
+  const accounts: string[] = [];
   server.use(
-    // No session, or one that has expired: better-auth refuses to mint a token.
-    http.get("*/api/auth/token", () =>
-      HttpResponse.json(null, { status: 401 }),
-    ),
     http.get(`*/api/shopping-lists/${LIST_ID}`, ({ request }) => {
-      authorizations.push(request.headers.get("Authorization"));
+      accounts.push(actingAs(request));
       return HttpResponse.json(sharedList);
     }),
   );
-  return authorizations;
+  return accounts;
 }
 
 describe("a shared shopping list link", () => {
   it("opens for a visitor who never signed in", async () => {
-    const authorizations = serveSharedList();
-    setAuthTokenUser(null);
+    const accounts = serveSharedList();
+    setCacheIdentity(null);
 
     const { result } = renderHookWithProviders(() =>
       useGetShoppingListById(LIST_ID),
     );
 
     await waitFor(() => expect(result.current.data).toEqual(sharedList));
-    expect(authorizations).toEqual([null]);
+    expect(accounts).toEqual([ANONYMOUS]);
   });
 
   it("opens anonymously when the tab still names an account whose session expired", async () => {
-    const authorizations = serveSharedList();
-    setAuthTokenUser("user-a");
+    const accounts = serveSharedList();
+    setCacheIdentity("user-a");
 
     const { result } = renderHookWithProviders(() =>
       useGetShoppingListById(LIST_ID),
     );
 
     await waitFor(() => expect(result.current.data).toEqual(sharedList));
-    expect(authorizations).toEqual([null]);
+    expect(accounts).toEqual([ANONYMOUS]);
   });
 });

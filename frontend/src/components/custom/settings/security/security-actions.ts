@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 import { authClient } from "@/lib/auth/client";
-import { clearAuthToken } from "@/lib/api/api-base";
 import { useUser } from "@/context/user-context";
 import {
   proofFailureFrom,
@@ -44,9 +43,6 @@ export function useSecurityActions() {
       body: proof,
     });
     if (error) return proofFailureFrom(error);
-
-    // This tab's cached token outlives the identity; requests using it would only get account_erased.
-    clearAuthToken();
 
     await logout();
     router.replace("/");

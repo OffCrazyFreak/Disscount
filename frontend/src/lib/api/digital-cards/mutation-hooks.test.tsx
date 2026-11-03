@@ -8,10 +8,6 @@ import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
 
 // Signed out: the API client asks for a token first and sends the request without one.
-const signedOut = http.get("*/api/auth/token", () =>
-  HttpResponse.json(null, { status: 401 }),
-);
-
 const CARD = {
   id: "8f1c2a4e-1b7d-4c55-9a0e-3f6b2d9c7e10",
   data: {
@@ -33,7 +29,6 @@ describe("useSaveDigitalCard", () => {
     vi.useFakeTimers();
     let attempts = 0;
     server.use(
-      signedOut,
       http.put("*/api/digital-cards/:id", () => {
         attempts += 1;
         return HttpResponse.json(null, { status: 502 });

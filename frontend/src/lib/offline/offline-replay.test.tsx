@@ -9,14 +9,14 @@ import {
 import { http, HttpResponse } from "msw/http";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { setAuthTokenUser } from "@/lib/api/api-base";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
 import { persistOptions } from "@/lib/offline/persister";
-import { actingAs, unsignedJwt } from "@/test/backend-identity";
+import { setCacheIdentity } from "@/lib/offline/cache-identity";
+import { actingAs, serverSession } from "@/test/backend-identity";
 import { server } from "@/test/msw-server";
 
-// Named .tsx only for the jsdom project: the API client attaches no token without a window.
+// Named .tsx only for the jsdom project: the API client sends the proxy headers only with a document.
 
 const LIST_ID = "5b0e6c1a-7d2f-4e8a-9c3b-1f4d6a8e2c70";
 const ITEM_ID = "0f3a9d52-6c1e-4b7a-8e2d-9a4c5b6d7e81";
@@ -61,12 +61,8 @@ async function restoreQueuedWrite(
 
 beforeEach(() => {
   vi.useFakeTimers();
-  setAuthTokenUser("user-a");
-  server.use(
-    http.get("*/api/auth/token", () =>
-      HttpResponse.json({ token: unsignedJwt("user-a") }),
-    ),
-  );
+  setCacheIdentity("user-a");
+  serverSession.userId = "user-a";
 });
 
 afterEach(() => {

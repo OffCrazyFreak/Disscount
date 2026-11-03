@@ -14,12 +14,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import * as Sentry from "@sentry/nextjs";
 
 import { authClient, useSession } from "@/lib/auth/client";
-import {
-  clearAuthToken,
-  resetAuthToken,
-  setAuthTokenUser,
-  expectNewAuthTokenUser,
-} from "@/lib/api/api-base";
 import { purgeOfflineCache } from "@/lib/offline/purge";
 import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
@@ -107,7 +101,6 @@ export function UserProvider({ children }: IUserProviderProps) {
     syncCacheIdentity(queryClient, cacheIdentityRef, identity, sessionError);
     // A failed lookup leaves the account unknown, as it does for the cache purge.
     if (!sessionError || identity) {
-      setAuthTokenUser(identity);
       // The account id only: email and name stay out of Sentry.
       Sentry.setUser(identity ? { id: identity } : null);
     }
@@ -119,7 +112,6 @@ export function UserProvider({ children }: IUserProviderProps) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       refreshUser();
     } else {
-      clearAuthToken();
       setUser(null);
       setIsLoading(false);
       setHasResolvedAuth(true);
@@ -141,7 +133,6 @@ export function UserProvider({ children }: IUserProviderProps) {
     try {
       await authClient.signOut();
     } finally {
-      clearAuthToken();
       Sentry.setUser(null);
       setUser(null);
       // Awaited here, and the identity has not moved yet, so the current one is the
@@ -154,12 +145,17 @@ export function UserProvider({ children }: IUserProviderProps) {
 
   // Called by login/signup forms after signIn/signUp succeeds to eagerly load the profile
   const handleUserLogin = useCallback(async () => {
-    resetAuthToken();
-    // The new account's session can land after this load starts, and its token must not
-    // be refused for not matching the signed-out state.
-    expectNewAuthTokenUser();
+    // The backend proxy refuses a call pinned to another account than the cookie's, and
+    // useSession may not have seen the sign-in yet, so the pin moves to the new account first.
+    const { data, error } = await authClient.getSession();
+    syncCacheIdentity(
+      queryClient,
+      cacheIdentityRef,
+      data?.user?.id ?? null,
+      error,
+    );
     await refreshUser();
-  }, [refreshUser]);
+  }, [queryClient, refreshUser]);
 
   const { updatePinnedStores, updatePinnedPlaces, mergeUser } =
     useUserUpdaters(setUser);

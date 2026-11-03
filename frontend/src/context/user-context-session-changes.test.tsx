@@ -11,16 +11,16 @@ import {
   setCacheIdentity,
 } from "@/lib/offline/cache-identity";
 import { purgeOfflineCache } from "@/lib/offline/purge";
-import { ANONYMOUS, actingAs, unsignedJwt } from "@/test/backend-identity";
+import { ANONYMOUS, actingAs, serverSession } from "@/test/backend-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 
-// What this tab's useSession reports, and which account the session cookie names on the
-// server. They differ only between a change on the server and the tab's next poll.
-const { tab, cookie } = vi.hoisted(() => ({
+// What this tab's useSession reports. The account the session cookie names on the server
+// differs from it only between a change on the server and the tab's next poll.
+const { tab } = vi.hoisted(() => ({
   tab: { userId: null as string | null },
-  cookie: { userId: null as string | null },
 }));
+const cookie = serverSession;
 
 vi.mock("@/lib/auth/client", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/auth/client")>();
@@ -43,18 +43,18 @@ vi.mock("@/lib/offline/purge", () => ({ purgeOfflineCache: vi.fn() }));
 
 /** A backend that answers as whoever the request proves, and records who that was. */
 function serveBackend() {
-  const seen = { profile: [] as string[], probe: [] as string[] };
+  const seen = {
+    profileAttempts: 0,
+    profile: [] as string[],
+    probe: [] as string[],
+  };
   server.use(
-    http.get("*/api/auth/token", () =>
-      cookie.userId
-        ? HttpResponse.json({ token: unsignedJwt(cookie.userId) })
-        : HttpResponse.json(null, { status: 401 }),
-    ),
     http.post("*/api/auth/sign-out", () => {
       cookie.userId = null;
       return HttpResponse.json({ success: true });
     }),
     http.get("*/api/users/me", ({ request }) => {
+      seen.profileAttempts += 1;
       const account = actingAs(request);
       seen.profile.push(account);
       if (account === ANONYMOUS)
@@ -155,8 +155,10 @@ describe("UserProvider behind a sign-in in another tab", () => {
     const seen = serveBackend();
     renderAccount();
 
-    await waitFor(() => expect(seen.profile.length).toBeGreaterThan(0));
-    await apiClient.get("/api/probe");
+    await waitFor(() => expect(seen.profileAttempts).toBeGreaterThan(0));
+    await expect(apiClient.get("/api/probe")).rejects.toMatchObject({
+      response: { status: 401, data: { code: "session_changed" } },
+    });
 
     expect([...seen.profile, ...seen.probe]).not.toContain("user-b");
   });

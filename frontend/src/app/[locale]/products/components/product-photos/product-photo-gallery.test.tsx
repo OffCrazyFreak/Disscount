@@ -16,10 +16,6 @@ vi.mock("@/lib/modal/modal-navigation", () => ({
   openModalUrl: mocks.openModalUrl,
 }));
 
-const signedOut = http.get("*/api/auth/token", () =>
-  HttpResponse.json(null, { status: 401 }),
-);
-
 function photos(images: object[]) {
   return http.get("*/api/products/:ean/images", () =>
     HttpResponse.json({ ean: "8076800195057", images }),
@@ -28,7 +24,7 @@ function photos(images: object[]) {
 
 describe("ProductPhotoGallery", () => {
   it("invites a signed-out visitor to sign in before adding the first photo", async () => {
-    server.use(signedOut, photos([]));
+    server.use(photos([]));
     const user = userEvent.setup();
 
     renderWithProviders(
@@ -48,7 +44,6 @@ describe("ProductPhotoGallery", () => {
 
   it("shows the main photo as a button that opens the viewer, badged while unverified", async () => {
     server.use(
-      signedOut,
       photos([
         {
           id: "a",

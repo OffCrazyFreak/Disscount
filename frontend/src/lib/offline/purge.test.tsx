@@ -1,7 +1,10 @@
-import { QueryClient } from "@tanstack/react-query";
+import { act, screen } from "@testing-library/react";
+import { QueryClient, useQuery } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 
 import { purgeOfflineCache } from "@/lib/offline/purge";
+import { removePersistedCacheFor } from "@/lib/offline/persister";
+import { renderWithProviders } from "@/test/render";
 import {
   getWatchlistPriceSnapshot,
   setWatchlistPriceSnapshot,
@@ -31,5 +34,40 @@ describe("purgeOfflineCache", () => {
 
     expect(getWatchlistPriceSnapshot("leaving")).toBeNull();
     expect(getWatchlistPriceSnapshot("staying")).toEqual(snapshot);
+  });
+
+  it("never renders the departing account's data, and refetches what is on screen", async () => {
+    const queryClient = new QueryClient();
+    let account = "user-a";
+    const rendered: string[] = [];
+    function Profile() {
+      const { data } = useQuery({
+        queryKey: ["users", "me"],
+        queryFn: async () => account,
+      });
+      rendered.push(data ?? "none");
+      return <p>{data ?? "none"}</p>;
+    }
+    renderWithProviders(<Profile />, { queryClient });
+    await screen.findByText("user-a");
+    queryClient.setQueryData(["shopping-lists", "me"], ["list of user-a"]);
+
+    account = "user-b";
+    rendered.length = 0;
+    await act(() => purgeOfflineCache(queryClient, "user-a"));
+
+    expect(await screen.findByText("user-b")).toBeInTheDocument();
+    expect(rendered).not.toContain("user-a");
+    expect(queryClient.getQueryData(["shopping-lists", "me"])).toBeUndefined();
+    expect(removePersistedCacheFor).toHaveBeenCalledWith("user-a");
+  });
+
+  it("keeps public price data", async () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(["cijene", "chains"], ["konzum"]);
+
+    await purgeOfflineCache(queryClient, "user-a");
+
+    expect(queryClient.getQueryData(["cijene", "chains"])).toEqual(["konzum"]);
   });
 });

@@ -1,18 +1,28 @@
-// The one place that knows how a request proves its account to Spring, so the token proxy
-// swaps this file instead of every test that asks who a call acted as.
+// The one place that knows how a browser call proves its account to Spring: the backend
+// proxy's decision, from the tab's pin and the account the session cookie names.
+
+import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
+import {
+  decideIdentity,
+  identityPin,
+  isCsrfSafe,
+} from "@/lib/backend-proxy/request-guards";
 
 export const ANONYMOUS = "anonymous";
 
-export function unsignedJwt(sub: string): string {
-  const encode = (value: object) =>
-    btoa(JSON.stringify(value)).replace(/=+$/, "");
-  const exp = Math.floor(Date.now() / 1000) + 600;
-  return `${encode({ alg: "none" })}.${encode({ sub, exp })}.signature`;
-}
+/** The account the session cookie names on the server. The DOM setup clears it after each test. */
+export const serverSession = { userId: null as string | null };
 
+/**
+ * Who Spring acts as for this call, decided as the proxy decides it. A call the proxy would
+ * refuse throws the proxy's answer, which MSW sends back, so it never reaches the handler body.
+ */
 export function actingAs(request: Request): string {
-  const token = request.headers.get("Authorization")?.replace("Bearer ", "");
-  if (!token) return ANONYMOUS;
+  if (!isCsrfSafe(request, window.location.origin)) {
+    throw proxyProblem("csrf_rejected");
+  }
 
-  return (JSON.parse(atob(token.split(".")[1])) as { sub: string }).sub;
+  const identity = decideIdentity(identityPin(request), serverSession.userId);
+  if (identity.action === "refuse") throw proxyProblem("session_changed");
+  return identity.asUser ?? ANONYMOUS;
 }
