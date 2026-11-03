@@ -20,7 +20,7 @@ interface IUserMenuProps {
 
 export default function UserMenu({ trigger, side }: IUserMenuProps = {}) {
   const t = useTranslations("shell");
-  const { user, logout } = useUser();
+  const { accountUser: user, logout } = useUser();
 
   const avatarUser = {
     name: user?.username || "",

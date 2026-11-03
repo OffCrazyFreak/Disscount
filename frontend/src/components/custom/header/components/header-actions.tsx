@@ -20,7 +20,7 @@ export default function HeaderActions({
 }: IHeaderActionsProps) {
   // isInitializing, not isLoading: a background session refresh must not
   // unmount the bell, or it tears down an open notifications menu mid-use.
-  const { isAuthenticated, isInitializing } = useUser();
+  const { canShowAccountData, isInitializing } = useUser();
 
   const t = useTranslations("shell");
   const isMobile = useIsMobile();
@@ -34,7 +34,7 @@ export default function HeaderActions({
         <Skeleton
           className={cn("rounded-full", isMobile ? "h-8 w-24" : "h-10 w-28")}
         />
-      ) : isAuthenticated ? (
+      ) : canShowAccountData ? (
         <div className="flex items-center gap-4">
           {/* The page header stays mounted, hidden, behind the compact bar, and
               only one bell may answer open requests. */}
