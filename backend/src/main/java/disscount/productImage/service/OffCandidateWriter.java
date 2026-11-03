@@ -30,6 +30,7 @@ class OffCandidateWriter {
                 image.setStatus(ImageStatus.CANDIDATE);
                 image.setHiddenReason(null);
                 image.setRenderRetryAt(null);
+                image.setRenderAttempts(null);
                 images.save(image);
             }
             return;

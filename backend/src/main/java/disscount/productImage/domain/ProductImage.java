@@ -101,6 +101,10 @@ public class ProductImage {
     @Column(name = "render_retry_at")
     private LocalDateTime renderRetryAt;
 
+    /** Copies that failed with a refusal or server error; the job gives up on the photo at a cap. */
+    @Column(name = "render_attempts")
+    private Integer renderAttempts;
+
     @Column(name = "contributor_id")
     private UUID contributorId;
 

@@ -289,6 +289,7 @@ class ProductImageServiceTest {
         front.setStatus(ImageStatus.HIDDEN);
         front.setHiddenReason(HiddenReason.JOB_SKIPPED);
         front.setRenderRetryAt(Timestamps.nowUtc().plusHours(1));
+        front.setRenderAttempts(5);
         images.save(front);
 
         candidates.upsert(EAN, "front_hr", "4", "hr");
@@ -300,6 +301,7 @@ class ProductImageServiceTest {
             assertThat(i.getExternalRev()).isEqualTo("5");
             assertThat(i.getHiddenReason()).isNull();
             assertThat(i.getRenderRetryAt()).isNull();
+            assertThat(i.getRenderAttempts()).isNull();
         });
     }
 

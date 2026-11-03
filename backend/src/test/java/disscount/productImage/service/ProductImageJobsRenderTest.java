@@ -109,6 +109,32 @@ class ProductImageJobsRenderTest {
     }
 
     @Test
+    void aPhotoThatFailsFiveTimesIsSkippedSoTheNextPickTakesTheMainSlot() {
+        ProductImage failing = mainCandidate(WIDELY_SOLD, 900);
+        ProductImage english = images.save(ProductImage.builder().ean(WIDELY_SOLD).source(ImageSource.OPEN_FOOD_FACTS)
+                .status(ImageStatus.CANDIDATE).externalKey("front_en").externalRev("7").lang("en").build());
+        when(off.download(contains("front_hr"))).thenThrow(new OffImageUnavailableException("url", 403));
+
+        for (int attempt = 1; attempt <= ProductImageJobs.MAX_RENDER_ATTEMPTS; attempt++) {
+            if (attempt > 1) {
+                ProductImage due = images.findById(failing.getId()).orElseThrow();
+                due.setRenderRetryAt(Timestamps.nowUtc().minusMinutes(1));
+                images.save(due);
+            }
+            assertThat(images.findById(failing.getId())).get().extracting(ProductImage::getStatus)
+                    .isEqualTo(ImageStatus.CANDIDATE);
+            jobs.renderMainPhotos();
+        }
+
+        assertThat(images.findById(failing.getId())).get().satisfies(i -> {
+            assertThat(i.getStatus()).isEqualTo(ImageStatus.HIDDEN);
+            assertThat(i.getHiddenReason()).isEqualTo(HiddenReason.JOB_SKIPPED);
+            assertThat(i.getRenderAttempts()).isEqualTo(ProductImageJobs.MAX_RENDER_ATTEMPTS);
+        });
+        assertThat(sets.findById(WIDELY_SOLD)).get().extracting(ProductImageSet::getMainImageId).isEqualTo(english.getId());
+    }
+
+    @Test
     void networkTroublePausesTheQueueWithoutMarkingAnyPhoto() {
         ProductImage first = mainCandidate(WIDELY_SOLD, 900);
         ProductImage second = mainCandidate(LESS_SOLD, 40);

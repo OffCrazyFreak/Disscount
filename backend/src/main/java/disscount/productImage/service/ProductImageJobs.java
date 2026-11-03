@@ -33,6 +33,7 @@ public class ProductImageJobs {
     static final Duration IMPORT_EVERY = Duration.ofDays(7);
     static final int RENDER_BATCH = 10;
     static final Duration RENDER_RETRY_AFTER = Duration.ofHours(1);
+    static final int MAX_RENDER_ATTEMPTS = 5;
 
     private final boolean enabled;
     private final ProductImageStore store;
@@ -122,6 +123,13 @@ public class ProductImageJobs {
     }
 
     private void postpone(ProductImage image, RuntimeException cause) {
+        int attempts = (image.getRenderAttempts() == null ? 0 : image.getRenderAttempts()) + 1;
+        image.setRenderAttempts(attempts);
+        if (attempts >= MAX_RENDER_ATTEMPTS) {
+            // A photo that keeps failing would hold the main slot forever, so the next photo or a user upload takes it.
+            skip(image, cause);
+            return;
+        }
         log.warn("Retrying product photo {} for {} later: {}", image.getId(), image.getEan(), cause.getMessage());
         image.setRenderRetryAt(Timestamps.nowUtc().plus(RENDER_RETRY_AFTER));
         images.save(image);
