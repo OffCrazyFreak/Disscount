@@ -87,7 +87,11 @@ import { priceHistoryQueries } from "@/lib/cijene-api/price-history-queries";
  * @returns Object containing history data, chains, loading/error states
  */
 
-export function usePriceHistory({ ean, days = 7 }: IUsePriceHistoryArgs) {
+export function usePriceHistory({
+  ean,
+  days = 7,
+  enabled = true,
+}: IUsePriceHistoryArgs) {
   const locale = useLocale();
   const dates = useMemo(
     () => buildDateWindow(days, PRICE_ARCHIVE_START),
@@ -95,10 +99,11 @@ export function usePriceHistory({ ean, days = 7 }: IUsePriceHistoryArgs) {
   );
 
   const queries = useQueries({
-    queries: priceHistoryQueries(ean, dates),
+    queries: priceHistoryQueries(ean, dates, enabled),
   });
 
-  const isLoading = queries.some((q) => q.isLoading);
+  // A query waiting to be enabled is not loading, but the chart still has nothing to show.
+  const isLoading = !enabled || queries.some((q) => q.isLoading);
   const isError = queries.some((q) => q.isError);
 
   const { data, chains } = useMemo(() => {

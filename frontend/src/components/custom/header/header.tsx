@@ -1,6 +1,8 @@
 "use client";
+import { useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useScrolledPast } from "@/hooks/use-scrolled-past";
+import { useHeaderBottomVariable } from "@/hooks/use-header-bottom-variable";
 import { usePathname } from "@/i18n/navigation";
 import HeaderBrand from "@/components/custom/header/components/header-brand";
 import HeaderNav from "@/components/custom/header/components/header-nav";
@@ -10,6 +12,8 @@ import { HEADER_SLOT_ID } from "@/components/custom/header/header-slot";
 
 export default function Header() {
   const isScrolled = useScrolledPast(50);
+  const navRef = useRef<HTMLElement>(null);
+  useHeaderBottomVariable(navRef);
   // On phones the map puts its store search here in place of the logo, and
   // the page never scrolls, so the header floats there from the start. Done
   // with CSS rather than by unmounting, so the server render already matches.
@@ -18,7 +22,10 @@ export default function Header() {
   return (
     <>
       <header>
-        <nav className="fixed z-[var(--z-header)] inset-x-4 my-4 max-md:has-[[data-slot-open]]:inset-x-0">
+        <nav
+          ref={navRef}
+          className="fixed z-[var(--z-header)] inset-x-4 my-4 max-md:has-[[data-slot-open]]:inset-x-0"
+        >
           <div
             data-header-frame
             className={cn(

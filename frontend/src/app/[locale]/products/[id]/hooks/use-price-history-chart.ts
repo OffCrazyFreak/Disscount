@@ -1,7 +1,6 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { useUser } from "@/context/user-context";
-import { getPriceHistoryPreferences } from "@/utils/browser/local-storage";
 import {
   updateProductPreferences,
   useProductPreferences,
@@ -19,40 +18,16 @@ interface IChartPrefs {
   chains: string[];
 }
 
-export function usePriceHistoryChart(product: ProductResponse) {
+export function usePriceHistoryChart(
+  product: ProductResponse,
+  isEnabled: boolean,
+) {
   const { user } = useUser();
-  const { isPriceHistoryOpen = false } = useProductPreferences(product.ean);
+  // Read through the store, not lazily: the open section is in the server HTML, which has only defaults.
+  const saved = useProductPreferences(product.ean);
 
   const availableChains =
     product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
-
-  // Safe to read lazily: only the closed-by-default panel shows these, so no server HTML does.
-  // Null chains mean nothing saved yet, so the pinned stores default follows the user once it loads.
-  const [savedChartPrefs, setChartPrefs] = useState<{
-    period: PeriodOption;
-    chains: string[] | null;
-  }>(() => {
-    const { productsPreferences } = getPriceHistoryPreferences(product.ean);
-
-    // A persisted period may since have been disabled, so coerce it back.
-    const period = getEnabledPeriod(
-      (productsPreferences?.period || "1W") as PeriodOption,
-    );
-
-    if (productsPreferences?.chains) {
-      // Sanitize persisted chains by intersecting with available chains
-      const sanitizedChains = Array.from(
-        new Set(productsPreferences.chains),
-      ).filter((chain) => availableChains.includes(chain));
-
-      return {
-        period,
-        chains: sanitizedChains.length > 0 ? sanitizedChains : availableChains,
-      };
-    }
-
-    return { period, chains: null };
-  });
 
   // If EAN isn't in preferences yet, default to preferred stores only (if any exist)
   const preferredStoreIds = user?.pinnedStores?.map((s) => s.storeApiId) || [];
@@ -60,26 +35,31 @@ export function usePriceHistoryChart(product: ProductResponse) {
     preferredStoreIds.includes(chain),
   );
 
+  // Sanitize persisted chains by intersecting with available chains
+  const savedChains = saved.chains
+    ? Array.from(new Set(saved.chains)).filter((chain) =>
+        availableChains.includes(chain),
+      )
+    : null;
+
   const chartPrefs: IChartPrefs = {
-    period: savedChartPrefs.period,
-    // If there are preferred stores, select only those; otherwise select all
-    chains:
-      savedChartPrefs.chains ??
-      (preferredChains.length > 0 ? preferredChains : availableChains),
+    // A persisted period may since have been disabled, so coerce it back.
+    period: getEnabledPeriod((saved.period || "1W") as PeriodOption),
+    chains: savedChains
+      ? savedChains.length > 0
+        ? savedChains
+        : availableChains
+      : preferredChains.length > 0
+        ? preferredChains
+        : availableChains,
   };
 
-  // Saved on change, not in an effect: one during hydration would overwrite the saved open
-  // state with the server default.
-  function savePreferences(prefs: IChartPrefs, isOpen: boolean) {
+  // Saved on change, not in an effect: one during hydration would overwrite the saved state.
+  function savePreferences(prefs: IChartPrefs) {
     updateProductPreferences(product.ean, {
       period: prefs.period,
       chains: prefs.chains,
-      isPriceHistoryOpen: isOpen,
     });
-  }
-
-  function setIsPriceHistoryOpen(isOpen: boolean) {
-    savePreferences(chartPrefs, isOpen);
   }
 
   const daysToShow: number = useMemo(() => {
@@ -91,24 +71,22 @@ export function usePriceHistoryChart(product: ProductResponse) {
     chains: priceHistoryChains,
     isLoading: historyLoading,
     isError: historyError,
-  } = usePriceHistory({ ean: product.ean, days: daysToShow });
+  } = usePriceHistory({
+    ean: product.ean,
+    days: daysToShow,
+    enabled: isEnabled,
+  });
 
   function handlePeriodChange(period: string) {
-    const next = {
+    savePreferences({
       ...chartPrefs,
       period: getEnabledPeriod(period as PeriodOption),
-    };
-    setChartPrefs(next);
-    savePreferences(next, isPriceHistoryOpen);
+    });
   }
 
   function handleChainsChange(chains: string[]) {
     // Ensure at least one chain is always selected
-    if (chains.length > 0) {
-      const next = { ...chartPrefs, chains };
-      setChartPrefs(next);
-      savePreferences(next, isPriceHistoryOpen);
-    }
+    if (chains.length > 0) savePreferences({ ...chartPrefs, chains });
     // If no chains are selected, keep the current selection unchanged
   }
 
@@ -131,8 +109,6 @@ export function usePriceHistoryChart(product: ProductResponse) {
 
   return {
     chartPrefs,
-    isPriceHistoryOpen,
-    setIsPriceHistoryOpen,
     priceHistoryData,
     priceHistoryChains,
     historyLoading,

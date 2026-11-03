@@ -16,16 +16,12 @@
     "distance": "Distance"
   },
   "chains": {
-    "title": "Prices by store",
     "refreshed": "Prices refreshed {time}",
     "loadError": "Couldn't load prices. Try again.",
     "empty": "No prices available for this product.",
     "whereToBuy": "Where to buy"
   },
   "priceHistory": {
-    "title": "Price history",
-    "hide": "Hide",
-    "show": "Show",
     "empty": "No price history yet.",
     "average": "Average",
     "period": {
@@ -50,5 +46,8 @@
     "unknown": "Unknown",
     "notAvailable": "N/A",
     "showOnMap": ", show on the map"
+  },
+  "sectionNav": {
+    "label": "Product sections"
   }
 }

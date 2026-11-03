@@ -195,7 +195,7 @@
     "add": "Aggiungi carta"
   },
   "archived": {
-    "label": "Archiviate ({count})"
+    "label": "{label} ({count})"
   },
   "tile": {
     "archivedBadge": "Archiviata",
@@ -271,5 +271,9 @@
     "cardDeleteFailed": "Carta non eliminata. Riprova.",
     "photoDeleteFailed": "Immagine non eliminata. Riprova.",
     "photoSendFailed": "L'immagine della carta non è stata salvata. Aggiungila di nuovo."
+  },
+  "sectionNav": {
+    "label": "Sezioni delle carte",
+    "archived": "Archiviate"
   }
 }

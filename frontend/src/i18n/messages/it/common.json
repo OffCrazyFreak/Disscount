@@ -24,10 +24,6 @@
   "lastSynced": {
     "refreshed": "Aggiornato {time}"
   },
-  "collapsibleSection": {
-    "hide": "Nascondi",
-    "show": "Mostra"
-  },
   "comingSoon": {
     "badge": "PRESTO",
     "description": "Ci stiamo lavorando. Arriva presto!",
@@ -206,5 +202,11 @@
       "dubrovnikNeretva": "Dubrovnik-Neretva",
       "medimurje": "Međimurje"
     }
+  },
+  "sectionNav": {
+    "stores": "Prezzi per catena",
+    "storesShort": "Negozi",
+    "priceHistory": "Storico prezzi",
+    "priceHistoryShort": "Storico"
   }
 }

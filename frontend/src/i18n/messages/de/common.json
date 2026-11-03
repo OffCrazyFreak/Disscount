@@ -24,10 +24,6 @@
   "lastSynced": {
     "refreshed": "{time} aktualisiert"
   },
-  "collapsibleSection": {
-    "hide": "Ausblenden",
-    "show": "Anzeigen"
-  },
   "comingSoon": {
     "badge": "BALD",
     "description": "Wir arbeiten daran. Kommt bald!",
@@ -206,5 +202,11 @@
       "dubrovnikNeretva": "Dubrovnik-Neretva",
       "medimurje": "Međimurje"
     }
+  },
+  "sectionNav": {
+    "stores": "Preise nach Händlern",
+    "storesShort": "Händler",
+    "priceHistory": "Preisverlauf",
+    "priceHistoryShort": "Verlauf"
   }
 }

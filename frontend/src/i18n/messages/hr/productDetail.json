@@ -16,16 +16,12 @@
     "distance": "Udaljenosti"
   },
   "chains": {
-    "title": "Cijene po trgovinama",
     "refreshed": "Cijene osvježene {time}",
     "loadError": "Cijene se nisu učitale. Pokušaj ponovno.",
     "empty": "Nema dostupnih cijena za ovaj proizvod.",
     "whereToBuy": "Gdje kupiti"
   },
   "priceHistory": {
-    "title": "Povijest cijena",
-    "hide": "Sakrij",
-    "show": "Prikaži",
     "empty": "Još nema povijesti cijena.",
     "average": "Prosjek",
     "period": {
@@ -50,5 +46,8 @@
     "unknown": "Nepoznato",
     "notAvailable": "Nema",
     "showOnMap": ", prikaži na karti"
+  },
+  "sectionNav": {
+    "label": "Odjeljci proizvoda"
   }
 }

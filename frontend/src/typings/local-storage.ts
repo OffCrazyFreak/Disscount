@@ -9,8 +9,6 @@ export type LoginMethod = (typeof LOGIN_METHODS)[number];
 export interface IProductChartPreferences {
   period?: PeriodOption;
   chains?: string[];
-  isPriceHistoryOpen?: boolean;
-  storesOpen?: boolean;
 }
 
 // Product preferences structure
@@ -21,11 +19,8 @@ export interface IProductsPreferences {
 
 // Shopping list preferences structure
 export interface IShoppingListsPreferences {
-  itemsOpen?: boolean;
-  priceHistoryOpen?: boolean;
   priceHistoryPeriod?: PeriodOption;
   priceHistoryChains?: string[];
-  storesOpen?: boolean;
   groupByStore?: boolean;
   [key: string]: unknown;
 }

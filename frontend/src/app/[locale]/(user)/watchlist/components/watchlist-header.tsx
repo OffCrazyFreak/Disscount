@@ -29,7 +29,10 @@ export default function WatchlistHeader({
           {query.length > 0
             ? t("header.searchResultsTitle", { query, count: itemCount })
             : showCount
-              ? t("header.titleWithCount", { count: itemCount })
+              ? t("header.titleWithCount", {
+                  label: t("header.title"),
+                  count: itemCount,
+                })
               : t("header.title")}
         </h3>
 
