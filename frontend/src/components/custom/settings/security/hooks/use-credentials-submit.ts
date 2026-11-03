@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 import { authClient } from "@/lib/auth/client";
-import { resetAuthToken } from "@/lib/api/api-base";
 import { useUser } from "@/context/user-context";
 import type { CredentialsFormValues } from "@/components/custom/settings/security/credentials-schema";
 import { isPasswordPolicyCode } from "@/lib/auth/password-policy";
@@ -61,7 +60,6 @@ export function useCredentialsSubmit({
       return "done";
     }
 
-    resetAuthToken();
     await refreshUser();
     onChanged();
     form.resetField("newPassword");
@@ -82,7 +80,6 @@ export function useCredentialsSubmit({
   }
 
   async function confirmPasswordCommitted() {
-    resetAuthToken();
     await refreshUser();
     form.resetField("newPassword");
     form.resetField("currentPassword");

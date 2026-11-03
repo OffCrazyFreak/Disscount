@@ -1,147 +1,83 @@
 import { http, HttpResponse } from "msw/http";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, onTestFinished } from "vitest";
 
-import apiClient, {
-  clearAuthToken,
-  setAuthTokenUser,
-} from "@/lib/api/api-base";
+import apiClient from "@/lib/api/api-base";
+import { authClient } from "@/lib/auth/client";
+import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
+import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { server } from "@/test/msw-server";
 
-// Named .tsx only for the jsdom project: the client attaches no token without a window.
+// Named .tsx only for the jsdom project: the client sends the proxy headers only with a document.
 
-function unsignedJwt(payload: object): string {
-  const encode = (value: object) =>
-    btoa(JSON.stringify(value)).replace(/=+$/, "");
-  return `${encode({ alg: "none" })}.${encode(payload)}.signature`;
+function recordSessionRefetches() {
+  const refetches: boolean[] = [];
+  onTestFinished(
+    authClient.$store.atoms.$sessionSignal.listen((value) =>
+      refetches.push(value),
+    ),
+  );
+  return refetches;
 }
 
-const cachedToken = unsignedJwt({
-  sub: "other-account",
-  exp: Math.floor(Date.now() / 1000) + 600,
-});
-
-function recordAuthorizations() {
-  const authorizations: (string | null)[] = [];
+function recordHeaders() {
+  const seen: Headers[] = [];
   server.use(
-    http.get("*/api/auth/token", () =>
-      HttpResponse.json({ token: cachedToken }),
-    ),
     http.get("*/api/probe", ({ request }) => {
-      authorizations.push(request.headers.get("Authorization"));
+      seen.push(request.headers);
       return HttpResponse.json({});
     }),
   );
-  return authorizations;
+  return seen;
 }
 
-describe("apiClient bearer token", () => {
-  it("attaches the cached token when the caller passes none", async () => {
-    const authorizations = recordAuthorizations();
+describe("apiClient through the backend proxy", () => {
+  it("sends the CSRF header, the tab's account and its language, and no token", async () => {
+    const seen = recordHeaders();
+    setCacheIdentity("user-a");
+    document.documentElement.lang = "sl";
 
     await apiClient.get("/api/probe");
 
-    expect(authorizations).toEqual([`Bearer ${cachedToken}`]);
+    expect(seen[0].get("X-Disscount-Client")).toBe("web");
+    expect(seen[0].get("X-Disscount-User")).toBe("user-a");
+    expect(seen[0].get("Accept-Language")).toBe("sl");
+    expect(seen[0].get("Authorization")).toBeNull();
   });
 
-  it("keeps a token the caller passed even while a fresh one is cached", async () => {
-    const authorizations = recordAuthorizations();
+  it("pins the identity current when each call starts, not when the client loaded", async () => {
+    const seen = recordHeaders();
+
+    await apiClient.get("/api/probe");
+    setCacheIdentity("user-b");
     await apiClient.get("/api/probe");
 
-    await apiClient.get("/api/probe", {
-      headers: { Authorization: "Bearer pinned-token" },
-    });
-
-    expect(authorizations).toEqual([
-      `Bearer ${cachedToken}`,
-      "Bearer pinned-token",
+    expect(seen.map((headers) => headers.get("X-Disscount-User"))).toEqual([
+      "anon",
+      "user-b",
     ]);
   });
 
-  it("keeps a caller's token whatever the header's casing", async () => {
-    const authorizations = recordAuthorizations();
-    await apiClient.get("/api/probe");
+  it("refetches the session once when the proxy says the cookie names another account", async () => {
+    const refetches = recordSessionRefetches();
+    server.use(http.get("*/api/probe", () => proxyProblem("session_changed")));
 
-    await apiClient.get("/api/probe", {
-      headers: { authorization: "Bearer pinned-token" },
+    await expect(apiClient.get("/api/probe")).rejects.toMatchObject({
+      response: { status: 401 },
     });
 
-    expect(authorizations.at(-1)).toBe("Bearer pinned-token");
+    expect(refetches).toHaveLength(1);
   });
 
-  it("never swaps a caller's token for a fresh one after a 401", async () => {
-    const authorizations: (string | null)[] = [];
+  it("leaves the session alone on a 401 from Spring itself", async () => {
+    const refetches = recordSessionRefetches();
     server.use(
-      http.get("*/api/auth/token", () =>
-        HttpResponse.json({ token: cachedToken }),
-      ),
-      http.delete("*/api/probe", ({ request }) => {
-        authorizations.push(request.headers.get("Authorization"));
-        return HttpResponse.json(null, { status: 401 });
-      }),
+      http.get("*/api/probe", () => HttpResponse.json(null, { status: 401 })),
     );
 
-    await expect(
-      apiClient.delete("/api/probe", {
-        headers: { Authorization: "Bearer pinned-token" },
-      }),
-    ).rejects.toMatchObject({ response: { status: 401 } });
-
-    expect(authorizations).toEqual(["Bearer pinned-token"]);
-  });
-
-  it("does not cache a token whose fetch was in flight when the cache was cleared", async () => {
-    let releaseToken: () => void = () => {};
-    const tokenHeld = new Promise<void>((resolve) => {
-      releaseToken = resolve;
+    await expect(apiClient.get("/api/probe")).rejects.toMatchObject({
+      response: { status: 401 },
     });
-    const authorizations = recordAuthorizations();
-    server.use(
-      http.get("*/api/auth/token", async () => {
-        await tokenHeld;
-        return HttpResponse.json({ token: cachedToken });
-      }),
-    );
 
-    const requestDuringClear = apiClient.get("/api/probe");
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    // The clear starts a cooldown; a frozen clock keeps the second request inside it however slow the run.
-    vi.useFakeTimers({ toFake: ["Date"] });
-
-    try {
-      clearAuthToken();
-      releaseToken();
-      await requestDuringClear;
-      await apiClient.get("/api/probe");
-    } finally {
-      vi.useRealTimers();
-    }
-
-    expect(authorizations).toEqual([null, null]);
-  });
-
-  it("keeps a token whose fetch was in flight when the session named its user", async () => {
-    let releaseToken: () => void = () => {};
-    const tokenHeld = new Promise<void>((resolve) => {
-      releaseToken = resolve;
-    });
-    const sessionToken = unsignedJwt({
-      sub: "user-1",
-      exp: Math.floor(Date.now() / 1000) + 600,
-    });
-    const authorizations = recordAuthorizations();
-    server.use(
-      http.get("*/api/auth/token", async () => {
-        await tokenHeld;
-        return HttpResponse.json({ token: sessionToken });
-      }),
-    );
-
-    const requestDuringSessionLoad = apiClient.get("/api/probe");
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    setAuthTokenUser("user-1");
-    releaseToken();
-    await requestDuringSessionLoad;
-
-    expect(authorizations).toEqual([`Bearer ${sessionToken}`]);
+    expect(refetches).toHaveLength(0);
   });
 });

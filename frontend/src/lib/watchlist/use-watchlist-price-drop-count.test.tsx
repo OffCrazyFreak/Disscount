@@ -37,9 +37,6 @@ const EAN = "3850102123456";
 
 function watching(minPrice: string) {
   server.use(
-    http.get("*/api/auth/token", () =>
-      HttpResponse.json(null, { status: 401 }),
-    ),
     http.get("*/api/watchlist/me", () =>
       HttpResponse.json([
         {

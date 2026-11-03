@@ -15,10 +15,6 @@ vi.mock("@/context/user-context", () => ({
 }));
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
-const signedOut = http.get("*/api/auth/token", () =>
-  HttpResponse.json(null, { status: 401 }),
-);
-
 const ANA = {
   id: "ana",
   username: "ana",
@@ -74,7 +70,6 @@ describe("AdminUsersTable account type", () => {
     let stored: AccountType = "CONSUMER";
     const saving = held();
     server.use(
-      signedOut,
       serveUsers(() => [{ ...ANA, accountType: stored }]),
       http.patch("*/api/admin/users/:id", async ({ request }) => {
         await saving.promise;
@@ -97,7 +92,6 @@ describe("AdminUsersTable account type", () => {
   it("rolls back to the saved type with an error toast when the save fails", async () => {
     const saving = held();
     server.use(
-      signedOut,
       serveUsers(() => [ANA]),
       http.patch("*/api/admin/users/:id", async () => {
         await saving.promise;
@@ -125,7 +119,6 @@ describe("AdminUsersTable account type", () => {
     let ivoType: AccountType = "CONSUMER";
     let reads = 0;
     server.use(
-      signedOut,
       serveUsers(() => {
         reads += 1;
         return [ANA, { ...IVO, accountType: ivoType }];

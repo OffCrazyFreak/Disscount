@@ -12,10 +12,6 @@ import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 const { openModalUrl } = vi.hoisted(() => ({ openModalUrl: vi.fn() }));
 vi.mock("@/lib/modal/modal-navigation", () => ({ openModalUrl }));
 
-const signedOut = http.get("*/api/auth/token", () =>
-  HttpResponse.json(null, { status: 401 }),
-);
-
 const milk = {
   ean: "3850000000001",
   brand: "Dukat",
@@ -66,7 +62,7 @@ describe("ShoppingListQuickAdd", () => {
   it("adds the typed text as a plain item on Enter and stays ready for the next one", async () => {
     const user = userEvent.setup();
     const adds = captureAdds();
-    server.use(signedOut, serveSearch([]), adds.handler);
+    server.use(serveSearch([]), adds.handler);
     renderWithProviders(<ShoppingListQuickAdd listId="list-1" />);
 
     const input = screen.getByRole("combobox", {
@@ -88,7 +84,7 @@ describe("ShoppingListQuickAdd", () => {
   it("adds the text on Enter while suggestions show but none is highlighted", async () => {
     const user = userEvent.setup();
     const adds = captureAdds();
-    server.use(signedOut, serveSearch([milk]), adds.handler);
+    server.use(serveSearch([milk]), adds.handler);
     renderWithProviders(<ShoppingListQuickAdd listId="list-1" />);
 
     await user.type(screen.getByRole("combobox"), "mlijeko");
@@ -107,7 +103,7 @@ describe("ShoppingListQuickAdd", () => {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
-    server.use(signedOut, serveSearch([milk]), adds.handler);
+    server.use(serveSearch([milk]), adds.handler);
     renderWithProviders(<ShoppingListQuickAdd listId="list-1" />, {
       queryClient,
     });
@@ -132,7 +128,7 @@ describe("ShoppingListQuickAdd", () => {
 
   it("says when nothing matches, so Enter adds the text", async () => {
     const user = userEvent.setup();
-    server.use(signedOut, serveSearch([]));
+    server.use(serveSearch([]));
     renderWithProviders(<ShoppingListQuickAdd listId="list-1" />);
 
     await user.type(screen.getByRole("combobox"), "staklenke");
@@ -147,7 +143,7 @@ describe("ShoppingListQuickAdd", () => {
   it("announces a second add of the same name as a new message", async () => {
     const user = userEvent.setup();
     const adds = captureAdds();
-    server.use(signedOut, serveSearch([]), adds.handler);
+    server.use(serveSearch([]), adds.handler);
     renderWithProviders(<ShoppingListQuickAdd listId="list-1" />);
 
     const input = screen.getByRole("combobox");
@@ -167,7 +163,7 @@ describe("ShoppingListQuickAdd", () => {
   it("moves focus back to the field after a keyboard add with the button", async () => {
     const user = userEvent.setup();
     const adds = captureAdds();
-    server.use(signedOut, serveSearch([]), adds.handler);
+    server.use(serveSearch([]), adds.handler);
     renderWithProviders(<ShoppingListQuickAdd listId="list-1" />);
 
     const input = screen.getByRole("combobox");
@@ -187,7 +183,6 @@ describe("ShoppingListQuickAdd", () => {
       releaseFirst = resolve;
     });
     server.use(
-      signedOut,
       serveSearch([]),
       http.post("*/api/shopping-lists/:listId/items", async ({ request }) => {
         const body = (await request.json()) as { name: string };
@@ -218,7 +213,7 @@ describe("ShoppingListQuickAdd", () => {
 
   it("keeps the add button off until there is text", async () => {
     const user = userEvent.setup();
-    server.use(signedOut, serveSearch([]));
+    server.use(serveSearch([]));
     renderWithProviders(<ShoppingListQuickAdd listId="list-1" />);
 
     const button = screen.getByRole("button", { name: "Dodaj" });

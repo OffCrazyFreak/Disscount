@@ -302,6 +302,8 @@ export const auth = betterAuth({
 
   plugins: [
     jwt({
+      // Only the backend proxy needs a token, and it asks for one; this would sign one into every session poll.
+      disableSettingJwtHeader: true,
       jwks: {
         keyPairConfig: { alg: "ES256" },
       },

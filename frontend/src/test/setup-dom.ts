@@ -3,7 +3,8 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterEach } from "vitest";
 
-import { resetAuthToken, setAuthTokenUser } from "@/lib/api/api-base";
+import { setCacheIdentity } from "@/lib/offline/cache-identity";
+import { serverSession } from "@/test/backend-identity";
 
 // Testing Library only unmounts on its own when afterEach is a global, and the
 // suite imports it from vitest instead.
@@ -14,7 +15,7 @@ afterEach(() => {
   });
   sessionStorage.clear();
   localStorage.clear();
-  // The API client caches the token and a signed-out cooldown at module level.
-  resetAuthToken();
-  setAuthTokenUser(undefined);
+  // The in-memory cache identity is the proxy pin, and outlives the localStorage cleared above.
+  setCacheIdentity(null);
+  serverSession.userId = null;
 });

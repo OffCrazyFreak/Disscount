@@ -51,19 +51,6 @@ const nextConfig: NextConfig = {
     environment: { enablePreserveExistingMemoizationGuarantees: true },
   },
 
-  async rewrites() {
-    const backendOrigin = clientEnv.NEXT_PUBLIC_API_URL;
-
-    return [
-      {
-        // Proxy backend API calls - exclude /api/cijene/* (external), /api/auth/* and
-        // /api/account/* (better-auth, handled by Next.js)
-        source: "/api/:path((?!cijene/)(?!auth/)(?!account/).*)",
-        destination: `${backendOrigin}/api/:path*`,
-      },
-    ];
-  },
-
   async headers() {
     const csp = buildContentSecurityPolicy(
       process.env.NODE_ENV === "development",

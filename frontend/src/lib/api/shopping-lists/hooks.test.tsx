@@ -13,10 +13,6 @@ import { renderHookWithProviders } from "@/test/render";
 const LIST_ID = "5b0e6c1a-7d2f-4e8a-9c3b-1f4d6a8e2c70";
 
 // Signed out: the API client asks for a token first and sends the request without one.
-const signedOut = http.get("*/api/auth/token", () =>
-  HttpResponse.json(null, { status: 401 }),
-);
-
 function makeList(overrides: Partial<ShoppingListDto> = {}): ShoppingListDto {
   return {
     id: LIST_ID,
@@ -34,7 +30,6 @@ function makeList(overrides: Partial<ShoppingListDto> = {}): ShoppingListDto {
 function serveList(list: ShoppingListDto) {
   const served = { list, requests: 0, status: 200 };
   server.use(
-    signedOut,
     http.get(`*/api/shopping-lists/${LIST_ID}`, () => {
       served.requests += 1;
       return served.status === 200

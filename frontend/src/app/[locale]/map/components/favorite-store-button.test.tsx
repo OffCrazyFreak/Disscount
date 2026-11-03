@@ -14,10 +14,6 @@ vi.mock("@/context/user-context", () => ({
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
 
-const signedOut = http.get("*/api/auth/token", () =>
-  HttpResponse.json(null, { status: 401 }),
-);
-
 function favorites(keys: string[]) {
   return keys.map((storeKey) => ({ id: storeKey, storeKey }));
 }
@@ -29,7 +25,6 @@ describe("FavoriteStoreButton", () => {
     let stored = ["lidl:1"];
     let saved: unknown;
     server.use(
-      signedOut,
       http.get("*/api/favorite-stores/me", () =>
         HttpResponse.json(favorites(stored)),
       ),
@@ -61,7 +56,6 @@ describe("FavoriteStoreButton", () => {
   it("refuses an eleventh favourite without asking the server", async () => {
     const ten = Array.from({ length: 10 }, (_, i) => `spar:${i}`);
     server.use(
-      signedOut,
       http.get("*/api/favorite-stores/me", () =>
         HttpResponse.json(favorites(ten)),
       ),
@@ -85,7 +79,6 @@ describe("FavoriteStoreButton", () => {
   it("does not save before the saved list has loaded", async () => {
     const put = vi.fn();
     server.use(
-      signedOut,
       http.get("*/api/favorite-stores/me", () => new Promise<never>(() => {})),
       http.put("*/api/favorite-stores/bulk", () => {
         put();
@@ -105,7 +98,6 @@ describe("FavoriteStoreButton", () => {
 
   it("puts the star back when the save fails", async () => {
     server.use(
-      signedOut,
       http.get("*/api/favorite-stores/me", () =>
         HttpResponse.json(favorites(["spar:0"])),
       ),

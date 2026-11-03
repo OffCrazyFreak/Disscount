@@ -10,15 +10,10 @@ import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
 
 // Signed out: the API client asks for a token first and sends the request without one.
-const signedOut = http.get("*/api/auth/token", () =>
-  HttpResponse.json(null, { status: 401 }),
-);
-
 describe("useProductThumbnail", () => {
   it("asks for every row of a list in one request", async () => {
     const asked: string[] = [];
     server.use(
-      signedOut,
       http.get("*/api/products/images/thumbnails", ({ request }) => {
         asked.push(new URL(request.url).searchParams.get("eans") ?? "");
         return HttpResponse.json({
@@ -46,7 +41,6 @@ describe("useProductThumbnail", () => {
 describe("useProductImages", () => {
   it("rejects a payload that does not match the schema", async () => {
     server.use(
-      signedOut,
       http.get("*/api/products/:ean/images", () =>
         HttpResponse.json({ ean: "1", images: [{ id: 1 }] }),
       ),

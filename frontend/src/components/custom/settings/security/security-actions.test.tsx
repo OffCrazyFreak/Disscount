@@ -2,20 +2,16 @@ import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 
 import { useSecurityActions } from "@/components/custom/settings/security/security-actions";
-import apiClient from "@/lib/api/api-base";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
 
 const { auth, logout, toastError } = vi.hoisted(() => ({
-  auth: {
-    sessionToken: null as string | null,
-    deleteUser: vi.fn(),
-  },
+  auth: { deleteUser: vi.fn() },
   logout: vi.fn(),
   toastError: vi.fn(),
 }));
 
-// Only the delete request is faked; the token request stays real so MSW answers it.
+// Only the delete request is faked; anything else stays real so MSW answers it.
 vi.mock("@/lib/auth/client", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/auth/client")>();
   return {
@@ -42,12 +38,6 @@ vi.mock("sonner", () => ({
 function recordClientCalls() {
   const calls: string[] = [];
   server.use(
-    http.get("*/api/auth/token", () => {
-      calls.push("token");
-      return auth.sessionToken
-        ? HttpResponse.json({ token: auth.sessionToken })
-        : HttpResponse.json(null, { status: 401 });
-    }),
     http.delete("*/api/users/me", () => {
       calls.push("profile delete");
       return HttpResponse.json({ message: "ok" });
@@ -97,7 +87,6 @@ describe("useSecurityActions deleteAccount", () => {
   });
 
   it("deletes through deleteUser alone, then signs this tab out", async () => {
-    auth.sessionToken = "session-jwt";
     auth.deleteUser.mockResolvedValue({ error: null });
     const calls = recordClientCalls();
 
@@ -108,31 +97,5 @@ describe("useSecurityActions deleteAccount", () => {
     expect(calls).toEqual([]);
     expect(logout).toHaveBeenCalledOnce();
     expect(toastError).not.toHaveBeenCalled();
-  });
-
-  it("drops this tab's cached token once the identity is gone", async () => {
-    const encode = (value: object) =>
-      btoa(JSON.stringify(value)).replace(/=+$/, "");
-    const cachedJwt = `${encode({ alg: "none" })}.${encode({ exp: Math.floor(Date.now() / 1000) + 600 })}.signature`;
-    auth.sessionToken = cachedJwt;
-    recordClientCalls();
-    const laterAuthorizations: (string | null)[] = [];
-    server.use(
-      http.get("*/api/probe", ({ request }) => {
-        laterAuthorizations.push(request.headers.get("Authorization"));
-        return HttpResponse.json({});
-      }),
-    );
-    await apiClient.get("/api/probe");
-    auth.deleteUser.mockImplementation(async () => {
-      auth.sessionToken = null;
-      return { error: null };
-    });
-
-    const { result } = renderHookWithProviders(() => useSecurityActions());
-    await result.current.deleteAccount({ password: "pw" });
-    await apiClient.get("/api/probe");
-
-    expect(laterAuthorizations).toEqual([`Bearer ${cachedJwt}`, null]);
   });
 });
