@@ -1,4 +1,4 @@
-import { IsRestoringProvider } from "@tanstack/react-query";
+import { IsRestoringProvider, onlineManager } from "@tanstack/react-query";
 import { screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -89,12 +89,25 @@ describe("ShoppingListsClient offline", () => {
     expect(screen.getByText("loading")).toBeInTheDocument();
   });
 
-  it("says the lists are not saved offline when this device never loaded them", () => {
+  it("keeps the empty state online, where a failed session check saved nothing less", () => {
     saved.lists = false;
 
     renderWithProviders(<ShoppingListsClient query="" />);
 
     saved.lists = true;
+    expect(
+      screen.queryByText(/nije spremljena za korištenje bez interneta/),
+    ).not.toBeInTheDocument();
+  });
+
+  it("says the lists are not saved offline when this device never loaded them", () => {
+    saved.lists = false;
+    onlineManager.setOnline(false);
+
+    renderWithProviders(<ShoppingListsClient query="" />);
+
+    saved.lists = true;
+    onlineManager.setOnline(true);
     expect(
       screen.getByText(/nije spremljena za korištenje bez interneta/),
     ).toBeInTheDocument();

@@ -145,7 +145,7 @@ export function UserProvider({ children }: IUserProviderProps) {
     queryClient,
   ]);
 
-  const handleLogout = useLogout(cacheIdentityRef, setUser, session?.user?.id);
+  const handleLogout = useLogout(cacheIdentityRef, setUser);
 
   // Called by login/signup forms after signIn/signUp succeeds to eagerly load the profile
   const handleUserLogin = useCallback(async () => {

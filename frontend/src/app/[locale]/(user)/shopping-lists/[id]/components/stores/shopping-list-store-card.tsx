@@ -37,7 +37,7 @@ function ShoppingListStoreItemComponent({
   hasHighestPriceItem,
   distanceKm,
 }: IShoppingListStoreItemProps) {
-  const { user } = useUser();
+  const { accountUser } = useUser();
   const [expandedStore, setExpandedStore] = useState<string | null>(null);
 
   const toggleStoreExpansion = useCallback((chainCode: string) => {
@@ -51,7 +51,7 @@ function ShoppingListStoreItemComponent({
     shoppingList,
     absoluteMinPrice,
     absoluteMaxPrice,
-    pinnedStores: user?.pinnedStores,
+    pinnedStores: accountUser?.pinnedStores,
   });
 
   return (
@@ -65,7 +65,7 @@ function ShoppingListStoreItemComponent({
             <StoreCardHeader
               chain={chain}
               metrics={metrics}
-              pinnedStoresCount={user?.pinnedStores?.length ?? 0}
+              pinnedStoresCount={accountUser?.pinnedStores?.length ?? 0}
               hasLowestPriceItem={hasLowestPriceItem}
               hasHighestPriceItem={hasHighestPriceItem}
               isExpanded={expandedStore === chain.chain}

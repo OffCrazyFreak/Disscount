@@ -12,13 +12,14 @@ import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 import {
   getPendingSignOut,
+  setLastSession,
   setPendingSignOut,
 } from "@/utils/browser/storage/auth";
 
 const { tab } = vi.hoisted(() => ({
   tab: {
     userId: null as string | null,
-    createdAt: new Date(0),
+    sessionId: "session-1",
     error: null as Error | null,
   },
 }));
@@ -32,7 +33,7 @@ vi.mock("@/lib/auth/client", async (importOriginal) => {
       data: tab.userId
         ? {
             user: { id: tab.userId },
-            session: { userId: tab.userId, createdAt: tab.createdAt },
+            session: { id: tab.sessionId, userId: tab.userId },
           }
         : null,
       isPending: false,
@@ -71,6 +72,7 @@ function answerProfile() {
 
 afterEach(() => {
   setPendingSignOut(null);
+  setLastSession(null);
   tab.userId = null;
   tab.error = null;
 });
@@ -95,14 +97,21 @@ describe("UserProvider sign-out while offline", () => {
       expect(screen.getByText("saved data hidden")).toBeInTheDocument(),
     );
     expect(getCacheIdentity()).toBe("anon");
-    expect(getPendingSignOut()).toMatchObject({ userId: "user-a" });
+    expect(getPendingSignOut()).toMatchObject({
+      userId: "user-a",
+      isServerEnded: false,
+    });
   });
 
   it("ends the surviving session once back online instead of signing the user back in", async () => {
     setCacheIdentity(null);
-    setPendingSignOut({ userId: "user-a", signedOutAt: Date.now() });
+    setPendingSignOut({
+      userId: "user-a",
+      sessionId: "session-1",
+      isServerEnded: false,
+    });
     tab.userId = "user-a";
-    tab.createdAt = new Date(Date.now() - 60_000);
+    tab.sessionId = "session-1";
     answerProfile();
     const signOuts = vi.fn();
     server.use(
@@ -119,16 +128,73 @@ describe("UserProvider sign-out while offline", () => {
     );
 
     await waitFor(() => expect(signOuts).toHaveBeenCalledTimes(1));
-    expect(getPendingSignOut()).toBeNull();
+    // Kept until a session read shows it gone, so a stale answer cannot sign back in.
+    await waitFor(() =>
+      expect(getPendingSignOut()).toMatchObject({ isServerEnded: true }),
+    );
     expect(screen.getByText("signed out")).toBeInTheDocument();
     expect(getCacheIdentity()).toBe("anon");
   });
 
+  it("sends the sign-out again while the server answers that it is busy", async () => {
+    setCacheIdentity(null);
+    setPendingSignOut({
+      userId: "user-a",
+      sessionId: "session-1",
+      isServerEnded: false,
+    });
+    tab.userId = "user-a";
+    tab.sessionId = "session-1";
+    server.use(
+      http.post("*/api/auth/sign-out", () =>
+        HttpResponse.json({}, { status: 429 }),
+      ),
+    );
+
+    renderWithProviders(
+      <UserProvider>
+        <AccountProbe />
+      </UserProvider>,
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(getPendingSignOut()).toMatchObject({ isServerEnded: false });
+    expect(screen.getByText("signed out")).toBeInTheDocument();
+  });
+
+  it("names the session it ends, so the next session of the same account is kept", async () => {
+    setCacheIdentity("user-a");
+    tab.userId = "user-a";
+    tab.sessionId = "session-1";
+    answerProfile();
+    server.use(http.post("*/api/auth/sign-out", () => HttpResponse.error()));
+
+    const user = userEvent.setup();
+    renderWithProviders(
+      <UserProvider>
+        <AccountProbe />
+      </UserProvider>,
+    );
+    await waitFor(() =>
+      expect(screen.getByText("signed in")).toBeInTheDocument(),
+    );
+
+    await user.click(screen.getByRole("button", { name: "sign out" }));
+
+    await waitFor(() =>
+      expect(getPendingSignOut()).toMatchObject({ sessionId: "session-1" }),
+    );
+  });
+
   it("keeps a sign-in made after the offline sign-out", async () => {
     setCacheIdentity(null);
-    setPendingSignOut({ userId: "user-a", signedOutAt: Date.now() - 60_000 });
+    setPendingSignOut({
+      userId: "user-a",
+      sessionId: "session-1",
+      isServerEnded: false,
+    });
     tab.userId = "user-a";
-    tab.createdAt = new Date();
+    tab.sessionId = "session-2";
     answerProfile();
     const signOuts = vi.fn();
     server.use(

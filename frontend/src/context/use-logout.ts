@@ -16,7 +16,6 @@ import { purgeOfflineCache } from "@/lib/offline/purge";
 export function useLogout(
   cacheIdentityRef: RefObject<string | null>,
   setUser: Dispatch<SetStateAction<UserDto | null>>,
-  sessionUserId: string | undefined,
 ) {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -25,7 +24,7 @@ export function useLogout(
   return async function logout() {
     // Read before the request: its answer can move the identity to anonymous first.
     const leavingIdentity = getCacheIdentity();
-    await signOutOrDefer(sessionUserId ?? null);
+    await signOutOrDefer();
 
     Sentry.setUser(null);
     setUser(null);

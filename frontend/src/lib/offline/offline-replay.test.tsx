@@ -286,4 +286,35 @@ describe("queued writes past the retention window", () => {
     expect(queryClient.getMutationCache().getAll()).toHaveLength(1);
     expect(toast.error).not.toHaveBeenCalled();
   });
+
+  it("never sends an expired write still paused in a tab left open", async () => {
+    const requests = vi.fn();
+    server.use(
+      http.put(`*/api/digital-cards/${CARD_ID}/pin`, () => {
+        requests();
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    onlineManager.setOnline(false);
+    const queryClient = replayClient();
+    const queued = queryClient
+      .getMutationCache()
+      .build(queryClient, {
+        mutationKey: OFFLINE_MUTATION_KEYS.digitalCardPin,
+      });
+    void queued.execute({ id: CARD_ID, pinned: true });
+    await flushUntil(() => queued.state.isPaused);
+    vi.setSystemTime(Date.now() + EIGHT_DAYS_MS);
+
+    dropExpiredWrites(
+      queryClient,
+      (key) => key,
+      (key) => key,
+    );
+    onlineManager.setOnline(true);
+    void queryClient.resumePausedMutations();
+    await act(() => vi.advanceTimersByTimeAsync(2000));
+
+    expect(requests).not.toHaveBeenCalled();
+  });
 });

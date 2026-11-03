@@ -1,4 +1,5 @@
 import {
+  IKnownSession,
   IPendingSignOut,
   LOGIN_METHODS,
   LoginMethod,
@@ -21,7 +22,16 @@ export function setLastLoginMethod(method: LoginMethod) {
   setAppStorage({ lastLoginMethod: method });
 }
 
-/** A sign-out made offline, whose server session still has to be ended. */
+/** The session this device last saw; offline the session lookup fails and names nobody. */
+export function getLastSession(): IKnownSession | null {
+  return getAppStorage().lastSession ?? null;
+}
+
+export function setLastSession(session: IKnownSession | null) {
+  setAppStorage({ lastSession: session });
+}
+
+/** A sign-out whose session may still answer, until a session read shows it gone. */
 export function getPendingSignOut(): IPendingSignOut | null {
   return getAppStorage().pendingSignOut ?? null;
 }

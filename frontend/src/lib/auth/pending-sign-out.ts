@@ -1,69 +1,85 @@
 import { authClient } from "@/lib/auth/client";
 import { persistedCacheIdentity } from "@/lib/offline/cache-identity";
 import {
+  getLastSession,
   getPendingSignOut,
+  setLastSession,
   setPendingSignOut,
 } from "@/utils/browser/storage/auth";
-import type { IPendingSignOut } from "@/typings/local-storage";
+import type { IKnownSession, IPendingSignOut } from "@/typings/local-storage";
 
 interface ISessionLike {
   user: { id: string };
-  session: { createdAt: Date | string };
+  session?: { id: string };
 }
+
+// Statuses where the server may not have ended the session, so the sign-out is sent again.
+const RETRYABLE_STATUSES = new Set([408, 429]);
 
 let finishing: Promise<void> | null = null;
 
 /**
  * Ends the server session, or remembers to: offline the request never arrives, the
  * httpOnly cookie survives, and the account would be signed in again once back online.
- * better-auth's client throws on a network failure and returns an error for an answer.
+ * Matched by session id, so a later sign-in, even to the same account, is never undone.
  */
-export function signOutOrDefer(sessionUserId: string | null): Promise<void> {
+export function signOutOrDefer(): Promise<void> {
   // Offline the session is unknown, so the account leaving is the one the cache names.
-  const userId = sessionUserId ?? persistedCacheIdentity();
-  return endSession(userId ? { userId, signedOutAt: Date.now() } : null);
+  const fallbackUserId = persistedCacheIdentity();
+  const leaving: IKnownSession | null =
+    getLastSession() ??
+    (fallbackUserId ? { userId: fallbackUserId, sessionId: null } : null);
+  setLastSession(null);
+
+  return endSession(leaving && { ...leaving, isServerEnded: false });
 }
 
+/** better-auth's client throws on a network failure and returns an error for an answer. */
 async function endSession(pending: IPendingSignOut | null) {
+  if (pending) setPendingSignOut(pending);
+
   try {
     const { error } = await authClient.signOut();
-    // A 5xx may have left the session alive; a 4xx means there is none left to end.
-    setPendingSignOut(error && error.status >= 500 ? pending : null);
+    const isServerEnded =
+      !error ||
+      (error.status >= 400 &&
+        error.status < 500 &&
+        !RETRYABLE_STATUSES.has(error.status));
+    if (pending) setPendingSignOut({ ...pending, isServerEnded });
   } catch {
-    setPendingSignOut(pending);
+    // Stays pending for the next session read.
   }
 }
 
 /**
- * The account a resolved session counts as. The cookie outlives a sign-out made offline,
- * so that session is ended here and counts as nobody; any other answer settles it.
+ * The account a resolved session counts as. A session the user signed out of counts as
+ * nobody, and is ended again if the server may still hold it; any other answer settles it.
  */
 export function sessionIdentity(
   session: ISessionLike | null | undefined,
   sessionError: unknown,
 ): string | null {
-  if (isSignedOutOffline(session)) {
-    void finishPendingSignOut();
+  if (sessionError) return session?.user.id ?? null;
+
+  const pending = getPendingSignOut();
+  if (session && pending && isSameSession(session, pending)) {
+    if (!pending.isServerEnded) void finishPendingSignOut();
     return null;
   }
 
-  if (!sessionError) forgetPendingSignOut();
+  if (pending) setPendingSignOut(null);
+  setLastSession(
+    session
+      ? { userId: session.user.id, sessionId: session.session?.id ?? null }
+      : null,
+  );
   return session?.user.id ?? null;
 }
 
-/** A session the user already signed out of offline; a later sign-in is a new session. */
-function isSignedOutOffline(session: ISessionLike | null | undefined) {
-  const pending = getPendingSignOut();
-  if (!session || !pending) return false;
-
-  return (
-    session.user.id === pending.userId &&
-    new Date(session.session.createdAt).getTime() <= pending.signedOutAt
-  );
-}
-
-function forgetPendingSignOut() {
-  if (getPendingSignOut()) setPendingSignOut(null);
+function isSameSession(session: ISessionLike, pending: IPendingSignOut) {
+  return pending.sessionId !== null
+    ? session.session?.id === pending.sessionId
+    : session.user.id === pending.userId;
 }
 
 /** One request at a time, since every session refetch while it runs asks again. */

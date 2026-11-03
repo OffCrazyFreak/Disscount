@@ -1,6 +1,7 @@
 import { useIsRestoring } from "@tanstack/react-query";
 
 import { useUser } from "@/context/user-context";
+import { isOffline } from "@/lib/api/query-client-defaults";
 
 /**
  * Offline with nothing saved for this page: it was never opened online, so an empty
@@ -10,5 +11,6 @@ export function useIsNotSavedOffline(hasSavedData: boolean) {
   const { hasUnverifiedAccount } = useUser();
   const isRestoring = useIsRestoring();
 
-  return hasUnverifiedAccount && !isRestoring && !hasSavedData;
+  // A failed session check online (a 5xx) is unverified too, but nothing is "not saved".
+  return hasUnverifiedAccount && !isRestoring && !hasSavedData && isOffline();
 }

@@ -39,7 +39,7 @@ function isAborted(error: unknown) {
   );
 }
 
-function isOffline() {
+export function isOffline() {
   // onlineManager starts out online and only learns otherwise from an offline event.
   return (
     !onlineManager.isOnline() ||

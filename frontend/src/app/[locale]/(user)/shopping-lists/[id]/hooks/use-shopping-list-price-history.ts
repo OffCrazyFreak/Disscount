@@ -24,7 +24,7 @@ export function useShoppingListPriceHistory(
   shoppingList: ShoppingListDto,
   period: PeriodOption,
 ) {
-  const { user } = useUser();
+  const { accountUser } = useUser();
   const locale = useLocale();
 
   const daysToShow = useMemo(() => {
@@ -61,8 +61,8 @@ export function useShoppingListPriceHistory(
   );
 
   const pinnedStoreIds = useMemo(
-    () => user?.pinnedStores?.map((store) => store.storeApiId) || [],
-    [user?.pinnedStores],
+    () => accountUser?.pinnedStores?.map((store) => store.storeApiId) || [],
+    [accountUser?.pinnedStores],
   );
 
   const { selectedChains, handleChainsChange } = usePriceHistoryChains(
