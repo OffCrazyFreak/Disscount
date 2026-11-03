@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import ShoppingListDetailClient from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-detail-client";
 import type { ShoppingListDto } from "@/lib/api/types";
 import { renderWithProviders } from "@/test/render";
+import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
 
 const data = vi.hoisted(() => ({
   error: null as Error | null,
@@ -85,8 +86,18 @@ const LIST: ShoppingListDto = {
 
 const LIST_WITH_ITEM = {
   ...LIST,
-  items: [{ id: "a", name: "Mlijeko", amount: 1, isChecked: false }],
-} as ShoppingListDto;
+  items: [
+    {
+      ...UNSET_ITEM_FIELDS,
+      id: "a",
+      name: "Mlijeko",
+      amount: 1,
+      isChecked: false,
+      shoppingListId: LIST.id,
+      createdAt: "2026-11-01T09:30:00",
+    },
+  ],
+} satisfies ShoppingListDto;
 
 function httpError(status: number) {
   return new AxiosError("Request failed", undefined, undefined, undefined, {
