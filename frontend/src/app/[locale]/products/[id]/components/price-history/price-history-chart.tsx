@@ -24,11 +24,11 @@ const PriceHistoryChart = memo(function PriceHistoryChart({
 }: IPriceHistoryChartProps) {
   const t = useTranslations("productDetail.priceHistory");
   const locale = useLocale();
-  const { user } = useUser();
+  const { accountUser } = useUser();
 
   const pinnedStoreIds = useMemo(
-    () => user?.pinnedStores?.map((store) => store.storeApiId) || [],
-    [user?.pinnedStores],
+    () => accountUser?.pinnedStores?.map((store) => store.storeApiId) || [],
+    [accountUser?.pinnedStores],
   );
 
   // An empty selection falls back to every available chain.

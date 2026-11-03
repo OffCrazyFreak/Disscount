@@ -14,18 +14,19 @@ import { useWatchlistSuggestions } from "@/app/[locale]/(user)/watchlist/hooks/u
 
 export function useWatchlistData(query: string) {
   const {
-    user,
+    accountUser,
     isAuthenticated,
     canShowAccountData,
     isLoading: userLoading,
   } = useUser();
   const {
     watchlistLoading,
+    isWatchlistLoaded,
     groupedWatchlistItems,
     pinnedStoreChainCodes,
     hasPinnedStores,
     productQueries,
-  } = useWatchedProducts(isAuthenticated, user?.pinnedStores);
+  } = useWatchedProducts(isAuthenticated, accountUser?.pinnedStores);
 
   const hasWatchedProducts = groupedWatchlistItems.length > 0;
 
@@ -98,6 +99,7 @@ export function useWatchlistData(query: string) {
     canShowAccountData,
     userLoading,
     watchlistLoading,
+    isWatchlistLoaded,
     hasWatchedProducts,
     shoppingListItemsLoading,
     hasPinnedStores,

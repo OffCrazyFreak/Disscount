@@ -21,7 +21,7 @@ export default function ShoppingListStoreSummary({
   hasFailedPrices,
 }: IShoppingListStoreSummaryProps) {
   // Shared with the section bar, so the link and the heading always read the same.
-  const { user } = useUser();
+  const { accountUser } = useUser();
 
   const sortNoteId = useId();
   const distance = useStoreOptimizeMode();
@@ -36,7 +36,7 @@ export default function ShoppingListStoreSummary({
     sortedChains,
   } = useStoreChainAnalysis({
     shoppingList,
-    pinnedStores: user?.pinnedStores,
+    pinnedStores: accountUser?.pinnedStores,
     optimizeBy: distance.sortMode,
     distanceByChain: distance.distanceByChain,
   });

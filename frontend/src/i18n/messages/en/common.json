@@ -19,7 +19,8 @@
     "hint": "Check your connection and try again.",
     "retry": "Try again",
     "indicator": "Offline: showing saved data.",
-    "indicatorPending": "Offline: {count, plural, one {# change is} other {# changes are}} waiting to save."
+    "indicatorPending": "Offline: {count, plural, one {# change is} other {# changes are}} waiting to save.",
+    "notSaved": "This page isn't saved for offline use yet. Open it once while you're online, and it will be here without a connection too."
   },
   "lastSynced": {
     "refreshed": "Refreshed {time}"

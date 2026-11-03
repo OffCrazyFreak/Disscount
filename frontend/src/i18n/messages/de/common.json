@@ -19,7 +19,8 @@
     "hint": "Prüfe deine Verbindung und versuche es noch einmal.",
     "retry": "Erneut versuchen",
     "indicator": "Offline: Wir zeigen gespeicherte Daten.",
-    "indicatorPending": "Offline: {count, plural, one {# Änderung wartet} other {# Änderungen warten}} aufs Speichern."
+    "indicatorPending": "Offline: {count, plural, one {# Änderung wartet} other {# Änderungen warten}} aufs Speichern.",
+    "notSaved": "Diese Seite ist noch nicht für die Offline-Nutzung gespeichert. Öffne sie einmal, während du online bist, dann ist sie auch ohne Verbindung da."
   },
   "lastSynced": {
     "refreshed": "{time} aktualisiert"

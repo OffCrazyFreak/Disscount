@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname, useRouter } from "@/i18n/navigation";
 import {
   createContext,
   useContext,
@@ -8,16 +7,21 @@ import {
   useState,
   useCallback,
   useRef,
+  useSyncExternalStore,
   ReactNode,
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Sentry from "@sentry/nextjs";
 
 import { authClient, useSession } from "@/lib/auth/client";
-import { purgeOfflineCache } from "@/lib/offline/purge";
-import { getCacheIdentity } from "@/lib/offline/cache-identity";
+import {
+  ANONYMOUS_IDENTITY,
+  getCacheIdentity,
+  persistedCacheIdentity,
+  subscribeToCacheIdentity,
+} from "@/lib/offline/cache-identity";
+import { sessionIdentity } from "@/lib/auth/pending-sign-out";
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
-import { isProtectedRoute } from "@/constants/protected-routes";
 import { loadUserProfile } from "@/context/load-user-profile";
 import {
   erasedAccountId,
@@ -26,9 +30,10 @@ import {
 import { mergeSessionUser } from "@/context/merge-session-user";
 import {
   isUnverifiedAccount,
-  persistedCacheIdentity,
   syncCacheIdentity,
 } from "@/context/sync-cache-identity";
+import { useAccountUser } from "@/context/use-account-user";
+import { useLogout } from "@/context/use-logout";
 import { useUserUpdaters } from "@/context/use-user-updaters";
 
 interface IUserContext {
@@ -44,6 +49,11 @@ interface IUserContext {
   hasUnverifiedAccount: boolean;
   /** Signed in, or an unverified account: the account's saved data may be shown. */
   canShowAccountData: boolean;
+  /**
+   * The signed-in user, or for an unverified account the profile this device saved. For
+   * showing the account and its preferences (pinned stores) only, never for acting on it.
+   */
+  accountUser: UserDto | null;
   refreshUser: () => Promise<UserDto | undefined>;
   setUser: (user: UserDto | null) => void;
   /**
@@ -73,8 +83,6 @@ export function UserProvider({ children }: IUserProviderProps) {
   const cacheIdentityRef = useRef<string | null>(persistedCacheIdentity());
 
   const queryClient = useQueryClient();
-  const router = useRouter();
-  const pathname = usePathname();
   const {
     data: session,
     isPending: sessionPending,
@@ -104,7 +112,7 @@ export function UserProvider({ children }: IUserProviderProps) {
   useEffect(() => {
     if (sessionPending) return;
 
-    const identity = session?.user?.id ?? null;
+    const identity = sessionIdentity(session, sessionError);
 
     syncCacheIdentity(queryClient, cacheIdentityRef, identity, sessionError);
     // A failed lookup leaves the account unknown, as it does for the cache purge.
@@ -116,7 +124,7 @@ export function UserProvider({ children }: IUserProviderProps) {
     // The directive covers this whole effect, not just the line under it: the else
     // branch clears user state synchronously too. Both sides react to an auth result
     // that only exists after the session resolves, so neither is derivable.
-    if (session?.user) {
+    if (identity) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       refreshUser();
     } else {
@@ -137,19 +145,7 @@ export function UserProvider({ children }: IUserProviderProps) {
     queryClient,
   ]);
 
-  const handleLogout = useCallback(async () => {
-    try {
-      await authClient.signOut();
-    } finally {
-      Sentry.setUser(null);
-      setUser(null);
-      // Awaited here, and the identity has not moved yet, so the current one is the
-      // account being signed out.
-      await purgeOfflineCache(queryClient, getCacheIdentity());
-      // Staying on a protected route signed out would just show a login gate.
-      if (isProtectedRoute(pathname)) router.push("/");
-    }
-  }, [queryClient, router, pathname]);
+  const handleLogout = useLogout(cacheIdentityRef, setUser);
 
   // Called by login/signup forms after signIn/signUp succeeds to eagerly load the profile
   const handleUserLogin = useCallback(async () => {
@@ -168,12 +164,19 @@ export function UserProvider({ children }: IUserProviderProps) {
   const { updatePinnedStores, updatePinnedPlaces, mergeUser } =
     useUserUpdaters(setUser);
 
+  const cacheIdentity = useSyncExternalStore(
+    subscribeToCacheIdentity,
+    getCacheIdentity,
+    () => ANONYMOUS_IDENTITY,
+  );
   const mergedUser = mergeSessionUser(user, session?.user);
   const hasUnverifiedAccount = isUnverifiedAccount(
     !!mergedUser,
     sessionPending,
     sessionError,
+    cacheIdentity,
   );
+  const accountUser = useAccountUser(mergedUser, hasUnverifiedAccount);
 
   const value: IUserContext = {
     user: mergedUser,
@@ -182,6 +185,7 @@ export function UserProvider({ children }: IUserProviderProps) {
     isAuthenticated: !!mergedUser,
     hasUnverifiedAccount,
     canShowAccountData: !!mergedUser || hasUnverifiedAccount,
+    accountUser,
     refreshUser,
     setUser,
     mergeUser,

@@ -34,7 +34,7 @@ interface IWatchlistPriceDrops {
  * answer with an unseen count shared across devices.
  */
 export function useWatchlistPriceDropCount(): IWatchlistPriceDrops {
-  const { user, isAuthenticated } = useUser();
+  const { user, accountUser, isAuthenticated } = useUser();
   const pathname = usePathname();
   const {
     isWatchlistLoaded,
@@ -42,7 +42,7 @@ export function useWatchlistPriceDropCount(): IWatchlistPriceDrops {
     groupedWatchlistItems,
     pinnedStoreChainCodes,
     productQueries,
-  } = useWatchedProducts(isAuthenticated, user?.pinnedStores);
+  } = useWatchedProducts(isAuthenticated, accountUser?.pinnedStores);
 
   const userId = isAuthenticated ? user?.id : undefined;
   const scope = getPriceScope(pinnedStoreChainCodes);
@@ -53,7 +53,7 @@ export function useWatchlistPriceDropCount(): IWatchlistPriceDrops {
 
   // A failed preferences fetch leaves pinnedStores unset, which would read as "every
   // chain" and rebase away drops the user has not seen yet.
-  const isScopeKnown = Array.isArray(user?.pinnedStores);
+  const isScopeKnown = Array.isArray(accountUser?.pinnedStores);
 
   const snapshot = useSyncExternalStore(
     subscribeToWatchlistPriceSnapshots,

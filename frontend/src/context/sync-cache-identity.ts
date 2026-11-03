@@ -3,26 +3,23 @@ import { QueryClient } from "@tanstack/react-query";
 
 import { purgeOfflineCache } from "@/lib/offline/purge";
 import {
-  getCacheIdentity,
+  ANONYMOUS_IDENTITY,
   setCacheIdentity,
   toCacheIdentity,
 } from "@/lib/offline/cache-identity";
-
-export function persistedCacheIdentity(): string | null {
-  return getCacheIdentity() === "anon" ? null : getCacheIdentity();
-}
 
 /** A failed lookup is not a sign-out, the rule the cache purge follows too. */
 export function isUnverifiedAccount(
   isSignedIn: boolean,
   isSessionPending: boolean,
   sessionError: unknown,
+  cacheIdentity: string,
 ): boolean {
   return (
     !isSignedIn &&
     !isSessionPending &&
     !!sessionError &&
-    persistedCacheIdentity() !== null
+    cacheIdentity !== ANONYMOUS_IDENTITY
   );
 }
 

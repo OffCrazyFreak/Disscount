@@ -6,6 +6,7 @@ import { renderWithProviders } from "@/test/render";
 
 const data = vi.hoisted(() => ({
   canShowAccountData: true,
+  isWatchlistLoaded: true,
   shoppingListItemsLoading: false,
   filteredSuggestionItems: [] as { productApiId: string }[],
 }));
@@ -25,6 +26,11 @@ vi.mock("@/app/[locale]/(user)/watchlist/hooks/use-watchlist-data", () => ({
 }));
 
 vi.mock("@/i18n/navigation", () => ({ usePathname: () => "/watchlist" }));
+
+// The rule itself is covered with the page that owns it; here only whether it applies.
+vi.mock("@/hooks/use-is-not-saved-offline", () => ({
+  useIsNotSavedOffline: (hasSavedData: boolean) => !hasSavedData,
+}));
 
 // The sections have their own data needs; this file covers only the section tabs.
 vi.mock("@/components/custom/search/search-bar", () => ({
@@ -85,5 +91,15 @@ describe("WatchlistClient offline", () => {
 
     expect(screen.getByText("login required")).toBeInTheDocument();
     data.canShowAccountData = true;
+  });
+
+  it("says the watchlist is not saved offline when this device never loaded it", () => {
+    data.isWatchlistLoaded = false;
+    renderWithProviders(<WatchlistClient query="" />);
+    data.isWatchlistLoaded = true;
+
+    expect(
+      screen.getByText(/nije spremljena za korištenje bez interneta/),
+    ).toBeInTheDocument();
   });
 });

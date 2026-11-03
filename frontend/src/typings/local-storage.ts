@@ -40,12 +40,23 @@ export interface IWatchlistPriceSnapshot {
   prices: WatchlistPriceSnapshot;
 }
 
+export interface IKnownSession {
+  userId: string;
+  sessionId: string | null; // Null when signed out before this device saw the session's id
+}
+
+export interface IPendingSignOut extends IKnownSession {
+  isServerEnded: boolean; // Kept until a session read confirms it, so a stale answer cannot sign back in
+}
+
 // Main app data structure based on real localStorage example
 export interface IAppData {
   viewModes?: Record<string, ViewMode>;
   productsPreferences?: IProductsPreferences;
   shoppingListsPreferences?: Record<string, IShoppingListsPreferences>; // Shopping list ID -> preferences
   lastLoginMethod?: LoginMethod;
+  lastSession?: IKnownSession | null; // The session this device last saw, so an offline sign-out can name it
+  pendingSignOut?: IPendingSignOut | null; // A sign-out until a session read shows that session is gone
   installBannerDismissedAt?: number; // Epoch ms of last "install app" banner dismissal; re-shown after the snooze window
   storeOptimizeMode?: string; // Preferred store-list sort, shared across all shopping lists
   preferredCameraId?: string; // Manually chosen scanner camera; absent means auto-pick

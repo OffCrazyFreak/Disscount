@@ -28,7 +28,7 @@ const spar = { ...konzum, chain: "spar", city: "Split", zipcode: "21000" };
 let user: { pinnedPlaces?: { placeApiId: string }[] } | null = null;
 let isLoading = false;
 vi.mock("@/context/user-context", () => ({
-  useUser: () => ({ user, isLoading }),
+  useUser: () => ({ accountUser: user, isLoading }),
 }));
 
 // The browser APIs are a boundary the suite cannot run: each test decides

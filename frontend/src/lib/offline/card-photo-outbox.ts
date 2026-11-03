@@ -15,6 +15,7 @@ import {
   canWriteAfterPurges,
   currentPurgeGeneration,
 } from "@/lib/offline/purge-gate";
+import { isQueuedWriteExpired } from "@/lib/offline/queued-write-expiry";
 import { photoSlotKey, runExclusive } from "@/lib/offline/slot-lock";
 
 interface IBytes {
@@ -30,6 +31,8 @@ interface IOutboxEntry {
   op?: "put" | "delete";
   /** Changes on every enqueue, so a finished send never deletes a newer entry. */
   nonce: string;
+  /** Absent on entries queued before queued writes expired, which never expire. */
+  queuedAt?: number;
   full?: IBytes;
   thumb?: IBytes;
 }
@@ -66,6 +69,7 @@ async function writeEntry(
     cardId,
     slot,
     nonce: crypto.randomUUID(),
+    queuedAt: Date.now(),
   });
 
   if (!(await canWriteAfterPurges(generation))) return undefined;
@@ -238,6 +242,11 @@ async function sendEntry(
   if (entry.op !== "delete" && !entry.full) {
     await del(key, outboxStore());
     return { outcome: "sent", nonce };
+  }
+
+  if (entry.queuedAt !== undefined && isQueuedWriteExpired(entry.queuedAt)) {
+    await deleteIf<IOutboxEntry>(key, outboxStore(), finished);
+    return { outcome: "dropped", nonce, error: new Error("Queued too long") };
   }
 
   try {

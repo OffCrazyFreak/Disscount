@@ -15,7 +15,7 @@ const NO_PRICES: StorePrice[] = [];
 
 /** One product, its prices grouped by chain, and the chain order to show them in */
 export function useProductDetail(ean: string) {
-  const { user } = useUser();
+  const { accountUser } = useUser();
   const {
     data: product,
     isLoading: productLoading,
@@ -46,8 +46,8 @@ export function useProductDetail(ean: string) {
   const { sortMode, distanceByChain } = distance;
 
   const pinnedStoreIds = useMemo(
-    () => user?.pinnedStores?.map((store) => store.storeApiId) ?? [],
-    [user?.pinnedStores],
+    () => accountUser?.pinnedStores?.map((store) => store.storeApiId) ?? [],
+    [accountUser?.pinnedStores],
   );
 
   // Copy first: product.chains is the cached array, and sort mutates.

@@ -19,7 +19,8 @@
     "hint": "Controlla la connessione e riprova.",
     "retry": "Riprova",
     "indicator": "Offline: stai vedendo i dati salvati.",
-    "indicatorPending": "Offline: {count, plural, one {# modifica in attesa} other {# modifiche in attesa}} di salvataggio."
+    "indicatorPending": "Offline: {count, plural, one {# modifica in attesa} other {# modifiche in attesa}} di salvataggio.",
+    "notSaved": "Questa pagina non è ancora salvata per l'uso offline. Aprila una volta mentre sei online e la troverai anche senza connessione."
   },
   "lastSynced": {
     "refreshed": "Aggiornato {time}"

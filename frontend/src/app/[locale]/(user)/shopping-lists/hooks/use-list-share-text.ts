@@ -20,7 +20,7 @@ export function useListShareText() {
   const t = useTranslations("shoppingLists");
   const locale = useLocale();
   const queryClient = useQueryClient();
-  const { user } = useUser();
+  const { accountUser } = useUser();
 
   return function listShareText(shoppingList: ShoppingListDto) {
     const suggestedChains: Record<string, string> = {};
@@ -32,7 +32,8 @@ export function useListShareText() {
         productLookupQuery(item.ean).queryKey,
       );
       const cheapest =
-        product && findCheapestStoreFromProduct(product, user?.pinnedStores);
+        product &&
+        findCheapestStoreFromProduct(product, accountUser?.pinnedStores);
       const chain = suggestedChain(item.chainCode, item.isChecked, cheapest);
 
       if (chain) suggestedChains[item.id] = chain;

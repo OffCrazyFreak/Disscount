@@ -51,6 +51,8 @@ function rejectWith(status: number) {
   } as AxiosResponse);
 }
 
+const EIGHT_DAYS_MS = 8 * 24 * 60 * 60 * 1000;
+
 describe("sendQueuedCardPhoto", () => {
   beforeEach(() => {
     db.clear();
@@ -118,6 +120,19 @@ describe("sendQueuedCardPhoto", () => {
       slot: "front",
       sha256: "a",
     });
+  });
+
+  it("drops a photo queued more than a week ago without sending it", async () => {
+    const queuedAt = Date.now();
+    await enqueueCardPhoto("card", "front", photo("a"));
+    vi.spyOn(Date, "now").mockReturnValue(queuedAt + EIGHT_DAYS_MS);
+
+    const result = await sendQueuedCardPhoto(client, "card", "front");
+
+    vi.restoreAllMocks();
+    expect(result.outcome).toBe("dropped");
+    expect(upload).not.toHaveBeenCalled();
+    expect(db.size).toBe(0);
   });
 
   it("keeps a photo whose card has not reached the server when asked to", async () => {

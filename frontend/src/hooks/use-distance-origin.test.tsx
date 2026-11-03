@@ -5,7 +5,9 @@ import { useDistanceOrigin } from "@/hooks/use-distance-origin";
 import type { DirectoryStoreDto } from "@/lib/api/schemas";
 
 let user: { pinnedPlaces?: { placeApiId: string }[] } | null = null;
-vi.mock("@/context/user-context", () => ({ useUser: () => ({ user }) }));
+vi.mock("@/context/user-context", () => ({
+  useUser: () => ({ accountUser: user }),
+}));
 
 function store(
   city: string,

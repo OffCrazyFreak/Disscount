@@ -51,10 +51,11 @@ const StoreItem = memo(
   }: IStoreItemProps) => {
     const t = useTranslations("productDetail.storeItem");
     const locale = useLocale();
-    const { user } = useUser();
+    const { accountUser } = useUser();
 
     const isPreferred =
-      user?.pinnedStores?.some((s) => s.storeApiId === store.chain) || false;
+      accountUser?.pinnedStores?.some((s) => s.storeApiId === store.chain) ||
+      false;
 
     // price_date is a Croatian calendar date; en-CA formats as YYYY-MM-DD.
     const today = new Intl.DateTimeFormat("en-CA", {
@@ -76,7 +77,7 @@ const StoreItem = memo(
                       className={cn(
                         "object-contain w-full h-full",
                         !isPreferred &&
-                          (user?.pinnedStores?.length ?? 0) > 0 &&
+                          (accountUser?.pinnedStores?.length ?? 0) > 0 &&
                           "opacity-40",
                       )}
                     />

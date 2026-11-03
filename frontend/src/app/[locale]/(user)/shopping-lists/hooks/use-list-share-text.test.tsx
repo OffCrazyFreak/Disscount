@@ -10,7 +10,7 @@ import { renderHookWithProviders } from "@/test/render";
 import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
 
 const signedIn = vi.hoisted(() => ({
-  user: null as { pinnedStores: PinnedStoreDto[] } | null,
+  accountUser: null as { pinnedStores: PinnedStoreDto[] } | null,
 }));
 
 vi.mock("@/context/user-context", () => ({
@@ -90,7 +90,7 @@ function shareTextFor(items: ShoppingListItemDto[], cachedEans: string[]) {
 
 describe("useListShareText", () => {
   afterEach(() => {
-    signedIn.user = null;
+    signedIn.accountUser = null;
   });
 
   it("names the suggested chain for an item nobody picked a store for", () => {
@@ -127,7 +127,7 @@ describe("useListShareText", () => {
   });
 
   it("suggests the cheapest pinned chain, as the list page does", () => {
-    signedIn.user = {
+    signedIn.accountUser = {
       pinnedStores: [
         {
           id: "pin-1",

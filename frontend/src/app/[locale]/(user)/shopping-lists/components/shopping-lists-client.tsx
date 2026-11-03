@@ -11,6 +11,8 @@ import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import ShoppingListsResults from "@/app/[locale]/(user)/shopping-lists/components/shopping-lists-results";
 import CreateShoppingListButton from "@/app/[locale]/(user)/shopping-lists/components/create-shopping-list-button";
 import LoginRequired from "@/components/custom/common/login-required";
+import NotSavedOffline from "@/components/custom/common/not-saved-offline";
+import { useIsNotSavedOffline } from "@/hooks/use-is-not-saved-offline";
 import { filterByFields } from "@/utils/generic";
 import { shoppingListService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
@@ -33,12 +35,16 @@ export default function ShoppingListsClient({
     isLoading: userLoading,
   } = useUser();
   // Disabled offline, where it still returns the lists saved on this device.
-  const { data: shoppingLists = [], isLoading } =
-    shoppingListService.useGetCurrentUserShoppingLists({
-      enabled: isAuthenticated,
-    });
+  const {
+    data: shoppingLists = [],
+    isLoading,
+    isSuccess,
+  } = shoppingListService.useGetCurrentUserShoppingLists({
+    enabled: isAuthenticated,
+  });
   // Offline the failed session check can land before IndexedDB is read back.
   const isRestoring = useIsRestoring();
+  const isNotSavedOffline = useIsNotSavedOffline(isSuccess);
 
   const isUserLoading = userLoading || isLoading || isRestoring;
 
@@ -60,6 +66,9 @@ export default function ShoppingListsClient({
       />
     );
   }
+
+  if (isNotSavedOffline)
+    return <NotSavedOffline title={t("client.loginTitle")} />;
 
   return (
     <>
