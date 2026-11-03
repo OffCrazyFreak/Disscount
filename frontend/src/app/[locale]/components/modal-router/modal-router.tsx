@@ -23,7 +23,11 @@ export default function ModalRouter() {
   const { isAuthenticated, hasUnverifiedAccount, isLoading } = useUser();
   // Offline, a saved card still has to open at the till instead of asking for a login.
   const canOpenSavedEntities = isAuthenticated || hasUnverifiedAccount;
-  const authGate = useAuthGate(target, canOpenSavedEntities, isLoading);
+  const authGate = useAuthGate(
+    target,
+    isEntityTarget(target) ? canOpenSavedEntities : isAuthenticated,
+    isLoading,
+  );
 
   return (
     <>

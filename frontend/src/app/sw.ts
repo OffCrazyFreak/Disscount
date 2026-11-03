@@ -88,9 +88,10 @@ const runtimeCaching: RuntimeCaching[] = [
       ],
     }),
   },
-  // Kept out of defaultCache's 24 hour page bucket: a copy from an older build would
-  // point at chunks the next deploy deleted. Offline, the fallback below serves this
-  // build's precached wallet instead, for every ?q= and modal variant of the URL.
+  // The bare wallet URL never gets here: the precache answers it first. Its ?q= and
+  // modal variants stay out of defaultCache's 24 hour page bucket, where a copy from an
+  // older build would point at chunks the next deploy deleted; offline, the fallback
+  // below serves this build's precached wallet instead.
   {
     matcher: ({ url, request, sameOrigin }) =>
       sameOrigin &&
