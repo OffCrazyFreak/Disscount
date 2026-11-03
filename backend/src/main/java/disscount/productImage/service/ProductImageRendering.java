@@ -2,6 +2,7 @@ package disscount.productImage.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import disscount.digitalCard.storage.PhotoStore;
 import disscount.digitalCard.storage.StoredPhoto;
@@ -37,31 +38,70 @@ public class ProductImageRendering {
     private final ProductImageRepository images;
 
     public void render(ProductImage image) {
+        apply(image, upload(image));
+    }
+
+    /**
+     * The background copy downloads for seconds, so it writes onto the row as it is now and drops its copy
+     * when an admin or the weekly import changed the photo meanwhile.
+     */
+    public void renderCandidate(ProductImage loaded) {
+        Copy copy = upload(loaded);
+        ProductImage current = images.findById(loaded.getId())
+                .filter(i -> stillWaiting(i, loaded) && sameFraming(i, loaded))
+                .orElse(null);
+        if (current == null) {
+            deleteIfUnused(copy.fullKey(), null);
+            deleteIfUnused(copy.thumbKey(), null);
+            return;
+        }
+        current.setRenderAttempts(null);
+        current.setRenderRetryAt(null);
+        apply(current, copy);
+    }
+
+    /** True while the row is still the uncopied candidate the job loaded, so the job may write to it. */
+    static boolean stillWaiting(ProductImage current, ProductImage loaded) {
+        return current.getStatus() == ImageStatus.CANDIDATE && !current.isRendered()
+                && Objects.equals(current.getExternalRev(), loaded.getExternalRev());
+    }
+
+    private static boolean sameFraming(ProductImage current, ProductImage loaded) {
+        return current.getRotation() == loaded.getRotation()
+                && Objects.equals(current.getCropX(), loaded.getCropX())
+                && Objects.equals(current.getCropY(), loaded.getCropY())
+                && Objects.equals(current.getCropWidth(), loaded.getCropWidth())
+                && Objects.equals(current.getCropHeight(), loaded.getCropHeight());
+    }
+
+    private Copy upload(ProductImage image) {
         Crop crop = image.hasCrop()
                 ? new Crop(image.getCropX(), image.getCropY(), image.getCropWidth(), image.getCropHeight())
                 : null;
         Rendered rendered = ProductImageRenderer.render(source(image), image.getRotation(), crop);
 
         String base = "products/" + image.getEan() + "/" + rendered.sha256().substring(0, 20);
-        String fullKey = base + ".jpg";
-        String thumbKey = base + "-thumb.jpg";
-        store.put(fullKey, rendered.full(), "image/jpeg");
-        store.put(thumbKey, rendered.thumb(), "image/jpeg");
+        Copy copy = new Copy(base + ".jpg", base + "-thumb.jpg", rendered.sourceWidth(), rendered.sourceHeight());
+        store.put(copy.fullKey(), rendered.full(), "image/jpeg");
+        store.put(copy.thumbKey(), rendered.thumb(), "image/jpeg");
+        return copy;
+    }
 
+    private void apply(ProductImage image, Copy copy) {
         String oldFull = image.getFullKey();
         String oldThumb = image.getThumbKey();
-        image.setFullKey(fullKey);
-        image.setThumbKey(thumbKey);
+        image.setFullKey(copy.fullKey());
+        image.setThumbKey(copy.thumbKey());
         image.setRenderedAt(Timestamps.nowUtc());
-        image.setOriginalWidth(rendered.sourceWidth());
-        image.setOriginalHeight(rendered.sourceHeight());
+        image.setOriginalWidth(copy.width());
+        image.setOriginalHeight(copy.height());
         if (image.getStatus() == ImageStatus.CANDIDATE) {
             image.setStatus(ImageStatus.VERIFIED);
         }
         images.save(image);
 
-        deleteIfUnused(oldFull, fullKey);
-        deleteIfUnused(oldThumb, thumbKey);
+        deleteIfUnused(oldFull, copy.fullKey());
+        deleteIfUnused(oldThumb, copy.thumbKey());
     }
 
     public String originalUrl(ProductImage image) {
@@ -107,5 +147,8 @@ public class ProductImageRendering {
             // An orphaned file costs a few kilobytes; failing the admin's crop over it would cost more.
             log.warn("Could not delete replaced product photo {}", key, e);
         }
+    }
+
+    private record Copy(String fullKey, String thumbKey, int width, int height) {
     }
 }
