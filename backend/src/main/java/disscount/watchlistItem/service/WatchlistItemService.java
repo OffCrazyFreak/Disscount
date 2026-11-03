@@ -28,7 +28,7 @@ public class WatchlistItemService {
     private final UserRepository userRepository;
 
     public WatchlistItemDto addOrUpdateWatchlist(UUID userId, WatchlistItemRequest request) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         // Check if product with the same watch type exists

@@ -256,6 +256,8 @@ export const auth = betterAuth({
         keyPairConfig: { alg: "ES256" },
       },
       jwt: {
+        // Spring never asks whether the session still exists, so a revoked one keeps working until exp.
+        expirationTime: "10m",
         definePayload: ({ user }) => ({
           email: user.email,
           name: user.name,

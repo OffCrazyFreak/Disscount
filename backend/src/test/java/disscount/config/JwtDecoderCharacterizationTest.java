@@ -93,6 +93,18 @@ class JwtDecoderCharacterizationTest {
     }
 
     @Test
+    void aTokenMeantForAnotherAudienceIsRejected() {
+        assertThatThrownBy(() -> decoder.decode(es256(claims().audience("https://elsewhere.example").build(), null)))
+                .isInstanceOf(JwtException.class);
+    }
+
+    @Test
+    void aTokenWithoutAnAudienceIsRejected() {
+        assertThatThrownBy(() -> decoder.decode(es256(claims().audience((String) null).build(), null)))
+                .isInstanceOf(JwtException.class);
+    }
+
+    @Test
     void anExpiredTokenIsRejectedOnceTheClockSkewHasPassed() {
         JWTClaimsSet expired = claims().expirationTime(Date.from(Instant.now().minusSeconds(120))).build();
 
