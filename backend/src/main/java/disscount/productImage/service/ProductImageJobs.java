@@ -98,6 +98,10 @@ public class ProductImageJobs {
                     // IllegalArgumentException: a stored key that cannot form a valid image URL.
                     skip(image, e);
                 } catch (OffImageUnavailableException e) {
+                    if (!e.concernsThisImageOnly()) {
+                        log.warn("Product photo rendering paused: {}", e.getMessage());
+                        return;
+                    }
                     // A 403 or 500 for one file says nothing about the next one, so only this photo waits.
                     postpone(image, e);
                 } catch (RuntimeException e) {

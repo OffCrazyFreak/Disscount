@@ -123,6 +123,18 @@ class ProductImageJobsRenderTest {
     }
 
     @Test
+    void rateLimitingPausesTheQueueInsteadOfPostponingEveryPhoto() {
+        ProductImage first = mainCandidate(WIDELY_SOLD, 900);
+        mainCandidate(LESS_SOLD, 40);
+        when(off.download(anyString())).thenThrow(new OffImageUnavailableException("url", 429));
+
+        jobs.renderMainPhotos();
+
+        verify(off, times(1)).download(anyString());
+        assertThat(images.findById(first.getId())).get().extracting(ProductImage::getRenderRetryAt).isNull();
+    }
+
+    @Test
     void aGonePhotoIsHiddenAndLosesItsMainSlot() {
         ProductImage gone = mainCandidate(WIDELY_SOLD, 900);
         when(off.download(anyString())).thenThrow(new OffImageGoneException("url", 404));
