@@ -1,3 +1,4 @@
+import { isSessionChanged } from "@/lib/api/problem-details";
 import { failureAction } from "@/lib/offline/failure-policy";
 import { isNetworkFailure } from "@/lib/offline/is-network-failure";
 
@@ -8,10 +9,12 @@ const MAX_LIVE_HTTP_RETRIES = 4;
 
 /**
  * A failure that can pass is retried for as long as the page stays open, since a dropped
- * replay would lose the card write; TanStack itself pauses retries while offline.
+ * replay would lose the card write; TanStack itself pauses retries while offline. Never
+ * after session_changed: a retry carries the new pin, so it would save one account's
+ * write into the other.
  */
 export function shouldRetryCardWrite(_failureCount: number, error: unknown) {
-  return failureAction(error) === "keep";
+  return !isSessionChanged(error) && failureAction(error) === "keep";
 }
 
 // Bounded because only paused mutations persist, and the caller still holds what was typed.

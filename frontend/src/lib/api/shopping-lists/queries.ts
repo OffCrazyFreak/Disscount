@@ -1,49 +1,44 @@
 import apiClient from "@/lib/api/api-base";
 import {
-  ShoppingListCopyRequest,
-  ShoppingListRequest,
-  ShoppingListDto,
-  ShoppingListItemRequest,
-  ShoppingListItemDto,
+  shoppingListDtoSchema,
+  shoppingListItemDtoSchema,
+  type ShoppingListCopyRequest,
+  type ShoppingListRequest,
+  type ShoppingListDto,
+  type ShoppingListItemRequest,
+  type ShoppingListItemDto,
 } from "@/lib/api/types";
 
 export async function createShoppingList(
   data: ShoppingListRequest,
 ): Promise<ShoppingListDto> {
-  const response = await apiClient.post<ShoppingListDto>(
-    "/api/shopping-lists",
-    data,
-  );
-  return response.data;
+  const response = await apiClient.post<unknown>("/api/shopping-lists", data);
+  return shoppingListDtoSchema.parse(response.data);
 }
 
 export async function getCurrentUserShoppingLists(): Promise<
   ShoppingListDto[]
 > {
-  const response = await apiClient.get<ShoppingListDto[]>(
-    "/api/shopping-lists/me",
-  );
-  return response.data;
+  const response = await apiClient.get<unknown[]>("/api/shopping-lists/me");
+  return response.data.map((item) => shoppingListDtoSchema.parse(item));
 }
 
 export async function getShoppingListById(
   id: string,
 ): Promise<ShoppingListDto> {
-  const response = await apiClient.get<ShoppingListDto>(
-    `/api/shopping-lists/${id}`,
-  );
-  return response.data;
+  const response = await apiClient.get<unknown>(`/api/shopping-lists/${id}`);
+  return shoppingListDtoSchema.parse(response.data);
 }
 
 export async function updateShoppingList(
   id: string,
   data: ShoppingListRequest,
 ): Promise<ShoppingListDto> {
-  const response = await apiClient.put<ShoppingListDto>(
+  const response = await apiClient.put<unknown>(
     `/api/shopping-lists/${id}`,
     data,
   );
-  return response.data;
+  return shoppingListDtoSchema.parse(response.data);
 }
 
 export async function deleteShoppingList(id: string): Promise<void> {
@@ -54,11 +49,11 @@ export async function addItemToShoppingList(
   listId: string,
   data: ShoppingListItemRequest,
 ): Promise<ShoppingListItemDto> {
-  const response = await apiClient.post<ShoppingListItemDto>(
+  const response = await apiClient.post<unknown>(
     `/api/shopping-lists/${listId}/items`,
     data,
   );
-  return response.data;
+  return shoppingListItemDtoSchema.parse(response.data);
 }
 
 export async function updateShoppingListItem(
@@ -66,11 +61,11 @@ export async function updateShoppingListItem(
   itemId: string,
   data: ShoppingListItemRequest,
 ): Promise<ShoppingListItemDto> {
-  const response = await apiClient.put<ShoppingListItemDto>(
+  const response = await apiClient.put<unknown>(
     `/api/shopping-lists/${listId}/items/${itemId}`,
     data,
   );
-  return response.data;
+  return shoppingListItemDtoSchema.parse(response.data);
 }
 
 export async function deleteShoppingListItem(
@@ -85,18 +80,16 @@ export async function copyShoppingList(
   id: string,
   data: ShoppingListCopyRequest,
 ): Promise<ShoppingListDto> {
-  const response = await apiClient.post<ShoppingListDto>(
+  const response = await apiClient.post<unknown>(
     `/api/shopping-lists/${id}/copy`,
     data,
   );
-  return response.data;
+  return shoppingListDtoSchema.parse(response.data);
 }
 
 export async function getAllUserShoppingListItems(): Promise<
   ShoppingListItemDto[]
 > {
-  const response = await apiClient.get<ShoppingListItemDto[]>(
-    "/api/shopping-lists/items",
-  );
-  return response.data;
+  const response = await apiClient.get<unknown[]>("/api/shopping-lists/items");
+  return response.data.map((item) => shoppingListItemDtoSchema.parse(item));
 }

@@ -10,14 +10,15 @@ const bannerVariants = cva(
   {
     variants: {
       variant: {
-        primary: "border-transparent bg-primary text-white",
+        primary: "border-transparent bg-primary text-primary-foreground",
         // The soft variants tint whatever they sit on rather than covering it, so they take
         // the header's backdrop-blur treatment. Alpha fills also mean one value works in
         // both themes, which is why they no longer carry dark: background overrides; only
         // the text keeps one, since contrast has to be chosen per theme.
         primarySoft:
           "border-primary/40 bg-primary/10 text-primary backdrop-blur-xs",
-        destructive: "border-transparent bg-destructive text-white",
+        destructive:
+          "border-transparent bg-destructive text-destructive-foreground",
         destructiveSoft:
           "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-300 backdrop-blur-xs",
         warning: "border-transparent bg-amber-200 text-amber-700",
@@ -46,9 +47,9 @@ const BANNER_TEXT_COLORS: Record<
   NonNullable<VariantProps<typeof bannerVariants>["variant"]>,
   string
 > = {
-  primary: "text-white/90",
+  primary: "text-primary-foreground/90",
   primarySoft: "text-primary/90",
-  destructive: "text-white/90",
+  destructive: "text-destructive-foreground/90",
   destructiveSoft: "text-red-700 dark:text-red-300/90",
   warning: "text-amber-800",
   warningSoft: "text-amber-900 dark:text-amber-200/90",

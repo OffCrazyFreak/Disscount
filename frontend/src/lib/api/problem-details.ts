@@ -2,6 +2,8 @@ import { isAxiosError } from "axios";
 import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
+import { SESSION_CHANGED } from "@/lib/backend-proxy/proxy-contract";
+
 // RFC 9457 Problem Details as emitted by the backend GlobalExceptionHandler.
 const problemDetailsSchema = z.object({
   type: z.string().optional(),
@@ -20,6 +22,15 @@ export function parseProblem(error: unknown): ProblemDetails | null {
 
   const parsed = problemDetailsSchema.safeParse(error.response.data);
   return parsed.success ? parsed.data : null;
+}
+
+/** The proxy refused the call because the session cookie names another account than this tab. */
+export function isSessionChanged(error: unknown): boolean {
+  return (
+    isAxiosError(error) &&
+    error.response?.status === 401 &&
+    parseProblem(error)?.code === SESSION_CHANGED
+  );
 }
 
 export function problemMessage(error: unknown, fallback: string): string {

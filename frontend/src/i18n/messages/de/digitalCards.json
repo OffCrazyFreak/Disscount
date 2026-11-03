@@ -326,6 +326,7 @@
     "cardLimit": "Du hast schon die maximale Anzahl an Karten. Lösch eine, die du nicht nutzt.",
     "cardSaveFailed": "Die Karte wurde nicht gespeichert. Versuche es erneut.",
     "cardDeleteFailed": "Die Karte wurde nicht gelöscht. Versuche es erneut.",
+    "sessionChanged": "Ein anderes Konto ist angemeldet. Wir aktualisieren deine Daten.",
     "photoDeleteFailed": "Das Bild wurde nicht gelöscht. Versuch es noch mal.",
     "photoSendFailed": "Das Kartenbild wurde nicht gespeichert. Füg es erneut hinzu."
   },

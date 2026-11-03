@@ -5,6 +5,7 @@ import {
   CARD_LIMIT_KEY,
   cardWriteMessage,
   failureAction,
+  SESSION_CHANGED_KEY,
 } from "@/lib/offline/failure-policy";
 
 function httpError(status: number, data: unknown = {}) {
@@ -51,6 +52,11 @@ describe("cardWriteMessage", () => {
 
   it("treats any other conflict as already saved", () => {
     expect(cardWriteMessage(httpError(409, { detail: "Sukob" }))).toBeNull();
+  });
+
+  it("says the account changed when the proxy refused the old account's pin", () => {
+    const refused = httpError(401, { status: 401, code: "session_changed" });
+    expect(cardWriteMessage(refused)).toBe(SESSION_CHANGED_KEY);
   });
 
   it("falls back to the generic message", () => {
