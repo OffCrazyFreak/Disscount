@@ -74,11 +74,11 @@ Filling it, from `frontend/`:
 node scripts/seed-dev-account.mjs --base-url https://dev.disscount.me
 ```
 
-Without `--base-url` the script targets `NEXT_PUBLIC_APP_URL`, and it refuses `disscount.me` outright. It signs in and creates everything through the app's own endpoints, so ids and business rules match what a real user produces: profile (username, generated avatar, onboarding done), pinned chains and places, favourite stores, 11 watched products, 4 shopping lists (one shared by link at shop level, some items ticked with the shop price), 3 loyalty cards with fake numbers (one pinned, with generated front and back photos when the server has card photos enabled), 2 contact messages and sessions from three devices. EANs and store codes are real cijene-api values, kept in `scripts/lib/dev-seed-data.mjs`. With the second pair set, that account gets a list of its own and ticks one item on the shared list.
+Without `--base-url` the script targets `NEXT_PUBLIC_APP_URL`, and it refuses `disscount.me` and `www.disscount.me` (a trailing dot included). It signs in and creates everything through the app's own endpoints, so ids and business rules match what a real user produces: profile (username, generated avatar, onboarding done), pinned chains and places, favourite stores, 11 watched products, 4 shopping lists (one shared by link at shop level, some items ticked with the shop price), 3 loyalty cards with fake numbers (one pinned, with recent use dates and generated front and back photos when the server has card photos enabled), 2 contact messages and sessions from three devices. EANs and store codes are real cijene-api values, kept in `scripts/lib/dev-seed-data.mjs`. With the second pair set, that account gets a list of its own and ticks one item on the shared list.
 
 A rerun only adds what is missing and prints what it added, so it is safe to run after a database reset or a fixture change. Two limits: contact messages go out only on a first seed (empty account), because the API cannot list them back, and the script signs its own session out so reruns leave no extra sessions.
 
-Every row comes out stamped "now". To spread them over six weeks, run the optional back-dating SQL on the same database, once per account; it is rerunnable and fails on an unknown address:
+Every row comes out stamped "now". To spread them over six weeks, run the optional back-dating SQL on the same database, once per account. It fails on an unknown address, and a rerun counts back from that day, so it moves the history forward:
 
 ```bash
 ssh <server> "docker exec -i <dev-db-container> psql -U <db-user> -d <db-name> -v email=<address>" \
