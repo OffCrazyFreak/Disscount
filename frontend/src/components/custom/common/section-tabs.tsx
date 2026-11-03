@@ -128,8 +128,8 @@ export default function SectionTabs({ label, tabs }: ISectionTabsProps) {
                             isActive &&
                               !isStuck &&
                               "bg-primary/10 text-primary",
-                            // On the stuck pill the open tab is filled green.
-                            isActive && isStuck && "bg-white/20 text-white",
+                            // On the stuck pill the open tab is filled green, so its badge turns white.
+                            isActive && isStuck && "bg-white text-primary",
                           )}
                         >
                           {format.number(tab.count ?? 0)}
