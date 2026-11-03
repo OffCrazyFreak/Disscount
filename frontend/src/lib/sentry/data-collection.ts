@@ -40,7 +40,8 @@ export const sentryDataCollection = {
   graphQL: { document: false, variables: false },
   genAI: { inputs: false, outputs: false },
   databaseQueryData: false,
-  stackFrameVariables: true,
+  // Server frames hold request data the privacy policy does not list, and name filters miss minified names.
+  stackFrameVariables: false,
   // v10 with sendDefaultPii sent 7; the dataCollection default would drop it to 5.
   frameContextLines: 7,
 } satisfies CompleteDataCollection;
