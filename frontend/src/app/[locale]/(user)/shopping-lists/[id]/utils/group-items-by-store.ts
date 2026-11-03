@@ -1,9 +1,10 @@
 import type { ShoppingListItemDto } from "@/lib/api/types";
+import { suggestedChain } from "@/components/custom/store-chain/suggested-chain";
 import { getChainLabel } from "@/utils/labels";
 import { compareHr } from "@/utils/strings";
 
 export interface IStoreGroup {
-  /** Null for items with no chosen chain and no known cheapest one. */
+  /** Null for items with no chain shown: none saved and none suggested. */
   chain: string | null;
   items: ShoppingListItemDto[];
   /** What the group costs at that chain, from the prices known so far. */
@@ -19,9 +20,9 @@ interface IGroupInput {
 }
 
 /**
- * Splits a list by where each item will be bought: its chosen chain, else its
- * cheapest one. Chains run A to Z, items A to Z within them, and items with
- * neither come last.
+ * Splits a list by the chain each item's store select shows: its saved chain,
+ * else the suggested cheapest one. Chains run A to Z, items A to Z within
+ * them, and items showing no chain come last.
  */
 export function groupItemsByStore({
   items,
@@ -31,7 +32,9 @@ export function groupItemsByStore({
   const byChain = new Map<string | null, ShoppingListItemDto[]>();
 
   for (const item of items) {
-    const chain = item.chainCode ?? cheapestStores[item.id] ?? null;
+    const chain =
+      item.chainCode ??
+      suggestedChain(item.chainCode, item.isChecked, cheapestStores[item.id]);
     byChain.set(chain, [...(byChain.get(chain) ?? []), item]);
   }
 
@@ -46,8 +49,7 @@ export function groupItemsByStore({
       let isPartial = false;
 
       for (const item of groupItems) {
-        // A checked item keeps the price it was bought at; one ticked with no
-        // chain chosen saved no price, so it falls back to today's.
+        // A checked item keeps the price it was bought at, else today's.
         const price =
           (item.isChecked ? item.storePrice : null) ??
           (chain ? storePrices[item.id]?.[chain] : undefined);
