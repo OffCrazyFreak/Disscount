@@ -8,6 +8,7 @@ import {
   getStorePricesFromProduct,
 } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 import { getAveragePrice } from "@/app/[locale]/products/utils/product-utils";
+import { catalogEans } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
 import {
   isSettledLookupError,
   itemPriceState,
@@ -32,11 +33,7 @@ export function useShoppingListData(listId: string) {
   } = shoppingListService.useGetShoppingListById(listId);
 
   const eans = useMemo(
-    () => [
-      ...new Set(
-        shoppingList?.items.map((item) => item.ean).filter(Boolean) ?? [],
-      ),
-    ],
+    () => catalogEans(shoppingList?.items),
     [shoppingList?.items],
   );
 
@@ -122,6 +119,9 @@ export function useShoppingListData(listId: string) {
     const nextPriceStates: Record<string, ItemPriceState> = {};
 
     for (const item of shoppingList?.items ?? []) {
+      // A plain item has no lookup, so it has no price state to report.
+      if (!item.ean) continue;
+
       const product = productsByEan.get(item.ean);
       const itemStorePrices = product && getStorePricesFromProduct(product);
       nextPriceStates[item.id] = itemPriceState(

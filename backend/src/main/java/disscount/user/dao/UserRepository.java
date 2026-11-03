@@ -17,6 +17,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     List<User> findByDeletedAtIsNullOrderByCreatedAtAsc();
 
+    Optional<User> findByIdAndDeletedAtIsNull(UUID id);
+
     /**
      * Spans soft-deleted rows too, matching the unique index, which does not care that an
      * account is gone. In practice they never collide: deleteAccount nulls the username,

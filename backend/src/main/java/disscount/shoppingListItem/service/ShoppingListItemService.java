@@ -58,8 +58,10 @@ public class ShoppingListItemService {
             throw new ForbiddenException("error.shoppingList.ownerOnlyAddItems");
         }
 
-        Optional<ShoppingListItem> existingItem = shoppingListItemRepository
-                .findActiveByShoppingListAndName(shoppingList, request.getName());
+        String ean = ShoppingListItemMatcher.blankToNull(request.getEan());
+        String name = request.getName().strip();
+        Optional<ShoppingListItem> existingItem = ShoppingListItemMatcher.findMergeTarget(
+                shoppingListItemRepository.findActiveByShoppingList(shoppingList), ean, name);
 
         ShoppingListItem item;
         if (existingItem.isPresent()) {
@@ -69,7 +71,10 @@ public class ShoppingListItemService {
             int newAmount = Math.min(item.getAmount() + requestedAmount, 999);
             item.setAmount(newAmount);
 
-            if (request.getEan() != null) item.setEan(request.getEan());
+            if (ean != null) {
+                item.setEan(ean);
+                item.setName(name);
+            }
             if (request.getBrand() != null) item.setBrand(request.getBrand());
             if (request.getQuantity() != null) item.setQuantity(request.getQuantity());
             if (request.getUnit() != null) item.setUnit(request.getUnit());
@@ -82,9 +87,9 @@ public class ShoppingListItemService {
         } else {
             item = ShoppingListItem.builder()
                     .shoppingList(shoppingList)
-                    .ean(request.getEan())
+                    .ean(ean)
                     .brand(request.getBrand())
-                    .name(request.getName())
+                    .name(name)
                     .quantity(request.getQuantity())
                     .unit(request.getUnit())
                     .amount(request.getAmount() != null ? request.getAmount() : 1)
@@ -172,9 +177,11 @@ public class ShoppingListItemService {
             return;
         }
 
-        item.setEan(request.getEan());
+        // A plain item has no EAN to send back, and a missing one must never unlink a product.
+        String ean = ShoppingListItemMatcher.blankToNull(request.getEan());
+        if (ean != null) item.setEan(ean);
         item.setBrand(request.getBrand());
-        item.setName(request.getName());
+        item.setName(request.getName().strip());
         item.setQuantity(request.getQuantity());
         item.setUnit(request.getUnit());
         item.setAmount(request.getAmount() != null ? request.getAmount() : 1);

@@ -22,11 +22,14 @@ import { useAddToListForm } from "@/app/[locale]/products/hooks/use-add-to-list-
 interface IAddToShoppingListFormProps {
   open: boolean;
   ean: string;
+  /** Preselected instead of the most recent list, when opened from a list. */
+  listId?: string;
 }
 
 export default function AddToShoppingListForm({
   open,
   ean,
+  listId,
 }: IAddToShoppingListFormProps) {
   const t = useTranslations("products");
   const {
@@ -50,7 +53,7 @@ export default function AddToShoppingListForm({
     restored,
     clearDraft,
     resetForm,
-  } = useAddToListForm(open, ean);
+  } = useAddToListForm(open, ean, listId);
   const { isDirty, isValid, errors } = useFormState({ control: form.control });
   const shoppingListId = useWatch({
     control: form.control,

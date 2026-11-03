@@ -25,9 +25,16 @@ const EMPTY_FORM_VALUES: AddToListFormData = {
   chainCode: null,
 };
 
-export function useAddToListForm(open: boolean, ean: string) {
+export function useAddToListForm(
+  open: boolean,
+  ean: string,
+  preferredListId?: string,
+) {
   const { user } = useUser();
-  const draftKey = `add-to-list.${ean}`;
+  // Opened from a list, its own draft, so a draft naming another list cannot win.
+  const draftKey = preferredListId
+    ? `add-to-list.${ean}.${preferredListId}`
+    : `add-to-list.${ean}`;
 
   // Same query key as the product page, so this is a cache hit unless deep-linked.
   const productQuery = cijeneService.useGetProductByEan({ ean });
@@ -53,6 +60,7 @@ export function useAddToListForm(open: boolean, ean: string) {
     product?.ean,
     !!user,
     restoredListId,
+    preferredListId,
   );
   // useWatch, not form.watch: watch() signals changes outside React state, so the
   // React Compiler skips memoizing every component that reads it.
@@ -82,6 +90,7 @@ export function useAddToListForm(open: boolean, ean: string) {
 
   const { onSubmit, isSubmitting } = useAddToListSubmit({
     ean,
+    preferredListId,
     draftKey,
     product,
     lists: selection.sortedShoppingLists,
