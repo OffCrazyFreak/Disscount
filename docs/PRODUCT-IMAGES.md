@@ -32,18 +32,18 @@ How Disscount shows product photos: where they come from, how they are stored an
 
 ## 1. Quick reference
 
-| Thing              | Value                                                                                                                      |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------- |
-| Sources            | Open Food Facts (CC BY-SA, credited in the terms of service) and photos uploaded by users and admins                       |
-| Storage            | Public R2 bucket (EU jurisdiction) behind its own domain; user originals in the private card photo bucket                  |
-| Files served       | `products/<ean>/<hash>.jpg` (up to 1080 px square) and `-thumb.jpg` (up to 400 px), cached for a year                      |
-| Delivery           | Plain `<img>` tags pointing at the bucket's domain; no `next/image`, no proxy through our servers                          |
-| Viewer             | `yet-another-react-lightbox` with the zoom, thumbnails and counter plugins                                                 |
-| Crop               | `react-image-crop` in the admin; the backend renders the crop from the original                                            |
-| Env vars           | `R2_ENDPOINT` plus `R2_PUBLIC_BUCKET`, `R2_PUBLIC_ACCESS_KEY_ID`, `R2_PUBLIC_SECRET_ACCESS_KEY`, `R2_PUBLIC_URL` (backend) |
-| Off switch         | Any of those five blank: no photos anywhere, uploads answer 503, the jobs copy nothing                                     |
-| Admin entry points | "Uredi slike" on a product page, and the "Slike proizvoda" tab in `/dashboard`                                             |
-| Introduced in      | PR #372 (product photos from Open Food Facts and users, with admin curation)                                               |
+| Thing              | Value                                                                                                                                                        |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Sources            | Open Food Facts (CC BY-SA, credited in the terms of service) and photos uploaded by users and admins                                                         |
+| Storage            | Public R2 bucket (EU jurisdiction) behind its own domain; upload originals in a private bucket of their own                                                  |
+| Files served       | `products/<ean>/<hash>.jpg` (up to 1080 px square) and `-thumb.jpg` (up to 400 px), cached for a year                                                        |
+| Delivery           | Plain `<img>` tags pointing at the bucket's domain; no `next/image`, no proxy through our servers                                                            |
+| Viewer             | `yet-another-react-lightbox` with the zoom, thumbnails and counter plugins                                                                                   |
+| Crop               | `react-image-crop` in the admin; the backend renders the crop from the original                                                                              |
+| Env vars           | `R2_ENDPOINT` plus `R2_PUBLIC_BUCKET`, `R2_PUBLIC_ACCESS_KEY_ID`, `R2_PUBLIC_SECRET_ACCESS_KEY`, `R2_PUBLIC_URL`, and `R2_ORIGINALS_*` for uploads (backend) |
+| Off switch         | Any of the five public ones blank: no photos anywhere, uploads answer 503, the jobs copy nothing; any `R2_ORIGINALS_*` blank: only uploads answer 503        |
+| Admin entry points | "Uredi slike" on a product page, and the "Slike proizvoda" tab in `/dashboard`                                                                               |
+| Introduced in      | PR #372 (product photos from Open Food Facts and users, with admin curation)                                                                                 |
 
 ---
 
@@ -161,7 +161,9 @@ The gallery is fetched in the browser, not seeded by the server render, so the s
 
 The browser side (decode, resize to a 2048 px long edge, JPEG at 0.82 stepping down until under 480 KB, white behind transparency, metadata stripped by the re-encode) is shared with avatars and card photos and is described in [IMAGE-UPLOADS.md](IMAGE-UPLOADS.md). Product photos are always JPEG, because the server renders them with ImageIO, which cannot write WebP.
 
-On the server, `POST /api/products/{ean}/images` takes the multipart field `photo`, applies the same Spring multipart limits and `PhotoValidator` as card photos, then accepts JPEG only. The sanitized bytes are stored as `product-originals/<ean>/<uuid>.jpg` in the private card photo bucket (issue #464 would give them their own bucket), and `ProductImageRenderer` writes the public files. A user may upload 10 photos per 10 minutes (`ProductPhotoUploadLimiter`, in memory per instance); admins are exempt.
+On the server, `POST /api/products/{ean}/images` takes the multipart field `photo`, applies the same Spring multipart limits and `PhotoValidator` as card photos, then accepts JPEG only. The sanitized bytes are stored as `product-originals/<ean>/<uuid>.jpg` in the private originals bucket (`ProductOriginalStore`, `R2_ORIGINALS_*`), and `ProductImageRenderer` writes the public files. A user may upload 10 photos per 10 minutes (`ProductPhotoUploadLimiter`, in memory per instance); admins are exempt.
+
+The originals bucket is its own type, not a second card `PhotoStore`, so it has its own token and its own off switch: card code can never be handed it, a leaked card token cannot read product uploads, and blanking the card variables leaves product uploads working. The key layout is `product-originals/<ean>/<uuid>.jpg`. Nothing deletes an original yet; erasing a deleted user's uploads is future work (§19).
 
 A user's upload starts `PENDING` and flags the product for review; an admin's upload is `VERIFIED`, pinned as the main photo, and marks the product reviewed.
 
@@ -214,10 +216,10 @@ The browser reaches all of them through the backend proxy ([BACKEND-PROXY.md](BA
 
 ## 12. Tests
 
-| Suite             | What it covers                                                                                                                                                                                                                                                                                                 |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Backend (H2)      | `ProductImageRendererTest`, `ProductImageServiceTest`, `ProductImageControllerTest`, `ProductImageWireFormatTest`, `ProductImageJobsTest`, `ProductImageJobsRenderTest`, `ProductImageJobsStaleWriteTest`, `CatalogArchiveReaderTest`, `OpenFoodFactsParsingTest`, with `FakeProductImageStore` in place of R2 |
-| Frontend (Vitest) | `crop-math.test.ts`, `product-images/hooks.test.tsx`, `product-photo-gallery.test.tsx`, `use-queue-keys.test.tsx`                                                                                                                                                                                              |
+| Suite             | What it covers                                                                                                                                                                                                                                                                                                                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Backend (H2)      | `ProductImageRendererTest`, `ProductImageServiceTest`, `ProductImageControllerTest`, `ProductImageWireFormatTest`, `ProductImageJobsTest`, `ProductImageJobsRenderTest`, `ProductImageJobsStaleWriteTest`, `CatalogArchiveReaderTest`, `OpenFoodFactsParsingTest`, with `FakeProductImageStore` and `FakeProductOriginalStore` in place of R2, and `ProductOriginalStoreConfigTest` for the off switch |
+| Frontend (Vitest) | `crop-math.test.ts`, `product-images/hooks.test.tsx`, `product-photo-gallery.test.tsx`, `use-queue-keys.test.tsx`                                                                                                                                                                                                                                                                                      |
 
 Not covered by tests: a real upload to R2, the real Open Food Facts export, and how photos look under dark mode extensions; those need a manual check.
 
@@ -225,20 +227,20 @@ Not covered by tests: a real upload to R2, the real Open Food Facts export, and 
 
 ## 13. Key files
 
-| File                                                             | What                                                                     |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `backend/.../productImage/render/ProductImageRenderer.java`      | Decode, rotate, crop, white square, JPEG                                 |
-| `backend/.../productImage/service/`                              | Reads, uploads, admin actions, jobs, the main photo rules (`MainPicker`) |
-| `backend/.../productImage/off/`                                  | Open Food Facts client, URL layout, export reader                        |
-| `backend/.../productImage/catalog/`                              | cijene archive reader and import                                         |
-| `backend/.../productImage/storage/`                              | `ProductImageStore`, the R2 and disabled stores, their config            |
-| `backend/.../storage/R2Clients.java`                             | The S3 client both buckets use                                           |
-| `frontend/src/components/custom/product-photos/`                 | Tile, viewer, upload, admin editor, crop                                 |
-| `frontend/src/app/[locale]/products/components/product-photos/`  | The product page gallery                                                 |
-| `frontend/src/app/[locale]/dashboard/components/product-photos/` | The review queue                                                         |
-| `frontend/src/lib/api/product-images/`                           | Fetchers, hooks, thumbnail batcher, server helpers                       |
-| `frontend/src/lib/api/schemas/product-image.ts`                  | Zod schemas for every response                                           |
-| `frontend/src/utils/browser/product-photo.ts`                    | Upload preparation settings                                              |
+| File                                                             | What                                                                                          |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `backend/.../productImage/render/ProductImageRenderer.java`      | Decode, rotate, crop, white square, JPEG                                                      |
+| `backend/.../productImage/service/`                              | Reads, uploads, admin actions, jobs, the main photo rules (`MainPicker`)                      |
+| `backend/.../productImage/off/`                                  | Open Food Facts client, URL layout, export reader                                             |
+| `backend/.../productImage/catalog/`                              | cijene archive reader and import                                                              |
+| `backend/.../productImage/storage/`                              | `ProductImageStore` and `ProductOriginalStore`, each with R2 and disabled stores and a config |
+| `backend/.../storage/R2Clients.java`                             | The S3 client both buckets use                                                                |
+| `frontend/src/components/custom/product-photos/`                 | Tile, viewer, upload, admin editor, crop                                                      |
+| `frontend/src/app/[locale]/products/components/product-photos/`  | The product page gallery                                                                      |
+| `frontend/src/app/[locale]/dashboard/components/product-photos/` | The review queue                                                                              |
+| `frontend/src/lib/api/product-images/`                           | Fetchers, hooks, thumbnail batcher, server helpers                                            |
+| `frontend/src/lib/api/schemas/product-image.ts`                  | Zod schemas for every response                                                                |
+| `frontend/src/utils/browser/product-photo.ts`                    | Upload preparation settings                                                                   |
 
 `backend/...` is `backend/src/main/java/disscount/`.
 
@@ -248,14 +250,16 @@ Not covered by tests: a real upload to R2, the real Open Food Facts export, and 
 
 All backend, runtime; a change needs a backend restart, not a rebuild. Set them in Dokploy per environment; [INFRASTRUCTURE.md](INFRASTRUCTURE.md#product-photo-env-vars) has the bucket setup.
 
-| Var                           | Required for photos | What it controls                                                                                                 |
-| ----------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `R2_ENDPOINT`                 | yes                 | The EU R2 endpoint, shared with the card photo bucket                                                            |
-| `R2_PUBLIC_BUCKET`            | yes                 | The public product photo bucket                                                                                  |
-| `R2_PUBLIC_ACCESS_KEY_ID`     | yes, secret         | A token scoped to that one bucket, object read and write                                                         |
-| `R2_PUBLIC_SECRET_ACCESS_KEY` | yes, secret         | Its secret                                                                                                       |
-| `R2_PUBLIC_URL`               | yes                 | The bucket's public `https://` domain                                                                            |
-| `R2_BUCKET` and its key pair  | for uploads only    | The private bucket that keeps upload originals ([DIGITAL-CARDS.md §13](DIGITAL-CARDS.md#13-config-and-env-vars)) |
+| Var                              | Required for photos | What it controls                                                            |
+| -------------------------------- | ------------------- | --------------------------------------------------------------------------- |
+| `R2_ENDPOINT`                    | yes                 | The EU R2 endpoint, shared with the card photo bucket                       |
+| `R2_PUBLIC_BUCKET`               | yes                 | The public product photo bucket                                             |
+| `R2_PUBLIC_ACCESS_KEY_ID`        | yes, secret         | A token scoped to that one bucket, object read and write                    |
+| `R2_PUBLIC_SECRET_ACCESS_KEY`    | yes, secret         | Its secret                                                                  |
+| `R2_PUBLIC_URL`                  | yes                 | The bucket's public `https://` domain                                       |
+| `R2_ORIGINALS_BUCKET`            | for uploads only    | The private bucket that keeps upload originals, never the card photo bucket |
+| `R2_ORIGINALS_ACCESS_KEY_ID`     | for uploads, secret | A token scoped to that one bucket, object read and write                    |
+| `R2_ORIGINALS_SECRET_ACCESS_KEY` | for uploads, secret | Its secret                                                                  |
 
 Properties with defaults, not env vars: `product-images.jobs.enabled` (true; false in the test profile), `product-images.catalog.list-url` (the cijene `v0/list`), `product-images.off.api-base` and `product-images.off.export-url` (Open Food Facts), `spring.task.scheduling.pool.size=4`.
 
@@ -280,7 +284,8 @@ Versions read from `frontend/package.json` and `backend/pom.xml`.
 | What fails                                                                                          | What the user sees                                          | What the system does                                                                                                                                                                                                                                                     |
 | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Any of the five public bucket variables blank                                                       | No photos; the empty tile; uploads answer 503 "unavailable" | `DisabledProductImageStore`: the read APIs return empty lists, only the catalogue part of the weekly import runs                                                                                                                                                         |
-| The private bucket blank                                                                            | Photos show, uploads answer 503                             | Uploads need both stores                                                                                                                                                                                                                                                 |
+| Any `R2_ORIGINALS_*` variable (or `R2_ENDPOINT`) blank                                              | Photos show, uploads answer 503                             | `DisabledProductOriginalStore`: uploads need both stores; Open Food Facts copies, public reads and the jobs keep working. Cropping, approving or opening a user photo answers 503 too, since the photo exists but its bucket is off                                      |
+| The card photo variables blank                                                                      | Nothing changes for product photos                          | Product code never reads the card bucket                                                                                                                                                                                                                                 |
 | Open Food Facts photo unreadable, gone (404, 410), too large (15 MB cap) or a key that forms no URL | Nothing; the next pick takes the slot                       | Hidden with `hidden_reason` `JOB_SKIPPED`, so it cannot block the queue; it comes back as a candidate when the weekly seed or "Dohvati" finds a new revision. An admin hide (`ADMIN`, or no reason on rows hidden before the column existed) never comes back on its own |
 | Any other answer for one image (403, 500)                                                           | Nothing yet                                                 | That photo waits an hour (`render_retry_at`); the fifth failure (`render_attempts`) skips it so the next pick or an upload takes the main slot                                                                                                                           |
 | Rate limiting (429), gateway errors (502 to 504), network or bucket trouble                         | Nothing yet                                                 | The whole batch pauses and retries at the next tick                                                                                                                                                                                                                      |
@@ -297,17 +302,18 @@ A successful copy clears `render_attempts` and `render_retry_at`.
 
 ## 17. What is automatic vs manual
 
-| Task                                                 | Automatic? | Who and where                                                                                        |
-| ---------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------- |
-| Weekly catalogue import and Open Food Facts seed     | ✅ auto    | backend job                                                                                          |
-| Copying main photos into the bucket                  | ✅ auto    | backend job, a few thousand an hour                                                                  |
-| Picking a main photo when nobody pinned one          | ✅ auto    | `MainPicker` on every change                                                                         |
-| Rendering an upload                                  | ✅ auto    | on upload                                                                                            |
-| **Creating the public bucket, its domain and token** | ❌ manual  | Owner, Cloudflare dashboard once (see [INFRASTRUCTURE.md](INFRASTRUCTURE.md#product-photo-env-vars)) |
-| **Setting the `R2_PUBLIC_*` variables**              | ❌ manual  | Agent or owner, Dokploy per environment, then restart the backend                                    |
-| **Choosing the best photo for popular products**     | ❌ manual  | An admin, the dashboard queue                                                                        |
-| **Handling reports**                                 | ❌ manual  | An admin, the `reported` filter                                                                      |
-| **Adding an `ImageStatus` or `ImageSource` value**   | ❌ manual  | Agent, updating the CHECK constraint in every database that has it (see [§18](#18-gotchas))          |
+| Task                                                                      | Automatic? | Who and where                                                                                                                                                                                  |
+| ------------------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Weekly catalogue import and Open Food Facts seed                          | ✅ auto    | backend job                                                                                                                                                                                    |
+| Copying main photos into the bucket                                       | ✅ auto    | backend job, a few thousand an hour                                                                                                                                                            |
+| Picking a main photo when nobody pinned one                               | ✅ auto    | `MainPicker` on every change                                                                                                                                                                   |
+| Rendering an upload                                                       | ✅ auto    | on upload                                                                                                                                                                                      |
+| **Creating the public bucket, its domain and token**                      | ❌ manual  | Owner, Cloudflare dashboard once (see [INFRASTRUCTURE.md](INFRASTRUCTURE.md#product-photo-env-vars))                                                                                           |
+| **Setting the `R2_PUBLIC_*` variables**                                   | ❌ manual  | Agent or owner, Dokploy per environment, then restart the backend                                                                                                                              |
+| **Creating the originals bucket and its token, setting `R2_ORIGINALS_*`** | ❌ manual  | Agent or owner, Wrangler or the Cloudflare dashboard, then Dokploy per environment, before `R2_PUBLIC_*` in production (see [INFRASTRUCTURE.md](INFRASTRUCTURE.md#product-originals-env-vars)) |
+| **Choosing the best photo for popular products**                          | ❌ manual  | An admin, the dashboard queue                                                                                                                                                                  |
+| **Handling reports**                                                      | ❌ manual  | An admin, the `reported` filter                                                                                                                                                                |
+| **Adding an `ImageStatus` or `ImageSource` value**                        | ❌ manual  | Agent, updating the CHECK constraint in every database that has it (see [§18](#18-gotchas))                                                                                                    |
 
 ---
 
@@ -329,7 +335,7 @@ A successful copy clears `render_attempts` and `render_retry_at`.
 ## 19. Future work
 
 - #463: remove the background from card and product photos with an AI model, so every product sits on the same clean white.
-- #464: store product photo originals in their own private R2 bucket, not the card photo bucket.
+- Erase a deleted user's product originals and clear `contributor_id` on account deletion (#202 covers account erasure); the separate bucket makes this possible without touching card data.
 - Contribute user photos back to Open Food Facts (their API accepts end-user photos), which would grow coverage of Croatian products.
 - Seed the gallery from the server render, so the first HTML shows the photo instead of a skeleton.
 - Thumbnails on shopping list rows, which do not use `ProductCard`.
