@@ -140,6 +140,9 @@ jobs:
           - image: backend
             context: backend
             target: runtime
+          - image: backup
+            context: backup
+            target: ""
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -157,7 +160,7 @@ jobs:
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ghcr.io/offcrazyfreak/disscount-${{ matrix.image }}
-          # The moving dev tag is set by the deploy job, once all three images exist.
+          # The moving dev tag is set by the deploy job, once every image exists.
           tags: type=sha,format=long
 
       # Only the frontend stages read these; the other images ignore them.

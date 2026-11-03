@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# One backup job per call: db-hourly, db-nightly, photos or dokploy.
+# Jobs only ever add objects; R2 lifecycle rules delete them, and Bucket Lock stops anyone deleting them early.
+set -euo pipefail
+
+job="${1:?usage: backup-job db-hourly|db-nightly|photos|dokploy}"
+work="$(mktemp -d /tmp/backup-"$job".XXXXXX)"
+log="$work/job.log"
+stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+remote="r2:$BACKUP_R2_BUCKET"
+
+ping() {
+  # healthchecks.io: start, success and fail per job, so a run that never happens also alerts.
+  [[ -n "${BACKUP_HEALTHCHECKS_PING_KEY:-}" ]] || return 0
+  local suffix="$1"
+  curl -fsS -m 10 --retry 3 -o /dev/null --data-binary "@${2:-/dev/null}" \
+    "https://hc-ping.com/$BACKUP_HEALTHCHECKS_PING_KEY/disscount-$job$suffix?create=1" || true
+}
+
+finish() {
+  local status=$?
+  # The scratch restore runs in the pipeline's subshell, so its server is stopped here, once.
+  if [[ -f "$work/scratch/pg/postmaster.pid" ]]; then
+    gosu postgres pg_ctl --pgdata="$work/scratch/pg" --silent --mode=fast stop || true
+  fi
+  if ((status == 0)); then
+    echo "backup $job: ok"
+    ping "" "$log"
+  else
+    echo "backup $job: failed with exit $status" | tee -a "$log" >&2
+    ping "/fail" "$log"
+  fi
+  rm -rf "$work"
+}
+
+# Encrypts a finished local file with age and uploads it under a name that is never reused.
+upload_encrypted() {
+  local source="$1" target="$2"
+  age -r "$BACKUP_AGE_RECIPIENT" -o "$source.age" "$source"
+  rclone copyto --s3-no-check-bucket "$source.age" "$remote/$target.age"
+  echo "uploaded $target.age ($(stat -c %s "$source.age") bytes)"
+}
+
+# pg_dump writes to a temp file first, so a failed or empty dump is never uploaded.
+dump_database() {
+  local file="$1"
+  shift
+  pg_dump --format=custom --compress=zstd "$@" --file="$file"
+  [[ -s "$file" ]] || { echo "dump is empty" >&2; return 1; }
+  pg_restore --list "$file" >/dev/null
+}
+
+# Restores the dump into a throwaway Postgres inside this container and compares user counts.
+scratch_restore() {
+  local dump="$1" data="$work/scratch"
+  chmod 755 "$work"
+  install -d -o postgres -g postgres "$data"
+  chown postgres "$dump"
+  gosu postgres initdb --pgdata="$data/pg" --auth=trust >/dev/null 2>&1
+  # The server gets its own log and no inherited descriptors, or it would hold the log pipe and the job lock open.
+  gosu postgres pg_ctl --pgdata="$data/pg" --silent --wait --log="$data/server.log" \
+    -o "-c listen_addresses='' -c unix_socket_directories=$data" start </dev/null >/dev/null 2>&1 9>&-
+  gosu postgres createdb --host="$data" restore
+  gosu postgres pg_restore --host="$data" --dbname=restore --no-owner --no-acl --exit-on-error "$dump"
+  local restored live
+  restored="$(gosu postgres psql --host="$data" --dbname=restore -Atc 'select count(*) from "user"')"
+  live="$(psql -Atc 'select count(*) from "user"')"
+  echo "scratch restore: $restored users restored, $live live"
+  # Sign-ups after the dump make the live count larger, never smaller.
+  ((restored > 0 && restored <= live)) || { echo "restored user count looks wrong" >&2; return 1; }
+  gosu postgres pg_ctl --pgdata="$data/pg" --silent --wait --mode=fast stop
+}
+
+run() {
+  case "$job" in
+    db-hourly)
+      dump_database "$work/db.dump"
+      upload_encrypted "$work/db.dump" "db/hourly/$stamp.dump"
+      ;;
+    db-nightly)
+      dump_database "$work/db.dump"
+      pg_dumpall --globals-only --no-role-passwords >"$work/globals.sql"
+      upload_encrypted "$work/db.dump" "db/nightly/$stamp.dump"
+      upload_encrypted "$work/globals.sql" "db/nightly/$stamp.globals.sql"
+      scratch_restore "$work/db.dump"
+      ;;
+    photos)
+      # A new generation starts every 14 days; its first run copies everything, later runs only new files.
+      local generation=$(($(date -u +%s) / 86400 / 14))
+      local folder
+      for folder in private public; do
+        [[ -d "/data/photos-$folder" ]] || { echo "/data/photos-$folder is not mounted" >&2; return 1; }
+        # Keys are unique per upload, so a file already in the generation never needs replacing.
+        rclone copy --ignore-existing --exclude '.tmp-*' --stats-one-line --stats 0 \
+          "/data/photos-$folder" "photos:gen-$generation/$folder"
+      done
+      echo "photos copied into generation $generation"
+      ;;
+    dokploy)
+      PGHOST=dokploy-postgres PGUSER=dokploy PGDATABASE=dokploy \
+        PGPASSWORD="${BACKUP_DOKPLOY_DB_PASSWORD:?BACKUP_DOKPLOY_DB_PASSWORD is not set}" \
+        dump_database "$work/dokploy.dump"
+      # Cloned repositories and deploy logs are rebuilt by a redeploy, so they stay out.
+      tar -C /host/etc/dokploy --exclude=.git --exclude=./logs -cf "$work/etc-dokploy.tar" .
+      upload_encrypted "$work/dokploy.dump" "dokploy/$stamp.dump"
+      upload_encrypted "$work/etc-dokploy.tar" "dokploy/$stamp.etc.tar"
+      ;;
+    *)
+      echo "unknown job: $job" >&2
+      return 2
+      ;;
+  esac
+}
+
+exec 9>"/tmp/backup-$job.lock"
+flock -n 9 || { echo "backup $job: previous run still going, skipping"; exit 0; }
+
+trap finish EXIT
+ping "/start"
+run 2>&1 | tee "$log"
