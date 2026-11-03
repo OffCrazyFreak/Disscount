@@ -20,7 +20,6 @@ import {
 import { applyProblemToForm } from "@/lib/api/problem-details";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useFormDraft } from "@/hooks/use-form-draft";
-import { getFormDraft } from "@/utils/browser/local-storage";
 import { useUser } from "@/context/user-context";
 import { GITHUB_REPO_URL } from "@/constants/contact";
 
@@ -55,7 +54,7 @@ export default function ContactModal({ open }: IContactModalProps) {
   const t = useTranslations("common");
   const tAuth = useTranslations("auth");
   const pathname = usePathname();
-  const { user } = useUser();
+  const { user, isLoading: isUserLoading } = useUser();
   const createMessage = contactService.useCreateContactMessage();
 
   const form = useForm<ContactMessageRequest>({
@@ -64,27 +63,23 @@ export default function ContactModal({ open }: IContactModalProps) {
     defaultValues: EMPTY_VALUES,
   });
 
-  // Draft wins over the profile prefill, and neither runs mid-edit.
+  // Waits for the profile: restoring the draft first would make the form dirty over
+  // empty defaults, and the late prefill must never overwrite a field the user edited.
+  const isReady = open && !isUserLoading;
+
+  // The profile becomes the defaults, so the draft engine diffs against it and its
+  // restore, which runs after this effect, lays the draft on top.
   useEffect(() => {
-    if (!open || form.formState.isDirty) return;
+    if (!isReady) return;
 
-    const profileBase = profileValues(user);
-
-    form.reset(profileBase);
-
-    const draft = getFormDraft(DRAFT_KEY)?.values as
-      Partial<ContactMessageRequest> | undefined;
-    if (draft && Object.keys(draft).length > 0) {
-      form.reset({ ...profileBase, ...draft }, { keepDefaultValues: true });
-    }
-  }, [open, user, form]);
+    form.reset(profileValues(user), { keepDirtyValues: true, keepDirty: true });
+  }, [isReady, user, form]);
 
   // Neither is user content, so keep them out of localStorage.
   const { restored, clearDraft } = useFormDraft({
     draftKey: DRAFT_KEY,
     form,
-    enabled: open,
-    restore: false,
+    enabled: isReady,
     exclude: ["sourcePath", "honeypot"],
   });
 
