@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  catalogEans,
+  itemsToCompare,
+} from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
 import { useMemo } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { ShoppingListDto } from "@/lib/api/types";
@@ -31,16 +35,14 @@ export function useStoreChainAnalysis({
   distanceByChain,
 }: IUseStoreChainAnalysisParams) {
   const activeItems = useMemo(
-    () => (shoppingList.items ?? []).filter((item) => !item.isChecked),
+    () => itemsToCompare(shoppingList.items),
     [shoppingList.items],
   );
 
-  const eans = useMemo(() => {
-    return (
-      shoppingList.items?.filter((item) => item.ean).map((item) => item.ean) ||
-      []
-    );
-  }, [shoppingList.items]);
+  const eans = useMemo(
+    () => catalogEans(shoppingList.items),
+    [shoppingList.items],
+  );
 
   // combine is memoised by TanStack, so productsData keeps a stable identity between renders.
   const { productsData, productsLoading } = useQueries({
@@ -107,7 +109,6 @@ export function useStoreChainAnalysis({
   ]);
 
   return {
-    activeItems,
     allChains,
     productsLoading,
     productsData,

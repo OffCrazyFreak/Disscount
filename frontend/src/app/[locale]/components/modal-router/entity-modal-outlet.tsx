@@ -36,6 +36,10 @@ const AddToShoppingListModal = dynamic(
     import("@/app/[locale]/products/components/forms/add-to-shopping-list-form"),
   { ssr: false },
 );
+const AddPlainItemModal = dynamic(
+  () => import("@/app/[locale]/products/components/forms/add-plain-item-modal"),
+  { ssr: false },
+);
 const WatchlistItemModal = dynamic(
   () => import("@/app/[locale]/products/components/forms/watchlist-item-modal"),
   { ssr: false },
@@ -45,6 +49,7 @@ const ENTITY_NAMES = [
   "shopping-list",
   "digital-card",
   "add-to-list",
+  "add-plain-item",
   "watchlist",
 ] as const;
 
@@ -114,9 +119,19 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
       // openings, so a reused instance handed product B product A's draft.
       return (
         <AddToShoppingListModal
-          key={rendered.ean}
+          key={`${rendered.ean}.${rendered.listId}`}
           open={open}
           ean={rendered.ean}
+          listId={rendered.listId}
+        />
+      );
+    case "add-plain-item":
+      // Keyed on the name so a new empty search starts from its own query.
+      return (
+        <AddPlainItemModal
+          key={rendered.itemName}
+          open={open}
+          itemName={rendered.itemName}
         />
       );
     case "watchlist":

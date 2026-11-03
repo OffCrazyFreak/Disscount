@@ -19,6 +19,14 @@ export default function ItemPriceDisplay({
   const t = useTranslations("shoppingListDetail");
   const locale = useLocale();
 
+  if (!item.ean) {
+    return (
+      <div className="flex-shrink-0 text-sm text-muted-foreground">
+        {t("items.noPrice")}
+      </div>
+    );
+  }
+
   // Average price - from DB for checked items, from API for unchecked items
   const displayPrice = item.isChecked ? item.avgPrice : averagePrice;
 

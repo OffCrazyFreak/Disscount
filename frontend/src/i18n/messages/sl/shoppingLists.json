@@ -123,7 +123,6 @@
   "validation": {
     "titleMin": "Ime mora imeti vsaj 3 znake",
     "titleMax": "Ime sme imeti največ 100 znakov",
-    "eanRequired": "Koda EAN je obvezna",
     "nameRequired": "Ime izdelka je obvezno",
     "amountMin": "Količina mora biti večja od 0",
     "amountMax": "Količina ne sme biti večja od 999"

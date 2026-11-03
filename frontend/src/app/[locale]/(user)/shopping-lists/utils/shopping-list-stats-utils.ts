@@ -78,3 +78,11 @@ export function calculateShoppingListStats(
     potentialCostForChecked,
   };
 }
+
+/** Plain items, and products no store prices today, add nothing to the totals. */
+export function countUnpricedItems(
+  items: Array<{ id: string }>,
+  averagePrices: Record<string, number>,
+): number {
+  return items.filter((item) => !(averagePrices[item.id] > 0)).length;
+}

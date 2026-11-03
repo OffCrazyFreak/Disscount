@@ -183,7 +183,9 @@
     "enterQueryTitle": "Unesi pojam za pretragu",
     "enterQueryText": "Filteri su postavljeni, rezultati će se prikazati nakon pretrage",
     "startTitle": "Pretraži proizvode",
-    "startText": "Unesi naziv proizvoda koji tražiš"
+    "startText": "Unesi naziv proizvoda koji tražiš",
+    "noResultsAddPlain": "Nismo našli proizvod s tim nazivom. Možeš ga ipak dodati na popis.",
+    "addPlainItem": "Dodaj „{query}” na popis"
   },
   "viewSwitcher": {
     "label": "Način prikaza",
@@ -219,5 +221,14 @@
   },
   "storeChainSelect": {
     "multiPlaceholder": "Odaberi trgovačke lance..."
+  },
+  "addPlainItem": {
+    "title": "Dodaj stavku na popis",
+    "description": "Stavka nema cijenu, ali ostaje na popisu da je ne zaboraviš.",
+    "nameLabel": "Naziv",
+    "toast": {
+      "added": "Stavka je dodana u \"{name}\"",
+      "quantityIncreased": "Količina stavke je povećana u \"{name}\""
+    }
   }
 }
