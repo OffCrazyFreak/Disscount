@@ -91,7 +91,7 @@ describe("useDistanceOrigin", () => {
   });
 
   it("starts a saved namesake from the county it was saved with", () => {
-    user = { pinnedPlaces: [{ placeApiId: "Sveta Nedelja|52" }] };
+    user = { pinnedPlaces: [{ placeApiId: "Sveta Nedelja|istria" }] };
     const stores = [
       store("Sveta Nedelja", 45.8, 15.78, "10431"),
       store("Sveta Nedelja", 45.06, 14.06, "52466"),
