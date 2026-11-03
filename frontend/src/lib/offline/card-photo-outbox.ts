@@ -11,7 +11,10 @@ import {
 import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import { failureAction, httpStatus } from "@/lib/offline/failure-policy";
 import { deleteIf } from "@/lib/offline/idb-transactions";
-import { whenPurgesSettled } from "@/lib/offline/purge-gate";
+import {
+  canWriteAfterPurges,
+  currentPurgeGeneration,
+} from "@/lib/offline/purge-gate";
 import { photoSlotKey, runExclusive } from "@/lib/offline/slot-lock";
 
 interface IBytes {
@@ -57,6 +60,7 @@ async function writeEntry(
 ) {
   // Captured before any await: the entry belongs to the account that asked for it.
   const identity = getCacheIdentity();
+  const generation = currentPurgeGeneration();
   const entry = await build({
     identity,
     cardId,
@@ -64,8 +68,7 @@ async function writeEntry(
     nonce: crypto.randomUUID(),
   });
 
-  await whenPurgesSettled();
-  if (getCacheIdentity() !== identity) return undefined;
+  if (!(await canWriteAfterPurges(generation))) return undefined;
 
   await set(entryKey(identity, cardId, slot), entry, outboxStore());
   return entry.nonce;

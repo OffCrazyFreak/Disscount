@@ -1,9 +1,8 @@
 import { createStore, delMany, get, keys, set } from "idb-keyval";
 
 import type { CardPhotoSize, CardPhotoSlot } from "@/constants/card-codes";
-import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import { updateIfPresent } from "@/lib/offline/idb-transactions";
-import { whenPurgesSettled } from "@/lib/offline/purge-gate";
+import { canWriteAfterPurges } from "@/lib/offline/purge-gate";
 
 interface IStoredPhoto {
   buf: ArrayBuffer;
@@ -51,17 +50,20 @@ export async function readPhoto(key: string): Promise<Blob | undefined> {
   return new Blob([stored.buf], { type: stored.type });
 }
 
-export async function writePhoto(key: string, blob: Blob): Promise<void> {
+/** @param generation taken before the fetch, which can outlive a purge of the account. */
+export async function writePhoto(
+  key: string,
+  blob: Blob,
+  generation: number,
+): Promise<void> {
   const value: IStoredPhoto = {
     buf: await blob.arrayBuffer(),
     type: blob.type,
     usedAt: Date.now(),
   };
 
-  await whenPurgesSettled();
-  // The fetch can outlive a logout; a blob written for the departed account would sit
-  // there until the next prune.
-  if (!key.startsWith(`${getCacheIdentity()}:`)) return;
+  // A blob written for a purged account would sit there until the next prune.
+  if (!(await canWriteAfterPurges(generation))) return;
 
   await set(key, value, photoStore());
 }

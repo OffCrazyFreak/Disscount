@@ -10,7 +10,10 @@ import { postCardsUsed } from "@/lib/api/digital-cards/queries";
 import type { DigitalCardDto } from "@/lib/api/types";
 import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import { deleteIf } from "@/lib/offline/idb-transactions";
-import { whenPurgesSettled } from "@/lib/offline/purge-gate";
+import {
+  canWriteAfterPurges,
+  currentPurgeGeneration,
+} from "@/lib/offline/purge-gate";
 
 /**
  * Last-used tracking is a local queue, not a paused mutation: opening a card must never
@@ -125,14 +128,14 @@ export function recordCardUsed(id: string): void {
 
   // The backend reads usedAt as an Instant, so the queue keeps the offset-bearing form.
   const entry: IQueuedUse = { id, usedAt: new Date().toISOString() };
-  const identity = getCacheIdentity();
-  const key = `${identity}:${id}`;
+  const key = `${getCacheIdentity()}:${id}`;
+  const generation = currentPurgeGeneration();
 
-  void whenPurgesSettled()
-    .then(async () => {
+  void canWriteAfterPurges(generation)
+    .then(async (canWrite) => {
       // A use recorded just before a sign out would otherwise land after the purge and
       // put the departed account's card history back on disk.
-      if (getCacheIdentity() !== identity) return;
+      if (!canWrite) return;
 
       await set(key, entry, queueStore());
       scheduleFlush();
