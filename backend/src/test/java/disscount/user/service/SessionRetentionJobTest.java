@@ -50,10 +50,10 @@ class SessionRetentionJobTest {
     }
 
     @Test
-    void clearsTheAddressOfAStillActiveSessionOnceItIsThirtyDaysOld() {
+    void clearsTheAddressOfAStillActiveSessionADayBeforeItTurnsThirtyDaysOld() {
         LocalDateTime now = Timestamps.nowUtc();
-        insertSession("old-but-active", now.plusDays(25), now.minusDays(30));
-        insertSession("recent", now.plusDays(25), now.minusDays(29).plus(Duration.ofHours(2)));
+        insertSession("old-but-active", now.plusDays(25), now.minusDays(29).minus(Duration.ofHours(1)));
+        insertSession("recent", now.plusDays(25), now.minusDays(29).plus(Duration.ofHours(1)));
 
         job.sweep();
 
