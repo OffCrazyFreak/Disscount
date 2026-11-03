@@ -15,13 +15,16 @@ const CLOUDFLARE_EDGE = "172.70.1.2";
 
 let frontend: Server | undefined;
 
-afterEach(() => {
-  frontend?.close();
+afterEach(async () => {
+  const closing = frontend;
   frontend = undefined;
+  if (!closing) return;
+  closing.closeAllConnections();
+  await new Promise((resolve) => closing.close(resolve));
 });
 
-// Stands in for the Next server: hands each request to the same proxy the /api rewrite
-// uses, so the test pins what Spring receives, not what the rewrite rule looks like.
+// Stands in for the Next server with the proxy function its external rewrites use. It pins
+// what that proxy hands Spring, not the rewrite rule in next.config.ts.
 async function startFrontend(): Promise<string> {
   frontend = createServer((request, response) => {
     void proxyRequest(

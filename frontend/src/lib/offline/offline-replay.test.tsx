@@ -13,6 +13,7 @@ import { setAuthTokenUser } from "@/lib/api/api-base";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
 import { persistOptions } from "@/lib/offline/persister";
+import { actingAs, unsignedJwt } from "@/test/backend-identity";
 import { server } from "@/test/msw-server";
 
 // Named .tsx only for the jsdom project: the API client attaches no token without a window.
@@ -20,21 +21,6 @@ import { server } from "@/test/msw-server";
 const LIST_ID = "5b0e6c1a-7d2f-4e8a-9c3b-1f4d6a8e2c70";
 const ITEM_ID = "0f3a9d52-6c1e-4b7a-8e2d-9a4c5b6d7e81";
 const CARD_ID = "7c2e1b94-3a5d-4f6e-9b8c-1d2e3f4a5b6c";
-
-function unsignedJwt(sub: string): string {
-  const encode = (value: object) =>
-    btoa(JSON.stringify(value)).replace(/=+$/, "");
-  const exp = Math.floor(Date.now() / 1000) + 600;
-  return `${encode({ alg: "none" })}.${encode({ sub, exp })}.signature`;
-}
-
-// Who Spring acts as for a request: the only place that knows how the browser proves it.
-function actingAs(request: Request): string {
-  const token = request.headers.get("Authorization")?.replace("Bearer ", "");
-  if (!token) return "anonymous";
-
-  return (JSON.parse(atob(token.split(".")[1])) as { sub: string }).sub;
-}
 
 function replayClient() {
   const queryClient = new QueryClient();

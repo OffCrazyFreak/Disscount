@@ -11,6 +11,7 @@ import {
   setCacheIdentity,
 } from "@/lib/offline/cache-identity";
 import { purgeOfflineCache } from "@/lib/offline/purge";
+import { ANONYMOUS, actingAs, unsignedJwt } from "@/test/backend-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 
@@ -39,24 +40,6 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 
 vi.mock("@/lib/offline/purge", () => ({ purgeOfflineCache: vi.fn() }));
-
-const ANONYMOUS = "anonymous";
-
-function unsignedJwt(sub: string): string {
-  const encode = (value: object) =>
-    btoa(JSON.stringify(value)).replace(/=+$/, "");
-  const exp = Math.floor(Date.now() / 1000) + 600;
-  return `${encode({ alg: "none" })}.${encode({ sub, exp })}.signature`;
-}
-
-// Who Spring acts as for a request: the only place that knows how the browser proves it.
-function actingAs(request: Request): string {
-  const token = request.headers.get("Authorization")?.replace("Bearer ", "");
-  if (!token) return ANONYMOUS;
-
-  const payload = token.split(".")[1];
-  return (JSON.parse(atob(payload)) as { sub: string }).sub;
-}
 
 /** A backend that answers as whoever the request proves, and records who that was. */
 function serveBackend() {
@@ -162,6 +145,20 @@ describe("UserProvider account switch", () => {
     expect(purgeOfflineCache).toHaveBeenCalledOnce();
     expect(vi.mocked(purgeOfflineCache).mock.calls[0][1]).toBe("user-a");
     expect(getCacheIdentity()).toBe("user-b");
+  });
+});
+
+describe("UserProvider behind a sign-in in another tab", () => {
+  it("never acts as the account the cookie names until the tab learns of it", async () => {
+    tab.userId = "user-a";
+    cookie.userId = "user-b";
+    const seen = serveBackend();
+    renderAccount();
+
+    await waitFor(() => expect(seen.profile.length).toBeGreaterThan(0));
+    await apiClient.get("/api/probe");
+
+    expect([...seen.profile, ...seen.probe]).not.toContain("user-b");
   });
 });
 
