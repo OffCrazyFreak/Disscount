@@ -24,7 +24,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { LOCALES, OPEN_GRAPH_LOCALES } from "@/i18n/locales";
 import { huninn, sairaStencil } from "@/app/fonts";
-import { appUrl } from "@/lib/env";
+import { appUrl, clientEnv } from "@/lib/env";
 import { iosStartupImages } from "@/constants/ios-startup-images";
 import { X_HANDLE } from "@/constants/social";
 
@@ -35,7 +35,7 @@ export function generateStaticParams() {
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
   const t = await getTranslations("metadata");
-  const indexable = isIndexableOrigin(process.env.NEXT_PUBLIC_APP_URL);
+  const indexable = isIndexableOrigin(clientEnv.NEXT_PUBLIC_APP_URL);
 
   return {
     metadataBase: new URL(appUrl()),
@@ -170,11 +170,11 @@ export default async function RootLayout({
           {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__installPrompt=e;});`}
         </Script>
 
-        {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
+        {clientEnv.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
           <Script
             defer
             src="https://cloud.umami.is/script.js"
-            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+            data-website-id={clientEnv.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
             strategy="afterInteractive"
           />
         )}
