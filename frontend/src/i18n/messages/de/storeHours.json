@@ -13,6 +13,6 @@
     "osm": "Quelle: OpenStreetMap (Community-Daten)"
   },
   "check": "Prüfen",
-  "checkLabel": "Prüfe die Öffnungszeiten auf der Seite des Geschäfts (öffnet sich in einem neuen Tab)",
+  "checkLabel": "Öffnungszeiten auf der Seite des Geschäfts prüfen (öffnet sich in einem neuen Tab)",
   "changed": "{store}: {status}"
 }

@@ -44,15 +44,17 @@ export function useMapViewModel(ipLocation: IIpLocation | null) {
     ipLocation,
   );
 
-  // Until the hours load, the filter waits rather than emptying the list.
-  function keep(store: (typeof stores)[number]) {
-    if (!hours || url.openFilter === "off") return true;
-
-    return passesOpenFilter(
-      openingOf(toStoreKey(store.chain, store.code), hours),
-      url.openFilter,
-    );
-  }
+  const { openFilter } = url;
+  // Until the hours load, the filter waits rather than emptying the list; off,
+  // it passes nothing, so the minute clock does not rebuild every pin.
+  const keep =
+    hours && openFilter !== "off"
+      ? (store: (typeof stores)[number]) =>
+          passesOpenFilter(
+            openingOf(toStoreKey(store.chain, store.code), hours),
+            openFilter,
+          )
+      : undefined;
 
   const { listed, mappable, unplacedCount } = useVisibleStores({
     keep,

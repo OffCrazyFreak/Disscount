@@ -12,7 +12,7 @@ export function useStoreHoursNow({
   enabled = true,
 }: { enabled?: boolean } = {}): IStoreHoursNow | null {
   const { data } = useStoreHours({ enabled });
-  const now = useCurrentMinute();
+  const now = useCurrentMinute({ enabled });
 
   return enabled && data && now
     ? { data, holidays: new Set(data.holidays), now }

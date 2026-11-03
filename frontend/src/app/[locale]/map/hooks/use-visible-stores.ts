@@ -41,7 +41,7 @@ interface IUseVisibleStoresOptions {
   origin: ILatLon | null;
   /** False for an approximate origin: it still sorts, but shows no km. */
   showDistances: boolean;
-  /** A further filter, such as "open now". */
+  /** A further filter, such as "open now"; left out, the store list keeps its identity. */
   keep?: (store: DirectoryStoreDto) => boolean;
 }
 
@@ -56,12 +56,16 @@ export function useVisibleStores({
   query,
   origin,
   showDistances,
-  keep = () => true,
+  keep,
 }: IUseVisibleStoresOptions) {
-  const inChains = stores.filter(
-    (store) =>
-      (chains === ALL_CHAINS || chains.includes(store.chain)) && keep(store),
-  );
+  const inChains =
+    chains === ALL_CHAINS && !keep
+      ? stores
+      : stores.filter(
+          (store) =>
+            (chains === ALL_CHAINS || chains.includes(store.chain)) &&
+            (keep?.(store) ?? true),
+        );
 
   const rows = inChains.map((store) => ({
     store,

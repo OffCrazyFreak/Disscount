@@ -14,12 +14,15 @@ function msToNextMinute(now: number) {
  * closing time. Null until mounted, because the server's clock and a
  * visitor's would render different badges.
  */
-export function useCurrentMinute(): Date | null {
+export function useCurrentMinute({
+  enabled = true,
+}: { enabled?: boolean } = {}): Date | null {
   const isVisible = usePageVisible();
   const [now, setNow] = useState<Date | null>(null);
+  const isTicking = enabled && isVisible;
 
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isTicking) return;
 
     let timer: ReturnType<typeof setTimeout>;
 
@@ -31,7 +34,7 @@ export function useCurrentMinute(): Date | null {
     tick();
 
     return () => clearTimeout(timer);
-  }, [isVisible]);
+  }, [isTicking]);
 
   return now;
 }
