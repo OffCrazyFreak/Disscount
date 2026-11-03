@@ -15,6 +15,7 @@ export default defineConfig({
   schema: [
     "./src/db/auth-schema.ts",
     "./src/db/store-location-schema.ts",
+    "./src/db/store-hours-schema.ts",
     "./src/db/email-send-schema.ts",
   ],
   out: "./drizzle",
