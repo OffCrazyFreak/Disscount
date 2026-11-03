@@ -1,6 +1,7 @@
 // The public DSN is baked in at build time per environment (changing it needs a
 // redeploy) and no-ops cleanly when unset.
 import * as Sentry from "@sentry/nextjs";
+import { z } from "zod";
 
 import { moveResetTokenOutOfUrl } from "@/lib/auth/reset-token-storage";
 import { SENTRY_APPLICATION_KEY } from "@/lib/sentry/application-key";
@@ -14,6 +15,10 @@ import {
   scrubBreadcrumbOnPage,
 } from "@/lib/sentry/shopping-list-privacy";
 import { clientEnv } from "@/lib/env";
+
+// The production CSP blocks eval, and Zod's first object parse otherwise probes
+// `new Function`, which logs a CSP violation even though Zod falls back.
+z.config({ jitless: true });
 
 const isResetTokenInUrl = moveResetTokenOutOfUrl();
 
