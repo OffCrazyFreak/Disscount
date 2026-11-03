@@ -1,11 +1,7 @@
 "use client";
 
 import { memo, useState, useCallback } from "react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Card, CardContent } from "@/components/ui/card";
 import { ShoppingListDto } from "@/lib/api/types";
 import { useUser } from "@/context/user-context";
@@ -61,19 +57,15 @@ function ShoppingListStoreItemComponent({
         open={expandedStore === chain.chain}
         onOpenChange={() => toggleStoreExpansion(chain.chain)}
       >
-        <CollapsibleTrigger asChild className="cursor-pointer">
-          <button type="button" className="w-full text-left">
-            <StoreCardHeader
-              chain={chain}
-              metrics={metrics}
-              pinnedStoresCount={accountUser?.pinnedStores?.length ?? 0}
-              hasLowestPriceItem={hasLowestPriceItem}
-              hasHighestPriceItem={hasHighestPriceItem}
-              isExpanded={expandedStore === chain.chain}
-              nearest={nearest}
-            />
-          </button>
-        </CollapsibleTrigger>
+        <StoreCardHeader
+          chain={chain}
+          metrics={metrics}
+          pinnedStoresCount={accountUser?.pinnedStores?.length ?? 0}
+          hasLowestPriceItem={hasLowestPriceItem}
+          hasHighestPriceItem={hasHighestPriceItem}
+          isExpanded={expandedStore === chain.chain}
+          nearest={nearest}
+        />
 
         <CollapsibleContent>
           <CardContent className="pt-0">
