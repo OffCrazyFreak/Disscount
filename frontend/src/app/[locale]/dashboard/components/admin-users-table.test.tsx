@@ -8,6 +8,7 @@ import AdminUsersTable from "@/app/[locale]/dashboard/components/admin-users-tab
 import type { AccountType, UserDto } from "@/lib/api/schemas/auth-user";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
+import { storedUser } from "@/test/stored-user";
 
 // The session is a boundary the suite cannot run: signed in as another admin.
 vi.mock("@/context/user-context", () => ({
@@ -15,16 +16,8 @@ vi.mock("@/context/user-context", () => ({
 }));
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
-const ANA = {
-  id: "ana",
-  username: "ana",
-  accountType: "CONSUMER",
-} satisfies Partial<UserDto>;
-const IVO = {
-  id: "ivo",
-  username: "ivo",
-  accountType: "CONSUMER",
-} satisfies Partial<UserDto>;
+const ANA = { ...storedUser, id: "ana", username: "ana" } satisfies UserDto;
+const IVO = { ...storedUser, id: "ivo", username: "ivo" } satisfies UserDto;
 
 function held() {
   let release = () => {};
@@ -32,7 +25,7 @@ function held() {
   return { promise, release };
 }
 
-function serveUsers(users: () => Partial<UserDto>[]) {
+function serveUsers(users: () => UserDto[]) {
   return http.get("*/api/admin/users", () => HttpResponse.json(users()));
 }
 
