@@ -123,7 +123,6 @@
   "validation": {
     "titleMin": "Enter a name with at least 3 characters",
     "titleMax": "Enter a name of up to 100 characters",
-    "eanRequired": "EAN code is required",
     "nameRequired": "Product name is required",
     "amountMin": "Quantity must be greater than 0",
     "amountMax": "Quantity can't be greater than 999"

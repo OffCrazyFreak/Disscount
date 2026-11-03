@@ -14,6 +14,8 @@ export function useSelectedShoppingList(
   ean: string | undefined,
   enabled: boolean,
   restoredListId: string | null,
+  /** The list the modal was opened from, chosen over the most recent one. */
+  preferredListId?: string,
 ) {
   // The preselect effect's first run lands before the modal portal registers the field,
   // so resetField no-ops; it only succeeds because a later render re-runs the effect.
@@ -36,9 +38,9 @@ export function useSelectedShoppingList(
   const { data: selectedShoppingList } =
     shoppingListService.useGetShoppingListById(selectedListId);
 
-  const duplicateItem = selectedShoppingList?.items?.find(
-    (item) => item.ean === ean,
-  );
+  const duplicateItem = ean
+    ? selectedShoppingList?.items?.find((item) => item.ean === ean)
+    : undefined;
   const isAutomaticSelectionRef = useRef(true);
 
   useEffect(() => {
@@ -57,13 +59,16 @@ export function useSelectedShoppingList(
     if (!isAutomaticSelectionRef.current && currentExists) return;
     isAutomaticSelectionRef.current = true;
 
-    const newestListId = sortedShoppingLists[0]?.id ?? "";
-    if (current === newestListId) return;
+    const defaultListId =
+      sortedShoppingLists.find((list) => list.id === preferredListId)?.id ??
+      sortedShoppingLists[0]?.id ??
+      "";
+    if (current === defaultListId) return;
 
     form.resetField("shoppingListId", {
-      defaultValue: newestListId,
+      defaultValue: defaultListId,
     });
-  }, [sortedShoppingLists, form, restoredListId]);
+  }, [sortedShoppingLists, form, restoredListId, preferredListId]);
 
   function selectList(listId: string) {
     isAutomaticSelectionRef.current = false;

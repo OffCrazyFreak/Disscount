@@ -30,7 +30,8 @@ export type ModalTarget =
   | { name: "digital-card"; action: "edit"; id: string }
   | { name: "digital-card"; action: "view"; id: string }
   | { name: "shopping-list-actions"; id: string }
-  | { name: "add-to-list"; ean: string }
+  | { name: "add-to-list"; ean: string; listId?: string }
+  | { name: "add-plain-item"; itemName?: string }
   | { name: "product-actions"; ean: string }
   | { name: "watchlist"; ean: string; watchType?: WatchTypeParam };
 

@@ -9,7 +9,9 @@ import disscount.favoriteStore.service.FavoriteStoreService;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.ConflictException;
 import disscount.user.dao.AuthIdentityDao;
+import disscount.user.dao.ErasureLedgerRepository;
 import disscount.user.dao.UserRepository;
+import disscount.user.domain.ErasureLedgerEntry;
 import disscount.user.domain.User;
 import disscount.user.domain.enums.AccountType;
 import disscount.user.dto.AuthIdentity;
@@ -45,6 +47,7 @@ public class UserService {
     private final UserProfileCreator profileCreator;
     private final DigitalCardService digitalCardService;
     private final FavoriteStoreService favoriteStoreService;
+    private final ErasureLedgerRepository erasureLedger;
 
     // Compared against better-auth's UTC session timestamps, so the JVM zone must not leak in.
     private static LocalDateTime nowUtc() {
@@ -62,12 +65,22 @@ public class UserService {
 
     /**
      * Idempotent upsert called on every authenticated request via UserProvisioningFilter.
-     * Creates the profile row on first login, or revives a soft-deleted one.
+     * Creates the profile row on first login, or revives a soft-deleted one, unless the
+     * account was erased: then the login outlived a failed deletion, and the caller is told
+     * so the browser can finish it.
+     *
+     * @throws AccountErasedException when the id has a tombstone
      */
     public void ensureActiveProfile(UUID id, String email, String name, String image) {
         if (email == null) return;
 
         Optional<User> existing = userRepository.findById(id);
+        // Checked only off the hot path: an active profile cannot have been erased.
+        boolean mayBeErased = existing.map(user -> user.getDeletedAt() != null).orElse(true);
+        if (mayBeErased && erasureLedger.existsById(id)) {
+            throw new AccountErasedException();
+        }
+
         if (existing.isPresent()) {
             User user = existing.get();
             boolean changed = false;
@@ -230,23 +243,29 @@ public class UserService {
      * Anonymizes the profile: nulls PII fields and soft-deletes.
      * The row is kept so business data (watchlists, shopping lists, etc.) remains intact,
      * except digital cards, which are hard deleted together with their photos.
-     * better-auth identity must be deleted separately via authClient.deleteUser() on the frontend.
+     * Records a tombstone in the same transaction. Idempotent, and succeeds for an identity
+     * that never got a profile, because better-auth's beforeDelete hook calls it and only
+     * deletes the identity once this has committed, so any refusal here blocks the deletion.
      */
     public void deleteAccount(UUID userId) {
         // Locked so a card write racing the deletion waits and then finds a deleted user.
-        User user = userRepository.findByIdForUpdate(userId)
-                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
-
-        user.setUsername(null);
-        user.setImage(null);
-        user.setDeletedAt(nowUtc());
-        // Flushed now because the card purge below clears the persistence context, dropping any unsaved change.
-        userRepository.saveAndFlush(user);
+        userRepository.findByIdForUpdate(userId).ifPresent(user -> {
+            user.setUsername(null);
+            user.setImage(null);
+            user.setDeletedAt(nowUtc());
+            // Flushed now because the card purge below clears the persistence context, dropping any unsaved change.
+            userRepository.saveAndFlush(user);
+        });
 
         // Cards hold card numbers and photos, which must not outlive the account.
         digitalCardService.deleteAllForUser(userId);
         // Favourite stores show where the person shops.
         favoriteStoreService.deleteAllForUser(userId);
+
+        if (!erasureLedger.existsById(userId)) {
+            // Flushed so a concurrent deletion's tombstone collides here, where AccountErasureService can catch it.
+            erasureLedger.saveAndFlush(new ErasureLedgerEntry(userId, nowUtc()));
+        }
     }
 
     /**
@@ -306,6 +325,11 @@ public class UserService {
     public void deleteUserAsAdmin(UUID targetUserId, UUID adminUserId) {
         if (targetUserId.equals(adminUserId)) {
             throw new BadRequestException("error.user.cannotDeleteSelf");
+        }
+
+        // deleteAccount tolerates a missing profile for the deleteUser hook; an admin names a listed user.
+        if (!userRepository.existsById(targetUserId)) {
+            throw new BadRequestException("error.user.notFound");
         }
 
         authIdentityDao.deleteById(targetUserId);
