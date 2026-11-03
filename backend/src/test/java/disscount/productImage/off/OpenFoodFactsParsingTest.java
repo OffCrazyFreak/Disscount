@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +30,20 @@ class OpenFoodFactsParsingTest {
 
         assertThat(photos.fronts()).extracting(OffProductPhotos.Photo::externalKey).containsExactly("front_hr", "front_en");
         assertThat(photos.raws()).extracting(OffProductPhotos.Photo::externalKey).containsExactly("raw:2", "raw:1");
+    }
+
+    @Test
+    void aFrontWhoseRevIsNotAScalarStillParses() throws IOException {
+        String images = """
+                {"44": {"sizes": {}}, "front_hr": {"rev": {"unexpected": true}, "imgid": 44}}
+                """;
+
+        OffProductPhotos photos = OffProductPhotos.parse(new ObjectMapper().readTree(images));
+
+        assertThat(photos.fronts()).singleElement().satisfies(front -> {
+            assertThat(front.rev()).isEmpty();
+            assertThat(front.imgid()).isEqualTo("44");
+        });
     }
 
     @Test

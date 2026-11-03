@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 /** The photos Open Food Facts holds for one product: selected fronts per language, then raw uploads. */
 public record OffProductPhotos(List<Photo> fronts, List<Photo> raws) {
@@ -25,8 +24,7 @@ public record OffProductPhotos(List<Photo> fronts, List<Photo> raws) {
 
         Map<String, Photo> frontByImgid = new HashMap<>();
         List<String> rawIds = new ArrayList<>();
-        for (Iterator<Map.Entry<String, JsonNode>> it = images.fields(); it.hasNext(); ) {
-            Map.Entry<String, JsonNode> entry = it.next();
+        for (Map.Entry<String, JsonNode> entry : images.properties()) {
             String key = entry.getKey();
             JsonNode value = entry.getValue();
 
@@ -34,7 +32,7 @@ public record OffProductPhotos(List<Photo> fronts, List<Photo> raws) {
                 rawIds.add(key);
             } else if (key.startsWith("front_") && value.hasNonNull("rev")) {
                 String lang = key.substring("front_".length());
-                Photo photo = new Photo(key, value.get("rev").asText(), lang, value.path("imgid").asText(null));
+                Photo photo = new Photo(key, value.get("rev").asString(""), lang, value.path("imgid").asString(null));
                 String imgid = photo.imgid() == null ? key : photo.imgid();
                 Photo existing = frontByImgid.get(imgid);
                 if (existing == null || langRank(lang) < langRank(existing.lang())) {

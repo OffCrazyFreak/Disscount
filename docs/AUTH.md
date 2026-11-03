@@ -334,7 +334,7 @@ Frontend (versions from `frontend/package.json`):
 | `server-only`                 | `^0.0.1`              | Build-time guard so the Resend key cannot reach the client. |
 | `zod`                         | `^4.1.13`             | Request/schema validation.                                  |
 
-Backend: Spring Boot `3.5.16` on Java `21`, using `spring-boot-starter-oauth2-resource-server` (which brings in the Nimbus JOSE JWT library).
+Backend: Spring Boot `4.1.2` on Java `21`, using `spring-boot-starter-security-oauth2-resource-server` (which brings in the Nimbus JOSE JWT library).
 
 ## 13. Gotchas and lessons
 

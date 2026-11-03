@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -87,7 +87,7 @@ public class CatalogImportService {
         try (InputStream body = open(listUrl)) {
             JsonNode archives = json.readTree(body).path("archives");
             if (!archives.isArray() || archives.isEmpty()) throw new IOException("No cijene archives listed");
-            return archives.get(0).path("url").asText();
+            return archives.get(0).path("url").asString();
         }
     }
 
