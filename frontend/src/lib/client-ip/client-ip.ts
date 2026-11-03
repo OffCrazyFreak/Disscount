@@ -65,5 +65,16 @@ export function withTrustedClientIp(request: Request): Request {
   // Same trust rule as the address: only a Cloudflare edge may set the country.
   if (!isCloudflarePeer(headers)) headers.delete(CLIENT_COUNTRY_HEADER);
 
-  return new Request(request, { headers });
+  // Next passes route handlers a Proxy around the request, and Node 24's undici
+  // rejects new Request(proxy) on its private-field check, so copy it by parts.
+  // Node requires duplex for a streamed body; TypeScript's RequestInit lacks it.
+  const init: RequestInit & { duplex: "half" } = {
+    method: request.method,
+    headers,
+    body: request.body,
+    signal: request.signal,
+    duplex: "half",
+  };
+
+  return new Request(request.url, init);
 }

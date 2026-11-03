@@ -71,6 +71,17 @@ describe("resolveClientIp", () => {
   });
 });
 
+// Mirrors proxyNextRequest in Next's app route module: reads go to the target
+// and methods are bound to it. Only Node 24's undici throws on new Request(proxy).
+function nextProxy(request: Request): Request {
+  return new Proxy(request, {
+    get(target, prop) {
+      const value: unknown = Reflect.get(target, prop, target);
+      return typeof value === "function" ? value.bind(target) : value;
+    },
+  });
+}
+
 describe("withTrustedClientIp", () => {
   it("overwrites the client IP header with the resolved address", () => {
     const request = new Request("http://localhost/api/auth/sign-in/email", {
@@ -95,6 +106,32 @@ describe("withTrustedClientIp", () => {
     expect(withTrustedClientIp(request).headers.has(CLIENT_IP_HEADER)).toBe(
       false,
     );
+  });
+
+  it("accepts the Proxy Next wraps around a route handler's request", async () => {
+    const request = new Request("http://localhost/api/auth/sign-in/email", {
+      method: "POST",
+      headers: { "x-forwarded-for": DIRECT_CALLER },
+      body: '{"email":"a@b.hr"}',
+    });
+    const trusted = withTrustedClientIp(nextProxy(request));
+
+    expect(trusted.method).toBe("POST");
+    expect(trusted.headers.get(CLIENT_IP_HEADER)).toBe(DIRECT_CALLER);
+    // better-auth clones sign-in and sign-up requests before reading them.
+    await expect(trusted.clone().text()).resolves.toBe('{"email":"a@b.hr"}');
+    await expect(trusted.text()).resolves.toBe('{"email":"a@b.hr"}');
+  });
+
+  it("copies a bodyless GET through the Proxy", () => {
+    const request = new Request("http://localhost/api/auth/get-session", {
+      headers: { "x-forwarded-for": DIRECT_CALLER },
+    });
+
+    const trusted = withTrustedClientIp(nextProxy(request));
+
+    expect(trusted.method).toBe("GET");
+    expect(trusted.body).toBeNull();
   });
 
   it("keeps Cloudflare's country header from a Cloudflare edge", () => {
@@ -133,6 +170,18 @@ describe("withTrustedClientIp", () => {
     await expect(withTrustedClientIp(request).text()).resolves.toBe(
       '{"email":"a@b.hr"}',
     );
+  });
+
+  it("keeps the abort signal, so a dropped connection still cancels", () => {
+    const controller = new AbortController();
+    const request = new Request("http://localhost/api/auth/get-session", {
+      signal: controller.signal,
+    });
+
+    const trusted = withTrustedClientIp(nextProxy(request));
+    controller.abort();
+
+    expect(trusted.signal.aborted).toBe(true);
   });
 });
 
