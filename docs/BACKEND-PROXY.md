@@ -117,6 +117,8 @@ All of the proxy's own answers are `application/problem+json` with `status`, `ti
 | 504    | `backend_timeout`     | Spring took longer than 30 seconds.                                              | yes    |
 | 499    | none, empty body      | The browser went away; the Spring call is cancelled too.                         | no     |
 
+The price data routes under `/api/cijene/` build their 502 with the same helper, code `upstream_unavailable`, with no Sentry event (see `docs/PRODUCTS.md` §3).
+
 Sentry events carry only the tags `flow: backend-proxy`, `proxyFailure` and `pathRoot` (the first segment). Deeper segments hold list and card ids, and headers carry the session, so neither goes in.
 
 `lib/offline/failure-policy.ts` treats 401 and every 5xx as "keep", so a queued offline write survives every proxy failure.
