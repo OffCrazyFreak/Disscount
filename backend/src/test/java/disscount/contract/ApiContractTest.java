@@ -66,8 +66,12 @@ class ApiContractTest extends FullStackTest {
         Map<String, Collection<String>> enums = new TreeMap<>();
         for (var definition : scanner.findCandidateComponents("disscount")) {
             Class<?> type = Class.forName(definition.getBeanClassName());
+            // An enum constant with a body is its own class, and test enums never reach the wire.
+            if (!type.isEnum() || type.getProtectionDomain().getCodeSource().getLocation().getPath().contains("test-classes")) {
+                continue;
+            }
             List<String> values = Arrays.stream(type.getEnumConstants()).map(value -> ((Enum<?>) value).name()).sorted().toList();
-            enums.put(type.getSimpleName(), values);
+            assertThat(enums.put(type.getSimpleName(), values)).as("two enums named %s", type.getSimpleName()).isNull();
         }
         // Stored as a plain string, but it is an enum to everything that reads it.
         enums.put("CardPhotoSlot", DigitalCardPhotoService.SLOTS.stream().sorted().toList());

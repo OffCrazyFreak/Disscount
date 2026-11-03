@@ -95,6 +95,8 @@ const DTOS_WITHOUT_A_ZOD_SCHEMA = [
   "UpdateAccountTypeRequest",
 ];
 
+const NO_BACKEND_VALUES = "zod enum, backend states no values";
+
 // Each entry is a deliberate difference. One that stops differing fails the test, so none outlives its reason.
 const ACCEPTED_DRIFT: Record<string, string> = {
   // Filled on the client from the session and the preferences endpoints.
@@ -104,6 +106,22 @@ const ACCEPTED_DRIFT: Record<string, string> = {
   // Typed ListAccess in Java, but resolvedLinkAccess() never answers OWNER.
   "ShoppingListDto.linkAccess":
     "backend [NONE,VIEW,SHOP,EDIT,OWNER], zod [NONE,VIEW,SHOP,EDIT]",
+  // Rules, not shapes: the backend validates both with its own pattern or format.
+  "UserRequest.onboardingOutcome": "zod union, not compared",
+  "ContactMessageRequest.email": "zod union, not compared",
+  // Plain strings in Java. MIRRORED_ENUMS and the request's regex hold the values to the backend.
+  "CardPhotoDto.slot": NO_BACKEND_VALUES,
+  "DigitalCardDto.cardType": NO_BACKEND_VALUES,
+  "DigitalCardDto.codeType": NO_BACKEND_VALUES,
+  "DigitalCardDto.photos[].slot": NO_BACKEND_VALUES,
+  "ProductImageDto.source": NO_BACKEND_VALUES,
+  "ProductImageDto.status": NO_BACKEND_VALUES,
+  "ProductImagesDto.images[].source": NO_BACKEND_VALUES,
+  "ProductImagesDto.images[].status": NO_BACKEND_VALUES,
+  "AdminImageDto.source": NO_BACKEND_VALUES,
+  "AdminImageDto.status": NO_BACKEND_VALUES,
+  "AdminProductDto.images[].source": NO_BACKEND_VALUES,
+  "AdminProductDto.images[].status": NO_BACKEND_VALUES,
 };
 
 const { shape: userDtoShape } = userDtoSchema;
@@ -124,8 +142,8 @@ const MIRRORED_ENUMS: Record<string, string[]> = {
   WatchType: enumValues(watchlistItemDtoSchema.shape.watchType),
 };
 
-// Never reach the frontend: image bookkeeping, and the keys of backend-only tables.
-const BACKEND_ONLY_ENUMS = ["HiddenReason", "Preference", "Route"];
+// Why a photo was hidden is backend bookkeeping that no response carries.
+const BACKEND_ONLY_ENUMS = ["HiddenReason"];
 
 function enumValues(schema: z.ZodType): string[] {
   const described = describeZodSchema(schema);

@@ -68,8 +68,9 @@ function scalarDrift(backend: IJsonSchema, frontend: IJsonSchema) {
     (backend.type === "integer" && frontend.type === "number");
   if (!isCompatibleType) return `backend ${backend.type}, zod ${frontend.type}`;
 
+  if (!frontend.enum) return undefined;
   const backendValues = allowedValues(backend);
-  if (!frontend.enum || !backendValues) return undefined;
+  if (!backendValues) return "zod enum, backend states no values";
   return isSameSet(frontend.enum, backendValues)
     ? undefined
     : `backend [${backendValues}], zod [${frontend.enum}]`;
@@ -119,8 +120,8 @@ export function findDrift(
     : backendSchema;
   const frontend = withoutNull(zodSchema);
 
-  // A union such as "completed or skipped:<n>" states a rule, not one shape to compare.
-  if (frontend.anyOf) return {};
+  // Named rather than skipped, so a union can never hide a field or an enum unnoticed.
+  if (frontend.anyOf) return { [path]: "zod union, not compared" };
 
   const scalar = scalarDrift(backend, frontend);
   const { items: backendItems, additionalProperties: backendMap } = backend;

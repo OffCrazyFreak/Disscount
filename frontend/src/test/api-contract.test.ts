@@ -70,6 +70,19 @@ describe("findDrift", () => {
     });
   });
 
+  it("names an enum the backend states no values for, and a union", () => {
+    expect(
+      driftOf({
+        ...agreeing,
+        id: z.enum(["x"]),
+        code: z.enum(["x", "y"]).or(z.literal("")),
+      }),
+    ).toEqual({
+      "List.id": "zod enum, backend states no values",
+      "List.code": "zod union, not compared",
+    });
+  });
+
   it("names a type the zod schema would reject", () => {
     expect(driftOf({ ...agreeing, id: z.number() })).toEqual({
       "List.id": "backend string, zod number",
