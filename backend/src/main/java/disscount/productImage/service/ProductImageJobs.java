@@ -1,5 +1,6 @@
 package disscount.productImage.service;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,6 +31,7 @@ public class ProductImageJobs {
 
     private static final Logger log = LoggerFactory.getLogger(ProductImageJobs.class);
     static final String WEEKLY_IMPORT = "weekly-import";
+    static final String PHOTO_SEED = "photo-seed";
     static final Duration IMPORT_EVERY = Duration.ofDays(7);
     static final int RENDER_BATCH = 10;
     static final Duration RENDER_RETRY_AFTER = Duration.ofHours(1);
@@ -71,19 +73,37 @@ public class ProductImageJobs {
     public void weeklyImport() {
         if (!enabled || !importing.compareAndSet(false, true)) return;
         try {
-            LocalDateTime last = runs.findById(WEEKLY_IMPORT).map(ProductImageImportRun::getFinishedAt).orElse(null);
-            if (last != null && last.isAfter(Timestamps.nowUtc().minus(IMPORT_EVERY))) return;
-
-            catalog.importLatest();
-            if (store.enabled()) seed.seed();
-            runs.save(new ProductImageImportRun(WEEKLY_IMPORT, Timestamps.nowUtc()));
+            boolean imported = false;
+            try {
+                if (isDue(WEEKLY_IMPORT)) {
+                    catalog.importLatest();
+                    runs.save(new ProductImageImportRun(WEEKLY_IMPORT, Timestamps.nowUtc()));
+                    imported = true;
+                }
+            } catch (IOException | RuntimeException e) {
+                // A failed import leaves the previous catalogue in place, so the seed below can still use it.
+                log.error("Catalogue import failed; it is retried at the next check", e);
+            }
+            // An interrupt during the download can surface as an IOException, so it is checked again here.
+            if (Thread.currentThread().isInterrupted()) return;
+            // Tracked apart, so turning the photo bucket on mid-week seeds at the next check instead of up to a
+            // week later; a fresh import seeds its new EANs straight away.
+            if (store.enabled() && (imported || isDue(PHOTO_SEED))) {
+                seed.seed();
+                runs.save(new ProductImageImportRun(PHOTO_SEED, Timestamps.nowUtc()));
+            }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (Exception e) {
-            log.error("Product image import failed; it is retried at the next check", e);
+            log.error("Open Food Facts photo seed failed; it is retried at the next check", e);
         } finally {
             importing.set(false);
         }
+    }
+
+    private boolean isDue(String kind) {
+        LocalDateTime last = runs.findById(kind).map(ProductImageImportRun::getFinishedAt).orElse(null);
+        return last == null || !last.isAfter(Timestamps.nowUtc().minus(IMPORT_EVERY));
     }
 
     /** Copies main photos into our bucket one at a time, as Open Food Facts asks of image downloads. */
