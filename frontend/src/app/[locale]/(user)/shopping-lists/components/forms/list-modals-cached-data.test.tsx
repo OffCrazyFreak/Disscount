@@ -15,6 +15,10 @@ vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
 }));
 
+vi.mock("@/context/user-context", () => ({
+  useUser: () => ({ user: null }),
+}));
+
 const LIST_ID = "5b0e6c1a-7d2f-4e8a-9c3b-1f4d6a8e2c70";
 
 const LIST: ShoppingListDto = {

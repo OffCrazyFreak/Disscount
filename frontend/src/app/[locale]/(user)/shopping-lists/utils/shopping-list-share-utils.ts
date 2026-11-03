@@ -1,5 +1,5 @@
 import type { useTranslations } from "next-intl";
-import { ShoppingListDto } from "@/lib/api/types";
+import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
 import { getChainLabel } from "@/utils/labels";
 import { compareHr, formatDate } from "@/utils/strings";
 
@@ -33,21 +33,26 @@ function strikeWhenChecked(text: string, isChecked: boolean): string {
  * @param shoppingList The shopping list to format
  * @param t Translator for the "shoppingLists" namespace
  * @param locale Active locale, for the dates
+ * @param suggestedChains Item id to the chain its store select suggests, for items with none saved
  * @returns Formatted text ready to share
  */
 export function formatShoppingListForSharing(
   shoppingList: ShoppingListDto,
   t: ShoppingListsTranslator,
   locale: string,
+  suggestedChains: Readonly<Record<string, string>>,
 ): string {
+  const shownChain = (item: ShoppingListItemDto) =>
+    item.chainCode ?? suggestedChains[item.id] ?? "";
+
   // Sort items: unchecked first, then by shop, brand, and name
   const sortedItems = [...shoppingList.items].sort((a, b) => {
     if (a.isChecked !== b.isChecked) {
       return a.isChecked ? 1 : -1;
     }
 
-    const shopA = a.chainCode || "";
-    const shopB = b.chainCode || "";
+    const shopA = shownChain(a);
+    const shopB = shownChain(b);
     if (shopA !== shopB) {
       return compareHr(shopA, shopB);
     }
@@ -84,9 +89,8 @@ export function formatShoppingListForSharing(
             : "";
     const amount = item.amount > 1 ? ` x${item.amount}` : "";
 
-    const storeName = item.chainCode
-      ? neutraliseMarkers(getChainLabel(item.chainCode))
-      : "";
+    const chain = shownChain(item);
+    const storeName = chain ? neutraliseMarkers(getChainLabel(chain)) : "";
     const store = storeName ? ` - ${storeName}` : "";
 
     const details = `${name}${brand}${unitAndQuantity}${amount}${store}`;

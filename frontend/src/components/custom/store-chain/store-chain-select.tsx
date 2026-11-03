@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { getChainLabel } from "@/utils/labels";
 import { formatPrice } from "@/utils/price";
 import { availableChainCodes } from "@/components/custom/store-chain/store-chain-codes";
+import { suggestedChain } from "@/components/custom/store-chain/suggested-chain";
 import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -56,11 +57,8 @@ export default function StoreChainSelect({
 }: IStoreChainSelectProps) {
   const t = useTranslations("products");
   const locale = useLocale();
-  // The default is only shown, as the placeholder, never saved: viewing a list must
-  // not write to it, and an unsaved default keeps following whichever chain is cheapest
-  // today. Keeping it out of `value` also lets picking that same chain count as a change.
-  // A ticked item records where it was bought, so it never borrows a default.
-  const suggestedChain = !value && !isChecked ? defaultValue : null;
+  // Shown as the placeholder, outside `value`, so picking that same chain counts as a change.
+  const suggested = suggestedChain(value, isChecked, defaultValue);
 
   const getPriceDifference = (chainCode: string) => {
     // When item is checked, use database prices
@@ -87,8 +85,8 @@ export default function StoreChainSelect({
       >
         <SelectValue
           placeholder={
-            suggestedChain ? (
-              <span lang="hr">{getChainLabel(suggestedChain)}</span>
+            suggested ? (
+              <span lang="hr">{getChainLabel(suggested)}</span>
             ) : (
               t("storeChainField.label")
             )

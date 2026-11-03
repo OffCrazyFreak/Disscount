@@ -7,7 +7,7 @@ import { shoppingListService } from "@/lib/api";
 import { isDeadListLink } from "@/lib/api/shopping-lists/is-dead-list-link";
 import type { LinkAccess } from "@/lib/api/types";
 import { shareOrCopy } from "@/utils/browser/share";
-import { formatShoppingListForSharing } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
+import { useListShareText } from "@/app/[locale]/(user)/shopping-lists/hooks/use-list-share-text";
 import { shareListUrl } from "@/utils/shopping-list-links";
 import { useOnlineStatus } from "@/hooks/use-online-status";
 
@@ -20,6 +20,7 @@ export function useShareListModal(id: string) {
   const t = useTranslations("shoppingLists");
   const locale = useLocale();
   const isOnline = useOnlineStatus();
+  const listShareText = useListShareText();
 
   const listQuery = shoppingListService.useGetShoppingListById(id);
   const updateMutation = shoppingListService.useUpdateShoppingList();
@@ -86,7 +87,7 @@ export function useShareListModal(id: string) {
       // list it promises.
       const outcome = await shareOrCopy({
         title: shoppingList.title,
-        text: formatShoppingListForSharing(shoppingList, t, locale),
+        text: listShareText(shoppingList),
       });
 
       if (outcome === "copied") toast.success(t("shareModal.textCopiedToast"));
