@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { ChevronDown } from "lucide-react";
@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import ShoppingListItemViews from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-item-views";
 import ShoppingListPriceStatus from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-price-status";
 import type { ItemPriceState } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
+import { focusStoreSelect } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/store-select-focus";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { useShoppingListItemMutations } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-shopping-list-item-mutations";
 import { resolveShoppingListAccess } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-access";
@@ -64,6 +65,8 @@ export default function ShoppingListItems({
     setShoppingListItemsOpen(shoppingList.id, open);
   };
 
+  const lostFocusItemIdRef = useRef<string | null>(null);
+
   const rowProps = {
     cheapestStores,
     averagePrices,
@@ -74,22 +77,30 @@ export default function ShoppingListItems({
     deletingItemId,
     canCheck,
     canEditItems,
+    lostFocusItemIdRef,
   };
 
   const checkedCount =
     shoppingList.items?.filter((item) => item.isChecked)?.length || 0;
 
-  const failedPriceCount = shoppingList.items.filter(
-    (item) => priceStates[item.id] === "failed",
-  ).length;
+  const failedPriceItemIds = shoppingList.items
+    .filter((item) => priceStates[item.id] === "failed")
+    .map((item) => item.id);
+
+  // A row still without prices explains the retry's outcome; one that loaded does not.
+  function focusRetriedItem(retriedItemIds: readonly string[]) {
+    const unpriced = retriedItemIds.filter((id) => priceStates[id] !== "ready");
+    focusStoreSelect(unpriced.length > 0 ? unpriced : retriedItemIds);
+  }
 
   return (
     <div className="space-y-3">
       {/* Outside the collapsible, so collapsing the items does not hide a failure or its retry. */}
       <ShoppingListPriceStatus
-        failedCount={failedPriceCount}
+        failedItemIds={failedPriceItemIds}
         isRetrying={isRetryingPrices}
         onRetry={onRetryPrices}
+        onRetryFocusLost={focusRetriedItem}
       />
 
       <Collapsible open={isItemsOpen} onOpenChange={handleToggleItems}>

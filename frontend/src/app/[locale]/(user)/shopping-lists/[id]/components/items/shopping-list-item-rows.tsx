@@ -1,5 +1,7 @@
 "use client";
 
+import type { RefObject } from "react";
+
 import ShoppingListItem from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-item";
 import type { IShoppingListItemUpdate } from "@/app/[locale]/(user)/shopping-lists/[id]/typings/shopping-list-item-types";
 import type { ShoppingListItemDto } from "@/lib/api/types";
@@ -16,6 +18,7 @@ export interface IShoppingListItemRowsProps {
   deletingItemId: string | null;
   canCheck: boolean;
   canEditItems: boolean;
+  lostFocusItemIdRef: RefObject<string | null>;
 }
 
 /** One run of items, shared by the A to Z list and each store's section. */
@@ -30,6 +33,7 @@ export default function ShoppingListItemRows({
   deletingItemId,
   canCheck,
   canEditItems,
+  lostFocusItemIdRef,
 }: IShoppingListItemRowsProps) {
   return (
     <div className="space-y-1">
@@ -49,6 +53,7 @@ export default function ShoppingListItemRows({
           showSeparator={index < items.length - 1}
           canCheck={canCheck}
           canEditItems={canEditItems}
+          lostFocusItemIdRef={lostFocusItemIdRef}
         />
       ))}
     </div>
