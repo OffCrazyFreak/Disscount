@@ -73,6 +73,12 @@ describe("isUnexpectedFailure", () => {
     expect(isUnexpectedFailure(networkFailure())).toBe(false);
   });
 
+  it("does not report a failed fetch() while offline", () => {
+    onlineManager.setOnline(false);
+
+    expect(isUnexpectedFailure(new TypeError("Failed to fetch"))).toBe(false);
+  });
+
   it("reports a parse failure", () => {
     expect(isUnexpectedFailure(parseFailure())).toBe(true);
   });
@@ -100,8 +106,43 @@ describe("createQueryClientConfig", () => {
     ).rejects.toBe(error);
 
     expect(Sentry.captureException).toHaveBeenCalledWith(error, {
-      tags: { queryKeyRoot: "shopping-lists" },
+      tags: { queryKeyRoot: "shopping-lists", httpStatus: 500 },
+      fingerprint: ["{{ default }}", "shopping-lists", "500"],
     });
+  });
+
+  it("reports a failing query once until it succeeds again", async () => {
+    const client = new QueryClient(createQueryClientConfig());
+    const queryKey = ["shoppingLists", "shared"];
+    const fail = () =>
+      client
+        .fetchQuery({
+          queryKey,
+          queryFn: () => Promise.reject(httpError(502)),
+          retry: false,
+          staleTime: 0,
+        })
+        .catch(() => undefined);
+
+    await fail();
+    await fail();
+    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
+
+    await client.fetchQuery({ queryKey, queryFn: () => "ok", staleTime: 0 });
+    await fail();
+    expect(Sentry.captureException).toHaveBeenCalledTimes(2);
+  });
+
+  it("applies the defaults, and a query's own staleTime wins", () => {
+    const client = new QueryClient(createQueryClientConfig());
+    const defaults = client.defaultQueryOptions({ queryKey: ["users"] });
+
+    expect(defaults.staleTime).toBe(60_000);
+    expect(defaults.retry).toBe(shouldRetryQuery);
+    expect(
+      client.defaultQueryOptions({ queryKey: ["cijene"], staleTime: 5 })
+        .staleTime,
+    ).toBe(5);
   });
 
   it("does not report a query the server answered with 404", async () => {
@@ -128,7 +169,22 @@ describe("createQueryClientConfig", () => {
     await expect(observer.mutate()).rejects.toBe(error);
 
     expect(Sentry.captureException).toHaveBeenCalledWith(error, {
-      tags: { queryKeyRoot: "watchlist" },
+      tags: { queryKeyRoot: "watchlist", httpStatus: 503 },
+      fingerprint: ["{{ default }}", "watchlist", "503"],
+    });
+  });
+
+  it("tags a mutation without a key as unknown", async () => {
+    const client = new QueryClient(createQueryClientConfig());
+    const observer = new MutationObserver(client, {
+      mutationFn: () => Promise.reject(parseFailure()),
+    });
+
+    await expect(observer.mutate()).rejects.toBeDefined();
+
+    expect(Sentry.captureException).toHaveBeenCalledWith(expect.anything(), {
+      tags: { queryKeyRoot: "unknown", httpStatus: "none" },
+      fingerprint: undefined,
     });
   });
 });
