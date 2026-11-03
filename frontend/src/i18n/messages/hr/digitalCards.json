@@ -326,7 +326,7 @@
     "cardLimit": "Imaš već najveći dopušteni broj kartica. Obriši neku koju ne koristiš.",
     "cardSaveFailed": "Kartica nije spremljena. Pokušaj ponovno.",
     "cardDeleteFailed": "Kartica nije obrisana. Pokušaj ponovno.",
-    "sessionChanged": "Na ovom uređaju sad je prijavljen drugi račun, pa osvježavamo podatke.",
+    "sessionChanged": "Prijavljen je drugi račun. Osvježavamo podatke.",
     "photoDeleteFailed": "Slika nije obrisana. Pokušaj ponovno.",
     "photoSendFailed": "Slika kartice nije spremljena. Dodaj je ponovno."
   },

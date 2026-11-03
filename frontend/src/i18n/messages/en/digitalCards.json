@@ -269,7 +269,7 @@
     "cardLimit": "You already have the most cards allowed. Delete one you don't use.",
     "cardSaveFailed": "Couldn't save the card. Try again.",
     "cardDeleteFailed": "Couldn't delete the card. Try again.",
-    "sessionChanged": "A different account is signed in now, so we're refreshing your data.",
+    "sessionChanged": "Another account signed in. Refreshing your data.",
     "photoDeleteFailed": "Couldn't delete the photo. Try again.",
     "photoSendFailed": "The card photo wasn't saved. Add it again."
   },
