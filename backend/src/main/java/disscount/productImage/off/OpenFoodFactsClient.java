@@ -83,7 +83,7 @@ public class OpenFoodFactsClient {
                     throw new OffImageGoneException(url, response.statusCode());
                 }
                 if (response.statusCode() != 200) {
-                    throw new IllegalStateException("Image download answered " + response.statusCode());
+                    throw new OffImageUnavailableException(url, response.statusCode());
                 }
                 byte[] bytes = body.readNBytes(MAX_IMAGE_BYTES + 1);
                 if (bytes.length > MAX_IMAGE_BYTES) {

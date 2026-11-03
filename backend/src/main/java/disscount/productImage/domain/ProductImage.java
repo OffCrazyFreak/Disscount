@@ -93,6 +93,10 @@ public class ProductImage {
     @Column(name = "rendered_at")
     private LocalDateTime renderedAt;
 
+    /** The background copy leaves this photo alone until then, after Open Food Facts refused or failed it. */
+    @Column(name = "render_retry_at")
+    private LocalDateTime renderRetryAt;
+
     @Column(name = "contributor_id")
     private UUID contributorId;
 

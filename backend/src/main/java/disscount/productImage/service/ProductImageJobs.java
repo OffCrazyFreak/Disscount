@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import disscount.exceptions.BadRequestException;
 import disscount.productImage.off.OffImageGoneException;
+import disscount.productImage.off.OffImageUnavailableException;
 import disscount.productImage.dao.ProductImageImportRunRepository;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
@@ -30,6 +31,7 @@ public class ProductImageJobs {
     static final String WEEKLY_IMPORT = "weekly-import";
     static final Duration IMPORT_EVERY = Duration.ofDays(7);
     static final int RENDER_BATCH = 10;
+    static final Duration RENDER_RETRY_AFTER = Duration.ofHours(1);
 
     private final boolean enabled;
     private final ProductImageStore store;
@@ -87,13 +89,17 @@ public class ProductImageJobs {
     public void renderMainPhotos() {
         if (!enabled || !store.enabled() || !renderingNow.compareAndSet(false, true)) return;
         try {
-            List<ProductImage> batch = images.findUnrenderedMains(ImageStatus.CANDIDATE, PageRequest.of(0, RENDER_BATCH));
+            List<ProductImage> batch = images.findUnrenderedMains(ImageStatus.CANDIDATE, Timestamps.nowUtc(),
+                    PageRequest.of(0, RENDER_BATCH));
             for (ProductImage image : batch) {
                 try {
                     rendering.render(image);
                 } catch (BadRequestException | OffImageGoneException | IllegalArgumentException e) {
                     // IllegalArgumentException: a stored key that cannot form a valid image URL.
                     skip(image, e);
+                } catch (OffImageUnavailableException e) {
+                    // A 403 or 500 for one file says nothing about the next one, so only this photo waits.
+                    postpone(image, e);
                 } catch (RuntimeException e) {
                     // Network or bucket trouble: stop here and try the same photos at the next tick.
                     log.warn("Product photo rendering paused: {}", e.getMessage());
@@ -108,6 +114,12 @@ public class ProductImageJobs {
     @Scheduled(fixedDelay = 300_000L)
     public void sweepUploadLimiter() {
         limiter.sweep();
+    }
+
+    private void postpone(ProductImage image, RuntimeException cause) {
+        log.warn("Retrying product photo {} for {} later: {}", image.getId(), image.getEan(), cause.getMessage());
+        image.setRenderRetryAt(Timestamps.nowUtc().plus(RENDER_RETRY_AFTER));
+        images.save(image);
     }
 
     /** A photo that cannot be read (a CMYK JPEG, a dead link) would otherwise block the head of the queue forever. */
