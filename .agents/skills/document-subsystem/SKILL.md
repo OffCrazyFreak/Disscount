@@ -1,6 +1,6 @@
 ---
 name: document-subsystem
-description: Write a detailed reference doc under docs for one part of the Disscount app, in the style of docs/DEPLOYMENT.md. Explore the code first, then document what it is, how it works, automatic vs manual, key files, config/env, libraries, gotchas, and future TODOs. Use when the user asks to document, write docs for, or create a reference for a feature or subsystem.
+description: Write a detailed reference doc under docs for one part of the Disscount app, in the style of docs/INFRASTRUCTURE.md. Explore the code first, then document what it is, how it works, automatic vs manual, key files, config/env, libraries, gotchas, and future TODOs. Use when the user asks to document, write docs for, or create a reference for a feature or subsystem.
 ---
 
 # Document a subsystem
@@ -27,6 +27,6 @@ Assume the reader is still learning, so explain the concepts clearly. Use tables
 - The repo is PUBLIC: never include secrets, tokens, real IPs, or private URLs; use placeholders.
 - No em dashes.
 - Do not hard-wrap Markdown; write one physical line per paragraph and per bullet, and let the editor wrap.
-- Match the structure and tone of `docs/DEPLOYMENT.md`.
+- Match the structure and tone of `docs/INFRASTRUCTURE.md`.
 
 Do one subsystem per run so the exploration stays focused. The finished file is added to a PR into `dev`, then `main`.

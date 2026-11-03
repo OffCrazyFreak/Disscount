@@ -18,7 +18,7 @@ public final class ClientIp {
     private ClientIp() {}
 
     // Cloudflare's published ranges (https://www.cloudflare.com/ips/); the frontend's
-    // cloudflare-ip-ranges.ts and the Traefik trustedIPs in docs/DEPLOYMENT.md carry the same list.
+    // cloudflare-ip-ranges.ts and the Traefik trustedIPs in docs/INFRASTRUCTURE.md carry the same list.
     private static final List<IpAddressMatcher> CLOUDFLARE = List.of(
             "173.245.48.0/20", "103.21.244.0/22", "103.22.200.0/22", "103.31.4.0/22",
             "141.101.64.0/18", "108.162.192.0/18", "190.93.240.0/20", "188.114.96.0/20",

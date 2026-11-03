@@ -307,7 +307,7 @@ All copy is in the next-intl catalogs, in all five languages ([I18N.md](I18N.md)
 | `CIJENE_API_TOKEN`    | frontend, server only, secret | In practice yes: v1 needs it                                                     | Sent as `Authorization: Bearer` on v1 calls                              |
 | `NEXT_PUBLIC_API_URL` | frontend, public              | Defaults to `http://localhost:8080`; set it per environment, baked at build time | The backend origin the server uses for photos and the sitemap's EAN list |
 
-`CIJENE_API_*` are validated in `frontend/src/lib/server-env.ts` and listed with placeholders in `frontend/.env.local.example` and the root `.env.example`; [DEPLOYMENT.md](DEPLOYMENT.md) has the full table. They are runtime values, so a change needs a restart, not a rebuild. The backend reads no cijene variable; the catalogue import's archive list URL is the property `product-images.catalog.list-url`, defaulting to the public `v0/list`.
+`CIJENE_API_*` are validated in `frontend/src/lib/server-env.ts` and listed with placeholders in `frontend/.env.local.example` and the root `.env.example`; [INFRASTRUCTURE.md](INFRASTRUCTURE.md) has the full table. They are runtime values, so a change needs a restart, not a rebuild. The backend reads no cijene variable; the catalogue import's archive list URL is the property `product-images.catalog.list-url`, defaulting to the public `v0/list`.
 
 ---
 

@@ -219,7 +219,7 @@ The hash in the key means a replaced photo gets a new key, so a cached copy can 
 2. Create an API token scoped to that bucket with object read and write.
 3. Set the four `R2_*` variables in Dokploy for each environment (see [§13](#13-config-and-env-vars)).
 
-Use a separate bucket from the backup bucket in [`DEPLOYMENT.md`](DEPLOYMENT.md), and a separate token, so a leaked photo token cannot touch database backups.
+Use a separate bucket from the backup bucket in [`INFRASTRUCTURE.md`](INFRASTRUCTURE.md), and a separate token, so a leaked photo token cannot touch database backups.
 
 ---
 

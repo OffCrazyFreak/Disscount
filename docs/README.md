@@ -2,7 +2,7 @@
 
 Reference documentation for Disscount. Each file is a standalone deep-dive into one part of the system.
 
-- [DEPLOYMENT.md](DEPLOYMENT.md) - infrastructure, env vars, DNS/SSL, backups, monitoring.
+- [INFRASTRUCTURE.md](INFRASTRUCTURE.md) - infrastructure, env vars, DNS/SSL, backups, monitoring.
 - [AUTH.md](AUTH.md) - auth architecture (better-auth IdP + Spring resource server, URL-modal flow, mandatory onboarding).
 - [PWA.md](PWA.md) - PWA setup, service worker, offline behaviour, install flow.
 - [SHOPPING-LISTS.md](SHOPPING-LISTS.md) - shopping lists: data model, merging duplicates, ticking with captured prices, optimistic writes and the offline queue, grouping by store and the map link, the stores tab, the price history chart.

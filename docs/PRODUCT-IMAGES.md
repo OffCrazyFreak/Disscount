@@ -246,7 +246,7 @@ Not covered by tests: a real upload to R2, the real Open Food Facts export, and 
 
 ## 14. Config and env vars
 
-All backend, runtime; a change needs a backend restart, not a rebuild. Set them in Dokploy per environment; [DEPLOYMENT.md](DEPLOYMENT.md#product-photo-env-vars) has the bucket setup.
+All backend, runtime; a change needs a backend restart, not a rebuild. Set them in Dokploy per environment; [INFRASTRUCTURE.md](INFRASTRUCTURE.md#product-photo-env-vars) has the bucket setup.
 
 | Var                           | Required for photos | What it controls                                                                                                 |
 | ----------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------- |
@@ -297,17 +297,17 @@ A successful copy clears `render_attempts` and `render_retry_at`.
 
 ## 17. What is automatic vs manual
 
-| Task                                                 | Automatic? | Who and where                                                                                |
-| ---------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------- |
-| Weekly catalogue import and Open Food Facts seed     | ✅ auto    | backend job                                                                                  |
-| Copying main photos into the bucket                  | ✅ auto    | backend job, a few thousand an hour                                                          |
-| Picking a main photo when nobody pinned one          | ✅ auto    | `MainPicker` on every change                                                                 |
-| Rendering an upload                                  | ✅ auto    | on upload                                                                                    |
-| **Creating the public bucket, its domain and token** | ❌ manual  | Owner, Cloudflare dashboard once (see [DEPLOYMENT.md](DEPLOYMENT.md#product-photo-env-vars)) |
-| **Setting the `R2_PUBLIC_*` variables**              | ❌ manual  | Agent or owner, Dokploy per environment, then restart the backend                            |
-| **Choosing the best photo for popular products**     | ❌ manual  | An admin, the dashboard queue                                                                |
-| **Handling reports**                                 | ❌ manual  | An admin, the `reported` filter                                                              |
-| **Adding an `ImageStatus` or `ImageSource` value**   | ❌ manual  | Agent, updating the CHECK constraint in every database that has it (see [§18](#18-gotchas))  |
+| Task                                                 | Automatic? | Who and where                                                                                        |
+| ---------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------- |
+| Weekly catalogue import and Open Food Facts seed     | ✅ auto    | backend job                                                                                          |
+| Copying main photos into the bucket                  | ✅ auto    | backend job, a few thousand an hour                                                                  |
+| Picking a main photo when nobody pinned one          | ✅ auto    | `MainPicker` on every change                                                                         |
+| Rendering an upload                                  | ✅ auto    | on upload                                                                                            |
+| **Creating the public bucket, its domain and token** | ❌ manual  | Owner, Cloudflare dashboard once (see [INFRASTRUCTURE.md](INFRASTRUCTURE.md#product-photo-env-vars)) |
+| **Setting the `R2_PUBLIC_*` variables**              | ❌ manual  | Agent or owner, Dokploy per environment, then restart the backend                                    |
+| **Choosing the best photo for popular products**     | ❌ manual  | An admin, the dashboard queue                                                                        |
+| **Handling reports**                                 | ❌ manual  | An admin, the `reported` filter                                                                      |
+| **Adding an `ImageStatus` or `ImageSource` value**   | ❌ manual  | Agent, updating the CHECK constraint in every database that has it (see [§18](#18-gotchas))          |
 
 ---
 

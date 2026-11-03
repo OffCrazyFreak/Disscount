@@ -389,7 +389,7 @@ The screenshot generator script was removed after the images were generated, so 
 
 ## 9. Config, build, and environment
 
-**Build.** `package.json` sets `"build": "next build --webpack"`. Serwist compiles the service worker with webpack, and Next.js 16 defaults `next build` to Turbopack, so the build is pinned to webpack. Development stays on Turbopack (`"dev": "next dev"`). Reverting to plain `next build` would silently stop generating the service worker. The frontend Dockerfile runs `pnpm build`, so this flag flows into the production image; see [`DEPLOYMENT.md`](DEPLOYMENT.md) for how it fits the deploy.
+**Build.** `package.json` sets `"build": "next build --webpack"`. Serwist compiles the service worker with webpack, and Next.js 16 defaults `next build` to Turbopack, so the build is pinned to webpack. Development stays on Turbopack (`"dev": "next dev"`). Reverting to plain `next build` would silently stop generating the service worker. The frontend Dockerfile runs `pnpm build`, so this flag flows into the production image; see [`INFRASTRUCTURE.md`](INFRASTRUCTURE.md) for how it fits the deploy.
 
 **Service-worker toggle.** `next.config.ts` calls `withSerwistInit({ swSrc: "src/app/sw.ts", swDest: "public/sw.js", disable: process.env.NODE_ENV === "development", additionalPrecacheEntries: [{ url: "/offline", revision }], reloadOnOnline: true })`, then wraps the Sentry-wrapped config. `disable` in development means no service worker is generated or registered locally.
 
