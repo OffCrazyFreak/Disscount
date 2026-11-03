@@ -14,6 +14,7 @@ import {
   canWriteAfterPurges,
   currentPurgeGeneration,
 } from "@/lib/offline/purge-gate";
+import { isQueuedWriteExpired } from "@/lib/offline/queued-write-expiry";
 
 /**
  * Last-used tracking is a local queue, not a paused mutation: opening a card must never
@@ -67,11 +68,20 @@ async function flush(keepalive = false) {
     const queued = queuedKeys.flatMap((key, i) =>
       values[i] ? [{ key, use: values[i] }] : [],
     );
+    const expired = queued.filter(({ use }) =>
+      isQueuedWriteExpired(Date.parse(use.usedAt)),
+    );
+    // Dropped quietly: a lost use only costs a sort position.
+    await delMany(
+      expired.map(({ key }) => key),
+      queueStore(),
+    );
+    const sendable = queued.filter((entry) => !expired.includes(entry));
 
-    for (let i = 0; i < queued.length; i += MAX_BATCH) {
+    for (let i = 0; i < sendable.length; i += MAX_BATCH) {
       if (getCacheIdentity() !== identity) return;
 
-      const batch = queued.slice(i, i + MAX_BATCH);
+      const batch = sendable.slice(i, i + MAX_BATCH);
       await postCardsUsed(
         batch.map(({ use }) => use),
         { keepalive },

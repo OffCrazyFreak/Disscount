@@ -9,6 +9,9 @@ import {
 import { http, HttpResponse } from "msw/http";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { toast } from "sonner";
+
+import { dropExpiredWrites } from "@/lib/offline/drop-expired-writes";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
 import { persistOptions } from "@/lib/offline/persister";
@@ -24,6 +27,8 @@ vi.mock("idb-keyval", () => ({
   set: async (key: string, value: unknown) => void disk.set(key, value),
   del: async (key: string) => void disk.delete(key),
 }));
+
+vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
 
 const LIST_ID = "5b0e6c1a-7d2f-4e8a-9c3b-1f4d6a8e2c70";
 const ITEM_ID = "0f3a9d52-6c1e-4b7a-8e2d-9a4c5b6d7e81";
@@ -202,5 +207,83 @@ describe("offline writes replayed after a reload", () => {
     const [mutation] = queryClient.getMutationCache().getAll();
     await flushUntil(() => mutation.state.status === "error");
     expect(attempts).toBe(5);
+  });
+});
+
+describe("queued writes past the retention window", () => {
+  const SIX_DAYS_MS = 6 * 24 * 60 * 60 * 1000;
+  const EIGHT_DAYS_MS = 8 * 24 * 60 * 60 * 1000;
+
+  async function restoreAndAge(
+    mutationKey: MutationKey,
+    variables: unknown,
+    ageMs: number,
+  ) {
+    const queryClient = await restoreQueuedWrite(mutationKey, variables);
+    vi.setSystemTime(Date.now() + ageMs);
+    return queryClient;
+  }
+
+  it("drops a list write queued more than a week ago and says it was not saved", async () => {
+    const requests = vi.fn();
+    server.use(
+      http.put(`*/api/shopping-lists/${LIST_ID}/items/${ITEM_ID}`, () => {
+        requests();
+        return HttpResponse.json({});
+      }),
+    );
+    const queryClient = await restoreAndAge(
+      OFFLINE_MUTATION_KEYS.shoppingListItemUpdate,
+      { listId: LIST_ID, itemId: ITEM_ID, data: { isChecked: true } },
+      EIGHT_DAYS_MS,
+    );
+
+    dropExpiredWrites(
+      queryClient,
+      (key) => key,
+      (key) => key,
+    );
+    onlineManager.setOnline(true);
+    void queryClient.resumePausedMutations();
+    await act(() => vi.advanceTimersByTimeAsync(2000));
+
+    expect(requests).not.toHaveBeenCalled();
+    expect(queryClient.getMutationCache().getAll()).toEqual([]);
+    expect(toast.error).toHaveBeenCalledWith("offline.writeFailed");
+  });
+
+  it("drops an expired card delete with the card delete toast", async () => {
+    const queryClient = await restoreAndAge(
+      OFFLINE_MUTATION_KEYS.digitalCardDelete,
+      CARD_ID,
+      EIGHT_DAYS_MS,
+    );
+
+    dropExpiredWrites(
+      queryClient,
+      (key) => key,
+      (key) => key,
+    );
+
+    expect(queryClient.getMutationCache().getAll()).toEqual([]);
+    expect(toast.error).toHaveBeenCalledWith("offline.cardDeleteFailed");
+  });
+
+  it("keeps a write queued less than a week ago", async () => {
+    vi.mocked(toast.error).mockClear();
+    const queryClient = await restoreAndAge(
+      OFFLINE_MUTATION_KEYS.digitalCardPin,
+      { id: CARD_ID, pinned: true },
+      SIX_DAYS_MS,
+    );
+
+    dropExpiredWrites(
+      queryClient,
+      (key) => key,
+      (key) => key,
+    );
+
+    expect(queryClient.getMutationCache().getAll()).toHaveLength(1);
+    expect(toast.error).not.toHaveBeenCalled();
   });
 });

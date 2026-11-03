@@ -10,9 +10,28 @@ import { persistOptions } from "@/lib/offline/persister";
 import { createQueryClientConfig } from "@/lib/api/query-client-defaults";
 import { DIGITAL_CARD_QUERY_KEYS } from "@/lib/api/digital-cards/keys";
 import { bindLastUsedQueryClient } from "@/lib/api/digital-cards/last-used";
-import { replayCardPhotoOutbox } from "@/lib/offline/card-photo-outbox";
+import {
+  replayCardPhotoOutbox,
+  type PhotoToastTranslator,
+} from "@/lib/offline/card-photo-outbox";
+import type { CardToastTranslator } from "@/lib/offline/card-write-failed";
+import { dropExpiredWrites } from "@/lib/offline/drop-expired-writes";
+import type { OfflineToastTranslator } from "@/lib/offline/list-write-failed";
 import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
 import { clientEnv } from "@/lib/env";
+
+// Photos go after paused card saves, or an upload for a card the server has not seen yet
+// answers 404 and is dropped.
+function replayQueuedWrites(
+  queryClient: QueryClient,
+  t: OfflineToastTranslator,
+  tCards: CardToastTranslator & PhotoToastTranslator,
+) {
+  dropExpiredWrites(queryClient, t, tCards);
+  void queryClient
+    .resumePausedMutations()
+    .then(() => replayCardPhotoOutbox(queryClient, tCards));
+}
 
 interface IReactQueryProviderWrapperProps {
   children: ReactNode;
@@ -46,28 +65,20 @@ export default function ReactQueryProviderWrapper({
   useEffect(() => {
     bindLastUsedQueryClient(queryClient);
 
-    // Photos go after paused card saves, or an upload for a card the server has not
-    // seen yet answers 404 and is dropped.
     function replayWrites() {
-      void queryClient
-        .resumePausedMutations()
-        .then(() => replayCardPhotoOutbox(queryClient, tCards));
+      replayQueuedWrites(queryClient, t, tCards);
     }
 
     window.addEventListener("online", replayWrites);
     return () => window.removeEventListener("online", replayWrites);
-  }, [queryClient, tCards]);
+  }, [queryClient, t, tCards]);
 
   return (
     <PersistQueryClientProvider
       client={queryClient}
       persistOptions={persistOptions}
       // Once the cache is restored, replay any writes that were queued offline.
-      onSuccess={() => {
-        void queryClient
-          .resumePausedMutations()
-          .then(() => replayCardPhotoOutbox(queryClient, tCards));
-      }}
+      onSuccess={() => replayQueuedWrites(queryClient, t, tCards)}
     >
       {children}
 
