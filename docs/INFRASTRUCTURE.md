@@ -509,7 +509,7 @@ Production still builds on the VPS, and every deploy leaves old images behind, s
   then `sudo systemctl restart docker` (restarts containers briefly). The defaults apply only to containers created after the daemon loaded them, so a container that predates the file keeps an empty log config until it is recreated. Every container on the server has the cap, `dokploy-traefik` included.
 - **Traefik's log cap survives Dokploy:** Dokploy creates `dokploy-traefik` without its own log options, so the daemon default above applies every time it recreates the container. Traefik runs here as a standalone container, so **Reload Traefik** in the Dokploy panel only runs `docker restart` and keeps the existing config; saving the Traefik environment, the ports or the dashboard toggle removes and recreates the container, with about 7 seconds of downtime on both sites. Re-running Dokploy's setup script recreates it too; a normal Dokploy upgrade does not. A recreate pulls the Traefik version the installed Dokploy release defaults to (its `TRAEFIK_VERSION`), and falls back to the local image if the pull fails.
 - **Check the cap:** `docker inspect <container> --format '{{json .HostConfig.LogConfig}}'` should print `"max-file":"3","max-size":"10m"`; `docker inspect $(docker ps -q) --format '{{.Name}} {{json .HostConfig.LogConfig}}'` checks them all.
-- **Scheduled cleanup:** enable **Daily Docker Cleanup** (Dokploy, Settings, Web Server). It prunes stopped containers, unused images, build cache and unused networks daily; volumes are never pruned, so the databases are safe. The cost is that build cache is cleared, so the next server build is slower, and an image a rollback needs is pulled from GHCR again.
+- **Scheduled cleanup:** see [Docker disk cleanup](#docker-disk-cleanup) below for the daily and hourly jobs.
 
 Inspect first, then prune (understand what each removes before running it):
 
@@ -520,6 +520,18 @@ docker builder prune   # remove old build cache (safe; the next build is just sl
 ```
 
 ⚠️ Do not blindly run aggressive prunes. `docker system prune -a` removes all unused images, and any `volume` prune can delete data. Read what a command removes before running it.
+
+### Docker disk cleanup
+
+Three layers keep build cache and images from filling the disk. Dev deploys pull prebuilt images from GHCR, but production still builds on the server until #74 (production prebuilt images), which stays deferred.
+
+- **Dokploy's daily cleanup** (Settings, Web Server, Daily Docker Cleanup, on) runs at 23:50 UTC from the hard-coded `CLEANUP_CRON_JOB = "50 23 * * *"`, which the UI and API cannot change. It prunes all build cache, all unused images and stopped containers, and never touches volumes. Because it resets the cache only once a day, it cannot cap growth during the day: 38 GB once piled up from dev builds on the server before dev moved to GHCR images.
+- **Hourly cache cleanup:** a Dokploy schedule "Hourly Docker cache cleanup" (type `dokploy-server`, `17 * * * *`, Europe/Zagreb) runs `docker builder prune -f --filter until=72h` and `docker image prune -f`, which removes only dangling images (never `-a`, never volumes). It skips the run while a build is active, checked with a `pgrep` whose patterns are bracketed so it never matches itself. It fails its run when `/` is above 80 percent, which is the disk alert for now: the failure shows in the schedule's history. Dokploy keeps only the last 10 runs and their logs (`removeLastTenDeployments` in v0.30.10). Its first run freed 2.7 GB.
+- **BuildKit cap (owner step, pending on the board):** add to `/etc/docker/daemon.json`, next to the log options:
+  ```json
+  "builder": { "gc": { "enabled": true, "defaultReservedSpace": "2GB", "defaultMaxUsedSpace": "10GB", "defaultMinFreeSpace": "15GB" } }
+  ```
+  BuildKit then trims after every build, so the cache stays under about 10 GB and leaves at least 15 GB free. Use only these global keys, with no custom `policy` array, and never set `defaultReservedSpace` alone. `daemon.json` has no `keepDuration` key even though the Docker docs examples show one; it is silently ignored, and `dockerd --validate` accepts unknown keys, so it proves nothing. Applying it needs sudo and `sudo systemctl restart docker`; `live-restore` is off, so every container restarts (about a minute of downtime on both sites). Do it at a quiet hour and check with `docker buildx inspect`.
 
 ---
 
