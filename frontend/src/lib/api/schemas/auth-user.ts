@@ -50,9 +50,13 @@ export const userRequestSchema = z.object({
   feedbackContact: z.boolean().optional(),
   acquisitionChannel: acquisitionChannelSchema.nullable().optional(),
   image: z.string().nullable().optional(),
-  // "completed" or "skipped:<step>"; sent only when the onboarding wizard ends
+  // "completed" or "skipped:<step>"; sent only when the onboarding wizard ends.
+  // At most three digits, as UserRequest.onboardingOutcome allows on the server.
   onboardingOutcome: z
-    .union([z.literal(ONBOARDING_COMPLETED), z.string().regex(/^skipped:\d+$/)])
+    .union([
+      z.literal(ONBOARDING_COMPLETED),
+      z.string().regex(/^skipped:\d{1,3}$/),
+    ])
     .optional(),
 });
 
