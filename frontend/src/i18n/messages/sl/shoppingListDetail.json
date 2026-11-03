@@ -53,8 +53,8 @@
     "unpricedItems": "{count, plural, one {# postavka brez cene} two {# postavki brez cene} few {# postavke brez cene} other {# postavk brez cene}}"
   },
   "items": {
-    "titleWithChecked": "Izdelki ({checked}/{total} kupljeno)",
-    "title": "Izdelki ({total})",
+    "titleWithChecked": "{label} ({checked}/{total} kupljeno)",
+    "title": "{label} ({total})",
     "emptyOwner": "Seznam je še prazen. Poišči izdelke in jih dodaj sem.",
     "empty": "Seznam je še prazen.",
     "searchProducts": "Išči izdelke",
@@ -78,11 +78,9 @@
     "withStore": "{store}: {reason}"
   },
   "priceHistory": {
-    "title": "Zgodovina cen",
     "noData": "Zgodovine cen še ni."
   },
   "stores": {
-    "title": "Cene po trgovcih",
     "noItems": "Seznam je še prazen. Poišči izdelke in jih dodaj sem.",
     "allChecked": "Vse je kupljeno!",
     "loadError": "Cen ni bilo mogoče naložiti. Poskusi znova.",

@@ -20,7 +20,8 @@
     "searchProducts": "Produkte suchen"
   },
   "suggestions": {
-    "title": "Vorschläge für deine Merkliste ({count})"
+    "label": "Vorschläge für deine Merkliste",
+    "title": "{label} ({count})"
   },
   "actionButton": {
     "watch": "Preisalarm setzen",
@@ -64,8 +65,7 @@
   },
   "sectionNav": {
     "label": "Abschnitte der Merkliste",
-    "watched": "Gemerkte Produkte",
     "watchedShort": "Gemerkt",
-    "suggestions": "Vorschläge"
+    "suggestionsShort": "Vorschläge"
   }
 }

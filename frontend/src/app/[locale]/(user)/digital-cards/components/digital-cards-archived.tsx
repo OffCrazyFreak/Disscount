@@ -13,7 +13,10 @@ export default function DigitalCardsArchived({
   cards,
 }: IDigitalCardsArchivedProps) {
   const t = useTranslations("digitalCards");
-  const label = t("archived.label", { count: cards.length });
+  const label = t("archived.label", {
+    label: t("sectionNav.archived"),
+    count: cards.length,
+  });
 
   return (
     <div className="space-y-1">

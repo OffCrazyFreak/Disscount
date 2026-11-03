@@ -17,7 +17,10 @@ export default function WatchlistSuggestions({
   return (
     <div className="space-y-2">
       <h2 className="py-2 text-lg font-semibold">
-        {t("suggestions.title", { count: items.length })}
+        {t("suggestions.title", {
+          label: t("suggestions.label"),
+          count: items.length,
+        })}
       </h2>
 
       {isLoading ? (

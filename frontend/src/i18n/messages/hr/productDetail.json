@@ -16,14 +16,12 @@
     "distance": "Udaljenosti"
   },
   "chains": {
-    "title": "Cijene po trgovinama",
     "refreshed": "Cijene osvježene {time}",
     "loadError": "Cijene se nisu učitale. Pokušaj ponovno.",
     "empty": "Nema dostupnih cijena za ovaj proizvod.",
     "whereToBuy": "Gdje kupiti"
   },
   "priceHistory": {
-    "title": "Povijest cijena",
     "empty": "Još nema povijesti cijena.",
     "average": "Prosjek",
     "period": {

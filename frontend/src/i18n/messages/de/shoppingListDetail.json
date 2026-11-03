@@ -53,8 +53,8 @@
     "unpricedItems": "{count, plural, one {# Artikel ohne Preis} other {# Artikel ohne Preis}}"
   },
   "items": {
-    "titleWithChecked": "Produkte ({checked}/{total} gekauft)",
-    "title": "Produkte ({total})",
+    "titleWithChecked": "{label} ({checked}/{total} gekauft)",
+    "title": "{label} ({total})",
     "emptyOwner": "Die Liste ist noch leer. Suche Produkte und füge sie hier hinzu.",
     "empty": "Die Liste ist noch leer.",
     "searchProducts": "Produkte suchen",
@@ -78,11 +78,9 @@
     "withStore": "{store}: {reason}"
   },
   "priceHistory": {
-    "title": "Preisverlauf",
     "noData": "Noch kein Preisverlauf."
   },
   "stores": {
-    "title": "Preise nach Händler",
     "noItems": "Die Liste ist noch leer. Suche Produkte und füge sie hier hinzu.",
     "allChecked": "Alles gekauft!",
     "loadError": "Die Preise konnten nicht geladen werden. Versuche es erneut.",

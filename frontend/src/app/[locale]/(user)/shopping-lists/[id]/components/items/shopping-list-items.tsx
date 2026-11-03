@@ -91,10 +91,14 @@ export default function ShoppingListItems({
       >
         {checkedCount > 0
           ? t("items.titleWithChecked", {
+              label: t("sectionNav.products"),
               checked: checkedCount,
               total: shoppingList.items.length,
             })
-          : t("items.title", { total: shoppingList.items.length })}
+          : t("items.title", {
+              label: t("sectionNav.products"),
+              total: shoppingList.items.length,
+            })}
       </h2>
 
       {/* Only the owner can add items, matching the backend's rule. */}

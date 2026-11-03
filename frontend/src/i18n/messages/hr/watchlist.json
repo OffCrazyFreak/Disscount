@@ -20,7 +20,8 @@
     "searchProducts": "Pretraži proizvode"
   },
   "suggestions": {
-    "title": "Prijedlozi proizvoda za praćenje ({count})"
+    "label": "Prijedlozi proizvoda za praćenje",
+    "title": "{label} ({count})"
   },
   "actionButton": {
     "watch": "Prati proizvod",
@@ -64,8 +65,7 @@
   },
   "sectionNav": {
     "label": "Odjeljci praćenja",
-    "watched": "Praćeni proizvodi",
     "watchedShort": "Praćeni",
-    "suggestions": "Prijedlozi"
+    "suggestionsShort": "Prijedlozi"
   }
 }

@@ -27,6 +27,9 @@ export default function ShoppingListPriceHistory({
   shoppingList,
 }: IShoppingListPriceHistoryProps) {
   const t = useTranslations("shoppingListDetail");
+  // Shared with the section bar, so the link and the heading always read the same.
+  const priceHistoryHeading =
+    useTranslations("common.sectionNav")("priceHistory");
 
   const [period, setPeriod] = useState<PeriodOption>(() =>
     getEnabledPeriod(getShoppingListPriceHistoryPeriod(shoppingList.id)),
@@ -58,7 +61,7 @@ export default function ShoppingListPriceHistory({
 
   return (
     <div ref={cardRef} className="space-y-2">
-      <h2 className="py-2 text-lg font-semibold">{t("priceHistory.title")}</h2>
+      <h2 className="py-2 text-lg font-semibold">{priceHistoryHeading}</h2>
 
       <Card className="shadow-sm hover:shadow-md transition-shadow">
         <CardContent className="p-6">

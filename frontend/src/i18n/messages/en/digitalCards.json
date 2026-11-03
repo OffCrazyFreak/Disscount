@@ -195,7 +195,7 @@
     "add": "Add card"
   },
   "archived": {
-    "label": "Archived ({count})"
+    "label": "{label} ({count})"
   },
   "tile": {
     "archivedBadge": "Archived",
@@ -274,7 +274,6 @@
   },
   "sectionNav": {
     "label": "Card sections",
-    "cards": "Cards",
     "archived": "Archived"
   }
 }

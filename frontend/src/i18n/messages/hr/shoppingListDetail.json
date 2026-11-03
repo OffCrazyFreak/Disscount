@@ -53,8 +53,8 @@
     "unpricedItems": "{count, plural, one {# stavka bez cijene} few {# stavke bez cijene} other {# stavki bez cijene}}"
   },
   "items": {
-    "titleWithChecked": "Proizvodi ({checked}/{total} kupljeno)",
-    "title": "Proizvodi ({total})",
+    "titleWithChecked": "{label} ({checked}/{total} kupljeno)",
+    "title": "{label} ({total})",
     "emptyOwner": "Popis je još prazan. Pretraži proizvode i dodaj ih ovdje.",
     "empty": "Popis je još prazan.",
     "searchProducts": "Pretraži proizvode",
@@ -78,11 +78,9 @@
     "withStore": "{store}: {reason}"
   },
   "priceHistory": {
-    "title": "Povijest cijena",
     "noData": "Još nema povijesti cijena."
   },
   "stores": {
-    "title": "Cijene po trgovinama",
     "noItems": "Popis je još prazan. Pretraži proizvode i dodaj ih ovdje.",
     "allChecked": "Sve je kupljeno!",
     "loadError": "Cijene se nisu učitale. Pokušaj ponovno.",

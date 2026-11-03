@@ -252,7 +252,7 @@
     "add": "Karte hinzufügen"
   },
   "archived": {
-    "label": "Archiviert ({count})"
+    "label": "{label} ({count})"
   },
   "tile": {
     "archivedBadge": "Archiviert",
@@ -331,7 +331,6 @@
   },
   "sectionNav": {
     "label": "Kartenabschnitte",
-    "cards": "Karten",
     "archived": "Archiviert"
   }
 }

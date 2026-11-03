@@ -204,7 +204,7 @@
     }
   },
   "sectionNav": {
-    "stores": "Prezzi nei negozi",
+    "stores": "Prezzi per catena",
     "storesShort": "Negozi",
     "priceHistory": "Storico prezzi",
     "priceHistoryShort": "Storico"

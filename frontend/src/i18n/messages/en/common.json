@@ -204,7 +204,7 @@
     }
   },
   "sectionNav": {
-    "stores": "Prices at stores",
+    "stores": "Prices by store",
     "storesShort": "Stores",
     "priceHistory": "Price history",
     "priceHistoryShort": "History"

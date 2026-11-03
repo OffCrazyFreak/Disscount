@@ -82,6 +82,11 @@ const LIST: ShoppingListDto = {
   items: [],
 };
 
+const LIST_WITH_ITEM = {
+  ...LIST,
+  items: [{ id: "a", name: "Mlijeko", amount: 1, isChecked: false }],
+} as ShoppingListDto;
+
 function httpError(status: number) {
   return new AxiosError("Request failed", undefined, undefined, undefined, {
     status,
@@ -131,7 +136,7 @@ describe("ShoppingListDetailClient", () => {
   ])(
     "shows the store summary error only for a failed row (%o)",
     (priceStates, hasError) => {
-      data.shoppingList = LIST;
+      data.shoppingList = LIST_WITH_ITEM;
       data.error = null;
       data.priceStates = priceStates;
       renderWithProviders(<ShoppingListDetailClient listId={LIST.id} />);
@@ -140,8 +145,19 @@ describe("ShoppingListDetailClient", () => {
     },
   );
 
-  it("links only the sections an empty list has", () => {
+  it("shows no section bar for an empty list, which has only its products", () => {
     data.shoppingList = LIST;
+    data.error = null;
+    data.priceStates = {};
+    renderWithProviders(<ShoppingListDetailClient listId={LIST.id} />);
+
+    expect(
+      screen.queryByRole("navigation", { name: "Odjeljci popisa" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("links products, stores and price history once the list has items", () => {
+    data.shoppingList = LIST_WITH_ITEM;
     data.error = null;
     data.priceStates = {};
     renderWithProviders(<ShoppingListDetailClient listId={LIST.id} />);
@@ -150,22 +166,6 @@ describe("ShoppingListDetailClient", () => {
     const hrefs = within(nav)
       .getAllByRole("link")
       .map((link) => link.getAttribute("href"));
-    expect(hrefs).toEqual(["#products", "#stores"]);
-  });
-
-  it("adds the price history once the list has items", () => {
-    data.shoppingList = {
-      ...LIST,
-      items: [{ id: "a", name: "Mlijeko", amount: 1, isChecked: false }],
-    } as ShoppingListDto;
-    data.error = null;
-    data.priceStates = {};
-    renderWithProviders(<ShoppingListDetailClient listId={LIST.id} />);
-
-    const nav = screen.getByRole("navigation", { name: "Odjeljci popisa" });
-    expect(within(nav).getAllByRole("link").at(-1)).toHaveAttribute(
-      "href",
-      "#price-history",
-    );
+    expect(hrefs).toEqual(["#products", "#stores", "#price-history"]);
   });
 });

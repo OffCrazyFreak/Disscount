@@ -195,7 +195,7 @@
     "add": "Aggiungi carta"
   },
   "archived": {
-    "label": "Archiviate ({count})"
+    "label": "{label} ({count})"
   },
   "tile": {
     "archivedBadge": "Archiviata",
@@ -274,7 +274,6 @@
   },
   "sectionNav": {
     "label": "Sezioni delle carte",
-    "cards": "Carte",
     "archived": "Archiviate"
   }
 }

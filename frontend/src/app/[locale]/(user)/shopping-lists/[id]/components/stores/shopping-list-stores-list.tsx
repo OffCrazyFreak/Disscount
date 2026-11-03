@@ -21,7 +21,8 @@ export default function ShoppingListStoreSummary({
   shoppingList,
   hasFailedPrices,
 }: IShoppingListStoreSummaryProps) {
-  const t = useTranslations("shoppingListDetail");
+  // Shared with the section bar, so the link and the heading always read the same.
+  const storesHeading = useTranslations("common.sectionNav")("stores");
   const { user } = useUser();
 
   const sortNoteId = useId();
@@ -44,7 +45,7 @@ export default function ShoppingListStoreSummary({
 
   return (
     <div className="space-y-2">
-      <h2 className="py-2 text-lg font-semibold">{t("stores.title")}</h2>
+      <h2 className="py-2 text-lg font-semibold">{storesHeading}</h2>
 
       <ShoppingListStoresBody
         isLoading={productsLoading}

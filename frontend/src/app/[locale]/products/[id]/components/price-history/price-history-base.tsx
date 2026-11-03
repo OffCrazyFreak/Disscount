@@ -14,7 +14,7 @@ interface IPriceHistoryProps {
 }
 
 export default function PriceHistory({ product }: IPriceHistoryProps) {
-  const t = useTranslations("productDetail.priceHistory");
+  const t = useTranslations("common.sectionNav");
   const [cardRef, isNearViewport] = useNearViewport<HTMLDivElement>();
 
   const {
@@ -30,7 +30,7 @@ export default function PriceHistory({ product }: IPriceHistoryProps) {
 
   return (
     <div ref={cardRef} className="space-y-2">
-      <h2 className="py-2 text-lg font-semibold">{t("title")}</h2>
+      <h2 className="py-2 text-lg font-semibold">{t("priceHistory")}</h2>
 
       <Card className="shadow-sm hover:shadow-md transition-shadow">
         <CardContent className="p-6">

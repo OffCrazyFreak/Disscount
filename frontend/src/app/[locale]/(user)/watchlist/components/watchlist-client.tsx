@@ -14,6 +14,9 @@ import WatchlistList from "@/app/[locale]/(user)/watchlist/components/watchlist-
 import WatchlistSuggestions from "@/app/[locale]/(user)/watchlist/components/watchlist-suggestions";
 import { useWatchlistData } from "@/app/[locale]/(user)/watchlist/hooks/use-watchlist-data";
 
+// One source for each id, which the nav links to and the URL hash names.
+const SECTION_IDS = { watched: "watched", suggestions: "suggestions" };
+
 interface IWatchlistClientProps {
   query: string;
 }
@@ -47,9 +50,14 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
   }
 
   const listLoading = userLoading || watchlistLoading;
-  const hasSuggestions =
+  const showsSuggestions =
     !listLoading &&
     (shoppingListItemsLoading || filteredSuggestionItems.length > 0);
+  // Linked only once there are suggestions, so a loading section never flashes a link.
+  const hasSuggestions =
+    showsSuggestions &&
+    !shoppingListItemsLoading &&
+    filteredSuggestionItems.length > 0;
 
   return (
     <div className="space-y-4">
@@ -68,15 +76,16 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
         label={t("sectionNav.label")}
         sections={[
           {
-            id: "watched",
-            label: t("sectionNav.watched"),
+            id: SECTION_IDS.watched,
+            label: t("header.title"),
             shortLabel: t("sectionNav.watchedShort"),
           },
           ...(hasSuggestions
             ? [
                 {
-                  id: "suggestions",
-                  label: t("sectionNav.suggestions"),
+                  id: SECTION_IDS.suggestions,
+                  label: t("suggestions.label"),
+                  shortLabel: t("sectionNav.suggestionsShort"),
                   count: filteredSuggestionItems.length,
                 },
               ]
@@ -84,7 +93,7 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
         ]}
       />
 
-      <JumpSection id="watched" className="space-y-4">
+      <JumpSection id={SECTION_IDS.watched} className="space-y-4">
         <WatchlistHeader
           query={query}
           itemCount={filteredItems.length}
@@ -102,8 +111,8 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
         />
       </JumpSection>
 
-      {hasSuggestions && (
-        <JumpSection id="suggestions">
+      {showsSuggestions && (
+        <JumpSection id={SECTION_IDS.suggestions}>
           <WatchlistSuggestions
             items={filteredSuggestionItems}
             isLoading={shoppingListItemsLoading}

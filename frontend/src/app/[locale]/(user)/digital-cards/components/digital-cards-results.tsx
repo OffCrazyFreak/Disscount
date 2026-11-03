@@ -13,6 +13,9 @@ import SectionJumpNav from "@/components/custom/common/section-jump-nav";
 import { Separator } from "@/components/ui/separator";
 import type { DigitalCardDto } from "@/lib/api/types";
 
+// One source for each id, which the nav links to and the URL hash names.
+const SECTION_IDS = { cards: "cards", archived: "archived" };
+
 interface IDigitalCardsResultsProps {
   isLoading: boolean;
   totalCount: number;
@@ -55,12 +58,12 @@ export default function DigitalCardsResults({
         label={t("sectionNav.label")}
         sections={[
           ...(active.length > 0
-            ? [{ id: "cards", label: t("sectionNav.cards") }]
+            ? [{ id: SECTION_IDS.cards, label: t("list.cardsLabel") }]
             : []),
           ...(archived.length > 0
             ? [
                 {
-                  id: "archived",
+                  id: SECTION_IDS.archived,
                   label: t("sectionNav.archived"),
                   count: archived.length,
                 },
@@ -70,7 +73,7 @@ export default function DigitalCardsResults({
       />
 
       {active.length > 0 && (
-        <JumpSection id="cards" className="space-y-4">
+        <JumpSection id={SECTION_IDS.cards} className="space-y-4">
           {pinned.length > 0 && (
             <DigitalCardsGrid cards={pinned} label={t("list.pinnedLabel")} />
           )}
@@ -84,7 +87,7 @@ export default function DigitalCardsResults({
       )}
 
       {archived.length > 0 && (
-        <JumpSection id="archived">
+        <JumpSection id={SECTION_IDS.archived}>
           <DigitalCardsArchived cards={archived} />
         </JumpSection>
       )}

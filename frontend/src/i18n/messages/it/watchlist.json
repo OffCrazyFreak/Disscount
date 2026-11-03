@@ -20,7 +20,8 @@
     "searchProducts": "Cerca prodotti"
   },
   "suggestions": {
-    "title": "Prodotti suggeriti da seguire ({count})"
+    "label": "Prodotti suggeriti da seguire",
+    "title": "{label} ({count})"
   },
   "actionButton": {
     "watch": "Segui prodotto",
@@ -64,8 +65,7 @@
   },
   "sectionNav": {
     "label": "Sezioni dei prodotti seguiti",
-    "watched": "Prodotti seguiti",
     "watchedShort": "Seguiti",
-    "suggestions": "Suggerimenti"
+    "suggestionsShort": "Suggerimenti"
   }
 }

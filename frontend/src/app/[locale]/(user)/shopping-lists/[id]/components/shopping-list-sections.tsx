@@ -10,6 +10,13 @@ import ShoppingListStoreSummary from "@/app/[locale]/(user)/shopping-lists/[id]/
 import { useListChainAggregates } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-list-chain-aggregates";
 import type { ISectionJumpNavItem } from "@/typings/section-jump-nav";
 
+// One source for each id, which the nav links to and the URL hash names.
+const SECTION_IDS = {
+  products: "products",
+  stores: "stores",
+  priceHistory: "price-history",
+};
+
 type IShoppingListSectionsProps = ComponentProps<typeof ShoppingListItems>;
 
 /** The list's products, stores and price history, under one sticky jump bar. */
@@ -20,50 +27,54 @@ export default function ShoppingListSections(
   const tSections = useTranslations("common.sectionNav");
   const { shoppingList, priceStates } = itemsProps;
   const { allChains } = useListChainAggregates(shoppingList);
-  // An empty list has no history to chart.
+  // An empty list has no stores to compare and no history to chart.
   const hasItems = shoppingList.items.length > 0;
 
   const sections: ISectionJumpNavItem[] = [
     {
-      id: "products",
+      id: SECTION_IDS.products,
       label: t("products"),
       count: shoppingList.items.length,
-    },
-    {
-      id: "stores",
-      label: tSections("stores"),
-      shortLabel: tSections("storesShort"),
-      count: allChains.length,
     },
   ];
 
   if (hasItems) {
-    sections.push({
-      id: "price-history",
-      label: tSections("priceHistory"),
-      shortLabel: tSections("priceHistoryShort"),
-    });
+    sections.push(
+      {
+        id: SECTION_IDS.stores,
+        label: tSections("stores"),
+        shortLabel: tSections("storesShort"),
+        count: allChains.length,
+      },
+      {
+        id: SECTION_IDS.priceHistory,
+        label: tSections("priceHistory"),
+        shortLabel: tSections("priceHistoryShort"),
+      },
+    );
   }
 
   return (
     <>
       <SectionJumpNav label={t("label")} sections={sections} />
 
-      <JumpSection id="products">
+      <JumpSection id={SECTION_IDS.products}>
         <ShoppingListItems {...itemsProps} />
       </JumpSection>
 
-      <JumpSection id="stores">
-        <ShoppingListStoreSummary
-          shoppingList={shoppingList}
-          hasFailedPrices={Object.values(priceStates).includes("failed")}
-        />
-      </JumpSection>
-
       {hasItems && (
-        <JumpSection id="price-history">
-          <ShoppingListPriceHistory shoppingList={shoppingList} />
-        </JumpSection>
+        <>
+          <JumpSection id={SECTION_IDS.stores}>
+            <ShoppingListStoreSummary
+              shoppingList={shoppingList}
+              hasFailedPrices={Object.values(priceStates).includes("failed")}
+            />
+          </JumpSection>
+
+          <JumpSection id={SECTION_IDS.priceHistory}>
+            <ShoppingListPriceHistory shoppingList={shoppingList} />
+          </JumpSection>
+        </>
       )}
     </>
   );

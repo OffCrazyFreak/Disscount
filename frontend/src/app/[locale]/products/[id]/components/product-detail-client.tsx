@@ -10,6 +10,9 @@ import JumpSection from "@/components/custom/common/jump-section";
 import SectionJumpNav from "@/components/custom/common/section-jump-nav";
 import { useProductDetail } from "@/app/[locale]/products/[id]/hooks/use-product-detail";
 
+// One source for each id, which the nav links to and the URL hash names.
+const SECTION_IDS = { stores: "stores", priceHistory: "price-history" };
+
 interface IProductDetailClientProps {
   ean: string;
 }
@@ -57,24 +60,24 @@ export default function ProductDetailClient({
         label={t("sectionNav.label")}
         sections={[
           {
-            id: "stores",
+            id: SECTION_IDS.stores,
             label: tSections("stores"),
             shortLabel: tSections("storesShort"),
             count: detail.sortedChains.length,
           },
           {
-            id: "price-history",
+            id: SECTION_IDS.priceHistory,
             label: tSections("priceHistory"),
             shortLabel: tSections("priceHistoryShort"),
           },
         ]}
       />
 
-      <JumpSection id="stores">
+      <JumpSection id={SECTION_IDS.stores}>
         <ProductChainsSection product={product} detail={detail} />
       </JumpSection>
 
-      <JumpSection id="price-history">
+      <JumpSection id={SECTION_IDS.priceHistory}>
         <PriceHistory key={product.ean} product={product} />
       </JumpSection>
     </div>

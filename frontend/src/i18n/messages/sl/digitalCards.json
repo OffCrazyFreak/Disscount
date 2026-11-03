@@ -195,7 +195,7 @@
     "add": "Dodaj kartico"
   },
   "archived": {
-    "label": "Arhivirane ({count})"
+    "label": "{label} ({count})"
   },
   "tile": {
     "archivedBadge": "Arhivirana",
@@ -274,7 +274,6 @@
   },
   "sectionNav": {
     "label": "Razdelki kartic",
-    "cards": "Kartice",
     "archived": "Arhivirane"
   }
 }

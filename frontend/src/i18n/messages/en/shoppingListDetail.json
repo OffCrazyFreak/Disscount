@@ -53,8 +53,8 @@
     "unpricedItems": "{count, plural, one {# item without a price} other {# items without a price}}"
   },
   "items": {
-    "titleWithChecked": "Products ({checked}/{total} bought)",
-    "title": "Products ({total})",
+    "titleWithChecked": "{label} ({checked}/{total} bought)",
+    "title": "{label} ({total})",
     "emptyOwner": "This list is still empty. Search for products and add them here.",
     "empty": "This list is still empty.",
     "searchProducts": "Search products",
@@ -78,11 +78,9 @@
     "withStore": "{store}: {reason}"
   },
   "priceHistory": {
-    "title": "Price history",
     "noData": "No price history yet."
   },
   "stores": {
-    "title": "Prices by store",
     "noItems": "This list is still empty. Search for products and add them here.",
     "allChecked": "Everything's bought!",
     "loadError": "Couldn't load the prices. Try again.",

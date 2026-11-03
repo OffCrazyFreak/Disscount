@@ -20,7 +20,8 @@
     "searchProducts": "Search products"
   },
   "suggestions": {
-    "title": "Suggested products to watch ({count})"
+    "label": "Suggested products to watch",
+    "title": "{label} ({count})"
   },
   "actionButton": {
     "watch": "Add to Watchlist",
@@ -64,8 +65,7 @@
   },
   "sectionNav": {
     "label": "Watchlist sections",
-    "watched": "Watched products",
     "watchedShort": "Watched",
-    "suggestions": "Suggestions"
+    "suggestionsShort": "Suggestions"
   }
 }
