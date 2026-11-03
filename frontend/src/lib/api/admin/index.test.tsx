@@ -24,9 +24,11 @@ describe("admin user fetchers", () => {
     await waitFor(() => expect(result.current.data).toEqual([storedUser]));
   });
 
-  it("rejects a user list with a drifted user", async () => {
+  it("rejects the whole user list when one user drifted", async () => {
     server.use(
-      http.get("*/api/admin/users", () => HttpResponse.json([driftedUser])),
+      http.get("*/api/admin/users", () =>
+        HttpResponse.json([storedUser, driftedUser]),
+      ),
     );
 
     const { result } = renderHookWithProviders(() =>
@@ -34,6 +36,24 @@ describe("admin user fetchers", () => {
     );
 
     await waitFor(() => expect(result.current.error).toBeInstanceOf(ZodError));
+  });
+
+  it("parses the user an account type change answers with", async () => {
+    const promoted = { ...storedUser, accountType: "ADMIN" } as const;
+    server.use(
+      http.patch("*/api/admin/users/:id", () => HttpResponse.json(promoted)),
+    );
+
+    const { result } = renderHookWithProviders(() =>
+      adminService.useUpdateUserAccountType(),
+    );
+
+    await expect(
+      result.current.mutateAsync({
+        userId: storedUser.id,
+        accountType: "ADMIN",
+      }),
+    ).resolves.toEqual(promoted);
   });
 
   it("rejects an account type change answered with a drifted user", async () => {
