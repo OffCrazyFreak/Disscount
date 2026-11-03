@@ -41,13 +41,20 @@ describe("Sentry data collection", () => {
     },
   );
 
-  it("keeps the IP address, user details, cookies and bodies out, as the privacy policy says", () => {
-    expect(sentryDataCollection).toMatchObject({
+  it("pins the v10 sendDefaultPii false baseline the privacy policy describes", () => {
+    const ipHeaders = { deny: ["forwarded", "-ip", "remote-", "via", "-user"] };
+
+    expect(sentryDataCollection).toStrictEqual({
       userInfo: false,
       cookies: false,
+      httpHeaders: { request: ipHeaders, response: ipHeaders },
       httpBodies: [],
+      urlQueryParams: ipHeaders,
+      graphQL: { document: false, variables: false },
       genAI: { inputs: false, outputs: false },
       databaseQueryData: false,
+      stackFrameVariables: true,
+      frameContextLines: 7,
     });
   });
 });
