@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { z } from "zod";
 
-import { CARD_PHOTO_SLOTS } from "@/constants/card-codes";
 import {
   acquisitionChannelSchema,
   adminPhotoQueueItemSchema,
@@ -131,7 +130,7 @@ const { shape: listShape } = shoppingListDtoSchema;
 const MIRRORED_ENUMS: Record<string, string[]> = {
   AccountType: enumValues(userDtoShape.accountType),
   AcquisitionChannel: enumValues(acquisitionChannelSchema),
-  CardPhotoSlot: [...CARD_PHOTO_SLOTS],
+  CardPhotoSlot: enumValues(cardPhotoDtoSchema.shape.slot),
   ImageSource: enumValues(productImageSourceSchema),
   ImageStatus: enumValues(productImageStatusSchema),
   LinkAccess: enumValues(shoppingListRequestSchema.shape.linkAccess),
