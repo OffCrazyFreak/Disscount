@@ -19,7 +19,8 @@
     "hint": "Preveri povezavo in poskusi znova.",
     "retry": "Poskusi znova",
     "indicator": "Brez povezave: prikazujemo shranjene podatke.",
-    "indicatorPending": "Brez povezave: {count, plural, one {# sprememba čaka} two {# spremembi čakata} few {# spremembe čakajo} other {# sprememb čaka}} na shranjevanje."
+    "indicatorPending": "Brez povezave: {count, plural, one {# sprememba čaka} two {# spremembi čakata} few {# spremembe čakajo} other {# sprememb čaka}} na shranjevanje.",
+    "notSaved": "Ta stran še ni shranjena za uporabo brez povezave. Odpri jo enkrat, ko imaš povezavo, in bo na voljo tudi brez nje."
   },
   "lastSynced": {
     "refreshed": "Posodobljeno {time}"

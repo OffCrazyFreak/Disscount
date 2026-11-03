@@ -8,6 +8,8 @@ import { useTranslations } from "next-intl";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import LoginRequired from "@/components/custom/common/login-required";
+import NotSavedOffline from "@/components/custom/common/not-saved-offline";
+import { useIsNotSavedOffline } from "@/hooks/use-is-not-saved-offline";
 import SectionTabs from "@/components/custom/common/section-tabs";
 import WatchlistHeader from "@/app/[locale]/(user)/watchlist/components/watchlist-header";
 import WatchlistList from "@/app/[locale]/(user)/watchlist/components/watchlist-list";
@@ -26,6 +28,7 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
     canShowAccountData,
     userLoading,
     watchlistLoading,
+    isWatchlistLoaded,
     hasWatchedProducts,
     shoppingListItemsLoading,
     hasPinnedStores,
@@ -37,6 +40,7 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
   } = useWatchlistData(query);
   // Offline the failed session check can land before IndexedDB is read back.
   const isRestoring = useIsRestoring();
+  const isNotSavedOffline = useIsNotSavedOffline(isWatchlistLoaded);
 
   if (!userLoading && !canShowAccountData) {
     return (
@@ -47,6 +51,9 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
       />
     );
   }
+
+  if (isNotSavedOffline)
+    return <NotSavedOffline title={t("client.loginTitle")} />;
 
   const listLoading = userLoading || watchlistLoading || isRestoring;
   // A tab only once there are suggestions, so a loading section never flashes one.

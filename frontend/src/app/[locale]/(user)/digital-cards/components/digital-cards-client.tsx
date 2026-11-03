@@ -16,6 +16,7 @@ import {
   sortCards,
 } from "@/app/[locale]/(user)/digital-cards/utils/card-sorting";
 import LoginRequired from "@/components/custom/common/login-required";
+import NotSavedOffline from "@/components/custom/common/not-saved-offline";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import { usePathname } from "@/i18n/navigation";
@@ -28,7 +29,8 @@ export default function DigitalCardsClient() {
   const pathname = usePathname();
   const [sortMode, setSortMode] = useDigitalCardsSort();
 
-  const { cards, canShowCards, isAuthLoading, isLoading } = useWalletCards();
+  const { cards, canShowCards, isNotSavedOffline, isAuthLoading, isLoading } =
+    useWalletCards();
 
   const matching = sortCards(filterCards(cards, query), sortMode);
 
@@ -47,6 +49,9 @@ export default function DigitalCardsClient() {
       />
     );
   }
+
+  if (isNotSavedOffline)
+    return <NotSavedOffline title={t("list.loginTitle")} />;
 
   return (
     <div className="space-y-4">

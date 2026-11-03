@@ -19,7 +19,8 @@
     "hint": "Provjeri vezu pa pokušaj ponovno.",
     "retry": "Pokušaj ponovno",
     "indicator": "Izvan mreže: prikazujemo spremljene podatke.",
-    "indicatorPending": "Izvan mreže: {count, plural, one {# promjena čeka} few {# promjene čekaju} other {# promjena čeka}} spremanje."
+    "indicatorPending": "Izvan mreže: {count, plural, one {# promjena čeka} few {# promjene čekaju} other {# promjena čeka}} spremanje.",
+    "notSaved": "Ova stranica još nije spremljena za korištenje bez interneta. Otvori je jednom dok si na internetu i bit će dostupna i bez njega."
   },
   "lastSynced": {
     "refreshed": "Osvježeno {time}"

@@ -21,6 +21,7 @@ export function useWatchlistData(query: string) {
   } = useUser();
   const {
     watchlistLoading,
+    isWatchlistLoaded,
     groupedWatchlistItems,
     pinnedStoreChainCodes,
     hasPinnedStores,
@@ -98,6 +99,7 @@ export function useWatchlistData(query: string) {
     canShowAccountData,
     userLoading,
     watchlistLoading,
+    isWatchlistLoaded,
     hasWatchedProducts,
     shoppingListItemsLoading,
     hasPinnedStores,

@@ -17,10 +17,13 @@ const LIST: ShoppingListDto = {
   items: [],
 };
 
+const { saved } = vi.hoisted(() => ({ saved: { lists: true } }));
+
 // Offline: the session check failed, and the lists saved on this device are this account's.
 vi.mock("@/context/user-context", () => ({
   useUser: () => ({
     isAuthenticated: false,
+    hasUnverifiedAccount: true,
     canShowAccountData: true,
     isLoading: false,
   }),
@@ -28,7 +31,10 @@ vi.mock("@/context/user-context", () => ({
 
 vi.mock("@/lib/api", () => ({
   shoppingListService: {
-    useGetCurrentUserShoppingLists: () => ({ data: [LIST], isLoading: false }),
+    useGetCurrentUserShoppingLists: () =>
+      saved.lists
+        ? { data: [LIST], isLoading: false, isSuccess: true }
+        : { data: undefined, isLoading: false, isSuccess: false },
   },
 }));
 
@@ -81,5 +87,17 @@ describe("ShoppingListsClient offline", () => {
     );
 
     expect(screen.getByText("loading")).toBeInTheDocument();
+  });
+
+  it("says the lists are not saved offline when this device never loaded them", () => {
+    saved.lists = false;
+
+    renderWithProviders(<ShoppingListsClient query="" />);
+
+    saved.lists = true;
+    expect(
+      screen.getByText(/nije spremljena za korištenje bez interneta/),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/0/)).not.toBeInTheDocument();
   });
 });
