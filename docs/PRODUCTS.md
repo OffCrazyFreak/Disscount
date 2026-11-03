@@ -70,7 +70,7 @@ What each side adds:
 | Spring backend | Never calls the price endpoints. It reads the upstream daily archive once a week for the photo catalogue (name, brand, and how many priced store listings carry each EAN), stores photos, watchlist items and shopping list items keyed by EAN, and serves the EAN list to the sitemap |
 | Browser        | Ranks and filters search results locally, computes discounts and watchlist alerts, and keeps what it has seen in IndexedDB                                                                                                                                                             |
 
-The product shape (`productResponseSchema` in `frontend/src/lib/cijene-api/schemas.ts`) is `{ ean, brand, name, quantity, unit, chains[] }`. Each chain entry carries `chain` (the chain id) and that chain's own `code` (its product code), `name`, `brand`, `category`, `unit`, `quantity`, `min_price`, `max_price`, `avg_price` (prices are strings) and `price_date`. A store price (`storePriceSchema`) adds `regular_price`, `special_price`, `unit_price`, `best_price_30` (the lowest price in the last 30 days, which Croatian law requires on a sale), `anchor_price` and the store itself.
+The product shape (`productResponseSchema` in `frontend/src/lib/cijene-api/schemas.ts`) is `{ ean, brand, name, quantity, unit, chains[] }`. Each chain entry carries `chain` (the chain id) and that chain's own `code` (its product code), `name`, `brand`, `category`, `unit`, `quantity`, `min_price`, `max_price`, `avg_price` (prices are decimal strings; the schema drops a chain entry whose price text is not a plain decimal, so no caller sees NaN, while an entry with the wrong shape still fails the product) and `price_date`. A store price (`storePriceSchema`) adds `regular_price`, `special_price`, `unit_price`, `best_price_30` (the lowest price in the last 30 days, which Croatian law requires on a sale), `anchor_price` and the store itself.
 
 ---
 
@@ -91,7 +91,7 @@ The browser never calls cijene directly. It calls same-origin routes under `/api
 | `GET /api/cijene/health`                        | `/health`                              | 10 second timeout instead of 30                                                                                              |
 | `GET /api/cijene/store-directory`               | (our own data)                         | The only route that sends a public `Cache-Control`; see [MAP.md](MAP.md)                                                     |
 
-**Error mapping.** An upstream 4xx the caller could fix keeps its status. Upstream 401 and 403 become 502, because our own token authenticates the call, so they mean the proxy is misconfigured, and passing them on would tell the user they are logged out. A payload that fails the zod schema is a 502 too. Every other route answers `Cache-Control: no-cache` on success and `no-store` on an error (`createApiResponse` in `utils/response-utils.ts`), so freshness is decided by React Query and the service worker, not the HTTP cache.
+**Error mapping.** An upstream 4xx the caller could fix keeps its status. Upstream 401 and 403 become 502, because our own token authenticates the call, so they mean the proxy is misconfigured, and passing them on would tell the user they are logged out. A payload that fails the zod schema is a 502 too, and its zod tree is logged on the server rather than sent. Every 502, including a failed store directory load, is the same `application/problem+json` the backend proxy answers with: `proxyProblem` (`lib/backend-proxy/proxy-problem.ts`), code `upstream_unavailable`, its title translated from `errors.proxy.unavailable` in the request's `Accept-Language`. The 400s for bad parameters and the 4xx passed on from upstream still carry an English `error` field. Every other route answers `Cache-Control: no-cache` on success and `no-store` on an error (`createApiResponse` in `utils/response-utils.ts`, `private, no-store` for a 502), so freshness is decided by React Query and the service worker, not the HTTP cache.
 
 **Three axios clients** live in `lib/cijene-api/client.ts`: v1 (bearer token, 30 s timeout), v0 (no token, 30 s) and health (10 s). They log every call in development and always throw a `CijeneApiError` carrying the upstream status (`errors.ts`). The module warns at startup when the token is missing.
 
@@ -105,7 +105,7 @@ The matching, ranking and diacritic folding are covered in [SEARCH.md](SEARCH.md
 - **Client side.** `use-infinite-products.ts` re-ranks the result locally with `product-relevance.ts` and reveals it in batches (`use-revealed-batches.ts`, `product-batches.ts`) as the user scrolls.
 - **Facets.** Trgovine (chains), Lokacije (cities), Kategorije and Marka are multi-selects built from the loaded results (`utils/facets/`). On an unfiltered view the chain and location filters are seeded once from the user's pinned stores and places (`use-seed-preferred-filters.ts`); a URL that already carries a filter is left alone. Filters live in the URL (`use-filter-params.ts`), so a filtered search can be shared.
 - **City prices.** With a Lokacije filter, the list shows each product's price range in those cities only. `use-filtered-product-prices.ts` calls `/api/cijene/location-prices`, which is described in [§7](#7-chain-and-store-prices).
-- **Product cards** (`components/product-item/`, built on the shared `components/custom/product/product-card.tsx`) show the price range, the photo thumbnail (batched, see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#7-how-photos-reach-the-page)), and quick actions. Before opening a product modal, `useProductModals` seeds the product into the by-EAN cache entry, so the modal opens with data instead of refetching.
+- **Product cards** (`components/product-item/`, built on the shared `components/custom/product/product-card.tsx`) show the price range, the photo thumbnail at every width (batched into one request per page of results, with a fixed box and a neutral placeholder when there is no photo, see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#7-how-photos-reach-the-page)), and quick actions. Before opening a product modal, `useProductModals` seeds the product into the by-EAN cache entry, so the modal opens with data instead of refetching.
 - **Rendering.** `/products` is a server page that only reads `q` and renders `ProductsClient` inside `Suspense`; the results themselves are fetched in the browser. Only the product page is server rendered with data.
 
 ---
@@ -197,6 +197,8 @@ The price history tab draws one line per chain over time with Recharts (`price-h
 
 The key is `["cijene", "product", "history", ean, date]`, which is persisted for offline use like the rest of the `cijene` root.
 
+**A failed refetch keeps the chart.** `usePriceHistory` reports `isError` only for a day with no cached answer. A failed background refetch flips a query to error while keeping its data, so counting it would swap a usable chart for "no data" on one dropped request; the shopping list chart follows the same rule.
+
 **Periods** (`constants/price-history.ts`): 1W and 1M are on; 1Y and ALL are disabled (`DISABLED_PERIODS`) until upstream can return a range in one request (issues #62, longer periods, and #45, batched history). `getEnabledPeriod` coerces a saved disabled period back to 1W, so a stored preference cannot mount straight into 365 requests.
 
 **Preferences.** The chosen period and chains are saved per EAN in `localStorage` (`use-product-preferences.ts`, through `useSyncExternalStore`). The server cannot see `localStorage`, so it renders the defaults (1W; pinned chains if any carry the product, otherwise all), and saving happens in the change handler, never in an effect, so hydration cannot overwrite the saved state. At least one chain always stays selected.
@@ -205,29 +207,9 @@ The key is `["cijene", "product", "history", ean, date]`, which is persisted for
 
 ## 9. Watchlist and price alerts
 
-The watchlist (`/watchlist`, login required, `app/[locale]/(user)/watchlist/`) lets a user follow a product and be told when it is cheap.
+The watchlist (`/watchlist`) lets a user follow a product and be told when it is cheap. The backend stores only the rule (`watchlist_item`: EAN, `PERCENTAGE` or `ABSOLUTE`, threshold); the browser loads each watched product through the same `productByEanQueryOptions` cache entry the product page uses, and decides whether a rule fires. No backend job, email or push sends an alert, so the user sees one only while the app is open.
 
-**Storage.** The backend stores only the rule, never a price. Table `watchlist_item` (`backend/.../watchlistItem/domain/WatchlistItem.java`): `id`, `user_id`, `product_api_id` (the EAN), `watch_type` (`PERCENTAGE` or `ABSOLUTE`), `threshold_value`, `last_notified_at`, `created_at`, `updated_at`, `deleted_at` (soft delete).
-
-| Method and path                             | What it does                                                                                |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `POST /api/watchlist`                       | Upsert by user, product and watch type; `thresholdValue` must be positive                   |
-| `GET /api/watchlist/me`                     | The caller's items                                                                          |
-| `GET /api/watchlist/product/{productApiId}` | The caller's items for one product                                                          |
-| `DELETE /api/watchlist/{id}`                | Soft delete; a repeat delete answers 204, and another user's id answers like an unknown one |
-
-All need a signed-in session (through the backend proxy, see [BACKEND-PROXY.md](BACKEND-PROXY.md)).
-
-**Rules.** A product can carry one rule of each type. The modal (`products/components/forms/watchlist-item-modal.tsx`, `watchlist-type-picker.tsx`) offers "price drops by €" (`ABSOLUTE`, 0.1 to 999 €) and "discount is at least %" (`PERCENTAGE`, 1 to 99 %). The defaults are 10 % and 10 % of the average price (clamped, 1 € when there is no price). The ranges are enforced in the frontend only (`utils/watchlist-thresholds.ts`); the backend checks only that the value is positive.
-
-**How an alert fires.** There is no backend job: alerts are computed in the browser, every time the app has the data.
-
-1. `useWatchedProducts` (`lib/watchlist/use-watched-products.ts`) loads `/api/watchlist/me`, groups the rows by product, and runs one `productByEanQueryOptions` query per product (the same cache entry the product page and the modal use).
-2. For each product, the baseline is the mean of the chains' `avg_price`, compared with the cheapest chain's `min_price`, among the user's pinned chains when they have any (`watchlist-discount-utils.ts`).
-3. A rule fires when that price is below the baseline by at least the threshold, in euros or percent (`watchlist-threshold-utils.ts`). Any one rule firing counts.
-4. `useWatchlistNotifications` (`context/use-watchlist-notifications.ts`) turns the matches into notifications for the bell (`components/custom/notifications/notifications-dropdown.tsx`) and the sidebar's price drop count (`use-watchlist-price-drop-count.ts`). The watchlist page can also turn the discounted items into a shopping list (`create-discounted-list-button.tsx`).
-
-So an alert reaches the user only when they open the app. The backend has no notification store: the unused `notification` table and `/api/notifications` endpoints were removed, and the server-side inbox is planned as #222. `last_notified_at` on watchlist items is still sent but never written; and `spring-boot-starter-mail` is on the classpath but unused. Moving alerts to the server is planned (see [§19](#19-future-improvements-and-todos)).
+On the product page, the watchlist button opens `?modal=watchlist&ean=` to set or edit the rules. Everything else (the API, the threshold maths, the bell, the price drop badge, suggestions and offline behaviour) is documented in [WATCHLIST.md](WATCHLIST.md).
 
 ---
 
@@ -237,7 +219,7 @@ So an alert reaches the user only when they open the app. The backend has no not
 
 `buildShoppingListItemRequest` (`utils/shopping-list-item-request.ts`) always sends `ean`, `name`, `brand`, `quantity`, `unit`, `amount` and `isChecked`. Only for an item marked bought, and only when a chain is known, it adds `chainCode` (the chosen chain, or the cheapest one, pinned stores preferred), `avgPrice` (the mean of the chains' averages) and `storePrice` (that chain's price). Those prices are a snapshot taken when the item was ticked off; an unbought row sends none.
 
-The backend stores them in `shopping_list_item` (`ean` nullable for plain text items, `brand`, `name`, `quantity`, `unit`, `amount` up to 999, `is_checked`, `chain_code`, `avg_price`, `store_price`). Adding a product that is already on the list merges by EAN (`ShoppingListItemMatcher`), and a catalogue product takes over a plain row with the same name. Plain text items are added with `add-plain-item-modal.tsx`. Sharing a list is covered in [SHARING.md](SHARING.md).
+The backend stores them in `shopping_list_item` (`ean` nullable for plain text items, `brand`, `name`, `quantity`, `unit`, `amount` up to 999, `is_checked`, `chain_code`, `avg_price`, `store_price`). Adding a product that is already on the list merges by EAN (`ShoppingListItemMatcher`), and a catalogue product takes over a plain row with the same name. Plain text items are added with `add-plain-item-modal.tsx`. The list side (the merge rule, ticking, offline writes, grouping by store and the list's price history chart) is covered in [SHOPPING-LISTS.md](SHOPPING-LISTS.md), and sharing a list in [SHARING.md](SHARING.md).
 
 ---
 
@@ -307,7 +289,7 @@ All copy is in the next-intl catalogs, in all five languages ([I18N.md](I18N.md)
 | `CIJENE_API_TOKEN`    | frontend, server only, secret | In practice yes: v1 needs it                                                     | Sent as `Authorization: Bearer` on v1 calls                              |
 | `NEXT_PUBLIC_API_URL` | frontend, public              | Defaults to `http://localhost:8080`; set it per environment, baked at build time | The backend origin the server uses for photos and the sitemap's EAN list |
 
-`CIJENE_API_*` are validated in `frontend/src/lib/server-env.ts` and listed with placeholders in `frontend/.env.local.example` and the root `.env.example`; [DEPLOYMENT.md](DEPLOYMENT.md) has the full table. They are runtime values, so a change needs a restart, not a rebuild. The backend reads no cijene variable; the catalogue import's archive list URL is the property `product-images.catalog.list-url`, defaulting to the public `v0/list`.
+`CIJENE_API_*` are validated in `frontend/src/lib/server-env.ts` and listed with placeholders in `frontend/.env.local.example` and the root `.env.example`; [INFRASTRUCTURE.md](INFRASTRUCTURE.md) has the full table. They are runtime values, so a change needs a restart, not a rebuild. The backend reads no cijene variable; the catalogue import's archive list URL is the property `product-images.catalog.list-url`, defaulting to the public `v0/list`.
 
 ---
 
@@ -347,10 +329,10 @@ Versions read from `frontend/package.json` and `backend/pom.xml`.
 
 ## 17. Tests
 
-| Suite             | What it covers                                                                                                                                                                                                                                                                                                                                              |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend (Vitest) | Product metadata, JSON-LD, cache seeding and the detail client (`[id]/`), chart preferences, chain sort, display prices, batches, facets, search results and their status, add to list prices, city price reduction and cache, query hooks, sitemap ids, product ids, watchlist discount, price drop and schema rules, the shopping list history chart data |
-| Backend (H2)      | `WatchlistItemOwnershipTest`, `WatchlistWireFormatTest`, `ShoppingListItemServiceAddTest`, `ShoppingListItemRequestTest`, the shopping list ownership, link access and wire format tests, and the product image suite (see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#12-tests))                                                                                 |
+| Suite             | What it covers                                                                                                                                                                                                                                                                                                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Frontend (Vitest) | Product metadata, JSON-LD, cache seeding and the detail client (`[id]/`), chart preferences, chain sort, display prices, batches, facets, search results and their status, add to list prices, city price reduction and cache, query hooks, the price history hook's error rule, sitemap ids, product ids, watchlist discount, price drop and schema rules, the shopping list history chart data |
+| Backend (H2)      | `WatchlistItemOwnershipTest`, `WatchlistWireFormatTest`, `ShoppingListItemServiceAddTest`, `ShoppingListItemRequestTest`, the shopping list ownership, link access and wire format tests, and the product image suite (see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#12-tests))                                                                                                                      |
 
 Not covered: the proxy routes against real upstream responses, the fuzzy fallback, and the price history fetch across a date window. Nothing on the backend computes alerts, so there is nothing there to test yet.
 
@@ -393,8 +375,7 @@ Not covered: the proxy routes against real upstream responses, the fuzzy fallbac
 
 **Watchlist and alerts**
 
-- [ ] #222: a server-side notification inbox with read state, shared by in-app, push and email. #221: Web Push alerts. #216: consent and a compliant email alert path. These need a backend job that checks prices, which does not exist today.
-- [ ] #200: re-check the watchlist ownership report against the current code; an ownership test now exists for it (the notification half went away with the notification endpoints).
+- [ ] Tracked in [WATCHLIST.md](WATCHLIST.md#14-future-improvements-and-todos) (#222, #221, #216, #200).
 
 **Browsing and search**
 

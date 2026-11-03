@@ -160,25 +160,6 @@ export function useShoppingListData(listId: string) {
   const { cheapestStores, averagePrices, storePrices, priceStates } =
     itemPrices;
 
-  const { totalSavings, totalPotentialCost } = shoppingList?.items
-    ?.filter((item) => item.isChecked && item.avgPrice && item.storePrice)
-    .reduce(
-      (acc, item) => {
-        const potentialCost = item.avgPrice! * (item.amount || 1);
-        const actualCost = item.storePrice! * (item.amount || 1);
-        const savings = potentialCost - actualCost;
-
-        return {
-          totalSavings: acc.totalSavings + savings,
-          totalPotentialCost: acc.totalPotentialCost + potentialCost,
-        };
-      },
-      { totalSavings: 0, totalPotentialCost: 0 },
-    ) || { totalSavings: 0, totalPotentialCost: 0 };
-
-  const savingsPercentage =
-    totalPotentialCost > 0 ? (totalSavings / totalPotentialCost) * 100 : 0;
-
   return {
     shoppingList,
     isLoading,
@@ -191,9 +172,6 @@ export function useShoppingListData(listId: string) {
     priceStates,
     retryFailedPrices,
     isRetryingPrices,
-    totalSavings,
-    totalPotentialCost,
-    savingsPercentage,
     isPricesLoading,
   };
 }

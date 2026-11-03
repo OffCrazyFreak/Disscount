@@ -7,5 +7,9 @@
     "heading": "Error tracking",
     "collected": "When something breaks in the app, we send technical details to Sentry, our processor, which stores them in the European Union: the error, your browser and device, the page address and your account's internal ID. Sentry doesn't store your IP address, but it may work out an approximate location (country, sometimes city) from the connection. We don't attach your name or email to events, but a failed sign-in or sign-up request may include the email address you typed.",
     "replay": "For a small share of visits, and for visits with an error, we also record a session replay with all text and input hidden. Passwords, tokens and session cookies are removed before sending. We use this data only to fix errors. Sentry keeps it for at most 30 days. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
+  },
+  "securityNotices": {
+    "heading": "Security notices",
+    "body": "When your account's password changes, we email you a notice. When you change your email address, the notice goes to the old address and names the new one. That way you can spot a change you don't know about and act straight away. These notices are part of protecting your account, so you can't turn them off. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
   }
 }

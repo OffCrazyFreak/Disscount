@@ -1,27 +1,70 @@
+import { createTranslator } from "next-intl";
+
+import { browserLocale } from "@/i18n/browser-locale";
+import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locales";
+import deErrors from "@/i18n/messages/de/errors.json";
+import enErrors from "@/i18n/messages/en/errors.json";
+import hrErrors from "@/i18n/messages/hr/errors.json";
+import itErrors from "@/i18n/messages/it/errors.json";
+import slErrors from "@/i18n/messages/sl/errors.json";
 import { SESSION_CHANGED } from "@/lib/backend-proxy/proxy-contract";
 
-// The proxy's own refusals and failures, in the Problem Details shape problem-details.ts reads.
+// The backend and Cijene proxies' own refusals and failures, in the Problem Details shape problem-details.ts reads.
 export type ProxyProblemCode =
   | "not_found"
   | "csrf_rejected"
   | typeof SESSION_CHANGED
   | "auth_unavailable"
   | "backend_unavailable"
-  | "backend_timeout";
+  | "backend_timeout"
+  | "upstream_unavailable";
 
-const PROBLEMS: Record<ProxyProblemCode, { status: number; title: string }> = {
-  not_found: { status: 404, title: "Not Found" },
-  csrf_rejected: { status: 403, title: "Forbidden" },
-  [SESSION_CHANGED]: { status: 401, title: "Session changed" },
-  auth_unavailable: { status: 503, title: "Service Unavailable" },
-  backend_unavailable: { status: 502, title: "Bad Gateway" },
-  backend_timeout: { status: 504, title: "Gateway Timeout" },
+type ProxyTitleKey = keyof typeof hrErrors.proxy;
+
+// Static, so building a refusal stays synchronous; check-i18n keeps every catalog complete.
+const ERRORS: Record<AppLocale, typeof hrErrors> = {
+  hr: hrErrors,
+  en: enErrors,
+  it: itErrors,
+  sl: slErrors,
+  de: deErrors,
 };
 
-export function proxyProblem(code: ProxyProblemCode): Response {
-  const { status, title } = PROBLEMS[code];
+const PROBLEMS: Record<
+  ProxyProblemCode,
+  { status: number; titleKey: ProxyTitleKey }
+> = {
+  not_found: { status: 404, titleKey: "notFound" },
+  csrf_rejected: { status: 403, titleKey: "refreshPage" },
+  [SESSION_CHANGED]: { status: 401, titleKey: "sessionChanged" },
+  auth_unavailable: { status: 503, titleKey: "unavailable" },
+  backend_unavailable: { status: 502, titleKey: "unavailable" },
+  backend_timeout: { status: 504, titleKey: "unavailable" },
+  upstream_unavailable: { status: 502, titleKey: "unavailable" },
+};
+
+/** The client sends <html lang> here, the same header Spring localises its own titles from. */
+function requestLocale(request: Request): AppLocale {
+  const tags = (request.headers.get("accept-language") ?? "")
+    .split(",")
+    .map((tag) => tag.split(";")[0].trim());
+  return browserLocale(tags) ?? DEFAULT_LOCALE;
+}
+
+export function proxyProblem(
+  code: ProxyProblemCode,
+  request: Request,
+): Response {
+  const { status, titleKey } = PROBLEMS[code];
+  const locale = requestLocale(request);
+  const t = createTranslator({
+    locale,
+    messages: { errors: ERRORS[locale] },
+    namespace: "errors.proxy",
+  });
+
   return Response.json(
-    { status, title, code },
+    { status, title: t(titleKey), code },
     {
       status,
       headers: {

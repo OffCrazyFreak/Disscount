@@ -82,19 +82,18 @@ flowchart LR
 
 ## 3. Accounts & services
 
-| Service                | What it's for                              | Where / notes                                                                                          |
-| ---------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| **Hetzner**            | The VPS (server)                           | Cloud console, plus it hosts the **Cloud Firewall** `disscount-web`                                    |
-| **Dokploy**            | Deployment platform (on the VPS)           | `https://dokploy.disscount.me`; admin login = your email                                               |
-| **Cloudflare**         | DNS, CDN, DDoS, redirects, SSL, geo header | zone `disscount.me` (free plan)                                                                        |
-| **GitHub**             | Source code + auto-deploy trigger          | `OffCrazyFreak/Disscount`; connected to Dokploy via a **GitHub App**                                   |
-| **Sentry**             | Error tracking                             | projects `disscount-frontend` + `disscount-backend` (EU region)                                        |
-| **Cloudflare R2**      | Off-site backup storage                    | bucket `disscount-backups` (S3-compatible)                                                             |
-| **Cloudflare R2 (EU)** | Digital card photos                        | a separate bucket created with **jurisdiction EU**; see [Card photo env vars](#card-photo-env-vars)    |
-| **Resend**             | Transactional email + Dokploy alert emails | domain `disscount.me` verified                                                                         |
-| **UptimeRobot**        | Uptime monitoring                          | monitors `https://disscount.me/health`; public [status page](https://stats.uptimerobot.com/ej4ROz2eMo) |
-| **Umami Cloud**        | Privacy-friendly web analytics             | `cloud.umami.is`; wired only when `NEXT_PUBLIC_UMAMI_WEBSITE_ID` is set                                |
-| **Google / Meta**      | OAuth login providers                      | redirect URIs must include each live domain                                                            |
+| Service                | What it's for                              | Where / notes                                                                                                                                                                                                                                       |
+| ---------------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Hetzner**            | The VPS (server)                           | Cloud console, plus it hosts the **Cloud Firewall** `disscount-web`                                                                                                                                                                                 |
+| **Dokploy**            | Deployment platform (on the VPS)           | `https://dokploy.disscount.me`; admin login = your email. API keys: `github-ci-dev` (Member user limited to the development service, used by CI) and `claude-mcp` (owner key for the local Dokploy MCP of Claude Code and Codex, never in the repo) |
+| **Cloudflare**         | DNS, CDN, DDoS, redirects, SSL, geo header | zone `disscount.me` (free plan)                                                                                                                                                                                                                     |
+| **GitHub**             | Source code + auto-deploy trigger          | `OffCrazyFreak/Disscount`; connected to Dokploy via a **GitHub App**                                                                                                                                                                                |
+| **Sentry**             | Error tracking                             | projects `disscount-frontend` + `disscount-backend` (EU region)                                                                                                                                                                                     |
+| **Cloudflare R2 (EU)** | Backups, card photos, product photos       | one bucket per data type and environment, each with its own token; see [R2 buckets and tokens](#r2-buckets-and-tokens)                                                                                                                              |
+| **Resend**             | Transactional email + Dokploy alert emails | domain `disscount.me` verified                                                                                                                                                                                                                      |
+| **UptimeRobot**        | Uptime monitoring                          | monitors `https://disscount.me/health`; public [status page](https://stats.uptimerobot.com/ej4ROz2eMo)                                                                                                                                              |
+| **Umami Cloud**        | Privacy-friendly web analytics             | `cloud.umami.is`; wired only when `NEXT_PUBLIC_UMAMI_WEBSITE_ID` is set                                                                                                                                                                             |
+| **Google / Meta**      | OAuth login providers                      | redirect URIs must include each live domain                                                                                                                                                                                                         |
 
 ---
 
@@ -117,6 +116,7 @@ flowchart LR
 - Server builds now take **8 to 11 minutes** of CPU plus the 4 GB swap, competing with the live containers; that is why dev moved off them first.
 - **Images are public** on GHCR (the repo is source-available anyway), so the server needs no registry login. `frontend/.dockerignore` keeps every `.env*` file out, and the Sentry auth token reaches the build only as a BuildKit secret, never as a layer.
 - Each environment is **fully isolated:** its own containers **and its own database/volume**. Dev data never touches prod data.
+- **GitHub Actions minutes:** the repository is public and every job runs on `ubuntu-latest`, so GitHub does not bill them and they do not use the account's 2,000 included minutes (on 3 November 2026 Disscount had run 4,028 minutes that month, all discounted to $0). Making the repository private, or moving a job to a larger or non-Linux runner, would start billing at that pace.
 - **CI gate before merge:** every push and PR runs `.github/workflows/ci.yml` (frontend typecheck + unit tests + lint + Fallow audit + translation catalog check + format + a real `next build`, skipped on `dev` pushes where the image build compiles the same code, plus a backend `mvn -B verify`, which compiles, packages and runs the backend tests). `main` is branch-protected, so a PR into `main` cannot merge until **Frontend checks** and **Backend checks** pass. The image jobs on `dev` run only after these checks pass.
 
 > **After a deploy, open tabs offer the new version** with a "Dostupna je nova verzija Disscounta." toast and an Osvježi button, instead of needing a hard refresh. A tab that asks for a chunk the new build no longer has reloads itself once, and on images built in CI (`dev`) `deploymentId` turns a navigation from an older build into a full page load. See [`PWA.md`](PWA.md#5-offline-reads-caching-and-persistence). A hard refresh (Ctrl/Cmd+Shift+R) is still the quick way to skip the prompt.
@@ -167,6 +167,21 @@ There are **two kinds** of env vars, and mixing them up causes the most confusin
 
 > 🔑 **Real bug we hit:** `lib/auth/index.ts` reads `NEXT_PUBLIC_GOOGLE_CLIENT_ID` through `serverEnv` (a _dynamic_ lookup), so Next.js can't inline it, so it must also be present at **runtime**, not just as a build arg. All `NEXT_PUBLIC_*` are passed both as build args **and** runtime env in compose.
 
+### R2 buckets and tokens
+
+Every bucket is in the **EU jurisdiction** (fixed at creation), reached through `R2_ENDPOINT` (`https://<ACCOUNT_ID>.eu.r2.cloudflarestorage.com`), and has its **own Account API token** with Object Read & Write scoped to that one bucket, so a leaked token reaches one bucket only. Dev and production never share a bucket: product photo files are named by their content, and each environment's cleanup deletes files its own database no longer uses, so a shared bucket would let one environment delete the other's files.
+
+| Data                                 | Production bucket             | Dev bucket                        | Access                                                                     | Variables                                                                                        |
+| ------------------------------------ | ----------------------------- | --------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Database backups                     | `disscount-backups`           | none (dev is not backed up)       | private                                                                    | set in Dokploy's Backups tab                                                                     |
+| Loyalty card photos                  | `disscount-card-photos`       | `disscount-card-photos-dev`       | private, served by Spring to the owner                                     | `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`                                          |
+| Product photos (rendered)            | `disscount-product-images`    | `disscount-product-images-dev`    | public via `images.disscount.me` / `images-dev.disscount.me`, `r2.dev` off | `R2_PUBLIC_*`                                                                                    |
+| Originals of uploaded product photos | `disscount-product-originals` | `disscount-product-originals-dev` | private                                                                    | `R2_ORIGINALS_*` (used once [#464](https://github.com/OffCrazyFreak/Disscount/issues/464) lands) |
+
+- Until #464 lands, uploaded originals are written to the card photo bucket. Production keeps its two `R2_PUBLIC_*` key lines blank and the real keys as commented-out lines in Dokploy, so product photos stay off there until #464 is deployed; then delete the blank lines and uncomment the stored ones.
+- R2 promises eleven nines of durability, which protects against hardware loss but not against deletion by a bug or a leaked key; R2 has no object versioning. Decided, not built: photos move to the server and R2 becomes their locked, encrypted backup ([#486](https://github.com/OffCrazyFreak/Disscount/issues/486), see [§8](#8-backups--restore)).
+- To test a token without the app: list, put and delete a test object in its bucket with the AWS CLI against `R2_ENDPOINT`, and confirm it is refused on any other bucket.
+
 ### Card photo env vars
 
 Digital card photos live in their own Cloudflare R2 bucket, separate from the backup bucket and with its own API token, so a leaked photo token cannot read or delete database backups. Create the bucket with **jurisdiction EU**: it is chosen at creation and cannot be changed later, and it puts the endpoint at `https://<ACCOUNT_ID>.eu.r2.cloudflarestorage.com`. Details are in [DIGITAL-CARDS.md](DIGITAL-CARDS.md#5-photos-and-r2).
@@ -180,7 +195,7 @@ Digital card photos live in their own Cloudflare R2 bucket, separate from the ba
 
 All four are **optional**. If any one is blank the backend runs without photos (uploads answer 503 and the form hides the photo fields); the rest of the wallet is unaffected. They are backend-only and read at startup, so a change needs a backend restart, not a rebuild. Locally they live in `backend/.env.example`.
 
-> Both compose files forward the four `R2_*` variables to the backend, blank by default, and the root `.env.example` lists them. Photos stay off until all four are set.
+> All three compose files (`docker-compose.yml`, `docker-compose.prod.yml`, `docker-compose.images.yml`) forward the four `R2_*` variables to the backend, blank by default, and the root `.env.example` lists them. Photos stay off until all four are set.
 
 ### Product photo env vars
 
@@ -195,7 +210,7 @@ Product photos are public, so they live in a second R2 bucket that is readable t
 
 All four are **optional**. If any one (or `R2_ENDPOINT`) is blank, product pages show no photos, uploads answer 503 and the background jobs do nothing. The URL must be `https://`: the frontend's Content Security Policy only allows images from `https:` origins. Backend-only and read at startup, so a change needs a backend restart.
 
-> Both compose files forward the four `R2_PUBLIC_*` variables to the backend, blank by default. A variable missing from `docker-compose.images.yml` never reaches the dev backend, even when Dokploy has it.
+> All three compose files forward the four `R2_PUBLIC_*` variables to the backend, blank by default. A variable missing from `docker-compose.images.yml` never reaches the dev backend, even when Dokploy has it.
 
 ---
 
@@ -224,7 +239,7 @@ All four are **optional**. If any one (or `R2_ENDPOINT`) is blank, product pages
 
 **HTTP to HTTPS** redirect is automatic (Cloudflare). No config needed.
 
-**Visitor location headers** (Rules, Settings, Managed Transforms, "Add visitor location headers") must be on for the stores map to open near the visitor without GPS. Cloudflare then adds `cf-iplatitude`, `cf-iplongitude` and `cf-ipcity` to requests that reach the origin. It is available on the free plan; with it off, the map simply opens on all of Croatia. Details in [MAP.md](MAP.md).
+**Visitor location headers** (Rules, Settings, Managed Transforms, "Add visitor location headers") must be on for the stores map to open near the visitor without GPS. Cloudflare then adds `cf-iplatitude`, `cf-iplongitude` and `cf-ipcity` to requests that reach the origin. It works on this zone; with it off, the map simply opens on all of Croatia. Details in [MAP.md](MAP.md).
 
 **Retired waitlist subdomains:** `get` / `waitlist` / `zelim` / `želim` (the last is an IDN stored as an `xn--…` name) were CNAMEs to a Netlify waitlist site. They now **301-redirect to `https://disscount.me/`** via a Cloudflare **Redirect Rule** (Rules, Redirect Rules) whose expression is:
 
@@ -236,13 +251,13 @@ Keep the CNAMEs **Proxied** so Cloudflare answers for the names and the rule fir
 
 > The waitlist **site** is retired, but do **not** delete the Netlify project: it now builds PR previews whose head branch is neither `main` nor `dev`. See [Netlify PR previews](#netlify-pr-previews).
 
-**Email anti-spoofing (SPF/DKIM/DMARC):** SPF + DKIM already exist (Resend, Cloudflare, SES on `send.`). DMARC is a `_dmarc` TXT record, currently:
+**Email anti-spoofing (SPF/DKIM/DMARC):** SPF + DKIM already exist for the three senders: Resend (transactional mail, on `send.` and the root domain; Amazon SES is only Resend's backend, not a separate sender), MailerLite (the newsletter, on `newsletter.`) and Cloudflare Email Routing. DMARC is a `_dmarc` TXT record, currently:
 
 ```
 v=DMARC1; p=quarantine; np=reject; rua=mailto:<id>@dmarc-reports.cloudflare.net
 ```
 
-It began in monitor mode (`p=none`) and moved to `p=quarantine` once the aggregate reports confirmed the legitimate senders align. `np=reject` is stricter than the main policy on purpose: it covers non-existent subdomains, which never send legitimate mail, so nothing can break by rejecting them outright. Aggregate reports go to Cloudflare's hosted DMARC Management rather than an inbox. The remaining step is `p=reject`, which should wait until the reports stay clean across all three senders (Resend for transactional, Cloudflare, SES on `send.`), since any one of them falling out of alignment under `reject` means silent delivery failure rather than a spam-folder warning.
+It began in monitor mode (`p=none`) and is now at `p=quarantine`. `np=reject` is stricter than the main policy on purpose: it covers non-existent subdomains, which never send legitimate mail, so nothing can break by rejecting them outright. Aggregate reports go to Cloudflare's hosted DMARC Management rather than an inbox. It stays at `p=quarantine` until real test mail from each sender has produced aggregate reports; there are none yet, because nothing has sent real mail. The remaining step is `p=reject`, which should wait until those reports stay clean across all three senders (Resend, MailerLite, Cloudflare Email Routing), since any one of them falling out of alignment under `reject` means silent delivery failure rather than a spam-folder warning.
 
 ---
 
@@ -265,7 +280,7 @@ Other: **4 GB swap** for build headroom; the Dokploy admin panel is reachable on
 
 The app keys its rate limits on the visitor's address, read from Cloudflare's `CF-Connecting-IP` header. It trusts that header only when the last `X-Forwarded-For` hop, which Traefik always writes as the peer it accepted the connection from, is a Cloudflare address; any other caller is keyed on its own address. How the frontend and backend apply this, and what the limits are, is in [AUTH.md](AUTH.md#83-rate-limits-and-the-visitors-address).
 
-The app check works on its own, but these owner steps finish the job. None of them is done yet:
+The app check works on its own, but these owner steps finish the job. Step 2 is done (rule created on 3 November 2026); steps 1 and 3 are not:
 
 1. **Hetzner Cloud Firewall** (`disscount-web`): change the inbound TCP 80 and 443 rules from "any" to Cloudflare's IPv4 and IPv6 ranges from https://www.cloudflare.com/ips/, leaving 22 as it is. Then a direct request to `YOUR_VPS_IP` with a made-up `CF-Connecting-IP` should time out, while the site still loads through Cloudflare.
 2. **Cloudflare rate limiting rule** (free plan, one rule): POST requests to the auth paths, counted by IP, more than 20 requests in 10 seconds, block for 10 seconds. The exact expression is deliberately not published here.
@@ -319,6 +334,20 @@ Traffic is encrypted in transit (Cloudflare to the browser, Traefik's certificat
 - **Alerts:** Dokploy, Settings, Notifications (Resend) emails you on **deploy failures**. Per-backup notifications are intentionally **off** (Dokploy fires one on _every_ backup = daily spam), see [Monitoring](#9-monitoring--alerts) for how to catch a _failed_ backup instead.
 - **Personal data in dumps:** the dumps include the auth tables, so a session row or address the app already removed survives in a backup until that backup rotates out (30 days off-site, 60 at most through the R2 rule, 7 locally).
 - ✅ **Restore-tested:** confirmed a dump restores cleanly (all tables + rows) into a throwaway container.
+
+### Measured on 3 November 2026, and the decided plan
+
+- **Sizes:** the production database is about 10 MB and one dump is about 250 KB, growing about 1.4% a month. Of the 799 MB in `disscount-backups`, about 792 MB are the seven Dokploy config zips (about 113 MB each, mostly the cloned repositories under `/etc/dokploy/compose` with their `.git` folders); the dumps are about 7 MB.
+- **Known issues:** the config zip also contains `/etc/dokploy/ssh` and the env vars, unencrypted (see "What is encrypted and why"). In R2 the dumps sit under `<database app name>_db/disscount-prod/` and the zips under `<web server backup name>/dokploy/`, so check that the two lifecycle rules match those full prefixes, otherwise they delete nothing. Only production is backed up; dev holds test data and stays unbacked by decision. A dump is checked by nothing after it is written, and the restore test above has no date.
+- **R2 has no versioning and Cloudflare documents no recovery of deleted objects**, so the card photo and product originals buckets have no copy today; a deletion bug or a leaked key would lose them.
+- **Decided by the owner (not built yet):** dump the database **hourly, keep 48**, plus **nightly, keep 30**, and ping a **healthchecks.io** check from every backup job so a missing run emails the owner. WAL archiving was rejected for now: it ships whole 16 MB segments, which at this size costs more storage than hourly dumps for little gain.
+- **Decided for photos and the rest (3 November 2026, tracked in #486, not built yet):**
+  - Card photos, product originals and public product photos move from R2 to plain folders on the VPS local disk (two named Docker volumes, private and public). Public photos are served by a read-only nginx container behind Cloudflare. A Hetzner Volume is suggested for later in #483.
+  - R2 becomes the backup only: one EU bucket, encrypted with rclone crypt, a 35-day Bucket Lock, written by a token scoped to that bucket.
+  - Photos: a full copy every month into a new generation prefix, plus an hourly `rclone copy` of new files. Each generation expires after 60 days, so two monthly copies always exist and an erased photo leaves the backup within about 60 days.
+  - Database: hourly (keep 48) and nightly (keep 30) dumps to the same bucket, encrypted with age (private key kept offline by the owner), with a nightly scratch restore. Dokploy's config backup is rebuilt without `.git` folders and encrypted.
+  - The jobs run from a script in the repo through Dokploy server schedules, not Dokploy's own backup feature, and each pings healthchecks.io.
+  - Erasures are recorded in a log without personal data and replayed after any restore; the privacy policy states the backup periods.
 
 > ⚠️ Do **NOT** use Dokploy **Volume Backups** for Postgres: copying the live data volume risks a corrupt backup (it'd need to stop the DB). The `pg_dump` approach above is the correct one.
 
@@ -397,32 +426,32 @@ Set in **Dokploy → service → Environment**, per environment. Both DSNs live 
 
 ## 10. What's automatic vs manual
 
-| Task                                                                                 | Automatic? | Notes                                                                                                                                                     |
-| ------------------------------------------------------------------------------------ | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Build & deploy on `git push`                                                         | ✅ auto    | `dev`: CI builds images and calls Dokploy ([§4](#4-how-a-deploy-works-git-to-live)); `main`: Dokploy autodeploy builds on the VPS                         |
-| CI checks (typecheck, unit tests, lint, Fallow audit, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main`                                                                                |
-| PR previews (head branch is not `main` or `dev`)                                     | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-pr-previews))                                                                                |
-| HTTPS certificate issuance + renewal                                                 | ✅ auto    | Traefik + Let's Encrypt                                                                                                                                   |
-| HTTP to HTTPS redirect                                                               | ✅ auto    | Cloudflare                                                                                                                                                |
-| DB migrations (auth tables + app tables)                                             | ✅ auto    | `migrate` service (drizzle; on `dev` the bundled `disscount-migrator` image) + Hibernate `ddl-auto=update` on each deploy. **Additive only**: see below   |
-| Nightly DB backups (R2 + local) + rotation                                           | ✅ auto    | Dokploy Backups + Schedule                                                                                                                                |
-| Dependency update PRs (npm, Maven, Actions, Docker images)                           | ✅ auto    | Renovate (`renovate.json`) on the 1st of each month into `dev`; security PRs open immediately; majors wait for approval on the Dependency Dashboard issue |
-| OS security updates                                                                  | ✅ auto    | unattended-upgrades, nightly at 01:30 UTC (see [Nightly updates and reboots](#nightly-updates-and-reboots))                                               |
-| Reboot when an update needs one                                                      | ✅ auto    | right after the nightly update run                                                                                                                        |
-| Starting Traefik if a reboot leaves it stopped                                       | ✅ auto    | `traefik-boot-check.service`                                                                                                                              |
-| Deleting expired sessions, clearing session addresses after 30 days                  | ✅ auto    | `SessionRetentionJob` in the backend, hourly ([AUTH.md](AUTH.md#85-session-retention-and-the-stored-address))                                             |
-| Uptime checks                                                                        | ✅ auto    | UptimeRobot, published as a [public status page](https://stats.uptimerobot.com/ej4ROz2eMo)                                                                |
-| **Non-security OS updates (`-updates` channel)**                                     | ❌ manual  | `sudo apt update && sudo apt full-upgrade`; the next nightly run reboots if needed                                                                        |
-| **Creating the EU photo bucket + token, setting `R2_*`**                             | ❌ manual  | Cloudflare once, then Dokploy env per environment; photos stay off until all four are set (see [Card photo env vars](#card-photo-env-vars))               |
-| **Creating the public product photo bucket, domain + token, setting `R2_PUBLIC_*`**  | ❌ manual  | Cloudflare once, then Dokploy env per environment; product photos stay off until all four are set (see [Product photo env vars](#product-photo-env-vars)) |
-| **Dropping the old `digital_card` table**                                            | ❌ manual  | after the cards rebuild deploys and nothing reads it; `ddl-auto=update` never drops it (see [§10.1](#101-dropping-a-column))                              |
-| **Adding/Changing a `NEXT_PUBLIC_*` var**                                            | ❌ manual  | `dev`: GitHub `dev` environment **and** Dokploy env, then push; `main`: Dokploy env **+ redeploy**                                                        |
-| **Adding a new domain/subdomain**                                                    | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                                                                                                 |
-| **New OAuth provider redirect URIs**                                                 | ❌ manual  | add in Google/Meta consoles                                                                                                                               |
-| Offering the new version after a deploy                                              | ✅ auto    | toast in open tabs, one-time reload on a stale chunk ([`PWA.md`](PWA.md))                                                                                 |
-| **Restoring a backup**                                                               | ❌ manual  | see [§8](#8-backups--restore)                                                                                                                             |
-| **Rotating secrets / tokens**                                                        | ❌ manual  | as needed                                                                                                                                                 |
-| **Dropping or narrowing a column**                                                   | ❌ manual  | `ddl-auto=update` never drops, so the column outlives the code. See [§10.1](#101-dropping-a-column)                                                       |
+| Task                                                                                 | Automatic? | Notes                                                                                                                                                                                     |
+| ------------------------------------------------------------------------------------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Build & deploy on `git push`                                                         | ✅ auto    | `dev`: CI builds images and calls Dokploy ([§4](#4-how-a-deploy-works-git-to-live)); `main`: Dokploy autodeploy builds on the VPS                                                         |
+| CI checks (typecheck, unit tests, lint, Fallow audit, format, build, backend verify) | ✅ auto    | `.github/workflows/ci.yml` on every push + PR; required to merge to `main`                                                                                                                |
+| PR previews (head branch is not `main` or `dev`)                                     | ✅ auto    | Netlify, gated by `frontend/netlify.toml` (see [§4](#netlify-pr-previews))                                                                                                                |
+| HTTPS certificate issuance + renewal                                                 | ✅ auto    | Traefik + Let's Encrypt                                                                                                                                                                   |
+| HTTP to HTTPS redirect                                                               | ✅ auto    | Cloudflare                                                                                                                                                                                |
+| DB migrations (auth tables + app tables)                                             | ✅ auto    | `migrate` service (drizzle; on `dev` the bundled `disscount-migrator` image) + Hibernate `ddl-auto=update` on each deploy. **Additive only**: see below                                   |
+| Nightly DB backups (R2 + local) + rotation                                           | ✅ auto    | Dokploy Backups + Schedule                                                                                                                                                                |
+| Dependency update PRs (npm, Maven, Actions, Docker images)                           | ✅ auto    | Renovate (`renovate.json`) on the 1st of each month into `dev`; security PRs open immediately; majors wait for approval on the Dependency Dashboard issue                                 |
+| OS security updates                                                                  | ✅ auto    | unattended-upgrades, nightly at 01:30 UTC (see [Nightly updates and reboots](#nightly-updates-and-reboots))                                                                               |
+| Reboot when an update needs one                                                      | ✅ auto    | right after the nightly update run                                                                                                                                                        |
+| Starting Traefik if a reboot leaves it stopped                                       | ✅ auto    | `traefik-boot-check.service`                                                                                                                                                              |
+| Deleting expired sessions, clearing session addresses after 30 days                  | ✅ auto    | `SessionRetentionJob` in the backend, hourly ([AUTH.md](AUTH.md#85-session-retention-and-the-stored-address))                                                                             |
+| Uptime checks                                                                        | ✅ auto    | UptimeRobot, published as a [public status page](https://stats.uptimerobot.com/ej4ROz2eMo)                                                                                                |
+| **Non-security OS updates (`-updates` channel)**                                     | ❌ manual  | `sudo apt update && sudo apt full-upgrade`; the next nightly run reboots if needed                                                                                                        |
+| **Creating the EU photo bucket + token, setting `R2_*`**                             | ❌ manual  | Cloudflare once, then Dokploy env per environment; photos stay off until all four are set (see [Card photo env vars](#card-photo-env-vars))                                               |
+| **Creating the public product photo bucket, domain + token, setting `R2_PUBLIC_*`**  | ❌ manual  | Cloudflare once, then Dokploy env per environment; product photos stay off until all four `R2_PUBLIC_*` and `R2_ENDPOINT` are set (see [Product photo env vars](#product-photo-env-vars)) |
+| **Dropping the old `digital_card` table**                                            | ❌ manual  | after the cards rebuild deploys and nothing reads it; `ddl-auto=update` never drops it (see [§10.1](#101-dropping-a-column))                                                              |
+| **Adding/Changing a `NEXT_PUBLIC_*` var**                                            | ❌ manual  | `dev`: GitHub `dev` environment **and** Dokploy env, then push; `main`: Dokploy env **+ redeploy**                                                                                        |
+| **Adding a new domain/subdomain**                                                    | ❌ manual  | Cloudflare DNS + Dokploy Domains (+ redeploy for Compose)                                                                                                                                 |
+| **New OAuth provider redirect URIs**                                                 | ❌ manual  | add in Google/Meta consoles                                                                                                                                                               |
+| Offering the new version after a deploy                                              | ✅ auto    | toast in open tabs, one-time reload on a stale chunk ([`PWA.md`](PWA.md))                                                                                                                 |
+| **Restoring a backup**                                                               | ❌ manual  | see [§8](#8-backups--restore)                                                                                                                                                             |
+| **Rotating secrets / tokens**                                                        | ❌ manual  | as needed                                                                                                                                                                                 |
+| **Dropping or narrowing a column**                                                   | ❌ manual  | `ddl-auto=update` never drops, so the column outlives the code. See [§10.1](#101-dropping-a-column)                                                                                       |
 
 ---
 
@@ -486,7 +515,7 @@ Production still builds on the VPS, and every deploy leaves old images behind, s
   then `sudo systemctl restart docker` (restarts containers briefly). The defaults apply only to containers created after the daemon loaded them, so a container that predates the file keeps an empty log config until it is recreated. Every container on the server has the cap, `dokploy-traefik` included.
 - **Traefik's log cap survives Dokploy:** Dokploy creates `dokploy-traefik` without its own log options, so the daemon default above applies every time it recreates the container. Traefik runs here as a standalone container, so **Reload Traefik** in the Dokploy panel only runs `docker restart` and keeps the existing config; saving the Traefik environment, the ports or the dashboard toggle removes and recreates the container, with about 7 seconds of downtime on both sites. Re-running Dokploy's setup script recreates it too; a normal Dokploy upgrade does not. A recreate pulls the Traefik version the installed Dokploy release defaults to (its `TRAEFIK_VERSION`), and falls back to the local image if the pull fails.
 - **Check the cap:** `docker inspect <container> --format '{{json .HostConfig.LogConfig}}'` should print `"max-file":"3","max-size":"10m"`; `docker inspect $(docker ps -q) --format '{{.Name}} {{json .HostConfig.LogConfig}}'` checks them all.
-- **Scheduled cleanup:** enable **Daily Docker Cleanup** (Dokploy, Settings, Web Server). It prunes stopped containers, unused images, build cache and unused networks daily; volumes are never pruned, so the databases are safe. The cost is that build cache is cleared, so the next server build is slower, and an image a rollback needs is pulled from GHCR again.
+- **Scheduled cleanup:** see [Docker disk cleanup](#docker-disk-cleanup) below for the daily and hourly jobs.
 
 Inspect first, then prune (understand what each removes before running it):
 
@@ -497,6 +526,18 @@ docker builder prune   # remove old build cache (safe; the next build is just sl
 ```
 
 ⚠️ Do not blindly run aggressive prunes. `docker system prune -a` removes all unused images, and any `volume` prune can delete data. Read what a command removes before running it.
+
+### Docker disk cleanup
+
+Three layers keep build cache and images from filling the disk. Dev deploys pull prebuilt images from GHCR, but production still builds on the server until #74 (production prebuilt images), which stays deferred.
+
+- **Dokploy's daily cleanup** (Settings, Web Server, Daily Docker Cleanup, on) runs at 23:50 UTC from the hard-coded `CLEANUP_CRON_JOB = "50 23 * * *"`, which the UI and API cannot change. It prunes all build cache, all unused images and stopped containers, and never touches volumes. Because it resets the cache only once a day, it cannot cap growth during the day: 38 GB once piled up from dev builds on the server before dev moved to GHCR images.
+- **Hourly cache cleanup:** a Dokploy schedule "Hourly Docker cache cleanup" (type `dokploy-server`, `17 * * * *`, Europe/Zagreb) runs `docker builder prune -f --filter until=72h` and `docker image prune -f`, which removes only dangling images (never `-a`, never volumes). It skips the run while a build is active, checked with a `pgrep` whose patterns are bracketed so it never matches itself. It fails its run when `/` is above 80 percent, which is the disk alert for now: the failure shows in the schedule's history. Dokploy keeps only the last 10 runs and their logs (`removeLastTenDeployments` in v0.30.10). Its first run freed 2.7 GB.
+- **BuildKit cap (applied 3 November 2026):** `/etc/docker/daemon.json` carries, next to the log options:
+  ```json
+  "builder": { "gc": { "enabled": true, "defaultReservedSpace": "2GB", "defaultMaxUsedSpace": "10GB", "defaultMinFreeSpace": "15GB" } }
+  ```
+  BuildKit then trims after every build, so the cache stays under about 10 GB and leaves at least 15 GB free. Use only these global keys, with no custom `policy` array, and never set `defaultReservedSpace` alone. `daemon.json` has no `keepDuration` key even though the Docker docs examples show one; it is silently ignored, and `dockerd --validate` accepts unknown keys, so it proves nothing. Changing it needs sudo and `sudo systemctl restart docker`; `live-restore` is off, so every container restarts (about a minute of downtime on both sites), so do it at a quiet hour. `docker buildx inspect` shows the active values: reserved 2 GiB, max used 10 GiB, min free 15 GiB.
 
 ---
 
@@ -557,16 +598,16 @@ These are the things that actually cost us time, worth remembering:
 
 **Security / housekeeping**
 
-- [ ] **IP-filter the R2 API token** to the VPS egress IP (least privilege).
-- [ ] **Before serious traffic:** add the Cloudflare rate limiting rule (free plan includes one rule) and restrict the Hetzner firewall to Cloudflare, as listed in [Client IP and rate limiting](#client-ip-and-rate-limiting). The app-level limits (Better Auth, per-recipient email cap, contact form) are in place. The exact endpoint list is deliberately not published here.
+- [ ] **IP-filter the R2 API tokens** to the VPS egress IP (least privilege).
+- [ ] **Before serious traffic:** restrict the Hetzner firewall to Cloudflare (the Cloudflare rate limiting rule already exists), as listed in [Client IP and rate limiting](#client-ip-and-rate-limiting). The app-level limits (Better Auth, per-recipient email cap, contact form) are in place. The exact endpoint list is deliberately not published here.
 
 **Reliability / ops**
 
-- [ ] **Hetzner snapshots** (whole-VM image) in addition to DB backups.
+- [ ] **Hetzner server backups** (whole-VM images, 7 slots, about 20% of the server price): decided for later, once the app has about 1,000 real users.
 - [ ] Move **production** to the image path (build in GitHub Actions, push to GHCR, Dokploy pulls), as `dev` already does ([§4](#4-how-a-deploy-works-git-to-live), [#74](https://github.com/OffCrazyFreak/Disscount/issues/74)). Once dev has run clean for a week: a `prod` GitHub environment with the production values, the image and deploy jobs extended to `main`, a member user and key for the production service, then `docker-compose.prod.yml` deleted.
 - [ ] Consider **Flyway/Liquibase** instead of Hibernate `ddl-auto=update` for safer prod schema changes.
 - [ ] **Cloudflare DNS-01 challenge** in Traefik (a Cloudflare API token) so certs renew without relying on inbound HTTP through the proxy, more robust now that all domains are proxied.
-- [ ] **Backup-failure alerting** (dead-man's switch, e.g. healthchecks.io), since per-backup notifications are off to avoid spam.
+- [ ] **Backup-failure alerting** with healthchecks.io (decided 3 November 2026), since per-backup notifications are off to avoid spam.
 
 **Product / auth**
 

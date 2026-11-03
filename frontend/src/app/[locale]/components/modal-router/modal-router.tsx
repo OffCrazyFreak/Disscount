@@ -20,8 +20,17 @@ import { useUser } from "@/context/user-context";
  */
 export default function ModalRouter() {
   const { target } = useModalUrl();
-  const { isAuthenticated, isLoading } = useUser();
-  const authGate = useAuthGate(target, isAuthenticated, isLoading);
+  const {
+    isAuthenticated,
+    canShowAccountData: canOpenSavedEntities,
+    isLoading,
+  } = useUser();
+  // Offline, a saved card still has to open at the till instead of asking for a login.
+  const authGate = useAuthGate(
+    target,
+    isEntityTarget(target) ? canOpenSavedEntities : isAuthenticated,
+    isLoading,
+  );
 
   return (
     <>
@@ -38,11 +47,14 @@ export default function ModalRouter() {
 
       <ProductActionsOutlet target={target} />
 
+      {canOpenSavedEntities && (
+        <EntityModalOutlet target={isEntityTarget(target) ? target : null} />
+      )}
+
       {isAuthenticated && (
         <>
           <OnboardingGate />
           <SettingsModalHost />
-          <EntityModalOutlet target={isEntityTarget(target) ? target : null} />
           <ShoppingListActionsOutlet target={target} />
         </>
       )}

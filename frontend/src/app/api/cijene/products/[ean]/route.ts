@@ -32,7 +32,7 @@ export async function GET(
   const { ean: validEan, ...filters } = parsed.data;
   const queryString = buildQueryString(filters);
 
-  return withCijeneRoute("product", productResponseSchema, () =>
+  return withCijeneRoute(request, "product", productResponseSchema, () =>
     cijeneApiV1Client.get(
       `/products/${encodeURIComponent(validEan)}${
         queryString && `?${queryString}`

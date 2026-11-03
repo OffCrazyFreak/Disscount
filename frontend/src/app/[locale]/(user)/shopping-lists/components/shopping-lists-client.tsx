@@ -2,6 +2,7 @@
 
 import { usePathname } from "@/i18n/navigation";
 import { Suspense } from "react";
+import { useIsRestoring } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 
 import { ListChecks } from "lucide-react";
@@ -26,13 +27,20 @@ export default function ShoppingListsClient({
   const t = useTranslations("shoppingLists");
   const pathname = usePathname();
 
-  const { isAuthenticated, isLoading: userLoading } = useUser();
+  const {
+    isAuthenticated,
+    canShowAccountData,
+    isLoading: userLoading,
+  } = useUser();
+  // Disabled offline, where it still returns the lists saved on this device.
   const { data: shoppingLists = [], isLoading } =
     shoppingListService.useGetCurrentUserShoppingLists({
       enabled: isAuthenticated,
     });
+  // Offline the failed session check can land before IndexedDB is read back.
+  const isRestoring = useIsRestoring();
 
-  const isUserLoading = userLoading || isLoading;
+  const isUserLoading = userLoading || isLoading || isRestoring;
 
   // Most recently touched first. The API returns these in no defined order, so
   // without this the list can silently reshuffle between fetches. filterByFields
@@ -43,7 +51,7 @@ export default function ShoppingListsClient({
     ["title"],
   );
 
-  if (!userLoading && !isAuthenticated) {
+  if (!userLoading && !canShowAccountData) {
     return (
       <LoginRequired
         title={t("client.loginTitle")}

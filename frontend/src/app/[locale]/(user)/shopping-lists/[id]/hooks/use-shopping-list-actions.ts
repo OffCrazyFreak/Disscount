@@ -8,7 +8,7 @@ import {
 } from "@/lib/modal/modal-navigation";
 import { shareOrCopy } from "@/utils/browser/share";
 import { useShoppingListMutations } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-shopping-list-mutations";
-import { formatShoppingListForSharing } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
+import { useListShareText } from "@/app/[locale]/(user)/shopping-lists/hooks/use-list-share-text";
 import { shareListUrl } from "@/utils/shopping-list-links";
 import { resolveShoppingListAccess } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-access";
 
@@ -28,8 +28,7 @@ export interface IShoppingListActionGroupProps {
 
 export function useShoppingListActions(shoppingList: ShoppingList) {
   const t = useTranslations("shoppingListDetail");
-  // formatShoppingListForSharing takes the shoppingLists translator.
-  const tLists = useTranslations("shoppingLists");
+  const listShareText = useListShareText();
   const locale = useLocale();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -83,7 +82,7 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
       // Every viewer can pass the list on, because the URL is simply the list's own and
       // they are already looking at it. Whether it opens for the recipient is the owner's
       // call through the share modal, not something to withhold here.
-      const text = formatShoppingListForSharing(shoppingList, tLists, locale);
+      const text = listShareText(shoppingList);
       const url = shareListUrl(shoppingList.id, locale);
       const outcome = await shareOrCopy({
         title: shoppingList.title,

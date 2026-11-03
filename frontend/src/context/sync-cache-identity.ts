@@ -12,6 +12,20 @@ export function persistedCacheIdentity(): string | null {
   return getCacheIdentity() === "anon" ? null : getCacheIdentity();
 }
 
+/** A failed lookup is not a sign-out, the rule the cache purge follows too. */
+export function isUnverifiedAccount(
+  isSignedIn: boolean,
+  isSessionPending: boolean,
+  sessionError: unknown,
+): boolean {
+  return (
+    !isSignedIn &&
+    !isSessionPending &&
+    !!sessionError &&
+    persistedCacheIdentity() !== null
+  );
+}
+
 /** Purges the offline cache when a resolved session names a different account. */
 export function syncCacheIdentity(
   queryClient: QueryClient,

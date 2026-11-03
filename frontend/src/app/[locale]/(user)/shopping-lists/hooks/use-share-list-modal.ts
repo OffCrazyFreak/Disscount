@@ -4,9 +4,10 @@ import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { shoppingListService } from "@/lib/api";
+import { isDeadListLink } from "@/lib/api/shopping-lists/is-dead-list-link";
 import type { LinkAccess } from "@/lib/api/types";
 import { shareOrCopy } from "@/utils/browser/share";
-import { formatShoppingListForSharing } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
+import { useListShareText } from "@/app/[locale]/(user)/shopping-lists/hooks/use-list-share-text";
 import { shareListUrl } from "@/utils/shopping-list-links";
 import { useOnlineStatus } from "@/hooks/use-online-status";
 
@@ -19,11 +20,15 @@ export function useShareListModal(id: string) {
   const t = useTranslations("shoppingLists");
   const locale = useLocale();
   const isOnline = useOnlineStatus();
+  const listShareText = useListShareText();
 
   const listQuery = shoppingListService.useGetShoppingListById(id);
   const updateMutation = shoppingListService.useUpdateShoppingList();
 
-  const shoppingList = listQuery.data ?? null;
+  // A failed refetch keeps the cached list; only a 404 means it is gone, as on the list page.
+  const shoppingList = isDeadListLink(listQuery.error)
+    ? null
+    : (listQuery.data ?? null);
 
   // Read straight from the cache, with no local mirror. useUpdateShoppingList writes the
   // new value optimistically in onMutate, so the cache is already correct here and there
@@ -82,7 +87,7 @@ export function useShareListModal(id: string) {
       // list it promises.
       const outcome = await shareOrCopy({
         title: shoppingList.title,
-        text: formatShoppingListForSharing(shoppingList, t, locale),
+        text: listShareText(shoppingList),
       });
 
       if (outcome === "copied") toast.success(t("shareModal.textCopiedToast"));
@@ -98,7 +103,6 @@ export function useShareListModal(id: string) {
   return {
     shoppingList,
     isLoading: listQuery.isLoading,
-    isError: listQuery.isError,
     linkAccess,
     setLinkAccess,
     isSaving,

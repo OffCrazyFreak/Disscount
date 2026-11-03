@@ -67,6 +67,9 @@ export function useFormDraft<T extends FieldValues>({
   });
 
   useEffect(() => {
+    // A modal that stays mounted while closed must restore again on its next open,
+    // since another surface may have written its draft in between.
+    if (!enabled) restoredKeyRef.current = null;
     if (!enabled || !restore || restoredKeyRef.current === draftKey) return;
     restoredKeyRef.current = draftKey;
 
