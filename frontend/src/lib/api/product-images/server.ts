@@ -1,6 +1,6 @@
 import "server-only";
 import { cache } from "react";
-import { serverApiUrl } from "@/lib/env";
+import { BACKEND_ORIGIN } from "@/lib/api/backend-origin";
 import {
   listedEansResponseSchema,
   productImagesResponseSchema,
@@ -15,7 +15,7 @@ export const getMainPhotoUrl = cache(
   async (ean: string): Promise<string | null> => {
     try {
       const response = await fetch(
-        `${serverApiUrl()}/api/products/${encodeURIComponent(ean)}/images`,
+        `${BACKEND_ORIGIN}/api/products/${encodeURIComponent(ean)}/images`,
         { cache: "no-store", signal: AbortSignal.timeout(PHOTO_TIMEOUT_MS) },
       );
       if (!response.ok) return null;
@@ -32,7 +32,7 @@ export const getMainPhotoUrl = cache(
 
 /** EANs some chain priced in the latest weekly catalogue import */
 export async function getListedEans(): Promise<string[]> {
-  const response = await fetch(`${serverApiUrl()}/api/products/catalog/eans`, {
+  const response = await fetch(`${BACKEND_ORIGIN}/api/products/catalog/eans`, {
     next: { revalidate: 60 * 60 },
     signal: AbortSignal.timeout(LISTED_EANS_TIMEOUT_MS),
   });

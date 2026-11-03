@@ -2,6 +2,7 @@ import { ChartConfig } from "@/components/ui/chart";
 import { ChartDataPoint } from "@/typings/chart-data";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { ShoppingListItemDto } from "@/lib/api/types";
+import { isCatalogItem } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
 import { formatDate } from "@/utils/strings";
 
 export function buildChartData(
@@ -54,7 +55,7 @@ export function buildChartConfig(
 ): ChartConfig {
   const cfg: ChartConfig = {};
 
-  items?.forEach((item) => {
+  items?.filter(isCatalogItem).forEach((item) => {
     const label = item.brand ? `${item.brand} ${item.name}` : item.name;
     cfg[item.ean] = { label };
   });

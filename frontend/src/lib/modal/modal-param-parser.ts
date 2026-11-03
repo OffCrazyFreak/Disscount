@@ -9,6 +9,8 @@ interface IModalParams {
   id: string | null;
   ean: string | null;
   type: string | null;
+  list: string | null;
+  item: string | null;
 }
 
 type ModalParser = (params: IModalParams) => ModalTarget | null;
@@ -74,7 +76,15 @@ const PARSERS = new Map<string, ModalParser>([
     "shopping-list-actions",
     ({ id }) => (id ? { name: "shopping-list-actions", id } : null),
   ],
-  ["add-to-list", ({ ean }) => (ean ? { name: "add-to-list", ean } : null)],
+  [
+    "add-to-list",
+    ({ ean, list }) =>
+      ean ? { name: "add-to-list", ean, ...(list && { listId: list }) } : null,
+  ],
+  [
+    "add-plain-item",
+    ({ item }) => ({ name: "add-plain-item", ...(item && { itemName: item }) }),
+  ],
   [
     "product-actions",
     ({ ean }) => (ean ? { name: "product-actions", ean } : null),
@@ -97,5 +107,7 @@ export function parseModalParam(
     id: searchParams.get("id"),
     ean: searchParams.get("ean"),
     type: searchParams.get("type"),
+    list: searchParams.get("list"),
+    item: searchParams.get("item"),
   });
 }

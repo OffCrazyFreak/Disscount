@@ -4,7 +4,10 @@ import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ShoppingListDto } from "@/lib/api/types";
 import { formatDate } from "@/utils/strings";
-import { calculateShoppingListStats } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
+import {
+  calculateShoppingListStats,
+  countUnpricedItems,
+} from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 import ShoppingListInfoPriceRange from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-info-price-range";
 import ShoppingListInfoSpendingRow from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-info-spending-row";
 
@@ -39,6 +42,8 @@ export default function ShoppingListInfoTable({
     () => calculateShoppingListStats(shoppingList.items, averagePrices),
     [shoppingList.items, averagePrices],
   );
+
+  const unpricedCount = countUnpricedItems(shoppingList.items, averagePrices);
 
   return (
     // One live region for the whole table, so the totals are announced once when
@@ -84,6 +89,14 @@ export default function ShoppingListInfoTable({
               />
             </td>
           </tr>
+
+          {!isPricesLoading && unpricedCount > 0 && (
+            <tr className="flex sm:table-row border-b">
+              <td colSpan={2} className="p-2 text-muted-foreground">
+                {t("info.unpricedItems", { count: unpricedCount })}
+              </td>
+            </tr>
+          )}
           {/* TODO: Make Potrošeno and Ušteđeno/Preplaćeno accessible links to /spending. */}
           <ShoppingListInfoSpendingRow
             checkedCount={checkedCount}

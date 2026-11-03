@@ -4,10 +4,10 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 
+import { BACKEND_ORIGIN } from "@/lib/api/backend-origin";
 import fetchAuthToken from "@/lib/auth/token";
-import { serverApiUrl } from "@/lib/env";
 
-const API_BASE_URL = typeof window !== "undefined" ? "" : serverApiUrl();
+const API_BASE_URL = typeof window !== "undefined" ? "" : BACKEND_ORIGIN;
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,

@@ -42,8 +42,3 @@ export function appUrl(): string {
 
   return "http://localhost:3000";
 }
-
-// Backend origin for server-side calls: the Docker service name in production, localhost in dev.
-export function serverApiUrl(): string {
-  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-}

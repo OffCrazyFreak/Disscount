@@ -1,3 +1,4 @@
+import { catalogEans } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
 import { useMemo } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
@@ -30,9 +31,10 @@ export function useShoppingListPriceHistory(
     return periodOptions[period]?.days || 7;
   }, [period]);
 
-  const eans = useMemo(() => {
-    return shoppingList.items?.map((item) => item.ean) || [];
-  }, [shoppingList.items]);
+  const eans = useMemo(
+    () => catalogEans(shoppingList.items),
+    [shoppingList.items],
+  );
 
   const dates = useMemo(() => getPriceHistoryDates(daysToShow), [daysToShow]);
 
