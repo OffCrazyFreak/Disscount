@@ -26,7 +26,10 @@ const konzum = {
 const spar = { ...konzum, chain: "spar", city: "Split", zipcode: "21000" };
 
 let user: { pinnedPlaces?: { placeApiId: string }[] } | null = null;
-vi.mock("@/context/user-context", () => ({ useUser: () => ({ user }) }));
+let isLoading = false;
+vi.mock("@/context/user-context", () => ({
+  useUser: () => ({ user, isLoading }),
+}));
 
 // The browser APIs are a boundary the suite cannot run: each test decides
 // what the permission query answers, and the position watch never answers.
@@ -73,6 +76,7 @@ describe("useStoreOptimizeMode", () => {
     // Unmount first: the hook clears its watch on the stubbed navigator.
     cleanup();
     user = null;
+    isLoading = false;
     renderHookWithProviders(() =>
       useDistanceOrigin(undefined, null),
     ).result.current.pickTown(null);
@@ -123,6 +127,20 @@ describe("useStoreOptimizeMode", () => {
     await waitFor(() => expect(result.current.state).toBe("ready"));
     expect(result.current.origin).toMatchObject({ source: "saved" });
     expect(locate).not.toHaveBeenCalled();
+  });
+
+  it("waits for the profile before restoring from the saved place", async () => {
+    setStoreOptimizeMode("distance");
+    isLoading = true;
+    fakeBrowser(answering(() => Promise.resolve({ state: "prompt" })));
+    const { result, rerender } = await mount();
+
+    user = { pinnedPlaces: [{ placeApiId: "Split" }] };
+    isLoading = false;
+    rerender();
+
+    await waitFor(() => expect(result.current.state).toBe("ready"));
+    expect(result.current.origin).toMatchObject({ source: "saved" });
   });
 
   it("restores distance from this session's town without asking", async () => {

@@ -5,6 +5,7 @@ import {
   isStoreOptimizeMode,
   type StoreOptimizeMode,
 } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
+import { useUser } from "@/context/user-context";
 import { isFailure, useDistanceSort } from "@/hooks/use-distance-sort";
 import {
   getStoreOptimizeMode,
@@ -29,17 +30,20 @@ export function useStoreOptimizeMode() {
     saved === "distance" ? "products" : saved,
     "products",
   );
+  // The pinned places come with the profile, which loads after the page.
+  const { isLoading: isUserLoading } = useUser();
   // A pick made while the permission query runs beats the restore.
   const picked = useRef(false);
 
   const restoreDistance = useEffectEvent((granted: boolean) => {
     if (picked.current) return;
+    picked.current = true;
     if (granted) distance.choose("distance");
     else if (distance.hasKnownTown) distance.chooseKnownTown();
   });
 
   useEffect(() => {
-    if (saved !== "distance") return;
+    if (saved !== "distance" || isUserLoading) return;
 
     let cancelled = false;
     void isGeolocationGranted().then((granted) => {
@@ -49,7 +53,7 @@ export function useStoreOptimizeMode() {
     return () => {
       cancelled = true;
     };
-  }, [saved]);
+  }, [saved, isUserLoading]);
 
   // "distance" is saved only once it worked, so a failed pick keeps the
   // earlier choice, and a failed restore stops retrying on every visit.
