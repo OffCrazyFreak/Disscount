@@ -173,13 +173,13 @@ Every bucket is in the **EU jurisdiction** (fixed at creation), reached through 
 
 | Data                                 | Production bucket             | Dev bucket                        | Access                                                                     | Variables                                                                                        |
 | ------------------------------------ | ----------------------------- | --------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Database backups                     | `disscount-backups`           | (same bucket, prefix per env)     | private                                                                    | set in Dokploy's Backups tab                                                                     |
+| Database backups                     | `disscount-backups`           | none (dev is not backed up)       | private                                                                    | set in Dokploy's Backups tab                                                                     |
 | Loyalty card photos                  | `disscount-card-photos`       | `disscount-card-photos-dev`       | private, served by Spring to the owner                                     | `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`                                          |
 | Product photos (rendered)            | `disscount-product-images`    | `disscount-product-images-dev`    | public via `images.disscount.me` / `images-dev.disscount.me`, `r2.dev` off | `R2_PUBLIC_*`                                                                                    |
 | Originals of uploaded product photos | `disscount-product-originals` | `disscount-product-originals-dev` | private                                                                    | `R2_ORIGINALS_*` (used once [#464](https://github.com/OffCrazyFreak/Disscount/issues/464) lands) |
 
 - Until #464 lands, uploaded originals are written to the card photo bucket. Production keeps its two `R2_PUBLIC_*` key lines blank and the real keys as commented-out lines in Dokploy, so product photos stay off there until #464 is deployed; then delete the blank lines and uncomment the stored ones.
-- R2 promises eleven nines of durability, which protects against hardware loss but not against deletion by a bug or a leaked key; R2 has no object versioning. How the photo buckets are backed up is being decided (see [§8](#8-backups--restore)).
+- R2 promises eleven nines of durability, which protects against hardware loss but not against deletion by a bug or a leaked key; R2 has no object versioning. Decided, not built: photos move to the server and R2 becomes their locked, encrypted backup ([#486](https://github.com/OffCrazyFreak/Disscount/issues/486), see [§8](#8-backups--restore)).
 - To test a token without the app: list, put and delete a test object in its bucket with the AWS CLI against `R2_ENDPOINT`, and confirm it is refused on any other bucket.
 
 ### Card photo env vars
@@ -338,7 +338,7 @@ Traffic is encrypted in transit (Cloudflare to the browser, Traefik's certificat
 ### Measured on 3 November 2026, and the decided plan
 
 - **Sizes:** the production database is about 10 MB and one dump is about 250 KB, growing about 1.4% a month. Of the 799 MB in `disscount-backups`, about 792 MB are the seven Dokploy config zips (about 113 MB each, mostly the cloned repositories under `/etc/dokploy/compose` with their `.git` folders); the dumps are about 7 MB.
-- **Known issues:** the config zip also contains `/etc/dokploy/ssh` and the env vars, unencrypted (see "What is encrypted and why"). In R2 the dumps sit under `disscount-production-xj4ce0_db/disscount-prod/` and the zips under `backup-synthesize-online-application-mqp1vu/dokploy/`, so check that the two lifecycle rules match those full prefixes, otherwise they delete nothing. Only production is backed up; dev holds test data and stays unbacked by decision. A dump is checked by nothing after it is written, and the restore test above has no date.
+- **Known issues:** the config zip also contains `/etc/dokploy/ssh` and the env vars, unencrypted (see "What is encrypted and why"). In R2 the dumps sit under `<database app name>_db/disscount-prod/` and the zips under `<web server backup name>/dokploy/`, so check that the two lifecycle rules match those full prefixes, otherwise they delete nothing. Only production is backed up; dev holds test data and stays unbacked by decision. A dump is checked by nothing after it is written, and the restore test above has no date.
 - **R2 has no versioning and Cloudflare documents no recovery of deleted objects**, so the card photo and product originals buckets have no copy today; a deletion bug or a leaked key would lose them.
 - **Decided by the owner (not built yet):** dump the database **hourly, keep 48**, plus **nightly, keep 30**, and ping a **healthchecks.io** check from every backup job so a missing run emails the owner. WAL archiving was rejected for now: it ships whole 16 MB segments, which at this size costs more storage than hourly dumps for little gain.
 - **Decided for photos and the rest (3 November 2026, tracked in #486, not built yet):**
@@ -598,7 +598,7 @@ These are the things that actually cost us time, worth remembering:
 
 **Security / housekeeping**
 
-- [ ] **IP-filter the R2 API token** to the VPS egress IP (least privilege).
+- [ ] **IP-filter the R2 API tokens** to the VPS egress IP (least privilege).
 - [ ] **Before serious traffic:** restrict the Hetzner firewall to Cloudflare (the Cloudflare rate limiting rule already exists), as listed in [Client IP and rate limiting](#client-ip-and-rate-limiting). The app-level limits (Better Auth, per-recipient email cap, contact form) are in place. The exact endpoint list is deliberately not published here.
 
 **Reliability / ops**
