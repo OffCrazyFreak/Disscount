@@ -197,6 +197,8 @@ The price history tab draws one line per chain over time with Recharts (`price-h
 
 The key is `["cijene", "product", "history", ean, date]`, which is persisted for offline use like the rest of the `cijene` root.
 
+**A failed refetch keeps the chart.** `usePriceHistory` reports `isError` only for a day with no cached answer. A failed background refetch flips a query to error while keeping its data, so counting it would swap a usable chart for "no data" on one dropped request; the shopping list chart follows the same rule.
+
 **Periods** (`constants/price-history.ts`): 1W and 1M are on; 1Y and ALL are disabled (`DISABLED_PERIODS`) until upstream can return a range in one request (issues #62, longer periods, and #45, batched history). `getEnabledPeriod` coerces a saved disabled period back to 1W, so a stored preference cannot mount straight into 365 requests.
 
 **Preferences.** The chosen period and chains are saved per EAN in `localStorage` (`use-product-preferences.ts`, through `useSyncExternalStore`). The server cannot see `localStorage`, so it renders the defaults (1W; pinned chains if any carry the product, otherwise all), and saving happens in the change handler, never in an effect, so hydration cannot overwrite the saved state. At least one chain always stays selected.
@@ -347,10 +349,10 @@ Versions read from `frontend/package.json` and `backend/pom.xml`.
 
 ## 17. Tests
 
-| Suite             | What it covers                                                                                                                                                                                                                                                                                                                                              |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend (Vitest) | Product metadata, JSON-LD, cache seeding and the detail client (`[id]/`), chart preferences, chain sort, display prices, batches, facets, search results and their status, add to list prices, city price reduction and cache, query hooks, sitemap ids, product ids, watchlist discount, price drop and schema rules, the shopping list history chart data |
-| Backend (H2)      | `WatchlistItemOwnershipTest`, `WatchlistWireFormatTest`, `ShoppingListItemServiceAddTest`, `ShoppingListItemRequestTest`, the shopping list ownership, link access and wire format tests, and the product image suite (see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#12-tests))                                                                                 |
+| Suite             | What it covers                                                                                                                                                                                                                                                                                                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Frontend (Vitest) | Product metadata, JSON-LD, cache seeding and the detail client (`[id]/`), chart preferences, chain sort, display prices, batches, facets, search results and their status, add to list prices, city price reduction and cache, query hooks, the price history hook's error rule, sitemap ids, product ids, watchlist discount, price drop and schema rules, the shopping list history chart data |
+| Backend (H2)      | `WatchlistItemOwnershipTest`, `WatchlistWireFormatTest`, `ShoppingListItemServiceAddTest`, `ShoppingListItemRequestTest`, the shopping list ownership, link access and wire format tests, and the product image suite (see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#12-tests))                                                                                                                      |
 
 Not covered: the proxy routes against real upstream responses, the fuzzy fallback, and the price history fetch across a date window. Nothing on the backend computes alerts, so there is nothing there to test yet.
 
