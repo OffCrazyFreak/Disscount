@@ -22,7 +22,7 @@ type ClientEnv = z.infer<typeof clientEnvSchema>;
 
 // Next inlines only literal `process.env.NEXT_PUBLIC_X` reads into the client bundle, so each
 // key is spelled out; getters read at access time, as the raw reads they replace did.
-function readClientEnv() {
+function readClientEnv(): Record<keyof ClientEnv, string | undefined> {
   return {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,

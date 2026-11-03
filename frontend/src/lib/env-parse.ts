@@ -14,10 +14,9 @@ function withoutEmptyStrings(raw: RawEnv): RawEnv {
   );
 }
 
-function describeIssues(issues: z.core.$ZodIssue[]): string {
-  return issues
-    .map((issue) => `  ${issue.path.join(".")}: ${issue.message}`)
-    .join("\n");
+// zod reports an unset variable as "expected string, received undefined", which hides the cause.
+function describeIssue(issue: z.core.$ZodIssue, value: unknown): string {
+  return value === undefined ? "is required" : issue.message;
 }
 
 // Checked one key at a time, so a read fails only on the variable it needs.
@@ -26,13 +25,17 @@ export function parseEnvValue<T extends z.ZodObject>(
   key: string,
   raw: RawEnv,
 ): unknown {
-  const field: z.ZodType | undefined = schema.shape[key];
-  if (!field) return undefined;
+  // Object.prototype keys (toString, constructor) are not variables.
+  if (!Object.hasOwn(schema.shape, key)) return undefined;
 
-  const result = field.safeParse(withoutEmptyStrings(raw)[key]);
+  const value = withoutEmptyStrings(raw)[key];
+  const field: z.ZodType = schema.shape[key];
+  const result = field.safeParse(value);
   if (result.success) return result.data;
 
-  const reasons = result.error.issues.map((issue) => issue.message);
+  const reasons = result.error.issues.map((issue) =>
+    describeIssue(issue, value),
+  );
   throw new Error(`Invalid environment variable ${key}: ${reasons.join("; ")}`);
 }
 
@@ -40,10 +43,13 @@ export function validateEnv<T extends z.ZodObject>(
   schema: T,
   raw: RawEnv,
 ): void {
-  const result = schema.safeParse(withoutEmptyStrings(raw));
+  const env = withoutEmptyStrings(raw);
+  const result = schema.safeParse(env);
   if (result.success) return;
 
-  throw new Error(
-    `Invalid environment variables:\n${describeIssues(result.error.issues)}`,
-  );
+  const lines = result.error.issues.map((issue) => {
+    const key = issue.path.join(".");
+    return `  ${key}: ${describeIssue(issue, env[key])}`;
+  });
+  throw new Error(`Invalid environment variables:\n${lines.join("\n")}`);
 }

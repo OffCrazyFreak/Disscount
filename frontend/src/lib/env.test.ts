@@ -55,3 +55,10 @@ describe("appUrl", () => {
     expect(() => appUrl()).toThrow(/NEXT_PUBLIC_APP_URL/);
   });
 });
+
+describe("clientEnv proxy", () => {
+  it("returns undefined for keys outside the schema", () => {
+    expect(Reflect.get(clientEnv, "constructor")).toBeUndefined();
+    expect(Reflect.get(clientEnv, "NOT_A_VARIABLE")).toBeUndefined();
+  });
+});

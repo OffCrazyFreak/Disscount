@@ -52,7 +52,13 @@ describe("serverEnv", () => {
     vi.stubEnv("BETTER_AUTH_URL", undefined);
 
     expect(() => serverEnv.BETTER_AUTH_URL).toThrow(
-      /Invalid environment variable BETTER_AUTH_URL/,
+      "Invalid environment variable BETTER_AUTH_URL: is required",
     );
+  });
+
+  it("rejects a URL variable that is not http or https", () => {
+    vi.stubEnv("BETTER_AUTH_URL", "localhost:3000");
+
+    expect(() => serverEnv.BETTER_AUTH_URL).toThrow(/BETTER_AUTH_URL/);
   });
 });
