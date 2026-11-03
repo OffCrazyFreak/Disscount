@@ -1,9 +1,6 @@
 import "server-only";
 import { QueryClient, dehydrate } from "@tanstack/react-query";
-import {
-  productByEanQueryKey,
-  productStorePricesQueryKey,
-} from "@/lib/cijene-api/query-hooks";
+import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import type {
   ProductResponse,
   StorePricesResponse,
@@ -19,11 +16,11 @@ export function productCacheState(
   prices: StorePricesResponse | null,
 ) {
   const queryClient = new QueryClient();
-  queryClient.setQueryData(productByEanQueryKey(routeEan), product);
+  queryClient.setQueryData(CIJENE_QUERY_KEYS.productByEan(routeEan), product);
 
   if (prices) {
     queryClient.setQueryData(
-      productStorePricesQueryKey({ eans: routeEan }),
+      CIJENE_QUERY_KEYS.productStorePrices({ eans: routeEan }),
       prices,
     );
   }

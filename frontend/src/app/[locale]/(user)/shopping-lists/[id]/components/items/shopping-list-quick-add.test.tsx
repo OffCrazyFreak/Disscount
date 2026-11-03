@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import ShoppingListQuickAdd from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-quick-add";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { productByEanQueryKey } from "@/lib/cijene-api";
+import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 
 const { openModalUrl } = vi.hoisted(() => ({ openModalUrl: vi.fn() }));
 vi.mock("@/lib/modal/modal-navigation", () => ({ openModalUrl }));
@@ -125,9 +125,9 @@ describe("ShoppingListQuickAdd", () => {
     );
     expect(adds.bodies).toHaveLength(0);
     // Seeded so the modal shows the product at once, offline too.
-    expect(queryClient.getQueryData(productByEanQueryKey(milk.ean))).toEqual(
-      milk,
-    );
+    expect(
+      queryClient.getQueryData(CIJENE_QUERY_KEYS.productByEan(milk.ean)),
+    ).toEqual(milk);
   });
 
   it("says when nothing matches, so Enter adds the text", async () => {

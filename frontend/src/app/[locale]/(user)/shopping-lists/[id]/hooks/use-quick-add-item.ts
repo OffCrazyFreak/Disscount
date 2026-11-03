@@ -5,7 +5,8 @@ import { useTranslations } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { shoppingListService } from "@/lib/api";
-import { productByEanQueryKey, useGetProductByName } from "@/lib/cijene-api";
+import { useGetProductByName } from "@/lib/cijene-api";
+import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import { listWriteFailed } from "@/lib/offline/list-write-failed";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -60,7 +61,10 @@ export function useQuickAddItem(listId: string) {
   function pickSuggestion(product: ProductResponse) {
     setText("");
     // The modal reads the product by EAN; without the seed it refetches it and opens empty offline.
-    queryClient.setQueryData(productByEanQueryKey(product.ean), product);
+    queryClient.setQueryData(
+      CIJENE_QUERY_KEYS.productByEan(product.ean),
+      product,
+    );
     openModalUrl({ name: "add-to-list", ean: product.ean, listId });
   }
 
