@@ -7,7 +7,11 @@ import {
 import apiClient from "@/lib/api/api-base";
 import { WATCHLIST_QUERY_KEYS } from "@/lib/api/watchlist/keys";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
-import { WatchlistItemRequest, WatchlistItemDto } from "@/lib/api/types";
+import {
+  watchlistItemDtoSchema,
+  type WatchlistItemRequest,
+  type WatchlistItemDto,
+} from "@/lib/api/types";
 
 /**
  * Add product to watchlist
@@ -15,19 +19,16 @@ import { WatchlistItemRequest, WatchlistItemDto } from "@/lib/api/types";
 export async function addToWatchlist(
   data: WatchlistItemRequest,
 ): Promise<WatchlistItemDto> {
-  const response = await apiClient.post<WatchlistItemDto>(
-    "/api/watchlist",
-    data,
-  );
-  return response.data;
+  const response = await apiClient.post<unknown>("/api/watchlist", data);
+  return watchlistItemDtoSchema.parse(response.data);
 }
 
 /**
  * Get current user's watchlist
  */
 async function getCurrentUserWatchlist(): Promise<WatchlistItemDto[]> {
-  const response = await apiClient.get<WatchlistItemDto[]>("/api/watchlist/me");
-  return response.data;
+  const response = await apiClient.get<unknown[]>("/api/watchlist/me");
+  return response.data.map((item) => watchlistItemDtoSchema.parse(item));
 }
 
 /**
@@ -37,10 +38,10 @@ async function getCurrentUserWatchlist(): Promise<WatchlistItemDto[]> {
 async function getWatchlistItemsByProductApiId(
   productApiId: string,
 ): Promise<WatchlistItemDto[]> {
-  const response = await apiClient.get<WatchlistItemDto[]>(
+  const response = await apiClient.get<unknown[]>(
     `/api/watchlist/product/${productApiId}`,
   );
-  return response.data;
+  return response.data.map((item) => watchlistItemDtoSchema.parse(item));
 }
 
 /**

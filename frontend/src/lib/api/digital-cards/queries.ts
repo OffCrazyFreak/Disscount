@@ -1,4 +1,5 @@
 import apiClient from "@/lib/api/api-base";
+import { httpStatusError } from "@/lib/api/http-status-error";
 import { backendProxyHeaders } from "@/lib/backend-proxy/client-headers";
 import {
   digitalCardDtoSchema,
@@ -73,5 +74,7 @@ export async function postCardsUsed(
     },
     body: JSON.stringify(entries),
   });
-  if (!response.ok) throw new Error(`Used flush failed: ${response.status}`);
+  if (!response.ok) {
+    throw httpStatusError("Used flush failed", response.status);
+  }
 }

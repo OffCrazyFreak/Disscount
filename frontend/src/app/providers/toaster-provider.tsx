@@ -16,16 +16,20 @@ const TOASTER_THEME_STYLE = {
   "--normal-text": "var(--foreground)",
   "--normal-border": "var(--border)",
   "--border-radius": "var(--radius)",
+  "--success-bg": "color-mix(in oklab, var(--primary) 10%, var(--popover))",
+  "--success-border": "color-mix(in oklab, var(--primary) 40%, var(--popover))",
+  "--success-text": "var(--foreground)",
   fontFamily: "var(--font-sans)",
 } as CSSProperties;
 
 // The `!` is required: sonner's button rules are unlayered CSS, which outranks
-// any Tailwind utility layer, so a plain class would never apply.
+// any Tailwind utility layer, so a plain class would never apply. The rem
+// height is spelled out because the spacing scale is shrunk, so h-11 is not 44px.
 const TOAST_CLASS_NAMES = {
   actionButton:
-    "bg-primary! text-primary-foreground! hover:bg-primary/90! focus-visible:ring-2! focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "min-h-[2.75rem]! bg-primary! text-primary-foreground! hover:bg-primary/90! focus-visible:ring-2! focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   cancelButton:
-    "border! border-primary/40! bg-primary/10! text-foreground! hover:bg-primary/15! focus-visible:ring-2! focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "min-h-[2.75rem]! border! border-primary/40! bg-primary/10! text-foreground! hover:bg-primary/15! focus-visible:ring-2! focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
 };
 
 export default function ToasterProvider({ children }: IToasterProviderProps) {

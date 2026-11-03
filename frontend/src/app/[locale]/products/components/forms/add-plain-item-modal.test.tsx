@@ -23,6 +23,8 @@ function list(id: string, title: string, updatedAt: string) {
   return {
     id,
     title,
+    ownerId: "user-1",
+    linkAccess: null,
     myAccess: "OWNER",
     updatedAt,
     createdAt: updatedAt,

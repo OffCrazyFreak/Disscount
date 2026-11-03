@@ -55,7 +55,7 @@ export default function ProductFacetSelects({
           className={isStack ? "space-y-1.5" : "min-w-0 flex-1"}
         >
           {isStack && (
-            <p className="text-sm font-medium text-gray-700">
+            <p className="text-sm font-medium text-foreground">
               {t(`facets.${facet.messageKey}.label`)}
             </p>
           )}

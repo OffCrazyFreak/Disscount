@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import ShoppingListQuickAdd from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-quick-add";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
+import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 
 const { openModalUrl } = vi.hoisted(() => ({ openModalUrl: vi.fn() }));
@@ -38,6 +39,7 @@ function captureAdds() {
         id: "item",
         shoppingListId: "list-1",
         createdAt: "2026-11-02T10:00:00",
+        ...UNSET_ITEM_FIELDS,
         ...(body as object),
       });
     },
@@ -194,6 +196,7 @@ describe("ShoppingListQuickAdd", () => {
           id: "item",
           shoppingListId: "list-1",
           createdAt: "2026-11-02T10:00:00",
+          ...UNSET_ITEM_FIELDS,
           ...body,
         });
       }),
