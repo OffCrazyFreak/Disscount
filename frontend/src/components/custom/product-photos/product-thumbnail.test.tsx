@@ -1,4 +1,5 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { onlineManager } from "@tanstack/react-query";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it } from "vitest";
 
@@ -83,6 +84,24 @@ describe("ProductThumbnail", () => {
 
     expect(container.querySelector("img")).toBeNull();
     expect(placeholders(container)).toHaveLength(1);
+  });
+
+  it("tries a photo lost offline again once the connection returns", async () => {
+    answerThumbnails();
+
+    const { container } = renderWithProviders(<ProductThumbnail ean={PASTA} />);
+
+    const photo = await waitFor(() => {
+      const img = container.querySelector("img");
+      expect(img).not.toBeNull();
+      return img!;
+    });
+    act(() => onlineManager.setOnline(false));
+    fireEvent.error(photo);
+    expect(container.querySelector("img")).toBeNull();
+
+    act(() => onlineManager.setOnline(true));
+    expect(container.querySelector("img")?.getAttribute("src")).toBe(PASTA_URL);
   });
 
   it("shows the placeholder for a typed item without asking", () => {

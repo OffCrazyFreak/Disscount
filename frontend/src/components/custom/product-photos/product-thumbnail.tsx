@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Package } from "lucide-react";
 
 import PhotoTile from "@/components/custom/product-photos/photo-tile";
+import { useOnlineStatus } from "@/hooks/use-online-status";
 import { useProductThumbnail } from "@/lib/api/product-images/hooks";
 import { cn } from "@/lib/utils";
 
@@ -22,15 +23,22 @@ export default function ProductThumbnail({
   className,
 }: IProductThumbnailProps) {
   const { data: url, isLoading } = useProductThumbnail(ean ?? undefined);
-  // Offline or a vanished file: the placeholder instead of a broken image icon.
-  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  const isOnline = useOnlineStatus();
+  // Offline or a vanished file: the placeholder instead of a broken image icon. A change in
+  // connection tries the file again, so a photo lost to a dropped signal comes back.
+  const [failure, setFailure] = useState<{
+    url: string;
+    isOnline: boolean;
+  } | null>(null);
+  const hasFailed =
+    failure !== null && failure.url === url && failure.isOnline === isOnline;
 
-  if (url && url !== failedUrl) {
+  if (url && !hasFailed) {
     return (
       <PhotoTile
         src={url}
         alt=""
-        onError={() => setFailedUrl(url)}
+        onError={() => setFailure({ url, isOnline })}
         className={cn("shrink-0 rounded-lg", className)}
       />
     );
