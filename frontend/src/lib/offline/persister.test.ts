@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { trackPurge } from "@/lib/offline/purge-gate";
+
 const db = new Map<string, unknown>();
 let identity = "alice";
-let releasePurge: (() => void) | undefined;
 
 vi.mock("idb-keyval", () => ({
   get: async (key: string) => db.get(key),
@@ -13,48 +14,69 @@ vi.mock("@/lib/offline/cache-identity", () => ({
   scopedCacheKey: (base: string, explicit?: string) =>
     `${base}:${explicit ?? identity}`,
 }));
-vi.mock("@/lib/offline/purge-gate", () => ({
-  whenPurgesSettled: () =>
-    new Promise<void>((resolve) => (releasePurge = resolve)),
-}));
 
 const { persistOptions } = await import("@/lib/offline/persister");
 
+const CACHE_KEY = "disscount-react-query-cache";
+
+function startPurge() {
+  let release = () => undefined as void;
+  trackPurge(new Promise<void>((resolve) => (release = resolve)));
+  return release;
+}
+
+function persistSnapshot() {
+  void persistOptions.persister.persistClient({
+    timestamp: 0,
+    buster: "",
+    clientState: { queries: [], mutations: [] },
+  });
+}
+
 describe("persisted cache writes", () => {
-  beforeEach(() => {
-    db.clear();
-    identity = "alice";
-    releasePurge = undefined;
+  beforeEach(async () => {
     vi.useFakeTimers();
+    await vi.runAllTimersAsync();
+    identity = "alice";
+
+    // One save goes through, so the next one waits out the throttle interval the way a
+    // save just before a sign out does.
+    persistSnapshot();
+    await vi.advanceTimersByTimeAsync(0);
+    db.clear();
   });
 
-  async function persistAndHoldOnPurge() {
-    void persistOptions.persister.persistClient({
-      timestamp: 0,
-      buster: "",
-      clientState: { queries: [], mutations: [] },
-    });
-    // The persister throttles, so the write only reaches storage after its interval.
-    await vi.runAllTimersAsync();
-    expect(releasePurge).toBeDefined();
-  }
+  it("drops a snapshot taken before a purge of the same account", async () => {
+    persistSnapshot();
+    const release = startPurge();
 
-  it("drops a write whose account signed out while it waited on the purge", async () => {
-    await persistAndHoldOnPurge();
-
-    identity = "anon";
-    releasePurge?.();
+    release();
     await vi.runAllTimersAsync();
 
     expect([...db.keys()]).toEqual([]);
   });
 
-  it("writes under the same account once the purge settles", async () => {
-    await persistAndHoldOnPurge();
+  it("drops a snapshot of the old account instead of writing it under the new key", async () => {
+    persistSnapshot();
+    const release = startPurge();
+    identity = "bob";
 
-    releasePurge?.();
+    release();
     await vi.runAllTimersAsync();
 
-    expect([...db.keys()]).toEqual(["disscount-react-query-cache:alice"]);
+    expect([...db.keys()]).toEqual([]);
+  });
+
+  it("writes a snapshot taken after the purge started once it settles", async () => {
+    const release = startPurge();
+    identity = "bob";
+    persistSnapshot();
+    await vi.runAllTimersAsync();
+    expect([...db.keys()]).toEqual([]);
+
+    release();
+    await vi.runAllTimersAsync();
+
+    expect([...db.keys()]).toEqual([`${CACHE_KEY}:bob`]);
   });
 });

@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-/** A Radix dialog animates for 200ms; vaul ships a 500ms drawer slide. */
+/** A Radix dialog animates for 200ms; ui/drawer.tsx slides out within 400ms. */
 const DIALOG_EXIT_MS = 200;
-export const SHEET_EXIT_MS = 500;
+export const SHEET_EXIT_MS = 450;
 
 /**
  * Keeps the last non-null value mounted after it clears, so a modal can play its

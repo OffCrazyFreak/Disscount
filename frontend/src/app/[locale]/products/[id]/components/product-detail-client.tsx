@@ -1,5 +1,6 @@
 "use client";
 
+import { useIsRestoring } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import ProductInfoDisplay from "@/app/[locale]/products/components/product-info-display";
 import PriceHistory from "@/app/[locale]/products/[id]/components/price-history/price-history-base";
@@ -17,8 +18,10 @@ export default function ProductDetailClient({
   const t = useTranslations("productDetail.notFound");
   const detail = useProductDetail(ean);
   const { product, productLoading, productError } = detail;
+  // Restoring queries report idle, not loading, and the server render is always restoring.
+  const isRestoring = useIsRestoring();
 
-  if (productLoading) {
+  if (productLoading || isRestoring) {
     return (
       <div className="grid place-items-center">
         <BlockLoadingSpinner />

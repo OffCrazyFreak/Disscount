@@ -65,39 +65,33 @@ public class UserService {
 
     /**
      * Idempotent upsert called on every authenticated request via UserProvisioningFilter.
-     * Creates the profile row on first login, or revives a soft-deleted one, unless the
-     * account was erased: then the login outlived a failed deletion, and the caller is told
-     * so the browser can finish it.
+     * Creates the profile row on first login. A deleted account is never revived: the login
+     * outlived a failed deletion, so the caller is told and the browser can finish it.
      *
-     * @throws AccountErasedException when the id has a tombstone
+     * @throws AccountErasedException when the profile is soft-deleted or the id has a tombstone
      */
     public void ensureActiveProfile(UUID id, String email, String name, String image) {
         if (email == null) return;
 
         Optional<User> existing = userRepository.findById(id);
-        // Checked only off the hot path: an active profile cannot have been erased.
-        boolean mayBeErased = existing.map(user -> user.getDeletedAt() != null).orElse(true);
-        if (mayBeErased && erasureLedger.existsById(id)) {
+        // Profiles deleted before the ledger existed have no tombstone, so the row itself is the proof.
+        // The ledger is checked only off the hot path: an active profile cannot have been erased.
+        boolean isErased = existing
+                .map(user -> user.getDeletedAt() != null)
+                .orElseGet(() -> erasureLedger.existsById(id));
+        if (isErased) {
             throw new AccountErasedException();
         }
 
         if (existing.isPresent()) {
             User user = existing.get();
-            boolean changed = false;
 
-            if (user.getDeletedAt() != null) {
-                user.setDeletedAt(null);
-                changed = true;
-            }
-            if (isActivityStampStale(user.getLastActiveAt())) {
-                user.setLastActiveAt(nowUtc());
-                changed = true;
-            }
             // Email is no longer mirrored here: it lives authoritatively in the better-auth `user`
             // table, and the backend reads it from there (admin list) or the session (current user).
             // image is intentionally not synced here: the avatar is user-owned after creation,
             // so a cleared avatar must not be repopulated from the provider on the next request
-            if (changed) {
+            if (isActivityStampStale(user.getLastActiveAt())) {
+                user.setLastActiveAt(nowUtc());
                 userRepository.save(user);
             }
         } else {

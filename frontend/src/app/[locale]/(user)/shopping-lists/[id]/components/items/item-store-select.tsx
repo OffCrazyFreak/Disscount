@@ -1,3 +1,4 @@
+import type { Ref } from "react";
 import { useTranslations } from "next-intl";
 
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,6 +22,7 @@ interface IItemStoreSelectProps {
   averagePrice?: number;
   storePrices: Record<string, number>;
   canCheck: boolean;
+  unavailableSelectRef?: Ref<HTMLButtonElement>;
 }
 
 const STORE_SELECT_CLASS_NAME = "relative z-20 w-full sm:w-72 sm:flex-none";
@@ -34,6 +36,7 @@ export default function ItemStoreSelect({
   averagePrice,
   storePrices,
   canCheck,
+  unavailableSelectRef,
 }: IItemStoreSelectProps) {
   const t = useTranslations("shoppingListDetail");
 
@@ -93,6 +96,7 @@ export default function ItemStoreSelect({
       }
       describedById={describedById}
       className={STORE_SELECT_CLASS_NAME}
+      ref={unavailableSelectRef}
     />
   );
 }

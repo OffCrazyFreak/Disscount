@@ -1,9 +1,11 @@
 package disscount.productImage.rest;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import disscount.productImage.dto.ProductImageDtos.ListedEansDto;
 import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
 import disscount.productImage.dto.ProductImageDtos.ProductThumbnailsDto;
 import disscount.productImage.service.ProductImageQueryService;
@@ -45,6 +47,13 @@ public class ProductImageController {
     public ResponseEntity<ProductThumbnailsDto> thumbnails(@RequestParam String eans) {
         List<String> list = Arrays.stream(eans.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toList();
         return ResponseEntity.ok().cacheControl(CacheControl.noCache()).body(queries.thumbnails(list));
+    }
+
+    @Operation(summary = "EANs with a store price in the latest catalogue import, for the sitemap")
+    @GetMapping("/catalog/eans")
+    public ResponseEntity<ListedEansDto> listedEans() {
+        // The catalogue refreshes weekly, so an hour of caching costs nothing.
+        return ResponseEntity.ok().cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePublic()).body(queries.listedEans());
     }
 
     @Operation(summary = "Upload a product photo (multipart field: photo, JPEG)")

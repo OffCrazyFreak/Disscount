@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 import { ILatLon } from "@/utils/distance";
-import { isNewFix } from "@/app/[locale]/map/utils/position-fix";
-import { createPositionWatch } from "@/app/[locale]/map/utils/position-watch";
+import { isNewFix } from "@/utils/position-fix";
+import { createPositionWatch } from "@/utils/browser/position-watch";
 
 export type GeolocationStatus =
   | "idle"
@@ -50,14 +50,25 @@ export const GUESS_RADIUS_M = 10_000;
 // that fix is vaguer than a street.
 const REFINE_ABOVE_M = 100;
 
+interface IGeolocationOptions {
+  /**
+   * Start watching on mount when the browser already allows it. Only the map
+   * does: elsewhere the position is read only after the shopper asks.
+   */
+  watchWhenAllowed?: boolean;
+}
+
 /**
- * Watches the position while the map is visible, from the start when the
- * browser already allows it and otherwise from the first tap, and never
- * stores or sends it. A tap moves to the latest fix at once and sharpens it
- * with one GPS reading. When a tap gets no position, the IP guess stands in,
- * labelled approximate.
+ * Watches the position while the page is visible, from the first tap (or
+ * from the start, when asked to and the browser already allows it), and
+ * never stores or sends it. A tap moves to the latest fix at once and
+ * sharpens it with one GPS reading. When a tap gets no position, the IP guess
+ * stands in, labelled approximate.
  */
-export function useGeolocation(fallback: ILatLon | null) {
+export function useGeolocation(
+  fallback: ILatLon | null,
+  { watchWhenAllowed = false }: IGeolocationOptions = {},
+) {
   const [status, setStatus] = useState<GeolocationStatus>("idle");
   const [position, setPosition] = useState<IGpsPosition | null>(null);
   const [guess, setGuess] = useState<ILatLon | null>(null);
@@ -279,7 +290,7 @@ export function useGeolocation(fallback: ILatLon | null) {
           if (permission.state === "denied") forget();
         };
 
-        if (granted.current && "geolocation" in navigator) {
+        if (watchWhenAllowed && granted.current && "geolocation" in navigator) {
           autoCenter.current = true;
           getWatch().start();
         }

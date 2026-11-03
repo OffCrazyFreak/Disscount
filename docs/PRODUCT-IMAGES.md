@@ -53,7 +53,7 @@ The white is part of the file on purpose. Dark Reader's default mode recolours C
 
 ## 5. Background jobs
 
-All in `ProductImageJobs`, all off when the public bucket is not configured or `product-images.jobs.enabled=false` (the test profile).
+All in `ProductImageJobs`, all off when `product-images.jobs.enabled=false` (the test profile). Without the public bucket only the catalogue part of the weekly import runs, because the product sitemap reads it; the Open Food Facts seed and photo copying wait for the bucket.
 
 | Job                | When                                                         | What                                                                                                              |
 | ------------------ | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
@@ -61,11 +61,11 @@ All in `ProductImageJobs`, all off when the public bucket is not configured or `
 | Render main photos | every 15 s, 10 at a time                                     | copies uncopied main photos into the bucket, most widely sold first, one download at a time                       |
 | Limiter sweep      | every 5 min                                                  | clears the upload rate limiter                                                                                    |
 
-The last import is stored in `product_image_import_run`, so a redeploy does not download the export again. A photo that cannot be read, is gone on Open Food Facts (404 or 410), is over the download size cap or has a key that forms no valid URL is hidden so it cannot block the queue; network trouble pauses the batch and retries at the next tick. The jobs share a scheduler pool of four threads (`spring.task.scheduling.pool.size`), so the long weekly import never holds back card purges or photo copying.
+The last import is stored in `product_image_import_run`, so a redeploy does not download the export again. A photo that cannot be read, is gone on Open Food Facts (404 or 410), is over the download size cap or has a key that forms no valid URL is hidden so it cannot block the queue (`hidden_reason` `JOB_SKIPPED`), and comes back as a candidate when the weekly seed or "Dohvati" finds a new revision of it. A photo the admin hid (`ADMIN`, or no reason on rows hidden before the column existed) never comes back on its own. Any other answer for one image (a 403, a 500) postpones just that photo for an hour (`render_retry_at`), and the fifth such failure (`render_attempts`) skips it so the next pick or a user upload takes the main slot, while rate limiting (429), gateway errors (502 to 504) and network or bucket trouble pause the batch and retry at the next tick. Replaced files are deleted only after the database commit, so a rolled back crop never loses the files its row still points at. The jobs share a scheduler pool of four threads (`spring.task.scheduling.pool.size`), so the long weekly import never holds back card purges or photo copying.
 
 ## 6. API
 
-Public (no login): `GET /api/products/{ean}/images` and `GET /api/products/images/thumbnails?eans=a,b` (up to 100). Logged in: `POST /api/products/{ean}/images` (multipart field `photo`, JPEG, 10 per 10 minutes per user, admins exempt) and `POST /api/products/images/{id}/report` (once per user and photo).
+Public (no login): `GET /api/products/{ean}/images`, `GET /api/products/images/thumbnails?eans=a,b` (up to 100; malformed EANs are left out, not rejected) and `GET /api/products/catalog/eans` (every EAN with `store_listings > 0`, read by the frontend's product sitemap). Logged in: `POST /api/products/{ean}/images` (multipart field `photo`, JPEG, 10 per 10 minutes per user, admins exempt) and `POST /api/products/images/{id}/report` (once per user and photo).
 
 Admin, under `/api/admin/product-images`: `GET /queue?filter=todo|pending|reported&page&size`, `GET /{ean}`, `POST /{ean}/refresh`, `PUT /{ean}/main`, `POST /{ean}/reviewed`, `PUT /images/{id}/status` (`VERIFIED` also clears reports, or `HIDDEN`), `PUT /images/{id}/crop`, `GET /images/{id}/original` (the private original, for the crop screen).
 

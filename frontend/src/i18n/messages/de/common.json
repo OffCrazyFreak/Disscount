@@ -19,7 +19,7 @@
     "hint": "Prüfe deine Verbindung und versuche es noch einmal.",
     "retry": "Erneut versuchen",
     "indicator": "Offline: Wir zeigen gespeicherte Daten.",
-    "indicatorPending": "Offline: Gespeicherte Änderungen ({count}) werden später synchronisiert."
+    "indicatorPending": "Offline: {count, plural, one {# Änderung wartet} other {# Änderungen warten}} aufs Speichern."
   },
   "lastSynced": {
     "refreshed": "{time} aktualisiert"
@@ -30,11 +30,11 @@
   },
   "comingSoon": {
     "badge": "BALD",
-    "description": "Diese Funktion ist in Arbeit und kommt bald.",
+    "description": "Wir arbeiten daran. Kommt bald!",
     "notifyMe": "Benachrichtige mich"
   },
   "copyButton": {
-    "error": "Kopieren hat nicht geklappt"
+    "error": "Kopieren hat nicht geklappt."
   },
   "footer": {
     "copyright": "© {year} Jakov Jakovac",
@@ -45,20 +45,20 @@
     "spamHint": "Schau auch im Spam-Ordner nach."
   },
   "loginRequired": {
-    "description": "Für diese Funktion musst du angemeldet sein.",
+    "description": "Dafür musst du dich anmelden.",
     "action": "Anmelden"
   },
   "noResults": {
     "title": "Keine Ergebnisse",
-    "description": "Versuche es mit einem anderen Suchbegriff"
+    "description": "Versuch es mit einem anderen Begriff."
   },
   "oauthError": {
     "emailNotFound": "Dein Facebook-Konto hat keine E-Mail-Adresse geteilt. Melde dich mit deiner E-Mail-Adresse an oder nutze ein Facebook-Konto mit E-Mail-Adresse.",
-    "emailMismatch": "Das Verknüpfen hat nicht geklappt, weil dieses Konto eine andere E-Mail-Adresse nutzt. Du kannst nur Konten mit derselben E-Mail-Adresse verknüpfen.",
-    "alreadyLinked": "Dieses Konto ist schon mit einem anderen Disscount-Konto verknüpft. Du kannst es nicht mit diesem verknüpfen.",
-    "notLinked": "Diese Anmeldung lässt sich nicht automatisch mit einem bestehenden Konto verknüpfen. Melde dich auf dem bisherigen Weg an und verknüpfe das Konto in den Sicherheitseinstellungen.",
+    "emailMismatch": "Dieses Konto nutzt eine andere E-Mail-Adresse. Du kannst nur Konten mit derselben Adresse verknüpfen.",
+    "alreadyLinked": "Dieses Konto ist schon mit einem anderen Disscount-Konto verknüpft.",
+    "notLinked": "Diese Anmeldung können wir nicht selbst mit deinem Konto verknüpfen. Melde dich wie gewohnt an und verknüpfe sie dann in den Sicherheitseinstellungen.",
     "restart": "Die Anmeldung ist abgelaufen oder wurde abgebrochen. Versuche es erneut.",
-    "default": "Bei der Anmeldung ist etwas schiefgelaufen. Versuche es erneut."
+    "default": "Die Anmeldung hat nicht geklappt. Versuch es noch mal."
   },
   "userAvatar": {
     "alt": "Profilbild"
@@ -68,7 +68,7 @@
       "intro": "Schreib uns über das Formular unten, direkt an <email></email> oder per <linkedin>LinkedIn</linkedin>.",
       "copyEmailLabel": "E-Mail-Adresse kopieren",
       "copyEmailSuccess": "E-Mail-Adresse kopiert!",
-      "copyEmailError": "E-Mail-Adresse konnte nicht kopiert werden",
+      "copyEmailError": "Kopieren hat nicht geklappt.",
       "suggestIdea": "Idee vorschlagen",
       "openSuggestions": "Ideen und Vorschläge öffnen",
       "reportBug": "Fehler melden",
@@ -92,14 +92,14 @@
       "cancel": "Abbrechen",
       "reset": "Zurücksetzen",
       "sent": "Nachricht gesendet. Danke, dass du dich gemeldet hast!",
-      "sentWithEmail": "Nachricht gesendet. Danke, dass du dich gemeldet hast! Falls nötig, antworten wir dir an die angegebene E-Mail-Adresse.",
+      "sentWithEmail": "Nachricht gesendet. Danke, dass du dich gemeldet hast! Falls nötig, antworten wir dir an diese Adresse.",
       "sourceAvailable": "Disscount ist source-available. <link>Projekt auf GitHub ansehen</link>."
     }
   },
   "donation": {
     "title": "Disscount unterstützen",
-    "intro": "Disscount ist kostenlos und bleibt es auch. Wenn dir die App beim Einkaufen oder sonst irgendwie hilft, freuen wir uns sehr über jede freiwillige Unterstützung.",
-    "usage": "Alles fließt direkt zurück in Disscount, für Betrieb und Weiterentwicklung!",
+    "intro": "Disscount ist kostenlos und bleibt es auch. Wenn dir die App das Einkaufen leichter macht, freuen wir uns über jede Unterstützung.",
+    "usage": "Alles fließt in Betrieb und Weiterentwicklung von Disscount.",
     "kofi": "Auf Ko-fi unterstützen"
   },
   "forgotPassword": {
@@ -125,7 +125,7 @@
     "labelWithCount": "Benachrichtigungen ({count})",
     "loading": "Wird geladen...",
     "emptyWatching": "Heute ist nichts auf deiner Merkliste reduziert.",
-    "emptyNotWatching": "Füge Produkte deiner Merkliste hinzu. Wir sagen dir Bescheid, sobald sie bei deinen Händlern reduziert sind!",
+    "emptyNotWatching": "Füge Produkte deiner Merkliste hinzu, wir sagen dir Bescheid, sobald sie bei deinen Händlern reduziert sind.",
     "addProducts": "Produkte hinzufügen",
     "totalSavings": "Heute gespart:",
     "savingsDetail": "(≥ {amount} bei {count, plural, one {# Produkt} other {# Produkten}})"
@@ -157,7 +157,7 @@
     }
   },
   "validation": {
-    "emailInvalid": "Ungültige E-Mail-Adresse",
+    "emailInvalid": "Gib eine gültige E-Mail-Adresse ein",
     "fullNameMax": "Der Name darf höchstens 255 Zeichen lang sein",
     "subjectRequired": "Gib einen Betreff ein",
     "subjectMax": "Der Betreff darf höchstens 255 Zeichen lang sein",
@@ -167,10 +167,18 @@
   "distanceSort": {
     "locating": "Wir suchen deinen Standort, um nach Entfernung zu sortieren…",
     "ready": "Nach Entfernung von deinem Standort sortiert. Wir speichern und senden ihn nicht.",
-    "denied": "Der Standortzugriff ist blockiert, daher bleibt die Standardreihenfolge. Erlaube ihn in deinen Browsereinstellungen und wähle die Entfernung erneut.",
+    "readyFromTown": "Sortiert von {town} aus.",
+    "readyFromSavedPlace": "Ohne Standort: sortiert von {town} aus.",
+    "denied": "Wir haben keinen Standortzugriff, daher bleibt die Standardreihenfolge. Erlaube ihn in deinen Browsereinstellungen und wähle die Entfernung erneut.",
     "unavailable": "Dein Standort ist gerade nicht verfügbar, daher bleibt die Standardreihenfolge. Wähle die Entfernung erneut, um es nochmal zu versuchen.",
-    "timeout": "Dein Standort lässt sich nicht bestimmen, daher bleibt die Standardreihenfolge. Prüfe, ob die Ortung auf deinem Gerät eingeschaltet ist, und wähle die Entfernung erneut.",
+    "timeout": "Wir finden deinen Standort nicht, daher bleibt die Standardreihenfolge. Prüfe, ob die Ortung auf deinem Gerät an ist, und wähle die Entfernung erneut.",
     "noStores": "Die Standorte der Märkte sind gerade nicht verfügbar, daher bleibt die Standardreihenfolge.",
-    "nearest": "Nächster Markt: {distance}"
+    "nearest": "Nächster Markt: {distance}",
+    "pickTown": "Ort wählen",
+    "changeTown": "Ändern",
+    "changeTownLabel": "Ort ändern",
+    "townSearch": "Ort oder Postleitzahl suchen",
+    "townList": "Orte mit Geschäften",
+    "townEmpty": "Kein Ort mit Geschäften passt dazu."
   }
 }

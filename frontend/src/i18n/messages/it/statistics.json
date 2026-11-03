@@ -9,7 +9,7 @@
   },
   "health": {
     "checking": "Controllo in corso...",
-    "error": "❌ Impossibile controllare l'API",
+    "error": "❌ Non riusciamo a verificare se l'API dei prezzi funziona",
     "available": "✅ L'API dei prezzi è disponibile",
     "unavailable": "❌ L'API dei prezzi non è disponibile"
   },

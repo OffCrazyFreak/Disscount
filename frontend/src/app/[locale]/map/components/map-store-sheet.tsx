@@ -40,7 +40,7 @@ export default function MapStoreSheet({
   // The drawer itself is out of reach inside SheetShell, so it is found from
   // the body, which it wraps edge to edge.
   useEffect(() => {
-    const drawer = body?.closest<HTMLElement>("[data-vaul-drawer]");
+    const drawer = body?.closest<HTMLElement>('[data-slot="drawer-popup"]');
     if (!drawer) {
       reportHeight(0);
       return;
@@ -75,16 +75,18 @@ export default function MapStoreSheet({
 
             {/* In the store's row rather than the sheet's header band, which
                 would spend a whole row on it. */}
-            <DrawerClose asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                aria-label={t("modal.close")}
-                className="shrink-0 text-muted-foreground"
-              >
-                <X aria-hidden="true" />
-              </Button>
+            <DrawerClose
+              render={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t("modal.close")}
+                  className="shrink-0 text-muted-foreground"
+                />
+              }
+            >
+              <X aria-hidden="true" />
             </DrawerClose>
           </div>
 

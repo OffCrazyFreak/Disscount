@@ -32,14 +32,14 @@ class ProblemResponseCharacterizationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.type").value("urn:disscount:validation"))
-                .andExpect(jsonPath("$.title").value("Neispravni podaci"))
+                .andExpect(jsonPath("$.title").value("Provjeri unesene podatke"))
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.detail").value("Neispravni podaci."))
+                .andExpect(jsonPath("$.detail").value("Provjeri unesene podatke."))
                 .andExpect(jsonPath("$.instance").value("/api/contact"))
                 .andExpect(jsonPath("$.timestamp").value(matchesPattern(ISO_INSTANT)))
                 .andExpect(jsonPath("$.fieldErrors", aMapWithSize(2)))
-                .andExpect(jsonPath("$.fieldErrors.subject").value("Naslov je obavezan"))
-                .andExpect(jsonPath("$.fieldErrors.message").value("Poruka je obavezna"));
+                .andExpect(jsonPath("$.fieldErrors.subject").value("Upiši naslov."))
+                .andExpect(jsonPath("$.fieldErrors.message").value("Upiši poruku."));
     }
 
     @Test
@@ -49,7 +49,7 @@ class ProblemResponseCharacterizationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.fieldErrors.subject").value("Subject is required"));
+                .andExpect(jsonPath("$.fieldErrors.subject").value("Enter a subject."));
     }
 
     @Test

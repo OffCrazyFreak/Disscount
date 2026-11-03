@@ -9,6 +9,7 @@ import {
   readPhoto,
   writePhoto,
 } from "@/lib/offline/card-photo-store";
+import { currentPurgeGeneration } from "@/lib/offline/purge-gate";
 
 // Many tiles can ask for the same blob in one render pass; they share one request.
 const inflight = new Map<string, Promise<Blob>>();
@@ -18,6 +19,7 @@ async function loadPhoto(
   photo: CardPhotoDto,
   size: CardPhotoSize,
 ): Promise<Blob> {
+  const generation = currentPurgeGeneration();
   const key = photoKey(
     getCacheIdentity(),
     cardId,
@@ -33,7 +35,7 @@ async function loadPhoto(
   if (!pending) {
     pending = fetchCardPhotoBlob(cardId, photo.slot, size, photo.sha256)
       .then(async (blob) => {
-        await writePhoto(key, blob).catch(() => undefined);
+        await writePhoto(key, blob, generation).catch(() => undefined);
         return blob;
       })
       .finally(() => inflight.delete(key));

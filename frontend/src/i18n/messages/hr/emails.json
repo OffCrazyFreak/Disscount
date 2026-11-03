@@ -15,7 +15,7 @@
     "subject": "Postavi novu lozinku",
     "preview": "Poveznica za novu lozinku vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
     "heading": "Zaboravljena lozinka? Nema problema.",
-    "intro": "Netko je zatražio novu lozinku za tvoj Disscount račun. Novu lozinku možeš postaviti putem gumba ispod, a poveznica vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
+    "intro": "Netko je zatražio novu lozinku za tvoj Disscount račun. Postavi je gumbom ispod. Poveznica vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
     "button": "Postavi novu lozinku",
     "footnote": "Ovaj zahtjev nije od tebe? Samo zanemari ovaj email, lozinka ti ostaje ista."
   },
@@ -37,9 +37,9 @@
   },
   "breachedPassword": {
     "subject": "Tvoja lozinka pronađena je u curenju podataka",
-    "preview": "Tvoju lozinku pronašli smo u curenju podataka, postavi novu",
+    "preview": "Tvoju lozinku pronašli smo u curenju podataka, postavi novu.",
     "heading": "Tvoja lozinka pronađena je u curenju podataka",
-    "intro": "Upravo je stigao pokušaj prijave u tvoj Disscount račun s ispravnom lozinkom. Tu lozinku pronašli smo u poznatom curenju podataka s neke druge stranice, zato prijavu nismo dopustili. Postavi novu lozinku putem gumba ispod. Kad je postaviš, odjavit ćemo te sa svih uređaja. Poveznica vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
+    "intro": "Netko se upravo pokušao prijaviti u tvoj Disscount račun s ispravnom lozinkom. Tu lozinku pronašli smo u curenju podataka s druge stranice, pa prijavu nismo pustili. Postavi novu lozinku gumbom ispod. Kad je postaviš, odjavit ćemo te sa svih uređaja. Poveznica vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
     "button": "Postavi novu lozinku",
     "footnote": "Ako to nisi ti, svejedno postavi novu lozinku. Ako ovu lozinku koristiš i drugdje, promijeni je i tamo."
   },

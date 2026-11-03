@@ -1,0 +1,7 @@
+{
+  "errorTracking": {
+    "heading": "Spremljanje napak",
+    "collected": "Ko se v aplikaciji zgodi napaka, tehnične podatke o njej pošljemo Sentryju, našemu obdelovalcu, ki jih hrani v Evropski uniji: opis napake, brskalnik in napravo, naslov strani, IP-naslov in interno oznako tvojega računa. Tvojega imena in e-poštnega naslova ne dodajamo dogodkom, vendar lahko neuspela zahteva za prijavo ali registracijo vsebuje e-poštni naslov, ki ga vpišeš.",
+    "replay": "Pri majhnem delu obiskov in pri obiskih z napako posnamemo tudi potek seje, v katerem sta vse besedilo in vsak vnos zakrita. Gesla, žetone in piškotke seje odstranimo pred pošiljanjem. Podatke uporabljamo samo za odpravljanje napak. Sentry jih hrani največ 30 dni. Pravna podlaga je zakoniti interes (člen 6(1)(f) GDPR)."
+  }
+}

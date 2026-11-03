@@ -5,7 +5,7 @@
   },
   "client": {
     "loginTitle": "Prodotti seguiti",
-    "loginDescription": "Seguendo i prodotti ricevi una notifica appena il prezzo scende.",
+    "loginDescription": "Segui i prodotti che compri e ricevi una notifica appena il prezzo scende.",
     "searchPlaceholder": "Cerca tra i prodotti seguiti..."
   },
   "header": {
@@ -32,11 +32,11 @@
     "srSuffix": ", {infoLabel}, apri le preferenze dei negozi"
   },
   "discountInfo": {
-    "loadError": "Errore di caricamento",
+    "loadError": "Non caricato",
     "noData": "Nessun dato",
     "unavailable": "Non disponibile",
     "setPreferences": "Imposta preferenze",
-    "preferredStoresInfo": "Negozi in sconto tra i tuoi negozi preferiti",
+    "preferredStoresInfo": "Sconti nei tuoi negozi",
     "allStoresInfo": "Tutti i negozi in sconto"
   },
   "item": {
@@ -44,9 +44,9 @@
     "unavailable": "Prodotto non disponibile"
   },
   "removal": {
-    "success": "Prodotto rimosso dai prodotti seguiti",
-    "error": "Non siamo riusciti a rimuovere il prodotto",
-    "partial": "{count, plural, one {Rimozione parziale: non è stato possibile rimuovere # articolo.} other {Rimozione parziale: non è stato possibile rimuovere # articoli.}}"
+    "success": "Non segui più questo prodotto.",
+    "error": "Non siamo riusciti a rimuovere il prodotto. Riprova.",
+    "partial": "{count, plural, one {# prodotto non è stato rimosso. Riprova.} other {# prodotti non sono stati rimossi. Riprova.}}"
   },
   "createList": {
     "label": "Crea lista dei prodotti scontati",
@@ -54,14 +54,14 @@
     "loading": "Creazione lista...",
     "listTitle": "In offerta il {date}",
     "productCount": "Prodotti per la nuova lista: {count}.",
-    "success": "Lista dei prodotti scontati creata",
-    "createError": "Non siamo riusciti a creare la lista dei prodotti scontati",
-    "addFailedRemoved": "Non è stato possibile aggiungere alcuni articoli. La lista è stata rimossa automaticamente.",
-    "addFailedKept": "Non è stato possibile aggiungere alcuni articoli e la lista non si può rimuovere automaticamente."
+    "success": "La lista delle offerte è pronta!",
+    "createError": "Non siamo riusciti a creare la lista. Riprova.",
+    "addFailedRemoved": "Alcuni prodotti non sono stati aggiunti, quindi la lista è stata rimossa. Riprova.",
+    "addFailedKept": "Alcuni prodotti non sono stati aggiunti. La lista è rimasta, puoi completarla o eliminarla."
   },
   "validation": {
     "productRequired": "Il prodotto è obbligatorio",
     "watchTypeRequired": "Il tipo di avviso è obbligatorio",
-    "thresholdPositive": "Lo sconto minimo deve essere un numero positivo"
+    "thresholdPositive": "Lo sconto minimo deve essere maggiore di 0"
   }
 }

@@ -3,7 +3,7 @@ import type { IStoreLocation } from "@/typings/store-location";
 import type {
   IFacetSelections,
   IProductFacets,
-} from "@/app/[locale]/products/utils/facets/types";
+} from "@/app/[locale]/products/utils/facets/facet-types";
 import { buildFacetQuery } from "@/app/[locale]/products/utils/facets/facet-query";
 import {
   matchesBrands,
@@ -20,7 +20,7 @@ export type {
   IFacetOption,
   IFacetSelections,
   IProductFacets,
-} from "@/app/[locale]/products/utils/facets/types";
+} from "@/app/[locale]/products/utils/facets/facet-types";
 
 /**
  * Disjunctive faceting over the current search results: each facet is counted

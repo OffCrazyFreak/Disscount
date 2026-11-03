@@ -14,7 +14,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.security.oauth2.jwt.JwtAudienceValidator;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -44,7 +46,10 @@ public class SecurityConfig {
                 .jwsAlgorithm(SignatureAlgorithm.ES256)
                 .build();
 
-        decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer));
+        // better-auth sets aud to the same base URL as iss, so no separate setting is needed (RFC 8725, 3.9).
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
+                JwtValidators.createDefaultWithIssuer(issuer),
+                new JwtAudienceValidator(issuer)));
 
         return decoder;
     }
@@ -162,7 +167,8 @@ public class SecurityConfig {
                 // so an ordinary session token cannot erase the profile and keep its login.
                 .requestMatchers(HttpMethod.DELETE, "/api/users/me").access(SecurityConfig::isAccountErasureToken)
                 // Product photos are public like the prices; uploads and reports still need a login.
-                .requestMatchers(HttpMethod.GET, "/api/products/*/images", "/api/products/images/thumbnails").access(SecurityConfig::isNotPurposeScoped)
+                .requestMatchers(HttpMethod.GET, "/api/products/*/images", "/api/products/images/thumbnails",
+                        "/api/products/catalog/eans").access(SecurityConfig::isNotPurposeScoped)
                 .requestMatchers(
                     "/actuator/health",
                     "/v3/api-docs/**",

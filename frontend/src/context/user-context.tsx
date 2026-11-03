@@ -11,6 +11,7 @@ import {
   ReactNode,
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import * as Sentry from "@sentry/nextjs";
 
 import { authClient, useSession } from "@/lib/auth/client";
 import {
@@ -105,7 +106,11 @@ export function UserProvider({ children }: IUserProviderProps) {
 
     syncCacheIdentity(queryClient, cacheIdentityRef, identity, sessionError);
     // A failed lookup leaves the account unknown, as it does for the cache purge.
-    if (!sessionError || identity) setAuthTokenUser(identity);
+    if (!sessionError || identity) {
+      setAuthTokenUser(identity);
+      // The account id only: email and name stay out of Sentry.
+      Sentry.setUser(identity ? { id: identity } : null);
+    }
 
     // The directive covers this whole effect, not just the line under it: the else
     // branch clears user state synchronously too. Both sides react to an auth result
@@ -137,6 +142,7 @@ export function UserProvider({ children }: IUserProviderProps) {
       await authClient.signOut();
     } finally {
       clearAuthToken();
+      Sentry.setUser(null);
       setUser(null);
       // Awaited here, and the identity has not moved yet, so the current one is the
       // account being signed out.

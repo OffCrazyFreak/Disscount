@@ -4,7 +4,7 @@ import type {
   IFacetQuery,
   IIndexedProduct,
   ILocationChains,
-} from "@/app/[locale]/products/utils/facets/types";
+} from "@/app/[locale]/products/utils/facets/facet-types";
 import {
   matchesBrands,
   matchesCategories,

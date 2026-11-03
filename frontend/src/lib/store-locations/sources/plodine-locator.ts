@@ -2,7 +2,10 @@ import "server-only";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchText } from "@/lib/store-locations/http";
-import type { ILocatorStore, IStoreLocator } from "@/lib/store-locations/types";
+import type {
+  ILocatorStore,
+  IStoreLocator,
+} from "@/lib/store-locations/store-location-types";
 
 const URL = "https://www.plodine.hr/supermarketi";
 

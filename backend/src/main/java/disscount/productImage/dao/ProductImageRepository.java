@@ -1,5 +1,6 @@
 package disscount.productImage.dao;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +40,9 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, UUID
     @Query("""
             select i from ProductImage i, ProductImageSet s
             where i.id = s.mainImageId and i.fullKey is null and i.status = :candidate
+              and (i.renderRetryAt is null or i.renderRetryAt <= :now)
             order by s.storeListings desc
             """)
-    List<ProductImage> findUnrenderedMains(@Param("candidate") ImageStatus candidate, Pageable page);
+    List<ProductImage> findUnrenderedMains(@Param("candidate") ImageStatus candidate, @Param("now") LocalDateTime now,
+                                           Pageable page);
 }

@@ -15,7 +15,7 @@
     "error": "Greška pri dohvaćanju korisnika.",
     "windowLabel": "Razdoblje:",
     "window": {
-      "d1": "Zadnji 1 dan",
+      "d1": "Zadnji dan",
       "d7": "Zadnjih 7 dana",
       "d14": "Zadnjih 14 dana",
       "d30": "Zadnjih 30 dana",

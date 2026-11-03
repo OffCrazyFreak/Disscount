@@ -58,16 +58,18 @@ export default function SheetShellHeader({
       </div>
 
       {showCloseButton && (
-        <DrawerClose asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            aria-label={t("modal.close")}
-            className="shrink-0 text-muted-foreground"
-          >
-            <X />
-          </Button>
+        <DrawerClose
+          render={
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={t("modal.close")}
+              className="shrink-0 text-muted-foreground"
+            />
+          }
+        >
+          <X aria-hidden="true" />
         </DrawerClose>
       )}
     </div>

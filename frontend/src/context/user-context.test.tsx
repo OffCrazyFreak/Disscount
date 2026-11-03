@@ -1,5 +1,7 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw/http";
+import * as Sentry from "@sentry/nextjs";
 import { describe, expect, it, vi } from "vitest";
 
 import { UserProvider, useUser } from "@/context/user-context";
@@ -33,6 +35,8 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 
 vi.mock("@/lib/offline/purge", () => ({ purgeOfflineCache: vi.fn() }));
+
+vi.mock("@sentry/nextjs", () => ({ setUser: vi.fn() }));
 
 function unsignedJwt(sub: string): string {
   const encode = (value: object) =>
@@ -288,6 +292,63 @@ describe("UserProvider backend token", () => {
 
     await waitFor(() => expect(authorizations.length).toBeGreaterThan(1));
     expect(authorizations).not.toContain(`Bearer ${tokenA}`);
+  });
+});
+
+function SignOutButton() {
+  const { logout } = useUser();
+  return <button onClick={() => logout()}>sign out</button>;
+}
+
+describe("UserProvider Sentry user", () => {
+  it("tags Sentry with the account id only and clears it once signed out", async () => {
+    session.userId = "user-a";
+    session.error = null;
+    recordProfileRequests(async () => tokenA);
+    vi.mocked(Sentry.setUser).mockClear();
+
+    const view = renderWithProviders(
+      <UserProvider>
+        <></>
+      </UserProvider>,
+    );
+    await waitFor(() =>
+      expect(Sentry.setUser).toHaveBeenLastCalledWith({ id: "user-a" }),
+    );
+
+    session.userId = null;
+    view.rerender(
+      <UserProvider>
+        <></>
+      </UserProvider>,
+    );
+
+    await waitFor(() => expect(Sentry.setUser).toHaveBeenLastCalledWith(null));
+  });
+
+  it("clears the Sentry user on sign out before the session catches up", async () => {
+    session.userId = "user-a";
+    session.error = null;
+    recordProfileRequests(async () => tokenA);
+    server.use(
+      http.post("*/api/auth/sign-out", () =>
+        HttpResponse.json({ success: true }),
+      ),
+    );
+
+    const user = userEvent.setup();
+    renderWithProviders(
+      <UserProvider>
+        <SignOutButton />
+      </UserProvider>,
+    );
+    await waitFor(() =>
+      expect(Sentry.setUser).toHaveBeenLastCalledWith({ id: "user-a" }),
+    );
+
+    await user.click(screen.getByRole("button", { name: "sign out" }));
+
+    await waitFor(() => expect(Sentry.setUser).toHaveBeenLastCalledWith(null));
   });
 });
 

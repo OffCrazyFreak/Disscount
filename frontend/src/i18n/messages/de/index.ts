@@ -3,11 +3,13 @@ import common from "./common.json";
 import dashboard from "./dashboard.json";
 import digitalCards from "./digitalCards.json";
 import emails from "./emails.json";
+import errorPage from "./errorPage.json";
 import errors from "./errors.json";
 import landing from "./landing.json";
 import locale from "./locale.json";
 import map from "./map.json";
 import metadata from "./metadata.json";
+import privacyPolicy from "./privacyPolicy.json";
 import productDetail from "./productDetail.json";
 import productPhotos from "./productPhotos.json";
 import products from "./products.json";
@@ -29,11 +31,13 @@ const messages = {
   dashboard,
   digitalCards,
   emails,
+  errorPage,
   errors,
   landing,
   locale,
   map,
   metadata,
+  privacyPolicy,
   productDetail,
   productPhotos,
   products,

@@ -27,7 +27,7 @@ interface IShoppingListActionsOutletProps {
  * owned, so there is nothing here for a signed-out visitor to do.
  *
  * The confirm dialog lives here rather than in the sheet because a Radix dialog
- * nested inside the vaul drawer is dismissed by its own overlay press. The outlet
+ * nested inside the drawer is dismissed by its own overlay press. The outlet
  * stays mounted even when it renders nothing, so the pending list survives the
  * sheet closing and the two never overlap.
  */

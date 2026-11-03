@@ -1,17 +1,17 @@
 {
   "meta": {
     "title": "Shopping lists",
-    "description": "Manage your shopping lists."
+    "description": "Build shopping lists and compare prices across stores."
   },
   "client": {
     "loginTitle": "Shopping lists",
-    "loginDescription": "Shopping lists help you organize your shopping and compare prices across stores in one place.",
+    "loginDescription": "Build a list and compare store prices in one place.",
     "searchPlaceholder": "Search shopping lists...",
     "searchResults": "Search results for “{query}” ({count})",
     "myLists": "My shopping lists",
     "myListsWithCount": "My shopping lists ({count})",
     "empty": {
-      "title": "No shopping lists yet",
+      "title": "No lists yet",
       "description": "Create a shopping list, or search products and add them to a new one.",
       "browseProducts": "Search products"
     }
@@ -50,7 +50,7 @@
       "shared": "Anyone with the link"
     },
     "hint": {
-      "NONE": "Sharing is off, so only you can open this list.",
+      "NONE": "Only you can open this list.",
       "VIEW": "Can see the whole list but can't edit it.",
       "SHOP": "Can see the whole list, choose a store and check off what's bought.",
       "EDIT": "Can edit the whole list but can't add new products."
@@ -58,7 +58,7 @@
   },
   "modal": {
     "cancel": "Cancel",
-    "notFound": "List not found. It may have been deleted, or you may not have access."
+    "notFound": "We couldn't find that list. It may have been deleted, or you may not have access."
   },
   "titleField": {
     "label": "List name",
@@ -73,16 +73,16 @@
     "reset": "Reset",
     "loadError": "Couldn't load the list. Try again.",
     "offlineToast": "You're offline. The change will sync when you're back online.",
-    "updatedToast": "Shopping list updated!",
-    "createdToast": "Shopping list created!"
+    "updatedToast": "List saved!",
+    "createdToast": "Your list is ready!"
   },
   "copyModal": {
     "title": "Copy list",
-    "description": "Choose what goes into the copy.",
+    "description": "Choose what the copy keeps.",
     "submit": "Copy",
     "titleSuffix": " (Copy)",
-    "successToast": "Shopping list copied!",
-    "errorToast": "Couldn't copy the shopping list",
+    "successToast": "List copied!",
+    "errorToast": "Couldn't copy the list. Try again.",
     "options": {
       "items": {
         "label": "Products",
@@ -107,7 +107,7 @@
     "shareLink": "Share link",
     "shareText": "Share as text",
     "accessLabel": "Who has access to the list",
-    "settingsUpdatedToast": "Sharing settings updated.",
+    "settingsUpdatedToast": "Sharing saved.",
     "settingsFailedToast": "Couldn't save the sharing change. Try again.",
     "linkCopiedToast": "Link copied",
     "textCopiedToast": "List text copied",

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { StoreResponse } from "@/lib/cijene-api/schemas";
 import type { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
-import type { ILocatorStore } from "@/lib/store-locations/types";
+import type { ILocatorStore } from "@/lib/store-locations/store-location-types";
 
 vi.mock("server-only", () => ({}));
 

@@ -3,6 +3,8 @@ import { getTranslations } from "next-intl/server";
 import renderBrandOg, { contentType, size } from "@/app/og/render-og";
 import { isLocale, DEFAULT_LOCALE } from "@/i18n/locales";
 
+export const BRAND_OG_IMAGE_ID = "brand";
+
 // Image routes are route handlers, where root params are unreadable, so the locale
 // comes from the route's own params.
 async function metadataTranslator(params: Promise<{ locale: string }>) {
@@ -15,7 +17,7 @@ async function metadataTranslator(params: Promise<{ locale: string }>) {
 
 export async function localizedOgMetadata(params: Promise<{ locale: string }>) {
   const t = await metadataTranslator(params);
-  return [{ id: "brand", alt: t("alt"), size, contentType }];
+  return [{ id: BRAND_OG_IMAGE_ID, alt: t("alt"), size, contentType }];
 }
 
 export async function renderLocalizedOg(params: Promise<{ locale: string }>) {

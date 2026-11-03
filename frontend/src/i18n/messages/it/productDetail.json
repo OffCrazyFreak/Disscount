@@ -1,11 +1,13 @@
 {
   "meta": {
     "title": "Dettagli del prodotto",
-    "description": "Confronto dei prezzi del prodotto."
+    "description": "Confronto dei prezzi del prodotto.",
+    "productTitle": "{name}: confronta i prezzi",
+    "productDescription": "Confronta i prezzi di {name} in {chains, plural, one {# catena di supermercati} other {# catene di supermercati}}. Prezzo più basso: {price}."
   },
   "notFound": {
     "title": "Prodotto non trovato",
-    "description": "Impossibile caricare i dati di questo prodotto."
+    "description": "Non riusciamo a caricare questo prodotto. Prova a cercarlo di nuovo."
   },
   "sort": {
     "label": "Ordina per:",
@@ -24,7 +26,7 @@
     "title": "Storico prezzi",
     "hide": "Nascondi",
     "show": "Mostra",
-    "empty": "Nessun dato storico disponibile.",
+    "empty": "Ancora nessuno storico prezzi.",
     "average": "Media",
     "period": {
       "week": "(ultimi 7 giorni)",

@@ -11,9 +11,9 @@ import { useEffect, useRef, type RefObject } from "react";
  * finding each trigger again.
  *
  * Deliberately on `document` in the bubble phase and deliberately without
- * `stopPropagation`, unlike the Escape hook next door. vaul dismisses its own
- * sheet from an outside press, and swallowing that event would stop the
- * products sheet closing.
+ * `stopPropagation`, unlike the Escape hook next door. A modal drawer dismisses
+ * itself from an outside press, and swallowing that event would stop it
+ * closing.
  *
  * The trigger counts as inside, or its own toggle would fight this and the list
  * would reopen on the same press that closed it.

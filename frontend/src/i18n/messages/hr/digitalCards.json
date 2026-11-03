@@ -6,11 +6,11 @@
     "save": "Spremi karticu",
     "cancel": "Odustani",
     "reset": "Resetiraj",
-    "loadErrorOffline": "Izvan si mreže, a ova kartica još nije spremljena na uređaju. Spoji se na mrežu i pokušaj ponovo.",
-    "loadError": "Greška pri učitavanju kartice. Pokušaj ponovo.",
+    "loadErrorOffline": "Izvan si mreže, a ova kartica još nije na uređaju. Spoji se i pokušaj ponovno.",
+    "loadError": "Kartica se nije učitala. Pokušaj ponovno.",
     "notFound": "Kartica nije pronađena. Možda je obrisana.",
     "saveFailed": "Kartica nije spremljena. Provjeri unesene podatke.",
-    "savedOffline": "Izvan si mreže, promjena će se sinkronizirati kad se vratiš na mrežu.",
+    "savedOffline": "Izvan si mreže. Spremit ćemo promjenu čim se spojiš.",
     "saved": "Kartica je spremljena.",
     "storeLabel": "Trgovina",
     "storePlaceholder": "Odaberi ili upiši trgovinu",
@@ -58,7 +58,7 @@
     "noteTooLong": "Bilješka može imati najviše 500 znakova",
     "balanceNegative": "Iznos ne može biti negativan",
     "balanceTooLarge": "Iznos je prevelik",
-    "expiresBeforeStart": "Kartica ne može isteći prije početka"
+    "expiresBeforeStart": "Datum isteka mora biti nakon početka"
   },
   "cardTypes": {
     "loyalty": "Kartica vjernosti",
@@ -170,9 +170,9 @@
     },
     "preview": "Pregled slike: {label}",
     "status": {
-      "removed": "Slika će biti uklonjena pri spremanju",
-      "added": "Nova slika se sprema s karticom",
-      "uploading": "Slanje u tijeku",
+      "removed": "Uklanjamo sliku kad spremiš",
+      "added": "Spremit ćemo sliku s karticom",
+      "uploading": "Šaljemo...",
       "queued": "Čeka slanje",
       "error": "Slanje nije uspjelo",
       "saved": "Spremljeno",
@@ -186,7 +186,7 @@
     "discardAria": "Odbaci novu sliku: {label}",
     "removeAria": "Ukloni sliku: {label}",
     "errors": {
-      "processFailed": "Slika nije obrađena.",
+      "processFailed": "Ovu sliku ne možemo obraditi. Probaj drugu.",
       "saveFailed": "Slika nije spremljena. Pokušaj ponovno.",
       "removeFailed": "Slika nije obrisana. Pokušaj ponovno."
     }
@@ -197,7 +197,7 @@
   },
   "list": {
     "loginTitle": "Kartice vjernosti",
-    "loginDescription": "Kartice vjernosti ti omogućuju da sve svoje kartice držiš na jednom mjestu, uvijek pri ruci.",
+    "loginDescription": "Sve kartice vjernosti na jednom mjestu, uvijek pri ruci.",
     "searchPlaceholder": "Pretraži kartice vjernosti...",
     "searchResults": "Rezultati pretrage za \"{query}\" ({count})",
     "myCards": "Moje kartice vjernosti",
@@ -206,7 +206,7 @@
       "full": "Dodaj karticu",
       "short": "Dodaj"
     },
-    "pinnedLabel": "Prikvaćene kartice",
+    "pinnedLabel": "Prikvačene kartice",
     "cardsLabel": "Kartice"
   },
   "announce": {
@@ -222,7 +222,7 @@
       "recent-use": "Nedavno korišteno",
       "name": "Naziv",
       "store": "Trgovina",
-      "type": "Tip",
+      "type": "Vrsta",
       "edited": "Nedavno uređeno",
       "added": "Nedavno dodano",
       "color": "Boja"
@@ -242,7 +242,7 @@
       "link": "O aplikaciji Moj dm"
     },
     "konzum": {
-      "text": "Pravila MultiPlus kartice zabranjuju kopiranje kartice. Spremljeni broj koristi samo za svoju karticu.",
+      "text": "Pravila MultiPlus kartice ne dopuštaju kopiranje. Spremi samo broj svoje kartice.",
       "link": "Pravila MultiPlus kartice"
     }
   },
@@ -276,7 +276,7 @@
       "twoDimensional": "2D kod",
       "linear": "Crtični kod",
       "withValue": "{kind}: {value}",
-      "cannotDraw": "Ovaj kod se ne može nacrtati. Pročitaj broj ispod ili probaj drugi tip."
+      "cannotDraw": "Ovaj kod ne možemo prikazati. Pročitaj broj ispod ili probaj drugi tip."
     },
     "switcher": {
       "shownAs": "Prikazano kao: {type}",
@@ -323,10 +323,10 @@
     }
   },
   "offline": {
-    "cardLimit": "Dosegnut je najveći broj kartica.",
+    "cardLimit": "Imaš već najveći dopušteni broj kartica. Obriši neku koju ne koristiš.",
     "cardSaveFailed": "Kartica nije spremljena. Pokušaj ponovno.",
     "cardDeleteFailed": "Kartica nije obrisana. Pokušaj ponovno.",
-    "photoDeleteFailed": "Slika nije obrisana.",
-    "photoSendFailed": "Slika kartice nije poslana."
+    "photoDeleteFailed": "Slika nije obrisana. Pokušaj ponovno.",
+    "photoSendFailed": "Slika kartice nije spremljena. Dodaj je ponovno."
   }
 }

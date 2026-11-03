@@ -13,6 +13,7 @@ import disscount.exceptions.NotFoundException;
 import disscount.productImage.dao.ProductImageReportRepository;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
+import disscount.productImage.domain.HiddenReason;
 import disscount.productImage.domain.ImageSource;
 import disscount.productImage.domain.ImageStatus;
 import disscount.productImage.domain.ProductImage;
@@ -117,6 +118,7 @@ public class ProductImageAdminService {
             case "VERIFIED" -> approve(adminId, image);
             case "HIDDEN" -> {
                 image.setStatus(ImageStatus.HIDDEN);
+                image.setHiddenReason(HiddenReason.ADMIN);
                 images.save(image);
                 if (image.getId().equals(set.getMainImageId())) {
                     // The admin rejected the shown photo, so the automatic pick takes over again.
@@ -166,6 +168,7 @@ public class ProductImageAdminService {
     private void approve(UUID adminId, ProductImage image) {
         if (image.getStatus() == ImageStatus.PENDING) image.setConfirmedById(adminId);
         if (image.getStatus() != ImageStatus.CANDIDATE) image.setStatus(ImageStatus.VERIFIED);
+        image.setHiddenReason(null);
         image.setReportCount(0);
         image.setFlaggedAt(null);
         reports.deleteByImageId(image.getId());

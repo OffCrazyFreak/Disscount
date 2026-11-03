@@ -13,16 +13,16 @@
     "backToMap": "Zurück zur Karte"
   },
   "load": {
-    "error": "Die Märkte können gerade nicht geladen werden.",
+    "error": "Die Märkte konnten nicht geladen werden.",
     "retry": "Erneut versuchen",
     "loading": "Märkte werden geladen..."
   },
   "unavailable": {
     "browser": "Dein Browser kann die Karte nicht anzeigen. Alle Märkte stehen weiterhin in der Liste.",
     "style": "Die Karte kann gerade nicht geladen werden. Alle Märkte stehen weiterhin in der Liste.",
-    "contextLost": "Die Karte wurde unterbrochen.",
+    "contextLost": "Die Karte funktioniert nicht mehr. Alle Märkte stehen weiterhin in der Liste.",
     "reload": "Neu laden",
-    "noGpu": "Dein Browser hat die Grafikbeschleunigung abgeschaltet und kann die Karte deshalb nicht anzeigen. Meist hilft es, den Browser neu zu starten. Alle Märkte stehen weiterhin in der Liste."
+    "noGpu": "Dein Browser hat die Grafikbeschleunigung abgeschaltet und zeigt die Karte nicht an. Starte ihn am besten neu. Alle Märkte stehen weiterhin in der Liste."
   },
   "chains": {
     "all": "Alle Händler"
@@ -69,7 +69,7 @@
   "favorites": {
     "add": "Zu Favoriten hinzufügen",
     "remove": "Aus Favoriten entfernen",
-    "limit": "Höchstens {max, number} Lieblingsgeschäfte.",
+    "limit": "Du kannst höchstens {max, number} Lieblingsgeschäfte haben.",
     "saveFailed": "Speichern fehlgeschlagen. Versuch es noch einmal."
   },
   "actions": {

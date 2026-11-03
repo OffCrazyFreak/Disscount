@@ -122,7 +122,7 @@ public class ShoppingListService {
     }
 
     private User requireUser(UUID userId) {
-        return userRepository.findById(userId)
+        return userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new UnauthorizedException("error.user.notFound"));
     }
 

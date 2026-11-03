@@ -3,12 +3,19 @@ import {
   defaultShouldDehydrateMutation,
   defaultShouldDehydrateQuery,
 } from "@tanstack/react-query";
-import type { PersistQueryClientOptions } from "@tanstack/react-query-persist-client";
+import type {
+  PersistedClient,
+  Persister,
+  PersistQueryClientOptions,
+} from "@tanstack/react-query-persist-client";
 import { get, set, del } from "idb-keyval";
 
 import { scopedCacheKey } from "@/lib/offline/cache-identity";
 import { shouldPersistQuery } from "@/lib/offline/cached-query-keys";
-import { whenPurgesSettled } from "@/lib/offline/purge-gate";
+import {
+  canWriteAfterPurges,
+  currentPurgeGeneration,
+} from "@/lib/offline/purge-gate";
 import { shouldPersistMutation } from "@/lib/offline/offline-mutation-keys";
 
 const IDB_CACHE_KEY = "disscount-react-query-cache";
@@ -24,22 +31,37 @@ export const OFFLINE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 const indexedDbStorage = {
   getItem: async (key: string) =>
     (await get<string>(scopedCacheKey(key))) ?? null,
-  setItem: async (key: string, value: string) => {
-    const scoped = scopedCacheKey(key);
-    await whenPurgesSettled();
-    // The value was serialized for the account that was current before the wait; after a
-    // sign out it would put that account's data back on disk.
-    if (scopedCacheKey(key) !== scoped) return;
-
-    await set(scoped, value);
-  },
+  setItem: (key: string, value: string) => set(scopedCacheKey(key), value),
   removeItem: (key: string) => del(scopedCacheKey(key)),
 };
 
-const offlinePersister = createAsyncStoragePersister({
+// Tagged when the snapshot is dehydrated: the throttle can hold it past a purge, and by
+// the time it is written the key would name whoever signed in next.
+const snapshotGeneration = new WeakMap<PersistedClient, number>();
+
+async function serializeUnlessPurged(client: PersistedClient) {
+  const captured = snapshotGeneration.get(client);
+  // Throwing is how a save is skipped: the persister drops a failed save when no retry is set.
+  if (captured === undefined || !(await canWriteAfterPurges(captured))) {
+    throw new Error("Snapshot predates a purge of the offline cache");
+  }
+
+  return JSON.stringify(client);
+}
+
+const throttledPersister = createAsyncStoragePersister({
   storage: indexedDbStorage,
   key: IDB_CACHE_KEY,
+  serialize: serializeUnlessPurged,
 });
+
+const offlinePersister: Persister = {
+  ...throttledPersister,
+  persistClient: (client) => {
+    snapshotGeneration.set(client, currentPurgeGeneration());
+    return throttledPersister.persistClient(client);
+  },
+};
 
 /**
  * Deletes one identity's snapshot by name.

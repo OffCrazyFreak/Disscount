@@ -3,7 +3,7 @@
 import { RefObject, useEffect, useEffectEvent, useRef, useState } from "react";
 import type { MapRef, ViewStateChangeEvent } from "react-map-gl/maplibre";
 
-import { ICenterRequest } from "@/app/[locale]/map/hooks/use-geolocation";
+import { ICenterRequest } from "@/hooks/use-geolocation";
 import { circleBounds } from "@/app/[locale]/map/utils/circle";
 import { ILatLon } from "@/utils/distance";
 

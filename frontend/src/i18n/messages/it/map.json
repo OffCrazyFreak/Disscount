@@ -13,16 +13,16 @@
     "backToMap": "Torna alla mappa"
   },
   "load": {
-    "error": "Al momento non è possibile caricare i negozi.",
+    "error": "Non siamo riusciti a caricare i negozi.",
     "retry": "Riprova",
     "loading": "Caricamento dei negozi..."
   },
   "unavailable": {
     "browser": "Il tuo browser non può mostrare la mappa. Tutti i negozi restano nell'elenco.",
     "style": "Al momento non è possibile caricare la mappa. Tutti i negozi restano nell'elenco.",
-    "contextLost": "La mappa si è interrotta.",
+    "contextLost": "La mappa ha smesso di funzionare. Tutti i negozi sono ancora nell'elenco.",
     "reload": "Ricarica",
-    "noGpu": "Il tuo browser ha disattivato l'accelerazione grafica e non può mostrare la mappa. Di solito basta riavviare il browser. Tutti i negozi sono ancora nell'elenco."
+    "noGpu": "Il browser ha disattivato l'accelerazione grafica e non mostra la mappa. Prova a riavviarlo. Tutti i negozi sono ancora nell'elenco."
   },
   "chains": {
     "all": "Tutte le catene"
@@ -69,7 +69,7 @@
   "favorites": {
     "add": "Aggiungi ai preferiti",
     "remove": "Rimuovi dai preferiti",
-    "limit": "Al massimo {max, number} negozi preferiti.",
+    "limit": "Puoi avere al massimo {max, number} negozi preferiti.",
     "saveFailed": "Salvataggio non riuscito. Riprova."
   },
   "actions": {

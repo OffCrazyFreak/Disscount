@@ -19,6 +19,8 @@ public final class ProductImageDtos {
 
     public record ProductThumbnailsDto(Map<String, String> thumbnails) {}
 
+    public record ListedEansDto(List<String> eans) {}
+
     public record CropDto(int x, int y, int width, int height) {}
 
     public record AdminImageDto(

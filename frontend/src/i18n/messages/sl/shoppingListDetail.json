@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Nakupovalni seznam: podrobnosti",
+    "title": "Nakupovalni seznam",
     "description": "Pregled in upravljanje izdelkov na nakupovalnem seznamu."
   },
   "toggle": {
@@ -9,15 +9,15 @@
   },
   "backToLists": "Nazaj na nakupovalne sezname",
   "lastSynced": "Seznam osvežen {time}",
-  "updatedByOthers": "Seznam je posodobljen",
+  "updatedByOthers": "Nekdo je pravkar spremenil seznam.",
   "access": {
     "view": "Ta seznam lahko samo pregleduješ.",
     "shop": "Lahko označiš, kaj je kupljeno, in izbereš trgovino, seznama pa ne moreš spreminjati.",
     "edit": "Lahko spreminjaš količine in brišeš izdelke, novih pa ne moreš dodajati.",
     "withNextStep": "{text} {nextStep}",
     "signIn": "Prijavi se za urejanje.",
-    "askOwner": "Za več pravic se obrni na lastnika seznama.",
-    "checking": "Pravice za ta seznam se še preverjajo."
+    "askOwner": "Za več pravic vprašaj lastnika seznama.",
+    "checking": "Preverjamo tvoje pravice..."
   },
   "actions": {
     "deleteTitle": "Izbriši nakupovalni seznam",
@@ -32,9 +32,9 @@
   "toasts": {
     "linkCopied": "Povezava je kopirana",
     "shareFailed": "Deljenje ni uspelo",
-    "itemDeleted": "Izdelek je izbrisan",
-    "listDeleted": "Nakupovalni seznam je izbrisan",
-    "listDeleteFailed": "Napaka pri brisanju nakupovalnega seznama. Poskusi znova."
+    "itemDeleted": "Izdelek je odstranjen.",
+    "listDeleted": "Seznam je izbrisan.",
+    "listDeleteFailed": "Seznama ni bilo mogoče izbrisati. Poskusi znova."
   },
   "unavailable": {
     "deadLinkTitle": "Povezava ne velja več",
@@ -59,8 +59,8 @@
   "items": {
     "titleWithChecked": "Izdelki ({checked}/{total} kupljeno)",
     "title": "Izdelki ({total})",
-    "emptyOwner": "Na tem seznamu še ni izdelkov. Poišči izdelke in jih dodaj na ta seznam.",
-    "empty": "Na tem seznamu še ni izdelkov.",
+    "emptyOwner": "Seznam je še prazen. Poišči izdelke in jih dodaj sem.",
+    "empty": "Seznam je še prazen.",
     "searchProducts": "Išči izdelke",
     "markUnbought": "Označi {name} kot nekupljeno",
     "markBought": "Označi {name} kot kupljeno",
@@ -83,19 +83,19 @@
   },
   "priceHistory": {
     "title": "Zgodovina cen",
-    "noData": "Zgodovinski podatki niso na voljo."
+    "noData": "Zgodovine cen še ni."
   },
   "stores": {
     "title": "Cene po trgovcih",
-    "noItems": "Na tem seznamu še ni izdelkov. Poišči izdelke in jih dodaj na ta seznam.",
-    "allChecked": "Vsi izdelki so označeni kot kupljeni.",
-    "loadError": "Napaka pri nalaganju cen. Poskusi znova.",
+    "noItems": "Seznam je še prazen. Poišči izdelke in jih dodaj sem.",
+    "allChecked": "Vse je kupljeno!",
+    "loadError": "Cen ni bilo mogoče naložiti. Poskusi znova.",
     "noPrices": "Za izdelke na seznamu ni na voljo nobene cene.",
-    "optimizeBy": "Optimiziraj glede na:",
+    "optimizeBy": "Razvrsti glede na:",
     "optimize": {
-      "products": "Število izdelkov",
+      "products": "Število razpoložljivih izdelkov",
       "basket": "Najcenejšo košarico",
-      "total": "Posamezne izdelke",
+      "total": "Število najcenejših izdelkov",
       "distance": "Razdaljo"
     },
     "availableItems": "Na voljo izdelkov: {count}/{total}",

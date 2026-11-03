@@ -13,16 +13,16 @@
     "backToMap": "Back to the map"
   },
   "load": {
-    "error": "Stores can't be loaded right now.",
+    "error": "Couldn't load the stores.",
     "retry": "Try again",
     "loading": "Loading stores..."
   },
   "unavailable": {
     "browser": "Your browser can't show the map. Every store is still in the list.",
     "style": "The map can't be loaded right now. Every store is still in the list.",
-    "contextLost": "The map stopped working.",
+    "contextLost": "The map stopped working. Every store is still in the list.",
     "reload": "Reload",
-    "noGpu": "Your browser has turned off graphics acceleration, so it can't show the map. Restarting the browser usually fixes it. Every store is still in the list."
+    "noGpu": "Your browser turned off graphics acceleration, so the map can't show. Try restarting the browser. Every store is still in the list."
   },
   "chains": {
     "all": "All stores"
@@ -69,7 +69,7 @@
   "favorites": {
     "add": "Add to favourites",
     "remove": "Remove from favourites",
-    "limit": "Up to {max, number} favourite stores.",
+    "limit": "You can have up to {max, number} favorite stores.",
     "saveFailed": "Saving failed. Try again."
   },
   "actions": {

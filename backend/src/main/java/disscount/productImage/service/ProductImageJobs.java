@@ -7,10 +7,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import disscount.exceptions.BadRequestException;
 import disscount.productImage.off.OffImageGoneException;
+import disscount.productImage.off.OffImageUnavailableException;
 import disscount.productImage.dao.ProductImageImportRunRepository;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
 import disscount.productImage.catalog.CatalogImportService;
+import disscount.productImage.domain.HiddenReason;
 import disscount.productImage.domain.ImageStatus;
 import disscount.productImage.domain.ProductImage;
 import disscount.productImage.domain.ProductImageImportRun;
@@ -30,6 +32,8 @@ public class ProductImageJobs {
     static final String WEEKLY_IMPORT = "weekly-import";
     static final Duration IMPORT_EVERY = Duration.ofDays(7);
     static final int RENDER_BATCH = 10;
+    static final Duration RENDER_RETRY_AFTER = Duration.ofHours(1);
+    static final int MAX_RENDER_ATTEMPTS = 5;
 
     private final boolean enabled;
     private final ProductImageStore store;
@@ -59,16 +63,19 @@ public class ProductImageJobs {
         this.limiter = limiter;
     }
 
-    /** Checked every few hours but runs weekly; the last run is stored so restarts do not repeat it. */
+    /**
+     * Checked every few hours but runs weekly; the last run is stored so restarts do not repeat it.
+     * The catalogue also feeds the product sitemap, so it runs without the photo bucket; only the photo seed needs it.
+     */
     @Scheduled(fixedDelay = 6 * 3_600_000L, initialDelay = 10 * 60_000L)
     public void weeklyImport() {
-        if (!enabled || !store.enabled() || !importing.compareAndSet(false, true)) return;
+        if (!enabled || !importing.compareAndSet(false, true)) return;
         try {
             LocalDateTime last = runs.findById(WEEKLY_IMPORT).map(ProductImageImportRun::getFinishedAt).orElse(null);
             if (last != null && last.isAfter(Timestamps.nowUtc().minus(IMPORT_EVERY))) return;
 
             catalog.importLatest();
-            seed.seed();
+            if (store.enabled()) seed.seed();
             runs.save(new ProductImageImportRun(WEEKLY_IMPORT, Timestamps.nowUtc()));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -84,13 +91,21 @@ public class ProductImageJobs {
     public void renderMainPhotos() {
         if (!enabled || !store.enabled() || !renderingNow.compareAndSet(false, true)) return;
         try {
-            List<ProductImage> batch = images.findUnrenderedMains(ImageStatus.CANDIDATE, PageRequest.of(0, RENDER_BATCH));
+            List<ProductImage> batch = images.findUnrenderedMains(ImageStatus.CANDIDATE, Timestamps.nowUtc(),
+                    PageRequest.of(0, RENDER_BATCH));
             for (ProductImage image : batch) {
                 try {
                     rendering.render(image);
                 } catch (BadRequestException | OffImageGoneException | IllegalArgumentException e) {
                     // IllegalArgumentException: a stored key that cannot form a valid image URL.
                     skip(image, e);
+                } catch (OffImageUnavailableException e) {
+                    if (!e.concernsThisImageOnly()) {
+                        log.warn("Product photo rendering paused: {}", e.getMessage());
+                        return;
+                    }
+                    // A 403 or 500 for one file says nothing about the next one, so only this photo waits.
+                    postpone(image, e);
                 } catch (RuntimeException e) {
                     // Network or bucket trouble: stop here and try the same photos at the next tick.
                     log.warn("Product photo rendering paused: {}", e.getMessage());
@@ -107,10 +122,24 @@ public class ProductImageJobs {
         limiter.sweep();
     }
 
+    private void postpone(ProductImage image, RuntimeException cause) {
+        int attempts = (image.getRenderAttempts() == null ? 0 : image.getRenderAttempts()) + 1;
+        image.setRenderAttempts(attempts);
+        if (attempts >= MAX_RENDER_ATTEMPTS) {
+            // A photo that keeps failing would hold the main slot forever, so the next photo or a user upload takes it.
+            skip(image, cause);
+            return;
+        }
+        log.warn("Retrying product photo {} for {} later: {}", image.getId(), image.getEan(), cause.getMessage());
+        image.setRenderRetryAt(Timestamps.nowUtc().plus(RENDER_RETRY_AFTER));
+        images.save(image);
+    }
+
     /** A photo that cannot be read (a CMYK JPEG, a dead link) would otherwise block the head of the queue forever. */
     private void skip(ProductImage image, RuntimeException cause) {
         log.warn("Skipping product photo {} for {}: {}", image.getId(), image.getEan(), cause.getMessage());
         image.setStatus(ImageStatus.HIDDEN);
+        image.setHiddenReason(HiddenReason.JOB_SKIPPED);
         images.save(image);
         sets.findById(image.getEan()).ifPresent(set -> {
             if (image.getId().equals(set.getMainImageId())) {

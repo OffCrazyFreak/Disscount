@@ -13,4 +13,4 @@ export const REAUTH_CODE_RESEND_SECONDS = 60;
 
 // Lifetime of the JWT the backend accepts; a signed-out device keeps it until then,
 // so the sessions list quotes it.
-export const BACKEND_TOKEN_TTL_MINUTES = 15;
+export const BACKEND_TOKEN_TTL_MINUTES = 10;

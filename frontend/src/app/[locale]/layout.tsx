@@ -26,6 +26,7 @@ import { LOCALES, OPEN_GRAPH_LOCALES } from "@/i18n/locales";
 import { huninn, sairaStencil } from "@/app/fonts";
 import { appUrl } from "@/lib/env";
 import { iosStartupImages } from "@/constants/ios-startup-images";
+import { X_HANDLE } from "@/constants/social";
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
@@ -56,8 +57,8 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      site: "@disscountme",
-      creator: "@disscountme",
+      site: X_HANDLE,
+      creator: X_HANDLE,
       title: t("title"),
       description: t("socialDescription"),
     },

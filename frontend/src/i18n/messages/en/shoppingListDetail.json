@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Shopping list details",
+    "title": "Shopping list",
     "description": "View and manage the items on a shopping list."
   },
   "toggle": {
@@ -9,7 +9,7 @@
   },
   "backToLists": "Back to shopping lists",
   "lastSynced": "List refreshed {time}",
-  "updatedByOthers": "List updated",
+  "updatedByOthers": "Someone just changed this list.",
   "access": {
     "view": "You can only view this list.",
     "shop": "You can check off what you've bought and choose a store, but you can't change the list.",
@@ -17,7 +17,7 @@
     "withNextStep": "{text} {nextStep}",
     "signIn": "Sign in to edit.",
     "askOwner": "Ask the list owner for more access.",
-    "checking": "We're still checking your access to this list."
+    "checking": "Checking your access..."
   },
   "actions": {
     "deleteTitle": "Delete shopping list",
@@ -32,9 +32,9 @@
   "toasts": {
     "linkCopied": "Link copied",
     "shareFailed": "Couldn't share the list",
-    "itemDeleted": "Item deleted",
-    "listDeleted": "Shopping list deleted",
-    "listDeleteFailed": "Couldn't delete the shopping list. Try again."
+    "itemDeleted": "Product removed.",
+    "listDeleted": "List deleted.",
+    "listDeleteFailed": "Couldn't delete the list. Try again."
   },
   "unavailable": {
     "deadLinkTitle": "This link no longer works",
@@ -59,8 +59,8 @@
   "items": {
     "titleWithChecked": "Products ({checked}/{total} bought)",
     "title": "Products ({total})",
-    "emptyOwner": "This list has no products yet. Search for products and add them to this list.",
-    "empty": "This list has no products yet.",
+    "emptyOwner": "This list is still empty. Search for products and add them here.",
+    "empty": "This list is still empty.",
     "searchProducts": "Search products",
     "markUnbought": "Mark {name} as not bought",
     "markBought": "Mark {name} as bought",
@@ -83,19 +83,19 @@
   },
   "priceHistory": {
     "title": "Price history",
-    "noData": "No price history available."
+    "noData": "No price history yet."
   },
   "stores": {
     "title": "Prices by store",
-    "noItems": "This list has no products yet. Try searching for products and adding them to this list.",
-    "allChecked": "All products are marked as bought.",
+    "noItems": "This list is still empty. Search for products and add them here.",
+    "allChecked": "Everything's bought!",
     "loadError": "Couldn't load the prices. Try again.",
     "noPrices": "No prices available for the items on this list.",
-    "optimizeBy": "Optimize by:",
+    "optimizeBy": "Sort by:",
     "optimize": {
-      "products": "Number of products",
+      "products": "Number of available products",
       "basket": "Cheapest basket",
-      "total": "Each product separately",
+      "total": "Number of cheapest products",
       "distance": "Distance"
     },
     "availableItems": "Available products {count}/{total}",

@@ -9,7 +9,7 @@
   },
   "health": {
     "checking": "Status wird geprüft...",
-    "error": "❌ Erreichbarkeit der API konnte nicht geprüft werden",
+    "error": "❌ Wir können nicht prüfen, ob die Preis-API läuft",
     "available": "✅ Preis-API ist erreichbar",
     "unavailable": "❌ Preis-API ist nicht erreichbar"
   },

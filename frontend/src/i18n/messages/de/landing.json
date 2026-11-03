@@ -41,7 +41,7 @@
       },
       "save": {
         "title": "Beim Einkauf sparen",
-        "description": "Wähle den günstigsten Händler und kaufe ein, ohne Prospekte zu wälzen."
+        "description": "Wähle den günstigsten Händler und zahl weniger."
       }
     }
   },
@@ -137,7 +137,7 @@
       },
       "sync": {
         "title": "Sync, sobald du wieder online bist",
-        "description": "Änderungen, die du offline machst, werden automatisch gespeichert, sobald du wieder Netz hast."
+        "description": "Was du offline änderst, wird gespeichert, sobald du wieder Netz hast."
       }
     }
   },
@@ -189,7 +189,7 @@
       },
       "offline": {
         "question": "Funktioniert die App ohne Internet?",
-        "answer": "Ja. Du kannst Disscount als App auf Handy oder Computer installieren. Gespeicherte Listen und angesehene Produkte gibt es auch offline. Änderungen werden automatisch synchronisiert, sobald du wieder online bist."
+        "answer": "Ja. Installiere Disscount auf Handy oder Computer, dann funktionieren gespeicherte Listen und angesehene Produkte auch ohne Internet. Änderungen werden gespeichert, sobald du wieder online bist."
       }
     }
   },

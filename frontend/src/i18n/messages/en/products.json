@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Products",
-    "description": "Browse all products."
+    "description": "Search products and compare prices across stores all over Croatia."
   },
   "clearFilters": {
     "label": "Clear filters"
@@ -14,12 +14,12 @@
     "reset": "Reset",
     "productNotFound": "Product not found.",
     "removeFromList": "Remove from this list",
-    "duplicateTitle": "Already on your shopping list",
-    "duplicateText": "This product is already on the selected shopping list. Adding it again will raise its quantity from {current} to {next}.",
+    "duplicateTitle": "Already on this list",
+    "duplicateText": "This product is already on this list. Add it and the quantity goes from {current} to {next}.",
     "toast": {
       "pickList": "Choose or create a shopping list.",
-      "quantityIncreased": "Quantity increased in “{name}”",
-      "added": "Product added to “{name}”",
+      "quantityIncreased": "Quantity increased on “{name}”",
+      "added": "Added to “{name}”",
       "open": "Open",
       "fallbackListName": "list",
       "removed": "Product removed from the list.",
@@ -31,11 +31,11 @@
   },
   "markAsChecked": {
     "label": "Mark product as bought",
-    "description": "You can change this later on the shopping list"
+    "description": "You can change this later on the list."
   },
   "actionsSheet": {
     "pricesUnavailableTitle": "Prices unavailable",
-    "pricesUnavailableText": "You can still use the product actions. Try again to see the current price range.",
+    "pricesUnavailableText": "All actions still work. Try again for the price range.",
     "partialPricesTitle": "Some prices unavailable",
     "partialPricesText": "The range includes the locations whose prices we could fetch."
   },
@@ -45,7 +45,7 @@
   "listSelector": {
     "label": "Shopping list",
     "searchPlaceholder": "Search your lists or create a new one...",
-    "empty": "Type a name to create your first shopping list right here.",
+    "empty": "Type a name to create your first list here.",
     "existingLists": "Your lists",
     "newList": "New shopping list",
     "updatedAt": "({date})",
@@ -55,14 +55,14 @@
     "loading": "Loading...",
     "createNamed": "Create new list “{title}”",
     "choose": "Choose a list...",
-    "createFirst": "Create your first list here..."
+    "createFirst": "Create your first list..."
   },
   "storeChainField": {
     "label": "Store"
   },
   "watchlistModal": {
     "title": "Add to Watchlist",
-    "description": "Choose the minimum discount and we'll let you know when it's reached.",
+    "description": "Set a minimum discount and we'll let you know when the product reaches it.",
     "save": "Save",
     "track": "Add",
     "cancel": "Cancel",
@@ -70,14 +70,14 @@
     "productNotFound": "Product not found.",
     "removeFromWatchlist": "Remove from Watchlist",
     "existingTitle": "Already on your watchlist",
-    "existingBoth": "This product is already on your watchlist with a minimum discount of {percentage}% and of {amount, number, ::currency/EUR}.",
-    "existingPercentage": "This product is already on your watchlist with a minimum discount of {percentage}%.",
-    "existingAbsolute": "This product is already on your watchlist with a minimum discount of {amount, number, ::currency/EUR}.",
+    "existingBoth": "You're watching it with a minimum discount of {percentage}% and {amount, number, ::currency/EUR}.",
+    "existingPercentage": "You're watching it with a minimum discount of {percentage}%.",
+    "existingAbsolute": "You're watching it with a minimum discount of {amount, number, ::currency/EUR}.",
     "toast": {
-      "updated": "Minimum discount updated from {from} to {to}",
+      "updated": "Minimum discount changed from {from} to {to}",
       "added": "Added to your watchlist",
       "removedPercentage": "Percentage price alert removed",
-      "removedAbsolute": "Price alert removed",
+      "removedAbsolute": "Euro price alert removed",
       "removeFailed": "Couldn't remove the price alert. Try again."
     }
   },
@@ -87,17 +87,17 @@
     "loading": "Loading minimum discount",
     "placeholderAbsolute": "E.g. 12",
     "placeholderPercentage": "E.g. 15",
-    "willUpdate": "The minimum discount will change from {from} to {to}."
+    "willUpdate": "The minimum discount changes from {from} to {to}."
   },
   "typePicker": {
     "label": "Alert me when",
     "absolute": {
       "label": "Price drops by €",
-      "description": "Get notified when the price drops by a set amount"
+      "description": "We'll tell you when the price drops by your amount"
     },
     "percentage": {
       "label": "Discount is at least %",
-      "description": "Get notified when the discount reaches at least a set percentage"
+      "description": "We'll tell you when the discount reaches your percentage"
     }
   },
   "actions": {
@@ -159,12 +159,12 @@
   },
   "validation": {
     "listRequired": "Choose a shopping list",
-    "amountRange": "Quantity must be between 1 and 999",
+    "amountRange": "Enter a quantity from 1 to 999",
     "listTitleMin": "Enter a name with at least 3 characters",
     "listTitleMax": "Enter a name of up to 100 characters",
-    "thresholdInvalid": "Enter a valid value",
-    "percentageRange": "Percentage must be between 1% and 99%",
-    "absoluteRange": "Amount must be between €0.10 and €999"
+    "thresholdInvalid": "Enter a number, e.g. 15",
+    "percentageRange": "Enter a percentage from 1 to 99",
+    "absoluteRange": "Enter an amount from €0.10 to €999"
   },
   "list": {
     "searchPlaceholder": "Search products...",
@@ -172,18 +172,18 @@
     "resultsTitleWithCount": "Search results for “{query}” ({count}{suffix})",
     "resultsStatus": "{count, plural, =0 {No results} one {# result} other {# results}}{truncated, select, yes { or more} other {}}",
     "partialPricesTitle": "Some prices unavailable",
-    "partialPricesText": "We're showing the prices we have, but couldn't fetch one or more of the selected locations right now.",
+    "partialPricesText": "We don't have prices for some of your locations right now, so we're showing the rest.",
     "errorTitle": "Search failed",
-    "errorText": "Couldn't load the data. Try again.",
+    "errorText": "We couldn't load the products. Try again.",
     "noResultsForFilters": "No results for the selected filters",
     "noPriceInLocationsTitle": "{count, plural, one {No prices in the place you picked} other {No prices in the places you picked}}",
     "noPriceInLocationsText": "{count, plural, other {We found products, but no store in {locations} has a published price for them.}}",
     "showAllLocations": "Show prices across Croatia",
     "clearFilters": "Clear filters",
     "enterQueryTitle": "Enter a search term",
-    "enterQueryText": "Your filters are set. Results will show after you search.",
+    "enterQueryText": "Your filters are ready. Type a search term to see results.",
     "startTitle": "Search products",
-    "startText": "Type the name of the product you're looking for",
+    "startText": "Type what you're looking for",
     "noResultsAddPlain": "We found no product by that name. You can still add it to a list.",
     "addPlainItem": "Add “{query}” to a list"
   },

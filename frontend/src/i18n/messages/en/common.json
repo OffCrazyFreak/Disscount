@@ -19,7 +19,7 @@
     "hint": "Check your connection and try again.",
     "retry": "Try again",
     "indicator": "Offline: showing saved data.",
-    "indicatorPending": "Offline: {count, plural, one {# saved change} other {# saved changes}} will sync later."
+    "indicatorPending": "Offline: {count, plural, one {# change is} other {# changes are}} waiting to save."
   },
   "lastSynced": {
     "refreshed": "Refreshed {time}"
@@ -30,11 +30,11 @@
   },
   "comingSoon": {
     "badge": "SOON",
-    "description": "We're still working on this feature. It will be available soon.",
+    "description": "We're working on it. Coming soon!",
     "notifyMe": "Notify me"
   },
   "copyButton": {
-    "error": "Couldn't copy"
+    "error": "Couldn't copy."
   },
   "footer": {
     "copyright": "© {year} Jakov Jakovac",
@@ -45,20 +45,20 @@
     "spamHint": "Check your spam folder too."
   },
   "loginRequired": {
-    "description": "Sign in to use this feature.",
+    "description": "Sign in to use this.",
     "action": "Sign in"
   },
   "noResults": {
     "title": "No results",
-    "description": "Try a different search term"
+    "description": "Try a different term."
   },
   "oauthError": {
     "emailNotFound": "Your Facebook account didn't share an email address. Sign in with email, or with a Facebook account that has one.",
-    "emailMismatch": "Couldn't link that account because it uses a different email address. You can only link accounts with the same email address as yours.",
-    "alreadyLinked": "That account is already linked to another Disscount account. You can't link it to this one.",
-    "notLinked": "This sign-in can't be linked to an existing account automatically. Sign in with your usual method, then link the account in your security settings.",
+    "emailMismatch": "That account uses a different email address. You can only link accounts with the same address.",
+    "alreadyLinked": "That account is already linked to another Disscount account.",
+    "notLinked": "We can't link this sign-in to your account on our own. Sign in as usual, then link it in your security settings.",
     "restart": "The sign-in expired or was interrupted. Try again.",
-    "default": "Something went wrong while signing in. Try again."
+    "default": "Couldn't sign you in. Try again."
   },
   "userAvatar": {
     "alt": "Avatar"
@@ -68,7 +68,7 @@
       "intro": "Send us a message with the form below, email us directly at <email></email> or message us on <linkedin>LinkedIn</linkedin>.",
       "copyEmailLabel": "Copy email address",
       "copyEmailSuccess": "Email address copied!",
-      "copyEmailError": "Couldn't copy the email address",
+      "copyEmailError": "Couldn't copy.",
       "suggestIdea": "Suggest an idea",
       "openSuggestions": "Open Ideas and suggestions",
       "reportBug": "Report a bug",
@@ -87,19 +87,19 @@
     },
     "modal": {
       "title": "Get in touch",
-      "description": "Send us a message with the form below, or reach out directly.",
+      "description": "Write to us with the form below, or contact us directly.",
       "submit": "Send message",
       "cancel": "Cancel",
       "reset": "Reset",
       "sent": "Message sent. Thanks for getting in touch!",
-      "sentWithEmail": "Message sent. Thanks for getting in touch! If needed, we'll reply to the email you entered.",
+      "sentWithEmail": "Message sent. Thanks for getting in touch! If needed, we'll reply to that email.",
       "sourceAvailable": "Disscount is source-available. <link>See the project on GitHub</link>."
     }
   },
   "donation": {
     "title": "Support Disscount",
-    "intro": "Disscount is free and will stay that way. If it helps you plan your shopping, or helps you in any other way, any support you choose to give means a lot to us.",
-    "usage": "Everything goes straight back into Disscount to cover running costs and further development.",
+    "intro": "Disscount is free and will stay that way. If it makes your shopping easier, any support means a lot to us.",
+    "usage": "Everything goes into running and building Disscount.",
     "kofi": "Support on Ko-fi"
   },
   "forgotPassword": {
@@ -125,7 +125,7 @@
     "labelWithCount": "Notifications ({count})",
     "loading": "Loading...",
     "emptyWatching": "None of the products you watch are discounted today.",
-    "emptyNotWatching": "Add products to your watchlist and we'll let you know when they're discounted in your stores!",
+    "emptyNotWatching": "Add products to your watchlist and we'll let you know when they're discounted in your stores.",
     "addProducts": "Add products",
     "totalSavings": "Total saved today:",
     "savingsDetail": "(≥ {amount} on {count, plural, one {# product} other {# products}})"
@@ -157,20 +157,28 @@
     }
   },
   "validation": {
-    "emailInvalid": "Invalid email address",
+    "emailInvalid": "Enter a valid email",
     "fullNameMax": "Your name can be up to 255 characters",
-    "subjectRequired": "Subject is required",
+    "subjectRequired": "Enter a subject",
     "subjectMax": "Subject can be up to 255 characters",
-    "messageRequired": "Message is required",
+    "messageRequired": "Write a message",
     "messageMax": "Message can be up to 5000 characters"
   },
   "distanceSort": {
     "locating": "Finding your location to sort by distance…",
     "ready": "Sorted by distance from your location. We don't store or send it.",
-    "denied": "Location access is blocked, so the default order stays. Allow it in your browser settings and choose distance again.",
+    "readyFromTown": "Sorted from {town}.",
+    "readyFromSavedPlace": "No location: sorted from {town}.",
+    "denied": "We don't have location access, so the default order stays. Allow it in your browser settings and choose distance again.",
     "unavailable": "Your location isn't available right now, so the default order stays. Choose distance again to retry.",
-    "timeout": "Your location can't be determined, so the default order stays. Check that location is turned on on your device and choose distance again.",
+    "timeout": "We can't find your location, so the default order stays. Check that location is on for your device and choose distance again.",
     "noStores": "Store locations aren't available right now, so the default order stays.",
-    "nearest": "Nearest store: {distance}"
+    "nearest": "Nearest store: {distance}",
+    "pickTown": "Pick a town",
+    "changeTown": "Change",
+    "changeTownLabel": "Change town",
+    "townSearch": "Search a town or postcode",
+    "townList": "Towns with stores",
+    "townEmpty": "No town with stores matches that."
   }
 }

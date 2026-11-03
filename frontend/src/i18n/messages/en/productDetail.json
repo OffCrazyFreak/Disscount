@@ -1,11 +1,13 @@
 {
   "meta": {
     "title": "Product details",
-    "description": "Compare product prices."
+    "description": "Compare product prices.",
+    "productTitle": "{name}: compare prices",
+    "productDescription": "Compare prices for {name} across {chains, plural, one {# supermarket chain} other {# supermarket chains}}. Lowest price: {price}."
   },
   "notFound": {
     "title": "Product not found",
-    "description": "Couldn't load the details for this product."
+    "description": "We can't load this product. Try searching for it again."
   },
   "sort": {
     "label": "Sort by:",
@@ -24,7 +26,7 @@
     "title": "Price history",
     "hide": "Hide",
     "show": "Show",
-    "empty": "No price history available.",
+    "empty": "No price history yet.",
     "average": "Average",
     "period": {
       "week": "(last 7 days)",

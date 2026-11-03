@@ -24,7 +24,7 @@
     "gallery": "Galleria di foto",
     "report": "Segnala foto",
     "reported": "Grazie, daremo un'occhiata a quella foto.",
-    "reportFailed": "La segnalazione non è andata a buon fine.",
+    "reportFailed": "La segnalazione non è stata inviata. Riprova.",
     "setMain": "Imposta come principale",
     "isMain": "Foto principale",
     "setMainDone": "La foto principale è cambiata."
@@ -39,15 +39,15 @@
     "submit": "Invia foto",
     "submitting": "Invio della foto",
     "preparing": "Preparazione della foto",
-    "public": "La foto è pubblica. Viene verificata quando un altro utente aggiunge una propria foto dello stesso prodotto o quando la controlla un amministratore.",
+    "public": "La foto è pubblica. La verifichiamo quando qualcun altro aggiunge una foto dello stesso prodotto o quando la controlla il nostro team.",
     "adminNote": "Le foto degli amministratori diventano subito principali.",
     "done": "Grazie! La foto è stata aggiunta.",
-    "failed": "La foto non è stata inviata.",
+    "failed": "La foto non è stata inviata. Riprova.",
     "errors": {
       "cannotOpen": "Non è possibile aprire questa immagine.",
       "cannotProcess": "Non è possibile elaborare questa immagine.",
       "cannotSave": "Non è possibile salvare l'immagine.",
-      "tooLarge": "L'immagine è ancora troppo grande dopo la riduzione."
+      "tooLarge": "L'immagine è troppo grande anche dopo la riduzione. Provane un'altra."
     }
   },
   "manager": {

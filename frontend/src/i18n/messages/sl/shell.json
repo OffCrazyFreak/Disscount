@@ -9,7 +9,7 @@
     "watchlist": "Spremljani izdelki",
     "watchlistShort": "Spremljanje",
     "watchlistShortcut": "Poglej izdelke, ki jih spremljaš",
-    "watchlistPriceDrops": "{label}, {count, plural, one {# novo znižanje} two {# novi znižanji} few {# nova znižanja} other {# novih znižanj}}",
+    "watchlistPriceDrops": "{label}, {count, plural, one {# nov popust} two {# nova popusta} few {# novi popusti} other {# novih popustov}}",
     "digitalCards": "Kartice zvestobe",
     "digitalCardsShort": "Kartice",
     "digitalCardsShortcut": "Odpri svoje kartice zvestobe",
@@ -32,7 +32,7 @@
     "myAccount": "Moj račun",
     "support": "Pomoč in podpora",
     "comingSoon": "KMALU",
-    "toggle": "Preklopi"
+    "toggle": "Prikaži ali skrij filtre"
   },
   "search": {
     "productsPlaceholder": "Išči izdelke...",
@@ -60,12 +60,12 @@
   },
   "modalRouter": {
     "gate": {
-      "addToList": "Prijavi se, da dodaš izdelke na nakupovalni seznam.",
-      "watchlist": "Prijavi se, da spremljaš popuste za ta izdelek.",
-      "manageLists": "Prijavi se za upravljanje nakupovalnih seznamov.",
-      "manageCards": "Prijavi se za upravljanje kartic zvestobe.",
+      "addToList": "Prijavi se, da dodaš izdelek na seznam.",
+      "watchlist": "Prijavi se, da spremljaš ta izdelek.",
+      "manageLists": "Prijavi se, da sestaviš svoje sezname.",
+      "manageCards": "Prijavi se, da shraniš svoje kartice zvestobe.",
       "settings": "Prijavi se, da odpreš nastavitve.",
-      "onboarding": "Prijavi se, da začneš."
+      "onboarding": "Prijavi se in začni."
     },
     "deleteList": {
       "title": "Izbriši nakupovalni seznam",

@@ -37,7 +37,7 @@
   },
   "breachedPassword": {
     "subject": "Your password turned up in a data breach",
-    "preview": "We found your password in a data breach, set a new one",
+    "preview": "We found your password in a data breach, set a new one.",
     "heading": "Your password turned up in a data breach",
     "intro": "Someone just tried to sign in to your Disscount account with the correct password. We found that password in a known data breach from another site, so we didn't let the sign-in through. Set a new password with the button below. Once you do, we'll sign you out on every device. The link works for {minutes, plural, one {# minute} other {# minutes}}.",
     "button": "Set a new password",

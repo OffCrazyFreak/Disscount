@@ -4,7 +4,10 @@ import { z } from "zod";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { delay, fetchJson, fetchText } from "@/lib/store-locations/http";
-import type { ILocatorStore, IStoreLocator } from "@/lib/store-locations/types";
+import type {
+  ILocatorStore,
+  IStoreLocator,
+} from "@/lib/store-locations/store-location-types";
 
 const PAGE_URL = "https://ribola.hr/poslovnice/";
 const AJAX_URL = "https://ribola.hr/wp-admin/admin-ajax.php";

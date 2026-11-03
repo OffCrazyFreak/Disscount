@@ -14,6 +14,7 @@ import disscount.productImage.dao.ProductImageSetRepository;
 import disscount.productImage.domain.ImageStatus;
 import disscount.productImage.domain.ProductImage;
 import disscount.productImage.domain.ProductImageSet;
+import disscount.productImage.dto.ProductImageDtos.ListedEansDto;
 import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
 import disscount.productImage.dto.ProductImageDtos.ProductThumbnailsDto;
 import disscount.productImage.storage.ProductImageStore;
@@ -41,14 +42,15 @@ public class ProductImageQueryService {
         return views.publicView(ean, mainId, images.findByEanOrderByCreatedAtAsc(ean));
     }
 
-    /** Thumbnail of the main photo per EAN, for search results and lists; EANs without one are left out. */
+    /** Thumbnail of the main photo per EAN, for search results and lists; malformed EANs and EANs without one are left out. */
     @Transactional(readOnly = true)
     public ProductThumbnailsDto thumbnails(List<String> eans) {
         Set<String> unique = new LinkedHashSet<>(eans);
         if (unique.size() > MAX_THUMBNAIL_EANS) {
             throw new BadRequestException("error.productImage.tooManyEans", String.valueOf(MAX_THUMBNAIL_EANS));
         }
-        unique.forEach(ProductImageQueryService::requireEan);
+        // One bad code in a search page should cost that product its thumbnail, not the whole page.
+        unique.removeIf(ean -> !Barcodes.isEanShape(ean));
         if (unique.isEmpty() || !store.enabled()) return new ProductThumbnailsDto(Map.of());
 
         Map<String, String> result = new HashMap<>();
@@ -56,6 +58,12 @@ public class ProductImageQueryService {
             result.put(image.getEan(), store.publicUrl(image.getThumbKey()));
         }
         return new ProductThumbnailsDto(result);
+    }
+
+    /** Products currently on sale somewhere, for the public product sitemap. */
+    @Transactional(readOnly = true)
+    public ListedEansDto listedEans() {
+        return new ListedEansDto(sets.findListedEans());
     }
 
     static void requireEan(String ean) {

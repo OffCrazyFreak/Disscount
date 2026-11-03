@@ -7,7 +7,7 @@
   "sidebar": {
     "mobileTitle": "Sidebar",
     "mobileDescription": "Shows the sidebar on mobile.",
-    "toggle": "Toggle sidebar"
+    "toggle": "Show or hide the sidebar"
   },
   "share": {
     "copied": "Link copied",
@@ -17,6 +17,6 @@
   "offline": {
     "writeFailed": "The change wasn't saved. Try again.",
     "writeFailedLostAccess": "The change wasn't saved. You may no longer have access to this list.",
-    "retiredWriteDropped": "A change from an earlier version wasn't saved. Open the list and check."
+    "retiredWriteDropped": "A change from an older version of the app wasn't saved. Open the list and check."
   }
 }
