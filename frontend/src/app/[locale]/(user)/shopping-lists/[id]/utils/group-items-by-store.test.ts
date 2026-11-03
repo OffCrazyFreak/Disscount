@@ -31,7 +31,7 @@ describe("groupItemsByStore", () => {
         item("3", "Sol"),
         item("4", "Jaja", { chainCode: "lidl" }),
       ],
-      cheapestStores: { "2": "konzum" },
+      cheapestStores: { "1": "konzum", "2": "konzum" },
       storePrices: {},
     });
 
