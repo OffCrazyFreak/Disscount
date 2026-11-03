@@ -3,6 +3,7 @@ import { skipToken, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
 import { UserDto } from "@/lib/api/types";
+import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import {
   canWriteAfterPurges,
   currentPurgeGeneration,
@@ -33,7 +34,9 @@ export function useAccountUser(
     let isCurrent = true;
 
     void canWriteAfterPurges(generation).then((canWrite) => {
-      if (canWrite && isCurrent) {
+      // A session switch from another tab moves the identity before this account's
+      // profile is replaced, and the old one must not be saved as the new account's.
+      if (canWrite && isCurrent && user.id === getCacheIdentity()) {
         queryClient.setQueryData(USER_QUERY_KEYS.me, user);
       }
     });

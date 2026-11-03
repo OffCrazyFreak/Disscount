@@ -1,10 +1,11 @@
 import { QueryClient } from "@tanstack/react-query";
 import { waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { useAccountUser } from "@/context/use-account-user";
 import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
 import type { UserDto } from "@/lib/api/types";
+import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { trackPurge } from "@/lib/offline/purge-gate";
 import { renderHookWithProviders } from "@/test/render";
 
@@ -27,6 +28,8 @@ function startPurge(queryClient: QueryClient) {
 }
 
 describe("useAccountUser", () => {
+  beforeEach(() => setCacheIdentity(PROFILE.id));
+
   it("saves a profile loaded during a purge only after the purge finishes", async () => {
     const queryClient = new QueryClient();
     const { finish, purge } = startPurge(queryClient);
@@ -53,6 +56,18 @@ describe("useAccountUser", () => {
     first.finish();
     second.finish();
     await Promise.all([first.purge, second.purge]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(queryClient.getQueryData(USER_QUERY_KEYS.me)).toBeUndefined();
+  });
+
+  it("does not save the previous account's profile once the device moved to another", async () => {
+    setCacheIdentity("user-c");
+    const queryClient = new QueryClient();
+
+    renderHookWithProviders(() => useAccountUser(PROFILE, false), {
+      queryClient,
+    });
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(queryClient.getQueryData(USER_QUERY_KEYS.me)).toBeUndefined();
