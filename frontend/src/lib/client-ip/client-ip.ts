@@ -45,5 +45,16 @@ export function withTrustedClientIp(request: Request): Request {
   if (clientIp) headers.set(CLIENT_IP_HEADER, clientIp);
   else headers.delete(CLIENT_IP_HEADER);
 
-  return new Request(request, { headers });
+  // Next passes route handlers a Proxy around the request, and Node 24's undici
+  // rejects new Request(proxy) on its private-field check, so copy it by parts.
+  // Node requires duplex for a streamed body; TypeScript's RequestInit lacks it.
+  const init: RequestInit & { duplex: "half" } = {
+    method: request.method,
+    headers,
+    body: request.body,
+    signal: request.signal,
+    duplex: "half",
+  };
+
+  return new Request(request.url, init);
 }

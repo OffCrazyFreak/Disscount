@@ -95,6 +95,23 @@ describe("withTrustedClientIp", () => {
     );
   });
 
+  it("accepts the Proxy Next wraps around a route handler's request", async () => {
+    const request = new Request("http://localhost/api/auth/sign-in/email", {
+      method: "POST",
+      headers: { "x-forwarded-for": DIRECT_CALLER },
+      body: '{"email":"a@b.hr"}',
+    });
+    const proxied = new Proxy(request, {
+      get: (target, prop) => Reflect.get(target, prop, target),
+    });
+
+    const trusted = withTrustedClientIp(proxied);
+
+    expect(trusted.method).toBe("POST");
+    expect(trusted.headers.get(CLIENT_IP_HEADER)).toBe(DIRECT_CALLER);
+    await expect(trusted.text()).resolves.toBe('{"email":"a@b.hr"}');
+  });
+
   it("keeps the request body readable", async () => {
     const request = new Request("http://localhost/api/auth/sign-in/email", {
       method: "POST",
