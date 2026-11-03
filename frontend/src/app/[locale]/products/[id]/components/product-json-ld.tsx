@@ -4,7 +4,7 @@ import type { ProductResponse } from "@/lib/cijene-api/schemas";
 interface IProductJsonLdProps {
   product: ProductResponse;
   url: string;
-  image: string;
+  image: string | null;
 }
 
 export default function ProductJsonLd({

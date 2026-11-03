@@ -69,6 +69,22 @@ describe("productJsonLd", () => {
     expect(markup).not.toHaveProperty("offers");
   });
 
+  it("carries the photo it is given", () => {
+    expect(productJsonLd({ product: product({}), ...input }).image).toBe(
+      input.image,
+    );
+  });
+
+  it("leaves out image when the product has no confirmed photo", () => {
+    const markup = productJsonLd({
+      product: product({}),
+      ...input,
+      image: null,
+    });
+
+    expect(markup).not.toHaveProperty("image");
+  });
+
   it.each(["2831201000000", "5449000000997"])(
     "gives no gtin for the non-GTIN code %s",
     (ean) => {

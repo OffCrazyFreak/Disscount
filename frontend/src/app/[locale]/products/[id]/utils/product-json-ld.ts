@@ -15,7 +15,7 @@ function isPublicGtin(ean: string): boolean {
 interface IProductJsonLdInput {
   product: ProductResponse;
   url: string;
-  image: string;
+  image: string | null;
 }
 
 /**
@@ -32,7 +32,9 @@ export function productJsonLd({ product, url, image }: IProductJsonLdInput) {
     "@type": "Product",
     name: product.name || product.ean,
     url,
-    image,
+    // Google wants images relevant to the page, and image is optional for product snippets,
+    // so a product without a confirmed photo says nothing rather than show our logo.
+    ...(image && { image }),
     // cijene also keys products by "chain:code" and by in-store codes, neither a GTIN.
     ...(isPublicGtin(product.ean) && { gtin: product.ean }),
     ...(product.brand && {
