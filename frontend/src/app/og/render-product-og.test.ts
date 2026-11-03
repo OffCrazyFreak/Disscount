@@ -1,7 +1,7 @@
 import { http, HttpResponse } from "msw";
 import { randomBytes } from "node:crypto";
 import sharp from "sharp";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import renderProductOg from "@/app/og/render-product-og";
 import { server } from "@/test/msw-server";
 
@@ -58,5 +58,25 @@ describe("renderProductOg", () => {
     servePhoto("not an image");
 
     await expect(renderProductOg(PHOTO)).rejects.toThrow();
+  });
+
+  describe("when sharp's native binary is missing", () => {
+    afterEach(() => {
+      vi.doUnmock("sharp");
+      vi.resetModules();
+    });
+
+    it("still loads the module and rejects only the render, so the route can fall back", async () => {
+      vi.resetModules();
+      vi.doMock("sharp", () => {
+        throw new Error("Could not load the sharp module");
+      });
+      servePhoto(ONE_PIXEL_JPEG);
+
+      const { default: renderWithoutSharp } =
+        await import("@/app/og/render-product-og");
+
+      await expect(renderWithoutSharp(PHOTO)).rejects.toThrow();
+    });
   });
 });
