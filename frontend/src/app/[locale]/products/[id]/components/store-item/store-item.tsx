@@ -78,7 +78,10 @@ const StoreItem = memo(
           <CardHeader className="relative isolate flex items-center justify-between gap-4 py-4">
             <div className="flex items-center gap-4">
               {/* Store Chain Image */}
-              <div className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm">
+              <div
+                className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm"
+                aria-hidden="true"
+              >
                 <StoreChainLogo
                   chain={store.chain}
                   className={cn(
