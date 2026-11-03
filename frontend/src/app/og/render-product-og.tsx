@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import {
   BRAND,
   Cart,
+  contentType,
   loadFonts,
   OG_BACKGROUND,
   size,
@@ -33,7 +34,7 @@ export default async function renderProductOg(photoUrl: string) {
     loadFonts(),
   ]);
 
-  return new ImageResponse(
+  const card = new ImageResponse(
     <div
       style={{
         width: "100%",
@@ -95,12 +96,17 @@ export default async function renderProductOg(photoUrl: string) {
         />
       </div>
     </div>,
-    {
-      ...size,
-      fonts,
-      headers: {
-        "Cache-Control": `public, max-age=${YEAR_IN_SECONDS}, immutable`,
-      },
-    },
+    { ...size, fonts },
   );
+
+  // ImageResponse renders lazily inside its stream, so without this a failed render would
+  // be a 200 that Cloudflare caches for a year, and the caller's fallback would never run.
+  const png = await card.arrayBuffer();
+
+  return new Response(png, {
+    headers: {
+      "Content-Type": contentType,
+      "Cache-Control": `public, max-age=${YEAR_IN_SECONDS}, immutable`,
+    },
+  });
 }

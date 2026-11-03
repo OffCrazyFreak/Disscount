@@ -14,8 +14,10 @@ const EAN = "3856016906549";
 const PHOTO = "https://images.test/products/3856016906549/abc.jpg";
 const CURRENT_FILE = productShareImageFile(PHOTO);
 
-function get(ean: string, file: string) {
-  return GET(new Request(`http://localhost:3000/og/products/${ean}/${file}`), {
+function get(ean: string, file: string, query = "") {
+  const url = `http://localhost:3000/og/products/${ean}/${file}${query}`;
+
+  return GET(new Request(url), {
     params: Promise.resolve({ ean, file }),
   });
 }
@@ -61,6 +63,14 @@ describe("product share image route", () => {
   it("sends an old or made-up file name to the current one without rendering", async () => {
     expectUncachedRedirect(
       await get(EAN, "0000000000000000.png"),
+      `/og/products/${EAN}/${CURRENT_FILE}`,
+    );
+    expect(renderProductOg).not.toHaveBeenCalled();
+  });
+
+  it("sends a cache-busting query string to the clean URL without rendering", async () => {
+    expectUncachedRedirect(
+      await get(EAN, CURRENT_FILE, "?x=1"),
       `/og/products/${EAN}/${CURRENT_FILE}`,
     );
     expect(renderProductOg).not.toHaveBeenCalled();

@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { productMetadata } from "@/app/[locale]/products/[id]/utils/product-metadata";
-import { productShareImagePath } from "@/app/og/product-share-image";
 
 const base = {
   ean: "5449000000996",
@@ -44,7 +43,9 @@ describe("productMetadata", () => {
     const metadata = productMetadata({ ...base, locale: "hr", photoUrl });
 
     const card = {
-      url: `http://localhost:3000${productShareImagePath(base.ean, photoUrl)}`,
+      url: expect.stringMatching(
+        /^http:\/\/localhost:3000\/og\/products\/5449000000996\/[0-9a-f]{16}\.png$/,
+      ),
       width: 1200,
       height: 630,
       type: "image/png",

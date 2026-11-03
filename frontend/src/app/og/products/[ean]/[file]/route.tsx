@@ -20,7 +20,7 @@ function redirectTo(path: string) {
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: RouteContext<"/og/products/[ean]/[file]">,
 ) {
   const { ean, file } = await params;
@@ -32,8 +32,11 @@ export async function GET(
   const photoUrl = await getMainPhotoUrl(ean);
   if (!photoUrl) return redirectTo(brandImagePath);
 
-  // Rendering only the current file name stops made-up URLs from bypassing the CDN into a render.
-  if (file !== productShareImageFile(photoUrl)) {
+  // Only the exact advertised URL renders: a made-up name or query string is a new CDN key,
+  // which would otherwise force a render per request.
+  const isCurrentUrl =
+    file === productShareImageFile(photoUrl) && !new URL(request.url).search;
+  if (!isCurrentUrl) {
     return redirectTo(productShareImagePath(ean, photoUrl));
   }
 
