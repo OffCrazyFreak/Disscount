@@ -1,8 +1,8 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { QueryClient } from "@tanstack/react-query";
+import { onlineManager, QueryClient } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw/http";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, onTestFinished, vi } from "vitest";
 
 import AdminContactTable from "@/app/[locale]/dashboard/components/admin-contact-table";
 import hr from "@/i18n/messages/hr";
@@ -63,5 +63,17 @@ describe("AdminContactTable", () => {
 
     expect(await screen.findByText("Stara poruka")).toBeInTheDocument();
     expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("says the inbox is empty while offline with nothing cached", async () => {
+    onlineManager.setOnline(false);
+    onTestFinished(() => onlineManager.setOnline(true));
+
+    renderWithProviders(<AdminContactTable />);
+
+    expect(
+      await screen.findByText(hr.dashboard.contact.empty),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("switch")).toBeInTheDocument();
   });
 });

@@ -48,6 +48,8 @@ export default function AdminContactTable() {
 
   const { data, isLoading, isError } =
     contactService.useGetContactMessages(showDeleted);
+  // Only an inbox with nothing cached is missing; a failed refetch keeps its last answer.
+  const isMissing = isError && data === undefined;
   const inbox = useContactInbox();
 
   const messages = useMemo(() => {
@@ -97,14 +99,13 @@ export default function AdminContactTable() {
           </div>
         )}
 
-        {/* Only an inbox with nothing cached is missing; a failed refetch keeps its last answer. */}
-        {isError && data === undefined && (
+        {isMissing && (
           <p role="alert" className="text-destructive p-6 text-center text-sm">
             {t("contact.loadError")}
           </p>
         )}
 
-        {data !== undefined && (
+        {!isLoading && !isMissing && (
           <>
             <Table>
               <TableHeader>
