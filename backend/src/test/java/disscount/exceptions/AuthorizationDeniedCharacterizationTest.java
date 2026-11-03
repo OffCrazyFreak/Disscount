@@ -2,6 +2,7 @@ package disscount.exceptions;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -34,13 +35,17 @@ class AuthorizationDeniedCharacterizationTest {
     void aMethodSecurityDenialIsA500Today() throws Exception {
         ResourceBundleMessageSource messages = new ResourceBundleMessageSource();
         messages.setBasename("messages");
+        // Spring reads unset encodings as ISO-8859-1, and the JDK caches the bundle for every later test.
+        messages.setDefaultEncoding("UTF-8");
+        messages.setFallbackToSystemLocale(false);
         MockMvc mvc = MockMvcBuilders.standaloneSetup(new DeniedController())
                 .setControllerAdvice(new GlobalExceptionHandler(messages))
                 .build();
 
-        mvc.perform(get("/denied"))
+        mvc.perform(get("/denied").header(HttpHeaders.ACCEPT_LANGUAGE, "hr"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
-                .andExpect(jsonPath("$.type").value("urn:disscount:internal-error"));
+                .andExpect(jsonPath("$.type").value("urn:disscount:internal-error"))
+                .andExpect(jsonPath("$.title").value("Nešto je pošlo po krivu"));
     }
 }
