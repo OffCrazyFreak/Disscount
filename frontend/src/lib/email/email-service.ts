@@ -1,5 +1,5 @@
 import { IEmailMessage, IEmailProvider } from "@/lib/email/provider";
-import { buildActionEmail } from "@/lib/email/email-copy";
+import { buildActionEmail, buildCodeEmail } from "@/lib/email/email-copy";
 import {
   IRecipientSendGate,
   RecipientCapReachedError,
@@ -12,6 +12,9 @@ import ChangeEmailConfirmation from "@/emails/_templates/change-email-confirmati
 import BreachedPasswordEmail from "@/emails/_templates/breached-password-email";
 import AccountExistsEmail from "@/emails/_templates/account-exists-email";
 import CompleteSignUpEmail from "@/emails/_templates/complete-sign-up-email";
+import ReauthCodeEmail from "@/emails/_templates/reauth-code-email";
+import PasswordChangedEmail from "@/emails/_templates/password-changed-email";
+import EmailChangedEmail from "@/emails/_templates/email-changed-email";
 
 interface ITokenEmailArgs {
   to: string;
@@ -19,6 +22,26 @@ interface ITokenEmailArgs {
   url: string;
   // Used to build an idempotency key so a retried hook doesn't send a duplicate.
   token: string;
+}
+
+interface ICodeEmailArgs {
+  to: string;
+  locale: AppLocale;
+  code: string;
+  // The stored code's row id, so a retried send cannot mail the same code twice.
+  codeId: string;
+}
+
+interface INoticeEmailArgs {
+  to: string;
+  locale: AppLocale;
+  url: string;
+  // One id per security event, so a retried hook cannot mail the same notice twice.
+  eventId: string;
+}
+
+interface IEmailChangedArgs extends INoticeEmailArgs {
+  newEmail: string;
 }
 
 interface IChangeEmailArgs extends ITokenEmailArgs {
@@ -170,6 +193,58 @@ export class EmailService {
       subject,
       react: ChangeEmailConfirmation(props),
       idempotencyKey: `change-email/${token}`,
+    });
+  }
+
+  // A one-time code that proves it is still the owner before a sensitive change.
+  async sendReauthCode({ to, locale, code, codeId }: ICodeEmailArgs) {
+    const { subject, props } = await buildCodeEmail(locale, code);
+
+    return this.send({
+      to,
+      subject,
+      react: ReauthCodeEmail(props),
+      idempotencyKey: `reauth-code/${codeId}`,
+    });
+  }
+
+  // Security notice after a password change or reset, so a takeover does not go unseen.
+  async sendPasswordChanged({ to, locale, url, eventId }: INoticeEmailArgs) {
+    const { subject, props } = await buildActionEmail(
+      locale,
+      "passwordChanged",
+      url,
+    );
+
+    return this.send({
+      to,
+      subject,
+      react: PasswordChangedEmail(props),
+      idempotencyKey: `password-changed/${eventId}`,
+    });
+  }
+
+  // Sent to the OLD address once the new one is confirmed: the only inbox an owner
+  // locked out by a hijacked email change still reads.
+  async sendEmailChanged({
+    to,
+    locale,
+    url,
+    eventId,
+    newEmail,
+  }: IEmailChangedArgs) {
+    const { subject, props } = await buildActionEmail(
+      locale,
+      "emailChanged",
+      url,
+      { newEmail },
+    );
+
+    return this.send({
+      to,
+      subject,
+      react: EmailChangedEmail(props),
+      idempotencyKey: `email-changed/${eventId}`,
     });
   }
 }

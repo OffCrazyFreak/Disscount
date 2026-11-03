@@ -58,5 +58,28 @@
     "intro": "Nekdo se je pravkar poskušal registrirati v Disscount s tem e-naslovom. Račun zanj že obstaja, a naslov še ni potrjen. Če je račun tvoj, nastavi geslo z gumbom spodaj in s tem potrdi naslov. Povezava poteče čez {minutes, plural, one {# minuto} two {# minuti} few {# minute} other {# minut}}.",
     "button": "Nastavi geslo",
     "footnote": "To ni tvoja zahteva? Prezri to sporočilo. Dokler naslov ni potrjen, se v ta račun nihče ne more prijaviti z geslom."
+  },
+  "reauthCode": {
+    "subject": "Tvoja koda za potrditev",
+    "preview": "Koda velja {minutes, plural, one {# minuto} two {# minuti} few {# minute} other {# minut}}.",
+    "heading": "Potrdi, da si to ti",
+    "intro": "Vnesi to kodo v Disscount, da potrdiš spremembo na svojem računu. Koda velja {minutes, plural, one {# minuto} two {# minuti} few {# minute} other {# minut}}.",
+    "footnote": "Ta zahteva ni tvoja? Kode ne deli z nikomer in se v nastavitvah odjavi z vseh drugih naprav."
+  },
+  "passwordChanged": {
+    "subject": "Tvoje geslo je spremenjeno",
+    "preview": "Geslo tvojega računa Disscount je bilo pravkar spremenjeno.",
+    "heading": "Geslo je spremenjeno",
+    "intro": "Geslo tvojega računa Disscount je bilo pravkar spremenjeno. Če je sprememba tvoja, ti ni treba storiti ničesar.",
+    "button": "Odpri varnostne nastavitve",
+    "footnote": "Ta sprememba ni tvoja? Takoj nastavi novo geslo prek možnosti \"Pozabljeno geslo?\" pri prijavi in nam piši."
+  },
+  "emailChanged": {
+    "subject": "Tvoj email naslov je spremenjen",
+    "preview": "Tvoj račun Disscount zdaj uporablja nov email naslov.",
+    "heading": "Email naslov je spremenjen",
+    "intro": "Tvoj račun Disscount zdaj uporablja naslov <email>{newEmail}</email>. Na ta naslov ne pošiljamo več obvestil o računu.",
+    "button": "Piši nam",
+    "footnote": "Ta sprememba ni tvoja? Takoj nam piši in pomagali ti bomo vrniti račun."
   }
 }

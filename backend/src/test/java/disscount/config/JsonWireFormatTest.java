@@ -1,13 +1,15 @@
 package disscount.config;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import disscount.digitalCard.dto.CardUsedEntry;
 import disscount.digitalCard.dto.DigitalCardDto;
+import disscount.shoppingList.dto.ShoppingListCopyRequest;
 import disscount.user.dto.UserDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Instant;
@@ -15,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Pins how dates leave and enter the API. The frontend's parseServerDate reads zone-less
@@ -33,8 +36,8 @@ class JsonWireFormatTest {
                 .onboardingCompletedAt(LocalDateTime.of(2026, 3, 1, 10, 15, 30, 123_456_000))
                 .build());
 
-        assertThat(user.get("createdAt").asText()).isEqualTo("2026-03-01T10:15:30");
-        assertThat(user.get("onboardingCompletedAt").asText()).isEqualTo("2026-03-01T10:15:30.123456");
+        assertThat(user.get("createdAt").asString()).isEqualTo("2026-03-01T10:15:30");
+        assertThat(user.get("onboardingCompletedAt").asString()).isEqualTo("2026-03-01T10:15:30.123456");
     }
 
     @Test
@@ -44,8 +47,8 @@ class JsonWireFormatTest {
                 .lastLoginAt(Instant.parse("2026-03-01T10:15:30.5Z"))
                 .build());
 
-        assertThat(user.get("lastActiveAt").asText()).isEqualTo("2026-03-01T10:15:30Z");
-        assertThat(user.get("lastLoginAt").asText()).isEqualTo("2026-03-01T10:15:30.500Z");
+        assertThat(user.get("lastActiveAt").asString()).isEqualTo("2026-03-01T10:15:30Z");
+        assertThat(user.get("lastLoginAt").asString()).isEqualTo("2026-03-01T10:15:30.500Z");
     }
 
     @Test
@@ -54,7 +57,7 @@ class JsonWireFormatTest {
                 .validFrom(LocalDate.of(2026, 3, 1))
                 .build());
 
-        assertThat(card.get("validFrom").asText()).isEqualTo("2026-03-01");
+        assertThat(card.get("validFrom").asString()).isEqualTo("2026-03-01");
         assertThat(card.has("expiresOn")).isTrue();
         assertThat(card.get("expiresOn").isNull()).isTrue();
     }
@@ -66,5 +69,14 @@ class JsonWireFormatTest {
                 CardUsedEntry.class);
 
         assertThat(entry.getUsedAt()).isEqualTo(Instant.parse("2026-03-01T10:15:30Z"));
+    }
+
+    // Jackson 3 rejects a null for a primitive where Jackson 2 read it as false; the frontend always sends booleans.
+    @Test
+    void aNullForAPrimitiveIsRejectedButAMissingOneDefaults() throws Exception {
+        assertThatThrownBy(() -> json.readValue("{\"title\":\"Kopija\",\"includeItems\":null}", ShoppingListCopyRequest.class))
+                .isInstanceOf(JacksonException.class);
+
+        assertThat(json.readValue("{\"title\":\"Kopija\"}", ShoppingListCopyRequest.class).isIncludeItems()).isFalse();
     }
 }

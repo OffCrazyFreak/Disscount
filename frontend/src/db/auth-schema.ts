@@ -44,6 +44,8 @@ export const session = pgTable(
       .notNull(),
     ipAddress: text("ip_address"),
     userAgent: text("user_agent"),
+    // ISO 3166 alpha-2 from Cloudflare at sign-in; shown instead of the IP address.
+    country: text("country"),
     userId: uuid("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),

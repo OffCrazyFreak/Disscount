@@ -28,9 +28,9 @@ import disscount.util.Timestamps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
@@ -76,8 +76,8 @@ class ProductImageServiceTest {
     @Autowired FakeProductImageStore publicStore;
     @Autowired OffCandidateWriter candidates;
     @Autowired PlatformTransactionManager transactions;
-    @MockBean UserService userService;
-    @MockBean OpenFoodFactsClient off;
+    @MockitoBean UserService userService;
+    @MockitoBean OpenFoodFactsClient off;
 
     final UUID ana = UUID.randomUUID();
     final UUID marko = UUID.randomUUID();

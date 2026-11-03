@@ -20,9 +20,9 @@ import disscount.util.Timestamps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Propagation;
@@ -61,10 +61,10 @@ class ProductImageJobsRenderTest {
     @Autowired ProductImageRepository images;
     @Autowired ProductImageSetRepository sets;
     @Autowired FakeProductImageStore publicStore;
-    @MockBean OpenFoodFactsClient off;
-    @MockBean CatalogImportService catalog;
-    @MockBean OffSeedService seed;
-    @MockBean ProductPhotoUploadLimiter limiter;
+    @MockitoBean OpenFoodFactsClient off;
+    @MockitoBean CatalogImportService catalog;
+    @MockitoBean OffSeedService seed;
+    @MockitoBean ProductPhotoUploadLimiter limiter;
 
     @BeforeEach
     void setUp() {

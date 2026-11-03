@@ -58,5 +58,28 @@
     "intro": "Someone just tried to sign up for Disscount with this email address. An account for it already exists, but the address isn't confirmed yet. If the account is yours, set a password with the button below to confirm the address. This link expires in {minutes, plural, one {# minute} other {# minutes}}.",
     "button": "Set password",
     "footnote": "If this wasn't you, you can ignore this email. Until the address is confirmed, nobody can sign in to this account with a password."
+  },
+  "reauthCode": {
+    "subject": "Your confirmation code",
+    "preview": "The code expires in {minutes, plural, one {# minute} other {# minutes}}.",
+    "heading": "Confirm it's you",
+    "intro": "Enter this code in Disscount to confirm a change to your account. It expires in {minutes, plural, one {# minute} other {# minutes}}.",
+    "footnote": "Didn't ask for this? Don't share the code with anyone, and sign out of your other devices in your settings."
+  },
+  "passwordChanged": {
+    "subject": "Your password was changed",
+    "preview": "The password for your Disscount account was just changed.",
+    "heading": "Your password was changed",
+    "intro": "The password for your Disscount account was just changed. If you made this change, there's nothing else to do.",
+    "button": "Open security settings",
+    "footnote": "Didn't make this change? Set a new password right away with \"Forgot your password?\" on the sign-in screen, and get in touch with us."
+  },
+  "emailChanged": {
+    "subject": "Your email address was changed",
+    "preview": "Your Disscount account now uses a new email address.",
+    "heading": "Your email address was changed",
+    "intro": "Your Disscount account now uses <email>{newEmail}</email>. We won't send account emails to this address any more.",
+    "button": "Contact us",
+    "footnote": "Didn't make this change? Get in touch right away and we'll help you get your account back."
   }
 }

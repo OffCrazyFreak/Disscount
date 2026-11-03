@@ -13,6 +13,7 @@ import {
 } from "@/components/custom/settings/security/credentials-schema";
 import { useCredentialsSubmit } from "@/components/custom/settings/security/hooks/use-credentials-submit";
 import { usePasswordRecovery } from "@/components/custom/settings/security/hooks/use-password-recovery";
+import { useReauth } from "@/components/custom/settings/security/hooks/use-reauth";
 
 interface ILinkedAccount {
   providerId: string;
@@ -64,10 +65,14 @@ export function useSecuritySettings(active: boolean) {
     );
   }, [currentEmail, form]);
 
+  // A password is the proof when the account has one; otherwise a code mailed to it.
+  const reauth = useReauth(hasPassword ? "password" : "code");
+
   const { submit } = useCredentialsSubmit({
     hasPassword,
     currentEmail,
     form,
+    reauth,
     onChanged: query.refetch,
   });
 
@@ -77,6 +82,7 @@ export function useSecuritySettings(active: boolean) {
   return {
     status: query.status,
     recovery,
+    reauth,
     accounts,
     hasPassword,
     hasLinkedSocial,

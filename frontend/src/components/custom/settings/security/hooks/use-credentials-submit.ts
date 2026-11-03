@@ -12,13 +12,18 @@ import { isPasswordPolicyCode } from "@/lib/auth/password-policy";
 import {
   changeEmailError,
   changePasswordError,
+  currentPasswordError,
 } from "@/components/custom/settings/security/credentials-errors";
 import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
+import { REAUTH_REQUIRED } from "@/lib/auth/security-policy";
+import type { Reauth } from "@/components/custom/settings/security/hooks/use-reauth";
+import { prove } from "@/components/custom/settings/security/reauth/reauth-requests";
 
 interface IUseCredentialsSubmitProps {
   hasPassword: boolean;
   currentEmail: string;
   form: UseFormReturn<CredentialsFormValues>;
+  reauth: Reauth;
   onChanged: () => void;
 }
 
@@ -26,29 +31,34 @@ export function useCredentialsSubmit({
   hasPassword,
   currentEmail,
   form,
+  reauth,
   onChanged,
 }: IUseCredentialsSubmitProps) {
   const t = useTranslations("settings");
   const { messageForCode } = usePasswordPolicy();
   const { refreshUser } = useUser();
 
-  async function setInitialPassword(data: CredentialsFormValues) {
+  async function submitInitialPassword(
+    newPassword: string,
+  ): Promise<"done" | "needs-proof"> {
     const response = await fetch("/api/account/set-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ newPassword: data.newPassword }),
+      body: JSON.stringify({ newPassword }),
     });
 
     if (!response.ok) {
       const body = (await response.json().catch(() => ({}))) as {
         error?: unknown;
       };
+      if (body.error === REAUTH_REQUIRED) return "needs-proof";
+
       form.setError("newPassword", {
         message: isPasswordPolicyCode(body.error)
           ? messageForCode(body.error)
           : "settings.security.submit.setPasswordFailed",
       });
-      return;
+      return "done";
     }
 
     resetAuthToken();
@@ -56,6 +66,19 @@ export function useCredentialsSubmit({
     onChanged();
     form.resetField("newPassword");
     toast.success(t("security.submit.passwordSet"));
+    return "done";
+  }
+
+  // Past the 15 minute window the server asks for a proof first, then this retries once.
+  async function setInitialPassword(data: CredentialsFormValues) {
+    await reauth.withFreshSession(
+      () => submitInitialPassword(data.newPassword),
+      {
+        title: t("security.reauth.setPasswordTitle"),
+        description: t("security.reauth.setPasswordDescription"),
+        confirmLabel: t("security.reauth.setPasswordConfirm"),
+      },
+    );
   }
 
   async function confirmPasswordCommitted() {
@@ -83,17 +106,23 @@ export function useCredentialsSubmit({
     data: CredentialsFormValues,
     afterPasswordChange: boolean,
   ) {
-    // Guarded endpoint that checks the password and "no social linked" server-side.
+    // The password change above already renewed the session; otherwise the current
+    // password proves it now, which the server needs within the last 15 minutes.
+    if (!afterPasswordChange) {
+      const failure = await prove({ password: data.currentPassword });
+      if (failure) {
+        form.setError("currentPassword", {
+          message: currentPasswordError(failure),
+        });
+        return false;
+      }
+    }
+
+    // Guarded endpoint that checks "no social linked" and the fresh session server-side.
     const response = await fetch("/api/account/change-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        newEmail: data.email,
-        // A password change above already committed, so the new one is now current.
-        currentPassword: afterPasswordChange
-          ? data.newPassword
-          : data.currentPassword,
-      }),
+      body: JSON.stringify({ newEmail: data.email }),
     });
 
     if (response.ok) return true;
@@ -101,10 +130,7 @@ export function useCredentialsSubmit({
     const body = (await response.json().catch(() => ({}))) as {
       error?: string;
     };
-    const { field, message } = changeEmailError(
-      body.error,
-      afterPasswordChange,
-    );
+    const { field, message } = changeEmailError(body.error);
     form.setError(field, { message });
 
     // Password already committed above; confirm it and clear its fields so a retry only re-does email.

@@ -158,24 +158,27 @@ export default async function RootLayout({
       data-scroll-behavior="smooth"
       className="scroll-pb-[var(--bottom-nav-total)] md:scroll-pb-0"
     >
-      {/* Chrome fires beforeinstallprompt before React hydrates, and never
-          re-fires it, so the React-side listener alone can miss it and lose the
-          native prompt. use-install-prompt.ts adopts whatever this catches. */}
-      <Script id="install-prompt-capture" strategy="beforeInteractive">
-        {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__installPrompt=e;});`}
-      </Script>
-
-      {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
-        <Script
-          defer
-          src="https://cloud.umami.is/script.js"
-          data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-          strategy="afterInteractive"
-        />
-      )}
       <body
         className={`${sairaStencil.variable} ${huninn.variable} antialiased bg-zinc-50 relative`}
       >
+        {/* Chrome fires beforeinstallprompt before React hydrates, and never
+            re-fires it, so the React-side listener alone can miss it and lose
+            the native prompt. use-install-prompt.ts adopts whatever this
+            catches. It sits in <body> because React rejects a <script> as a
+            direct child of <html>; Next runs it before hydration either way. */}
+        <Script id="install-prompt-capture" strategy="beforeInteractive">
+          {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__installPrompt=e;});`}
+        </Script>
+
+        {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
+          <Script
+            defer
+            src="https://cloud.umami.is/script.js"
+            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+            strategy="afterInteractive"
+          />
+        )}
+
         <NextIntlClientProvider>
           <Providers>
             <LocaleSync />

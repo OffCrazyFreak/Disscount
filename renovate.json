@@ -55,7 +55,7 @@
       "matchPackageNames": [
         "org.springdoc:springdoc-openapi-starter-webmvc-ui"
       ],
-      "allowedVersions": "<3.0.0"
+      "allowedVersions": "<4.0.0"
     },
     {
       "description": "A Java major also needs the maven build image tag and pom java.version, which Renovate cannot bump",

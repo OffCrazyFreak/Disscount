@@ -1,7 +1,15 @@
 import type { ModalTarget } from "@/lib/modal/modal-registry";
 
 // Every search param a modal target writes, so opening or closing one leaves none behind.
-const MODAL_PARAM_NAMES = ["modal", "id", "ean", "type", "list", "item"];
+const MODAL_PARAM_NAMES = [
+  "modal",
+  "id",
+  "ean",
+  "type",
+  "list",
+  "item",
+  "error",
+];
 
 function modalParamValue(target: ModalTarget): string {
   switch (target.name) {
@@ -32,6 +40,8 @@ export function buildModalSearch(
   if ("listId" in target && target.listId) params.set("list", target.listId);
   if ("itemName" in target && target.itemName)
     params.set("item", target.itemName);
+  if ("linkError" in target && target.linkError)
+    params.set("error", target.linkError);
 
   // URLSearchParams percent-encodes "/"; decode it so links read ?modal=settings/profil.
   return `?${params.toString().replace(/%2F/g, "/")}`;

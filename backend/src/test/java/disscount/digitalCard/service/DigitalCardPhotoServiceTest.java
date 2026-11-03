@@ -20,9 +20,9 @@ import disscount.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
@@ -62,7 +62,7 @@ class DigitalCardPhotoServiceTest {
     @Autowired PhotoStore store;
     @Autowired PhotoCleanupRepository cleanupRows;
     @Autowired PhotoUploadRateLimiter limiter;
-    @SpyBean CardPhotoWriter writer;
+    @MockitoSpyBean CardPhotoWriter writer;
 
     User owner;
     UUID cardId = UUID.randomUUID();

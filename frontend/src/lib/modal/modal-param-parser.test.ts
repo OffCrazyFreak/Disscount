@@ -32,6 +32,18 @@ describe("parseModalParam", () => {
     expect(parse(`modal=${name}/extra&id=1&ean=2`)).toEqual({ name });
   });
 
+  it("keeps a failed verification link's error code on its status modal", () => {
+    expect(parse("modal=email-verified&error=TOKEN_EXPIRED")).toEqual({
+      name: "email-verified",
+      linkError: "TOKEN_EXPIRED",
+    });
+    expect(parse("modal=email-changed&error=INVALID_TOKEN")).toEqual({
+      name: "email-changed",
+      linkError: "INVALID_TOKEN",
+    });
+    expect(parse("modal=login&error=TOKEN_EXPIRED")).toEqual({ name: "login" });
+  });
+
   it("parses onboarding, defaulting to required", () => {
     expect(parse("modal=onboarding")).toEqual({
       name: "onboarding",

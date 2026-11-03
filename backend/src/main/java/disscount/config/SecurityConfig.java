@@ -21,7 +21,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
@@ -114,7 +114,7 @@ public class SecurityConfig {
     }
 
     private static AuthorizationDecision isAccountErasureToken(
-            Supplier<Authentication> authentication,
+            Supplier<? extends Authentication> authentication,
             RequestAuthorizationContext context
     ) {
         boolean isErasureToken = authentication.get() instanceof JwtAuthenticationToken jwt
@@ -123,7 +123,7 @@ public class SecurityConfig {
     }
 
     private static AuthorizationDecision isOrdinarySessionToken(
-            Supplier<Authentication> authentication,
+            Supplier<? extends Authentication> authentication,
             RequestAuthorizationContext context
     ) {
         boolean isOrdinary = authentication.get() instanceof JwtAuthenticationToken jwt
@@ -133,7 +133,7 @@ public class SecurityConfig {
 
     /** The public routes' rule: anyone, signed in or not, except a purpose scoped token. */
     private static AuthorizationDecision isNotPurposeScoped(
-            Supplier<Authentication> authentication,
+            Supplier<? extends Authentication> authentication,
             RequestAuthorizationContext context
     ) {
         boolean isPurposeScoped = authentication.get() instanceof JwtAuthenticationToken jwt

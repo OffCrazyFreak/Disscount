@@ -202,8 +202,41 @@
       "deleteDialogDescription": "Wir löschen dein Konto und alle Daten endgültig. Das kannst du nicht rückgängig machen.",
       "revokeFailed": "Das Abmelden auf den anderen Geräten hat nicht geklappt. Versuch es noch mal.",
       "revoked": "Deine anderen Geräte sind abgemeldet.",
-      "deleted": "Dein Konto wurde gelöscht.",
-      "deleteFailed": "Das Konto konnte nicht gelöscht werden. Versuche es erneut."
+      "deleted": "Dein Konto wurde gelöscht."
+    },
+    "reauth": {
+      "cancel": "Abbrechen",
+      "passwordHint": "Gib dein Passwort ein, um zu bestätigen, dass du es bist.",
+      "codeSending": "Wir schicken dir einen Code per E-Mail...",
+      "codeSent": "Wir haben einen Code an <strong>{email}</strong> geschickt.",
+      "codeSendFailed": "Der Code konnte nicht gesendet werden. Versuche es erneut.",
+      "codeEmailLimit": "Wir haben zu viele E-Mails an deine Adresse geschickt. Versuche es in einer Stunde erneut.",
+      "codeLabel": "Code aus der E-Mail",
+      "codeMissing": "Nicht angekommen?",
+      "resend": "Erneut senden",
+      "resendIn": "Erneut senden in {wait}",
+      "wrongCode": "Der Code stimmt nicht. Versuche es erneut.",
+      "wrongCodeAttempts": "Der Code stimmt nicht. {attemptsLeft, plural, one {Du hast noch # Versuch.} other {Du hast noch # Versuche.}}",
+      "codeExpired": "Der Code ist abgelaufen oder wurde schon benutzt. Fordere einen neuen an.",
+      "unlinkTitle": "{provider} trennen?",
+      "unlinkDescription": "Bestätige, dass du es bist, dann trennen wir {provider} von deinem Konto.",
+      "setPasswordTitle": "Passwort festlegen",
+      "setPasswordDescription": "Bestätige, dass du es bist, dann speichern wir dein neues Passwort.",
+      "setPasswordConfirm": "Passwort speichern"
+    },
+    "sessions": {
+      "label": "Aktive Anmeldungen",
+      "hint": "Geräte, auf denen dein Konto gerade angemeldet ist.",
+      "thisDevice": "Dieses Gerät",
+      "unknownDevice": "Unbekanntes Gerät",
+      "device": "{browser} · {os}",
+      "lastActive": "Zuletzt aktiv: {when}",
+      "signOut": "Abmelden",
+      "signOutDevice": "{device} abmelden",
+      "signedOut": "Gerät abgemeldet.",
+      "signOutFailed": "Das Gerät konnte nicht abgemeldet werden. Versuche es erneut.",
+      "loadFailed": "Deine Anmeldungen konnten nicht geladen werden.",
+      "tokenNote": "Ein abgemeldetes Gerät behält den Zugriff auf deine Daten noch höchstens {minutes, plural, one {# Minute} other {# Minuten}}."
     }
   }
 }

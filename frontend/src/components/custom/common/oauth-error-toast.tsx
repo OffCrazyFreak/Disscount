@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
+import { parseModalParam } from "@/lib/modal/modal-param-parser";
+
 // Better Auth appends ?error=<code>; map each one so the user learns why.
 const ERROR_MESSAGE_KEYS = {
   email_not_found: "oauthError.emailNotFound",
@@ -28,10 +30,13 @@ export default function OAuthErrorToast() {
   const t = useTranslations("common");
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
+  const target = parseModalParam(searchParams);
+  // A failed verification link lands with ?error= too; its status modal shows that one.
+  const isOwnedByModal = target !== null && "linkError" in target;
   const shown = useRef(false);
 
   useEffect(() => {
-    if (!error || shown.current) return;
+    if (!error || isOwnedByModal || shown.current) return;
 
     shown.current = true;
     toast.error(
@@ -51,7 +56,7 @@ export default function OAuthErrorToast() {
       "",
       window.location.pathname + (query ? `?${query}` : ""),
     );
-  }, [error, t]);
+  }, [error, isOwnedByModal, t]);
 
   return null;
 }

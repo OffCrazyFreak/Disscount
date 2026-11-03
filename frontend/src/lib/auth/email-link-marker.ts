@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { verification } from "@/db/auth-schema";
 import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth";
 import { inboxKey } from "@/lib/email/recipient-send-cap";
+import { readVerificationToken } from "@/lib/auth/verification-token";
 
 type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -75,18 +76,6 @@ export function claimResetEmail(userId: string, token: string) {
       return live.length > 0;
     },
   );
-}
-
-interface IVerificationTokenClaims {
-  email: string;
-  exp: number;
-  updateTo?: string;
-}
-
-// better-auth signs this token in process just before the callback, so the payload is read, not verified.
-function readVerificationToken(token: string): IVerificationTokenClaims {
-  const payload = token.split(".")[1] ?? "";
-  return JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
 }
 
 // Verification links are stateless JWTs, so the marker carries what the link is for and

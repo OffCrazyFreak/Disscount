@@ -4,6 +4,8 @@ import { CLOUDFLARE_IP_RANGES } from "@/lib/client-ip/cloudflare-ip-ranges";
 
 // better-auth reads the client address from this header (advanced.ipAddress).
 export const CLIENT_IP_HEADER = "cf-connecting-ip";
+// Cloudflare's two-letter guess at the visitor's country, stored on new sessions.
+export const CLIENT_COUNTRY_HEADER = "cf-ipcountry";
 
 const cloudflare = new BlockList();
 for (const range of CLOUDFLARE_IP_RANGES) {
@@ -36,6 +38,21 @@ export function resolveClientIp(headers: Headers): string | null {
   return peer;
 }
 
+// "XX" is unknown and "T1" is Tor; neither names a place worth showing.
+const NOT_A_COUNTRY = new Set(["XX", "T1"]);
+
+/** The country of a request withTrustedClientIp already vetted, or null. */
+export function trustedCountry(headers: Headers | undefined): string | null {
+  const code = headers?.get(CLIENT_COUNTRY_HEADER)?.trim().toUpperCase();
+  if (!code || !/^[A-Z]{2}$/.test(code) || NOT_A_COUNTRY.has(code)) return null;
+  return code;
+}
+
+function isCloudflarePeer(headers: Headers) {
+  const peer = headers.get("x-forwarded-for")?.split(",").at(-1)?.trim();
+  return !!peer && isIP(peer) !== 0 && isCloudflare(peer);
+}
+
 export function withTrustedClientIp(request: Request): Request {
   // Copied entry by entry: in the Vitest environment, new Headers(request.headers)
   // drops every header but content-type.
@@ -44,6 +61,9 @@ export function withTrustedClientIp(request: Request): Request {
 
   if (clientIp) headers.set(CLIENT_IP_HEADER, clientIp);
   else headers.delete(CLIENT_IP_HEADER);
+
+  // Same trust rule as the address: only a Cloudflare edge may set the country.
+  if (!isCloudflarePeer(headers)) headers.delete(CLIENT_COUNTRY_HEADER);
 
   // Next passes route handlers a Proxy around the request, and Node 24's undici
   // rejects new Request(proxy) on its private-field check, so copy it by parts.
