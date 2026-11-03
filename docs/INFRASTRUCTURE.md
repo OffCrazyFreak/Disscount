@@ -61,12 +61,12 @@ flowchart LR
     BE -.->|fetch JWKS, internal| FE
 ```
 
-| Service    | Tech                                                  | Internal address | Public?               | Role                                                                                   |
-| ---------- | ----------------------------------------------------- | ---------------- | --------------------- | -------------------------------------------------------------------------------------- |
-| `frontend` | Next.js 16 (standalone)                               | `frontend:3000`  | **yes** (via Traefik) | UI + **better-auth** identity provider; proxies `/api/*` to backend                    |
-| `backend`  | Spring Boot 4.1 / Java 21                             | `backend:8080`   | no                    | REST API; validates better-auth JWTs (resource server)                                 |
-| `db`       | Postgres 17                                           | `db:5432`        | no                    | one shared database, used by both                                                      |
-| `migrate`  | (frontend build image; `disscount-migrator` on `dev`) | n/a              | no                    | one-shot: runs drizzle migrations (auth tables, store locations) on deploy, then exits |
+| Service    | Tech                                                  | Internal address | Public?               | Role                                                                                                |
+| ---------- | ----------------------------------------------------- | ---------------- | --------------------- | --------------------------------------------------------------------------------------------------- |
+| `frontend` | Next.js 16 (standalone)                               | `frontend:3000`  | **yes** (via Traefik) | UI + **better-auth** identity provider; proxies `/api/*` to backend                                 |
+| `backend`  | Spring Boot 4.1 / Java 21                             | `backend:8080`   | no                    | REST API; validates better-auth JWTs (resource server)                                              |
+| `db`       | Postgres 17                                           | `db:5432`        | no                    | one shared database, used by both                                                                   |
+| `migrate`  | (frontend build image; `disscount-migrator` on `dev`) | n/a              | no                    | one-shot: runs drizzle migrations (auth tables, store locations, store hours) on deploy, then exits |
 
 **Why the backend isn't public:** the browser only ever calls `https://disscount.me/api/...` (relative URLs). A Next.js route handler (`app/api/[...path]`, see [BACKEND-PROXY.md](BACKEND-PROXY.md)) forwards those to `backend:8080` _server-side_, inside the Docker network. This means no CORS config is needed and the backend/DB have no internet-facing attack surface.
 

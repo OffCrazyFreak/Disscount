@@ -71,6 +71,13 @@
       "when": 1793711843763,
       "tag": "0009_jwks_alg_crv",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793724875516,
+      "tag": "0010_store_hours",
+      "breakpoints": true
     }
   ]
 }
