@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useId, type Ref } from "react";
 import { useTranslations } from "next-intl";
 
 import { Select, SelectTrigger } from "@/components/ui/select";
@@ -10,6 +10,7 @@ interface IUnavailableStoreSelectProps {
   /** Ids of fuller explanations elsewhere, such as the list banners. */
   describedById?: string;
   className?: string;
+  ref?: Ref<HTMLButtonElement>;
 }
 
 /**
@@ -21,6 +22,7 @@ export default function UnavailableStoreSelect({
   label,
   describedById,
   className,
+  ref,
 }: IUnavailableStoreSelectProps) {
   const t = useTranslations("products");
   const fieldNameId = useId();
@@ -29,6 +31,7 @@ export default function UnavailableStoreSelect({
   return (
     <Select open={false}>
       <SelectTrigger
+        ref={ref}
         aria-disabled="true"
         // A combobox takes no name from its content, so name it the field plus its reason.
         aria-labelledby={`${fieldNameId} ${labelId}`}

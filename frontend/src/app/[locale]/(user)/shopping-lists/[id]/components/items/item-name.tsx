@@ -2,6 +2,7 @@ import StretchedLink from "@/components/custom/common/stretched-link";
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 import { productPath } from "@/utils/product-links";
+import { ITEM_NAME_ATTRIBUTE } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/store-select-focus";
 
 interface IItemNameProps {
   item: ShoppingListItemDto;
@@ -13,6 +14,7 @@ export default function ItemName({ item, isFirst, isLast }: IItemNameProps) {
   return (
     <div className="flex-1">
       <p
+        {...{ [ITEM_NAME_ATTRIBUTE]: item.id }}
         className={`text-sm sm:text-md text-pretty ${
           item.isChecked ? "line-through text-gray-500" : ""
         }`}

@@ -1,3 +1,5 @@
+import type { RefObject } from "react";
+
 import { Separator } from "@/components/ui/separator";
 
 import type { ShoppingListItemDto } from "@/lib/api/types";
@@ -9,6 +11,8 @@ import ItemName from "@/app/[locale]/(user)/shopping-lists/[id]/components/items
 import type { IShoppingListItemUpdate } from "@/app/[locale]/(user)/shopping-lists/[id]/typings/shopping-list-item-types";
 import ItemStoreSelect from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/item-store-select";
 import type { ItemPriceState } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
+import { useStoreSelectFocusHandoff } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-store-select-focus-handoff";
+import { STORE_SELECT_ITEM_ATTRIBUTE } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/store-select-focus";
 
 interface IShoppingListItemProps {
   item: ShoppingListItemDto;
@@ -26,6 +30,7 @@ interface IShoppingListItemProps {
   canCheck: boolean;
   /** Amount and removal. */
   canEditItems: boolean;
+  lostFocusItemIdRef: RefObject<string | null>;
 }
 
 export default function ShoppingListItem({
@@ -42,7 +47,14 @@ export default function ShoppingListItem({
   showSeparator,
   canCheck,
   canEditItems,
+  lostFocusItemIdRef,
 }: IShoppingListItemProps) {
+  const rememberFocusOnUnmount = useStoreSelectFocusHandoff(
+    item.id,
+    priceState,
+    lostFocusItemIdRef,
+  );
+
   return (
     <>
       <div className="relative isolate flex flex-wrap items-center justify-between gap-6 py-1 sm:flex-nowrap">
@@ -80,15 +92,21 @@ export default function ShoppingListItem({
 
             {/* A plain item has no prices, so there is no store to pick by price. */}
             {item.ean && (
-              <ItemStoreSelect
-                item={item}
-                onUpdate={onUpdate}
-                priceState={priceState}
-                cheapestStore={cheapestStore}
-                averagePrice={averagePrice}
-                storePrices={storePrices}
-                canCheck={canCheck}
-              />
+              <div
+                {...{ [STORE_SELECT_ITEM_ATTRIBUTE]: item.id }}
+                className="contents"
+              >
+                <ItemStoreSelect
+                  item={item}
+                  onUpdate={onUpdate}
+                  priceState={priceState}
+                  cheapestStore={cheapestStore}
+                  averagePrice={averagePrice}
+                  storePrices={storePrices}
+                  canCheck={canCheck}
+                  unavailableSelectRef={rememberFocusOnUnmount}
+                />
+              </div>
             )}
           </div>
 

@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react";
-import { act, screen } from "@testing-library/react";
+import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -12,6 +12,11 @@ vi.mock("@/i18n/navigation", () => ({
   Link: ({ href, ...props }: ComponentProps<"a"> & { href: string }) => (
     <a href={href} {...props} />
   ),
+}));
+
+// The store groups' headers read the session; this file tests the rows under them.
+vi.mock("@/context/user-context", () => ({
+  useUser: () => ({ isAuthenticated: false }),
 }));
 
 // The owner's quick add field is a combobox with its own status line; it has its own tests.
@@ -57,15 +62,26 @@ function renderItems(
   return { onRetryPrices, rerender: view.rerender, container: view.container };
 }
 
+interface IListPrices {
+  cheapestStores?: Record<string, string>;
+  storePrices?: Record<string, Record<string, number>>;
+  myAccess?: ShoppingListDto["myAccess"];
+}
+
 function listItems(
   items: ShoppingListItemDto[],
   priceStates: Record<string, ItemPriceState>,
   onRetryPrices = vi.fn(async () => true),
+  {
+    cheapestStores = {},
+    storePrices = {},
+    myAccess = "OWNER",
+  }: IListPrices = {},
 ) {
   const list: ShoppingListDto = {
     id: "list-1",
     title: "Tjedni",
-    myAccess: "OWNER",
+    myAccess,
     createdAt: "2026-10-27T00:00:00",
     updatedAt: "2026-10-27T00:00:00",
     items,
@@ -74,10 +90,10 @@ function listItems(
   return (
     <ShoppingListItems
       shoppingList={list}
-      cheapestStores={{}}
+      cheapestStores={cheapestStores}
       isPricesLoading={false}
       averagePrices={{}}
-      storePrices={{}}
+      storePrices={storePrices}
       priceStates={priceStates}
       isRetryingPrices={false}
       onRetryPrices={onRetryPrices}
@@ -234,5 +250,125 @@ describe("ShoppingListItems price states", () => {
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /staklenke/ })).toBeNull();
     expect(container.querySelector('[data-slot="skeleton"]')).toBeNull();
+  });
+});
+
+describe("ShoppingListItems focus", () => {
+  const konzumPrices: IListPrices = {
+    cheapestStores: { a: "konzum" },
+    storePrices: { a: { konzum: 1.5 } },
+  };
+
+  it("keeps focus on a row's store select when its prices turn ready", () => {
+    const items = [item("a")];
+    const { rerender } = renderItems(items, { a: "failed" });
+
+    screen.getByRole("combobox").focus();
+    rerender(listItems(items, { a: "ready" }, undefined, konzumPrices));
+
+    expect(screen.getByRole("combobox")).toHaveFocus();
+  });
+
+  it("moves a viewer's focus to the item name, since their live select is disabled", () => {
+    const items = [item("a")];
+    const viewer: IListPrices = { ...konzumPrices, myAccess: "VIEW" };
+    const { rerender } = renderWithProviders(
+      listItems(items, { a: "failed" }, undefined, { myAccess: "VIEW" }),
+    );
+
+    screen.getByRole("combobox").focus();
+    rerender(listItems(items, { a: "ready" }, undefined, viewer));
+
+    expect(screen.getByRole("link", { name: "a" })).toHaveFocus();
+  });
+
+  it("keeps focus on the row when it moves into its store's group", async () => {
+    const user = userEvent.setup();
+    const items = [item("a")];
+    const { rerender } = renderItems(items, { a: "failed" });
+
+    await user.click(screen.getByRole("switch"));
+    screen.getByRole("combobox").focus();
+    rerender(listItems(items, { a: "ready" }, undefined, konzumPrices));
+
+    expect(screen.getByRole("combobox")).toHaveFocus();
+  });
+
+  it("hands focus to the retried row when a retry ends in no prices", async () => {
+    const user = userEvent.setup();
+    const items = [item("a")];
+    const onRetry = vi.fn(async () => false);
+    const { rerender } = renderItems(items, { a: "failed" }, onRetry);
+
+    await user.click(screen.getByRole("button", { name: "Pokušaj ponovno" }));
+    rerender(listItems(items, { a: "noPrices" }, onRetry));
+
+    await waitFor(() => expect(screen.getByRole("combobox")).toHaveFocus());
+  });
+
+  it("focuses the items toggle when a retry ends in no prices while collapsed", async () => {
+    const user = userEvent.setup();
+    const items = [item("a")];
+    const onRetry = vi.fn(async () => false);
+    const { rerender } = renderItems(items, { a: "failed" }, onRetry);
+
+    const toggle = screen.getByRole("button", { name: /Proizvodi/ });
+    await user.click(toggle);
+    await user.click(screen.getByRole("button", { name: "Pokušaj ponovno" }));
+    rerender(listItems(items, { a: "noPrices" }, onRetry));
+
+    await waitFor(() => expect(toggle).toHaveFocus());
+  });
+
+  it("leaves focus alone when the retry button no longer had it", async () => {
+    const user = userEvent.setup();
+    const items = [item("a")];
+    const onRetry = vi.fn(async () => false);
+    const { rerender } = renderItems(items, { a: "failed" }, onRetry);
+
+    const retry = screen.getByRole("button", { name: "Pokušaj ponovno" });
+    await user.click(retry);
+    await waitFor(() => expect(onRetry).toHaveBeenCalled());
+    act(() => retry.blur());
+    rerender(listItems(items, { a: "noPrices" }, onRetry));
+
+    // The handoff would run in this tick; give it the same chance the other tests do.
+    await act(async () => {});
+    expect(document.body).toHaveFocus();
+  });
+
+  it("prefers the retried row that still has no prices", async () => {
+    const user = userEvent.setup();
+    const items = [item("a"), item("b")];
+    const onRetry = vi.fn(async () => false);
+    const { rerender } = renderItems(
+      items,
+      { a: "failed", b: "failed" },
+      onRetry,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Pokušaj ponovno" }));
+    rerender(
+      listItems(items, { a: "ready", b: "noPrices" }, onRetry, konzumPrices),
+    );
+
+    const [, noPrices] = screen.getAllByRole("combobox");
+    await waitFor(() => expect(noPrices).toHaveFocus());
+  });
+});
+
+describe("ShoppingListItems banner placement", () => {
+  it("keeps the failure banner visible with the items collapsed", async () => {
+    const user = userEvent.setup();
+    renderItems([item("a")], { a: "failed" });
+
+    await user.click(screen.getByRole("button", { name: /Proizvodi/ }));
+
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(
+      within(screen.getByRole("status")).getByRole("button", {
+        name: "Pokušaj ponovno",
+      }),
+    ).toBeInTheDocument();
   });
 });
