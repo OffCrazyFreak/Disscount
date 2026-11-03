@@ -1,7 +1,7 @@
 import "server-only";
 
 import { DirectoryStoreDto, locationSourceSchema } from "@/lib/api/schemas";
-import type { LocationSource } from "@/lib/store-locations/types";
+import type { LocationSource } from "@/lib/store-locations/store-location-types";
 import { StoreResponse } from "@/lib/cijene-api/schemas";
 import { cleanUpstreamAddress } from "@/lib/store-locations/address-key";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";

@@ -1,7 +1,7 @@
 import "server-only";
 
 import { geocodeWithGeoapify } from "@/lib/store-locations/geocoders/geoapify-geocoder";
-import type { IResolvedLocation } from "@/lib/store-locations/types";
+import type { IResolvedLocation } from "@/lib/store-locations/store-location-types";
 
 type Geocode = (
   address: string,

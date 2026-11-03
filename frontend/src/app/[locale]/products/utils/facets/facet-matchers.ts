@@ -1,7 +1,7 @@
 import type {
   IFacetQuery,
   IIndexedProduct,
-} from "@/app/[locale]/products/utils/facets/types";
+} from "@/app/[locale]/products/utils/facets/facet-types";
 
 function intersects(a: Set<string>, b: Set<string>): boolean {
   for (const value of a) {

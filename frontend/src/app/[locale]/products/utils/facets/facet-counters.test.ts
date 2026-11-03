@@ -4,7 +4,7 @@ import { countLocations } from "@/app/[locale]/products/utils/facets/facet-count
 import type {
   IFacetQuery,
   IIndexedProduct,
-} from "@/app/[locale]/products/utils/facets/types";
+} from "@/app/[locale]/products/utils/facets/facet-types";
 
 function product(chains: string[], categories: string[] = []): IIndexedProduct {
   return {

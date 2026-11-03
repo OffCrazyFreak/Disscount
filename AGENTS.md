@@ -61,6 +61,7 @@ Tests run on H2 and touch nothing outside the module, so none needs a nod.
 
 - Nontrivial change, or I say research: run the `research` skill first, then settle open product choices with me. Research-only requests end with the report.
 - A page that blocks fetching (403, login wall, bot check, Reddit): open it in the T3 Code preview browser when one is available before calling it unreadable.
+- Subagents never go above Opus at medium effort: Opus medium for coding and decisions, Sonnet high for code review and research. Review a PR with one Sonnet high pass, and a second only after large fixes.
 - End by explaining what changed and why. I am learning, so the explanation is the point.
 - No em or en dashes anywhere: chat, comments, UI copy, docs, commits, PR text. Use a comma, a colon, parentheses, or rewrite.
 - Run the `unslop` skill on everything written to me (updates, reports, handoffs) and on product copy.

@@ -658,9 +658,9 @@ html {
 }
 
 /* A modal sheet's scrim should cover the bar. Left on top it stays fully visible
-   while Radix's body lock makes it inert, which reads as a frozen UI. The
-   non-modal products sheet is the deliberate exception and keeps the bar above. */
-body:has([data-vaul-drawer][data-state="open"]:not([data-sheet-non-modal])) {
+   while the drawer's modal state makes it inert, which reads as a frozen UI. The
+   non-modal sheets are the deliberate exception and keep the bar above. */
+body:has([data-slot="drawer-viewport"][data-modal="true"][data-open]) {
   --z-bottom-nav: var(--z-bottom-nav-covered);
 }
 
@@ -692,19 +692,6 @@ body:has([data-vaul-drawer][data-state="open"]:not([data-sheet-non-modal])) {
     --bottom-nav-total: 0px;
     --sheet-bottom-clearance: max(1rem, env(safe-area-inset-bottom, 0px));
   }
-}
-
-/* A non-modal sheet is an addition to the page, not a layer over it, so the page
-   behind has to stay usable. vaul never passes `modal` down to Radix's dialog, so
-   Radix always locks the body with an inline `pointer-events: none`, and vaul's
-   own undo runs in a requestAnimationFrame and loses the race. Hence !important:
-   an inline style is the only thing this has to beat.
-   Deliberately not scoped to [data-state="open"]: vaul animates out for 500ms
-   while the state is already "closed" and Radix only restores pointer events on
-   unmount, so qualifying it left the whole page unclickable for half a second
-   after every close. :has() already stops matching once the sheet unmounts. */
-body:has([data-sheet-non-modal]) {
-  pointer-events: auto !important;
 }
 
 /* The surface's own alpha, not the bar's opacity. Fading the element dimmed the

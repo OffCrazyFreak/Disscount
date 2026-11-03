@@ -135,6 +135,103 @@ describe("scrubSensitiveData on server request bodies", () => {
   });
 });
 
+describe("scrubSensitiveData on form-encoded bodies and session headers", () => {
+  it("filters passwords in a form-encoded body", () => {
+    const event = {
+      request: { data: "email=a%40b.c&password=hunter22&newPassword=x" },
+    };
+
+    expect(scrubSensitiveData(event).request.data).toBe(
+      "email=a%40b.c&password=[Filtered]&newPassword=[Filtered]",
+    );
+  });
+
+  it("filters cookies and the Authorization header, keeping other headers", () => {
+    const event = {
+      request: {
+        cookies: { "better-auth.session_token": "abc" },
+        headers: {
+          Cookie: "better-auth.session_token=abc",
+          authorization: "Bearer abc",
+          "user-agent": "Firefox",
+        },
+      },
+    };
+
+    expect(scrubSensitiveData(event)).toEqual({
+      request: {
+        cookies: "[Filtered]",
+        headers: {
+          Cookie: "[Filtered]",
+          authorization: "[Filtered]",
+          "user-agent": "Firefox",
+        },
+      },
+    });
+  });
+});
+
+describe("scrubString on session cookies and bearer tokens in text", () => {
+  it("filters every better-auth cookie value, with or without the secure prefix", () => {
+    expect(
+      scrubString(
+        "Cookie: NEXT_LOCALE=en; __Secure-better-auth.session_token=abc.sig; better-auth.session_data=eyJ; better-auth.dont_remember=true",
+      ),
+    ).toBe(
+      "Cookie: NEXT_LOCALE=en; __Secure-better-auth.session_token=[Filtered]; better-auth.session_data=[Filtered]; better-auth.dont_remember=[Filtered]",
+    );
+  });
+
+  it("filters a quoted cookie value whole", () => {
+    expect(scrubString('better-auth.session_token="abc.sig"; x=1')).toBe(
+      "better-auth.session_token=[Filtered]; x=1",
+    );
+  });
+
+  it("keeps the JSON around a cookie line intact", () => {
+    expect(scrubString('{"h":"better-auth.session_token=abc","b":"x"}')).toBe(
+      '{"h":"better-auth.session_token=[Filtered]","b":"x"}',
+    );
+  });
+
+  it("leaves the word bearer in prose alone", () => {
+    expect(scrubString("the bearer of this card")).toBe(
+      "the bearer of this card",
+    );
+  });
+
+  it("filters the token in a Set-Cookie line and keeps its attributes", () => {
+    expect(
+      scrubString(
+        "set-cookie: __Host-better-auth.session_token=abc; Path=/; HttpOnly",
+      ),
+    ).toBe(
+      "set-cookie: __Host-better-auth.session_token=[Filtered]; Path=/; HttpOnly",
+    );
+  });
+
+  it("filters a bearer token wherever it appears", () => {
+    expect(
+      scrubString("request failed with Authorization: Bearer eyJh.eyJz.c2ln"),
+    ).toBe("request failed with Authorization: Bearer [Filtered]");
+    expect(scrubString('{"auth":"bearer abc-123_x~+/="}')).toBe(
+      '{"auth":"bearer [Filtered]"}',
+    );
+  });
+
+  it("filters cookies sent as header tuples", () => {
+    const event = {
+      request: {
+        headers: [["x-session", "better-auth.session_token=abc"]],
+      },
+    };
+
+    expect(scrubSensitiveData(event).request.headers).toEqual([
+      ["x-session", "better-auth.session_token=[Filtered]"],
+    ]);
+  });
+});
+
 describe("scrubSensitiveData on the sign-in body", () => {
   it("filters the password a breached password timeout event carries", () => {
     const event = {

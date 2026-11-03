@@ -18,7 +18,7 @@ import { StaggerChildren } from "@/components/custom/animation/stagger-children"
 import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
 import { cn } from "@/lib/utils";
 
-// TODO(responsive-drawer): a `presentation` prop rendering a vaul Drawer below md.
+// TODO(responsive-drawer): a `presentation` prop rendering a Base UI Drawer below md.
 
 const SIZE_CLASSES = {
   sm: "sm:max-w-sm",

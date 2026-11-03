@@ -3,7 +3,7 @@ import {
   normalizeCity,
   parseAddress,
 } from "@/lib/store-locations/address-key";
-import { ILocatorStore } from "@/lib/store-locations/types";
+import { ILocatorStore } from "@/lib/store-locations/store-location-types";
 import {
   placedAddressesAgree,
   placesAgree,

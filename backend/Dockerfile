@@ -26,6 +26,10 @@ RUN apt-get update \
 # Copy only the built jar from the build stage.
 COPY --from=build /app/target/*.jar app.jar
 
+# Commit SHA from CI, read as the Sentry release; declared late so it does not bust the build cache.
+ARG GIT_SHA
+ENV GIT_SHA=$GIT_SHA
+
 USER appuser
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]

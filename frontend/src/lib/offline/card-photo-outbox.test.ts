@@ -1,6 +1,8 @@
 import { AxiosError, type AxiosResponse } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { trackPurge } from "@/lib/offline/purge-gate";
+
 const db = new Map<string, unknown>();
 const upload = vi.fn();
 const setCache = vi.fn();
@@ -31,9 +33,6 @@ vi.mock("@/lib/api/digital-cards/photo-cache", () => ({
 }));
 vi.mock("@/lib/offline/cache-identity", () => ({
   getCacheIdentity: () => "user",
-}));
-vi.mock("@/lib/offline/purge-gate", () => ({
-  whenPurgesSettled: async () => undefined,
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
 
@@ -129,5 +128,17 @@ describe("sendQueuedCardPhoto", () => {
 
     expect(result.outcome).toBe("kept");
     expect(db.size).toBe(1);
+  });
+});
+
+describe("enqueueCardPhoto", () => {
+  beforeEach(() => db.clear());
+
+  it("drops a photo read before a purge of the same account", async () => {
+    const queued = enqueueCardPhoto("card", "front", photo("a"));
+    trackPurge(Promise.resolve());
+
+    expect(await queued).toBeUndefined();
+    expect(db.size).toBe(0);
   });
 });

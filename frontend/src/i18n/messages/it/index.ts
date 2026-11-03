@@ -8,6 +8,7 @@ import landing from "./landing.json";
 import locale from "./locale.json";
 import map from "./map.json";
 import metadata from "./metadata.json";
+import privacyPolicy from "./privacyPolicy.json";
 import productDetail from "./productDetail.json";
 import productPhotos from "./productPhotos.json";
 import products from "./products.json";
@@ -34,6 +35,7 @@ const messages = {
   locale,
   map,
   metadata,
+  privacyPolicy,
   productDetail,
   productPhotos,
   products,

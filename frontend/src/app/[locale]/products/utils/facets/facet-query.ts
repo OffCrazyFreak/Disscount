@@ -11,7 +11,7 @@ import type {
   IFacetSelections,
   IIndexedProduct,
   ILocationChains,
-} from "@/app/[locale]/products/utils/facets/types";
+} from "@/app/[locale]/products/utils/facets/facet-types";
 
 function toDisplayMap(values: string[]): Map<string, string> {
   return new Map(values.map((value) => [normalizeForSearch(value), value]));

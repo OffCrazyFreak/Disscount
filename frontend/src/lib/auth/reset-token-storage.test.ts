@@ -42,7 +42,7 @@ describe("moveResetTokenOutOfUrl", () => {
       "https://disscount.me/en?modal=reset-password&token=abc",
     );
 
-    moveResetTokenOutOfUrl();
+    expect(moveResetTokenOutOfUrl()).toBe(false);
 
     expect(readStoredResetToken()).toBe("abc");
     expect(location.search).toBe("?modal=reset-password");
@@ -63,7 +63,7 @@ describe("moveResetTokenOutOfUrl", () => {
       blocked,
     );
 
-    moveResetTokenOutOfUrl();
+    expect(moveResetTokenOutOfUrl()).toBe(true);
 
     expect(location.search).toBe("?modal=reset-password&token=abc");
     expect(replaceState).not.toHaveBeenCalled();
@@ -72,7 +72,7 @@ describe("moveResetTokenOutOfUrl", () => {
   it("ignores a token on any other page", () => {
     const { replaceState } = stubBrowser("https://disscount.me/?token=abc");
 
-    moveResetTokenOutOfUrl();
+    expect(moveResetTokenOutOfUrl()).toBe(false);
 
     expect(readStoredResetToken()).toBeNull();
     expect(replaceState).not.toHaveBeenCalled();

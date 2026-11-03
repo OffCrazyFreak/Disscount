@@ -77,9 +77,8 @@ export default function MapSearchBar({
             />
 
             {/* The same field throughout: iOS raises the keyboard only for an input
-                focused within the tap. Opened on press as well as focus, because an
-                open store sheet traps focus (vaul never tells Radix it is
-                non-modal), and closing it on press frees the field in time. */}
+                focused within the tap. Opened on press as well as focus, so an open
+                store sheet has already let go of the focus when the field takes it. */}
             <div
               className="min-w-0 flex-1"
               onPointerDown={(event) => {
