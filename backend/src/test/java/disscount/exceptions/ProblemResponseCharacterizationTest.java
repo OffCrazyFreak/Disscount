@@ -11,8 +11,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -65,7 +65,7 @@ class ProblemResponseCharacterizationTest {
 
     @Test
     void aMalformedUuidInThePathIsA400() throws Exception {
-        mvc.perform(patch("/api/notifications/not-a-uuid/read").with(jwt()))
+        mvc.perform(delete("/api/watchlist/not-a-uuid").with(jwt()))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.type").value("urn:disscount:bad-request"));
     }

@@ -5,7 +5,6 @@ export const BACKEND_ROOTS = new Set([
   "contact",
   "digital-cards",
   "favorite-stores",
-  "notifications",
   "pinned-places",
   "pinned-stores",
   "products",
