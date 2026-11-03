@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locales";
+import { DEFAULT_LOCALE, isLocale, type AppLocale } from "@/i18n/locales";
 
 /**
  * Prefixes an app path ("/products?q=x") for a locale, leaving Croatian bare.
@@ -12,4 +12,10 @@ export function localePath(locale: AppLocale, path: string): string {
   const suffix = cut === -1 ? "" : path.slice(cut);
   const prefixed = pathname === "/" ? `/${locale}` : `/${locale}${pathname}`;
   return `${prefixed}${suffix}`;
+}
+
+/** Reads the locale back out of a browser path, for code that runs without next-intl. */
+export function localeFromPath(pathname: string): AppLocale {
+  const segment = pathname.split("/")[1];
+  return isLocale(segment) ? segment : DEFAULT_LOCALE;
 }
