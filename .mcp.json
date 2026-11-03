@@ -7,11 +7,30 @@
     },
     "postgres": {
       "command": "npx",
-      "args": ["-y", "@microsoft/postgres-mcp@0.1.0-rc.9", "run", "--no-telemetry"]
+      "args": [
+        "-y",
+        "@microsoft/postgres-mcp@0.1.0-rc.9",
+        "run",
+        "--no-telemetry"
+      ]
     },
     "chrome-devtools": {
       "command": "npx",
-      "args": ["--registry", "https://registry.npmjs.org", "chrome-devtools-mcp@1.4.0", "--executablePath", "/opt/helium/chrome"]
+      "args": [
+        "--registry",
+        "https://registry.npmjs.org",
+        "chrome-devtools-mcp@1.4.0",
+        "--executablePath",
+        "/opt/helium/chrome"
+      ]
+    },
+    "dokploy": {
+      "command": "npx",
+      "args": ["-y", "@dokploy/mcp@0.30.7"],
+      "env": {
+        "DOKPLOY_URL": "https://dokploy.disscount.me",
+        "DOKPLOY_API_KEY": "${DOKPLOY_API_KEY}"
+      }
     },
     "sentry": {
       "type": "http",
