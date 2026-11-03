@@ -36,54 +36,52 @@ vi.mock("sonner", () => ({
   toast: { error: toastError, success: vi.fn() },
 }));
 
-function recordProfileDeletes() {
-  const authorizations: (string | null)[] = [];
+// The backend erase belongs to the server hook, so the browser must never call it itself.
+function recordClientCalls() {
+  const calls: string[] = [];
   server.use(
-    // better-auth mints a backend token only while the session cookie is alive.
-    http.get("*/api/auth/token", () =>
-      auth.sessionToken
+    http.get("*/api/auth/token", () => {
+      calls.push("token");
+      return auth.sessionToken
         ? HttpResponse.json({ token: auth.sessionToken })
-        : HttpResponse.json(null, { status: 401 }),
-    ),
-    http.delete("*/api/users/me", ({ request }) => {
-      authorizations.push(request.headers.get("Authorization"));
+        : HttpResponse.json(null, { status: 401 });
+    }),
+    http.delete("*/api/users/me", () => {
+      calls.push("profile delete");
       return HttpResponse.json({ message: "ok" });
     }),
   );
-  return authorizations;
+  return calls;
 }
 
 describe("useSecurityActions deleteAccount", () => {
-  it("leaves the profile alone when better-auth refuses a stale session", async () => {
-    auth.sessionToken = "session-jwt";
+  it("leaves this tab signed in when the server refuses the deletion", async () => {
     auth.deleteUser.mockResolvedValue({
-      error: { code: "SESSION_EXPIRED", message: "Session expired" },
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Account erasure failed",
+      },
     });
-    const profileDeletes = recordProfileDeletes();
+    const calls = recordClientCalls();
 
     const { result } = renderHookWithProviders(() => useSecurityActions());
     await result.current.deleteAccount();
 
-    expect(profileDeletes).toEqual([]);
+    expect(calls).toEqual([]);
     expect(logout).not.toHaveBeenCalled();
     expect(toastError).toHaveBeenCalledOnce();
   });
 
-  it("erases the profile after the identity, with a token taken while the session lived", async () => {
+  it("deletes through deleteUser alone, then signs this tab out", async () => {
     auth.sessionToken = "session-jwt";
-    const profileDeletes = recordProfileDeletes();
-    let profileDeletesBeforeIdentity: number | undefined;
-    auth.deleteUser.mockImplementation(async () => {
-      profileDeletesBeforeIdentity = profileDeletes.length;
-      auth.sessionToken = null;
-      return { error: null };
-    });
+    auth.deleteUser.mockResolvedValue({ error: null });
+    const calls = recordClientCalls();
 
     const { result } = renderHookWithProviders(() => useSecurityActions());
     await result.current.deleteAccount();
 
-    expect(profileDeletesBeforeIdentity).toBe(0);
-    expect(profileDeletes).toEqual(["Bearer session-jwt"]);
+    expect(auth.deleteUser).toHaveBeenCalledOnce();
+    expect(calls).toEqual([]);
     expect(logout).toHaveBeenCalledOnce();
     expect(toastError).not.toHaveBeenCalled();
   });
@@ -93,7 +91,7 @@ describe("useSecurityActions deleteAccount", () => {
       btoa(JSON.stringify(value)).replace(/=+$/, "");
     const cachedJwt = `${encode({ alg: "none" })}.${encode({ exp: Math.floor(Date.now() / 1000) + 600 })}.signature`;
     auth.sessionToken = cachedJwt;
-    const profileDeletes = recordProfileDeletes();
+    recordClientCalls();
     const laterAuthorizations: (string | null)[] = [];
     server.use(
       http.get("*/api/probe", ({ request }) => {
@@ -111,38 +109,6 @@ describe("useSecurityActions deleteAccount", () => {
     await result.current.deleteAccount();
     await apiClient.get("/api/probe");
 
-    expect(profileDeletes).toEqual([`Bearer ${cachedJwt}`]);
     expect(laterAuthorizations).toEqual([`Bearer ${cachedJwt}`, null]);
-  });
-
-  it("deletes nothing when no backend token can be had", async () => {
-    auth.sessionToken = null;
-    const profileDeletes = recordProfileDeletes();
-
-    const { result } = renderHookWithProviders(() => useSecurityActions());
-    await result.current.deleteAccount();
-
-    expect(auth.deleteUser).not.toHaveBeenCalled();
-    expect(profileDeletes).toEqual([]);
-    expect(toastError).toHaveBeenCalledOnce();
-  });
-
-  it("still signs this tab out when the profile delete fails after the identity is gone", async () => {
-    auth.sessionToken = "session-jwt";
-    server.use(
-      http.get("*/api/auth/token", () =>
-        HttpResponse.json({ token: auth.sessionToken }),
-      ),
-      http.delete("*/api/users/me", () =>
-        HttpResponse.json(null, { status: 500 }),
-      ),
-    );
-    auth.deleteUser.mockResolvedValue({ error: null });
-
-    const { result } = renderHookWithProviders(() => useSecurityActions());
-    await result.current.deleteAccount();
-
-    expect(logout).toHaveBeenCalledOnce();
-    expect(toastError).toHaveBeenCalledOnce();
   });
 });

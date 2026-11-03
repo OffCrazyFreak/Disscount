@@ -19,12 +19,6 @@ async function updateCurrentUser(data: UserRequest): Promise<UserDto> {
   return response.data;
 }
 
-async function deleteCurrentUser(bearerToken: string): Promise<void> {
-  await apiClient.delete(`${USERS_BASE_PATH}/me`, {
-    headers: { Authorization: `Bearer ${bearerToken}` },
-  });
-}
-
 function useUpdateCurrentUser() {
   return useMutation<UserDto, Error, UserRequest>({
     mutationFn: updateCurrentUser,
@@ -33,7 +27,6 @@ function useUpdateCurrentUser() {
 
 const userService = {
   getCurrentUser,
-  deleteCurrentUser,
   useUpdateCurrentUser,
 };
 
