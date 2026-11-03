@@ -60,6 +60,22 @@ public class AuthIdentityDao {
                 .executeUpdate();
     }
 
+    public int deleteSessionsExpiredBefore(LocalDateTime cutoff) {
+        return entityManager.createNativeQuery("DELETE FROM \"session\" WHERE expires_at < :cutoff")
+                .setParameter("cutoff", cutoff)
+                .executeUpdate();
+    }
+
+    // better-auth writes the address once at sign-in, so a sliding session would otherwise keep it for good.
+    public int clearSessionIpAddressesCreatedBefore(LocalDateTime cutoff) {
+        return entityManager.createNativeQuery("""
+                        UPDATE "session" SET ip_address = NULL
+                        WHERE created_at < :cutoff AND ip_address IS NOT NULL
+                        """)
+                .setParameter("cutoff", cutoff)
+                .executeUpdate();
+    }
+
     // Native aggregates come back as a different scalar per driver, and the zone-less ones are
     // UTC because that is what better-auth writes. An unmapped type is logged rather than
     // silently nulled, which would blank the whole column for every user.
