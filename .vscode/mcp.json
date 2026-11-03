@@ -19,6 +19,15 @@
         "chrome-devtools-mcp@1.4.0"
       ]
     },
+    "dokploy": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@dokploy/mcp@0.30.7"],
+      "env": {
+        "DOKPLOY_URL": "https://dokploy.disscount.me",
+        "DOKPLOY_API_KEY": "${env:DOKPLOY_API_KEY}"
+      }
+    },
     "sentry": {
       "type": "http",
       "url": "https://mcp.sentry.dev/mcp/disscount"

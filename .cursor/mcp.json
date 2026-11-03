@@ -10,7 +10,19 @@
     },
     "chrome-devtools": {
       "command": "npx",
-      "args": ["--registry", "https://registry.npmjs.org", "chrome-devtools-mcp@1.4.0"]
+      "args": [
+        "--registry",
+        "https://registry.npmjs.org",
+        "chrome-devtools-mcp@1.4.0"
+      ]
+    },
+    "dokploy": {
+      "command": "npx",
+      "args": ["-y", "@dokploy/mcp@0.30.7"],
+      "env": {
+        "DOKPLOY_URL": "https://dokploy.disscount.me",
+        "DOKPLOY_API_KEY": "${DOKPLOY_API_KEY}"
+      }
     },
     "sentry": {
       "url": "https://mcp.sentry.dev/mcp/disscount"
