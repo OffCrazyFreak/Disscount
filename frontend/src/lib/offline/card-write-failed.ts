@@ -1,12 +1,20 @@
 import { toast } from "sonner";
 
-import { cardWriteMessage, httpStatus } from "@/lib/offline/failure-policy";
+import { isSessionChanged } from "@/lib/api/problem-details";
+import {
+  cardWriteMessage,
+  httpStatus,
+  SESSION_CHANGED_KEY,
+} from "@/lib/offline/failure-policy";
 
 // Only the keys these toasts use, so a caller can hand in a stable wrapper that
 // always reads the current language.
 export type CardToastTranslator = (
   key:
-    "offline.cardLimit" | "offline.cardSaveFailed" | "offline.cardDeleteFailed",
+    | "offline.cardLimit"
+    | "offline.cardSaveFailed"
+    | "offline.cardDeleteFailed"
+    | "offline.sessionChanged",
 ) => string;
 
 /**
@@ -22,5 +30,11 @@ export function cardWriteFailed(error: Error, t: CardToastTranslator) {
 export function cardDeleteFailed(error: Error, t: CardToastTranslator) {
   if (httpStatus(error) === 404) return;
 
-  toast.error(t("offline.cardDeleteFailed"));
+  toast.error(
+    t(
+      isSessionChanged(error)
+        ? SESSION_CHANGED_KEY
+        : "offline.cardDeleteFailed",
+    ),
+  );
 }
