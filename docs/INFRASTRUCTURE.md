@@ -341,7 +341,13 @@ Traffic is encrypted in transit (Cloudflare to the browser, Traefik's certificat
 - **Known issues:** the config zip also contains `/etc/dokploy/ssh` and the env vars, unencrypted (see "What is encrypted and why"). In R2 the dumps sit under `disscount-production-xj4ce0_db/disscount-prod/` and the zips under `backup-synthesize-online-application-mqp1vu/dokploy/`, so check that the two lifecycle rules match those full prefixes, otherwise they delete nothing. Only production is backed up; dev holds test data and stays unbacked by decision. A dump is checked by nothing after it is written, and the restore test above has no date.
 - **R2 has no versioning and Cloudflare documents no recovery of deleted objects**, so the card photo and product originals buckets have no copy today; a deletion bug or a leaked key would lose them.
 - **Decided by the owner (not built yet):** dump the database **hourly, keep 48**, plus **nightly, keep 30**, and ping a **healthchecks.io** check from every backup job so a missing run emails the owner. WAL archiving was rejected for now: it ships whole 16 MB segments, which at this size costs more storage than hourly dumps for little gain.
-- **Still being decided:** where photos live and where their off-site copy goes (R2 primary with a locked copy at Backblaze B2 EU, or the server as primary with R2 as the backup), with a 35-day lock either way.
+- **Decided for photos and the rest (3 November 2026, tracked in #486, not built yet):**
+  - Card photos, product originals and public product photos move from R2 to plain folders on the VPS local disk (two named Docker volumes, private and public). Public photos are served by a read-only nginx container behind Cloudflare. A Hetzner Volume is suggested for later in #483.
+  - R2 becomes the backup only: one EU bucket, encrypted with rclone crypt, a 35-day Bucket Lock, written by a token scoped to that bucket.
+  - Photos: a full copy every month into a new generation prefix, plus an hourly `rclone copy` of new files. Each generation expires after 60 days, so two monthly copies always exist and an erased photo leaves the backup within about 60 days.
+  - Database: hourly (keep 48) and nightly (keep 30) dumps to the same bucket, encrypted with age (private key kept offline by the owner), with a nightly scratch restore. Dokploy's config backup is rebuilt without `.git` folders and encrypted.
+  - The jobs run from a script in the repo through Dokploy server schedules, not Dokploy's own backup feature, and each pings healthchecks.io.
+  - Erasures are recorded in a log without personal data and replayed after any restore; the privacy policy states the backup periods.
 
 > ⚠️ Do **NOT** use Dokploy **Volume Backups** for Postgres: copying the live data volume risks a corrupt backup (it'd need to stop the DB). The `pg_dump` approach above is the correct one.
 
