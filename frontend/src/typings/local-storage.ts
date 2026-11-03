@@ -28,6 +28,8 @@ export interface IShoppingListsPreferences {
 // Never holds passwords or base64 images; see useFormDraft's exclude.
 export interface IFormDraft {
   savedAt: number;
+  // The cache identity that wrote it; drafts written before this field never match one.
+  owner: string;
   values: Record<string, unknown>;
 }
 

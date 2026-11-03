@@ -11,6 +11,7 @@ import {
   setCacheIdentity,
 } from "@/lib/offline/cache-identity";
 import { purgeOfflineCache } from "@/lib/offline/purge";
+import { removeFormDraftsFor } from "@/utils/browser/storage/drafts";
 
 /** Signs out on the server, or later when offline, and clears the account from the device. */
 export function useLogout(
@@ -33,6 +34,9 @@ export function useLogout(
     // unverified account offline, showing empty pages instead of a login prompt.
     setCacheIdentity(null);
     cacheIdentityRef.current = null;
+    // Again after the purge: a form unmounted by the sign-out flushes its draft while the
+    // purge awaits IndexedDB, still as this account, so the purge's own delete misses it.
+    removeFormDraftsFor(leavingIdentity);
     // Staying on a protected route signed out would just show a login gate.
     if (isProtectedRoute(pathname)) router.push("/");
   };

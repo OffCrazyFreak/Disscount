@@ -1,5 +1,7 @@
 "use client";
 
+import { Fragment } from "react";
+
 import AuthModal from "@/components/custom/auth/auth-modal";
 import EntityModalOutlet, {
   isEntityTarget,
@@ -21,6 +23,7 @@ import { useUser } from "@/context/user-context";
 export default function ModalRouter() {
   const { target } = useModalUrl();
   const {
+    user,
     isAuthenticated,
     canShowAccountData: canOpenSavedEntities,
     isLoading,
@@ -52,11 +55,13 @@ export default function ModalRouter() {
       )}
 
       {isAuthenticated && (
-        <>
+        // Keyed by account: an account switch without a sign-out in between (another
+        // tab, a session_changed refusal) must not keep the last account's form values.
+        <Fragment key={user?.id}>
           <OnboardingGate />
           <SettingsModalHost />
           <ShoppingListActionsOutlet target={target} />
-        </>
+        </Fragment>
       )}
     </>
   );
