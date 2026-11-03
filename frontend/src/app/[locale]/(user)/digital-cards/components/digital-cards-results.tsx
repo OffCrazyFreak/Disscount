@@ -8,13 +8,9 @@ import DigitalCardsEmpty from "@/app/[locale]/(user)/digital-cards/components/di
 import DigitalCardsGrid from "@/app/[locale]/(user)/digital-cards/components/digital-cards-grid";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import NoResults from "@/components/custom/common/no-results";
-import JumpSection from "@/components/custom/common/jump-section";
-import SectionJumpNav from "@/components/custom/common/section-jump-nav";
+import SectionTabs from "@/components/custom/common/section-tabs";
 import { Separator } from "@/components/ui/separator";
 import type { DigitalCardDto } from "@/lib/api/types";
-
-// One source for each id, which the nav links to and the URL hash names.
-const SECTION_IDS = { cards: "cards", archived: "archived" };
 
 interface IDigitalCardsResultsProps {
   isLoading: boolean;
@@ -53,44 +49,47 @@ export default function DigitalCardsResults({
   const archived = matching.filter((card) => card.archivedAt);
 
   return (
-    <>
-      <SectionJumpNav
-        label={t("sectionNav.label")}
-        sections={[
-          ...(active.length > 0
-            ? [{ id: SECTION_IDS.cards, label: t("list.cardsLabel") }]
-            : []),
-          ...(archived.length > 0
-            ? [
-                {
-                  id: SECTION_IDS.archived,
-                  label: t("sectionNav.archived"),
-                  count: archived.length,
-                },
-              ]
-            : []),
-        ]}
-      />
+    <SectionTabs
+      label={t("sectionNav.label")}
+      tabs={[
+        ...(active.length > 0
+          ? [
+              {
+                id: "cards",
+                label: t("list.cardsLabel"),
+                content: (
+                  <div className="space-y-4">
+                    {pinned.length > 0 && (
+                      <DigitalCardsGrid
+                        cards={pinned}
+                        label={t("list.pinnedLabel")}
+                      />
+                    )}
 
-      {active.length > 0 && (
-        <JumpSection id={SECTION_IDS.cards} className="space-y-4">
-          {pinned.length > 0 && (
-            <DigitalCardsGrid cards={pinned} label={t("list.pinnedLabel")} />
-          )}
+                    {pinned.length > 0 && rest.length > 0 && <Separator />}
 
-          {pinned.length > 0 && rest.length > 0 && <Separator />}
-
-          {rest.length > 0 && (
-            <DigitalCardsGrid cards={rest} label={t("list.cardsLabel")} />
-          )}
-        </JumpSection>
-      )}
-
-      {archived.length > 0 && (
-        <JumpSection id={SECTION_IDS.archived}>
-          <DigitalCardsArchived cards={archived} />
-        </JumpSection>
-      )}
-    </>
+                    {rest.length > 0 && (
+                      <DigitalCardsGrid
+                        cards={rest}
+                        label={t("list.cardsLabel")}
+                      />
+                    )}
+                  </div>
+                ),
+              },
+            ]
+          : []),
+        ...(archived.length > 0
+          ? [
+              {
+                id: "archived",
+                label: t("sectionNav.archived"),
+                count: archived.length,
+                content: <DigitalCardsArchived cards={archived} />,
+              },
+            ]
+          : []),
+      ]}
+    />
   );
 }

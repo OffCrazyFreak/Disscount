@@ -54,7 +54,6 @@
   },
   "items": {
     "titleWithChecked": "{label} ({checked}/{total} acquistati)",
-    "title": "{label} ({total})",
     "emptyOwner": "La lista è ancora vuota. Cerca dei prodotti e aggiungili qui.",
     "empty": "La lista è ancora vuota.",
     "searchProducts": "Cerca prodotti",

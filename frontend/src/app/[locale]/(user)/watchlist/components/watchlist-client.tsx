@@ -7,15 +7,11 @@ import { useTranslations } from "next-intl";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import LoginRequired from "@/components/custom/common/login-required";
-import JumpSection from "@/components/custom/common/jump-section";
-import SectionJumpNav from "@/components/custom/common/section-jump-nav";
+import SectionTabs from "@/components/custom/common/section-tabs";
 import WatchlistHeader from "@/app/[locale]/(user)/watchlist/components/watchlist-header";
 import WatchlistList from "@/app/[locale]/(user)/watchlist/components/watchlist-list";
 import WatchlistSuggestions from "@/app/[locale]/(user)/watchlist/components/watchlist-suggestions";
 import { useWatchlistData } from "@/app/[locale]/(user)/watchlist/hooks/use-watchlist-data";
-
-// One source for each id, which the nav links to and the URL hash names.
-const SECTION_IDS = { watched: "watched", suggestions: "suggestions" };
 
 interface IWatchlistClientProps {
   query: string;
@@ -50,12 +46,9 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
   }
 
   const listLoading = userLoading || watchlistLoading;
-  const showsSuggestions =
-    !listLoading &&
-    (shoppingListItemsLoading || filteredSuggestionItems.length > 0);
-  // Linked only once there are suggestions, so a loading section never flashes a link.
+  // A tab only once there are suggestions, so a loading section never flashes one.
   const hasSuggestions =
-    showsSuggestions &&
+    !listLoading &&
     !shoppingListItemsLoading &&
     filteredSuggestionItems.length > 0;
 
@@ -72,53 +65,47 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
         />
       </Suspense>
 
-      <SectionJumpNav
+      <SectionTabs
         label={t("sectionNav.label")}
-        sections={[
+        tabs={[
           {
-            id: SECTION_IDS.watched,
+            id: "watched",
             label: t("header.title"),
             shortLabel: t("sectionNav.watchedShort"),
+            content: (
+              <div className="space-y-4">
+                <WatchlistHeader
+                  query={query}
+                  itemCount={filteredItems.length}
+                  pricesUpdatedAt={pricesUpdatedAt}
+                  discountedItems={discountedItems}
+                  productsLoading={productsLoading}
+                />
+
+                <WatchlistList
+                  items={filteredItems}
+                  isLoading={listLoading}
+                  query={query}
+                  hasPinnedStores={hasPinnedStores}
+                />
+              </div>
+            ),
           },
           ...(hasSuggestions
             ? [
                 {
-                  id: SECTION_IDS.suggestions,
+                  id: "suggestions",
                   label: t("suggestions.label"),
                   shortLabel: t("sectionNav.suggestionsShort"),
                   count: filteredSuggestionItems.length,
+                  content: (
+                    <WatchlistSuggestions items={filteredSuggestionItems} />
+                  ),
                 },
               ]
             : []),
         ]}
       />
-
-      <JumpSection id={SECTION_IDS.watched} className="space-y-4">
-        <WatchlistHeader
-          query={query}
-          itemCount={filteredItems.length}
-          showCount={!listLoading}
-          pricesUpdatedAt={pricesUpdatedAt}
-          discountedItems={discountedItems}
-          productsLoading={productsLoading}
-        />
-
-        <WatchlistList
-          items={filteredItems}
-          isLoading={listLoading}
-          query={query}
-          hasPinnedStores={hasPinnedStores}
-        />
-      </JumpSection>
-
-      {showsSuggestions && (
-        <JumpSection id={SECTION_IDS.suggestions}>
-          <WatchlistSuggestions
-            items={filteredSuggestionItems}
-            isLoading={shoppingListItemsLoading}
-          />
-        </JumpSection>
-      )}
     </div>
   );
 }

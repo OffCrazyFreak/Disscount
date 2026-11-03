@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { ComponentProps } from "react";
 import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -310,16 +311,40 @@ describe("ShoppingListItems focus", () => {
     await waitFor(() => expect(screen.getByRole("combobox")).toHaveFocus());
   });
 
-  it("focuses the items heading when the retried row is gone", async () => {
+  it("focuses the items tab panel when the retried row is gone", async () => {
     const user = userEvent.setup();
     const onRetry = vi.fn(async () => false);
-    const { rerender } = renderItems([item("a")], { a: "failed" }, onRetry);
+    // On the page the items sit in a tab panel; this stands in for it.
+    const inPanel = (children: ReactNode) => (
+      <div role="tabpanel" aria-label="Proizvodi" tabIndex={0}>
+        {children}
+      </div>
+    );
+    const view = renderWithProviders(
+      inPanel(listItems([item("a")], { a: "failed" }, onRetry)),
+    );
 
     await user.click(screen.getByRole("button", { name: "Pokušaj ponovno" }));
-    rerender(listItems([item("b")], { b: "ready" }, onRetry));
+    view.rerender(inPanel(listItems([item("b")], { b: "ready" }, onRetry)));
 
     await waitFor(() =>
-      expect(screen.getByRole("heading", { name: /Proizvodi/ })).toHaveFocus(),
+      expect(screen.getByRole("tabpanel", { name: "Proizvodi" })).toHaveFocus(),
+    );
+  });
+
+  it("focuses the items section when no tab panel is left", async () => {
+    const user = userEvent.setup();
+    const onRetry = vi.fn(async () => false);
+    const view = renderWithProviders(
+      listItems([item("a")], { a: "failed" }, onRetry),
+    );
+
+    await user.click(screen.getByRole("button", { name: "Pokušaj ponovno" }));
+    view.rerender(listItems([], {}, onRetry));
+
+    // A list left with only its products renders no tab panel around them.
+    await waitFor(() =>
+      expect(document.activeElement).toHaveAttribute("tabindex", "-1"),
     );
   });
 

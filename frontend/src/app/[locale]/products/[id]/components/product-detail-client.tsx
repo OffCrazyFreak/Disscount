@@ -6,12 +6,8 @@ import ProductInfoDisplay from "@/app/[locale]/products/components/product-info-
 import PriceHistory from "@/app/[locale]/products/[id]/components/price-history/price-history-base";
 import ProductChainsSection from "@/app/[locale]/products/[id]/components/product-chains-section";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import JumpSection from "@/components/custom/common/jump-section";
-import SectionJumpNav from "@/components/custom/common/section-jump-nav";
+import SectionTabs from "@/components/custom/common/section-tabs";
 import { useProductDetail } from "@/app/[locale]/products/[id]/hooks/use-product-detail";
-
-// One source for each id, which the nav links to and the URL hash names.
-const SECTION_IDS = { stores: "stores", priceHistory: "price-history" };
 
 interface IProductDetailClientProps {
   ean: string;
@@ -56,30 +52,24 @@ export default function ProductDetailClient({
         <ProductInfoDisplay product={product} />
       </section>
 
-      <SectionJumpNav
+      <SectionTabs
         label={t("sectionNav.label")}
-        sections={[
+        tabs={[
           {
-            id: SECTION_IDS.stores,
+            id: "stores",
             label: tSections("stores"),
             shortLabel: tSections("storesShort"),
             count: detail.sortedChains.length,
+            content: <ProductChainsSection product={product} detail={detail} />,
           },
           {
-            id: SECTION_IDS.priceHistory,
+            id: "price-history",
             label: tSections("priceHistory"),
             shortLabel: tSections("priceHistoryShort"),
+            content: <PriceHistory key={product.ean} product={product} />,
           },
         ]}
       />
-
-      <JumpSection id={SECTION_IDS.stores}>
-        <ProductChainsSection product={product} detail={detail} />
-      </JumpSection>
-
-      <JumpSection id={SECTION_IDS.priceHistory}>
-        <PriceHistory key={product.ean} product={product} />
-      </JumpSection>
     </div>
   );
 }

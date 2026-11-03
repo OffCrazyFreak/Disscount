@@ -26,7 +26,7 @@ vi.mock("@/app/[locale]/(user)/watchlist/hooks/use-watchlist-data", () => ({
 
 vi.mock("@/i18n/navigation", () => ({ usePathname: () => "/watchlist" }));
 
-// The sections have their own data needs; this file covers only the section bar.
+// The sections have their own data needs; this file covers only the section tabs.
 vi.mock("@/components/custom/search/search-bar", () => ({
   default: () => null,
 }));
@@ -43,17 +43,17 @@ vi.mock(
 
 const NAV = { name: "Odjeljci praćenja" };
 
-describe("WatchlistClient section bar", () => {
-  it("does not offer a suggestions link while suggestions load", () => {
+describe("WatchlistClient section tabs", () => {
+  it("does not offer a suggestions tab while suggestions load", () => {
     data.shoppingListItemsLoading = true;
     data.filteredSuggestionItems = [];
     renderWithProviders(<WatchlistClient query="" />);
 
-    expect(screen.getByText("suggestions")).toBeInTheDocument();
-    expect(screen.queryByRole("navigation", NAV)).not.toBeInTheDocument();
+    expect(screen.queryByText("suggestions")).not.toBeInTheDocument();
+    expect(screen.queryByRole("tablist", NAV)).not.toBeInTheDocument();
   });
 
-  it("links the suggestions with their count once they arrive", () => {
+  it("offers the suggestions with their count once they arrive", () => {
     data.shoppingListItemsLoading = false;
     data.filteredSuggestionItems = [
       { productApiId: "a" },
@@ -61,9 +61,9 @@ describe("WatchlistClient section bar", () => {
     ];
     renderWithProviders(<WatchlistClient query="" />);
 
-    const nav = screen.getByRole("navigation", NAV);
+    const tabList = screen.getByRole("tablist", NAV);
     expect(
-      within(nav).getByRole("link", { name: /Prijedlozi.* 2$/ }),
-    ).toHaveAttribute("href", "#suggestions");
+      within(tabList).getByRole("tab", { name: /Prijedlozi.* 2$/ }),
+    ).toHaveAttribute("aria-selected", "false");
   });
 });

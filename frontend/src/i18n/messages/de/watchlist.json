@@ -11,7 +11,6 @@
   "header": {
     "searchResultsTitle": "Suchergebnisse für „{query}“ ({count})",
     "title": "Merkliste",
-    "titleWithCount": "{label} ({count})",
     "pricesUpdated": "Preise {time} aktualisiert"
   },
   "list": {
@@ -20,8 +19,7 @@
     "searchProducts": "Produkte suchen"
   },
   "suggestions": {
-    "label": "Produktvorschläge",
-    "title": "{label} ({count})"
+    "label": "Produktvorschläge"
   },
   "actionButton": {
     "watch": "Preisalarm setzen",

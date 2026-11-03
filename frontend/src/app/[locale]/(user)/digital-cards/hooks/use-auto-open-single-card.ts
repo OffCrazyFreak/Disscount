@@ -14,7 +14,7 @@ interface IUseAutoOpenSingleCardProps {
 }
 
 // Someone with one card is almost always here to scan it, so skip the list once per
-// session. Any query param (a search, an open modal) means they came for something else.
+// session. Any query param or hash (a search, an open modal, a tab) means they came for something else.
 // Only the first loaded render counts: saving a first card from this page must not
 // bounce the person into it.
 export function useAutoOpenSingleCard({
@@ -27,7 +27,7 @@ export function useAutoOpenSingleCard({
     if (!ready || considered.current) return;
     considered.current = true;
 
-    if (!singleCardId || window.location.search) return;
+    if (!singleCardId || window.location.search || window.location.hash) return;
 
     try {
       if (sessionStorage.getItem(SESSION_KEY)) return;

@@ -54,7 +54,6 @@
   },
   "items": {
     "titleWithChecked": "{label} ({checked}/{total} bought)",
-    "title": "{label} ({total})",
     "emptyOwner": "This list is still empty. Search for products and add them here.",
     "empty": "This list is still empty.",
     "searchProducts": "Search products",

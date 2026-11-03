@@ -5,16 +5,12 @@ import { getProductByEan } from "@/lib/cijene-api/queries";
 
 // Product and shopping list charts share these cache entries, so both build
 // them here to keep the key and staleTime identical.
-export function priceHistoryQueries(
-  ean: string,
-  dates: string[],
-  enabled = true,
-) {
+export function priceHistoryQueries(ean: string, dates: string[]) {
   return dates.map((date, index) =>
     queryOptions({
       queryKey: CIJENE_QUERY_KEYS.priceHistory(ean, date),
       queryFn: () => getProductByEan({ ean, date }),
-      enabled: enabled && !!ean,
+      enabled: !!ean,
       staleTime:
         index === 0 || index === dates.length - 1
           ? 60 * 1000

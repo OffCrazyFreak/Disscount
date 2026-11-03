@@ -6,7 +6,6 @@ import { IWatchlistItemWithProduct } from "@/app/[locale]/(user)/watchlist/utils
 interface IWatchlistHeaderProps {
   query: string;
   itemCount: number;
-  showCount: boolean;
   pricesUpdatedAt: number;
   discountedItems: IWatchlistItemWithProduct[];
   productsLoading: boolean;
@@ -15,7 +14,6 @@ interface IWatchlistHeaderProps {
 export default function WatchlistHeader({
   query,
   itemCount,
-  showCount,
   pricesUpdatedAt,
   discountedItems,
   productsLoading,
@@ -25,16 +23,10 @@ export default function WatchlistHeader({
   return (
     <div className="flex items-center justify-between gap-4 flex-wrap">
       <div className="flex flex-col">
-        <h3>
-          {query.length > 0
-            ? t("header.searchResultsTitle", { query, count: itemCount })
-            : showCount
-              ? t("header.titleWithCount", {
-                  label: t("header.title"),
-                  count: itemCount,
-                })
-              : t("header.title")}
-        </h3>
+        {/* The tab already names the list; only a search needs its own line. */}
+        {query.length > 0 && (
+          <h3>{t("header.searchResultsTitle", { query, count: itemCount })}</h3>
+        )}
 
         {pricesUpdatedAt > 0 && (
           <LastSyncedLabel

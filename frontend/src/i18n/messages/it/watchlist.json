@@ -11,7 +11,6 @@
   "header": {
     "searchResultsTitle": "Risultati per «{query}» ({count})",
     "title": "Prodotti seguiti",
-    "titleWithCount": "{label} ({count})",
     "pricesUpdated": "Prezzi aggiornati {time}"
   },
   "list": {
@@ -20,8 +19,7 @@
     "searchProducts": "Cerca prodotti"
   },
   "suggestions": {
-    "label": "Prodotti suggeriti",
-    "title": "{label} ({count})"
+    "label": "Prodotti suggeriti"
   },
   "actionButton": {
     "watch": "Segui prodotto",

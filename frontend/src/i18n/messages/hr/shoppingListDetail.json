@@ -54,7 +54,6 @@
   },
   "items": {
     "titleWithChecked": "{label} ({checked}/{total} kupljeno)",
-    "title": "{label} ({total})",
     "emptyOwner": "Popis je još prazan. Pretraži proizvode i dodaj ih ovdje.",
     "empty": "Popis je još prazan.",
     "searchProducts": "Pretraži proizvode",

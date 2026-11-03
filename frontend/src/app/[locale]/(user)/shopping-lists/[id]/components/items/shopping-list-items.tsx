@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef } from "react";
-import { useTranslations } from "next-intl";
 import ShoppingListItemViews from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-item-views";
 import ShoppingListPriceStatus from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-price-status";
 import type { ItemPriceState } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
@@ -34,8 +33,6 @@ export default function ShoppingListItems({
   isRetryingPrices,
   onRetryPrices,
 }: IShoppingListItemsProps) {
-  const t = useTranslations("shoppingListDetail");
-
   const { canCheck, canEditItems, isOwner } = resolveShoppingListAccess(
     shoppingList.myAccess,
   );
@@ -44,7 +41,7 @@ export default function ShoppingListItems({
     useShoppingListItemMutations(shoppingList.id, averagePrices, storePrices);
 
   const lostFocusItemIdRef = useRef<string | null>(null);
-  const itemsHeadingRef = useRef<HTMLHeadingElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   const rowProps = {
     cheapestStores,
@@ -59,47 +56,30 @@ export default function ShoppingListItems({
     lostFocusItemIdRef,
   };
 
-  const checkedCount =
-    shoppingList.items?.filter((item) => item.isChecked)?.length || 0;
-
   const failedPriceItemIds = shoppingList.items
     .filter((item) => priceStates[item.id] === "failed")
     .map((item) => item.id);
 
   // A row still without prices explains the retry's outcome; one that loaded does not. When
-  // no retried row is left on screen, the section's heading is the nearest place left.
+  // no retried row is left on screen, the tab panel is the nearest place left, named by its tab.
+  // A list left with one section has no tab panel, so the section itself takes focus then.
   function focusRetriedItem(retriedItemIds: readonly string[]) {
     const unpriced = retriedItemIds.filter((id) => priceStates[id] !== "ready");
     if (!focusStoreSelect(unpriced.length > 0 ? unpriced : retriedItemIds)) {
-      itemsHeadingRef.current?.focus();
+      const panel =
+        sectionRef.current?.closest<HTMLElement>('[role="tabpanel"]');
+      (panel ?? sectionRef.current)?.focus();
     }
   }
 
   return (
-    <div className="space-y-3">
+    <div ref={sectionRef} tabIndex={-1} className="space-y-3 outline-none">
       <ShoppingListPriceStatus
         failedItemIds={failedPriceItemIds}
         isRetrying={isRetryingPrices}
         onRetry={onRetryPrices}
         onRetryFocusLost={focusRetriedItem}
       />
-
-      <h2
-        ref={itemsHeadingRef}
-        tabIndex={-1}
-        className="py-2 text-lg font-semibold outline-none"
-      >
-        {checkedCount > 0
-          ? t("items.titleWithChecked", {
-              label: t("sectionNav.products"),
-              checked: checkedCount,
-              total: shoppingList.items.length,
-            })
-          : t("items.title", {
-              label: t("sectionNav.products"),
-              total: shoppingList.items.length,
-            })}
-      </h2>
 
       {/* Only the owner can add items, matching the backend's rule. */}
       {isOwner && <ShoppingListQuickAdd listId={shoppingList.id} />}
