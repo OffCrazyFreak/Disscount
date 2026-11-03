@@ -45,7 +45,10 @@ export default function ActiveSessionRow({
 
   return (
     <li className="flex items-center gap-3 py-2">
-      <Icon aria-hidden="true" className="size-5 shrink-0 text-muted-foreground" />
+      <Icon
+        aria-hidden="true"
+        className="size-5 shrink-0 text-muted-foreground"
+      />
 
       <div className="min-w-0 flex-1">
         <p className="flex flex-wrap items-center gap-2 text-sm font-medium">

@@ -13,14 +13,13 @@ export type SensitiveRequirement = "proof" | "fresh" | "blocked";
 
 // better-auth's own paths. setPassword is server-only with no path, so
 // /api/account/set-password applies the "fresh" rule itself.
-export const SENSITIVE_PATHS: Readonly<Record<string, SensitiveRequirement>> =
-  {
-    "/delete-user": "proof",
-    "/change-email": "fresh",
-    "/unlink-account": "fresh",
-    // Answers with every session's bearer token; the settings list uses /api/account/sessions.
-    "/list-sessions": "blocked",
-  };
+export const SENSITIVE_PATHS: Readonly<Record<string, SensitiveRequirement>> = {
+  "/delete-user": "proof",
+  "/change-email": "fresh",
+  "/unlink-account": "fresh",
+  // Answers with every session's bearer token; the settings list uses /api/account/sessions.
+  "/list-sessions": "blocked",
+};
 
 export function isFreshSession(
   createdAt: Date | string,

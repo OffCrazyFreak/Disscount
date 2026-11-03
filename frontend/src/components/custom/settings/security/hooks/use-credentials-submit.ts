@@ -78,7 +78,7 @@ export function useCredentialsSubmit({
         description: t("security.reauth.setPasswordDescription"),
         confirmLabel: t("security.reauth.setPasswordConfirm"),
       },
-    )
+    );
   }
 
   async function confirmPasswordCommitted() {

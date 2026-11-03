@@ -11,7 +11,8 @@ export type ReauthMethod = "password" | "code";
 export type ReauthProof = { password: string } | { code: string };
 
 export interface IProofFailure {
-  reason: "wrong-password" | "wrong-code" | "code-expired" | "too-many" | "failed";
+  reason:
+    "wrong-password" | "wrong-code" | "code-expired" | "too-many" | "failed";
   attemptsLeft?: number;
 }
 
@@ -73,7 +74,8 @@ export async function sendReauthCode(): Promise<{
     const retryAfter: unknown = (error as IAuthError).retryAfter;
     return {
       delivery: "sent",
-      retryAfterSeconds: typeof retryAfter === "number" ? retryAfter : undefined,
+      retryAfterSeconds:
+        typeof retryAfter === "number" ? retryAfter : undefined,
     };
   }
 

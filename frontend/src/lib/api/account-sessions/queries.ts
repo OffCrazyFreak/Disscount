@@ -10,7 +10,8 @@ const BASE_PATH = "/api/account/sessions";
 
 export async function getAccountSessions(): Promise<AccountSessionDto[]> {
   const response = await fetch(BASE_PATH, { cache: "no-store" });
-  if (!response.ok) throw new Error(`Sessions request failed: ${response.status}`);
+  if (!response.ok)
+    throw new Error(`Sessions request failed: ${response.status}`);
 
   return z.array(accountSessionDtoSchema).parse(await response.json());
 }

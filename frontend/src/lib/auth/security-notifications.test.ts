@@ -21,7 +21,10 @@ function tokenWith(claims: Record<string, unknown>) {
 }
 
 function verifyEmailContext(token: string) {
-  return { path: "/verify-email", query: { token } } as unknown as GenericEndpointContext;
+  return {
+    path: "/verify-email",
+    query: { token },
+  } as unknown as GenericEndpointContext;
 }
 
 beforeEach(() => vi.clearAllMocks());

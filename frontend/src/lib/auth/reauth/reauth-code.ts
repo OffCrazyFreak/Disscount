@@ -36,7 +36,9 @@ function hashCode(secret: string, userId: string, code: string) {
 function matches(storedHash: string, candidateHash: string) {
   const stored = Buffer.from(storedHash, "hex");
   const candidate = Buffer.from(candidateHash, "hex");
-  return stored.length === candidate.length && timingSafeEqual(stored, candidate);
+  return (
+    stored.length === candidate.length && timingSafeEqual(stored, candidate)
+  );
 }
 
 function parseStored(value: string): IStoredCode | null {
@@ -65,7 +67,8 @@ export async function issueReauthCode(
   const identifier = identifierFor(userId);
   const previous = await adapter.findVerificationValue(identifier);
   const resendAt =
-    previous && previous.createdAt.getTime() + REAUTH_CODE_RESEND_SECONDS * 1000;
+    previous &&
+    previous.createdAt.getTime() + REAUTH_CODE_RESEND_SECONDS * 1000;
 
   if (resendAt && resendAt > Date.now()) {
     throw new APIError("TOO_MANY_REQUESTS", {
@@ -93,7 +96,10 @@ export async function issueReauthCode(
   return { code, codeId: stored.id };
 }
 
-export async function discardReauthCode(adapter: InternalAdapter, userId: string) {
+export async function discardReauthCode(
+  adapter: InternalAdapter,
+  userId: string,
+) {
   await adapter.deleteVerificationByIdentifier(identifierFor(userId));
 }
 
@@ -127,7 +133,10 @@ export async function consumeReauthCode(
   if (attemptsLeft > 0) {
     await adapter.createVerificationValue({
       identifier,
-      value: JSON.stringify({ hash: stored.hash, attempts } satisfies IStoredCode),
+      value: JSON.stringify({
+        hash: stored.hash,
+        attempts,
+      } satisfies IStoredCode),
       expiresAt: row.expiresAt,
       // Kept, so a wrong guess does not restart the resend countdown.
       createdAt: row.createdAt,

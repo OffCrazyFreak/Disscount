@@ -175,9 +175,9 @@ describe("reauth proofs", () => {
   it("mails a code only to an account without a password", async () => {
     const { headers } = await signUp("haspassword@example.com");
 
-    await expect(
-      auth.api.reauthSendCode({ headers }),
-    ).rejects.toMatchObject({ body: { code: "USE_PASSWORD" } });
+    await expect(auth.api.reauthSendCode({ headers })).rejects.toMatchObject({
+      body: { code: "USE_PASSWORD" },
+    });
     expect(sentCodes).toHaveLength(0);
   });
 
@@ -218,9 +218,9 @@ describe("reauth proofs", () => {
     dropPassword(userId);
     await auth.api.reauthSendCode({ headers });
 
-    await expect(
-      auth.api.reauthSendCode({ headers }),
-    ).rejects.toMatchObject({ body: { code: "CODE_RESEND_TOO_SOON" } });
+    await expect(auth.api.reauthSendCode({ headers })).rejects.toMatchObject({
+      body: { code: "CODE_RESEND_TOO_SOON" },
+    });
     expect(sentCodes).toHaveLength(1);
   });
 });

@@ -71,12 +71,22 @@ describe("listAccountSessions", () => {
   it("names nothing for a session without a user agent", async () => {
     const day = new Date();
     fake.rows = [
-      { id: "s", userAgent: null, country: null, createdAt: day, updatedAt: day },
+      {
+        id: "s",
+        userAgent: null,
+        country: null,
+        createdAt: day,
+        updatedAt: day,
+      },
     ];
 
     const [session] = await listAccountSessions("user-1", "other");
 
-    expect(session).toMatchObject({ browser: null, os: null, deviceType: null });
+    expect(session).toMatchObject({
+      browser: null,
+      os: null,
+      deviceType: null,
+    });
   });
 });
 

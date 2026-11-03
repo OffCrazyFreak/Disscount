@@ -45,5 +45,8 @@ export function changeEmailError(
     return { field: "email", message: "settings.security.submit.socialLinked" };
   }
 
-  return { field: "email", message: "settings.security.submit.changeEmailFailed" };
+  return {
+    field: "email",
+    message: "settings.security.submit.changeEmailFailed",
+  };
 }
