@@ -29,18 +29,18 @@ _Last verified on branch `feat/pwa`, 2026-07-04: installable on Android/iOS, off
 
 ## 1. Quick reference
 
-| Thing                        | Value                                                                                                                     |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Service worker library       | **Serwist** (`@serwist/next`), the maintained successor to `next-pwa`                                                     |
-| Service worker source        | `frontend/src/app/sw.ts` (compiled to `public/sw.js` at build)                                                            |
-| Service worker active in     | **production builds only** (disabled in dev, since it fights Turbopack/HMR)                                               |
-| Web app manifest             | `frontend/src/app/manifest.ts` (served at `/manifest.webmanifest`)                                                        |
-| Offline data store           | IndexedDB via a persisted React Query cache (`idb-keyval` + `@tanstack/react-query-persist-client`)                       |
-| Build command                | `next build --webpack` (Serwist needs webpack; dev stays on Turbopack)                                                    |
-| Status-bar / theme color     | `#ffffff` (neutral white, set in both `manifest.ts` and the `viewport` export)                                            |
-| Install UX                   | floating dismissible banner + sidebar and landing cards + a four-platform instructions sheet                              |
-| Icons / splash / screenshots | `public/brand/icons`, `public/splash` (18 iOS sizes), `public/screenshots` (2); see `docs/BRAND.md`                       |
-| What is NOT built yet        | push notifications, app badging, service-worker update prompt, wake lock (see [TODOs](#14-future-improvements-and-todos)) |
+| Thing                        | Value                                                                                               |
+| ---------------------------- | --------------------------------------------------------------------------------------------------- |
+| Service worker library       | **Serwist** (`@serwist/next`), the maintained successor to `next-pwa`                               |
+| Service worker source        | `frontend/src/app/sw.ts` (compiled to `public/sw.js` at build)                                      |
+| Service worker active in     | **production builds only** (disabled in dev, since it fights Turbopack/HMR)                         |
+| Web app manifest             | `frontend/src/app/manifest.ts` (served at `/manifest.webmanifest`)                                  |
+| Offline data store           | IndexedDB via a persisted React Query cache (`idb-keyval` + `@tanstack/react-query-persist-client`) |
+| Build command                | `next build --webpack` (Serwist needs webpack; dev stays on Turbopack)                              |
+| Status-bar / theme color     | `#ffffff` (neutral white, set in both `manifest.ts` and the `viewport` export)                      |
+| Install UX                   | floating dismissible banner + sidebar and landing cards + a four-platform instructions sheet        |
+| Icons / splash / screenshots | `public/brand/icons`, `public/splash` (18 iOS sizes), `public/screenshots` (2); see `docs/BRAND.md` |
+| What is NOT built yet        | push notifications, app badging, wake lock (see [TODOs](#14-future-improvements-and-todos))         |
 
 **The one rule that explains most decisions:** public data may be cached by the service worker; **private (authenticated) data is never written to the HTTP Cache Storage**, it lives only in the React Query IndexedDB cache and is wiped on logout.
 
@@ -253,7 +253,14 @@ bad-signal case it exists for. NetworkFirst with a one-day expiry is the trade, 
 is only safe because `purgeOfflineCache` now deletes this bucket (and `cijene-api`) when
 the signed-in identity changes. Nothing else in the app has ever called `caches.delete()`.
 
-Plus: `precacheEntries: self.__SW_MANIFEST` (the build-injected app-shell precache), `skipWaiting`, `clientsClaim`, `navigationPreload`, and a `fallbacks` rule that serves a precached offline page for document requests that fail offline. There is one per language (`/offline`, `/en/offline` and so on), and a failed document gets the one matching its own prefix. `LOCALE_PREFIXES` in `sw.ts` mirrors `LOCALES` in `src/i18n/locales.ts` and has to change with it.
+Plus: `precacheEntries: self.__SW_MANIFEST` (the build-injected app-shell precache), `precacheOptions.ignoreURLParametersMatching` (adds `dpl` to Serwist's defaults, see below), `defaultCache` wrapped in `ignoreDeploymentParam`, `skipWaiting: false`, `clientsClaim`, `navigationPreload`, and a `fallbacks` rule that serves a precached offline page for document requests that fail offline. There is one per language (`/offline`, `/en/offline` and so on), and a failed document gets the one matching its own prefix. `LOCALE_PREFIXES` in `sw.ts` mirrors `LOCALES` in `src/i18n/locales.ts` and has to change with it.
+
+**Updates after a deploy.** A new build ships a new `sw.js`, and the browser installs it next to the running one. With `skipWaiting` off it stays in the waiting state, so open tabs keep the old worker and its precached chunks, and nothing breaks under a user mid task. `useAppUpdatePrompt` (mounted by `AppUpdatePrompt` in the providers) listens for Serwist's `waiting` event, and also checks `registration.waiting` once on load, since a worker left waiting by an earlier visit can finish before the listener exists. Client navigations never make the browser look for a new worker, so it also calls `registration.update()` each time the tab becomes visible again. It then shows a sonner toast with **Osvježi** and **Kasnije**. Osvježi posts `{ type: "SKIP_WAITING" }` to the waiting worker (Serwist's worker handles that message when `skipWaiting` is false) and reloads on `controllerchange`; if another tab already activated it, it reloads at once. Kasnije just closes the toast: the new worker takes over once every tab is closed, and the toast comes back on the next load. Once one tab accepts, the other tabs lose the old precached chunks, and a lazy load there falls back to the chunk reload below. The logic is in `lib/pwa/service-worker-update.ts`.
+
+Two more guards cover a tab that still runs into the new build:
+
+- `deploymentId` in `next.config.ts` is set from `GIT_SHA`. Next then adds `?dpl=<id>` to asset URLs, sends the id with client navigations, and turns a navigation into a full page load when the server's id differs. The precache keys carry no query, hence `dpl` in `ignoreURLParametersMatching`; without it every chunk would miss the precache and offline loads would break. Serwist also tests `defaultCache`'s RegExp rules against the full URL, and they end in `$`, so `ignoreDeploymentParam` (`lib/pwa/deployment-param.ts`) wraps them to test the URL without `dpl`; otherwise chunks fell into the generic page bucket. Builds with no `GIT_SHA` (production, which still builds on the server) leave it unset.
+- A lazy chunk that fails to load (`ChunkLoadError`) lands in `[locale]/error.tsx` or `global-error.tsx`, which call `handleBoundaryError`, or in the map's own `MapErrorBoundary`, which tries the same reload before its fallback. For a chunk error it reloads the page once instead of reporting it, unless the device is offline, where the boundary's retry button is the better offer; a timestamp in `sessionStorage` blocks a second reload within a minute, so a chunk that is really broken shows the error page instead of looping (`lib/pwa/chunk-load-recovery.ts`).
 
 ### 5b. Persisted React Query cache (IndexedDB), works everywhere
 
@@ -353,6 +360,10 @@ The screenshot generator script was removed after the images were generated, so 
 | `frontend/src/constants/ios-startup-images.ts`                                               | device list for `appleWebApp.startupImage` (`apple-touch-startup-image` links)              |
 | `frontend/src/components/custom/pwa/request-persistent-storage.tsx`                          | requests durable storage                                                                    |
 | `frontend/src/components/custom/pwa/scan-shortcut.tsx`                                       | serves the Skeniraj app shortcut: consumes `?scan=1` and opens the camera                   |
+| `frontend/src/components/custom/pwa/use-app-update-prompt.ts`                                | the "new version" toast, shown while a new service worker waits                             |
+| `frontend/src/lib/pwa/service-worker-update.ts`                                              | detects a waiting worker, activates it on request and reloads                               |
+| `frontend/src/lib/pwa/chunk-load-recovery.ts`                                                | one-time reload after a failed chunk load, with the loop guard                              |
+| `frontend/src/lib/pwa/deployment-param.ts`                                                   | makes `defaultCache`'s RegExp rules ignore the `dpl` asset parameter                        |
 | `frontend/src/app/providers/react-query-provider.tsx`                                        | `PersistQueryClientProvider`, registers offline mutation defaults, resumes paused mutations |
 | `frontend/src/lib/offline/persister.ts`                                                      | IndexedDB persister + persist options (maxAge, buster, dehydrate rules)                     |
 | `frontend/src/lib/offline/cached-query-keys.ts`                                              | whitelist of query keys that may be persisted                                               |
@@ -417,6 +428,7 @@ Read from `frontend/package.json`.
 | Offline write queue + replay                | ✅ auto    | on reconnect, and after reload once the cache restores                                                                                                              |
 | Capturing the install prompt                | ✅ auto    | `beforeinstallprompt` captured pre-hydration by a `beforeInteractive` script, into a shared store                                                                   |
 | Purging offline data on identity change     | ✅ auto    | `purgeOfflineCache`, from `user-context.tsx` on any identity change, not only `handleLogout` (see §5b)                                                              |
+| Offering the update after a deploy          | ✅ auto    | a toast once the new worker is waiting; the reload itself waits for the user                                                                                        |
 | iOS splash links in `<head>`                | ✅ auto    | `appleWebApp.startupImage` in the root layout metadata                                                                                                              |
 | **Service worker in development**           | ❌ no      | disabled on purpose; use a production build to test the SW                                                                                                          |
 | **Regenerating icons / splash**             | ❌ manual  | run `node scripts/generate-pwa-icons.mjs` / `generate-ios-splash.mjs`                                                                                               |
@@ -439,6 +451,7 @@ Read from `frontend/package.json`.
 
 - `next build --webpack` then start, open DevTools, Application, Service Workers: Serwist should be active.
 - Reload offline: the app shell loads; an unknown route offline serves `/offline`; `/api/cijene` GETs are served from the `cijene-api` cache.
+- Update prompt: build and start once, open the app, then build again (any change, or a different `GIT_SHA`) and restart the server. Reload the tab, or switch to another tab and back: DevTools shows the new worker as "waiting to activate" and the toast offers Osvježi; clicking it activates the worker and reloads.
 
 **Install + native:**
 
@@ -483,7 +496,6 @@ Read from `frontend/package.json`.
 **PWA polish**
 
 - [ ] **App Badging API** (`navigator.setAppBadge`) for unread notifications on the installed icon.
-- [ ] **Service-worker "update available" prompt** (a toast when a new worker is waiting), which also fixes the "hard-refresh after deploy" gotcha in [`DEPLOYMENT.md`](DEPLOYMENT.md).
 - [ ] **Max brightness** while showing a loyalty-card barcode. Screen Wake Lock shipped with the digital cards view modal; the app has no way to raise brightness, so the modal shows a dismissible hint instead.
 - [ ] **Native Barcode Detection** as a fast path on Android, keeping `@yudiel/react-qr-scanner` as the universal fallback.
 - [ ] **Real manifest screenshots** to replace the branded placeholder cards.

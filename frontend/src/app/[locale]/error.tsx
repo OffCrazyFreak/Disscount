@@ -11,7 +11,7 @@ import {
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
-import { captureBoundaryError } from "@/lib/sentry/capture-boundary-error";
+import { handleBoundaryError } from "@/lib/handle-boundary-error";
 
 interface IRouteErrorProps {
   error: unknown;
@@ -23,7 +23,7 @@ export default function RouteError({ error, retry }: IRouteErrorProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    captureBoundaryError(error);
+    handleBoundaryError(error);
   }, [error]);
 
   useEffect(() => {

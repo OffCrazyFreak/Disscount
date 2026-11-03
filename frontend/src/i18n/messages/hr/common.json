@@ -152,6 +152,11 @@
       "desktopMenu": "Ako te ikone nema, otvori <vdots></vdots> izbornik pa <b>Spremi i podijeli</b> › <b>Instaliraj stranicu kao aplikaciju</b>."
     }
   },
+  "appUpdate": {
+    "message": "Dostupna je nova verzija Disscounta.",
+    "reload": "Osvježi",
+    "later": "Kasnije"
+  },
   "validation": {
     "emailInvalid": "Upiši ispravan email",
     "fullNameMax": "Ime može imati najviše 255 znakova",

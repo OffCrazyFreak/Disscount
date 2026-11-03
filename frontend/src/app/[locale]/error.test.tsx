@@ -7,7 +7,19 @@ import { describe, expect, it, vi } from "vitest";
 import RouteError from "@/app/[locale]/error";
 import { renderWithProviders } from "@/test/render";
 
+const { reload } = vi.hoisted(() => ({ reload: vi.fn() }));
+
 vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
+// jsdom cannot reload, so the real recovery runs with a recorded reload instead.
+vi.mock("@/lib/pwa/chunk-load-recovery", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/lib/pwa/chunk-load-recovery")>();
+  return {
+    ...actual,
+    reloadAfterChunkLoadError: (error: unknown) =>
+      actual.reloadAfterChunkLoadError(error, reload),
+  };
+});
 
 vi.mock("@/i18n/navigation", () => ({
   Link: ({ href, children }: { href: string; children: ReactNode }) => (
@@ -71,5 +83,17 @@ describe("RouteError", () => {
     renderWithProviders(<RouteError error="boom" retry={vi.fn()} />);
 
     expect(Sentry.captureException).toHaveBeenCalledWith("boom", undefined);
+  });
+
+  it("reloads once instead of reporting a chunk left behind by a deploy", () => {
+    vi.mocked(Sentry.captureException).mockClear();
+    const error = Object.assign(new Error("Loading chunk 6506 failed."), {
+      name: "ChunkLoadError",
+    });
+
+    renderWithProviders(<RouteError error={error} retry={vi.fn()} />);
+
+    expect(reload).toHaveBeenCalledOnce();
+    expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 });
