@@ -1,5 +1,6 @@
 package disscount.productImage.service;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -72,19 +73,27 @@ public class ProductImageJobs {
     public void weeklyImport() {
         if (!enabled || !importing.compareAndSet(false, true)) return;
         try {
-            // Tracked apart, so turning the photo bucket on mid-week seeds at the next check instead of up to a week later.
-            if (isDue(WEEKLY_IMPORT)) {
-                catalog.importLatest();
-                runs.save(new ProductImageImportRun(WEEKLY_IMPORT, Timestamps.nowUtc()));
+            boolean imported = false;
+            try {
+                if (isDue(WEEKLY_IMPORT)) {
+                    catalog.importLatest();
+                    runs.save(new ProductImageImportRun(WEEKLY_IMPORT, Timestamps.nowUtc()));
+                    imported = true;
+                }
+            } catch (IOException | RuntimeException e) {
+                // A failed import leaves the previous catalogue in place, so the seed below can still use it.
+                log.error("Catalogue import failed; it is retried at the next check", e);
             }
-            if (store.enabled() && isDue(PHOTO_SEED)) {
+            // Tracked apart, so turning the photo bucket on mid-week seeds at the next check instead of up to a
+            // week later; a fresh import seeds its new EANs straight away.
+            if (store.enabled() && (imported || isDue(PHOTO_SEED))) {
                 seed.seed();
                 runs.save(new ProductImageImportRun(PHOTO_SEED, Timestamps.nowUtc()));
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (Exception e) {
-            log.error("Product image import failed; it is retried at the next check", e);
+            log.error("Open Food Facts photo seed failed; it is retried at the next check", e);
         } finally {
             importing.set(false);
         }
