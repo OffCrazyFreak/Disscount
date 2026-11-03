@@ -6,13 +6,13 @@
   },
   "when": "{day, select, today {at {time}} tomorrow {tomorrow at {time}} mon {Monday at {time}} tue {Tuesday at {time}} wed {Wednesday at {time}} thu {Thursday at {time}} fri {Friday at {time}} sat {Saturday at {time}} other {Sunday at {time}}}",
   "detail": {
-    "open": "Closes at {time}",
+    "open": "Closes {when}",
     "closingSoon": "Closes soon, at {time}",
     "closed": "Opens {when}",
     "openingSoon": "Opens soon, at {time}"
   },
   "name": {
-    "open": "Open, closes at {time}",
+    "open": "Open, closes {when}",
     "closingSoon": "Open, closes soon at {time}",
     "closed": "Closed, opens {when}",
     "openingSoon": "Closed, opens soon at {time}"

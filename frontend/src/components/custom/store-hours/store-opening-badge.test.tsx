@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import StoreHoursProvider from "@/components/custom/store-hours/store-hours-context";
 import StoreOpeningBadge from "@/components/custom/store-hours/store-opening-badge";
@@ -10,8 +10,18 @@ import { renderWithProviders } from "@/test/render";
 
 const week = [{ opens: "07:00", closes: "21:00" }];
 
+const late = [{ opens: "07:00", closes: "02:00" }];
+
 const data: StoreHoursResponse = {
   stores: {
+    "konzum:late": {
+      weekly: [late, late, late, late, late, late, []],
+      dated: [],
+      sundays: "dated",
+      source: "chain",
+      verifiedAt: "2026-11-02T06:00:00.000Z",
+      checkUrl: null,
+    },
     "konzum:1": {
       weekly: [week, week, week, week, week, week, []],
       dated: [],
@@ -41,15 +51,6 @@ function renderAt(local: string, storeKey: string, isInsideButton = false) {
 }
 
 describe("StoreOpeningBadge", () => {
-  // jsdom has no matchMedia; a touch screen, so a tap opens the detail.
-  beforeEach(() => {
-    vi.stubGlobal("matchMedia", () => ({
-      matches: false,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-    }));
-  });
-
   it("names an open store with its closing time", () => {
     renderAt("2026-11-04T10:00:00", "konzum:1");
 
@@ -82,6 +83,28 @@ describe("StoreOpeningBadge", () => {
     );
 
     expect(await screen.findByText("Otvara uskoro u 7:00")).toBeInTheDocument();
+  });
+
+  it("shows the closing time on hover and on keyboard focus", async () => {
+    const user = userEvent.setup();
+    renderAt("2026-11-04T10:00:00", "konzum:1");
+
+    await user.hover(screen.getByRole("button"));
+    expect(await screen.findByText("Zatvara u 21:00")).toBeInTheDocument();
+
+    await user.unhover(screen.getByRole("button"));
+    await user.tab();
+    expect(await screen.findByText("Zatvara u 21:00")).toBeInTheDocument();
+  });
+
+  it("names the day when a late shift closes after midnight", () => {
+    renderAt("2026-11-04T10:00:00", "konzum:late");
+
+    expect(
+      screen.getByRole("button", {
+        name: "Otvoreno, zatvara sutra u 2:00",
+      }),
+    ).toBeInTheDocument();
   });
 
   it("is plain text inside a card's toggle button", () => {

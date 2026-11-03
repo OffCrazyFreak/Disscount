@@ -6,13 +6,13 @@
   },
   "when": "{day, select, today {um {time}} tomorrow {morgen um {time}} mon {Montag um {time}} tue {Dienstag um {time}} wed {Mittwoch um {time}} thu {Donnerstag um {time}} fri {Freitag um {time}} sat {Samstag um {time}} other {Sonntag um {time}}}",
   "detail": {
-    "open": "Schließt um {time}",
+    "open": "Schließt {when}",
     "closingSoon": "Schließt bald, um {time}",
     "closed": "Öffnet {when}",
     "openingSoon": "Öffnet bald, um {time}"
   },
   "name": {
-    "open": "Geöffnet, schließt um {time}",
+    "open": "Geöffnet, schließt {when}",
     "closingSoon": "Geöffnet, schließt bald um {time}",
     "closed": "Geschlossen, öffnet {when}",
     "openingSoon": "Geschlossen, öffnet bald um {time}"

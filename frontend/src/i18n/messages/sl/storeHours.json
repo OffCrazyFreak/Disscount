@@ -6,13 +6,13 @@
   },
   "when": "{day, select, today {ob {time}} tomorrow {jutri ob {time}} mon {v ponedeljek ob {time}} tue {v torek ob {time}} wed {v sredo ob {time}} thu {v četrtek ob {time}} fri {v petek ob {time}} sat {v soboto ob {time}} other {v nedeljo ob {time}}}",
   "detail": {
-    "open": "Zapre ob {time}",
+    "open": "Zapre {when}",
     "closingSoon": "Kmalu zapre, ob {time}",
     "closed": "Odpre {when}",
     "openingSoon": "Kmalu odpre, ob {time}"
   },
   "name": {
-    "open": "Odprto, zapre ob {time}",
+    "open": "Odprto, zapre {when}",
     "closingSoon": "Odprto, kmalu zapre ob {time}",
     "closed": "Zaprto, odpre {when}",
     "openingSoon": "Zaprto, kmalu odpre ob {time}"
