@@ -42,8 +42,9 @@ export async function fetchJson(
   url: string,
   signal: AbortSignal,
   init?: RequestInit,
+  timeoutMs?: number,
 ): Promise<unknown> {
-  return (await request(url, signal, init)).json();
+  return (await request(url, signal, init, timeoutMs)).json();
 }
 
 export async function fetchStream(

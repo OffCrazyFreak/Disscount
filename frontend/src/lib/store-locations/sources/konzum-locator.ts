@@ -3,6 +3,8 @@ import "server-only";
 import { z } from "zod";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
+import { parseKonzumHours } from "@/lib/store-hours/sources/konzum-hours";
+import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 import { fetchJson } from "@/lib/store-locations/http";
 import type {
   ILocatorStore,
@@ -15,6 +17,7 @@ const responseSchema = z.object({
   locations: z.array(
     z.object({
       address: z.string(),
+      work_hours: z.string().nullish(),
       coordinates: z
         .object({
           lat: z.number().nullish(),
@@ -46,6 +49,7 @@ export const konzumLocator: IStoreLocator = {
   async fetchStores(signal) {
     const { locations } = responseSchema.parse(await fetchJson(URL, signal));
     const stores: ILocatorStore[] = [];
+    const { date: today } = zagrebClock(new Date());
 
     for (const location of locations) {
       const point = sanitizeCoordinates(
@@ -55,7 +59,13 @@ export const konzumLocator: IStoreLocator = {
 
       if (!point) continue;
 
-      stores.push({ ...splitAddress(location.address), ...point });
+      stores.push({
+        ...splitAddress(location.address),
+        hours: location.work_hours
+          ? parseKonzumHours(location.work_hours, today)
+          : undefined,
+        ...point,
+      });
     }
 
     return stores;

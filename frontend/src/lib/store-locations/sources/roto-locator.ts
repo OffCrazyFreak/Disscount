@@ -2,6 +2,11 @@ import "server-only";
 
 import { z } from "zod";
 
+import {
+  parseRotoHours,
+  rotoHoursFields,
+} from "@/lib/store-hours/sources/roto-hours";
+import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchJson } from "@/lib/store-locations/http";
 import type {
@@ -17,6 +22,7 @@ const siteSchema = z.object({
   // The feed really spells longitude "lang".
   lang: z.string(),
   adresa: z.string(),
+  ...rotoHoursFields,
 });
 
 const responseSchema = z.object({
@@ -47,8 +53,13 @@ export const rotoLocator: IStoreLocator = {
       await fetchJson(SOURCE_URL, signal),
     );
     const result: ILocatorStore[] = [];
+    const { date: today } = zagrebClock(new Date());
+    const sites = [
+      ...vpc.map((site) => ({ site, kind: "vpc" })),
+      ...mpc.map((site) => ({ site, kind: "mpc" })),
+    ];
 
-    for (const site of [...vpc, ...mpc]) {
+    for (const { site, kind } of sites) {
       const coordinates = sanitizeCoordinates(
         Number(site.lat),
         Number(site.lang),
@@ -60,6 +71,11 @@ export const rotoLocator: IStoreLocator = {
       result.push({
         code: site.sifra,
         ...splitAddress(site.adresa),
+        hours: parseRotoHours(site, today),
+        // The sitemap lists each shop as ?vpc= (wholesale) or ?mpc= (retail).
+        pageUrl: /^\w+$/.test(site.sifra)
+          ? `https://www.rotodinamic.hr/poslovnica/?${kind}=${site.sifra}`
+          : undefined,
         ...coordinates,
       });
     }

@@ -2,6 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
+import { parseKauflandHours } from "@/lib/store-hours/sources/kaufland-hours";
 import { fetchPlacedRows } from "@/lib/store-locations/sources/fetch-placed-rows";
 import type { IStoreLocator } from "@/lib/store-locations/store-location-types";
 
@@ -15,6 +16,9 @@ const storeSchema = z.object({
   t: z.string().nullish(),
   lat: z.coerce.number().nullish(),
   lng: z.coerce.number().nullish(),
+  wod: z.array(z.string()).catch([]),
+  sod: z.array(z.string()).catch([]),
+  friendlyUrl: z.string().nullish(),
 });
 
 export const kauflandLocator: IStoreLocator = {
@@ -32,6 +36,10 @@ export const kauflandLocator: IStoreLocator = {
       address: row.sn.replace(/\s+/g, " ").trim(),
       city: row.t?.trim() || undefined,
       zipcode: row.pc?.trim() || undefined,
+      hours: row.wod.length ? parseKauflandHours(row.wod, row.sod) : undefined,
+      pageUrl: /^[\w-]+$/.test(row.friendlyUrl ?? "")
+        ? `https://www.kaufland.hr/usluge/poslovnica/${row.friendlyUrl}.html`
+        : undefined,
       ...point,
     }));
   },

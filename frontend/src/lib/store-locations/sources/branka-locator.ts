@@ -1,6 +1,8 @@
 import "server-only";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
+import { weekFromLabelled } from "@/lib/store-hours/sources/hours-text";
+import { labelledLines } from "@/lib/store-hours/sources/labelled-lines";
 import { fetchText } from "@/lib/store-locations/http";
 import type {
   ILocatorStore,
@@ -13,6 +15,15 @@ const URL = "https://www.branka.hr/prodajna-mjesta";
 // Maps embed, whose "!2d<lon>!3d<lat>" segment is the pin.
 const ADDRESS = />\s*([^<>,]+?)\s*,\s*(\d{5})\s+([^<>\s]+)\s*</g;
 const EMBED = /google\.com\/maps\/embed\?pb=[^"']*?!2d(-?[\d.]+)!3d(-?[\d.]+)/g;
+
+// "RADNO VRIJEME: PON-SUB: 07:00 - 20:00 sati", inside the shop's own block.
+function hoursIn(block: string) {
+  const lines = labelledLines(block.split(/RADNO VRIJEME/i)[1] ?? "");
+
+  return lines.length
+    ? { weekly: weekFromLabelled(lines), dated: [] }
+    : undefined;
+}
 
 export const brankaLocator: IStoreLocator = {
   chain: "branka",
@@ -34,6 +45,7 @@ export const brankaLocator: IStoreLocator = {
     const stores: ILocatorStore[] = [];
 
     shops.forEach((shop, index) => {
+      const block = html.slice(shop.index, shops[index + 1]?.index);
       const coordinates = sanitizeCoordinates(
         Number(embeds[index][2]),
         Number(embeds[index][1]),
@@ -44,6 +56,7 @@ export const brankaLocator: IStoreLocator = {
         address: shop[1],
         city: shop[3],
         zipcode: shop[2],
+        hours: hoursIn(block),
         ...coordinates,
       });
     });

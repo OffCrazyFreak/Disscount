@@ -1,5 +1,7 @@
 import "server-only";
 
+import { after } from "next/server";
+
 import { db } from "@/db";
 import { storeHours, storeHoursOverlay } from "@/db/store-hours-schema";
 import type { StoreHoursResponse } from "@/lib/api/schemas";
@@ -8,15 +10,25 @@ import {
   hoursWindow,
 } from "@/lib/store-hours/build-store-hours";
 import { croatianHolidaysBetween } from "@/lib/store-hours/croatian-holidays";
+import {
+  dueHoursJob,
+  runHoursJob,
+} from "@/lib/store-hours/sync/run-hours-sync";
 
 // Per process, like the store directory: hours change weekly at most, and
 // the Sunday poll lands within the hour.
 const MEMO_MS = 10 * 60 * 1000;
 
+// Under the lease's two hours, so a stuck run is cut before another may start.
+const JOB_TIMEOUT_MS = 90 * 60 * 1000;
+
 let memo: { value: StoreHoursResponse; at: number } | null = null;
+let jobRunning = false;
 
 /** Every store's hours with the holidays the status function needs. */
 export async function getStoreHours(): Promise<StoreHoursResponse> {
+  after(startHoursJobIfDue);
+
   if (memo && Date.now() - memo.at < MEMO_MS) return memo.value;
 
   const now = new Date();
@@ -34,4 +46,26 @@ export async function getStoreHours(): Promise<StoreHoursResponse> {
   memo = { value, at: Date.now() };
 
   return value;
+}
+
+/**
+ * Like the location sync, the refresh has no cron: a request after the
+ * data is due starts it once the response is sent, and the lease keeps a
+ * second instance out.
+ */
+async function startHoursJobIfDue(): Promise<void> {
+  if (jobRunning) return;
+
+  jobRunning = true;
+
+  try {
+    const job = await dueHoursJob();
+
+    if (!job) return;
+
+    await runHoursJob(job, AbortSignal.timeout(JOB_TIMEOUT_MS));
+    memo = null;
+  } finally {
+    jobRunning = false;
+  }
 }
