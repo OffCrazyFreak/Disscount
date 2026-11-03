@@ -66,6 +66,7 @@ export default function ShoppingListItems({
   };
 
   const lostFocusItemIdRef = useRef<string | null>(null);
+  const itemsToggleRef = useRef<HTMLButtonElement>(null);
 
   const rowProps = {
     cheapestStores,
@@ -87,10 +88,13 @@ export default function ShoppingListItems({
     .filter((item) => priceStates[item.id] === "failed")
     .map((item) => item.id);
 
-  // A row still without prices explains the retry's outcome; one that loaded does not.
+  // A row still without prices explains the retry's outcome; one that loaded does not. With
+  // the items collapsed there is no row, so the section's toggle is the nearest place left.
   function focusRetriedItem(retriedItemIds: readonly string[]) {
     const unpriced = retriedItemIds.filter((id) => priceStates[id] !== "ready");
-    focusStoreSelect(unpriced.length > 0 ? unpriced : retriedItemIds);
+    if (!focusStoreSelect(unpriced.length > 0 ? unpriced : retriedItemIds)) {
+      itemsToggleRef.current?.focus();
+    }
   }
 
   return (
@@ -105,7 +109,11 @@ export default function ShoppingListItems({
 
       <Collapsible open={isItemsOpen} onOpenChange={handleToggleItems}>
         <CollapsibleTrigger asChild className="py-2">
-          <button type="button" className="w-full text-left">
+          <button
+            ref={itemsToggleRef}
+            type="button"
+            className="w-full text-left"
+          >
             <div className="flex items-center justify-between gap-4">
               <h2 className="text-lg font-semibold">
                 {checkedCount > 0

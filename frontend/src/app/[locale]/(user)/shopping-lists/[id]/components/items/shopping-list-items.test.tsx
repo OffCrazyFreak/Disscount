@@ -288,6 +288,37 @@ describe("ShoppingListItems focus", () => {
     await waitFor(() => expect(screen.getByRole("combobox")).toHaveFocus());
   });
 
+  it("focuses the items toggle when a retry ends in no prices while collapsed", async () => {
+    const user = userEvent.setup();
+    const items = [item("a")];
+    const onRetry = vi.fn(async () => false);
+    const { rerender } = renderItems(items, { a: "failed" }, onRetry);
+
+    const toggle = screen.getByRole("button", { name: /Proizvodi/ });
+    await user.click(toggle);
+    await user.click(screen.getByRole("button", { name: "Pokušaj ponovno" }));
+    rerender(listItems(items, { a: "noPrices" }, onRetry));
+
+    await waitFor(() => expect(toggle).toHaveFocus());
+  });
+
+  it("leaves focus alone when the retry button no longer had it", async () => {
+    const user = userEvent.setup();
+    const items = [item("a")];
+    const onRetry = vi.fn(async () => false);
+    const { rerender } = renderItems(items, { a: "failed" }, onRetry);
+
+    const retry = screen.getByRole("button", { name: "Pokušaj ponovno" });
+    await user.click(retry);
+    await waitFor(() => expect(onRetry).toHaveBeenCalled());
+    act(() => retry.blur());
+    rerender(listItems(items, { a: "noPrices" }, onRetry));
+
+    // The handoff would run in this tick; give it the same chance the other tests do.
+    await act(async () => {});
+    expect(document.body).toHaveFocus();
+  });
+
   it("prefers the retried row that still has no prices", async () => {
     const user = userEvent.setup();
     const items = [item("a"), item("b")];

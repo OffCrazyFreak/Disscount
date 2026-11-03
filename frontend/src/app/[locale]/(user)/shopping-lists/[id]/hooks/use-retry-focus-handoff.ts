@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 
 interface IUnresolvedRetry {
   failureGeneration: number;
@@ -7,8 +7,9 @@ interface IUnresolvedRetry {
 
 /**
  * A retry can end with nothing failed yet not every price loaded, such as a 404, and the
- * retry button then leaves with the banner. Once it has, the retried rows get focus, since
- * they say what happened. Returns the setter for the retry that did not load every price.
+ * retry button then leaves with the banner. If it took focus with it, the retried rows get
+ * focus, since they say what happened. Returns the setter for the retry that did not load
+ * every price, and the retry button's ref.
  */
 export function useRetryFocusHandoff(
   failedCount: number,
@@ -18,16 +19,27 @@ export function useRetryFocusHandoff(
   const [unresolvedRetry, setUnresolvedRetry] =
     useState<IUnresolvedRetry | null>(null);
   const handOffFocus = useEffectEvent(onFocusLost);
+  const buttonLostFocusRef = useRef(false);
 
   useEffect(() => {
     if (
       failedCount === 0 &&
       unresolvedRetry?.failureGeneration === failureGeneration &&
+      buttonLostFocusRef.current &&
       document.activeElement === document.body
     ) {
+      buttonLostFocusRef.current = false;
       handOffFocus(unresolvedRetry.itemIds);
     }
   }, [failedCount, failureGeneration, unresolvedRetry]);
 
-  return setUnresolvedRetry;
+  function rememberFocusOnUnmount(button: HTMLButtonElement) {
+    buttonLostFocusRef.current = false;
+
+    return () => {
+      buttonLostFocusRef.current = document.activeElement === button;
+    };
+  }
+
+  return { setUnresolvedRetry, retryButtonRef: rememberFocusOnUnmount };
 }

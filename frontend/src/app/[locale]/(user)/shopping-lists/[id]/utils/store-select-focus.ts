@@ -2,7 +2,7 @@
 export const STORE_SELECT_ITEM_ATTRIBUTE = "data-store-select-item";
 
 /** Focuses the store select of the first of these items in page order, if one can take focus. */
-export function focusStoreSelect(itemIds: readonly string[]) {
+export function focusStoreSelect(itemIds: readonly string[]): boolean {
   const slots = document.querySelectorAll(`[${STORE_SELECT_ITEM_ATTRIBUTE}]`);
 
   for (const slot of slots) {
@@ -15,7 +15,9 @@ export function focusStoreSelect(itemIds: readonly string[]) {
     );
     if (select) {
       select.focus();
-      return;
+      return true;
     }
   }
+
+  return false;
 }

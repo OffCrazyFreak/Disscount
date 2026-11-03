@@ -45,7 +45,7 @@ export default function ShoppingListPriceStatus({
   const [recoveredGeneration, setRecoveredGeneration] = useState<number | null>(
     null,
   );
-  const setUnresolvedRetry = useRetryFocusHandoff(
+  const { setUnresolvedRetry, retryButtonRef } = useRetryFocusHandoff(
     failedCount,
     failureGeneration,
     onRetryFocusLost,
@@ -98,6 +98,7 @@ export default function ShoppingListPriceStatus({
 
             {/* aria-disabled, not the loading prop: that sets disabled, which drops keyboard focus. */}
             <Button
+              ref={retryButtonRef}
               type="button"
               variant="outline"
               size="sm"

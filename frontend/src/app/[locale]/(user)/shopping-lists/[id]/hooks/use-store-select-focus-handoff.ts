@@ -23,6 +23,10 @@ export function useStoreSelectFocusHandoff(
   }, [priceState, itemId, lostFocusItemIdRef]);
 
   return function rememberFocusOnUnmount(trigger: HTMLButtonElement) {
+    // A ref also detaches and reattaches when its callback changes; that was no unmount.
+    if (lostFocusItemIdRef.current === itemId)
+      lostFocusItemIdRef.current = null;
+
     return () => {
       if (document.activeElement === trigger) {
         lostFocusItemIdRef.current = itemId;
