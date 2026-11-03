@@ -12,6 +12,7 @@ import disscount.productImage.FakeProductImageStore;
 import disscount.productImage.dao.ProductImageReportRepository;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
+import disscount.productImage.domain.HiddenReason;
 import disscount.productImage.domain.ImageSource;
 import disscount.productImage.domain.ImageStatus;
 import disscount.productImage.domain.ProductImage;
@@ -283,9 +284,10 @@ class ProductImageServiceTest {
     }
 
     @Test
-    void aHiddenUncopiedFrontComesBackWhenOpenFoodFactsHasANewVersion() {
+    void aFrontTheJobSkippedComesBackWhenOpenFoodFactsHasANewVersion() {
         ProductImage front = candidate("front_hr", "4", "hr");
         front.setStatus(ImageStatus.HIDDEN);
+        front.setHiddenReason(HiddenReason.JOB_SKIPPED);
         front.setRenderRetryAt(Timestamps.nowUtc().plusHours(1));
         images.save(front);
 
@@ -296,8 +298,33 @@ class ProductImageServiceTest {
         assertThat(images.findById(front.getId())).get().satisfies(i -> {
             assertThat(i.getStatus()).isEqualTo(ImageStatus.CANDIDATE);
             assertThat(i.getExternalRev()).isEqualTo("5");
+            assertThat(i.getHiddenReason()).isNull();
             assertThat(i.getRenderRetryAt()).isNull();
         });
+    }
+
+    @Test
+    void aFrontTheAdminHidStaysHiddenWhenOpenFoodFactsHasANewVersion() {
+        ProductImage front = candidate("front_hr", "4", "hr");
+        admin.setStatus(adminId, front.getId(), "HIDDEN");
+
+        candidates.upsert(EAN, "front_hr", "5", "hr");
+
+        assertThat(images.findById(front.getId())).get().satisfies(i -> {
+            assertThat(i.getStatus()).isEqualTo(ImageStatus.HIDDEN);
+            assertThat(i.getHiddenReason()).isEqualTo(HiddenReason.ADMIN);
+        });
+    }
+
+    @Test
+    void aFrontHiddenBeforeReasonsWereRecordedCountsAsTheAdminsChoice() {
+        ProductImage front = candidate("front_hr", "4", "hr");
+        front.setStatus(ImageStatus.HIDDEN);
+        images.save(front);
+
+        candidates.upsert(EAN, "front_hr", "5", "hr");
+
+        assertThat(images.findById(front.getId())).get().extracting(ProductImage::getStatus).isEqualTo(ImageStatus.HIDDEN);
     }
 
     @Test

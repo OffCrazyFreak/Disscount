@@ -8,6 +8,7 @@ import disscount.productImage.FakeProductImageStore;
 import disscount.productImage.catalog.CatalogImportService;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
+import disscount.productImage.domain.HiddenReason;
 import disscount.productImage.domain.ImageSource;
 import disscount.productImage.domain.ImageStatus;
 import disscount.productImage.domain.ProductImage;
@@ -141,7 +142,10 @@ class ProductImageJobsRenderTest {
 
         jobs.renderMainPhotos();
 
-        assertThat(images.findById(gone.getId())).get().extracting(ProductImage::getStatus).isEqualTo(ImageStatus.HIDDEN);
+        assertThat(images.findById(gone.getId())).get().satisfies(i -> {
+            assertThat(i.getStatus()).isEqualTo(ImageStatus.HIDDEN);
+            assertThat(i.getHiddenReason()).isEqualTo(HiddenReason.JOB_SKIPPED);
+        });
         assertThat(sets.findById(WIDELY_SOLD)).get().extracting(ProductImageSet::getMainImageId).isNull();
     }
 

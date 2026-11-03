@@ -47,6 +47,10 @@ public class ProductImage {
     @Column(nullable = false, length = 12)
     private ImageStatus status;
 
+    @Convert(converter = HiddenReason.Column.class)
+    @Column(name = "hidden_reason", length = 12)
+    private HiddenReason hiddenReason;
+
     /** Open Food Facts image name: "front_hr" for a selected front, "raw:100" for an uploaded photo. */
     @Column(name = "external_key", length = 32)
     private String externalKey;

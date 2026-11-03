@@ -12,6 +12,7 @@ import disscount.productImage.dao.ProductImageImportRunRepository;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
 import disscount.productImage.catalog.CatalogImportService;
+import disscount.productImage.domain.HiddenReason;
 import disscount.productImage.domain.ImageStatus;
 import disscount.productImage.domain.ProductImage;
 import disscount.productImage.domain.ProductImageImportRun;
@@ -130,6 +131,7 @@ public class ProductImageJobs {
     private void skip(ProductImage image, RuntimeException cause) {
         log.warn("Skipping product photo {} for {}: {}", image.getId(), image.getEan(), cause.getMessage());
         image.setStatus(ImageStatus.HIDDEN);
+        image.setHiddenReason(HiddenReason.JOB_SKIPPED);
         images.save(image);
         sets.findById(image.getEan()).ifPresent(set -> {
             if (image.getId().equals(set.getMainImageId())) {

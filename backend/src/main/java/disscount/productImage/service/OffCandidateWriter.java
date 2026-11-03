@@ -3,6 +3,7 @@ package disscount.productImage.service;
 import java.util.Optional;
 
 import disscount.productImage.dao.ProductImageRepository;
+import disscount.productImage.domain.HiddenReason;
 import disscount.productImage.domain.ImageSource;
 import disscount.productImage.domain.ImageStatus;
 import disscount.productImage.domain.ProductImage;
@@ -21,10 +22,13 @@ class OffCandidateWriter {
             ProductImage image = existing.get();
             // A copied photo keeps the revision it was rendered from; one not copied yet follows Open Food Facts.
             if (image.isRendered() || rev == null || rev.equals(image.getExternalRev())) return;
-            if (image.getStatus() == ImageStatus.CANDIDATE || image.getStatus() == ImageStatus.HIDDEN) {
-                // A new revision is a different photo, so one hidden as unreadable or rejected gets a fresh chance.
+            boolean skippedByJob = image.getStatus() == ImageStatus.HIDDEN
+                    && image.getHiddenReason() == HiddenReason.JOB_SKIPPED;
+            if (image.getStatus() == ImageStatus.CANDIDATE || skippedByJob) {
+                // A new revision is a different file, so one the job could not copy gets a fresh chance; an admin's rejection stays.
                 image.setExternalRev(rev);
                 image.setStatus(ImageStatus.CANDIDATE);
+                image.setHiddenReason(null);
                 image.setRenderRetryAt(null);
                 images.save(image);
             }
