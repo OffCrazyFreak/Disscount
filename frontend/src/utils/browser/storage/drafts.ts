@@ -1,3 +1,4 @@
+import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import { getAppStorage, setAppStorage } from "@/utils/browser/storage/core";
 import type { IFormDraft } from "@/typings/local-storage";
 
@@ -40,10 +41,14 @@ export function getFormDraft(key: string): IFormDraft | null {
   return draft;
 }
 
-/** The same read with no eviction, so it is pure and safe to call while rendering. */
+/**
+ * The same read with no eviction, so it is pure and safe to call while rendering.
+ * Another account's draft reads as none: drafts hold profile fields like the username,
+ * and the device is shared with whoever signs in next.
+ */
 export function peekFormDraft(key: string): IFormDraft | null {
   const draft = getAppStorage().formDrafts?.[key];
-  if (!draft) return null;
+  if (!draft || draft.owner !== getCacheIdentity()) return null;
 
   return Date.now() - draft.savedAt > DRAFT_TTL_MS ? null : draft;
 }
@@ -58,7 +63,7 @@ export function setFormDraft(
   savedAt: number = Date.now(),
 ) {
   const drafts = { ...getAppStorage().formDrafts };
-  drafts[key] = { savedAt, values };
+  drafts[key] = { savedAt, owner: getCacheIdentity(), values };
   setAppStorage({ formDrafts: drafts });
   notify();
 }
@@ -81,5 +86,17 @@ export function removeFormDraft(key: string) {
 
   delete drafts[key];
   setAppStorage({ formDrafts: drafts });
+  notify();
+}
+
+/** For the account purge, which must clear the account leaving, not the one now current. */
+export function removeFormDraftsFor(identity: string) {
+  const drafts = getAppStorage().formDrafts ?? {};
+  const kept = Object.fromEntries(
+    Object.entries(drafts).filter(([, draft]) => draft.owner !== identity),
+  );
+  if (Object.keys(kept).length === Object.keys(drafts).length) return;
+
+  setAppStorage({ formDrafts: kept });
   notify();
 }

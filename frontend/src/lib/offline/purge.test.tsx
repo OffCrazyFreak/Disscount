@@ -3,8 +3,10 @@ import { QueryClient, useQuery } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 
 import { purgeOfflineCache } from "@/lib/offline/purge";
+import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { removePersistedCacheFor } from "@/lib/offline/persister";
 import { renderWithProviders } from "@/test/render";
+import { peekFormDraft, setFormDraft } from "@/utils/browser/storage/drafts";
 import {
   getWatchlistPriceSnapshot,
   setWatchlistPriceSnapshot,
@@ -34,6 +36,18 @@ describe("purgeOfflineCache", () => {
 
     expect(getWatchlistPriceSnapshot("leaving")).toBeNull();
     expect(getWatchlistPriceSnapshot("staying")).toEqual(snapshot);
+  });
+
+  it("deletes the departing account's form drafts and keeps the next one's", async () => {
+    setCacheIdentity("leaving");
+    setFormDraft("settings", { username: "Review Shots" });
+    setCacheIdentity("staying");
+    setFormDraft("contact", { message: "Bok" });
+
+    await purgeOfflineCache(new QueryClient(), "leaving");
+
+    expect(localStorage.getItem("Disscount_app")).not.toContain("Review Shots");
+    expect(peekFormDraft("contact")?.values).toEqual({ message: "Bok" });
   });
 
   it("never renders the departing account's data, and refetches what is on screen", async () => {

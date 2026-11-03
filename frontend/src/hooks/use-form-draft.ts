@@ -8,6 +8,7 @@ import {
   type UseFormReturn,
 } from "react-hook-form";
 
+import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import {
   getFormDraft,
   removeFormDraft,
@@ -47,6 +48,7 @@ export function useFormDraft<T extends FieldValues>({
   exclude = [],
 }: IUseFormDraftOptions<T>) {
   const [hadDraft] = useState(() => !!getFormDraft(draftKey));
+  const [ownerIdentity] = useState(getCacheIdentity);
   const [dismissed, setDismissed] = useState(false);
   const restoredKeyRef = useRef<string | null>(null);
 
@@ -96,6 +98,10 @@ export function useFormDraft<T extends FieldValues>({
   }, [enabled, restore, draftKey, form]);
 
   const flushDraft = useCallback(() => {
+    // An account switch moves the identity before this form unmounts, and its last flush
+    // would otherwise save the departing account's values as the next account's draft.
+    if (getCacheIdentity() !== ownerIdentity) return;
+
     const values = form.getValues() as Record<string, unknown>;
     const { exclude: excluded, defaultValues: defaults } = stateRef.current;
     const payload: Record<string, unknown> = {};
@@ -109,7 +115,7 @@ export function useFormDraft<T extends FieldValues>({
 
     if (Object.keys(payload).length === 0) removeFormDraft(draftKey);
     else setFormDraft(draftKey, payload);
-  }, [draftKey, form]);
+  }, [draftKey, form, ownerIdentity]);
 
   useEffect(() => {
     if (!enabled) return;

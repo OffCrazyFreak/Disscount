@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { describe, expect, it } from "vitest";
 
 import { useFormDraft } from "@/hooks/use-form-draft";
+import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { getFormDraft, setFormDraft } from "@/utils/browser/local-storage";
 
 const DRAFT_KEY = "test-draft";
@@ -72,5 +73,27 @@ describe("useFormDraft", () => {
     rerender({ enabled: true });
 
     expect(result.current.form.getValues("name")).toBe("Kruh");
+  });
+
+  it("does not restore a draft another account left on the device", () => {
+    setCacheIdentity("account-a");
+    setFormDraft(DRAFT_KEY, { name: "Review Shots" });
+    setCacheIdentity("account-b");
+
+    const { result } = renderDraftHook();
+
+    expect(result.current.form.getValues("name")).toBe("");
+    expect(result.current.restored).toBe(false);
+  });
+
+  it("does not save the departing account's values as the next account's draft", () => {
+    setCacheIdentity("account-a");
+    const { result, unmount } = renderDraftHook();
+
+    act(() => result.current.form.setValue("name", "Review Shots"));
+    setCacheIdentity("account-b");
+    unmount();
+
+    expect(getFormDraft(DRAFT_KEY)).toBeNull();
   });
 });
