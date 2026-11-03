@@ -50,6 +50,24 @@ describe("purgeOfflineCache", () => {
     expect(peekFormDraft("contact")?.values).toEqual({ message: "Bok" });
   });
 
+  it("deletes drafts written before drafts carried an owner", async () => {
+    localStorage.setItem(
+      "Disscount_app",
+      JSON.stringify({
+        formDrafts: {
+          settings: {
+            savedAt: Date.now(),
+            values: { username: "Review Shots" },
+          },
+        },
+      }),
+    );
+
+    await purgeOfflineCache(new QueryClient(), "leaving");
+
+    expect(localStorage.getItem("Disscount_app")).not.toContain("Review Shots");
+  });
+
   it("never renders the departing account's data, and refetches what is on screen", async () => {
     const queryClient = new QueryClient();
     let account = "user-a";

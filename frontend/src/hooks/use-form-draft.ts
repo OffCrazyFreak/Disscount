@@ -48,9 +48,10 @@ export function useFormDraft<T extends FieldValues>({
   exclude = [],
 }: IUseFormDraftOptions<T>) {
   const [hadDraft] = useState(() => !!getFormDraft(draftKey));
-  const [ownerIdentity] = useState(getCacheIdentity);
   const [dismissed, setDismissed] = useState(false);
   const restoredKeyRef = useRef<string | null>(null);
+  // Taken on each open, not at mount: an always-mounted modal outlives sign-ins.
+  const ownerIdentityRef = useRef<string | null>(null);
 
   // A subscription, not form.formState: the React Compiler caches reads off the stable
   // form object, and RHF never refreshes a flag that no render has read.
@@ -72,6 +73,7 @@ export function useFormDraft<T extends FieldValues>({
     // A modal that stays mounted while closed must restore again on its next open,
     // since another surface may have written its draft in between.
     if (!enabled) restoredKeyRef.current = null;
+    if (enabled) ownerIdentityRef.current = getCacheIdentity();
     if (!enabled || !restore || restoredKeyRef.current === draftKey) return;
     restoredKeyRef.current = draftKey;
 
@@ -100,7 +102,7 @@ export function useFormDraft<T extends FieldValues>({
   const flushDraft = useCallback(() => {
     // An account switch moves the identity before this form unmounts, and its last flush
     // would otherwise save the departing account's values as the next account's draft.
-    if (getCacheIdentity() !== ownerIdentity) return;
+    if (getCacheIdentity() !== ownerIdentityRef.current) return;
 
     const values = form.getValues() as Record<string, unknown>;
     const { exclude: excluded, defaultValues: defaults } = stateRef.current;
@@ -115,7 +117,7 @@ export function useFormDraft<T extends FieldValues>({
 
     if (Object.keys(payload).length === 0) removeFormDraft(draftKey);
     else setFormDraft(draftKey, payload);
-  }, [draftKey, form, ownerIdentity]);
+  }, [draftKey, form]);
 
   useEffect(() => {
     if (!enabled) return;

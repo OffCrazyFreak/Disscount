@@ -89,11 +89,16 @@ export function removeFormDraft(key: string) {
   notify();
 }
 
-/** For the account purge, which must clear the account leaving, not the one now current. */
+/**
+ * For the account purge, which must clear the account leaving, not the one now current.
+ * Ownerless drafts predate the owner stamp and can belong to anyone, so they go too.
+ */
 export function removeFormDraftsFor(identity: string) {
   const drafts = getAppStorage().formDrafts ?? {};
   const kept = Object.fromEntries(
-    Object.entries(drafts).filter(([, draft]) => draft.owner !== identity),
+    Object.entries(drafts).filter(
+      ([, draft]) => draft.owner && draft.owner !== identity,
+    ),
   );
   if (Object.keys(kept).length === Object.keys(drafts).length) return;
 

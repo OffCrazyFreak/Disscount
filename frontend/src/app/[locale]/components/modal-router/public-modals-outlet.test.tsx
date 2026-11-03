@@ -3,11 +3,17 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import PublicModalsOutlet from "@/app/[locale]/components/modal-router/public-modals-outlet";
+import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { parseModalParam } from "@/lib/modal/modal-param-parser";
 import { renderWithProviders } from "@/test/render";
 
 const { user } = vi.hoisted(() => ({
-  user: { isAuthenticated: false, isLoading: false, refreshUser: vi.fn() },
+  user: {
+    isAuthenticated: false,
+    isLoading: false,
+    refreshUser: vi.fn(),
+    user: null as { id: string } | null,
+  },
 }));
 
 vi.mock("@/context/user-context", () => ({ useUser: () => user }));
@@ -22,6 +28,7 @@ function renderLanding(search: string) {
 describe("PublicModalsOutlet verification landings", () => {
   beforeEach(() => {
     user.isAuthenticated = false;
+    user.user = null;
   });
 
   it("shows the confirmation when the link worked", async () => {
@@ -72,5 +79,37 @@ describe("PublicModalsOutlet verification landings", () => {
       await screen.findByRole("button", { name: "Nastavi" }),
     );
     expect(window.location.search).toBe("");
+  });
+});
+
+describe("PublicModalsOutlet contact form", () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
+  });
+
+  it("drops what one account typed when another account signs in", async () => {
+    user.user = { id: "account-a" };
+    setCacheIdentity("account-a");
+    const { rerender } = renderLanding("?modal=contact");
+    const target = parseModalParam(new URLSearchParams("?modal=contact"));
+
+    await userEvent.type(
+      await screen.findByRole("textbox", { name: /Poruka/ }),
+      "Review Shots",
+    );
+    user.user = { id: "account-b" };
+    setCacheIdentity("account-b");
+    rerender(<PublicModalsOutlet target={target} />);
+
+    expect(await screen.findByRole("textbox", { name: /Poruka/ })).toHaveValue(
+      "",
+    );
   });
 });

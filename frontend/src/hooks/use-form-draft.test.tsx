@@ -96,4 +96,17 @@ describe("useFormDraft", () => {
 
     expect(getFormDraft(DRAFT_KEY)).toBeNull();
   });
+
+  it("saves under the account signed in when the modal opens, not the one at mount", () => {
+    setCacheIdentity("account-a");
+    const { result, rerender } = renderDraftHook();
+    rerender({ enabled: false });
+
+    setCacheIdentity("account-b");
+    rerender({ enabled: true });
+    act(() => result.current.form.setValue("name", "Mlijeko"));
+    rerender({ enabled: false });
+
+    expect(getFormDraft(DRAFT_KEY)?.values).toEqual({ name: "Mlijeko" });
+  });
 });
