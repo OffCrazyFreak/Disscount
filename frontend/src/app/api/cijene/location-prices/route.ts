@@ -59,6 +59,7 @@ export async function GET(request: NextRequest) {
   }
 
   return withCijeneRoute(
+    request,
     "location prices",
     locationPricesResponseSchema,
     async () => ({

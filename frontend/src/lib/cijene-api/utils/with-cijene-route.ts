@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
 import { CijeneApiError } from "@/lib/cijene-api/errors";
 import {
   createApiResponse,
@@ -10,12 +11,13 @@ import {
  * payload, and turn any failure into a response.
  *
  * An upstream error the caller could act on keeps its own status; everything
- * else becomes a 502, so a broken proxy is never reported as the caller's
- * mistake.
+ * else becomes a translated 502, so a broken proxy is never reported as the
+ * caller's mistake.
  *
  * Param parsing stays in each route, since it differs per endpoint.
  */
 export async function withCijeneRoute<TSchema extends z.ZodType>(
+  request: Request,
   resource: string,
   schema: TSchema,
   fetcher: () => Promise<{ data: unknown }>,
@@ -25,10 +27,12 @@ export async function withCijeneRoute<TSchema extends z.ZodType>(
     const parsed = schema.safeParse(response.data);
 
     if (!parsed.success) {
-      return createApiError("Invalid response from external API", {
-        status: 502,
-        details: z.treeifyError(parsed.error),
-      });
+      console.error(
+        `[cijene] invalid ${resource} response`,
+        z.treeifyError(parsed.error),
+      );
+
+      return proxyProblem("upstream_unavailable", request);
     }
 
     return createApiResponse(parsed.data);
@@ -37,9 +41,7 @@ export async function withCijeneRoute<TSchema extends z.ZodType>(
       return createApiError(error.message, { status: error.status });
     }
 
-    return createApiError(`Failed to fetch ${resource} from upstream`, {
-      status: 502,
-    });
+    return proxyProblem("upstream_unavailable", request);
   }
 }
 

@@ -9,14 +9,15 @@ import itErrors from "@/i18n/messages/it/errors.json";
 import slErrors from "@/i18n/messages/sl/errors.json";
 import { SESSION_CHANGED } from "@/lib/backend-proxy/proxy-contract";
 
-// The proxy's own refusals and failures, in the Problem Details shape problem-details.ts reads.
+// The backend and Cijene proxies' own refusals and failures, in the Problem Details shape problem-details.ts reads.
 export type ProxyProblemCode =
   | "not_found"
   | "csrf_rejected"
   | typeof SESSION_CHANGED
   | "auth_unavailable"
   | "backend_unavailable"
-  | "backend_timeout";
+  | "backend_timeout"
+  | "upstream_unavailable";
 
 type ProxyTitleKey = keyof typeof hrErrors.proxy;
 
@@ -39,6 +40,7 @@ const PROBLEMS: Record<
   auth_unavailable: { status: 503, titleKey: "unavailable" },
   backend_unavailable: { status: 502, titleKey: "unavailable" },
   backend_timeout: { status: 504, titleKey: "unavailable" },
+  upstream_unavailable: { status: 502, titleKey: "unavailable" },
 };
 
 /** The client sends <html lang> here, the same header Spring localises its own titles from. */
