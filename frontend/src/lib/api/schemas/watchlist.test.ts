@@ -31,6 +31,15 @@ describe("watchlistItemDtoSchema", () => {
     expect(parsed.updatedAt).toBeNull();
   });
 
+  it("accepts a zero threshold, which the form forbids but the column allows", () => {
+    const parsed = watchlistItemDtoSchema.parse({
+      ...neverNotifiedItem,
+      thresholdValue: 0,
+    });
+
+    expect(parsed.thresholdValue).toBe(0);
+  });
+
   it("rejects a response that drops a key the backend always sends", () => {
     const { lastNotifiedAt: _omitted, ...withoutKey } = neverNotifiedItem;
 
