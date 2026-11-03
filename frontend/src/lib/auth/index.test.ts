@@ -140,3 +140,10 @@ describe("session freshness", () => {
     expect(auth.options.session?.freshAge).toBe(0);
   });
 });
+
+// better-auth 1.6.25 encrypts the access and refresh tokens only; the id token stays as issued.
+describe("stored OAuth tokens", () => {
+  it("are encrypted before they reach the account table", () => {
+    expect(auth.options.account?.encryptOAuthTokens).toBe(true);
+  });
+});
