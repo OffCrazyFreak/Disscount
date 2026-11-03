@@ -68,9 +68,9 @@ flowchart LR
 | `db`       | Postgres 17                                           | `db:5432`        | no                    | one shared database, used by both                                                      |
 | `migrate`  | (frontend build image; `disscount-migrator` on `dev`) | n/a              | no                    | one-shot: runs drizzle migrations (auth tables, store locations) on deploy, then exits |
 
-**Why the backend isn't public:** the browser only ever calls `https://disscount.me/api/...` (relative URLs). Next.js `rewrites()` forwards those to `backend:8080` _server-side_, inside the Docker network. This means no CORS config is needed and the backend/DB have no internet-facing attack surface.
+**Why the backend isn't public:** the browser only ever calls `https://disscount.me/api/...` (relative URLs). A Next.js route handler (`app/api/[...path]`, see [BACKEND-PROXY.md](BACKEND-PROXY.md)) forwards those to `backend:8080` _server-side_, inside the Docker network. This means no CORS config is needed and the backend/DB have no internet-facing attack surface.
 
-**Auth flow:** better-auth (in the frontend) mints **ES256 JWTs**. The backend trusts them by fetching the public keys (**JWKS**) from `frontend:3000/api/auth/jwks` and checking the token issuer equals `https://disscount.me`.
+**Auth flow:** better-auth (in the frontend) mints **ES256 JWTs**, on the server, once per proxied call; the browser holds only its session cookie. The backend trusts them by fetching the public keys (**JWKS**) from `frontend:3000/api/auth/jwks` and checking the token issuer equals `https://disscount.me`.
 
 **Compose files:**
 

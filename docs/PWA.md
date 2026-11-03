@@ -90,7 +90,7 @@ Two caches, on purpose:
 - **Cache Storage (service worker):** the app shell (HTML/JS/CSS precache), static assets, and **public** `/api/cijene/*` GET responses. Never authenticated responses.
 - **IndexedDB (React Query):** the dynamic and **private** data (shopping lists, watchlist, viewed products, recent searches, profile). This is what makes authed screens work offline, and it is purged whenever the session ends (logout, expiry, revoked cookie, or sign-out in another tab).
 
-Everything is same-origin: the browser calls `/api/cijene/*` (Next.js route handlers to the external Cijene API) and `/api/*` (Next.js `rewrites()` proxy to the Spring backend), so the service worker can see and selectively cache them.
+Everything is same-origin: the browser calls `/api/cijene/*` (Next.js route handlers to the external Cijene API) and `/api/*` (the Next.js backend proxy route to Spring, [BACKEND-PROXY.md](BACKEND-PROXY.md)), so the service worker can see and selectively cache them.
 
 ---
 
@@ -237,12 +237,12 @@ Two mechanisms cooperate, split by data sensitivity.
 
 Runtime caching rules, evaluated top to bottom (first match wins):
 
-| Request                                              | Strategy                                   | Notes                                                                                                                  |
-| ---------------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| `GET /api/cijene/*` (public price data)              | **StaleWhileRevalidate**                   | cache `cijene-api`, `CacheableResponsePlugin` (statuses 0 + 200), `ExpirationPlugin` (200 entries, 7 days)             |
-| any other `/api/*` (authed, proxied to Spring)       | **NetworkOnly**                            | deliberately never cached; private data lives in IndexedDB instead                                                     |
-| `/shopping-lists/*` and `/<locale>/shopping-lists/*` | **NetworkFirst**                           | cache `shopping-list-pages`, 5s network timeout, 20 entries, 1 day. Must stay above `defaultCache`. See the note below |
-| everything else (app shell, `_next`, fonts, images)  | `defaultCache` from `@serwist/next/worker` | Next.js-tuned precache + runtime rules                                                                                 |
+| Request                                              | Strategy                                   | Notes                                                                                                                                                                                  |
+| ---------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/cijene/*` (public price data)              | **StaleWhileRevalidate**                   | cache `cijene-api`, `CacheableResponsePlugin` (statuses 0 + 200), `ExpirationPlugin` (200 entries, 7 days)                                                                             |
+| any other `/api/*` (authed, proxied to Spring)       | **NetworkOnly**                            | deliberately never cached; private data lives in IndexedDB instead. Serwist ignores `Cache-Control`, so this rule, not the proxy's `no-store`, keeps account data out of Cache Storage |
+| `/shopping-lists/*` and `/<locale>/shopping-lists/*` | **NetworkFirst**                           | cache `shopping-list-pages`, 5s network timeout, 20 entries, 1 day. Must stay above `defaultCache`. See the note below                                                                 |
+| everything else (app shell, `_next`, fonts, images)  | `defaultCache` from `@serwist/next/worker` | Next.js-tuned precache + runtime rules                                                                                                                                                 |
 
 The `/shopping-lists/*` rule is a privacy decision as much as a caching one. A list is
 shared at its own URL, so one of those documents can carry someone else's list title, and
@@ -314,6 +314,8 @@ Three pieces make replay-after-reload correct:
 - `offline-mutation-keys.ts`: the **allowlist** of mutation keys that may queue offline (shopping list create/update/delete, item add/update/delete, shared-list item update/delete, watchlist add/remove, digital card save/delete/pin/archive), plus the shared `DIGITAL_CARD_MUTATION_SCOPE` (`{ id: "digitalCards" }`) that makes the card mutations replay one at a time in order, plus `shouldPersistMutation` used by the persister so only paused, allowlisted mutations are written to disk.
 - `offline-mutations.ts` (`registerOfflineMutationDefaults`): registers, per mutation key, the `mutationFn` to re-run and the `onSettled` cache invalidation. These run when a paused mutation is replayed after a reload. The matching hooks in `lib/api/shopping-lists` and `lib/api/watchlist` carry the same `mutationKey`. The two shared-list defaults additionally pass an `onError` toast, which no other mutation does: a reload loses the `onError` given at `mutate()` time, so a failed replay would otherwise revert silently. Only mutations whose call sites do **not** handle errors themselves may take it, or the user sees the same toast twice, and it claims lost access only for 403 and 404 because it also runs for live online failures.
 - `react-query-provider.tsx`: registers those defaults when the client is created, and calls `resumePausedMutations()` once the persisted cache has been restored and on every `online` event, then replays the digital card photo outbox after the paused saves have finished.
+
+A replay needs only the session cookie: the backend proxy signs the token on the server, so there is no token fetch to race on reconnect. A replay whose session has ended gets 401 and stays queued; one whose cookie now names another account gets 401 `session_changed`, stays queued and is purged with the account it belonged to.
 
 ### Nuance: creating and renaming offline
 
