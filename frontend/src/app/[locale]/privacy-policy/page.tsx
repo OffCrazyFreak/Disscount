@@ -47,7 +47,7 @@ export default async function PrivacyPolicyPage() {
       <LegalSection heading="Kako koristimo podatke">
         <p>
           Podatke koristimo za pružanje usluge, prijavu u tvoj račun, prikaz
-          tvojih popisa i postavki te slanje obavijesti koje si omogućio.
+          tvojih popisa i postavki te slanje obavijesti koje uključiš.
         </p>
       </LegalSection>
 
