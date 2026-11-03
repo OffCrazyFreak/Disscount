@@ -133,8 +133,8 @@ public class DigitalCardService {
         DigitalCard card = requireActive(userId, id);
 
         // Photos are personal data, so they go now rather than with the 30 day purge.
-        photoRepository.deleteAllByCardId(id);
         cleanup.enqueuePrefix(PhotoKeys.cardPrefix(userId, id));
+        photoRepository.deleteAllByCardId(id);
 
         card.setDeletedAt(Timestamps.nowUtc());
         cardRepository.save(card);
@@ -163,7 +163,7 @@ public class DigitalCardService {
     public void deleteAllForUser(UUID userId) {
         photoRepository.deleteAllByUserId(userId);
         cardRepository.deleteAllByUserId(userId);
-        cleanup.enqueuePrefix(PhotoKeys.userPrefix(userId));
+        cleanup.enqueueErasure(PhotoKeys.userPrefix(userId));
         storeNameService.forgetUser(userId);
     }
 
@@ -173,8 +173,8 @@ public class DigitalCardService {
         for (DigitalCard card : stale) {
             UUID cardId = card.getId();
             String prefix = PhotoKeys.cardPrefix(card.getUser().getId(), cardId);
-            photoRepository.deleteAllByCardId(cardId);
             cleanup.enqueuePrefix(prefix);
+            photoRepository.deleteAllByCardId(cardId);
         }
         cardRepository.deleteAll(stale);
         return stale.size();

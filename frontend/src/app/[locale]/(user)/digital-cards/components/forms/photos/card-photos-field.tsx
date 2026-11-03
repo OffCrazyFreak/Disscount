@@ -29,7 +29,8 @@ export default function CardPhotosField({
   const t = useTranslations("digitalCards.photos");
   const config = digitalCardService.useDigitalCardsConfig();
 
-  if (config.data?.photosEnabled === false) return null;
+  // Hidden while the config is loading or unreachable: a photo picked then cannot upload where storage is off.
+  if (config.data?.photosEnabled !== true) return null;
 
   return (
     <fieldset className="space-y-2">

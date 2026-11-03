@@ -12,6 +12,7 @@ import disscount.storeName.service.StoreNameService;
 import disscount.storeName.service.StoreNameUpsert;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
+import disscount.util.Timestamps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -196,6 +197,39 @@ class PhotoCleanupServiceTest {
 
         assertThat(queue.findAll()).isEmpty();
         assertThat(store.objects).isEmpty();
+    }
+
+    @Test
+    void cardDeletesQueueNothingForPhotosThatWereNeverStored() {
+        store.enabled = false;
+
+        cardService.delete(owner.getId(), cardId);
+        cardService.purgeDeletedBefore(Timestamps.nowUtc().plusDays(1));
+
+        assertThat(queue.findAll()).isEmpty();
+    }
+
+    @Test
+    void accountDeletionQueuesTheUserPrefixEvenWithStorageOff() {
+        store.enabled = false;
+
+        cardService.deleteAllForUser(owner.getId());
+
+        assertThat(queue.findAll()).extracting(PhotoCleanup::getKeyOrPrefix)
+                .containsExactly("cards/" + owner.getId() + "/");
+    }
+
+    @Test
+    void removingAPhotoStoredBeforeStorageWasSwitchedOffQueuesBothKeys() {
+        upload("front");
+        String fullKey = photos.findByCardId(cardId).get(0).getFullKey();
+        String thumbKey = photos.findByCardId(cardId).get(0).getThumbKey();
+        store.enabled = false;
+
+        photoService.delete(owner.getId(), cardId, "front");
+
+        assertThat(queue.findAll()).extracting(PhotoCleanup::getKeyOrPrefix)
+                .containsExactlyInAnyOrder(fullKey, thumbKey);
     }
 
     private void upload(String slot) {

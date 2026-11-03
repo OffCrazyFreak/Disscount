@@ -14,6 +14,8 @@ import {
   sendQueuedCardPhoto,
 } from "@/lib/offline/card-photo-outbox";
 import { deleteSlotForCard } from "@/lib/offline/card-photo-store";
+import { httpStatus } from "@/lib/offline/failure-policy";
+import { isNetworkFailure } from "@/lib/offline/is-network-failure";
 import {
   prepareCardImage,
   type IPreparedCardImage,
@@ -100,10 +102,17 @@ export function useCardPhotoActions(cardId: string) {
     // A newer choice was sent in this one's place; its own caller reports the result.
     if (handled !== undefined && handled !== nonce) return;
 
-    if (outcome === "sent") mark(slot, undefined);
-    else if (outcome === "kept") mark(slot, "queued");
-    else {
-      mark(slot, "error");
+    if (outcome === "sent") {
+      mark(slot, undefined);
+      return;
+    }
+
+    mark(slot, outcome === "kept" ? "queued" : "error");
+    // The form has already closed on "saved", so a refusal the server may get over (rate
+    // limit, outage) is said aloud though it stays queued. A lost connection and a card the
+    // server has not seen yet wait quietly for the replay.
+    const waitsQuietly = isNetworkFailure(error) || httpStatus(error) === 404;
+    if (outcome === "dropped" || !waitsQuietly) {
       toast.error(problemMessage(error, t("saveFailed")));
     }
   }
