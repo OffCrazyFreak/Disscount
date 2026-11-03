@@ -68,4 +68,26 @@ class ContactMessageOwnershipTest extends FullStackTest {
 
         assertThat(messages.count()).isEqualTo(before);
     }
+
+    // People never type into the hidden field, so even whitespace there means a bot filled it.
+    @Test
+    void aWhitespaceOnlyHoneypotIsStillAHitAndStoresNothing() throws Exception {
+        long before = messages.count();
+
+        mvc.perform(submit("{\"subject\":\"Pitanje\",\"message\":\"Poruka\",\"honeypot\":\" \\t \"}"))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        assertThat(messages.count()).isEqualTo(before);
+    }
+
+    @Test
+    void anEmptyHoneypotIsAPersonAndTheMessageIsStored() throws Exception {
+        long before = messages.count();
+
+        mvc.perform(submit("{\"subject\":\"Pitanje\",\"message\":\"Poruka\",\"honeypot\":\"\"}"))
+                .andExpect(status().isOk());
+
+        assertThat(messages.count()).isEqualTo(before + 1);
+    }
 }
