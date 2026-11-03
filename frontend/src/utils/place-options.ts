@@ -1,6 +1,6 @@
 import { COUNTY_BY_POSTAL_AREA, type PostalArea } from "@/constants/counties";
 import { getLocationLabel } from "@/utils/labels";
-import { compareHr } from "@/utils/strings";
+import { compareHr, normalizeForSearch } from "@/utils/strings";
 import { readPostalArea, townKey, type IStoreTown } from "@/utils/store-towns";
 
 interface IPlaceStore {
@@ -38,12 +38,13 @@ export function listPlaceOptions(
     const area = readPostalArea(store.zipcode);
     if (!area) continue;
 
-    const name = getLocationLabel(store.city?.trim());
+    // Folded as the distance sort folds them, so both agree on what clashes.
+    const name = normalizeForSearch(getLocationLabel(store.city?.trim()));
     areasByName.set(name, (areasByName.get(name) ?? new Set()).add(area));
   }
 
   const options = [...names].sort(compareHr).flatMap<PlaceOption>((name) => {
-    const areas = [...(areasByName.get(name) ?? [])].sort();
+    const areas = [...(areasByName.get(normalizeForSearch(name)) ?? [])].sort();
     if (areas.length < 2) return [{ key: name, name, county: null }];
 
     return areas.map((area) => ({

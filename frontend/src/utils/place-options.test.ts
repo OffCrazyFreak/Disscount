@@ -22,6 +22,22 @@ describe("listPlaceOptions", () => {
     ]);
   });
 
+  it("splits a name whose stores spell it differently in two postal areas", () => {
+    expect(
+      listPlaceOptions(
+        ["Šenkovec"],
+        [
+          { city: "Senkovec", zipcode: "10000" },
+          { city: "Šenkovec", zipcode: "40000" },
+        ],
+        [],
+      ),
+    ).toEqual([
+      { key: "Šenkovec|10", name: "Šenkovec", county: "zagreb" },
+      { key: "Šenkovec|40", name: "Šenkovec", county: "medimurje" },
+    ]);
+  });
+
   it("keeps offering a place saved before its name was split", () => {
     expect(
       listPlaceOptions(["Sveta Nedelja"], STORES, ["Sveta Nedelja"]),
