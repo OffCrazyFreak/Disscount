@@ -4,14 +4,17 @@ import { useSyncExternalStore } from "react";
 import { useUser } from "@/context/user-context";
 import type { DirectoryStoreDto } from "@/lib/api/schemas";
 import type { ILatLon } from "@/utils/distance";
+import type { County } from "@/constants/counties";
 import { listStoreTowns, townCenter } from "@/utils/store-towns";
 
 export type DistanceOriginSource = "gps" | "picked" | "saved";
 
 export interface IDistanceOrigin extends ILatLon {
   source: DistanceOriginSource;
-  /** The label of the town the centre belongs to; null for a GPS fix. */
+  /** The town the centre belongs to; null for a GPS fix. */
   town: string | null;
+  /** Set only when another town shares the name. */
+  county: County | null;
 }
 
 // Module memory, not storage: a picked town lasts until the tab reloads and
@@ -44,7 +47,13 @@ function locateTown(
   const center = town ? townCenter(stores, town) : null;
 
   return center
-    ? { lat: center.lat, lon: center.lon, source, town: center.label }
+    ? {
+        lat: center.lat,
+        lon: center.lon,
+        source,
+        town: center.name,
+        county: center.county,
+      }
     : null;
 }
 
@@ -68,7 +77,13 @@ export function useDistanceOrigin(
 
   return {
     origin: gps
-      ? { lat: gps.lat, lon: gps.lon, source: "gps" as const, town: null }
+      ? {
+          lat: gps.lat,
+          lon: gps.lon,
+          source: "gps" as const,
+          town: null,
+          county: null,
+        }
       : town,
     town,
     /** A town is picked or saved, so a sort can start before the stores load. */

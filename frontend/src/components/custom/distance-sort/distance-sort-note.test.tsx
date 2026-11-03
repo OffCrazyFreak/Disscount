@@ -6,8 +6,8 @@ import DistanceSortNote from "@/components/custom/distance-sort/distance-sort-no
 import { renderWithProviders } from "@/test/render";
 
 const TOWNS = [
-  { name: "Split", label: "Split", zipcodes: ["21000"] },
-  { name: "Zagreb", label: "Zagreb", zipcodes: ["10000"] },
+  { key: "Split", name: "Split", county: null, zipcodes: ["21000"] },
+  { key: "Zagreb", name: "Zagreb", county: null, zipcodes: ["10000"] },
 ];
 
 // Browser APIs jsdom lacks, which the popover and the cmdk list measure with.
@@ -46,7 +46,7 @@ describe("DistanceSortNote", () => {
     expect(onPickTown).toHaveBeenCalledWith("Split");
   });
 
-  it("tells apart towns that share a name by postcode", async () => {
+  it("tells apart towns that share a name by county", async () => {
     const onPickTown = vi.fn();
     const user = userEvent.setup();
     renderWithProviders(
@@ -56,13 +56,15 @@ describe("DistanceSortNote", () => {
         origin={null}
         towns={[
           {
+            key: "Sveta Nedelja|10",
             name: "Sveta Nedelja",
-            label: "Sveta Nedelja (10431)",
+            county: "zagreb",
             zipcodes: ["10431"],
           },
           {
+            key: "Sveta Nedelja|52",
             name: "Sveta Nedelja",
-            label: "Sveta Nedelja (52231)",
+            county: "istria",
             zipcodes: ["52231"],
           },
         ]}
@@ -72,10 +74,32 @@ describe("DistanceSortNote", () => {
 
     await user.click(screen.getByRole("button", { name: "Odaberi mjesto" }));
     await user.click(
-      screen.getByRole("option", { name: "Sveta Nedelja (52231)" }),
+      screen.getByRole("option", { name: "Sveta Nedelja (Istarska)" }),
     );
 
-    expect(onPickTown).toHaveBeenCalledWith("Sveta Nedelja (52231)");
+    expect(onPickTown).toHaveBeenCalledWith("Sveta Nedelja|52");
+  });
+
+  it("names the county of a namesake it sorted from", () => {
+    renderWithProviders(
+      <DistanceSortNote
+        id="note"
+        state="ready"
+        origin={{
+          lat: 45.06,
+          lon: 14.06,
+          source: "picked",
+          town: "Sveta Nedelja",
+          county: "istria",
+        }}
+        towns={TOWNS}
+        onPickTown={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Sveta Nedelja (Istarska)",
+    );
   });
 
   it("names the saved place it sorted from and offers to change it", () => {
@@ -83,7 +107,13 @@ describe("DistanceSortNote", () => {
       <DistanceSortNote
         id="note"
         state="ready"
-        origin={{ lat: 43.5, lon: 16.4, source: "saved", town: "Split" }}
+        origin={{
+          lat: 43.5,
+          lon: 16.4,
+          source: "saved",
+          town: "Split",
+          county: null,
+        }}
         towns={TOWNS}
         onPickTown={vi.fn()}
       />,
@@ -102,7 +132,13 @@ describe("DistanceSortNote", () => {
       <DistanceSortNote
         id="note"
         state="ready"
-        origin={{ lat: 43.5, lon: 16.4, source: "gps", town: null }}
+        origin={{
+          lat: 43.5,
+          lon: 16.4,
+          source: "gps",
+          town: null,
+          county: null,
+        }}
         towns={TOWNS}
         onPickTown={vi.fn()}
       />,
@@ -130,7 +166,13 @@ describe("DistanceSortNote", () => {
       <DistanceSortNote
         id="note"
         state="locating"
-        origin={{ lat: 43.5, lon: 16.4, source: "picked", town: "Split" }}
+        origin={{
+          lat: 43.5,
+          lon: 16.4,
+          source: "picked",
+          town: "Split",
+          county: null,
+        }}
         towns={TOWNS}
         onPickTown={vi.fn()}
       />,

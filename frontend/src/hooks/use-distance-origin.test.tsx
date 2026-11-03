@@ -7,14 +7,19 @@ import type { DirectoryStoreDto } from "@/lib/api/schemas";
 let user: { pinnedPlaces?: { placeApiId: string }[] } | null = null;
 vi.mock("@/context/user-context", () => ({ useUser: () => ({ user }) }));
 
-function store(city: string, lat: number, lon: number): DirectoryStoreDto {
+function store(
+  city: string,
+  lat: number,
+  lon: number,
+  zipcode: string | null = null,
+): DirectoryStoreDto {
   return {
     chain: "konzum",
     code: `${city}-${lat}`,
     type: null,
     address: null,
     city,
-    zipcode: null,
+    zipcode,
     phone: null,
     lat,
     lon,
@@ -55,6 +60,7 @@ describe("useDistanceOrigin", () => {
       lon: expect.closeTo(15.95),
       source: "saved",
       town: "Zagreb",
+      county: null,
     });
   });
 
@@ -79,6 +85,7 @@ describe("useDistanceOrigin", () => {
       ...GPS,
       source: "gps",
       town: null,
+      county: null,
     });
     expect(result.current.town).toMatchObject({ town: "Zagreb" });
   });

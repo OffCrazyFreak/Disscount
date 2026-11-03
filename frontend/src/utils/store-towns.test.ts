@@ -19,21 +19,23 @@ const NAMESAKES = [
 describe("listStoreTowns", () => {
   it("lists each town with a located store once, in Croatian order", () => {
     expect(listStoreTowns(STORES)).toEqual([
-      { name: "Čakovec", label: "Čakovec", zipcodes: ["40000"] },
-      { name: "Split", label: "Split", zipcodes: ["21000"] },
+      { key: "Čakovec", name: "Čakovec", county: null, zipcodes: ["40000"] },
+      { key: "Split", name: "Split", county: null, zipcodes: ["21000"] },
     ]);
   });
 
-  it("keeps apart towns that share a name in different postal areas", () => {
+  it("keeps apart towns that share a name, naming their counties", () => {
     expect(listStoreTowns(NAMESAKES)).toEqual([
       {
+        key: "Sveta Nedelja|10",
         name: "Sveta Nedelja",
-        label: "Sveta Nedelja (10431)",
+        county: "zagreb",
         zipcodes: ["10431"],
       },
       {
+        key: "Sveta Nedelja|52",
         name: "Sveta Nedelja",
-        label: "Sveta Nedelja (52231)",
+        county: "istria",
         zipcodes: ["52231"],
       },
     ]);
@@ -45,7 +47,28 @@ describe("listStoreTowns", () => {
         ...STORES,
         { city: "Split", zipcode: null, lat: 43.5, lon: 16.5 },
       ]),
-    ).toContainEqual({ name: "Split", label: "Split", zipcodes: ["21000"] });
+    ).toContainEqual({
+      key: "Split",
+      name: "Split",
+      county: null,
+      zipcodes: ["21000"],
+    });
+  });
+
+  it("treats a postcode outside every postal area as missing", () => {
+    expect(
+      listStoreTowns([
+        { city: "Umag", zipcode: "52470", lat: 45.43, lon: 13.52 },
+        { city: "Umag", zipcode: "HR-52470", lat: 45.44, lon: 13.53 },
+      ]),
+    ).toEqual([
+      {
+        key: "Umag",
+        name: "Umag",
+        county: null,
+        zipcodes: ["HR-52470", "52470"].sort(),
+      },
+    ]);
   });
 });
 
@@ -54,25 +77,28 @@ describe("townCenter", () => {
     expect(townCenter(STORES, "Split")).toEqual({
       lat: expect.closeTo(43.51),
       lon: expect.closeTo(16.44),
-      label: "Split",
-    });
-  });
-
-  it("measures each namesake from its own stores", () => {
-    expect(townCenter(NAMESAKES, "Sveta Nedelja (52231)")).toEqual({
-      lat: 45.06,
-      lon: 14.06,
-      label: "Sveta Nedelja (52231)",
-    });
-  });
-
-  it("places a bare shared name, as a saved place has, at the lowest postcode", () => {
-    expect(townCenter(NAMESAKES, "Sveta Nedelja")).toMatchObject({
-      label: "Sveta Nedelja (10431)",
+      name: "Split",
+      county: null,
     });
   });
 
   it("knows no centre for a town without located stores", () => {
     expect(townCenter(STORES, "Bjelovar")).toBeNull();
+  });
+
+  it("measures each namesake from its own stores", () => {
+    expect(townCenter(NAMESAKES, "Sveta Nedelja|52")).toEqual({
+      lat: 45.06,
+      lon: 14.06,
+      name: "Sveta Nedelja",
+      county: "istria",
+    });
+  });
+
+  it("places a bare shared name, as an older saved place has, at the lowest postal area", () => {
+    expect(townCenter(NAMESAKES, "Sveta Nedelja")).toMatchObject({
+      lat: 45.8,
+      county: "zagreb",
+    });
   });
 });

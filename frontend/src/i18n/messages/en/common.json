@@ -180,5 +180,30 @@
     "townSearch": "Search a town or postcode",
     "townList": "Towns with stores",
     "townEmpty": "No town with stores matches that."
+  },
+  "towns": {
+    "withCounty": "{town} ({county})",
+    "counties": {
+      "zagreb": "Zagreb",
+      "krapinaZagorje": "Krapina-Zagorje",
+      "sisakMoslavina": "Sisak-Moslavina",
+      "karlovac": "Karlovac",
+      "varazdin": "Varaždin",
+      "koprivnicaKrizevci": "Koprivnica-Križevci",
+      "bjelovarBilogora": "Bjelovar-Bilogora",
+      "primorjeGorskiKotar": "Primorje-Gorski Kotar",
+      "likaSenj": "Lika-Senj",
+      "viroviticaPodravina": "Virovitica-Podravina",
+      "pozegaSlavonia": "Požega-Slavonia",
+      "brodPosavina": "Brod-Posavina",
+      "zadar": "Zadar",
+      "osijekBaranja": "Osijek-Baranja",
+      "sibenikKnin": "Šibenik-Knin",
+      "vukovarSrijem": "Vukovar-Srijem",
+      "splitDalmatia": "Split-Dalmatia",
+      "istria": "Istria",
+      "dubrovnikNeretva": "Dubrovnik-Neretva",
+      "medimurje": "Međimurje"
+    }
   }
 }
