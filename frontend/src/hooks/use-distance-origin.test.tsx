@@ -90,6 +90,22 @@ describe("useDistanceOrigin", () => {
     expect(result.current.town).toMatchObject({ town: "Zagreb" });
   });
 
+  it("starts a saved namesake from the county it was saved with", () => {
+    user = { pinnedPlaces: [{ placeApiId: "Sveta Nedelja|52" }] };
+    const stores = [
+      store("Sveta Nedelja", 45.8, 15.78, "10431"),
+      store("Sveta Nedelja", 45.06, 14.06, "52231"),
+    ];
+
+    const { result } = renderHook(() => useDistanceOrigin(stores, null));
+
+    expect(result.current.origin).toMatchObject({
+      lat: 45.06,
+      town: "Sveta Nedelja",
+      county: "istria",
+    });
+  });
+
   it("ignores a saved place with no located store", () => {
     user = { pinnedPlaces: [{ placeApiId: "Vis" }] };
 

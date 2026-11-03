@@ -34,7 +34,7 @@ export function useSettingsDefaults() {
       newsletter: !!user?.newsletterEnabledAt,
       feedbackContact: !!user?.feedbackContactEnabledAt,
       pinnedStores: pinnedStores.map((store) => store.storeApiId),
-      pinnedPlaces: pinnedPlaces.map((place) => place.placeName),
+      pinnedPlaces: pinnedPlaces.map((place) => place.placeApiId),
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [user, storesQuery.data, placesQuery.data],
