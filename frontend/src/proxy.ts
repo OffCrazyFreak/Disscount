@@ -15,6 +15,12 @@ const PRODUCT_PATH = new RegExp(
   `^(?:/(${LOCALES.join("|")}))?/products/([^/]+)/?$`,
 );
 
+// Next advertises og:image and twitter:image with the locale prefix even for Croatian,
+// and link preview bots may drop an image behind as-needed's redirect to the bare URL.
+const PREFIXED_SHARE_IMAGE_PATH = new RegExp(
+  `^/(?:${LOCALES.join("|")})/(?:opengraph-image|twitter-image)(?:/|$)`,
+);
+
 function hasValidEscapes(segment: string): boolean {
   try {
     decodeURIComponent(segment);
@@ -46,6 +52,11 @@ function malformedProductResponse(request: NextRequest): NextResponse | null {
 }
 
 export default function proxy(request: NextRequest) {
+  // The image routes read the locale from their own params, so they need nothing from next-intl.
+  if (PREFIXED_SHARE_IMAGE_PATH.test(request.nextUrl.pathname)) {
+    return NextResponse.next();
+  }
+
   // Only the bare root follows a saved choice: typing the domain or launching the
   // installed app lands there. Crawlers never carry the cookie, and every other URL
   // keeps showing its own language.
