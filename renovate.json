@@ -51,11 +51,11 @@
       "enabled": false
     },
     {
-      "description": "springdoc tracks the Spring Boot line; Boot 3.1.x pairs with 2.2.x. Drop once the Boot 4 migration lands",
+      "description": "springdoc's major tracks the Spring Boot major: 2.x for Boot 3, 3.x for Boot 4. Raise this cap in the PR that moves Boot to the next major",
       "matchPackageNames": [
         "org.springdoc:springdoc-openapi-starter-webmvc-ui"
       ],
-      "allowedVersions": "<2.3.0"
+      "allowedVersions": "<3.0.0"
     },
     {
       "description": "A Java major also needs the maven build image tag and pom java.version, which Renovate cannot bump",
