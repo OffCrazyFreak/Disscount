@@ -56,7 +56,7 @@ The config sets `restoreMocks`, `unstubEnvs` and `unstubGlobals`, and Vitest 5 c
 ## What unit tests do not cover
 
 - **Async Server Components, `generateMetadata` and server actions.** Vitest cannot render async Server Components (the Next.js testing guide says so too). Move the logic into a plain function and test that, and leave the page itself to end-to-end tests.
-- **`proxy.ts`, the service worker, camera scanning, canvas images and pointer gestures.** These need a real browser or a production build. They are checked by hand for now (see `PWA.md` and `MOBILE-NAV.md`).
+- **The proxy's `config.matcher`, the service worker, camera scanning, canvas images and pointer gestures.** These need a real browser or a production build. They are checked by hand for now (see `PWA.md` and `MOBILE-NAV.md`). The `proxy()` function itself runs in the `unit` project: `src/proxy.test.ts` calls it with a `NextRequest` and checks the status and `Location` it answers.
 - **End-to-end flows.** There is no end-to-end suite yet. When one arrives, it goes in a top-level `frontend/e2e/` folder with `*.spec.ts` names, so it never mixes with Vitest's `*.test.*`.
 
 ## Dev test accounts and seed data
