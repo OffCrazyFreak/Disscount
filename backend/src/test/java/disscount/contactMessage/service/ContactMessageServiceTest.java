@@ -71,6 +71,15 @@ class ContactMessageServiceTest {
     }
 
     @Test
+    void aWhitespaceOnlyHoneypotIsDroppedWithoutAMessage() {
+        ContactMessageRequest bot = request();
+        bot.setHoneypot("   ");
+
+        assertThat(service.create(bot)).isEmpty();
+        assertThat(service.list(true)).isEmpty();
+    }
+
+    @Test
     void anUnknownMessageIdIsNotFound() {
         UUID unknown = UUID.randomUUID();
 
