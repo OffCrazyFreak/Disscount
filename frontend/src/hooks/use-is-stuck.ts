@@ -1,14 +1,18 @@
 "use client";
 
 import { useCallback, useSyncExternalStore, type RefObject } from "react";
+import { HEADER_BOTTOM_CHANGE_EVENT } from "@/hooks/use-header-bottom-variable";
 
 function subscribe(onStoreChange: () => void): () => void {
   window.addEventListener("scroll", onStoreChange, { passive: true });
   window.addEventListener("resize", onStoreChange);
+  // The header resizes as it animates, which moves the sticky top without a scroll.
+  window.addEventListener(HEADER_BOTTOM_CHANGE_EVENT, onStoreChange);
 
   return () => {
     window.removeEventListener("scroll", onStoreChange);
     window.removeEventListener("resize", onStoreChange);
+    window.removeEventListener(HEADER_BOTTOM_CHANGE_EVENT, onStoreChange);
   };
 }
 
@@ -28,7 +32,8 @@ export function useIsStuck(
 
     const stuckTop = parseFloat(getComputedStyle(bar).top) || 0;
 
-    return container.getBoundingClientRect().top < stuckTop;
+    // At or above, not only above: a tab switch from the stuck bar lands it exactly on the line.
+    return container.getBoundingClientRect().top <= stuckTop;
   }, [containerRef, barRef]);
 
   // The server has no scroll position, so nothing is stuck yet.

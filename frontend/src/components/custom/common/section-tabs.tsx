@@ -88,7 +88,12 @@ export default function SectionTabs({ label, tabs }: ISectionTabsProps) {
                   "relative w-full rounded-none p-0 before:absolute before:inset-x-0 before:bottom-0 before:h-0.75 before:rounded-full before:bg-border",
             )}
           >
-            <motion.div layout transition={transition}>
+            <motion.div
+              layout
+              transition={transition}
+              // Set through style so the layout animation keeps the corners round while it scales.
+              style={{ borderRadius: isStuck ? 12 : 0 }}
+            >
               {tabs.map((tab) => {
                 const isActive = tab.id === activeId;
                 const hasCount = !!tab.count && tab.count > 0;
@@ -102,8 +107,9 @@ export default function SectionTabs({ label, tabs }: ISectionTabsProps) {
                     className={cn(
                       "h-full min-w-0 font-normal transition-[color,background-color,box-shadow] data-[state=active]:font-semibold",
                       isStuck
-                        ? "flex-none rounded-lg px-4 text-[1.0625rem]"
-                        : "rounded-none px-3 text-[1.0625rem] data-[state=active]:bg-linear-to-t data-[state=active]:bg-origin-border data-[state=active]:from-primary/10 data-[state=active]:to-transparent data-[state=active]:to-75% group-data-[orientation=horizontal]/tabs:after:bottom-0 group-data-[orientation=horizontal]/tabs:after:h-0.75 after:rounded-full after:bg-primary after:forced-color-adjust-none forced-colors:after:bg-[Highlight]",
+                        ? // Shrinks on narrow phones instead of overflowing; a three tab list is wider than the screen there.
+                          "min-w-0 flex-initial rounded-lg px-2.5 text-[1.0625rem] sm:px-4 forced-color-adjust-none forced-colors:data-[state=active]:bg-[Highlight] forced-colors:data-[state=active]:text-[HighlightText]"
+                        : "rounded-none px-3 text-[1.0625rem] data-[state=active]:bg-linear-to-t data-[state=active]:bg-origin-border data-[state=active]:from-primary/10 data-[state=active]:to-transparent data-[state=active]:to-75% group-data-[orientation=horizontal]/tabs:after:-bottom-px group-data-[orientation=horizontal]/tabs:after:h-0.75 after:rounded-full after:bg-primary after:forced-color-adjust-none forced-colors:after:bg-[Highlight]",
                     )}
                   >
                     <motion.button layout="position" transition={transition}>
@@ -137,9 +143,9 @@ export default function SectionTabs({ label, tabs }: ISectionTabsProps) {
                                 "bg-background text-muted-foreground",
                               isActive &&
                                 !isStuck &&
-                                "bg-primary/10 text-primary",
+                                "bg-primary/10 text-green-700",
                               // On the stuck pill the open tab is filled green, so its badge turns white.
-                              isActive && isStuck && "bg-white text-primary",
+                              isActive && isStuck && "bg-white text-green-700",
                             )}
                           >
                             {format.number(tab.count ?? 0)}
