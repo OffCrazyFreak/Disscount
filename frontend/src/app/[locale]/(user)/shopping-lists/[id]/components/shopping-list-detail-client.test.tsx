@@ -1,3 +1,4 @@
+import { IsRestoringProvider } from "@tanstack/react-query";
 import { screen } from "@testing-library/react";
 import { AxiosError, AxiosHeaders } from "axios";
 import { describe, expect, it, vi } from "vitest";
@@ -92,6 +93,18 @@ function httpError(status: number) {
 }
 
 describe("ShoppingListDetailClient", () => {
+  it("does not call the list unavailable while the cache restores", () => {
+    data.shoppingList = undefined;
+    data.error = null;
+    renderWithProviders(
+      <IsRestoringProvider value>
+        <ShoppingListDetailClient listId={LIST.id} />
+      </IsRestoringProvider>,
+    );
+
+    expect(screen.queryByText("unavailable")).not.toBeInTheDocument();
+  });
+
   it("keeps the list on screen when a background refetch fails", () => {
     data.shoppingList = LIST;
     data.error = httpError(503);

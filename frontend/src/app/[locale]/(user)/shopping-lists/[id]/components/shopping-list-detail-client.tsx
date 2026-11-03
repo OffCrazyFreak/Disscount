@@ -1,5 +1,6 @@
 "use client";
 
+import { useIsRestoring } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import ShoppingListStoreSummary from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-list";
@@ -44,8 +45,10 @@ export default function ShoppingListDetailClient({
     isRetryingPrices,
     isPricesLoading,
   } = useShoppingListData(listId);
+  // Restoring queries report idle, not loading, and the server render is always restoring.
+  const isRestoring = useIsRestoring();
 
-  if (isLoading) {
+  if (isLoading || isRestoring) {
     return (
       <div className="grid place-items-center">
         <BlockLoadingSpinner size={96} />
