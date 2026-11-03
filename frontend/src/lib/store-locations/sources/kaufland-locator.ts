@@ -3,7 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { fetchPlacedRows } from "@/lib/store-locations/sources/fetch-placed-rows";
-import type { IStoreLocator } from "@/lib/store-locations/types";
+import type { IStoreLocator } from "@/lib/store-locations/store-location-types";
 
 const URL = "https://www.kaufland.hr/.klstorefinder.json";
 

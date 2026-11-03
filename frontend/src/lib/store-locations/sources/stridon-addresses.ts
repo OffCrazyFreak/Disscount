@@ -1,7 +1,7 @@
 import "server-only";
 
 import { fetchText } from "@/lib/store-locations/http";
-import type { ILookupAddress } from "@/lib/store-locations/types";
+import type { ILookupAddress } from "@/lib/store-locations/store-location-types";
 
 const PAGE_URL = "https://stridon.hr/hr/distribucija/maloprodaja-4";
 

@@ -2,7 +2,7 @@ import "server-only";
 
 import { delay } from "@/lib/store-locations/http";
 import { saveResolvedLocation } from "@/lib/store-locations/location-repository";
-import { IResolvedLocation } from "@/lib/store-locations/types";
+import { IResolvedLocation } from "@/lib/store-locations/store-location-types";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 
 type Geocode = (

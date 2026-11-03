@@ -4,7 +4,7 @@ import { sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import { storeLocation } from "@/db/store-location-schema";
-import { IResolvedLocation } from "@/lib/store-locations/types";
+import { IResolvedLocation } from "@/lib/store-locations/store-location-types";
 
 export type StoreLocationRow = typeof storeLocation.$inferSelect;
 

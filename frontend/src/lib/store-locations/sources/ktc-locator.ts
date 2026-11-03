@@ -4,7 +4,10 @@ import { z } from "zod";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchText } from "@/lib/store-locations/http";
-import type { ILocatorStore, IStoreLocator } from "@/lib/store-locations/types";
+import type {
+  ILocatorStore,
+  IStoreLocator,
+} from "@/lib/store-locations/store-location-types";
 
 const SOURCE_URL = "https://www.ktc.hr/";
 

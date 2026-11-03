@@ -1,6 +1,6 @@
 import "server-only";
 
-import { IStoreLocator } from "@/lib/store-locations/types";
+import { IStoreLocator } from "@/lib/store-locations/store-location-types";
 import { bosoLocator } from "@/lib/store-locations/sources/boso-locator";
 import { brankaLocator } from "@/lib/store-locations/sources/branka-locator";
 import { eurospinLocator } from "@/lib/store-locations/sources/eurospin-locator";

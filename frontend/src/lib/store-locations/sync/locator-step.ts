@@ -5,7 +5,7 @@ import { saveResolvedLocation } from "@/lib/store-locations/location-repository"
 import { storeLocators } from "@/lib/store-locations/sources";
 import { matchLocatorStore } from "@/lib/store-locations/sync/match-locator-store";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
-import type { ILocatorStore } from "@/lib/store-locations/types";
+import type { ILocatorStore } from "@/lib/store-locations/store-location-types";
 
 /**
  * Places targets from their chain's own store locator. One chain failing (a

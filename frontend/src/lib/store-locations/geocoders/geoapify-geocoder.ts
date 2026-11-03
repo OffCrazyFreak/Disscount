@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchJson } from "@/lib/store-locations/http";
-import type { IResolvedLocation } from "@/lib/store-locations/types";
+import type { IResolvedLocation } from "@/lib/store-locations/store-location-types";
 import {
   geoapifyQuery,
   geoapifyResultSchema,

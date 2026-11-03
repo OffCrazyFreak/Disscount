@@ -7,7 +7,7 @@ import { fetchJson } from "@/lib/store-locations/http";
 import type {
   IResolvedLocation,
   LocationPrecision,
-} from "@/lib/store-locations/types";
+} from "@/lib/store-locations/store-location-types";
 import {
   houseNumberMatches,
   requestedHouseNumber,
