@@ -6,6 +6,7 @@ import * as Sentry from "@sentry/nextjs";
 
 import { moveResetTokenOutOfUrl } from "@/lib/auth/reset-token-storage";
 import { SENTRY_APPLICATION_KEY } from "@/lib/sentry/application-key";
+import { sentryDataCollection } from "@/lib/sentry/data-collection";
 import { isServiceWorkerRegistrationNoise } from "@/lib/sentry/ignore-service-worker-noise";
 import {
   scrubSensitiveData,
@@ -72,8 +73,7 @@ Sentry.init({
   replaysSessionSampleRate: 0.01,
   replaysOnErrorSampleRate: 1.0,
 
-  // App is privacy-conscious (EU/DE) - keep IPs/headers/user data out of events by default.
-  sendDefaultPii: false,
+  dataCollection: sentryDataCollection,
 });
 
 // Replay events carry the visited page URLs, and no before* hook sees them.
