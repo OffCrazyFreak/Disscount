@@ -14,6 +14,7 @@ import disscount.productImage.dao.ProductImageSetRepository;
 import disscount.productImage.domain.ImageStatus;
 import disscount.productImage.domain.ProductImage;
 import disscount.productImage.domain.ProductImageSet;
+import disscount.productImage.dto.ProductImageDtos.ListedEansDto;
 import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
 import disscount.productImage.dto.ProductImageDtos.ProductThumbnailsDto;
 import disscount.productImage.storage.ProductImageStore;
@@ -56,6 +57,12 @@ public class ProductImageQueryService {
             result.put(image.getEan(), store.publicUrl(image.getThumbKey()));
         }
         return new ProductThumbnailsDto(result);
+    }
+
+    /** Products currently on sale somewhere, for the public product sitemap. */
+    @Transactional(readOnly = true)
+    public ListedEansDto listedEans() {
+        return new ListedEansDto(sets.findListedEans());
     }
 
     static void requireEan(String ean) {

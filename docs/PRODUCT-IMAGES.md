@@ -53,7 +53,7 @@ The white is part of the file on purpose. Dark Reader's default mode recolours C
 
 ## 5. Background jobs
 
-All in `ProductImageJobs`, all off when the public bucket is not configured or `product-images.jobs.enabled=false` (the test profile).
+All in `ProductImageJobs`, all off when `product-images.jobs.enabled=false` (the test profile). Without the public bucket only the catalogue part of the weekly import runs, because the product sitemap reads it; the Open Food Facts seed and photo copying wait for the bucket.
 
 | Job                | When                                                         | What                                                                                                              |
 | ------------------ | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
@@ -65,7 +65,7 @@ The last import is stored in `product_image_import_run`, so a redeploy does not 
 
 ## 6. API
 
-Public (no login): `GET /api/products/{ean}/images` and `GET /api/products/images/thumbnails?eans=a,b` (up to 100). Logged in: `POST /api/products/{ean}/images` (multipart field `photo`, JPEG, 10 per 10 minutes per user, admins exempt) and `POST /api/products/images/{id}/report` (once per user and photo).
+Public (no login): `GET /api/products/{ean}/images`, `GET /api/products/images/thumbnails?eans=a,b` (up to 100) and `GET /api/products/catalog/eans` (every EAN with `store_listings > 0`, read by the frontend's product sitemap). Logged in: `POST /api/products/{ean}/images` (multipart field `photo`, JPEG, 10 per 10 minutes per user, admins exempt) and `POST /api/products/images/{id}/report` (once per user and photo).
 
 Admin, under `/api/admin/product-images`: `GET /queue?filter=todo|pending|reported&page&size`, `GET /{ean}`, `POST /{ean}/refresh`, `PUT /{ean}/main`, `POST /{ean}/reviewed`, `PUT /images/{id}/status` (`VERIFIED` also clears reports, or `HIDDEN`), `PUT /images/{id}/crop`, `GET /images/{id}/original` (the private original, for the crop screen).
 
