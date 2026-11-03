@@ -11,7 +11,7 @@ The frontend parses every backend response with zod, and a zod enum rejects a va
 Three links, each with its own test:
 
 - **Real responses match the contract.** The `*WireFormatTest` classes run the whole app on H2 and compare a response's keys to `ApiContract.fields("SomeDto")`.
-- **The contract matches the backend.** `ApiContractTest` builds the contract again and compares it to the committed file. The schemas come from springdoc's `/v3/api-docs` (`components.schemas`, every DTO a controller names). The enums come from a classpath scan of `disscount`, because some enums are `String` fields on the wire (`ImageSource`, `ImageStatus`) and some are never in a DTO (`QueueFilter`).
+- **The contract matches the backend.** `ApiContractTest` builds the contract again and compares it to the committed file. The schemas come from springdoc's `/v3/api-docs` (`components.schemas`, every DTO a controller names). The enums come from a classpath scan of `disscount`, leaving out test classes, because some enums are `String` fields on the wire (`ImageSource`, `ImageStatus`) and some are never in a DTO (`QueueFilter`).
 - **The zod schemas match the contract.** `frontend/src/lib/api/schemas/backend-contract.test.ts` turns each zod schema into JSON Schema with `z.toJSONSchema` and compares field names, types, enum values and nested objects.
 
 The frontend test also fails on anything unclassified: a new DTO or enum in the file must be added to the mirrored table or to the named "no zod schema" or "backend only" list.
@@ -45,7 +45,12 @@ Not checked:
 
 ## 5. Accepted differences
 
-`ACCEPTED_DRIFT` in the test lists each deliberate difference with its reason, and an entry that stops being different fails the test. Today: `UserDto.name`, `pinnedStores` and `pinnedPlaces` are filled on the client, and `ShoppingListDto.linkAccess` is typed `ListAccess` in Java but never answers `OWNER`.
+`ACCEPTED_DRIFT` in the test lists each deliberate difference with its reason, and an entry that stops being different fails the test. Today:
+
+- `UserDto.name`, `pinnedStores` and `pinnedPlaces` are filled on the client.
+- `ShoppingListDto.linkAccess` is typed `ListAccess` in Java but never answers `OWNER`.
+- `UserRequest.onboardingOutcome` and `ContactMessageRequest.email` are zod unions, which state a rule rather than one shape, so they are named instead of compared.
+- The photo slot, card type, code type, image source and image status are zod enums over plain `String` fields in the response DTOs. The enum table and `DigitalCardRequest`'s regexes hold those values to the backend, one level away from the field itself. Typing the fields as enums in Java would let these entries go.
 
 ## 6. Key files
 
