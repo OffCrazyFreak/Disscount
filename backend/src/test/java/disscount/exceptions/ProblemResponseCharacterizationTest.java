@@ -82,6 +82,27 @@ class ProblemResponseCharacterizationTest {
     }
 
     @Test
+    void anUnsupportedContentTypeIsA415ListingTheAcceptedOnes() throws Exception {
+        mvc.perform(post("/api/contact").with(jwt()).contentType(MediaType.TEXT_PLAIN).content("hi"))
+                .andExpect(status().isUnsupportedMediaType())
+                .andExpect(header().exists(HttpHeaders.ACCEPT))
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.type").value("urn:disscount:unsupported-media-type"))
+                .andExpect(jsonPath("$.title").value("Format nije podržan"))
+                .andExpect(jsonPath("$.detail").value("Ovaj format sadržaja nije podržan."));
+    }
+
+    @Test
+    void aMissingRequiredQueryParameterIsA400NamingIt() throws Exception {
+        mvc.perform(get("/api/products/images/thumbnails"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.type").value("urn:disscount:bad-request"))
+                .andExpect(jsonPath("$.title").value("Neispravan zahtjev"))
+                .andExpect(jsonPath("$.detail").value("Nedostaje parametar: eans"));
+    }
+
+    @Test
     void aListParameterFailingValidationIsKeyedByMethodAndParameter() throws Exception {
         mvc.perform(post("/api/digital-cards/used").with(jwt()).contentType(MediaType.APPLICATION_JSON).content("[]"))
                 .andExpect(status().isBadRequest())
