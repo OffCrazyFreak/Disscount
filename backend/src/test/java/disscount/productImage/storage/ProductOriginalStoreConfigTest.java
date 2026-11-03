@@ -3,7 +3,9 @@ package disscount.productImage.storage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
+import disscount.digitalCard.storage.FilesystemPhotoStore;
 import disscount.digitalCard.storage.PhotoStore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -35,6 +37,24 @@ class ProductOriginalStoreConfigTest {
 
         assertThat(onDisk(directory).enabled()).isFalse();
         assertThat(directory.resolve(ProductOriginalStore.ROOT_FOLDER)).doesNotExist();
+    }
+
+    @Test
+    void eachFolderSwitchesOnlyItsOwnStore(@TempDir Path directory) throws IOException {
+        PhotoStore cards = new FilesystemPhotoStore(directory, PhotoStore.ROOT_FOLDER, "error.cardPhoto.unavailable");
+        ProductOriginalStore originals = onDisk(directory);
+        ProductImageStore publicPhotos = new FilesystemProductImageStore(directory, "https://images.test");
+
+        Files.createDirectory(directory.resolve(PhotoStore.ROOT_FOLDER));
+        assertThat(List.of(cards.enabled(), originals.enabled(), publicPhotos.enabled())).containsExactly(true, false, false);
+
+        Files.delete(directory.resolve(PhotoStore.ROOT_FOLDER));
+        Files.createDirectory(directory.resolve(ProductOriginalStore.ROOT_FOLDER));
+        assertThat(List.of(cards.enabled(), originals.enabled(), publicPhotos.enabled())).containsExactly(false, true, false);
+
+        Files.delete(directory.resolve(ProductOriginalStore.ROOT_FOLDER));
+        Files.createDirectory(directory.resolve(ProductImageStore.ROOT_FOLDER));
+        assertThat(List.of(cards.enabled(), originals.enabled(), publicPhotos.enabled())).containsExactly(false, false, true);
     }
 
     @Test
