@@ -8,6 +8,7 @@ import {
   passwordSchema,
 } from "@/lib/auth/password-policy";
 import { rejectUnacceptablePassword } from "@/lib/auth/password-rejection";
+import { REAUTH_REQUIRED, isFreshSession } from "@/lib/auth/security-policy";
 
 export async function POST(request: Request) {
   let newPassword: unknown;
@@ -25,6 +26,16 @@ export async function POST(request: Request) {
     );
   }
 
+  const requestHeaders = await headers();
+  const signedIn = await auth.api.getSession({ headers: requestHeaders });
+  if (!signedIn) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+  // setPassword has no HTTP path for the auth hook to match, so the rule is applied here.
+  if (!isFreshSession(signedIn.session.createdAt)) {
+    return NextResponse.json({ error: REAUTH_REQUIRED }, { status: 403 });
+  }
+
   const rejection = await rejectUnacceptablePassword(parsed.data);
   if (rejection) return rejection;
 
@@ -32,7 +43,7 @@ export async function POST(request: Request) {
     // setPassword is a server-only better-auth action; the session is resolved from cookies.
     await auth.api.setPassword({
       body: { newPassword: parsed.data },
-      headers: await headers(),
+      headers: requestHeaders,
     });
 
     return NextResponse.json({ status: true });

@@ -114,3 +114,29 @@ describe("account deletion", () => {
     );
   });
 });
+
+// The sessions list shows a country instead of an IP, read once when the session is created.
+describe("session country", () => {
+  it("stores the country the trusted request carried", async () => {
+    const before = auth.options.databaseHooks?.session?.create?.before;
+    const created = { userId: "user-1", token: "t" } as Parameters<
+      NonNullable<typeof before>
+    >[0];
+    const ctx = {
+      path: "/sign-in/social",
+      headers: new Headers({ "cf-ipcountry": "HR" }),
+    } as unknown as Parameters<NonNullable<typeof before>>[1];
+
+    await expect(before?.(created, ctx)).resolves.toEqual({
+      data: { ...created, country: "HR" },
+    });
+  });
+});
+
+// The rule table guards every path that reads freshAge; the one day default would still
+// refuse a code-proven delete from an older session.
+describe("session freshness", () => {
+  it("is owned by the re-auth rule table, not better-auth's default", () => {
+    expect(auth.options.session?.freshAge).toBe(0);
+  });
+});

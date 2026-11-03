@@ -58,5 +58,28 @@
     "intro": "Netko se upravo pokušao registrirati na Disscount s ovom email adresom. Račun za nju već postoji, ali adresa još nije potvrđena. Ako je račun tvoj, postavi lozinku putem gumba ispod i time potvrdi adresu. Poveznica vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
     "button": "Postavi lozinku",
     "footnote": "Ovo nije od tebe? Slobodno zanemari ovaj email. Dok adresa nije potvrđena, nitko se ne može prijaviti lozinkom u ovaj račun."
+  },
+  "reauthCode": {
+    "subject": "Tvoj kod za potvrdu",
+    "preview": "Kod vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
+    "heading": "Potvrdi da si to ti",
+    "intro": "Upiši ovaj kod u Disscount da potvrdiš promjenu na svom računu. Kod vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
+    "footnote": "Ovaj zahtjev nije od tebe? Nikome ne daj ovaj kod i u postavkama se odjavi sa svih ostalih uređaja."
+  },
+  "passwordChanged": {
+    "subject": "Lozinka ti je promijenjena",
+    "preview": "Lozinka tvog Disscount računa upravo je promijenjena.",
+    "heading": "Lozinka je promijenjena",
+    "intro": "Lozinka tvog Disscount računa upravo je promijenjena. Ako je promjena od tebe, ne trebaš ništa poduzeti.",
+    "button": "Otvori postavke sigurnosti",
+    "footnote": "Ova promjena nije od tebe? Odmah postavi novu lozinku preko opcije \"Zaboravljena lozinka?\" pri prijavi i javi nam se."
+  },
+  "emailChanged": {
+    "subject": "Email adresa ti je promijenjena",
+    "preview": "Tvoj Disscount račun sada koristi novu email adresu.",
+    "heading": "Email adresa je promijenjena",
+    "intro": "Tvoj Disscount račun od sada koristi adresu <email>{newEmail}</email>. Na ovu adresu više ne šaljemo obavijesti o računu.",
+    "button": "Javi nam se",
+    "footnote": "Ova promjena nije od tebe? Javi nam se odmah, pomoći ćemo ti vratiti račun."
   }
 }

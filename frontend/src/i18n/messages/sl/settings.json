@@ -202,8 +202,41 @@
       "deleteDialogDescription": "Tvoj račun in vse podatke trajno izbrišemo. Tega ne moreš razveljaviti.",
       "revokeFailed": "Drugih naprav ni bilo mogoče odjaviti. Poskusi znova.",
       "revoked": "Druge naprave so odjavljene.",
-      "deleted": "Tvoj račun je izbrisan.",
-      "deleteFailed": "Računa ni bilo mogoče izbrisati. Poskusi znova."
+      "deleted": "Tvoj račun je izbrisan."
+    },
+    "reauth": {
+      "cancel": "Prekliči",
+      "passwordHint": "Vnesi geslo, da potrdiš, da si to ti.",
+      "codeSending": "Pošiljamo ti kodo po emailu...",
+      "codeSent": "Kodo smo poslali na <strong>{email}</strong>.",
+      "codeSendFailed": "Kode nismo uspeli poslati. Poskusi znova.",
+      "codeEmailLimit": "Na tvoj naslov smo poslali preveč emailov. Poskusi znova čez eno uro.",
+      "codeLabel": "Koda iz emaila",
+      "codeMissing": "Ni prispela?",
+      "resend": "Pošlji znova",
+      "resendIn": "Pošlji znova čez {wait}",
+      "wrongCode": "Koda ni pravilna. Poskusi znova.",
+      "wrongCodeAttempts": "Koda ni pravilna. {attemptsLeft, plural, one {Ostal ti je še # poskus.} two {Ostala sta ti še # poskusa.} few {Ostali so ti še # poskusi.} other {Ostalo ti je še # poskusov.}}",
+      "codeExpired": "Koda je potekla ali je že uporabljena. Zahtevaj novo.",
+      "unlinkTitle": "Prekiniti povezavo z računom {provider}?",
+      "unlinkDescription": "Potrdi, da si to ti, nato prekinemo povezavo z računom {provider}.",
+      "setPasswordTitle": "Nastavi geslo",
+      "setPasswordDescription": "Potrdi, da si to ti, nato shranimo tvoje novo geslo.",
+      "setPasswordConfirm": "Shrani geslo"
+    },
+    "sessions": {
+      "label": "Aktivne prijave",
+      "hint": "Naprave, na katerih je tvoj račun trenutno prijavljen.",
+      "thisDevice": "Ta naprava",
+      "unknownDevice": "Neznana naprava",
+      "device": "{browser} · {os}",
+      "lastActive": "Zadnja dejavnost: {when}",
+      "signOut": "Odjavi",
+      "signOutDevice": "Odjavi {device}",
+      "signedOut": "Naprava je odjavljena.",
+      "signOutFailed": "Odjava naprave ni uspela. Poskusi znova.",
+      "loadFailed": "Prijav nismo uspeli naložiti.",
+      "tokenNote": "Odjavljena naprava obdrži dostop do tvojih podatkov še največ {minutes, plural, one {# minuto} two {# minuti} few {# minute} other {# minut}}."
     }
   }
 }

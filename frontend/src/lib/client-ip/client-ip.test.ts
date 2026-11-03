@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  CLIENT_COUNTRY_HEADER,
   CLIENT_IP_HEADER,
   resolveClientIp,
+  trustedCountry,
   withTrustedClientIp,
 } from "@/lib/client-ip/client-ip";
 
@@ -95,6 +97,32 @@ describe("withTrustedClientIp", () => {
     );
   });
 
+  it("keeps Cloudflare's country header from a Cloudflare edge", () => {
+    const request = withTrustedClientIp(
+      new Request("http://localhost/api/auth/sign-in/email", {
+        headers: {
+          "x-forwarded-for": `${VISITOR}, ${CLOUDFLARE_EDGE}`,
+          [CLIENT_COUNTRY_HEADER]: "HR",
+        },
+      }),
+    );
+
+    expect(request.headers.get(CLIENT_COUNTRY_HEADER)).toBe("HR");
+  });
+
+  it("drops a country header from a caller that bypassed Cloudflare", () => {
+    const request = withTrustedClientIp(
+      new Request("http://localhost/api/auth/sign-in/email", {
+        headers: {
+          "x-forwarded-for": DIRECT_CALLER,
+          [CLIENT_COUNTRY_HEADER]: "US",
+        },
+      }),
+    );
+
+    expect(request.headers.get(CLIENT_COUNTRY_HEADER)).toBeNull();
+  });
+
   it("keeps the request body readable", async () => {
     const request = new Request("http://localhost/api/auth/sign-in/email", {
       method: "POST",
@@ -105,5 +133,21 @@ describe("withTrustedClientIp", () => {
     await expect(withTrustedClientIp(request).text()).resolves.toBe(
       '{"email":"a@b.hr"}',
     );
+  });
+});
+
+describe("trustedCountry", () => {
+  it("reads a two-letter country code", () => {
+    expect(trustedCountry(headersOf({ [CLIENT_COUNTRY_HEADER]: "hr" }))).toBe(
+      "HR",
+    );
+  });
+
+  it("drops Cloudflare's unknown and Tor markers", () => {
+    for (const code of ["XX", "T1", "", "HRV"]) {
+      expect(
+        trustedCountry(headersOf({ [CLIENT_COUNTRY_HEADER]: code })),
+      ).toBeNull();
+    }
   });
 });

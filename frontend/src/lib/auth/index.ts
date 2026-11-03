@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { jwt } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
-import { APIError, createAuthMiddleware } from "better-auth/api";
+import { APIError, createAuthMiddleware, isAPIError } from "better-auth/api";
 
 import { db } from "@/db";
 import { createTranslator } from "next-intl";
@@ -22,6 +22,7 @@ import {
 } from "@/lib/auth/callbacks";
 import { notifyExistingAccount } from "@/lib/auth/existing-account-notice";
 import {
+  BACKEND_TOKEN_TTL_MINUTES,
   FACEBOOK_COMING_SOON,
   RESET_TOKEN_TTL_SECONDS,
 } from "@/constants/auth";
@@ -33,7 +34,13 @@ import {
   type SignJwt,
 } from "@/lib/auth/erase-backend-account";
 import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password-policy";
-import { CLIENT_IP_HEADER } from "@/lib/client-ip/client-ip";
+import { CLIENT_IP_HEADER, trustedCountry } from "@/lib/client-ip/client-ip";
+import { guardSensitiveAction } from "@/lib/auth/sensitive-action-guard";
+import { reauth } from "@/lib/auth/reauth/reauth-plugin";
+import {
+  notifyEmailChanged,
+  notifyPasswordChanged,
+} from "@/lib/auth/security-notifications";
 
 const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
 const BETTER_AUTH_SECRET = requireEnv("BETTER_AUTH_SECRET");
@@ -43,6 +50,10 @@ const FACEBOOK_CLIENT_ID = requireEnv("FACEBOOK_CLIENT_ID");
 const FACEBOOK_CLIENT_SECRET = requireEnv("FACEBOOK_CLIENT_SECRET");
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
+
+// Guesses at a password or code, per client address; a correct proof lasts 15 minutes,
+// so an honest person needs very few of these.
+const PROOF_RATE_LIMIT = { window: 15 * 60, max: 5 };
 
 // Endpoints that set a password, and the body field carrying it. /set-password is
 // server-only with no HTTP path, so its route calls assertPasswordAcceptable itself.
@@ -80,13 +91,28 @@ export const auth = betterAuth({
   rateLimit: {
     enabled: true,
     storage: "database",
+    customRules: {
+      "/reauth/verify-password": PROOF_RATE_LIMIT,
+      "/reauth/send-code": PROOF_RATE_LIMIT,
+      "/reauth/verify-code": PROOF_RATE_LIMIT,
+      // Carries the password or code itself, so it is a guessing surface too.
+      "/delete-user": PROOF_RATE_LIMIT,
+    },
   },
 
   session: {
+    additionalFields: {
+      // Set from the request at sign-in only, never from the client.
+      country: { type: "string", required: false, input: false },
+    },
     expiresIn: SESSION_TTL_SECONDS,
     // Default, set explicitly: the window slides only when the session is used,
     // and is rewritten at most once a day rather than on every request.
     updateAge: 60 * 60 * 24,
+    // security-policy.ts owns freshness: in 1.6.25 only /delete-user, /unlink-account and
+    // /list-sessions read freshAge, and the auth hook guards all three more strictly. Left at
+    // its one day default, a code-proven delete from an older session would still fail.
+    freshAge: 0,
   },
 
   emailAndPassword: {
@@ -100,6 +126,7 @@ export const auth = betterAuth({
     revokeSessionsOnPasswordReset: true,
     onPasswordReset: async ({ user }) => {
       await claimUnverifiedAccountOnReset(user);
+      notifyPasswordChanged(user);
     },
     // Fire-and-forget like the sends below, so a registered address answers no slower.
     onExistingUserSignUp: async ({ user }) => {
@@ -165,11 +192,25 @@ export const auth = betterAuth({
     // Must run before the handler: /reset-password consumes its token before hashing,
     // so a later refusal would burn the link.
     before: createAuthMiddleware(async (ctx) => {
+      await guardSensitiveAction(ctx);
+
       const field = NEW_PASSWORD_FIELDS[ctx.path];
       const password: unknown = field ? ctx.body?.[field] : undefined;
 
       if (typeof password === "string")
         await assertPasswordAcceptable(password);
+    }),
+    after: createAuthMiddleware(async (ctx) => {
+      const returned = ctx.context.returned;
+      if (
+        ctx.path === "/change-password" &&
+        !isAPIError(returned) &&
+        returned &&
+        typeof returned === "object" &&
+        "user" in returned
+      ) {
+        notifyPasswordChanged(returned.user as { email: string });
+      }
     }),
   },
 
@@ -182,6 +223,9 @@ export const auth = betterAuth({
             ctx,
             RESET_TOKEN_TTL_SECONDS,
           );
+
+          const country = trustedCountry(ctx?.headers ?? ctx?.request?.headers);
+          return { data: { ...session, country } };
         },
         after: recordLastLogin,
       },
@@ -212,6 +256,9 @@ export const auth = betterAuth({
           }
 
           return { data: userData };
+        },
+        after: async (updatedUser, ctx) => {
+          notifyEmailChanged(updatedUser, ctx);
         },
       },
     },
@@ -257,7 +304,7 @@ export const auth = betterAuth({
       },
       jwt: {
         // Spring never asks whether the session still exists, so a revoked one keeps working until exp.
-        expirationTime: "10m",
+        expirationTime: `${BACKEND_TOKEN_TTL_MINUTES}m`,
         definePayload: ({ user }) => ({
           email: user.email,
           name: user.name,
@@ -265,6 +312,7 @@ export const auth = betterAuth({
         }),
       },
     }),
+    reauth(),
     nextCookies(), // must be last
   ],
 

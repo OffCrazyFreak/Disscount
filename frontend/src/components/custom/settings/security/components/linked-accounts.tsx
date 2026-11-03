@@ -16,6 +16,7 @@ import { localePath } from "@/i18n/locale-path";
 import { FACEBOOK_COMING_SOON } from "@/constants/auth";
 import { useSecurity } from "@/components/custom/settings/security/security-context";
 import { countSignInMethods } from "@/components/custom/settings/security/sign-in-methods";
+import { needsProof } from "@/components/custom/settings/security/reauth/reauth-requests";
 
 type SocialProvider = "google" | "facebook";
 
@@ -31,7 +32,7 @@ const PROVIDERS: {
 export default function LinkedAccounts() {
   const locale = useLocale();
   const t = useTranslations("settings");
-  const { accounts, hasPassword, reload } = useSecurity();
+  const { accounts, hasPassword, reload, reauth } = useSecurity();
   const [pending, setPending] = useState<SocialProvider | null>(null);
 
   const signInMethods = countSignInMethods(accounts, hasPassword);
@@ -54,17 +55,34 @@ export default function LinkedAccounts() {
     }
   }
 
-  async function unlink(providerId: SocialProvider, accountId: string) {
-    setPending(providerId);
+  async function unlinkOnce(
+    providerId: SocialProvider,
+    accountId: string,
+  ): Promise<"done" | "needs-proof"> {
     const { error } = await authClient.unlinkAccount({ providerId, accountId });
-    setPending(null);
+    if (needsProof(error)) return "needs-proof";
 
     if (error) {
       toast.error(t("security.linked.unlinkFailed"));
-      return;
+    } else {
+      toast.success(t("security.linked.unlinked"));
+      reload();
     }
-    toast.success(t("security.linked.unlinked"));
-    reload();
+    return "done";
+  }
+
+  async function unlink(
+    providerId: SocialProvider,
+    accountId: string,
+    label: string,
+  ) {
+    setPending(providerId);
+    await reauth.withFreshSession(() => unlinkOnce(providerId, accountId), {
+      title: t("security.reauth.unlinkTitle", { provider: label }),
+      description: t("security.reauth.unlinkDescription", { provider: label }),
+      confirmLabel: t("security.linked.unlink"),
+    });
+    setPending(null);
   }
 
   return (
@@ -98,7 +116,7 @@ export default function LinkedAccounts() {
                     icon={Unlink}
                     iconPlacement="left"
                     disabled={onlyMethod || pending === id}
-                    onClick={() => unlink(id, linked.accountId)}
+                    onClick={() => unlink(id, linked.accountId, label)}
                   >
                     {t("security.linked.unlink")}
                   </Button>
