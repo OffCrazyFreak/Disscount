@@ -87,6 +87,7 @@
   },
   "filters": {
     "openNow": "Aperto ora",
-    "includeUnconfirmed": "Includi orari non confermati"
+    "includeUnconfirmed": "Includi orari non confermati",
+    "hoursFailed": "Gli orari non si sono caricati, quindi non possiamo mostrare solo i negozi aperti."
   }
 }

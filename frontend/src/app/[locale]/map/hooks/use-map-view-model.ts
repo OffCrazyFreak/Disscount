@@ -3,10 +3,9 @@
 import { useDistanceOrigin } from "@/hooks/use-distance-origin";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useStoreDirectory } from "@/lib/api/store-directory";
-import { useStoreHoursNow } from "@/components/custom/store-hours/use-store-hours-now";
-import { openingOf } from "@/lib/store-hours/store-opening";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { useMapDefaults } from "@/app/[locale]/map/hooks/use-map-defaults";
+import { useMapHours } from "@/app/[locale]/map/hooks/use-map-hours";
 import {
   ALL_CHAINS,
   useMapUrlState,
@@ -20,14 +19,14 @@ import {
   resolveInitialView,
 } from "@/app/[locale]/map/utils/map-view";
 import { isVisitableStore } from "@/app/[locale]/map/utils/visitable-store";
-import { passesOpenFilter } from "@/app/[locale]/map/utils/open-filter";
-import { toStoreKey } from "@/utils/store-key";
 
 /** Everything the map page renders, derived from the data, the URL and the user. */
 export function useMapViewModel(ipLocation: IIpLocation | null) {
   const directory = useStoreDirectory();
-  const hours = useStoreHoursNow();
   const url = useMapUrlState();
+  const { hours, hasHoursFailed, retryHours, keep } = useMapHours(
+    url.openFilter,
+  );
   const geolocation = useGeolocation(ipLocation, { watchWhenAllowed: true });
   const { search } = useSearchNavigation("/map", { shallow: true });
 
@@ -43,18 +42,6 @@ export function useMapViewModel(ipLocation: IIpLocation | null) {
     town,
     ipLocation,
   );
-
-  const { openFilter } = url;
-  // Until the hours load, the filter waits rather than emptying the list; off,
-  // it passes nothing, so the minute clock does not rebuild every pin.
-  const keep =
-    hours && openFilter !== "off"
-      ? (store: (typeof stores)[number]) =>
-          passesOpenFilter(
-            openingOf(toStoreKey(store.chain, store.code), hours),
-            openFilter,
-          )
-      : undefined;
 
   const { listed, mappable, unplacedCount } = useVisibleStores({
     keep,
@@ -74,6 +61,8 @@ export function useMapViewModel(ipLocation: IIpLocation | null) {
     chains,
     query: url.query,
     hours,
+    hasHoursFailed,
+    retryHours,
     openFilter: url.openFilter,
     setOpenFilter: url.setOpenFilter,
     listed,

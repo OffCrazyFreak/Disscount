@@ -48,7 +48,12 @@ export default function MapPanel({
         onChange={model.setChainFilter}
       />
 
-      <MapOpenFilter filter={model.openFilter} onChange={model.setOpenFilter} />
+      <MapOpenFilter
+        filter={model.openFilter}
+        onChange={model.setOpenFilter}
+        hasHoursFailed={model.hasHoursFailed}
+        onRetry={model.retryHours}
+      />
 
       <NearMeButton
         status={model.geolocation.status}

@@ -2,12 +2,17 @@
 
 import { useTranslations } from "next-intl";
 
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 import type { OpenFilter } from "@/app/[locale]/map/utils/open-filter";
 
 interface IMapOpenFilterProps {
   filter: OpenFilter;
   onChange: (filter: OpenFilter) => void;
+  /** The hours failed or are paused offline, so the filter cannot keep anything out. */
+  hasHoursFailed: boolean;
+  onRetry: () => void;
 }
 
 /**
@@ -17,9 +22,12 @@ interface IMapOpenFilterProps {
 export default function MapOpenFilter({
   filter,
   onChange,
+  hasHoursFailed,
+  onRetry,
 }: IMapOpenFilterProps) {
-  const t = useTranslations("map.filters");
+  const t = useTranslations("map");
   const isOn = filter !== "off";
+  const isFailing = isOn && hasHoursFailed;
 
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
@@ -28,7 +36,7 @@ export default function MapOpenFilter({
           checked={isOn}
           onCheckedChange={(checked) => onChange(checked ? "confirmed" : "off")}
         />
-        {t("openNow")}
+        {t("filters.openNow")}
       </label>
 
       {isOn && (
@@ -39,9 +47,33 @@ export default function MapOpenFilter({
               onChange(checked ? "with-unconfirmed" : "confirmed")
             }
           />
-          {t("includeUnconfirmed")}
+          {t("filters.includeUnconfirmed")}
         </label>
       )}
+
+      {/* Always mounted, so the failure is announced when it appears. */}
+      <p
+        role="status"
+        className={cn(
+          "basis-full text-muted-foreground",
+          !isFailing && "sr-only",
+        )}
+      >
+        {isFailing && (
+          <>
+            {t("filters.hoursFailed")}{" "}
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
+              onClick={onRetry}
+              className="h-auto p-0"
+            >
+              {t("load.retry")}
+            </Button>
+          </>
+        )}
+      </p>
     </div>
   );
 }

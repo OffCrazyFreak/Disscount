@@ -87,6 +87,7 @@
   },
   "filters": {
     "openNow": "Otvoreno sada",
-    "includeUnconfirmed": "Uključi nepotvrđeno radno vrijeme"
+    "includeUnconfirmed": "Uključi nepotvrđeno radno vrijeme",
+    "hoursFailed": "Radno vrijeme se nije učitalo, pa ne možemo izdvojiti otvorene trgovine."
   }
 }

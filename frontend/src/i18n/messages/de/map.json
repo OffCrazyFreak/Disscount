@@ -87,6 +87,7 @@
   },
   "filters": {
     "openNow": "Jetzt geöffnet",
-    "includeUnconfirmed": "Unbestätigte Öffnungszeiten einbeziehen"
+    "includeUnconfirmed": "Unbestätigte Öffnungszeiten einbeziehen",
+    "hoursFailed": "Die Öffnungszeiten wurden nicht geladen, daher können wir die geöffneten Geschäfte nicht herausfiltern."
   }
 }
