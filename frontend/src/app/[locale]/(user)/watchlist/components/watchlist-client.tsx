@@ -2,6 +2,7 @@
 
 import { usePathname } from "@/i18n/navigation";
 import { Suspense } from "react";
+import { useIsRestoring } from "@tanstack/react-query";
 import { Eye } from "lucide-react";
 import { useTranslations } from "next-intl";
 import SearchBar from "@/components/custom/search/search-bar";
@@ -22,7 +23,7 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
   const pathname = usePathname();
 
   const {
-    isAuthenticated,
+    canShowAccountData,
     userLoading,
     watchlistLoading,
     hasWatchedProducts,
@@ -34,8 +35,10 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
     discountedItems,
     filteredSuggestionItems,
   } = useWatchlistData(query);
+  // Offline the failed session check can land before IndexedDB is read back.
+  const isRestoring = useIsRestoring();
 
-  if (!userLoading && !isAuthenticated) {
+  if (!userLoading && !canShowAccountData) {
     return (
       <LoginRequired
         title={t("client.loginTitle")}
@@ -45,7 +48,7 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
     );
   }
 
-  const listLoading = userLoading || watchlistLoading;
+  const listLoading = userLoading || watchlistLoading || isRestoring;
   // A tab only once there are suggestions, so a loading section never flashes one.
   const hasSuggestions =
     !listLoading &&

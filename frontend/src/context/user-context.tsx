@@ -25,6 +25,7 @@ import {
 } from "@/lib/auth/finish-erased-account";
 import { mergeSessionUser } from "@/context/merge-session-user";
 import {
+  isUnverifiedAccount,
   persistedCacheIdentity,
   syncCacheIdentity,
 } from "@/context/sync-cache-identity";
@@ -41,6 +42,8 @@ interface IUserContext {
    * belongs to an account, so screens may show that saved data until the check passes.
    */
   hasUnverifiedAccount: boolean;
+  /** Signed in, or an unverified account: the account's saved data may be shown. */
+  canShowAccountData: boolean;
   refreshUser: () => Promise<UserDto | undefined>;
   setUser: (user: UserDto | null) => void;
   /**
@@ -166,18 +169,19 @@ export function UserProvider({ children }: IUserProviderProps) {
     useUserUpdaters(setUser);
 
   const mergedUser = mergeSessionUser(user, session?.user);
+  const hasUnverifiedAccount = isUnverifiedAccount(
+    !!mergedUser,
+    sessionPending,
+    sessionError,
+  );
 
   const value: IUserContext = {
     user: mergedUser,
     isLoading: isLoading || sessionPending,
     isInitializing: !hasResolvedAuth,
     isAuthenticated: !!mergedUser,
-    // A failed lookup is not a sign-out, the rule the cache purge follows too.
-    hasUnverifiedAccount:
-      !mergedUser &&
-      !sessionPending &&
-      !!sessionError &&
-      persistedCacheIdentity() !== null,
+    hasUnverifiedAccount,
+    canShowAccountData: !!mergedUser || hasUnverifiedAccount,
     refreshUser,
     setUser,
     mergeUser,

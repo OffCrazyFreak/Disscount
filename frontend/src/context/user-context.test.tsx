@@ -247,8 +247,13 @@ describe("UserProvider erased account", () => {
 });
 
 function UnverifiedAccountProbe() {
-  const { hasUnverifiedAccount } = useUser();
-  return <p>{hasUnverifiedAccount ? "unverified account" : "no account"}</p>;
+  const { hasUnverifiedAccount, canShowAccountData } = useUser();
+  return (
+    <>
+      <p>{hasUnverifiedAccount ? "unverified account" : "no account"}</p>
+      <p>{canShowAccountData ? "saved data shown" : "saved data hidden"}</p>
+    </>
+  );
 }
 
 describe("UserProvider offline", () => {
@@ -264,6 +269,7 @@ describe("UserProvider offline", () => {
     );
 
     expect(screen.getByText("unverified account")).toBeInTheDocument();
+    expect(screen.getByText("saved data shown")).toBeInTheDocument();
   });
 
   it("vouches for nobody once the device was signed out", () => {
@@ -278,5 +284,6 @@ describe("UserProvider offline", () => {
     );
 
     expect(screen.getByText("no account")).toBeInTheDocument();
+    expect(screen.getByText("saved data hidden")).toBeInTheDocument();
   });
 });
