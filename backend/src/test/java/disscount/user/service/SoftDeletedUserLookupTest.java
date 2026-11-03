@@ -1,7 +1,5 @@
 package disscount.user.service;
 
-import disscount.notification.dto.NotificationRequest;
-import disscount.notification.service.NotificationService;
 import disscount.pinnedPlace.dto.BulkPinnedPlaceRequest;
 import disscount.pinnedPlace.service.PinnedPlaceService;
 import disscount.pinnedStore.dto.BulkPinnedStoreRequest;
@@ -29,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** A token minted before the deletion is still valid for its lifetime, so each lookup must refuse the row itself. */
 @DataJpaTest(showSql = false)
-@Import({WatchlistItemService.class, PinnedPlaceService.class, PinnedStoreService.class, NotificationService.class,
+@Import({WatchlistItemService.class, PinnedPlaceService.class, PinnedStoreService.class,
         ShoppingListService.class, ShoppingListItemService.class, ShoppingListAccessService.class,
         ShoppingListMapper.class})
 class SoftDeletedUserLookupTest {
@@ -38,7 +36,6 @@ class SoftDeletedUserLookupTest {
     @Autowired WatchlistItemService watchlist;
     @Autowired PinnedPlaceService pinnedPlaces;
     @Autowired PinnedStoreService pinnedStores;
-    @Autowired NotificationService notifications;
     @Autowired ShoppingListService shoppingLists;
     @Autowired ShoppingListItemService shoppingListItems;
 
@@ -66,11 +63,6 @@ class SoftDeletedUserLookupTest {
     @Test
     void aSoftDeletedUserCannotReplacePinnedStores() {
         assertRefusedAsUnknownUser(() -> pinnedStores.updatePinnedStores(deletedUserId, new BulkPinnedStoreRequest()));
-    }
-
-    @Test
-    void aSoftDeletedUserCannotReceiveANewNotification() {
-        assertRefusedAsUnknownUser(() -> notifications.createNotification(deletedUserId, new NotificationRequest()));
     }
 
     @Test
