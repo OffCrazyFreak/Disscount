@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import { FAVORITE_STORE_QUERY_KEYS } from "@/lib/api/favorite-stores/keys";
 import {
@@ -10,12 +15,15 @@ import type { FavoriteStoreDto } from "@/lib/api/types";
 /** The backend caps the list here too; a longer request is rejected. */
 export const MAX_FAVORITE_STORES = 10;
 
-export function useFavoriteStoresQuery({ enabled = true } = {}) {
-  return useQuery<FavoriteStoreDto[], Error>({
+function favoriteStoresQueryOptions() {
+  return queryOptions({
     queryKey: FAVORITE_STORE_QUERY_KEYS.all,
     queryFn: getFavoriteStores,
-    enabled,
   });
+}
+
+export function useFavoriteStoresQuery({ enabled = true } = {}) {
+  return useQuery({ ...favoriteStoresQueryOptions(), enabled });
 }
 
 const SAVE_MUTATION_KEY = [...FAVORITE_STORE_QUERY_KEYS.all, "save"];
