@@ -112,6 +112,9 @@ public class DigitalCardPhotoService {
         String key = thumb ? row.getThumbKey() : row.getFullKey();
         if (key == null) throw new NotFoundException("error.cardPhoto.notFound");
 
+        // The row exists but storage is off, which is an outage: a 404 would tell the client the photo is gone.
+        if (!photoStore.enabled()) throw new ServiceUnavailableException("error.cardPhoto.unavailable");
+
         StoredPhoto stored = photoStore.get(key)
                 .orElseThrow(() -> new NotFoundException("error.cardPhoto.notFound"));
         return new PhotoStream(stored, row.getSha256(), thumb);

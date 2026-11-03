@@ -165,6 +165,16 @@ class DigitalCardPhotoServiceTest {
     }
 
     @Test
+    void readingAStoredPhotoAnswers503WhileStorageIsOff() {
+        photoService.upload(owner.getId(), cardId, "icon", part(TestImages.webp(32, 32)), null);
+        fake().enabled = false;
+
+        assertThatThrownBy(() -> photoService.open(owner.getId(), cardId, "icon", false, null))
+                .isInstanceOf(ServiceUnavailableException.class)
+                .hasMessage("error.cardPhoto.unavailable");
+    }
+
+    @Test
     void twentyFirstUploadInAMinuteIsRateLimited() {
         for (int i = 0; i < 20; i++) {
             photoService.upload(owner.getId(), cardId, "icon", part(TestImages.webp(32 + i, 32)), null);
