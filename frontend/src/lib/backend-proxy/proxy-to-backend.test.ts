@@ -116,6 +116,15 @@ describe("backend proxy identity pin", () => {
     expect(await response.json()).toMatchObject({ code: "session_changed" });
   });
 
+  it("refuses a call with no pin once the cookie names an account", async () => {
+    const response = await call("/api/users/me", {
+      session: "user-a",
+      headers: { "X-Disscount-User": "" },
+    });
+
+    expect(response.status).toBe(401);
+  });
+
   it("forwards an anonymous tab with no session and no token", async () => {
     const received = backend();
 
