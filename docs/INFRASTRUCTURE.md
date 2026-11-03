@@ -82,19 +82,18 @@ flowchart LR
 
 ## 3. Accounts & services
 
-| Service                | What it's for                              | Where / notes                                                                                          |
-| ---------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| **Hetzner**            | The VPS (server)                           | Cloud console, plus it hosts the **Cloud Firewall** `disscount-web`                                    |
-| **Dokploy**            | Deployment platform (on the VPS)           | `https://dokploy.disscount.me`; admin login = your email                                               |
-| **Cloudflare**         | DNS, CDN, DDoS, redirects, SSL, geo header | zone `disscount.me` (free plan)                                                                        |
-| **GitHub**             | Source code + auto-deploy trigger          | `OffCrazyFreak/Disscount`; connected to Dokploy via a **GitHub App**                                   |
-| **Sentry**             | Error tracking                             | projects `disscount-frontend` + `disscount-backend` (EU region)                                        |
-| **Cloudflare R2**      | Off-site backup storage                    | bucket `disscount-backups` (S3-compatible)                                                             |
-| **Cloudflare R2 (EU)** | Digital card photos                        | a separate bucket created with **jurisdiction EU**; see [Card photo env vars](#card-photo-env-vars)    |
-| **Resend**             | Transactional email + Dokploy alert emails | domain `disscount.me` verified                                                                         |
-| **UptimeRobot**        | Uptime monitoring                          | monitors `https://disscount.me/health`; public [status page](https://stats.uptimerobot.com/ej4ROz2eMo) |
-| **Umami Cloud**        | Privacy-friendly web analytics             | `cloud.umami.is`; wired only when `NEXT_PUBLIC_UMAMI_WEBSITE_ID` is set                                |
-| **Google / Meta**      | OAuth login providers                      | redirect URIs must include each live domain                                                            |
+| Service                | What it's for                              | Where / notes                                                                                                                                                                                                                                       |
+| ---------------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Hetzner**            | The VPS (server)                           | Cloud console, plus it hosts the **Cloud Firewall** `disscount-web`                                                                                                                                                                                 |
+| **Dokploy**            | Deployment platform (on the VPS)           | `https://dokploy.disscount.me`; admin login = your email. API keys: `github-ci-dev` (Member user limited to the development service, used by CI) and `claude-mcp` (owner key for the local Dokploy MCP of Claude Code and Codex, never in the repo) |
+| **Cloudflare**         | DNS, CDN, DDoS, redirects, SSL, geo header | zone `disscount.me` (free plan)                                                                                                                                                                                                                     |
+| **GitHub**             | Source code + auto-deploy trigger          | `OffCrazyFreak/Disscount`; connected to Dokploy via a **GitHub App**                                                                                                                                                                                |
+| **Sentry**             | Error tracking                             | projects `disscount-frontend` + `disscount-backend` (EU region)                                                                                                                                                                                     |
+| **Cloudflare R2 (EU)** | Backups, card photos, product photos       | one bucket per data type and environment, each with its own token; see [R2 buckets and tokens](#r2-buckets-and-tokens)                                                                                                                              |
+| **Resend**             | Transactional email + Dokploy alert emails | domain `disscount.me` verified                                                                                                                                                                                                                      |
+| **UptimeRobot**        | Uptime monitoring                          | monitors `https://disscount.me/health`; public [status page](https://stats.uptimerobot.com/ej4ROz2eMo)                                                                                                                                              |
+| **Umami Cloud**        | Privacy-friendly web analytics             | `cloud.umami.is`; wired only when `NEXT_PUBLIC_UMAMI_WEBSITE_ID` is set                                                                                                                                                                             |
+| **Google / Meta**      | OAuth login providers                      | redirect URIs must include each live domain                                                                                                                                                                                                         |
 
 ---
 
@@ -167,6 +166,21 @@ There are **two kinds** of env vars, and mixing them up causes the most confusin
 
 > 🔑 **Real bug we hit:** `lib/auth/index.ts` reads `NEXT_PUBLIC_GOOGLE_CLIENT_ID` through `serverEnv` (a _dynamic_ lookup), so Next.js can't inline it, so it must also be present at **runtime**, not just as a build arg. All `NEXT_PUBLIC_*` are passed both as build args **and** runtime env in compose.
 
+### R2 buckets and tokens
+
+Every bucket is in the **EU jurisdiction** (fixed at creation), reached through `R2_ENDPOINT` (`https://<ACCOUNT_ID>.eu.r2.cloudflarestorage.com`), and has its **own Account API token** with Object Read & Write scoped to that one bucket, so a leaked token reaches one bucket only. Dev and production never share a bucket: product photo files are named by their content, and each environment's cleanup deletes files its own database no longer uses, so a shared bucket would let one environment delete the other's files.
+
+| Data                                 | Production bucket             | Dev bucket                        | Access                                                                     | Variables                                                                                        |
+| ------------------------------------ | ----------------------------- | --------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Database backups                     | `disscount-backups`           | (same bucket, prefix per env)     | private                                                                    | set in Dokploy's Backups tab                                                                     |
+| Loyalty card photos                  | `disscount-card-photos`       | `disscount-card-photos-dev`       | private, served by Spring to the owner                                     | `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`                                          |
+| Product photos (rendered)            | `disscount-product-images`    | `disscount-product-images-dev`    | public via `images.disscount.me` / `images-dev.disscount.me`, `r2.dev` off | `R2_PUBLIC_*`                                                                                    |
+| Originals of uploaded product photos | `disscount-product-originals` | `disscount-product-originals-dev` | private                                                                    | `R2_ORIGINALS_*` (used once [#464](https://github.com/OffCrazyFreak/Disscount/issues/464) lands) |
+
+- Until #464 lands, uploaded originals are written to the card photo bucket. Production keeps its two `R2_PUBLIC_*` key lines blank and the real keys as commented-out lines in Dokploy, so product photos stay off there until #464 is deployed; then delete the blank lines and uncomment the stored ones.
+- R2 promises eleven nines of durability, which protects against hardware loss but not against deletion by a bug or a leaked key; R2 has no object versioning. How the photo buckets are backed up is being decided (see [§8](#8-backups--restore)).
+- To test a token without the app: list, put and delete a test object in its bucket with the AWS CLI against `R2_ENDPOINT`, and confirm it is refused on any other bucket.
+
 ### Card photo env vars
 
 Digital card photos live in their own Cloudflare R2 bucket, separate from the backup bucket and with its own API token, so a leaked photo token cannot read or delete database backups. Create the bucket with **jurisdiction EU**: it is chosen at creation and cannot be changed later, and it puts the endpoint at `https://<ACCOUNT_ID>.eu.r2.cloudflarestorage.com`. Details are in [DIGITAL-CARDS.md](DIGITAL-CARDS.md#5-photos-and-r2).
@@ -224,7 +238,7 @@ All four are **optional**. If any one (or `R2_ENDPOINT`) is blank, product pages
 
 **HTTP to HTTPS** redirect is automatic (Cloudflare). No config needed.
 
-**Visitor location headers** (Rules, Settings, Managed Transforms, "Add visitor location headers") must be on for the stores map to open near the visitor without GPS. Cloudflare then adds `cf-iplatitude`, `cf-iplongitude` and `cf-ipcity` to requests that reach the origin. It is available on the free plan; with it off, the map simply opens on all of Croatia. Details in [MAP.md](MAP.md).
+**Visitor location headers** (Rules, Settings, Managed Transforms, "Add visitor location headers") must be on for the stores map to open near the visitor without GPS. Cloudflare then adds `cf-iplatitude`, `cf-iplongitude` and `cf-ipcity` to requests that reach the origin. It works on this zone; with it off, the map simply opens on all of Croatia. Details in [MAP.md](MAP.md).
 
 **Retired waitlist subdomains:** `get` / `waitlist` / `zelim` / `želim` (the last is an IDN stored as an `xn--…` name) were CNAMEs to a Netlify waitlist site. They now **301-redirect to `https://disscount.me/`** via a Cloudflare **Redirect Rule** (Rules, Redirect Rules) whose expression is:
 
@@ -265,7 +279,7 @@ Other: **4 GB swap** for build headroom; the Dokploy admin panel is reachable on
 
 The app keys its rate limits on the visitor's address, read from Cloudflare's `CF-Connecting-IP` header. It trusts that header only when the last `X-Forwarded-For` hop, which Traefik always writes as the peer it accepted the connection from, is a Cloudflare address; any other caller is keyed on its own address. How the frontend and backend apply this, and what the limits are, is in [AUTH.md](AUTH.md#83-rate-limits-and-the-visitors-address).
 
-The app check works on its own, but these owner steps finish the job. None of them is done yet:
+The app check works on its own, but these owner steps finish the job. Step 2 is done (rule created on 3 November 2026); steps 1 and 3 are not:
 
 1. **Hetzner Cloud Firewall** (`disscount-web`): change the inbound TCP 80 and 443 rules from "any" to Cloudflare's IPv4 and IPv6 ranges from https://www.cloudflare.com/ips/, leaving 22 as it is. Then a direct request to `YOUR_VPS_IP` with a made-up `CF-Connecting-IP` should time out, while the site still loads through Cloudflare.
 2. **Cloudflare rate limiting rule** (free plan, one rule): POST requests to the auth paths, counted by IP, more than 20 requests in 10 seconds, block for 10 seconds. The exact expression is deliberately not published here.
@@ -556,7 +570,7 @@ These are the things that actually cost us time, worth remembering:
 **Security / housekeeping**
 
 - [ ] **IP-filter the R2 API token** to the VPS egress IP (least privilege).
-- [ ] **Before serious traffic:** add the Cloudflare rate limiting rule (free plan includes one rule) and restrict the Hetzner firewall to Cloudflare, as listed in [Client IP and rate limiting](#client-ip-and-rate-limiting). The app-level limits (Better Auth, per-recipient email cap, contact form) are in place. The exact endpoint list is deliberately not published here.
+- [ ] **Before serious traffic:** restrict the Hetzner firewall to Cloudflare (the Cloudflare rate limiting rule already exists), as listed in [Client IP and rate limiting](#client-ip-and-rate-limiting). The app-level limits (Better Auth, per-recipient email cap, contact form) are in place. The exact endpoint list is deliberately not published here.
 
 **Reliability / ops**
 
