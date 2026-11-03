@@ -6,7 +6,8 @@ import { describe, expect, it } from "vitest";
 
 import { useAddToListPrices } from "@/app/[locale]/products/hooks/use-add-to-list-prices";
 import type { AddToListFormData } from "@/app/[locale]/products/typings/add-to-list";
-import cijeneService, { productByEanQueryKey } from "@/lib/cijene-api";
+import cijeneService from "@/lib/cijene-api";
+import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
@@ -70,7 +71,7 @@ describe("useAddToListPrices", () => {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
-    queryClient.setQueryData(productByEanQueryKey(sugar.ean), sugar);
+    queryClient.setQueryData(CIJENE_QUERY_KEYS.productByEan(sugar.ean), sugar);
 
     const { result, rerender } = renderHookWithProviders(useHarness, {
       queryClient,

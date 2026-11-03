@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { authClient } from "@/lib/auth/client";
 import { localePath } from "@/i18n/locale-path";
+import { clientEnv } from "@/lib/env";
 
 const RESEND_COOLDOWN_MS = 60_000;
 
@@ -29,7 +30,7 @@ export function useBreachedPasswordResend(email: string) {
   async function resend() {
     if (sending || coolingDown) return;
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin;
+    const appUrl = clientEnv.NEXT_PUBLIC_APP_URL ?? window.location.origin;
     setSending(true);
 
     // Cleared first so a second resend changes the status text and is announced again.

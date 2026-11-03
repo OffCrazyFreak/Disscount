@@ -13,13 +13,14 @@ import {
   isShoppingListPath,
   scrubBreadcrumbOnPage,
 } from "@/lib/sentry/shopping-list-privacy";
+import { clientEnv } from "@/lib/env";
 
 const isResetTokenInUrl = moveResetTokenOutOfUrl();
 
 Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  dsn: clientEnv.NEXT_PUBLIC_SENTRY_DSN,
 
-  environment: process.env.SENTRY_ENVIRONMENT || undefined,
+  environment: clientEnv.SENTRY_ENVIRONMENT,
 
   integrations: [
     // Errors raised only by code outside our build (extensions, injected scripts) are not

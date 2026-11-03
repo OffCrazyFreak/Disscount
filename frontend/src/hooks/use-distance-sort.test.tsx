@@ -301,6 +301,24 @@ describe("useDistanceSort", () => {
     expect(result.current.shownDistances).toBeUndefined();
   });
 
+  it("keeps the saved place when a fix lands after the location gave up", async () => {
+    user = { pinnedPlaces: [{ placeApiId: "Split" }] };
+    const geo = fakeGeolocation();
+    const { result } = mount();
+
+    act(() => result.current.choose("distance"));
+    geo.timeOut();
+    await waitFor(() => expect(result.current.state).toBe("ready"));
+    expect(vi.mocked(navigator.geolocation.clearWatch)).toHaveBeenCalled();
+
+    geo.fix();
+
+    expect(result.current.origin).toMatchObject({
+      source: "saved",
+      town: "Split",
+    });
+  });
+
   it("sorts from a town picked after the location was denied", async () => {
     const geo = fakeGeolocation();
     const { result } = mount();

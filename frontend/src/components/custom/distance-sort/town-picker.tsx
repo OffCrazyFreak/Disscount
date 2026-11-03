@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/popover";
 import { commandFilter } from "@/utils/search/command-filter";
 import type { IStoreTown } from "@/utils/store-towns";
+import { useTownLabel } from "@/hooks/use-town-label";
 
 interface ITownPickerProps {
   /** Shown as a small link beside a sort that already starts from a town. */
@@ -33,6 +34,7 @@ export default function TownPicker({
   onPick,
 }: ITownPickerProps) {
   const t = useTranslations("common.distanceSort");
+  const townLabel = useTownLabel();
   const [open, setOpen] = useState(false);
 
   return (
@@ -61,15 +63,15 @@ export default function TownPicker({
 
             {towns.map((town) => (
               <CommandItem
-                key={town.name}
-                value={town.name}
-                keywords={[town.name, ...town.zipcodes]}
+                key={town.key}
+                value={town.key}
+                keywords={[townLabel(town), ...town.zipcodes]}
                 onSelect={() => {
-                  onPick(town.name);
+                  onPick(town.key);
                   setOpen(false);
                 }}
               >
-                {town.name}
+                {townLabel(town)}
               </CommandItem>
             ))}
           </CommandList>

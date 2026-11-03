@@ -6,13 +6,12 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
-import {
-  persistOptions,
-  OFFLINE_CACHE_MAX_AGE_MS,
-} from "@/lib/offline/persister";
+import { persistOptions } from "@/lib/offline/persister";
+import { createQueryClientConfig } from "@/lib/api/query-client-defaults";
 import { bindLastUsedQueryClient } from "@/lib/api/digital-cards/last-used";
 import { replayCardPhotoOutbox } from "@/lib/offline/card-photo-outbox";
 import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
+import { clientEnv } from "@/lib/env";
 
 interface IReactQueryProviderWrapperProps {
   children: ReactNode;
@@ -26,16 +25,7 @@ export default function ReactQueryProviderWrapper({
 
   // keep QueryClient stable across re-renders
   const [queryClient] = useState(() => {
-    const client = new QueryClient({
-      defaultOptions: {
-        queries: {
-          // Must be >= the persister's maxAge, or entries evict before restoring.
-          gcTime: OFFLINE_CACHE_MAX_AGE_MS,
-          // One retry: a blip gets a second chance, a real failure surfaces fast.
-          retry: 1,
-        },
-      },
-    });
+    const client = new QueryClient(createQueryClientConfig());
 
     // Register replay functions so offline writes restored from disk can resume.
     registerOfflineMutationDefaults(client, t, tCards);
@@ -79,7 +69,7 @@ export default function ReactQueryProviderWrapper({
 
       {/* Its floating button sits over the mobile bottom nav, so it is opt-in
           via NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS=true, like react-scan. */}
-      {process.env.NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS === "true" && (
+      {clientEnv.NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS && (
         <ReactQueryDevtools />
       )}
     </PersistQueryClientProvider>

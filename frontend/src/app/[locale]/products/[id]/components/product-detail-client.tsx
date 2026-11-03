@@ -6,7 +6,12 @@ import ProductInfoDisplay from "@/app/[locale]/products/components/product-info-
 import PriceHistory from "@/app/[locale]/products/[id]/components/price-history/price-history-base";
 import ProductChainsSection from "@/app/[locale]/products/[id]/components/product-chains-section";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import JumpSection from "@/components/custom/common/jump-section";
+import SectionJumpNav from "@/components/custom/common/section-jump-nav";
 import { useProductDetail } from "@/app/[locale]/products/[id]/hooks/use-product-detail";
+
+// One source for each id, which the nav links to and the URL hash names.
+const SECTION_IDS = { stores: "stores", priceHistory: "price-history" };
 
 interface IProductDetailClientProps {
   ean: string;
@@ -15,13 +20,15 @@ interface IProductDetailClientProps {
 export default function ProductDetailClient({
   ean,
 }: IProductDetailClientProps) {
-  const t = useTranslations("productDetail.notFound");
+  const t = useTranslations("productDetail");
+  const tSections = useTranslations("common.sectionNav");
   const detail = useProductDetail(ean);
   const { product, productLoading, productError } = detail;
   // Restoring queries report idle, not loading, and the server render is always restoring.
+  // A product the server seeded is already in the cache, so it renders straight away.
   const isRestoring = useIsRestoring();
 
-  if (productLoading || isRestoring) {
+  if (!product && (productLoading || isRestoring)) {
     return (
       <div className="grid place-items-center">
         <BlockLoadingSpinner />
@@ -34,10 +41,10 @@ export default function ProductDetailClient({
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-foreground mb-2">
-            {t("title")}
+            {t("notFound.title")}
           </h2>
 
-          <p className="text-gray-600">{t("description")}</p>
+          <p className="text-gray-600">{t("notFound.description")}</p>
         </div>
       </div>
     );
@@ -49,13 +56,30 @@ export default function ProductDetailClient({
         <ProductInfoDisplay product={product} />
       </section>
 
-      <section>
-        <PriceHistory key={product.ean} product={product} />
-      </section>
+      <SectionJumpNav
+        label={t("sectionNav.label")}
+        sections={[
+          {
+            id: SECTION_IDS.stores,
+            label: tSections("stores"),
+            shortLabel: tSections("storesShort"),
+            count: detail.sortedChains.length,
+          },
+          {
+            id: SECTION_IDS.priceHistory,
+            label: tSections("priceHistory"),
+            shortLabel: tSections("priceHistoryShort"),
+          },
+        ]}
+      />
 
-      <section>
-        <ProductChainsSection ean={ean} product={product} detail={detail} />
-      </section>
+      <JumpSection id={SECTION_IDS.stores}>
+        <ProductChainsSection product={product} detail={detail} />
+      </JumpSection>
+
+      <JumpSection id={SECTION_IDS.priceHistory}>
+        <PriceHistory key={product.ean} product={product} />
+      </JumpSection>
     </div>
   );
 }

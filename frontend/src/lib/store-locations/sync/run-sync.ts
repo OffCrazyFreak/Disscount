@@ -21,6 +21,7 @@ import {
   releaseSyncLease,
 } from "@/lib/store-locations/sync/sync-lease";
 import { findSyncTargets } from "@/lib/store-locations/sync/sync-target";
+import { serverEnv } from "@/lib/server-env";
 
 // Geoapify's free plan allows 3,000 requests a day at 5 a second.
 const GEOAPIFY = { limit: 1_000, intervalMs: 250 };
@@ -58,7 +59,7 @@ export async function runStoreLocationSync(signal: AbortSignal): Promise<void> {
     targets = await withChainAddresses(targets, signal);
 
     // Optional: until the key is set, every target goes straight to Nominatim.
-    const forGeoapify = process.env.GEOAPIFY_API_KEY
+    const forGeoapify = serverEnv.GEOAPIFY_API_KEY
       ? targets.filter((target) => !target.skipGeoapify)
       : [];
     const geocoded = await resolveWithGeocoder(

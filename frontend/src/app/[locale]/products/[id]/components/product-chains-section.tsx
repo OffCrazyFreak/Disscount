@@ -5,33 +5,26 @@ import { useTranslations } from "next-intl";
 import { MapPinned } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import CollapsibleSection from "@/components/custom/common/collapsible-section";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import StoreItem from "@/app/[locale]/products/[id]/components/store-item/store-item";
 import ProductChainSortSelect from "@/app/[locale]/products/[id]/components/product-chain-sort-select";
 import DistanceSortNote from "@/components/custom/distance-sort/distance-sort-note";
 import type { useProductDetail } from "@/app/[locale]/products/[id]/hooks/use-product-detail";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
-import {
-  getProductStoresOpen,
-  setProductStoresOpen,
-} from "@/utils/browser/local-storage";
 
 interface IProductChainsSectionProps {
-  ean: string;
   product: ProductResponse;
   detail: ReturnType<typeof useProductDetail>;
 }
 
 /** Every chain carrying this product, ordered by the reader's chosen sort. */
 export default function ProductChainsSection({
-  ean,
   product,
   detail,
 }: IProductChainsSectionProps) {
   const t = useTranslations("productDetail.chains");
-  const [isOpen, setIsOpen] = useState(() => getProductStoresOpen(ean));
+  // Shared with the section bar, so the link and the heading always read the same.
+  const storesHeading = useTranslations("common.sectionNav")("stores");
   const [expandedChain, setExpandedChain] = useState<string | null>(null);
   const sortNoteId = useId();
 
@@ -39,17 +32,17 @@ export default function ProductChainsSection({
     setExpandedChain((previous) => (previous === chainCode ? null : chainCode));
   }, []);
 
-  function handleToggleSection(open: boolean) {
-    setIsOpen(open);
-    setProductStoresOpen(ean, open);
-  }
+  // The chain rows need only the product, so they render before the store prices arrive.
+  const pricesStatus = detail.pricesLoading
+    ? "pending"
+    : detail.pricesError
+      ? "error"
+      : "success";
 
   return (
-    <CollapsibleSection
-      title={t("title")}
-      open={isOpen}
-      onOpenChange={handleToggleSection}
-    >
+    <div className="space-y-2">
+      <h2 className="py-2 text-lg font-semibold">{storesHeading}</h2>
+
       {detail.pricesUpdatedAt > 0 && (
         <LastSyncedLabel
           updatedAt={detail.pricesUpdatedAt}
@@ -58,13 +51,7 @@ export default function ProductChainsSection({
         />
       )}
 
-      {detail.pricesLoading ? (
-        <div className="grid place-items-center">
-          <BlockLoadingSpinner />
-        </div>
-      ) : detail.pricesError ? (
-        <p className="p-2 text-gray-600 text-center">{t("loadError")}</p>
-      ) : detail.sortedChains.length === 0 ? (
+      {detail.sortedChains.length === 0 ? (
         <p className="p-2 text-gray-600 text-center">{t("empty")}</p>
       ) : (
         <div className="space-y-4">
@@ -99,12 +86,13 @@ export default function ProductChainsSection({
               onToggle={() => toggleChain(chain.chain)}
               store={chain}
               storePrices={detail.pricesByChain[chain.chain] || []}
+              pricesStatus={pricesStatus}
               product={product}
               distanceKm={detail.shownDistances?.get(chain.chain)}
             />
           ))}
         </div>
       )}
-    </CollapsibleSection>
+    </div>
   );
 }

@@ -11,7 +11,7 @@
   "header": {
     "searchResultsTitle": "Rezultati pretrage za \"{query}\" ({count})",
     "title": "Praćeni proizvodi",
-    "titleWithCount": "Praćeni proizvodi ({count})",
+    "titleWithCount": "{label} ({count})",
     "pricesUpdated": "Cijene osvježene {time}"
   },
   "list": {
@@ -20,9 +20,8 @@
     "searchProducts": "Pretraži proizvode"
   },
   "suggestions": {
-    "title": "Prijedlozi proizvoda za praćenje ({count})",
-    "hide": "Sakrij",
-    "show": "Prikaži"
+    "label": "Prijedlozi proizvoda",
+    "title": "{label} ({count})"
   },
   "actionButton": {
     "watch": "Prati proizvod",
@@ -63,5 +62,10 @@
     "productRequired": "Proizvod je obavezan",
     "watchTypeRequired": "Vrsta praćenja je obavezna",
     "thresholdPositive": "Minimalni popust mora biti veći od 0"
+  },
+  "sectionNav": {
+    "label": "Odjeljci praćenja",
+    "watchedShort": "Praćeni",
+    "suggestionsShort": "Prijedlozi"
   }
 }

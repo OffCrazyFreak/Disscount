@@ -252,7 +252,7 @@
     "add": "Dodaj karticu"
   },
   "archived": {
-    "label": "Arhivirane ({count})"
+    "label": "{label} ({count})"
   },
   "tile": {
     "archivedBadge": "Arhivirana",
@@ -328,5 +328,9 @@
     "cardDeleteFailed": "Kartica nije obrisana. Pokušaj ponovno.",
     "photoDeleteFailed": "Slika nije obrisana. Pokušaj ponovno.",
     "photoSendFailed": "Slika kartice nije spremljena. Dodaj je ponovno."
+  },
+  "sectionNav": {
+    "label": "Odjeljci kartica",
+    "archived": "Arhivirane"
   }
 }

@@ -24,10 +24,6 @@
   "lastSynced": {
     "refreshed": "Aggiornato {time}"
   },
-  "collapsibleSection": {
-    "hide": "Nascondi",
-    "show": "Mostra"
-  },
   "comingSoon": {
     "badge": "PRESTO",
     "description": "Ci stiamo lavorando. Arriva presto!",
@@ -185,5 +181,37 @@
     "townSearch": "Cerca una località o un CAP",
     "townList": "Località con negozi",
     "townEmpty": "Nessuna località con negozi corrisponde."
+  },
+  "towns": {
+    "withCounty": "{town} ({county})",
+    "counties": {
+      "cityOfZagreb": "Città di Zagabria",
+      "zagrebCounty": "Contea di Zagabria",
+      "krapinaZagorje": "Krapina-Zagorje",
+      "sisakMoslavina": "Sisak-Moslavina",
+      "karlovac": "Karlovac",
+      "varazdin": "Varaždin",
+      "koprivnicaKrizevci": "Koprivnica-Križevci",
+      "bjelovarBilogora": "Bjelovar-Bilogora",
+      "primorjeGorskiKotar": "Litoraneo-montana",
+      "likaSenj": "Lika e Segna",
+      "viroviticaPodravina": "Virovitica-Podravina",
+      "pozegaSlavonia": "Požega-Slavonia",
+      "brodPosavina": "Brod-Posavina",
+      "zadar": "Zara",
+      "osijekBaranja": "Osijek-Baranja",
+      "sibenikKnin": "Sebenico e Knin",
+      "vukovarSrijem": "Vukovar-Srijem",
+      "splitDalmatia": "Spalato-Dalmazia",
+      "istria": "Istria",
+      "dubrovnikNeretva": "Dubrovnik-Neretva",
+      "medimurje": "Međimurje"
+    }
+  },
+  "sectionNav": {
+    "stores": "Prezzi per catena",
+    "storesShort": "Negozi",
+    "priceHistory": "Storico prezzi",
+    "priceHistoryShort": "Storico"
   }
 }

@@ -146,7 +146,7 @@ Skipped production and branch deploys still appear in Netlify's deploy list, mar
 
 > ⚠️ **How to tell the rule has regressed.** The first version of this file matched `$BRANCH` instead of `$HEAD`, so the long-lived `dev` into `main` release PR rebuilt its preview on every single push to `dev`: 17 full builds and 47 build minutes in the first six days of August 2026, about a third of the project's usage against a 300 minute monthly team allowance. The tell is a **Deploy Preview** in the deploy list whose branch is `dev` and whose deploy time is a real number rather than `Canceled`. Branch deploys of `dev` showing up **Canceled** are fine and cost nothing. Confirm from the deploy list after changing this rule, because a rule that silently never matches looks identical to no rule at all.
 
-> ⚠️ **Netlify has its own environment variables, and it cannot see Dokploy's.** Previews are built from the same code, so `requireEnv` still throws at module load if anything is missing (see [§5](#5-environment-variables-the-1-gotcha)), and `NEXT_PUBLIC_*` is still baked at build time. A preview with an incomplete env either fails the build or quietly ships a bundle pointing at the wrong API. Keep Netlify's env in sync with Dokploy's **dev** values.
+> ⚠️ **Netlify has its own environment variables, and it cannot see Dokploy's.** Previews are built from the same code, so a missing required variable still throws at module load (see [§5](#5-environment-variables-the-1-gotcha)), and `NEXT_PUBLIC_*` is still baked at build time. A preview with an incomplete env either fails the build or quietly ships a bundle pointing at the wrong API. Keep Netlify's env in sync with Dokploy's **dev** values.
 
 ---
 
@@ -162,9 +162,10 @@ There are **two kinds** of env vars, and mixing them up causes the most confusin
 - **Where they're set:** in **Dokploy, your service, Environment** (one set per environment). On `dev` the `NEXT_PUBLIC_*` values live in two places: the GitHub `dev` environment bakes them into the bundle, and Dokploy still passes them to the running server, which reads some of them (better-auth reads `NEXT_PUBLIC_GOOGLE_CLIENT_ID`). Change both together. The local `.env` files, seeded from the tracked `.env.example` / `frontend/.env.local.example` / `backend/.env.example`, are only for local dev.
 - **Production vs dev difference:** prod uses `https://disscount.me`, dev uses `https://dev.disscount.me` for `BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` / `BETTER_AUTH_ISSUER`; each has its **own** strong `POSTGRES_PASSWORD` + `BETTER_AUTH_SECRET`.
 - **Indexing follows `NEXT_PUBLIC_APP_URL`:** only a build with exactly `https://disscount.me` is indexable; any other value (dev, a typo, `www.`) sends `noindex, nofollow` on every page, header and meta tag alike.
+- **One schema per side:** the frontend reads every variable through `src/lib/env.ts` (`clientEnv`, the public ones, each read as a literal `process.env.NEXT_PUBLIC_X` so Next can inline it) or `src/lib/server-env.ts` (`serverEnv`, `server-only`). Both are zod schemas; an ESLint rule rejects `process.env` anywhere else in `src/` outside tests, except `NODE_ENV` and `NEXT_RUNTIME`. `next.config.ts` checks the public schema, so a malformed public URL fails `next build`; `instrumentation.ts` checks the whole server schema when the Node server starts and lists every missing or malformed variable in one error. A new variable goes into the matching schema and its example file.
 - **Internal URLs stay the same** in every environment (they're Docker service names): `NEXT_PUBLIC_API_URL=http://backend:8080`, `BETTER_AUTH_JWKS_URI=http://frontend:3000/api/auth/jwks`, `...@db:5432/disscount`.
 
-> 🔑 **Real bug we hit:** `auth.ts` reads `NEXT_PUBLIC_GOOGLE_CLIENT_ID` via `requireEnv(...)` (a _dynamic_ lookup), so Next.js can't inline it, so it must also be present at **runtime**, not just as a build arg. All `NEXT_PUBLIC_*` are passed both as build args **and** runtime env in compose.
+> 🔑 **Real bug we hit:** `lib/auth/index.ts` reads `NEXT_PUBLIC_GOOGLE_CLIENT_ID` through `serverEnv` (a _dynamic_ lookup), so Next.js can't inline it, so it must also be present at **runtime**, not just as a build arg. All `NEXT_PUBLIC_*` are passed both as build args **and** runtime env in compose.
 
 ### Card photo env vars
 
@@ -288,6 +289,15 @@ Worth knowing:
 - **Only security updates install on their own.** The default config leaves the `-updates` channel off, so bug-fix releases (systemd, a non-security kernel) wait for a manual `sudo apt update && sudo apt full-upgrade`. Those set the reboot flag too, and the next night's run reboots even though it installs nothing.
 - **Reboot now instead of tonight:** run `sudo unattended-upgrade -v`. It goes through the same steps as the nightly run and reboots at the end if the flag is set. Starting `apt-daily-upgrade.service` by hand does nothing on a day the timer already ran, because its stamp check counts whole days.
 - **Check that it worked:** after a reboot, `uname -r` shows the new kernel, `/var/run/reboot-required` is gone, and `sudo journalctl -u traefik-boot-check -b` prints `dokploy-traefik is running`, or a line saying it had to start it.
+
+### What is encrypted and why
+
+Traffic is encrypted in transit (Cloudflare to the browser, Traefik's certificate to Cloudflare, see [§6](#6-domains-dns--https)). At rest, only the secrets that would be dangerous on their own are encrypted; the rest of the data relies on the firewall, SSH hardening and access control above.
+
+- **OAuth tokens: encrypted.** better-auth encrypts the Google and Facebook access and refresh tokens before writing them to the `account` table, with a key derived from `BETTER_AUTH_SECRET`. The `id_token` column is not encrypted by this option, and rows written before the switch stay plaintext until that user signs in again. Rotating that secret needs care, see [AUTH.md](AUTH.md#13-gotchas-and-lessons). Passwords were never stored: better-auth keeps only a scrypt hash.
+- **Emails, usernames and display names: not encrypted per field.** GDPR Article 32 asks for measures appropriate to the risk, and here the key would sit on the same host as the data, so it adds little against someone who has the server. Login by email would also need a custom better-auth adapter to look users up through an encrypted column.
+- **Full-disk encryption: not used, an accepted risk.** An encrypted disk waits for a passphrase at boot, which would stop the nightly unattended reboot in [Nightly updates and reboots](#nightly-updates-and-reboots) until someone typed it in.
+- **Off-host backups: not encrypted by us yet.** R2 encrypts objects with keys Cloudflare holds; encrypting the dumps ourselves before upload is a suggestion on the project board, not done.
 
 ---
 

@@ -10,6 +10,7 @@ import {
   geoapifyResultSchema,
   pickGeoapifyResult,
 } from "@/lib/store-locations/geocoders/geoapify-query";
+import { serverEnv } from "@/lib/server-env";
 
 const ENDPOINT = "https://api-eu.geoapify.com/v1/geocode/search";
 
@@ -25,7 +26,7 @@ export async function geocodeWithGeoapify(
   city: string | null,
   signal: AbortSignal,
 ): Promise<IResolvedLocation | null> {
-  const apiKey = process.env.GEOAPIFY_API_KEY;
+  const apiKey = serverEnv.GEOAPIFY_API_KEY;
 
   if (!apiKey) return null;
 

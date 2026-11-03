@@ -1,15 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import apiClient from "@/lib/api/api-base";
+import { WATCHLIST_QUERY_KEYS } from "@/lib/api/watchlist/keys";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import { WatchlistItemRequest, WatchlistItemDto } from "@/lib/api/types";
-
-// Query key constants
-const WATCHLIST_QUERY_KEYS = {
-  all: ["watchlist"] as const,
-  me: ["watchlist", "me"] as const,
-  byProduct: (productApiId: string) =>
-    ["watchlist", "product", productApiId] as const,
-};
 
 /**
  * Add product to watchlist
@@ -64,20 +62,27 @@ function useAddToWatchlist() {
   });
 }
 
-function useGetCurrentUserWatchlist({ enabled = true } = {}) {
-  return useQuery<WatchlistItemDto[], Error>({
+function currentUserWatchlistQueryOptions() {
+  return queryOptions({
     queryKey: WATCHLIST_QUERY_KEYS.me,
     queryFn: getCurrentUserWatchlist,
-    enabled,
   });
 }
 
-function useGetWatchlistItemsByProductApiId(productApiId: string) {
-  return useQuery<WatchlistItemDto[], Error>({
+function watchlistItemsByProductQueryOptions(productApiId: string) {
+  return queryOptions({
     queryKey: WATCHLIST_QUERY_KEYS.byProduct(productApiId),
     queryFn: () => getWatchlistItemsByProductApiId(productApiId),
     enabled: !!productApiId,
   });
+}
+
+function useGetCurrentUserWatchlist({ enabled = true } = {}) {
+  return useQuery({ ...currentUserWatchlistQueryOptions(), enabled });
+}
+
+function useGetWatchlistItemsByProductApiId(productApiId: string) {
+  return useQuery(watchlistItemsByProductQueryOptions(productApiId));
 }
 
 function useRemoveFromWatchlist() {
@@ -98,7 +103,6 @@ const watchlistService = {
   useGetCurrentUserWatchlist,
   useGetWatchlistItemsByProductApiId,
   useRemoveFromWatchlist,
-  QUERY_KEYS: WATCHLIST_QUERY_KEYS,
 };
 
 export default watchlistService;

@@ -10,7 +10,8 @@ import { createTranslator } from "next-intl";
 import { z } from "zod";
 import { LOCALES } from "@/i18n/locales";
 import { loadMessages } from "@/i18n/load-messages";
-import { appUrl, requireEnv } from "@/lib/env";
+import { appUrl } from "@/lib/env";
+import { serverEnv } from "@/lib/server-env";
 import { emailService } from "@/lib/email";
 import { userLocale } from "@/lib/email/email-copy";
 import {
@@ -42,12 +43,12 @@ import {
   notifyPasswordChanged,
 } from "@/lib/auth/security-notifications";
 
-const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
-const BETTER_AUTH_SECRET = requireEnv("BETTER_AUTH_SECRET");
-const GOOGLE_CLIENT_ID = requireEnv("NEXT_PUBLIC_GOOGLE_CLIENT_ID");
-const GOOGLE_CLIENT_SECRET = requireEnv("GOOGLE_CLIENT_SECRET");
-const FACEBOOK_CLIENT_ID = requireEnv("FACEBOOK_CLIENT_ID");
-const FACEBOOK_CLIENT_SECRET = requireEnv("FACEBOOK_CLIENT_SECRET");
+const BETTER_AUTH_URL = serverEnv.BETTER_AUTH_URL;
+const BETTER_AUTH_SECRET = serverEnv.BETTER_AUTH_SECRET;
+const GOOGLE_CLIENT_ID = serverEnv.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = serverEnv.GOOGLE_CLIENT_SECRET;
+const FACEBOOK_CLIENT_ID = serverEnv.FACEBOOK_CLIENT_ID;
+const FACEBOOK_CLIENT_SECRET = serverEnv.FACEBOOK_CLIENT_SECRET;
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
@@ -179,6 +180,8 @@ export const auth = betterAuth({
   },
 
   account: {
+    // Keyed by BETTER_AUTH_SECRET; rotating it needs `secrets` with the old one kept, see AUTH.md.
+    encryptOAuthTokens: true,
     accountLinking: {
       enabled: true,
       // Auto-links by shared email; the gate requires the EXISTING account verified.

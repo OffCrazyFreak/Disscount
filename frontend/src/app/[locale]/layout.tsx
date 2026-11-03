@@ -8,6 +8,9 @@ import PriceDropStatus from "@/components/custom/watchlist/price-drop-status";
 import ProductsSheet from "@/app/[locale]/products/components/products-sheet/products-sheet";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/common/footer";
+import SkipLink, {
+  MAIN_CONTENT_ID,
+} from "@/components/custom/common/skip-link";
 import WindowScrollFade from "@/components/custom/common/window-scroll-fade";
 import BackToTopButton from "@/components/custom/fab/back-to-top-button";
 import OAuthErrorToast from "@/components/custom/common/oauth-error-toast";
@@ -24,7 +27,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { LOCALES, OPEN_GRAPH_LOCALES } from "@/i18n/locales";
 import { huninn, sairaStencil } from "@/app/fonts";
-import { appUrl } from "@/lib/env";
+import { appUrl, clientEnv } from "@/lib/env";
 import { iosStartupImages } from "@/constants/ios-startup-images";
 import { X_HANDLE } from "@/constants/social";
 
@@ -35,7 +38,7 @@ export function generateStaticParams() {
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
   const t = await getTranslations("metadata");
-  const indexable = isIndexableOrigin(process.env.NEXT_PUBLIC_APP_URL);
+  const indexable = isIndexableOrigin(clientEnv.NEXT_PUBLIC_APP_URL);
 
   return {
     metadataBase: new URL(appUrl()),
@@ -161,6 +164,8 @@ export default async function RootLayout({
       <body
         className={`${sairaStencil.variable} ${huninn.variable} antialiased bg-zinc-50 relative`}
       >
+        <SkipLink />
+
         {/* Chrome fires beforeinstallprompt before React hydrates, and never
             re-fires it, so the React-side listener alone can miss it and lose
             the native prompt. use-install-prompt.ts adopts whatever this
@@ -170,11 +175,11 @@ export default async function RootLayout({
           {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__installPrompt=e;});`}
         </Script>
 
-        {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
+        {clientEnv.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
           <Script
             defer
             src="https://cloud.umami.is/script.js"
-            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+            data-website-id={clientEnv.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
             strategy="afterInteractive"
           />
         )}
@@ -220,7 +225,11 @@ export default async function RootLayout({
                 heights inside resolve and the page itself never scrolls; only a
                 screen shorter than 40rem scrolls, so the map never shrinks to
                 nothing. */}
-              <main className="max-w-4xl has-[[data-page-width=full]]:max-w-none has-[[data-page-width=full]]:flex has-[[data-page-width=full]]:flex-1 has-[[data-page-width=full]]:min-h-0 has-[[data-page-width=full]]:flex-col mx-auto px-4 pt-4 mt-24 w-full overflow-x-clip">
+              <main
+                id={MAIN_CONTENT_ID}
+                tabIndex={-1}
+                className="scroll-mt-24 outline-none max-w-4xl has-[[data-page-width=full]]:max-w-none has-[[data-page-width=full]]:flex has-[[data-page-width=full]]:flex-1 has-[[data-page-width=full]]:min-h-0 has-[[data-page-width=full]]:flex-col mx-auto px-4 pt-4 mt-24 w-full overflow-x-clip"
+              >
                 <Suspense fallback={null}>
                   <LocaleSuggestion />
                 </Suspense>

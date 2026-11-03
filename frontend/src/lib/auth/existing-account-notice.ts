@@ -9,7 +9,8 @@ import { verification } from "@/db/auth-schema";
 import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth";
 import type { AppLocale } from "@/i18n/locales";
 import { localePath } from "@/i18n/locale-path";
-import { appUrl, requireEnv } from "@/lib/env";
+import { appUrl } from "@/lib/env";
+import { serverEnv } from "@/lib/server-env";
 import { emailService } from "@/lib/email";
 import { userLocale } from "@/lib/email/email-copy";
 import {
@@ -17,7 +18,7 @@ import {
   claimSignUpNotice,
 } from "@/lib/auth/email-link-marker";
 
-const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
+const BETTER_AUTH_URL = serverEnv.BETTER_AUTH_URL;
 
 // A sign-up with a registered address answers the caller like a new one and tells the
 // owner instead. An unverified owner gets a set-password link, because the password on

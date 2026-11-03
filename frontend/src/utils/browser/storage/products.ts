@@ -43,24 +43,3 @@ export function setPriceHistoryPreferences(
     console.error("Failed to set price history preferences", e);
   }
 }
-
-/**
- * Get product stores open state for a specific product. Defaults to open.
- */
-export function getProductStoresOpen(productEan: string): boolean {
-  return getAppStorage().productsPreferences?.[productEan]?.storesOpen ?? true;
-}
-
-/**
- * Set product stores open state for a specific product.
- */
-export function setProductStoresOpen(productEan: string, isOpen: boolean) {
-  const currentPrefs = getAppStorage().productsPreferences || {};
-
-  setAppStorage({
-    productsPreferences: {
-      ...currentPrefs,
-      [productEan]: { ...(currentPrefs[productEan] || {}), storesOpen: isOpen },
-    },
-  });
-}

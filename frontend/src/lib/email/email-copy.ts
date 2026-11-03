@@ -12,8 +12,9 @@ import {
   RESET_TOKEN_TTL_SECONDS,
 } from "@/constants/auth";
 import { localePath } from "@/i18n/locale-path";
+import { clientEnv } from "@/lib/env";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://disscount.me";
+const APP_URL = clientEnv.NEXT_PUBLIC_APP_URL ?? "https://disscount.me";
 
 export type EmailKind =
   | "verification"

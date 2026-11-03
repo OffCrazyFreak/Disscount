@@ -5,7 +5,7 @@ import disscount.contactMessage.dao.ContactMessageRepository;
 import disscount.contactMessage.domain.ContactMessage;
 import disscount.contactMessage.dto.ContactMessageDto;
 import disscount.contactMessage.dto.ContactMessageRequest;
-import disscount.exceptions.BadRequestException;
+import disscount.exceptions.NotFoundException;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.user.service.UserService;
@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -34,9 +35,9 @@ public class ContactMessageService {
     private static final int MAX_ADMIN_MESSAGES = 500;
 
     /** Public: create a message. Silently drops honeypot-filled bot submissions. */
-    public ContactMessageDto create(ContactMessageRequest request) {
+    public Optional<ContactMessageDto> create(ContactMessageRequest request) {
         if (StringUtils.hasText(request.getHoneypot())) {
-            return null;
+            return Optional.empty();
         }
 
         User sender = SecurityUtils.getCurrentUserIdOptional()
@@ -52,7 +53,7 @@ public class ContactMessageService {
                 .sourcePath(request.getSourcePath())
                 .build();
 
-        return convertToDto(contactMessageRepository.save(message));
+        return Optional.of(convertToDto(contactMessageRepository.save(message)));
     }
 
     public List<ContactMessageDto> list(boolean includeDeleted) {
@@ -94,7 +95,7 @@ public class ContactMessageService {
 
     private ContactMessage loadOrThrow(UUID id) {
         return contactMessageRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("error.contactMessage.notFound"));
+                .orElseThrow(() -> new NotFoundException("error.contactMessage.notFound"));
     }
 
     private void requireAdmin() {

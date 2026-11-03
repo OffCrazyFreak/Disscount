@@ -1,5 +1,6 @@
 import {
   keepPreviousData,
+  queryOptions,
   useMutation,
   useQuery,
   useQueryClient,
@@ -16,24 +17,33 @@ import {
   setPhotoStatus,
 } from "@/lib/api/product-images/admin-queries";
 import type {
-  AdminPhotoQueuePage,
   AdminProductPhotos,
   PhotoQueueFilter,
   ProductImageCrop,
 } from "@/lib/api/types";
 
-export function usePhotoQueue(filter: PhotoQueueFilter, page: number) {
-  return useQuery<AdminPhotoQueuePage, Error>({
+function photoQueueQueryOptions(filter: PhotoQueueFilter, page: number) {
+  return queryOptions({
     queryKey: PRODUCT_IMAGE_KEYS.queue(filter, page),
     queryFn: () => getPhotoQueue(filter, page),
     placeholderData: keepPreviousData,
   });
 }
 
-export function useAdminProductPhotos(ean: string, { enabled = true } = {}) {
-  return useQuery<AdminProductPhotos, Error>({
+function adminProductPhotosQueryOptions(ean: string) {
+  return queryOptions({
     queryKey: PRODUCT_IMAGE_KEYS.adminProduct(ean),
     queryFn: () => getAdminProductPhotos(ean),
+  });
+}
+
+export function usePhotoQueue(filter: PhotoQueueFilter, page: number) {
+  return useQuery(photoQueueQueryOptions(filter, page));
+}
+
+export function useAdminProductPhotos(ean: string, { enabled = true } = {}) {
+  return useQuery({
+    ...adminProductPhotosQueryOptions(ean),
     enabled: enabled && Boolean(ean),
   });
 }
@@ -56,7 +66,7 @@ function usePhotoChange<TVariables>(
         queryKey: PRODUCT_IMAGE_KEYS.thumbnail(ean),
       });
       void queryClient.invalidateQueries({
-        queryKey: [...PRODUCT_IMAGE_KEYS.admin, "queue"],
+        queryKey: PRODUCT_IMAGE_KEYS.queueAll,
       });
     },
   });

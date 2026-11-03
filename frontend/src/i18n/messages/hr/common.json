@@ -24,10 +24,6 @@
   "lastSynced": {
     "refreshed": "Osvježeno {time}"
   },
-  "collapsibleSection": {
-    "hide": "Sakrij",
-    "show": "Prikaži"
-  },
   "comingSoon": {
     "badge": "USKORO",
     "description": "Radimo na tome. Uskoro stiže!",
@@ -185,5 +181,37 @@
     "townSearch": "Traži mjesto ili poštanski broj",
     "townList": "Mjesta s trgovinama",
     "townEmpty": "Nijedno mjesto s trgovinama ne odgovara upitu."
+  },
+  "towns": {
+    "withCounty": "{town} ({county})",
+    "counties": {
+      "cityOfZagreb": "Grad Zagreb",
+      "zagrebCounty": "Zagrebačka",
+      "krapinaZagorje": "Krapinsko-zagorska",
+      "sisakMoslavina": "Sisačko-moslavačka",
+      "karlovac": "Karlovačka",
+      "varazdin": "Varaždinska",
+      "koprivnicaKrizevci": "Koprivničko-križevačka",
+      "bjelovarBilogora": "Bjelovarsko-bilogorska",
+      "primorjeGorskiKotar": "Primorsko-goranska",
+      "likaSenj": "Ličko-senjska",
+      "viroviticaPodravina": "Virovitičko-podravska",
+      "pozegaSlavonia": "Požeško-slavonska",
+      "brodPosavina": "Brodsko-posavska",
+      "zadar": "Zadarska",
+      "osijekBaranja": "Osječko-baranjska",
+      "sibenikKnin": "Šibensko-kninska",
+      "vukovarSrijem": "Vukovarsko-srijemska",
+      "splitDalmatia": "Splitsko-dalmatinska",
+      "istria": "Istarska",
+      "dubrovnikNeretva": "Dubrovačko-neretvanska",
+      "medimurje": "Međimurska"
+    }
+  },
+  "sectionNav": {
+    "stores": "Cijene po trgovinama",
+    "storesShort": "Trgovine",
+    "priceHistory": "Povijest cijena",
+    "priceHistoryShort": "Povijest"
   }
 }

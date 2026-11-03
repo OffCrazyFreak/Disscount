@@ -195,7 +195,7 @@
     "add": "Dodaj kartico"
   },
   "archived": {
-    "label": "Arhivirane ({count})"
+    "label": "{label} ({count})"
   },
   "tile": {
     "archivedBadge": "Arhivirana",
@@ -271,5 +271,9 @@
     "cardDeleteFailed": "Kartice ni bilo mogoče izbrisati. Poskusi znova.",
     "photoDeleteFailed": "Slike ni bilo mogoče izbrisati. Poskusi znova.",
     "photoSendFailed": "Slika kartice ni shranjena. Dodaj jo znova."
+  },
+  "sectionNav": {
+    "label": "Razdelki kartic",
+    "archived": "Arhivirane"
   }
 }

@@ -1,5 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import apiClient from "@/lib/api/api-base";
+import { PREFERENCE_QUERY_KEYS } from "@/lib/api/preferences/keys";
 import {
   BulkPinnedPlaceRequest,
   BulkPinnedStoreRequest,
@@ -53,12 +59,15 @@ async function updatePinnedPlaces(
   return response.data;
 }
 
-function useGetPinnedStores({ enabled = true } = {}) {
-  return useQuery<PinnedStoreDto[], Error>({
-    queryKey: ["pinnedStores"],
+function pinnedStoresQueryOptions() {
+  return queryOptions({
+    queryKey: PREFERENCE_QUERY_KEYS.pinnedStores,
     queryFn: getPinnedStores,
-    enabled,
   });
+}
+
+function useGetPinnedStores({ enabled = true } = {}) {
+  return useQuery({ ...pinnedStoresQueryOptions(), enabled });
 }
 
 function useUpdatePinnedStores() {
@@ -67,17 +76,22 @@ function useUpdatePinnedStores() {
     mutationFn: updatePinnedStores,
     onSuccess: () => {
       // Invalidate the pinnedStores query to refetch when needed
-      queryClient.invalidateQueries({ queryKey: ["pinnedStores"] });
+      queryClient.invalidateQueries({
+        queryKey: PREFERENCE_QUERY_KEYS.pinnedStores,
+      });
     },
   });
 }
 
-function useGetPinnedPlaces({ enabled = true } = {}) {
-  return useQuery<PinnedPlaceDto[], Error>({
-    queryKey: ["pinnedPlaces"],
+function pinnedPlacesQueryOptions() {
+  return queryOptions({
+    queryKey: PREFERENCE_QUERY_KEYS.pinnedPlaces,
     queryFn: getPinnedPlaces,
-    enabled,
   });
+}
+
+function useGetPinnedPlaces({ enabled = true } = {}) {
+  return useQuery({ ...pinnedPlacesQueryOptions(), enabled });
 }
 
 function useUpdatePinnedPlaces() {
@@ -86,7 +100,9 @@ function useUpdatePinnedPlaces() {
     mutationFn: updatePinnedPlaces,
     onSuccess: () => {
       // Invalidate the pinnedPlaces query to refetch when needed
-      queryClient.invalidateQueries({ queryKey: ["pinnedPlaces"] });
+      queryClient.invalidateQueries({
+        queryKey: PREFERENCE_QUERY_KEYS.pinnedPlaces,
+      });
     },
   });
 }

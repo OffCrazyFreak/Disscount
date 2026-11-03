@@ -1,9 +1,11 @@
 package disscount.contactMessage.rest;
 
 import disscount.config.SecurityConfig;
+import disscount.contactMessage.dto.ContactMessageDto;
 import disscount.contactMessage.service.ContactMessageService;
 import disscount.contactMessage.service.ContactRateLimiter;
 import disscount.user.service.UserService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -14,10 +16,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.util.Optional;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,6 +37,11 @@ class ContactMessageControllerTest {
     @Autowired MockMvc mvc;
     @MockitoBean ContactMessageService contactMessageService;
     @MockitoBean UserService userService;
+
+    @BeforeEach
+    void storeEveryMessage() {
+        when(contactMessageService.create(any())).thenReturn(Optional.of(ContactMessageDto.builder().build()));
+    }
 
     private static MockHttpServletRequestBuilder contactFrom(String visitor) {
         return post("/api/contact")
@@ -52,5 +63,14 @@ class ContactMessageControllerTest {
 
         mvc.perform(contactFrom("93.140.10.21")).andExpect(status().isOk());
         verify(contactMessageService, times(6)).create(any());
+    }
+
+    @Test
+    void aDroppedHoneypotSubmissionIs204WithNoBody() throws Exception {
+        when(contactMessageService.create(any())).thenReturn(Optional.empty());
+
+        mvc.perform(contactFrom("93.140.10.22"))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
     }
 }

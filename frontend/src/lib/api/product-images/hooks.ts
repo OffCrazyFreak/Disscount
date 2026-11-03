@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import { PRODUCT_IMAGE_KEYS } from "@/lib/api/product-images/keys";
 import {
@@ -12,24 +17,34 @@ import type { ProductImagesResponse } from "@/lib/api/types";
 // Photos change rarely, and a fresh visit refetches anyway.
 const PHOTO_STALE_MS = 5 * 60_000;
 
-export function useProductImages(ean: string, { enabled = true } = {}) {
-  return useQuery<ProductImagesResponse, Error>({
+function productImagesQueryOptions(ean: string) {
+  return queryOptions({
     queryKey: PRODUCT_IMAGE_KEYS.product(ean),
     queryFn: () => getProductImages(ean),
     staleTime: PHOTO_STALE_MS,
-    enabled: enabled && Boolean(ean),
   });
 }
 
-export function useProductThumbnail(ean: string | undefined) {
-  return useQuery<string | null, Error>({
-    queryKey: PRODUCT_IMAGE_KEYS.thumbnail(ean ?? ""),
-    queryFn: () => loadThumbnail(ean ?? ""),
+function productThumbnailQueryOptions(ean: string) {
+  return queryOptions({
+    queryKey: PRODUCT_IMAGE_KEYS.thumbnail(ean),
+    queryFn: () => loadThumbnail(ean),
     staleTime: PHOTO_STALE_MS,
     enabled: Boolean(ean),
     // A missing thumbnail is not worth retrying for every row of a list.
     retry: false,
   });
+}
+
+export function useProductImages(ean: string, { enabled = true } = {}) {
+  return useQuery({
+    ...productImagesQueryOptions(ean),
+    enabled: enabled && Boolean(ean),
+  });
+}
+
+export function useProductThumbnail(ean: string | undefined) {
+  return useQuery(productThumbnailQueryOptions(ean ?? ""));
 }
 
 export function useUploadProductImage(ean: string) {

@@ -1,24 +1,29 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import {
   getAccountSessions,
   revokeAccountSession,
 } from "@/lib/api/account-sessions/queries";
+import { ACCOUNT_SESSION_QUERY_KEYS } from "@/lib/api/account-sessions/keys";
 
-export const ACCOUNT_SESSION_QUERY_KEYS = {
-  all: ["account-sessions"] as const,
-  // Keyed on this device's session, because a re-auth proof swaps it for a new id.
-  list: (currentSessionId: string | undefined) =>
-    ["account-sessions", currentSessionId] as const,
-};
+function accountSessionsQueryOptions(currentSessionId: string | undefined) {
+  return queryOptions({
+    queryKey: ACCOUNT_SESSION_QUERY_KEYS.list(currentSessionId),
+    queryFn: getAccountSessions,
+  });
+}
 
 export function useAccountSessions(
   currentSessionId: string | undefined,
   enabled: boolean,
 ) {
   return useQuery({
-    queryKey: ACCOUNT_SESSION_QUERY_KEYS.list(currentSessionId),
-    queryFn: getAccountSessions,
+    ...accountSessionsQueryOptions(currentSessionId),
     enabled: enabled && !!currentSessionId,
   });
 }

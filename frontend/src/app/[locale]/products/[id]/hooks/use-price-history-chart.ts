@@ -1,10 +1,10 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useMemo } from "react";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { useUser } from "@/context/user-context";
 import {
-  getPriceHistoryPreferences,
-  setPriceHistoryPreferences,
-} from "@/utils/browser/local-storage";
+  updateProductPreferences,
+  useProductPreferences,
+} from "@/app/[locale]/products/[id]/hooks/use-product-preferences";
 import { usePriceHistory } from "@/lib/cijene-api/hooks";
 import { PeriodOption } from "@/typings/history-period-options";
 import { periodOptions, getEnabledPeriod } from "@/constants/price-history";
@@ -18,58 +18,49 @@ interface IChartPrefs {
   chains: string[];
 }
 
-export function usePriceHistoryChart(product: ProductResponse) {
+export function usePriceHistoryChart(
+  product: ProductResponse,
+  isEnabled: boolean,
+) {
   const { user } = useUser();
+  // Read through the store, not lazily: the open section is in the server HTML, which has only defaults.
+  const saved = useProductPreferences(product.ean);
 
-  const [chartPrefs, setChartPrefs] = useState<IChartPrefs>(() => {
-    const { productsPreferences } = getPriceHistoryPreferences(product.ean);
-    const availableChains =
-      product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
+  const availableChains =
+    product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
 
+  // If EAN isn't in preferences yet, default to preferred stores only (if any exist)
+  const preferredStoreIds = user?.pinnedStores?.map((s) => s.storeApiId) || [];
+  const preferredChains = availableChains.filter((chain) =>
+    preferredStoreIds.includes(chain),
+  );
+
+  // Sanitize persisted chains by intersecting with available chains
+  const savedChains = saved.chains
+    ? Array.from(new Set(saved.chains)).filter((chain) =>
+        availableChains.includes(chain),
+      )
+    : null;
+
+  const chartPrefs: IChartPrefs = {
     // A persisted period may since have been disabled, so coerce it back.
-    const period = getEnabledPeriod(
-      (productsPreferences?.period || "1W") as PeriodOption,
-    );
+    period: getEnabledPeriod((saved.period || "1W") as PeriodOption),
+    chains: savedChains
+      ? savedChains.length > 0
+        ? savedChains
+        : availableChains
+      : preferredChains.length > 0
+        ? preferredChains
+        : availableChains,
+  };
 
-    if (productsPreferences?.chains) {
-      // Sanitize persisted chains by intersecting with available chains
-      const sanitizedChains = Array.from(
-        new Set(productsPreferences.chains),
-      ).filter((chain) => availableChains.includes(chain));
-
-      return {
-        period,
-        chains: sanitizedChains.length > 0 ? sanitizedChains : availableChains,
-      };
-    }
-
-    // If EAN isn't in preferences yet, default to preferred stores only (if any exist)
-    const preferredStoreIds =
-      user?.pinnedStores?.map((s) => s.storeApiId) || [];
-    const preferredChains = availableChains.filter((chain) =>
-      preferredStoreIds.includes(chain),
-    );
-
-    // If there are preferred stores, select only those; otherwise select all
-    return {
-      period,
-      chains: preferredChains.length > 0 ? preferredChains : availableChains,
-    };
-  });
-
-  const [isPriceHistoryOpen, setIsPriceHistoryOpen] = useState(() => {
-    const { productsPreferences } = getPriceHistoryPreferences(product.ean);
-    return productsPreferences?.isPriceHistoryOpen ?? false;
-  });
-
-  // Persist product-specific preferences whenever period, chains, or isOpen change
-  useEffect(() => {
-    setPriceHistoryPreferences(product.ean, {
-      period: chartPrefs.period,
-      chains: chartPrefs.chains,
-      isPriceHistoryOpen: isPriceHistoryOpen,
+  // Saved on change, not in an effect: one during hydration would overwrite the saved state.
+  function savePreferences(prefs: IChartPrefs) {
+    updateProductPreferences(product.ean, {
+      period: prefs.period,
+      chains: prefs.chains,
     });
-  }, [chartPrefs.period, chartPrefs.chains, isPriceHistoryOpen, product.ean]);
+  }
 
   const daysToShow: number = useMemo(() => {
     return periodOptions[chartPrefs.period as PeriodOption]?.days || 7;
@@ -80,22 +71,24 @@ export function usePriceHistoryChart(product: ProductResponse) {
     chains: priceHistoryChains,
     isLoading: historyLoading,
     isError: historyError,
-  } = usePriceHistory({ ean: product.ean, days: daysToShow });
+  } = usePriceHistory({
+    ean: product.ean,
+    days: daysToShow,
+    enabled: isEnabled,
+  });
 
-  const handlePeriodChange = useCallback((period: string) => {
-    setChartPrefs((p) => ({
-      ...p,
+  function handlePeriodChange(period: string) {
+    savePreferences({
+      ...chartPrefs,
       period: getEnabledPeriod(period as PeriodOption),
-    }));
-  }, []);
+    });
+  }
 
-  const handleChainsChange = useCallback((chains: string[]) => {
+  function handleChainsChange(chains: string[]) {
     // Ensure at least one chain is always selected
-    if (chains.length > 0) {
-      setChartPrefs((p) => ({ ...p, chains }));
-    }
+    if (chains.length > 0) savePreferences({ ...chartPrefs, chains });
     // If no chains are selected, keep the current selection unchanged
-  }, []);
+  }
 
   const priceChange = useMemo(() => {
     if (priceHistoryData.length === 0) {
@@ -116,8 +109,6 @@ export function usePriceHistoryChart(product: ProductResponse) {
 
   return {
     chartPrefs,
-    isPriceHistoryOpen,
-    setIsPriceHistoryOpen,
     priceHistoryData,
     priceHistoryChains,
     historyLoading,

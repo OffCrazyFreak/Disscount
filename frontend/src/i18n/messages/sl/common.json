@@ -24,10 +24,6 @@
   "lastSynced": {
     "refreshed": "Posodobljeno {time}"
   },
-  "collapsibleSection": {
-    "hide": "Skrij",
-    "show": "Pokaži"
-  },
   "comingSoon": {
     "badge": "KMALU",
     "description": "Delamo na tem. Kmalu prihaja!",
@@ -185,5 +181,37 @@
     "townSearch": "Išči kraj ali poštno številko",
     "townList": "Kraji s trgovinami",
     "townEmpty": "Noben kraj s trgovinami se ne ujema."
+  },
+  "towns": {
+    "withCounty": "{town} ({county})",
+    "counties": {
+      "cityOfZagreb": "Mesto Zagreb",
+      "zagrebCounty": "Zagrebška",
+      "krapinaZagorje": "Krapinsko-zagorska",
+      "sisakMoslavina": "Siško-moslavška",
+      "karlovac": "Karlovška",
+      "varazdin": "Varaždinska",
+      "koprivnicaKrizevci": "Koprivniško-križevska",
+      "bjelovarBilogora": "Bjelovarsko-bilogorska",
+      "primorjeGorskiKotar": "Primorsko-goranska",
+      "likaSenj": "Liško-senjska",
+      "viroviticaPodravina": "Virovitiško-podravska",
+      "pozegaSlavonia": "Požeško-slavonska",
+      "brodPosavina": "Brodsko-posavska",
+      "zadar": "Zadrska",
+      "osijekBaranja": "Osiješko-baranjska",
+      "sibenikKnin": "Šibeniško-kninska",
+      "vukovarSrijem": "Vukovarsko-sremska",
+      "splitDalmatia": "Splitsko-dalmatinska",
+      "istria": "Istrska",
+      "dubrovnikNeretva": "Dubrovniško-neretvanska",
+      "medimurje": "Medžimurska"
+    }
+  },
+  "sectionNav": {
+    "stores": "Cene po trgovcih",
+    "storesShort": "Trgovine",
+    "priceHistory": "Zgodovina cen",
+    "priceHistoryShort": "Zgodovina"
   }
 }
