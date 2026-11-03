@@ -24,11 +24,6 @@ describe("Croatian numeric dates", () => {
   it("treats an unknown locale as Croatian, like formatLocale does", () => {
     expect(formatDate(MORNING, "xx")).toBe("03.11.2026.");
   });
-
-  // price-history-chart-shell.tsx cuts the axis tick out of this string.
-  it("leaves a clean day and month when the chart axis cuts the year", () => {
-    expect(formatDate(MORNING, "hr").slice(0, -5)).toBe("03.11.");
-  });
 });
 
 describe("the other languages keep their own format", () => {

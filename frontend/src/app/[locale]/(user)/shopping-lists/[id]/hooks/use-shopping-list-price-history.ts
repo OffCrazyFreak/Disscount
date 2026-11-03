@@ -1,7 +1,6 @@
 import { catalogEans } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
 import { useMemo } from "react";
 import { useQueries } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
 import { ShoppingListDto } from "@/lib/api/types";
 import { PeriodOption } from "@/typings/history-period-options";
 import { periodOptions } from "@/constants/price-history";
@@ -25,7 +24,6 @@ export function useShoppingListPriceHistory(
   period: PeriodOption,
 ) {
   const { accountUser } = useUser();
-  const locale = useLocale();
 
   const daysToShow = useMemo(() => {
     return periodOptions[period]?.days || 7;
@@ -73,9 +71,8 @@ export function useShoppingListPriceHistory(
   );
 
   const chartData = useMemo(
-    () =>
-      buildChartData(priceHistoriesByEan, eans, dates, selectedChains, locale),
-    [priceHistoriesByEan, eans, dates, selectedChains, locale],
+    () => buildChartData(priceHistoriesByEan, eans, dates, selectedChains),
+    [priceHistoriesByEan, eans, dates, selectedChains],
   );
 
   const chartConfig = useMemo(

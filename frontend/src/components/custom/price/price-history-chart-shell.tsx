@@ -11,6 +11,7 @@ import {
 import { ChartDataPoint } from "@/typings/chart-data";
 import { useTouchTooltipDismiss } from "@/hooks/use-touch-tooltip-dismiss";
 import { formatPrice } from "@/utils/price";
+import { formatDate, formatDayMonth } from "@/utils/strings";
 
 interface IPriceHistoryChartShellProps {
   chartData: ChartDataPoint[];
@@ -41,9 +42,7 @@ export default function PriceHistoryChartShell({
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          tickFormatter={(value) =>
-            typeof value === "string" ? value.slice(0, -5) : String(value)
-          }
+          tickFormatter={(value) => formatDayMonth(String(value), locale)}
         />
 
         <YAxis
@@ -61,6 +60,7 @@ export default function PriceHistoryChartShell({
         <ChartTooltip
           active={tooltipActive}
           cursor={true}
+          labelFormatter={(value) => formatDate(String(value), locale)}
           content={tooltipContent}
         />
 
