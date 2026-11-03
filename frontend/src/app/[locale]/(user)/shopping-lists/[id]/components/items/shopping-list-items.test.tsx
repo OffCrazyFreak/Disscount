@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react";
-import { act, screen } from "@testing-library/react";
+import { act, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -234,5 +234,21 @@ describe("ShoppingListItems price states", () => {
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /staklenke/ })).toBeNull();
     expect(container.querySelector('[data-slot="skeleton"]')).toBeNull();
+  });
+});
+
+describe("ShoppingListItems banner placement", () => {
+  it("keeps the failure banner visible with the items collapsed", async () => {
+    const user = userEvent.setup();
+    renderItems([item("a")], { a: "failed" });
+
+    await user.click(screen.getByRole("button", { name: /Proizvodi/ }));
+
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(
+      within(screen.getByRole("status")).getByRole("button", {
+        name: "Pokušaj ponovno",
+      }),
+    ).toBeInTheDocument();
   });
 });

@@ -84,64 +84,65 @@ export default function ShoppingListItems({
   ).length;
 
   return (
-    <Collapsible open={isItemsOpen} onOpenChange={handleToggleItems}>
-      <CollapsibleTrigger asChild className="py-2">
-        <button type="button" className="w-full text-left">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="text-lg font-semibold">
-              {checkedCount > 0
-                ? t("items.titleWithChecked", {
-                    checked: checkedCount,
-                    total: shoppingList.items.length,
-                  })
-                : t("items.title", { total: shoppingList.items.length })}
-            </h2>
+    <div className="space-y-3">
+      {/* Outside the collapsible, so collapsing the items does not hide a failure or its retry. */}
+      <ShoppingListPriceStatus
+        failedCount={failedPriceCount}
+        isRetrying={isRetryingPrices}
+        onRetry={onRetryPrices}
+      />
 
-            <Separator className="flex-1 my-2" />
+      <Collapsible open={isItemsOpen} onOpenChange={handleToggleItems}>
+        <CollapsibleTrigger asChild className="py-2">
+          <button type="button" className="w-full text-left">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-lg font-semibold">
+                {checkedCount > 0
+                  ? t("items.titleWithChecked", {
+                      checked: checkedCount,
+                      total: shoppingList.items.length,
+                    })
+                  : t("items.title", { total: shoppingList.items.length })}
+              </h2>
 
-            <div className="flex items-center gap-4">
-              <p className="hidden sm:inline text-gray-700 text-sm">
-                {isItemsOpen ? t("toggle.hide") : t("toggle.show")}
-              </p>
+              <Separator className="flex-1 my-2" />
 
-              <ChevronDown
-                className={cn(
-                  "size-8 text-gray-500 transition-transform flex-shrink-0",
-                  isItemsOpen && "rotate-180",
-                )}
-              />
+              <div className="flex items-center gap-4">
+                <p className="hidden sm:inline text-gray-700 text-sm">
+                  {isItemsOpen ? t("toggle.hide") : t("toggle.show")}
+                </p>
+
+                <ChevronDown
+                  className={cn(
+                    "size-8 text-gray-500 transition-transform flex-shrink-0",
+                    isItemsOpen && "rotate-180",
+                  )}
+                />
+              </div>
             </div>
-          </div>
-        </button>
-      </CollapsibleTrigger>
+          </button>
+        </CollapsibleTrigger>
 
-      <CollapsibleContent>
-        {/* Only the owner can add items, matching the backend's rule. */}
-        {isOwner && (
-          <div className="mb-3">
-            <ShoppingListQuickAdd listId={shoppingList.id} />
-          </div>
-        )}
+        <CollapsibleContent>
+          {/* Only the owner can add items, matching the backend's rule. */}
+          {isOwner && (
+            <div className="mb-3">
+              <ShoppingListQuickAdd listId={shoppingList.id} />
+            </div>
+          )}
 
-        {shoppingList.items.length === 0 ? (
-          <ShoppingListItemsEmpty isOwner={isOwner} />
-        ) : (
-          <div className="space-y-3">
-            <ShoppingListPriceStatus
-              failedCount={failedPriceCount}
-              isRetrying={isRetryingPrices}
-              onRetry={onRetryPrices}
-            />
-
+          {shoppingList.items.length === 0 ? (
+            <ShoppingListItemsEmpty isOwner={isOwner} />
+          ) : (
             <ShoppingListItemViews
               listId={shoppingList.id}
               items={shoppingList.items}
               isPricesLoading={isPricesLoading}
               rowProps={rowProps}
             />
-          </div>
-        )}
-      </CollapsibleContent>
-    </Collapsible>
+          )}
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
   );
 }
