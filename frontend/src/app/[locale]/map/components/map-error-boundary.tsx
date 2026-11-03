@@ -2,6 +2,8 @@
 
 import { Component, ReactNode } from "react";
 
+import { reloadAfterChunkLoadError } from "@/lib/pwa/chunk-load-recovery";
+
 interface IMapErrorBoundaryProps {
   fallback: ReactNode;
   children: ReactNode;
@@ -27,6 +29,10 @@ export default class MapErrorBoundary extends Component<
   }
 
   componentDidCatch(error: unknown) {
+    // A stale MapLibre chunk after a deploy is caught here before the route
+    // boundary could recover it.
+    if (reloadAfterChunkLoadError(error)) return;
+
     console.warn("[map] could not start", error);
   }
 
