@@ -21,6 +21,7 @@ function makeList(overrides: Partial<ShoppingListDto> = {}): ShoppingListDto {
   return {
     id: LIST_ID,
     title: "Tjedna kupnja",
+    ownerId: null,
     linkAccess: "SHOP",
     myAccess: "OWNER",
     updatedAt: "2026-11-01T10:00:00",

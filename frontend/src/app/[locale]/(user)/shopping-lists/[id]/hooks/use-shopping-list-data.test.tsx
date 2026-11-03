@@ -14,6 +14,7 @@ import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
+import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
 
 vi.mock("@/context/user-context", () => ({
   useUser: () => ({ user: null }),
@@ -23,6 +24,7 @@ const LIST_ID = "list-1";
 
 function item(id: string, ean: string): ShoppingListItemDto {
   return {
+    ...UNSET_ITEM_FIELDS,
     id,
     ean,
     name: id,
@@ -36,6 +38,8 @@ function item(id: string, ean: string): ShoppingListItemDto {
 const list: ShoppingListDto = {
   id: LIST_ID,
   title: "Tjedni",
+  ownerId: null,
+  linkAccess: null,
   myAccess: "OWNER",
   createdAt: "2026-10-27T00:00:00",
   updatedAt: "2026-10-27T00:00:00",

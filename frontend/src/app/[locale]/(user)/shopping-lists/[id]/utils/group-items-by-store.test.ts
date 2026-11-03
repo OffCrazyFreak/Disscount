@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import { groupItemsByStore } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/group-items-by-store";
+import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
 
 function item(
   id: string,
@@ -9,6 +10,7 @@ function item(
   extra: Partial<ShoppingListItemDto> = {},
 ): ShoppingListItemDto {
   return {
+    ...UNSET_ITEM_FIELDS,
     id,
     name,
     ean: id,

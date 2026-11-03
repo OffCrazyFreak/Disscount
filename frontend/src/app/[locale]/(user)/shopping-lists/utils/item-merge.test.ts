@@ -6,9 +6,11 @@ import {
   catalogEans,
   itemsToCompare,
 } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
+import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
 
 function item(ean: string | null, name: string): ShoppingListItemDto {
   return {
+    ...UNSET_ITEM_FIELDS,
     id: `${ean}-${name}`,
     shoppingListId: "list",
     ean,

@@ -27,10 +27,10 @@ export const shoppingListDtoSchema = z.object({
   title: z.string(),
   // Owner-only, like the two below: an account id is a stable identifier and a share
   // link can travel anywhere.
-  ownerId: z.string().nullable().optional(),
+  ownerId: z.string().nullable(),
   // The server sends null to anyone who arrived through a link, so they cannot reshare
   // the list at a level its owner never granted.
-  linkAccess: linkAccessSchema.nullable().optional(),
+  linkAccess: linkAccessSchema.nullable(),
   // The caller's resolved access, so the client never re-derives the backend rule.
   myAccess: listAccessSchema,
   updatedAt: z.string(),

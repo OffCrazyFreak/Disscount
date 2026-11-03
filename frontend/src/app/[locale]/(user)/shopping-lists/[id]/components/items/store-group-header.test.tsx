@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import StoreGroupHeader from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/store-group-header";
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import { renderWithProviders } from "@/test/render";
+import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
 
 vi.mock("@/context/user-context", () => ({
   useUser: () => ({ isAuthenticated: false }),
@@ -17,8 +18,8 @@ vi.mock("@/i18n/navigation", () => ({
 
 function items(count: number): ShoppingListItemDto[] {
   return Array.from({ length: count }, (_, index) => ({
+    ...UNSET_ITEM_FIELDS,
     id: `item-${index}`,
-    ean: null,
     name: `Stavka ${index}`,
     amount: 1,
     isChecked: false,
