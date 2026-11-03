@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
@@ -75,6 +76,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     public ProblemDetail handleNoResource(NoResourceFoundException ex) {
         return problem(HttpStatus.NOT_FOUND, "not-found", message("problem.title.not-found"));
+    }
+
+    /** A known route called with the wrong method; the catch-all below would turn it into a 500. */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ProblemDetail> handleMethodNotAllowed(HttpRequestMethodNotSupportedException ex) {
+        ProblemDetail detail = problem(HttpStatus.METHOD_NOT_ALLOWED, "method-not-allowed",
+                message("problem.detail.method-not-allowed", ex.getMethod()));
+        // RFC 9110 requires a 405 to carry Allow, which the exception already holds.
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).headers(ex.getHeaders()).body(detail);
     }
 
     @ExceptionHandler(ConflictException.class)

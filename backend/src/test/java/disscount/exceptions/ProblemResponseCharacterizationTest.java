@@ -11,9 +11,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -66,6 +68,17 @@ class ProblemResponseCharacterizationTest {
         mvc.perform(patch("/api/notifications/not-a-uuid/read").with(jwt()))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.type").value("urn:disscount:bad-request"));
+    }
+
+    @Test
+    void aWrongMethodOnAKnownRouteIsA405ListingTheAllowedOnes() throws Exception {
+        mvc.perform(get("/api/contact").with(jwt()))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(header().string(HttpHeaders.ALLOW, "POST"))
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.type").value("urn:disscount:method-not-allowed"))
+                .andExpect(jsonPath("$.title").value("Metoda nije dopuštena"))
+                .andExpect(jsonPath("$.detail").value("Metoda GET nije podržana za ovu adresu."));
     }
 
     @Test
