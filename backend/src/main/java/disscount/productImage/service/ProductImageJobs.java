@@ -84,6 +84,8 @@ public class ProductImageJobs {
                 // A failed import leaves the previous catalogue in place, so the seed below can still use it.
                 log.error("Catalogue import failed; it is retried at the next check", e);
             }
+            // An interrupt during the download can surface as an IOException, so it is checked again here.
+            if (Thread.currentThread().isInterrupted()) return;
             // Tracked apart, so turning the photo bucket on mid-week seeds at the next check instead of up to a
             // week later; a fresh import seeds its new EANs straight away.
             if (store.enabled() && (imported || isDue(PHOTO_SEED))) {

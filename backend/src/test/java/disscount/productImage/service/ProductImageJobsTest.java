@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -92,6 +93,23 @@ class ProductImageJobsTest {
         verify(seed).seed();
         verify(runs).save(argThat(run -> ProductImageJobs.PHOTO_SEED.equals(run.getKind())));
         verify(runs, never()).save(argThat(run -> ProductImageJobs.WEEKLY_IMPORT.equals(run.getKind())));
+    }
+
+    @Test
+    void anInterruptDuringTheCatalogueDownloadSkipsTheSeed() throws Exception {
+        doAnswer(call -> {
+            Thread.currentThread().interrupt();
+            throw new java.io.InterruptedIOException("download interrupted");
+        }).when(catalog).importLatest();
+
+        try {
+            jobs().weeklyImport();
+
+            verify(seed, never()).seed();
+            assertTrue(Thread.currentThread().isInterrupted());
+        } finally {
+            Thread.interrupted();
+        }
     }
 
     @Test
