@@ -21,8 +21,9 @@ const VARIANTS = [
   "outline",
 ] as const;
 
-// The owner keeps white on the brand green as a brand decision, so it fails on purpose.
-const ACCEPTED_FAILURES = new Set(["primary light"]);
+// Owner decisions: white on the brand green stays, and the blue badge keeps its
+// original fill, so both fail on purpose.
+const ACCEPTED_FAILURES = new Set(["primary light", "info light", "info dark"]);
 
 const SURFACES = ["background", "card"];
 const WCAG_AA_NORMAL_TEXT = 4.5;

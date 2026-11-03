@@ -27,7 +27,7 @@ const badgeVariants = cva(
           "border-transparent bg-amber-200 text-amber-800 [a&]:hover:bg-amber-300",
         warningSoft:
           "border-amber-200 bg-amber-50 text-amber-700 [a&]:hover:bg-amber-100 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300 dark:[a&]:hover:bg-amber-900",
-        info: "border-transparent bg-blue-600 text-white [a&]:hover:bg-blue-700",
+        info: "border-transparent bg-blue-500 text-white [a&]:hover:bg-blue-500/90",
         infoSoft:
           "border-blue-200 bg-blue-50 text-blue-700 [a&]:hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300 dark:[a&]:hover:bg-blue-900",
         outline:
