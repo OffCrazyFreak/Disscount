@@ -22,9 +22,6 @@ const DAY = 24 * 60;
 // An hour leaves time to get there and still shop.
 const CLOSING_SOON_MINUTES = 60;
 
-// Two weekly refreshes missed: the data may describe last month's hours.
-const STALE_AFTER_MS = 14 * 24 * 60 * 60 * 1000;
-
 // Far enough to find Monday's opening from a Saturday evening before a holiday.
 const LOOKAHEAD_DAYS = 7;
 
@@ -45,11 +42,12 @@ function spansAround(
   hours: StoreHoursDto,
   today: string,
   holidays: ReadonlySet<string>,
+  at: Date,
 ): ISpan[] {
   const spans: ISpan[] = [];
 
   for (let offset = -1; offset <= LOOKAHEAD_DAYS; offset++) {
-    const day = hoursOnDate(hours, addDays(today, offset), holidays);
+    const day = hoursOnDate(hours, addDays(today, offset), holidays, at);
     const midnight = offset * DAY;
 
     if (!day) {
@@ -98,14 +96,10 @@ export function openingStatusAt(
   holidays: ReadonlySet<string>,
   at: Date,
 ): OpeningStatus {
-  if (at.getTime() - Date.parse(hours.verifiedAt) > STALE_AFTER_MS) {
-    return { state: "unconfirmed", asOf: hours.verifiedAt };
-  }
-
   const { date: today, minutes: now } = zagrebClock(at);
-  const spans = spansAround(hours, today, holidays);
+  const spans = spansAround(hours, today, holidays, at);
   const open = spans.filter((span) => span.known);
-  const asOf = hoursOnDate(hours, today, holidays)?.verifiedAt ?? null;
+  const asOf = hoursOnDate(hours, today, holidays, at)?.verifiedAt ?? null;
   const current = open.find((span) => span.start <= now && now < span.end);
 
   if (current) {

@@ -226,6 +226,43 @@ describe("openingStatusAt", () => {
     expect(status.state).toBe("unconfirmed");
   });
 
+  it("ignores an announcement older than two refreshes", () => {
+    const status = openingStatusAt(
+      hours({
+        dated: [
+          {
+            date: "2026-11-08",
+            ranges: [{ opens: "08:00", closes: "13:00" }],
+            verifiedAt: "2026-09-01T06:00:00.000Z",
+          },
+        ],
+      }),
+      noHolidays,
+      at("2026-11-08T10:00:00"),
+    );
+
+    expect(status.state).toBe("unconfirmed");
+  });
+
+  it("trusts a fresh announcement over a stale template", () => {
+    const status = openingStatusAt(
+      hours({
+        verifiedAt: "2026-10-20T06:00:00.000Z",
+        dated: [
+          {
+            date: "2026-11-08",
+            ranges: [{ opens: "08:00", closes: "13:00" }],
+            verifiedAt: "2026-11-06T06:00:00.000Z",
+          },
+        ],
+      }),
+      noHolidays,
+      at("2026-11-08T10:00:00"),
+    );
+
+    expect(status.state).toBe("open");
+  });
+
   it("is unconfirmed once two weekly refreshes were missed", () => {
     const status = openingStatusAt(
       hours({ verifiedAt: "2026-10-20T06:00:00.000Z" }),

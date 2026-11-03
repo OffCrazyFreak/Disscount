@@ -1,7 +1,11 @@
 import "server-only";
 
 import type { DatedHoursDto, StoreHoursDto } from "@/lib/api/schemas";
-import { hoursSourceSchema, sundayRuleSchema } from "@/lib/api/schemas";
+import {
+  hoursSourceSchema,
+  storeHoursDto,
+  sundayRuleSchema,
+} from "@/lib/api/schemas";
 import type { storeHours, storeHoursOverlay } from "@/db/store-hours-schema";
 import {
   HOURS_CHAINS,
@@ -35,7 +39,11 @@ function groupOverlays(overlays: OverlayRow[], from: string, to: string) {
   const byStore = new Map<string, DatedHoursDto[]>();
 
   for (const overlay of overlays) {
+    const source = hoursSourceSchema.safeParse(overlay.source);
+
     if (overlay.date < from || overlay.date > to) continue;
+    if (!source.success) continue;
+    if (!isHoursSourceEnabled(overlay.chainCode, source.data)) continue;
 
     const key = storeKey(overlay.chainCode, overlay.storeCode);
     const entry = {
@@ -50,14 +58,20 @@ function groupOverlays(overlays: OverlayRow[], from: string, to: string) {
   return byStore;
 }
 
-// The store's own exception first, then the chain's announcement for that
-// store, then one for the whole chain.
+// Exceptions come with the weekly refresh and announcements with the later
+// Sunday poll, often for the same date from the same feed, so the latest
+// observation wins. On a tie the more specific layer (listed first) does:
+// the store's exception, the chain's word on that store, then the chain.
 function mergeDated(...layers: DatedHoursDto[][]): DatedHoursDto[] {
   const byDate = new Map<string, DatedHoursDto>();
 
   for (const layer of layers) {
     for (const entry of layer) {
-      if (!byDate.has(entry.date)) byDate.set(entry.date, entry);
+      const kept = byDate.get(entry.date);
+
+      if (!kept || entry.verifiedAt > kept.verifiedAt) {
+        byDate.set(entry.date, entry);
+      }
     }
   }
 
@@ -95,7 +109,8 @@ export function buildStoreHours(
       .filter((entry) => entry.date >= from && entry.date <= to)
       .map((entry) => ({ ...entry, verifiedAt }));
 
-    stores[storeKey(row.chainCode, row.storeCode)] = {
+    // One malformed row must not make the client reject every store.
+    const hours = storeHoursDto.safeParse({
       weekly: row.weekly,
       dated: mergeDated(
         exceptions,
@@ -106,7 +121,16 @@ export function buildStoreHours(
       source: source.data,
       verifiedAt,
       checkUrl: checkUrlOf(row),
-    };
+    });
+
+    if (hours.success) {
+      stores[storeKey(row.chainCode, row.storeCode)] = hours.data;
+    } else {
+      console.warn(
+        `[store-hours] dropped ${row.chainCode}:${row.storeCode}`,
+        hours.error.issues[0],
+      );
+    }
   }
 
   return stores;

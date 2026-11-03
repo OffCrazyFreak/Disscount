@@ -1,15 +1,18 @@
 import { z } from "zod";
 
-const clockTime = z.string().regex(/^([01]\d|2[0-4]):[0-5]\d$/);
+const clockTime = z.string().regex(/^(([01]\d|2[0-3]):[0-5]\d|24:00)$/);
 
-export const isoDate = z.iso.date();
+const isoDate = z.iso.date();
 
 /**
  * One opening interval, as in schema.org `opens` and `closes` or one
  * `07:00-21:00` span of an OSM `opening_hours` rule. A `closes` at or before
- * `opens` runs past midnight; `24:00` closes at the end of the day.
+ * `opens` runs past midnight; `24:00` closes at the end of the day. Equal
+ * times are refused, because feeds write a closed day as `00:00-00:00`.
  */
-export const timeRangeDto = z.object({ opens: clockTime, closes: clockTime });
+export const timeRangeDto = z
+  .object({ opens: clockTime, closes: clockTime })
+  .refine((range) => range.opens !== range.closes);
 
 /** A day's intervals; empty means closed all day. */
 const dayRangesDto = z.array(timeRangeDto);
@@ -38,7 +41,7 @@ export const storeHoursDto = z.object({
   source: hoursSourceSchema,
   verifiedAt: z.iso.datetime(),
   /** The store's own page where a shopper can check the hours, else the chain's store finder. */
-  checkUrl: z.url().nullable(),
+  checkUrl: z.url({ protocol: /^https?$/ }).nullable(),
 });
 
 export const storeHoursResponse = z.object({

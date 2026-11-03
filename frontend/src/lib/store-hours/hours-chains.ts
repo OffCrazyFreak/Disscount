@@ -3,8 +3,9 @@ import type { HoursSource } from "@/lib/api/schemas";
 /**
  * Per-chain switch for showing hours, and the chain's own store finder that
  * the "Provjeri" link falls back to when a store has no page of its own.
- * Turning a chain off stops its refresh and hides the hours it already has,
- * which is how a chain's request to stop is honoured within one deploy.
+ * Turning a chain off stops reading its site and hides every hour and
+ * announcement taken from it, which is how a chain's request to stop is
+ * honoured within one deploy; OpenStreetMap's hours for its stores remain.
  */
 export const HOURS_CHAINS: Record<
   string,

@@ -46,27 +46,54 @@ function overlay(overrides: Partial<Overlay>): Overlay {
 }
 
 describe("buildStoreHours", () => {
-  it("layers the store's exception over its announcement over the chain's", () => {
+  it("keeps the latest word per date, the more specific one on a tie", () => {
     const stores = buildStoreHours(
-      [row({ exceptions: [{ date: "2026-11-08", ranges: [] }] })],
+      [
+        row({
+          exceptions: [
+            { date: "2026-11-08", ranges: [] },
+            { date: "2026-11-29", ranges: [] },
+          ],
+        }),
+      ],
       [
         overlay({}),
         overlay({ storeCode: "", date: "2026-11-15", ranges: [] }),
         overlay({ date: "2026-11-15" }),
         overlay({ storeCode: "", date: "2026-11-22", ranges: [] }),
+        overlay({ date: "2026-11-29", verifiedAt }),
       ],
       window,
     );
 
     expect(stores["konzum:101"].dated).toStrictEqual([
-      { date: "2026-11-08", ranges: [], verifiedAt: verifiedAt.toISOString() },
+      {
+        date: "2026-11-08",
+        ranges: open,
+        verifiedAt: announcedAt.toISOString(),
+      },
       {
         date: "2026-11-15",
         ranges: open,
         verifiedAt: announcedAt.toISOString(),
       },
       { date: "2026-11-22", ranges: [], verifiedAt: announcedAt.toISOString() },
+      { date: "2026-11-29", ranges: [], verifiedAt: verifiedAt.toISOString() },
     ]);
+  });
+
+  it("drops a malformed row instead of the whole response", () => {
+    const stores = buildStoreHours(
+      [
+        row({ storeCode: "102", checkUrl: "javascript:alert(1)" }),
+        row({ storeCode: "103", weekly: [open] }),
+        row(),
+      ],
+      [],
+      window,
+    );
+
+    expect(Object.keys(stores)).toStrictEqual(["konzum:101"]);
   });
 
   it("drops dated entries outside the window", () => {
@@ -95,18 +122,19 @@ describe("buildStoreHours", () => {
     expect(stores["konzum:103"].checkUrl).toBe(HOURS_CHAINS.konzum.finderUrl);
   });
 
-  it("hides a chain whose switch is off but keeps its OpenStreetMap hours", () => {
+  it("hides a switched off chain and its announcements, not OpenStreetMap", () => {
     const original = HOURS_CHAINS.konzum;
     HOURS_CHAINS.konzum = { ...original, enabled: false };
 
     try {
       const stores = buildStoreHours(
         [row(), row({ storeCode: "102", source: "osm" })],
-        [],
+        [overlay({ storeCode: "102" }), overlay({ storeCode: "" })],
         window,
       );
 
       expect(Object.keys(stores)).toStrictEqual(["konzum:102"]);
+      expect(stores["konzum:102"].dated).toStrictEqual([]);
     } finally {
       HOURS_CHAINS.konzum = original;
     }
