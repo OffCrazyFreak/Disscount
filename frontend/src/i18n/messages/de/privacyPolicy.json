@@ -2,6 +2,6 @@
   "errorTracking": {
     "heading": "Fehlerüberwachung",
     "collected": "Wenn in der App ein Fehler auftritt, senden wir technische Daten dazu an Sentry, unseren Auftragsverarbeiter, der sie in der Europäischen Union speichert: die Fehlerbeschreibung, Browser und Gerät, die Seitenadresse, die IP-Adresse und die interne Kennung deines Kontos. Deinen Namen und deine E-Mail-Adresse hängen wir nicht an Ereignisse an, aber eine fehlgeschlagene Anmelde- oder Registrierungsanfrage kann die E-Mail-Adresse enthalten, die du eingibst.",
-    "replay": "Bei einem kleinen Teil der Besuche und bei Besuchen mit einem Fehler zeichnen wir außerdem einen Sitzungsverlauf auf, in dem alle Texte und Eingaben verdeckt sind. Passwörter, Tokens und Sitzungscookies entfernen wir vor dem Senden. Wir nutzen diese Daten nur, um Fehler zu beheben. Rechtsgrundlage ist das berechtigte Interesse (Art. 6 Abs. 1 lit. f DSGVO)."
+    "replay": "Bei einem kleinen Teil der Besuche und bei Besuchen mit einem Fehler erstellen wir außerdem eine Sitzungsaufzeichnung, in der alle Texte und Eingaben verdeckt sind. Passwörter, Tokens und Sitzungscookies entfernen wir vor dem Senden. Wir nutzen diese Daten nur, um Fehler zu beheben. Sentry speichert sie höchstens 30 Tage. Rechtsgrundlage ist das berechtigte Interesse (Art. 6 Abs. 1 lit. f DSGVO)."
   }
 }
