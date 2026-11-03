@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** Pins the UserDto the frontend's userDtoSchema reads, on the current user and the admin list. */
+/** Pins the UserDto the frontend's userDtoSchema reads, on the current user, the admin list and the account type change. */
 class UserWireFormatTest extends FullStackTest {
 
     static final java.util.Set<String> USER_FIELDS = java.util.Set.of(
@@ -82,9 +82,30 @@ class UserWireFormatTest extends FullStackTest {
                 .findFirst().orElseThrow();
 
         assertThat(fieldNames(row)).containsExactlyInAnyOrderElementsOf(USER_FIELDS);
+        assertThat(row.get("accountType").asString()).isEqualTo("CONSUMER");
+        assertThat(row.get("createdAt").asString()).matches(LOCAL_DATE_TIME);
         assertThat(row.get("email").asString()).isEqualTo("marta@example.com");
         assertThat(row.get("lastLoginAt").asString()).isEqualTo("2026-03-01T10:15:30Z");
         assertThat(row.get("lastActiveAt").asString()).matches(INSTANT);
+    }
+
+    // userDtoSchema's nullable fields are still required keys, so a null must stay in the body rather than be omitted.
+    @Test
+    void anAccountTypeChangeAnswersWithEveryFieldTheFrontendParses() throws Exception {
+        User admin = newAdmin();
+        User target = newUser("petra");
+        target.setLastActiveAt(java.time.LocalDateTime.of(2026, 3, 1, 10, 15, 30));
+        users.save(target);
+
+        JsonNode updated = body(mvc.perform(patch("/api/admin/users/{id}", target.getId()).with(as(admin))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"accountType\":\"ENTERPRISE\"}"))
+                .andExpect(status().isOk()));
+
+        assertThat(fieldNames(updated)).containsExactlyInAnyOrderElementsOf(USER_FIELDS);
+        assertThat(updated.get("id").asString()).isEqualTo(target.getId().toString());
+        assertThat(updated.get("accountType").asString()).isEqualTo("ENTERPRISE");
+        assertThat(updated.get("createdAt").asString()).matches(LOCAL_DATE_TIME);
+        assertThat(updated.get("lastActiveAt").asString()).isEqualTo("2026-03-01T10:15:30Z");
     }
 
     @Test
