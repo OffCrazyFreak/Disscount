@@ -20,7 +20,7 @@
     "searchProducts": "Cerca prodotti"
   },
   "suggestions": {
-    "label": "Prodotti suggeriti da seguire",
+    "label": "Prodotti suggeriti",
     "title": "{label} ({count})"
   },
   "actionButton": {
