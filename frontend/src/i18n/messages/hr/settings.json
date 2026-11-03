@@ -207,7 +207,7 @@
     "reauth": {
       "cancel": "Odustani",
       "passwordHint": "Upiši lozinku da potvrdiš da si to ti.",
-      "codeSending": "Šaljemo ti kod na email...",
+      "codeSending": "Šaljemo ti kod na email…",
       "codeSent": "Poslali smo kod na <strong>{email}</strong>.",
       "codeSendFailed": "Kod nismo uspjeli poslati. Pokušaj ponovno.",
       "codeEmailLimit": "Na tvoju adresu poslali smo previše emailova. Pokušaj ponovno za sat vremena.",
@@ -219,9 +219,9 @@
       "wrongCodeAttempts": "Kod nije točan. {attemptsLeft, plural, one {Preostao ti je još # pokušaj.} few {Preostala su ti još # pokušaja.} other {Preostalo ti je još # pokušaja.}}",
       "codeExpired": "Kod je istekao ili je iskorišten. Zatraži novi.",
       "unlinkTitle": "Odspojiti {provider}?",
-      "unlinkDescription": "Potvrdi da si to ti, pa odspajamo {provider} s tvog računa.",
+      "unlinkDescription": "Potvrdi da si to ti i odspojit ćemo {provider} s tvog računa.",
       "setPasswordTitle": "Postavi lozinku",
-      "setPasswordDescription": "Potvrdi da si to ti, pa spremamo tvoju novu lozinku.",
+      "setPasswordDescription": "Potvrdi da si to ti i spremit ćemo tvoju novu lozinku.",
       "setPasswordConfirm": "Spremi lozinku"
     },
     "sessions": {
@@ -236,7 +236,7 @@
       "signedOut": "Uređaj je odjavljen.",
       "signOutFailed": "Odjava uređaja nije uspjela. Pokušaj ponovno.",
       "loadFailed": "Prijave nismo uspjeli učitati.",
-      "tokenNote": "Odjavljeni uređaj zadržava pristup tvojim podacima još najviše {minutes, plural, one {# minutu} few {# minute} other {# minuta}}."
+      "tokenNote": "Odjavljeni uređaj može još do {minutes, plural, one {# minute} few {# minute} other {# minuta}} vidjeti tvoje podatke."
     }
   }
 }
