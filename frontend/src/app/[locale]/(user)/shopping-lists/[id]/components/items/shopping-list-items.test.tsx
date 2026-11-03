@@ -2,11 +2,13 @@ import type { ReactNode } from "react";
 import type { ComponentProps } from "react";
 import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { http, HttpResponse } from "msw/http";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import ShoppingListItems from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-items";
 import type { ItemPriceState } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
 import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
+import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
 
@@ -28,7 +30,13 @@ vi.mock(
 );
 
 // Radix measures the select trigger, and jsdom has no ResizeObserver.
+// Every row also asks for its photo; ProductThumbnail has its own tests.
 beforeEach(() => {
+  server.use(
+    http.get("*/api/products/images/thumbnails", () =>
+      HttpResponse.json({ thumbnails: {} }),
+    ),
+  );
   vi.stubGlobal(
     "ResizeObserver",
     class {

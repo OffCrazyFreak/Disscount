@@ -8,6 +8,7 @@ import ItemAmountControls from "@/app/[locale]/(user)/shopping-lists/[id]/compon
 import ItemPriceDisplay from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/item-price-display";
 import ItemCheckBox from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/item-check-box";
 import ItemName from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/item-name";
+import ItemPhoto from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/item-photo";
 import type { IShoppingListItemUpdate } from "@/app/[locale]/(user)/shopping-lists/[id]/typings/shopping-list-item-types";
 import ItemStoreSelect from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/item-store-select";
 import type { ItemPriceState } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
@@ -58,9 +59,10 @@ export default function ShoppingListItem({
   return (
     <>
       <div className="relative isolate flex flex-wrap items-center justify-between gap-6 py-1 sm:flex-nowrap">
-        {/* Left side: Checkbox, item name, and delete button (mobile) */}
+        {/* Left side: Checkbox, photo, item name, and delete button (mobile) */}
         <div className="flex items-center gap-4 w-full sm:w-auto">
           <ItemCheckBox item={item} onUpdate={onUpdate} canCheck={canCheck} />
+          <ItemPhoto item={item} />
           <ItemName item={item} isFirst={isFirst} isLast={isLast} />
 
           {/* Delete button - shown on mobile in same row as item name */}
