@@ -10,6 +10,7 @@ import { shouldPersistQuery } from "@/lib/offline/cached-query-keys";
 import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
+import { storedUser } from "@/test/stored-user";
 
 const { tab } = vi.hoisted(() => ({
   tab: { userId: null as string | null, error: null as Error | null },
@@ -44,12 +45,13 @@ const PINNED = [
     storeName: "Konzum Ilica",
   },
 ];
-const PROFILE = {
+const PROFILE: UserDto = {
+  ...storedUser,
   id: "user-a",
   username: "ana",
   pinnedStores: PINNED,
   pinnedPlaces: [],
-} as Partial<UserDto> as UserDto;
+};
 
 function PinnedProbe() {
   const { accountUser } = useUser();

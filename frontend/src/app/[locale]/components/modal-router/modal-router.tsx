@@ -54,10 +54,11 @@ export default function ModalRouter() {
         <EntityModalOutlet target={isEntityTarget(target) ? target : null} />
       )}
 
-      {isAuthenticated && (
+      {user && (
         // Keyed by account: an account switch without a sign-out in between (another
         // tab, a session_changed refusal) must not keep the last account's form values.
-        <Fragment key={user?.id}>
+        // isAuthenticated alone holds through a switch, when no profile can seed them yet.
+        <Fragment key={user.id}>
           <OnboardingGate />
           <SettingsModalHost />
           <ShoppingListActionsOutlet target={target} />

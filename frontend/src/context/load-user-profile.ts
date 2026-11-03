@@ -5,7 +5,7 @@ import { UserDto } from "@/lib/api/types";
 export async function loadUserProfile(): Promise<UserDto> {
   const userData = await userService.getCurrentUser();
 
-  if (userData && (!userData.pinnedStores || !userData.pinnedPlaces)) {
+  if (!userData.pinnedStores || !userData.pinnedPlaces) {
     try {
       const [stores, places] = await Promise.all([
         preferencesService.getPinnedStores(),

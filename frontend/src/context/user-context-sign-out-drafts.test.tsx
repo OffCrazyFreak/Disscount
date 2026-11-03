@@ -12,6 +12,7 @@ import {
 } from "@/lib/offline/cache-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
+import { storedUser } from "@/test/stored-user";
 
 const { tab } = vi.hoisted(() => ({
   tab: { userId: null as string | null },
@@ -74,7 +75,12 @@ describe("UserProvider sign-out", () => {
     setCacheIdentity("user-a");
     server.use(
       http.get("*/api/users/me", () =>
-        HttpResponse.json({ id: "user-a", pinnedStores: [], pinnedPlaces: [] }),
+        HttpResponse.json({
+          ...storedUser,
+          id: "user-a",
+          pinnedStores: [],
+          pinnedPlaces: [],
+        }),
       ),
       http.post("*/api/auth/sign-out", () => HttpResponse.json({})),
     );

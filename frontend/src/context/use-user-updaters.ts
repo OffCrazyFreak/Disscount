@@ -22,7 +22,12 @@ export function useUserUpdaters(
 
   const mergeUser = useCallback(
     (patch: Partial<UserDto>) => {
-      setUser((prev) => (prev ? { ...prev, ...patch } : null));
+      setUser((prev) => {
+        if (!prev) return null;
+        // A save answered after another account took over belongs to the previous account.
+        if (patch.id && patch.id !== prev.id) return prev;
+        return { ...prev, ...patch };
+      });
     },
     [setUser],
   );

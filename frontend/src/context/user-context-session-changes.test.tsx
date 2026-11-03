@@ -14,6 +14,7 @@ import { purgeOfflineCache } from "@/lib/offline/purge";
 import { ANONYMOUS, actingAs, serverSession } from "@/test/backend-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
+import { storedUser } from "@/test/stored-user";
 
 // What this tab's useSession reports. The account the session cookie names on the server
 // differs from it only between a change on the server and the tab's next poll.
@@ -60,6 +61,7 @@ function serveBackend() {
       if (account === ANONYMOUS)
         return HttpResponse.json(null, { status: 401 });
       return HttpResponse.json({
+        ...storedUser,
         id: account,
         pinnedStores: [],
         pinnedPlaces: [],
