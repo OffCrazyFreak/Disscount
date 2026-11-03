@@ -35,7 +35,7 @@ Under the hood it is a full production stack: a Next.js frontend that also acts 
 
 ## Tech stack
 
-- **Frontend:** Next.js, React, TypeScript, Tailwind CSS, shadcn-style UI on Radix + lucide-react, TanStack Query (+ Virtual), React Hook Form + Zod, Axios, Motion, Recharts, Sonner, cmdk, Vaul
+- **Frontend:** Next.js, React, TypeScript, Tailwind CSS, shadcn-style UI on Radix + lucide-react, TanStack Query (+ Virtual), React Hook Form + Zod, Axios, Motion, Recharts, Sonner, cmdk, Base UI drawers
 - **Backend:** Spring Boot on Java, PostgreSQL, JPA / Hibernate, Spring Security + OAuth2 resource server, Bean Validation, Lombok, springdoc-openapi (Swagger UI), Actuator
 - **Auth:** better-auth (in Next.js) issues ES256 JWTs, validated by Spring as an OAuth2 resource server via JWKS. Drizzle owns the auth tables
 - **PWA & offline:** Serwist service worker, IndexedDB-backed React Query cache (idb-keyval), offline reads and queued writes, in-browser barcode scanning

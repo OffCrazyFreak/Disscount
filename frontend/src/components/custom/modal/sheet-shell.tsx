@@ -1,14 +1,23 @@
 "use client";
 
-import { ReactNode, type RefObject } from "react";
+import { ReactNode, useRef, type RefObject } from "react";
 
-import { Drawer, DrawerContent, DrawerFooter } from "@/components/ui/drawer";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerFooter,
+  DrawerVirtualKeyboardProvider,
+} from "@/components/ui/drawer";
 import SheetShellHeader, {
   type ISheetShellHeaderProps,
 } from "@/components/custom/modal/sheet-shell-header";
 import useSheetDragUp from "@/components/custom/modal/use-sheet-drag-up";
 import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
 import { cn } from "@/lib/utils";
+
+// The grab handle: darker than shadcn's bg-muted, which all but vanished on a
+// light surface. Applied from here rather than by editing the primitive.
+const HANDLE_CLASS = "[&>[data-slot=drawer-handle]]:bg-muted-foreground/40";
 
 /**
  * Under the bottom nav, so the bar stays visible above every sheet, and wearing
@@ -18,16 +27,15 @@ import { cn } from "@/lib/utils";
  * at the bar's own 50% the page ghosts through hard enough that every field looks
  * like it is floating in front of the sheet rather than sitting in it.
  */
-// The grab handles: darker than shadcn's bg-muted, which all but vanished on a
-// light surface. Applied from here rather than by editing the primitive.
-const HANDLE_CLASS =
-  "[&>div:first-of-type]:bg-muted-foreground/40 [&>div:nth-of-type(2)]:bg-muted-foreground/40 [&>div:nth-of-type(3)]:bg-muted-foreground/40";
-
-// The cap carries vaul's own direction variant, or drawer.tsx's 80vh outranks a
-// plain max-h and the sheet silently keeps a static cap that ignores the keyboard.
 const CONTENT_CLASS =
-  "z-[var(--z-bottom-sheet)] data-[vaul-drawer-direction=bottom]:max-h-[85dvh] bg-background/85 backdrop-blur-xs pb-[var(--sheet-bottom-clearance)]";
-const OVERLAY_CLASS = "z-[var(--z-bottom-sheet-scrim)]";
+  "max-h-[85dvh] bg-background/85 backdrop-blur-xs pb-[var(--sheet-bottom-clearance)]";
+// A sheet opened from inside another drawer, such as the install sheet in the
+// mobile sidebar, has to clear that drawer's layer rather than sit under it.
+const VIEWPORT_CLASS =
+  "z-[var(--z-bottom-sheet)] data-nested:z-[var(--z-overlay)]";
+// A nested sheet's scrim follows its sheet up, so it also covers the drawer below.
+const OVERLAY_CLASS =
+  "z-[var(--z-bottom-sheet-scrim)] has-[+[data-nested]]:z-[var(--z-overlay)]";
 const BODY_CLASS = "flex flex-1 flex-col gap-3 px-4";
 
 export interface ISheetShellProps extends ISheetShellHeaderProps {
@@ -37,18 +45,19 @@ export interface ISheetShellProps extends ISheetShellHeaderProps {
   srOnlyTitle?: boolean;
   /** Pinned below the body, so it survives the body scrolling */
   footer?: ReactNode;
-  /** Dragging the sheet upward, which vaul otherwise clamps to nothing */
+  /** Dragging the sheet upward, which the drawer itself never acts on */
   onDragUp?: () => void;
   /** Focused on open, so the user can start typing straight away */
   initialFocusRef?: RefObject<HTMLElement | null>;
   /**
-   * Focused on close. Give it for a sheet opened from a real control, or a
-   * keyboard user lands on document.body and tabs from the top of the page.
+   * Focused on close, for a sheet whose opener is not the element focused when
+   * it opened. Without it focus returns to whatever was focused before.
    */
   returnFocusRef?: RefObject<HTMLElement | null>;
   /**
-   * On it adds the scrim and the scroll lock, and lets an outside press dismiss;
-   * off, only the handle and an explicit control can. Defaults on, because only a
+   * On it adds the scrim, the scroll lock and the focus trap, and lets an outside
+   * press dismiss; off, the page behind stays usable and only the handle, Escape
+   * and an explicit control can. Defaults on, because only a
    * sheet the page changes behind earns the opt-out, and forgetting the prop
    * should cost a scrim rather than tap-outside-to-close.
    */
@@ -59,7 +68,7 @@ export interface ISheetShellProps extends ISheetShellHeaderProps {
 }
 
 /**
- * ModalShell's bottom-sheet counterpart: a vaul drawer with the grab handle, so
+ * ModalShell's bottom-sheet counterpart: a Base UI drawer with the grab handle, so
  * every sheet in the app can be swiped closed the same way and only the content
  * differs.
  *
@@ -81,57 +90,87 @@ export default function SheetShell({
   ...header
 }: ISheetShellProps) {
   const dragUpProps = useSheetDragUp(onDragUp);
+  const popupRef = useRef<HTMLDivElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
 
   return (
     <Drawer
-      direction="bottom"
       open={open}
       onOpenChange={onOpenChange}
       modal={modal}
+      // Non-modal means the page behind is in use: a press or focus out there
+      // must not close the sheet, so it needs its own way out.
+      disablePointerDismissal={!modal}
     >
-      <DrawerContent
-        className={cn(CONTENT_CLASS, HANDLE_CLASS, className)}
-        overlayClassName={OVERLAY_CLASS}
-        // Radix locks the body whatever vaul is told, so globals.css hands the
-        // page back off this marker. Absent when modal, which wants the lock.
-        {...(modal ? {} : { "data-sheet-non-modal": "" })}
-        // Radix's documented opt-out for a sheet with no description.
-        {...(header.description ? {} : { "aria-describedby": undefined })}
-        // Focus the named field, or the container: focusing the first control
-        // instead would pop its tooltip.
-        onOpenAutoFocus={(event) => {
-          event.preventDefault();
+      {/* Keeps a focused field in view above a phone's software keyboard. */}
+      <DrawerVirtualKeyboardProvider>
+        <DrawerContent
+          ref={popupRef}
+          className={cn(CONTENT_CLASS, HANDLE_CLASS, className)}
+          overlayClassName={OVERLAY_CLASS}
+          viewportClassName={VIEWPORT_CLASS}
+          // Focus the named field, or the sheet itself: focusing the first control
+          // instead would pop its tooltip.
+          // preventScroll by hand: Base UI only passes it when focusing the popup.
+          initialFocus={() => {
+            // Reopened mid-exit, focus is still inside: keep the first opener.
+            const opener = document.activeElement;
+            if (!popupRef.current?.contains(opener)) {
+              openerRef.current =
+                opener instanceof HTMLElement && opener !== document.body
+                  ? opener
+                  : null;
+            }
 
-          const target = initialFocusRef?.current ?? event.currentTarget;
-          if (target instanceof HTMLElement)
-            target.focus({ preventScroll: true });
-        }}
-        // Radix's own fallback jumps the scroll, so restore focus by hand where
-        // there is a control to restore it to. URL-driven sheets have none.
-        onCloseAutoFocus={(event) => {
-          event.preventDefault();
-          returnFocusRef?.current?.focus({ preventScroll: true });
-        }}
-        {...dragUpProps}
-      >
-        <SheetShellHeader {...header} />
+            const field = initialFocusRef?.current;
+            if (!field) return popupRef.current;
 
-        {/* The fades end at the body's own bottom, so they stop above the footer
+            field.focus({ preventScroll: true });
+
+            return false;
+          }}
+          // Only reclaim focus the sheet still holds. A press that closed a
+          // non-modal sheet has already put focus where the user wanted it, and
+          // pulling it back would drop the phone keyboard off a field.
+          finalFocus={() => {
+            const active = document.activeElement;
+            const isFocusLeftBehind =
+              !active ||
+              active === document.body ||
+              !!popupRef.current?.contains(active);
+
+            if (!isFocusLeftBehind) return false;
+
+            // Nothing was focused when it opened (a tap on iOS, a shared link),
+            // so there is nothing to go back to.
+            // Base UI checks isConnected only on its own fallbacks, not on ours.
+            const opener = openerRef.current?.isConnected
+              ? openerRef.current
+              : null;
+
+            return returnFocusRef?.current ?? opener ?? false;
+          }}
+          {...dragUpProps}
+        >
+          <SheetShellHeader {...header} />
+
+          {/* The fades end at the body's own bottom, so they stop above the footer
             and the nav clearance. */}
-        {children && (
-          <ScrollFadeArea
-            className={cn(BODY_CLASS, bodyClassName)}
-            wrapperClassName="flex-1"
-            fadeClassName="from-background/85 h-12"
-          >
-            {children}
-          </ScrollFadeArea>
-        )}
+          {children && (
+            <ScrollFadeArea
+              className={cn(BODY_CLASS, bodyClassName)}
+              wrapperClassName="flex-1"
+              fadeClassName="from-background/85 h-12"
+            >
+              {children}
+            </ScrollFadeArea>
+          )}
 
-        {footer && (
-          <DrawerFooter className="px-4 pt-3 pb-0">{footer}</DrawerFooter>
-        )}
-      </DrawerContent>
+          {footer && (
+            <DrawerFooter className="px-4 pt-3 pb-0">{footer}</DrawerFooter>
+          )}
+        </DrawerContent>
+      </DrawerVirtualKeyboardProvider>
     </Drawer>
   );
 }

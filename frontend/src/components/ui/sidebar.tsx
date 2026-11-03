@@ -193,7 +193,11 @@ function Sidebar({
   // drawer's direction-specific width classes.
   if (isMobile) {
     return (
-      <Drawer direction={side} open={openMobile} onOpenChange={setOpenMobile}>
+      <Drawer
+        swipeDirection={side}
+        open={openMobile}
+        onOpenChange={setOpenMobile}
+      >
         <DrawerContent
           data-sidebar="sidebar"
           data-slot="sidebar"
