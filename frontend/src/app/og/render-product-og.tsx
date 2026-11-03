@@ -1,5 +1,4 @@
 import { ImageResponse } from "next/og";
-import sharp from "sharp";
 import { PRODUCT_CARD_CONTENT_TYPE } from "@/app/og/product-share-image";
 import {
   BRAND,
@@ -33,6 +32,11 @@ async function photoDataUri(photoUrl: string): Promise<string> {
 
 /** The photo sits in the middle because chat apps may crop a card to its centre square. */
 export default async function renderProductOg(photoUrl: string) {
+  // Loaded here, not at the top: a missing native binary then rejects this call, which the
+  // route turns into the brand image, instead of failing the route module for every request.
+  // First, so that case fails before the photo fetch and the render are spent.
+  const { default: sharp } = await import("sharp");
+
   const [photo, fonts] = await Promise.all([
     photoDataUri(photoUrl),
     loadFonts(),
