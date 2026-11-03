@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { productMetadata } from "@/app/[locale]/products/[id]/utils/product-metadata";
+import { productShareImagePath } from "@/app/og/product-share-image";
 
 const base = {
   ean: "5449000000996",
@@ -38,16 +39,20 @@ describe("productMetadata", () => {
     );
   });
 
-  it("shares the product photo when there is one", () => {
-    const metadata = productMetadata({
-      ...base,
-      locale: "hr",
-      photoUrl: "https://images.test/full.jpg",
-    });
+  it("shares a 1200x630 card of the product photo when there is one", () => {
+    const photoUrl = "https://images.test/full.jpg";
+    const metadata = productMetadata({ ...base, locale: "hr", photoUrl });
 
-    expect(metadata.openGraph?.images).toEqual([
-      { url: "https://images.test/full.jpg", alt: base.title },
-    ]);
+    const card = {
+      url: `http://localhost:3000${productShareImagePath(base.ean, photoUrl)}`,
+      width: 1200,
+      height: 630,
+      type: "image/png",
+      alt: base.title,
+    };
+
+    expect(metadata.openGraph?.images).toEqual([card]);
+    expect(metadata.twitter?.images).toEqual([card]);
   });
 
   it("keeps the layout's brand image without a photo", () => {

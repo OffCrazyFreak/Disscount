@@ -1,4 +1,6 @@
 import type { Metadata, ResolvedMetadata } from "next";
+import { contentType, size } from "@/app/og/render-og";
+import { productShareImagePath } from "@/app/og/product-share-image";
 import { X_HANDLE } from "@/constants/social";
 import {
   DEFAULT_LOCALE,
@@ -7,7 +9,7 @@ import {
 } from "@/i18n/locales";
 import { isIndexableOrigin } from "@/utils/indexing";
 import { productPageUrl } from "@/utils/product-links";
-import { clientEnv } from "@/lib/env";
+import { appUrl, clientEnv } from "@/lib/env";
 
 interface IProductMetadataInput {
   ean: string;
@@ -29,7 +31,17 @@ export function productMetadata({
   parent,
 }: IProductMetadataInput): Metadata {
   const url = productPageUrl(ean, locale);
-  const photo = photoUrl ? [{ url: photoUrl, alt: title }] : null;
+  // The raw square photo is shown small by Meta and cropped by X, so shares get a 1200x630 card.
+  const photo = photoUrl
+    ? [
+        {
+          url: `${appUrl()}${productShareImagePath(ean, photoUrl)}`,
+          ...size,
+          type: contentType,
+          alt: title,
+        },
+      ]
+    : null;
 
   return {
     // The layout template would prepend "Disscount - " to a product name.
