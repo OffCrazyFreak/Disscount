@@ -11,6 +11,7 @@ interface IModalParams {
   type: string | null;
   list: string | null;
   item: string | null;
+  error: string | null;
 }
 
 type ModalParser = (params: IModalParams) => ModalTarget | null;
@@ -20,11 +21,11 @@ const PLAIN_MODAL_NAMES = [
   "signup",
   "forgot-password",
   "reset-password",
-  "email-verified",
-  "email-changed",
   "contact",
   "donate",
 ] as const;
+
+const AUTH_STATUS_MODAL_NAMES = ["email-verified", "email-changed"] as const;
 
 const SHOPPING_LIST_ID_ACTIONS = ["edit", "share", "copy"] as const;
 const DIGITAL_CARD_ID_ACTIONS = ["edit", "view"] as const;
@@ -55,6 +56,10 @@ const PARSERS = new Map<string, ModalParser>([
   ...PLAIN_MODAL_NAMES.map((name): [string, ModalParser] => [
     name,
     () => ({ name }),
+  ]),
+  ...AUTH_STATUS_MODAL_NAMES.map((name): [string, ModalParser] => [
+    name,
+    ({ error }) => ({ name, ...(error && { linkError: error }) }),
   ]),
   [
     "onboarding",
@@ -109,5 +114,6 @@ export function parseModalParam(
     type: searchParams.get("type"),
     list: searchParams.get("list"),
     item: searchParams.get("item"),
+    error: searchParams.get("error"),
   });
 }
