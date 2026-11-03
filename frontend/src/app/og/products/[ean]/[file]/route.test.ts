@@ -2,11 +2,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { productShareImageFile } from "@/app/og/product-share-image";
 import { GET } from "@/app/og/products/[ean]/[file]/route";
 import renderProductOg from "@/app/og/render-product-og";
-import { getMainPhotoUrl } from "@/lib/api/product-images/server";
+import { getVerifiedMainPhotoUrl } from "@/lib/api/product-images/server";
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/api/product-images/server", () => ({
-  getMainPhotoUrl: vi.fn(),
+  getVerifiedMainPhotoUrl: vi.fn(),
 }));
 vi.mock("@/app/og/render-product-og", () => ({ default: vi.fn() }));
 
@@ -30,7 +30,7 @@ function expectUncachedRedirect(response: Response, path: string) {
 
 describe("product share image route", () => {
   beforeEach(() => {
-    vi.mocked(getMainPhotoUrl).mockReset().mockResolvedValue(PHOTO);
+    vi.mocked(getVerifiedMainPhotoUrl).mockReset().mockResolvedValue(PHOTO);
     vi.mocked(renderProductOg)
       .mockReset()
       .mockResolvedValue(new Response("card") as never);
@@ -47,11 +47,11 @@ describe("product share image route", () => {
     const response = await get("not-a-product", CURRENT_FILE);
 
     expect(response.status).toBe(404);
-    expect(getMainPhotoUrl).not.toHaveBeenCalled();
+    expect(getVerifiedMainPhotoUrl).not.toHaveBeenCalled();
   });
 
   it("falls back to the brand image without a photo", async () => {
-    vi.mocked(getMainPhotoUrl).mockResolvedValue(null);
+    vi.mocked(getVerifiedMainPhotoUrl).mockResolvedValue(null);
 
     expectUncachedRedirect(
       await get(EAN, CURRENT_FILE),

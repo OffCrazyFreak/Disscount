@@ -5,7 +5,7 @@ import {
   productShareImagePath,
 } from "@/app/og/product-share-image";
 import renderProductOg from "@/app/og/render-product-og";
-import { getMainPhotoUrl } from "@/lib/api/product-images/server";
+import { getVerifiedMainPhotoUrl } from "@/lib/api/product-images/server";
 import { appUrl } from "@/lib/env";
 import { isWellFormedProductId } from "@/utils/product-id";
 
@@ -29,7 +29,7 @@ export async function GET(
   }
 
   const brandImagePath = `/opengraph-image/${BRAND_OG_IMAGE_ID}`;
-  const photoUrl = await getMainPhotoUrl(ean);
+  const photoUrl = await getVerifiedMainPhotoUrl(ean);
   if (!photoUrl) return redirectTo(brandImagePath);
 
   // Only the exact advertised URL renders: a made-up name or query string is a new CDN key,

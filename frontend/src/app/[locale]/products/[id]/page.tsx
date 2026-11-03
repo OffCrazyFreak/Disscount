@@ -8,7 +8,7 @@ import {
   productMetadata,
   translatedProductRobots,
 } from "@/app/[locale]/products/[id]/utils/product-metadata";
-import { getMainPhotoUrl } from "@/lib/api/product-images/server";
+import { getVerifiedMainPhotoUrl } from "@/lib/api/product-images/server";
 import { productCacheState } from "@/app/[locale]/products/[id]/utils/product-cache-state";
 import { getServerProduct } from "@/lib/cijene-api/server/get-product";
 import { getServerProductPrices } from "@/lib/cijene-api/server/get-product-prices";
@@ -63,7 +63,7 @@ export async function generateMetadata(
             chains: product.chains.length,
             price: formatPrice(lowPrice, locale),
           }),
-    photoUrl: await getMainPhotoUrl(product.ean),
+    photoUrl: await getVerifiedMainPhotoUrl(product.ean),
     parent: await parent,
   });
 }
@@ -88,7 +88,7 @@ export default async function ProductDetailsPage(
 
   const { product } = result;
   const locale = await getLocale();
-  const photoUrl = await getMainPhotoUrl(product.ean);
+  const photoUrl = await getVerifiedMainPhotoUrl(product.ean);
 
   return (
     <>
