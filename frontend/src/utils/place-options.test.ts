@@ -79,6 +79,35 @@ describe("listPlaceOptions", () => {
     ]);
   });
 
+  it("shows an old area 10 key as the namesake with the lower postcode", () => {
+    expect(
+      listPlaceOptions(
+        ["Strmec"],
+        [
+          { city: "Strmec", zipcode: "10430" },
+          { city: "Strmec", zipcode: "10090" },
+        ],
+        ["Strmec|10"],
+      ),
+    ).toEqual([
+      { key: "Strmec|10", name: "Strmec", county: "cityOfZagreb" },
+      { key: "Strmec|zagrebCounty", name: "Strmec", county: "zagrebCounty" },
+    ]);
+  });
+
+  it("counts a postcode missing from the GeoNames list as no postcode", () => {
+    expect(
+      listPlaceOptions(
+        ["Umag"],
+        [
+          { city: "Umag", zipcode: "52470" },
+          { city: "Umag", zipcode: "51470" },
+        ],
+        [],
+      ),
+    ).toEqual([{ key: "Umag", name: "Umag", county: null }]);
+  });
+
   it("keeps offering a place saved before its name was split", () => {
     expect(
       listPlaceOptions(["Sveta Nedelja"], STORES, ["Sveta Nedelja"]),

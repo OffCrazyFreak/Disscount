@@ -184,6 +184,12 @@ describe("townCenter", () => {
     });
   });
 
+  it("falls back to the lowest postcode when an old area names no namesake", () => {
+    expect(townCenter(STRMEC, "Strmec|52")).toMatchObject({
+      county: "cityOfZagreb",
+    });
+  });
+
   it("places a bare shared name, as an older saved place has, at the lowest postal area", () => {
     expect(townCenter(NAMESAKES, "Sveta Nedelja")).toMatchObject({
       lat: 45.8,
