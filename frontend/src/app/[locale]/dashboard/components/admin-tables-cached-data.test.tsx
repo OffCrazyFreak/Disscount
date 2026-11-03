@@ -12,16 +12,13 @@ import type { UserDto } from "@/lib/api/schemas/auth-user";
 import type { ContactMessageDto } from "@/lib/api/types";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
+import { storedUser } from "@/test/stored-user";
 
 vi.mock("@/context/user-context", () => ({
   useUser: () => ({ user: { id: "admin-1" } }),
 }));
 
-const ANA = {
-  id: "ana",
-  username: "ana",
-  accountType: "CONSUMER",
-} satisfies Partial<UserDto>;
+const ANA = { ...storedUser, id: "ana", username: "ana" } satisfies UserDto;
 
 const MESSAGE: ContactMessageDto = {
   id: "3e7a1c5b-9d2f-4b6a-8c1e-0f4d2a6b8c90",

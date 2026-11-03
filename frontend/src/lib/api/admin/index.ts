@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import apiClient from "@/lib/api/api-base";
 import { ADMIN_QUERY_KEYS } from "@/lib/api/admin/keys";
-import { UserDto, AccountType } from "@/lib/api/types";
+import { UserDto, AccountType, userDtoSchema } from "@/lib/api/types";
 
 const ADMIN_BASE_PATH = "/api/admin";
 
@@ -14,7 +14,7 @@ const UPDATE_ACCOUNT_TYPE_MUTATION_KEY = ["admin", "updateAccountType"];
 
 async function getAllUsers(): Promise<UserDto[]> {
   const response = await apiClient.get<UserDto[]>(`${ADMIN_BASE_PATH}/users`);
-  return response.data;
+  return response.data.map((item) => userDtoSchema.parse(item));
 }
 
 async function updateUserAccountType(
@@ -25,7 +25,7 @@ async function updateUserAccountType(
     `${ADMIN_BASE_PATH}/users/${userId}`,
     { accountType },
   );
-  return response.data;
+  return userDtoSchema.parse(response.data);
 }
 
 async function deleteUser(userId: string): Promise<void> {
