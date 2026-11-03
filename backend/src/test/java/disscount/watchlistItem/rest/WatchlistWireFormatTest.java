@@ -31,7 +31,7 @@ class WatchlistWireFormatTest extends FullStackTest {
             assertThat(item.get("watchType").asString()).isEqualTo("PERCENTAGE");
             assertThat(item.get("thresholdValue").isNumber()).isTrue();
             assertThat(item.get("createdAt").asString()).matches(LOCAL_DATE_TIME);
-            // The schema types this as an optional string, not nullable; nothing parses it today.
+            // watchlistItemDtoSchema types this as a nullable string, so the key must stay present.
             assertThat(item.get("lastNotifiedAt").isNull()).isTrue();
         }
     }

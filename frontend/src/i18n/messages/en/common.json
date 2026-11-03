@@ -152,6 +152,11 @@
       "desktopMenu": "If you don't see that icon, open the <vdots></vdots> menu, then <b>Save and share</b> › <b>Install page as app</b>."
     }
   },
+  "appUpdate": {
+    "message": "A new version of Disscount is ready.",
+    "reload": "Reload",
+    "later": "Later"
+  },
   "validation": {
     "emailInvalid": "Enter a valid email",
     "fullNameMax": "Your name can be up to 255 characters",

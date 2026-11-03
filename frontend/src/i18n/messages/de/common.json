@@ -152,6 +152,11 @@
       "desktopMenu": "Falls das Symbol fehlt, öffne das Menü <vdots></vdots> und wähle <b>Speichern und teilen</b> › <b>Seite als App installieren</b>."
     }
   },
+  "appUpdate": {
+    "message": "Eine neue Version von Disscount ist da.",
+    "reload": "Neu laden",
+    "later": "Später"
+  },
   "validation": {
     "emailInvalid": "Gib eine gültige E-Mail-Adresse ein",
     "fullNameMax": "Der Name darf höchstens 255 Zeichen lang sein",
