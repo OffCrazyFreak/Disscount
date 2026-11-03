@@ -140,7 +140,7 @@
   },
   "list": {
     "loginTitle": "Loyalty cards",
-    "loginDescription": "All your store cards in one place, always handy.",
+    "loginDescription": "All your loyalty cards in one place, always handy.",
     "searchPlaceholder": "Search loyalty cards...",
     "searchResults": "Search results for “{query}” ({count})",
     "myCards": "My loyalty cards",
@@ -266,7 +266,7 @@
     }
   },
   "offline": {
-    "cardLimit": "You've hit the card limit. Delete one you don't use.",
+    "cardLimit": "You already have the most cards allowed. Delete one you don't use.",
     "cardSaveFailed": "Couldn't save the card. Try again.",
     "cardDeleteFailed": "Couldn't delete the card. Try again.",
     "photoDeleteFailed": "Couldn't delete the photo. Try again.",

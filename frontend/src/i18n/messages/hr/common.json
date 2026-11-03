@@ -87,7 +87,7 @@
     },
     "modal": {
       "title": "Javi nam se",
-      "description": "Piši nam kroz obrazac ispod ili izravno.",
+      "description": "Piši nam kroz obrazac ispod ili nam se obrati izravno.",
       "submit": "Pošalji poruku",
       "cancel": "Odustani",
       "reset": "Resetiraj",
@@ -157,7 +157,7 @@
     }
   },
   "validation": {
-    "emailInvalid": "Unesi važeći email",
+    "emailInvalid": "Upiši ispravan email",
     "fullNameMax": "Ime može imati najviše 255 znakova",
     "subjectRequired": "Upiši naslov",
     "subjectMax": "Naslov može imati najviše 255 znakova",

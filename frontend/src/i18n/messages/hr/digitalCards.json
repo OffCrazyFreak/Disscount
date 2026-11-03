@@ -197,7 +197,7 @@
   },
   "list": {
     "loginTitle": "Kartice vjernosti",
-    "loginDescription": "Sve kartice trgovina na jednom mjestu, uvijek pri ruci.",
+    "loginDescription": "Sve kartice vjernosti na jednom mjestu, uvijek pri ruci.",
     "searchPlaceholder": "Pretraži kartice vjernosti...",
     "searchResults": "Rezultati pretrage za \"{query}\" ({count})",
     "myCards": "Moje kartice vjernosti",
@@ -323,7 +323,7 @@
     }
   },
   "offline": {
-    "cardLimit": "Imaš najviše kartica koje možeš spremiti. Obriši neku koju ne koristiš.",
+    "cardLimit": "Imaš već najveći dopušteni broj kartica. Obriši neku koju ne koristiš.",
     "cardSaveFailed": "Kartica nije spremljena. Pokušaj ponovno.",
     "cardDeleteFailed": "Kartica nije obrisana. Pokušaj ponovno.",
     "photoDeleteFailed": "Slika nije obrisana. Pokušaj ponovno.",

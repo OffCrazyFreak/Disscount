@@ -140,7 +140,7 @@
   },
   "list": {
     "loginTitle": "Carte fedeltà",
-    "loginDescription": "Tutte le carte dei negozi in un unico posto, sempre a portata di mano.",
+    "loginDescription": "Tutte le carte fedeltà in un unico posto, sempre a portata di mano.",
     "searchPlaceholder": "Cerca carte fedeltà...",
     "searchResults": "Risultati per «{query}» ({count})",
     "myCards": "Le mie carte fedeltà",
@@ -266,7 +266,7 @@
     }
   },
   "offline": {
-    "cardLimit": "Hai raggiunto il limite di carte. Eliminane una che non usi.",
+    "cardLimit": "Hai già il numero massimo di carte. Eliminane una che non usi.",
     "cardSaveFailed": "Carta non salvata. Riprova.",
     "cardDeleteFailed": "Carta non eliminata. Riprova.",
     "photoDeleteFailed": "Immagine non eliminata. Riprova.",

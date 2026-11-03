@@ -140,7 +140,7 @@
   },
   "list": {
     "loginTitle": "Kartice zvestobe",
-    "loginDescription": "Vse kartice trgovin na enem mestu, vedno pri roki.",
+    "loginDescription": "Vse kartice zvestobe na enem mestu, vedno pri roki.",
     "searchPlaceholder": "Išči kartice zvestobe...",
     "searchResults": "Rezultati iskanja za »{query}« ({count})",
     "myCards": "Moje kartice zvestobe",

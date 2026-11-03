@@ -197,7 +197,7 @@
   },
   "list": {
     "loginTitle": "Kundenkarten",
-    "loginDescription": "Alle Karten deiner Händler an einem Ort, immer griffbereit.",
+    "loginDescription": "Alle Kundenkarten an einem Ort, immer griffbereit.",
     "searchPlaceholder": "Kundenkarten suchen...",
     "searchResults": "Suchergebnisse für „{query}“ ({count})",
     "myCards": "Meine Kundenkarten",
@@ -323,7 +323,7 @@
     }
   },
   "offline": {
-    "cardLimit": "Du hast das Kartenlimit erreicht. Lösch eine, die du nicht nutzt.",
+    "cardLimit": "Du hast schon die maximale Anzahl an Karten. Lösch eine, die du nicht nutzt.",
     "cardSaveFailed": "Die Karte wurde nicht gespeichert. Versuche es erneut.",
     "cardDeleteFailed": "Die Karte wurde nicht gelöscht. Versuche es erneut.",
     "photoDeleteFailed": "Das Bild wurde nicht gelöscht. Versuch es noch mal.",

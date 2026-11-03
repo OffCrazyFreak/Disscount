@@ -87,7 +87,7 @@
     },
     "modal": {
       "title": "Piši nam",
-      "description": "Piši nam prek obrazca spodaj ali neposredno.",
+      "description": "Piši nam prek obrazca spodaj ali se obrni neposredno na nas.",
       "submit": "Pošlji sporočilo",
       "cancel": "Prekliči",
       "reset": "Ponastavi",
@@ -157,7 +157,7 @@
     }
   },
   "validation": {
-    "emailInvalid": "Vnesi veljaven e-naslov",
+    "emailInvalid": "Vpiši veljaven e-naslov",
     "fullNameMax": "Ime ima lahko največ 255 znakov",
     "subjectRequired": "Vpiši zadevo",
     "subjectMax": "Zadeva ima lahko največ 255 znakov",
