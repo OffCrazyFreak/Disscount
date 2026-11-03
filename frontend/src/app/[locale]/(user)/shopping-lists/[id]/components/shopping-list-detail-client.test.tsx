@@ -139,33 +139,40 @@ describe("ShoppingListDetailClient", () => {
       data.shoppingList = LIST_WITH_ITEM;
       data.error = null;
       data.priceStates = priceStates;
+      // Only the open tab renders, and the summary lives on the stores tab.
+      window.history.replaceState(null, "", "/#stores");
       renderWithProviders(<ShoppingListDetailClient listId={LIST.id} />);
 
       expect(screen.queryByText("summary error") !== null).toBe(hasError);
+      window.history.replaceState(null, "", "/");
     },
   );
 
-  it("shows no section bar for an empty list, which has only its products", () => {
+  it("shows no tabs for an empty list, which has only its products", () => {
     data.shoppingList = LIST;
     data.error = null;
     data.priceStates = {};
     renderWithProviders(<ShoppingListDetailClient listId={LIST.id} />);
 
     expect(
-      screen.queryByRole("navigation", { name: "Odjeljci popisa" }),
+      screen.queryByRole("tablist", { name: "Odjeljci popisa" }),
     ).not.toBeInTheDocument();
   });
 
-  it("links products, stores and price history once the list has items", () => {
+  it("offers products, stores and price history once the list has items", () => {
     data.shoppingList = LIST_WITH_ITEM;
     data.error = null;
     data.priceStates = {};
     renderWithProviders(<ShoppingListDetailClient listId={LIST.id} />);
 
-    const nav = screen.getByRole("navigation", { name: "Odjeljci popisa" });
-    const hrefs = within(nav)
-      .getAllByRole("link")
-      .map((link) => link.getAttribute("href"));
-    expect(hrefs).toEqual(["#products", "#stores", "#price-history"]);
+    const tabList = screen.getByRole("tablist", { name: "Odjeljci popisa" });
+    const names = within(tabList)
+      .getAllByRole("tab")
+      .map((tab) => tab.textContent);
+    expect(names).toEqual([
+      expect.stringMatching(/^Proizvodi/),
+      expect.stringMatching(/^Trgovine/),
+      expect.stringMatching(/^Povijest/),
+    ]);
   });
 });

@@ -1,7 +1,6 @@
 "use client";
 
 import { useId } from "react";
-import { useTranslations } from "next-intl";
 import { ShoppingListDto } from "@/lib/api/types";
 import ShoppingListStoreItem from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-store-card";
 import { useUser } from "@/context/user-context";
@@ -22,7 +21,6 @@ export default function ShoppingListStoreSummary({
   hasFailedPrices,
 }: IShoppingListStoreSummaryProps) {
   // Shared with the section bar, so the link and the heading always read the same.
-  const storesHeading = useTranslations("common.sectionNav")("stores");
   const { user } = useUser();
 
   const sortNoteId = useId();
@@ -45,8 +43,6 @@ export default function ShoppingListStoreSummary({
 
   return (
     <div className="space-y-2">
-      <h2 className="py-2 text-lg font-semibold">{storesHeading}</h2>
-
       <ShoppingListStoresBody
         isLoading={productsLoading}
         hasItems={!!shoppingList.items && shoppingList.items.length > 0}

@@ -11,7 +11,6 @@
   "header": {
     "searchResultsTitle": "Search results for “{query}” ({count})",
     "title": "Watchlist",
-    "titleWithCount": "{label} ({count})",
     "pricesUpdated": "Prices refreshed {time}"
   },
   "list": {
@@ -20,8 +19,7 @@
     "searchProducts": "Search products"
   },
   "suggestions": {
-    "label": "Product suggestions",
-    "title": "{label} ({count})"
+    "label": "Product suggestions"
   },
   "actionButton": {
     "watch": "Add to Watchlist",

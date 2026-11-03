@@ -18,11 +18,5 @@ export default function DigitalCardsArchived({
     count: cards.length,
   });
 
-  return (
-    <div className="space-y-1">
-      <h2 className="font-semibold">{label}</h2>
-
-      <DigitalCardsGrid cards={cards} label={label} />
-    </div>
-  );
+  return <DigitalCardsGrid cards={cards} label={label} />;
 }

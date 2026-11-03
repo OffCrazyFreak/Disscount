@@ -54,7 +54,6 @@
   },
   "items": {
     "titleWithChecked": "{label} ({checked}/{total} kupljeno)",
-    "title": "{label} ({total})",
     "emptyOwner": "Seznam je še prazen. Poišči izdelke in jih dodaj sem.",
     "empty": "Seznam je še prazen.",
     "searchProducts": "Išči izdelke",

@@ -18,10 +18,7 @@ interface IChartPrefs {
   chains: string[];
 }
 
-export function usePriceHistoryChart(
-  product: ProductResponse,
-  isEnabled: boolean,
-) {
+export function usePriceHistoryChart(product: ProductResponse) {
   const { user } = useUser();
   // Read through the store, not lazily: the open section is in the server HTML, which has only defaults.
   const saved = useProductPreferences(product.ean);
@@ -74,7 +71,6 @@ export function usePriceHistoryChart(
   } = usePriceHistory({
     ean: product.ean,
     days: daysToShow,
-    enabled: isEnabled,
   });
 
   function handlePeriodChange(period: string) {

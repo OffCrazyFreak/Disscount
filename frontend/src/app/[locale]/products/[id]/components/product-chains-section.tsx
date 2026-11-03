@@ -24,7 +24,6 @@ export default function ProductChainsSection({
 }: IProductChainsSectionProps) {
   const t = useTranslations("productDetail.chains");
   // Shared with the section bar, so the link and the heading always read the same.
-  const storesHeading = useTranslations("common.sectionNav")("stores");
   const [expandedChain, setExpandedChain] = useState<string | null>(null);
   const sortNoteId = useId();
 
@@ -41,8 +40,6 @@ export default function ProductChainsSection({
 
   return (
     <div className="space-y-2">
-      <h2 className="py-2 text-lg font-semibold">{storesHeading}</h2>
-
       {detail.pricesUpdatedAt > 0 && (
         <LastSyncedLabel
           updatedAt={detail.pricesUpdatedAt}

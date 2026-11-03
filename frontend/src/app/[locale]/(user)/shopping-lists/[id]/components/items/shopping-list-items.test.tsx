@@ -306,7 +306,7 @@ describe("ShoppingListItems focus", () => {
     await waitFor(() => expect(screen.getByRole("combobox")).toHaveFocus());
   });
 
-  it("focuses the items heading when the retried row is gone", async () => {
+  it("focuses the items section when the retried row is gone", async () => {
     const user = userEvent.setup();
     const onRetry = vi.fn(async () => false);
     const { rerender } = renderItems([item("a")], { a: "failed" }, onRetry);
@@ -314,9 +314,11 @@ describe("ShoppingListItems focus", () => {
     await user.click(screen.getByRole("button", { name: "Pokušaj ponovno" }));
     rerender(listItems([item("b")], { b: "ready" }, onRetry));
 
+    // Outside the page's tabs there is no tab panel, so the section's own wrapper takes focus.
     await waitFor(() =>
-      expect(screen.getByRole("heading", { name: /Proizvodi/ })).toHaveFocus(),
+      expect(document.activeElement).toHaveAttribute("tabindex", "-1"),
     );
+    expect(document.activeElement).not.toBe(document.body);
   });
 
   it("leaves focus alone when the retry button no longer had it", async () => {

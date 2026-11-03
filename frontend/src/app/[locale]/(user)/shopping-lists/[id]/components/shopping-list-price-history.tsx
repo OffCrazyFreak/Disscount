@@ -11,7 +11,6 @@ import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinne
 import { ShoppingListDto } from "@/lib/api/types";
 import { PeriodOption } from "@/typings/history-period-options";
 import { DISABLED_PERIODS, getEnabledPeriod } from "@/constants/price-history";
-import { useNearViewport } from "@/hooks/use-near-viewport";
 import {
   getShoppingListPriceHistoryPeriod,
   setShoppingListPriceHistoryPeriod,
@@ -27,15 +26,10 @@ export default function ShoppingListPriceHistory({
   shoppingList,
 }: IShoppingListPriceHistoryProps) {
   const t = useTranslations("shoppingListDetail");
-  // Shared with the section bar, so the link and the heading always read the same.
-  const priceHistoryHeading =
-    useTranslations("common.sectionNav")("priceHistory");
 
   const [period, setPeriod] = useState<PeriodOption>(() =>
     getEnabledPeriod(getShoppingListPriceHistoryPeriod(shoppingList.id)),
   );
-
-  const [cardRef, isNearViewport] = useNearViewport<HTMLDivElement>();
 
   const {
     eans,
@@ -48,7 +42,7 @@ export default function ShoppingListPriceHistory({
     isLoading,
     hasError,
     priceChange,
-  } = useShoppingListPriceHistory(shoppingList, period, isNearViewport);
+  } = useShoppingListPriceHistory(shoppingList, period);
 
   const handlePeriodChange = useCallback(
     (value: string) => {
@@ -60,48 +54,44 @@ export default function ShoppingListPriceHistory({
   );
 
   return (
-    <div ref={cardRef} className="space-y-2">
-      <h2 className="py-2 text-lg font-semibold">{priceHistoryHeading}</h2>
+    <Card className="shadow-sm hover:shadow-md transition-shadow">
+      <CardContent className="p-6">
+        <Tabs value={period} onValueChange={handlePeriodChange}>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div className="flex items-center justify-between w-full gap-2">
+              <PriceHistoryPeriodSelect disabledPeriods={DISABLED_PERIODS} />
 
-      <Card className="shadow-sm hover:shadow-md transition-shadow">
-        <CardContent className="p-6">
-          <Tabs value={period} onValueChange={handlePeriodChange}>
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
-              <div className="flex items-center justify-between w-full gap-2">
-                <PriceHistoryPeriodSelect disabledPeriods={DISABLED_PERIODS} />
-
-                <PriceChangeDisplay priceChange={priceChange} />
-              </div>
-
-              <StoreChainMultiSelect
-                chains={availableChains}
-                selectedChains={selectedChains}
-                onChainsChange={handleChainsChange}
-                className="w-full sm:w-sm"
-              />
+              <PriceChangeDisplay priceChange={priceChange} />
             </div>
 
-            <TabsContent value={period} className="mt-4">
-              {isLoading ? (
-                <div className="grid place-items-center">
-                  <BlockLoadingSpinner />
-                </div>
-              ) : chartData.length === 0 || hasError ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-600">{t("priceHistory.noData")}</p>
-                </div>
-              ) : (
-                <ShoppingListPriceHistoryChart
-                  chartData={chartData}
-                  chartConfig={chartConfig}
-                  eans={eans}
-                  yAxisTicks={yAxisTicks}
-                />
-              )}
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-    </div>
+            <StoreChainMultiSelect
+              chains={availableChains}
+              selectedChains={selectedChains}
+              onChainsChange={handleChainsChange}
+              className="w-full sm:w-sm"
+            />
+          </div>
+
+          <TabsContent value={period} className="mt-4">
+            {isLoading ? (
+              <div className="grid place-items-center">
+                <BlockLoadingSpinner />
+              </div>
+            ) : chartData.length === 0 || hasError ? (
+              <div className="text-center py-8">
+                <p className="text-gray-600">{t("priceHistory.noData")}</p>
+              </div>
+            ) : (
+              <ShoppingListPriceHistoryChart
+                chartData={chartData}
+                chartConfig={chartConfig}
+                eans={eans}
+                yAxisTicks={yAxisTicks}
+              />
+            )}
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 }

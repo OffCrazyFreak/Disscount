@@ -662,22 +662,16 @@ html {
   --z-header: 20;
   /* The language offer floats over page content but stays under the header menus */
   --z-locale-suggestion: 15;
-  /* A page's sticky section links: page chrome under the header, over the filter sidebar */
+  /* A page's sticky section tabs: page chrome under the header, over the filter sidebar */
   --z-section-nav: 12;
   --z-sidebar: 10;
 }
 
-/* Sticky section links below the floating header.
+/* Sticky section tabs below the floating header.
    The header writes its measured bottom edge over this fallback on mount,
-   because it wraps and resizes with the viewport and its scrolled state.
-   The 0.5rem slack must stay under the gap between sections, or a section
-   landed on would leave the one above it marked as the one being read. */
+   because it wraps and resizes with the viewport and its scrolled state. */
 :root {
   --header-bottom: 5rem;
-  --section-nav-height: 3rem;
-  --section-scroll-offset: calc(
-    var(--header-bottom) + var(--section-nav-height) + 0.5rem
-  );
 }
 
 /* A modal sheet's scrim should cover the bar. Left on top it stays fully visible
