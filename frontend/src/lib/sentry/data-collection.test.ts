@@ -41,7 +41,7 @@ describe("Sentry data collection", () => {
     },
   );
 
-  it("pins the v10 sendDefaultPii false baseline the privacy policy describes", () => {
+  it("pins the baseline the privacy policy describes", () => {
     const ipHeaders = { deny: ["forwarded", "-ip", "remote-", "via", "-user"] };
 
     expect(sentryDataCollection).toStrictEqual({
@@ -53,7 +53,7 @@ describe("Sentry data collection", () => {
       graphQL: { document: false, variables: false },
       genAI: { inputs: false, outputs: false },
       databaseQueryData: false,
-      stackFrameVariables: true,
+      stackFrameVariables: false,
       frameContextLines: 7,
     });
   });
