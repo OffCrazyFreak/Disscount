@@ -1,10 +1,10 @@
 import { useLocale, useTranslations } from "next-intl";
 
 import CardIcon from "@/app/[locale]/(user)/digital-cards/components/card-icon";
-import { formatTileDate } from "@/app/[locale]/(user)/digital-cards/utils/card-date";
 import { initialsOf } from "@/app/[locale]/(user)/digital-cards/utils/card-initials";
 import type { DigitalCardDto } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
+import { formatDayMonth } from "@/utils/strings";
 
 interface ICardFaceFrontProps {
   card: DigitalCardDto;
@@ -17,7 +17,7 @@ export default function CardFaceFront({
 }: ICardFaceFrontProps) {
   const t = useTranslations("digitalCards");
   const locale = useLocale();
-  const date = formatTileDate(card.lastUsedAt ?? card.updatedAt, locale);
+  const date = formatDayMonth(card.lastUsedAt ?? card.updatedAt, locale);
   const archived = Boolean(card.archivedAt);
   const initials = initialsOf(card.storeName);
 
