@@ -1,5 +1,5 @@
 import type { ILatLon } from "@/utils/distance";
-import { compareHr } from "@/utils/strings";
+import { compareHr, normalizeForSearch } from "@/utils/strings";
 import { getLocationLabel } from "@/utils/labels";
 import {
   COUNTY_BY_POSTAL_AREA,
@@ -56,17 +56,44 @@ function parseTownKey(key: string) {
   return { name, area };
 }
 
-function groupByName(stores: ITownStore[]) {
-  const byName = new Map<string, PinnedStore[]>();
+function countAccents(name: string) {
+  return [...name].filter(
+    (char) => normalizeForSearch(char) !== char.toLowerCase(),
+  ).length;
+}
+
+interface ISpelledGroup {
+  spellings: Map<string, number>;
+  stores: PinnedStore[];
+}
+
+// Chains that send ASCII only ("Plaski") would otherwise split a town from
+// the accented spelling ("Plaški") the others send, so names group folded.
+function groupByFoldedName(stores: ITownStore[]) {
+  const byName = new Map<string, ISpelledGroup>();
 
   for (const store of stores) {
     const name = getLocationLabel(store.city?.trim());
     if (!name || !isPinned(store)) continue;
 
-    byName.set(name, [...(byName.get(name) ?? []), store]);
+    const folded = normalizeForSearch(name);
+    const group: ISpelledGroup = byName.get(folded) ?? {
+      spellings: new Map(),
+      stores: [],
+    };
+    group.spellings.set(name, (group.spellings.get(name) ?? 0) + 1);
+    group.stores.push(store);
+    byName.set(folded, group);
   }
 
-  return [...byName].map(([name, inTown]) => ({ name, stores: inTown }));
+  // The accented spelling wins, then the one most stores send.
+  return [...byName.values()].map(({ spellings, stores: inTown }) => ({
+    name: [...spellings].sort(
+      ([a, aCount], [b, bCount]) =>
+        countAccents(b) - countAccents(a) || bCount - aCount || compareHr(a, b),
+    )[0][0],
+    stores: inTown,
+  }));
 }
 
 function splitByArea(stores: PinnedStore[]) {
@@ -89,7 +116,7 @@ function splitByArea(stores: PinnedStore[]) {
 }
 
 function groupTowns(stores: ITownStore[]): ITownGroup[] {
-  return groupByName(stores).flatMap(({ name, stores: named }) => {
+  return groupByFoldedName(stores).flatMap(({ name, stores: named }) => {
     const byArea = splitByArea(named);
     const isShared = byArea.size > 1;
 
@@ -127,7 +154,9 @@ function findTown(towns: ITownGroup[], key: string) {
 
   const { name, area } = parseTownKey(key);
   const named = towns
-    .filter((town) => town.name === name)
+    .filter(
+      (town) => normalizeForSearch(town.name) === normalizeForSearch(name),
+    )
     .sort((a, b) => compareHr(a.area ?? "", b.area ?? ""));
 
   // A saved place from before namesakes were told apart knows only the name.

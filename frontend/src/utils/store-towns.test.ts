@@ -70,6 +70,19 @@ describe("listStoreTowns", () => {
       },
     ]);
   });
+
+  it("merges spellings that differ only in accents or case, keeping the accents", () => {
+    expect(
+      listStoreTowns([
+        { city: "Plaski", zipcode: "47304", lat: 45.08, lon: 15.36 },
+        { city: "Plaški", zipcode: "47304", lat: 45.08, lon: 15.36 },
+        { city: "PLAŠKI", zipcode: null, lat: 45.08, lon: 15.36 },
+        { city: "Plaški", zipcode: "47304", lat: 45.08, lon: 15.36 },
+      ]),
+    ).toEqual([
+      { key: "Plaški", name: "Plaški", county: null, zipcodes: ["47304"] },
+    ]);
+  });
 });
 
 describe("townCenter", () => {
@@ -100,5 +113,9 @@ describe("townCenter", () => {
       lat: 45.8,
       county: "zagreb",
     });
+  });
+
+  it("finds a saved namesake by its folded name once it no longer clashes", () => {
+    expect(townCenter(STORES, "split|21")).toMatchObject({ name: "Split" });
   });
 });
