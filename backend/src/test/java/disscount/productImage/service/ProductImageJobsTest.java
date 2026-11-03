@@ -5,12 +5,17 @@ import disscount.productImage.catalog.CatalogImportService;
 import disscount.productImage.dao.ProductImageImportRunRepository;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
+import disscount.productImage.domain.ProductImageImportRun;
+import disscount.util.Timestamps;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ProductImageJobsTest {
 
@@ -42,5 +47,28 @@ class ProductImageJobsTest {
 
         verify(catalog).importLatest();
         verify(seed).seed();
+    }
+
+    @Test
+    void photoSeedRunsOnceTheBucketTurnsOnEvenIfTheCatalogueRanThisWeek() throws Exception {
+        when(runs.findById(ProductImageJobs.WEEKLY_IMPORT)).thenReturn(Optional.of(
+                new ProductImageImportRun(ProductImageJobs.WEEKLY_IMPORT, Timestamps.nowUtc().minusHours(5))));
+
+        jobs().weeklyImport();
+
+        verify(catalog, never()).importLatest();
+        verify(seed).seed();
+        verify(runs).save(argThat(run -> ProductImageJobs.PHOTO_SEED.equals(run.getKind())));
+    }
+
+    @Test
+    void neitherRunsAgainWithinTheWeek() throws Exception {
+        ProductImageImportRun recent = new ProductImageImportRun("x", Timestamps.nowUtc().minusDays(2));
+        when(runs.findById(any())).thenReturn(Optional.of(recent));
+
+        jobs().weeklyImport();
+
+        verify(catalog, never()).importLatest();
+        verify(seed, never()).seed();
     }
 }
