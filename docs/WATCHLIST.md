@@ -113,7 +113,7 @@ The rule modal (`app/[locale]/products/components/forms/watchlist-item-modal.tsx
 All of this runs in the browser (`lib/watchlist/`).
 
 1. **Scope.** If the user has pinned stores (Postavke, Preference), only those stores' chains count. Otherwise every chain counts. See [SETTINGS.md](SETTINGS.md#5-preference-pinned-stores-places-and-language).
-2. **Baseline and best price.** `calculateDiscountInfo` (`watchlist-discount-utils.ts`) takes the mean of the chains' `avg_price` as the baseline and the cheapest chain's `min_price` as today's price, for the scope above.
+2. **Baseline and best price.** `calculateDiscountInfo` (`watchlist-discount-utils.ts`) takes the mean of `avg_price` over every chain as the baseline, and the cheapest chain's `min_price` as today's price. Only today's price is limited to the scope above; the baseline always spans every chain.
 3. **Compare.** `isWatchThresholdReached` (`watchlist-threshold-utils.ts`) fires when today's price is below the baseline and the saving is at least the threshold, in euros for `ABSOLUTE` or percent for `PERCENTAGE`. `isAnyWatchThresholdReached` treats a product as discounted when any one of its rules fires.
 
 So "discount" here means "cheaper than the average across chains", not a sale price from the shop. Basing it on price history instead is #63.
@@ -146,7 +146,7 @@ The hook's own comment calls it a stand-in until the server inbox (#222) can ret
 
 - **Tabs.** A `SectionTabs` bar with "Praćeni" (the user's products) and, only once there are any, "Prijedlozi" (suggestions), so a loading section never flashes an empty tab.
 - **Search.** The search bar filters by product name and brand through the shared matcher ([SEARCH.md](SEARCH.md)); it is disabled while the list is empty.
-- **Header.** Item count, a "last synced" time (the newest `dataUpdatedAt` among the product queries), and the "create a list from discounted items" button (`create-discounted-list-button.tsx`). That button makes a dated shopping list and adds each discounted product with its own request; it is not transactional, see [SHOPPING-LISTS.md](SHOPPING-LISTS.md).
+- **Header.** Item count, a "last synced" time (the newest `dataUpdatedAt` among the product queries), and the "create a list from discounted items" button (`create-discounted-list-button.tsx`). That button makes a dated shopping list and adds each discounted product with its own request; it is not transactional, so when some adds fail it deletes the new list again, or keeps it and says so when that delete fails too ([SHOPPING-LISTS.md](SHOPPING-LISTS.md)).
 - **Order.** `sortWatchlistItemsByDiscount` puts products that meet a rule first, then the biggest saving, using the pinned-store scope when there is one.
 - **Suggestions.** `use-watchlist-suggestions.ts` takes every EAN on the user's shopping lists (`GET /api/shopping-lists/items`) that is not watched yet, loads each product, and ranks them by search relevance first, then by how many list rows carry the EAN, then by discount.
 - **Failures.** A product whose refetch fails keeps its cached prices on screen; only a product with no data shows an error.

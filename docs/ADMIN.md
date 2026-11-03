@@ -141,14 +141,14 @@ Swagger lists them all at `/api-docs`.
 
 ## 8. Tables the dashboard touches
 
-| Table                                                                                   | Read                       | Written                                                   |
-| --------------------------------------------------------------------------------------- | -------------------------- | --------------------------------------------------------- |
-| `app_user`                                                                              | Yes                        | `account_type`; erasure fields on delete                  |
-| better-auth `user`, `session`                                                           | Yes (email, sign-in times) | Deleted on an admin delete (`AuthIdentityDao.deleteById`) |
-| `erasure_ledger`                                                                        | No                         | A tombstone on delete                                     |
-| `wallet_card`, `wallet_card_photo` (photos queued in `photo_cleanup`), `favorite_store` | No                         | Deleted on an admin delete                                |
-| `contact_message`                                                                       | Yes                        | `read_at`, `deleted_at`                                   |
-| Product image tables                                                                    | Yes                        | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                |
+| Table                                                                                                       | Read                       | Written                                                   |
+| ----------------------------------------------------------------------------------------------------------- | -------------------------- | --------------------------------------------------------- |
+| `app_user`                                                                                                  | Yes                        | `account_type`; erasure fields on delete                  |
+| better-auth `user`, `session`                                                                               | Yes (email, sign-in times) | Deleted on an admin delete (`AuthIdentityDao.deleteById`) |
+| `erasure_ledger`                                                                                            | No                         | A tombstone on delete                                     |
+| `wallet_card`, `wallet_card_photo` (photos queued in `photo_cleanup`), `favorite_store`, `store_name_usage` | No                         | Deleted on an admin delete                                |
+| `contact_message`                                                                                           | Yes                        | `read_at`, `deleted_at`                                   |
+| Product image tables                                                                                        | Yes                        | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                |
 
 ---
 

@@ -85,13 +85,13 @@ A scanned EAN is not checked against the product catalogue before navigating; an
 
 The format lists live in `constants/scanner.ts` and use the `BarcodeDetector` format names, so one list feeds both the live scanner and the photo detector.
 
-| Behaviour                     | `product`                     | `all` (cards)                                              |
-| ----------------------------- | ----------------------------- | ---------------------------------------------------------- |
-| Formats                       | EAN-8, EAN-13, UPC-A, UPC-E   | Everything in `ALL_SCAN_FORMATS`                           |
-| Library retry delay           | 400 ms (spares the battery)   | 200 ms (cards need up to four reads inside 1.5 seconds)    |
-| Confirm step                  | No                            | Yes                                                        |
-| "Upiši ručno" (type it)       | Not offered                   | Offered on the confirm step and after 5 seconds of rejects |
-| Normalization (UPC to EAN-13) | No, the scanned value is kept | Yes                                                        |
+| Behaviour                                                  | `product`                     | `all` (cards)                                              |
+| ---------------------------------------------------------- | ----------------------------- | ---------------------------------------------------------- |
+| Formats                                                    | EAN-8, EAN-13, UPC-A, UPC-E   | Everything in `ALL_SCAN_FORMATS`                           |
+| Library retry delay                                        | 400 ms (spares the battery)   | 200 ms (cards need up to four reads inside 1.5 seconds)    |
+| Confirm step                                               | No                            | Yes                                                        |
+| "Upiši ručno" (type it)                                    | Not offered                   | Offered on the confirm step and after 5 seconds of rejects |
+| Normalization (UPC-A to EAN-13, UPC-E to its 8-digit form) | No, the scanned value is kept | Yes                                                        |
 
 Manual entry is offered only when `confirm` is on (`canType={confirm}` in `ScannerContent`), so product scans have no typing fallback inside the dialog; the user types the EAN into the search bar instead.
 

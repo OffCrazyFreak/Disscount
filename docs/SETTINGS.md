@@ -100,7 +100,7 @@ Nothing reads the push, email or newsletter values yet: no price alert is sent b
 ## 5. Preference: pinned stores, places and language
 
 - **Pinned stores** (`components/pinned-stores-grid.tsx`): the chains the user shops at. They are stored as chain codes (`storeApiId`) in `pinned_store` through `PUT /api/pinned-stores/bulk`, which replaces the whole set. Pinned stores scope the watchlist's discount maths ([WATCHLIST.md](WATCHLIST.md#5-when-a-rule-fires)), the product page's default chains ([PRODUCTS.md](PRODUCTS.md)) and the shopping list's store grouping ([SHOPPING-LISTS.md](SHOPPING-LISTS.md)).
-- **Pinned places** (`components/pinned-places-select.tsx`): towns the user cares about, stored in `pinned_place` through `PUT /api/pinned-places/bulk`. The place name doubles as its API id.
+- **Pinned places** (`components/pinned-places-select.tsx`): towns the user cares about, stored in `pinned_place` through `PUT /api/pinned-places/bulk`. `placeApiId` is a `name|county` key so towns with the same name stay apart, and `placeName` is the part before the `|` (`utils/place-options.ts`).
 - **Language** (`components/language-select.tsx`): shown in the modal only (`showLanguage`), not in onboarding. It applies at once, not on Save: `useChangeLocale` replaces the route under the new locale and saves the account language through better-auth's `updateUser({ locale })`, queued in `components/custom/locale/account-locale-save.ts` so saves land in order and never on an account that signed in after the save was queued. The account language picks the language of emails. Details in [I18N.md](I18N.md).
 
 Favourite stores (`/api/favorite-stores`) are a different thing, set on the map, and are not part of this tab ([MAP.md](MAP.md)).
@@ -170,16 +170,17 @@ sequenceDiagram
 
 **What is erased and what stays** (`UserService.deleteAccount`):
 
-| Data                                                      | What happens                                                                       |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| better-auth identity, sessions, linked accounts           | Deleted by better-auth after Spring commits                                        |
-| `app_user` username and avatar                            | Nulled; the row is soft deleted                                                    |
-| Digital cards and their photos                            | Hard deleted, photos queued for R2 deletion ([DIGITAL-CARDS.md](DIGITAL-CARDS.md)) |
-| Favourite stores                                          | Deleted                                                                            |
-| `erasure_ledger`                                          | A tombstone with the user id and time                                              |
-| Shopping lists, watchlist rules, pinned stores and places | Kept, attached to the anonymised row                                               |
-| Notification switch timestamps, acquisition channel       | Kept on the anonymised row                                                         |
-| Contact messages                                          | Kept, including the email and name typed into the form                             |
+| Data                                                      | What happens                                                                            |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| better-auth identity, sessions, linked accounts           | Deleted by better-auth after Spring commits                                             |
+| `app_user` username and avatar                            | Nulled; the row is soft deleted                                                         |
+| Digital cards and their photos                            | Hard deleted, photos queued for R2 deletion ([DIGITAL-CARDS.md](DIGITAL-CARDS.md))      |
+| Favourite stores                                          | Deleted                                                                                 |
+| Custom store names typed on cards                         | Their usage rows are deleted and the shared counts drop (`StoreNameService.forgetUser`) |
+| `erasure_ledger`                                          | A tombstone with the user id and time                                                   |
+| Shopping lists, watchlist rules, pinned stores and places | Kept, attached to the anonymised row                                                    |
+| Notification switch timestamps, acquisition channel       | Kept on the anonymised row                                                              |
+| Contact messages                                          | Kept, including the email and name typed into the form                                  |
 
 The failure modes (Spring committed but the identity delete failed, the 410 `account_erased` answer, finishing a half-done deletion) are in [AUTH.md section 13](AUTH.md#13-gotchas-and-lessons). An admin deleting someone runs the same `deleteAccount` ([ADMIN.md](ADMIN.md#4-users-tab)).
 
@@ -263,4 +264,4 @@ The save job building and recovery (`settings-save-jobs.ts`, `settings-save-reco
 - [ ] #216: fix the pre-set notification consent and build a compliant email path; #221: Web Push. Until then the push, email and newsletter switches stay disabled.
 - [ ] #203: bound how long a deleted account or a signed-out device keeps working against Spring with a token it already holds.
 - [ ] Decide whether contact messages, notification timestamps and the acquisition channel should be erased with the account (see [Section 8](#8-deleting-the-account)).
-- [ ] A self-service data export, if data access requests become common.
+- [ ] #218: a self-service personal data export in settings. #202: the wider account deletion rework.
