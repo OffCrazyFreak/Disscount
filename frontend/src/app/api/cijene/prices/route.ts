@@ -1,11 +1,10 @@
 import { NextRequest } from "next/server";
-import { z } from "zod";
+import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
 import { cijeneApiV1Client } from "@/lib/cijene-api/client";
 import {
   getPricesParamsSchema,
   storePricesResponseSchema,
 } from "@/lib/cijene-api/schemas";
-import { createApiError } from "@/lib/cijene-api/utils/response-utils";
 import { parseStoreFilterParams } from "@/lib/cijene-api/utils/request-params";
 import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";
 import { buildQueryString } from "@/utils/generic";
@@ -19,10 +18,7 @@ export async function GET(request: NextRequest) {
   });
 
   if (!parsed.success) {
-    return createApiError("Invalid parameters for prices", {
-      status: 400,
-      details: z.treeifyError(parsed.error),
-    });
+    return proxyProblem("bad_request", request);
   }
 
   const queryString = buildQueryString(parsed.data);
