@@ -49,7 +49,7 @@ Why they differ:
 
 - The avatar shows at most 96 CSS px in a round frame, so a square crop at 256 px stays sharp on a 2x screen and stores nothing that is never seen.
 - Card photos keep 1280 px so the card number and barcode stay readable to a person. The wallet never scans the photo: the barcode on the card face is drawn from the stored number.
-- Product photos are always JPEG because the server renders them with ImageIO, which cannot write WebP, and the admin crops from the original, so it keeps the most pixels.
+- Product photos are always JPEG because the server decodes and renders them with ImageIO, which has no WebP support, and the admin crops from the original, so it keeps the most pixels.
 
 Offline card photos sit in IndexedDB (`lib/offline/card-photo-outbox.ts`) as the already prepared blobs, so the queue holds the small, clean copies, never the original file.
 
