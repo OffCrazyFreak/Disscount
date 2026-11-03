@@ -18,7 +18,6 @@ import disscount.digitalCard.service.DigitalCardPhotoService.PhotoStream;
 import disscount.exceptions.BadRequestException;
 import disscount.util.SecurityUtils;
 
-import java.time.Duration;
 import java.util.UUID;
 
 @RestController
@@ -62,7 +61,8 @@ public class DigitalCardPhotoController {
                 .contentType(MediaType.parseMediaType(stream.photo().contentType()))
                 .contentLength(stream.photo().contentLength())
                 .eTag(etag(stream.sha256(), thumb))
-                .cacheControl(CacheControl.maxAge(Duration.ofDays(365)).cachePrivate().immutable())
+                // The browser HTTP cache is keyed by URL, not account, so a stored photo would outlive sign-out on a shared device.
+                .cacheControl(CacheControl.noStore().cachePrivate())
                 .header("X-Content-Type-Options", "nosniff")
                 .body(new InputStreamResource(stream.photo().stream()));
     }

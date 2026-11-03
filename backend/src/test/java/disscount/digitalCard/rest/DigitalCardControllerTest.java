@@ -6,6 +6,7 @@ import disscount.digitalCard.dto.DigitalCardDto;
 import disscount.digitalCard.dto.DigitalCardRequest;
 import disscount.digitalCard.service.DigitalCardPhotoService;
 import disscount.digitalCard.service.DigitalCardService;
+import disscount.digitalCard.storage.StoredPhoto;
 import disscount.exceptions.ConflictException;
 import disscount.exceptions.NotFoundException;
 import disscount.exceptions.ServiceUnavailableException;
@@ -21,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -250,6 +252,19 @@ class DigitalCardControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors.storeName").value("Naziv trgovine mora imati od 2 do 60 znakova"));
         verifyNoInteractions(cardService);
+    }
+
+    @Test
+    void photoDownloadIsNeverStoredByTheBrowser() throws Exception {
+        String sha = "cd".repeat(32);
+        byte[] bytes = {1, 2, 3};
+        when(photoService.currentSha256(userId, cardId, "front")).thenReturn(sha);
+        when(photoService.open(userId, cardId, "front", false, sha)).thenReturn(new DigitalCardPhotoService.PhotoStream(
+                new StoredPhoto(new ByteArrayInputStream(bytes), bytes.length, "image/webp"), sha, false));
+
+        mvc.perform(get("/api/digital-cards/{id}/photos/front?v={v}", cardId, sha).with(auth()))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", "no-store, private"));
     }
 
     @Test
