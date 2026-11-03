@@ -42,7 +42,6 @@ export default function ShoppingListStoreSummary({
   }
 
   const {
-    activeItems,
     allChains,
     productsLoading,
     productsData,
@@ -66,7 +65,10 @@ export default function ShoppingListStoreSummary({
       <ShoppingListStoresBody
         isLoading={productsLoading}
         hasItems={!!shoppingList.items && shoppingList.items.length > 0}
-        hasActiveItems={activeItems.length > 0}
+        // Any item still to buy, plain ones too: only unpriced ones left means "no prices".
+        hasActiveItems={
+          shoppingList.items?.some((item) => !item.isChecked) ?? false
+        }
         hasError={hasFailedPrices}
         hasChains={allChains.length > 0}
       >

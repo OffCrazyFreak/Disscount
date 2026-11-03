@@ -1,5 +1,5 @@
 import { http, HttpResponse } from "msw/http";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import apiClient, {
   clearAuthToken,
@@ -104,10 +104,17 @@ describe("apiClient bearer token", () => {
 
     const requestDuringClear = apiClient.get("/api/probe");
     await new Promise((resolve) => setTimeout(resolve, 0));
-    clearAuthToken();
-    releaseToken();
-    await requestDuringClear;
-    await apiClient.get("/api/probe");
+    // The clear starts a cooldown; a frozen clock keeps the second request inside it however slow the run.
+    vi.useFakeTimers({ toFake: ["Date"] });
+
+    try {
+      clearAuthToken();
+      releaseToken();
+      await requestDuringClear;
+      await apiClient.get("/api/probe");
+    } finally {
+      vi.useRealTimers();
+    }
 
     expect(authorizations).toEqual([null, null]);
   });

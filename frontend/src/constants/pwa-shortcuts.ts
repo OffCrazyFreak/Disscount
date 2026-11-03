@@ -1,6 +1,10 @@
 import type { MetadataRoute } from "next";
 import shell from "@/i18n/messages/hr/shell.json";
-import { userNavItems, type NavKey } from "@/constants/navigation";
+import {
+  findNavItem,
+  type NavItemId,
+  type NavKey,
+} from "@/constants/navigation";
 
 type Shortcut = NonNullable<MetadataRoute.Manifest["shortcuts"]>[number];
 
@@ -38,12 +42,21 @@ const scanShortcut: Shortcut = {
   icons: shortcutIcons("scan"),
 };
 
-// Android shows 3 of these (Chrome keeps a fourth slot for its own "Site
-// settings"), so order is what decides what a phone actually surfaces.
-// Scanning leads: it is the fastest path from launcher to a price.
+// Owner's order from #127. Android shows only the first 3 (Chrome keeps a
+// fourth slot for its own "Site settings"), and loyalty cards are needed fast at
+// the till, so they rank above the watchlist. Scanning leads.
+export const shortcutNavIds = [
+  "shopping-lists",
+  "digital-cards",
+  "watchlist",
+  "map",
+  "spending",
+] as const satisfies readonly NavItemId[];
+
 export const pwaShortcuts: Shortcut[] = [
   scanShortcut,
-  ...userNavItems
+  ...shortcutNavIds
+    .map(findNavItem)
     .filter((item) => !item.comingSoon && item.shortcutDescriptionKey)
     .map((item) => ({
       name: hr(item.labelKey),

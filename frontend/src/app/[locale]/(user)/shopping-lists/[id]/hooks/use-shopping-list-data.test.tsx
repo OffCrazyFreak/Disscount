@@ -129,6 +129,26 @@ describe("useShoppingListData price states", () => {
     expect(requests.filter((ean) => ean === "222")).toHaveLength(2);
   });
 
+  it("gives a plain item no lookup and no price state", async () => {
+    const requests: string[] = [];
+    answerProducts(requests);
+    const client = appLikeQueryClient();
+    client.setQueryData(SHOPPING_LIST_QUERY_KEYS.byId(LIST_ID), {
+      ...list,
+      items: [item("priced", "111"), { ...item("jars", "x"), ean: null }],
+    });
+
+    const { result } = renderHookWithProviders(
+      () => useShoppingListData(LIST_ID),
+      { queryClient: client },
+    );
+
+    await waitFor(() =>
+      expect(result.current.priceStates).toEqual({ priced: "ready" }),
+    );
+    expect(requests).toEqual(["111"]);
+  });
+
   it("retries only the failed EANs and keeps them failed meanwhile", async () => {
     const requests: string[] = [];
     answerProducts(requests);

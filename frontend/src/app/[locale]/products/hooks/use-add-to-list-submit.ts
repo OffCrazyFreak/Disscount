@@ -13,10 +13,13 @@ import type {
 } from "@/app/[locale]/products/typings/add-to-list";
 import { buildShoppingListItemRequest } from "@/app/[locale]/products/utils/shopping-list-item-request";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
+import { mergesIntoExisting } from "@/app/[locale]/(user)/shopping-lists/utils/item-merge";
 import { stashModalError } from "@/lib/modal/modal-error-bus";
 
 interface IUseAddToListSubmitProps {
   ean: string;
+  /** The list the modal was opened from, kept when a failure reopens it. */
+  preferredListId?: string;
   draftKey: string;
   product: ProductResponse | undefined;
   lists: ShoppingListDto[];
@@ -29,6 +32,7 @@ interface IUseAddToListSubmitProps {
 
 export function useAddToListSubmit({
   ean,
+  preferredListId,
   draftKey,
   product,
   lists,
@@ -47,13 +51,12 @@ export function useAddToListSubmit({
     return {
       id: list.id,
       name: list.title,
-      // Compared against the value that actually goes on the wire. The backend
-      // merges on name, and buildShoppingListItemRequest sends `name ?? ""`, so
-      // a null-named product never matched and the toast claimed a new row while
-      // the server had bumped an existing one.
-      isQuantityIncrease:
-        list.items?.some((item) => item.name === (product?.name ?? "")) ??
-        false,
+      // Compared against the values that actually go on the wire:
+      // buildShoppingListItemRequest sends `name ?? ""`.
+      isQuantityIncrease: mergesIntoExisting(list.items, {
+        ean: product?.ean,
+        name: product?.name ?? "",
+      }),
     };
   }
 
@@ -96,7 +99,7 @@ export function useAddToListSubmit({
 
       if (!target) {
         toast.error(t("addToList.toast.pickList"));
-        openModalUrl({ name: "add-to-list", ean });
+        openModalUrl({ name: "add-to-list", ean, listId: preferredListId });
         return;
       }
 
@@ -125,7 +128,7 @@ export function useAddToListSubmit({
       );
     } catch (error) {
       stashModalError(draftKey, error);
-      openModalUrl({ name: "add-to-list", ean });
+      openModalUrl({ name: "add-to-list", ean, listId: preferredListId });
     }
   }
 

@@ -104,17 +104,17 @@ Disscount ships a Web App Manifest and a registered service worker, which togeth
 
 A Next.js dynamic manifest (a function returning `MetadataRoute.Manifest`) served at `/manifest.webmanifest`. Key fields:
 
-| Field              | Value                                                   | Why                                                                                                                |
-| ------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `display`          | `standalone`                                            | opens without browser chrome, like an app                                                                          |
-| `orientation`      | `portrait`                                              | shopping is a phone-in-hand, portrait activity (also means we only need portrait splash screens)                   |
-| `background_color` | `#ffffff`                                               | the splash background while the app boots (white, to match the iOS launch screens)                                 |
-| `theme_color`      | `#ffffff`                                               | neutral title bar (the light/dark pair is set in `layout.tsx` `viewport.themeColor`)                               |
-| `icons`            | 192 + 512 `any`, and 192 + 512 **maskable**             | maskable avoids the icon being shrunk onto Android's own white plate; see [Icon sizing](#icon-sizing)              |
-| `shortcuts`        | Skeniraj, then `userNavItems` filtered by `!comingSoon` | long-press the icon to scan a barcode or jump to Shopping lists / Watchlist; see [App shortcuts](#app-shortcuts)   |
-| `screenshots`      | one `narrow` + one `wide` (each `label`ed)              | Chrome's richer, app-store-like install dialog                                                                     |
-| `share_target`     | GET to `/share-target`                                  | registers Disscount in the system share sheet; the route handler funnels shared text/title/url into `/products?q=` |
-| `launch_handler`   | `{ client_mode: "navigate-existing" }`                  | reuse an open window instead of spawning a duplicate, **and** navigate it to the shortcut's url                    |
+| Field              | Value                                          | Why                                                                                                                  |
+| ------------------ | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `display`          | `standalone`                                   | opens without browser chrome, like an app                                                                            |
+| `orientation`      | `portrait`                                     | shopping is a phone-in-hand, portrait activity (also means we only need portrait splash screens)                     |
+| `background_color` | `#ffffff`                                      | the splash background while the app boots (white, to match the iOS launch screens)                                   |
+| `theme_color`      | `#ffffff`                                      | neutral title bar (the light/dark pair is set in `layout.tsx` `viewport.themeColor`)                                 |
+| `icons`            | 192 + 512 `any`, and 192 + 512 **maskable**    | maskable avoids the icon being shrunk onto Android's own white plate; see [Icon sizing](#icon-sizing)                |
+| `shortcuts`        | Skeniraj, then the qualifying `shortcutNavIds` | long-press the icon to scan a barcode or jump to Shopping lists / Loyalty cards; see [App shortcuts](#app-shortcuts) |
+| `screenshots`      | one `narrow` + one `wide` (each `label`ed)     | Chrome's richer, app-store-like install dialog                                                                       |
+| `share_target`     | GET to `/share-target`                         | registers Disscount in the system share sheet; the route handler funnels shared text/title/url into `/products?q=`   |
+| `launch_handler`   | `{ client_mode: "navigate-existing" }`         | reuse an open window instead of spawning a duplicate, **and** navigate it to the shortcut's url                      |
 
 Icons are generated from the happy-cart source (`public/brand/logo/cart/cart-rgb.svg`) by `scripts/generate-pwa-icons.mjs` (uses `sharp`), into `public/brand/icons` (plus the legacy `src/app/favicon.ico`). See `docs/BRAND.md` for the full asset map.
 
@@ -159,20 +159,24 @@ To re-check a ratio, mask the generated PNG against circles at 80% and 66.7% and
 
 ### App shortcuts
 
-Long-pressing the installed icon opens a shortcut menu. Ours is built in `manifest.ts` from one hand-written entry (Skeniraj) plus `userNavItems` filtered by `!comingSoon`, so the list grows on its own as features ship.
+Long-pressing the installed icon opens a shortcut menu. Ours is built in `constants/pwa-shortcuts.ts` from one hand-written entry (Skeniraj) plus the navigation items listed in `shortcutNavIds`, in that order, kept only when released (`!comingSoon`) and carrying a `shortcutDescriptionKey`, so a listed feature joins the menu on its own once both hold.
 
-**There are fewer slots than it looks.** Chrome for Android shows **3** shortcuts. It allowed 4 until Chrome 92 started injecting its own "Site settings" entry, which takes a slot. Desktop Chrome and Edge show up to 10. Shortcuts render in manifest order, so the array order in `manifest.ts` is what decides which three a phone actually surfaces. We have 4 today, so the last one is cut on Android:
+**There are fewer slots than it looks.** Chrome for Android shows **3** shortcuts. It allowed 4 until Chrome 92 started injecting its own "Site settings" entry, which takes a slot. Desktop Chrome and Edge show up to 10. Shortcuts render in manifest order, so the order of `shortcutNavIds` is what decides which three a phone actually surfaces. The order is the owner's call from [#127](https://github.com/OffCrazyFreak/Disscount/issues/127): Skeniraj, Popisi and Kartice take the phone slots (loyalty cards are needed fast at the till), and the rest show on desktop. Every row has its tiles, but a row stays out of the manifest until it qualifies:
 
-| Order | Shortcut | Url               | Icon          |
-| ----- | -------- | ----------------- | ------------- |
-| 1     | Skeniraj | `/?scan=1`        | `ScanBarcode` |
-| 2     | Popisi   | `/shopping-lists` | `ListChecks`  |
-| 3     | Praćenje | `/watchlist`      | `Eye`         |
-| 4     | Kartice  | `/digital-cards`  | `CreditCard`  |
+| Order | Shortcut  | Url               | Icon          |
+| ----- | --------- | ----------------- | ------------- |
+| 1     | Skeniraj  | `/?scan=1`        | `ScanBarcode` |
+| 2     | Popisi    | `/shopping-lists` | `ListChecks`  |
+| 3     | Kartice   | `/digital-cards`  | `CreditCard`  |
+| 4     | Praćenje  | `/watchlist`      | `Eye`         |
+| 5     | Karta     | `/map`            | `Map`         |
+| 6     | Potrošnja | `/spending`       | `PiggyBank`   |
+
+Potrošnja is not emitted yet because it is still `comingSoon`, so the manifest carries the first five today.
 
 That "Site settings" entry and its black gear come from Chrome, not from us. No manifest key can recolour, reorder or remove it.
 
-**Icons.** Chrome accepts **PNG only** here and asks for 192x192. `scripts/generate-shortcut-icons.mjs` renders the same `lucide-react` component the nav uses through `renderToStaticMarkup`, then rasterizes it with `sharp` into `public/brand/shortcuts/`: a white glyph on a brand-green tile, glyph at 66% (see [Icon sizing](#icon-sizing)). Rendering the component rather than a copied path is what keeps a shortcut icon from drifting away from its nav icon. `constants/pwa-shortcuts.ts` derives each `src` from the nav item's `id` and emits a shortcut only for a released item that carries a `shortcutDescription`, so a missing description drops the shortcut rather than shipping one with no accessible name. Releasing an item therefore takes two manual steps: give it a `shortcutDescription` in `constants/navigation.ts` if it has none, and add its glyph to `generate-shortcut-icons.mjs` and re-run it. Dropping the `comingSoon` flag does the rest.
+**Icons.** Chrome accepts **PNG only** here and asks for 192x192. `scripts/generate-shortcut-icons.mjs` renders the same `lucide-react` component the nav uses through `renderToStaticMarkup`, then rasterizes it with `sharp` into `public/brand/shortcuts/`: a white glyph on a brand-green tile, glyph at 66% (see [Icon sizing](#icon-sizing)). Rendering the component rather than a copied path is what keeps a shortcut icon from drifting away from its nav icon. `constants/pwa-shortcuts.ts` derives each `src` from the nav item's `id` and emits a shortcut only for a released item that carries a `shortcutDescriptionKey`, so a missing description drops the shortcut rather than shipping one with no accessible name. Adding a shortcut therefore takes three manual steps: put its id in `shortcutNavIds` at the right position, give it a `shortcutDescriptionKey` in `constants/navigation.ts` if it has none, and add its glyph to `generate-shortcut-icons.mjs` and re-run it. Dropping the `comingSoon` flag does the rest. `constants/pwa-shortcuts.test.ts` fails if a listed shortcut is missing either tile.
 
 **Each shortcut ships two tiles**, because one image cannot do both jobs:
 
@@ -185,7 +189,7 @@ The masked one has to stay full bleed. Chrome hands a maskable icon to Android a
 
 **Skeniraj has no route of its own.** The scanner is imperative (`context/scanner-context.tsx`), so the shortcut points at `/?scan=1` and `components/custom/pwa/scan-shortcut.tsx` picks the flag up, strips it from the URL with `replaceState` before opening the camera (so a refresh or a back navigation does not reopen it), and routes the scanned code through `useProductNavigation`.
 
-Kartice shipped with the digital cards rebuild and is the fourth entry, so Android drops it in favour of Chrome's own "Site settings" slot; desktop Chrome and Edge show it. Adding Karta and picking which three win on a phone is tracked in [#127](https://github.com/OffCrazyFreak/Disscount/issues/127), which is really a "pick the final three" decision rather than an append.
+Praćenje and Karta come after the three phone slots, so Android drops them in favour of Chrome's own "Site settings" slot; desktop Chrome and Edge show them.
 
 ### The install UX (`src/components/custom/pwa/`)
 
@@ -275,7 +279,7 @@ flowchart LR
 - `use-online-status.ts`: reads connectivity from React Query's `onlineManager` via `useSyncExternalStore`, so the whole app shares one source of truth.
 - `offline-indicator.tsx`: a thin top banner shown while offline, which also reports how many writes are queued to sync.
 - `last-synced-label.tsx` + `utils/date.ts` (`formatRelativeTime`): a small "last synced" label (for example "Cijene osvježene prije 2 h"), placed on the product detail prices, the watchlist header, and the shopping-list detail, reading each query's `dataUpdatedAt`.
-- Shopping-list item price states (`shopping-lists/[id]/utils/item-price-state.ts`): each unchecked item reads its own product lookup. A lookup React Query paused offline with nothing saved shows "Cijene nisu spremljene za izvanmrežni rad", a failed one "Cijene nisu dostupne" plus one list-level status banner whose button refetches only the failed EANs, and an upstream 404 or a product with no chain prices "Nema cijena u trgovinama" (a 404 is never asked again on focus, reconnect or remount). A failed lookup is not retried on remount either: it waits for the banner's retry button, and a refetch from window focus, or a retry pressed offline that React Query pauses until the connection returns, keeps the row failed until it answers. The "Cijene po trgovinama" summary shows its load error only while a row is failed, so a 404 or a bought item's failed lookup does not replace the store comparison. The store select stays focusable with `aria-disabled`, is named "Trgovina" plus its reason, and never opens. Bought items keep the prices saved with them, so they never show these states.
+- Shopping-list item price states (`shopping-lists/[id]/utils/item-price-state.ts`): each unchecked item reads its own product lookup. A lookup React Query paused offline with nothing saved shows "Cijene nisu spremljene za izvanmrežni rad", a failed one "Cijene nisu dostupne" plus one list-level status banner whose button refetches only the failed EANs, and an upstream 404 or a product with no chain prices "Nema cijena u trgovinama" (a 404 is never asked again on focus, reconnect or remount). A failed lookup is not retried on remount either: it waits for the banner's retry button, and a refetch from window focus, or a retry pressed offline that React Query pauses until the connection returns, keeps the row failed until it answers. The "Cijene po trgovinama" summary shows its load error only while a row is failed, so a 404 or a bought item's failed lookup does not replace the store comparison. The store select stays focusable with `aria-disabled`, is named "Trgovina" plus its reason, and never opens. Bought items keep the prices saved with them, so they never show these states. Plain items (no EAN, added by name) have no lookup at all, so they get no price state and show only "Bez cijene".
 
 ---
 
@@ -440,7 +444,7 @@ Read from `frontend/package.json`.
 - Android/desktop Chrome: the install banner/sidebar entry appears and the prompt works; installed app opens standalone with the white status bar.
 - iOS Safari: the instructions sheet opens; after Add to Home Screen, the app launches with a branded splash (not a white flash).
 - DevTools, Application, Manifest: no errors, icons and screenshots load, "Installability" passes.
-- App shortcuts: DevTools lists all four under Manifest with their icons resolving. On a phone, reinstall first (Android caches the WebAPK), then long-press the icon; Skeniraj should open the camera modal and land on the product page after a scan.
+- App shortcuts: DevTools lists every emitted shortcut under Manifest, in the order above, with their icons resolving. On a phone, reinstall first (Android caches the WebAPK), then long-press the icon; Skeniraj should open the camera modal and land on the product page after a scan.
 
 **Endpoints (against a running server):** `curl -s http://localhost:3000/manifest.webmanifest` (fields present), `curl -s http://localhost:3000/ | grep apple-touch-startup-image` (18 links in `<head>`), `curl -s http://localhost:3000/ | grep 'theme-color'` (`#ffffff`). The splash check only proves the links are in the server HTML; whether iOS actually shows the splash still needs a launch from the home screen on an iPhone, as in the install checks above.
 

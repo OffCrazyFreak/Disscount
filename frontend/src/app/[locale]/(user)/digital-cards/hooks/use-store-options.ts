@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import type {
@@ -9,19 +8,9 @@ import { useListChains } from "@/lib/cijene-api";
 import { storeNameService } from "@/lib/api";
 import { getChainLabel } from "@/utils/labels";
 import { normalizeForSearch } from "@/utils/strings";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const SUGGESTION_DEBOUNCE_MS = 250;
-
-function useDebouncedValue(value: string, delayMs: number): string {
-  const [debounced, setDebounced] = useState(value);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebounced(value), delayMs);
-    return () => clearTimeout(timer);
-  }, [value, delayMs]);
-
-  return debounced;
-}
 
 /** Autocomplete groups for the typed text: official chains, community names, then an "add" row. */
 export function useStoreOptions(query: string): IStoreGroup[] {
