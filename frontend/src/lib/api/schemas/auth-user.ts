@@ -62,7 +62,7 @@ export const userDtoSchema = z.object({
   username: z.string().nullable().optional(),
   acquisitionChannel: acquisitionChannelSchema.nullable().optional(),
   image: z.string().nullable().optional(),
-  email: z.email().nullable().optional(),
+  email: z.string().nullable().optional(),
   name: z.string().nullable().optional(),
   accountType: z.enum(["ADMIN", "CONSUMER", "ENTERPRISE", "PUBLIC_SECTOR"]),
   // Enable-timestamps (ISO strings); null = off. Drives the profile switches AND stats dashboards.
