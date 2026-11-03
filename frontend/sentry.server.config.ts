@@ -1,13 +1,14 @@
 // Sentry server (Node) init. Reuses the public DSN env var (same Sentry project as the
-// client); read at runtime so it can be set per-environment and no-ops when unset.
+// client), baked in at build time per environment; no-ops when unset.
 import * as Sentry from "@sentry/nextjs";
 
+import { clientEnv } from "@/lib/env";
 import { sentryScrubbingOptions } from "@/lib/sentry/scrub-sensitive-data";
 
 Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  dsn: clientEnv.NEXT_PUBLIC_SENTRY_DSN,
 
-  environment: process.env.SENTRY_ENVIRONMENT || undefined,
+  environment: clientEnv.SENTRY_ENVIRONMENT,
 
   tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
 

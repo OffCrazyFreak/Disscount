@@ -16,6 +16,10 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # ---- build: produce the Next.js standalone output ----
 FROM base AS build
+# sentry-cli reads the system CA store, which the slim image lacks; Node ships its own.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
