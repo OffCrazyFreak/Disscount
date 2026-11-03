@@ -24,6 +24,10 @@ export default async function PrivacyPolicyPage() {
     locale: DEFAULT_LOCALE,
     namespace: "privacyPolicy.ipAddresses",
   });
+  const tSecurityNotices = await getTranslations({
+    locale: DEFAULT_LOCALE,
+    namespace: "privacyPolicy.securityNotices",
+  });
 
   return (
     <LegalPage
@@ -43,7 +47,7 @@ export default async function PrivacyPolicyPage() {
       <LegalSection heading="Kako koristimo podatke">
         <p>
           Podatke koristimo za pružanje usluge, prijavu u tvoj račun, prikaz
-          tvojih popisa i postavki te slanje obavijesti koje si omogućio.
+          tvojih popisa i postavki te slanje obavijesti koje uključiš.
         </p>
       </LegalSection>
 
@@ -65,6 +69,10 @@ export default async function PrivacyPolicyPage() {
 
       <LegalSection heading={tIpAddresses("heading")}>
         <p>{tIpAddresses("body")}</p>
+      </LegalSection>
+
+      <LegalSection heading={tSecurityNotices("heading")}>
+        <p>{tSecurityNotices("body")}</p>
       </LegalSection>
 
       <LegalSection heading="Slike proizvoda">

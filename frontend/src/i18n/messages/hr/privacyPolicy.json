@@ -7,5 +7,9 @@
     "heading": "Praćenje grešaka",
     "collected": "Kad se u aplikaciji dogodi greška, tehničke podatke o njoj šaljemo Sentryju, našem izvršitelju obrade, koji ih čuva u Europskoj uniji: opis greške, preglednik i uređaj, adresu stranice i interni identifikator tvog računa. Sentry ne sprema tvoju IP adresu, ali iz veze može odrediti približnu lokaciju (državu, ponekad grad). Tvoje ime i email adresu ne dodajemo događajima, ali neuspjeli zahtjev za prijavu ili registraciju može sadržavati email adresu koju upišeš.",
     "replay": "Za mali dio posjeta i za posjete s greškom bilježimo i snimku sesije u kojoj su sav tekst i unosi prikriveni. Lozinke, tokene i kolačiće sesije uklanjamo prije slanja. Podatke koristimo samo za ispravljanje grešaka. Podatke Sentry čuva najviše 30 dana. Pravna osnova je legitimni interes (članak 6. stavak 1. točka (f) GDPR-a)."
+  },
+  "securityNotices": {
+    "heading": "Sigurnosne obavijesti",
+    "body": "Kad se promijeni lozinka tvog računa, šaljemo ti email s obaviješću. Kad promijeniš email adresu, obavijest šaljemo na staru adresu i u njoj navodimo novu. Tako možeš uočiti promjenu za koju ne znaš i odmah reagirati. Te obavijesti dio su zaštite računa pa ih ne možeš isključiti. Pravna osnova je legitimni interes (članak 6. stavak 1. točka (f) GDPR-a)."
   }
 }
