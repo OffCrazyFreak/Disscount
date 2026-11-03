@@ -3,6 +3,8 @@
 import { useDistanceOrigin } from "@/hooks/use-distance-origin";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useStoreDirectory } from "@/lib/api/store-directory";
+import { useStoreHoursNow } from "@/components/custom/store-hours/use-store-hours-now";
+import { openingOf } from "@/lib/store-hours/store-opening";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { useMapDefaults } from "@/app/[locale]/map/hooks/use-map-defaults";
 import {
@@ -18,10 +20,13 @@ import {
   resolveInitialView,
 } from "@/app/[locale]/map/utils/map-view";
 import { isVisitableStore } from "@/app/[locale]/map/utils/visitable-store";
+import { passesOpenFilter } from "@/app/[locale]/map/utils/open-filter";
+import { toStoreKey } from "@/utils/store-key";
 
 /** Everything the map page renders, derived from the data, the URL and the user. */
 export function useMapViewModel(ipLocation: IIpLocation | null) {
   const directory = useStoreDirectory();
+  const hours = useStoreHoursNow();
   const url = useMapUrlState();
   const geolocation = useGeolocation(ipLocation, { watchWhenAllowed: true });
   const { search } = useSearchNavigation("/map", { shallow: true });
@@ -39,7 +44,18 @@ export function useMapViewModel(ipLocation: IIpLocation | null) {
     ipLocation,
   );
 
+  // Until the hours load, the filter waits rather than emptying the list.
+  function keep(store: (typeof stores)[number]) {
+    if (!hours || url.openFilter === "off") return true;
+
+    return passesOpenFilter(
+      openingOf(toStoreKey(store.chain, store.code), hours),
+      url.openFilter,
+    );
+  }
+
   const { listed, mappable, unplacedCount } = useVisibleStores({
+    keep,
     stores,
     chains,
     query: url.query,
@@ -55,6 +71,9 @@ export function useMapViewModel(ipLocation: IIpLocation | null) {
     chainCodes: [...new Set(stores.map((store) => store.chain))],
     chains,
     query: url.query,
+    hours,
+    openFilter: url.openFilter,
+    setOpenFilter: url.setOpenFilter,
     listed,
     mappable,
     unplacedCount,

@@ -84,5 +84,9 @@
   "report": {
     "subject": "Falscher Standort eines Marktes",
     "message": "Markt: {store} ({id})\n\nWas stimmt nicht: "
+  },
+  "filters": {
+    "openNow": "Jetzt geöffnet",
+    "includeUnconfirmed": "Unbestätigte Öffnungszeiten einbeziehen"
   }
 }

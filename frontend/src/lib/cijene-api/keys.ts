@@ -47,6 +47,7 @@ export const CIJENE_QUERY_KEYS = {
   chainStats: ["cijene", "chain-stats"] as const,
   health: ["cijene", "health"] as const,
   storeDirectory: ["cijene", "store-directory"] as const,
+  storeHours: ["cijene", "store-hours"] as const,
   storesByChain: (chainCode: string) =>
     ["cijene", "stores", "chain", chainCode] as const,
   storeSearch: (params?: SearchStoresParams) =>

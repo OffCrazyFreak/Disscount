@@ -1,0 +1,18 @@
+{
+  "status": {
+    "open": "Odprto",
+    "closingSoon": "Kmalu se zapre",
+    "closed": "Zaprto",
+    "unconfirmed": "Delovni čas ni potrjen"
+  },
+  "closesAt": "zapre ob {time}",
+  "opensAt": "odpre {day, select, today {ob {time}} tomorrow {jutri ob {time}} mon {v ponedeljek ob {time}} tue {v torek ob {time}} wed {v sredo ob {time}} thu {v četrtek ob {time}} fri {v petek ob {time}} sat {v soboto ob {time}} other {v nedeljo ob {time}}}",
+  "asOf": "Podatki z dne {date}",
+  "source": {
+    "chain": "Vir: {chain}",
+    "osm": "Vir: OpenStreetMap (podatki skupnosti)"
+  },
+  "check": "Preveri",
+  "checkLabel": "Preveri delovni čas na strani trgovine (odpre se v novem zavihku)",
+  "changed": "{store}: {status}"
+}

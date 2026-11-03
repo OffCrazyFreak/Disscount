@@ -2,6 +2,7 @@
 
 import MapSearch from "@/app/[locale]/map/components/map-search";
 import MapChainSelect from "@/app/[locale]/map/components/map-chain-select";
+import MapOpenFilter from "@/app/[locale]/map/components/map-open-filter";
 import ResultCountStatus from "@/app/[locale]/map/components/result-count-status";
 import NearMeButton from "@/app/[locale]/map/components/near-me-button";
 import RecentSearches from "@/app/[locale]/map/components/recent-searches";
@@ -46,6 +47,8 @@ export default function MapPanel({
         selected={model.chains}
         onChange={model.setChainFilter}
       />
+
+      <MapOpenFilter filter={model.openFilter} onChange={model.setOpenFilter} />
 
       <NearMeButton
         status={model.geolocation.status}

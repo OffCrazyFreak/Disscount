@@ -1,0 +1,18 @@
+{
+  "status": {
+    "open": "Geöffnet",
+    "closingSoon": "Schließt bald",
+    "closed": "Geschlossen",
+    "unconfirmed": "Öffnungszeiten nicht bestätigt"
+  },
+  "closesAt": "schließt um {time}",
+  "opensAt": "öffnet {day, select, today {um {time}} tomorrow {morgen um {time}} mon {Montag um {time}} tue {Dienstag um {time}} wed {Mittwoch um {time}} thu {Donnerstag um {time}} fri {Freitag um {time}} sat {Samstag um {time}} other {Sonntag um {time}}}",
+  "asOf": "Stand: {date}",
+  "source": {
+    "chain": "Quelle: {chain}",
+    "osm": "Quelle: OpenStreetMap (Community-Daten)"
+  },
+  "check": "Prüfen",
+  "checkLabel": "Prüfe die Öffnungszeiten auf der Seite des Geschäfts (öffnet sich in einem neuen Tab)",
+  "changed": "{store}: {status}"
+}

@@ -2,6 +2,12 @@
 
 import { useSearchParams } from "next/navigation";
 
+import {
+  type OpenFilter,
+  openFilterOf,
+  openParamOf,
+} from "@/app/[locale]/map/utils/open-filter";
+
 export const ALL_CHAINS = "all" as const;
 
 type HistoryMode = "push" | "replace";
@@ -35,6 +41,7 @@ export function useMapUrlState() {
   const selectedKey = searchParams.get("store");
   const chainParam = searchParams.get("chain");
   const query = searchParams.get("q") ?? "";
+  const openFilter = openFilterOf(searchParams.get("open"));
 
   const picked = chainParam?.split(",").filter(Boolean) ?? [];
 
@@ -71,5 +78,22 @@ export function useMapUrlState() {
     }, "replace");
   }
 
-  return { selectedKey, chainFilter, query, selectStore, setChainFilter };
+  function setOpenFilter(filter: OpenFilter) {
+    writeParams((params) => {
+      const value = openParamOf(filter);
+
+      if (value) params.set("open", value);
+      else params.delete("open");
+    }, "replace");
+  }
+
+  return {
+    selectedKey,
+    chainFilter,
+    query,
+    openFilter,
+    selectStore,
+    setChainFilter,
+    setOpenFilter,
+  };
 }

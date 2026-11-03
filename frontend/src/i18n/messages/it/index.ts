@@ -16,6 +16,7 @@ import products from "./products.json";
 import scanner from "./scanner.json";
 import settings from "./settings.json";
 import shell from "./shell.json";
+import storeHours from "./storeHours.json";
 import shoppingListDetail from "./shoppingListDetail.json";
 import shoppingLists from "./shoppingLists.json";
 import spending from "./spending.json";
@@ -44,6 +45,7 @@ const messages = {
   scanner,
   settings,
   shell,
+  storeHours,
   shoppingListDetail,
   shoppingLists,
   spending,

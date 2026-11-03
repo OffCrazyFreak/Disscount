@@ -84,5 +84,9 @@
   "report": {
     "subject": "Posizione del negozio sbagliata",
     "message": "Negozio: {store} ({id})\n\nCosa non va: "
+  },
+  "filters": {
+    "openNow": "Aperto ora",
+    "includeUnconfirmed": "Includi orari non confermati"
   }
 }
