@@ -131,13 +131,13 @@ The white is part of the file on purpose. Dark Reader's default mode recolours C
 
 **Direct URLs, no image optimizer.** The backend answers with absolute URLs on `R2_PUBLIC_URL` (`R2ProductImageStore.publicUrl`). The browser loads them with a plain `<img>` in `PhotoTile` (`components/custom/product-photos/photo-tile.tsx`), never `next/image`, so no request goes through our servers and `next.config.ts` needs no `images` setting. The files are already the right sizes and formats, so an optimizer would only add a hop.
 
-| Where                                  | File used                   | How it gets the URL                                                                                                                                 |
-| -------------------------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Product page gallery, main tile        | `thumbUrl` (400 px)         | `useProductImages(ean)` in the browser, `GET /api/products/{ean}/images` through the backend proxy                                                  |
-| Product page gallery, thumbnails strip | `thumbUrl`                  | Same response                                                                                                                                       |
-| Viewer (lightbox)                      | `fullUrl` (1080 px)         | Same response                                                                                                                                       |
-| `ProductCard` in lists, modal header   | thumbnail                   | `useProductThumbnail(ean)`; `thumbnail-batcher.ts` gathers every ask within 15 ms into one `GET /api/products/images/thumbnails?eans=` of up to 100 |
-| `og:image`, Twitter card, JSON-LD      | `fullUrl` of the main photo | `getMainPhotoUrl` on the server (`lib/api/product-images/server.ts`), 3 second timeout, `null` on any failure                                       |
+| Where                                          | File used                   | How it gets the URL                                                                                                                                 |
+| ---------------------------------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Product page gallery, main tile                | `thumbUrl` (400 px)         | `useProductImages(ean)` in the browser, `GET /api/products/{ean}/images` through the backend proxy                                                  |
+| Product page gallery, thumbnails strip         | `thumbUrl`                  | Same response                                                                                                                                       |
+| Viewer (lightbox)                              | `fullUrl` (1080 px)         | Same response                                                                                                                                       |
+| Product rows, shopping list rows, modal header | thumbnail                   | `useProductThumbnail(ean)`; `thumbnail-batcher.ts` gathers every ask within 15 ms into one `GET /api/products/images/thumbnails?eans=` of up to 100 |
+| `og:image`, Twitter card, JSON-LD              | `fullUrl` of the main photo | `getMainPhotoUrl` on the server (`lib/api/product-images/server.ts`), 3 second timeout, `null` on any failure                                       |
 
 The gallery is fetched in the browser, not seeded by the server render, so the server HTML of a product page shows a skeleton where the photo goes. Only the share image and JSON-LD use the photo on the server, and they fall back to the brand OG image when there is none.
 
@@ -154,6 +154,8 @@ The gallery is fetched in the browser, not seeded by the server render, so the s
 **CSP.** `img-src 'self' data: blob: https:` in `frontend/src/utils/content-security-policy.ts` already allows any `https:` image, so the bucket's domain needs no entry. The admin crop screen shows the private original as a `blob:` URL, which the same rule allows.
 
 **Loading.** The main tile loads `eager`; every other tile is `lazy` with `decoding="async"`. Alt text is `productPhotos.photo.alt` with the product name.
+
+**List thumbnails.** `ProductThumbnail` (`components/custom/product-photos/product-thumbnail.tsx`) is the photo box of every row that lists products: search results (list view, and the grid view too once its switcher returns, #61), watchlist rows and the quick actions sheet (all through `ProductSummary`, which shows it when given an `ean`), and shopping list rows (`items/item-photo.tsx`). It keeps a fixed square from the first render (48 px, 64 px in product rows from a 28rem container, 40 px and 48 px on shopping list rows), so nothing shifts when the photo arrives. While the thumbnail request runs the box is plain `bg-muted`; afterwards it shows the photo, or a `Package` icon on `bg-muted` when there is none: no photo for the EAN, photos switched off, a typed shopping list item without an EAN, a failed request (offline included), or an image that fails to load (`onError` on the `<img>`, so no broken image icon; a change in connection tries the file again). The image is `lazy`, so rows below the fold load their file only when scrolled near, and its alt is empty because the product name sits beside it. A ticked off shopping list item fades its photo with its struck through name.
 
 ---
 
@@ -217,7 +219,7 @@ The browser reaches all of them through the backend proxy ([BACKEND-PROXY.md](BA
 | Suite             | What it covers                                                                                                                                                                                                                                                                                                 |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Backend (H2)      | `ProductImageRendererTest`, `ProductImageServiceTest`, `ProductImageControllerTest`, `ProductImageWireFormatTest`, `ProductImageJobsTest`, `ProductImageJobsRenderTest`, `ProductImageJobsStaleWriteTest`, `CatalogArchiveReaderTest`, `OpenFoodFactsParsingTest`, with `FakeProductImageStore` in place of R2 |
-| Frontend (Vitest) | `crop-math.test.ts`, `product-images/hooks.test.tsx`, `product-photo-gallery.test.tsx`, `use-queue-keys.test.tsx`                                                                                                                                                                                              |
+| Frontend (Vitest) | `crop-math.test.ts`, `product-images/hooks.test.tsx`, `product-thumbnail.test.tsx` (one request per list, the placeholder for no photo, a typed item, a failed request, a broken image, and the retry after reconnecting), `product-photo-gallery.test.tsx`, `use-queue-keys.test.tsx`                         |
 
 Not covered by tests: a real upload to R2, the real Open Food Facts export, and how photos look under dark mode extensions; those need a manual check.
 
@@ -233,7 +235,7 @@ Not covered by tests: a real upload to R2, the real Open Food Facts export, and 
 | `backend/.../productImage/catalog/`                              | cijene archive reader and import                                         |
 | `backend/.../productImage/storage/`                              | `ProductImageStore`, the R2 and disabled stores, their config            |
 | `backend/.../storage/R2Clients.java`                             | The S3 client both buckets use                                           |
-| `frontend/src/components/custom/product-photos/`                 | Tile, viewer, upload, admin editor, crop                                 |
+| `frontend/src/components/custom/product-photos/`                 | Tile, list thumbnail, viewer, upload, admin editor, crop                 |
 | `frontend/src/app/[locale]/products/components/product-photos/`  | The product page gallery                                                 |
 | `frontend/src/app/[locale]/dashboard/components/product-photos/` | The review queue                                                         |
 | `frontend/src/lib/api/product-images/`                           | Fetchers, hooks, thumbnail batcher, server helpers                       |
@@ -332,5 +334,4 @@ A successful copy clears `render_attempts` and `render_retry_at`.
 - #464: store product photo originals in their own private R2 bucket, not the card photo bucket.
 - Contribute user photos back to Open Food Facts (their API accepts end-user photos), which would grow coverage of Croatian products.
 - Seed the gallery from the server render, so the first HTML shows the photo instead of a skeleton.
-- Thumbnails on shopping list rows, which do not use `ProductCard`.
 - Moving avatars from Postgres base64 to the public bucket (decided, separate PR).

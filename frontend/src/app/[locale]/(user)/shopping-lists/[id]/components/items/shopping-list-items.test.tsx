@@ -32,7 +32,13 @@ vi.mock(
 );
 
 // Radix measures the select trigger, and jsdom has no ResizeObserver.
+// Every row also asks for its photo; ProductThumbnail has its own tests.
 beforeEach(() => {
+  server.use(
+    http.get("*/api/products/images/thumbnails", () =>
+      HttpResponse.json({ thumbnails: {} }),
+    ),
+  );
   vi.stubGlobal(
     "ResizeObserver",
     class {
