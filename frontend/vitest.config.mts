@@ -20,6 +20,9 @@ export default defineConfig({
     unstubEnvs: true,
     unstubGlobals: true,
     setupFiles: ["./src/test/setup.ts"],
+    // next-intl imports next/navigation and next/server without a file extension, which
+    // only resolves once Vite transforms it instead of Node loading it directly.
+    server: { deps: { inline: ["next-intl"] } },
     coverage: {
       provider: "v8",
       include: ["src/**/*.{ts,tsx}"],
@@ -59,9 +62,6 @@ export default defineConfig({
           environment: "jsdom",
           include: ["src/**/*.test.tsx"],
           setupFiles: ["./src/test/setup-dom.ts"],
-          // next-intl imports next/navigation without a file extension, which only
-          // resolves once Vite transforms it instead of Node loading it directly.
-          server: { deps: { inline: ["next-intl"] } },
         },
       },
     ],
