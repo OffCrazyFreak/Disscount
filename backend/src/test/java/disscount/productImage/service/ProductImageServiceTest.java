@@ -23,6 +23,7 @@ import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
 import disscount.productImage.off.OffProductPhotos;
 import disscount.productImage.off.OpenFoodFactsClient;
 import disscount.user.service.UserService;
+import disscount.util.Timestamps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,7 @@ class ProductImageServiceTest {
     @Autowired ProductImageReportRepository reports;
     @Autowired FakePhotoStore originals;
     @Autowired FakeProductImageStore publicStore;
+    @Autowired OffCandidateWriter candidates;
     @MockBean UserService userService;
     @MockBean OpenFoodFactsClient off;
 
@@ -269,6 +271,39 @@ class ProductImageServiceTest {
 
         assertThat(queries.thumbnails(List.of(EAN, "5449000000996")).thumbnails()).containsOnlyKeys(EAN);
         assertThatThrownBy(() -> queries.thumbnails(List.of("abc"))).hasMessage("error.productImage.invalidEan");
+    }
+
+    @Test
+    void aHiddenUncopiedFrontComesBackWhenOpenFoodFactsHasANewVersion() {
+        ProductImage front = candidate("front_hr", "4", "hr");
+        front.setStatus(ImageStatus.HIDDEN);
+        front.setRenderRetryAt(Timestamps.nowUtc().plusHours(1));
+        images.save(front);
+
+        candidates.upsert(EAN, "front_hr", "4", "hr");
+        assertThat(images.findById(front.getId())).get().extracting(ProductImage::getStatus).isEqualTo(ImageStatus.HIDDEN);
+
+        candidates.upsert(EAN, "front_hr", "5", "hr");
+        assertThat(images.findById(front.getId())).get().satisfies(i -> {
+            assertThat(i.getStatus()).isEqualTo(ImageStatus.CANDIDATE);
+            assertThat(i.getExternalRev()).isEqualTo("5");
+            assertThat(i.getRenderRetryAt()).isNull();
+        });
+    }
+
+    @Test
+    void aHiddenCopiedPhotoStaysHiddenWhenOpenFoodFactsHasANewVersion() {
+        ProductImage front = candidate("front_hr", "4", "hr");
+        when(off.download(anyString())).thenReturn(TestImages.jpeg(300, 200));
+        admin.setMain(adminId, EAN, front.getId());
+        admin.setStatus(adminId, front.getId(), "HIDDEN");
+
+        candidates.upsert(EAN, "front_hr", "5", "hr");
+
+        assertThat(images.findById(front.getId())).get().satisfies(i -> {
+            assertThat(i.getStatus()).isEqualTo(ImageStatus.HIDDEN);
+            assertThat(i.getExternalRev()).isEqualTo("4");
+        });
     }
 
     @Test

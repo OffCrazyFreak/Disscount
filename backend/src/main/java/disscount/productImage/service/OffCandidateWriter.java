@@ -19,9 +19,13 @@ class OffCandidateWriter {
         Optional<ProductImage> existing = images.findByEanAndSourceAndExternalKey(ean, ImageSource.OPEN_FOOD_FACTS, externalKey);
         if (existing.isPresent()) {
             ProductImage image = existing.get();
-            // A copied photo keeps the revision it was rendered from; only an untouched candidate follows Open Food Facts.
-            if (image.getStatus() == ImageStatus.CANDIDATE && rev != null && !rev.equals(image.getExternalRev())) {
+            // A copied photo keeps the revision it was rendered from; one not copied yet follows Open Food Facts.
+            if (image.isRendered() || rev == null || rev.equals(image.getExternalRev())) return;
+            if (image.getStatus() == ImageStatus.CANDIDATE || image.getStatus() == ImageStatus.HIDDEN) {
+                // A new revision is a different photo, so one hidden as unreadable or rejected gets a fresh chance.
                 image.setExternalRev(rev);
+                image.setStatus(ImageStatus.CANDIDATE);
+                image.setRenderRetryAt(null);
                 images.save(image);
             }
             return;
