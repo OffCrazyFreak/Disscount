@@ -93,11 +93,11 @@
     "label": "Obavijesti me kad",
     "absolute": {
       "label": "Cijena padne za €",
-      "description": "Javimo ti kad cijena padne za tvoj iznos"
+      "description": "Javit ćemo ti kad cijena padne za tvoj iznos"
     },
     "percentage": {
       "label": "Popust je najmanje %",
-      "description": "Javimo ti kad popust dosegne tvoj postotak"
+      "description": "Javit ćemo ti kad popust dosegne tvoj postotak"
     }
   },
   "actions": {

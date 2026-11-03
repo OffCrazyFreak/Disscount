@@ -50,7 +50,7 @@
     "hint": "Odaberi kako, o čemu i kada želiš primati obavijesti o popustima i novostima.",
     "push": {
       "label": "Dopusti obavijesti aplikacije",
-      "description": "Javimo ti popuste samo za proizvode koje pratiš, bez spama."
+      "description": "Javit ćemo ti popuste samo za proizvode koje pratiš, bez spama."
     },
     "email": {
       "label": "Dopusti email obavijesti",

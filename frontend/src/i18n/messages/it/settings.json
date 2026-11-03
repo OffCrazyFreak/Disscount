@@ -144,7 +144,7 @@
     },
     "done": {
       "title": "Disscount è pronto per te.",
-      "text": "Tocca «Fine» e salviamo le tue scelte. Puoi cambiare tutto più tardi nelle impostazioni."
+      "text": "Seleziona «Fine» e salviamo le tue scelte. Puoi cambiare tutto più tardi nelle impostazioni."
     }
   },
   "security": {
@@ -199,7 +199,7 @@
       "revokeDialogTitle": "Uscire dagli altri dispositivi?",
       "revokeDialogDescription": "Ti disconnetteremo da tutti i dispositivi tranne questo.",
       "deleteDialogTitle": "Eliminare l'account?",
-      "deleteDialogDescription": "Eliminiamo per sempre il tuo account e tutti i dati. Non puoi annullare.",
+      "deleteDialogDescription": "Eliminiamo per sempre il tuo account e tutti i dati. Non puoi annullare l'operazione.",
       "revokeFailed": "Non siamo riusciti a disconnettere gli altri dispositivi. Riprova.",
       "revoked": "Gli altri dispositivi sono disconnessi.",
       "deleted": "Account eliminato.",

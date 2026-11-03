@@ -137,7 +137,7 @@
       },
       "sync": {
         "title": "Sinkronizacija kad se vratiš",
-        "description": "Što promijeniš offline, spremi se čim se vratiš na mrežu."
+        "description": "Što promijeniš offline, sprema se čim se vratiš na mrežu."
       }
     }
   },
