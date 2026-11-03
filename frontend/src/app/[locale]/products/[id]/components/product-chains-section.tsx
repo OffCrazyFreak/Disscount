@@ -14,9 +14,9 @@ import DistanceSortNote from "@/components/custom/distance-sort/distance-sort-no
 import type { useProductDetail } from "@/app/[locale]/products/[id]/hooks/use-product-detail";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import {
-  getProductStoresOpen,
-  setProductStoresOpen,
-} from "@/utils/browser/local-storage";
+  updateProductPreferences,
+  useProductPreferences,
+} from "@/app/[locale]/products/[id]/hooks/use-product-preferences";
 
 interface IProductChainsSectionProps {
   ean: string;
@@ -31,7 +31,7 @@ export default function ProductChainsSection({
   detail,
 }: IProductChainsSectionProps) {
   const t = useTranslations("productDetail.chains");
-  const [isOpen, setIsOpen] = useState(() => getProductStoresOpen(ean));
+  const { storesOpen = true } = useProductPreferences(ean);
   const [expandedChain, setExpandedChain] = useState<string | null>(null);
   const sortNoteId = useId();
 
@@ -40,14 +40,13 @@ export default function ProductChainsSection({
   }, []);
 
   function handleToggleSection(open: boolean) {
-    setIsOpen(open);
-    setProductStoresOpen(ean, open);
+    updateProductPreferences(ean, { storesOpen: open });
   }
 
   return (
     <CollapsibleSection
       title={t("title")}
-      open={isOpen}
+      open={storesOpen}
       onOpenChange={handleToggleSection}
     >
       {detail.pricesUpdatedAt > 0 && (
