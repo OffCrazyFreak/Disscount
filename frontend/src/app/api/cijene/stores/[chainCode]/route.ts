@@ -9,7 +9,7 @@ const chainCodeParamSchema = z.object({
 });
 
 export async function GET(
-  _request: Request,
+  request: Request,
   context: RouteContext<"/api/cijene/stores/[chainCode]">,
 ) {
   const parsed = chainCodeParamSchema.safeParse(await context.params);
@@ -23,7 +23,10 @@ export async function GET(
 
   const { chainCode } = parsed.data;
 
-  return withCijeneRoute("stores for chain", listStoresResponseSchema, () =>
-    cijeneApiV1Client.get(`/${encodeURIComponent(chainCode)}/stores/`),
+  return withCijeneRoute(
+    request,
+    "stores for chain",
+    listStoresResponseSchema,
+    () => cijeneApiV1Client.get(`/${encodeURIComponent(chainCode)}/stores/`),
   );
 }

@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  return withCijeneRoute("products", productSearchResponseSchema, () =>
+  return withCijeneRoute(request, "products", productSearchResponseSchema, () =>
     searchProductsWithFuzzyFallback(parsed.data),
   );
 }
