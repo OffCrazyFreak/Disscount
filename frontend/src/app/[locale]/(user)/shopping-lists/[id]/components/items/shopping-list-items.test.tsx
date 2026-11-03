@@ -2,11 +2,15 @@ import type { ReactNode } from "react";
 import type { ComponentProps } from "react";
 import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { QueryClient } from "@tanstack/react-query";
+import { http, HttpResponse } from "msw/http";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import ShoppingListItems from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-items";
 import type { ItemPriceState } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
+import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
+import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
 
@@ -382,5 +386,77 @@ describe("ShoppingListItems focus", () => {
 
     const [, noPrices] = screen.getAllByRole("combobox");
     await waitFor(() => expect(noPrices).toHaveFocus());
+  });
+});
+
+describe("ShoppingListItems default store", () => {
+  const konzumPrices: IListPrices = {
+    cheapestStores: { a: "konzum" },
+    storePrices: { a: { konzum: 1.5, lidl: 1.8 } },
+  };
+
+  // The list sits in the cache as it does on the page, so a write has an item to send.
+  function renderCachedList(items: ShoppingListItemDto[]) {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
+    queryClient.setQueryData(SHOPPING_LIST_QUERY_KEYS.byId("list-1"), {
+      id: "list-1",
+      items,
+    });
+
+    const writes: unknown[] = [];
+    server.use(
+      http.put("*/api/shopping-lists/list-1/items/a", async ({ request }) => {
+        const body = await request.json();
+        writes.push(body);
+
+        return HttpResponse.json({ ...items[0], ...(body as object) });
+      }),
+      http.get("*/api/shopping-lists/*", () =>
+        HttpResponse.json({ id: "list-1", items }),
+      ),
+    );
+
+    renderWithProviders(
+      listItems(items, { a: "ready" }, undefined, konzumPrices),
+      { queryClient },
+    );
+
+    return writes;
+  }
+
+  it("shows the cheapest store without saving it", async () => {
+    const writes = renderCachedList([item("a")]);
+
+    expect(screen.getByRole("combobox")).toHaveTextContent("Konzum");
+    await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
+    expect(writes).toEqual([]);
+  });
+
+  it("keeps a store the item already has", () => {
+    renderCachedList([item("a", { chainCode: "lidl" })]);
+
+    expect(screen.getByRole("combobox")).toHaveTextContent("Lidl");
+  });
+
+  it("saves the shown store and its price when the item is ticked", async () => {
+    const user = userEvent.setup();
+    const writes = renderCachedList([item("a")]);
+
+    await user.click(screen.getByRole("checkbox"));
+
+    await waitFor(() =>
+      expect(writes).toEqual([
+        expect.objectContaining({
+          isChecked: true,
+          chainCode: "konzum",
+          storePrice: 1.5,
+        }),
+      ]),
+    );
   });
 });
