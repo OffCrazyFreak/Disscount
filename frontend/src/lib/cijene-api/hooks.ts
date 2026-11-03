@@ -71,8 +71,6 @@ export function useAllLocations() {
 }
 
 import { useQueries } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
-import { formatDate } from "@/utils/strings";
 import { HistoryDataPoint } from "@/lib/cijene-api/history-data-point";
 import type { IUsePriceHistoryArgs } from "@/lib/cijene-api/hooks-types";
 import { buildDateWindow } from "@/utils/date";
@@ -88,7 +86,6 @@ import { priceHistoryQueries } from "@/lib/cijene-api/price-history-queries";
  */
 
 export function usePriceHistory({ ean, days = 7 }: IUsePriceHistoryArgs) {
-  const locale = useLocale();
   const dates = useMemo(
     () => buildDateWindow(days, PRICE_ARCHIVE_START),
     [days],
@@ -115,11 +112,11 @@ export function usePriceHistory({ ean, days = 7 }: IUsePriceHistoryArgs) {
         });
       }
 
-      return product ? [{ date: formatDate(date, locale), product }] : [];
+      return product ? [{ date, product }] : [];
     });
 
     return { data: rows, chains: Array.from(chainSet) };
-  }, [queries, dates, locale]);
+  }, [queries, dates]);
 
   return { data, chains, isLoading, isError };
 }

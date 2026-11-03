@@ -65,6 +65,24 @@ describe("usePriceHistory", () => {
     expect(result.current.data).toHaveLength(dates.length);
   });
 
+  it("hands the chart raw dates, which the chart formats per locale", () => {
+    const queryClient = newQueryClient();
+    const dates = buildDateWindow(7, PRICE_ARCHIVE_START);
+    for (const date of dates) {
+      queryClient.setQueryData(
+        CIJENE_QUERY_KEYS.priceHistory(EAN, date),
+        PRODUCT,
+      );
+    }
+
+    const { result } = renderHookWithProviders(
+      () => usePriceHistory({ ean: EAN, days: 7 }),
+      { queryClient },
+    );
+
+    expect(result.current.data.map((row) => row.date)).toEqual(dates);
+  });
+
   it("reports an error when a day has nothing cached to fall back on", async () => {
     failEveryDay();
 
