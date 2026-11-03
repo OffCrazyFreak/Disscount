@@ -116,6 +116,7 @@ flowchart LR
 - Server builds now take **8 to 11 minutes** of CPU plus the 4 GB swap, competing with the live containers; that is why dev moved off them first.
 - **Images are public** on GHCR (the repo is source-available anyway), so the server needs no registry login. `frontend/.dockerignore` keeps every `.env*` file out, and the Sentry auth token reaches the build only as a BuildKit secret, never as a layer.
 - Each environment is **fully isolated:** its own containers **and its own database/volume**. Dev data never touches prod data.
+- **GitHub Actions minutes:** the repository is public and every job runs on `ubuntu-latest`, so GitHub does not bill them and they do not use the account's 2,000 included minutes (on 3 November 2026 Disscount had run 4,028 minutes that month, all discounted to $0). Making the repository private, or moving a job to a larger or non-Linux runner, would start billing at that pace.
 - **CI gate before merge:** every push and PR runs `.github/workflows/ci.yml` (frontend typecheck + unit tests + lint + Fallow audit + translation catalog check + format + a real `next build`, skipped on `dev` pushes where the image build compiles the same code, plus a backend `mvn -B verify`, which compiles, packages and runs the backend tests). `main` is branch-protected, so a PR into `main` cannot merge until **Frontend checks** and **Backend checks** pass. The image jobs on `dev` run only after these checks pass.
 
 > **After a deploy, open tabs offer the new version** with a "Dostupna je nova verzija Disscounta." toast and an Osvježi button, instead of needing a hard refresh. A tab that asks for a chunk the new build no longer has reloads itself once, and on images built in CI (`dev`) `deploymentId` turns a navigation from an older build into a full page load. See [`PWA.md`](PWA.md#5-offline-reads-caching-and-persistence). A hard refresh (Ctrl/Cmd+Shift+R) is still the quick way to skip the prompt.
@@ -333,6 +334,14 @@ Traffic is encrypted in transit (Cloudflare to the browser, Traefik's certificat
 - **Alerts:** Dokploy, Settings, Notifications (Resend) emails you on **deploy failures**. Per-backup notifications are intentionally **off** (Dokploy fires one on _every_ backup = daily spam), see [Monitoring](#9-monitoring--alerts) for how to catch a _failed_ backup instead.
 - **Personal data in dumps:** the dumps include the auth tables, so a session row or address the app already removed survives in a backup until that backup rotates out (30 days off-site, 60 at most through the R2 rule, 7 locally).
 - ✅ **Restore-tested:** confirmed a dump restores cleanly (all tables + rows) into a throwaway container.
+
+### Measured on 3 November 2026, and the decided plan
+
+- **Sizes:** the production database is about 10 MB and one dump is about 250 KB, growing about 1.4% a month. Of the 799 MB in `disscount-backups`, about 792 MB are the seven Dokploy config zips (about 113 MB each, mostly the cloned repositories under `/etc/dokploy/compose` with their `.git` folders); the dumps are about 7 MB.
+- **Known issues:** the config zip also contains `/etc/dokploy/ssh` and the env vars, unencrypted (see "What is encrypted and why"). In R2 the dumps sit under `disscount-production-xj4ce0_db/disscount-prod/` and the zips under `backup-synthesize-online-application-mqp1vu/dokploy/`, so check that the two lifecycle rules match those full prefixes, otherwise they delete nothing. Only production is backed up; dev holds test data and stays unbacked by decision. A dump is checked by nothing after it is written, and the restore test above has no date.
+- **R2 has no versioning and Cloudflare documents no recovery of deleted objects**, so the card photo and product originals buckets have no copy today; a deletion bug or a leaked key would lose them.
+- **Decided by the owner (not built yet):** dump the database **hourly, keep 48**, plus **nightly, keep 30**, and ping a **healthchecks.io** check from every backup job so a missing run emails the owner. WAL archiving was rejected for now: it ships whole 16 MB segments, which at this size costs more storage than hourly dumps for little gain.
+- **Still being decided:** where photos live and where their off-site copy goes (R2 primary with a locked copy at Backblaze B2 EU, or the server as primary with R2 as the backup), with a 35-day lock either way.
 
 > ⚠️ Do **NOT** use Dokploy **Volume Backups** for Postgres: copying the live data volume risks a corrupt backup (it'd need to stop the DB). The `pg_dump` approach above is the correct one.
 
@@ -576,11 +585,11 @@ These are the things that actually cost us time, worth remembering:
 
 **Reliability / ops**
 
-- [ ] **Hetzner snapshots** (whole-VM image) in addition to DB backups.
+- [ ] **Hetzner server backups** (whole-VM images, 7 slots, about 20% of the server price): decided for later, once the app has about 1,000 real users.
 - [ ] Move **production** to the image path (build in GitHub Actions, push to GHCR, Dokploy pulls), as `dev` already does ([§4](#4-how-a-deploy-works-git-to-live), [#74](https://github.com/OffCrazyFreak/Disscount/issues/74)). Once dev has run clean for a week: a `prod` GitHub environment with the production values, the image and deploy jobs extended to `main`, a member user and key for the production service, then `docker-compose.prod.yml` deleted.
 - [ ] Consider **Flyway/Liquibase** instead of Hibernate `ddl-auto=update` for safer prod schema changes.
 - [ ] **Cloudflare DNS-01 challenge** in Traefik (a Cloudflare API token) so certs renew without relying on inbound HTTP through the proxy, more robust now that all domains are proxied.
-- [ ] **Backup-failure alerting** (dead-man's switch, e.g. healthchecks.io), since per-backup notifications are off to avoid spam.
+- [ ] **Backup-failure alerting** with healthchecks.io (decided 3 November 2026), since per-backup notifications are off to avoid spam.
 
 **Product / auth**
 
