@@ -24,7 +24,7 @@ _Written against the `feat/digital-cards-rebuild` branch. This is the rebuild; t
 12. [Key files](#12-key-files)
 13. [Config and env vars](#13-config-and-env-vars)
 14. [Libraries](#14-libraries)
-15. [What is automatic vs manual](#15-whats-automatic-vs-manual)
+15. [What is automatic vs manual](#15-what-is-automatic-vs-manual)
 16. [Tests](#16-tests)
 17. [Gotchas and lessons learned](#17-gotchas--lessons-learned)
 18. [Future improvements and TODOs](#18-future-improvements--todos)
@@ -374,16 +374,16 @@ Other settings that matter: `spring.servlet.multipart.max-file-size=512KB` and `
 
 Versions read from `frontend/package.json` and `backend/pom.xml`.
 
-| Library                                        | Version            | Role here                                                                                   |
-| ---------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------- |
-| `@bwip-js/browser`                             | `^4.11.4`          | Draws barcodes and QR codes as SVG, in the browser, with no server round trip               |
-| `@base-ui/react`                               | `^1.9.0`           | The headless Autocomplete primitive behind the store field, via the reui registry component |
-| `vitest`                                       | `^5.0.3` (dev)     | Frontend unit tests, `pnpm test`                                                            |
-| `idb-keyval`                                   | `^6.2.5`           | IndexedDB stores for photo blobs, the photo outbox and the last-used queue                  |
-| `@tanstack/react-query` and persist client     | see `package.json` | The persisted cache and paused mutations                                                    |
-| `software.amazon.awssdk:bom`                   | `2.55.14` (import) | Pins the AWS SDK v2 versions                                                                |
-| `software.amazon.awssdk:s3`                    | from the BOM       | The S3 client used against R2 (Netty and Apache clients excluded)                           |
-| `software.amazon.awssdk:url-connection-client` | from the BOM       | The small HTTP client the S3 client uses                                                    |
+| Library                                        | Version                | Role here                                                                                   |
+| ---------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------- |
+| `@bwip-js/browser`                             | `^4.11.4`              | Draws barcodes and QR codes as SVG, in the browser, with no server round trip               |
+| `@base-ui/react`                               | `^1.9.0`               | The headless Autocomplete primitive behind the store field, via the reui registry component |
+| `vitest`                                       | `^5.0.3` (dev)         | Frontend unit tests, `pnpm test`                                                            |
+| `idb-keyval`                                   | `^6.2.5`               | IndexedDB stores for photo blobs, the photo outbox and the last-used queue                  |
+| `@tanstack/react-query` and persist client     | see `package.json`     | The persisted cache and paused mutations                                                    |
+| `software.amazon.awssdk:bom`                   | see `pom.xml` (import) | Pins the AWS SDK v2 versions                                                                |
+| `software.amazon.awssdk:s3`                    | from the BOM           | The S3 client used against R2 (Netty and Apache clients excluded)                           |
+| `software.amazon.awssdk:url-connection-client` | from the BOM           | The small HTTP client the S3 client uses                                                    |
 
 The store field's Autocomplete came from the reui registry (`@reui` in `frontend/components.json`) into `components/reui/autocomplete.tsx`. `components/ui/scroll-area.tsx` was added the same way.
 
