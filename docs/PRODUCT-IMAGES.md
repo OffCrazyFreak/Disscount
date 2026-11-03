@@ -174,7 +174,7 @@ The gallery is fetched in the browser, not seeded by the server render, so the s
 
 The browser side (decode, resize to a 2048 px long edge, JPEG at 0.82 stepping down until under 480 KB, white behind transparency, metadata stripped by the re-encode) is shared with avatars and card photos and is described in [IMAGE-UPLOADS.md](IMAGE-UPLOADS.md). Product photos are always JPEG, because the server renders them with ImageIO, which cannot write WebP.
 
-On the server, `POST /api/products/{ean}/images` takes the multipart field `photo`, applies the same Spring multipart limits and `PhotoValidator` as card photos, then accepts JPEG only. The sanitized bytes are stored as `product-originals/<ean>/<uuid>.jpg` in the private card photo bucket (issue #464 would give them their own bucket), and `ProductImageRenderer` writes the public files. A user may upload 10 photos per 10 minutes (`ProductPhotoUploadLimiter`, in memory per instance); admins are exempt.
+On the server, `POST /api/products/{ean}/images` takes the multipart field `photo`, applies the same Spring multipart limits and `PhotoValidator` as card photos, then accepts JPEG only. The sanitized bytes are stored as `product-originals/<ean>/<uuid>.jpg` through `ProductOriginalStore` ([server disk storage](#storage-on-the-servers-disk) gives them their own folder; on R2 they stay in the private card photo bucket), and `ProductImageRenderer` writes the public files. A user may upload 10 photos per 10 minutes (`ProductPhotoUploadLimiter`, in memory per instance); admins are exempt.
 
 A user's upload starts `PENDING` and flags the product for review; an admin's upload is `VERIFIED`, pinned as the main photo, and marks the product reviewed.
 
@@ -229,10 +229,10 @@ The browser reaches all of them through the backend proxy ([BACKEND-PROXY.md](BA
 
 | Suite             | What it covers                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Backend (H2)      | `ProductImageRendererTest`, `ProductImageServiceTest`, `ProductImageControllerTest`, `ProductImageWireFormatTest`, `ProductImageJobsTest`, `ProductImageJobsRenderTest`, `ProductImageJobsStaleWriteTest`, `CatalogArchiveReaderTest`, `OpenFoodFactsParsingTest`, with `FakeProductImageStore` in place of R2                                                                                                                                                                                                                                                               |
+| Backend (H2)      | `ProductImageRendererTest`, `ProductImageServiceTest`, `ProductImageControllerTest`, `ProductImageWireFormatTest`, `ProductImageJobsTest`, `ProductImageJobsRenderTest`, `ProductImageJobsStaleWriteTest`, `CatalogArchiveReaderTest`, `OpenFoodFactsParsingTest`, with `FakeProductImageStore` and `FakeProductOriginalStore` in place of real storage; `AtomicFileStoreTest`, `FilesystemPhotoStoreTest`, `FilesystemProductImageStoreTest` and the three `*StoreConfigTest` classes run the disk stores on a temp folder                                                                                                                                                                                                                                                               |
 | Frontend (Vitest) | `crop-math.test.ts`, `product-images/hooks.test.tsx`, `product-thumbnail.test.tsx` (one request per list, the placeholder for no photo, a typed item, a failed request, a broken image, and the retry after reconnecting), `product-info-display.test.tsx` (the modal header keeps its photo box without a photo), `product-photo-gallery.test.tsx`, `use-queue-keys.test.tsx`, `og/products/[ean]/[file]/route.test.ts` (the share card's redirects), `render-product-og.test.ts` (a real render, and that a failed one throws), `product-metadata.test.ts` (its meta tags) |
 
-Not covered by tests: a real upload to R2, the real Open Food Facts export, how photos look under dark mode extensions, and how the share card looks; those need a manual check.
+Not covered by tests: a real upload to R2, durability of the disk stores across a power cut (the sync calls run, but no test can prove they reach the platter), the real Open Food Facts export, how photos look under dark mode extensions, and how the share card looks; those need a manual check.
 
 ---
 
@@ -244,7 +244,8 @@ Not covered by tests: a real upload to R2, the real Open Food Facts export, how 
 | `backend/.../productImage/service/`                              | Reads, uploads, admin actions, jobs, the main photo rules (`MainPicker`) |
 | `backend/.../productImage/off/`                                  | Open Food Facts client, URL layout, export reader                        |
 | `backend/.../productImage/catalog/`                              | cijene archive reader and import                                         |
-| `backend/.../productImage/storage/`                              | `ProductImageStore`, the R2 and disabled stores, their config            |
+| `backend/.../productImage/storage/`                              | `ProductImageStore`, `ProductOriginalStore`, their R2, disk and disabled stores and config |
+| `backend/.../storage/AtomicFileStore.java`                       | Key validation and atomic writes shared by every disk store              |
 | `backend/.../storage/R2Clients.java`                             | The S3 client both buckets use                                           |
 | `frontend/src/components/custom/product-photos/`                 | Tile, list thumbnail, viewer, upload, admin editor, crop                 |
 | `frontend/src/app/[locale]/products/components/product-photos/`  | The product page gallery                                                 |
@@ -275,6 +276,30 @@ All backend, runtime; a change needs a backend restart, not a rebuild. Set them 
 
 Properties with defaults, not env vars: `product-images.jobs.enabled` (true; false in the test profile), `product-images.catalog.list-url` (the cijene `v0/list`), `product-images.off.api-base` and `product-images.off.export-url` (Open Food Facts), `spring.task.scheduling.pool.size=4`.
 
+### Storage on the server's disk
+
+Issue #486 moves photos from R2 to folders on the server. The code for it is in place and off by default: with `PHOTO_DIR` and `PUBLIC_PHOTO_DIR` blank everything stays on R2. The volumes, the nginx container and the data move come later in #486.
+
+| Var                | What it controls                                                       | Folders it needs inside                                             |
+| ------------------ | ---------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `PHOTO_DIR`        | Server only, optional. When set, card photos and originals use the disk | `cards/` (card photos) and `product-originals/` (product originals) |
+| `PUBLIC_PHOTO_DIR` | Server only, optional. When set, public product photos use the disk     | `products/`; URLs still come from `R2_PUBLIC_URL`, the same hostname |
+
+**One switch per store.** Each store is off while its own folder is missing or not writable, checked on every call, so creating the folder turns it on without a restart. Without `product-originals/` uploads answer 503 while Open Food Facts photos and public reads keep working. Without `cards/` the wallet loses photos and product uploads carry on. Without `products/` the read APIs return empty lists. A set directory never falls back to R2, because that would split photos across two stores.
+
+**Keys are paths.** A key is the file's path below the directory, so an `rclone copy` of a bucket lands every file where the database expects it. `AtomicFileStore` accepts only plain path segments and only keys inside the store's own folder, so the card store cannot read or delete an original, nor the reverse. `ProductOriginalStore` is also its own type, so the card code cannot be handed it.
+
+**Writes.** A write goes to `.tmp-<random>` beside the target, is synced, renamed over the target, and the directory is synced. A reader sees the old file or the whole new one, and a write that returned survives a power cut. A failed write, usually a full disk, is logged as an error and answers 503.
+
+**Gotchas for the steps still to come.**
+
+- The app never creates the top folders: a missing folder means the volume is not mounted, and writes there would vanish on the next deploy. Something must create them owned by uid 1001.
+- If the image itself contains those folders and the compose file forgets the volume, the check passes and writes land in the container layer. Create them from outside the image.
+- The hourly backup must skip `.tmp-*`, which holds unfinished writes.
+- nginx runs under another uid, so public files are `644` in `755` directories and private ones `600` in `700`. nginx has to send the `Cache-Control: public, max-age=31536000, immutable` that R2 stores per object today.
+- `R2_PUBLIC_URL` keeps its name for now even on disk.
+- Directory sync works on Linux only, so these stores do not run on Windows.
+
 ---
 
 ## 15. Libraries
@@ -296,7 +321,7 @@ Versions read from `frontend/package.json` and `backend/pom.xml`.
 | What fails                                                                                          | What the user sees                                          | What the system does                                                                                                                                                                                                                                                     |
 | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Any of the five public bucket variables blank                                                       | No photos; the empty tile; uploads answer 503 "unavailable" | `DisabledProductImageStore`: the read APIs return empty lists, only the catalogue part of the weekly import runs                                                                                                                                                         |
-| The private bucket blank                                                                            | Photos show, uploads answer 503                             | Uploads need both stores                                                                                                                                                                                                                                                 |
+| The private bucket blank, or the `product-originals` folder missing                                 | Photos show, uploads, crops of uploads and the admin's original answer 503 | Uploads need both stores; Open Food Facts photos keep rendering because they never read an original                                                                                                                                                                                                                                                 |
 | Open Food Facts photo unreadable, gone (404, 410), too large (15 MB cap) or a key that forms no URL | Nothing; the next pick takes the slot                       | Hidden with `hidden_reason` `JOB_SKIPPED`, so it cannot block the queue; it comes back as a candidate when the weekly seed or "Dohvati" finds a new revision. An admin hide (`ADMIN`, or no reason on rows hidden before the column existed) never comes back on its own |
 | Any other answer for one image (403, 500)                                                           | Nothing yet                                                 | That photo waits an hour (`render_retry_at`); the fifth failure (`render_attempts`) skips it so the next pick or an upload takes the main slot                                                                                                                           |
 | Rate limiting (429), gateway errors (502 to 504), network or bucket trouble                         | Nothing yet                                                 | The whole batch pauses and retries at the next tick                                                                                                                                                                                                                      |
@@ -346,7 +371,7 @@ A successful copy clears `render_attempts` and `render_retry_at`.
 ## 19. Future work
 
 - #463: remove the background from card and product photos with an AI model, so every product sits on the same clean white.
-- #464: store product photo originals in their own private R2 bucket, not the card photo bucket.
+- #486: move these photos from R2 to the server's disk and decide what account deletion does with a user's originals and `contributor_id` (today nothing deletes an original).
 - Contribute user photos back to Open Food Facts (their API accepts end-user photos), which would grow coverage of Croatian products.
 - Seed the gallery from the server render, so the first HTML shows the photo instead of a skeleton.
 - Moving avatars from Postgres base64 to the public bucket (decided, separate PR).

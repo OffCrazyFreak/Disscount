@@ -164,7 +164,7 @@ All card endpoints need a valid JWT. Errors are RFC 9457 `ProblemDetail` bodies 
 
 ## 5. Photos and R2
 
-Photos are optional and sit behind a `PhotoStore` interface (`put`, `get`, `delete`, `deletePrefix`). Two implementations exist: `R2PhotoStore` and `DisabledPhotoStore`, chosen in `PhotoStoreConfig`. If any of the four `R2_*` values is blank, the disabled store is used and the wallet works without photos.
+Photos are optional and sit behind a `PhotoStore` interface (`put`, `get`, `delete`, `deletePrefix`). Three implementations exist, chosen in `PhotoStoreConfig`: `FilesystemPhotoStore` when `PHOTO_DIR` is set (files under `cards/` in that directory; off while the folder is missing, see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#storage-on-the-servers-disk)), otherwise `R2PhotoStore`, or `DisabledPhotoStore` if any of the four `R2_*` values is blank, and the wallet then works without photos.
 
 ### What the browser does
 
@@ -335,7 +335,7 @@ A loyalty card number is personal data, and a photo of a card more so.
 | `backend/.../digitalCard/service/DigitalCardCleanupJob.java`                                   | Daily 30-day hard delete; sweeps the rate limiter; retries photo cleanup                                      |
 | `backend/.../digitalCard/service/PhotoUploadRateLimiter.java`                                  | 20 uploads per minute per user                                                                                |
 | `backend/.../digitalCard/photo/`                                                               | `PhotoValidator`, `WebpSanitizer`, `JpegSanitizer`                                                            |
-| `backend/.../digitalCard/storage/`                                                             | `PhotoStore`, `R2PhotoStore`, `DisabledPhotoStore`, `PhotoStoreConfig` (client from `storage/R2Clients.java`) |
+| `backend/.../digitalCard/storage/`                                                             | `PhotoStore`, `R2PhotoStore`, `FilesystemPhotoStore`, `DisabledPhotoStore`, `PhotoStoreConfig` (client from `storage/R2Clients.java`) |
 | `backend/.../storeName/`                                                                       | Community store-name list, normalizer and controller                                                          |
 | `backend/.../config/SchedulingConfig.java`                                                     | `@EnableScheduling` (the first scheduled job in the app)                                                      |
 | `frontend/src/lib/api/digital-cards/`                                                          | Keys, queries, query and mutation hooks, optimistic patches, last-used, photos                                |
