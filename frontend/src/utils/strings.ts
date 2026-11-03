@@ -77,6 +77,19 @@ export function formatDateTime(
 }
 
 /**
+ * Same as formatDate, but Croatian drops the leading zeros its orthography
+ * never writes (3. 11. 2026.), which the CLDR data pads to 03. 11. 2026.
+ */
+export function formatPlainDate(
+  dateString: string | null | undefined,
+  locale: string,
+) {
+  const formatted = formatDate(dateString, locale);
+
+  return locale === "hr" ? formatted.replace(/\b0(\d)/g, "$1") : formatted;
+}
+
+/**
  * Trim trailing zeros from decimal quantities: "1.000" -> "1", "1.200" -> "1.2"
  */
 export function formatQuantity(q?: string | null): string | null {

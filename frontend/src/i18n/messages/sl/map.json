@@ -84,5 +84,10 @@
   "report": {
     "subject": "Napačna lokacija trgovine",
     "message": "Trgovina: {store} ({id})\n\nKaj ni v redu: "
+  },
+  "filters": {
+    "openNow": "Odprto zdaj",
+    "includeUnconfirmed": "Vključi nepotrjen delovni čas",
+    "hoursFailed": "Delovni čas se ni naložil, zato ne moremo izločiti odprtih trgovin."
   }
 }

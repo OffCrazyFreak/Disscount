@@ -5,16 +5,23 @@ import { toStoreKey } from "@/utils/store-key";
 
 interface ILocatedStore {
   chain: string;
+  code: string;
   lat: number | null;
   lon: number | null;
 }
 
-/** Kilometres from the origin to each chain's nearest store with coordinates. */
-export function nearestDistanceByChain(
+export interface INearestStore {
+  /** `chain:code`, as `toStoreKey` builds it. */
+  key: string;
+  km: number;
+}
+
+/** Each chain's nearest store with coordinates, and how far it is from the origin. */
+export function nearestStoreByChain(
   origin: ILatLon,
   stores: Iterable<ILocatedStore>,
-): Map<string, number> {
-  const nearest = new Map<string, number>();
+): Map<string, INearestStore> {
+  const nearest = new Map<string, INearestStore>();
 
   for (const store of stores) {
     if (store.lat == null || store.lon == null) continue;
@@ -22,7 +29,12 @@ export function nearestDistanceByChain(
     const km = distanceKm(origin, { lat: store.lat, lon: store.lon });
     const known = nearest.get(store.chain);
 
-    if (known === undefined || km < known) nearest.set(store.chain, km);
+    if (known === undefined || km < known.km) {
+      nearest.set(store.chain, {
+        key: toStoreKey(store.chain, store.code),
+        km,
+      });
+    }
   }
 
   return nearest;
@@ -46,6 +58,7 @@ export function locatePricedStores(
 
     return {
       chain: price.chain,
+      code: price.store.code,
       lat: listed ? listed.lat : price.store.lat,
       lon: listed ? listed.lon : price.store.lon,
     };

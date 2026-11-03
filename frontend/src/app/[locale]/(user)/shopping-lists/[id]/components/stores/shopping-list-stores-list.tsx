@@ -8,6 +8,8 @@ import { useStoreChainAnalysis } from "@/app/[locale]/(user)/shopping-lists/[id]
 import ShoppingListStoresBody from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-body";
 import StoreOptimizeSelect from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/store-optimize-select";
 import DistanceSortNote from "@/components/custom/distance-sort/distance-sort-note";
+import StoreHoursProvider from "@/components/custom/store-hours/store-hours-context";
+import { useStoreHoursNow } from "@/components/custom/store-hours/use-store-hours-now";
 import { useStoreOptimizeMode } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-store-optimize-mode";
 
 interface IShoppingListStoreSummaryProps {
@@ -25,6 +27,10 @@ export default function ShoppingListStoreSummary({
 
   const sortNoteId = useId();
   const distance = useStoreOptimizeMode();
+  // Chain cards show hours only for the nearest store, so only once one is named.
+  const hours = useStoreHoursNow({
+    enabled: distance.shownNearestStores !== undefined,
+  });
 
   const {
     allChains,
@@ -42,47 +48,51 @@ export default function ShoppingListStoreSummary({
   });
 
   return (
-    <div className="space-y-2">
-      <ShoppingListStoresBody
-        isLoading={productsLoading}
-        hasItems={!!shoppingList.items && shoppingList.items.length > 0}
-        // Any item still to buy, plain ones too: only unpriced ones left means "no prices".
-        hasActiveItems={
-          shoppingList.items?.some((item) => !item.isChecked) ?? false
-        }
-        hasError={hasFailedPrices}
-        hasChains={allChains.length > 0}
-      >
-        <div className="space-y-4">
-          <StoreOptimizeSelect
-            value={distance.chosen}
-            onValueChange={distance.choose}
-            describedById={sortNoteId}
-          />
-
-          <DistanceSortNote
-            id={sortNoteId}
-            state={distance.state}
-            origin={distance.origin}
-            towns={distance.towns}
-            onPickTown={distance.chooseTown}
-          />
-
-          {sortedChains.map((chain) => (
-            <ShoppingListStoreItem
-              key={chain.chain}
-              chain={chain}
-              shoppingList={shoppingList}
-              absoluteMinPrice={absolutePrices.min}
-              absoluteMaxPrice={absolutePrices.max}
-              productsData={productsData}
-              hasLowestPriceItem={storesWithLowestPriceItems.has(chain.chain)}
-              hasHighestPriceItem={storesWithHighestPriceItems.has(chain.chain)}
-              distanceKm={distance.shownDistances?.get(chain.chain)}
+    <StoreHoursProvider hours={hours}>
+      <div className="space-y-2">
+        <ShoppingListStoresBody
+          isLoading={productsLoading}
+          hasItems={!!shoppingList.items && shoppingList.items.length > 0}
+          // Any item still to buy, plain ones too: only unpriced ones left means "no prices".
+          hasActiveItems={
+            shoppingList.items?.some((item) => !item.isChecked) ?? false
+          }
+          hasError={hasFailedPrices}
+          hasChains={allChains.length > 0}
+        >
+          <div className="space-y-4">
+            <StoreOptimizeSelect
+              value={distance.chosen}
+              onValueChange={distance.choose}
+              describedById={sortNoteId}
             />
-          ))}
-        </div>
-      </ShoppingListStoresBody>
-    </div>
+
+            <DistanceSortNote
+              id={sortNoteId}
+              state={distance.state}
+              origin={distance.origin}
+              towns={distance.towns}
+              onPickTown={distance.chooseTown}
+            />
+
+            {sortedChains.map((chain) => (
+              <ShoppingListStoreItem
+                key={chain.chain}
+                chain={chain}
+                shoppingList={shoppingList}
+                absoluteMinPrice={absolutePrices.min}
+                absoluteMaxPrice={absolutePrices.max}
+                productsData={productsData}
+                hasLowestPriceItem={storesWithLowestPriceItems.has(chain.chain)}
+                hasHighestPriceItem={storesWithHighestPriceItems.has(
+                  chain.chain,
+                )}
+                nearest={distance.shownNearestStores?.get(chain.chain)}
+              />
+            ))}
+          </div>
+        </ShoppingListStoresBody>
+      </div>
+    </StoreHoursProvider>
   );
 }

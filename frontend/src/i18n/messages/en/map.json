@@ -84,5 +84,10 @@
   "report": {
     "subject": "Wrong store location",
     "message": "Store: {store} ({id})\n\nWhat's wrong: "
+  },
+  "filters": {
+    "openNow": "Open now",
+    "includeUnconfirmed": "Include unconfirmed hours",
+    "hoursFailed": "The opening hours did not load, so we cannot pick out the open stores."
   }
 }

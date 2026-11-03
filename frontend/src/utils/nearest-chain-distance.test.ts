@@ -5,23 +5,24 @@ import type { StorePrice } from "@/lib/cijene-api/schemas";
 
 import {
   locatePricedStores,
-  nearestDistanceByChain,
+  nearestStoreByChain,
 } from "@/utils/nearest-chain-distance";
 
 const ZAGREB = { lat: 45.813, lon: 15.977 };
 
-describe("nearestDistanceByChain", () => {
+describe("nearestStoreByChain", () => {
   it("keeps each chain's closest located store", () => {
-    const distances = nearestDistanceByChain(ZAGREB, [
-      { chain: "konzum", lat: 45.55, lon: 18.69 },
-      { chain: "konzum", lat: 45.813, lon: 15.987 },
-      { chain: "lidl", lat: 45.33, lon: 14.44 },
-      { chain: "spar", lat: null, lon: null },
+    const nearest = nearestStoreByChain(ZAGREB, [
+      { chain: "konzum", code: "far", lat: 45.55, lon: 18.69 },
+      { chain: "konzum", code: "near", lat: 45.813, lon: 15.987 },
+      { chain: "lidl", code: "1", lat: 45.33, lon: 14.44 },
+      { chain: "spar", code: "1", lat: null, lon: null },
     ]);
 
-    expect(distances.get("konzum")).toBeCloseTo(0.78, 1);
-    expect(distances.get("lidl")).toBeGreaterThan(100);
-    expect(distances.has("spar")).toBe(false);
+    expect(nearest.get("konzum")?.key).toBe("konzum:near");
+    expect(nearest.get("konzum")?.km).toBeCloseTo(0.78, 1);
+    expect(nearest.get("lidl")?.km).toBeGreaterThan(100);
+    expect(nearest.has("spar")).toBe(false);
   });
 });
 
@@ -72,14 +73,14 @@ describe("locatePricedStores", () => {
         [listed("konzum", "1", 30), listed("lidl", "2", 40)],
       ),
     ).toEqual([
-      { chain: "konzum", lat: 30, lon: 30 },
-      { chain: "konzum", lat: 20, lon: 20 },
+      { chain: "konzum", code: "1", lat: 30, lon: 30 },
+      { chain: "konzum", code: "2", lat: 20, lon: 20 },
     ]);
   });
 
   it("trusts a directory miss over upstream's pin", () => {
     expect(
       locatePricedStores([price("spar", "1", 10)], [listed("spar", "1", null)]),
-    ).toEqual([{ chain: "spar", lat: null, lon: null }]);
+    ).toEqual([{ chain: "spar", code: "1", lat: null, lon: null }]);
   });
 });

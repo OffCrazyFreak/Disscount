@@ -1,0 +1,28 @@
+{
+  "status": {
+    "open": "Otvoreno",
+    "closed": "Zatvoreno",
+    "unconfirmed": "Radno vrijeme nije potvrđeno"
+  },
+  "when": "{day, select, today {u {time}} tomorrow {sutra u {time}} mon {u ponedjeljak u {time}} tue {u utorak u {time}} wed {u srijedu u {time}} thu {u četvrtak u {time}} fri {u petak u {time}} sat {u subotu u {time}} other {u nedjelju u {time}}}",
+  "detail": {
+    "open": "Zatvara {when}",
+    "closingSoon": "Zatvara uskoro u {time}",
+    "closed": "Otvara {when}",
+    "openingSoon": "Otvara uskoro u {time}"
+  },
+  "name": {
+    "open": "Otvoreno, zatvara {when}",
+    "closingSoon": "Otvoreno, zatvara uskoro u {time}",
+    "closed": "Zatvoreno, otvara {when}",
+    "openingSoon": "Zatvoreno, otvara uskoro u {time}"
+  },
+  "source": {
+    "chain": "Izvor: {chain}",
+    "osm": "Izvor: OpenStreetMap",
+    "dated": "{source} ({date})"
+  },
+  "check": "Provjeri",
+  "checkLabel": "Provjeri radno vrijeme na stranici trgovine (otvara se u novoj kartici)",
+  "changed": "{store}: {status}"
+}

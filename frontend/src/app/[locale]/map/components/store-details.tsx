@@ -3,6 +3,7 @@
 import { MapPinOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import StoreHoursSource from "@/components/custom/store-hours/store-hours-source";
 import StoreActions from "@/app/[locale]/map/components/store-actions";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 
@@ -27,6 +28,15 @@ export default function StoreDetails({ row }: IStoreDetailsProps) {
           {t("notPlaced")}
         </p>
       )}
+
+      {/* Keyed so the phone sheet, which stays mounted across stores, announces
+          only a status change and not every newly picked store. */}
+      <StoreHoursSource
+        key={row.key}
+        storeKey={row.key}
+        chain={store.chain}
+        storeLabel={row.chainLabel}
+      />
 
       <StoreActions store={store} />
     </div>

@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import FavoriteStoreButton from "@/app/[locale]/map/components/favorite-store-button";
 import ShareStoreButton from "@/app/[locale]/map/components/share-store-button";
+import StoreOpeningBadge from "@/components/custom/store-hours/store-opening-badge";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { formatDistance } from "@/utils/distance";
 import { cn } from "@/lib/utils";
@@ -25,6 +26,7 @@ export function summaryLabelIds(row: IListedStore, id: string): string {
   return [
     "name",
     "address",
+    "hours",
     !isPlaced && "noLocation",
     row.distanceKm != null && "distance",
   ]
@@ -72,6 +74,10 @@ export default function StoreSummary({ row, isOpen, id }: IStoreSummaryProps) {
               <FavoriteStoreButton storeKey={row.key} />
             </>
           )}
+        </span>
+
+        <span className="mt-1 block">
+          <StoreOpeningBadge storeKey={row.key} id={`${id}-hours`} />
         </span>
       </span>
 

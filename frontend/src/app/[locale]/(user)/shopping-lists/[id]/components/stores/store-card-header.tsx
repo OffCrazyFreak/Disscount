@@ -9,6 +9,7 @@ import { IStoreCardMetrics } from "@/app/[locale]/(user)/shopping-lists/[id]/uti
 import StoreCardBadges from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/store-card-badges";
 import StoreCardPriceRow from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/store-card-price-row";
 import NearestStoreDistance from "@/components/custom/distance-sort/nearest-store-distance";
+import type { INearestStore } from "@/utils/nearest-chain-distance";
 
 interface IStoreCardHeaderProps {
   chain: ChainSummary;
@@ -17,7 +18,7 @@ interface IStoreCardHeaderProps {
   hasLowestPriceItem: boolean;
   hasHighestPriceItem: boolean;
   isExpanded: boolean;
-  distanceKm?: number;
+  nearest?: INearestStore;
 }
 
 export default function StoreCardHeader({
@@ -27,7 +28,7 @@ export default function StoreCardHeader({
   hasLowestPriceItem,
   hasHighestPriceItem,
   isExpanded,
-  distanceKm,
+  nearest,
 }: IStoreCardHeaderProps) {
   const t = useTranslations("shoppingListDetail");
 
@@ -104,9 +105,9 @@ export default function StoreCardHeader({
             />
           </div>
 
-          {distanceKm !== undefined && (
+          {nearest && (
             <div className="mt-1">
-              <NearestStoreDistance km={distanceKm} />
+              <NearestStoreDistance nearest={nearest} />
             </div>
           )}
         </div>

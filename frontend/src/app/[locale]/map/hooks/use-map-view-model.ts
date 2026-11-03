@@ -5,6 +5,7 @@ import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useStoreDirectory } from "@/lib/api/store-directory";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { useMapDefaults } from "@/app/[locale]/map/hooks/use-map-defaults";
+import { useMapHours } from "@/app/[locale]/map/hooks/use-map-hours";
 import {
   ALL_CHAINS,
   useMapUrlState,
@@ -23,6 +24,9 @@ import { isVisitableStore } from "@/app/[locale]/map/utils/visitable-store";
 export function useMapViewModel(ipLocation: IIpLocation | null) {
   const directory = useStoreDirectory();
   const url = useMapUrlState();
+  const { hours, hasHoursFailed, retryHours, keep } = useMapHours(
+    url.openFilter,
+  );
   const geolocation = useGeolocation(ipLocation, { watchWhenAllowed: true });
   const { search } = useSearchNavigation("/map", { shallow: true });
 
@@ -40,6 +44,7 @@ export function useMapViewModel(ipLocation: IIpLocation | null) {
   );
 
   const { listed, mappable, unplacedCount } = useVisibleStores({
+    keep,
     stores,
     chains,
     query: url.query,
@@ -55,6 +60,11 @@ export function useMapViewModel(ipLocation: IIpLocation | null) {
     chainCodes: [...new Set(stores.map((store) => store.chain))],
     chains,
     query: url.query,
+    hours,
+    hasHoursFailed,
+    retryHours,
+    openFilter: url.openFilter,
+    setOpenFilter: url.setOpenFilter,
     listed,
     mappable,
     unplacedCount,

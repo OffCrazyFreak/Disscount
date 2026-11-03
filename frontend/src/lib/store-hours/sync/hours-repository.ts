@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, lt, sql } from "drizzle-orm";
+import { and, asc, eq, isNotNull, lt, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
@@ -13,6 +13,7 @@ import type {
   IDatedRanges,
   IParsedHours,
 } from "@/lib/store-hours/sync/hours-source-types";
+import type { LinkStatus } from "@/lib/store-hours/sync/link-status";
 import type { RunStatus } from "@/lib/store-hours/sync/run-gate";
 
 export type HoursJob = "template" | "overlay";
@@ -119,4 +120,41 @@ export async function recordRun(
       target: [storeHoursRun.job, storeHoursRun.chainCode],
       set: fields,
     });
+}
+
+/** Least recently checked first, so a run cut short never starves the same links. */
+export async function readCheckUrls(): Promise<string[]> {
+  const rows = await db
+    .select({ url: storeHours.checkUrl })
+    .from(storeHours)
+    .where(isNotNull(storeHours.checkUrl))
+    .groupBy(storeHours.checkUrl)
+    .orderBy(
+      sql`min(${storeHours.linkCheckedAt}) asc nulls first`,
+      asc(storeHours.checkUrl),
+    );
+
+  return rows.flatMap((row) => (row.url ? [row.url] : []));
+}
+
+/**
+ * Every store sharing the link gets its verdict; failures count up until a
+ * check succeeds. An unverified check proves nothing, so a link already
+ * found gone stays broken until it answers again.
+ */
+export async function saveLinkStatus(
+  url: string,
+  status: LinkStatus,
+): Promise<void> {
+  await db
+    .update(storeHours)
+    .set({
+      linkStatus:
+        status === "unverified"
+          ? sql`case when ${storeHours.linkStatus} = 'broken' then 'broken' else 'unverified' end`
+          : status,
+      linkCheckedAt: new Date(),
+      linkFailures: status === "ok" ? 0 : sql`${storeHours.linkFailures} + 1`,
+    })
+    .where(eq(storeHours.checkUrl, url));
 }

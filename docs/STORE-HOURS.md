@@ -2,7 +2,7 @@
 
 How Disscount knows whether a store is open, where the hours come from, and why a Sunday is never guessed. The map shows the result; [MAP.md](MAP.md) covers the map itself.
 
-> **Mental model in one sentence:** each store has a weekly template plus dated entries (its own exceptions and the chain's Sunday and holiday announcements), and one pure function, `openingStatusAt`, turns that into "open until 21:00", "closing soon", "closed, opens at 07:00" or "hours not confirmed" for any instant, in Zagreb time, on the server and in the browser alike.
+> **Mental model in one sentence:** each store has a weekly template plus dated entries (its own exceptions and the chain's Sunday and holiday announcements), and one pure function, `openingStatusAt`, turns that into "open until 21:00", "closing soon", "closed, opens at 07:00", "opening soon" or "hours not confirmed" for any instant, in Zagreb time, on the server and in the browser alike.
 
 ## Table of contents
 
@@ -81,7 +81,9 @@ flowchart TD
   E -->|yes| U
   E -->|no| F{an unknown day before the next opening?}
   F -->|yes| X[closed, opensAt null]
-  F -->|no| Y[closed, opensAt]
+  F -->|no| G{opens within 60 min?}
+  G -->|yes| P[opening-soon, opensAt]
+  G -->|no| Y[closed, opensAt]
 ```
 
 A closed store on Saturday evening before an unconfirmed Sunday therefore says only "closed", not "opens Monday 07:00", because the Sunday may be a working one. `asOf` is the `verifiedAt` of the layer that decided today, so the page can show how fresh the answer is.
@@ -99,15 +101,26 @@ The function is pure and runs in the browser: the server sends the holidays as p
 
 The response is keyed `chain:code`, the same key as the store directory, under the `cijene` path so the service worker caches it for offline use.
 
+### Showing the hours
+
+The map, the product page and the shopping list read the hours through one `StoreHoursProvider` (`components/custom/store-hours/store-hours-context.tsx`): the page calls `useStoreHoursNow` once, which holds the React Query result (one request, cached an hour and persisted for offline use) and the current minute from `useCurrentMinute`. That clock ticks on each minute boundary while the tab is visible and catches up when it returns, and is null until mount, so the server never renders a badge from its own clock. Each row calls `useStoreOpening(key)`, which runs `openingStatusAt`; nothing else decides whether a store is open.
+
+- **Badge** (`opening-status-badge.tsx`): only "Otvoreno" (green), "Zatvoreno" (red) or "Radno vrijeme nije potvrđeno" (outline). Orange marks "soon" either way: "Otvoreno" when the store closes within the hour, "Zatvoreno" when it opens within the hour, the owner's choice. The badge text uses amber-700, since the shared amber-600 on amber-50 is about 3:1.
+- **Detail** (`opening-status-detail.tsx`): the time ("Zatvara u 21:00", "Zatvara uskoro u 21:00", "Otvara sutra u 7:00") is not shown beside the badge but in a popover that opens on mouse hover, keyboard focus and tap. It is one controlled Radix popover rather than a tooltip, because Radix tooltips ignore taps and a touch laptop reports a fine pointer. The badge is a button named with the full state and time ("Otvoreno, zatvara uskoro u 21:00"), so screen readers get what the colour says. Inside the chain cards, which are one toggle button, the badge stays plain with that name as screen reader text, since a second button would nest a button in a button.
+- **Map**: every list row and the phone sheet show the badge under the address, and it is part of the row's accessible name. The open row adds the source and its date ("Izvor: Kaufland (3. 11. 2026.)", through `formatPlainDate`, which drops the leading zeros Croatian never writes), the "Provjeri" link (a store no source covers links to its chain's finder), and a screen reader announcement when the open store's status changes. The "Otvoreno sada" switch keeps only confirmed open stores; a second switch also keeps unconfirmed ones. Until the hours load the filter keeps every store rather than emptying the list. If the request fails, or is paused offline with nothing cached, a line under the switch says the filter cannot work and offers a retry (`hooks/use-map-hours.ts`).
+- **Product page**: each row of a chain's per store price table shows that store's badge. The hours are fetched only once a table is open or a nearest store is named.
+- **Chain cards** (product page and shopping list): a chain has no hours of its own, so the card shows the badge of the chain's nearest store beside "Najbliža trgovina", and only while distances come from a location fix (`shownNearestStores` in `hooks/use-distance-sort.ts`). A town or IP guess names no nearest store, so no badge.
+
 ## 5. Refreshing the hours
 
-Two jobs, each with its own row in `store_location_sync` (the same lease the location sync uses, see [MAP.md §3](MAP.md#3-store-locations-the-sync)), started by a request to `/api/cijene/store-hours` after the response is sent. There is no cron.
+Three jobs, each with its own row in `store_location_sync` (the same lease the location sync uses, see [MAP.md §3](MAP.md#3-store-locations-the-sync)), started by a request to `/api/cijene/store-hours` after the response is sent. There is no cron.
 
 ```mermaid
 flowchart LR
   Request[GET /api/cijene/store-hours] -.->|after the response| Due{which job is due?}
   Due -->|template rested 7 days| Template[weekly template job]
   Due -->|Thu to Sat, overlay rested 20 h| Overlay[Sunday and holiday poll]
+  Due -->|links rested 7 days| Links[link check]
   Template --> Sources[every chain's source]
   Template --> OSM[OpenStreetMap for the rest]
   Overlay --> Sources
@@ -118,6 +131,7 @@ flowchart LR
 
 - **Template job** (`store-hours-template`, rests 7 days): every enabled chain's source is read, each record is matched to an upstream store by the location sync's own rules (`matchLocatorStore`: code, then address and town, then the looser passes), and the whole row is written: weekly days, every dated day the chain publishes as `exceptions`, the store page as `check_url`. Then OpenStreetMap fills pinned stores no chain covered.
 - **Overlay job** (`store-hours-overlay`, rests 20 hours, only Thursday to Saturday in Zagreb): the same feeds again, keeping only Sundays and public holidays within two weeks, written to `store_hours_overlay`. Announcements older than a week are deleted. Because the merge keeps the latest observation per date, a Friday poll beats Monday's template for that Sunday.
+- **Link check** (`store-hours-links`, rests 7 days, `sync/link-check.ts`): visits every distinct `check_url`, one page a second per host with hosts side by side, HEAD first and GET when a server refuses HEAD (405, 501). Only 404 and 410 mark a link `broken`, which makes the response fall back to the chain's store finder; 403, 429, 5xx and network errors are `unverified`, count up `link_failures`, and keep the link, because bot walls answer 403; they never turn a broken link back into a live one. Links checked longest ago go first, so a run cut short starves nothing. A 2xx or 3xx is `ok` and resets the count. Every store sharing a link gets the verdict; a template run that changes a store's link clears it until the next check.
 - **Gate** (`sync/run-gate.ts`): a chain's run is rejected when it matches no store, or more than 30 percent fewer than the last accepted run. Its old rows stay, and `store_hours_run` records the status (`accepted`, `rejected`, `failed`, `disabled`), the count and the error per job and chain.
 - **OpenStreetMap** (`sync/osm-step.ts`): one Overpass query for branded supermarkets, convenience shops and chemists in Croatia with `opening_hours`. A shop's `brand` is mapped to our chain, and a pinned store takes the nearest shop of its chain within 150 m, unless a second one is within 30 m of that distance. Only the plain weekly subset is read (`Mo-Sa 07:00-21:00; Su off; PH off`, about 90 percent of the values); anything else is skipped. An OpenStreetMap row never replaces a chain's own row. The public Overpass server is often busy, so the query retries after 30 s and 2 min, and a failure only skips the step.
 - **Politeness**: the identifying User-Agent from `store-locations/http.ts`, one request at a time per chain, a second between store pages (Lidl's 116, Studenac's), and only the stores upstream lists are fetched where a chain needs one page per store.
@@ -154,19 +168,24 @@ dm is not covered: upstream lists dm as a single chain-wide store, so there is n
 
 ## 8. Key files
 
-| Path (under `frontend/`)                   | Role                                                        |
-| ------------------------------------------ | ----------------------------------------------------------- |
-| `src/db/store-hours-schema.ts`             | Drizzle tables                                              |
-| `drizzle/0010_store_hours.sql`             | The migration                                               |
-| `src/lib/api/schemas/store-hours.ts`       | Zod wire schema and types                                   |
-| `src/lib/store-hours/zagreb-clock.ts`      | Zagreb wall clock, ISO date arithmetic, ISO weekday         |
-| `src/lib/store-hours/hours-on-date.ts`     | One day's hours: dated entry, law, template                 |
-| `src/lib/store-hours/opening-status.ts`    | `openingStatusAt`, the four states                          |
-| `src/lib/store-hours/croatian-holidays.ts` | Public holidays between two dates (server only)             |
-| `src/lib/store-hours/hours-chains.ts`      | Per-chain switch and store finder URL                       |
-| `src/lib/store-hours/build-store-hours.ts` | Rows to response: switches, layering, window, link fallback |
-| `src/lib/store-hours/get-store-hours.ts`   | Database read and memo                                      |
-| `src/app/api/cijene/store-hours/route.ts`  | The public route                                            |
+| Path (under `frontend/`)                                   | Role                                                        |
+| ---------------------------------------------------------- | ----------------------------------------------------------- |
+| `src/db/store-hours-schema.ts`                             | Drizzle tables                                              |
+| `drizzle/0010_store_hours.sql`                             | The migration                                               |
+| `src/lib/api/schemas/store-hours.ts`                       | Zod wire schema and types                                   |
+| `src/lib/store-hours/zagreb-clock.ts`                      | Zagreb wall clock, ISO date arithmetic, ISO weekday         |
+| `src/lib/store-hours/hours-on-date.ts`                     | One day's hours: dated entry, law, template                 |
+| `src/lib/store-hours/opening-status.ts`                    | `openingStatusAt`, the four states                          |
+| `src/lib/store-hours/croatian-holidays.ts`                 | Public holidays between two dates (server only)             |
+| `src/lib/store-hours/hours-chains.ts`                      | Per-chain switch and store finder URL                       |
+| `src/lib/store-hours/build-store-hours.ts`                 | Rows to response: switches, layering, window, link fallback |
+| `src/lib/store-hours/get-store-hours.ts`                   | Database read and memo                                      |
+| `src/app/api/cijene/store-hours/route.ts`                  | The public route                                            |
+| `src/lib/store-hours/sync/link-check.ts`, `link-status.ts` | The weekly link check and its verdict rule                  |
+| `src/lib/store-hours/store-opening.ts`                     | One store's status from the response and the minute         |
+| `src/components/custom/store-hours/`                       | Provider, badge, the source and "Provjeri" line             |
+| `src/hooks/use-current-minute.ts`                          | The minute clock behind every badge                         |
+| `src/app/[locale]/map/utils/open-filter.ts`                | The "open now" filter and its `?open=` value                |
 
 ## 9. Config and libraries
 
@@ -191,4 +210,5 @@ dm is not covered: upstream lists dm as a single chain-wide store, so there is n
 - OpenStreetMap through a Geofabrik extract instead of the public Overpass server, which asks automated users to run their own.
 
 - Exempt stores (stations, ports) are not detected; a source or a reviewed list would let their Sundays show.
-- The 60 minute "closing soon" threshold is a product choice; revisit with feedback.
+- The 60 minute "soon" window, shared by closing and opening soon, is a product choice; revisit with feedback.
+- Green and orange "Otvoreno" differ by colour alone at a glance; revisit if users miss the closing soon state.

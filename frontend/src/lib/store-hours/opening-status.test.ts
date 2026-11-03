@@ -44,9 +44,19 @@ describe("openingStatusAt", () => {
 
   it("opens later today before the morning opening", () => {
     expect(
-      openingStatusAt(hours(), noHolidays, at("2026-11-04T06:00:00")),
+      openingStatusAt(hours(), noHolidays, at("2026-11-04T05:30:00")),
     ).toStrictEqual({
       state: "closed",
+      opensAt: { date: "2026-11-04", time: "07:00" },
+      asOf: VERIFIED,
+    });
+  });
+
+  it("is opening soon in the hour before it opens", () => {
+    expect(
+      openingStatusAt(hours(), noHolidays, at("2026-11-04T06:15:00")),
+    ).toStrictEqual({
+      state: "opening-soon",
       opensAt: { date: "2026-11-04", time: "07:00" },
       asOf: VERIFIED,
     });

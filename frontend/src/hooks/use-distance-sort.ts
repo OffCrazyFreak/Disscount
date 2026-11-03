@@ -5,8 +5,9 @@ import { useStoreDirectory } from "@/lib/api/store-directory";
 import type { DirectoryStoreDto } from "@/lib/api/schemas";
 import type { StorePrice } from "@/lib/cijene-api/schemas";
 import {
+  type INearestStore,
   locatePricedStores,
-  nearestDistanceByChain,
+  nearestStoreByChain,
 } from "@/utils/nearest-chain-distance";
 import {
   useGeolocation,
@@ -49,7 +50,7 @@ function readState(
   locationStatus: GeolocationStatus,
   hasOrigin: boolean,
   directory: IDirectoryQuery,
-  distanceByChain: Map<string, number> | null,
+  measured: IMeasuredChains | null,
 ): DistanceSortState {
   if (locationStatus === "idle" || locationStatus === "locating") {
     return locationStatus;
@@ -70,9 +71,14 @@ function readState(
   // Without a fix, a town's centre stands in once the store pins can place it.
   // A fix revoked in the site settings leaves "located" with no position.
   if (!hasOrigin) return locationFailure;
-  if (!distanceByChain) return "locating";
+  if (!measured) return "locating";
 
-  return distanceByChain.size > 0 ? "ready" : "noStores";
+  return measured.nearest.size > 0 ? "ready" : "noStores";
+}
+
+interface IMeasuredChains {
+  nearest: Map<string, INearestStore>;
+  distances: Map<string, number>;
 }
 
 function measureChains(
@@ -80,14 +86,19 @@ function measureChains(
   lon: number | undefined,
   stores: DirectoryStoreDto[] | undefined,
   pricedStores: StorePrice[] | null | undefined,
-): Map<string, number> | null {
+): IMeasuredChains | null {
   if (lat === undefined || lon === undefined) return null;
   if (!stores || pricedStores === null) return null;
 
-  return nearestDistanceByChain(
+  const nearest = nearestStoreByChain(
     { lat, lon },
     pricedStores ? locatePricedStores(pricedStores, stores) : stores,
   );
+  const distances = new Map(
+    [...nearest].map(([chain, store]) => [chain, store.km]),
+  );
+
+  return { nearest, distances };
 }
 
 function isStandInTown(
@@ -104,7 +115,7 @@ interface ISortResultInput<TMode> {
   fallback: TMode;
   isFromTown: boolean;
   origin: IDistanceOrigin | null;
-  distanceByChain: Map<string, number> | null;
+  measured: IMeasuredChains | null;
 }
 
 function readSortResult<TMode extends string>({
@@ -113,18 +124,20 @@ function readSortResult<TMode extends string>({
   fallback,
   isFromTown,
   origin,
-  distanceByChain,
+  measured,
 }: ISortResultInput<TMode>) {
   const isReady = state === "ready";
   const selected = chosen === "distance";
+  const distanceByChain = measured?.distances;
+  // A town centre is no place to measure from, so only a fix shows kilometres
+  // or names a nearest store.
+  const isShown = isReady && origin?.source === "gps";
 
   return {
     sortMode: selected && !isReady ? fallback : chosen,
     origin: isReady || (selected && isFromTown) ? origin : null,
     distanceByChain: (isReady && distanceByChain) || undefined,
-    // A town centre is no place to measure from, so only a fix shows kilometres.
-    shownDistances:
-      (isReady && origin?.source === "gps" && distanceByChain) || undefined,
+    shownNearestStores: (isShown && measured?.nearest) || undefined,
   };
 }
 
@@ -178,13 +191,13 @@ export function useDistanceSort<TMode extends string>(
 
   const lat = origin?.lat;
   const lon = origin?.lon;
-  const distanceByChain = useMemo(
+  const measured = useMemo(
     () => measureChains(lat, lon, stores, pricedStores),
     [lat, lon, stores, pricedStores],
   );
 
   const state = selected
-    ? readState(gps.status, origin != null, directory, distanceByChain)
+    ? readState(gps.status, origin != null, directory, measured)
     : (failure ?? "idle");
 
   // Adjusting state while rendering, as React documents for derived resets,
@@ -242,7 +255,7 @@ export function useDistanceSort<TMode extends string>(
       fallback,
       isFromTown,
       origin,
-      distanceByChain,
+      measured,
     }),
   };
 }

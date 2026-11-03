@@ -11,6 +11,7 @@ import { fetchUpstreamStores } from "@/lib/store-locations/upstream-stores";
 import { croatianHolidaysBetween } from "@/lib/store-hours/croatian-holidays";
 import { runChainSources } from "@/lib/store-hours/sync/chain-step";
 import { deleteOverlaysBefore } from "@/lib/store-hours/sync/hours-repository";
+import { runLinkCheck } from "@/lib/store-hours/sync/link-check";
 import { runOsmStep } from "@/lib/store-hours/sync/osm-step";
 import {
   addDays,
@@ -30,6 +31,9 @@ const OVERLAY_LEASE: ISyncLease = {
   id: "store-hours-overlay",
   every: "20 hours",
 };
+
+// Weekly like the template, as the owner's plan set the link checker's schedule.
+const LINK_LEASE: ISyncLease = { id: "store-hours-links", every: "7 days" };
 
 const THURSDAY = 3;
 
@@ -90,16 +94,41 @@ async function runOverlaySync(signal: AbortSignal): Promise<void> {
   }
 }
 
+async function runLinkSync(signal: AbortSignal): Promise<void> {
+  if (!(await acquireSyncLease(LINK_LEASE))) return;
+
+  let failure: string | null = null;
+
+  try {
+    await runLinkCheck(signal);
+  } catch (error) {
+    failure = error instanceof Error ? error.message : String(error);
+    console.error("[store-hours] link check failed", error);
+  } finally {
+    await releaseSyncLease(failure, LINK_LEASE);
+  }
+}
+
+type HoursJobName = "template" | "overlay" | "links";
+
 /** Which job, if any, a request should start now. */
-export async function dueHoursJob(): Promise<"template" | "overlay" | null> {
+export async function dueHoursJob(): Promise<HoursJobName | null> {
   if (await isSyncDue(TEMPLATE_LEASE)) return "template";
 
   const weekday = isoWeekday(zagrebClock(new Date()).date);
   const pollDay = weekday >= THURSDAY && weekday !== SUNDAY;
 
-  return pollDay && (await isSyncDue(OVERLAY_LEASE)) ? "overlay" : null;
+  if (pollDay && (await isSyncDue(OVERLAY_LEASE))) return "overlay";
+
+  return (await isSyncDue(LINK_LEASE)) ? "links" : null;
 }
 
-export function runHoursJob(job: "template" | "overlay", signal: AbortSignal) {
-  return job === "template" ? runTemplateSync(signal) : runOverlaySync(signal);
+const JOBS: Record<HoursJobName, (signal: AbortSignal) => Promise<void>> = {
+  template: runTemplateSync,
+  overlay: runOverlaySync,
+  links: runLinkSync,
+};
+
+export function runHoursJob(job: HoursJobName, signal: AbortSignal) {
+  return JOBS[job](signal);
 }

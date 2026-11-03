@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { useIsMobile } from "@/hooks/use-mobile";
+import StoreHoursProvider from "@/components/custom/store-hours/store-hours-context";
 import MapLoadState from "@/app/[locale]/map/components/map-load-state";
 import MapMobileLayout from "@/app/[locale]/map/components/map-mobile-layout";
 import MapPanel from "@/app/[locale]/map/components/map-panel";
@@ -52,12 +53,14 @@ export default function MapClient({ ipLocation }: IMapClientProps) {
 
   if (isMobile) {
     return (
-      <MapMobileLayout
-        model={model}
-        viewArea={viewArea}
-        map={map}
-        onCoverChange={setCoveredShare}
-      />
+      <StoreHoursProvider hours={model.hours}>
+        <MapMobileLayout
+          model={model}
+          viewArea={viewArea}
+          map={map}
+          onCoverChange={setCoveredShare}
+        />
+      </StoreHoursProvider>
     );
   }
 
@@ -65,30 +68,32 @@ export default function MapClient({ ipLocation }: IMapClientProps) {
   // The server renders this branch on phones too, so until hydration swaps in
   // the phone layout it holds the phone's frame and shows nothing inside it.
   return (
-    <div
-      data-page-width="full"
-      className="fixed inset-x-0 top-0 bottom-[var(--bottom-nav-total)] z-[1] md:static md:mx-auto md:min-h-0 md:w-full md:max-w-5xl md:flex-1"
-    >
-      <div className="mx-auto hidden h-full max-w-7xl grid-cols-[24rem_1fr] gap-4 md:grid">
-        <aside
-          id="map-store-list"
-          aria-label={t("storeList")}
-          className="flex min-h-0 flex-col overflow-hidden rounded-xl border bg-background"
-        >
-          {model.status === "success" ? (
-            <MapPanel model={model} viewArea={viewArea} />
-          ) : (
-            <div className="flex min-h-0 flex-1 flex-col gap-3 p-3">
-              <MapLoadState
-                status={model.status}
-                onRetry={() => model.retry()}
-              />
-            </div>
-          )}
-        </aside>
+    <StoreHoursProvider hours={model.hours}>
+      <div
+        data-page-width="full"
+        className="fixed inset-x-0 top-0 bottom-[var(--bottom-nav-total)] z-[1] md:static md:mx-auto md:min-h-0 md:w-full md:max-w-5xl md:flex-1"
+      >
+        <div className="mx-auto hidden h-full max-w-7xl grid-cols-[24rem_1fr] gap-4 md:grid">
+          <aside
+            id="map-store-list"
+            aria-label={t("storeList")}
+            className="flex min-h-0 flex-col overflow-hidden rounded-xl border bg-background"
+          >
+            {model.status === "success" ? (
+              <MapPanel model={model} viewArea={viewArea} />
+            ) : (
+              <div className="flex min-h-0 flex-1 flex-col gap-3 p-3">
+                <MapLoadState
+                  status={model.status}
+                  onRetry={() => model.retry()}
+                />
+              </div>
+            )}
+          </aside>
 
-        <div className="overflow-hidden rounded-xl border">{map}</div>
+          <div className="overflow-hidden rounded-xl border">{map}</div>
+        </div>
       </div>
-    </div>
+    </StoreHoursProvider>
   );
 }
