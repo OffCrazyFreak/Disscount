@@ -42,5 +42,21 @@
     "intro": "Pravkar smo zaznali poskus prijave v tvoj račun Disscount s pravilnim geslom. To geslo smo našli v znanem uhajanju podatkov z neke druge strani, zato prijave nismo dovolili. Z gumbom spodaj nastavi novo geslo. Ko ga nastaviš, te bomo odjavili z vseh naprav. Povezava velja {minutes, plural, one {# minuto} two {# minuti} few {# minute} other {# minut}}.",
     "button": "Nastavi novo geslo",
     "footnote": "Če to nisi ti, vseeno nastavi novo geslo. Če to geslo uporabljaš tudi drugje, ga zamenjaj tudi tam."
+  },
+  "accountExists": {
+    "subject": "Račun Disscount že imaš",
+    "preview": "Nekdo se je poskušal registrirati s tvojim e-naslovom.",
+    "heading": "S tem naslovom že imaš račun",
+    "intro": "Nekdo se je pravkar poskušal registrirati v Disscount s tem e-naslovom, račun zanj pa že obstaja. Če je bil to tvoj poskus, se preprosto prijavi. Se ne spomniš gesla? V oknu za prijavo izberi \"Pozabljeno geslo\".",
+    "button": "Prijava",
+    "footnote": "To ni tvoja zahteva? Prezri to sporočilo, tvoj račun ostane nespremenjen."
+  },
+  "completeSignUp": {
+    "subject": "Dokončaj registracijo v Disscount",
+    "preview": "Nastavi geslo in dokončaj registracijo. Povezava poteče čez {minutes, plural, one {# minuto} two {# minuti} few {# minute} other {# minut}}.",
+    "heading": "Dokončaj registracijo",
+    "intro": "Nekdo se je pravkar poskušal registrirati v Disscount s tem e-naslovom. Račun zanj že obstaja, a naslov še ni potrjen. Če je račun tvoj, nastavi geslo z gumbom spodaj in s tem potrdi naslov. Povezava poteče čez {minutes, plural, one {# minuto} two {# minuti} few {# minute} other {# minut}}.",
+    "button": "Nastavi geslo",
+    "footnote": "To ni tvoja zahteva? Prezri to sporočilo. Dokler naslov ni potrjen, se v ta račun nihče ne more prijaviti z geslom."
   }
 }

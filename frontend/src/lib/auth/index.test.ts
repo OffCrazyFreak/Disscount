@@ -79,6 +79,25 @@ describe("last login", () => {
   });
 });
 
+describe("register flow", () => {
+  it("re-sends the verification link when an unverified owner signs in", () => {
+    expect(auth.options.emailVerification?.sendOnSignIn).toBe(true);
+  });
+
+  it("answers a registered address like a new one and mails its owner", () => {
+    expect(auth.options.emailAndPassword?.requireEmailVerification).toBe(true);
+    expect(auth.options.emailAndPassword?.onExistingUserSignUp).toBeTypeOf(
+      "function",
+    );
+  });
+
+  it("signs every device out after a reset", () => {
+    expect(auth.options.emailAndPassword?.revokeSessionsOnPasswordReset).toBe(
+      true,
+    );
+  });
+});
+
 // beforeDelete runs after better-auth's own checks and before the identity goes.
 describe("account deletion", () => {
   it("erases the backend data for the deleted user before the identity", async () => {

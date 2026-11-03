@@ -42,5 +42,21 @@
     "intro": "Someone just tried to sign in to your Disscount account with the correct password. We found that password in a known data breach from another site, so we didn't let the sign-in through. Set a new password with the button below. Once you do, we'll sign you out on every device. The link works for {minutes, plural, one {# minute} other {# minutes}}.",
     "button": "Set a new password",
     "footnote": "If this wasn't you, set a new password anyway. If you use this password anywhere else, change it there too."
+  },
+  "accountExists": {
+    "subject": "You already have a Disscount account",
+    "preview": "Someone tried to sign up with your email address.",
+    "heading": "You already have an account with this address",
+    "intro": "Someone just tried to sign up for Disscount with this email address, and an account for it already exists. If that was you, just sign in. Can't remember your password? Choose \"Forgot password\" in the sign-in window.",
+    "button": "Sign in",
+    "footnote": "If this wasn't you, you can ignore this email. Your account stays the same."
+  },
+  "completeSignUp": {
+    "subject": "Finish signing up for Disscount",
+    "preview": "Set a password to finish signing up. The link expires in {minutes, plural, one {# minute} other {# minutes}}.",
+    "heading": "Finish signing up",
+    "intro": "Someone just tried to sign up for Disscount with this email address. An account for it already exists, but the address isn't confirmed yet. If the account is yours, set a password with the button below to confirm the address. This link expires in {minutes, plural, one {# minute} other {# minutes}}.",
+    "button": "Set password",
+    "footnote": "If this wasn't you, you can ignore this email. Until the address is confirmed, nobody can sign in to this account with a password."
   }
 }
