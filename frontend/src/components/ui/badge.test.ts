@@ -92,7 +92,9 @@ function readSlots(variant: (typeof VARIANTS)[number], mode: Mode) {
       );
 
       if (!match || (match[1] ?? "") !== prefix) continue;
-      if (!resolveColor(match[4], mode)) continue;
+      if (!resolveColor(match[4], mode)) {
+        throw new Error(`${variant} uses unknown color ${className}`);
+      }
 
       slots.set(`${match[2] ? "hover " : ""}${match[3]}`, {
         name: match[4],
