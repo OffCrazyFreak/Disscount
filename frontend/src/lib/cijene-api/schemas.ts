@@ -34,6 +34,12 @@ export type StoreResponse = z.infer<typeof storeResponseSchema>;
 export type ListStoresResponse = z.infer<typeof listStoresResponseSchema>;
 
 // Product schemas
+// Prices arrive as decimal text; one that does not parse would surface as NaN in every
+// total, sort and cheapest pick, so it is rejected here instead of at each parseFloat.
+const priceText = z
+  .string()
+  .refine((value) => Number.isFinite(Number.parseFloat(value)));
+
 const chainProductResponseSchema = z.object({
   chain: z.string(),
   code: z.string(),
@@ -42,9 +48,9 @@ const chainProductResponseSchema = z.object({
   category: z.string().nullable(),
   unit: z.string().nullable(),
   quantity: z.string().nullable(),
-  min_price: z.string(),
-  max_price: z.string(),
-  avg_price: z.string(),
+  min_price: priceText,
+  max_price: priceText,
+  avg_price: priceText,
   price_date: z.iso.date(),
 });
 
@@ -54,7 +60,11 @@ export const productResponseSchema = z.object({
   name: z.string().nullable(),
   quantity: z.string().nullable(),
   unit: z.string().nullable(),
-  chains: z.array(chainProductResponseSchema),
+  // A malformed chain entry is dropped rather than failing the whole product, so the
+  // other chains' prices still show.
+  chains: z
+    .array(chainProductResponseSchema.nullable().catch(null))
+    .transform((chains) => chains.filter((chain) => chain !== null)),
 });
 
 export const productSearchResponseSchema = z.object({
