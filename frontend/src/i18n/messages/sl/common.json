@@ -19,7 +19,7 @@
     "hint": "Preveri povezavo in poskusi znova.",
     "retry": "Poskusi znova",
     "indicator": "Brez povezave: prikazujemo shranjene podatke.",
-    "indicatorPending": "Brez povezave: spremembe ({count}) bodo sinhronizirane pozneje."
+    "indicatorPending": "Brez povezave: {count, plural, one {# sprememba čaka} two {# spremembi čakata} few {# spremembe čakajo} other {# sprememb čaka}} na shranjevanje."
   },
   "lastSynced": {
     "refreshed": "Posodobljeno {time}"
@@ -30,11 +30,11 @@
   },
   "comingSoon": {
     "badge": "KMALU",
-    "description": "Ta funkcija je v izdelavi in bo kmalu na voljo.",
+    "description": "Delamo na tem. Kmalu prihaja!",
     "notifyMe": "Obvesti me"
   },
   "copyButton": {
-    "error": "Napaka pri kopiranju"
+    "error": "Kopiranje ni uspelo."
   },
   "footer": {
     "copyright": "© {year} Jakov Jakovac",
@@ -45,20 +45,20 @@
     "spamHint": "Preveri tudi mapo z neželeno pošto (spam)."
   },
   "loginRequired": {
-    "description": "Za uporabo te funkcije se moraš prijaviti.",
+    "description": "Za to se moraš prijaviti.",
     "action": "Prijavi se"
   },
   "noResults": {
     "title": "Ni rezultatov",
-    "description": "Poskusi z drugim iskalnim izrazom"
+    "description": "Poskusi z drugim izrazom."
   },
   "oauthError": {
     "emailNotFound": "Facebook ni posredoval tvojega e-naslova. Prijavi se z e-naslovom ali z računom Facebook, ki ima e-naslov.",
-    "emailMismatch": "Povezava ni uspela, ker ta račun uporablja drug e-naslov. Povežeš lahko le račune z istim e-naslovom, kot je tvoj.",
-    "alreadyLinked": "Ta račun je že povezan z drugim računom Disscount. Ne moreš ga povezati s tem.",
-    "notLinked": "Te prijave ni mogoče samodejno povezati z obstoječim računom. Prijavi se z obstoječim načinom in poveži račun v varnostnih nastavitvah.",
+    "emailMismatch": "Ta račun uporablja drug e-naslov. Povežeš lahko le račune z istim naslovom.",
+    "alreadyLinked": "Ta račun je že povezan z drugim računom Disscount.",
+    "notLinked": "Te prijave ne moremo samodejno povezati s tvojim računom. Prijavi se kot običajno in jo poveži v varnostnih nastavitvah.",
     "restart": "Prijava je potekla ali je bila prekinjena. Poskusi znova.",
-    "default": "Pri prijavi je prišlo do napake. Poskusi znova."
+    "default": "Prijava ni uspela. Poskusi znova."
   },
   "userAvatar": {
     "alt": "Avatar"
@@ -68,7 +68,7 @@
       "intro": "Piši nam prek obrazca spodaj, neposredno na <email></email> ali prek <linkedin>LinkedIna</linkedin>.",
       "copyEmailLabel": "Kopiraj e-naslov",
       "copyEmailSuccess": "E-naslov je kopiran!",
-      "copyEmailError": "Napaka pri kopiranju e-naslova",
+      "copyEmailError": "Kopiranje ni uspelo.",
       "suggestIdea": "Predlagaj idejo",
       "openSuggestions": "Odpri Ideje in predloge",
       "reportBug": "Prijavi napako",
@@ -87,19 +87,19 @@
     },
     "modal": {
       "title": "Piši nam",
-      "description": "Piši nam prek obrazca spodaj ali se obrni neposredno na nas.",
+      "description": "Piši nam prek obrazca spodaj ali neposredno.",
       "submit": "Pošlji sporočilo",
       "cancel": "Prekliči",
       "reset": "Ponastavi",
       "sent": "Sporočilo je poslano. Hvala za sporočilo!",
-      "sentWithEmail": "Sporočilo je poslano. Hvala za sporočilo! Po potrebi se bomo oglasili na navedeni e-naslov.",
+      "sentWithEmail": "Sporočilo je poslano. Hvala za sporočilo! Če bo treba, se ti oglasimo na ta e-naslov.",
       "sourceAvailable": "Disscount je source-available. <link>Oglej si projekt na GitHubu</link>."
     }
   },
   "donation": {
     "title": "Podpri Disscount",
-    "intro": "Disscount je brezplačen in tak ostaja. Če ti pomaga pri organizaciji nakupov ali kako drugače, nam veliko pomeni vsaka prostovoljna podpora.",
-    "usage": "Vse gre neposredno nazaj v Disscount, za vzdrževanje in nadaljnji razvoj!",
+    "intro": "Disscount je brezplačen in tak ostaja. Če ti olajša nakupovanje, nam vsaka podpora veliko pomeni.",
+    "usage": "Vse gre v vzdrževanje in razvoj Disscounta.",
     "kofi": "Podpri na Ko-fi"
   },
   "forgotPassword": {
@@ -125,7 +125,7 @@
     "labelWithCount": "Obvestila ({count})",
     "loading": "Nalaganje...",
     "emptyWatching": "Danes ni popustov na spremljanih izdelkih.",
-    "emptyNotWatching": "Spremljaj izdelke in obvestili te bomo, ko bodo izdelki, ki jih želiš, na popustu v tvojih trgovinah!",
+    "emptyNotWatching": "Spremljaj izdelke in javimo ti, ko bodo na popustu v tvojih trgovinah.",
     "addProducts": "Dodaj izdelke",
     "totalSavings": "Skupni prihranek danes:",
     "savingsDetail": "(≥ {amount} pri {count, plural, one {# izdelku} two {# izdelkih} few {# izdelkih} other {# izdelkih}})"
@@ -157,19 +157,19 @@
     }
   },
   "validation": {
-    "emailInvalid": "Neveljaven e-naslov",
+    "emailInvalid": "Vnesi veljaven e-naslov",
     "fullNameMax": "Ime ima lahko največ 255 znakov",
-    "subjectRequired": "Zadeva je obvezna",
+    "subjectRequired": "Vpiši zadevo",
     "subjectMax": "Zadeva ima lahko največ 255 znakov",
-    "messageRequired": "Sporočilo je obvezno",
+    "messageRequired": "Napiši sporočilo",
     "messageMax": "Sporočilo ima lahko največ 5000 znakov"
   },
   "distanceSort": {
     "locating": "Iščemo tvojo lokacijo za razvrstitev po razdalji…",
     "ready": "Razvrščeno po razdalji od tvoje lokacije. Lokacije ne shranjujemo in je ne pošiljamo.",
-    "denied": "Dostop do lokacije je zavrnjen, zato ostane privzeti vrstni red. Dovoli ga v nastavitvah brskalnika in znova izberi razdaljo.",
+    "denied": "Nimamo dostopa do lokacije, zato ostane privzeti vrstni red. Dovoli ga v nastavitvah brskalnika in znova izberi razdaljo.",
     "unavailable": "Tvoja lokacija trenutno ni na voljo, zato ostane privzeti vrstni red. Znova izberi razdaljo za nov poskus.",
-    "timeout": "Tvoje lokacije ni mogoče določiti, zato ostane privzeti vrstni red. Preveri, ali je lokacija na napravi vklopljena, in znova izberi razdaljo.",
+    "timeout": "Tvoje lokacije ne moremo najti, zato ostane privzeti vrstni red. Preveri, ali je na napravi vklopljena, in znova izberi razdaljo.",
     "noStores": "Lokacije trgovin trenutno niso na voljo, zato ostane privzeti vrstni red.",
     "nearest": "Najbližja trgovina: {distance}"
   }

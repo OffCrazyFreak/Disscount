@@ -11,9 +11,9 @@
   "image": {
     "upload": "Bild mit Code hochladen",
     "loading": "Wird geladen...",
-    "notFound": "Auf dem Bild wurde kein Code gefunden.",
+    "notFound": "Wir sehen keinen Code auf dem Bild. Probier ein schärferes Foto.",
     "notProductBarcode": "Der Code auf dem Bild ist kein Produkt-Barcode (EAN).",
-    "loadFailed": "Das Bild konnte nicht geladen werden.",
+    "loadFailed": "Das Bild konnte nicht geladen werden. Probier ein anderes.",
     "unsupportedFormat": "Das Codeformat auf dem Bild wird nicht unterstützt.",
     "unreadable": "Der Code auf dem Bild wurde nicht richtig gelesen. Probiere ein schärferes Bild."
   },

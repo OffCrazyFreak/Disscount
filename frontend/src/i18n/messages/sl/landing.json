@@ -41,7 +41,7 @@
       },
       "save": {
         "title": "Prihrani pri nakupu",
-        "description": "Izberi najugodnejšo trgovino in kupuj brez listanja katalogov."
+        "description": "Izberi najugodnejšo trgovino in plačaj manj."
       }
     }
   },
@@ -137,7 +137,7 @@
       },
       "sync": {
         "title": "Sinhronizacija ob vrnitvi",
-        "description": "Spremembe, narejene brez povezave, se samodejno shranijo, ko se vrneš na splet."
+        "description": "Kar spremeniš brez povezave, se shrani, ko se vrneš na splet."
       }
     }
   },
@@ -189,7 +189,7 @@
       },
       "offline": {
         "question": "Ali aplikacija deluje brez interneta?",
-        "answer": "Da. Disscount lahko namestiš kot aplikacijo na telefon ali računalnik, shranjeni seznami in ogledani izdelki pa so na voljo tudi brez povezave. Spremembe se samodejno sinhronizirajo, ko se vrneš na splet."
+        "answer": "Da. Namesti Disscount na telefon ali računalnik in shranjeni seznami ter ogledani izdelki bodo delovali tudi brez interneta. Spremembe se shranijo, ko se vrneš na splet."
       }
     }
   },

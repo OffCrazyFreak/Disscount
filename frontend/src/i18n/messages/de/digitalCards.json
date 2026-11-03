@@ -6,11 +6,11 @@
     "save": "Karte speichern",
     "cancel": "Abbrechen",
     "reset": "Zurücksetzen",
-    "loadErrorOffline": "Du bist offline und diese Karte ist noch nicht auf dem Gerät gespeichert. Verbinde dich mit dem Internet und versuche es erneut.",
+    "loadErrorOffline": "Du bist offline und diese Karte ist noch nicht auf dem Gerät. Geh online und versuch es noch mal.",
     "loadError": "Die Karte konnte nicht geladen werden. Versuche es erneut.",
     "notFound": "Karte nicht gefunden. Vielleicht wurde sie gelöscht.",
     "saveFailed": "Die Karte wurde nicht gespeichert. Prüfe deine Eingaben.",
-    "savedOffline": "Du bist offline. Die Änderung wird synchronisiert, sobald du wieder online bist.",
+    "savedOffline": "Du bist offline. Wir speichern die Änderung, sobald du wieder online bist.",
     "saved": "Karte gespeichert.",
     "storeLabel": "Händler",
     "storePlaceholder": "Händler wählen oder eingeben",
@@ -58,7 +58,7 @@
     "noteTooLong": "Die Notiz darf höchstens 500 Zeichen haben",
     "balanceNegative": "Der Betrag darf nicht negativ sein",
     "balanceTooLarge": "Der Betrag ist zu groß",
-    "expiresBeforeStart": "Die Karte kann nicht vor dem Beginn ablaufen"
+    "expiresBeforeStart": "Das Ablaufdatum muss nach dem Beginn liegen"
   },
   "cardTypes": {
     "loyalty": "Kundenkarte",
@@ -170,9 +170,9 @@
     },
     "preview": "Bildvorschau: {label}",
     "status": {
-      "removed": "Das Bild wird beim Speichern entfernt",
-      "added": "Das neue Bild wird mit der Karte gespeichert",
-      "uploading": "Wird hochgeladen",
+      "removed": "Wir entfernen das Bild beim Speichern",
+      "added": "Wir speichern das Bild mit der Karte",
+      "uploading": "Wird hochgeladen...",
       "queued": "Wartet auf Upload",
       "error": "Upload fehlgeschlagen",
       "saved": "Gespeichert",
@@ -186,7 +186,7 @@
     "discardAria": "Neues Bild verwerfen: {label}",
     "removeAria": "Bild entfernen: {label}",
     "errors": {
-      "processFailed": "Das Bild konnte nicht verarbeitet werden.",
+      "processFailed": "Dieses Bild können wir nicht verarbeiten. Probier ein anderes.",
       "saveFailed": "Das Bild wurde nicht gespeichert. Versuche es erneut.",
       "removeFailed": "Das Bild wurde nicht gelöscht. Versuche es erneut."
     }
@@ -197,7 +197,7 @@
   },
   "list": {
     "loginTitle": "Kundenkarten",
-    "loginDescription": "Mit Kundenkarten hast du alle deine Karten an einem Ort, immer griffbereit.",
+    "loginDescription": "Alle Karten deiner Händler an einem Ort, immer griffbereit.",
     "searchPlaceholder": "Kundenkarten suchen...",
     "searchResults": "Suchergebnisse für „{query}“ ({count})",
     "myCards": "Meine Kundenkarten",
@@ -242,7 +242,7 @@
       "link": "Über die App Moj dm"
     },
     "konzum": {
-      "text": "Die Regeln der MultiPlus-Karte verbieten das Kopieren der Karte. Nutze die gespeicherte Nummer nur für deine eigene Karte.",
+      "text": "Die Regeln der MultiPlus-Karte erlauben kein Kopieren. Speichere nur die Nummer deiner eigenen Karte.",
       "link": "Regeln der MultiPlus-Karte"
     }
   },
@@ -276,7 +276,7 @@
       "twoDimensional": "2D-Code",
       "linear": "Strichcode",
       "withValue": "{kind}: {value}",
-      "cannotDraw": "Dieser Code kann nicht dargestellt werden. Lies die Nummer darunter ab oder probiere einen anderen Typ."
+      "cannotDraw": "Diesen Code können wir nicht anzeigen. Lies die Nummer darunter ab oder probier einen anderen Typ."
     },
     "switcher": {
       "shownAs": "Angezeigt als: {type}",
@@ -323,10 +323,10 @@
     }
   },
   "offline": {
-    "cardLimit": "Die maximale Anzahl an Karten ist erreicht.",
+    "cardLimit": "Du hast das Kartenlimit erreicht. Lösch eine, die du nicht nutzt.",
     "cardSaveFailed": "Die Karte wurde nicht gespeichert. Versuche es erneut.",
     "cardDeleteFailed": "Die Karte wurde nicht gelöscht. Versuche es erneut.",
-    "photoDeleteFailed": "Das Bild wurde nicht gelöscht.",
-    "photoSendFailed": "Das Kartenbild wurde nicht gesendet."
+    "photoDeleteFailed": "Das Bild wurde nicht gelöscht. Versuch es noch mal.",
+    "photoSendFailed": "Das Kartenbild wurde nicht gespeichert. Füg es erneut hinzu."
   }
 }

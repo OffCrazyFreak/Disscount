@@ -17,6 +17,6 @@
   "offline": {
     "writeFailed": "Modifica non salvata. Riprova.",
     "writeFailedLostAccess": "Modifica non salvata. Forse non hai più accesso a questa lista.",
-    "retiredWriteDropped": "Una modifica di una versione precedente non è stata salvata. Apri la lista e controlla."
+    "retiredWriteDropped": "Una modifica da una versione precedente dell'app non è stata salvata. Apri la lista e controlla."
   }
 }

@@ -19,7 +19,7 @@
     "hint": "Controlla la connessione e riprova.",
     "retry": "Riprova",
     "indicator": "Offline: stai vedendo i dati salvati.",
-    "indicatorPending": "Offline: le modifiche salvate ({count}) verranno sincronizzate più tardi."
+    "indicatorPending": "Offline: {count, plural, one {# modifica in attesa} other {# modifiche in attesa}} di salvataggio."
   },
   "lastSynced": {
     "refreshed": "Aggiornato {time}"
@@ -30,11 +30,11 @@
   },
   "comingSoon": {
     "badge": "PRESTO",
-    "description": "Questa funzione è in lavorazione e arriverà presto.",
+    "description": "Ci stiamo lavorando. Arriva presto!",
     "notifyMe": "Avvisami"
   },
   "copyButton": {
-    "error": "Non siamo riusciti a copiare"
+    "error": "Copia non riuscita."
   },
   "footer": {
     "copyright": "© {year} Jakov Jakovac",
@@ -45,20 +45,20 @@
     "spamHint": "Controlla anche la cartella spam."
   },
   "loginRequired": {
-    "description": "Per usare questa funzione devi accedere.",
+    "description": "Per questo devi accedere.",
     "action": "Accedi"
   },
   "noResults": {
     "title": "Nessun risultato",
-    "description": "Prova con un altro termine di ricerca"
+    "description": "Prova con un altro termine."
   },
   "oauthError": {
     "emailNotFound": "Il tuo account Facebook non ha condiviso l'indirizzo email. Accedi con l'email o con un account Facebook che ne ha uno.",
-    "emailMismatch": "Non è stato possibile collegare l'account perché usa un altro indirizzo email. Puoi collegare solo account con lo stesso indirizzo email del tuo.",
-    "alreadyLinked": "Questo account è già collegato a un altro account Disscount. Non puoi collegarlo a questo.",
-    "notLinked": "Questo accesso non può essere collegato automaticamente a un account esistente. Accedi con il metodo che usi di solito, poi collega l'account nelle impostazioni di sicurezza.",
-    "restart": "La procedura di accesso è scaduta o è stata interrotta. Riprova.",
-    "default": "Qualcosa è andato storto durante l'accesso. Riprova."
+    "emailMismatch": "Quell'account usa un altro indirizzo email. Puoi collegare solo account con lo stesso indirizzo.",
+    "alreadyLinked": "Questo account è già collegato a un altro account Disscount.",
+    "notLinked": "Non possiamo collegare automaticamente questo accesso al tuo account. Accedi come al solito e poi collegalo nelle impostazioni di sicurezza.",
+    "restart": "L'accesso è scaduto o è stato interrotto. Riprova.",
+    "default": "Accesso non riuscito. Riprova."
   },
   "userAvatar": {
     "alt": "Foto profilo"
@@ -68,7 +68,7 @@
       "intro": "Scrivici con il modulo qui sotto, direttamente a <email></email> o su <linkedin>LinkedIn</linkedin>.",
       "copyEmailLabel": "Copia indirizzo email",
       "copyEmailSuccess": "Indirizzo email copiato!",
-      "copyEmailError": "Non siamo riusciti a copiare l'email",
+      "copyEmailError": "Copia non riuscita.",
       "suggestIdea": "Proponi un'idea",
       "openSuggestions": "Apri Idee e suggerimenti",
       "reportBug": "Segnala un errore",
@@ -92,14 +92,14 @@
       "cancel": "Annulla",
       "reset": "Reimposta",
       "sent": "Messaggio inviato. Grazie per averci scritto!",
-      "sentWithEmail": "Messaggio inviato. Grazie per averci scritto! Se serve, ti rispondiamo all'indirizzo email che hai inserito.",
+      "sentWithEmail": "Messaggio inviato. Grazie per averci scritto! Se serve, ti rispondiamo a quell'indirizzo.",
       "sourceAvailable": "Disscount è source-available. <link>Guarda il progetto su GitHub</link>."
     }
   },
   "donation": {
     "title": "Sostieni Disscount",
-    "intro": "Disscount è gratuito e resterà così. Se ti aiuta a organizzare la spesa, o in qualsiasi altro modo, ogni sostegno volontario conta molto per noi.",
-    "usage": "Tutto torna direttamente in Disscount, per coprire la manutenzione e lo sviluppo futuro!",
+    "intro": "Disscount è gratuito e resterà così. Se ti semplifica la spesa, ogni sostegno conta molto per noi.",
+    "usage": "Tutto va nella manutenzione e nello sviluppo di Disscount.",
     "kofi": "Sostieni su Ko-fi"
   },
   "forgotPassword": {
@@ -125,7 +125,7 @@
     "labelWithCount": "Notifiche ({count})",
     "loading": "Caricamento...",
     "emptyWatching": "Oggi nessuno sconto sui prodotti che segui.",
-    "emptyNotWatching": "Segui dei prodotti: ti avvisiamo quando vanno in offerta nei tuoi negozi!",
+    "emptyNotWatching": "Segui dei prodotti e ti avvisiamo quando vanno in offerta nei tuoi negozi.",
     "addProducts": "Aggiungi prodotti",
     "totalSavings": "Risparmio totale oggi:",
     "savingsDetail": "(≥ {amount} su {count, plural, one {# prodotto} other {# prodotti}})"
@@ -157,17 +157,17 @@
     }
   },
   "validation": {
-    "emailInvalid": "Email non valida",
+    "emailInvalid": "Inserisci un indirizzo email valido",
     "fullNameMax": "Il nome può avere al massimo 255 caratteri",
-    "subjectRequired": "L'oggetto è obbligatorio",
+    "subjectRequired": "Scrivi l'oggetto",
     "subjectMax": "L'oggetto può avere al massimo 255 caratteri",
-    "messageRequired": "Il messaggio è obbligatorio",
+    "messageRequired": "Scrivi un messaggio",
     "messageMax": "Il messaggio può avere al massimo 5000 caratteri"
   },
   "distanceSort": {
     "locating": "Stiamo cercando la tua posizione per ordinare per distanza…",
     "ready": "Ordinato per distanza dalla tua posizione. Non la salviamo né la inviamo.",
-    "denied": "L'accesso alla posizione è bloccato, quindi resta l'ordine predefinito. Consentilo nelle impostazioni del browser e scegli di nuovo la distanza.",
+    "denied": "Non abbiamo accesso alla posizione, quindi resta l'ordine predefinito. Consentilo nelle impostazioni del browser e scegli di nuovo la distanza.",
     "unavailable": "La tua posizione non è disponibile al momento, quindi resta l'ordine predefinito. Scegli di nuovo la distanza per riprovare.",
     "timeout": "Non riusciamo a determinare la tua posizione, quindi resta l'ordine predefinito. Controlla che la localizzazione sia attiva sul dispositivo e scegli di nuovo la distanza.",
     "noStores": "Le posizioni dei negozi non sono disponibili al momento, quindi resta l'ordine predefinito.",

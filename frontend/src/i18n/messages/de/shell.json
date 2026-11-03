@@ -9,7 +9,7 @@
     "watchlist": "Merkliste",
     "watchlistShort": "Merkliste",
     "watchlistShortcut": "Sieh dir die Produkte auf deiner Merkliste an",
-    "watchlistPriceDrops": "{label}, {count, plural, one {# neue Preissenkung} other {# neue Preissenkungen}}",
+    "watchlistPriceDrops": "{label}, {count, plural, one {# neuer Rabatt} other {# neue Rabatte}}",
     "digitalCards": "Kundenkarten",
     "digitalCardsShort": "Karten",
     "digitalCardsShortcut": "Öffne deine Kundenkarten",
@@ -32,7 +32,7 @@
     "myAccount": "Mein Konto",
     "support": "Hilfe und Support",
     "comingSoon": "BALD",
-    "toggle": "Umschalten"
+    "toggle": "Filter ein- oder ausblenden"
   },
   "search": {
     "productsPlaceholder": "Produkte suchen...",
@@ -60,12 +60,12 @@
   },
   "modalRouter": {
     "gate": {
-      "addToList": "Melde dich an, um Produkte zu deiner Einkaufsliste hinzuzufügen.",
+      "addToList": "Melde dich an, um das Produkt auf eine Liste zu setzen.",
       "watchlist": "Melde dich an, um einen Preisalarm für dieses Produkt zu setzen.",
-      "manageLists": "Melde dich an, um deine Einkaufslisten zu verwalten.",
-      "manageCards": "Melde dich an, um deine Kundenkarten zu verwalten.",
+      "manageLists": "Melde dich an, um deine Listen zusammenzustellen.",
+      "manageCards": "Melde dich an, um deine Kundenkarten zu speichern.",
       "settings": "Melde dich an, um die Einstellungen zu öffnen.",
-      "onboarding": "Melde dich an, um loszulegen."
+      "onboarding": "Melde dich an und leg los."
     },
     "deleteList": {
       "title": "Einkaufsliste löschen",

@@ -5,7 +5,7 @@
   },
   "notFound": {
     "title": "Produkt nicht gefunden",
-    "description": "Die Daten für dieses Produkt konnten nicht geladen werden."
+    "description": "Wir können dieses Produkt nicht laden. Such es am besten noch mal."
   },
   "sort": {
     "label": "Sortieren nach:",
@@ -24,7 +24,7 @@
     "title": "Preisverlauf",
     "hide": "Ausblenden",
     "show": "Anzeigen",
-    "empty": "Kein Preisverlauf vorhanden.",
+    "empty": "Noch kein Preisverlauf.",
     "average": "Durchschnitt",
     "period": {
       "week": "(letzte 7 Tage)",

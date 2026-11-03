@@ -83,7 +83,9 @@ describe("MapSearchBar", () => {
     expect(await screen.findByText("store list")).toBeInTheDocument();
     await waitFor(() =>
       expect(
-        screen.queryByRole("button", { name: "Prebaci bočnu traku" }),
+        screen.queryByRole("button", {
+          name: "Prikaži ili sakrij bočnu traku",
+        }),
       ).toBeNull(),
     );
 
@@ -92,7 +94,9 @@ describe("MapSearchBar", () => {
       screen.getByRole("searchbox", { name: "Trgovina, grad ili adresa..." }),
     ).not.toHaveFocus();
     expect(
-      await screen.findByRole("button", { name: "Prebaci bočnu traku" }),
+      await screen.findByRole("button", {
+        name: "Prikaži ili sakrij bočnu traku",
+      }),
     ).toBeInTheDocument();
   });
 
@@ -109,7 +113,9 @@ describe("MapSearchBar", () => {
 
     expect(onOuterEscape).not.toHaveBeenCalled();
     expect(
-      await screen.findByRole("button", { name: "Prebaci bočnu traku" }),
+      await screen.findByRole("button", {
+        name: "Prikaži ili sakrij bočnu traku",
+      }),
     ).toBeInTheDocument();
   });
 

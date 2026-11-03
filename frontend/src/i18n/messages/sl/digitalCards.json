@@ -6,11 +6,11 @@
     "save": "Shrani kartico",
     "cancel": "Prekliči",
     "reset": "Ponastavi",
-    "loadErrorOffline": "Si brez povezave, ta kartica pa še ni shranjena v napravi. Poveži se in poskusi znova.",
-    "loadError": "Napaka pri nalaganju kartice. Poskusi znova.",
+    "loadErrorOffline": "Brez povezave si, te kartice pa še ni v napravi. Poveži se in poskusi znova.",
+    "loadError": "Kartice ni bilo mogoče naložiti. Poskusi znova.",
     "notFound": "Kartice ni mogoče najti. Morda je bila izbrisana.",
     "saveFailed": "Kartice ni bilo mogoče shraniti. Preveri vnesene podatke.",
-    "savedOffline": "Si brez povezave, sprememba bo sinhronizirana, ko se vrneš na splet.",
+    "savedOffline": "Brez povezave si. Spremembo bomo shranili, ko se znova povežeš.",
     "saved": "Kartica je shranjena.",
     "storeLabel": "Trgovina",
     "storePlaceholder": "Izberi ali vnesi trgovino",
@@ -58,7 +58,7 @@
     "noteTooLong": "Opomba ima lahko največ 500 znakov",
     "balanceNegative": "Znesek ne more biti negativen",
     "balanceTooLarge": "Znesek je prevelik",
-    "expiresBeforeStart": "Kartica ne more poteči pred začetkom veljavnosti"
+    "expiresBeforeStart": "Datum poteka mora biti po začetku veljavnosti"
   },
   "cardTypes": {
     "loyalty": "Kartica zvestobe",
@@ -113,9 +113,9 @@
     },
     "preview": "Predogled slike: {label}",
     "status": {
-      "removed": "Slika bo ob shranjevanju odstranjena",
-      "added": "Nova slika se shrani skupaj s kartico",
-      "uploading": "Pošiljanje poteka",
+      "removed": "Sliko odstranimo, ko shraniš",
+      "added": "Sliko shranimo skupaj s kartico",
+      "uploading": "Pošiljamo...",
       "queued": "Čaka na pošiljanje",
       "error": "Pošiljanje ni uspelo",
       "saved": "Shranjeno",
@@ -129,7 +129,7 @@
     "discardAria": "Zavrzi novo sliko: {label}",
     "removeAria": "Odstrani sliko: {label}",
     "errors": {
-      "processFailed": "Slike ni bilo mogoče obdelati.",
+      "processFailed": "Te slike ne moremo obdelati. Poskusi z drugo.",
       "saveFailed": "Slike ni bilo mogoče shraniti. Poskusi znova.",
       "removeFailed": "Slike ni bilo mogoče izbrisati. Poskusi znova."
     }
@@ -140,7 +140,7 @@
   },
   "list": {
     "loginTitle": "Kartice zvestobe",
-    "loginDescription": "S karticami zvestobe imaš vse kartice trgovin na enem mestu, vedno pri roki.",
+    "loginDescription": "Vse kartice trgovin na enem mestu, vedno pri roki.",
     "searchPlaceholder": "Išči kartice zvestobe...",
     "searchResults": "Rezultati iskanja za »{query}« ({count})",
     "myCards": "Moje kartice zvestobe",
@@ -185,7 +185,7 @@
       "link": "O aplikaciji Moj dm"
     },
     "konzum": {
-      "text": "Pravila kartice MultiPlus prepovedujejo kopiranje kartice. Shranjeno številko uporabljaj samo za svojo kartico.",
+      "text": "Pravila kartice MultiPlus ne dovoljujejo kopiranja. Shrani samo številko svoje kartice.",
       "link": "Pravila kartice MultiPlus"
     }
   },
@@ -219,7 +219,7 @@
       "twoDimensional": "Koda 2D",
       "linear": "Črtna koda",
       "withValue": "{kind}: {value}",
-      "cannotDraw": "Te kode ni mogoče narisati. Preberi številko spodaj ali poskusi drugo vrsto."
+      "cannotDraw": "Te kode ne moremo prikazati. Preberi številko spodaj ali poskusi drugo vrsto."
     },
     "switcher": {
       "shownAs": "Prikazano kot: {type}",
@@ -266,10 +266,10 @@
     }
   },
   "offline": {
-    "cardLimit": "Doseženo je največje število kartic.",
+    "cardLimit": "Imaš največ kartic, ki jih lahko shraniš. Izbriši kakšno, ki je ne uporabljaš.",
     "cardSaveFailed": "Kartice ni bilo mogoče shraniti. Poskusi znova.",
     "cardDeleteFailed": "Kartice ni bilo mogoče izbrisati. Poskusi znova.",
-    "photoDeleteFailed": "Slike ni bilo mogoče izbrisati.",
-    "photoSendFailed": "Slike kartice ni bilo mogoče poslati."
+    "photoDeleteFailed": "Slike ni bilo mogoče izbrisati. Poskusi znova.",
+    "photoSendFailed": "Slika kartice ni shranjena. Dodaj jo znova."
   }
 }

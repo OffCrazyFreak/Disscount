@@ -11,9 +11,9 @@
   "image": {
     "upload": "Učitaj sliku s kodom",
     "loading": "Učitavanje...",
-    "notFound": "Kod nije pronađen na slici.",
+    "notFound": "Na slici ne vidimo kod. Probaj s oštrijom slikom.",
     "notProductBarcode": "Kod na slici nije barkod proizvoda (EAN).",
-    "loadFailed": "Sliku nije moguće učitati.",
+    "loadFailed": "Slika se ne može učitati. Probaj drugu.",
     "unsupportedFormat": "Format koda na slici nije podržan.",
     "unreadable": "Kod na slici nije pročitan ispravno. Probaj s oštrijom slikom."
   },
@@ -23,7 +23,7 @@
     "inUse": "Kameru trenutno koristi druga aplikacija. Zatvori je pa pokušaj ponovno.",
     "overconstrained": "Odabrana kamera nije dostupna. Resetiraj kameru na automatski odabir.",
     "insecureContext": "Skeniranje radi samo preko sigurne (HTTPS) veze.",
-    "generic": "Greška pri pokretanju kamere. Pokušaj ponovno."
+    "generic": "Kamera se nije pokrenula. Pokušaj ponovno."
   },
   "codes": {
     "ean_13": "EAN-13",

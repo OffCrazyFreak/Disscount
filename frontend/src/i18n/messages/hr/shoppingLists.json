@@ -1,17 +1,17 @@
 {
   "meta": {
     "title": "Popisi za kupnju",
-    "description": "Upravljanje popisima za kupnju."
+    "description": "Složi popise za kupnju i usporedi cijene po trgovinama."
   },
   "client": {
     "loginTitle": "Popisi za kupnju",
-    "loginDescription": "Popisi za kupnju ti omogućuju da organiziraš kupovinu i na jednom mjestu usporediš cijene po trgovinama.",
+    "loginDescription": "Složi popis i na jednom mjestu usporedi cijene po trgovinama.",
     "searchPlaceholder": "Pretraži popise za kupnju...",
     "searchResults": "Rezultati pretrage za \"{query}\" ({count})",
     "myLists": "Moji popisi za kupnju",
     "myListsWithCount": "Moji popisi za kupnju ({count})",
     "empty": {
-      "title": "Nema popisa za kupnju",
+      "title": "Još nemaš popisa",
       "description": "Stvori popis za kupnju ili pretraži proizvode i dodaj ih na novi popis.",
       "browseProducts": "Pretraži proizvode"
     }
@@ -50,15 +50,15 @@
       "shared": "Svatko s poveznicom"
     },
     "hint": {
-      "NONE": "Dijeljenje je isključeno, samo ti možeš otvoriti ovaj popis.",
+      "NONE": "Samo ti možeš otvoriti ovaj popis.",
       "VIEW": "Vidi cijeli popis, ali ga ne može uređivati.",
-      "SHOP": "Vidi cijeli popis, no može i birati trgovinu te označiti što je kupljeno.",
+      "SHOP": "Vidi popis, bira trgovinu i označava što je kupljeno.",
       "EDIT": "Može uređivati cijeli popis, ali ne može dodavati nove proizvode."
     }
   },
   "modal": {
     "cancel": "Odustani",
-    "notFound": "Popis nije pronađen. Možda je obrisan ili nemaš pristup."
+    "notFound": "Nismo našli taj popis. Možda je obrisan ili nemaš pristup."
   },
   "titleField": {
     "label": "Naziv popisa",
@@ -71,18 +71,18 @@
     "save": "Spremi",
     "create": "Stvori",
     "reset": "Resetiraj",
-    "loadError": "Greška pri učitavanju popisa. Pokušaj ponovo.",
+    "loadError": "Popis se nije učitao. Pokušaj ponovno.",
     "offlineToast": "Izvan si mreže. Promjena će se sinkronizirati kad se vratiš na mrežu.",
-    "updatedToast": "Popis za kupnju je uspješno ažuriran!",
-    "createdToast": "Popis za kupnju je uspješno stvoren!"
+    "updatedToast": "Popis je spremljen!",
+    "createdToast": "Popis je spreman!"
   },
   "copyModal": {
     "title": "Kopiraj popis",
-    "description": "Odaberi što se prenosi u kopiju.",
+    "description": "Odaberi što kopija zadržava.",
     "submit": "Kopiraj",
     "titleSuffix": " (Kopija)",
-    "successToast": "Popis za kupnju je uspješno kopiran!",
-    "errorToast": "Greška pri kopiranju popisa za kupnju",
+    "successToast": "Popis je kopiran!",
+    "errorToast": "Popis nije kopiran. Pokušaj ponovno.",
     "options": {
       "items": {
         "label": "Proizvodi",
@@ -107,7 +107,7 @@
     "shareLink": "Podijeli poveznicu",
     "shareText": "Podijeli tekst",
     "accessLabel": "Tko ima pristup popisu",
-    "settingsUpdatedToast": "Postavke dijeljenja popisa ažurirane.",
+    "settingsUpdatedToast": "Dijeljenje je spremljeno.",
     "settingsFailedToast": "Promjena dijeljenja nije spremljena. Pokušaj ponovno.",
     "linkCopiedToast": "Poveznica je kopirana",
     "textCopiedToast": "Tekst popisa je kopiran",

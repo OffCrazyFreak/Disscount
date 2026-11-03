@@ -9,7 +9,7 @@
     "watchlist": "Watchlist",
     "watchlistShort": "Watchlist",
     "watchlistShortcut": "Open your watchlist",
-    "watchlistPriceDrops": "{label}, {count, plural, one {# new price drop} other {# new price drops}}",
+    "watchlistPriceDrops": "{label}, {count, plural, one {# new discount} other {# new discounts}}",
     "digitalCards": "Loyalty cards",
     "digitalCardsShort": "Cards",
     "digitalCardsShortcut": "Open your loyalty cards",
@@ -32,7 +32,7 @@
     "myAccount": "My account",
     "support": "Help and support",
     "comingSoon": "SOON",
-    "toggle": "Toggle"
+    "toggle": "Show or hide filters"
   },
   "search": {
     "productsPlaceholder": "Search products...",
@@ -60,12 +60,12 @@
   },
   "modalRouter": {
     "gate": {
-      "addToList": "Sign in to add products to a shopping list.",
-      "watchlist": "Sign in to watch this product for price drops.",
-      "manageLists": "Sign in to manage your shopping lists.",
-      "manageCards": "Sign in to manage your loyalty cards.",
+      "addToList": "Sign in to add the product to a list.",
+      "watchlist": "Sign in to add this product to your watchlist.",
+      "manageLists": "Sign in to build your lists.",
+      "manageCards": "Sign in to save your loyalty cards.",
       "settings": "Sign in to open settings.",
-      "onboarding": "Sign in to get started."
+      "onboarding": "Sign in and get going."
     },
     "deleteList": {
       "title": "Delete shopping list",

@@ -6,11 +6,11 @@
     "save": "Salva carta",
     "cancel": "Annulla",
     "reset": "Reimposta",
-    "loadErrorOffline": "Sei offline e questa carta non è ancora salvata sul dispositivo. Connettiti e riprova.",
+    "loadErrorOffline": "Sei offline e questa carta non è ancora sul dispositivo. Connettiti e riprova.",
     "loadError": "Impossibile caricare la carta. Riprova.",
     "notFound": "Carta non trovata. Forse è stata eliminata.",
     "saveFailed": "Carta non salvata. Controlla i dati inseriti.",
-    "savedOffline": "Sei offline. La modifica verrà sincronizzata quando torni online.",
+    "savedOffline": "Sei offline. Salveremo la modifica appena ti riconnetti.",
     "saved": "Carta salvata.",
     "storeLabel": "Negozio",
     "storePlaceholder": "Scegli o scrivi un negozio",
@@ -58,7 +58,7 @@
     "noteTooLong": "La nota può avere al massimo 500 caratteri",
     "balanceNegative": "L'importo non può essere negativo",
     "balanceTooLarge": "L'importo è troppo alto",
-    "expiresBeforeStart": "La carta non può scadere prima dell'inizio"
+    "expiresBeforeStart": "La data di scadenza deve essere successiva all'inizio"
   },
   "cardTypes": {
     "loyalty": "Carta fedeltà",
@@ -113,9 +113,9 @@
     },
     "preview": "Anteprima dell'immagine: {label}",
     "status": {
-      "removed": "L'immagine verrà rimossa al salvataggio",
-      "added": "La nuova immagine viene salvata con la carta",
-      "uploading": "Invio in corso",
+      "removed": "Rimuoviamo l'immagine quando salvi",
+      "added": "Salviamo l'immagine con la carta",
+      "uploading": "Invio...",
       "queued": "In attesa di invio",
       "error": "Invio non riuscito",
       "saved": "Salvata",
@@ -129,7 +129,7 @@
     "discardAria": "Scarta la nuova immagine: {label}",
     "removeAria": "Rimuovi immagine: {label}",
     "errors": {
-      "processFailed": "Non siamo riusciti a elaborare l'immagine.",
+      "processFailed": "Non riusciamo a elaborare questa immagine. Provane un'altra.",
       "saveFailed": "Immagine non salvata. Riprova.",
       "removeFailed": "Immagine non eliminata. Riprova."
     }
@@ -140,7 +140,7 @@
   },
   "list": {
     "loginTitle": "Carte fedeltà",
-    "loginDescription": "Tieni tutte le tue carte fedeltà in un unico posto, sempre a portata di mano.",
+    "loginDescription": "Tutte le carte dei negozi in un unico posto, sempre a portata di mano.",
     "searchPlaceholder": "Cerca carte fedeltà...",
     "searchResults": "Risultati per «{query}» ({count})",
     "myCards": "Le mie carte fedeltà",
@@ -185,7 +185,7 @@
       "link": "Info sull'app Moj dm"
     },
     "konzum": {
-      "text": "Il regolamento della carta MultiPlus vieta di copiare la carta. Usa il numero salvato solo per la tua carta.",
+      "text": "Il regolamento della carta MultiPlus non consente copie. Salva solo il numero della tua carta.",
       "link": "Regolamento della carta MultiPlus"
     }
   },
@@ -219,7 +219,7 @@
       "twoDimensional": "Codice 2D",
       "linear": "Codice a barre",
       "withValue": "{kind}: {value}",
-      "cannotDraw": "Questo codice non si può disegnare. Leggi il numero qui sotto o prova un altro tipo."
+      "cannotDraw": "Non riusciamo a mostrare questo codice. Leggi il numero qui sotto o prova un altro tipo."
     },
     "switcher": {
       "shownAs": "Mostrato come: {type}",
@@ -266,10 +266,10 @@
     }
   },
   "offline": {
-    "cardLimit": "Hai raggiunto il numero massimo di carte.",
+    "cardLimit": "Hai raggiunto il limite di carte. Eliminane una che non usi.",
     "cardSaveFailed": "Carta non salvata. Riprova.",
     "cardDeleteFailed": "Carta non eliminata. Riprova.",
-    "photoDeleteFailed": "Immagine non eliminata.",
-    "photoSendFailed": "Immagine della carta non inviata."
+    "photoDeleteFailed": "Immagine non eliminata. Riprova.",
+    "photoSendFailed": "L'immagine della carta non è stata salvata. Aggiungila di nuovo."
   }
 }

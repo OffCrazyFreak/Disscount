@@ -19,7 +19,7 @@
     "hint": "Provjeri vezu pa pokušaj ponovno.",
     "retry": "Pokušaj ponovno",
     "indicator": "Izvan mreže: prikazujemo spremljene podatke.",
-    "indicatorPending": "Izvan mreže: spremljene promjene ({count}) sinkronizirat će se kasnije."
+    "indicatorPending": "Izvan mreže: {count, plural, one {# promjena čeka} few {# promjene čekaju} other {# promjena čeka}} spremanje."
   },
   "lastSynced": {
     "refreshed": "Osvježeno {time}"
@@ -30,11 +30,11 @@
   },
   "comingSoon": {
     "badge": "USKORO",
-    "description": "Ova značajka je u izradi i bit će uskoro dostupna.",
+    "description": "Radimo na tome. Uskoro stiže!",
     "notifyMe": "Obavijesti me"
   },
   "copyButton": {
-    "error": "Greška pri kopiranju"
+    "error": "Kopiranje nije uspjelo."
   },
   "footer": {
     "copyright": "© {year} Jakov Jakovac",
@@ -45,20 +45,20 @@
     "spamHint": "Ne zaboravi provjeriti i neželjenu poštu (spam)."
   },
   "loginRequired": {
-    "description": "Za korištenje ove značajke potrebna je prijava.",
+    "description": "Za ovo se trebaš prijaviti.",
     "action": "Prijavi se"
   },
   "noResults": {
     "title": "Nema rezultata",
-    "description": "Probaj s drugim pojmom za pretraživanje"
+    "description": "Probaj s drugim pojmom."
   },
   "oauthError": {
     "emailNotFound": "Tvoj Facebook račun nije podijelio email adresu. Prijavi se emailom ili Facebook računom koji ima email.",
-    "emailMismatch": "Povezivanje nije uspjelo jer taj račun koristi drugu email adresu. Možeš povezati samo račune koji imaju istu email adresu kao tvoj.",
-    "alreadyLinked": "Taj račun je već povezan s drugim Disscount računom. Ne možeš ga povezati s ovim.",
-    "notLinked": "Ovu prijavu nije moguće automatski povezati s postojećim računom. Prijavi se postojećom metodom pa poveži račun u postavkama sigurnosti.",
-    "restart": "Postupak prijave je istekao ili je prekinut. Pokušaj ponovo.",
-    "default": "Došlo je do greške pri prijavi. Pokušaj ponovo."
+    "emailMismatch": "Taj račun koristi drugu email adresu. Povezati možeš samo račune s istom adresom.",
+    "alreadyLinked": "Taj račun je već povezan s drugim Disscount računom.",
+    "notLinked": "Ovu prijavu ne možemo sami povezati s tvojim računom. Prijavi se kao inače pa je poveži u postavkama sigurnosti.",
+    "restart": "Prijava je istekla ili je prekinuta. Pokušaj ponovno.",
+    "default": "Prijava nije uspjela. Pokušaj ponovno."
   },
   "userAvatar": {
     "alt": "Avatar"
@@ -68,7 +68,7 @@
       "intro": "Pošalji nam poruku kroz obrazac ispod, direktno na <email></email> ili putem <linkedin>LinkedIna</linkedin>.",
       "copyEmailLabel": "Kopiraj email adresu",
       "copyEmailSuccess": "Email adresa je kopirana!",
-      "copyEmailError": "Greška pri kopiranju emaila",
+      "copyEmailError": "Kopiranje nije uspjelo.",
       "suggestIdea": "Predloži ideju",
       "openSuggestions": "Otvori Ideje i prijedloge",
       "reportBug": "Prijavi grešku",
@@ -87,19 +87,19 @@
     },
     "modal": {
       "title": "Javi nam se",
-      "description": "Javi nam se porukom kroz obrazac ispod ili nam se obrati direktno.",
+      "description": "Piši nam kroz obrazac ispod ili izravno.",
       "submit": "Pošalji poruku",
       "cancel": "Odustani",
       "reset": "Resetiraj",
       "sent": "Poruka je poslana. Hvala na javljanju!",
-      "sentWithEmail": "Poruka je poslana. Hvala na javljanju! Po potrebi ćemo ti se javiti na uneseni email.",
+      "sentWithEmail": "Poruka je poslana. Hvala na javljanju! Ako treba, javit ćemo ti se na taj email.",
       "sourceAvailable": "Disscount je source-available. <link>Pogledaj projekt na GitHubu</link>."
     }
   },
   "donation": {
     "title": "Podrži Disscount",
-    "intro": "Disscount je besplatan i takav ostaje. Ako ti pomaže pri organizaciji kupovine, ili na bilo koji drugi način, puno nam znači bilo kakva dobrovoljna podrška.",
-    "usage": "Sve ide direktno nazad u Disscount kako bi se pokrilo održavanje i daljnji razvoj!",
+    "intro": "Disscount je besplatan i takav ostaje. Ako ti olakšava kupnju, svaka podrška puno nam znači.",
+    "usage": "Sve ide u održavanje i razvoj Disscounta.",
     "kofi": "Podrži na Ko-fi"
   },
   "forgotPassword": {
@@ -125,7 +125,7 @@
     "labelWithCount": "Obavijesti ({count})",
     "loading": "Učitavanje...",
     "emptyWatching": "Danas nema popusta na praćenim proizvodima.",
-    "emptyNotWatching": "Prati proizvode i obavijestit ćemo te kad proizvodi koje želiš budu na popustu u tvojim trgovinama!",
+    "emptyNotWatching": "Prati proizvode i javit ćemo ti kad budu na popustu u tvojim trgovinama.",
     "addProducts": "Dodaj proizvode",
     "totalSavings": "Ukupna ušteda danas:",
     "savingsDetail": "(≥ {amount} na {count, plural, one {# proizvod} few {# proizvoda} other {# proizvoda}})"
@@ -157,20 +157,20 @@
     }
   },
   "validation": {
-    "emailInvalid": "Neispravan email",
+    "emailInvalid": "Unesi važeći email",
     "fullNameMax": "Ime može imati najviše 255 znakova",
-    "subjectRequired": "Naslov je obavezan",
+    "subjectRequired": "Upiši naslov",
     "subjectMax": "Naslov može imati najviše 255 znakova",
-    "messageRequired": "Poruka je obavezna",
+    "messageRequired": "Napiši poruku",
     "messageMax": "Poruka može imati najviše 5000 znakova"
   },
   "distanceSort": {
     "locating": "Tražimo tvoju lokaciju za poredak po udaljenosti…",
     "ready": "Poredano po udaljenosti od tvoje lokacije. Lokaciju ne spremamo niti je šaljemo.",
-    "denied": "Pristup lokaciji je odbijen, pa ostaje zadani poredak. Dopusti ga u postavkama preglednika i ponovno odaberi udaljenost.",
-    "unavailable": "Lokacija trenutačno nije dostupna, pa ostaje zadani poredak. Ponovno odaberi udaljenost za novi pokušaj.",
-    "timeout": "Lokacija se ne može odrediti, pa ostaje zadani poredak. Provjeri je li lokacija uključena na uređaju i ponovno odaberi udaljenost.",
-    "noStores": "Lokacije trgovina trenutačno nisu dostupne, pa ostaje zadani poredak.",
+    "denied": "Nemamo pristup lokaciji pa ostaje zadani poredak. Dopusti ga u postavkama preglednika i ponovno odaberi udaljenost.",
+    "unavailable": "Lokacija trenutno nije dostupna, pa ostaje zadani poredak. Ponovno odaberi udaljenost za novi pokušaj.",
+    "timeout": "Ne možemo pronaći tvoju lokaciju pa ostaje zadani poredak. Provjeri je li uključena na uređaju i ponovno odaberi udaljenost.",
+    "noStores": "Lokacije trgovina trenutno nisu dostupne, pa ostaje zadani poredak.",
     "nearest": "Najbliža trgovina: {distance}"
   }
 }

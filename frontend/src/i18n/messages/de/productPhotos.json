@@ -24,7 +24,7 @@
     "gallery": "Fotogalerie",
     "report": "Foto melden",
     "reported": "Danke, wir sehen uns das Foto an.",
-    "reportFailed": "Die Meldung hat nicht geklappt.",
+    "reportFailed": "Die Meldung wurde nicht gesendet. Versuch es noch mal.",
     "setMain": "Als Hauptfoto festlegen",
     "isMain": "Hauptfoto",
     "setMainDone": "Das Hauptfoto wurde geändert."
@@ -39,15 +39,15 @@
     "submit": "Foto senden",
     "submitting": "Foto wird gesendet",
     "preparing": "Foto wird vorbereitet",
-    "public": "Das Foto ist öffentlich. Es gilt als bestätigt, sobald jemand anderes ein eigenes Foto desselben Produkts hinzufügt oder ein Admin es prüft.",
+    "public": "Das Foto ist öffentlich. Wir bestätigen es, sobald jemand anderes ein Foto desselben Produkts hinzufügt oder unser Team es prüft.",
     "adminNote": "Fotos von Admins werden sofort zum Hauptfoto.",
     "done": "Danke! Das Foto wurde hinzugefügt.",
-    "failed": "Das Foto wurde nicht gesendet.",
+    "failed": "Das Foto wurde nicht gesendet. Versuch es noch mal.",
     "errors": {
       "cannotOpen": "Dieses Bild lässt sich nicht öffnen.",
       "cannotProcess": "Dieses Bild lässt sich nicht verarbeiten.",
       "cannotSave": "Das Bild lässt sich nicht speichern.",
-      "tooLarge": "Das Bild ist auch nach dem Verkleinern zu groß."
+      "tooLarge": "Das Bild ist auch nach dem Verkleinern zu groß. Probier ein anderes."
     }
   },
   "manager": {

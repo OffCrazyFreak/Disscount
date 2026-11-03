@@ -9,7 +9,7 @@
   },
   "health": {
     "checking": "Provjera stanja...",
-    "error": "❌ Greška pri provjeri dostupnosti API-ja",
+    "error": "❌ Ne možemo provjeriti radi li API za cijene",
     "available": "✅ API za cijene je dostupan",
     "unavailable": "❌ API za cijene nije dostupan"
   },

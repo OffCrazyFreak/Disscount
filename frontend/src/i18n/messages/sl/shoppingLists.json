@@ -1,17 +1,17 @@
 {
   "meta": {
     "title": "Nakupovalni seznami",
-    "description": "Upravljanje nakupovalnih seznamov."
+    "description": "Sestavi nakupovalne sezname in primerjaj cene po trgovinah."
   },
   "client": {
     "loginTitle": "Nakupovalni seznami",
-    "loginDescription": "Nakupovalni seznami ti omogočajo, da nakup organiziraš in na enem mestu primerjaš cene po trgovinah.",
+    "loginDescription": "Sestavi seznam in na enem mestu primerjaj cene po trgovinah.",
     "searchPlaceholder": "Išči nakupovalne sezname...",
     "searchResults": "Rezultati iskanja za »{query}« ({count})",
     "myLists": "Moji nakupovalni seznami",
     "myListsWithCount": "Moji nakupovalni seznami ({count})",
     "empty": {
-      "title": "Ni nakupovalnih seznamov",
+      "title": "Še nimaš seznamov",
       "description": "Ustvari nakupovalni seznam ali poišči izdelke in jih dodaj na nov seznam.",
       "browseProducts": "Išči izdelke"
     }
@@ -50,7 +50,7 @@
       "shared": "Vsak s povezavo"
     },
     "hint": {
-      "NONE": "Deljenje je izklopljeno, seznam lahko odpreš samo ti.",
+      "NONE": "Seznam lahko odpreš samo ti.",
       "VIEW": "Vidijo ves seznam, urejati ga ne morejo.",
       "SHOP": "Vidijo ves seznam, izberejo lahko trgovino in označijo, kar je kupljeno.",
       "EDIT": "Urejajo lahko ves seznam, dodajati novih izdelkov pa ne morejo."
@@ -58,7 +58,7 @@
   },
   "modal": {
     "cancel": "Prekliči",
-    "notFound": "Seznam ni najden. Morda je izbrisan ali nimaš dostopa."
+    "notFound": "Tega seznama nismo našli. Morda je izbrisan ali nimaš dostopa."
   },
   "titleField": {
     "label": "Ime seznama",
@@ -71,18 +71,18 @@
     "save": "Shrani",
     "create": "Ustvari",
     "reset": "Ponastavi",
-    "loadError": "Napaka pri nalaganju seznama. Poskusi znova.",
+    "loadError": "Seznama ni bilo mogoče naložiti. Poskusi znova.",
     "offlineToast": "Brez povezave si. Sprememba bo sinhronizirana, ko se vrneš na splet.",
-    "updatedToast": "Nakupovalni seznam je posodobljen!",
-    "createdToast": "Nakupovalni seznam je ustvarjen!"
+    "updatedToast": "Seznam je shranjen!",
+    "createdToast": "Seznam je pripravljen!"
   },
   "copyModal": {
     "title": "Kopiraj seznam",
-    "description": "Izberi, kaj se prenese v kopijo.",
+    "description": "Izberi, kaj ohrani kopija.",
     "submit": "Kopiraj",
     "titleSuffix": " (kopija)",
-    "successToast": "Nakupovalni seznam je kopiran!",
-    "errorToast": "Napaka pri kopiranju nakupovalnega seznama",
+    "successToast": "Seznam je kopiran!",
+    "errorToast": "Seznama ni bilo mogoče kopirati. Poskusi znova.",
     "options": {
       "items": {
         "label": "Izdelki",
@@ -107,7 +107,7 @@
     "shareLink": "Deli povezavo",
     "shareText": "Deli besedilo",
     "accessLabel": "Kdo ima dostop do seznama",
-    "settingsUpdatedToast": "Nastavitve deljenja seznama so posodobljene.",
+    "settingsUpdatedToast": "Deljenje je shranjeno.",
     "settingsFailedToast": "Spremembe deljenja ni bilo mogoče shraniti. Poskusi znova.",
     "linkCopiedToast": "Povezava je kopirana",
     "textCopiedToast": "Besedilo seznama je kopirano",

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Popis za kupnju - Detalji",
+    "title": "Popis za kupnju",
     "description": "Pregled i upravljanje stavkama na popisu za kupnju."
   },
   "toggle": {
@@ -9,15 +9,15 @@
   },
   "backToLists": "Natrag na popise za kupnju",
   "lastSynced": "Popis osvježen {time}",
-  "updatedByOthers": "Popis je ažuriran",
+  "updatedByOthers": "Netko je upravo promijenio popis.",
   "access": {
     "view": "Ovaj popis možeš samo pregledavati.",
     "shop": "Možeš označiti što je kupljeno i birati trgovinu, ali ne možeš mijenjati popis.",
     "edit": "Možeš mijenjati količine i brisati proizvode, ali ne možeš dodavati nove.",
     "withNextStep": "{text} {nextStep}",
     "signIn": "Prijavi se za uređivanje.",
-    "askOwner": "Za više ovlasti obrati se vlasniku popisa.",
-    "checking": "Ovlasti za ovaj popis još se provjeravaju."
+    "askOwner": "Za više ovlasti pitaj vlasnika popisa.",
+    "checking": "Provjeravamo tvoje ovlasti..."
   },
   "actions": {
     "deleteTitle": "Obriši popis za kupnju",
@@ -32,9 +32,9 @@
   "toasts": {
     "linkCopied": "Poveznica je kopirana",
     "shareFailed": "Dijeljenje nije uspjelo",
-    "itemDeleted": "Stavka je uspješno obrisana!",
-    "listDeleted": "Popis za kupnju je uspješno obrisan!",
-    "listDeleteFailed": "Greška pri brisanju popisa za kupnju. Pokušaj ponovno."
+    "itemDeleted": "Proizvod je uklonjen.",
+    "listDeleted": "Popis je obrisan.",
+    "listDeleteFailed": "Popis nije obrisan. Pokušaj ponovno."
   },
   "unavailable": {
     "deadLinkTitle": "Poveznica više ne vrijedi",
@@ -59,8 +59,8 @@
   "items": {
     "titleWithChecked": "Proizvodi ({checked}/{total} kupljeno)",
     "title": "Proizvodi ({total})",
-    "emptyOwner": "Ovaj popis još ne sadrži proizvode. Pretraži proizvode i dodaj ih na ovaj popis.",
-    "empty": "Ovaj popis još ne sadrži proizvode.",
+    "emptyOwner": "Popis je još prazan. Pretraži proizvode i dodaj ih ovdje.",
+    "empty": "Popis je još prazan.",
     "searchProducts": "Pretraži proizvode",
     "markUnbought": "Označi {name} kao nekupljeno",
     "markBought": "Označi {name} kao kupljeno",
@@ -74,7 +74,7 @@
   },
   "prices": {
     "failed": "Cijene nisu dostupne",
-    "offline": "Cijene nisu spremljene za izvanmrežni rad",
+    "offline": "Cijene nisu spremljene za rad bez interneta",
     "noPrices": "Nema cijena u trgovinama",
     "failedCount": "{count, plural, one {Cijene za # stavku nisu dostupne.} few {Cijene za # stavke nisu dostupne.} other {Cijene za # stavki nisu dostupne.}}",
     "retry": "Pokušaj ponovno",
@@ -83,19 +83,19 @@
   },
   "priceHistory": {
     "title": "Povijest cijena",
-    "noData": "Nema dostupnih povijesnih podataka."
+    "noData": "Još nema povijesti cijena."
   },
   "stores": {
     "title": "Cijene po trgovinama",
-    "noItems": "Ovaj popis još ne sadrži proizvode. Probaj pretražiti proizvode pa ih dodaj na ovaj popis.",
-    "allChecked": "Svi proizvodi su označeni kao kupljeni.",
-    "loadError": "Greška pri učitavanju cijena. Pokušaj ponovno.",
+    "noItems": "Popis je još prazan. Pretraži proizvode i dodaj ih ovdje.",
+    "allChecked": "Sve je kupljeno!",
+    "loadError": "Cijene se nisu učitale. Pokušaj ponovno.",
     "noPrices": "Nema dostupnih cijena za stavke na popisu.",
-    "optimizeBy": "Optimiziraj po:",
+    "optimizeBy": "Poredaj po:",
     "optimize": {
-      "products": "Broju proizvoda",
+      "products": "Broju dostupnih proizvoda",
       "basket": "Najjeftinijoj košarici",
-      "total": "Zasebnim proizvodima",
+      "total": "Broju najjeftinijih proizvoda",
       "distance": "Udaljenosti"
     },
     "availableItems": "Dostupno proizvoda {count}/{total}",
