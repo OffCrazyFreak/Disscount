@@ -195,7 +195,7 @@ Digital card photos live in their own Cloudflare R2 bucket, separate from the ba
 
 All four are **optional**. If any one is blank the backend runs without photos (uploads answer 503 and the form hides the photo fields); the rest of the wallet is unaffected. They are backend-only and read at startup, so a change needs a backend restart, not a rebuild. Locally they live in `backend/.env.example`.
 
-> Both compose files forward the four `R2_*` variables to the backend, blank by default, and the root `.env.example` lists them. Photos stay off until all four are set.
+> All three compose files (`docker-compose.yml`, `docker-compose.prod.yml`, `docker-compose.images.yml`) forward the four `R2_*` variables to the backend, blank by default, and the root `.env.example` lists them. Photos stay off until all four are set.
 
 ### Product photo env vars
 
@@ -210,7 +210,7 @@ Product photos are public, so they live in a second R2 bucket that is readable t
 
 All four are **optional**. If any one (or `R2_ENDPOINT`) is blank, product pages show no photos, uploads answer 503 and the background jobs do nothing. The URL must be `https://`: the frontend's Content Security Policy only allows images from `https:` origins. Backend-only and read at startup, so a change needs a backend restart.
 
-> Both compose files forward the four `R2_PUBLIC_*` variables to the backend, blank by default. A variable missing from `docker-compose.images.yml` never reaches the dev backend, even when Dokploy has it.
+> All three compose files forward the four `R2_PUBLIC_*` variables to the backend, blank by default. A variable missing from `docker-compose.images.yml` never reaches the dev backend, even when Dokploy has it.
 
 ---
 
