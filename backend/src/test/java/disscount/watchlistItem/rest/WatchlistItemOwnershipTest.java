@@ -28,6 +28,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 // Real service and H2 repository behind the controller, because the bug lives in the query.
@@ -97,6 +98,23 @@ class WatchlistItemOwnershipTest {
 
         mvc.perform(delete("/api/watchlist/{id}", own.getId()).with(as(alice))).andExpect(status().isNoContent());
         assertThat(watchlist.findById(own.getId()).orElseThrow().getDeletedAt()).isEqualTo(deletedAt);
+    }
+
+    @Test
+    void theListsNeverReturnAnotherUsersItems() throws Exception {
+        itemOf(bob);
+        WatchlistItem own = itemOf(alice);
+
+        assertThat(idsIn(mvc.perform(get("/api/watchlist/me").with(as(alice)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString()))
+                .containsExactly(own.getId().toString());
+        assertThat(idsIn(mvc.perform(get("/api/watchlist/product/{productApiId}", "3850123456789").with(as(alice)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString()))
+                .containsExactly(own.getId().toString());
+    }
+
+    private List<String> idsIn(String body) {
+        return json.readTree(body).valueStream().map(item -> item.get("id").asString()).toList();
     }
 
     @Test
