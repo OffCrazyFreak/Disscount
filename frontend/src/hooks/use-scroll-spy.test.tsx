@@ -164,6 +164,22 @@ describe("useScrollSpy", () => {
     expect(section("stores")).toHaveFocus();
   });
 
+  it("ignores a hash that is not valid percent-encoding", () => {
+    window.history.replaceState(null, "", "/#%");
+
+    const { result } = mountPage();
+
+    expect(result.current.activeId).toBe("products");
+  });
+
+  it("builds a valid band when the window is shorter than the bar line", () => {
+    vi.stubGlobal("innerHeight", 50);
+
+    mountPage();
+
+    expect(band().options.rootMargin).toBe("-100px 0px -0px 0px");
+  });
+
   it("does not jump back to its own hash when the sections change later", () => {
     vi.stubGlobal("matchMedia", () => ({ matches: false }));
     const { result, rerender } = mountPage(["products", "stores"]);

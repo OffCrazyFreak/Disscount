@@ -24,6 +24,15 @@ function readIsAtEnd(): boolean {
   );
 }
 
+function readHashId(): string {
+  try {
+    return decodeURIComponent(window.location.hash.slice(1));
+  } catch {
+    // A hand-typed hash such as "#%" is not valid percent-encoding and must not crash the page.
+    return "";
+  }
+}
+
 /** Brings a section under the bar and moves focus into it, as a native anchor jump would. */
 function scrollToSection(section: HTMLElement, isInstant: boolean) {
   section.focus({ preventScroll: true });
@@ -107,7 +116,9 @@ export function useScrollSpy(
           isAtEnd = readIsAtEnd();
           pick();
         },
-        { rootMargin: `-${line}px 0px -${below - bandHeight}px 0px` },
+        {
+          rootMargin: `-${line}px 0px -${Math.max(0, below - bandHeight)}px 0px`,
+        },
       );
       sections.forEach((section) => band?.observe(section));
     }
@@ -171,7 +182,7 @@ export function useScrollSpy(
   useEffect(() => {
     if (hasHandledHashRef.current) return;
 
-    const hash = decodeURIComponent(window.location.hash.slice(1));
+    const hash = readHashId();
     const section = idsKey.split(" ").includes(hash)
       ? document.getElementById(hash)
       : null;
