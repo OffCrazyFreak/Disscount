@@ -13,17 +13,18 @@ const shoppingListItemFieldsSchema = z.object({
   storePrice: z.number().nullable().optional(),
 });
 
-export const shoppingListItemRequestSchema = shoppingListItemFieldsSchema.extend({
-  name: z.string().min(1, "shoppingLists.validation.nameRequired"),
-  amount: z
-    .number()
-    .int()
-    .min(1, "shoppingLists.validation.amountMin")
-    // The message text states the limit as a literal: keys cannot take parameters.
-    .max(MAX_SHOPPING_LIST_ITEM_AMOUNT, "shoppingLists.validation.amountMax")
-    .default(1),
-  isChecked: z.boolean().default(false),
-});
+export const shoppingListItemRequestSchema =
+  shoppingListItemFieldsSchema.extend({
+    name: z.string().min(1, "shoppingLists.validation.nameRequired"),
+    amount: z
+      .number()
+      .int()
+      .min(1, "shoppingLists.validation.amountMin")
+      // The message text states the limit as a literal: keys cannot take parameters.
+      .max(MAX_SHOPPING_LIST_ITEM_AMOUNT, "shoppingLists.validation.amountMax")
+      .default(1),
+    isChecked: z.boolean().default(false),
+  });
 
 // Not an extension of the request schema: its limits are form rules, and a row the server
 // holds (saved before a limit existed, or imported) must still parse.
