@@ -280,21 +280,26 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         if (status.is5xxServerError()) {
             log.error("Unhandled exception caught", ex);
         }
-        String springDetail = ex instanceof ErrorResponse errorResponse
+        // A server-side detail may describe internals, so a 5xx always gets the generic text.
+        String springDetail = !status.is5xxServerError() && ex instanceof ErrorResponse errorResponse
                 ? errorResponse.updateAndGetBody(messageSource, LocaleContextHolder.getLocale()).getDetail()
                 : null;
         String detailText = springDetail != null ? springDetail : message("problem.detail.internal-error");
         String type = typeFor(status);
-        ProblemDetail detail = problem(HttpStatus.valueOf(status.value()), type, detailText);
+        ProblemDetail detail = problem(status, type, detailText);
         return respond(ex, detail, headers, status, request);
     }
 
     private static String typeFor(HttpStatusCode status) {
         return switch (status.value()) {
+            case 401 -> "unauthorized";
+            case 403 -> "forbidden";
             case 404 -> "not-found";
             case 405 -> "method-not-allowed";
+            case 409 -> "conflict";
             case 413 -> "payload-too-large";
             case 415 -> "unsupported-media-type";
+            case 429 -> "too-many-requests";
             case 503 -> "unavailable";
             default -> status.is5xxServerError() ? "internal-error" : "bad-request";
         };
@@ -316,7 +321,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return messageSource.getMessage(codeOrText, args, codeOrText, LocaleContextHolder.getLocale());
     }
 
-    private ProblemDetail problem(HttpStatus status, String type, String detail) {
+    private ProblemDetail problem(HttpStatusCode status, String type, String detail) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
         problemDetail.setType(URI.create("urn:disscount:" + type));
         problemDetail.setTitle(message("problem.title." + type));
