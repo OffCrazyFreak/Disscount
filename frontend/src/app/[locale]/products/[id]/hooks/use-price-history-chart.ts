@@ -23,11 +23,16 @@ export function usePriceHistoryChart(product: ProductResponse) {
   const { user } = useUser();
   const { isPriceHistoryOpen = false } = useProductPreferences(product.ean);
 
+  const availableChains =
+    product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
+
   // Safe to read lazily: only the closed-by-default panel shows these, so no server HTML does.
-  const [chartPrefs, setChartPrefs] = useState<IChartPrefs>(() => {
+  // Null chains mean nothing saved yet, so the pinned stores default follows the user once it loads.
+  const [savedChartPrefs, setChartPrefs] = useState<{
+    period: PeriodOption;
+    chains: string[] | null;
+  }>(() => {
     const { productsPreferences } = getPriceHistoryPreferences(product.ean);
-    const availableChains =
-      product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
 
     // A persisted period may since have been disabled, so coerce it back.
     const period = getEnabledPeriod(
@@ -46,19 +51,22 @@ export function usePriceHistoryChart(product: ProductResponse) {
       };
     }
 
-    // If EAN isn't in preferences yet, default to preferred stores only (if any exist)
-    const preferredStoreIds =
-      user?.pinnedStores?.map((s) => s.storeApiId) || [];
-    const preferredChains = availableChains.filter((chain) =>
-      preferredStoreIds.includes(chain),
-    );
-
-    // If there are preferred stores, select only those; otherwise select all
-    return {
-      period,
-      chains: preferredChains.length > 0 ? preferredChains : availableChains,
-    };
+    return { period, chains: null };
   });
+
+  // If EAN isn't in preferences yet, default to preferred stores only (if any exist)
+  const preferredStoreIds = user?.pinnedStores?.map((s) => s.storeApiId) || [];
+  const preferredChains = availableChains.filter((chain) =>
+    preferredStoreIds.includes(chain),
+  );
+
+  const chartPrefs: IChartPrefs = {
+    period: savedChartPrefs.period,
+    // If there are preferred stores, select only those; otherwise select all
+    chains:
+      savedChartPrefs.chains ??
+      (preferredChains.length > 0 ? preferredChains : availableChains),
+  };
 
   // Saved on change, not in an effect: one during hydration would overwrite the saved open
   // state with the server default.
