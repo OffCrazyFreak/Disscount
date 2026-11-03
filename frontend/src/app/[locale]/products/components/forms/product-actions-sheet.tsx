@@ -62,6 +62,7 @@ export default function ProductActionsSheet({
       summary={
         <>
           <ProductSummary
+            ean={ean}
             name={product?.name ?? null}
             brand={product?.brand}
             category={product ? getMostFrequentCategory(product) : null}
