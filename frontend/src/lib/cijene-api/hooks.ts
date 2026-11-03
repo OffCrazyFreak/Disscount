@@ -99,7 +99,8 @@ export function usePriceHistory({ ean, days = 7 }: IUsePriceHistoryArgs) {
   });
 
   const isLoading = queries.some((q) => q.isLoading);
-  const isError = queries.some((q) => q.isError);
+  // Only a day with nothing cached is missing; a failed refetch keeps its last answer.
+  const isError = queries.some((q) => q.isError && q.data === undefined);
 
   const { data, chains } = useMemo(() => {
     // collect all chain codes seen across all days

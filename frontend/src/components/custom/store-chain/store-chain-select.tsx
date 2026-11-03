@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 import { getChainLabel } from "@/utils/labels";
 import { formatPrice } from "@/utils/price";
 import { availableChainCodes } from "@/components/custom/store-chain/store-chain-codes";
-import { useEffect, useRef, useState } from "react";
 import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -57,34 +56,11 @@ export default function StoreChainSelect({
 }: IStoreChainSelectProps) {
   const t = useTranslations("products");
   const locale = useLocale();
-  const [displayValue, setDisplayValue] = useState<string>(value || "");
-  const autoSelectedForRef = useRef<string | null>(null);
-
-  // The effect is here for onChange, which is a real side effect and cannot move
-  // into render. The ref guard is what stops a mutation rollback, where `value`
-  // reverts to empty, from re-firing it in a toast storm.
-  //
-  // The two setDisplayValue branches below are just `value || ""` and could be
-  // derived. They are kept so the select shows the auto-selected chain in the same
-  // commit as the onChange, rather than blank until the parent echoes the value
-  // back. That is the only behavioural difference, and it is worth one directive.
-  useEffect(() => {
-    if (
-      !value &&
-      defaultValue &&
-      !disabled &&
-      autoSelectedForRef.current !== defaultValue
-    ) {
-      autoSelectedForRef.current = defaultValue;
-      setDisplayValue(defaultValue);
-      onChange(defaultValue);
-    } else if (value) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setDisplayValue(value);
-    } else {
-      setDisplayValue("");
-    }
-  }, [value, defaultValue, onChange, disabled]);
+  // The default is only shown, as the placeholder, never saved: viewing a list must
+  // not write to it, and an unsaved default keeps following whichever chain is cheapest
+  // today. Keeping it out of `value` also lets picking that same chain count as a change.
+  // A ticked item records where it was bought, so it never borrows a default.
+  const suggestedChain = !value && !isChecked ? defaultValue : null;
 
   const getPriceDifference = (chainCode: string) => {
     // When item is checked, use database prices
@@ -104,12 +80,20 @@ export default function StoreChainSelect({
   const chainCodes = availableChainCodes(isChecked, value, storePrices);
 
   return (
-    <Select value={displayValue} onValueChange={onChange} disabled={disabled}>
+    <Select value={value || ""} onValueChange={onChange} disabled={disabled}>
       <SelectTrigger
         aria-describedby={describedById}
         className={cn("min-w-0 text-xs sm:text-sm", className)}
       >
-        <SelectValue placeholder={t("storeChainField.label")} />
+        <SelectValue
+          placeholder={
+            suggestedChain ? (
+              <span lang="hr">{getChainLabel(suggestedChain)}</span>
+            ) : (
+              t("storeChainField.label")
+            )
+          }
+        />
       </SelectTrigger>
 
       <SelectContent>

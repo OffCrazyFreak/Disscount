@@ -61,7 +61,12 @@ export default function ShoppingListItem({
       <div className="relative isolate flex flex-wrap items-center justify-between gap-6 py-1 sm:flex-nowrap">
         {/* Left side: Checkbox, photo, item name, and delete button (mobile) */}
         <div className="flex items-center gap-4 w-full sm:w-auto">
-          <ItemCheckBox item={item} onUpdate={onUpdate} canCheck={canCheck} />
+          <ItemCheckBox
+            item={item}
+            onUpdate={onUpdate}
+            canCheck={canCheck}
+            cheapestStore={cheapestStore}
+          />
           <ItemPhoto item={item} />
           <ItemName item={item} isFirst={isFirst} isLast={isLast} />
 

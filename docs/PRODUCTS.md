@@ -70,7 +70,7 @@ What each side adds:
 | Spring backend | Never calls the price endpoints. It reads the upstream daily archive once a week for the photo catalogue (name, brand, and how many priced store listings carry each EAN), stores photos, watchlist items and shopping list items keyed by EAN, and serves the EAN list to the sitemap |
 | Browser        | Ranks and filters search results locally, computes discounts and watchlist alerts, and keeps what it has seen in IndexedDB                                                                                                                                                             |
 
-The product shape (`productResponseSchema` in `frontend/src/lib/cijene-api/schemas.ts`) is `{ ean, brand, name, quantity, unit, chains[] }`. Each chain entry carries `chain` (the chain id) and that chain's own `code` (its product code), `name`, `brand`, `category`, `unit`, `quantity`, `min_price`, `max_price`, `avg_price` (prices are strings) and `price_date`. A store price (`storePriceSchema`) adds `regular_price`, `special_price`, `unit_price`, `best_price_30` (the lowest price in the last 30 days, which Croatian law requires on a sale), `anchor_price` and the store itself.
+The product shape (`productResponseSchema` in `frontend/src/lib/cijene-api/schemas.ts`) is `{ ean, brand, name, quantity, unit, chains[] }`. Each chain entry carries `chain` (the chain id) and that chain's own `code` (its product code), `name`, `brand`, `category`, `unit`, `quantity`, `min_price`, `max_price`, `avg_price` (prices are decimal strings; the schema drops a chain entry whose price text is not a plain decimal, so no caller sees NaN, while an entry with the wrong shape still fails the product) and `price_date`. A store price (`storePriceSchema`) adds `regular_price`, `special_price`, `unit_price`, `best_price_30` (the lowest price in the last 30 days, which Croatian law requires on a sale), `anchor_price` and the store itself.
 
 ---
 
@@ -196,6 +196,8 @@ The price history tab draws one line per chain over time with Recharts (`price-h
 | Every day in between       | 6 hours     | A past day's prices never change                                             |
 
 The key is `["cijene", "product", "history", ean, date]`, which is persisted for offline use like the rest of the `cijene` root.
+
+**A failed refetch keeps the chart.** `usePriceHistory` reports `isError` only for a day with no cached answer. A failed background refetch flips a query to error while keeping its data, so counting it would swap a usable chart for "no data" on one dropped request; the shopping list chart follows the same rule.
 
 **Periods** (`constants/price-history.ts`): 1W and 1M are on; 1Y and ALL are disabled (`DISABLED_PERIODS`) until upstream can return a range in one request (issues #62, longer periods, and #45, batched history). `getEnabledPeriod` coerces a saved disabled period back to 1W, so a stored preference cannot mount straight into 365 requests.
 
@@ -347,10 +349,10 @@ Versions read from `frontend/package.json` and `backend/pom.xml`.
 
 ## 17. Tests
 
-| Suite             | What it covers                                                                                                                                                                                                                                                                                                                                              |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend (Vitest) | Product metadata, JSON-LD, cache seeding and the detail client (`[id]/`), chart preferences, chain sort, display prices, batches, facets, search results and their status, add to list prices, city price reduction and cache, query hooks, sitemap ids, product ids, watchlist discount, price drop and schema rules, the shopping list history chart data |
-| Backend (H2)      | `WatchlistItemOwnershipTest`, `WatchlistWireFormatTest`, `ShoppingListItemServiceAddTest`, `ShoppingListItemRequestTest`, the shopping list ownership, link access and wire format tests, and the product image suite (see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#12-tests))                                                                                 |
+| Suite             | What it covers                                                                                                                                                                                                                                                                                                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Frontend (Vitest) | Product metadata, JSON-LD, cache seeding and the detail client (`[id]/`), chart preferences, chain sort, display prices, batches, facets, search results and their status, add to list prices, city price reduction and cache, query hooks, the price history hook's error rule, sitemap ids, product ids, watchlist discount, price drop and schema rules, the shopping list history chart data |
+| Backend (H2)      | `WatchlistItemOwnershipTest`, `WatchlistWireFormatTest`, `ShoppingListItemServiceAddTest`, `ShoppingListItemRequestTest`, the shopping list ownership, link access and wire format tests, and the product image suite (see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#12-tests))                                                                                                                      |
 
 Not covered: the proxy routes against real upstream responses, the fuzzy fallback, and the price history fetch across a date window. Nothing on the backend computes alerts, so there is nothing there to test yet.
 
