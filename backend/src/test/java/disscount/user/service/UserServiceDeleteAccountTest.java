@@ -18,7 +18,9 @@ import disscount.storeName.dao.StoreNameSuggestionRepository;
 import disscount.storeName.dao.StoreNameUsageRepository;
 import disscount.storeName.service.StoreNameService;
 import disscount.storeName.service.StoreNameUpsert;
+import disscount.exceptions.BadRequestException;
 import disscount.user.dao.AuthIdentityDao;
+import disscount.user.dao.ErasureLedgerRepository;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,12 +31,20 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import disscount.favoriteStore.dao.FavoriteStoreRepository;
 import disscount.favoriteStore.dto.BulkFavoriteStoreRequest;
@@ -43,11 +53,17 @@ import disscount.favoriteStore.service.FavoriteStoreService;
 
 import static disscount.digitalCard.service.CardServiceTestSupport.request;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 // Not transactional on purpose: the bug only shows when the service's own transaction really commits.
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-@Import({UserService.class, DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
+@Import({UserService.class, AccountErasureService.class, DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
         StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, PhotoUploadRateLimiter.class,
         CardPhotoWriter.class, CardUserLock.class, PhotoCleanupService.class, FavoriteStoreService.class,
         UserServiceDeleteAccountTest.StoreConfig.class})
@@ -65,6 +81,7 @@ class UserServiceDeleteAccountTest {
     @MockBean UserProfileCreator profileCreator;
 
     @Autowired UserService userService;
+    @Autowired AccountErasureService accountErasureService;
     @Autowired DigitalCardService cardService;
     @Autowired DigitalCardPhotoService photoService;
     @Autowired UserRepository users;
@@ -76,6 +93,8 @@ class UserServiceDeleteAccountTest {
     @Autowired PhotoStore store;
     @Autowired FavoriteStoreService favoriteStoreService;
     @Autowired FavoriteStoreRepository favoriteStores;
+    @Autowired ErasureLedgerRepository erasureLedger;
+    @Autowired PlatformTransactionManager transactionManager;
 
     @BeforeEach
     void setUp() {
@@ -85,6 +104,7 @@ class UserServiceDeleteAccountTest {
         storeNameUsages.deleteAll();
         storeNames.deleteAll();
         favoriteStores.deleteAll();
+        erasureLedger.deleteAll();
         users.deleteAll();
         ((FakePhotoStore) store).objects.clear();
     }
@@ -138,6 +158,134 @@ class UserServiceDeleteAccountTest {
 
         assertThat(favoriteStores.findAll()).singleElement()
                 .satisfies(f -> assertThat(f.getUser().getId()).isEqualTo(staying.getId()));
+    }
+
+    @Test
+    void deleteAccountLeavesATombstoneWithOnlyTheIdAndTime() {
+        User user = users.save(User.builder().id(UUID.randomUUID()).username("marko").build());
+
+        userService.deleteAccount(user.getId());
+
+        assertThat(erasureLedger.findAll()).singleElement().satisfies(entry -> {
+            assertThat(entry.getUserId()).isEqualTo(user.getId());
+            assertThat(entry.getErasedAt()).isNotNull();
+        });
+    }
+
+    @Test
+    void aRetriedDeletionSucceedsAndKeepsOneTombstone() {
+        User user = users.save(User.builder().id(UUID.randomUUID()).username("marko").build());
+        userService.deleteAccount(user.getId());
+        var firstErasedAt = erasureLedger.findById(user.getId()).orElseThrow().getErasedAt();
+
+        userService.deleteAccount(user.getId());
+
+        assertThat(erasureLedger.findAll()).singleElement()
+                .satisfies(entry -> assertThat(entry.getErasedAt()).isEqualTo(firstErasedAt));
+        assertThat(users.findById(user.getId()).orElseThrow().getDeletedAt()).isNotNull();
+    }
+
+    @Test
+    void anIdentityThatNeverGotAProfileCanStillBeDeleted() {
+        UUID neverProvisioned = UUID.randomUUID();
+
+        userService.deleteAccount(neverProvisioned);
+
+        assertThat(users.findById(neverProvisioned)).isEmpty();
+        assertThat(erasureLedger.findById(neverProvisioned)).isPresent();
+    }
+
+    @Test
+    void aStaleLoginForAnErasedAccountIsToldSoInsteadOfRevivingIt() {
+        User user = users.save(User.builder().id(UUID.randomUUID()).username("marko").build());
+        userService.deleteAccount(user.getId());
+
+        assertThatThrownBy(() -> userService.ensureActiveProfile(user.getId(), "marko@example.com", "Marko", null))
+                .isInstanceOf(AccountErasedException.class);
+
+        assertThat(users.findById(user.getId()).orElseThrow().getDeletedAt()).isNotNull();
+    }
+
+    @Test
+    void anErasedIdentityWithoutAProfileGetsNoNewOne() {
+        UUID neverProvisioned = UUID.randomUUID();
+        userService.deleteAccount(neverProvisioned);
+
+        assertThatThrownBy(() -> userService.ensureActiveProfile(neverProvisioned, "ana@example.com", "Ana", null))
+                .isInstanceOf(AccountErasedException.class);
+
+        verify(profileCreator, never()).create(any());
+    }
+
+    @Test
+    void twoConcurrentDeletionsOfAnIdentityWithoutAProfileBothSucceed() throws Exception {
+        UUID neverProvisioned = UUID.randomUUID();
+        CountDownLatch firstHasWritten = new CountDownLatch(1);
+        CountDownLatch releaseFirst = new CountDownLatch(1);
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+
+        try {
+            // The first deletion writes its tombstone, then holds its transaction open.
+            Future<?> first = pool.submit(() -> transaction.executeWithoutResult(status -> {
+                userService.deleteAccount(neverProvisioned);
+                erasureLedger.flush();
+                firstHasWritten.countDown();
+                await(releaseFirst);
+            }));
+            await(firstHasWritten);
+            // The second one sees no committed tombstone, so it writes one too and has to wait.
+            Future<?> second = pool.submit(() -> accountErasureService.erase(neverProvisioned));
+            Thread.sleep(300);
+            // Still waiting on the first one's uncommitted tombstone, so the collision really happens.
+            assertThat(second.isDone()).isFalse();
+            releaseFirst.countDown();
+
+            first.get(10, TimeUnit.SECONDS);
+            second.get(10, TimeUnit.SECONDS);
+        } finally {
+            releaseFirst.countDown();
+            pool.shutdownNow();
+        }
+
+        assertThat(erasureLedger.findAll()).singleElement()
+                .satisfies(entry -> assertThat(entry.getUserId()).isEqualTo(neverProvisioned));
+    }
+
+    @Test
+    void aRetryDoesNotHideAnUnrelatedIntegrityViolation() {
+        UUID erased = UUID.randomUUID();
+        userService.deleteAccount(erased);
+        AccountErasureService withFailingErase = new AccountErasureService(failingUserService(), erasureLedger);
+
+        assertThatThrownBy(() -> withFailingErase.erase(erased))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    private static UserService failingUserService() {
+        UserService failing = mock(UserService.class);
+        doThrow(new DataIntegrityViolationException("card constraint")).when(failing).deleteAccount(any());
+        return failing;
+    }
+
+    private static void await(CountDownLatch latch) {
+        try {
+            assertThat(latch.await(10, TimeUnit.SECONDS)).isTrue();
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(interrupted);
+        }
+    }
+
+    @Test
+    void anAdminCannotDeleteAnUnknownUser() {
+        User admin = users.save(User.builder().id(UUID.randomUUID()).username("admin").build());
+        UUID unknown = UUID.randomUUID();
+
+        assertThatThrownBy(() -> userService.deleteUserAsAdmin(unknown, admin.getId()))
+                .isInstanceOf(BadRequestException.class);
+
+        assertThat(erasureLedger.findAll()).isEmpty();
     }
 
     private static BulkFavoriteStoreRequest favorites(String... keys) {

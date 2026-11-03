@@ -351,3 +351,86 @@ describe("UserProvider Sentry user", () => {
     await waitFor(() => expect(Sentry.setUser).toHaveBeenLastCalledWith(null));
   });
 });
+
+describe("UserProvider erased account", () => {
+  function answerProfileWithAccountErased({
+    sessionUserId = "user-a",
+    deleteAnswer = { status: 200, body: { success: true } as object },
+  } = {}) {
+    const authCalls: string[] = [];
+    server.use(
+      http.get("*/api/auth/token", () => HttpResponse.json({ token: tokenA })),
+      http.get("*/api/users/me", () =>
+        HttpResponse.json(
+          { code: "account_erased", userId: "user-a" },
+          { status: 410 },
+        ),
+      ),
+      http.get("*/api/auth/get-session", () => {
+        authCalls.push("get-session");
+        return HttpResponse.json({
+          user: { id: sessionUserId },
+          session: { userId: sessionUserId },
+        });
+      }),
+      http.post("*/api/auth/delete-user", () => {
+        authCalls.push("delete-user");
+        return HttpResponse.json(deleteAnswer.body, {
+          status: deleteAnswer.status,
+        });
+      }),
+      http.post("*/api/auth/sign-out", () => {
+        authCalls.push("sign-out");
+        return HttpResponse.json({ success: true });
+      }),
+    );
+    return authCalls;
+  }
+
+  async function renderAndSettle(authCalls: string[], expected: string[]) {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    session.userId = "user-a";
+    session.error = null;
+
+    renderWithProviders(<UserProvider>{null}</UserProvider>);
+
+    await waitFor(() => expect(authCalls).toEqual(expected));
+    // Lets a stray extra call land before the final check.
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(authCalls).toEqual(expected);
+  }
+
+  it("finishes the deletion when Spring says the account was already erased", async () => {
+    const authCalls = answerProfileWithAccountErased();
+
+    await renderAndSettle(authCalls, ["get-session", "delete-user"]);
+  });
+
+  it("signs out when the surviving login is too old to delete", async () => {
+    const authCalls = answerProfileWithAccountErased({
+      deleteAnswer: { status: 400, body: { code: "SESSION_EXPIRED" } },
+    });
+
+    await renderAndSettle(authCalls, [
+      "get-session",
+      "delete-user",
+      "sign-out",
+    ]);
+  });
+
+  it("stays signed in when the retry fails for another reason", async () => {
+    const authCalls = answerProfileWithAccountErased({
+      deleteAnswer: { status: 500, body: { code: "INTERNAL_SERVER_ERROR" } },
+    });
+
+    await renderAndSettle(authCalls, ["get-session", "delete-user"]);
+  });
+
+  it("never deletes an account the session cookie no longer names", async () => {
+    const authCalls = answerProfileWithAccountErased({
+      sessionUserId: "user-b",
+    });
+
+    await renderAndSettle(authCalls, ["get-session"]);
+  });
+});
