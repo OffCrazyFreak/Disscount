@@ -184,7 +184,8 @@
   "towns": {
     "withCounty": "{town} ({county})",
     "counties": {
-      "zagreb": "Zagrebačka",
+      "cityOfZagreb": "Grad Zagreb",
+      "zagrebCounty": "Zagrebačka",
       "krapinaZagorje": "Krapinsko-zagorska",
       "sisakMoslavina": "Sisačko-moslavačka",
       "karlovac": "Karlovačka",

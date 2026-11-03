@@ -58,14 +58,14 @@ describe("DistanceSortNote", () => {
           {
             key: "Sveta Nedelja|10",
             name: "Sveta Nedelja",
-            county: "zagreb",
+            county: "zagrebCounty",
             zipcodes: ["10431"],
           },
           {
             key: "Sveta Nedelja|52",
             name: "Sveta Nedelja",
             county: "istria",
-            zipcodes: ["52231"],
+            zipcodes: ["52466"],
           },
         ]}
         onPickTown={onPickTown}

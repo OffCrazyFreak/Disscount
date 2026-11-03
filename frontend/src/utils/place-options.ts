@@ -1,7 +1,7 @@
-import { COUNTY_BY_POSTAL_AREA, type PostalArea } from "@/constants/counties";
 import { getLocationLabel } from "@/utils/labels";
 import { compareHr, normalizeForSearch } from "@/utils/strings";
-import { readPostalArea, townKey, type IStoreTown } from "@/utils/store-towns";
+import { readMainCounty, readPostalArea } from "@/utils/postcodes";
+import { townKey, type IStoreTown } from "@/utils/store-towns";
 
 interface IPlaceStore {
   city: string | null;
@@ -33,25 +33,29 @@ export function listPlaceOptions(
   stores: IPlaceStore[],
   saved: string[],
 ): PlaceOption[] {
-  const areasByName = new Map<string, Set<PostalArea>>();
+  const postcodesByName = new Map<string, Map<string, string[]>>();
   for (const store of stores) {
     const area = readPostalArea(store.zipcode);
-    if (!area) continue;
+    if (!area || !store.zipcode) continue;
 
     // Folded as the distance sort folds them, so both agree on what clashes.
     const name = normalizeForSearch(getLocationLabel(store.city?.trim()));
-    areasByName.set(name, (areasByName.get(name) ?? new Set()).add(area));
+    const areas = postcodesByName.get(name) ?? new Map<string, string[]>();
+    areas.set(area, [...(areas.get(area) ?? []), store.zipcode]);
+    postcodesByName.set(name, areas);
   }
 
   const options = [...names].sort(compareHr).flatMap<PlaceOption>((name) => {
-    const areas = [...(areasByName.get(normalizeForSearch(name)) ?? [])].sort();
+    const areas = [...(postcodesByName.get(normalizeForSearch(name)) ?? [])];
     if (areas.length < 2) return [{ key: name, name, county: null }];
 
-    return areas.map((area) => ({
-      key: townKey(name, area),
-      name,
-      county: COUNTY_BY_POSTAL_AREA[area],
-    }));
+    return areas
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([area, postcodes]) => ({
+        key: townKey(name, area),
+        name,
+        county: readMainCounty(postcodes),
+      }));
   });
   const keys = new Set(options.map((option) => option.key));
   const orphans = saved

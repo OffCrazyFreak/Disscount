@@ -94,7 +94,7 @@ describe("useDistanceOrigin", () => {
     user = { pinnedPlaces: [{ placeApiId: "Sveta Nedelja|52" }] };
     const stores = [
       store("Sveta Nedelja", 45.8, 15.78, "10431"),
-      store("Sveta Nedelja", 45.06, 14.06, "52231"),
+      store("Sveta Nedelja", 45.06, 14.06, "52466"),
     ];
 
     const { result } = renderHook(() => useDistanceOrigin(stores, null));

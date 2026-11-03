@@ -12,7 +12,7 @@ const STORES = [
 
 const NAMESAKES = [
   { city: "Sveta Nedelja", zipcode: "10431", lat: 45.8, lon: 15.78 },
-  { city: "Sveta Nedelja", zipcode: "52231", lat: 45.06, lon: 14.06 },
+  { city: "Sveta Nedelja", zipcode: "52466", lat: 45.06, lon: 14.06 },
   { city: "Sveta Nedelja", zipcode: null, lat: 45, lon: 15 },
 ];
 
@@ -29,14 +29,14 @@ describe("listStoreTowns", () => {
       {
         key: "Sveta Nedelja|10",
         name: "Sveta Nedelja",
-        county: "zagreb",
+        county: "zagrebCounty",
         zipcodes: ["10431"],
       },
       {
         key: "Sveta Nedelja|52",
         name: "Sveta Nedelja",
         county: "istria",
-        zipcodes: ["52231"],
+        zipcodes: ["52466"],
       },
     ]);
   });
@@ -53,6 +53,42 @@ describe("listStoreTowns", () => {
       county: null,
       zipcodes: ["21000"],
     });
+  });
+
+  it("counts a postcode missing from the GeoNames list as no postcode", () => {
+    expect(
+      listStoreTowns([
+        { city: "Umag", zipcode: "52470", lat: 45.43, lon: 13.52 },
+        { city: "Umag", zipcode: "51470", lat: 45.42, lon: 13.53 },
+        { city: "Umag", zipcode: null, lat: 45.44, lon: 13.54 },
+      ]),
+    ).toEqual([
+      {
+        key: "Umag",
+        name: "Umag",
+        county: null,
+        zipcodes: ["51470", "52470"],
+      },
+    ]);
+    expect(
+      townCenter(
+        [
+          { city: "Umag", zipcode: "52470", lat: 45.43, lon: 13.52 },
+          { city: "Umag", zipcode: "51470", lat: 45.42, lon: 13.53 },
+          { city: "Umag", zipcode: null, lat: 45.44, lon: 13.54 },
+        ],
+        "Umag",
+      ),
+    ).toMatchObject({ lat: expect.closeTo(45.43) });
+  });
+
+  it("names the exact county of each postcode, the City of Zagreb included", () => {
+    expect(
+      listStoreTowns([
+        { city: "Brezovica", zipcode: "10257", lat: 45.73, lon: 15.91 },
+        { city: "Brezovica", zipcode: "31540", lat: 45.62, lon: 18.03 },
+      ]).map((town) => town.county),
+    ).toEqual(["cityOfZagreb", "osijekBaranja"]);
   });
 
   it("treats a postcode outside every postal area as missing", () => {
@@ -121,7 +157,7 @@ describe("townCenter", () => {
   it("places a bare shared name, as an older saved place has, at the lowest postal area", () => {
     expect(townCenter(NAMESAKES, "Sveta Nedelja")).toMatchObject({
       lat: 45.8,
-      county: "zagreb",
+      county: "zagrebCounty",
     });
   });
 

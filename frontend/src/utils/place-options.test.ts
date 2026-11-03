@@ -8,7 +8,7 @@ import {
 
 const STORES = [
   { city: "Sveta Nedelja", zipcode: "10431" },
-  { city: "Sveta Nedelja", zipcode: "52231" },
+  { city: "Sveta Nedelja", zipcode: "52466" },
   { city: "Split", zipcode: "21000" },
   { city: "Split", zipcode: null },
 ];
@@ -17,7 +17,11 @@ describe("listPlaceOptions", () => {
   it("splits a name shared across postal areas by county, keyed with the area", () => {
     expect(listPlaceOptions(["Split", "Sveta Nedelja"], STORES, [])).toEqual([
       { key: "Split", name: "Split", county: null },
-      { key: "Sveta Nedelja|10", name: "Sveta Nedelja", county: "zagreb" },
+      {
+        key: "Sveta Nedelja|10",
+        name: "Sveta Nedelja",
+        county: "zagrebCounty",
+      },
       { key: "Sveta Nedelja|52", name: "Sveta Nedelja", county: "istria" },
     ]);
   });
@@ -33,7 +37,7 @@ describe("listPlaceOptions", () => {
         [],
       ),
     ).toEqual([
-      { key: "Šenkovec|10", name: "Šenkovec", county: "zagreb" },
+      { key: "Šenkovec|10", name: "Šenkovec", county: "cityOfZagreb" },
       { key: "Šenkovec|40", name: "Šenkovec", county: "medimurje" },
     ]);
   });

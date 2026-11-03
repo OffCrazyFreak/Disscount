@@ -1,11 +1,8 @@
 import type { ILatLon } from "@/utils/distance";
 import { compareHr, normalizeForSearch } from "@/utils/strings";
 import { getLocationLabel } from "@/utils/labels";
-import {
-  COUNTY_BY_POSTAL_AREA,
-  type County,
-  type PostalArea,
-} from "@/constants/counties";
+import type { County } from "@/constants/counties";
+import { readMainCounty, readPostalArea } from "@/utils/postcodes";
 
 interface ITownStore {
   city: string | null;
@@ -26,7 +23,7 @@ export interface IStoreTown {
 }
 
 interface ITownGroup extends IStoreTown {
-  area: PostalArea | null;
+  area: string | null;
   stores: PinnedStore[];
 }
 
@@ -34,19 +31,8 @@ function isPinned(store: ITownStore): store is PinnedStore {
   return store.lat != null && store.lon != null;
 }
 
-function isPostalArea(digits: string): digits is PostalArea {
-  return digits in COUNTY_BY_POSTAL_AREA;
-}
-
-/** The first two postcode digits, which name one county; null when unknown. */
-export function readPostalArea(zipcode: string | null): PostalArea | null {
-  const digits = zipcode?.trim().slice(0, 2) ?? "";
-
-  return isPostalArea(digits) ? digits : null;
-}
-
 /** How a saved place names one of several towns that share a name. */
-export function townKey(name: string, area: PostalArea | null) {
+export function townKey(name: string, area: string | null) {
   return area ? `${name}|${area}` : name;
 }
 
@@ -105,7 +91,7 @@ function groupByFoldedName(stores: ITownStore[]) {
 }
 
 function splitByArea(stores: PinnedStore[]) {
-  const byArea = new Map<PostalArea | null, PinnedStore[]>();
+  const byArea = new Map<string | null, PinnedStore[]>();
 
   for (const store of stores) {
     const area = readPostalArea(store.zipcode);
@@ -131,7 +117,9 @@ function groupTowns(stores: ITownStore[]): ITownGroup[] {
     return [...byArea].map(([area, inTown]) => ({
       key: isShared ? townKey(name, area) : name,
       name,
-      county: isShared && area ? COUNTY_BY_POSTAL_AREA[area] : null,
+      county: isShared
+        ? readMainCounty(inTown.map((store) => store.zipcode))
+        : null,
       area,
       zipcodes: [
         ...new Set(inTown.flatMap((store) => store.zipcode?.trim() || [])),
