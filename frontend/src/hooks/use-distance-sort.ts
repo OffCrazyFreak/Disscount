@@ -90,6 +90,14 @@ function measureChains(
   );
 }
 
+function isStandInTown(
+  isFromTown: boolean,
+  state: DistanceSortState,
+  origin: IDistanceOrigin | null,
+) {
+  return !isFromTown && state === "ready" && origin?.source !== "gps";
+}
+
 interface ISortResultInput<TMode> {
   state: DistanceSortState;
   chosen: TMode;
@@ -120,6 +128,16 @@ function readSortResult<TMode extends string>({
   };
 }
 
+// A tap that failed keeps its watch open, and a fix after the note gave up
+// or a town took over would quietly disagree with it.
+function useStopLocating(isDone: boolean, clear: () => void) {
+  const stop = useEffectEvent(clear);
+
+  useEffect(() => {
+    if (isDone) stop();
+  }, [isDone]);
+}
+
 interface IDistanceSortOptions {
   /**
    * Measure only the stores that priced a product. Null while the prices
@@ -143,7 +161,7 @@ export function useDistanceSort<TMode extends string>(
 ) {
   const [chosen, setChosen] = useState(initial);
   const [failure, setFailure] = useState<DistanceSortFailure | null>(null);
-  // A picked town replaces the location outright, so a late fix cannot override it.
+  // A town replaces the location outright, so a late fix cannot override it.
   const [isFromTown, setIsFromTown] = useState(false);
   const selected = chosen === "distance";
   const location = useGeolocation(null);
@@ -153,7 +171,10 @@ export function useDistanceSort<TMode extends string>(
   const gps = isFromTown
     ? { status: "unavailable" as const, position: null }
     : location;
-  const { origin, towns, pickTown } = useDistanceOrigin(stores, gps.position);
+  const { origin, towns, pickTown, hasKnownTown } = useDistanceOrigin(
+    stores,
+    gps.position,
+  );
 
   const lat = origin?.lat;
   const lon = origin?.lon;
@@ -173,12 +194,11 @@ export function useDistanceSort<TMode extends string>(
     setFailure(state);
   }
 
-  // A tap that failed keeps its watch open, and a fix after the note gave up
-  // would quietly disagree with it.
-  const stopLocating = useEffectEvent(() => location.clear());
-  useEffect(() => {
-    if (failure) stopLocating();
-  }, [failure]);
+  // A town standing in for a failed location is kept like a picked one: a late
+  // fix would reorder the list under the shopper and unmount the open picker.
+  if (isStandInTown(isFromTown, state, origin)) setIsFromTown(true);
+
+  useStopLocating(failure != null || isFromTown, location.clear);
 
   function choose(mode: TMode) {
     setFailure(null);
@@ -195,19 +215,25 @@ export function useDistanceSort<TMode extends string>(
     if (directory.isError) void directory.refetch();
   }
 
-  // A town is picked instead of the location, so it sorts without asking again.
-  function chooseTown(town: string) {
+  // Sorts from the picked or saved town without asking for the location.
+  function chooseKnownTown() {
     location.clear();
-    pickTown(town);
     setIsFromTown(true);
     setFailure(null);
     setChosen("distance" as TMode);
+  }
+
+  function chooseTown(town: string) {
+    pickTown(town);
+    chooseKnownTown();
   }
 
   return {
     chosen,
     choose,
     chooseTown,
+    chooseKnownTown,
+    hasKnownTown,
     towns,
     state,
     ...readSortResult({

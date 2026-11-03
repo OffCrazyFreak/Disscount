@@ -28,6 +28,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -104,6 +105,20 @@ class NotificationOwnershipTest {
         mvc.perform(delete("/api/notifications/{id}", own.getId()).with(as(alice)))
                 .andExpect(status().isNoContent());
         assertThat(notifications.findById(own.getId()).orElseThrow().getDeletedAt()).isNotNull();
+    }
+
+    @Test
+    void theListAndReadAllNeverReachAnotherUsersNotifications() throws Exception {
+        Notification own = notifications.save(Notification.builder().user(alice).message("Alice's alert").build());
+
+        String page = mvc.perform(get("/api/notifications/me").with(as(alice))).andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        assertThat(json.readTree(page).get("content").valueStream().map(n -> n.get("id").asString()).toList())
+                .containsExactly(own.getId().toString());
+
+        mvc.perform(patch("/api/notifications/me/read-all").with(as(alice))).andExpect(status().isNoContent());
+        assertThat(notifications.findById(bobsNotification.getId()).orElseThrow().getIsRead()).isFalse();
+        assertThat(notifications.findById(own.getId()).orElseThrow().getIsRead()).isTrue();
     }
 
     @Test

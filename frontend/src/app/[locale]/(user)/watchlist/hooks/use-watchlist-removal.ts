@@ -7,6 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { watchlistService } from "@/lib/api";
 import { WatchlistItemDto } from "@/lib/api/types";
+import { WATCHLIST_QUERY_KEYS } from "@/lib/api/watchlist/keys";
 
 export default function useWatchlistRemoval(
   watchlistItems: WatchlistItemDto[],
@@ -40,7 +41,7 @@ export default function useWatchlistRemoval(
       toast.error(t("removal.error"));
     } finally {
       await queryClient.invalidateQueries({
-        queryKey: watchlistService.QUERY_KEYS.all,
+        queryKey: WATCHLIST_QUERY_KEYS.all,
       });
 
       setIsRemoving(false);

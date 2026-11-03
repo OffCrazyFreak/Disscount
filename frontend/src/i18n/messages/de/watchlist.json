@@ -11,7 +11,7 @@
   "header": {
     "searchResultsTitle": "Suchergebnisse für „{query}“ ({count})",
     "title": "Merkliste",
-    "titleWithCount": "Merkliste ({count})",
+    "titleWithCount": "{label} ({count})",
     "pricesUpdated": "Preise {time} aktualisiert"
   },
   "list": {
@@ -20,9 +20,8 @@
     "searchProducts": "Produkte suchen"
   },
   "suggestions": {
-    "title": "Vorschläge für deine Merkliste ({count})",
-    "hide": "Ausblenden",
-    "show": "Anzeigen"
+    "label": "Produktvorschläge",
+    "title": "{label} ({count})"
   },
   "actionButton": {
     "watch": "Preisalarm setzen",
@@ -63,5 +62,10 @@
     "productRequired": "Produkt fehlt",
     "watchTypeRequired": "Wähle, wann wir dich benachrichtigen",
     "thresholdPositive": "Der Mindestrabatt muss größer als 0 sein"
+  },
+  "sectionNav": {
+    "label": "Abschnitte der Merkliste",
+    "watchedShort": "Gemerkt",
+    "suggestionsShort": "Vorschläge"
   }
 }

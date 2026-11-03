@@ -3,6 +3,7 @@
 import { userService, preferencesService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 import type { ISaveJobRunners } from "@/components/custom/settings/settings-save-jobs";
+import { toPinnedPlaces } from "@/utils/place-options";
 
 export function useSettingsSaveRunners() {
   const { mergeUser, updatePinnedStores, updatePinnedPlaces } = useUser();
@@ -24,14 +25,9 @@ export function useSettingsSaveRunners() {
           })),
         }),
       ),
-    savePlaces: async (placeNames) =>
+    savePlaces: async (placeKeys) =>
       updatePinnedPlaces(
-        await placesMutation.mutateAsync({
-          places: placeNames.map((placeName) => ({
-            placeApiId: placeName,
-            placeName,
-          })),
-        }),
+        await placesMutation.mutateAsync({ places: toPinnedPlaces(placeKeys) }),
       ),
   };
 

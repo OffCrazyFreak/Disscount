@@ -252,7 +252,7 @@
     "add": "Karte hinzufügen"
   },
   "archived": {
-    "label": "Archiviert ({count})"
+    "label": "{label} ({count})"
   },
   "tile": {
     "archivedBadge": "Archiviert",
@@ -328,5 +328,9 @@
     "cardDeleteFailed": "Die Karte wurde nicht gelöscht. Versuche es erneut.",
     "photoDeleteFailed": "Das Bild wurde nicht gelöscht. Versuch es noch mal.",
     "photoSendFailed": "Das Kartenbild wurde nicht gespeichert. Füg es erneut hinzu."
+  },
+  "sectionNav": {
+    "label": "Kartenabschnitte",
+    "archived": "Archiviert"
   }
 }

@@ -142,8 +142,8 @@ Written by the small domain helpers in `utils/browser/storage/*`, each of which 
 | Field                      | Meaning                                                                                                                                                        | Helper              |
 | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
 | `viewModes`                | grid/list toggle, per list key (parked, see below)                                                                                                             | `view-mode.ts`      |
-| `productsPreferences`      | price-history period + chains + open state, and the stores section's open state, per product EAN                                                               | `products.ts`       |
-| `shoppingListsPreferences` | section open states, group-by-store switch + price-history prefs, per list                                                                                     | `shopping-lists.ts` |
+| `productsPreferences`      | price-history period + chains, per product EAN                                                                                                                 | `products.ts`       |
+| `shoppingListsPreferences` | group-by-store switch + price-history prefs, per list                                                                                                          | `shopping-lists.ts` |
 | `storeOptimizeMode`        | preferred store-list sort, all lists; `distance` only if location granted                                                                                      | `shopping-lists.ts` |
 | `preferredCameraId`        | manually chosen scanner camera (absent means auto-pick)                                                                                                        | `scanner.ts`        |
 | `installBannerDismissedAt` | "install app" banner snooze (7 days)                                                                                                                           | `pwa.ts`            |
@@ -159,6 +159,12 @@ Two digital-card preferences deliberately sit **outside** that object, under the
 ## 5. Layer 3: IndexedDB offline cache
 
 The persisted React Query cache (shopping lists, watchlist, viewed products, profile, and selected public price data) lives in IndexedDB and is what makes authed screens work offline. Bulk product-list price queries are deliberately excluded because every search and filter combination can carry prices for up to the full candidate set; canonical single-product price queries remain persisted for product-detail offline reads. Digital cards add three small IndexedDB stores of their own, all scoped by account identity: `disscount-card-photos` (downloaded photo bytes), `disscount-card-photo-outbox` (photos and removals chosen offline, waiting to send), and `disscount-card-used` (the last-used queue of card ids and times), all three cleared by the logout purge. Card query keys carry a version segment (`v2`), and older shapes are not persisted. Photo bytes stay out of the persisted query blob on purpose; see [DIGITAL-CARDS.md](DIGITAL-CARDS.md#6-offline). It is a **data cache**, not "resume where you left off" form state, and its stored snapshot is keyed per signed-in account and purged on any change of identity, before retained public in-memory queries are persisted again. It is fully documented in [PWA.md](PWA.md#5-offline-reads-caching-and-persistence); this guide only cross-references it so the full persistence picture is in one place.
+
+### Query keys are the persisted address
+
+The snapshot stores every query under its key, so a key is part of the on-disk format. Each domain keeps its keys in one factory next to its service: `lib/cijene-api/keys.ts` (`CIJENE_QUERY_KEYS`, every key under the `cijene` root, including the store directory and the canonicalised store prices params) and a `keys.ts` in each `lib/api/<domain>/` folder (`SHOPPING_LIST_QUERY_KEYS`, `DIGITAL_CARD_QUERY_KEYS`, `WATCHLIST_QUERY_KEYS`, `PREFERENCE_QUERY_KEYS`, `FAVORITE_STORE_QUERY_KEYS`, `STORE_NAME_QUERY_KEYS`, `ACCOUNT_SESSION_QUERY_KEYS`, `ADMIN_QUERY_KEYS`, `CONTACT_QUERY_KEYS`, `PRODUCT_IMAGE_KEYS`). Hooks build their queries with TanStack's `queryOptions` from those keys, and invalidations, `setQueryData` seeds and the server side product page seeding (`product-cache-state.ts`) read the same factory, so no key is written as a literal at its call site. Two single-use keys outside `lib/` stay inline because nothing else reads, invalidates or persists them: `["linked-accounts"]` in the security settings and `["map-style"]` on the map.
+
+Changing a key value strands every user's offline copy of that data. The only clean way out is a `CACHE_BUSTER` bump in `persister.ts`, which also discards queued offline writes under every identity, so `lib/offline/query-key-values.test.ts` pins each factory to the literal it replaced. If a test there fails, the change altered a persisted address: revert it, or bump the buster deliberately and update the literal. The roots themselves must also match the allowlist in `cached-query-keys.ts`; renaming a root without renaming it there silently stops the data being written to disk.
 
 ---
 
@@ -194,21 +200,22 @@ Not everything should be remembered. These are intentionally **not** persisted, 
 
 ## 8. What's automatic vs manual
 
-| Thing                                         | Auto / manual | Notes                                                                      |
-| --------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
-| Saving a modal draft while typing             | Auto          | `useFormDraft` watches the form and debounces writes                       |
-| Restoring a draft on reopen                   | Auto          | hook restores, or the modal merges it (`restore: false`)                   |
-| Expiring stale drafts (24h)                   | Auto          | dropped on read                                                            |
-| Clearing a draft after a successful submit    | Auto          | submit handlers call `clearDraft()` / the mutation clears it               |
-| Clearing only the field a submit saved        | Auto          | `removeFormDraftField`, so the other watch mode's number survives          |
-| Telling other surfaces a draft changed        | Auto          | `subscribeToFormDrafts` bumps a version, read via `useSyncExternalStore`   |
-| Dropping a draft field the form no longer has | Auto          | restore skips unknown keys, so a shape change cannot strand one for 24h    |
-| Keeping search + filters in the URL           | Auto          | the search and filter hooks own it                                         |
-| Persisting a preference (camera, periods...)  | Auto          | the relevant `storage/*` helper writes on change                           |
-| Persisting the view mode                      | Parked        | `useViewMode` writes on the setter, which has no callers yet (see below)   |
-| Adding a NEW modal form to the draft system   | Manual        | call `useFormDraft` with a unique `draftKey`; pick `restore` and `exclude` |
-| Adding a NEW preference                       | Manual        | add the field to `IAppData` and a helper in `utils/browser/storage/`       |
-| Excluding a sensitive field from a draft      | Manual        | pass it in `exclude` (do this for passwords and base64 images)             |
+| Thing                                         | Auto / manual | Notes                                                                                                                         |
+| --------------------------------------------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Saving a modal draft while typing             | Auto          | `useFormDraft` watches the form and debounces writes                                                                          |
+| Restoring a draft on reopen                   | Auto          | hook restores, or the modal merges it (`restore: false`)                                                                      |
+| Expiring stale drafts (24h)                   | Auto          | dropped on read                                                                                                               |
+| Clearing a draft after a successful submit    | Auto          | submit handlers call `clearDraft()` / the mutation clears it                                                                  |
+| Clearing only the field a submit saved        | Auto          | `removeFormDraftField`, so the other watch mode's number survives                                                             |
+| Telling other surfaces a draft changed        | Auto          | `subscribeToFormDrafts` bumps a version, read via `useSyncExternalStore`                                                      |
+| Dropping a draft field the form no longer has | Auto          | restore skips unknown keys, so a shape change cannot strand one for 24h                                                       |
+| Keeping search + filters in the URL           | Auto          | the search and filter hooks own it                                                                                            |
+| Persisting a preference (camera, periods...)  | Auto          | the relevant `storage/*` helper writes on change                                                                              |
+| Persisting the view mode                      | Parked        | `useViewMode` writes on the setter, which has no callers yet (see below)                                                      |
+| Adding a new query                            | Manual        | add its key to the domain's `keys.ts`, build the hook with `queryOptions`, and assert the value in `query-key-values.test.ts` |
+| Adding a NEW modal form to the draft system   | Manual        | call `useFormDraft` with a unique `draftKey`; pick `restore` and `exclude`                                                    |
+| Adding a NEW preference                       | Manual        | add the field to `IAppData` and a helper in `utils/browser/storage/`                                                          |
+| Excluding a sensitive field from a draft      | Manual        | pass it in `exclude` (do this for passwords and base64 images)                                                                |
 
 ---
 
@@ -233,6 +240,8 @@ Not everything should be remembered. These are intentionally **not** persisted, 
 | `frontend/src/app/[locale]/products/hooks/use-filter-params.ts`            | writes product filters to the query string                             |
 | `frontend/src/app/[locale]/products/hooks/use-product-filters.ts`          | reads filters back and resolves them                                   |
 | `frontend/src/lib/modal/use-modal-url.ts`                                  | reads the `?modal=` target                                             |
+| `frontend/src/lib/cijene-api/keys.ts`, `frontend/src/lib/api/*/keys.ts`    | query key factories; their values are the persisted cache's addresses  |
+| `frontend/src/lib/offline/query-key-values.test.ts`                        | pins every factory key to its persisted value                          |
 
 ---
 
@@ -260,7 +269,7 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
 ## 11. Gotchas & lessons learned
 
-- **The product page's panel preferences render their defaults on the server.** The product page is server rendered, and the server cannot read localStorage, so `useProductPreferences` reads `productsPreferences` through `useSyncExternalStore` with a server snapshot of "nothing saved": stores open, price history closed. React switches to the saved entry right after hydration, so a returning visitor who saved other states sees the defaults for a moment. Writes happen in the toggle and chart handlers, never in an effect, because an effect running during hydration would overwrite the saved state with the server default.
+- **The product page's chart preferences render their defaults on the server.** The product page is server rendered with the price history section always open, and the server cannot read localStorage, so `useProductPreferences` reads `productsPreferences` through `useSyncExternalStore` with a server snapshot of "nothing saved": one week, pinned stores or all chains. React switches to the saved period and chains right after hydration, so a returning visitor who saved others sees the defaults for a moment. Writes happen in the chart handlers, never in an effect, because an effect running during hydration would overwrite the saved state with the server default.
 - **Always go through the storage helpers, never `localStorage.setItem` directly.** Everything shares the one `Disscount_app` object, and `setAppStorage` merges your partial into the rest. A raw `setItem` would overwrite the whole object and wipe unrelated preferences and drafts.
 
 - **Drafts diff against `defaultValues`, not RHF `dirtyFields`.** The React Hook Form dirty proxy can read empty inside a stable callback, which made persistence unreliable. `useFormDraft` compares current values to the form defaults instead, so what gets saved is genuinely what changed.

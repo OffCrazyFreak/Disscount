@@ -86,7 +86,6 @@ export default function DigitalCardsClient({
       />
 
       <DigitalCardsResults
-        query={query}
         isLoading={isUserLoading}
         totalCount={cards.length}
         matching={matching}

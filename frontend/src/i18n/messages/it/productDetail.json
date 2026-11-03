@@ -16,16 +16,12 @@
     "distance": "Distanza"
   },
   "chains": {
-    "title": "Prezzi per catena",
     "refreshed": "Prezzi aggiornati {time}",
     "loadError": "Impossibile caricare i prezzi. Riprova.",
     "empty": "Nessun prezzo disponibile per questo prodotto.",
     "whereToBuy": "Dove comprare"
   },
   "priceHistory": {
-    "title": "Storico prezzi",
-    "hide": "Nascondi",
-    "show": "Mostra",
     "empty": "Ancora nessuno storico prezzi.",
     "average": "Media",
     "period": {
@@ -50,5 +46,8 @@
     "unknown": "Sconosciuto",
     "notAvailable": "N/D",
     "showOnMap": ", mostra sulla mappa"
+  },
+  "sectionNav": {
+    "label": "Sezioni del prodotto"
   }
 }

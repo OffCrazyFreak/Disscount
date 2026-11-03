@@ -5,6 +5,7 @@ import {
   isStoreOptimizeMode,
   type StoreOptimizeMode,
 } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
+import { useUser } from "@/context/user-context";
 import { isFailure, useDistanceSort } from "@/hooks/use-distance-sort";
 import {
   getStoreOptimizeMode,
@@ -13,9 +14,10 @@ import {
 import { isGeolocationGranted } from "@/utils/browser/geolocation-permission";
 
 /**
- * The store list sort, saved across lists. A saved "distance" comes back only
- * when the browser already allows location, so loading a list never prompts;
- * otherwise the list opens in the default order.
+ * The store list sort, saved across lists. A saved "distance" comes back from
+ * the location when the browser already allows it, else from a picked or saved
+ * town, so loading a list never prompts; otherwise the list opens in the
+ * default order.
  */
 export function useStoreOptimizeMode() {
   const [saved] = useState(() => {
@@ -28,25 +30,30 @@ export function useStoreOptimizeMode() {
     saved === "distance" ? "products" : saved,
     "products",
   );
+  // The pinned places come with the profile, which loads after the page.
+  const { isLoading: isUserLoading } = useUser();
   // A pick made while the permission query runs beats the restore.
   const picked = useRef(false);
 
-  const restoreDistance = useEffectEvent(() => {
-    if (!picked.current) distance.choose("distance");
+  const restoreDistance = useEffectEvent((granted: boolean) => {
+    if (picked.current) return;
+    picked.current = true;
+    if (granted) distance.choose("distance");
+    else if (distance.hasKnownTown) distance.chooseKnownTown();
   });
 
   useEffect(() => {
-    if (saved !== "distance") return;
+    if (saved !== "distance" || isUserLoading) return;
 
     let cancelled = false;
     void isGeolocationGranted().then((granted) => {
-      if (granted && !cancelled) restoreDistance();
+      if (!cancelled) restoreDistance(granted);
     });
 
     return () => {
       cancelled = true;
     };
-  }, [saved]);
+  }, [saved, isUserLoading]);
 
   // "distance" is saved only once it worked, so a failed pick keeps the
   // earlier choice, and a failed restore stops retrying on every visit.

@@ -21,7 +21,7 @@ function readServerEntry(): string | null {
   return null;
 }
 
-/** One product's saved panel preferences; empty on the server and during hydration. */
+/** One product's saved chart preferences; empty on the server and during hydration. */
 export function useProductPreferences(ean: string): IProductChartPreferences {
   const entry = useSyncExternalStore(
     subscribe,
@@ -32,7 +32,7 @@ export function useProductPreferences(ean: string): IProductChartPreferences {
   return entry ? (JSON.parse(entry) as IProductChartPreferences) : {};
 }
 
-/** Merges into the saved entry, so one panel's write keeps the other panel's state. */
+/** Merges into the saved entry, so writing one field keeps the others. */
 export function updateProductPreferences(
   ean: string,
   changes: IProductChartPreferences,
