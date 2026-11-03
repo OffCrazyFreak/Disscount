@@ -660,11 +660,12 @@ html {
   --z-bottom-nav-covered: 39;
   --z-doodle: 30;
   --z-header: 20;
-  /* The language offer floats over page content but stays under the header menus */
-  --z-locale-suggestion: 15;
   /* A page's sticky section tabs: page chrome under the header, over the filter sidebar */
   --z-section-nav: 12;
   --z-sidebar: 10;
+  /* The language offer row: above the phone map's fixed layer (z 1), below its
+     search takeover (z 3), so it never covers the store list */
+  --z-locale-suggestion: 2;
 }
 
 /* Sticky section tabs below the floating header.
