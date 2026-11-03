@@ -25,7 +25,8 @@ export default function NearestStoreDistance({
         {t("nearest", { distance: formatDistance(nearest.km, locale) })}
       </span>
 
-      <StoreOpeningBadge storeKey={nearest.key} />
+      {/* Both chain cards are one toggle button, so the badge cannot be a second one. */}
+      <StoreOpeningBadge storeKey={nearest.key} isInsideButton />
     </span>
   );
 }

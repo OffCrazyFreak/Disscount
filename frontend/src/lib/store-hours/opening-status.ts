@@ -14,13 +14,17 @@ export type OpeningStatus =
       closesAt: IClockMoment | null;
       asOf: string;
     }
-  | { state: "closed"; opensAt: IClockMoment | null; asOf: string }
+  | {
+      state: "closed" | "opening-soon";
+      opensAt: IClockMoment | null;
+      asOf: string;
+    }
   | { state: "unconfirmed"; asOf: string | null };
 
 const DAY = 24 * 60;
 
-// An hour leaves time to get there and still shop.
-const CLOSING_SOON_MINUTES = 60;
+// An hour leaves time to get there and still shop, and is short enough to wait out.
+const SOON_MINUTES = 60;
 
 // Far enough to find Monday's opening from a Saturday evening before a holiday.
 const LOOKAHEAD_DAYS = 7;
@@ -107,7 +111,7 @@ export function openingStatusAt(
     const aroundTheClock = end >= (LOOKAHEAD_DAYS + 1) * DAY;
 
     return {
-      state: end - now <= CLOSING_SOON_MINUTES ? "closing-soon" : "open",
+      state: end - now <= SOON_MINUTES ? "closing-soon" : "open",
       closesAt: aroundTheClock ? null : momentAt(today, end),
       asOf: asOf ?? hours.verifiedAt,
     };
@@ -122,9 +126,14 @@ export function openingStatusAt(
       !span.known && span.end > now && (!next || span.start < next.start),
   );
 
+  const opensAt = next && !unknownFirst ? next.start : null;
+
   return {
-    state: "closed",
-    opensAt: next && !unknownFirst ? momentAt(today, next.start) : null,
+    state:
+      opensAt !== null && opensAt - now <= SOON_MINUTES
+        ? "opening-soon"
+        : "closed",
+    opensAt: opensAt === null ? null : momentAt(today, opensAt),
     asOf,
   };
 }

@@ -1,5 +1,6 @@
 import { screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import StoreHoursProvider from "@/components/custom/store-hours/store-hours-context";
 import StoreOpeningBadge from "@/components/custom/store-hours/store-opening-badge";
@@ -25,7 +26,7 @@ const data: StoreHoursResponse = {
 };
 
 // 2026-11-04 is a Wednesday; Zagreb is UTC+1 in November.
-function renderAt(local: string, storeKey: string) {
+function renderAt(local: string, storeKey: string, isInsideButton = false) {
   const hours: IStoreHoursNow = {
     data,
     holidays: new Set(),
@@ -34,30 +35,60 @@ function renderAt(local: string, storeKey: string) {
 
   return renderWithProviders(
     <StoreHoursProvider hours={hours}>
-      <StoreOpeningBadge storeKey={storeKey} />
+      <StoreOpeningBadge storeKey={storeKey} isInsideButton={isInsideButton} />
     </StoreHoursProvider>,
   );
 }
 
 describe("StoreOpeningBadge", () => {
-  it("shows a store open with its closing time", () => {
+  // jsdom has no matchMedia; a touch screen, so a tap opens the detail.
+  beforeEach(() => {
+    vi.stubGlobal("matchMedia", () => ({
+      matches: false,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+  });
+
+  it("names an open store with its closing time", () => {
     renderAt("2026-11-04T10:00:00", "konzum:1");
 
-    expect(screen.getByText("Otvoreno")).toBeInTheDocument();
-    expect(screen.getByText("zatvara u 21:00")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Otvoreno, zatvara u 21:00" }),
+    ).toHaveTextContent("Otvoreno");
   });
 
-  it("warns in the last hour", () => {
+  it("keeps the word and adds soon to the name in the last hour", () => {
     renderAt("2026-11-04T20:15:00", "konzum:1");
 
-    expect(screen.getByText("Zatvara uskoro")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Otvoreno, zatvara uskoro u 21:00" }),
+    ).toHaveTextContent("Otvoreno");
   });
 
-  it("shows when a closed store opens next", () => {
+  it("names when a closed store opens next", () => {
     renderAt("2026-11-04T22:00:00", "konzum:1");
 
-    expect(screen.getByText("Zatvoreno")).toBeInTheDocument();
-    expect(screen.getByText("otvara sutra u 07:00")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Zatvoreno, otvara sutra u 7:00" }),
+    ).toHaveTextContent("Zatvoreno");
+  });
+
+  it("shows the opening time on tap in the hour before it opens", async () => {
+    renderAt("2026-11-04T06:30:00", "konzum:1");
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Zatvoreno, otvara uskoro u 7:00" }),
+    );
+
+    expect(await screen.findByText("Otvara uskoro u 7:00")).toBeInTheDocument();
+  });
+
+  it("is plain text inside a card's toggle button", () => {
+    renderAt("2026-11-04T10:00:00", "konzum:1", true);
+
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(screen.getByText("Otvoreno, zatvara u 21:00")).toBeInTheDocument();
   });
 
   it("calls a store with no hours unconfirmed", () => {

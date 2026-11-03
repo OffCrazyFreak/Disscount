@@ -11,12 +11,21 @@ import {
 
 const WEEKDAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 
-const LABEL_KEYS = {
+const DETAIL_KEYS = {
   open: "open",
   "closing-soon": "closingSoon",
   closed: "closed",
-  unconfirmed: "unconfirmed",
+  "opening-soon": "openingSoon",
 } as const;
+
+export interface IOpeningStatusText {
+  /** The badge's word: only open, closed or unconfirmed; colour carries "soon". */
+  label: string;
+  /** The tooltip line, such as "Zatvara u 21:00"; null when there is no time to name. */
+  detail: string | null;
+  /** The word and the detail together, for screen readers and live regions. */
+  name: string;
+}
 
 function dayOf(date: string, today: string): string {
   if (date === today) return "today";
@@ -25,36 +34,42 @@ function dayOf(date: string, today: string): string {
   return WEEKDAY_KEYS[isoWeekday(date)];
 }
 
-/** The badge word and the "closes at" or "opens at" line for a status. */
+// Croatian writes 7:00, not 07:00.
+function clockOf(time: string): string {
+  return time.replace(/^0(?=\d)/, "");
+}
+
+/** The badge word, its tooltip line and its full accessible name for a status. */
 export function useOpeningStatusText() {
   const t = useTranslations("storeHours");
 
-  return function describe(status: OpeningStatus, now: Date) {
-    const label = t(`status.${LABEL_KEYS[status.state]}`);
+  return function describe(
+    status: OpeningStatus,
+    now: Date,
+  ): IOpeningStatusText {
+    if (status.state === "unconfirmed") {
+      const label = t("status.unconfirmed");
 
-    if (status.state === "open" || status.state === "closing-soon") {
-      return {
-        label,
-        detail: status.closesAt
-          ? t("closesAt", { time: status.closesAt.time })
-          : null,
-      };
+      return { label, detail: null, name: label };
     }
 
-    if (status.state === "closed") {
-      const today = zagrebClock(now).date;
+    const isOpen = "closesAt" in status;
+    const label = t(isOpen ? "status.open" : "status.closed");
+    const moment = isOpen ? status.closesAt : status.opensAt;
 
-      return {
-        label,
-        detail: status.opensAt
-          ? t("opensAt", {
-              day: dayOf(status.opensAt.date, today),
-              time: status.opensAt.time,
-            })
-          : null,
-      };
-    }
+    if (!moment) return { label, detail: null, name: label };
 
-    return { label, detail: null };
+    const time = clockOf(moment.time);
+    const when = t("when", {
+      day: dayOf(moment.date, zagrebClock(now).date),
+      time,
+    });
+    const key = DETAIL_KEYS[status.state];
+
+    return {
+      label,
+      detail: t(`detail.${key}`, { time, when }),
+      name: t(`name.${key}`, { time, when }),
+    };
   };
 }

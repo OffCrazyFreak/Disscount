@@ -1,16 +1,26 @@
 {
   "status": {
     "open": "Odprto",
-    "closingSoon": "Kmalu se zapre",
     "closed": "Zaprto",
     "unconfirmed": "Delovni čas ni potrjen"
   },
-  "closesAt": "zapre ob {time}",
-  "opensAt": "odpre {day, select, today {ob {time}} tomorrow {jutri ob {time}} mon {v ponedeljek ob {time}} tue {v torek ob {time}} wed {v sredo ob {time}} thu {v četrtek ob {time}} fri {v petek ob {time}} sat {v soboto ob {time}} other {v nedeljo ob {time}}}",
-  "asOf": "Podatki z dne {date}",
+  "when": "{day, select, today {ob {time}} tomorrow {jutri ob {time}} mon {v ponedeljek ob {time}} tue {v torek ob {time}} wed {v sredo ob {time}} thu {v četrtek ob {time}} fri {v petek ob {time}} sat {v soboto ob {time}} other {v nedeljo ob {time}}}",
+  "detail": {
+    "open": "Zapre ob {time}",
+    "closingSoon": "Kmalu zapre, ob {time}",
+    "closed": "Odpre {when}",
+    "openingSoon": "Kmalu odpre, ob {time}"
+  },
+  "name": {
+    "open": "Odprto, zapre ob {time}",
+    "closingSoon": "Odprto, kmalu zapre ob {time}",
+    "closed": "Zaprto, odpre {when}",
+    "openingSoon": "Zaprto, kmalu odpre ob {time}"
+  },
   "source": {
     "chain": "Vir: {chain}",
-    "osm": "Vir: OpenStreetMap (podatki skupnosti)"
+    "osm": "Vir: OpenStreetMap",
+    "dated": "{source} ({date})"
   },
   "check": "Preveri",
   "checkLabel": "Preveri delovni čas na strani trgovine (odpre se v novem zavihku)",

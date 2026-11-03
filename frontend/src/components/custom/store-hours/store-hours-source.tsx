@@ -7,7 +7,7 @@ import { useStoreOpening } from "@/components/custom/store-hours/store-hours-con
 import { useOpeningStatusText } from "@/components/custom/store-hours/use-opening-status-text";
 import { HOURS_CHAINS } from "@/lib/store-hours/hours-chains";
 import { getChainLabel } from "@/utils/labels";
-import { formatDate } from "@/utils/strings";
+import { formatPlainDate } from "@/utils/strings";
 
 interface IStoreHoursSourceProps {
   storeKey: string;
@@ -33,7 +33,12 @@ export default function StoreHoursSource({
   if (!opening) return null;
 
   const { status, now, hours } = opening;
-  const { label } = describe(status, now);
+  const { name } = describe(status, now);
+  const source =
+    hours &&
+    (hours.source === "osm"
+      ? t("source.osm")
+      : t("source.chain", { chain: getChainLabel(chain) }));
   // A store no source covers can still be checked on its chain's finder.
   const checkUrl = hours
     ? hours.checkUrl
@@ -43,16 +48,17 @@ export default function StoreHoursSource({
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
       {/* Mounted with the open store, so only a change while it is open is read out. */}
       <p role="status" className="sr-only">
-        {t("changed", { store: storeLabel, status: label })}
+        {t("changed", { store: storeLabel, status: name })}
       </p>
 
-      {hours && (
+      {source && (
         <span>
-          {hours.source === "osm"
-            ? t("source.osm")
-            : t("source.chain", { chain: getChainLabel(chain) })}
-          {status.asOf &&
-            ` · ${t("asOf", { date: formatDate(status.asOf, locale) })}`}
+          {status.asOf
+            ? t("source.dated", {
+                source,
+                date: formatPlainDate(status.asOf, locale),
+              })
+            : source}
         </span>
       )}
 

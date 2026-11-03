@@ -11,6 +11,7 @@ const AS_OF = "2026-11-02T06:00:00.000Z";
 const open: OpeningStatus = { state: "open", closesAt: null, asOf: AS_OF };
 const closingSoon: OpeningStatus = { ...open, state: "closing-soon" };
 const closed: OpeningStatus = { state: "closed", opensAt: null, asOf: AS_OF };
+const openingSoon: OpeningStatus = { ...closed, state: "opening-soon" };
 const unconfirmed: OpeningStatus = { state: "unconfirmed", asOf: null };
 
 describe("passesOpenFilter", () => {
@@ -24,6 +25,7 @@ describe("passesOpenFilter", () => {
     expect(passesOpenFilter(open, "confirmed")).toBe(true);
     expect(passesOpenFilter(closingSoon, "confirmed")).toBe(true);
     expect(passesOpenFilter(closed, "confirmed")).toBe(false);
+    expect(passesOpenFilter(openingSoon, "confirmed")).toBe(false);
     expect(passesOpenFilter(unconfirmed, "confirmed")).toBe(false);
   });
 

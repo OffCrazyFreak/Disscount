@@ -1,16 +1,26 @@
 {
   "status": {
     "open": "Aperto",
-    "closingSoon": "Chiude a breve",
     "closed": "Chiuso",
     "unconfirmed": "Orari non confermati"
   },
-  "closesAt": "chiude alle {time}",
-  "opensAt": "apre {day, select, today {alle {time}} tomorrow {domani alle {time}} mon {lunedì alle {time}} tue {martedì alle {time}} wed {mercoledì alle {time}} thu {giovedì alle {time}} fri {venerdì alle {time}} sat {sabato alle {time}} other {domenica alle {time}}}",
-  "asOf": "Dati al {date}",
+  "when": "{day, select, today {alle {time}} tomorrow {domani alle {time}} mon {lunedì alle {time}} tue {martedì alle {time}} wed {mercoledì alle {time}} thu {giovedì alle {time}} fri {venerdì alle {time}} sat {sabato alle {time}} other {domenica alle {time}}}",
+  "detail": {
+    "open": "Chiude alle {time}",
+    "closingSoon": "Chiude a breve, alle {time}",
+    "closed": "Apre {when}",
+    "openingSoon": "Apre a breve, alle {time}"
+  },
+  "name": {
+    "open": "Aperto, chiude alle {time}",
+    "closingSoon": "Aperto, chiude a breve alle {time}",
+    "closed": "Chiuso, apre {when}",
+    "openingSoon": "Chiuso, apre a breve alle {time}"
+  },
   "source": {
     "chain": "Fonte: {chain}",
-    "osm": "Fonte: OpenStreetMap (dati della comunità)"
+    "osm": "Fonte: OpenStreetMap",
+    "dated": "{source} ({date})"
   },
   "check": "Verifica",
   "checkLabel": "Verifica gli orari sulla pagina del negozio (si apre in una nuova scheda)",
