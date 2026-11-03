@@ -148,10 +148,6 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
           ? t("addPlainItem.toast.quantityIncreased", { name: listTitle })
           : t("addPlainItem.toast.added", { name: listTitle }),
         {
-          classNames: {
-            actionButton:
-              "bg-primary! text-primary-foreground! hover:bg-primary/90!",
-          },
           action: {
             label: t("addToList.toast.open"),
             onClick: () =>
