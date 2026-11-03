@@ -122,7 +122,7 @@ flowchart TD
     M --> GP["getServerProduct(ean)<br/>React cache(), shared with the page"]
     P --> GP
     P --> GPR["getServerProductPrices(ean)<br/>5 s timeout"]
-    P --> PH["getMainPhotoUrl(ean)<br/>backend, 3 s timeout"]
+    P --> PH["getVerifiedMainPhotoUrl(ean)<br/>backend, 3 s timeout"]
     GP -->|found| H[JSON-LD + HydrationBoundary + ProductDetailClient]
     GP -->|missing| NF[notFound: noindex not-found page]
     GP -->|unavailable| CO[ProductDetailClient alone: the browser fetches]
@@ -147,18 +147,18 @@ Issue #230 (product page SEO) asked for real titles, server rendered data, sitem
 
 **Metadata** (`[id]/utils/product-metadata.ts`):
 
-| Case                 | Title                                       | Robots                           | Other                                                                                                                                                                                                                             |
-| -------------------- | ------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Product found        | `productDetail.meta.productTitle`, absolute | Croatian indexed, others noindex | Description with the lowest price and the chain count; canonical; Open Graph and Twitter with a 1200x630 card of the main photo ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#7-how-photos-reach-the-page)), or the layout's brand image |
-| Upstream unavailable | Generic `productDetail.meta.title`          | Same as found                    | Canonical kept, so an outage never marks a real product noindex                                                                                                                                                                   |
-| Product missing      | `productDetail.notFound.title`              | `noindex, nofollow`              | The page calls `notFound()`                                                                                                                                                                                                       |
+| Case                 | Title                                       | Robots                           | Other                                                                                                                                                                                                                                       |
+| -------------------- | ------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Product found        | `productDetail.meta.productTitle`, absolute | Croatian indexed, others noindex | Description with the lowest price and the chain count; canonical; Open Graph and Twitter with a 1200x630 card of the confirmed main photo ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#7-how-photos-reach-the-page)), or the layout's brand image |
+| Upstream unavailable | Generic `productDetail.meta.title`          | Same as found                    | Canonical kept, so an outage never marks a real product noindex                                                                                                                                                                             |
+| Product missing      | `productDetail.notFound.title`              | `noindex, nofollow`              | The page calls `notFound()`                                                                                                                                                                                                                 |
 
 - The title is `absolute`, because the layout template would otherwise prefix "Disscount - " to a product name.
 - Only the Croatian page is indexed. The translations repeat the Croatian product data around translated boilerplate, which Google treats as thin duplicates. For the same reason there is no hreflang set: Google ignores a set whose other members are noindex. `translatedProductRobots` keeps `follow` only on an indexable origin.
 - The canonical uses the EAN as upstream returns it (leading zeros stripped), so every spelling of a barcode lands on one URL.
 - `openGraph` and `twitter` replace the layout's whole objects in Next, so the page passes the parent's resolved images through when there is no product photo.
 
-**JSON-LD** (`[id]/utils/product-json-ld.ts`, rendered by `product-json-ld.tsx`): a schema.org `Product` with `name`, `url`, `image` (the main photo, or the brand OG image), `brand`, `gtin` only for a public GTIN (valid GS1 check digit, not an in-store code with prefix 2, mirroring the backend's `Barcodes.isPublicGtin`), and an `AggregateOffer` with `lowPrice`, `highPrice`, `priceCurrency: "EUR"` and `offerCount` (the number of chains). `AggregateOffer`, not `Offer`, because we compare prices and sell nothing, and Google reserves merchant listings for shops. The numbers are the page's own visible chain prices, as Google requires.
+**JSON-LD** (`[id]/utils/product-json-ld.ts`, rendered by `product-json-ld.tsx`): a schema.org `Product` with `name`, `url`, `image` (the confirmed main photo, left out when there is none), `brand`, `gtin` only for a public GTIN (valid GS1 check digit, not an in-store code with prefix 2, mirroring the backend's `Barcodes.isPublicGtin`), and an `AggregateOffer` with `lowPrice`, `highPrice`, `priceCurrency: "EUR"` and `offerCount` (the number of chains). `AggregateOffer`, not `Offer`, because we compare prices and sell nothing, and Google reserves merchant listings for shops. The numbers are the page's own visible chain prices, as Google requires.
 
 **Sitemaps.**
 

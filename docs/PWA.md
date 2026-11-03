@@ -412,18 +412,18 @@ The screenshot generator script was removed after the images were generated, so 
 
 Read from `frontend/package.json`.
 
-| Library                                   | Version             | Role                                                                                     |
-| ----------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------- |
-| `@serwist/next`                           | `^9.5.11`           | Next.js integration for the Serwist service worker                                       |
-| `serwist`                                 | `^9.5.11` (dev)     | the service-worker toolkit (Workbox successor): strategies, plugins, precaching          |
-| `@tanstack/react-query`                   | `^5.90.12`          | data fetching + cache (the offline read/write engine)                                    |
-| `@tanstack/react-query-persist-client`    | `^5.101.1` (pinned) | persist/restore the query cache                                                          |
-| `@tanstack/query-async-storage-persister` | `^5.101.1` (pinned) | async persister used with IndexedDB                                                      |
-| `idb-keyval`                              | `^6.2.5`            | tiny IndexedDB key-value wrapper backing the persister                                   |
-| `sharp`                                   | `^0.35.3` (dev)     | image generation for icons and splash screens                                            |
-| `next`                                    | `16.4.0`            | App Router, dynamic manifest, metadata hoisting                                          |
-| `react`                                   | `19.2.8`            | renders and hoists the `<link>`/metadata tags                                            |
-| `@yudiel/react-qr-scanner`                | `^2.6.0`            | barcode/QR scanning (used by digital cards; native Barcode Detection is a future option) |
+| Library                                   | Version             | Role                                                                                          |
+| ----------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------- |
+| `@serwist/next`                           | `^9.5.11`           | Next.js integration for the Serwist service worker                                            |
+| `serwist`                                 | `^9.5.11` (dev)     | the service-worker toolkit (Workbox successor): strategies, plugins, precaching               |
+| `@tanstack/react-query`                   | `^5.90.12`          | data fetching + cache (the offline read/write engine)                                         |
+| `@tanstack/react-query-persist-client`    | `^5.101.1` (pinned) | persist/restore the query cache                                                               |
+| `@tanstack/query-async-storage-persister` | `^5.101.1` (pinned) | async persister used with IndexedDB                                                           |
+| `idb-keyval`                              | `^6.2.5`            | tiny IndexedDB key-value wrapper backing the persister                                        |
+| `sharp`                                   | `^0.35.5`           | image generation for icons and splash screens; also encodes the product share card at runtime |
+| `next`                                    | `16.4.0`            | App Router, dynamic manifest, metadata hoisting                                               |
+| `react`                                   | `19.2.8`            | renders and hoists the `<link>`/metadata tags                                                 |
+| `@yudiel/react-qr-scanner`                | `^2.6.0`            | barcode/QR scanning (used by digital cards; native Barcode Detection is a future option)      |
 
 > 🔑 **Version pin:** the two `@tanstack` persist packages are pinned to **exactly `5.101.1`** to match the resolved `@tanstack/react-query`. A mismatch pulls a second copy of `@tanstack/query-core`, whose `Query` type is nominally incompatible and breaks `tsc`. If `react-query` is upgraded, bump these in lockstep.
 
