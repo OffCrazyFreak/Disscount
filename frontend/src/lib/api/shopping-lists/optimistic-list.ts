@@ -64,7 +64,7 @@ export async function patchListOptimistically(
   return rollback;
 }
 
-/** Writes the server's answer in, which is what carries a freshly minted share token. */
+/** Writes the server's answer in, which carries what the patch cannot know, such as the new `updatedAt`. */
 export function applyListResult(
   queryClient: QueryClient,
   id: string,

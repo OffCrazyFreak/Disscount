@@ -1,4 +1,3 @@
-import axios from "axios";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
 import {
@@ -6,9 +5,10 @@ import {
   storeDirectoryResponse,
 } from "@/lib/api/schemas";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
+import cijeneRouteClient from "@/lib/cijene-api/route-client";
 
 async function getStoreDirectory(): Promise<StoreDirectoryResponse> {
-  const response = await axios.get("/api/cijene/store-directory");
+  const response = await cijeneRouteClient.get("/api/cijene/store-directory");
 
   return storeDirectoryResponse.parse(response.data);
 }

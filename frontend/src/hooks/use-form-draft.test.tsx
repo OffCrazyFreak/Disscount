@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { describe, expect, it } from "vitest";
 
 import { useFormDraft } from "@/hooks/use-form-draft";
-import { getFormDraft } from "@/utils/browser/local-storage";
+import { getFormDraft, setFormDraft } from "@/utils/browser/local-storage";
 
 const DRAFT_KEY = "test-draft";
 
@@ -62,5 +62,15 @@ describe("useFormDraft", () => {
       finishRequest();
       await submit;
     });
+  });
+
+  it("restores a draft written while the modal was closed on its next open", () => {
+    const { result, rerender } = renderDraftHook();
+
+    rerender({ enabled: false });
+    setFormDraft(DRAFT_KEY, { name: "Kruh" });
+    rerender({ enabled: true });
+
+    expect(result.current.form.getValues("name")).toBe("Kruh");
   });
 });

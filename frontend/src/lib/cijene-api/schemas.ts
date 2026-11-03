@@ -34,6 +34,9 @@ export type StoreResponse = z.infer<typeof storeResponseSchema>;
 export type ListStoresResponse = z.infer<typeof listStoresResponseSchema>;
 
 // Product schemas
+// Upstream serialises Python Decimals: dot-decimal text such as "1.29", rarely "1E+1".
+const PRICE_TEXT = /^\d+(\.\d+)?(E[+-]?\d+)?$/i;
+
 const chainProductResponseSchema = z.object({
   chain: z.string(),
   code: z.string(),
@@ -54,7 +57,17 @@ export const productResponseSchema = z.object({
   name: z.string().nullable(),
   quantity: z.string().nullable(),
   unit: z.string().nullable(),
-  chains: z.array(chainProductResponseSchema),
+  // A chain with an unreadable price is dropped, not failed: it would be NaN in every total,
+  // sort and cheapest pick, and the other chains still show. A shape change still fails loudly.
+  chains: z
+    .array(chainProductResponseSchema)
+    .transform((chains) =>
+      chains.filter((chain) =>
+        [chain.min_price, chain.max_price, chain.avg_price].every((price) =>
+          PRICE_TEXT.test(price),
+        ),
+      ),
+    ),
 });
 
 export const productSearchResponseSchema = z.object({

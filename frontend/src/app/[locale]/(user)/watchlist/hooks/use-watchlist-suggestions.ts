@@ -92,7 +92,8 @@ export function useWatchlistSuggestions({
           ? calculateDiscountInfo(product, pinnedStoreChainCodes)
           : null,
         isLoading: productQuery?.isLoading ?? false,
-        error: queryError instanceof Error ? queryError : null,
+        // A failed background refetch keeps the cached prices on screen.
+        error: !product && queryError instanceof Error ? queryError : null,
       };
     });
   }, [

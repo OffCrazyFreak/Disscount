@@ -245,3 +245,45 @@ describe("UserProvider erased account", () => {
     await renderAndSettle(authCalls, ["get-session"]);
   });
 });
+
+function UnverifiedAccountProbe() {
+  const { hasUnverifiedAccount, canShowAccountData } = useUser();
+  return (
+    <>
+      <p>{hasUnverifiedAccount ? "unverified account" : "no account"}</p>
+      <p>{canShowAccountData ? "saved data shown" : "saved data hidden"}</p>
+    </>
+  );
+}
+
+describe("UserProvider offline", () => {
+  it("vouches for the account this device's cache belongs to when the session check fails", () => {
+    setCacheIdentity("user-a");
+    session.userId = null;
+    session.error = new Error("offline");
+
+    renderWithProviders(
+      <UserProvider>
+        <UnverifiedAccountProbe />
+      </UserProvider>,
+    );
+
+    expect(screen.getByText("unverified account")).toBeInTheDocument();
+    expect(screen.getByText("saved data shown")).toBeInTheDocument();
+  });
+
+  it("vouches for nobody once the device was signed out", () => {
+    setCacheIdentity(null);
+    session.userId = null;
+    session.error = new Error("offline");
+
+    renderWithProviders(
+      <UserProvider>
+        <UnverifiedAccountProbe />
+      </UserProvider>,
+    );
+
+    expect(screen.getByText("no account")).toBeInTheDocument();
+    expect(screen.getByText("saved data hidden")).toBeInTheDocument();
+  });
+});

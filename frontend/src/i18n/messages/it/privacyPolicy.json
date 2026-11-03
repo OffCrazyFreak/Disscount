@@ -7,5 +7,9 @@
     "heading": "Monitoraggio degli errori",
     "collected": "Quando nell'app si verifica un errore, inviamo i dati tecnici a Sentry, il nostro responsabile del trattamento, che li conserva nell'Unione europea: la descrizione dell'errore, il browser e il dispositivo, l'indirizzo della pagina e l'identificativo interno del tuo account. Sentry non salva il tuo indirizzo IP, ma dalla connessione può ricavare una posizione approssimativa (il paese, a volte la città). Non associamo il tuo nome né la tua email agli eventi, ma una richiesta di accesso o registrazione non riuscita può contenere l'indirizzo email che hai inserito.",
     "replay": "Per una piccola parte delle visite e per quelle con un errore effettuiamo anche una registrazione della sessione, con tutto il testo e i campi mascherati. Password, token e cookie di sessione vengono rimossi prima dell'invio. Usiamo questi dati solo per correggere gli errori. Sentry li conserva per al massimo 30 giorni. La base giuridica è il legittimo interesse (art. 6, par. 1, lett. f del GDPR)."
+  },
+  "securityNotices": {
+    "heading": "Avvisi di sicurezza",
+    "body": "Quando la password del tuo account cambia, ti inviamo un'email di avviso. Quando cambi indirizzo email, l'avviso arriva al vecchio indirizzo e indica quello nuovo. Così puoi accorgerti di una modifica che non conosci e intervenire subito. Questi avvisi fanno parte della protezione dell'account, quindi non puoi disattivarli. La base giuridica è il legittimo interesse (art. 6, par. 1, lett. f del GDPR)."
   }
 }

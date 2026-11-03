@@ -9,12 +9,15 @@ interface IItemCheckBoxProps {
   item: ShoppingListItemDto;
   onUpdate: (updatedItem: IShoppingListItemUpdate) => void;
   canCheck: boolean;
+  /** The chain the store select shows while the item has none saved. */
+  cheapestStore?: string;
 }
 
 export default function ItemCheckBox({
   item,
   onUpdate,
   canCheck,
+  cheapestStore,
 }: IItemCheckBoxProps) {
   const t = useTranslations("shoppingListDetail");
 
@@ -33,7 +36,10 @@ export default function ItemCheckBox({
         onUpdate({
           isChecked: checked as boolean,
           amount: item.amount || 1,
-          chainCode: item.chainCode!,
+          // Ticking saves the store the select shows, so the price paid is captured there.
+          chainCode: checked
+            ? (item.chainCode ?? cheapestStore ?? null)
+            : item.chainCode,
         })
       }
     />

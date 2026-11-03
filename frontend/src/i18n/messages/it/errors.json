@@ -1,5 +1,13 @@
 {
   "auth": {
     "changeEmailLinkedAccounts": "Per cambiare l'email, scollega prima gli account collegati (Google, Facebook)."
+  },
+  "proxy": {
+    "sessionChanged": "Un altro account ha effettuato l'accesso. Aggiorniamo i tuoi dati.",
+    "notFound": "Non lo troviamo",
+    "refreshPage": "Qualcosa è andato storto. Ricarica la pagina e riprova",
+    "unavailable": "Servizio non disponibile",
+    "badRequest": "Richiesta non valida",
+    "tooManyRequests": "Troppi tentativi, aspetta un attimo"
   }
 }

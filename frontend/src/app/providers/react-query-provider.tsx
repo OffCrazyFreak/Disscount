@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 
 import { persistOptions } from "@/lib/offline/persister";
 import { createQueryClientConfig } from "@/lib/api/query-client-defaults";
+import { DIGITAL_CARD_QUERY_KEYS } from "@/lib/api/digital-cards/keys";
 import { bindLastUsedQueryClient } from "@/lib/api/digital-cards/last-used";
 import { replayCardPhotoOutbox } from "@/lib/offline/card-photo-outbox";
 import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
@@ -26,6 +27,9 @@ export default function ReactQueryProviderWrapper({
   // keep QueryClient stable across re-renders
   const [queryClient] = useState(() => {
     const client = new QueryClient(createQueryClientConfig());
+    // Cards never leave memory, and so the snapshot, however long the app stays open
+    // without the wallet being visited. Applies to restored entries too.
+    client.setQueryDefaults(DIGITAL_CARD_QUERY_KEYS.all, { gcTime: Infinity });
 
     // Register replay functions so offline writes restored from disk can resume.
     registerOfflineMutationDefaults(client, t, tCards);

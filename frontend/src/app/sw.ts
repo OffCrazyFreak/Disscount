@@ -17,6 +17,7 @@ import {
   DEPLOYMENT_PARAM_PATTERN,
   ignoreDeploymentParam,
 } from "@/lib/pwa/deployment-param";
+import { OFFLINE_PAGE_PATH, WALLET_PAGE_PATH } from "@/lib/pwa/precached-pages";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -31,6 +32,10 @@ const LOCALE_PREFIXES: string[] = LOCALES.filter(
 );
 const SHOPPING_LIST_PATH = new RegExp(
   `^(/(${LOCALE_PREFIXES.join("|")}))?/shopping-lists/`,
+);
+
+const WALLET_PATH = new RegExp(
+  `^(/(${LOCALE_PREFIXES.join("|")}))?${WALLET_PAGE_PATH}/?$`,
 );
 
 function localePrefixOf(pathname: string): string {
@@ -83,8 +88,29 @@ const runtimeCaching: RuntimeCaching[] = [
       ],
     }),
   },
+  // The bare wallet URL never gets here: the precache answers it first. Its ?q= and
+  // modal variants stay out of defaultCache's 24 hour page bucket, where a copy from an
+  // older build would point at chunks the next deploy deleted; offline, the fallback
+  // below serves this build's precached wallet instead.
+  {
+    matcher: ({ url, request, sameOrigin }) =>
+      sameOrigin &&
+      request.destination === "document" &&
+      WALLET_PATH.test(url.pathname),
+    // Lie-fi at the till: give up on the network quickly and open the cards.
+    handler: new NetworkOnly({ networkTimeoutSeconds: 3 }),
+  },
   ...ignoreDeploymentParam(defaultCache),
 ];
+
+const PAGE_PREFIXES = ["", ...LOCALE_PREFIXES.map((locale) => `/${locale}`)];
+
+function isDocumentIn(request: Request, prefix: string): boolean {
+  return (
+    request.destination === "document" &&
+    localePrefixOf(new URL(request.url).pathname) === prefix
+  );
+}
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
@@ -103,18 +129,25 @@ const serwist = new Serwist({
   navigationPreload: true,
   runtimeCaching,
   fallbacks: {
-    // One precached offline page per language; a document falls back to its own.
-    entries: ["", ...LOCALE_PREFIXES.map((locale) => `/${locale}`)].map(
-      (prefix) => ({
-        url: `${prefix}/offline`,
+    // First match wins: a wallet document gets this build's wallet in its own
+    // language, any other document the precached offline page.
+    entries: [
+      ...PAGE_PREFIXES.map((prefix) => ({
+        url: `${prefix}${WALLET_PAGE_PATH}`,
         matcher({ request }: { request: Request }) {
           return (
-            request.destination === "document" &&
-            localePrefixOf(new URL(request.url).pathname) === prefix
+            isDocumentIn(request, prefix) &&
+            WALLET_PATH.test(new URL(request.url).pathname)
           );
         },
-      }),
-    ),
+      })),
+      ...PAGE_PREFIXES.map((prefix) => ({
+        url: `${prefix}${OFFLINE_PAGE_PATH}`,
+        matcher({ request }: { request: Request }) {
+          return isDocumentIn(request, prefix);
+        },
+      })),
+    ],
   },
 });
 

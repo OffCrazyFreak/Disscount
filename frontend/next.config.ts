@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { DEFAULT_LOCALE, LOCALES } from "./src/i18n/locales";
+import { PRECACHED_PAGE_PATHS } from "./src/lib/pwa/precached-pages";
 import { SENTRY_APPLICATION_KEY } from "./src/lib/sentry/application-key";
 import { clientEnv, validateClientEnv } from "./src/lib/env";
 import { buildContentSecurityPolicy } from "./src/utils/content-security-policy";
@@ -23,9 +24,15 @@ const withSerwist = withSerwistInit({
   // Service worker only runs in production builds; in dev it would fight
   // Turbopack/HMR. The React Query persistence layer still works in dev.
   disable: process.env.NODE_ENV === "development",
-  // Precache the offline fallback in every language so it's available with no connection.
-  additionalPrecacheEntries: ["", ...LOCALE_PREFIXES.map((l) => `/${l}`)].map(
-    (prefix) => ({ url: `${prefix}/offline`, revision: randomUUID() }),
+  // A fresh revision per build keeps each page in step with the chunks it loads.
+  additionalPrecacheEntries: [
+    "",
+    ...LOCALE_PREFIXES.map((l) => `/${l}`),
+  ].flatMap((prefix) =>
+    PRECACHED_PAGE_PATHS.map((path) => ({
+      url: `${prefix}${path}`,
+      revision: randomUUID(),
+    })),
   ),
   reloadOnOnline: true,
 });

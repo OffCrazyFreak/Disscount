@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
+import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
 import { cijeneApiV1Client } from "@/lib/cijene-api/client";
 import {
   locationPricesResponseSchema,
@@ -7,7 +8,6 @@ import {
 } from "@/lib/cijene-api/schemas";
 import { createPriceCache } from "@/lib/cijene-api/location-prices/price-cache";
 import { loadLocationPrices } from "@/lib/cijene-api/location-prices/load-location-prices";
-import { createApiError } from "@/lib/cijene-api/utils/response-utils";
 import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";
 import { buildQueryString, readListParam } from "@/utils/generic";
 
@@ -42,10 +42,7 @@ export async function GET(request: NextRequest) {
   });
 
   if (!parsed.success) {
-    return createApiError("Invalid parameters for location prices", {
-      status: 400,
-      details: z.treeifyError(parsed.error),
-    });
+    return proxyProblem("bad_request", request);
   }
 
   const { eans, chains, cities } = parsed.data;
@@ -59,6 +56,7 @@ export async function GET(request: NextRequest) {
   }
 
   return withCijeneRoute(
+    request,
     "location prices",
     locationPricesResponseSchema,
     async () => ({

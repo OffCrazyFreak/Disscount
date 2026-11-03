@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { CreditCard } from "lucide-react";
 
@@ -9,6 +10,7 @@ import DigitalCardsResults from "@/app/[locale]/(user)/digital-cards/components/
 import DigitalCardsToolbar from "@/app/[locale]/(user)/digital-cards/components/digital-cards-toolbar";
 import { useAutoOpenSingleCard } from "@/app/[locale]/(user)/digital-cards/hooks/use-auto-open-single-card";
 import { useDigitalCardsSort } from "@/app/[locale]/(user)/digital-cards/hooks/use-digital-cards-sort";
+import { useWalletCards } from "@/app/[locale]/(user)/digital-cards/hooks/use-wallet-cards";
 import {
   filterCards,
   sortCards,
@@ -16,36 +18,27 @@ import {
 import LoginRequired from "@/components/custom/common/login-required";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
-import { useUser } from "@/context/user-context";
-import { digitalCardService } from "@/lib/api";
 import { usePathname } from "@/i18n/navigation";
 
-interface IDigitalCardsClientProps {
-  query: string;
-}
-
-export default function DigitalCardsClient({
-  query,
-}: IDigitalCardsClientProps) {
+export default function DigitalCardsClient() {
   const t = useTranslations("digitalCards");
+  // Read on the client and searched shallowly: offline, a server render per keystroke
+  // would fall back to the precached page and lose what was typed.
+  const query = useSearchParams().get("q") ?? "";
   const pathname = usePathname();
   const [sortMode, setSortMode] = useDigitalCardsSort();
 
-  const { isAuthenticated, isLoading: userLoading } = useUser();
-  const { data: cards = [], isLoading } =
-    digitalCardService.useGetMyDigitalCards({ enabled: isAuthenticated });
-
-  const isUserLoading = userLoading || isLoading;
+  const { cards, canShowCards, isAuthLoading, isLoading } = useWalletCards();
 
   const matching = sortCards(filterCards(cards, query), sortMode);
 
   const activeCards = cards.filter((card) => !card.archivedAt);
   useAutoOpenSingleCard({
-    ready: isAuthenticated && !isUserLoading,
+    ready: canShowCards && !isLoading,
     singleCardId: activeCards.length === 1 ? activeCards[0].id : null,
   });
 
-  if (!userLoading && !isAuthenticated) {
+  if (!isAuthLoading && !canShowCards) {
     return (
       <LoginRequired
         title={t("list.loginTitle")}
@@ -64,7 +57,8 @@ export default function DigitalCardsClient({
           clearable={true}
           submitButtonLocation="none"
           autoSearch={true}
-          disabled={!isUserLoading && cards.length === 0}
+          shallow
+          disabled={!isLoading && cards.length === 0}
         />
       </Suspense>
 
@@ -72,21 +66,21 @@ export default function DigitalCardsClient({
         query={query}
         matchCount={matching.length}
         totalCount={cards.length}
-        isLoading={isUserLoading}
+        isLoading={isLoading}
         sortMode={sortMode}
         onSortChange={setSortMode}
       />
 
       <CardAnnouncer
         extra={
-          query && !isUserLoading
+          query && !isLoading
             ? t("announce.results", { count: matching.length })
             : ""
         }
       />
 
       <DigitalCardsResults
-        isLoading={isUserLoading}
+        isLoading={isLoading}
         totalCount={cards.length}
         matching={matching}
       />
