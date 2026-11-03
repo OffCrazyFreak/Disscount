@@ -31,6 +31,11 @@ export function addDays(date: string, days: number): string {
     .slice(0, 10);
 }
 
+/** Whole days from one ISO date to another; `Date.parse` reads both as UTC. */
+export function daysBetween(from: string, to: string): number {
+  return (Date.parse(to) - Date.parse(from)) / (24 * 60 * 60 * 1000);
+}
+
 /** 0 for Monday through 6 for Sunday, as ISO 8601 counts. */
 export function isoWeekday(date: string): number {
   const [year, month, day] = date.split("-").map(Number);

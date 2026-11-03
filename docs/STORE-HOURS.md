@@ -42,7 +42,7 @@ Each store has three layers, each with its source and when it was verified:
 | Store exceptions           | `store_hours.exceptions` | weekly, with the template | Kaufland's `2026-11-01 closed`                                                          |
 | Sunday and holiday overlay | `store_hours_overlay`    | Thursday to Saturday      | Konzum's `open_this_sunday` for one store; an empty `store_code` covers the whole chain |
 
-The wire format (`frontend/src/lib/api/schemas/store-hours.ts`):
+One store as the status function reads it (`StoreHoursResponse` in `frontend/src/lib/api/schemas/store-hours.ts`; [§4](#4-serving-the-hours) covers the compact form it travels in):
 
 - `weekly`: seven entries, Monday first as ISO 8601 counts. Each is a list of `{ opens, closes }` intervals (split shifts are two), an empty list for closed, or `null` when the source did not say.
 - `dated`: `{ date, ranges, verifiedAt }` for single days, already merged on the server: per date the latest observation wins, because the weekly refresh and the Thursday to Saturday poll often read the same date from the same feed; on a tie the store's exception beats the chain's word on that store, which beats a chain-wide one.
@@ -95,11 +95,35 @@ The function is pure and runs in the browser: the server sends the holidays as p
 `getStoreHours` (`lib/store-hours/get-store-hours.ts`) reads both tables, keeps each process's result for 10 minutes like the store directory, and `buildStoreHours` turns the rows into the response:
 
 - Rows and announcements read from a chain whose switch is off are dropped; OpenStreetMap rows have their own switch (see [§9](#9-config-and-libraries)).
-- Each store is validated against the wire schema on its own, so one malformed row (a bad time, a link that is not http or https) drops that store, not the whole response.
+- Each store is validated against `storeHoursDto` on its own, so one malformed row (a bad time, a link that is not http or https) drops that store, not the whole response.
 - Dated entries outside two days back to 45 days ahead are dropped, which keeps the payload small and still covers a response the service worker serves days later.
 - `checkUrl` is the store's own page unless the link checker found it gone (404 or 410); then, or when a store has no page, the chain's store finder from `hours-chains.ts`.
 
 The response is keyed `chain:code`, the same key as the store directory, under the `cijene` path so the service worker caches it for offline use.
+
+### The compact payload
+
+Most stores of a chain share a week and a list of dated days, so `encodeStoreHours` (`lib/store-hours/compact-store-hours.ts`) sends each distinct value once and each store as positions into those tables, the way GTFS trips share one [`service_id`](https://gtfs.org/documentation/schedule/reference/):
+
+- `weeklyTemplates`: the distinct weeks.
+- `datedLists`: the distinct dated lists, each entry `[days from baseDate, ranges, index into verifiedTimes]`. `baseDate` is Zagreb's date when the response was generated, so an offset can be negative.
+- `verifiedTimes`, `checkUrls`: the distinct timestamps and links.
+- `stores`: `chain:code` to `[weekly template, dated list, verified time, check URL or null, source, sundays]`.
+
+The schema (`compactStoreHoursResponse`) refuses a position past the end of its table, and the time range rules are the same as on `storeHoursDto`.
+
+The browser keeps this form in the React Query cache and decodes it in `select` (`decodeStoreHours`), for two reasons: the offline persister rewrites its whole snapshot with `JSON.stringify` on every save, and a module-level `select` runs only when the data changes, once per observer. The minute clock therefore never decodes, while the map, with two observers in `useMapHours`, decodes twice per new response. Stores decoded by one observer share their template and dated list objects, so nothing may mutate them.
+
+Measured on 2026-11-04 with the 1,317 stores on dev (compressed sizes are gzip level 6 from Node; timings are one desktop run, in Vitest):
+
+|                               | Before    | After     |
+| ----------------------------- | --------- | --------- |
+| Uncompressed                  | 826,925 B | 146,810 B |
+| Gzip                          | 23,066 B  | 16,826 B  |
+| First parse, validate, decode | 70 ms     | 34 ms     |
+| `JSON.stringify` per save     | 7 ms      | 2 ms      |
+
+Edge compression already existed before this format: Cloudflare sends brotli or gzip. Neither Traefik nor the Next.js process compressed the response when asked directly on the server, so what crosses from the origin to Cloudflare is uncompressed. Cloudflare also does not cache JSON by default (`cf-cache-status: DYNAMIC`), so every request reaches Next.js and its 10 minute memo. Fetching only the stores a page needs would save little over a download this small, and would break the map's open now filter and the offline copy, which both need every store.
 
 ### Showing the hours
 
@@ -172,7 +196,7 @@ dm is not covered: upstream lists dm as a single chain-wide store, so there is n
 | ---------------------------------------------------------- | ----------------------------------------------------------- |
 | `src/db/store-hours-schema.ts`                             | Drizzle tables                                              |
 | `drizzle/0010_store_hours.sql`                             | The migration                                               |
-| `src/lib/api/schemas/store-hours.ts`                       | Zod wire schema and types                                   |
+| `src/lib/api/schemas/store-hours.ts`                       | Zod schemas and types                                       |
 | `src/lib/store-hours/zagreb-clock.ts`                      | Zagreb wall clock, ISO date arithmetic, ISO weekday         |
 | `src/lib/store-hours/hours-on-date.ts`                     | One day's hours: dated entry, law, template                 |
 | `src/lib/store-hours/opening-status.ts`                    | `openingStatusAt`, the four states                          |
@@ -201,6 +225,7 @@ dm is not covered: upstream lists dm as a single chain-wide store, so there is n
 - **Spar counts months from 0.** `{month: 10}` is November.
 - **Trgocentar's sheet lags.** On 2026-11-03 it still showed October; past dates are dropped, so the Sundays simply stay unconfirmed until the new month is up.
 - **Studenac's list page shows only today.** Its hours text depends on the time of day, so the weekly table is read from each store's page.
+- **Changing the payload shape strands cached copies.** The browser's HTTP cache (an hour), the service worker's `cijene-api` cache (7 days) and the persisted React Query cache all hold the previous shape under the same URL and key. The schema refuses a cached response, and a restored persisted entry skips the schema and fails in `select` instead, so either way the hours show as failed until a fresh response lands. A shape change on a live release needs a new URL and a new query key; bumping `CACHE_BUSTER` also discards queued offline writes.
 - **`00:00-00:00` is not 24 hours.** Feeds write a closed day that way, so the schema refuses equal `opens` and `closes`; a parser writes a closed day as `[]` and an all-day opening as `00:00` to `24:00`.
 
 ## 11. Future improvements and TODOs
