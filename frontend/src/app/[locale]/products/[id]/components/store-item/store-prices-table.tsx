@@ -26,14 +26,14 @@ interface IStorePricesTableProps {
 const StorePricesTable = memo(
   ({ storePrices, product }: IStorePricesTableProps) => {
     const t = useTranslations("productDetail.pricesTable");
-    const { user } = useUser();
+    const { accountUser } = useUser();
 
     const productMinPrice = getMinPrice(product);
     const productMaxPrice = getMaxPrice(product);
 
     // Store cities carry no postal area, so a namesake matches by name alone.
     const preferredPlaceIds =
-      user?.pinnedPlaces?.map((place) => place.placeName) || [];
+      accountUser?.pinnedPlaces?.map((place) => place.placeName) || [];
 
     if (storePrices.length === 0) {
       return <div className="text-center py-8 text-gray-500">{t("empty")}</div>;

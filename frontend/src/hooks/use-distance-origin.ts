@@ -66,9 +66,9 @@ export function useDistanceOrigin(
   stores: DirectoryStoreDto[] | undefined,
   gps: ILatLon | null,
 ) {
-  const { user } = useUser();
+  const { accountUser } = useUser();
   const picked = useSyncExternalStore(subscribe, readPickedTown, () => null);
-  const saved = user?.pinnedPlaces?.[0]?.placeApiId ?? null;
+  const saved = accountUser?.pinnedPlaces?.[0]?.placeApiId ?? null;
 
   const directory = stores ?? [];
   const town =

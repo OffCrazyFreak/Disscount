@@ -36,7 +36,9 @@ function pricedAt(chain: string, code: string) {
 }
 
 let user: { pinnedPlaces?: { placeApiId: string }[] } | null = null;
-vi.mock("@/context/user-context", () => ({ useUser: () => ({ user }) }));
+vi.mock("@/context/user-context", () => ({
+  useUser: () => ({ accountUser: user }),
+}));
 
 const DENIED = 1;
 const ZAGREB = { latitude: 45.81, longitude: 15.98 };
