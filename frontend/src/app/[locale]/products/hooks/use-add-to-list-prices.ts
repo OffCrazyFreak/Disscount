@@ -22,7 +22,7 @@ export function useAddToListPrices(
   form: UseFormReturn<AddToListFormData>,
 ) {
   const storePrices = product ? getStorePricesFromProduct(product) : {};
-  const averagePrice = product ? getAveragePrice(product) || null : null;
+  const averagePrice = product ? getAveragePrice(product) : null;
   const cheapestStore = product
     ? findCheapestStoreFromProduct(product, pinnedStores)
     : null;
