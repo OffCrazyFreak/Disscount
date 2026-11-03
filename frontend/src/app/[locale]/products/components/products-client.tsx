@@ -9,6 +9,7 @@ import useProductFilters from "@/app/[locale]/products/hooks/use-product-filters
 import ProductFiltersBar from "@/app/[locale]/products/components/product-filters-bar";
 import ProductsResults from "@/app/[locale]/products/components/products-results";
 import ProductsResultsStatus from "@/app/[locale]/products/components/products-results-status";
+import ProductsResultsTitle from "@/app/[locale]/products/components/products-results-title";
 import { Suspense } from "react";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
@@ -45,6 +46,7 @@ export default function ProductsClient({ query }: IProductsClientProps) {
     total,
     isTruncated,
     isLoading,
+    isRefreshing,
     error,
     hasPartialPriceData,
     hasMatchesOutsideLocations,
@@ -60,6 +62,7 @@ export default function ProductsClient({ query }: IProductsClientProps) {
   // A location filter is set but the city -> chains mapping is still loading
   const waitingForLocations = Boolean(query) && !locationsReady;
   const isPending = isLoading || waitingForLocations;
+  const isSettled = !isPending && !isRefreshing;
   const pageError = error || locationsError;
   const showPartialPricesBanner =
     hasPartialPriceData && !isPending && !pageError;
@@ -78,16 +81,12 @@ export default function ProductsClient({ query }: IProductsClientProps) {
       <ProductFiltersBar filters={filters} query={query} />
 
       <div className="flex items-center justify-between gap-4">
-        <h3>
-          {query.length > 0 &&
-            (isPending
-              ? t("list.resultsTitle", { query })
-              : t("list.resultsTitleWithCount", {
-                  query,
-                  count: total,
-                  suffix: isTruncated ? "+" : "",
-                }))}
-        </h3>
+        <ProductsResultsTitle
+          query={query}
+          isSettled={isSettled}
+          total={total}
+          isTruncated={isTruncated}
+        />
 
         {/* TODO: re-enable with personalisable list views (see view-switcher.tsx) */}
         {/* <ViewSwitcher viewMode={viewMode} setViewMode={setViewMode} /> */}
@@ -95,7 +94,7 @@ export default function ProductsClient({ query }: IProductsClientProps) {
 
       <ProductsResultsStatus
         query={query}
-        isPending={isPending}
+        isPending={!isSettled}
         hasError={Boolean(pageError)}
         total={total}
         isTruncated={isTruncated}
@@ -116,6 +115,7 @@ export default function ProductsClient({ query }: IProductsClientProps) {
       <ProductsResults
         query={query}
         isPending={isPending}
+        isRefreshing={isRefreshing}
         hasError={Boolean(pageError)}
         total={total}
         activeFilterCount={activeFilterCount}

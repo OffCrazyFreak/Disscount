@@ -31,6 +31,8 @@ interface IUseInfiniteProductsResult {
   /** The search filled the API's result cap, so further matches may exist */
   isTruncated: boolean;
   isLoading: boolean;
+  /** The previous search's results are shown while the new one loads */
+  isRefreshing: boolean;
   error: unknown;
   hasPartialPriceData: boolean;
   /** A location filter is set and the search has matches once it is dropped */
@@ -38,6 +40,14 @@ interface IUseInfiniteProductsResult {
 }
 
 const EMPTY_SELECTION: string[] = [];
+
+// An old "no results" would read as the answer to the new search, so it counts as loading.
+function isShowingPreviousEmptyResults(
+  isPlaceholderData: boolean,
+  itemCount: number,
+) {
+  return isPlaceholderData && itemCount === 0;
+}
 
 export default function useInfiniteProducts(
   q: string,
@@ -58,7 +68,7 @@ export default function useInfiniteProducts(
     Number.isInteger(batchSize) && batchSize > 0 ? batchSize : 50;
 
   // One unfiltered request, filtered client-side, so facet counts match results.
-  const { data, isLoading, error } = useGetProductByName({
+  const { data, isLoading, isPlaceholderData, error } = useGetProductByName({
     q,
     limit: PRODUCT_SEARCH_LIMIT, // Raising this needs paging upstream: >100 is a 422.
   });
@@ -139,7 +149,11 @@ export default function useInfiniteProducts(
     visibleItems,
     total: filteredItems.length,
     isTruncated,
-    isLoading: isLoading || pricesLoading,
+    isLoading:
+      isLoading ||
+      pricesLoading ||
+      isShowingPreviousEmptyResults(isPlaceholderData, filteredItems.length),
+    isRefreshing: isPlaceholderData,
     error: error || pricesError,
     hasPartialPriceData: hasPartialError,
     hasMatchesOutsideLocations,
