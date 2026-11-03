@@ -26,7 +26,6 @@ export function useAppUpdatePrompt() {
         label: t("appUpdate.reload"),
         onClick: () => void applyUpdate(),
       },
-      cancel: { label: t("appUpdate.later"), onClick: () => {} },
     });
   });
 

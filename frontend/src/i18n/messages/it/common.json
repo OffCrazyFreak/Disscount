@@ -155,8 +155,7 @@
   },
   "appUpdate": {
     "message": "È pronta una nuova versione di Disscount.",
-    "reload": "Ricarica",
-    "later": "Più tardi"
+    "reload": "Ricarica"
   },
   "validation": {
     "emailInvalid": "Inserisci un indirizzo email valido",

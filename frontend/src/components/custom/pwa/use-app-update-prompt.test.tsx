@@ -44,7 +44,10 @@ describe("AppUpdatePrompt", () => {
     expect(
       await screen.findByText("Dostupna je nova verzija Disscounta."),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Kasnije" })).toBeInTheDocument();
+    // Only the reload is offered; the toast stays until reloaded or swiped away.
+    expect(
+      screen.queryByRole("button", { name: "Kasnije" }),
+    ).not.toBeInTheDocument();
 
     // A plain click: sonner's pointerdown swipe handler needs setPointerCapture, which jsdom lacks.
     fireEvent.click(screen.getByRole("button", { name: "Osvježi" }));
