@@ -20,9 +20,7 @@
     "searchProducts": "Produkte suchen"
   },
   "suggestions": {
-    "title": "Vorschläge für deine Merkliste ({count})",
-    "hide": "Ausblenden",
-    "show": "Anzeigen"
+    "title": "Vorschläge für deine Merkliste ({count})"
   },
   "actionButton": {
     "watch": "Preisalarm setzen",
@@ -63,5 +61,11 @@
     "productRequired": "Produkt fehlt",
     "watchTypeRequired": "Wähle, wann wir dich benachrichtigen",
     "thresholdPositive": "Der Mindestrabatt muss größer als 0 sein"
+  },
+  "sectionNav": {
+    "label": "Abschnitte der Merkliste",
+    "watched": "Gemerkte Produkte",
+    "watchedShort": "Gemerkt",
+    "suggestions": "Vorschläge"
   }
 }

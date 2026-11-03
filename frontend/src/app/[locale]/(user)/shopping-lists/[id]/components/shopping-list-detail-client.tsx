@@ -3,10 +3,8 @@
 import { useIsRestoring } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import ShoppingListStoreSummary from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-list";
 import ShoppingListHeader from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-header";
-import ShoppingListItems from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/shopping-list-items";
-import ShoppingListPriceHistory from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-price-history";
+import ShoppingListSections from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-sections";
 import ShoppingListInfoTable from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-info-table";
 import ShoppingListAccessBanner from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-access-banner";
 import ShoppingListUnavailable from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-unavailable";
@@ -104,29 +102,16 @@ export default function ShoppingListDetailClient({
         />
       </section>
 
-      <section>
-        <ShoppingListItems
-          shoppingList={shoppingList}
-          cheapestStores={cheapestStores}
-          isPricesLoading={isPricesLoading}
-          averagePrices={averagePrices}
-          storePrices={storePrices}
-          priceStates={priceStates}
-          isRetryingPrices={isRetryingPrices}
-          onRetryPrices={retryFailedPrices}
-        />
-      </section>
-
-      <section>
-        <ShoppingListPriceHistory shoppingList={shoppingList} />
-      </section>
-
-      <section>
-        <ShoppingListStoreSummary
-          shoppingList={shoppingList}
-          hasFailedPrices={Object.values(priceStates).includes("failed")}
-        />
-      </section>
+      <ShoppingListSections
+        shoppingList={shoppingList}
+        cheapestStores={cheapestStores}
+        isPricesLoading={isPricesLoading}
+        averagePrices={averagePrices}
+        storePrices={storePrices}
+        priceStates={priceStates}
+        isRetryingPrices={isRetryingPrices}
+        onRetryPrices={retryFailedPrices}
+      />
     </div>
   );
 }

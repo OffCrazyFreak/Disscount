@@ -1,15 +1,10 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { ShoppingListDto } from "@/lib/api/types";
 import ShoppingListStoreItem from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-store-card";
 import { useUser } from "@/context/user-context";
-import CollapsibleSection from "@/components/custom/common/collapsible-section";
-import {
-  getShoppingListStoresOpen,
-  setShoppingListStoresOpen,
-} from "@/utils/browser/local-storage";
 import { useStoreChainAnalysis } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-store-chain-analysis";
 import ShoppingListStoresBody from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/shopping-list-stores-body";
 import StoreOptimizeSelect from "@/app/[locale]/(user)/shopping-lists/[id]/components/stores/store-optimize-select";
@@ -29,17 +24,8 @@ export default function ShoppingListStoreSummary({
   const t = useTranslations("shoppingListDetail");
   const { user } = useUser();
 
-  const [isStoresOpen, setIsStoresOpen] = useState(() =>
-    getShoppingListStoresOpen(shoppingList.id),
-  );
-
   const sortNoteId = useId();
   const distance = useStoreOptimizeMode();
-
-  function handleToggleStores(open: boolean) {
-    setIsStoresOpen(open);
-    setShoppingListStoresOpen(shoppingList.id, open);
-  }
 
   const {
     allChains,
@@ -57,11 +43,9 @@ export default function ShoppingListStoreSummary({
   });
 
   return (
-    <CollapsibleSection
-      title={t("stores.title")}
-      open={isStoresOpen}
-      onOpenChange={handleToggleStores}
-    >
+    <div className="space-y-2">
+      <h2 className="py-2 text-lg font-semibold">{t("stores.title")}</h2>
+
       <ShoppingListStoresBody
         isLoading={productsLoading}
         hasItems={!!shoppingList.items && shoppingList.items.length > 0}
@@ -102,6 +86,6 @@ export default function ShoppingListStoreSummary({
           ))}
         </div>
       </ShoppingListStoresBody>
-    </CollapsibleSection>
+    </div>
   );
 }

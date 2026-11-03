@@ -24,8 +24,6 @@
   },
   "priceHistory": {
     "title": "Preisverlauf",
-    "hide": "Ausblenden",
-    "show": "Anzeigen",
     "empty": "Noch kein Preisverlauf.",
     "average": "Durchschnitt",
     "period": {
@@ -50,5 +48,8 @@
     "unknown": "Unbekannt",
     "notAvailable": "k. A.",
     "showOnMap": ", auf der Karte zeigen"
+  },
+  "sectionNav": {
+    "label": "Produktabschnitte"
   }
 }

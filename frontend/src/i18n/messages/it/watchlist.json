@@ -20,9 +20,7 @@
     "searchProducts": "Cerca prodotti"
   },
   "suggestions": {
-    "title": "Prodotti suggeriti da seguire ({count})",
-    "hide": "Nascondi",
-    "show": "Mostra"
+    "title": "Prodotti suggeriti da seguire ({count})"
   },
   "actionButton": {
     "watch": "Segui prodotto",
@@ -63,5 +61,11 @@
     "productRequired": "Il prodotto è obbligatorio",
     "watchTypeRequired": "Il tipo di avviso è obbligatorio",
     "thresholdPositive": "Lo sconto minimo deve essere maggiore di 0"
+  },
+  "sectionNav": {
+    "label": "Sezioni dei prodotti seguiti",
+    "watched": "Prodotti seguiti",
+    "watchedShort": "Seguiti",
+    "suggestions": "Suggerimenti"
   }
 }

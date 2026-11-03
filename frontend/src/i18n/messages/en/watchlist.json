@@ -20,9 +20,7 @@
     "searchProducts": "Search products"
   },
   "suggestions": {
-    "title": "Suggested products to watch ({count})",
-    "hide": "Hide",
-    "show": "Show"
+    "title": "Suggested products to watch ({count})"
   },
   "actionButton": {
     "watch": "Add to Watchlist",
@@ -63,5 +61,11 @@
     "productRequired": "Product is required",
     "watchTypeRequired": "Choose when to alert you",
     "thresholdPositive": "Minimum discount must be more than 0"
+  },
+  "sectionNav": {
+    "label": "Watchlist sections",
+    "watched": "Watched products",
+    "watchedShort": "Watched",
+    "suggestions": "Suggestions"
   }
 }

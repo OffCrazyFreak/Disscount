@@ -3,10 +3,6 @@
     "title": "Einkaufsliste",
     "description": "Artikel der Einkaufsliste ansehen und verwalten."
   },
-  "toggle": {
-    "show": "Anzeigen",
-    "hide": "Ausblenden"
-  },
   "backToLists": "Zurück zu den Einkaufslisten",
   "lastSynced": "Liste {time} aktualisiert",
   "updatedByOthers": "Jemand hat die Liste gerade geändert.",
@@ -135,5 +131,9 @@
     "add": "Hinzufügen",
     "searching": "Wir suchen Produkte…",
     "suggestions": "{count, plural, =0 {Keine Produkte mit diesem Namen. Drück Enter, um ihn als Artikel hinzuzufügen.} one {# Produkt} other {# Produkte}}"
+  },
+  "sectionNav": {
+    "label": "Listenabschnitte",
+    "products": "Produkte"
   }
 }

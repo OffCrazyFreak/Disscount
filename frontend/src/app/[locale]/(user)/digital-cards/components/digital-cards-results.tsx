@@ -8,18 +8,18 @@ import DigitalCardsEmpty from "@/app/[locale]/(user)/digital-cards/components/di
 import DigitalCardsGrid from "@/app/[locale]/(user)/digital-cards/components/digital-cards-grid";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import NoResults from "@/components/custom/common/no-results";
+import JumpSection from "@/components/custom/common/jump-section";
+import SectionJumpNav from "@/components/custom/common/section-jump-nav";
 import { Separator } from "@/components/ui/separator";
 import type { DigitalCardDto } from "@/lib/api/types";
 
 interface IDigitalCardsResultsProps {
-  query: string;
   isLoading: boolean;
   totalCount: number;
   matching: DigitalCardDto[];
 }
 
 export default function DigitalCardsResults({
-  query,
   isLoading,
   totalCount,
   matching,
@@ -51,22 +51,42 @@ export default function DigitalCardsResults({
 
   return (
     <>
-      {pinned.length > 0 && (
-        <DigitalCardsGrid cards={pinned} label={t("list.pinnedLabel")} />
-      )}
+      <SectionJumpNav
+        label={t("sectionNav.label")}
+        sections={[
+          ...(active.length > 0
+            ? [{ id: "cards", label: t("sectionNav.cards") }]
+            : []),
+          ...(archived.length > 0
+            ? [
+                {
+                  id: "archived",
+                  label: t("sectionNav.archived"),
+                  count: archived.length,
+                },
+              ]
+            : []),
+        ]}
+      />
 
-      {pinned.length > 0 && rest.length > 0 && <Separator />}
+      {active.length > 0 && (
+        <JumpSection id="cards" className="space-y-4">
+          {pinned.length > 0 && (
+            <DigitalCardsGrid cards={pinned} label={t("list.pinnedLabel")} />
+          )}
 
-      {rest.length > 0 && (
-        <DigitalCardsGrid cards={rest} label={t("list.cardsLabel")} />
+          {pinned.length > 0 && rest.length > 0 && <Separator />}
+
+          {rest.length > 0 && (
+            <DigitalCardsGrid cards={rest} label={t("list.cardsLabel")} />
+          )}
+        </JumpSection>
       )}
 
       {archived.length > 0 && (
-        <DigitalCardsArchived
-          key={query ? "searching" : "browsing"}
-          cards={archived}
-          defaultOpen={query.length > 0}
-        />
+        <JumpSection id="archived">
+          <DigitalCardsArchived cards={archived} />
+        </JumpSection>
       )}
     </>
   );

@@ -5,42 +5,30 @@ import { useTranslations } from "next-intl";
 import { MapPinned } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
-import CollapsibleSection from "@/components/custom/common/collapsible-section";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import StoreItem from "@/app/[locale]/products/[id]/components/store-item/store-item";
 import ProductChainSortSelect from "@/app/[locale]/products/[id]/components/product-chain-sort-select";
 import DistanceSortNote from "@/components/custom/distance-sort/distance-sort-note";
 import type { useProductDetail } from "@/app/[locale]/products/[id]/hooks/use-product-detail";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
-import {
-  updateProductPreferences,
-  useProductPreferences,
-} from "@/app/[locale]/products/[id]/hooks/use-product-preferences";
 
 interface IProductChainsSectionProps {
-  ean: string;
   product: ProductResponse;
   detail: ReturnType<typeof useProductDetail>;
 }
 
 /** Every chain carrying this product, ordered by the reader's chosen sort. */
 export default function ProductChainsSection({
-  ean,
   product,
   detail,
 }: IProductChainsSectionProps) {
   const t = useTranslations("productDetail.chains");
-  const { storesOpen = true } = useProductPreferences(ean);
   const [expandedChain, setExpandedChain] = useState<string | null>(null);
   const sortNoteId = useId();
 
   const toggleChain = useCallback((chainCode: string) => {
     setExpandedChain((previous) => (previous === chainCode ? null : chainCode));
   }, []);
-
-  function handleToggleSection(open: boolean) {
-    updateProductPreferences(ean, { storesOpen: open });
-  }
 
   // The chain rows need only the product, so they render before the store prices arrive.
   const pricesStatus = detail.pricesLoading
@@ -50,11 +38,9 @@ export default function ProductChainsSection({
       : "success";
 
   return (
-    <CollapsibleSection
-      title={t("title")}
-      open={storesOpen}
-      onOpenChange={handleToggleSection}
-    >
+    <div className="space-y-2">
+      <h2 className="py-2 text-lg font-semibold">{t("title")}</h2>
+
       {detail.pricesUpdatedAt > 0 && (
         <LastSyncedLabel
           updatedAt={detail.pricesUpdatedAt}
@@ -105,6 +91,6 @@ export default function ProductChainsSection({
           ))}
         </div>
       )}
-    </CollapsibleSection>
+    </div>
   );
 }

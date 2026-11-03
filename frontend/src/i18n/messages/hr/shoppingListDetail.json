@@ -3,10 +3,6 @@
     "title": "Popis za kupnju",
     "description": "Pregled i upravljanje stavkama na popisu za kupnju."
   },
-  "toggle": {
-    "show": "Prikaži",
-    "hide": "Sakrij"
-  },
   "backToLists": "Natrag na popise za kupnju",
   "lastSynced": "Popis osvježen {time}",
   "updatedByOthers": "Netko je upravo promijenio popis.",
@@ -135,5 +131,9 @@
     "add": "Dodaj",
     "searching": "Tražimo proizvode…",
     "suggestions": "{count, plural, =0 {Nema proizvoda s tim nazivom. Pritisni Enter da ga dodaš kao stavku.} one {# proizvod} few {# proizvoda} other {# proizvoda}}"
+  },
+  "sectionNav": {
+    "label": "Odjeljci popisa",
+    "products": "Proizvodi"
   }
 }

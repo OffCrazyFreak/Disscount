@@ -20,9 +20,7 @@
     "searchProducts": "Išči izdelke"
   },
   "suggestions": {
-    "title": "Predlogi izdelkov za spremljanje ({count})",
-    "hide": "Skrij",
-    "show": "Pokaži"
+    "title": "Predlogi izdelkov za spremljanje ({count})"
   },
   "actionButton": {
     "watch": "Spremljaj izdelek",
@@ -63,5 +61,11 @@
     "productRequired": "Izdelek je obvezen",
     "watchTypeRequired": "Izberi, kdaj te obvestimo",
     "thresholdPositive": "Najmanjši popust mora biti večji od 0"
+  },
+  "sectionNav": {
+    "label": "Razdelki spremljanja",
+    "watched": "Spremljani izdelki",
+    "watchedShort": "Spremljani",
+    "suggestions": "Predlogi"
   }
 }

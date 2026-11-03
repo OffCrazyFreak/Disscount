@@ -1,5 +1,5 @@
 import { IsRestoringProvider } from "@tanstack/react-query";
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import { AxiosError, AxiosHeaders } from "axios";
 import { describe, expect, it, vi } from "vitest";
 
@@ -139,4 +139,33 @@ describe("ShoppingListDetailClient", () => {
       expect(screen.queryByText("summary error") !== null).toBe(hasError);
     },
   );
+
+  it("links only the sections an empty list has", () => {
+    data.shoppingList = LIST;
+    data.error = null;
+    data.priceStates = {};
+    renderWithProviders(<ShoppingListDetailClient listId={LIST.id} />);
+
+    const nav = screen.getByRole("navigation", { name: "Odjeljci popisa" });
+    const hrefs = within(nav)
+      .getAllByRole("link")
+      .map((link) => link.getAttribute("href"));
+    expect(hrefs).toEqual(["#products", "#stores"]);
+  });
+
+  it("adds the price history once the list has items", () => {
+    data.shoppingList = {
+      ...LIST,
+      items: [{ id: "a", name: "Mlijeko", amount: 1, isChecked: false }],
+    } as ShoppingListDto;
+    data.error = null;
+    data.priceStates = {};
+    renderWithProviders(<ShoppingListDetailClient listId={LIST.id} />);
+
+    const nav = screen.getByRole("navigation", { name: "Odjeljci popisa" });
+    expect(within(nav).getAllByRole("link").at(-1)).toHaveAttribute(
+      "href",
+      "#price-history",
+    );
+  });
 });

@@ -24,8 +24,6 @@
   },
   "priceHistory": {
     "title": "Price history",
-    "hide": "Hide",
-    "show": "Show",
     "empty": "No price history yet.",
     "average": "Average",
     "period": {
@@ -50,5 +48,8 @@
     "unknown": "Unknown",
     "notAvailable": "N/A",
     "showOnMap": ", show on the map"
+  },
+  "sectionNav": {
+    "label": "Product sections"
   }
 }

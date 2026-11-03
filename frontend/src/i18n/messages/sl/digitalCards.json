@@ -271,5 +271,10 @@
     "cardDeleteFailed": "Kartice ni bilo mogoče izbrisati. Poskusi znova.",
     "photoDeleteFailed": "Slike ni bilo mogoče izbrisati. Poskusi znova.",
     "photoSendFailed": "Slika kartice ni shranjena. Dodaj jo znova."
+  },
+  "sectionNav": {
+    "label": "Razdelki kartic",
+    "cards": "Kartice",
+    "archived": "Arhivirane"
   }
 }

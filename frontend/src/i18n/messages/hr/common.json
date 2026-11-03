@@ -24,10 +24,6 @@
   "lastSynced": {
     "refreshed": "Osvježeno {time}"
   },
-  "collapsibleSection": {
-    "hide": "Sakrij",
-    "show": "Prikaži"
-  },
   "comingSoon": {
     "badge": "USKORO",
     "description": "Radimo na tome. Uskoro stiže!",
@@ -206,5 +202,11 @@
       "dubrovnikNeretva": "Dubrovačko-neretvanska",
       "medimurje": "Međimurska"
     }
+  },
+  "sectionNav": {
+    "stores": "Cijene po trgovinama",
+    "storesShort": "Trgovine",
+    "priceHistory": "Povijest cijena",
+    "priceHistoryShort": "Povijest"
   }
 }

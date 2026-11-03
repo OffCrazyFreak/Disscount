@@ -7,6 +7,8 @@ import { useTranslations } from "next-intl";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import LoginRequired from "@/components/custom/common/login-required";
+import JumpSection from "@/components/custom/common/jump-section";
+import SectionJumpNav from "@/components/custom/common/section-jump-nav";
 import WatchlistHeader from "@/app/[locale]/(user)/watchlist/components/watchlist-header";
 import WatchlistList from "@/app/[locale]/(user)/watchlist/components/watchlist-list";
 import WatchlistSuggestions from "@/app/[locale]/(user)/watchlist/components/watchlist-suggestions";
@@ -45,6 +47,9 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
   }
 
   const listLoading = userLoading || watchlistLoading;
+  const hasSuggestions =
+    !listLoading &&
+    (shoppingListItemsLoading || filteredSuggestionItems.length > 0);
 
   return (
     <div className="space-y-4">
@@ -59,29 +64,52 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
         />
       </Suspense>
 
-      <WatchlistHeader
-        query={query}
-        itemCount={filteredItems.length}
-        showCount={!listLoading}
-        pricesUpdatedAt={pricesUpdatedAt}
-        discountedItems={discountedItems}
-        productsLoading={productsLoading}
+      <SectionJumpNav
+        label={t("sectionNav.label")}
+        sections={[
+          {
+            id: "watched",
+            label: t("sectionNav.watched"),
+            shortLabel: t("sectionNav.watchedShort"),
+          },
+          ...(hasSuggestions
+            ? [
+                {
+                  id: "suggestions",
+                  label: t("sectionNav.suggestions"),
+                  count: filteredSuggestionItems.length,
+                },
+              ]
+            : []),
+        ]}
       />
 
-      <WatchlistList
-        items={filteredItems}
-        isLoading={listLoading}
-        query={query}
-        hasPinnedStores={hasPinnedStores}
-      />
+      <JumpSection id="watched" className="space-y-4">
+        <WatchlistHeader
+          query={query}
+          itemCount={filteredItems.length}
+          showCount={!listLoading}
+          pricesUpdatedAt={pricesUpdatedAt}
+          discountedItems={discountedItems}
+          productsLoading={productsLoading}
+        />
 
-      {!listLoading &&
-        (shoppingListItemsLoading || filteredSuggestionItems.length > 0) && (
+        <WatchlistList
+          items={filteredItems}
+          isLoading={listLoading}
+          query={query}
+          hasPinnedStores={hasPinnedStores}
+        />
+      </JumpSection>
+
+      {hasSuggestions && (
+        <JumpSection id="suggestions">
           <WatchlistSuggestions
             items={filteredSuggestionItems}
             isLoading={shoppingListItemsLoading}
           />
-        )}
+        </JumpSection>
+      )}
     </div>
   );
 }

@@ -271,5 +271,10 @@
     "cardDeleteFailed": "Couldn't delete the card. Try again.",
     "photoDeleteFailed": "Couldn't delete the photo. Try again.",
     "photoSendFailed": "The card photo wasn't saved. Add it again."
+  },
+  "sectionNav": {
+    "label": "Card sections",
+    "cards": "Cards",
+    "archived": "Archived"
   }
 }

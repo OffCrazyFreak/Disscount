@@ -3,10 +3,6 @@
     "title": "Lista della spesa",
     "description": "Visualizza e gestisci gli articoli della lista."
   },
-  "toggle": {
-    "show": "Mostra",
-    "hide": "Nascondi"
-  },
   "backToLists": "Torna alle liste della spesa",
   "lastSynced": "Lista aggiornata {time}",
   "updatedByOthers": "Qualcuno ha appena modificato la lista.",
@@ -135,5 +131,9 @@
     "add": "Aggiungi",
     "searching": "Cerchiamo prodotti…",
     "suggestions": "{count, plural, =0 {Nessun prodotto con questo nome. Premi Invio per aggiungerlo come articolo.} one {# prodotto} other {# prodotti}}"
+  },
+  "sectionNav": {
+    "label": "Sezioni della lista",
+    "products": "Prodotti"
   }
 }

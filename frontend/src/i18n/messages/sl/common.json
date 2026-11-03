@@ -24,10 +24,6 @@
   "lastSynced": {
     "refreshed": "Posodobljeno {time}"
   },
-  "collapsibleSection": {
-    "hide": "Skrij",
-    "show": "Pokaži"
-  },
   "comingSoon": {
     "badge": "KMALU",
     "description": "Delamo na tem. Kmalu prihaja!",
@@ -206,5 +202,11 @@
       "dubrovnikNeretva": "Dubrovniško-neretvanska",
       "medimurje": "Medžimurska"
     }
+  },
+  "sectionNav": {
+    "stores": "Cene v trgovinah",
+    "storesShort": "Trgovine",
+    "priceHistory": "Zgodovina cen",
+    "priceHistoryShort": "Zgodovina"
   }
 }

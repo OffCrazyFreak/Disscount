@@ -3,10 +3,6 @@
     "title": "Shopping list",
     "description": "View and manage the items on a shopping list."
   },
-  "toggle": {
-    "show": "Show",
-    "hide": "Hide"
-  },
   "backToLists": "Back to shopping lists",
   "lastSynced": "List refreshed {time}",
   "updatedByOthers": "Someone just changed this list.",
@@ -135,5 +131,9 @@
     "add": "Add",
     "searching": "Searching products…",
     "suggestions": "{count, plural, =0 {No products by that name. Press Enter to add it as an item.} one {# product} other {# products}}"
+  },
+  "sectionNav": {
+    "label": "List sections",
+    "products": "Products"
   }
 }
