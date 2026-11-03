@@ -2,8 +2,8 @@ import { z } from "zod";
 
 // Pinned Store schemas
 const pinnedStoreRequestSchema = z.object({
-  storeApiId: z.string().min(1, "Store API ID je obavezan"),
-  storeName: z.string().min(1, "Naziv trgovine je obavezan"),
+  storeApiId: z.string().min(1),
+  storeName: z.string().min(1),
 });
 
 // Own objects, not request extensions, so form rules never reject what the server stored.
@@ -20,8 +20,8 @@ export const bulkPinnedStoreRequestSchema = z.object({
 
 // Pinned Place schemas
 const pinnedPlaceRequestSchema = z.object({
-  placeApiId: z.string().min(1, "Place API ID je obavezan"),
-  placeName: z.string().min(1, "Naziv mjesta je obavezan"),
+  placeApiId: z.string().min(1),
+  placeName: z.string().min(1),
 });
 
 export const pinnedPlaceDtoSchema = z.object({
