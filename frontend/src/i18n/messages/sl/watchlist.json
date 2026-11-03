@@ -20,7 +20,7 @@
     "searchProducts": "Išči izdelke"
   },
   "suggestions": {
-    "label": "Predlogi izdelkov za spremljanje",
+    "label": "Predlogi izdelkov",
     "title": "{label} ({count})"
   },
   "actionButton": {

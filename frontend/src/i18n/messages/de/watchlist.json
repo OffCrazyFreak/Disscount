@@ -20,7 +20,7 @@
     "searchProducts": "Produkte suchen"
   },
   "suggestions": {
-    "label": "Vorschläge für deine Merkliste",
+    "label": "Produktvorschläge",
     "title": "{label} ({count})"
   },
   "actionButton": {

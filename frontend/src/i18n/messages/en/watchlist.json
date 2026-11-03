@@ -20,7 +20,7 @@
     "searchProducts": "Search products"
   },
   "suggestions": {
-    "label": "Suggested products to watch",
+    "label": "Product suggestions",
     "title": "{label} ({count})"
   },
   "actionButton": {
