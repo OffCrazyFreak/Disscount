@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
   const queryString = buildQueryString(parsed.data);
 
-  return withCijeneRoute("stores", listStoresResponseSchema, () =>
+  return withCijeneRoute(request, "stores", listStoresResponseSchema, () =>
     cijeneApiV1Client.get(`/stores${queryString && `?${queryString}`}`),
   );
 }

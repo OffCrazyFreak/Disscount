@@ -1,8 +1,5 @@
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
-import {
-  defaultShouldDehydrateMutation,
-  defaultShouldDehydrateQuery,
-} from "@tanstack/react-query";
+import { defaultShouldDehydrateQuery } from "@tanstack/react-query";
 import type {
   PersistedClient,
   Persister,
@@ -24,8 +21,6 @@ const IDB_CACHE_KEY = "disscount-react-query-cache";
 // writes under EVERY key, not just the changed one. Prefer tombstone defaults in
 // offline-mutations.ts. History and reasoning in docs/PWA.md.
 const CACHE_BUSTER = "3";
-
-export const OFFLINE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 // Key resolved per call, so an identity change takes effect without rebuilding this.
 const indexedDbStorage = {
@@ -55,11 +50,27 @@ const throttledPersister = createAsyncStoragePersister({
   serialize: serializeUnlessPurged,
 });
 
+/**
+ * Stores a card write that was in flight as paused. On restore only paused mutations are
+ * resumed, and a pending one left unpaused would also block every later card write in
+ * its scope forever.
+ */
+function withInFlightWritesPaused(client: PersistedClient): PersistedClient {
+  const mutations = client.clientState.mutations.map((mutation) =>
+    mutation.state.status === "pending" && !mutation.state.isPaused
+      ? { ...mutation, state: { ...mutation.state, isPaused: true } }
+      : mutation,
+  );
+
+  return { ...client, clientState: { ...client.clientState, mutations } };
+}
+
 const offlinePersister: Persister = {
   ...throttledPersister,
   persistClient: (client) => {
-    snapshotGeneration.set(client, currentPurgeGeneration());
-    return throttledPersister.persistClient(client);
+    const resumable = withInFlightWritesPaused(client);
+    snapshotGeneration.set(resumable, currentPurgeGeneration());
+    return throttledPersister.persistClient(resumable);
   },
 };
 
@@ -76,15 +87,15 @@ export function removePersistedCacheFor(identity: string): Promise<void> {
 
 export const persistOptions: Omit<PersistQueryClientOptions, "queryClient"> = {
   persister: offlinePersister,
-  maxAge: OFFLINE_CACHE_MAX_AGE_MS,
+  // Never expires, so a wallet last opened months ago still opens at the till. The
+  // "last synced" labels show staleness, and an identity change purges the snapshot.
+  maxAge: Infinity,
   buster: CACHE_BUSTER,
   dehydrateOptions: {
     // Persist only successful queries that are on the offline whitelist.
     shouldDehydrateQuery: (query) =>
       defaultShouldDehydrateQuery(query) && shouldPersistQuery(query.queryKey),
-    // Only allowlisted paused mutations persist, so only they replay on reconnect.
-    shouldDehydrateMutation: (mutation) =>
-      defaultShouldDehydrateMutation(mutation) &&
-      shouldPersistMutation(mutation),
+    // Only allowlisted writes persist, so only they replay on reconnect.
+    shouldDehydrateMutation: shouldPersistMutation,
   },
 };

@@ -2,7 +2,7 @@
 
 How every "type something and see it filter" surface in the app works, why they all now go through one matcher, and what is deliberately not built yet.
 
-This is a frontend document. There is no backend search at the time of writing, see [§9](#9-the-backend-has-no-search). Where product results come from (the upstream API, the exact then fuzzy proxy search) is in [PRODUCTS.md](PRODUCTS.md#4-product-search-and-the-product-list).
+This is a frontend document. The backend's only search is the store-name suggestion lookup, see [§9](#9-the-backend-searches-only-store-names). Where product results come from (the upstream API, the exact then fuzzy proxy search) is in [PRODUCTS.md](PRODUCTS.md#4-product-search-and-the-product-list).
 
 ## Table of contents
 
@@ -14,7 +14,7 @@ This is a frontend document. There is no backend search at the time of writing, 
 6. [Collation: sorting Croatian](#6-collation-sorting-croatian)
 7. [Every surface that consumes it](#7-every-surface-that-consumes-it)
 8. [Key files](#8-key-files)
-9. [The backend has no search](#9-the-backend-has-no-search)
+9. [The backend searches only store names](#9-the-backend-searches-only-store-names)
 10. [Gotchas & lessons learned](#10-gotchas--lessons-learned)
 11. [Future improvements & TODOs](#11-future-improvements--todos)
 
@@ -150,13 +150,13 @@ The seven `filterByFields` callers gained tokenized, ranked, abbreviation-tolera
 
 **Libraries: none.** Matching is entirely in-repo. cmdk `^1.1.1` supplies the combobox, but its own `command-score` filter is replaced by `commandFilter`.
 
-## 9. The backend has no search
+## 9. The backend searches only store names
 
 Worth stating plainly, because it is easy to assume otherwise.
 
-Across the Spring controllers the only list filters are `includeDeleted` on the admin contact list and `filter` on the admin photo queue, which is also the only paged endpoint (`page`, `size`). There is **no** `ILIKE`, no `tsvector`, no `pg_trgm`, no derived `Containing` method, and no pagination anywhere else; the one `LIKE` is the store-name suggestion lookup (`StoreNameSuggestionRepository`), a prefix and substring match on a normalised name.
+Across the Spring controllers the only list filters are `includeDeleted` on the admin contact list and `filter` on the admin photo queue, which is also the only paged endpoint (`page`, `size`). There is **no** `ILIKE`, no `tsvector`, no `pg_trgm`, no derived `Containing` method, and no pagination anywhere else; the one `LIKE` is the store-name suggestion lookup (`GET /api/store-names?q=`, `StoreNameSuggestionRepository.search`), a substring match on a normalised name that ranks prefix matches first.
 
-So every "search" outside products is the browser filtering an array it already downloaded. That is fine at the current sizes and would not be at ten thousand rows.
+So every other "search" outside products is the browser filtering an array it already downloaded. That is fine at the current sizes and would not be at ten thousand rows.
 
 When server-side search is built, two things are already known:
 
@@ -194,7 +194,7 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 ## 11. Future improvements & TODOs
 
 - **Sorting rework** (in sprint on the roadmap). The comparator layer in `rank.ts` exists for this. The item asks for sort-by controls on products, the watchlist and shopping lists, with the default product order being match ranking, then popularity, then chain count, then location count. The first three terms are already expressible; **popularity does not exist yet** and needs a backend counter over watchlists and shopping lists, deduplicated per user so one person cannot inflate it.
-- **Server-side search and pagination.** Nothing exists. See [§9](#9-the-backend-has-no-search) for the portability notes. This becomes urgent the moment the admin panel grows past its two current tabs.
+- **Server-side search and pagination.** Nothing exists beyond the store-name lookup. See [§9](#9-the-backend-searches-only-store-names) for the portability notes. This becomes urgent the moment the admin panel grows past its two current tabs.
 - **`GET /api/admin/users` is unbounded** and WAU/MAU is counted client-side over every user row, which structurally prevents ever paginating that endpoint. Recorded here rather than fixed.
 - **The admin contact inbox silently truncates at 500.** The cap is server-side, `MAX_ADMIN_MESSAGES` in `ContactMessageService`, so rows past it never reach the browser and are unreachable and unsearchable, with no indication in the UI.
 - **`components/ui/chart.tsx` sorts labels with a locale-less `localeCompare`**, so Croatian diacritics collate wrongly in chart tooltips. It is shadcn output, but `AGENTS.md` allows editing that folder where the primitive is the natural home for the change, and a comparator the whole app needs in Croatian qualifies. Swapping it for `compareHr` is a one-line fix nobody has taken.

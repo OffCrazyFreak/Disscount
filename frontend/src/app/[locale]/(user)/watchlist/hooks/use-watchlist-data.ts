@@ -13,7 +13,12 @@ import type {
 import { useWatchlistSuggestions } from "@/app/[locale]/(user)/watchlist/hooks/use-watchlist-suggestions";
 
 export function useWatchlistData(query: string) {
-  const { user, isAuthenticated, isLoading: userLoading } = useUser();
+  const {
+    user,
+    isAuthenticated,
+    canShowAccountData,
+    isLoading: userLoading,
+  } = useUser();
   const {
     watchlistLoading,
     groupedWatchlistItems,
@@ -50,7 +55,8 @@ export function useWatchlistData(query: string) {
           ? calculateDiscountInfo(product, pinnedStoreChainCodes)
           : null,
         isLoading: isProductLoading,
-        error: queryError instanceof Error ? queryError : null,
+        // A failed background refetch keeps the cached prices on screen.
+        error: !product && queryError instanceof Error ? queryError : null,
       };
     });
   }, [groupedWatchlistItems, productQueries, pinnedStoreChainCodes]);
@@ -89,7 +95,7 @@ export function useWatchlistData(query: string) {
     });
 
   return {
-    isAuthenticated,
+    canShowAccountData,
     userLoading,
     watchlistLoading,
     hasWatchedProducts,

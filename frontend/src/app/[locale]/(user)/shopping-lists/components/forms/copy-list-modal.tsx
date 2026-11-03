@@ -24,7 +24,6 @@ export default function CopyListModal({ open, id }: ICopyListModalProps) {
   const {
     shoppingList,
     isLoading,
-    isError,
     form,
     isValid,
     options,
@@ -48,7 +47,7 @@ export default function CopyListModal({ open, id }: ICopyListModalProps) {
       }
       submitIcon={Copy}
       submitLoading={isCopying}
-      submitDisabled={isLoading || isError || !shoppingList || !isValid}
+      submitDisabled={isLoading || !shoppingList || !isValid}
       cancelLabel={t("modal.cancel")}
     >
       {isLoading ? (
@@ -57,7 +56,7 @@ export default function CopyListModal({ open, id }: ICopyListModalProps) {
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
         </div>
-      ) : isError || !shoppingList ? (
+      ) : !shoppingList ? (
         <p className="text-sm text-muted-foreground">{t("modal.notFound")}</p>
       ) : (
         <Form {...form}>

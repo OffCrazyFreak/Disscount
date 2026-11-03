@@ -19,7 +19,7 @@ import {
 import type { DigitalCardDto, DigitalCardRequest } from "@/lib/api/types";
 import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import { deleteForCard } from "@/lib/offline/card-photo-store";
-import { LIVE_CARD_RETRY } from "@/lib/offline/card-retry";
+import { CARD_WRITE_RETRY } from "@/lib/offline/card-retry";
 import {
   cardDeleteFailed,
   cardWriteFailed,
@@ -44,7 +44,7 @@ function useCardWriteOptions() {
 
   return {
     scope: DIGITAL_CARD_MUTATION_SCOPE,
-    ...LIVE_CARD_RETRY,
+    ...CARD_WRITE_RETRY,
     onError: (
       error: Error,
       _variables: unknown,
@@ -84,7 +84,7 @@ export function useDeleteDigitalCard() {
   return useMutation<void, Error, string, ICardsRollback | undefined>({
     mutationKey: OFFLINE_MUTATION_KEYS.digitalCardDelete,
     scope: DIGITAL_CARD_MUTATION_SCOPE,
-    ...LIVE_CARD_RETRY,
+    ...CARD_WRITE_RETRY,
     mutationFn: deleteDigitalCard,
     onMutate: (id) =>
       patchCards(queryClient, id, (cards) => cards.filter((c) => c.id !== id)),

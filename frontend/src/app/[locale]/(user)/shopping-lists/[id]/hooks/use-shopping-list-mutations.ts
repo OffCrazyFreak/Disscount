@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { shoppingListService } from "@/lib/api";
+import { problemMessage } from "@/lib/api/problem-details";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import {
@@ -47,10 +48,7 @@ export function useShoppingListMutations(
       if (previous) {
         queryClient.setQueryData(SHOPPING_LIST_QUERY_KEYS.me, previous);
       }
-      toast.error(
-        (error instanceof Error && error.message) ||
-          t("toasts.listDeleteFailed"),
-      );
+      toast.error(problemMessage(error, t("toasts.listDeleteFailed")));
     } finally {
       queryClient.invalidateQueries({ queryKey: SHOPPING_LIST_QUERY_KEYS.me });
     }

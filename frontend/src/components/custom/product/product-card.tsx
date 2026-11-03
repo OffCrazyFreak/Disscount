@@ -5,7 +5,6 @@ import { type ComponentProps, type ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import HoldProgressRing from "@/components/custom/common/hold-progress-ring";
 import ProductSummary from "@/components/custom/product/product-summary";
-import { useProductThumbnail } from "@/lib/api/product-images/hooks";
 import { cn } from "@/lib/utils";
 import { productPath } from "@/utils/product-links";
 
@@ -15,7 +14,6 @@ interface IProductCardProps {
   brand?: string | null;
   category: string | null;
   quantity?: string | null;
-  imageUrl?: string | null;
   /** Returning false cancels navigation, for example after a long press */
   onNavigate?: (viaKeyboard: boolean) => boolean | void;
   isLoading?: boolean;
@@ -52,7 +50,6 @@ export default function ProductCard({
   brand,
   category,
   quantity,
-  imageUrl,
   onNavigate,
   isLoading = false,
   trailing,
@@ -62,11 +59,6 @@ export default function ProductCard({
   pressProps,
   actionProps,
 }: IProductCardProps) {
-  // Rows ask for their own thumbnail; the loader batches a whole list into one request.
-  const { data: thumbnail } = useProductThumbnail(
-    imageUrl === undefined ? ean : undefined,
-  );
-
   return (
     <Card
       {...pressProps}
@@ -83,7 +75,7 @@ export default function ProductCard({
         brand={brand}
         category={category}
         quantity={quantity}
-        imageUrl={imageUrl ?? thumbnail}
+        ean={ean}
         isLoading={isLoading}
         trailing={trailing}
         actions={actions}

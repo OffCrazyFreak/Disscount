@@ -7,5 +7,9 @@
     "heading": "Spremljanje napak",
     "collected": "Ko se v aplikaciji zgodi napaka, tehnične podatke o njej pošljemo Sentryju, našemu obdelovalcu, ki jih hrani v Evropski uniji: opis napake, brskalnik in napravo, naslov strani in interno oznako tvojega računa. Sentry ne shrani tvojega IP-naslova, lahko pa iz povezave določi približno lokacijo (državo, včasih mesto). Tvojega imena in e-poštnega naslova ne dodajamo dogodkom, vendar lahko neuspela zahteva za prijavo ali registracijo vsebuje e-poštni naslov, ki ga vpišeš.",
     "replay": "Pri majhnem delu obiskov in pri obiskih z napako posnamemo tudi potek seje, v katerem sta vse besedilo in vsak vnos zakrita. Gesla, žetone in piškotke seje odstranimo pred pošiljanjem. Podatke uporabljamo samo za odpravljanje napak. Sentry jih hrani največ 30 dni. Pravna podlaga je zakoniti interes (člen 6(1)(f) GDPR)."
+  },
+  "securityNotices": {
+    "heading": "Varnostna obvestila",
+    "body": "Ko se geslo tvojega računa spremeni, ti pošljemo e-poštno obvestilo. Ko spremeniš e-poštni naslov, obvestilo pošljemo na stari naslov in v njem navedemo novega. Tako lahko opaziš spremembo, za katero ne veš, in takoj ukrepaš. Ta obvestila so del zaščite računa, zato jih ne moreš izklopiti. Pravna podlaga je zakoniti interes (člen 6(1)(f) GDPR)."
   }
 }

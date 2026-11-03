@@ -269,7 +269,6 @@
     "cardLimit": "Hai già il numero massimo di carte. Eliminane una che non usi.",
     "cardSaveFailed": "Carta non salvata. Riprova.",
     "cardDeleteFailed": "Carta non eliminata. Riprova.",
-    "sessionChanged": "Un altro account ha effettuato l'accesso. Aggiorniamo i tuoi dati.",
     "photoDeleteFailed": "Immagine non eliminata. Riprova.",
     "photoSendFailed": "L'immagine della carta non è stata salvata. Aggiungila di nuovo."
   },

@@ -68,7 +68,8 @@ export default function AdminContactTable() {
     );
   }
 
-  if (isError) {
+  // Only an inbox with nothing cached is missing; a failed refetch keeps its last answer.
+  if (isError && data === undefined) {
     return <p className="text-destructive text-sm">{t("contact.loadError")}</p>;
   }
 

@@ -13,7 +13,9 @@ import { ZodError } from "zod";
 
 import { httpStatus } from "@/lib/offline/failure-policy";
 import { isNetworkFailure } from "@/lib/offline/is-network-failure";
-import { OFFLINE_CACHE_MAX_AGE_MS } from "@/lib/offline/persister";
+
+// An entry gc'd from memory also leaves the persisted snapshot at its next save.
+const UNWATCHED_QUERY_GC_TIME_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 // One retry: a blip gets a second chance, a real failure surfaces fast.
 const MAX_QUERY_RETRIES = 1;
@@ -114,8 +116,7 @@ export function createQueryClientConfig(): QueryClientConfig {
     }),
     defaultOptions: {
       queries: {
-        // Must be >= the persister's maxAge, or entries evict before restoring.
-        gcTime: OFFLINE_CACHE_MAX_AGE_MS,
+        gcTime: UNWATCHED_QUERY_GC_TIME_MS,
         staleTime: DEFAULT_STALE_TIME_MS,
         retry: shouldRetryQuery,
       },

@@ -269,7 +269,6 @@
     "cardLimit": "Imaš že največje dovoljeno število kartic. Izbriši kakšno, ki je ne uporabljaš.",
     "cardSaveFailed": "Kartice ni bilo mogoče shraniti. Poskusi znova.",
     "cardDeleteFailed": "Kartice ni bilo mogoče izbrisati. Poskusi znova.",
-    "sessionChanged": "Prijavljen je drug račun. Osvežujemo podatke.",
     "photoDeleteFailed": "Slike ni bilo mogoče izbrisati. Poskusi znova.",
     "photoSendFailed": "Slika kartice ni shranjena. Dodaj jo znova."
   },

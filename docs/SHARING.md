@@ -3,6 +3,8 @@
 How a shopping list is shared with someone else: the access model, the URL that
 carries it, and the privacy decisions that fall out of both.
 
+The list itself (items, merging, prices, offline writes, grouping and the chart) is documented in [SHOPPING-LISTS.md](SHOPPING-LISTS.md).
+
 ## Contents
 
 1. [What it is](#1-what-it-is)

@@ -1,6 +1,6 @@
 "use client";
 
-import PhotoTile from "@/components/custom/product-photos/photo-tile";
+import ProductThumbnail from "@/components/custom/product-photos/product-thumbnail";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductInfo from "@/components/custom/product/product-info";
 import ProductSummaryAside, {
@@ -13,7 +13,8 @@ interface IProductSummaryProps extends IProductSummaryAsideProps {
   brand?: string | null;
   category: string | null;
   quantity?: string | null;
-  imageUrl?: string | null;
+  /** When set, the row shows the product's photo, or the placeholder without one. */
+  ean?: string;
   isLoading?: boolean;
   /** When set, the product name carries the card's link. */
   href?: string;
@@ -31,7 +32,7 @@ export default function ProductSummary({
   brand,
   category,
   quantity,
-  imageUrl,
+  ean,
   isLoading = false,
   href,
   onNavigate,
@@ -49,13 +50,8 @@ export default function ProductSummary({
         )}
       >
         <div className="flex min-w-0 flex-1 items-center gap-4">
-          {imageUrl && (
-            // The name sits right beside it, so the thumbnail is decorative.
-            <PhotoTile
-              src={imageUrl}
-              alt=""
-              className="hidden size-16 shrink-0 rounded-lg @md:block"
-            />
+          {ean !== undefined && (
+            <ProductThumbnail ean={ean} className="size-12 @md:size-16" />
           )}
 
           {isLoading ? (

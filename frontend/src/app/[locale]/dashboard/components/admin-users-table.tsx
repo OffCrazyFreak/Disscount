@@ -69,7 +69,8 @@ export default function AdminUsersTable() {
     );
   }
 
-  if (isError) {
+  // Only a list with nothing cached is missing; a failed refetch keeps its last answer.
+  if (isError && users === undefined) {
     return <p className="text-sm text-destructive">{t("users.loadError")}</p>;
   }
 

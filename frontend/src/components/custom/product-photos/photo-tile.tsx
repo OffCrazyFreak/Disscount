@@ -8,6 +8,7 @@ interface IPhotoTileProps {
   className?: string;
   imgClassName?: string;
   loading?: "eager" | "lazy";
+  onError?: () => void;
   children?: ReactNode;
 }
 
@@ -22,6 +23,7 @@ export default function PhotoTile({
   className,
   imgClassName,
   loading = "lazy",
+  onError,
   children,
 }: IPhotoTileProps) {
   return (
@@ -40,6 +42,7 @@ export default function PhotoTile({
           loading={loading}
           decoding="async"
           draggable={false}
+          onError={onError}
           className={cn("size-full object-contain", imgClassName)}
         />
       )}

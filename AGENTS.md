@@ -148,7 +148,9 @@ Before wiring an API call, confirm the endpoint exists in `backend/` or upstream
 
 ## Deployment
 
-Dokploy on Hetzner (Docker Compose); full reference in `docs/DEPLOYMENT.md`.
+Dokploy on Hetzner (Docker Compose); full reference in `docs/INFRASTRUCTURE.md`.
+
+The Dokploy MCP server (`@dokploy/mcp`, pinned) is configured per machine for Claude Code and Codex with the owner's `claude-mcp` key, never in the repository. Saving a service's environment changes nothing until that service's next deploy.
 
 Environment variables live in Dokploy per environment, never in committed files. `NEXT_PUBLIC_*` is baked at build time, so changing one needs a redeploy, not a restart.
 
