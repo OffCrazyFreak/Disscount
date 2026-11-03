@@ -12,8 +12,9 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Optional;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import disscount.exceptions.TooManyRequestsException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -63,10 +64,11 @@ public class OpenFoodFactsClient {
                     throw new IllegalStateException("Open Food Facts answered " + response.statusCode());
                 }
                 JsonNode root = json.readTree(body);
-                if (root.path("status").asInt() != 1) return Optional.empty();
+                // Jackson 3 throws on a non-numeric status where Jackson 2 read 0; keep treating it as unknown.
+                if (root.path("status").asInt(0) != 1) return Optional.empty();
                 return Optional.of(OffProductPhotos.parse(root.path("product").path("images")));
             }
-        } catch (IOException e) {
+        } catch (IOException | JacksonException e) {
             throw new IllegalStateException("Open Food Facts product read failed", e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

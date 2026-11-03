@@ -100,7 +100,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ProblemDetail handleUploadTooLarge(MaxUploadSizeExceededException ex) {
-        return problem(HttpStatus.PAYLOAD_TOO_LARGE, "payload-too-large",
+        return problem(HttpStatus.CONTENT_TOO_LARGE, "payload-too-large",
                 message("error.cardPhoto.tooLarge", String.valueOf(PhotoValidator.MAX_BYTES / 1024)));
     }
 

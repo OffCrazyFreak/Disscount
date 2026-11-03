@@ -1,6 +1,6 @@
 package disscount.digitalCard.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import disscount.config.SecurityConfig;
 import disscount.digitalCard.dto.DigitalCardDto;
 import disscount.digitalCard.dto.DigitalCardRequest;
@@ -13,8 +13,8 @@ import disscount.exceptions.TooManyRequestsException;
 import disscount.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -40,9 +40,9 @@ class DigitalCardControllerTest {
 
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
-    @MockBean DigitalCardService cardService;
-    @MockBean DigitalCardPhotoService photoService;
-    @MockBean UserService userService;
+    @MockitoBean DigitalCardService cardService;
+    @MockitoBean DigitalCardPhotoService photoService;
+    @MockitoBean UserService userService;
 
     private final UUID userId = UUID.randomUUID();
     private final UUID cardId = UUID.randomUUID();
