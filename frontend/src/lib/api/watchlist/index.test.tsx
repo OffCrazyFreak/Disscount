@@ -1,10 +1,12 @@
+import { waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 
-import { addToWatchlist } from "@/lib/api/watchlist";
+import watchlistService, { addToWatchlist } from "@/lib/api/watchlist";
 import { WatchType } from "@/lib/api/types";
 import { server } from "@/test/msw-server";
+import { renderHookWithProviders } from "@/test/render";
 
 const storedItem = {
   id: "9d8c7b6a-5f4e-4d3c-8b2a-1f0e9d8c7b6a",
@@ -22,6 +24,27 @@ const request = {
   watchType: WatchType.percentage,
   thresholdValue: 10,
 };
+
+// Both list queries are module private, so they are reached through the hooks that own them.
+const listQueries: [
+  string,
+  string,
+  () => { data?: unknown; error: unknown },
+][] = [
+  [
+    "the current user's watchlist",
+    "*/api/watchlist/me",
+    () => watchlistService.useGetCurrentUserWatchlist(),
+  ],
+  [
+    "a product's watchlist items",
+    "*/api/watchlist/product/:productApiId",
+    () =>
+      watchlistService.useGetWatchlistItemsByProductApiId(
+        storedItem.productApiId,
+      ),
+  ],
+];
 
 describe("watchlist fetchers", () => {
   it("returns an item the backend sent in the expected shape", async () => {
@@ -41,4 +64,26 @@ describe("watchlist fetchers", () => {
 
     await expect(addToWatchlist(request)).rejects.toBeInstanceOf(ZodError);
   });
+
+  it.each(listQueries)("parses %s", async (_name, route, useQuery) => {
+    server.use(http.get(route, () => HttpResponse.json([storedItem])));
+
+    const { result } = renderHookWithProviders(useQuery);
+
+    await waitFor(() => expect(result.current.data).toEqual([storedItem]));
+  });
+
+  it.each(listQueries)(
+    "rejects %s with a drifted item",
+    async (_name, route, useQuery) => {
+      const { lastNotifiedAt: _omitted, ...drifted } = storedItem;
+      server.use(http.get(route, () => HttpResponse.json([drifted])));
+
+      const { result } = renderHookWithProviders(useQuery);
+
+      await waitFor(() =>
+        expect(result.current.error).toBeInstanceOf(ZodError),
+      );
+    },
+  );
 });
