@@ -13,6 +13,10 @@ export const OG_BACKGROUND =
   "linear-gradient(135deg, #e9fae4 0%, #ffffff 55%, #f1fbec 100%)";
 const INK = "#252525";
 
+// Not immutable: Next's ?hash covers only the thin route file, so design and copy changes keep this URL.
+const BRAND_IMAGE_CACHE_CONTROL =
+  "public, max-age=86400, stale-while-revalidate=604800";
+
 // Satori can't read woff2, so these are .ttf and .woff builds of the app fonts.
 // Next's file tracing follows this read into the standalone image, which the product
 // card needs because it renders at request time.
@@ -170,5 +174,6 @@ export default async function renderBrandOg(copy: IOgCopy) {
   return new ImageResponse(<OgImage {...copy} />, {
     ...size,
     fonts: await loadFonts(),
+    headers: { "Cache-Control": BRAND_IMAGE_CACHE_CONTROL },
   });
 }
