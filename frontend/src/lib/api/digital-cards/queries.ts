@@ -1,4 +1,5 @@
-import apiClient, { peekFreshAuthToken } from "@/lib/api/api-base";
+import apiClient from "@/lib/api/api-base";
+import { backendProxyHeaders } from "@/lib/backend-proxy/client-headers";
 import {
   digitalCardDtoSchema,
   digitalCardRequestSchema,
@@ -52,17 +53,13 @@ export async function setDigitalCardArchived(
 
 /**
  * `keepalive` lets the request outlive a tab that is going to the background. axios cannot
- * set it, and a beacon cannot carry the bearer header, so it is a bare fetch with the
- * token read from cache (a token fetch would not finish in time). Without a fresh cached
- * token it falls back to the normal client.
+ * set it, and a beacon cannot carry the proxy's headers, so it is a bare fetch.
  */
 export async function postCardsUsed(
   entries: { id: string; usedAt: string }[],
   { keepalive = false }: { keepalive?: boolean } = {},
 ): Promise<void> {
-  const token = keepalive ? peekFreshAuthToken() : null;
-
-  if (!token) {
+  if (!keepalive) {
     await apiClient.post(`${CARDS_PATH}/used`, entries);
     return;
   }
@@ -72,7 +69,7 @@ export async function postCardsUsed(
     keepalive: true,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      ...backendProxyHeaders(),
     },
     body: JSON.stringify(entries),
   });

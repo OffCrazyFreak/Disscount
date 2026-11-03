@@ -54,9 +54,6 @@ describe("AddPlainItemModal", () => {
     const user = userEvent.setup();
     const added: unknown[] = [];
     server.use(
-      http.get("*/api/auth/token", () =>
-        HttpResponse.json(null, { status: 401 }),
-      ),
       http.get("*/api/shopping-lists/me", () =>
         HttpResponse.json([newest, older]),
       ),
@@ -106,9 +103,6 @@ describe("AddPlainItemModal", () => {
   it("keeps a cancelled choice to its own item name", async () => {
     const user = userEvent.setup();
     server.use(
-      http.get("*/api/auth/token", () =>
-        HttpResponse.json(null, { status: 401 }),
-      ),
       http.get("*/api/shopping-lists/me", () =>
         HttpResponse.json([newest, older]),
       ),
@@ -146,9 +140,6 @@ describe("AddPlainItemModal", () => {
     const createdLists: unknown[] = [];
     const addedTo: string[] = [];
     server.use(
-      http.get("*/api/auth/token", () =>
-        HttpResponse.json(null, { status: 401 }),
-      ),
       http.get("*/api/shopping-lists/me", () =>
         HttpResponse.json(
           createdLists.length > 0 ? [created, newest, older] : [newest, older],
@@ -199,9 +190,6 @@ describe("AddPlainItemModal", () => {
   it("reopens an edited name with its own choices, not an older draft for it", async () => {
     const user = userEvent.setup();
     server.use(
-      http.get("*/api/auth/token", () =>
-        HttpResponse.json(null, { status: 401 }),
-      ),
       http.get("*/api/shopping-lists/me", () =>
         HttpResponse.json([newest, older]),
       ),
@@ -250,9 +238,6 @@ describe("AddPlainItemModal", () => {
   it("moves an edited name's choices to the submitted name when the add fails", async () => {
     const user = userEvent.setup();
     server.use(
-      http.get("*/api/auth/token", () =>
-        HttpResponse.json(null, { status: 401 }),
-      ),
       http.get("*/api/shopping-lists/me", () =>
         HttpResponse.json([newest, older]),
       ),

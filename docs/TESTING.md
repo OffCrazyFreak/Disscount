@@ -45,7 +45,7 @@ The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Cr
 - **Use real translations.** Render with the catalogs instead of mocking `useTranslations`, the way next-intl's testing guide does. Assert on the Croatian text the user sees, or pass `locale` to check another language.
 - **Click with `userEvent.setup()`**, created before the action, and `await` every interaction.
 - **Wait for async results** with `findBy*` or `waitFor`. Never wrap `render` in `act` yourself.
-- **Mock the network with MSW,** not axios or the service module, so the real interceptors, headers and zod parsing run. A signed-out token handler for `*/api/auth/token` (see `store-names/hooks.test.tsx`) lets the API client proceed without a session.
+- **Mock the network with MSW,** not axios or the service module, so the real interceptors, headers and zod parsing run. The API client sends no token, so a test needs no session handler; to assert which account Spring would act as, call `actingAs(request)` from `test/backend-identity.ts` in the handler (it applies the backend proxy's identity rules against `serverSession`, see [BACKEND-PROXY.md](BACKEND-PROXY.md#10-testing)).
 - **Mock modules only at a boundary** you cannot run: the better-auth session hook, the router, a hook that writes cookies and navigates. `vi.mock` must sit at the top of the file, and any variable its factory uses comes from `vi.hoisted`.
 - **Control time** with `vi.useFakeTimers({ now })` and switch back in `afterEach`. Testing Library's `waitFor` only detects Jest's fake timers and hangs under Vitest's, so flush with `act(() => vi.advanceTimersByTimeAsync(0))` instead (see `shopping-lists/hooks.test.tsx`). If user-event clicks under fake timers, pass `advanceTimers: vi.advanceTimersByTime` to `userEvent.setup`, or the click waits for a timer that never fires.
 - **Fake IndexedDB per module.** The offline tests replace `idb-keyval` with a `Map` (see `card-photo-outbox.test.ts`). That keeps unit tests fast and needs no extra dependency.
@@ -58,6 +58,34 @@ The config sets `restoreMocks`, `unstubEnvs` and `unstubGlobals`, and Vitest 5 c
 - **Async Server Components, `generateMetadata` and server actions.** Vitest cannot render async Server Components (the Next.js testing guide says so too). Move the logic into a plain function and test that, and leave the page itself to end-to-end tests.
 - **`proxy.ts`, the service worker, camera scanning, canvas images and pointer gestures.** These need a real browser or a production build. They are checked by hand for now (see `PWA.md` and `MOBILE-NAV.md`).
 - **End-to-end flows.** There is no end-to-end suite yet. When one arrives, it goes in a top-level `frontend/e2e/` folder with `*.spec.ts` names, so it never mixes with Vitest's `*.test.*`.
+
+## Dev test accounts and seed data
+
+Manual checks and agents comparing screens use throwaway accounts on a local or dev database, never production. Their credentials live in `frontend/.env.local` as `DEV_ACCOUNT_EMAIL` and `DEV_ACCOUNT_PASSWORD`, plus an optional second pair, `DEV_ACCOUNT_2_EMAIL` and `DEV_ACCOUNT_2_PASSWORD`, used to open the first account's shared list as another person and to switch accounts.
+
+Creating an account, once per database:
+
+1. `POST <base-url>/api/auth/sign-up/email` with `{ "email", "password", "name" }` and an `Origin: <base-url>` header, so better-auth hashes the password itself. Sign-up still mails a verification link, which bounces for a made-up address; that is one send per account.
+2. In that database, `update "user" set email_verified = true where email = '<address>';`. Sign-in refuses an unverified address and mails it another link, so do this before the first sign-in.
+
+Filling it, from `frontend/`:
+
+```bash
+node scripts/seed-dev-account.mjs --base-url https://dev.disscount.me
+```
+
+Without `--base-url` the script targets `NEXT_PUBLIC_APP_URL`, and it refuses `disscount.me` and `www.disscount.me` (a trailing dot included). It signs in and creates everything through the app's own endpoints, so ids and business rules match what a real user produces: profile (username, generated avatar, onboarding done), pinned chains and places, favourite stores, 11 watched products, 4 shopping lists (one shared by link at shop level, some items ticked with the shop price), 3 loyalty cards with fake numbers (one pinned, with recent use dates and generated front and back photos when the server has card photos enabled), 2 contact messages and sessions from three devices. EANs and store codes are real cijene-api values, kept in `scripts/lib/dev-seed-data.mjs`. With the second pair set, that account gets a list of its own and ticks one item on the shared list.
+
+A rerun only adds what is missing and prints what it added, so it is safe to run after a database reset or a fixture change. Two limits: contact messages go out only on a first seed (empty account), because the API cannot list them back, and the script signs its own session out so reruns leave no extra sessions.
+
+Every row comes out stamped "now". To spread them over six weeks, run the optional back-dating SQL on the same database, once per account. It fails on an unknown address, and a rerun counts back from that day, so it moves the history forward:
+
+```bash
+ssh <server> "docker exec -i <dev-db-container> psql -U <db-user> -d <db-name> -v email=<address>" \
+  < frontend/scripts/seed-dev-account-backdate.sql
+```
+
+It sets account, list, item, watchlist (three with a past price alert), card, contact and session dates, all in UTC to match the zone-less columns.
 
 ## Coverage
 

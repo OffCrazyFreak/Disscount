@@ -10,19 +10,21 @@
  * before the session has resolved.
  */
 const IDENTITY_STORAGE_KEY = "disscount-cache-identity";
-const ANONYMOUS = "anon";
+export const ANONYMOUS_IDENTITY = "anon";
 
 let currentIdentity: string | null = null;
 
 function readStoredIdentity(): string {
-  if (typeof window === "undefined") return ANONYMOUS;
+  if (typeof window === "undefined") return ANONYMOUS_IDENTITY;
 
   try {
-    return window.localStorage.getItem(IDENTITY_STORAGE_KEY) ?? ANONYMOUS;
+    return (
+      window.localStorage.getItem(IDENTITY_STORAGE_KEY) ?? ANONYMOUS_IDENTITY
+    );
   } catch {
     // Private mode or blocked storage. Everyone shares the anonymous bucket, which is
     // the pre-existing behaviour rather than a regression.
-    return ANONYMOUS;
+    return ANONYMOUS_IDENTITY;
   }
 }
 
@@ -33,11 +35,11 @@ export function getCacheIdentity(): string {
 
 /** The stored form of an account id, so callers can name an identity that is not current. */
 export function toCacheIdentity(userId: string | null): string {
-  return userId ?? ANONYMOUS;
+  return userId ?? ANONYMOUS_IDENTITY;
 }
 
 export function setCacheIdentity(userId: string | null): void {
-  currentIdentity = userId ?? ANONYMOUS;
+  currentIdentity = userId ?? ANONYMOUS_IDENTITY;
 
   if (typeof window === "undefined") return;
 

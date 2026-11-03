@@ -55,7 +55,14 @@ async function runPurge(queryClient: QueryClient, identity: string) {
   // Cancel in-flight work first so a late-resolving request can't repopulate what we clear.
   await queryClient.cancelQueries({ predicate: isUserSpecific });
 
-  queryClient.removeQueries({ predicate: isUserSpecific });
+  // A removed query still on screen is never refetched, so it would stay failed or empty
+  // as the new account. Resetting clears its data at once and refetches with the new pin.
+  void queryClient.resetQueries({
+    predicate: (query) => isUserSpecific(query) && query.isActive(),
+  });
+  queryClient.removeQueries({
+    predicate: (query) => isUserSpecific(query) && !query.isActive(),
+  });
   queryClient.getMutationCache().clear();
 
   // Wipe the snapshot so no authed data lingers; public data re-persists on next save.

@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * The visitor's address behind Cloudflare, Traefik and the Next.js rewrite, which forwards
- * headers unchanged. Traefik always writes the peer it accepted the connection from as the
+ * The visitor's address behind Cloudflare, Traefik and the Next.js backend proxy, which
+ * forwards X-Forwarded-For and CF-Connecting-IP verbatim. Traefik always writes the peer it accepted the connection from as the
  * last X-Forwarded-For hop, so only that hop is trusted, and CF-Connecting-IP counts only
  * when that peer is a Cloudflare edge. A caller reaching the origin directly is keyed on
  * its own address instead of whatever it put in the header.
