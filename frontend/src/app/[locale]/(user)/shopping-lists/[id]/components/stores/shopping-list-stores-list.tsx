@@ -79,7 +79,13 @@ export default function ShoppingListStoreSummary({
             describedById={sortNoteId}
           />
 
-          <DistanceSortNote id={sortNoteId} state={distance.state} />
+          <DistanceSortNote
+            id={sortNoteId}
+            state={distance.state}
+            origin={distance.origin}
+            towns={distance.towns}
+            onPickTown={distance.chooseTown}
+          />
 
           {sortedChains.map((chain) => (
             <ShoppingListStoreItem
@@ -91,7 +97,7 @@ export default function ShoppingListStoreSummary({
               productsData={productsData}
               hasLowestPriceItem={storesWithLowestPriceItems.has(chain.chain)}
               hasHighestPriceItem={storesWithHighestPriceItems.has(chain.chain)}
-              distanceKm={distance.distanceByChain?.get(chain.chain)}
+              distanceKm={distance.shownDistances?.get(chain.chain)}
             />
           ))}
         </div>

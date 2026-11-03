@@ -4,7 +4,7 @@ import { LocateFixed, Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { GeolocationStatus } from "@/app/[locale]/map/hooks/use-geolocation";
+import { GeolocationStatus } from "@/hooks/use-geolocation";
 import { geolocationMessageKey } from "@/app/[locale]/map/utils/geolocation-message";
 
 interface INearMeButtonProps {

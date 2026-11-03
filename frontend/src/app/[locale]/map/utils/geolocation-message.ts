@@ -1,4 +1,4 @@
-import { GeolocationStatus } from "@/app/[locale]/map/hooks/use-geolocation";
+import { GeolocationStatus } from "@/hooks/use-geolocation";
 
 const MESSAGE_KEYS = {
   approximate: "approximate",
