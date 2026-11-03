@@ -3,8 +3,8 @@ package disscount.productImage.service;
 import java.util.List;
 
 import disscount.digitalCard.photo.TestImages;
-import disscount.digitalCard.service.FakePhotoStore;
 import disscount.productImage.FakeProductImageStore;
+import disscount.productImage.FakeProductOriginalStore;
 import disscount.productImage.catalog.CatalogImportService;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
@@ -47,8 +47,8 @@ class ProductImageJobsRenderTest {
     @TestConfiguration
     static class StoreConfig {
         @Bean
-        FakePhotoStore photoStore() {
-            return new FakePhotoStore();
+        FakeProductOriginalStore productOriginalStore() {
+            return new FakeProductOriginalStore();
         }
 
         @Bean

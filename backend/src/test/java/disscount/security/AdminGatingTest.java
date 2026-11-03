@@ -88,7 +88,7 @@ class AdminGatingTest extends FullStackTest {
 
         ean = String.valueOf(ThreadLocalRandom.current().nextLong(1_000_000_000_000L, 9_999_999_999_999L));
         String originalKey = "originals/" + ean + ".jpg";
-        photoStore.put(originalKey, TestImages.jpeg(64, 48), "image/jpeg");
+        productOriginalStore.put(originalKey, TestImages.jpeg(64, 48), "image/jpeg");
         imageId = productImages.save(ProductImage.builder()
                 .ean(ean).source(ImageSource.USER).status(ImageStatus.VERIFIED).originalKey(originalKey)
                 .fullKey("products/" + ean + "/full.jpg").thumbKey("products/" + ean + "/thumb.jpg").build()).getId();

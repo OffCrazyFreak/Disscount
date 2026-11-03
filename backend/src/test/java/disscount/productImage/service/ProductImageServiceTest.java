@@ -8,7 +8,9 @@ import disscount.digitalCard.photo.PhotoValidator;
 import disscount.digitalCard.photo.TestImages;
 import disscount.digitalCard.service.FakePhotoStore;
 import disscount.exceptions.BadRequestException;
+import disscount.exceptions.ServiceUnavailableException;
 import disscount.productImage.FakeProductImageStore;
+import disscount.productImage.FakeProductOriginalStore;
 import disscount.productImage.dao.ProductImageReportRepository;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
@@ -55,9 +57,15 @@ class ProductImageServiceTest {
 
     @TestConfiguration
     static class StoreConfig {
+        // The card bucket sits in the same context so the tests can prove product photos never reach it.
         @Bean
         FakePhotoStore photoStore() {
             return new FakePhotoStore();
+        }
+
+        @Bean
+        FakeProductOriginalStore productOriginalStore() {
+            return new FakeProductOriginalStore();
         }
 
         @Bean
@@ -72,7 +80,8 @@ class ProductImageServiceTest {
     @Autowired ProductImageRepository images;
     @Autowired ProductImageSetRepository sets;
     @Autowired ProductImageReportRepository reports;
-    @Autowired FakePhotoStore originals;
+    @Autowired FakeProductOriginalStore originals;
+    @Autowired FakePhotoStore cardPhotos;
     @Autowired FakeProductImageStore publicStore;
     @Autowired OffCandidateWriter candidates;
     @Autowired PlatformTransactionManager transactions;
@@ -89,6 +98,9 @@ class ProductImageServiceTest {
         images.deleteAll();
         sets.deleteAll();
         originals.objects.clear();
+        originals.enabled = true;
+        cardPhotos.objects.clear();
+        cardPhotos.enabled = true;
         publicStore.objects.clear();
         when(userService.isActiveAdmin(adminId)).thenReturn(true);
     }
@@ -109,7 +121,50 @@ class ProductImageServiceTest {
             assertThat(s.isNeedsReview()).isTrue();
         });
         assertThat(originals.objects.keySet()).singleElement().asString().startsWith("product-originals/" + EAN + "/");
+        assertThat(cardPhotos.objects).isEmpty();
         assertThat(publicStore.objects).hasSize(2);
+    }
+
+    @Test
+    void withoutTheOriginalsBucketUploadsAreUnavailableWhileOpenFoodFactsPhotosAndReadsKeepWorking() {
+        ProductImage candidate = candidate("front_hr", "3570", "hr");
+        when(off.download(anyString())).thenReturn(TestImages.jpeg(300, 200));
+        originals.enabled = false;
+
+        assertThatThrownBy(() -> writes.upload(ana, EAN, jpeg()))
+                .isInstanceOf(ServiceUnavailableException.class)
+                .hasMessage("error.productImage.unavailable");
+
+        admin.setMain(adminId, EAN, candidate.getId());
+        assertThat(images.findById(candidate.getId())).get().extracting(ProductImage::isRendered).isEqualTo(true);
+        assertThat(queries.forProduct(EAN).images()).singleElement()
+                .satisfies(i -> assertThat(i.source()).isEqualTo("OPEN_FOOD_FACTS"));
+        assertThat(originals.objects).isEmpty();
+    }
+
+    @Test
+    void withoutTheOriginalsBucketAUserPhotoCannotBeCroppedOrOpenedButIsNotReportedMissing() {
+        writes.upload(ana, EAN, jpeg());
+        ProductImage photo = images.findByEanOrderByCreatedAtAsc(EAN).get(0);
+        originals.enabled = false;
+
+        assertThatThrownBy(() -> admin.crop(adminId, photo.getId(), 0, new CropDto(10, 10, 100, 80)))
+                .isInstanceOf(ServiceUnavailableException.class)
+                .hasMessage("error.productImage.unavailable");
+        assertThatThrownBy(() -> admin.original(photo.getId()))
+                .isInstanceOf(ServiceUnavailableException.class)
+                .hasMessage("error.productImage.unavailable");
+        assertThat(images.findById(photo.getId())).get().extracting(ProductImage::getFullKey).isEqualTo(photo.getFullKey());
+    }
+
+    @Test
+    void uploadsDoNotDependOnTheCardPhotoBucket() {
+        cardPhotos.enabled = false;
+
+        writes.upload(ana, EAN, jpeg());
+
+        assertThat(originals.objects).hasSize(1);
+        assertThat(cardPhotos.objects).isEmpty();
     }
 
     @Test

@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
-import disscount.digitalCard.storage.PhotoStore;
 import disscount.digitalCard.storage.StoredPhoto;
 import disscount.exceptions.NotFoundException;
+import disscount.exceptions.ServiceUnavailableException;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.domain.ImageSource;
 import disscount.productImage.domain.ImageStatus;
@@ -17,6 +17,7 @@ import disscount.productImage.render.ProductImageRenderer;
 import disscount.productImage.render.ProductImageRenderer.Crop;
 import disscount.productImage.render.ProductImageRenderer.Rendered;
 import disscount.productImage.storage.ProductImageStore;
+import disscount.productImage.storage.ProductOriginalStore;
 import disscount.util.Timestamps;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -33,7 +34,7 @@ public class ProductImageRendering {
     private static final Logger log = LoggerFactory.getLogger(ProductImageRendering.class);
 
     private final ProductImageStore store;
-    private final PhotoStore originals;
+    private final ProductOriginalStore originals;
     private final OpenFoodFactsClient off;
     private final ProductImageRepository images;
 
@@ -115,6 +116,8 @@ public class ProductImageRendering {
         if (image.getSource() == ImageSource.OPEN_FOOD_FACTS) {
             return off.download(originalUrl(image));
         }
+        // The row exists but its bucket is switched off, which is an outage rather than a missing photo.
+        if (!originals.enabled()) throw new ServiceUnavailableException("error.productImage.unavailable");
         StoredPhoto stored = originals.get(image.getOriginalKey())
                 .orElseThrow(() -> new NotFoundException("error.productImage.notFound"));
         try (stored; InputStream in = stored.stream()) {

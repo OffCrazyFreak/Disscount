@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import disscount.digitalCard.photo.PhotoValidator;
 import disscount.digitalCard.photo.ValidatedPhoto;
-import disscount.digitalCard.storage.PhotoStore;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.NotFoundException;
 import disscount.exceptions.ServiceUnavailableException;
@@ -19,6 +18,7 @@ import disscount.productImage.domain.ProductImageReport;
 import disscount.productImage.domain.ProductImageSet;
 import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
 import disscount.productImage.storage.ProductImageStore;
+import disscount.productImage.storage.ProductOriginalStore;
 import disscount.user.service.UserService;
 import disscount.util.Timestamps;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class ProductImageWriteService {
     private final ProductImageSetRepository sets;
     private final ProductImageReportRepository reports;
     private final ProductImageStore store;
-    private final PhotoStore originals;
+    private final ProductOriginalStore originals;
     private final PhotoValidator validator;
     private final ProductPhotoUploadLimiter limiter;
     private final ProductImageRendering rendering;
