@@ -37,7 +37,7 @@ public class DigitalCardPhotoService {
     public static final String SLOT_FRONT = "front";
     public static final String SLOT_BACK = "back";
     public static final String SLOT_ICON = "icon";
-    private static final Set<String> SLOTS = Set.of(SLOT_FRONT, SLOT_BACK, SLOT_ICON);
+    public static final Set<String> SLOTS = Set.of(SLOT_FRONT, SLOT_BACK, SLOT_ICON);
 
     private final DigitalCardRepository cardRepository;
     private final DigitalCardPhotoRepository photoRepository;

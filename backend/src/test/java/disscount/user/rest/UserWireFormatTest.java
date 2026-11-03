@@ -1,5 +1,6 @@
 package disscount.user.rest;
 
+import disscount.support.ApiContract;
 import disscount.support.FullStackTest;
 import disscount.user.domain.User;
 import disscount.user.dto.AuthIdentity;
@@ -23,10 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /** Pins the UserDto the frontend's userDtoSchema reads, on the current user, the admin list and the account type change. */
 class UserWireFormatTest extends FullStackTest {
 
-    static final java.util.Set<String> USER_FIELDS = java.util.Set.of(
-            "id", "username", "email", "notificationsPushEnabledAt", "notificationsEmailEnabledAt",
-            "newsletterEnabledAt", "feedbackContactEnabledAt", "acquisitionChannel", "image",
-            "onboardingCompletedAt", "onboardingOutcome", "accountType", "createdAt", "lastLoginAt", "lastActiveAt");
+    static final java.util.Set<String> USER_FIELDS = ApiContract.fields("UserDto");
 
     @Test
     void theCurrentUserHasEveryFieldAndNullsStayInTheBody() throws Exception {

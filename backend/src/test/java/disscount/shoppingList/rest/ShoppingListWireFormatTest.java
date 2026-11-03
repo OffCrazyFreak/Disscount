@@ -1,5 +1,6 @@
 package disscount.shoppingList.rest;
 
+import disscount.support.ApiContract;
 import disscount.support.FullStackTest;
 import disscount.user.domain.User;
 import org.junit.jupiter.api.Test;
@@ -18,11 +19,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /** Pins ShoppingListDto and ShoppingListItemDto against shoppingListDtoSchema and shoppingListItemDtoSchema. */
 class ShoppingListWireFormatTest extends FullStackTest {
 
-    static final Set<String> LIST_FIELDS = Set.of(
-            "id", "ownerId", "title", "linkAccess", "myAccess", "updatedAt", "createdAt", "items");
-    static final Set<String> ITEM_FIELDS = Set.of(
-            "id", "shoppingListId", "ean", "brand", "name", "quantity", "unit", "amount", "isChecked",
-            "chainCode", "avgPrice", "storePrice", "createdAt", "updatedAt", "updatedByUserId");
+    static final Set<String> LIST_FIELDS = ApiContract.fields("ShoppingListDto");
+    static final Set<String> ITEM_FIELDS = ApiContract.fields("ShoppingListItemDto");
 
     @Test
     void theOwnersListCarriesEveryFieldWithItemsInline() throws Exception {
