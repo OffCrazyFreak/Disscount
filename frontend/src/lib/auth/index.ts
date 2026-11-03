@@ -2,7 +2,11 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { jwt } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
-import { APIError, createAuthMiddleware } from "better-auth/api";
+import {
+  APIError,
+  createAuthMiddleware,
+  isAPIError,
+} from "better-auth/api";
 
 import { db } from "@/db";
 import { createTranslator } from "next-intl";
@@ -37,6 +41,10 @@ import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password-policy";
 import { CLIENT_IP_HEADER, trustedCountry } from "@/lib/client-ip/client-ip";
 import { guardSensitiveAction } from "@/lib/auth/sensitive-action-guard";
 import { reauth } from "@/lib/auth/reauth/reauth-plugin";
+import {
+  notifyEmailChanged,
+  notifyPasswordChanged,
+} from "@/lib/auth/security-notifications";
 
 const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
 const BETTER_AUTH_SECRET = requireEnv("BETTER_AUTH_SECRET");
@@ -118,6 +126,7 @@ export const auth = betterAuth({
     revokeSessionsOnPasswordReset: true,
     onPasswordReset: async ({ user }) => {
       await claimUnverifiedAccountOnReset(user);
+      notifyPasswordChanged(user);
     },
     // Fire-and-forget like the sends below, so a registered address answers no slower.
     onExistingUserSignUp: async ({ user }) => {
@@ -191,6 +200,18 @@ export const auth = betterAuth({
       if (typeof password === "string")
         await assertPasswordAcceptable(password);
     }),
+    after: createAuthMiddleware(async (ctx) => {
+      const returned = ctx.context.returned;
+      if (
+        ctx.path === "/change-password" &&
+        !isAPIError(returned) &&
+        returned &&
+        typeof returned === "object" &&
+        "user" in returned
+      ) {
+        notifyPasswordChanged(returned.user as { email: string });
+      }
+    }),
   },
 
   databaseHooks: {
@@ -235,6 +256,9 @@ export const auth = betterAuth({
           }
 
           return { data: userData };
+        },
+        after: async (updatedUser, ctx) => {
+          notifyEmailChanged(updatedUser, ctx);
         },
       },
     },

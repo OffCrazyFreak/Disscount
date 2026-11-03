@@ -22,7 +22,9 @@ export type EmailKind =
   | "changeEmail"
   | "breachedPassword"
   | "accountExists"
-  | "completeSignUp";
+  | "completeSignUp"
+  | "passwordChanged"
+  | "emailChanged";
 
 // A null or unknown stored locale falls back to Croatian rather than failing a send.
 function resolveLocale(value: unknown): AppLocale {
@@ -72,8 +74,8 @@ export function actionEmailFrom(
   const timing = { minutes: RESET_TOKEN_TTL_SECONDS / 60 };
 
   const intro =
-    kind === "changeEmail"
-      ? t.rich("changeEmail.intro", {
+    kind === "changeEmail" || kind === "emailChanged"
+      ? t.rich(`${kind}.intro`, {
           newEmail: values.newEmail ?? "",
           email: (chunks) =>
             createElement(

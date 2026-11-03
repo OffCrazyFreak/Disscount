@@ -1,0 +1,61 @@
+import "server-only";
+
+import { createHash, randomUUID } from "node:crypto";
+import type { GenericEndpointContext } from "better-auth";
+
+import { appUrl } from "@/lib/env";
+import { emailService } from "@/lib/email";
+import { userLocale } from "@/lib/email/email-copy";
+import { localePath } from "@/i18n/locale-path";
+import { logEmailFailure } from "@/lib/auth/callbacks";
+import { readVerificationToken } from "@/lib/auth/verification-token";
+
+interface INotifiedUser {
+  email: string;
+}
+
+/** Fire-and-forget: the change already happened, so a failed notice must not undo it. */
+export function notifyPasswordChanged(user: INotifiedUser) {
+  const locale = userLocale(user);
+
+  void emailService
+    .sendPasswordChanged({
+      to: user.email,
+      locale,
+      url: `${appUrl()}${localePath(locale, "/?modal=settings/sigurnost")}`,
+      eventId: randomUUID(),
+    })
+    .catch(logEmailFailure("password-changed notice"));
+}
+
+/**
+ * Runs in user.update.after. better-auth applies a confirmed email change on /verify-email,
+ * and that request's token still names the old address, which is where the notice goes.
+ */
+export function notifyEmailChanged(
+  updatedUser: INotifiedUser,
+  ctx: GenericEndpointContext | null | undefined,
+) {
+  const token: unknown = ctx?.query?.token;
+  if (ctx?.path !== "/verify-email" || typeof token !== "string") return;
+
+  const claims = readVerificationToken(token);
+  if (
+    claims.requestType !== "change-email-verification" ||
+    claims.updateTo !== updatedUser.email
+  ) {
+    return;
+  }
+
+  const locale = userLocale(updatedUser);
+  void emailService
+    .sendEmailChanged({
+      to: claims.email,
+      locale,
+      url: `${appUrl()}${localePath(locale, "/?modal=contact")}`,
+      // The link is single-purpose, so a reload of it maps to the same notice.
+      eventId: createHash("sha256").update(token).digest("hex"),
+      newEmail: updatedUser.email,
+    })
+    .catch(logEmailFailure("email-changed notice"));
+}

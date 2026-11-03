@@ -65,5 +65,21 @@
     "heading": "Bestätige, dass du es bist",
     "intro": "Gib diesen Code in Disscount ein, um eine Änderung an deinem Konto zu bestätigen. Er ist {minutes, plural, one {# Minute} other {# Minuten}} gültig.",
     "footnote": "Du hast das nicht angefordert? Gib den Code an niemanden weiter und melde dich in den Einstellungen von deinen anderen Geräten ab."
+  },
+  "passwordChanged": {
+    "subject": "Dein Passwort wurde geändert",
+    "preview": "Das Passwort deines Disscount-Kontos wurde gerade geändert.",
+    "heading": "Passwort geändert",
+    "intro": "Das Passwort deines Disscount-Kontos wurde gerade geändert. Wenn die Änderung von dir kommt, musst du nichts weiter tun.",
+    "button": "Sicherheitseinstellungen öffnen",
+    "footnote": "Die Änderung kommt nicht von dir? Lege sofort über \"Passwort vergessen?\" bei der Anmeldung ein neues Passwort fest und schreib uns."
+  },
+  "emailChanged": {
+    "subject": "Deine E-Mail-Adresse wurde geändert",
+    "preview": "Dein Disscount-Konto nutzt jetzt eine neue E-Mail-Adresse.",
+    "heading": "E-Mail-Adresse geändert",
+    "intro": "Dein Disscount-Konto nutzt ab jetzt <email>{newEmail}</email>. An diese Adresse schicken wir keine Konto-E-Mails mehr.",
+    "button": "Schreib uns",
+    "footnote": "Die Änderung kommt nicht von dir? Schreib uns sofort, dann helfen wir dir, dein Konto zurückzubekommen."
   }
 }

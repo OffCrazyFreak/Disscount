@@ -24,6 +24,8 @@ const PREVIEW_URLS: Record<EmailKind, string> = {
   breachedPassword: "https://disscount.me/reset-password?token=preview",
   accountExists: "https://disscount.me/?modal=login",
   completeSignUp: "https://disscount.me/reset-password?token=preview",
+  passwordChanged: "https://disscount.me/?modal=settings/sigurnost",
+  emailChanged: "https://disscount.me/?modal=contact",
 };
 
 export function previewProps(kind: EmailKind, locale = PREVIEW_LOCALE) {
