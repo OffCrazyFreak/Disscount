@@ -29,6 +29,11 @@ const nextConfig: NextConfig = {
   // Emit a minimal self-contained server build (.next/standalone) for a lean Docker image.
   output: "standalone",
 
+  // Ties client and server to one build: a tab from an older deploy does a full
+  // page load instead of a client navigation. Unset (no skew check) where the
+  // build gets no GIT_SHA, which today is the production build on the server.
+  deploymentId: process.env.GIT_SHA || undefined,
+
   // The dev indicator sits bottom-left, on top of the mobile bottom nav.
   devIndicators: false,
 

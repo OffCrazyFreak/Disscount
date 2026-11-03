@@ -84,6 +84,11 @@ const runtimeCaching: RuntimeCaching[] = [
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
+  precacheOptions: {
+    // Next adds ?dpl=<deploymentId> to asset URLs, which the precache keys lack;
+    // the first two are Serwist's defaults.
+    ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^dpl$/],
+  },
   // Off so a deploy waits for the reload the app offers; the old worker keeps
   // serving the chunks open tabs still ask for until then.
   skipWaiting: false,

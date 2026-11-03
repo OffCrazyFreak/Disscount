@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { GLOBAL_ERROR_MESSAGES } from "@/app/global-error/global-error-messages";
 import { globalErrorStyles as styles } from "@/app/global-error/global-error-styles";
 import { localeFromPath, localePath } from "@/i18n/locale-path";
-import { captureBoundaryError } from "@/lib/sentry/capture-boundary-error";
+import { handleBoundaryError } from "@/lib/handle-boundary-error";
 
 interface IGlobalErrorProps {
   error: unknown;
@@ -20,7 +20,7 @@ export default function GlobalError({ error, retry }: IGlobalErrorProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    captureBoundaryError(error);
+    handleBoundaryError(error);
   }, [error]);
 
   useEffect(() => {
