@@ -65,18 +65,23 @@ function renderItems(
 interface IListPrices {
   cheapestStores?: Record<string, string>;
   storePrices?: Record<string, Record<string, number>>;
+  myAccess?: ShoppingListDto["myAccess"];
 }
 
 function listItems(
   items: ShoppingListItemDto[],
   priceStates: Record<string, ItemPriceState>,
   onRetryPrices = vi.fn(async () => true),
-  { cheapestStores = {}, storePrices = {} }: IListPrices = {},
+  {
+    cheapestStores = {},
+    storePrices = {},
+    myAccess = "OWNER",
+  }: IListPrices = {},
 ) {
   const list: ShoppingListDto = {
     id: "list-1",
     title: "Tjedni",
-    myAccess: "OWNER",
+    myAccess,
     createdAt: "2026-10-27T00:00:00",
     updatedAt: "2026-10-27T00:00:00",
     items,
@@ -262,6 +267,19 @@ describe("ShoppingListItems focus", () => {
     rerender(listItems(items, { a: "ready" }, undefined, konzumPrices));
 
     expect(screen.getByRole("combobox")).toHaveFocus();
+  });
+
+  it("moves a viewer's focus to the item name, since their live select is disabled", () => {
+    const items = [item("a")];
+    const viewer: IListPrices = { ...konzumPrices, myAccess: "VIEW" };
+    const { rerender } = renderWithProviders(
+      listItems(items, { a: "failed" }, undefined, { myAccess: "VIEW" }),
+    );
+
+    screen.getByRole("combobox").focus();
+    rerender(listItems(items, { a: "ready" }, undefined, viewer));
+
+    expect(screen.getByRole("link", { name: "a" })).toHaveFocus();
   });
 
   it("keeps focus on the row when it moves into its store's group", async () => {

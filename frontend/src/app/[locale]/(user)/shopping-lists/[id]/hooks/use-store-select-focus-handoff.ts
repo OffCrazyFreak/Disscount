@@ -1,7 +1,10 @@
 import { useLayoutEffect, type RefObject } from "react";
 
 import type { ItemPriceState } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
-import { focusStoreSelect } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/store-select-focus";
+import {
+  focusItemName,
+  focusStoreSelect,
+} from "@/app/[locale]/(user)/shopping-lists/[id]/utils/store-select-focus";
 
 /**
  * Swapping in the live select, or moving the row into its store's group, unmounts the
@@ -19,7 +22,8 @@ export function useStoreSelectFocusHandoff(
     }
 
     lostFocusItemIdRef.current = null;
-    focusStoreSelect([itemId]);
+    // A link viewer's live select is disabled, so the item's own name is the nearest stop.
+    if (!focusStoreSelect([itemId])) focusItemName(itemId);
   }, [priceState, itemId, lostFocusItemIdRef]);
 
   return function rememberFocusOnUnmount(trigger: HTMLButtonElement) {
