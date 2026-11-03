@@ -13,6 +13,8 @@ Reference documentation for Disscount. Each file is a standalone deep-dive into 
 - [SEARCH.md](SEARCH.md) - the shared matcher, diacritic folding, ranking, Croatian collation, and why there is no search library.
 - [LANDING.md](LANDING.md) - landing page composition, server-vs-client rendering, SEO, fonts.
 - [BRAND.md](BRAND.md) - brand image system (logo, favicon, PWA icons, splash screens, social kit).
+- [PRODUCTS.md](PRODUCTS.md) - product data from the cijene API: the proxy, the server rendered product page, SEO, prices, price history, watchlist alerts, shopping list rows, offline.
+- [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md) - product photos: Open Food Facts and user sources, the public R2 bucket, rendering, delivery, the admin review queue, failure modes.
 - [DIGITAL-CARDS.md](DIGITAL-CARDS.md) - the card wallet: data model, API, R2 photos, offline queueing, scanner hardening, barcode rendering, privacy.
 - [IMAGE-UPLOADS.md](IMAGE-UPLOADS.md) - how avatars, card photos and product photos are resized, stripped of metadata and checked on the server.
 - [TESTING.md](TESTING.md) - the Vitest setup: Node and jsdom projects, shared helpers, MSW, what to test and what is left to a browser.
