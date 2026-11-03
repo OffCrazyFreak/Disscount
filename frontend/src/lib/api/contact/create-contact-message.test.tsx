@@ -1,6 +1,7 @@
 import { act, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it } from "vitest";
+import { ZodError } from "zod";
 
 import contactService from "@/lib/api/contact";
 import { server } from "@/test/msw-server";
@@ -75,6 +76,6 @@ describe("useCreateContactMessage", () => {
 
     await expect(
       act(() => result.current.mutateAsync(submission)),
-    ).rejects.toThrow();
+    ).rejects.toBeInstanceOf(ZodError);
   });
 });
