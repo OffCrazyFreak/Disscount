@@ -69,6 +69,17 @@ describe("resolveClientIp", () => {
   });
 });
 
+// Mirrors proxyNextRequest in Next's app route module: reads go to the target
+// and methods are bound to it. Only Node 24's undici throws on new Request(proxy).
+function nextProxy(request: Request): Request {
+  return new Proxy(request, {
+    get(target, prop) {
+      const value: unknown = Reflect.get(target, prop, target);
+      return typeof value === "function" ? value.bind(target) : value;
+    },
+  });
+}
+
 describe("withTrustedClientIp", () => {
   it("overwrites the client IP header with the resolved address", () => {
     const request = new Request("http://localhost/api/auth/sign-in/email", {
@@ -101,15 +112,24 @@ describe("withTrustedClientIp", () => {
       headers: { "x-forwarded-for": DIRECT_CALLER },
       body: '{"email":"a@b.hr"}',
     });
-    const proxied = new Proxy(request, {
-      get: (target, prop) => Reflect.get(target, prop, target),
-    });
-
-    const trusted = withTrustedClientIp(proxied);
+    const trusted = withTrustedClientIp(nextProxy(request));
 
     expect(trusted.method).toBe("POST");
     expect(trusted.headers.get(CLIENT_IP_HEADER)).toBe(DIRECT_CALLER);
+    // better-auth clones sign-in and sign-up requests before reading them.
+    await expect(trusted.clone().text()).resolves.toBe('{"email":"a@b.hr"}');
     await expect(trusted.text()).resolves.toBe('{"email":"a@b.hr"}');
+  });
+
+  it("copies a bodyless GET through the Proxy", () => {
+    const request = new Request("http://localhost/api/auth/get-session", {
+      headers: { "x-forwarded-for": DIRECT_CALLER },
+    });
+
+    const trusted = withTrustedClientIp(nextProxy(request));
+
+    expect(trusted.method).toBe("GET");
+    expect(trusted.body).toBeNull();
   });
 
   it("keeps the request body readable", async () => {
