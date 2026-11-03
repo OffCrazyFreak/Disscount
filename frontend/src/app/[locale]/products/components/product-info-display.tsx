@@ -7,7 +7,7 @@ import { getMostFrequentCategory } from "@/app/[locale]/products/utils/product-u
 import ProductActionButtons from "@/app/[locale]/products/components/product-action-buttons";
 import ProductInfoTable from "@/app/[locale]/products/components/product-info-table";
 import ProductPhotoGallery from "@/app/[locale]/products/components/product-photos/product-photo-gallery";
-import ProductPhotoThumbnail from "@/app/[locale]/products/components/product-photos/product-photo-thumbnail";
+import ProductThumbnail from "@/components/custom/product-photos/product-thumbnail";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 
@@ -57,7 +57,10 @@ export default function ProductInfoDisplay({
 
           {/* Inside modals the full gallery would crowd the form, so a thumbnail stands in. */}
           {!enableActionButtons && (
-            <ProductPhotoThumbnail ean={product.ean} name={displayName} />
+            <ProductThumbnail
+              ean={product.ean}
+              className="hidden size-16 sm:flex"
+            />
           )}
 
           {/* Product Name and Category */}
