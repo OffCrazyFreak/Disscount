@@ -1,15 +1,18 @@
 import { isAxiosError } from "axios";
 
-import { parseProblem } from "@/lib/api/problem-details";
+import { isSessionChanged, parseProblem } from "@/lib/api/problem-details";
 import { isNetworkFailure } from "@/lib/offline/is-network-failure";
 
 /** Resending can never succeed for these, so the queued entry is dropped. */
 const PERMANENT_STATUSES = new Set([400, 404, 409, 413, 422]);
 
 export type CardWriteMessageKey =
-  "offline.cardLimit" | "offline.cardSaveFailed";
+  "offline.cardLimit" | "offline.cardSaveFailed" | "offline.sessionChanged";
 
 export const CARD_LIMIT_KEY = "offline.cardLimit";
+
+// The write failed only because the tab is switching accounts, not because it was refused.
+export const SESSION_CHANGED_KEY = "offline.sessionChanged";
 
 /**
  * "keep": a later attempt can succeed (offline, signed out, throttled, server trouble),
@@ -32,6 +35,8 @@ export function httpStatus(error: unknown): number | undefined {
 
 /** The `digitalCards` message key for a failed card write, or null when the failure needs no toast. */
 export function cardWriteMessage(error: unknown): CardWriteMessageKey | null {
+  if (isSessionChanged(error)) return SESSION_CHANGED_KEY;
+
   const status = httpStatus(error);
 
   // The card was deleted elsewhere; the invalidation that follows removes it here too.

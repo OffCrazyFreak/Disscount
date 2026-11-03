@@ -7,9 +7,10 @@ import {
   shouldRetryLiveCardWrite,
 } from "@/lib/offline/card-retry";
 
-function httpError(status: number) {
+function httpError(status: number, data: unknown = {}) {
   return new AxiosError("x", "ERR", undefined, undefined, {
     status,
+    data,
   } as AxiosResponse);
 }
 
@@ -24,6 +25,12 @@ describe("shouldRetryCardWrite", () => {
     for (const status of [400, 404, 409, 413, 422]) {
       expect(shouldRetryCardWrite(0, httpError(status))).toBe(false);
     }
+  });
+
+  it("never retries once the proxy reports another account signed in", () => {
+    const refused = httpError(401, { status: 401, code: "session_changed" });
+    expect(shouldRetryCardWrite(0, refused)).toBe(false);
+    expect(shouldRetryLiveCardWrite(0, refused)).toBe(false);
   });
 
   it("keeps retrying a transient failure however many times it failed", () => {
