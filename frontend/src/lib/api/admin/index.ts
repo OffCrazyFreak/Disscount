@@ -1,12 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import apiClient from "@/lib/api/api-base";
+import { ADMIN_QUERY_KEYS } from "@/lib/api/admin/keys";
 import { UserDto, AccountType } from "@/lib/api/types";
 
 const ADMIN_BASE_PATH = "/api/admin";
-
-const ADMIN_QUERY_KEYS = {
-  users: ["admin", "users"] as const,
-};
 
 const UPDATE_ACCOUNT_TYPE_MUTATION_KEY = ["admin", "updateAccountType"];
 
@@ -30,12 +32,15 @@ async function deleteUser(userId: string): Promise<void> {
   await apiClient.delete(`${ADMIN_BASE_PATH}/users/${userId}`);
 }
 
-function useGetAllUsers({ enabled = true } = {}) {
-  return useQuery<UserDto[], Error>({
+function allUsersQueryOptions() {
+  return queryOptions({
     queryKey: ADMIN_QUERY_KEYS.users,
     queryFn: getAllUsers,
-    enabled,
   });
+}
+
+function useGetAllUsers({ enabled = true } = {}) {
+  return useQuery({ ...allUsersQueryOptions(), enabled });
 }
 
 function useUpdateUserAccountType() {
