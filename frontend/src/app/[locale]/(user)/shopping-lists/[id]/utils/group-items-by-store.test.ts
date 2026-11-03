@@ -31,7 +31,7 @@ describe("groupItemsByStore", () => {
         item("3", "Sol"),
         item("4", "Jaja", { chainCode: "lidl" }),
       ],
-      cheapestStores: { "2": "konzum" },
+      cheapestStores: { "1": "konzum", "2": "konzum" },
       storePrices: {},
     });
 
@@ -61,10 +61,33 @@ describe("groupItemsByStore", () => {
     expect(group.isPartial).toBe(true);
   });
 
-  it("prices an item ticked without a chosen chain at today's price", () => {
+  it("puts an item ticked with no saved chain under no store, as its select shows", () => {
+    const groups = groupItemsByStore({
+      items: [
+        item("1", "Kruh", { isChecked: true, storePrice: null }),
+        item("2", "Mlijeko"),
+      ],
+      cheapestStores: { "1": "konzum", "2": "konzum" },
+      storePrices: { "1": { konzum: 1.5 }, "2": { konzum: 2 } },
+    });
+
+    expect(groups.map((g) => [g.chain, g.items.map((i) => i.name)])).toEqual([
+      ["konzum", ["Mlijeko"]],
+      [null, ["Kruh"]],
+    ]);
+    expect(groups[0]).toMatchObject({ subtotal: 2, isPartial: false });
+  });
+
+  it("prices a ticked item with no captured price at today's price at its chain", () => {
     const [group] = groupItemsByStore({
-      items: [item("1", "Kruh", { isChecked: true, storePrice: null })],
-      cheapestStores: { "1": "konzum" },
+      items: [
+        item("1", "Kruh", {
+          chainCode: "konzum",
+          isChecked: true,
+          storePrice: null,
+        }),
+      ],
+      cheapestStores: {},
       storePrices: { "1": { konzum: 1.5 } },
     });
 
