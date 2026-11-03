@@ -19,4 +19,9 @@ Reference documentation for Disscount. Each file is a standalone deep-dive into 
 - [DIGITAL-CARDS.md](DIGITAL-CARDS.md) - the card wallet: data model, API, R2 photos, offline queueing, scanner hardening, barcode rendering, privacy.
 - [IMAGE-UPLOADS.md](IMAGE-UPLOADS.md) - how avatars, card photos and product photos are resized, stripped of metadata and checked on the server.
 - [TESTING.md](TESTING.md) - the Vitest setup: Node and jsdom projects, shared helpers, MSW, what to test and what is left to a browser.
+- [WATCHLIST.md](WATCHLIST.md) - the watchlist: stored rules, browser-side price alerts, the bell and the price drop badge, suggestions, offline.
+- [SCANNER.md](SCANNER.md) - the barcode scanner: callers and presets, camera picking, photo scanning, feedback, CSP and the WebAssembly decoder.
+- [SETTINGS.md](SETTINGS.md) - Postavke: the four tabs, the long-lived form and its parallel saves, Sigurnost, and what account deletion erases and keeps.
+- [ADMIN.md](ADMIN.md) - the admin dashboard: who sees it, how `/api/admin/**` is checked, the users, contact and photo tabs.
+- [BACKEND-PROXY.md](BACKEND-PROXY.md) - the Next.js proxy that turns the session cookie into a per-request backend token.
 - [SUPPORT.md](SUPPORT.md) - Ko-fi support flow, GitHub funding links, and future recognition rules.
