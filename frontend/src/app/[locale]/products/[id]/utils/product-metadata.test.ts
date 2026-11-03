@@ -38,16 +38,22 @@ describe("productMetadata", () => {
     );
   });
 
-  it("shares the product photo when there is one", () => {
-    const metadata = productMetadata({
-      ...base,
-      locale: "hr",
-      photoUrl: "https://images.test/full.jpg",
-    });
+  it("shares a 1200x630 card of the product photo when there is one", () => {
+    const photoUrl = "https://images.test/full.jpg";
+    const metadata = productMetadata({ ...base, locale: "hr", photoUrl });
 
-    expect(metadata.openGraph?.images).toEqual([
-      { url: "https://images.test/full.jpg", alt: base.title },
-    ]);
+    const card = {
+      url: expect.stringMatching(
+        /^http:\/\/localhost:3000\/og\/products\/5449000000996\/[0-9a-f]{16}\.png$/,
+      ),
+      width: 1200,
+      height: 630,
+      type: "image/png",
+      alt: base.title,
+    };
+
+    expect(metadata.openGraph?.images).toEqual([card]);
+    expect(metadata.twitter?.images).toEqual([card]);
   });
 
   it("keeps the layout's brand image without a photo", () => {
