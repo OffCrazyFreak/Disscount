@@ -11,7 +11,7 @@
   "header": {
     "searchResultsTitle": "Suchergebnisse für „{query}“ ({count})",
     "title": "Merkliste",
-    "titleWithCount": "Merkliste ({count})",
+    "titleWithCount": "{label} ({count})",
     "pricesUpdated": "Preise {time} aktualisiert"
   },
   "list": {

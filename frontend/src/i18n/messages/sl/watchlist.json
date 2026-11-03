@@ -11,7 +11,7 @@
   "header": {
     "searchResultsTitle": "Rezultati iskanja za »{query}« ({count})",
     "title": "Spremljani izdelki",
-    "titleWithCount": "Spremljani izdelki ({count})",
+    "titleWithCount": "{label} ({count})",
     "pricesUpdated": "Cene posodobljene {time}"
   },
   "list": {

@@ -11,7 +11,7 @@
   "header": {
     "searchResultsTitle": "Risultati per «{query}» ({count})",
     "title": "Prodotti seguiti",
-    "titleWithCount": "Prodotti seguiti ({count})",
+    "titleWithCount": "{label} ({count})",
     "pricesUpdated": "Prezzi aggiornati {time}"
   },
   "list": {

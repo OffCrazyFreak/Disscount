@@ -11,7 +11,7 @@
   "header": {
     "searchResultsTitle": "Rezultati pretrage za \"{query}\" ({count})",
     "title": "Praćeni proizvodi",
-    "titleWithCount": "Praćeni proizvodi ({count})",
+    "titleWithCount": "{label} ({count})",
     "pricesUpdated": "Cijene osvježene {time}"
   },
   "list": {

@@ -11,7 +11,7 @@
   "header": {
     "searchResultsTitle": "Search results for “{query}” ({count})",
     "title": "Watchlist",
-    "titleWithCount": "Watchlist ({count})",
+    "titleWithCount": "{label} ({count})",
     "pricesUpdated": "Prices refreshed {time}"
   },
   "list": {
