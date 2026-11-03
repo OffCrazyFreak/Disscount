@@ -168,7 +168,7 @@ Photos are optional and sit behind a `PhotoStore` interface (`put`, `get`, `dele
 
 ### What the browser does
 
-`utils/browser/card-image.ts` prepares every image before upload:
+`utils/browser/card-image.ts` prepares every image before upload, using the shared steps in `utils/browser/image.ts` ([IMAGE-UPLOADS.md](IMAGE-UPLOADS.md) covers every upload in the app):
 
 - Decode with `createImageBitmap(file, { imageOrientation: "from-image" })` so phone photos are rotated correctly.
 - `front` and `back`: 1280 px on the long edge plus a 320 px thumbnail. `icon`: a centred 128 px square. Small images are never upscaled.
@@ -346,7 +346,7 @@ A loyalty card number is personal data, and a photo of a card more so.
 | `frontend/src/app/[locale]/(user)/digital-cards/utils/card-palette.ts`                         | The 19 colours                                                                                                |
 | `frontend/src/components/scanner/`                                                             | Shared scanner: consensus, confirm step, manual entry                                                         |
 | `frontend/src/utils/barcode/`                                                                  | Check digits and normalization                                                                                |
-| `frontend/src/utils/browser/card-image.ts`                                                     | Photo resize and WebP or JPEG encoding                                                                        |
+| `frontend/src/utils/browser/card-image.ts`                                                     | Card photo sizes and qualities, on top of the shared `utils/browser/image.ts`                                 |
 | `frontend/src/components/reui/autocomplete.tsx`                                                | The store field's Autocomplete (reui, built on `@base-ui/react`)                                              |
 | `frontend/src/hooks/use-wake-lock.ts`                                                          | Keeps the screen on in the view modal                                                                         |
 | `backend/src/test/`                                                                            | The backend suite (H2)                                                                                        |
@@ -427,7 +427,7 @@ CI runs `pnpm test` after the typecheck, and `mvn -B verify` runs the backend su
 | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **The old `digital_card` table stays**              | `ddl-auto=update` never drops anything, and the rebuild uses new table names (`wallet_card`) so the stale table cannot merge into the new shape. It sits unused until you drop it by hand, after deploy, once nothing reads it. This is a one-way step, so check a backup exists first |
 | **`ddl-auto=update` and enum columns**              | `card_type` and `code_type` are Strings, not Java enums, so adding a type later is an allowlist change, not a stale `CHECK` constraint that 500s on write                                                                                                                              |
-| **Safari returns PNG for a WebP request**           | `canvas.toBlob("image/webp")` silently gives PNG on Safari, and the server rejects PNG. `card-image.ts` checks `blob.type` and falls back to JPEG. Never remove that check                                                                                                             |
+| **Safari returns PNG for a WebP request**           | `canvas.toBlob("image/webp")` silently gives PNG on Safari, and the server rejects PNG. `encodeWebpOrJpeg` in `utils/browser/image.ts` checks `blob.type` and falls back to JPEG. Never remove that check                                                                              |
 | **bwip-js is large**                                | Import only the named encoders from `@bwip-js/browser` (as `generate-code-svg.ts` does) rather than pulling in every symbology, or the bundle carries code for barcode types no card uses. This is a size concern I did not measure here                                               |
 | **R2 and the AWS SDK checksums**                    | Since SDK 2.30 the default adds checksum trailers that R2 rejects. `R2Clients` sets request and response checksums to `WHEN_REQUIRED` and turns chunked encoding off, for both buckets. Upgrading the SDK means re-testing a real upload                                               |
 | **R2 batch delete**                                 | `DeleteObjects` needs a checksum header R2 treats differently from S3, so `deletePrefix` deletes key by key                                                                                                                                                                            |

@@ -26,7 +26,7 @@ How Disscount shows product photos: where they come from, how they are stored an
 The cijene API has no images at any layer, so photos come from outside it.
 
 - **Open Food Facts.** A weekly job streams their full product export (about 1.5 GB gzipped) and keeps the selected front photo of every EAN in our catalogue. In November 2026 that matched about 30,000 of 222,000 catalogue EANs (13.5%), about half of the products sold in ten or more chains, and 69% of the products users had saved. Croatian barcodes (prefix 385) were only 4.3% covered. "Dohvati s Open Food Factsa" in the admin editor reads one product through their API and adds every front photo (one per photo, Croatian first) and up to 30 recent raw photos as candidates.
-- **Users.** A logged-in user uploads a JPEG prepared in the browser (long edge up to 2048 px, under 480 KB, white behind any transparency).
+- **Users.** A logged-in user uploads a JPEG prepared in the browser (long edge up to 2048 px, under 480 KB, white behind any transparency; see [IMAGE-UPLOADS.md](IMAGE-UPLOADS.md)).
 - **Admins.** Same upload, but verified and pinned as the main photo straight away.
 
 Their API allows 15 product reads a minute per IP and may ban an IP that goes over, so we cap ourselves at 10 a minute and never call it when a page opens.
