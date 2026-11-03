@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { prepareAvatar } from "@/utils/browser/avatar-image";
 
 interface IFakeCanvas {
+  drawImage: ReturnType<typeof vi.fn>;
   width: number;
   height: number;
   getContext: () => unknown;
@@ -11,13 +12,12 @@ interface IFakeCanvas {
 
 // Safari answers a webp request with PNG, which the server refuses.
 function safariCanvas(): IFakeCanvas {
+  const drawImage = vi.fn();
   return {
+    drawImage,
     width: 0,
     height: 0,
-    getContext: () => ({
-      drawImage: vi.fn(),
-      fillRect: vi.fn(),
-    }),
+    getContext: () => ({ drawImage, fillRect: vi.fn() }),
     toBlob: (done, type) =>
       done(
         new Blob(["x"], {
@@ -61,5 +61,16 @@ describe("prepareAvatar", () => {
       imageOrientation: "from-image",
     });
     expect([canvas.width, canvas.height]).toEqual([256, 256]);
+    expect(canvas.drawImage).toHaveBeenCalledWith(
+      expect.anything(),
+      500,
+      0,
+      3000,
+      3000,
+      0,
+      0,
+      256,
+      256,
+    );
   });
 });
