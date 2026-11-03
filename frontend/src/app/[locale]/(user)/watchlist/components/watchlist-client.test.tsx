@@ -5,6 +5,7 @@ import WatchlistClient from "@/app/[locale]/(user)/watchlist/components/watchlis
 import { renderWithProviders } from "@/test/render";
 
 const data = vi.hoisted(() => ({
+  canShowAccountData: true,
   shoppingListItemsLoading: false,
   filteredSuggestionItems: [] as { productApiId: string }[],
 }));
@@ -12,7 +13,6 @@ const data = vi.hoisted(() => ({
 vi.mock("@/app/[locale]/(user)/watchlist/hooks/use-watchlist-data", () => ({
   useWatchlistData: () => ({
     ...data,
-    isAuthenticated: true,
     userLoading: false,
     watchlistLoading: false,
     hasWatchedProducts: true,
@@ -35,6 +35,9 @@ vi.mock("@/app/[locale]/(user)/watchlist/components/watchlist-header", () => ({
 }));
 vi.mock("@/app/[locale]/(user)/watchlist/components/watchlist-list", () => ({
   default: () => null,
+}));
+vi.mock("@/components/custom/common/login-required", () => ({
+  default: () => <p>login required</p>,
 }));
 vi.mock(
   "@/app/[locale]/(user)/watchlist/components/watchlist-suggestions",
@@ -65,5 +68,22 @@ describe("WatchlistClient section tabs", () => {
     expect(
       within(tabList).getByRole("tab", { name: /Prijedlozi.* 2$/ }),
     ).toHaveAttribute("aria-selected", "false");
+  });
+});
+
+describe("WatchlistClient offline", () => {
+  it("shows the saved watchlist for an account the session check could not confirm", () => {
+    data.canShowAccountData = true;
+    renderWithProviders(<WatchlistClient query="" />);
+
+    expect(screen.queryByText("login required")).not.toBeInTheDocument();
+  });
+
+  it("asks a signed-out visitor to log in", () => {
+    data.canShowAccountData = false;
+    renderWithProviders(<WatchlistClient query="" />);
+
+    expect(screen.getByText("login required")).toBeInTheDocument();
+    data.canShowAccountData = true;
   });
 });

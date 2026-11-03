@@ -27,7 +27,8 @@ export default function ShoppingListDetailClient({
   listId,
 }: IShoppingListDetailClientProps) {
   const t = useTranslations("shoppingListDetail");
-  const { isAuthenticated } = useUser();
+  // Offline the session check fails; the owner still gets the signed-in controls.
+  const { canShowAccountData: isSignedIn } = useUser();
 
   const {
     shoppingList,
@@ -59,7 +60,7 @@ export default function ShoppingListDetailClient({
       <ShoppingListUnavailable
         error={error}
         onRetry={() => void refetch()}
-        isSignedIn={isAuthenticated}
+        isSignedIn={isSignedIn}
       />
     );
   }
@@ -71,7 +72,7 @@ export default function ShoppingListDetailClient({
           that IDREF dangling for exactly the people who need the explanation. */}
       <ShoppingListAccessBanner
         myAccess={shoppingList.myAccess}
-        isSignedIn={isAuthenticated}
+        isSignedIn={isSignedIn}
       />
 
       <ShoppingListUpdateStatus
@@ -82,7 +83,7 @@ export default function ShoppingListDetailClient({
       <section>
         <ShoppingListHeader
           shoppingList={shoppingList}
-          isSignedIn={isAuthenticated}
+          isSignedIn={isSignedIn}
         />
 
         {listUpdatedAt > 0 && (

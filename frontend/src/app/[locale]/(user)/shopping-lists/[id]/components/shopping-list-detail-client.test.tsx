@@ -8,6 +8,8 @@ import type { ShoppingListDto } from "@/lib/api/types";
 import { renderWithProviders } from "@/test/render";
 import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
 
+const account = vi.hoisted(() => ({ canShowAccountData: false }));
+
 const data = vi.hoisted(() => ({
   error: null as Error | null,
   shoppingList: undefined as ShoppingListDto | undefined,
@@ -31,15 +33,24 @@ vi.mock(
 );
 
 vi.mock("@/context/user-context", () => ({
-  useUser: () => ({ isAuthenticated: false }),
+  useUser: () => ({ isAuthenticated: false, ...account }),
 }));
 
 // The sections have their own data needs; this file covers only which screen shows.
 vi.mock(
   "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-header",
   () => ({
-    default: ({ shoppingList }: { shoppingList: ShoppingListDto }) => (
-      <h1>{shoppingList.title}</h1>
+    default: ({
+      shoppingList,
+      isSignedIn,
+    }: {
+      shoppingList: ShoppingListDto;
+      isSignedIn: boolean;
+    }) => (
+      <>
+        <h1>{shoppingList.title}</h1>
+        {isSignedIn && <p>signed-in controls</p>}
+      </>
     ),
   }),
 );
@@ -112,6 +123,24 @@ function httpError(status: number) {
 describe("ShoppingListDetailClient", () => {
   afterEach(() => {
     window.history.replaceState(null, "", "/");
+    account.canShowAccountData = false;
+  });
+
+  it("keeps the signed-in controls offline for this device's account", () => {
+    account.canShowAccountData = true;
+    data.shoppingList = LIST;
+    data.error = null;
+    renderWithProviders(<ShoppingListDetailClient listId={LIST.id} />);
+
+    expect(screen.getByText("signed-in controls")).toBeInTheDocument();
+  });
+
+  it("keeps a signed-out link visitor signed out", () => {
+    data.shoppingList = LIST;
+    data.error = null;
+    renderWithProviders(<ShoppingListDetailClient listId={LIST.id} />);
+
+    expect(screen.queryByText("signed-in controls")).not.toBeInTheDocument();
   });
 
   it("does not call the list unavailable while the cache restores", () => {

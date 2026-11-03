@@ -20,9 +20,12 @@ import { useUser } from "@/context/user-context";
  */
 export default function ModalRouter() {
   const { target } = useModalUrl();
-  const { isAuthenticated, hasUnverifiedAccount, isLoading } = useUser();
+  const {
+    isAuthenticated,
+    canShowAccountData: canOpenSavedEntities,
+    isLoading,
+  } = useUser();
   // Offline, a saved card still has to open at the till instead of asking for a login.
-  const canOpenSavedEntities = isAuthenticated || hasUnverifiedAccount;
   const authGate = useAuthGate(
     target,
     isEntityTarget(target) ? canOpenSavedEntities : isAuthenticated,

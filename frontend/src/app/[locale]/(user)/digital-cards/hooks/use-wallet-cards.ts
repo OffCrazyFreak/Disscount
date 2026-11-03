@@ -7,7 +7,7 @@ import { digitalCardService } from "@/lib/api";
 export function useWalletCards() {
   const {
     isAuthenticated,
-    hasUnverifiedAccount,
+    canShowAccountData,
     isLoading: userLoading,
   } = useUser();
   const { data: cards = [], isLoading } =
@@ -20,7 +20,7 @@ export function useWalletCards() {
     cards,
     // Offline the session check fails, yet the cards saved on this device are exactly
     // what the till needs; a disabled query still returns them.
-    canShowCards: isAuthenticated || hasUnverifiedAccount,
+    canShowCards: canShowAccountData,
     isAuthLoading: userLoading,
     isLoading: userLoading || isLoading || isRestoring,
   };

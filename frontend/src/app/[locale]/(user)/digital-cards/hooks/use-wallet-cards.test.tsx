@@ -11,7 +11,7 @@ vi.mock("@tanstack/react-query", () => ({
 vi.mock("@/context/user-context", () => ({
   useUser: () => ({
     isAuthenticated: false,
-    hasUnverifiedAccount: true,
+    canShowAccountData: true,
     isLoading: false,
   }),
 }));
