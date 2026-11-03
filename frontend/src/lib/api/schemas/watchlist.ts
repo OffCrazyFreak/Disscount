@@ -18,9 +18,10 @@ const watchlistItemRequestSchema = z.object({
 export const watchlistItemDtoSchema = watchlistItemRequestSchema.extend({
   id: z.string(),
   userId: z.string(),
-  lastNotifiedAt: z.string().optional(),
+  // Spring always sends both keys; lastNotifiedAt is null until the first alert and updated_at is a nullable column.
+  lastNotifiedAt: z.string().nullable(),
   createdAt: z.string(),
-  updatedAt: z.string().optional(),
+  updatedAt: z.string().nullable(),
 });
 
 export type WatchlistItemRequest = z.infer<typeof watchlistItemRequestSchema>;
