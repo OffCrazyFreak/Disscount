@@ -297,11 +297,9 @@ describe("queued writes past the retention window", () => {
     );
     onlineManager.setOnline(false);
     const queryClient = replayClient();
-    const queued = queryClient
-      .getMutationCache()
-      .build(queryClient, {
-        mutationKey: OFFLINE_MUTATION_KEYS.digitalCardPin,
-      });
+    const queued = queryClient.getMutationCache().build(queryClient, {
+      mutationKey: OFFLINE_MUTATION_KEYS.digitalCardPin,
+    });
     void queued.execute({ id: CARD_ID, pinned: true });
     await flushUntil(() => queued.state.isPaused);
     vi.setSystemTime(Date.now() + EIGHT_DAYS_MS);
