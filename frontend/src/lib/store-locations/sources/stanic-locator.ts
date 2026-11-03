@@ -5,7 +5,10 @@ import { z } from "zod";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchJson } from "@/lib/store-locations/http";
 import { stanicCodeReader } from "@/lib/store-locations/sources/stanic-store-codes";
-import type { ILocatorStore, IStoreLocator } from "@/lib/store-locations/types";
+import type {
+  ILocatorStore,
+  IStoreLocator,
+} from "@/lib/store-locations/store-location-types";
 
 // WP Store Locator's search, centred on Croatia with a radius covering it all.
 const SEARCH_URL =

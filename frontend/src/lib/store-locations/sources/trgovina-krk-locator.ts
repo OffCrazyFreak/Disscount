@@ -4,7 +4,10 @@ import { z } from "zod";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchJson } from "@/lib/store-locations/http";
-import type { ILocatorStore, IStoreLocator } from "@/lib/store-locations/types";
+import type {
+  ILocatorStore,
+  IStoreLocator,
+} from "@/lib/store-locations/store-location-types";
 
 // The site runs the Agile Store Locator WordPress plugin, whose public AJAX
 // action returns every premises, petrol stations and workshops included.

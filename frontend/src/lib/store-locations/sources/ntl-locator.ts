@@ -5,7 +5,10 @@ import { z } from "zod";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchText } from "@/lib/store-locations/http";
 import { readPlacedAddress } from "@/lib/store-locations/sync/address-place";
-import type { ILocatorStore, IStoreLocator } from "@/lib/store-locations/types";
+import type {
+  ILocatorStore,
+  IStoreLocator,
+} from "@/lib/store-locations/store-location-types";
 
 const PAGE_URL = "https://ntl.hr/prodajna-mjesta";
 

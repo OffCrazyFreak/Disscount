@@ -8,7 +8,7 @@ import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 import type {
   ILocatorStore,
   IResolvedLocation,
-} from "@/lib/store-locations/types";
+} from "@/lib/store-locations/store-location-types";
 
 type Point = { lat: number; lon: number };
 

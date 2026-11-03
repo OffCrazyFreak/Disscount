@@ -9,7 +9,7 @@ import {
   PIN_OVERRIDES,
   usableOverride,
 } from "@/lib/store-locations/pin-overrides";
-import type { ILookupAddress } from "@/lib/store-locations/types";
+import type { ILookupAddress } from "@/lib/store-locations/store-location-types";
 import { storeKey } from "@/lib/store-locations/upstream-stores";
 
 /** A store the sync still has to place. */
