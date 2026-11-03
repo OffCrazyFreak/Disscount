@@ -2,7 +2,7 @@
 
 A reference for the settings modal ("Postavke"): its four tabs, how one form saves to three backends, what each tab stores, and the account actions on Sigurnost (sessions, deleting the account). Written for someone still learning the codebase.
 
-> **Mental model in one sentence:** Postavke is a URL modal (`?modal=settings&tab=...`) backed by one react-hook-form instance that stays mounted for the whole signed-in session; Profil, Obavijesti and Preference share that form and save in up to three parallel requests, while Sigurnost runs its own immediate actions through better-auth.
+> **Mental model in one sentence:** Postavke is a URL modal (`?modal=settings/<tab>`) backed by one react-hook-form instance that stays mounted for the whole signed-in session; Profil, Obavijesti and Preference share that form and save in up to three parallel requests, while Sigurnost runs its own immediate actions through better-auth.
 
 Most of the security machinery already has a home in [AUTH.md](AUTH.md): re-authentication, active sign-ins and security emails in [section 8.4](AUTH.md#84-re-authentication-active-sign-ins-and-security-emails), mandatory onboarding in [section 8.2](AUTH.md#82-mandatory-onboarding-after-sign-in), and the account deletion flow in [section 13](AUTH.md#13-gotchas-and-lessons). This doc covers the settings surface and links there for the details.
 
@@ -31,7 +31,7 @@ Most of the security machinery already has a home in [AUTH.md](AUTH.md): re-auth
 
 | Thing            | Value                                                                                                                                                                                                       |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| URL              | `?modal=settings&tab=profil\|obavijesti\|preference\|sigurnost` (tab ids are Croatian in every locale)                                                                                                      |
+| URL              | `?modal=settings/profil\|obavijesti\|preference\|sigurnost` (tab ids are Croatian in every locale; a missing or unknown tab opens `profil`)                                                                 |
 | Opened from      | The user menu (`openModalUrl({ name: "settings", tab })`), a long press on a bottom nav item (Preference, see [MOBILE-NAV.md](MOBILE-NAV.md)), and the "notify me" button on coming-soon pages (Obavijesti) |
 | Host             | `SettingsModalHost`, mounted for signed-in users, also hosts the onboarding wizard                                                                                                                          |
 | Profile API      | `GET` and `PATCH /api/users/me` (Spring)                                                                                                                                                                    |
@@ -254,7 +254,7 @@ The save job building and recovery (`settings-save-jobs.ts`, `settings-save-reco
 | **Merge, never replace, the user after a profile save**           | The PATCH response has no pins, and the pin jobs run in parallel                                                                                                                                                       | Keep `mergeUser` in `use-settings-save-runners.ts`               |
 | **Onboarding must PATCH once**                                    | A second user PATCH could land after the pin jobs and undo them                                                                                                                                                        | Keep the outcome in the same patch                               |
 | **The server refuses to un-finish onboarding**                    | A late `skipped:<step>` ping could otherwise lock a user back into the required flow                                                                                                                                   | `UserService.updateProfile` ignores a downgrade from `completed` |
-| **Tab ids are Croatian everywhere**                               | `?tab=security` does not exist                                                                                                                                                                                         | Use `profil`, `obavijesti`, `preference`, `sigurnost`            |
+| **Tab ids are Croatian everywhere**                               | `?modal=settings/security` opens Profil, not Sigurnost                                                                                                                                                                 | Use `profil`, `obavijesti`, `preference`, `sigurnost`            |
 | **Pinned stores are chain codes**                                 | Loading names and saving codes once made every save look dirty                                                                                                                                                         | `useSettingsDefaults` maps to `storeApiId`                       |
 
 ---
