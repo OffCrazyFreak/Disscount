@@ -12,6 +12,7 @@ import disscount.storeName.service.StoreNameService;
 import disscount.storeName.service.StoreNameUpsert;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
+import disscount.util.Timestamps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -196,6 +197,31 @@ class PhotoCleanupServiceTest {
 
         assertThat(queue.findAll()).isEmpty();
         assertThat(store.objects).isEmpty();
+    }
+
+    @Test
+    void nothingIsQueuedForPhotosThatWereNeverStored() {
+        store.enabled = false;
+        UUID purgedCardId = UUID.randomUUID();
+        cardService.upsert(owner.getId(), purgedCardId, request("Druga"));
+
+        cardService.delete(owner.getId(), cardId);
+        cardService.delete(owner.getId(), purgedCardId);
+        cardService.purgeDeletedBefore(Timestamps.nowUtc().plusDays(1));
+        cardService.deleteAllForUser(owner.getId());
+
+        assertThat(queue.findAll()).isEmpty();
+    }
+
+    @Test
+    void accountDeletionStillQueuesPhotosStoredBeforeStorageWasSwitchedOff() {
+        upload("icon");
+        store.enabled = false;
+
+        cardService.deleteAllForUser(owner.getId());
+
+        assertThat(queue.findAll()).extracting(PhotoCleanup::getKeyOrPrefix)
+                .containsExactly("cards/" + owner.getId() + "/");
     }
 
     private void upload(String slot) {

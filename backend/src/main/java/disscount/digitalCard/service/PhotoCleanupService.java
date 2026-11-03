@@ -27,7 +27,10 @@ public class PhotoCleanupService {
     private final DigitalCardPhotoRepository photoRepository;
     private final PhotoStore photoStore;
 
-    /** Joins the caller's transaction, so the queue row commits or rolls back with the row delete. */
+    /**
+     * Joins the caller's transaction, so the queue row commits or rolls back with the row delete.
+     * Call it before deleting the photo rows under the key, so a store that is off can still see them.
+     */
     public void enqueueKey(String key) {
         enqueue(key, false);
     }
@@ -49,6 +52,10 @@ public class PhotoCleanupService {
     }
 
     private void enqueue(String keyOrPrefix, boolean prefix) {
+        // With storage off nothing new is stored, so an object can only predate the switch; each one
+        // still has a photo row or a cleanup row already queued, and anything else would wait forever.
+        if (!photoStore.enabled() && !photoRepository.anyKeyStartsWith(keyOrPrefix)) return;
+
         PhotoCleanup row = repository.save(PhotoCleanup.builder().keyOrPrefix(keyOrPrefix).prefix(prefix).build());
         AfterCommit.run(() -> attempt(row));
     }
