@@ -1,4 +1,7 @@
-import { getCacheIdentity } from "@/lib/offline/cache-identity";
+import {
+  ANONYMOUS_IDENTITY,
+  getCacheIdentity,
+} from "@/lib/offline/cache-identity";
 import { getAppStorage, setAppStorage } from "@/utils/browser/storage/core";
 import type { IFormDraft } from "@/typings/local-storage";
 
@@ -103,5 +106,26 @@ export function removeFormDraftsFor(identity: string) {
   if (Object.keys(kept).length === Object.keys(drafts).length) return;
 
   setAppStorage({ formDrafts: kept });
+  notify();
+}
+
+/**
+ * A first sign-in takes over what was typed signed out, the guest mode's "imports on
+ * login". Re-tagged rather than shared, so a later switch purges them with this account.
+ */
+export function adoptGuestFormDrafts(identity: string) {
+  const drafts = getAppStorage().formDrafts ?? {};
+  if (!Object.values(drafts).some(({ owner }) => owner === ANONYMOUS_IDENTITY))
+    return;
+
+  const adopted = Object.fromEntries(
+    Object.entries(drafts).map(([key, draft]) => [
+      key,
+      draft.owner === ANONYMOUS_IDENTITY
+        ? { ...draft, owner: identity }
+        : draft,
+    ]),
+  );
+  setAppStorage({ formDrafts: adopted });
   notify();
 }
