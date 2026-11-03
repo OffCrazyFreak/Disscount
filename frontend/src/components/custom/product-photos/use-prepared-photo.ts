@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 
-import { CardImageError } from "@/utils/browser/card-image";
+import { ImageProcessingError } from "@/utils/browser/image";
 import { prepareProductPhoto } from "@/utils/browser/product-photo";
 
 type PrepareState =
   | { status: "idle" }
   | { status: "preparing" }
   | { status: "ready"; blob: Blob; previewUrl: string }
-  | { status: "error"; code: CardImageError["code"] };
+  | { status: "error"; code: ImageProcessingError["code"] };
 
 /** Turns a picked file into the JPEG we upload, with a preview URL that is revoked when replaced. */
 export function usePreparedPhoto() {
@@ -31,7 +31,8 @@ export function usePreparedPhoto() {
     } catch (error) {
       setState({
         status: "error",
-        code: error instanceof CardImageError ? error.code : "cannotProcess",
+        code:
+          error instanceof ImageProcessingError ? error.code : "cannotProcess",
       });
     }
   }

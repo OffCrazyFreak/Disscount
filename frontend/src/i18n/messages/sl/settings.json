@@ -18,7 +18,7 @@
     "avatar": {
       "change": "Spremeni sliko",
       "remove": "Odstrani sliko",
-      "formats": "PNG, JPG, WebP ali GIF (shrani se kot WebP).",
+      "formats": "PNG, JPG, WebP ali GIF.",
       "tooLarge": "Slika je prevelika, največ 15 MB.",
       "loadFailed": "Slike ni mogoče naložiti, poskusi z JPG ali PNG."
     },

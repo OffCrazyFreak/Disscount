@@ -17,8 +17,8 @@ public class UserRequest {
     private Boolean feedbackContact;
     private AcquisitionChannel acquisitionChannel;
 
-    // Base64 data URI; the client downscales avatars to a 256px WebP (~15-30 KB
-    // encoded), so this is a generous abuse backstop rather than the real limit.
+    // Base64 data URI; the client crops avatars to a 256px WebP or JPEG (~15-30 KB
+    // encoded), so this is a generous abuse backstop and AvatarSanitizer checks the bytes.
     @Size(max = 400_000, message = "{validation.image.tooLarge}")
     private String image;
 

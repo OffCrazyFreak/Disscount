@@ -18,7 +18,7 @@
     "avatar": {
       "change": "Cambia foto",
       "remove": "Rimuovi foto",
-      "formats": "PNG, JPG, WebP o GIF (viene salvata come WebP).",
+      "formats": "PNG, JPG, WebP o GIF.",
       "tooLarge": "L'immagine è troppo grande, massimo 15 MB.",
       "loadFailed": "Non riusciamo a caricare l'immagine, prova con un JPG o un PNG."
     },

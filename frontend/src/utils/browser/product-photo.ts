@@ -1,12 +1,11 @@
 import {
-  CardImageError,
   decode,
+  encodeJpeg,
   firstWithinLimit,
-  paintWhiteBehind,
+  ImageProcessingError,
   scaled,
-  toBlob,
   type IEncodeAttempt,
-} from "@/utils/browser/card-image";
+} from "@/utils/browser/image";
 
 // The server keeps at most 2048 px a side and 512 KB; this leaves headroom for multipart framing.
 const MAX_BYTES = 480 * 1024;
@@ -26,20 +25,11 @@ export async function prepareProductPhoto(file: File): Promise<Blob> {
   try {
     const photo = await firstWithinLimit(
       ATTEMPTS,
-      async ({ longEdge, quality }) => {
-        const canvas = scaled(bitmap, longEdge);
-        paintWhiteBehind(canvas);
-        const blob = await toBlob(
-          canvas,
-          "image/jpeg",
-          quality ?? JPEG_QUALITY,
-        );
-        if (!blob) throw new CardImageError("cannotSave");
-        return blob;
-      },
+      ({ longEdge, quality }) =>
+        encodeJpeg(scaled(bitmap, longEdge), quality ?? JPEG_QUALITY),
       MAX_BYTES,
     );
-    if (!photo) throw new CardImageError("tooLarge");
+    if (!photo) throw new ImageProcessingError("tooLarge");
     return photo;
   } finally {
     bitmap.close();
