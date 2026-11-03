@@ -1,4 +1,8 @@
-import { LOGIN_METHODS, LoginMethod } from "@/typings/local-storage";
+import {
+  IPendingSignOut,
+  LOGIN_METHODS,
+  LoginMethod,
+} from "@/typings/local-storage";
 import { getAppStorage, setAppStorage } from "@/utils/browser/storage/core";
 
 /**
@@ -15,4 +19,13 @@ export function getLastLoginMethod(): LoginMethod | null {
  */
 export function setLastLoginMethod(method: LoginMethod) {
   setAppStorage({ lastLoginMethod: method });
+}
+
+/** A sign-out made offline, whose server session still has to be ended. */
+export function getPendingSignOut(): IPendingSignOut | null {
+  return getAppStorage().pendingSignOut ?? null;
+}
+
+export function setPendingSignOut(pending: IPendingSignOut | null) {
+  setAppStorage({ pendingSignOut: pending });
 }
