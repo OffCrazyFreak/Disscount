@@ -1,7 +1,9 @@
 {
   "meta": {
     "title": "Podrobnosti izdelka",
-    "description": "Primerjava cen izdelka."
+    "description": "Primerjava cen izdelka.",
+    "productTitle": "{name}: primerjaj cene",
+    "productDescription": "Primerjaj cene za {name} v {chains, plural, one {# trgovski verigi} two {# trgovskih verigah} few {# trgovskih verigah} other {# trgovskih verigah}}. Najnižja cena: {price}."
   },
   "notFound": {
     "title": "Izdelek ni najden",

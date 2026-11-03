@@ -1,4 +1,4 @@
-import { act, waitFor } from "@testing-library/react";
+import { act, cleanup, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -23,18 +23,24 @@ const konzum = {
   locationSource: "upstream",
 };
 
+vi.mock("@/context/user-context", () => ({ useUser: () => ({ user: null }) }));
+
 // The browser APIs are a boundary the suite cannot run: each test decides
-// what the permission query answers, and the position request never answers.
+// what the permission query answers, and the position watch never answers.
 function fakeBrowser(permissions?: Permissions) {
-  const getCurrentPosition = vi.fn();
+  const watchPosition = vi.fn(() => 1);
 
   vi.stubGlobal("navigator", {
     ...navigator,
-    geolocation: { getCurrentPosition },
+    geolocation: {
+      watchPosition,
+      clearWatch: vi.fn(),
+      getCurrentPosition: vi.fn(),
+    },
     permissions,
   });
 
-  return getCurrentPosition;
+  return watchPosition;
 }
 
 function answering(query: () => Promise<{ state: PermissionState }>) {
@@ -60,7 +66,11 @@ describe("useStoreOptimizeMode", () => {
     );
   });
 
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    // Unmount first: the hook clears its watch on the stubbed navigator.
+    cleanup();
+    vi.unstubAllGlobals();
+  });
 
   it("restores distance when location is already granted", async () => {
     setStoreOptimizeMode("distance");
@@ -116,10 +126,10 @@ describe("useStoreOptimizeMode", () => {
     act(() => result.current.choose("distance"));
     expect(getStoreOptimizeMode()).toBe("basket");
 
-    const [[success]] = locate.mock.calls as [[PositionCallback]];
+    const [[success]] = locate.mock.calls as unknown as [[PositionCallback]];
     act(() =>
       success({
-        coords: { latitude: 45.8, longitude: 16 },
+        coords: { latitude: 45.8, longitude: 16, accuracy: 20 },
       } as GeolocationPosition),
     );
 
@@ -134,7 +144,7 @@ describe("useStoreOptimizeMode", () => {
     const { result } = await mount();
 
     act(() => result.current.choose("distance"));
-    const [[, failure]] = locate.mock.calls as [
+    const [[, failure]] = locate.mock.calls as unknown as [
       [PositionCallback, PositionErrorCallback],
     ];
     act(() =>
@@ -145,7 +155,7 @@ describe("useStoreOptimizeMode", () => {
       } as GeolocationPositionError),
     );
 
-    expect(result.current.state).toBe("denied");
+    await waitFor(() => expect(result.current.state).toBe("denied"));
     expect(getStoreOptimizeMode()).toBe("basket");
   });
 
@@ -156,7 +166,7 @@ describe("useStoreOptimizeMode", () => {
     );
     await mount();
 
-    const [[, failure]] = locate.mock.calls as [
+    const [[, failure]] = locate.mock.calls as unknown as [
       [PositionCallback, PositionErrorCallback],
     ];
     act(() =>
@@ -167,7 +177,7 @@ describe("useStoreOptimizeMode", () => {
       } as GeolocationPositionError),
     );
 
-    expect(getStoreOptimizeMode()).toBe("products");
+    await waitFor(() => expect(getStoreOptimizeMode()).toBe("products"));
   });
 
   it("lets a pick made during the permission check win", async () => {

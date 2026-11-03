@@ -167,10 +167,18 @@
   "distanceSort": {
     "locating": "Iščemo tvojo lokacijo za razvrstitev po razdalji…",
     "ready": "Razvrščeno po razdalji od tvoje lokacije. Lokacije ne shranjujemo in je ne pošiljamo.",
+    "readyFromTown": "Razvrščeno od kraja {town}.",
+    "readyFromSavedPlace": "Brez lokacije: razvrščeno od kraja {town}.",
     "denied": "Nimamo dostopa do lokacije, zato ostane privzeti vrstni red. Dovoli ga v nastavitvah brskalnika in znova izberi razdaljo.",
     "unavailable": "Tvoja lokacija trenutno ni na voljo, zato ostane privzeti vrstni red. Znova izberi razdaljo za nov poskus.",
     "timeout": "Tvoje lokacije ne moremo najti, zato ostane privzeti vrstni red. Preveri, ali je na napravi vklopljena, in znova izberi razdaljo.",
     "noStores": "Lokacije trgovin trenutno niso na voljo, zato ostane privzeti vrstni red.",
-    "nearest": "Najbližja trgovina: {distance}"
+    "nearest": "Najbližja trgovina: {distance}",
+    "pickTown": "Izberi kraj",
+    "changeTown": "Zamenjaj",
+    "changeTownLabel": "Zamenjaj kraj",
+    "townSearch": "Išči kraj ali poštno številko",
+    "townList": "Kraji s trgovinami",
+    "townEmpty": "Noben kraj s trgovinami se ne ujema."
   }
 }

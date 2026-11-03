@@ -18,7 +18,9 @@ import {
   dispatchVerificationEmail,
   hasLinkedSocialAccount,
   logEmailFailure,
+  claimUnverifiedAccountOnReset,
 } from "@/lib/auth/callbacks";
+import { notifyExistingAccount } from "@/lib/auth/existing-account-notice";
 import {
   FACEBOOK_COMING_SOON,
   RESET_TOKEN_TTL_SECONDS,
@@ -96,6 +98,15 @@ export const auth = betterAuth({
     requireEmailVerification: true,
     resetPasswordTokenExpiresIn: RESET_TOKEN_TTL_SECONDS,
     revokeSessionsOnPasswordReset: true,
+    onPasswordReset: async ({ user }) => {
+      await claimUnverifiedAccountOnReset(user);
+    },
+    // Fire-and-forget like the sends below, so a registered address answers no slower.
+    onExistingUserSignUp: async ({ user }) => {
+      void notifyExistingAccount(user).catch(
+        logEmailFailure("existing-account notice"),
+      );
+    },
     sendResetPassword: async ({ user, url, token }) => {
       // Fire-and-forget, so response time is no email-enumeration oracle.
       void dispatchResetPasswordEmail(
@@ -110,6 +121,8 @@ export const auth = betterAuth({
 
   emailVerification: {
     sendOnSignUp: true,
+    // Sent only after a correct password; the one-live-link rule keeps retries from mailing again.
+    sendOnSignIn: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url, token }) => {
       void dispatchVerificationEmail(

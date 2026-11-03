@@ -1,7 +1,9 @@
 {
   "meta": {
     "title": "Product details",
-    "description": "Compare product prices."
+    "description": "Compare product prices.",
+    "productTitle": "{name}: compare prices",
+    "productDescription": "Compare prices for {name} across {chains, plural, one {# supermarket chain} other {# supermarket chains}}. Lowest price: {price}."
   },
   "notFound": {
     "title": "Product not found",

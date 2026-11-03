@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   ListChainsResponse,
   ListStoresResponse,
@@ -77,10 +77,15 @@ export function useGetProductByEan(params: GetProductParams) {
 }
 
 export function useGetProductByName(params: SearchProductsParams) {
+  const searchParams = { ...params, q: params.q.trim() };
+  const hasQuery = searchParams.q.length > 0;
+
   return useQuery<ProductSearchResponse, Error>({
-    queryKey: ["cijene", "products", "search", JSON.stringify(params)],
-    queryFn: () => getProductByName(params),
-    enabled: Boolean(params.q),
+    queryKey: ["cijene", "products", "search", JSON.stringify(searchParams)],
+    queryFn: () => getProductByName(searchParams),
+    enabled: hasQuery,
+    // Old results stay on screen while the next search loads; none show while the search is cleared.
+    placeholderData: hasQuery ? keepPreviousData : undefined,
     staleTime: 6 * 60 * 60 * 1000, // 6 hours
   });
 }

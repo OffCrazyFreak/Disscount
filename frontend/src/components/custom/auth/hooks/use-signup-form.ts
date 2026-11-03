@@ -31,7 +31,7 @@ export function useSignupForm() {
     form.clearErrors("root");
 
     try {
-      // Identical response for new and existing accounts (verification vs reset link), so no enumeration.
+      // Identical response for new and existing accounts (the owner gets the mail), so no enumeration.
       const response = await fetch("/api/account/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

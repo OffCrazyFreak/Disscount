@@ -167,10 +167,18 @@
   "distanceSort": {
     "locating": "Wir suchen deinen Standort, um nach Entfernung zu sortieren…",
     "ready": "Nach Entfernung von deinem Standort sortiert. Wir speichern und senden ihn nicht.",
+    "readyFromTown": "Sortiert von {town} aus.",
+    "readyFromSavedPlace": "Ohne Standort: sortiert von {town} aus.",
     "denied": "Wir haben keinen Standortzugriff, daher bleibt die Standardreihenfolge. Erlaube ihn in deinen Browsereinstellungen und wähle die Entfernung erneut.",
     "unavailable": "Dein Standort ist gerade nicht verfügbar, daher bleibt die Standardreihenfolge. Wähle die Entfernung erneut, um es nochmal zu versuchen.",
     "timeout": "Wir finden deinen Standort nicht, daher bleibt die Standardreihenfolge. Prüfe, ob die Ortung auf deinem Gerät an ist, und wähle die Entfernung erneut.",
     "noStores": "Die Standorte der Märkte sind gerade nicht verfügbar, daher bleibt die Standardreihenfolge.",
-    "nearest": "Nächster Markt: {distance}"
+    "nearest": "Nächster Markt: {distance}",
+    "pickTown": "Ort wählen",
+    "changeTown": "Ändern",
+    "changeTownLabel": "Ort ändern",
+    "townSearch": "Ort oder Postleitzahl suchen",
+    "townList": "Orte mit Geschäften",
+    "townEmpty": "Kein Ort mit Geschäften passt dazu."
   }
 }

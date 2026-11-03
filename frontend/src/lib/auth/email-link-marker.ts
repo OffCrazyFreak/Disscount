@@ -106,3 +106,16 @@ export async function claimVerificationEmail(userId: string, token: string) {
     async (_tx, markedValue) => markedValue === value,
   );
 }
+
+const SIGN_UP_NOTICE_INTERVAL_SECONDS = 60 * 60;
+
+// Nobody asked for the mail a sign-up with a registered address triggers, so any unexpired
+// marker blocks the next one: at most one such mail per user per hour.
+export function claimSignUpNotice(userId: string, noticeId: string) {
+  return claimMarker(
+    `sign-up-notice:${userId}`,
+    noticeId,
+    new Date(Date.now() + SIGN_UP_NOTICE_INTERVAL_SECONDS * 1000),
+    async () => true,
+  );
+}

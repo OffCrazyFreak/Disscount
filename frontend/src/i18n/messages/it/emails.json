@@ -42,5 +42,21 @@
     "intro": "Qualcuno ha appena provato ad accedere al tuo account Disscount con la password corretta. Abbiamo trovato quella password in una violazione di dati nota di un altro sito, quindi non abbiamo consentito l'accesso. Imposta una nuova password con il pulsante qui sotto. Appena lo fai, ti disconnetteremo da tutti i dispositivi. Il link vale {minutes, plural, one {# minuto} other {# minuti}}.",
     "button": "Imposta una nuova password",
     "footnote": "Se il tentativo non è tuo, imposta comunque una nuova password. Se usi questa password anche altrove, cambiala anche lì."
+  },
+  "accountExists": {
+    "subject": "Hai già un account Disscount",
+    "preview": "Qualcuno ha provato a registrarsi con il tuo indirizzo email.",
+    "heading": "Hai già un account con questo indirizzo",
+    "intro": "Qualcuno ha appena provato a registrarsi su Disscount con questo indirizzo email, ma esiste già un account. Se il tentativo era tuo, accedi e basta. Non ricordi la password? Nella finestra di accesso scegli \"Password dimenticata\".",
+    "button": "Accedi",
+    "footnote": "Non è opera tua? Ignora questa email, il tuo account resta com'è."
+  },
+  "completeSignUp": {
+    "subject": "Completa la registrazione a Disscount",
+    "preview": "Imposta una password per completare la registrazione. Il link scade tra {minutes, plural, one {# minuto} other {# minuti}}.",
+    "heading": "Completa la registrazione",
+    "intro": "Qualcuno ha appena provato a registrarsi su Disscount con questo indirizzo email. Esiste già un account, ma l'indirizzo non è ancora confermato. Se l'account è tuo, imposta una password con il pulsante qui sotto per confermare l'indirizzo. Il link scade tra {minutes, plural, one {# minuto} other {# minuti}}.",
+    "button": "Imposta password",
+    "footnote": "Non è opera tua? Ignora questa email. Finché l'indirizzo non è confermato, nessuno può accedere a questo account con una password."
   }
 }

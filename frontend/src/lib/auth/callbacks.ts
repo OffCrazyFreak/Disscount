@@ -1,8 +1,10 @@
+import * as Sentry from "@sentry/nextjs";
 import { and, eq, ne } from "drizzle-orm";
 
 import { db } from "@/db";
-import { account } from "@/db/auth-schema";
+import { account, user } from "@/db/auth-schema";
 import type { AppLocale } from "@/i18n/locales";
+import { localePath } from "@/i18n/locale-path";
 import { emailService } from "@/lib/email";
 import {
   claimResetEmail,
@@ -64,11 +66,64 @@ export async function dispatchVerificationEmail(
   if (!release) return;
 
   try {
-    await emailService.sendVerificationEmail({ to: email, locale, url, token });
+    await emailService.sendVerificationEmail({
+      to: email,
+      locale,
+      url: withEmailVerifiedLanding(url, locale),
+      token,
+    });
   } catch (error) {
     // The send error is the one worth logging, not a failed release.
     await release().catch(() => {});
     throw error;
+  }
+}
+
+// Links sent on sign-in carry better-auth's default "/" callback, because a callbackURL on
+// signIn.email would also redirect every successful sign-in; land them like the sign-up link.
+function withEmailVerifiedLanding(url: string, locale: AppLocale) {
+  const link = new URL(url);
+  if (link.searchParams.get("callbackURL") !== "/") return url;
+
+  link.searchParams.set(
+    "callbackURL",
+    localePath(locale, "/?modal=email-verified"),
+  );
+  return link.toString();
+}
+
+// A completed reset proves the inbox, so it verifies the address and drops every social
+// link, which on an unverified account may be a squatter's. Never throws: better-auth
+// revokes the sessions only after this callback returns.
+export async function claimUnverifiedAccountOnReset(resetUser: {
+  id: string;
+  emailVerified: boolean;
+}) {
+  if (resetUser.emailVerified) return;
+
+  try {
+    // One transaction, so the address is never verified with a squatter's link still on it.
+    await db.transaction(async (tx) => {
+      await tx
+        .delete(account)
+        .where(
+          and(
+            eq(account.userId, resetUser.id),
+            ne(account.providerId, "credential"),
+          ),
+        );
+      await tx
+        .update(user)
+        .set({ emailVerified: true })
+        .where(eq(user.id, resetUser.id));
+    });
+  } catch (error) {
+    const reason = error instanceof Error ? error.name : typeof error;
+    console.error("Failed to claim the account after reset:", reason);
+    Sentry.captureMessage(
+      `Account claim after reset failed: ${reason}`,
+      "error",
+    );
   }
 }
 

@@ -162,7 +162,8 @@ public class SecurityConfig {
                 // so an ordinary session token cannot erase the profile and keep its login.
                 .requestMatchers(HttpMethod.DELETE, "/api/users/me").access(SecurityConfig::isAccountErasureToken)
                 // Product photos are public like the prices; uploads and reports still need a login.
-                .requestMatchers(HttpMethod.GET, "/api/products/*/images", "/api/products/images/thumbnails").access(SecurityConfig::isNotPurposeScoped)
+                .requestMatchers(HttpMethod.GET, "/api/products/*/images", "/api/products/images/thumbnails",
+                        "/api/products/catalog/eans").access(SecurityConfig::isNotPurposeScoped)
                 .requestMatchers(
                     "/actuator/health",
                     "/v3/api-docs/**",

@@ -71,6 +71,9 @@ export function useProductDetail(ean: string) {
     sortBy: distance.chosen,
     setSortBy: distance.choose,
     distanceState: distance.state,
-    distanceByChain,
+    distanceOrigin: distance.origin,
+    distanceTowns: distance.towns,
+    sortFromTown: distance.chooseTown,
+    shownDistances: distance.shownDistances,
   };
 }

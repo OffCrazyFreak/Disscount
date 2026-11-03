@@ -10,6 +10,8 @@ import PasswordResetEmail from "@/emails/_templates/password-reset-email";
 import SetPasswordEmail from "@/emails/_templates/set-password-email";
 import ChangeEmailConfirmation from "@/emails/_templates/change-email-confirmation";
 import BreachedPasswordEmail from "@/emails/_templates/breached-password-email";
+import AccountExistsEmail from "@/emails/_templates/account-exists-email";
+import CompleteSignUpEmail from "@/emails/_templates/complete-sign-up-email";
 
 interface ITokenEmailArgs {
   to: string;
@@ -112,6 +114,38 @@ export class EmailService {
       subject,
       react: BreachedPasswordEmail(props),
       idempotencyKey: `breached-password/${token}`,
+    });
+  }
+
+  // Sent to a verified owner when someone signs up with their address; links to sign-in.
+  async sendAccountExists({ to, locale, url, token }: ITokenEmailArgs) {
+    const { subject, props } = await buildActionEmail(
+      locale,
+      "accountExists",
+      url,
+    );
+
+    return this.send({
+      to,
+      subject,
+      react: AccountExistsEmail(props),
+      idempotencyKey: `account-exists/${token}`,
+    });
+  }
+
+  // Sent to an unverified owner on a repeat sign-up: a reset token worded as finishing sign-up.
+  async sendCompleteSignUp({ to, locale, url, token }: ITokenEmailArgs) {
+    const { subject, props } = await buildActionEmail(
+      locale,
+      "completeSignUp",
+      url,
+    );
+
+    return this.send({
+      to,
+      subject,
+      react: CompleteSignUpEmail(props),
+      idempotencyKey: `complete-sign-up/${token}`,
     });
   }
 

@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import ProductsResults from "@/app/[locale]/products/components/products-results";
 import { renderWithProviders } from "@/test/render";
@@ -19,6 +19,7 @@ function renderEmptyResults(
     <ProductsResults
       query={query}
       isPending={false}
+      isRefreshing={false}
       hasError={false}
       total={0}
       activeFilterCount={activeFilterCount}
@@ -72,6 +73,38 @@ describe("ProductsResults with no price in the selected places", () => {
         name: "Prikaži cijene u cijeloj Hrvatskoj",
       }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe("ProductsResults while the next search loads", () => {
+  beforeAll(() => {
+    // jsdom has no matchMedia; the grid asks it for the mobile breakpoint.
+    window.matchMedia ??= vi.fn().mockReturnValue({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    });
+  });
+
+  it("marks the previous results as busy", () => {
+    const { container } = renderWithProviders(
+      <ProductsResults
+        query="šećer"
+        isPending={false}
+        isRefreshing={true}
+        hasError={false}
+        total={1}
+        activeFilterCount={0}
+        clearFilters={vi.fn()}
+        selectedLocations={[]}
+        hasMatchesOutsideLocations={false}
+        showAllLocations={vi.fn()}
+        visibleItems={[]}
+        viewMode="grid"
+      />,
+    );
+
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
   });
 });
 

@@ -66,5 +66,10 @@ export function useStoreOptimizeMode() {
     if (mode !== "distance") setStoreOptimizeMode(mode);
   }
 
-  return { ...distance, choose };
+  function chooseTown(town: string) {
+    picked.current = true;
+    distance.chooseTown(town);
+  }
+
+  return { ...distance, choose, chooseTown };
 }
