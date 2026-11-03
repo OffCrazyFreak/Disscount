@@ -1,4 +1,7 @@
 import { useCallback, useRef, useState } from "react";
+import * as Sentry from "@sentry/nextjs";
+import { ZodError } from "zod";
+
 import { UserDto } from "@/lib/api/types";
 import { loadUserProfile } from "@/context/load-user-profile";
 import {
@@ -31,6 +34,8 @@ export function useProfileLoader() {
 
       console.error("Failed to fetch user profile:", error);
       setUser(null);
+      // This load is no React Query query, so the query cache's report never sees a drift.
+      if (error instanceof ZodError) Sentry.captureException(error);
       // Spring erased this account but the login survived a failed deletion; ending the session
       // lets the session effect clear the tab like any sign-out.
       const erasedUserId = erasedAccountId(error);

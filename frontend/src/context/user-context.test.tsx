@@ -10,6 +10,7 @@ import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { actingAs, serverSession } from "@/test/backend-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
+import { storedUser } from "@/test/stored-user";
 
 const { session } = vi.hoisted(() => ({
   session: {
@@ -63,6 +64,7 @@ function recordProfileRequests() {
       const account = actingAs(request);
       accounts.push(account);
       return HttpResponse.json({
+        ...storedUser,
         id: account,
         pinnedStores: [],
         pinnedPlaces: [],
