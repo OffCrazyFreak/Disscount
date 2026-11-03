@@ -1,8 +1,9 @@
 import { ImageResponse } from "next/og";
+import sharp from "sharp";
+import { PRODUCT_CARD_CONTENT_TYPE } from "@/app/og/product-share-image";
 import {
   BRAND,
   Cart,
-  contentType,
   loadFonts,
   OG_BACKGROUND,
   size,
@@ -12,6 +13,9 @@ import {
 const PHOTO_TIMEOUT_MS = 3_000;
 const TILE_SIDE = 490;
 const YEAR_IN_SECONDS = 31_536_000;
+// 4:4:4 because the default 4:2:0 visibly washes out the saturated green wordmark. No mozjpeg:
+// it forces progressive encoding, and baseline is the safe bet for link preview crawlers.
+const JPEG_OPTIONS = { quality: 85, chromaSubsampling: "4:4:4" } as const;
 
 // Fetched here, not by Satori, so a slow or failing bucket hits our timeout and our error path.
 async function photoDataUri(photoUrl: string): Promise<string> {
@@ -101,11 +105,14 @@ export default async function renderProductOg(photoUrl: string) {
 
   // ImageResponse renders lazily inside its stream, so without this a failed render would
   // be a 200 that Cloudflare caches for a year, and the caller's fallback would never run.
-  const png = await card.arrayBuffer();
+  const png = Buffer.from(await card.arrayBuffer());
 
-  return new Response(png, {
+  // next/og only writes PNG, which reached 563 KB against WhatsApp's 600 KB preview limit.
+  const jpeg = await sharp(png).jpeg(JPEG_OPTIONS).toBuffer();
+
+  return new Response(new Uint8Array(jpeg), {
     headers: {
-      "Content-Type": contentType,
+      "Content-Type": PRODUCT_CARD_CONTENT_TYPE,
       "Cache-Control": `public, max-age=${YEAR_IN_SECONDS}, immutable`,
     },
   });

@@ -33,7 +33,7 @@ export async function GET(
   if (!photoUrl) return redirectTo(brandImagePath);
 
   // Only the exact advertised URL renders: a made-up name or query string is a new CDN key,
-  // which would otherwise force a render per request.
+  // which would otherwise force a render per request. Old .png links land here too.
   const isCurrentUrl =
     file === productShareImageFile(photoUrl) && !new URL(request.url).search;
   if (!isCurrentUrl) {

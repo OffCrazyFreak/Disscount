@@ -33,13 +33,13 @@ describe("product share image route", () => {
     vi.mocked(getMainPhotoUrl).mockReset().mockResolvedValue(PHOTO);
     vi.mocked(renderProductOg)
       .mockReset()
-      .mockResolvedValue(new Response("png") as never);
+      .mockResolvedValue(new Response("card") as never);
   });
 
   it("renders the current photo", async () => {
     const response = await get(EAN, CURRENT_FILE);
 
-    expect(await response.text()).toBe("png");
+    expect(await response.text()).toBe("card");
     expect(renderProductOg).toHaveBeenCalledWith(PHOTO);
   });
 
@@ -62,7 +62,15 @@ describe("product share image route", () => {
 
   it("sends an old or made-up file name to the current one without rendering", async () => {
     expectUncachedRedirect(
-      await get(EAN, "0000000000000000.png"),
+      await get(EAN, "0000000000000000.jpg"),
+      `/og/products/${EAN}/${CURRENT_FILE}`,
+    );
+    expect(renderProductOg).not.toHaveBeenCalled();
+  });
+
+  it("sends a link to the earlier PNG card to the current JPEG without rendering", async () => {
+    expectUncachedRedirect(
+      await get(EAN, CURRENT_FILE.replace(".jpg", ".png")),
       `/og/products/${EAN}/${CURRENT_FILE}`,
     );
     expect(renderProductOg).not.toHaveBeenCalled();

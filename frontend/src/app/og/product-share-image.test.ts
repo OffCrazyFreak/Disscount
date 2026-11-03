@@ -17,9 +17,9 @@ describe("product share image URL", () => {
     );
   });
 
-  it("ends in .png so the proxy skips it and Cloudflare caches it", () => {
+  it("ends in .jpg so the proxy skips it and Cloudflare caches it", () => {
     expect(
       productShareImagePath("5449000000996", "https://images.test/a.jpg"),
-    ).toMatch(/^\/og\/products\/5449000000996\/[0-9a-f]{16}\.png$/);
+    ).toMatch(/^\/og\/products\/5449000000996\/[0-9a-f]{16}\.jpg$/);
   });
 });

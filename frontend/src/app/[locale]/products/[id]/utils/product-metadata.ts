@@ -1,6 +1,9 @@
 import type { Metadata, ResolvedMetadata } from "next";
-import { contentType, size } from "@/app/og/render-og";
-import { productShareImagePath } from "@/app/og/product-share-image";
+import { size } from "@/app/og/render-og";
+import {
+  PRODUCT_CARD_CONTENT_TYPE,
+  productShareImagePath,
+} from "@/app/og/product-share-image";
 import { X_HANDLE } from "@/constants/social";
 import {
   DEFAULT_LOCALE,
@@ -37,7 +40,7 @@ export function productMetadata({
         {
           url: `${appUrl()}${productShareImagePath(ean, photoUrl)}`,
           ...size,
-          type: contentType,
+          type: PRODUCT_CARD_CONTENT_TYPE,
           alt: title,
         },
       ]
