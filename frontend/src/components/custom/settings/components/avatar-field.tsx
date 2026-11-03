@@ -11,11 +11,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import resizeImageToWebp from "@/utils/browser/image";
+import { prepareAvatar } from "@/utils/browser/avatar-image";
+import { fileToBase64 } from "@/utils/browser/file";
 import { useUser } from "@/context/user-context";
 import { useSettingsUi } from "@/components/custom/settings/settings-context";
 
-// Only guards decoding: the WebP re-encode below sets the stored size.
+// Only guards decoding: the re-encode below sets the stored size.
 const MAX_AVATAR_BYTES = 15 * 1024 * 1024;
 
 // Outside react-hook-form and drafts on purpose: base64 images would blow the
@@ -35,7 +36,7 @@ export default function AvatarField() {
     }
 
     try {
-      updateAvatar(await resizeImageToWebp(file));
+      updateAvatar(await fileToBase64(await prepareAvatar(file)));
     } catch {
       toast.error(t("profile.avatar.loadFailed"));
     }

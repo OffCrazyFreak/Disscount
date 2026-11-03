@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  firstWithinLimit,
-  needsJpegFallback,
-} from "@/utils/browser/card-image";
+import { firstWithinLimit, needsJpegFallback } from "@/utils/browser/image";
 
 describe("needsJpegFallback", () => {
   it("keeps a real WebP blob", () => {

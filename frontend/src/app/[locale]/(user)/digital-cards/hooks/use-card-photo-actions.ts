@@ -15,10 +15,10 @@ import {
 } from "@/lib/offline/card-photo-outbox";
 import { deleteSlotForCard } from "@/lib/offline/card-photo-store";
 import {
-  CardImageError,
   prepareCardImage,
   type IPreparedCardImage,
 } from "@/utils/browser/card-image";
+import { ImageProcessingError } from "@/utils/browser/image";
 
 type PhotoStatus = "uploading" | "queued" | "error";
 type StatusMap = Partial<Record<CardPhotoSlot, PhotoStatus>>;
@@ -63,7 +63,7 @@ export function useCardPhotoActions(cardId: string) {
     } catch (error) {
       mark(slot, "error");
       toast.error(
-        error instanceof CardImageError
+        error instanceof ImageProcessingError
           ? tImage(error.code)
           : t("processFailed"),
       );
