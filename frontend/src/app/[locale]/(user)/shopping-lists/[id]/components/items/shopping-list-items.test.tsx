@@ -443,6 +443,23 @@ describe("ShoppingListItems default store", () => {
     expect(screen.getByRole("combobox")).toHaveTextContent("Lidl");
   });
 
+  it("saves the shown store when it is picked", async () => {
+    // Radix reads pointer capture and scrolls the open list, which jsdom lacks.
+    Element.prototype.hasPointerCapture = () => false;
+    Element.prototype.scrollIntoView = () => {};
+    const user = userEvent.setup();
+    const writes = renderCachedList([item("a")]);
+
+    await user.click(screen.getByRole("combobox"));
+    await user.click(await screen.findByRole("option", { name: /Konzum/ }));
+
+    await waitFor(() =>
+      expect(writes).toEqual([
+        expect.objectContaining({ chainCode: "konzum" }),
+      ]),
+    );
+  });
+
   it("saves the shown store and its price when the item is ticked", async () => {
     const user = userEvent.setup();
     const writes = renderCachedList([item("a")]);

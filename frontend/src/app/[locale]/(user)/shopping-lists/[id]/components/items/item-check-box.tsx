@@ -37,7 +37,9 @@ export default function ItemCheckBox({
           isChecked: checked as boolean,
           amount: item.amount || 1,
           // Ticking saves the store the select shows, so the price paid is captured there.
-          chainCode: item.chainCode ?? cheapestStore ?? null,
+          chainCode: checked
+            ? (item.chainCode ?? cheapestStore ?? null)
+            : item.chainCode,
         })
       }
     />

@@ -56,10 +56,11 @@ export default function StoreChainSelect({
 }: IStoreChainSelectProps) {
   const t = useTranslations("products");
   const locale = useLocale();
-  // The default is only shown, never saved: viewing a list must not write to it, and
-  // an unsaved default keeps following whichever chain is cheapest today. A ticked
-  // item records where it was bought, so it never borrows a default.
-  const selectedValue = value || (isChecked ? "" : defaultValue) || "";
+  // The default is only shown, as the placeholder, never saved: viewing a list must
+  // not write to it, and an unsaved default keeps following whichever chain is cheapest
+  // today. Keeping it out of `value` also lets picking that same chain count as a change.
+  // A ticked item records where it was bought, so it never borrows a default.
+  const suggestedChain = !value && !isChecked ? defaultValue : null;
 
   const getPriceDifference = (chainCode: string) => {
     // When item is checked, use database prices
@@ -79,12 +80,20 @@ export default function StoreChainSelect({
   const chainCodes = availableChainCodes(isChecked, value, storePrices);
 
   return (
-    <Select value={selectedValue} onValueChange={onChange} disabled={disabled}>
+    <Select value={value || ""} onValueChange={onChange} disabled={disabled}>
       <SelectTrigger
         aria-describedby={describedById}
         className={cn("min-w-0 text-xs sm:text-sm", className)}
       >
-        <SelectValue placeholder={t("storeChainField.label")} />
+        <SelectValue
+          placeholder={
+            suggestedChain ? (
+              <span lang="hr">{getChainLabel(suggestedChain)}</span>
+            ) : (
+              t("storeChainField.label")
+            )
+          }
+        />
       </SelectTrigger>
 
       <SelectContent>

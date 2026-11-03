@@ -197,7 +197,7 @@ An item row (`[id]/components/items/shopping-list-item.tsx`) has a checkbox, a s
 - `avgPrice`: the item's live average across chains, when known.
 - `storePrice`: the live price at the item's chain, when it is priced there.
 
-The chain sent is the saved `chainCode`, or when there is none, the cheapest chain the store select shows. That default is derived in render and never saved by opening the list (`StoreChainSelect` has no effect): only picking a chain or ticking the item writes it, so viewing a list, including someone else's shared one, sends no request, and an unsaved default follows whichever chain is cheapest today. A ticked item never borrows the default.
+The chain sent is the saved `chainCode`, or when there is none, the cheapest chain the store select shows as its placeholder. That default is derived in render and never saved by opening the list (`StoreChainSelect` has no effect, and keeps the default out of its `value` so picking that same chain still counts as a change): only picking a chain or ticking the item writes it, an untick sends the saved chain only, so viewing a list, including someone else's shared one, sends no request, and an unsaved default follows whichever chain is cheapest today. A ticked item never borrows the default.
 
 An untick clears both, so a row unticked and ticked again at another shop never keeps the first shop's price. These snapshots are what "Potrošeno" and "Ušteđeno" in the info table are computed from, and they are why a bought item keeps its price after the live price moves.
 
