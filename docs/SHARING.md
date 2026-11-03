@@ -88,7 +88,7 @@ A list the caller may not see is a **404, never a 403**, so the response cannot 
 
 `applyItemUpdate` splits the item fields by level: a `SHOP` caller can change `isChecked`, `chainCode` and the captured prices, and everything structural is left as the server has it, so a fuller payload cannot rename or resize an item.
 
-**Only these seven routes take an optional bearer token**, eight matcher entries counting the `HEAD` variant of the `GET`, which link unfurlers probe with and which `AntPathRequestMatcher` compares exactly. `SecurityConfig` matches them by method plus a UUID-shaped id, which is an allowlist on both axes: `/api/shopping-lists/me` and `/api/shopping-lists/items` stay authenticated because they are not UUIDs, not because they are named as exceptions, and a future literal route is excluded by the same property. The chain's own rule is `permitAll`, so the checks in `ShoppingListService` are an authentication boundary rather than a convenience.
+**Only these seven routes take an optional bearer token**, eight matcher entries counting the `HEAD` variant of the `GET`, which link unfurlers probe with and which `PathPatternRequestMatcher` compares exactly. `SecurityConfig` matches them by method plus a UUID-shaped id, which is an allowlist on both axes: `/api/shopping-lists/me` and `/api/shopping-lists/items` stay authenticated because they are not UUIDs, not because they are named as exceptions, and a future literal route is excluded by the same property. The chain's own rule is `permitAll`, so the checks in `ShoppingListService` are an authentication boundary rather than a convenience.
 
 ## 5. The route
 
