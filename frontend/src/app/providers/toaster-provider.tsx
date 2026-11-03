@@ -10,7 +10,7 @@ interface IToasterProviderProps {
 
 // sonner paints toasts from its own white and grey palette; its variables are
 // read off the toaster element, so pointing them at the theme tokens here makes
-// every toast follow the brand surface and the dark tokens.
+// every toast follow the brand surface and font.
 const TOASTER_THEME_STYLE = {
   "--normal-bg": "var(--popover)",
   "--normal-text": "var(--foreground)",
