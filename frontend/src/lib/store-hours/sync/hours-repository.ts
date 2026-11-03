@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, isNotNull, lt, sql } from "drizzle-orm";
+import { and, asc, eq, isNotNull, lt, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
@@ -122,16 +122,26 @@ export async function recordRun(
     });
 }
 
+/** Least recently checked first, so a run cut short never starves the same links. */
 export async function readCheckUrls(): Promise<string[]> {
   const rows = await db
-    .selectDistinct({ url: storeHours.checkUrl })
+    .select({ url: storeHours.checkUrl })
     .from(storeHours)
-    .where(isNotNull(storeHours.checkUrl));
+    .where(isNotNull(storeHours.checkUrl))
+    .groupBy(storeHours.checkUrl)
+    .orderBy(
+      sql`min(${storeHours.linkCheckedAt}) asc nulls first`,
+      asc(storeHours.checkUrl),
+    );
 
   return rows.flatMap((row) => (row.url ? [row.url] : []));
 }
 
-/** Every store sharing the link gets its verdict; failures count up until a check succeeds. */
+/**
+ * Every store sharing the link gets its verdict; failures count up until a
+ * check succeeds. An unverified check proves nothing, so a link already
+ * found gone stays broken until it answers again.
+ */
 export async function saveLinkStatus(
   url: string,
   status: LinkStatus,
@@ -139,7 +149,10 @@ export async function saveLinkStatus(
   await db
     .update(storeHours)
     .set({
-      linkStatus: status,
+      linkStatus:
+        status === "unverified"
+          ? sql`case when ${storeHours.linkStatus} = 'broken' then 'broken' else 'unverified' end`
+          : status,
       linkCheckedAt: new Date(),
       linkFailures: status === "ok" ? 0 : sql`${storeHours.linkFailures} + 1`,
     })

@@ -14,7 +14,8 @@ const PAUSE_MS = 1000;
 export async function runLinkCheck(signal: AbortSignal): Promise<void> {
   const groups = linksByHost(await readCheckUrls());
 
-  await Promise.all(
+  // Settled, not all: the lease is released only once every host is done.
+  const results = await Promise.allSettled(
     groups.map(async (urls) => {
       for (const url of urls) {
         await saveLinkStatus(url, linkStatusOf(await fetchStatus(url, signal)));
@@ -22,4 +23,7 @@ export async function runLinkCheck(signal: AbortSignal): Promise<void> {
       }
     }),
   );
+  const failed = results.find((result) => result.status === "rejected");
+
+  if (failed) throw failed.reason;
 }

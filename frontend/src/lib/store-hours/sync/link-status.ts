@@ -16,6 +16,8 @@ export function linksByHost(urls: Iterable<string>): string[][] {
   const groups = new Map<string, string[]>();
 
   for (const url of urls) {
+    if (!URL.canParse(url)) continue;
+
     const host = new URL(url).host;
 
     groups.set(host, [...(groups.get(host) ?? []), url]);
