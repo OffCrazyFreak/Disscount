@@ -56,13 +56,13 @@ describe("DistanceSortNote", () => {
         origin={null}
         towns={[
           {
-            key: "Sveta Nedelja|10",
+            key: "Sveta Nedelja|zagrebCounty",
             name: "Sveta Nedelja",
             county: "zagrebCounty",
             zipcodes: ["10431"],
           },
           {
-            key: "Sveta Nedelja|52",
+            key: "Sveta Nedelja|istria",
             name: "Sveta Nedelja",
             county: "istria",
             zipcodes: ["52466"],
@@ -77,7 +77,7 @@ describe("DistanceSortNote", () => {
       screen.getByRole("option", { name: "Sveta Nedelja (Istarska)" }),
     );
 
-    expect(onPickTown).toHaveBeenCalledWith("Sveta Nedelja|52");
+    expect(onPickTown).toHaveBeenCalledWith("Sveta Nedelja|istria");
   });
 
   it("names the county of a namesake it sorted from", () => {

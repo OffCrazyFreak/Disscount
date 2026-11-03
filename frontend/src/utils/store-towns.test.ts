@@ -16,6 +16,11 @@ const NAMESAKES = [
   { city: "Sveta Nedelja", zipcode: null, lat: 45, lon: 15 },
 ];
 
+const STRMEC = [
+  { city: "Strmec", zipcode: "10090", lat: 45.81, lon: 15.86 },
+  { city: "Strmec", zipcode: "10430", lat: 45.8, lon: 15.7 },
+];
+
 describe("listStoreTowns", () => {
   it("lists each town with a located store once, in Croatian order", () => {
     expect(listStoreTowns(STORES)).toEqual([
@@ -27,13 +32,13 @@ describe("listStoreTowns", () => {
   it("keeps apart towns that share a name, naming their counties", () => {
     expect(listStoreTowns(NAMESAKES)).toEqual([
       {
-        key: "Sveta Nedelja|10",
+        key: "Sveta Nedelja|zagrebCounty",
         name: "Sveta Nedelja",
         county: "zagrebCounty",
         zipcodes: ["10431"],
       },
       {
-        key: "Sveta Nedelja|52",
+        key: "Sveta Nedelja|istria",
         name: "Sveta Nedelja",
         county: "istria",
         zipcodes: ["52466"],
@@ -80,6 +85,13 @@ describe("listStoreTowns", () => {
         "Umag",
       ),
     ).toMatchObject({ lat: expect.closeTo(45.43) });
+  });
+
+  it("keeps apart namesakes in one postal area but two counties", () => {
+    expect(listStoreTowns(STRMEC).map((town) => town.key)).toEqual([
+      "Strmec|cityOfZagreb",
+      "Strmec|zagrebCounty",
+    ]);
   });
 
   it("names the exact county of each postcode, the City of Zagreb included", () => {
@@ -146,11 +158,29 @@ describe("townCenter", () => {
   });
 
   it("measures each namesake from its own stores", () => {
-    expect(townCenter(NAMESAKES, "Sveta Nedelja|52")).toEqual({
+    expect(townCenter(NAMESAKES, "Sveta Nedelja|istria")).toEqual({
       lat: 45.06,
       lon: 14.06,
       name: "Sveta Nedelja",
       county: "istria",
+    });
+  });
+
+  it("still finds a namesake saved under its old postal area", () => {
+    expect(townCenter(NAMESAKES, "Sveta Nedelja|52")).toMatchObject({
+      lat: 45.06,
+      county: "istria",
+    });
+    expect(townCenter(NAMESAKES, "Sveta Nedelja|10")).toMatchObject({
+      lat: 45.8,
+      county: "zagrebCounty",
+    });
+  });
+
+  it("reads an old area 10 key as the lower postcode when both Zagreb counties share the name", () => {
+    expect(townCenter(STRMEC, "Strmec|10")).toMatchObject({
+      lat: 45.81,
+      county: "cityOfZagreb",
     });
   });
 
