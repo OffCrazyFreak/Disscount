@@ -202,8 +202,7 @@
       "deleteDialogDescription": "Tvoj račun in vsi povezani podatki bodo nepovratno izbrisani.",
       "revokeFailed": "Napaka pri odjavi z drugih naprav.",
       "revoked": "Vse druge naprave so odjavljene.",
-      "deleted": "Tvoj račun je izbrisan.",
-      "deleteFailed": "Napaka pri brisanju računa. Poskusi znova."
+      "deleted": "Tvoj račun je izbrisan."
     },
     "reauth": {
       "cancel": "Prekliči",

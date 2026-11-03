@@ -202,8 +202,7 @@
       "deleteDialogDescription": "Tvoj račun i svi povezani podaci bit će nepovratno obrisani.",
       "revokeFailed": "Greška pri odjavi ostalih uređaja.",
       "revoked": "Odjavljeni su svi ostali uređaji.",
-      "deleted": "Tvoj račun je obrisan.",
-      "deleteFailed": "Greška pri brisanju računa. Pokušaj ponovo."
+      "deleted": "Tvoj račun je obrisan."
     },
     "reauth": {
       "cancel": "Odustani",

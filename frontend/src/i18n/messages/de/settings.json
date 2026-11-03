@@ -202,8 +202,7 @@
       "deleteDialogDescription": "Dein Konto und alle zugehörigen Daten werden unwiderruflich gelöscht.",
       "revokeFailed": "Das Abmelden auf den anderen Geräten hat nicht geklappt.",
       "revoked": "Du wurdest auf allen anderen Geräten abgemeldet.",
-      "deleted": "Dein Konto wurde gelöscht.",
-      "deleteFailed": "Das Konto konnte nicht gelöscht werden. Versuche es erneut."
+      "deleted": "Dein Konto wurde gelöscht."
     },
     "reauth": {
       "cancel": "Abbrechen",

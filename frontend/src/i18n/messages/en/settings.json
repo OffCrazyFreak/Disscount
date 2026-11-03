@@ -202,8 +202,7 @@
       "deleteDialogDescription": "Your account and all related data will be permanently deleted.",
       "revokeFailed": "Couldn't sign out of other devices.",
       "revoked": "Signed out of all other devices.",
-      "deleted": "Your account has been deleted.",
-      "deleteFailed": "Couldn't delete your account. Try again."
+      "deleted": "Your account has been deleted."
     },
     "reauth": {
       "cancel": "Cancel",

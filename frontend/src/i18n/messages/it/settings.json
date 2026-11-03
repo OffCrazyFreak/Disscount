@@ -202,8 +202,7 @@
       "deleteDialogDescription": "L'account e tutti i dati collegati verranno eliminati in modo definitivo.",
       "revokeFailed": "Non siamo riusciti a chiudere le altre sessioni.",
       "revoked": "Sessioni chiuse su tutti gli altri dispositivi.",
-      "deleted": "Account eliminato.",
-      "deleteFailed": "Non siamo riusciti a eliminare l'account. Riprova."
+      "deleted": "Account eliminato."
     },
     "reauth": {
       "cancel": "Annulla",
