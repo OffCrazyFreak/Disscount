@@ -42,14 +42,15 @@ public class ProductImageQueryService {
         return views.publicView(ean, mainId, images.findByEanOrderByCreatedAtAsc(ean));
     }
 
-    /** Thumbnail of the main photo per EAN, for search results and lists; EANs without one are left out. */
+    /** Thumbnail of the main photo per EAN, for search results and lists; malformed EANs and EANs without one are left out. */
     @Transactional(readOnly = true)
     public ProductThumbnailsDto thumbnails(List<String> eans) {
         Set<String> unique = new LinkedHashSet<>(eans);
         if (unique.size() > MAX_THUMBNAIL_EANS) {
             throw new BadRequestException("error.productImage.tooManyEans", String.valueOf(MAX_THUMBNAIL_EANS));
         }
-        unique.forEach(ProductImageQueryService::requireEan);
+        // One bad code in a search page should cost that product its thumbnail, not the whole page.
+        unique.removeIf(ean -> !Barcodes.isEanShape(ean));
         if (unique.isEmpty() || !store.enabled()) return new ProductThumbnailsDto(Map.of());
 
         Map<String, String> result = new HashMap<>();

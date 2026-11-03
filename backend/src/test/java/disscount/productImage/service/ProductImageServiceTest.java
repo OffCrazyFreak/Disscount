@@ -270,7 +270,13 @@ class ProductImageServiceTest {
         candidate("front_en", "1129", "en");
 
         assertThat(queries.thumbnails(List.of(EAN, "5449000000996")).thumbnails()).containsOnlyKeys(EAN);
-        assertThatThrownBy(() -> queries.thumbnails(List.of("abc"))).hasMessage("error.productImage.invalidEan");
+    }
+
+    @Test
+    void aMalformedEanIsLeftOutOfThumbnailsInsteadOfFailingTheBatch() {
+        writes.upload(ana, EAN, jpeg());
+
+        assertThat(queries.thumbnails(List.of("abc", EAN)).thumbnails()).containsOnlyKeys(EAN);
     }
 
     @Test
