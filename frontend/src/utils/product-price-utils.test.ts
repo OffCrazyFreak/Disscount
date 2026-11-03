@@ -1,10 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   getAveragePrice,
   getCheapestChainByMinPrice,
   getMaxPrice,
   getMinPrice,
+  isPriceDateToday,
   parsePrice,
 } from "@/utils/product-price-utils";
 import type {
@@ -43,6 +44,28 @@ function product(chains: ChainProductResponse[]): ProductResponse {
     chains,
   };
 }
+
+describe("isPriceDateToday", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("follows the Zagreb date while UTC is still on the day before", () => {
+    // 00:30 in Zagreb on 4 November, UTC+1.
+    vi.useFakeTimers({ now: new Date("2026-11-03T23:30:00Z") });
+
+    expect(isPriceDateToday("2026-11-04")).toBe(true);
+    expect(isPriceDateToday("2026-11-03")).toBe(false);
+  });
+
+  it("follows the Zagreb date in summer time too", () => {
+    // 00:30 in Zagreb on 15 July, UTC+2.
+    vi.useFakeTimers({ now: new Date("2026-07-14T22:30:00Z") });
+
+    expect(isPriceDateToday("2026-07-15")).toBe(true);
+    expect(isPriceDateToday("2026-07-14")).toBe(false);
+  });
+});
 
 describe("parsePrice", () => {
   it("parses the API's decimal strings and rejects junk", () => {
