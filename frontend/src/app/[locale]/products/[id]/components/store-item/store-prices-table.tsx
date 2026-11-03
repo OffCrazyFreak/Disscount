@@ -31,9 +31,9 @@ const StorePricesTable = memo(
     const productMinPrice = getMinPrice(product);
     const productMaxPrice = getMaxPrice(product);
 
-    // Pinned places key off the standardized city name, so label is lookup key.
+    // Store cities carry no postal area, so a namesake matches by name alone.
     const preferredPlaceIds =
-      user?.pinnedPlaces?.map((place) => place.placeApiId) || [];
+      user?.pinnedPlaces?.map((place) => place.placeName) || [];
 
     if (storePrices.length === 0) {
       return <div className="text-center py-8 text-gray-500">{t("empty")}</div>;

@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react";
-import { act, screen, waitFor, within } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -306,18 +306,17 @@ describe("ShoppingListItems focus", () => {
     await waitFor(() => expect(screen.getByRole("combobox")).toHaveFocus());
   });
 
-  it("focuses the items toggle when a retry ends in no prices while collapsed", async () => {
+  it("focuses the items heading when the retried row is gone", async () => {
     const user = userEvent.setup();
-    const items = [item("a")];
     const onRetry = vi.fn(async () => false);
-    const { rerender } = renderItems(items, { a: "failed" }, onRetry);
+    const { rerender } = renderItems([item("a")], { a: "failed" }, onRetry);
 
-    const toggle = screen.getByRole("button", { name: /Proizvodi/ });
-    await user.click(toggle);
     await user.click(screen.getByRole("button", { name: "Pokušaj ponovno" }));
-    rerender(listItems(items, { a: "noPrices" }, onRetry));
+    rerender(listItems([item("b")], { b: "ready" }, onRetry));
 
-    await waitFor(() => expect(toggle).toHaveFocus());
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { name: /Proizvodi/ })).toHaveFocus(),
+    );
   });
 
   it("leaves focus alone when the retry button no longer had it", async () => {
@@ -354,21 +353,5 @@ describe("ShoppingListItems focus", () => {
 
     const [, noPrices] = screen.getAllByRole("combobox");
     await waitFor(() => expect(noPrices).toHaveFocus());
-  });
-});
-
-describe("ShoppingListItems banner placement", () => {
-  it("keeps the failure banner visible with the items collapsed", async () => {
-    const user = userEvent.setup();
-    renderItems([item("a")], { a: "failed" });
-
-    await user.click(screen.getByRole("button", { name: /Proizvodi/ }));
-
-    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
-    expect(
-      within(screen.getByRole("status")).getByRole("button", {
-        name: "Pokušaj ponovno",
-      }),
-    ).toBeInTheDocument();
   });
 });

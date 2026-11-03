@@ -23,6 +23,8 @@ import { calculateTotalPriceChange } from "@/app/[locale]/(user)/shopping-lists/
 export function useShoppingListPriceHistory(
   shoppingList: ShoppingListDto,
   period: PeriodOption,
+  /** Off until the chart is near the screen; see useNearViewport. */
+  isEnabled: boolean,
 ) {
   const { user } = useUser();
   const locale = useLocale();
@@ -39,10 +41,11 @@ export function useShoppingListPriceHistory(
   const dates = useMemo(() => getPriceHistoryDates(daysToShow), [daysToShow]);
 
   const queries = useQueries({
-    queries: eans.flatMap((ean) => priceHistoryQueries(ean, dates)),
+    queries: eans.flatMap((ean) => priceHistoryQueries(ean, dates, isEnabled)),
   });
 
-  const isLoading = queries.some((q) => q.isLoading);
+  // A query waiting to be enabled is not loading, but the chart still has nothing to show.
+  const isLoading = !isEnabled || queries.some((q) => q.isLoading);
   const hasError = queries.some((q) => q.isError);
   const areChainsReady = queries.every((q) => q.isSuccess || q.isError);
 

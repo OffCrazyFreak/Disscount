@@ -16,16 +16,12 @@
     "distance": "Entfernung"
   },
   "chains": {
-    "title": "Preise nach Händlern",
     "refreshed": "Preise {time} aktualisiert",
     "loadError": "Die Preise konnten nicht geladen werden. Versuche es erneut.",
     "empty": "Für dieses Produkt gibt es keine Preise.",
     "whereToBuy": "Wo kaufen"
   },
   "priceHistory": {
-    "title": "Preisverlauf",
-    "hide": "Ausblenden",
-    "show": "Anzeigen",
     "empty": "Noch kein Preisverlauf.",
     "average": "Durchschnitt",
     "period": {
@@ -50,5 +46,8 @@
     "unknown": "Unbekannt",
     "notAvailable": "k. A.",
     "showOnMap": ", auf der Karte zeigen"
+  },
+  "sectionNav": {
+    "label": "Produktabschnitte"
   }
 }

@@ -30,6 +30,8 @@ public class ContactMessageController {
     public ResponseEntity<ContactMessageDto> create(@Valid @RequestBody ContactMessageRequest request,
                                                     HttpServletRequest httpRequest) {
         contactRateLimiter.check(ClientIp.resolve(httpRequest));
-        return ResponseEntity.ok(contactMessageService.create(request));
+        return contactMessageService.create(request)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build());
     }
 }

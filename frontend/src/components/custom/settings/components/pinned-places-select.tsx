@@ -19,12 +19,17 @@ import {
 } from "@/components/custom/form/multi-select";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
-import { compareHr } from "@/utils/strings";
+import cijeneService from "@/lib/cijene-api";
+import { useTownLabel } from "@/hooks/use-town-label";
+import { listPlaceOptions } from "@/utils/place-options";
 
 export default function PinnedPlacesSelect() {
   const t = useTranslations("settings");
   const form = useFormContext<SettingsFormValues>();
   const { data: locations } = useAllLocations();
+  // The same cached query the locations come from; it carries the postcodes.
+  const { data: storesData } = cijeneService.useSearchStores();
+  const townLabel = useTownLabel();
 
   return (
     <FormField
@@ -42,14 +47,19 @@ export default function PinnedPlacesSelect() {
             </FormControl>
             <MultiSelectContent className="bg-popover">
               <MultiSelectGroup>
-                {locations
-                  .slice()
-                  .sort((a, b) => compareHr(a.name, b.name))
-                  .map((location) => (
-                    <MultiSelectItem key={location.name} value={location.name}>
-                      {location.name}
-                    </MultiSelectItem>
-                  ))}
+                {listPlaceOptions(
+                  locations.map((location) => location.name),
+                  storesData?.stores ?? [],
+                  field.value,
+                ).map((place) => (
+                  <MultiSelectItem
+                    key={place.key}
+                    value={place.key}
+                    keywords={[townLabel(place)]}
+                  >
+                    {townLabel(place)}
+                  </MultiSelectItem>
+                ))}
               </MultiSelectGroup>
             </MultiSelectContent>
           </MultiSelect>
