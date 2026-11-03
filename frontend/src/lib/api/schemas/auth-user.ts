@@ -56,55 +56,52 @@ export const userRequestSchema = z.object({
     .optional(),
 });
 
-export const userDtoSchema = userRequestSchema
-  .omit({
-    notificationsPush: true,
-    notificationsEmail: true,
-    newsletter: true,
-    feedbackContact: true,
-  })
-  .extend({
-    id: z.string(),
-    email: z.email().nullable().optional(),
-    name: z.string().nullable().optional(),
-    accountType: z.enum(["ADMIN", "CONSUMER", "ENTERPRISE", "PUBLIC_SECTOR"]),
-    // Enable-timestamps (ISO strings); null = off. Drives the profile switches AND stats dashboards.
-    notificationsPushEnabledAt: z.string().nullable().optional(),
-    notificationsEmailEnabledAt: z.string().nullable().optional(),
-    newsletterEnabledAt: z.string().nullable().optional(),
-    feedbackContactEnabledAt: z.string().nullable().optional(),
-    // Only a completed outcome satisfies the onboarding gate. Historical skipped
-    // outcomes remain incomplete even though they have a completion timestamp.
-    onboardingCompletedAt: z.string().nullable().optional(),
-    onboardingOutcome: z.string().nullable().optional(),
-    createdAt: z.string(),
-    // Admin list only; derived from the better-auth session rows.
-    lastLoginAt: z.string().nullable().optional(),
-    // Present on every UserDto, and what the active-user counters read.
-    lastActiveAt: z.string().nullable().optional(),
-    pinnedStores: z
-      .array(
-        z.object({
-          id: z.string(),
-          userId: z.string(),
-          storeApiId: z.string(),
-          storeName: z.string(),
-        }),
-      )
-      .nullable()
-      .optional(),
-    pinnedPlaces: z
-      .array(
-        z.object({
-          id: z.string(),
-          userId: z.string(),
-          placeApiId: z.string(),
-          placeName: z.string(),
-        }),
-      )
-      .nullable()
-      .optional(),
-  });
+// Its own object, so the form's username limits never reject an account the server holds.
+export const userDtoSchema = z.object({
+  id: z.string(),
+  username: z.string().nullable().optional(),
+  acquisitionChannel: acquisitionChannelSchema.nullable().optional(),
+  image: z.string().nullable().optional(),
+  email: z.email().nullable().optional(),
+  name: z.string().nullable().optional(),
+  accountType: z.enum(["ADMIN", "CONSUMER", "ENTERPRISE", "PUBLIC_SECTOR"]),
+  // Enable-timestamps (ISO strings); null = off. Drives the profile switches AND stats dashboards.
+  notificationsPushEnabledAt: z.string().nullable().optional(),
+  notificationsEmailEnabledAt: z.string().nullable().optional(),
+  newsletterEnabledAt: z.string().nullable().optional(),
+  feedbackContactEnabledAt: z.string().nullable().optional(),
+  // Only a completed outcome satisfies the onboarding gate. Historical skipped
+  // outcomes remain incomplete even though they have a completion timestamp.
+  onboardingCompletedAt: z.string().nullable().optional(),
+  onboardingOutcome: z.string().nullable().optional(),
+  createdAt: z.string(),
+  // Admin list only; derived from the better-auth session rows.
+  lastLoginAt: z.string().nullable().optional(),
+  // Present on every UserDto, and what the active-user counters read.
+  lastActiveAt: z.string().nullable().optional(),
+  pinnedStores: z
+    .array(
+      z.object({
+        id: z.string(),
+        userId: z.string(),
+        storeApiId: z.string(),
+        storeName: z.string(),
+      }),
+    )
+    .nullable()
+    .optional(),
+  pinnedPlaces: z
+    .array(
+      z.object({
+        id: z.string(),
+        userId: z.string(),
+        placeApiId: z.string(),
+        placeName: z.string(),
+      }),
+    )
+    .nullable()
+    .optional(),
+});
 
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 export type RegisterRequest = z.infer<typeof registerRequestSchema>;

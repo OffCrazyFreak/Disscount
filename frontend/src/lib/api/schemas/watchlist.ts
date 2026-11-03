@@ -7,7 +7,7 @@ export enum WatchType {
 }
 
 // Watchlist schemas
-const watchlistItemRequestSchema = z.object({
+export const watchlistItemRequestSchema = z.object({
   productApiId: z.string().min(1, "watchlist.validation.productRequired"),
   watchType: z.enum(WatchType, {
     message: "watchlist.validation.watchTypeRequired",
@@ -15,9 +15,13 @@ const watchlistItemRequestSchema = z.object({
   thresholdValue: z.number().positive("watchlist.validation.thresholdPositive"),
 });
 
-export const watchlistItemDtoSchema = watchlistItemRequestSchema.extend({
+// Its own object, so the form's rules never reject an item the server already stored.
+export const watchlistItemDtoSchema = z.object({
   id: z.string(),
   userId: z.string(),
+  productApiId: z.string(),
+  watchType: z.enum(WatchType),
+  thresholdValue: z.number(),
   // Spring always sends both keys; lastNotifiedAt is null until the first alert and updated_at is a nullable column.
   lastNotifiedAt: z.string().nullable(),
   createdAt: z.string(),
