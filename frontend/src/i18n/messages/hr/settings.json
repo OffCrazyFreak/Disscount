@@ -224,6 +224,20 @@
       "setPasswordTitle": "Postavi lozinku",
       "setPasswordDescription": "Potvrdi da si to ti, pa spremamo tvoju novu lozinku.",
       "setPasswordConfirm": "Spremi lozinku"
+    },
+    "sessions": {
+      "label": "Aktivne prijave",
+      "hint": "Uređaji na kojima je tvoj račun trenutno prijavljen.",
+      "thisDevice": "Ovaj uređaj",
+      "unknownDevice": "Nepoznat uređaj",
+      "device": "{browser} · {os}",
+      "lastActive": "Zadnja aktivnost: {when}",
+      "signOut": "Odjavi",
+      "signOutDevice": "Odjavi {device}",
+      "signedOut": "Uređaj je odjavljen.",
+      "signOutFailed": "Odjava uređaja nije uspjela. Pokušaj ponovno.",
+      "loadFailed": "Prijave nismo uspjeli učitati.",
+      "tokenNote": "Odjavljeni uređaj zadržava pristup tvojim podacima još najviše {minutes, plural, one {# minutu} few {# minute} other {# minuta}}."
     }
   }
 }

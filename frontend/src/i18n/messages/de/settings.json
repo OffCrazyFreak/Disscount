@@ -224,6 +224,20 @@
       "setPasswordTitle": "Passwort festlegen",
       "setPasswordDescription": "Bestätige, dass du es bist, dann speichern wir dein neues Passwort.",
       "setPasswordConfirm": "Passwort speichern"
+    },
+    "sessions": {
+      "label": "Aktive Anmeldungen",
+      "hint": "Geräte, auf denen dein Konto gerade angemeldet ist.",
+      "thisDevice": "Dieses Gerät",
+      "unknownDevice": "Unbekanntes Gerät",
+      "device": "{browser} · {os}",
+      "lastActive": "Zuletzt aktiv: {when}",
+      "signOut": "Abmelden",
+      "signOutDevice": "{device} abmelden",
+      "signedOut": "Gerät abgemeldet.",
+      "signOutFailed": "Das Gerät konnte nicht abgemeldet werden. Versuche es erneut.",
+      "loadFailed": "Deine Anmeldungen konnten nicht geladen werden.",
+      "tokenNote": "Ein abgemeldetes Gerät behält den Zugriff auf deine Daten noch höchstens {minutes, plural, one {# Minute} other {# Minuten}}."
     }
   }
 }

@@ -224,6 +224,20 @@
       "setPasswordTitle": "Nastavi geslo",
       "setPasswordDescription": "Potrdi, da si to ti, nato shranimo tvoje novo geslo.",
       "setPasswordConfirm": "Shrani geslo"
+    },
+    "sessions": {
+      "label": "Aktivne prijave",
+      "hint": "Naprave, na katerih je tvoj račun trenutno prijavljen.",
+      "thisDevice": "Ta naprava",
+      "unknownDevice": "Neznana naprava",
+      "device": "{browser} · {os}",
+      "lastActive": "Zadnja dejavnost: {when}",
+      "signOut": "Odjavi",
+      "signOutDevice": "Odjavi {device}",
+      "signedOut": "Naprava je odjavljena.",
+      "signOutFailed": "Odjava naprave ni uspela. Poskusi znova.",
+      "loadFailed": "Prijav nismo uspeli naložiti.",
+      "tokenNote": "Odjavljena naprava obdrži dostop do tvojih podatkov še največ {minutes, plural, one {# minuto} two {# minuti} few {# minute} other {# minut}}."
     }
   }
 }

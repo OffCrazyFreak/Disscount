@@ -224,6 +224,20 @@
       "setPasswordTitle": "Set a password",
       "setPasswordDescription": "Confirm it's you, then we'll save your new password.",
       "setPasswordConfirm": "Save password"
+    },
+    "sessions": {
+      "label": "Active sign-ins",
+      "hint": "Devices where your account is signed in right now.",
+      "thisDevice": "This device",
+      "unknownDevice": "Unknown device",
+      "device": "{browser} · {os}",
+      "lastActive": "Last active: {when}",
+      "signOut": "Sign out",
+      "signOutDevice": "Sign out {device}",
+      "signedOut": "Device signed out.",
+      "signOutFailed": "Couldn't sign the device out. Try again.",
+      "loadFailed": "We couldn't load your sign-ins.",
+      "tokenNote": "A signed-out device keeps access to your data for up to {minutes, plural, one {# minute} other {# minutes}}."
     }
   }
 }

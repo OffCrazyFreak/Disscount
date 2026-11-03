@@ -57,6 +57,13 @@
       "when": 1793598573020,
       "tag": "0007_email_send",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793695694427,
+      "tag": "0008_session_country",
+      "breakpoints": true
     }
   ]
 }

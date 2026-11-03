@@ -22,6 +22,7 @@ import {
 } from "@/lib/auth/callbacks";
 import { notifyExistingAccount } from "@/lib/auth/existing-account-notice";
 import {
+  BACKEND_TOKEN_TTL_MINUTES,
   FACEBOOK_COMING_SOON,
   RESET_TOKEN_TTL_SECONDS,
 } from "@/constants/auth";
@@ -33,7 +34,7 @@ import {
   type SignJwt,
 } from "@/lib/auth/erase-backend-account";
 import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password-policy";
-import { CLIENT_IP_HEADER } from "@/lib/client-ip/client-ip";
+import { CLIENT_IP_HEADER, trustedCountry } from "@/lib/client-ip/client-ip";
 import { guardSensitiveAction } from "@/lib/auth/sensitive-action-guard";
 import { reauth } from "@/lib/auth/reauth/reauth-plugin";
 
@@ -96,6 +97,10 @@ export const auth = betterAuth({
   },
 
   session: {
+    additionalFields: {
+      // Set from the request at sign-in only, never from the client.
+      country: { type: "string", required: false, input: false },
+    },
     expiresIn: SESSION_TTL_SECONDS,
     // Default, set explicitly: the window slides only when the session is used,
     // and is rewritten at most once a day rather than on every request.
@@ -197,6 +202,9 @@ export const auth = betterAuth({
             ctx,
             RESET_TOKEN_TTL_SECONDS,
           );
+
+          const country = trustedCountry(ctx?.headers ?? ctx?.request?.headers);
+          return { data: { ...session, country } };
         },
         after: recordLastLogin,
       },
@@ -271,6 +279,8 @@ export const auth = betterAuth({
         keyPairConfig: { alg: "ES256" },
       },
       jwt: {
+        // The library default, pinned here so the sessions list can quote it.
+        expirationTime: `${BACKEND_TOKEN_TTL_MINUTES}m`,
         definePayload: ({ user }) => ({
           email: user.email,
           name: user.name,
