@@ -155,8 +155,7 @@
   },
   "appUpdate": {
     "message": "Na voljo je nova različica Disscounta.",
-    "reload": "Osveži",
-    "later": "Pozneje"
+    "reload": "Osveži"
   },
   "validation": {
     "emailInvalid": "Vpiši veljaven e-naslov",
