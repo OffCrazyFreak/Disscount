@@ -4,26 +4,25 @@ import { isNetworkFailure } from "@/lib/offline/is-network-failure";
 
 const MAX_DELAY_MS = 30_000;
 
-// Five attempts, about 15 seconds, before the failure reaches the form that can reopen.
-const MAX_LIVE_HTTP_RETRIES = 4;
+// Five attempts, about 15 seconds. Then the failure is surfaced: the form reopens with
+// what was typed, or, for a write replayed from disk, a toast names what failed.
+const MAX_HTTP_RETRIES = 4;
 
 /**
- * A failure that can pass is retried for as long as the page stays open, since a dropped
- * replay would lose the card write; TanStack itself pauses retries while offline. Never
- * after session_changed: a retry carries the new pin, so it would save one account's
- * write into the other.
+ * No answer at all is retried for as long as the page stays open, since TanStack pauses
+ * retries while offline and the paused write is persisted. A failure the server may get
+ * over is bounded instead: a write in flight is persisted too, so a reload no longer
+ * loses it and there is no reason to retry an outage forever. Never after
+ * session_changed: a retry carries the new pin, so it would save one account's write
+ * into the other.
  */
-export function shouldRetryCardWrite(_failureCount: number, error: unknown) {
-  return !isSessionChanged(error) && failureAction(error) === "keep";
-}
-
-// Bounded because only paused mutations persist, and the caller still holds what was typed.
-export function shouldRetryLiveCardWrite(failureCount: number, error: unknown) {
+export function shouldRetryCardWrite(failureCount: number, error: unknown) {
   if (isNetworkFailure(error)) return true;
 
   return (
-    shouldRetryCardWrite(failureCount, error) &&
-    failureCount < MAX_LIVE_HTTP_RETRIES
+    !isSessionChanged(error) &&
+    failureAction(error) === "keep" &&
+    failureCount < MAX_HTTP_RETRIES
   );
 }
 
@@ -31,8 +30,7 @@ export function cardRetryDelay(failureCount: number) {
   return Math.min(1000 * 2 ** failureCount, MAX_DELAY_MS);
 }
 
-// Hook options override the replay defaults, so a write restored from disk keeps retrying.
-export const LIVE_CARD_RETRY = {
-  retry: shouldRetryLiveCardWrite,
+export const CARD_WRITE_RETRY = {
+  retry: shouldRetryCardWrite,
   retryDelay: cardRetryDelay,
 };

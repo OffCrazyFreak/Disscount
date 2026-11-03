@@ -1,7 +1,7 @@
+import { Suspense } from "react";
 import { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import DigitalCardsClient from "@/app/[locale]/(user)/digital-cards/components/digital-cards-client";
-import { readSearchParam } from "@/utils/generic";
 import { pageAlternates } from "@/i18n/alternates";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,10 +15,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function DigitalCardsPage(
-  props: PageProps<"/[locale]/digital-cards">,
-) {
-  const query = readSearchParam(await props.searchParams);
-
-  return <DigitalCardsClient query={query} />;
+// Account-agnostic on purpose: the service worker precaches this page for everyone.
+export default function DigitalCardsPage() {
+  return (
+    <Suspense fallback={null}>
+      <DigitalCardsClient />
+    </Suspense>
+  );
 }

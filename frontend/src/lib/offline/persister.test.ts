@@ -1,3 +1,5 @@
+import { QueryClient } from "@tanstack/react-query";
+import { persistQueryClientRestore } from "@tanstack/react-query-persist-client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { trackPurge } from "@/lib/offline/purge-gate";
@@ -78,5 +80,37 @@ describe("persisted cache writes", () => {
     await vi.runAllTimersAsync();
 
     expect([...db.keys()]).toEqual([`${CACHE_KEY}:bob`]);
+  });
+});
+
+describe("persisted cache age", () => {
+  it("restores a wallet last saved a month ago", async () => {
+    vi.useRealTimers();
+    identity = "alice";
+    const cards = [{ id: "card-1" }];
+    db.set(
+      `${CACHE_KEY}:alice`,
+      JSON.stringify({
+        timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000,
+        buster: persistOptions.buster,
+        clientState: {
+          mutations: [],
+          queries: [
+            {
+              queryKey: ["digitalCards", "v2", "me"],
+              queryHash: '["digitalCards","v2","me"]',
+              state: { data: cards, status: "success", dataUpdatedAt: 1 },
+            },
+          ],
+        },
+      }),
+    );
+    const queryClient = new QueryClient();
+
+    await persistQueryClientRestore({ queryClient, ...persistOptions });
+
+    expect(queryClient.getQueryData(["digitalCards", "v2", "me"])).toEqual(
+      cards,
+    );
   });
 });

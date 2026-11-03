@@ -18,6 +18,13 @@ import { server } from "@/test/msw-server";
 
 // Named .tsx only for the jsdom project: the API client sends the proxy headers only with a document.
 
+const disk = vi.hoisted(() => new Map<string, unknown>());
+vi.mock("idb-keyval", () => ({
+  get: async (key: string) => disk.get(key),
+  set: async (key: string, value: unknown) => void disk.set(key, value),
+  del: async (key: string) => void disk.delete(key),
+}));
+
 const LIST_ID = "5b0e6c1a-7d2f-4e8a-9c3b-1f4d6a8e2c70";
 const ITEM_ID = "0f3a9d52-6c1e-4b7a-8e2d-9a4c5b6d7e81";
 const CARD_ID = "7c2e1b94-3a5d-4f6e-9b8c-1d2e3f4a5b6c";
@@ -59,7 +66,25 @@ async function restoreQueuedWrite(
   return after;
 }
 
+/** Saves the cache through the real persister and restores it into a fresh client. */
+async function reloadThroughDisk(before: QueryClient) {
+  void persistOptions.persister.persistClient({
+    timestamp: Date.now(),
+    buster: persistOptions.buster ?? "",
+    clientState: dehydrate(before, persistOptions.dehydrateOptions),
+  });
+  // Past the persister's save throttle.
+  await act(() => vi.advanceTimersByTimeAsync(1500));
+  before.getMutationCache().clear();
+
+  const restored = await persistOptions.persister.restoreClient();
+  const after = replayClient();
+  if (restored) hydrate(after, restored.clientState);
+  return after;
+}
+
 beforeEach(() => {
+  disk.clear();
   vi.useFakeTimers();
   setCacheIdentity("user-a");
   serverSession.userId = "user-a";
@@ -131,5 +156,51 @@ describe("offline writes replayed after a reload", () => {
     expect(new Set(received.map(({ account }) => account))).toEqual(
       new Set(["user-a"]),
     );
+  });
+
+  it("resumes a card write that was still retrying when the page closed", async () => {
+    let attempts = 0;
+    server.use(
+      http.put(`*/api/digital-cards/${CARD_ID}/pin`, () => {
+        attempts += 1;
+        return attempts === 1
+          ? HttpResponse.json({ status: 503 }, { status: 503 })
+          : new HttpResponse(null, { status: 204 });
+      }),
+    );
+    const before = replayClient();
+    const retrying = before
+      .getMutationCache()
+      .build(before, { mutationKey: OFFLINE_MUTATION_KEYS.digitalCardPin });
+    void retrying.execute({ id: CARD_ID, pinned: true }).catch(() => undefined);
+    await flushUntil(() => retrying.state.failureCount === 1);
+    expect(retrying.state.isPaused).toBe(false);
+
+    const after = await reloadThroughDisk(before);
+    void after.resumePausedMutations();
+
+    const [restored] = after.getMutationCache().getAll();
+    await flushUntil(() => restored?.state.status === "success");
+  });
+
+  it("gives up on a replayed card write the server keeps refusing", async () => {
+    let attempts = 0;
+    server.use(
+      http.put(`*/api/digital-cards/${CARD_ID}/pin`, () => {
+        attempts += 1;
+        return HttpResponse.json({ status: 503 }, { status: 503 });
+      }),
+    );
+    const queryClient = await restoreQueuedWrite(
+      OFFLINE_MUTATION_KEYS.digitalCardPin,
+      { id: CARD_ID, pinned: true },
+    );
+
+    onlineManager.setOnline(true);
+    void queryClient.resumePausedMutations();
+
+    const [mutation] = queryClient.getMutationCache().getAll();
+    await flushUntil(() => mutation.state.status === "error");
+    expect(attempts).toBe(5);
   });
 });
