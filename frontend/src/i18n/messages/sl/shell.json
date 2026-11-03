@@ -94,5 +94,8 @@
     "registering": "Registracija...",
     "linking": "Povezovanje...",
     "unlinking": "Prekinjanje..."
+  },
+  "skipLink": {
+    "label": "Preskoči na vsebino"
   }
 }

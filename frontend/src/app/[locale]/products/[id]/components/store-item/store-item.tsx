@@ -21,13 +21,17 @@ import {
 import { formatDate } from "@/utils/strings";
 import { useUser } from "@/context/user-context";
 import StorePriceSummary from "@/app/[locale]/products/[id]/components/store-item/store-price-summary";
-import StorePricesTable from "@/app/[locale]/products/[id]/components/store-item/store-prices-table";
+import StorePricesDetails, {
+  type StorePricesStatus,
+} from "@/app/[locale]/products/[id]/components/store-item/store-prices-details";
 import NearestStoreDistance from "@/components/custom/distance-sort/nearest-store-distance";
 import { TIME_ZONE } from "@/i18n/formatting";
 
 interface IStoreItemProps {
   store: ChainProductResponse;
   storePrices: StorePrice[];
+  /** Status of the per-store prices request, which may still be loading */
+  pricesStatus: StorePricesStatus;
   product: ProductResponse;
   isExpanded?: boolean;
   onToggle?: () => void;
@@ -41,6 +45,7 @@ const StoreItem = memo(
     onToggle,
     store,
     storePrices,
+    pricesStatus,
     product,
     distanceKm,
   }: IStoreItemProps) => {
@@ -127,7 +132,11 @@ const StoreItem = memo(
 
           <CollapsibleContent>
             <CardContent>
-              <StorePricesTable storePrices={storePrices} product={product} />
+              <StorePricesDetails
+                storePrices={storePrices}
+                status={pricesStatus}
+                product={product}
+              />
             </CardContent>
           </CollapsibleContent>
         </Card>

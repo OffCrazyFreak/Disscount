@@ -1,8 +1,9 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import { toCijeneApiError } from "@/lib/cijene-api/errors";
+import { serverEnv } from "@/lib/server-env";
 
-const CIJENE_API_URL = process.env.CIJENE_API_URL || "https://api.cijene.dev";
-const CIJENE_API_TOKEN = process.env.CIJENE_API_TOKEN;
+const CIJENE_API_URL = serverEnv.CIJENE_API_URL;
+const CIJENE_API_TOKEN = serverEnv.CIJENE_API_TOKEN;
 
 const logger = {
   info: (message: string, data?: unknown) => {

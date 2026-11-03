@@ -94,5 +94,8 @@
     "registering": "Registrazione...",
     "linking": "Collegamento...",
     "unlinking": "Scollegamento..."
+  },
+  "skipLink": {
+    "label": "Vai al contenuto principale"
   }
 }

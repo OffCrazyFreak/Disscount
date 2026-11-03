@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { MapPinned } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import CollapsibleSection from "@/components/custom/common/collapsible-section";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
 import StoreItem from "@/app/[locale]/products/[id]/components/store-item/store-item";
@@ -14,9 +13,9 @@ import DistanceSortNote from "@/components/custom/distance-sort/distance-sort-no
 import type { useProductDetail } from "@/app/[locale]/products/[id]/hooks/use-product-detail";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import {
-  getProductStoresOpen,
-  setProductStoresOpen,
-} from "@/utils/browser/local-storage";
+  updateProductPreferences,
+  useProductPreferences,
+} from "@/app/[locale]/products/[id]/hooks/use-product-preferences";
 
 interface IProductChainsSectionProps {
   ean: string;
@@ -31,7 +30,7 @@ export default function ProductChainsSection({
   detail,
 }: IProductChainsSectionProps) {
   const t = useTranslations("productDetail.chains");
-  const [isOpen, setIsOpen] = useState(() => getProductStoresOpen(ean));
+  const { storesOpen = true } = useProductPreferences(ean);
   const [expandedChain, setExpandedChain] = useState<string | null>(null);
   const sortNoteId = useId();
 
@@ -40,14 +39,20 @@ export default function ProductChainsSection({
   }, []);
 
   function handleToggleSection(open: boolean) {
-    setIsOpen(open);
-    setProductStoresOpen(ean, open);
+    updateProductPreferences(ean, { storesOpen: open });
   }
+
+  // The chain rows need only the product, so they render before the store prices arrive.
+  const pricesStatus = detail.pricesLoading
+    ? "pending"
+    : detail.pricesError
+      ? "error"
+      : "success";
 
   return (
     <CollapsibleSection
       title={t("title")}
-      open={isOpen}
+      open={storesOpen}
       onOpenChange={handleToggleSection}
     >
       {detail.pricesUpdatedAt > 0 && (
@@ -58,13 +63,7 @@ export default function ProductChainsSection({
         />
       )}
 
-      {detail.pricesLoading ? (
-        <div className="grid place-items-center">
-          <BlockLoadingSpinner />
-        </div>
-      ) : detail.pricesError ? (
-        <p className="p-2 text-gray-600 text-center">{t("loadError")}</p>
-      ) : detail.sortedChains.length === 0 ? (
+      {detail.sortedChains.length === 0 ? (
         <p className="p-2 text-gray-600 text-center">{t("empty")}</p>
       ) : (
         <div className="space-y-4">
@@ -99,6 +98,7 @@ export default function ProductChainsSection({
               onToggle={() => toggleChain(chain.chain)}
               store={chain}
               storePrices={detail.pricesByChain[chain.chain] || []}
+              pricesStatus={pricesStatus}
               product={product}
               distanceKm={detail.shownDistances?.get(chain.chain)}
             />

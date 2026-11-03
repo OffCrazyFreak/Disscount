@@ -5,7 +5,11 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { DEFAULT_LOCALE, LOCALES } from "./src/i18n/locales";
 import { SENTRY_APPLICATION_KEY } from "./src/lib/sentry/application-key";
+import { clientEnv, validateClientEnv } from "./src/lib/env";
 import { isIndexableOrigin } from "./src/utils/indexing";
+
+// Fails `next build` and `next dev` on a malformed public variable, before it is baked in.
+validateClientEnv();
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
@@ -43,8 +47,7 @@ const nextConfig: NextConfig = {
   },
 
   async rewrites() {
-    const backendOrigin =
-      process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+    const backendOrigin = clientEnv.NEXT_PUBLIC_API_URL;
 
     return [
       {
@@ -109,7 +112,7 @@ const nextConfig: NextConfig = {
         ],
       },
       // Read at build time, which is fine: NEXT_PUBLIC_APP_URL is a build arg per deploy.
-      ...(isIndexableOrigin(process.env.NEXT_PUBLIC_APP_URL)
+      ...(isIndexableOrigin(clientEnv.NEXT_PUBLIC_APP_URL)
         ? []
         : [
             {

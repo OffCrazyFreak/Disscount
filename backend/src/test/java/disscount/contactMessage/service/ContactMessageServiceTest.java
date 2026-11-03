@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import disscount.contactMessage.dto.ContactMessageDto;
 import disscount.contactMessage.dto.ContactMessageRequest;
+import disscount.exceptions.NotFoundException;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.user.service.UserService;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest(showSql = false)
 @Import(ContactMessageService.class)
@@ -45,7 +47,7 @@ class ContactMessageServiceTest {
 
     @Test
     void aSignedInUserIsStoredAsTheSender() {
-        assertThat(service.create(request()).getUserId()).isEqualTo(user.getId());
+        assertThat(service.create(request()).orElseThrow().getUserId()).isEqualTo(user.getId());
     }
 
     @Test
@@ -53,10 +55,27 @@ class ContactMessageServiceTest {
         user.setDeletedAt(LocalDateTime.of(2026, 1, 1, 0, 0));
         users.save(user);
 
-        ContactMessageDto message = service.create(request());
+        ContactMessageDto message = service.create(request()).orElseThrow();
 
         assertThat(message.getUserId()).isNull();
         assertThat(message.getSubject()).isEqualTo("Pozdrav");
+    }
+
+    @Test
+    void aHoneypotSubmissionIsDroppedWithoutAMessage() {
+        ContactMessageRequest bot = request();
+        bot.setHoneypot("https://spam.example");
+
+        assertThat(service.create(bot)).isEmpty();
+        assertThat(service.list(true)).isEmpty();
+    }
+
+    @Test
+    void anUnknownMessageIdIsNotFound() {
+        UUID unknown = UUID.randomUUID();
+
+        assertThatThrownBy(() -> service.getById(unknown)).isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(() -> service.markRead(unknown)).isInstanceOf(NotFoundException.class);
     }
 
     private static ContactMessageRequest request() {

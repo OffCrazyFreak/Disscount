@@ -117,7 +117,8 @@ function canonicalizeStorePricesParams(
   };
 }
 
-function productStorePricesQueryKey(params: GetPricesParams) {
+/** Cache key for one product's store prices; the server seeds the page under it. */
+export function productStorePricesQueryKey(params: GetPricesParams) {
   return ["cijene", "prices", "product", canonicalizeStorePricesParams(params)];
 }
 

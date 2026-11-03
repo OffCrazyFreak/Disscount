@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { authClient } from "@/lib/auth/client";
 import { localePath } from "@/i18n/locale-path";
 import { useUser } from "@/context/user-context";
+import { clientEnv } from "@/lib/env";
 
 // Sends the standard reset email to the signed-in user, so a forgotten current
 // password is not a dead end inside settings.
@@ -22,7 +23,7 @@ export function usePasswordRecovery() {
   async function send() {
     if (!currentEmail || sending) return;
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin;
+    const appUrl = clientEnv.NEXT_PUBLIC_APP_URL ?? window.location.origin;
     setSending(true);
 
     try {
