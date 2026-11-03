@@ -1,0 +1,1031 @@
+{
+  "enums" : {
+    "AccountType" : [ "ADMIN", "CONSUMER", "ENTERPRISE", "PUBLIC_SECTOR" ],
+    "AcquisitionChannel" : [ "APP_STORE", "BLOG_OR_NEWS", "EVENT", "FACEBOOK", "FRIEND_OR_FAMILY", "GOOGLE_SEARCH", "INSTAGRAM", "ONLINE_AD", "OTHER", "POSTER_OR_FLYER", "TIKTOK", "YOUTUBE" ],
+    "CardPhotoSlot" : [ "back", "front", "icon" ],
+    "HiddenReason" : [ "ADMIN", "JOB_SKIPPED" ],
+    "ImageSource" : [ "ADMIN", "OPEN_FOOD_FACTS", "USER" ],
+    "ImageStatus" : [ "CANDIDATE", "HIDDEN", "PENDING", "VERIFIED" ],
+    "LinkAccess" : [ "EDIT", "NONE", "SHOP", "VIEW" ],
+    "ListAccess" : [ "EDIT", "NONE", "OWNER", "SHOP", "VIEW" ],
+    "Preference" : [ "FAVORITE_STORES", "PINNED_PLACES", "PINNED_STORES" ],
+    "QueueFilter" : [ "PENDING", "REPORTED", "TODO" ],
+    "Route" : [ "CROP_PHOTO", "DELETE_CONTACT", "DELETE_USER", "GET_CONTACT", "LIST_CONTACT", "LIST_USERS", "MARK_CONTACT_READ", "MARK_CONTACT_UNREAD", "MARK_REVIEWED", "PHOTO_ORIGINAL", "PHOTO_QUEUE", "PRODUCT_PHOTOS", "REFRESH_FROM_OFF", "RESTORE_CONTACT", "SET_MAIN_PHOTO", "SET_PHOTO_STATUS", "UPDATE_ACCOUNT_TYPE" ],
+    "WatchType" : [ "ABSOLUTE", "PERCENTAGE" ]
+  },
+  "schemas" : {
+    "AdminImageDto" : {
+      "properties" : {
+        "createdAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "crop" : {
+          "$ref" : "#/components/schemas/CropDto"
+        },
+        "fullUrl" : {
+          "type" : "string"
+        },
+        "id" : {
+          "format" : "uuid",
+          "type" : "string"
+        },
+        "lang" : {
+          "type" : "string"
+        },
+        "main" : {
+          "type" : "boolean"
+        },
+        "originalHeight" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "originalUrl" : {
+          "type" : "string"
+        },
+        "originalWidth" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "previewUrl" : {
+          "type" : "string"
+        },
+        "rendered" : {
+          "type" : "boolean"
+        },
+        "reportCount" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "rotation" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "source" : {
+          "type" : "string"
+        },
+        "status" : {
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
+    "AdminProductDto" : {
+      "properties" : {
+        "brand" : {
+          "type" : "string"
+        },
+        "chainCount" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "ean" : {
+          "type" : "string"
+        },
+        "images" : {
+          "items" : {
+            "$ref" : "#/components/schemas/AdminImageDto"
+          },
+          "type" : "array"
+        },
+        "mainImageId" : {
+          "format" : "uuid",
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "needsReview" : {
+          "type" : "boolean"
+        },
+        "offDetailsFetchedAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "pinned" : {
+          "type" : "boolean"
+        },
+        "reviewedAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "storeListings" : {
+          "format" : "int32",
+          "type" : "integer"
+        }
+      },
+      "type" : "object"
+    },
+    "AdminQueueItemDto" : {
+      "properties" : {
+        "brand" : {
+          "type" : "string"
+        },
+        "chainCount" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "ean" : {
+          "type" : "string"
+        },
+        "imageCount" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "needsReview" : {
+          "type" : "boolean"
+        },
+        "pendingCount" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "previewUrl" : {
+          "type" : "string"
+        },
+        "reportedCount" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "reviewedAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "storeListings" : {
+          "format" : "int32",
+          "type" : "integer"
+        }
+      },
+      "type" : "object"
+    },
+    "AdminQueuePageDto" : {
+      "properties" : {
+        "items" : {
+          "items" : {
+            "$ref" : "#/components/schemas/AdminQueueItemDto"
+          },
+          "type" : "array"
+        },
+        "page" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "reviewedCount" : {
+          "format" : "int64",
+          "type" : "integer"
+        },
+        "size" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "total" : {
+          "format" : "int64",
+          "type" : "integer"
+        }
+      },
+      "type" : "object"
+    },
+    "BulkFavoriteStoreRequest" : {
+      "properties" : {
+        "stores" : {
+          "items" : {
+            "$ref" : "#/components/schemas/FavoriteStoreRequest"
+          },
+          "maxItems" : 10,
+          "minItems" : 0,
+          "type" : "array"
+        }
+      },
+      "required" : [ "stores" ],
+      "type" : "object"
+    },
+    "BulkPinnedPlaceRequest" : {
+      "properties" : {
+        "places" : {
+          "items" : {
+            "$ref" : "#/components/schemas/PinnedPlaceRequest"
+          },
+          "type" : "array"
+        }
+      },
+      "type" : "object"
+    },
+    "BulkPinnedStoreRequest" : {
+      "properties" : {
+        "stores" : {
+          "items" : {
+            "$ref" : "#/components/schemas/PinnedStoreRequest"
+          },
+          "type" : "array"
+        }
+      },
+      "type" : "object"
+    },
+    "CardArchiveRequest" : {
+      "properties" : {
+        "archived" : {
+          "type" : "boolean"
+        }
+      },
+      "required" : [ "archived" ],
+      "type" : "object"
+    },
+    "CardPhotoDto" : {
+      "properties" : {
+        "sha256" : {
+          "type" : "string"
+        },
+        "slot" : {
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
+    "CardPinRequest" : {
+      "properties" : {
+        "pinned" : {
+          "type" : "boolean"
+        }
+      },
+      "required" : [ "pinned" ],
+      "type" : "object"
+    },
+    "CardUsedEntry" : {
+      "properties" : {
+        "id" : {
+          "format" : "uuid",
+          "type" : "string"
+        },
+        "usedAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        }
+      },
+      "required" : [ "id", "usedAt" ],
+      "type" : "object"
+    },
+    "ContactMessageDto" : {
+      "properties" : {
+        "createdAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "deletedAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "email" : {
+          "type" : "string"
+        },
+        "fullName" : {
+          "type" : "string"
+        },
+        "id" : {
+          "format" : "uuid",
+          "type" : "string"
+        },
+        "message" : {
+          "type" : "string"
+        },
+        "readAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "sourcePath" : {
+          "type" : "string"
+        },
+        "subject" : {
+          "type" : "string"
+        },
+        "updatedAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "userId" : {
+          "format" : "uuid",
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
+    "ContactMessageRequest" : {
+      "properties" : {
+        "email" : {
+          "format" : "email",
+          "maxLength" : 255,
+          "minLength" : 0,
+          "type" : "string"
+        },
+        "fullName" : {
+          "maxLength" : 255,
+          "minLength" : 0,
+          "type" : "string"
+        },
+        "honeypot" : {
+          "type" : "string"
+        },
+        "message" : {
+          "maxLength" : 5000,
+          "minLength" : 0,
+          "type" : "string"
+        },
+        "sourcePath" : {
+          "maxLength" : 255,
+          "minLength" : 0,
+          "type" : "string"
+        },
+        "subject" : {
+          "maxLength" : 255,
+          "minLength" : 0,
+          "type" : "string"
+        }
+      },
+      "required" : [ "message", "subject" ],
+      "type" : "object"
+    },
+    "CropDto" : {
+      "properties" : {
+        "height" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "width" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "x" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "y" : {
+          "format" : "int32",
+          "type" : "integer"
+        }
+      },
+      "type" : "object"
+    },
+    "CropRequest" : {
+      "properties" : {
+        "crop" : {
+          "$ref" : "#/components/schemas/CropDto"
+        },
+        "rotation" : {
+          "format" : "int32",
+          "type" : "integer"
+        }
+      },
+      "type" : "object"
+    },
+    "DigitalCardDto" : {
+      "properties" : {
+        "archivedAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "balance" : {
+          "type" : "number"
+        },
+        "balanceUnit" : {
+          "type" : "string"
+        },
+        "barcodeValue" : {
+          "type" : "string"
+        },
+        "cardColor" : {
+          "type" : "string"
+        },
+        "cardName" : {
+          "type" : "string"
+        },
+        "cardType" : {
+          "type" : "string"
+        },
+        "chainCode" : {
+          "type" : "string"
+        },
+        "codeType" : {
+          "type" : "string"
+        },
+        "codeValue" : {
+          "type" : "string"
+        },
+        "createdAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "expiresOn" : {
+          "format" : "date",
+          "type" : "string"
+        },
+        "id" : {
+          "format" : "uuid",
+          "type" : "string"
+        },
+        "lastUsedAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "note" : {
+          "type" : "string"
+        },
+        "photos" : {
+          "items" : {
+            "$ref" : "#/components/schemas/CardPhotoDto"
+          },
+          "type" : "array"
+        },
+        "pinnedAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "storeName" : {
+          "type" : "string"
+        },
+        "updatedAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "validFrom" : {
+          "format" : "date",
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
+    "DigitalCardRequest" : {
+      "properties" : {
+        "balance" : {
+          "maximum" : 1000000,
+          "minimum" : 0,
+          "type" : "number"
+        },
+        "balanceUnit" : {
+          "pattern" : "^[A-Z]{3}$",
+          "type" : "string"
+        },
+        "barcodeValue" : {
+          "maxLength" : 4096,
+          "minLength" : 0,
+          "type" : "string"
+        },
+        "cardColor" : {
+          "pattern" : "^#[0-9A-Fa-f]{6}$",
+          "type" : "string"
+        },
+        "cardName" : {
+          "minLength" : 1,
+          "type" : "string"
+        },
+        "cardType" : {
+          "pattern" : "loyalty|gift|membership|other",
+          "type" : "string"
+        },
+        "chainCode" : {
+          "maxLength" : 40,
+          "minLength" : 0,
+          "pattern" : "^[a-z0-9_-]+$",
+          "type" : "string"
+        },
+        "codeType" : {
+          "pattern" : "ean_13|ean_8|upc_a|upc_e|code_128|code_39|code_93|codabar|itf|qr_code|aztec|data_matrix|pdf417|unknown",
+          "type" : "string"
+        },
+        "codeValue" : {
+          "maxLength" : 4096,
+          "minLength" : 0,
+          "type" : "string"
+        },
+        "expiresOn" : {
+          "format" : "date",
+          "type" : "string"
+        },
+        "note" : {
+          "maxLength" : 500,
+          "minLength" : 0,
+          "type" : "string"
+        },
+        "storeName" : {
+          "minLength" : 1,
+          "type" : "string"
+        },
+        "validFrom" : {
+          "format" : "date",
+          "type" : "string"
+        }
+      },
+      "required" : [ "cardColor", "cardName", "cardType", "codeType", "codeValue", "storeName" ],
+      "type" : "object"
+    },
+    "DigitalCardsConfigDto" : {
+      "properties" : {
+        "photosEnabled" : {
+          "type" : "boolean"
+        }
+      },
+      "type" : "object"
+    },
+    "FavoriteStoreDto" : {
+      "properties" : {
+        "id" : {
+          "format" : "uuid",
+          "type" : "string"
+        },
+        "storeKey" : {
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
+    "FavoriteStoreRequest" : {
+      "properties" : {
+        "storeKey" : {
+          "maxLength" : 100,
+          "minLength" : 0,
+          "type" : "string"
+        }
+      },
+      "required" : [ "storeKey" ],
+      "type" : "object"
+    },
+    "ImageStatusRequest" : {
+      "properties" : {
+        "status" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "status" ],
+      "type" : "object"
+    },
+    "ListedEansDto" : {
+      "properties" : {
+        "eans" : {
+          "items" : {
+            "type" : "string"
+          },
+          "type" : "array"
+        }
+      },
+      "type" : "object"
+    },
+    "PinnedPlaceDto" : {
+      "properties" : {
+        "id" : {
+          "format" : "uuid",
+          "type" : "string"
+        },
+        "placeApiId" : {
+          "type" : "string"
+        },
+        "placeName" : {
+          "type" : "string"
+        },
+        "userId" : {
+          "format" : "uuid",
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
+    "PinnedPlaceRequest" : {
+      "properties" : {
+        "placeApiId" : {
+          "minLength" : 1,
+          "type" : "string"
+        },
+        "placeName" : {
+          "minLength" : 1,
+          "type" : "string"
+        }
+      },
+      "required" : [ "placeApiId", "placeName" ],
+      "type" : "object"
+    },
+    "PinnedStoreDto" : {
+      "properties" : {
+        "id" : {
+          "format" : "uuid",
+          "type" : "string"
+        },
+        "storeApiId" : {
+          "type" : "string"
+        },
+        "storeName" : {
+          "type" : "string"
+        },
+        "userId" : {
+          "format" : "uuid",
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
+    "PinnedStoreRequest" : {
+      "properties" : {
+        "storeApiId" : {
+          "minLength" : 1,
+          "type" : "string"
+        },
+        "storeName" : {
+          "minLength" : 1,
+          "type" : "string"
+        }
+      },
+      "required" : [ "storeApiId", "storeName" ],
+      "type" : "object"
+    },
+    "ProductImageDto" : {
+      "properties" : {
+        "fullUrl" : {
+          "type" : "string"
+        },
+        "id" : {
+          "format" : "uuid",
+          "type" : "string"
+        },
+        "source" : {
+          "type" : "string"
+        },
+        "status" : {
+          "type" : "string"
+        },
+        "thumbUrl" : {
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
+    "ProductImagesDto" : {
+      "properties" : {
+        "ean" : {
+          "type" : "string"
+        },
+        "images" : {
+          "items" : {
+            "$ref" : "#/components/schemas/ProductImageDto"
+          },
+          "type" : "array"
+        }
+      },
+      "type" : "object"
+    },
+    "ProductThumbnailsDto" : {
+      "properties" : {
+        "thumbnails" : {
+          "additionalProperties" : {
+            "type" : "string"
+          },
+          "type" : "object"
+        }
+      },
+      "type" : "object"
+    },
+    "SetMainRequest" : {
+      "properties" : {
+        "imageId" : {
+          "format" : "uuid",
+          "type" : "string"
+        }
+      },
+      "required" : [ "imageId" ],
+      "type" : "object"
+    },
+    "ShoppingListCopyRequest" : {
+      "properties" : {
+        "includeItems" : {
+          "type" : "boolean"
+        },
+        "includeProgress" : {
+          "type" : "boolean"
+        },
+        "includeSharing" : {
+          "type" : "boolean"
+        },
+        "title" : {
+          "minLength" : 1,
+          "type" : "string"
+        }
+      },
+      "required" : [ "title" ],
+      "type" : "object"
+    },
+    "ShoppingListDto" : {
+      "properties" : {
+        "createdAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "id" : {
+          "format" : "uuid",
+          "type" : "string"
+        },
+        "items" : {
+          "items" : {
+            "$ref" : "#/components/schemas/ShoppingListItemDto"
+          },
+          "type" : "array"
+        },
+        "linkAccess" : {
+          "enum" : [ "NONE", "VIEW", "SHOP", "EDIT", "OWNER" ],
+          "type" : "string"
+        },
+        "myAccess" : {
+          "enum" : [ "NONE", "VIEW", "SHOP", "EDIT", "OWNER" ],
+          "type" : "string"
+        },
+        "ownerId" : {
+          "format" : "uuid",
+          "type" : "string"
+        },
+        "title" : {
+          "type" : "string"
+        },
+        "updatedAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
+    "ShoppingListItemDto" : {
+      "properties" : {
+        "amount" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "avgPrice" : {
+          "type" : "number"
+        },
+        "brand" : {
+          "type" : "string"
+        },
+        "chainCode" : {
+          "type" : "string"
+        },
+        "createdAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "ean" : {
+          "type" : "string"
+        },
+        "id" : {
+          "format" : "uuid",
+          "type" : "string"
+        },
+        "isChecked" : {
+          "type" : "boolean"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "quantity" : {
+          "type" : "string"
+        },
+        "shoppingListId" : {
+          "format" : "uuid",
+          "type" : "string"
+        },
+        "storePrice" : {
+          "type" : "number"
+        },
+        "unit" : {
+          "type" : "string"
+        },
+        "updatedAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "updatedByUserId" : {
+          "format" : "uuid",
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
+    "ShoppingListItemRequest" : {
+      "properties" : {
+        "amount" : {
+          "format" : "int32",
+          "maximum" : 999,
+          "minimum" : 1,
+          "type" : "integer"
+        },
+        "avgPrice" : {
+          "type" : "number"
+        },
+        "brand" : {
+          "type" : "string"
+        },
+        "chainCode" : {
+          "pattern" : "^[a-z0-9_-]+$",
+          "type" : "string"
+        },
+        "ean" : {
+          "type" : "string"
+        },
+        "isChecked" : {
+          "type" : "boolean"
+        },
+        "name" : {
+          "minLength" : 1,
+          "type" : "string"
+        },
+        "quantity" : {
+          "type" : "string"
+        },
+        "storePrice" : {
+          "type" : "number"
+        },
+        "unit" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "name" ],
+      "type" : "object"
+    },
+    "ShoppingListRequest" : {
+      "properties" : {
+        "linkAccess" : {
+          "enum" : [ "NONE", "VIEW", "SHOP", "EDIT" ],
+          "type" : "string"
+        },
+        "title" : {
+          "minLength" : 1,
+          "type" : "string"
+        }
+      },
+      "required" : [ "title" ],
+      "type" : "object"
+    },
+    "StoreNameSuggestionDto" : {
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
+    "UpdateAccountTypeRequest" : {
+      "properties" : {
+        "accountType" : {
+          "enum" : [ "ADMIN", "CONSUMER", "ENTERPRISE", "PUBLIC_SECTOR" ],
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
+    "UserDto" : {
+      "properties" : {
+        "accountType" : {
+          "enum" : [ "ADMIN", "CONSUMER", "ENTERPRISE", "PUBLIC_SECTOR" ],
+          "type" : "string"
+        },
+        "acquisitionChannel" : {
+          "enum" : [ "GOOGLE_SEARCH", "INSTAGRAM", "FACEBOOK", "TIKTOK", "YOUTUBE", "FRIEND_OR_FAMILY", "ONLINE_AD", "BLOG_OR_NEWS", "APP_STORE", "POSTER_OR_FLYER", "EVENT", "OTHER" ],
+          "type" : "string"
+        },
+        "createdAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "email" : {
+          "type" : "string"
+        },
+        "feedbackContactEnabledAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "id" : {
+          "format" : "uuid",
+          "type" : "string"
+        },
+        "image" : {
+          "type" : "string"
+        },
+        "lastActiveAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "lastLoginAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "newsletterEnabledAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "notificationsEmailEnabledAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "notificationsPushEnabledAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "onboardingCompletedAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "onboardingOutcome" : {
+          "type" : "string"
+        },
+        "username" : {
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
+    "UserRequest" : {
+      "properties" : {
+        "acquisitionChannel" : {
+          "enum" : [ "GOOGLE_SEARCH", "INSTAGRAM", "FACEBOOK", "TIKTOK", "YOUTUBE", "FRIEND_OR_FAMILY", "ONLINE_AD", "BLOG_OR_NEWS", "APP_STORE", "POSTER_OR_FLYER", "EVENT", "OTHER" ],
+          "type" : "string"
+        },
+        "feedbackContact" : {
+          "type" : "boolean"
+        },
+        "image" : {
+          "maxLength" : 400000,
+          "minLength" : 0,
+          "type" : "string"
+        },
+        "newsletter" : {
+          "type" : "boolean"
+        },
+        "notificationsEmail" : {
+          "type" : "boolean"
+        },
+        "notificationsPush" : {
+          "type" : "boolean"
+        },
+        "onboardingOutcome" : {
+          "pattern" : "completed|skipped:\\d{1,3}",
+          "type" : "string"
+        },
+        "username" : {
+          "maxLength" : 40,
+          "minLength" : 2,
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
+    "WatchlistItemDto" : {
+      "properties" : {
+        "createdAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "id" : {
+          "format" : "uuid",
+          "type" : "string"
+        },
+        "lastNotifiedAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "productApiId" : {
+          "type" : "string"
+        },
+        "thresholdValue" : {
+          "format" : "double",
+          "type" : "number"
+        },
+        "updatedAt" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "userId" : {
+          "format" : "uuid",
+          "type" : "string"
+        },
+        "watchType" : {
+          "enum" : [ "PERCENTAGE", "ABSOLUTE" ],
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
+    "WatchlistItemRequest" : {
+      "properties" : {
+        "productApiId" : {
+          "minLength" : 1,
+          "type" : "string"
+        },
+        "thresholdValue" : {
+          "exclusiveMinimum" : 0,
+          "format" : "double",
+          "type" : "number"
+        },
+        "watchType" : {
+          "enum" : [ "PERCENTAGE", "ABSOLUTE" ],
+          "type" : "string"
+        }
+      },
+      "required" : [ "productApiId", "thresholdValue", "watchType" ],
+      "type" : "object"
+    }
+  }
+}
