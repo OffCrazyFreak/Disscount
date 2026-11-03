@@ -29,7 +29,7 @@ export default function ProductFiltersTrigger({
     <Button
       type="button"
       variant="outline"
-      className={cn("bg-white", className)}
+      className={cn("bg-background", className)}
       {...props}
     >
       <SlidersHorizontal className="size-5" />

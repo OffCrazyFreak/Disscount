@@ -41,7 +41,7 @@ export default function FacetMultiSelect({
     <MultiSelect values={facet.selected} onValuesChange={onValuesChange}>
       <MultiSelectTrigger
         aria-label={label}
-        className={cn("w-full bg-white", className)}
+        className={cn("w-full bg-background", className)}
         disabled={facet.disabled}
       >
         <MultiSelectValue placeholder={placeholder} />
