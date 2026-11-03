@@ -3,6 +3,10 @@ import { skipToken, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
 import { UserDto } from "@/lib/api/types";
+import {
+  canWriteAfterPurges,
+  currentPurgeGeneration,
+} from "@/lib/offline/purge-gate";
 
 /**
  * The signed-in user, or for an unverified account the profile this device last loaded,
@@ -21,7 +25,22 @@ export function useAccountUser(
   });
 
   useEffect(() => {
-    if (user) queryClient.setQueryData(USER_QUERY_KEYS.me, user);
+    if (!user) return;
+
+    // A purge fired on an account switch resets this key after its first await, so a
+    // profile saved before it finishes is wiped and the avatar is blank offline.
+    const generation = currentPurgeGeneration();
+    let isCurrent = true;
+
+    void canWriteAfterPurges(generation).then((canWrite) => {
+      if (canWrite && isCurrent) {
+        queryClient.setQueryData(USER_QUERY_KEYS.me, user);
+      }
+    });
+
+    return () => {
+      isCurrent = false;
+    };
   }, [queryClient, user]);
 
   if (user) return user;
