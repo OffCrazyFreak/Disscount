@@ -95,7 +95,7 @@ Both directions use an allow-list (`forwarded-headers.ts`), never a deny-list.
 | Spring to browser | `content-type`, `cache-control`, `etag`, `last-modified`, `location`, `content-disposition`, `retry-after`, `x-content-type-options` | Everything the app reads.                                                                                                                                      |
 | Spring to browser | dropped: `content-encoding`, `content-length`, `transfer-encoding`, `set-cookie`, `www-authenticate`                                 | Node's `fetch` decodes gzip but keeps `content-encoding`, and forwarding both breaks the browser.                                                              |
 
-When Spring sets no `cache-control`, the proxy sets `private, no-store`, so neither Cloudflare nor the browser HTTP cache keeps an account's JSON. Card photos keep Spring's `private, max-age=31536000, immutable`, but `fetchCardPhotoBlob` asks with the fetch cache mode `no-store`, so the browser HTTP cache never stores or serves them; the account-scoped photo blob store is their only cache.
+When Spring sets no `cache-control`, the proxy sets `private, no-store`, so neither Cloudflare nor the browser HTTP cache keeps an account's JSON. Card photos come from Spring as `no-store, private`, and `fetchCardPhotoBlob` also asks with the fetch cache mode `no-store`, so the browser HTTP cache never stores or serves them; the account-scoped photo blob store is their only cache.
 
 Bodies stream both ways (`duplex: "half"` on the request), so photo uploads are not buffered. 204, 304 and HEAD answers carry no body, and the unread upstream body is cancelled so its pooled connection is freed.
 
@@ -224,5 +224,4 @@ In jsdom tests, an MSW handler calls `actingAs(request)` to learn which account 
 - P3 of #430: close `GET /api/auth/token` to browsers, shorten the backend token to 2 minutes and change the sessions note. Until then a script in the page can still mint a portable token through that endpoint.
 - P4 of #430: load the user profile as a React Query query, now that the pin guarantees a profile response belongs to the tab's account.
 - A short per-session token memo, only if the `auth` timing says it is needed (section 9).
-- Card photos are still sent `private, immutable` for a year. The app's own fetch skips the HTTP cache, but Spring sending `private, no-store` would keep any other reader (a future `<img>` or service worker route) from storing them too.
 - Check the drizzle `pg` pool size against concurrent API calls, since each proxied call now holds a frontend pool connection for the session read.
