@@ -10,8 +10,12 @@ import {
 const PHOTO_TIMEOUT_MS = 3_000;
 const LISTED_EANS_TIMEOUT_MS = 15_000;
 
-/** Full-size main photo of a product, or null when it has none or the backend is unreachable */
-export const getMainPhotoUrl = cache(
+/**
+ * Full-size main photo for public use (share card, JSON-LD), or null when it has none, the
+ * backend is unreachable, or nobody has confirmed it: a user's unconfirmed upload must not
+ * represent the product outside our own gallery, where it carries a badge.
+ */
+export const getVerifiedMainPhotoUrl = cache(
   async (ean: string): Promise<string | null> => {
     try {
       const response = await fetch(
@@ -23,7 +27,8 @@ export const getMainPhotoUrl = cache(
       const { images } = productImagesResponseSchema.parse(
         await response.json(),
       );
-      return images[0]?.fullUrl ?? null;
+      const mainPhoto = images[0];
+      return mainPhoto?.status === "VERIFIED" ? mainPhoto.fullUrl : null;
     } catch {
       return null;
     }

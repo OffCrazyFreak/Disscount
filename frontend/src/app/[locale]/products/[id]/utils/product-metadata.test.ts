@@ -44,11 +44,11 @@ describe("productMetadata", () => {
 
     const card = {
       url: expect.stringMatching(
-        /^http:\/\/localhost:3000\/og\/products\/5449000000996\/[0-9a-f]{16}\.png$/,
+        /^http:\/\/localhost:3000\/og\/products\/5449000000996\/[0-9a-f]{16}\.jpg$/,
       ),
       width: 1200,
       height: 630,
-      type: "image/png",
+      type: "image/jpeg",
       alt: base.title,
     };
 
