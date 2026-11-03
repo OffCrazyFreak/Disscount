@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type RefObject } from "react";
+import { HEADER_BOTTOM_CHANGE_EVENT } from "@/hooks/use-header-bottom-variable";
 
 // Safari has no scrollend yet, so a click's hold on the underline also times out.
 const JUMP_HOLD_FALLBACK_MS = 1200;
@@ -8,7 +9,19 @@ const JUMP_HOLD_FALLBACK_MS = 1200;
 /** Where a section counts as being read: just under the stuck bar. */
 function readActiveLine(nav: HTMLElement): number {
   // The sticky top resolves to px, so this follows the header's measured size.
-  return parseFloat(getComputedStyle(nav).top) + nav.offsetHeight;
+  const top = parseFloat(getComputedStyle(nav).top);
+
+  return (Number.isFinite(top) ? top : 0) + nav.offsetHeight;
+}
+
+/** At the bottom of a page that scrolls at all; one that fits the screen stays on its first section. */
+function readIsAtEnd(): boolean {
+  const { scrollY, innerHeight } = window;
+
+  return (
+    scrollY > 0 &&
+    scrollY + innerHeight >= document.documentElement.scrollHeight - 2
+  );
 }
 
 /** Brings a section under the bar and moves focus into it, as a native anchor jump would. */
@@ -27,7 +40,7 @@ function scrollToSection(section: HTMLElement, isInstant: boolean) {
  *
  * A thin IntersectionObserver band under the bar marks the topmost section
  * crossing it. A short last section never reaches the band, so it takes over
- * once the footer is fully in view on a scrolled page.
+ * once the page is scrolled to the bottom.
  */
 export function useScrollSpy(
   sectionIds: readonly string[],
@@ -36,6 +49,7 @@ export function useScrollSpy(
   const [activeId, setActiveId] = useState<string | null>(null);
   const isJumpingRef = useRef(false);
   const releaseJumpRef = useRef<(() => void) | null>(null);
+  // Only the URL the page was opened with names a section to land on.
   const hasHandledHashRef = useRef(false);
   const idsKey = sectionIds.join(" ");
 
@@ -57,7 +71,7 @@ export function useScrollSpy(
     const first = sections[0];
     const last = sections[sections.length - 1];
     const inBand = new Set<string>();
-    let isAtEnd = false;
+    let isAtEnd = readIsAtEnd();
     let band: IntersectionObserver | null = null;
 
     function pick() {
@@ -90,6 +104,7 @@ export function useScrollSpy(
             if (entry.isIntersecting) inBand.add(entry.target.id);
             else inBand.delete(entry.target.id);
           }
+          isAtEnd = readIsAtEnd();
           pick();
         },
         { rootMargin: `-${line}px 0px -${below - bandHeight}px 0px` },
@@ -97,31 +112,25 @@ export function useScrollSpy(
       sections.forEach((section) => band?.observe(section));
     }
 
-    const end = new IntersectionObserver(
-      ([entry]) => {
-        // A page that fits the screen has no end to reach, so it stays on its first section.
-        isAtEnd = entry.intersectionRatio >= 0.99 && window.scrollY > 0;
-        pick();
-      },
-      { threshold: [0, 0.99] },
-    );
-    const footer = document.querySelector("footer");
-    if (footer) end.observe(footer);
+    // Reads three numbers and acts only when the answer flips, so it stays cheap.
+    function checkEnd() {
+      const next = readIsAtEnd();
+      if (next === isAtEnd) return;
+
+      isAtEnd = next;
+      pick();
+    }
 
     observeBand();
-    // The band hangs off the header's size, which the header publishes on the root's style.
-    const headerWatcher = new MutationObserver(observeBand);
-    headerWatcher.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["style"],
-    });
+    window.addEventListener(HEADER_BOTTOM_CHANGE_EVENT, observeBand);
     window.addEventListener("resize", observeBand);
+    window.addEventListener("scroll", checkEnd, { passive: true });
 
     return () => {
       band?.disconnect();
-      end.disconnect();
-      headerWatcher.disconnect();
+      window.removeEventListener(HEADER_BOTTOM_CHANGE_EVENT, observeBand);
       window.removeEventListener("resize", observeBand);
+      window.removeEventListener("scroll", checkEnd);
     };
   }, [idsKey, navRef]);
 
@@ -147,6 +156,8 @@ export function useScrollSpy(
     const section = document.getElementById(id);
     if (!section) return;
 
+    // The hash this writes is the reader's own, not one to land on when sections change.
+    hasHandledHashRef.current = true;
     holdUntilScrollEnds();
     setActiveId(id);
     scrollToSection(

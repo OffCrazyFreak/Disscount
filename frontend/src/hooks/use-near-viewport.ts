@@ -14,7 +14,12 @@ export function useNearViewport<TElement extends Element>(
 
   useEffect(() => {
     const element = ref.current;
-    if (isNear || !element || typeof IntersectionObserver === "undefined") {
+    if (isNear || !element) return;
+
+    // Without the observer there is no way to wait, so load now rather than never.
+    if (typeof IntersectionObserver === "undefined") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsNear(true);
       return;
     }
 

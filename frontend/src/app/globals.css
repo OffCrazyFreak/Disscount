@@ -631,6 +631,12 @@ html {
   scroll-behavior: smooth;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 .font-saira-stencil-semibold {
   font-family: var(--font-saira-stencil), ui-sans-serif, sans-serif;
   font-weight: 600;
