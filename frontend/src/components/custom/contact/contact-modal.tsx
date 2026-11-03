@@ -69,11 +69,18 @@ export default function ContactModal({ open }: IContactModalProps) {
 
   // The profile becomes the defaults, so the draft engine diffs against it and its
   // restore, which runs after this effect, lays the draft on top.
+  // Keyed on the strings: the session hands back a new user object on every poll, and
+  // each reset would clear the errors shown under the fields.
+  const profileEmail = user?.email;
+  const profileName = user?.name;
   useEffect(() => {
     if (!isReady) return;
 
-    form.reset(profileValues(user), { keepDirtyValues: true, keepDirty: true });
-  }, [isReady, user, form]);
+    form.reset(profileValues({ email: profileEmail, name: profileName }), {
+      keepDirtyValues: true,
+      keepDirty: true,
+    });
+  }, [isReady, profileEmail, profileName, form]);
 
   // Neither is user content, so keep them out of localStorage.
   const { restored, clearDraft } = useFormDraft({
