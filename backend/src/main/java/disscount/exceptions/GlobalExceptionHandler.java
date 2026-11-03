@@ -8,18 +8,22 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +44,13 @@ import java.util.Map;
  * <p>Titles and details are message codes resolved against messages*.properties in the
  * request's Accept-Language. An exception message that is not a known code is shown as
  * written, so a code missing from the bundle degrades to its own text, not to a blank.
+ *
+ * <p>Spring MVC's own exceptions (415, a missing parameter and the rest) are answered by
+ * {@link ResponseEntityExceptionHandler} and reshaped in {@link #handleExceptionInternal}; their
+ * details come from the problemDetail.&lt;exception class&gt; codes in the same bundles.
  */
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
@@ -72,19 +80,20 @@ public class GlobalExceptionHandler {
         return problem(HttpStatus.NOT_FOUND, "not-found", message(ex.getMessage()));
     }
 
-    /** Spring 6.1 raises this for an unmatched URL, which the catch-all below would turn into a 500. */
-    @ExceptionHandler(NoResourceFoundException.class)
-    public ProblemDetail handleNoResource(NoResourceFoundException ex) {
-        return problem(HttpStatus.NOT_FOUND, "not-found", message("problem.title.not-found"));
+    @Override
+    protected ResponseEntity<Object> handleNoResourceFoundException(
+            NoResourceFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        return respond(ex, problem(HttpStatus.NOT_FOUND, "not-found", message("problem.title.not-found")),
+                headers, status, request);
     }
 
-    /** A known route called with the wrong method; the catch-all below would turn it into a 500. */
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ProblemDetail> handleMethodNotAllowed(HttpRequestMethodNotSupportedException ex) {
+    /** The headers Spring passes in carry the Allow list RFC 9110 requires on a 405. */
+    @Override
+    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         ProblemDetail detail = problem(HttpStatus.METHOD_NOT_ALLOWED, "method-not-allowed",
                 message("problem.detail.method-not-allowed", ex.getMethod()));
-        // RFC 9110 requires a 405 to carry Allow, which the exception already holds.
-        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).headers(ex.getHeaders()).body(detail);
+        return respond(ex, detail, headers, status, request);
     }
 
     @ExceptionHandler(ConflictException.class)
@@ -108,16 +117,20 @@ public class GlobalExceptionHandler {
                 .body(detail);
     }
 
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ProblemDetail handleUploadTooLarge(MaxUploadSizeExceededException ex) {
-        return problem(HttpStatus.CONTENT_TOO_LARGE, "payload-too-large",
+    @Override
+    protected ResponseEntity<Object> handleMaxUploadSizeExceededException(
+            MaxUploadSizeExceededException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ProblemDetail detail = problem(HttpStatus.CONTENT_TOO_LARGE, "payload-too-large",
                 message("error.cardPhoto.tooLarge", String.valueOf(PhotoValidator.MAX_BYTES / 1024)));
+        return respond(ex, detail, headers, status, request);
     }
 
-    @ExceptionHandler(MissingServletRequestPartException.class)
-    public ProblemDetail handleMissingPart(MissingServletRequestPartException ex) {
-        return problem(HttpStatus.BAD_REQUEST, "bad-request",
+    @Override
+    protected ResponseEntity<Object> handleMissingServletRequestPart(
+            MissingServletRequestPartException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ProblemDetail detail = problem(HttpStatus.BAD_REQUEST, "bad-request",
                 message("problem.detail.missing-part", ex.getRequestPartName()));
+        return respond(ex, detail, headers, status, request);
     }
 
     /**
@@ -172,8 +185,9 @@ public class GlobalExceptionHandler {
         return ex.getClass().getSimpleName();
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException ex) {
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         Map<String, String> fieldErrors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
             String key = (error instanceof FieldError fieldError)
@@ -185,7 +199,7 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetail =
                 problem(HttpStatus.BAD_REQUEST, "validation", message("problem.detail.validation"));
         problemDetail.setProperty("fieldErrors", fieldErrors);
-        return problemDetail;
+        return respond(ex, problemDetail, headers, status, request);
     }
 
     /**
@@ -248,10 +262,47 @@ public class GlobalExceptionHandler {
                 message("problem.detail.type-mismatch", ex.getName()));
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ProblemDetail handleNotReadable(HttpMessageNotReadableException ex) {
-        return problem(HttpStatus.BAD_REQUEST, "malformed-request",
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ProblemDetail detail = problem(HttpStatus.BAD_REQUEST, "malformed-request",
                 message("problem.detail.malformed-request"));
+        return respond(ex, detail, headers, status, request);
+    }
+
+    /**
+     * Every Spring MVC exception not overridden above lands here; Spring's detail, localised from
+     * the problemDetail.* codes, is kept, and the type and title are set to ours.
+     */
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(
+            Exception ex, Object body, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        if (status.is5xxServerError()) {
+            log.error("Unhandled exception caught", ex);
+        }
+        String springDetail = ex instanceof ErrorResponse errorResponse
+                ? errorResponse.updateAndGetBody(messageSource, LocaleContextHolder.getLocale()).getDetail()
+                : null;
+        String detailText = springDetail != null ? springDetail : message("problem.detail.internal-error");
+        String type = typeFor(status);
+        ProblemDetail detail = problem(HttpStatus.valueOf(status.value()), type, detailText);
+        return respond(ex, detail, headers, status, request);
+    }
+
+    private static String typeFor(HttpStatusCode status) {
+        return switch (status.value()) {
+            case 404 -> "not-found";
+            case 405 -> "method-not-allowed";
+            case 413 -> "payload-too-large";
+            case 415 -> "unsupported-media-type";
+            case 503 -> "unavailable";
+            default -> status.is5xxServerError() ? "internal-error" : "bad-request";
+        };
+    }
+
+    private ResponseEntity<Object> respond(
+            Exception ex, ProblemDetail body, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        return super.handleExceptionInternal(ex, body, headers, status, request);
     }
 
     @ExceptionHandler(Exception.class)
