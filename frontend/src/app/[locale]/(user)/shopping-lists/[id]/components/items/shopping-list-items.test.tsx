@@ -7,6 +7,7 @@ import ShoppingListItems from "@/app/[locale]/(user)/shopping-lists/[id]/compone
 import type { ItemPriceState } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
 import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
 import { renderWithProviders } from "@/test/render";
+import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
 
 vi.mock("@/i18n/navigation", () => ({
   Link: ({ href, ...props }: ComponentProps<"a"> & { href: string }) => (
@@ -39,6 +40,7 @@ beforeEach(() => {
 
 function item(id: string, extra: Partial<ShoppingListItemDto> = {}) {
   return {
+    ...UNSET_ITEM_FIELDS,
     id,
     ean: id,
     name: id,
@@ -81,6 +83,8 @@ function listItems(
   const list: ShoppingListDto = {
     id: "list-1",
     title: "Tjedni",
+    ownerId: null,
+    linkAccess: null,
     myAccess,
     createdAt: "2026-10-27T00:00:00",
     updatedAt: "2026-10-27T00:00:00",

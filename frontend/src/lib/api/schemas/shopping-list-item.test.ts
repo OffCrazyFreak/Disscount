@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import { MAX_SHOPPING_LIST_ITEM_AMOUNT } from "@/constants/shopping-list";
 import { shoppingListDtoSchema } from "@/lib/api/schemas/shopping-list";
-import { shoppingListItemDtoSchema } from "@/lib/api/schemas/shopping-list-item";
+import {
+  shoppingListItemDtoSchema,
+  shoppingListItemRequestSchema,
+} from "@/lib/api/schemas/shopping-list-item";
 
 // The shape ShoppingListItemDto serializes: Jackson sends every key, unset ones as null.
 const storedItem = {
@@ -60,5 +63,32 @@ describe("shoppingListItemDtoSchema", () => {
     });
 
     expect(parsed.ean).toBeNull();
+  });
+
+  it("rejects an item that drops a key the backend always sends", () => {
+    const { updatedByUserId: _omitted, ...withoutKey } = storedItem;
+
+    expect(shoppingListItemDtoSchema.safeParse(withoutKey).success).toBe(false);
+  });
+
+  it("rejects a list that drops the owner-only keys instead of sending null", () => {
+    const list = {
+      id: storedItem.shoppingListId,
+      title: "Tjedna kupnja",
+      myAccess: "SHOP",
+      createdAt: "2026-11-03T09:00:00",
+      updatedAt: "2026-11-03T09:15:00",
+      items: [],
+    };
+
+    expect(shoppingListDtoSchema.safeParse(list).success).toBe(false);
+  });
+});
+
+describe("shoppingListItemRequestSchema", () => {
+  it("still lets a request leave out the catalog fields", () => {
+    const parsed = shoppingListItemRequestSchema.parse({ name: "Kruh" });
+
+    expect(parsed).toEqual({ name: "Kruh", amount: 1, isChecked: false });
   });
 });

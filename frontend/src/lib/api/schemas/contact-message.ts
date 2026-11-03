@@ -21,12 +21,12 @@ export const contactMessageRequestSchema = z.object({
 // never reject a message the server already stored.
 export const contactMessageDtoSchema = z.object({
   id: z.string(),
-  userId: z.string().nullable().optional(),
-  email: z.string().nullable().optional(),
-  fullName: z.string().nullable().optional(),
+  userId: z.string().nullable(),
+  email: z.string().nullable(),
+  fullName: z.string().nullable(),
   subject: z.string(),
   message: z.string(),
-  sourcePath: z.string().nullable().optional(),
+  sourcePath: z.string().nullable(),
   readAt: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),

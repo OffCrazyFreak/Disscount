@@ -59,26 +59,27 @@ export const userRequestSchema = z.object({
 // Its own object, so the form's username limits never reject an account the server holds.
 export const userDtoSchema = z.object({
   id: z.string(),
-  username: z.string().nullable().optional(),
-  acquisitionChannel: acquisitionChannelSchema.nullable().optional(),
-  image: z.string().nullable().optional(),
-  email: z.string().nullable().optional(),
-  name: z.string().nullable().optional(),
+  username: z.string().nullable(),
+  acquisitionChannel: acquisitionChannelSchema.nullable(),
+  image: z.string().nullable(),
+  email: z.string().nullable(),
   accountType: z.enum(["ADMIN", "CONSUMER", "ENTERPRISE", "PUBLIC_SECTOR"]),
   // Enable-timestamps (ISO strings); null = off. Drives the profile switches AND stats dashboards.
-  notificationsPushEnabledAt: z.string().nullable().optional(),
-  notificationsEmailEnabledAt: z.string().nullable().optional(),
-  newsletterEnabledAt: z.string().nullable().optional(),
-  feedbackContactEnabledAt: z.string().nullable().optional(),
+  notificationsPushEnabledAt: z.string().nullable(),
+  notificationsEmailEnabledAt: z.string().nullable(),
+  newsletterEnabledAt: z.string().nullable(),
+  feedbackContactEnabledAt: z.string().nullable(),
   // Only a completed outcome satisfies the onboarding gate. Historical skipped
   // outcomes remain incomplete even though they have a completion timestamp.
-  onboardingCompletedAt: z.string().nullable().optional(),
-  onboardingOutcome: z.string().nullable().optional(),
+  onboardingCompletedAt: z.string().nullable(),
+  onboardingOutcome: z.string().nullable(),
   createdAt: z.string(),
   // Admin list only; derived from the better-auth session rows.
-  lastLoginAt: z.string().nullable().optional(),
+  lastLoginAt: z.string().nullable(),
   // Present on every UserDto, and what the active-user counters read.
-  lastActiveAt: z.string().nullable().optional(),
+  lastActiveAt: z.string().nullable(),
+  // Not on the wire: the client fills these from the session and the preferences endpoints.
+  name: z.string().nullable().optional(),
   pinnedStores: z
     .array(
       z.object({

@@ -10,8 +10,19 @@ const DAY = 24 * HOUR;
 function userLastActive(offsetFromNow: number | null): UserDto {
   return {
     id: crypto.randomUUID(),
+    username: null,
+    acquisitionChannel: null,
+    image: null,
+    email: null,
     accountType: "CONSUMER",
+    notificationsPushEnabledAt: null,
+    notificationsEmailEnabledAt: null,
+    newsletterEnabledAt: null,
+    feedbackContactEnabledAt: null,
+    onboardingCompletedAt: null,
+    onboardingOutcome: null,
     createdAt: "2026-01-01T00:00:00Z",
+    lastLoginAt: null,
     lastActiveAt:
       offsetFromNow === null
         ? null
