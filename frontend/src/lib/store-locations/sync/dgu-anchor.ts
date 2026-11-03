@@ -9,6 +9,7 @@ import type {
   ILocatorStore,
   IResolvedLocation,
 } from "@/lib/store-locations/store-location-types";
+import { serverEnv } from "@/lib/server-env";
 
 type Point = { lat: number; lon: number };
 
@@ -46,7 +47,7 @@ export function createDguAnchor(
     if (record) return record.approximate ? null : record;
 
     if (!target.address || target.skipGeoapify) return null;
-    if (!process.env.GEOAPIFY_API_KEY) return null;
+    if (!serverEnv.GEOAPIFY_API_KEY) return null;
 
     if (geocoded++ > 0) await delay(GEOAPIFY_INTERVAL_MS, signal);
 

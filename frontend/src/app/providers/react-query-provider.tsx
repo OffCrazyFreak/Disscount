@@ -11,6 +11,7 @@ import { createQueryClientConfig } from "@/lib/api/query-client-defaults";
 import { bindLastUsedQueryClient } from "@/lib/api/digital-cards/last-used";
 import { replayCardPhotoOutbox } from "@/lib/offline/card-photo-outbox";
 import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
+import { clientEnv } from "@/lib/env";
 
 interface IReactQueryProviderWrapperProps {
   children: ReactNode;
@@ -68,7 +69,7 @@ export default function ReactQueryProviderWrapper({
 
       {/* Its floating button sits over the mobile bottom nav, so it is opt-in
           via NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS=true, like react-scan. */}
-      {process.env.NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS === "true" && (
+      {clientEnv.NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS && (
         <ReactQueryDevtools />
       )}
     </PersistQueryClientProvider>

@@ -106,6 +106,34 @@ const eslintConfig = defineConfig([
     ],
     rules: { "i18next/no-literal-string": "off" },
   },
+  // Every variable goes through the validated env modules. NODE_ENV and NEXT_RUNTIME stay
+  // literal because the bundler replaces them and drops the dead branch.
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: [
+      "src/lib/env.ts",
+      "src/lib/server-env.ts",
+      "src/**/*.test.{ts,tsx}",
+      "src/test/**",
+    ],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "MemberExpression[object.object.name='process'][object.property.name='env'][property.name!=/^(NODE_ENV|NEXT_RUNTIME)$/]",
+          message:
+            "Read environment variables through clientEnv (@/lib/env) or serverEnv (@/lib/server-env).",
+        },
+        {
+          selector:
+            ":not(MemberExpression) > MemberExpression[object.name='process'][property.name='env']",
+          message:
+            "Read environment variables through clientEnv (@/lib/env) or serverEnv (@/lib/server-env).",
+        },
+      ],
+    },
+  },
   // Test fixtures pass literal labels; they are inputs, never shown to anyone.
   {
     files: ["src/**/*.test.tsx", "src/test/**"],

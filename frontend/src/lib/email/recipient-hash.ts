@@ -2,14 +2,11 @@ import "server-only";
 
 import { createHmac } from "node:crypto";
 
-import { requireEnv } from "@/lib/env";
+import { serverEnv } from "@/lib/server-env";
 import { inboxKey } from "@/lib/email/recipient-send-cap";
 
 // A sub-key of the auth secret, so this hash never shares a key with better-auth's own signatures.
-const RECIPIENT_HASH_KEY = createHmac(
-  "sha256",
-  requireEnv("BETTER_AUTH_SECRET"),
-)
+const RECIPIENT_HASH_KEY = createHmac("sha256", serverEnv.BETTER_AUTH_SECRET)
   .update("email-send-log")
   .digest();
 

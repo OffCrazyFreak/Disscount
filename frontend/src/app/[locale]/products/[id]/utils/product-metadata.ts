@@ -7,6 +7,7 @@ import {
 } from "@/i18n/locales";
 import { isIndexableOrigin } from "@/utils/indexing";
 import { productPageUrl } from "@/utils/product-links";
+import { clientEnv } from "@/lib/env";
 
 interface IProductMetadataInput {
   ean: string;
@@ -68,7 +69,7 @@ export function translatedProductRobots(locale: AppLocale): Metadata {
   return {
     robots: {
       index: false,
-      follow: isIndexableOrigin(process.env.NEXT_PUBLIC_APP_URL),
+      follow: isIndexableOrigin(clientEnv.NEXT_PUBLIC_APP_URL),
     },
   };
 }

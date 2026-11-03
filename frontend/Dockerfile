@@ -40,8 +40,9 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Placeholder SERVER env, scoped to the build command only (not persisted as image
-# metadata). They satisfy modules that requireEnv() at import time; none are NEXT_PUBLIC,
-# so nothing is baked into the output, and real values come from the container at runtime.
+# metadata). They satisfy src/lib/server-env.ts, which modules read at import time; none
+# are NEXT_PUBLIC, so nothing is baked into the output, and real values come from the
+# container at runtime.
 # SENTRY_AUTH_TOKEN arrives as a BuildKit secret so it never lands in a layer of this public
 # image; when CI passes no secret, the build skips the source map upload.
 RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \

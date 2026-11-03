@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import { authClient } from "@/lib/auth/client";
 import { localePath } from "@/i18n/locale-path";
+import { clientEnv } from "@/lib/env";
 
 const forgotPasswordSchema = z.object({
   email: z.email("auth.validation.emailInvalid"),
@@ -25,7 +26,7 @@ export function useForgotPasswordForm() {
   });
 
   async function onSubmit(data: ForgotPasswordForm) {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin;
+    const appUrl = clientEnv.NEXT_PUBLIC_APP_URL ?? window.location.origin;
 
     try {
       // No email in the URL (it would leak via history/Referer/logs); the link carries the token.
