@@ -1,0 +1,7 @@
+{
+  "errorTracking": {
+    "heading": "Error tracking",
+    "collected": "When something breaks in the app, we send technical details to Sentry, our processor, which stores them in the European Union: the error, your browser and device, the page address, your IP address and your account's internal ID. We don't attach your name or email to events, but a failed sign-in or sign-up request may include the email address you typed.",
+    "replay": "For a small share of visits, and for visits with an error, we also record a session replay with all text and input hidden. Passwords, tokens and session cookies are removed before sending. We use this data only to fix errors. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
+  }
+}
