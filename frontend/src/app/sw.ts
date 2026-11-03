@@ -13,6 +13,10 @@ import {
   StaleWhileRevalidate,
 } from "serwist";
 import { DEFAULT_LOCALE, LOCALES } from "@/i18n/locales";
+import {
+  DEPLOYMENT_PARAM_PATTERN,
+  ignoreDeploymentParam,
+} from "@/lib/pwa/deployment-param";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -79,15 +83,18 @@ const runtimeCaching: RuntimeCaching[] = [
       ],
     }),
   },
-  ...defaultCache,
+  ...ignoreDeploymentParam(defaultCache),
 ];
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   precacheOptions: {
-    // Next adds ?dpl=<deploymentId> to asset URLs, which the precache keys lack;
-    // the first two are Serwist's defaults.
-    ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^dpl$/],
+    // The precache keys carry no ?dpl=; the first two are Serwist's defaults.
+    ignoreURLParametersMatching: [
+      /^utm_/,
+      /^fbclid$/,
+      DEPLOYMENT_PARAM_PATTERN,
+    ],
   },
   // Off so a deploy waits for the reload the app offers; the old worker keeps
   // serving the chunks open tabs still ask for until then.
