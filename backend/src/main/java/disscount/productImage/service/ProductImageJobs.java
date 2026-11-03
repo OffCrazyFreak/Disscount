@@ -95,7 +95,7 @@ public class ProductImageJobs {
                     PageRequest.of(0, RENDER_BATCH));
             for (ProductImage image : batch) {
                 try {
-                    rendering.render(image);
+                    rendering.renderCandidate(image);
                 } catch (BadRequestException | OffImageGoneException | IllegalArgumentException e) {
                     // IllegalArgumentException: a stored key that cannot form a valid image URL.
                     skip(image, e);
@@ -122,12 +122,14 @@ public class ProductImageJobs {
         limiter.sweep();
     }
 
-    private void postpone(ProductImage image, RuntimeException cause) {
+    private void postpone(ProductImage loaded, RuntimeException cause) {
+        ProductImage image = current(loaded);
+        if (image == null) return;
         int attempts = (image.getRenderAttempts() == null ? 0 : image.getRenderAttempts()) + 1;
         image.setRenderAttempts(attempts);
         if (attempts >= MAX_RENDER_ATTEMPTS) {
             // A photo that keeps failing would hold the main slot forever, so the next photo or a user upload takes it.
-            skip(image, cause);
+            hide(image, cause);
             return;
         }
         log.warn("Retrying product photo {} for {} later: {}", image.getId(), image.getEan(), cause.getMessage());
@@ -136,7 +138,19 @@ public class ProductImageJobs {
     }
 
     /** A photo that cannot be read (a CMYK JPEG, a dead link) would otherwise block the head of the queue forever. */
-    private void skip(ProductImage image, RuntimeException cause) {
+    private void skip(ProductImage loaded, RuntimeException cause) {
+        ProductImage image = current(loaded);
+        if (image != null) hide(image, cause);
+    }
+
+    /** The row as it is after the download, or null once an admin or the import changed it, so their change stands. */
+    private ProductImage current(ProductImage loaded) {
+        return images.findById(loaded.getId())
+                .filter(i -> ProductImageRendering.stillWaiting(i, loaded))
+                .orElse(null);
+    }
+
+    private void hide(ProductImage image, RuntimeException cause) {
         log.warn("Skipping product photo {} for {}: {}", image.getId(), image.getEan(), cause.getMessage());
         image.setStatus(ImageStatus.HIDDEN);
         image.setHiddenReason(HiddenReason.JOB_SKIPPED);
