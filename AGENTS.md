@@ -8,7 +8,6 @@ The repository is public under BUSL-1.1, so it is source-available. Never call i
 
 Never:
 
-- Run deploy or Dokploy commands; a push deploys automatically.
 - Merge a PR unless I say so, or commit a change that is not the task's.
 - Commit secrets, credentials, the server IP or the SSH user; docs use placeholders.
 - Reference or quote the gitignored private notes under `docs/` from a tracked file. Only `.gitignore` may name them, because the repository is public.
