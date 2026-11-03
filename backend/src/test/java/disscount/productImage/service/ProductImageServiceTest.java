@@ -33,8 +33,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -72,6 +74,7 @@ class ProductImageServiceTest {
     @Autowired FakePhotoStore originals;
     @Autowired FakeProductImageStore publicStore;
     @Autowired OffCandidateWriter candidates;
+    @Autowired PlatformTransactionManager transactions;
     @MockBean UserService userService;
     @MockBean OpenFoodFactsClient off;
 
@@ -310,6 +313,20 @@ class ProductImageServiceTest {
             assertThat(i.getStatus()).isEqualTo(ImageStatus.HIDDEN);
             assertThat(i.getExternalRev()).isEqualTo("4");
         });
+    }
+
+    @Test
+    void aRolledBackCropKeepsTheFilesTheStoredRowStillPointsAt() {
+        writes.upload(ana, EAN, jpeg());
+        ProductImage photo = images.findByEanOrderByCreatedAtAsc(EAN).get(0);
+
+        new TransactionTemplate(transactions).executeWithoutResult(status -> {
+            admin.crop(adminId, photo.getId(), 0, new CropDto(10, 10, 100, 80));
+            status.setRollbackOnly();
+        });
+
+        assertThat(images.findById(photo.getId())).get().extracting(ProductImage::getFullKey).isEqualTo(photo.getFullKey());
+        assertThat(publicStore.objects).containsKeys(photo.getFullKey(), photo.getThumbKey());
     }
 
     @Test
