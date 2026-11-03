@@ -49,6 +49,8 @@ export function useProfileLoader() {
   }, []);
 
   const clearUser = useCallback(() => {
+    // A load still running must not bring back an account the session no longer names.
+    latestProfileLoadRef.current += 1;
     setUser(null);
     setIsLoading(false);
     setHasResolvedAuth(true);

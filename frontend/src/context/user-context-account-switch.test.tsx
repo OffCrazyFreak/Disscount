@@ -1,4 +1,4 @@
-import { act, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -82,6 +82,7 @@ function Probe() {
   const {
     user,
     accountUser,
+    mergeUser,
     isAuthenticated,
     canShowAccountData,
     isLoading,
@@ -98,7 +99,14 @@ function Probe() {
     isInitializing,
   });
 
-  return <p>{user ? user.username : "no profile"}</p>;
+  return (
+    <>
+      <p>{user ? user.username : "no profile"}</p>
+      <button onClick={() => mergeUser(profile("user-a"))}>
+        late save of user-a
+      </button>
+    </>
+  );
 }
 
 function tree() {
@@ -191,7 +199,38 @@ describe("UserProvider while another account's profile loads", () => {
   });
 });
 
+describe("UserProvider once the new account's profile is in", () => {
+  it("ignores a settings save the previous account's request answers late", async () => {
+    const answers = holdProfileAnswers();
+    tab.userId = "user-b";
+    renderWithProviders(tree());
+    await answers.release(0, HttpResponse.json(profile("user-b")));
+    await screen.findByText("name of user-b");
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "late save of user-a" }),
+    );
+
+    expect(screen.getByText("name of user-b")).toBeInTheDocument();
+    expect(renders.at(-1)).toMatchObject({ isLoading: false });
+  });
+});
+
 describe("UserProvider with an older profile load still running", () => {
+  it("ignores it once the session has ended", async () => {
+    const answers = holdProfileAnswers();
+    tab.userId = "user-a";
+    const view = renderWithProviders(tree());
+    await answers.requestArrived(0);
+    tab.userId = null;
+    view.rerender(tree());
+
+    await answers.release(0, HttpResponse.json(profile("user-a")));
+
+    expect(screen.getByText("no profile")).toBeInTheDocument();
+    expect(renders.at(-1)).toMatchObject({ isAuthenticated: false });
+  });
+
   async function bothLoadsRunning() {
     const answers = holdProfileAnswers();
     tab.userId = "user-a";
