@@ -205,29 +205,9 @@ The key is `["cijene", "product", "history", ean, date]`, which is persisted for
 
 ## 9. Watchlist and price alerts
 
-The watchlist (`/watchlist`, login required, `app/[locale]/(user)/watchlist/`) lets a user follow a product and be told when it is cheap.
+The watchlist (`/watchlist`) lets a user follow a product and be told when it is cheap. The backend stores only the rule (`watchlist_item`: EAN, `PERCENTAGE` or `ABSOLUTE`, threshold); the browser loads each watched product through the same `productByEanQueryOptions` cache entry the product page uses, and decides whether a rule fires. No backend job, email or push sends an alert, so the user sees one only while the app is open.
 
-**Storage.** The backend stores only the rule, never a price. Table `watchlist_item` (`backend/.../watchlistItem/domain/WatchlistItem.java`): `id`, `user_id`, `product_api_id` (the EAN), `watch_type` (`PERCENTAGE` or `ABSOLUTE`), `threshold_value`, `last_notified_at`, `created_at`, `updated_at`, `deleted_at` (soft delete).
-
-| Method and path                             | What it does                                                                                |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `POST /api/watchlist`                       | Upsert by user, product and watch type; `thresholdValue` must be positive                   |
-| `GET /api/watchlist/me`                     | The caller's items                                                                          |
-| `GET /api/watchlist/product/{productApiId}` | The caller's items for one product                                                          |
-| `DELETE /api/watchlist/{id}`                | Soft delete; a repeat delete answers 204, and another user's id answers like an unknown one |
-
-All need a signed-in session (through the backend proxy, see [BACKEND-PROXY.md](BACKEND-PROXY.md)).
-
-**Rules.** A product can carry one rule of each type. The modal (`products/components/forms/watchlist-item-modal.tsx`, `watchlist-type-picker.tsx`) offers "price drops by €" (`ABSOLUTE`, 0.1 to 999 €) and "discount is at least %" (`PERCENTAGE`, 1 to 99 %). The defaults are 10 % and 10 % of the average price (clamped, 1 € when there is no price). The ranges are enforced in the frontend only (`utils/watchlist-thresholds.ts`); the backend checks only that the value is positive.
-
-**How an alert fires.** There is no backend job: alerts are computed in the browser, every time the app has the data.
-
-1. `useWatchedProducts` (`lib/watchlist/use-watched-products.ts`) loads `/api/watchlist/me`, groups the rows by product, and runs one `productByEanQueryOptions` query per product (the same cache entry the product page and the modal use).
-2. For each product, the baseline is the mean of the chains' `avg_price`, compared with the cheapest chain's `min_price`, among the user's pinned chains when they have any (`watchlist-discount-utils.ts`).
-3. A rule fires when that price is below the baseline by at least the threshold, in euros or percent (`watchlist-threshold-utils.ts`). Any one rule firing counts.
-4. `useWatchlistNotifications` (`context/use-watchlist-notifications.ts`) turns the matches into notifications for the bell (`components/custom/notifications/notifications-dropdown.tsx`) and the sidebar's price drop count (`use-watchlist-price-drop-count.ts`). The watchlist page can also turn the discounted items into a shopping list (`create-discounted-list-button.tsx`).
-
-So an alert reaches the user only when they open the app. The backend has no notification store: the unused `notification` table and `/api/notifications` endpoints were removed, and the server-side inbox is planned as #222. `last_notified_at` on watchlist items is still sent but never written; and `spring-boot-starter-mail` is on the classpath but unused. Moving alerts to the server is planned (see [§19](#19-future-improvements-and-todos)).
+On the product page, the watchlist button opens `?modal=watchlist&ean=` to set or edit the rules. Everything else (the API, the threshold maths, the bell, the price drop badge, suggestions and offline behaviour) is documented in [WATCHLIST.md](WATCHLIST.md).
 
 ---
 
@@ -393,8 +373,7 @@ Not covered: the proxy routes against real upstream responses, the fuzzy fallbac
 
 **Watchlist and alerts**
 
-- [ ] #222: a server-side notification inbox with read state, shared by in-app, push and email. #221: Web Push alerts. #216: consent and a compliant email alert path. These need a backend job that checks prices, which does not exist today.
-- [ ] #200: re-check the watchlist ownership report against the current code; an ownership test now exists for it (the notification half went away with the notification endpoints).
+- [ ] Tracked in [WATCHLIST.md](WATCHLIST.md#14-future-improvements-and-todos) (#222, #221, #216, #200).
 
 **Browsing and search**
 

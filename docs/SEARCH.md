@@ -185,7 +185,7 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 
 **Do not put a React library in the shared matcher.** `filterByFields` is imported by `app/[locale]/updates/page.tsx`, which is a server component. That is why `subsequenceScore` is hand-written instead of borrowing cmdk's `command-score`.
 
-**Ranking gets discarded in two places.** `use-watchlist-suggestions.ts` re-sorts by occurrence and discount after filtering, so relevance order is thrown away there. That is intentional, but worth knowing before debugging why an obvious match is not first.
+**Watchlist suggestions add tie-breakers after relevance.** `use-watchlist-suggestions.ts` sorts by the match score first, then by how many shopping list rows carry the product, then by discount. Scores tie readily, so the tie-breakers still decide much of the order.
 
 **Client ranking cannot fix a truncated server response.** Products come back capped at 100 rows chosen by the upstream API's own opaque ranking, so `sortProductsByRelevance` only reorders what already arrived. A better match beyond the cap cannot surface.
 
