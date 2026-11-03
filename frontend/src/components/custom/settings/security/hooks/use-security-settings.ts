@@ -16,8 +16,8 @@ import { usePasswordRecovery } from "@/components/custom/settings/security/hooks
 import { useReauth } from "@/components/custom/settings/security/hooks/use-reauth";
 
 interface ILinkedAccount {
+  id: string;
   providerId: string;
-  accountId: string;
 }
 
 // Lifted here so the parent's shared footer can drive submit, reset and dirty.
@@ -32,8 +32,8 @@ export function useSecuritySettings(active: boolean) {
       const { data, error } = await authClient.listAccounts();
       if (error || !data) throw new Error("Failed to load accounts");
       return data.map((a) => ({
+        id: a.id,
         providerId: a.providerId,
-        accountId: a.accountId,
       }));
     },
   });
