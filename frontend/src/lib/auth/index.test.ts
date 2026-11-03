@@ -4,6 +4,7 @@ vi.mock("server-only", () => ({}));
 vi.mock("@/lib/auth/erase-backend-account", () => ({
   eraseBackendAccount: vi.fn(),
 }));
+vi.mock("hibp", () => ({ pwnedPassword: vi.fn() }));
 
 // Module load requires these; pg's Pool only connects on the first query, so none runs.
 vi.stubEnv("DATABASE_URL", "postgres://test:test@localhost:5432/test");
@@ -22,6 +23,7 @@ const { CLIENT_IP_HEADER } = await import("@/lib/client-ip/client-ip");
 const { recordLastLogin } = await import("@/lib/auth/record-last-login");
 const { eraseBackendAccount } =
   await import("@/lib/auth/erase-backend-account");
+const { pwnedPassword } = await import("hibp");
 
 const expectedProviders = FACEBOOK_COMING_SOON
   ? ["google"]
@@ -146,4 +148,56 @@ describe("stored OAuth tokens", () => {
   it("are encrypted before they reach the account table", () => {
     expect(auth.options.account?.encryptOAuthTokens).toBe(true);
   });
+});
+
+// The catch-all auth route exposes these endpoints directly, so the policy has to sit in
+// hooks.before, which wraps the same endpoint for HTTP and in-process calls. The test
+// database is unreachable, so a call that got past the hook would fail with a query error.
+describe("new password policy", () => {
+  const BREACHED = "password1234";
+
+  const passwordSetters = [
+    {
+      path: "/sign-up/email",
+      call: (password: string) =>
+        auth.api.signUpEmail({
+          body: { email: "new@example.com", name: "new", password },
+        }),
+    },
+    {
+      path: "/reset-password",
+      call: (newPassword: string) =>
+        auth.api.resetPassword({ body: { token: "token", newPassword } }),
+    },
+    {
+      path: "/change-password",
+      call: (newPassword: string) =>
+        auth.api.changePassword({
+          body: { currentPassword: "current", newPassword },
+          headers: new Headers(),
+        }),
+    },
+  ];
+
+  it.each(passwordSetters)(
+    "refuses a breached password on $path",
+    async ({ call }) => {
+      vi.mocked(pwnedPassword).mockResolvedValue(3);
+
+      await expect(call(BREACHED)).rejects.toMatchObject({
+        body: { code: "PASSWORD_BREACHED" },
+      });
+    },
+  );
+
+  it.each(passwordSetters)(
+    "refuses a short password on $path",
+    async ({ call }) => {
+      vi.mocked(pwnedPassword).mockResolvedValue(0);
+
+      await expect(call("short")).rejects.toMatchObject({
+        body: { code: "PASSWORD_LENGTH_INVALID" },
+      });
+    },
+  );
 });
