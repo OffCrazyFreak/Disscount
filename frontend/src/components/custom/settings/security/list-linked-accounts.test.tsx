@@ -24,7 +24,7 @@ describe("listLinkedAccounts", () => {
     expect(isUnexpectedFailure(error)).toBe(reported);
   });
 
-  it("returns the provider and account ids", async () => {
+  it("returns the provider and the account row id unlink takes", async () => {
     server.use(
       http.get("*/api/auth/list-accounts", () =>
         HttpResponse.json([
@@ -34,7 +34,7 @@ describe("listLinkedAccounts", () => {
     );
 
     await expect(listLinkedAccounts()).resolves.toEqual([
-      { providerId: "credential", accountId: "a1" },
+      { id: "x", providerId: "credential" },
     ]);
   });
 });

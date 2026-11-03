@@ -93,7 +93,10 @@ describe("sensitive action guard", () => {
     ageSessions(userId);
 
     await expect(
-      auth.api.unlinkAccount({ body: { providerId: "google" }, headers }),
+      auth.api.unlinkAccount({
+        body: { accountId: "google-account" },
+        headers,
+      }),
     ).rejects.toMatchObject({ body: { code: "REAUTH_REQUIRED" } });
   });
 
@@ -101,8 +104,33 @@ describe("sensitive action guard", () => {
     const { headers } = await signUp("fresh@example.com");
 
     await expect(
-      auth.api.unlinkAccount({ body: { providerId: "google" }, headers }),
+      auth.api.unlinkAccount({
+        body: { accountId: "google-account" },
+        headers,
+      }),
     ).rejects.not.toMatchObject({ body: { code: "REAUTH_REQUIRED" } });
+  });
+
+  // The settings screen unlinks by the id listAccounts returns, which better-auth 1.7 matches
+  // against the account row, not the provider's own account id.
+  it("unlinks a social account by the id the account list returns", async () => {
+    const { headers, userId } = await signUp("unlink@example.com");
+    tables.account.push({
+      id: "google-row",
+      accountId: "google-subject",
+      providerId: "google",
+      userId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const accounts = await auth.api.listUserAccounts({ headers });
+    const google = accounts.find((row) => row.providerId === "google");
+
+    await expect(
+      auth.api.unlinkAccount({ body: { accountId: google!.id }, headers }),
+    ).resolves.toEqual({ status: true });
+    expect(tables.account.some((row) => row.id === "google-row")).toBe(false);
   });
 
   it("asks for proof on delete even inside the window", async () => {
@@ -160,7 +188,7 @@ describe("reauth proofs", () => {
 
     await expect(
       auth.api.unlinkAccount({
-        body: { providerId: "google" },
+        body: { accountId: "google-account" },
         headers: cookieFrom(result.headers),
       }),
     ).rejects.not.toMatchObject({ body: { code: "REAUTH_REQUIRED" } });

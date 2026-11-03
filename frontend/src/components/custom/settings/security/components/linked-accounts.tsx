@@ -56,10 +56,9 @@ export default function LinkedAccounts() {
   }
 
   async function unlinkOnce(
-    providerId: SocialProvider,
     accountId: string,
   ): Promise<"done" | "needs-proof"> {
-    const { error } = await authClient.unlinkAccount({ providerId, accountId });
+    const { error } = await authClient.unlinkAccount({ accountId });
     if (needsProof(error)) return "needs-proof";
 
     if (error) {
@@ -77,7 +76,7 @@ export default function LinkedAccounts() {
     label: string,
   ) {
     setPending(providerId);
-    await reauth.withFreshSession(() => unlinkOnce(providerId, accountId), {
+    await reauth.withFreshSession(() => unlinkOnce(accountId), {
       title: t("security.reauth.unlinkTitle", { provider: label }),
       description: t("security.reauth.unlinkDescription", { provider: label }),
       confirmLabel: t("security.linked.unlink"),
@@ -116,7 +115,7 @@ export default function LinkedAccounts() {
                     icon={Unlink}
                     iconPlacement="left"
                     disabled={onlyMethod || pending === id}
-                    onClick={() => unlink(id, linked.accountId, label)}
+                    onClick={() => unlink(id, linked.id, label)}
                   >
                     {t("security.linked.unlink")}
                   </Button>

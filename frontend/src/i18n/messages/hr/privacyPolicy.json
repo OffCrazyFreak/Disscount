@@ -1,7 +1,7 @@
 {
   "ipAddresses": {
     "heading": "IP adrese",
-    "body": "Pri prijavi uz sesiju spremamo IP adresu uređaja kako bismo mogli provjeriti sumnjive prijave u tvoj račun. Adresu brišemo najkasnije 30 dana nakon prijave, a isteklu sesiju brišemo cijelu. Za zaštitu od zlouporabe IP adresu kratko koristimo i za ograničenje broja pokušaja: kod prijave i sličnih radnji oko jedne minute, a kod obrasca za kontakt do 24 sata, i to samo u memoriji poslužitelja. Kad sigurna veza s našim poslužiteljem ne uspije, zapis grešaka poslužitelja bilježi adresu te veze. Te zapise koristimo samo za otklanjanje kvarova. Sigurnosne kopije baze te podatke mogu sadržavati još do 60 dana. Pravna osnova je legitimni interes (članak 6. stavak 1. točka (f) GDPR-a)."
+    "body": "Pri prijavi uz sesiju spremamo IP adresu uređaja kako bismo mogli provjeriti sumnjive prijave u tvoj račun. Adresu brišemo najkasnije 30 dana nakon prijave, a isteklu sesiju brišemo cijelu. Za zaštitu od zlouporabe IP adresu kratko koristimo i za ograničenje broja pokušaja: kod prijave i sličnih radnji do 15 minuta, a kod obrasca za kontakt do 24 sata, i to samo u memoriji poslužitelja. Kad sigurna veza s našim poslužiteljem ne uspije, zapis grešaka poslužitelja bilježi adresu te veze. Te zapise koristimo samo za otklanjanje kvarova. Sigurnosne kopije baze te podatke mogu sadržavati još do 60 dana. Pravna osnova je legitimni interes (članak 6. stavak 1. točka (f) GDPR-a)."
   },
   "errorTracking": {
     "heading": "Praćenje grešaka",

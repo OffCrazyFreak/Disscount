@@ -42,7 +42,7 @@
     "@yudiel/react-qr-scanner": "^2.6.0",
     "axios": "^1.13.2",
     "barcode-detector": "^3.2.1",
-    "better-auth": "1.6.25",
+    "better-auth": "1.7.15",
     "bowser": "2.15.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

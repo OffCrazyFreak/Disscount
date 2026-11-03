@@ -2,8 +2,8 @@ import { authClient } from "@/lib/auth/client";
 import { httpStatusError } from "@/lib/api/http-status-error";
 
 export interface ILinkedAccount {
+  id: string;
   providerId: string;
-  accountId: string;
 }
 
 export async function listLinkedAccounts(): Promise<ILinkedAccount[]> {
@@ -13,7 +13,7 @@ export async function listLinkedAccounts(): Promise<ILinkedAccount[]> {
   }
 
   return data.map((a) => ({
+    id: a.id,
     providerId: a.providerId,
-    accountId: a.accountId,
   }));
 }
