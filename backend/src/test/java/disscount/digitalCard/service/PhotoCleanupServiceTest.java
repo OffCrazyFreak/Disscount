@@ -200,28 +200,36 @@ class PhotoCleanupServiceTest {
     }
 
     @Test
-    void nothingIsQueuedForPhotosThatWereNeverStored() {
+    void cardDeletesQueueNothingForPhotosThatWereNeverStored() {
         store.enabled = false;
-        UUID purgedCardId = UUID.randomUUID();
-        cardService.upsert(owner.getId(), purgedCardId, request("Druga"));
 
         cardService.delete(owner.getId(), cardId);
-        cardService.delete(owner.getId(), purgedCardId);
         cardService.purgeDeletedBefore(Timestamps.nowUtc().plusDays(1));
-        cardService.deleteAllForUser(owner.getId());
 
         assertThat(queue.findAll()).isEmpty();
     }
 
     @Test
-    void accountDeletionStillQueuesPhotosStoredBeforeStorageWasSwitchedOff() {
-        upload("icon");
+    void accountDeletionQueuesTheUserPrefixEvenWithStorageOff() {
         store.enabled = false;
 
         cardService.deleteAllForUser(owner.getId());
 
         assertThat(queue.findAll()).extracting(PhotoCleanup::getKeyOrPrefix)
                 .containsExactly("cards/" + owner.getId() + "/");
+    }
+
+    @Test
+    void removingAPhotoStoredBeforeStorageWasSwitchedOffQueuesBothKeys() {
+        upload("front");
+        String fullKey = photos.findByCardId(cardId).get(0).getFullKey();
+        String thumbKey = photos.findByCardId(cardId).get(0).getThumbKey();
+        store.enabled = false;
+
+        photoService.delete(owner.getId(), cardId, "front");
+
+        assertThat(queue.findAll()).extracting(PhotoCleanup::getKeyOrPrefix)
+                .containsExactlyInAnyOrder(fullKey, thumbKey);
     }
 
     private void upload(String slot) {

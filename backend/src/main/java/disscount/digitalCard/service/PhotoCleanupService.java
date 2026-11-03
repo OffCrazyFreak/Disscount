@@ -29,13 +29,24 @@ public class PhotoCleanupService {
 
     /**
      * Joins the caller's transaction, so the queue row commits or rolls back with the row delete.
-     * Call it before deleting the photo rows under the key, so a store that is off can still see them.
+     * Callers pass only keys of objects that were stored, so these always queue.
      */
     public void enqueueKey(String key) {
         enqueue(key, false);
     }
 
+    /**
+     * Call before deleting the photo rows under the prefix, so a store that is off can still see them.
+     * With storage off nothing new is stored, so a prefix with no photo row left holds nothing and
+     * its row would only wait forever.
+     */
     public void enqueuePrefix(String prefix) {
+        if (!photoStore.enabled() && !photoRepository.anyKeyStartsWith(prefix)) return;
+        enqueue(prefix, true);
+    }
+
+    /** Always queued: an erased account must also reach objects a failed discard orphaned without a row. */
+    public void enqueueErasure(String prefix) {
         enqueue(prefix, true);
     }
 
@@ -52,10 +63,6 @@ public class PhotoCleanupService {
     }
 
     private void enqueue(String keyOrPrefix, boolean prefix) {
-        // With storage off nothing new is stored, so an object can only predate the switch; each one
-        // still has a photo row or a cleanup row already queued, and anything else would wait forever.
-        if (!photoStore.enabled() && !photoRepository.anyKeyStartsWith(keyOrPrefix)) return;
-
         PhotoCleanup row = repository.save(PhotoCleanup.builder().keyOrPrefix(keyOrPrefix).prefix(prefix).build());
         AfterCommit.run(() -> attempt(row));
     }

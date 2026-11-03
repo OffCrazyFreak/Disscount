@@ -161,9 +161,9 @@ public class DigitalCardService {
 
     /** Account deletion: nothing of the user's cards may outlive the profile. */
     public void deleteAllForUser(UUID userId) {
-        cleanup.enqueuePrefix(PhotoKeys.userPrefix(userId));
         photoRepository.deleteAllByUserId(userId);
         cardRepository.deleteAllByUserId(userId);
+        cleanup.enqueueErasure(PhotoKeys.userPrefix(userId));
         storeNameService.forgetUser(userId);
     }
 
