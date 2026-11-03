@@ -82,6 +82,8 @@ class UserWireFormatTest extends FullStackTest {
                 .findFirst().orElseThrow();
 
         assertThat(fieldNames(row)).containsExactlyInAnyOrderElementsOf(USER_FIELDS);
+        assertThat(row.get("accountType").asString()).isEqualTo("CONSUMER");
+        assertThat(row.get("createdAt").asString()).matches(LOCAL_DATE_TIME);
         assertThat(row.get("email").asString()).isEqualTo("marta@example.com");
         assertThat(row.get("lastLoginAt").asString()).isEqualTo("2026-03-01T10:15:30Z");
         assertThat(row.get("lastActiveAt").asString()).matches(INSTANT);
