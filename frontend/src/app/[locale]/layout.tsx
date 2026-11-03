@@ -165,7 +165,7 @@ export default async function RootLayout({
             re-fires it, so the React-side listener alone can miss it and lose
             the native prompt. use-install-prompt.ts adopts whatever this
             catches. It sits in <body> because React rejects a <script> as a
-            direct child of <html>; Next still hoists it into <head>. */}
+            direct child of <html>; Next runs it before hydration either way. */}
         <Script id="install-prompt-capture" strategy="beforeInteractive">
           {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__installPrompt=e;});`}
         </Script>
