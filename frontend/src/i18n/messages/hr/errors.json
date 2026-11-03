@@ -1,5 +1,11 @@
 {
   "auth": {
     "changeEmailLinkedAccounts": "Za promjenu emaila prvo odspoji povezane račune (Google, Facebook)."
+  },
+  "proxy": {
+    "sessionChanged": "Prijavljen je drugi račun. Osvježavamo podatke.",
+    "notFound": "Ne nalazimo to",
+    "refreshPage": "Osvježi stranicu i pokušaj ponovno",
+    "unavailable": "Usluga nije dostupna"
   }
 }

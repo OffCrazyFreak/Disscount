@@ -1,5 +1,11 @@
 {
   "auth": {
     "changeEmailLinkedAccounts": "Za spremembo e-naslova najprej prekini povezavo s povezanimi računi (Google, Facebook)."
+  },
+  "proxy": {
+    "sessionChanged": "Prijavljen je drug račun. Osvežujemo podatke.",
+    "notFound": "Tega ne najdemo",
+    "refreshPage": "Osveži stran in poskusi znova",
+    "unavailable": "Storitev ni na voljo"
   }
 }

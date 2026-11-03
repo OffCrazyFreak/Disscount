@@ -1,5 +1,11 @@
 {
   "auth": {
     "changeEmailLinkedAccounts": "To change your email, first unlink your connected accounts (Google, Facebook)."
+  },
+  "proxy": {
+    "sessionChanged": "Another account signed in. Refreshing your data.",
+    "notFound": "We can't find that",
+    "refreshPage": "Refresh the page and try again",
+    "unavailable": "Service unavailable"
   }
 }
