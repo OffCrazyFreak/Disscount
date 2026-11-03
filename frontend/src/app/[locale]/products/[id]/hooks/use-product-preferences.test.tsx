@@ -17,14 +17,12 @@ function savePreferences(entry: object) {
   );
 }
 
-function PanelsProbe() {
-  const { storesOpen = true, isPriceHistoryOpen = false } =
-    useProductPreferences(EAN);
+function ChartProbe() {
+  const { period = "1W", chains = [] } = useProductPreferences(EAN);
 
   return (
     <p>
-      {storesOpen ? "stores open" : "stores closed"},{" "}
-      {isPriceHistoryOpen ? "history open" : "history closed"}
+      {period}, {chains.length > 0 ? chains.join("+") : "all chains"}
     </p>
   );
 }
@@ -32,38 +30,36 @@ function PanelsProbe() {
 describe("useProductPreferences", () => {
   it("hydrates server HTML without a mismatch, then shows the saved state", async () => {
     const container = document.createElement("div");
-    container.innerHTML = renderToString(<PanelsProbe />);
+    container.innerHTML = renderToString(<ChartProbe />);
     document.body.appendChild(container);
-    expect(container.textContent).toBe("stores open, history closed");
+    expect(container.textContent).toBe("1W, all chains");
 
-    savePreferences({ storesOpen: false, isPriceHistoryOpen: true });
+    savePreferences({ period: "1M", chains: ["konzum"] });
     const onRecoverableError = vi.fn();
     const root = await act(async () =>
-      hydrateRoot(container, <PanelsProbe />, { onRecoverableError }),
+      hydrateRoot(container, <ChartProbe />, { onRecoverableError }),
     );
 
     expect(onRecoverableError).not.toHaveBeenCalled();
-    expect(container.textContent).toBe("stores closed, history open");
+    expect(container.textContent).toBe("1M, konzum");
 
     act(() => root.unmount());
     container.remove();
   });
 
-  it("keeps the other panel's saved fields when one panel changes", () => {
-    savePreferences({ period: "1M", chains: ["konzum"], storesOpen: true });
-    render(<PanelsProbe />);
+  it("keeps the other saved fields when one field changes", () => {
+    savePreferences({ period: "1M", chains: ["konzum"] });
+    render(<ChartProbe />);
 
-    act(() => updateProductPreferences(EAN, { isPriceHistoryOpen: true }));
+    act(() => updateProductPreferences(EAN, { period: "1Y" }));
 
-    expect(screen.getByText("stores open, history open")).toBeInTheDocument();
+    expect(screen.getByText("1Y, konzum")).toBeInTheDocument();
     expect(
       JSON.parse(localStorage.getItem("Disscount_app") ?? "{}")
         .productsPreferences[EAN],
     ).toEqual({
-      period: "1M",
+      period: "1Y",
       chains: ["konzum"],
-      storesOpen: true,
-      isPriceHistoryOpen: true,
     });
   });
 });
