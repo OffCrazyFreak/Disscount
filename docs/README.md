@@ -19,6 +19,7 @@ Reference documentation for Disscount. Each file is a standalone deep-dive into 
 - [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md) - product photos: Open Food Facts and user sources, the public R2 bucket, rendering, delivery, the admin review queue, failure modes.
 - [DIGITAL-CARDS.md](DIGITAL-CARDS.md) - the card wallet: data model, API, R2 photos, offline queueing, scanner hardening, barcode rendering, privacy.
 - [IMAGE-UPLOADS.md](IMAGE-UPLOADS.md) - how avatars, card photos and product photos are resized, stripped of metadata and checked on the server.
+- [API-CONTRACT.md](API-CONTRACT.md) - the committed contract that holds the zod schemas and the backend DTOs and enums to each other in CI, and how to refresh it.
 - [TESTING.md](TESTING.md) - the Vitest setup: Node and jsdom projects, shared helpers, MSW, what to test and what is left to a browser.
 - [WATCHLIST.md](WATCHLIST.md) - the watchlist: stored rules, browser-side price alerts, the bell and the price drop badge, suggestions, offline.
 - [SCANNER.md](SCANNER.md) - the barcode scanner: callers and presets, camera picking, photo scanning, feedback, CSP and the WebAssembly decoder.
