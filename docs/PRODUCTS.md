@@ -91,7 +91,7 @@ The browser never calls cijene directly. It calls same-origin routes under `/api
 | `GET /api/cijene/health`                        | `/health`                              | 10 second timeout instead of 30                                                                                              |
 | `GET /api/cijene/store-directory`               | (our own data)                         | The only route that sends a public `Cache-Control`; see [MAP.md](MAP.md)                                                     |
 
-**Error mapping.** An upstream 4xx the caller could fix keeps its status. Upstream 401 and 403 become 502, because our own token authenticates the call, so they mean the proxy is misconfigured, and passing them on would tell the user they are logged out. A payload that fails the zod schema is a 502 too, and its zod tree is logged on the server rather than sent. Every 502, including a failed store directory load, is the same `application/problem+json` the backend proxy answers with: `proxyProblem` (`lib/backend-proxy/proxy-problem.ts`), code `upstream_unavailable`, its title translated from `errors.proxy.unavailable` in the request's `Accept-Language`. The 400s for bad parameters and the 4xx passed on from upstream still carry an English `error` field. Every other route answers `Cache-Control: no-cache` on success and `no-store` on an error (`createApiResponse` in `utils/response-utils.ts`, `private, no-store` for a 502), so freshness is decided by React Query and the service worker, not the HTTP cache.
+**Error mapping.** Every error a route sends is the same `application/problem+json` the backend proxy answers with: `proxyProblem` (`lib/backend-proxy/proxy-problem.ts`), titled from the `errors.proxy` keys in the request's `Accept-Language`. Bad parameters are a 400, code `bad_request`. An upstream 4xx the caller could fix keeps its meaning: 404 is `not_found`, 429 is `too_many_requests` (still retried), and any other is a 400 `bad_request`. Upstream 401 and 403 become 502, because our own token authenticates the call, so they mean the proxy is misconfigured, and passing them on would tell the user they are logged out. An upstream 408 becomes 502 too: upstream gave up waiting on us, and a 5xx stays retryable. A payload that fails the zod schema is a 502 too, and its zod tree is logged on the server rather than sent. Every 502, including a failed store directory load, has code `upstream_unavailable`. The browser calls these routes through `lib/cijene-api/route-client.ts`, which sends `<html lang>` as `Accept-Language` (`lib/api/page-language-headers.ts`, shared with the backend API client), so the titles follow the app's language rather than the browser's. Every other route answers `Cache-Control: no-cache` on success (`createApiResponse` in `utils/response-utils.ts`) and `private, no-store` on an error, so freshness is decided by React Query and the service worker, not the HTTP cache.
 
 **Three axios clients** live in `lib/cijene-api/client.ts`: v1 (bearer token, 30 s timeout), v0 (no token, 30 s) and health (10 s). They log every call in development and always throw a `CijeneApiError` carrying the upstream status (`errors.ts`). The module warns at startup when the token is missing.
 
@@ -207,29 +207,9 @@ The key is `["cijene", "product", "history", ean, date]`, which is persisted for
 
 ## 9. Watchlist and price alerts
 
-The watchlist (`/watchlist`, login required, `app/[locale]/(user)/watchlist/`) lets a user follow a product and be told when it is cheap.
+The watchlist (`/watchlist`) lets a user follow a product and be told when it is cheap. The backend stores only the rule (`watchlist_item`: EAN, `PERCENTAGE` or `ABSOLUTE`, threshold); the browser loads each watched product through the same `productByEanQueryOptions` cache entry the product page uses, and decides whether a rule fires. No backend job, email or push sends an alert, so the user sees one only while the app is open.
 
-**Storage.** The backend stores only the rule, never a price. Table `watchlist_item` (`backend/.../watchlistItem/domain/WatchlistItem.java`): `id`, `user_id`, `product_api_id` (the EAN), `watch_type` (`PERCENTAGE` or `ABSOLUTE`), `threshold_value`, `last_notified_at`, `created_at`, `updated_at`, `deleted_at` (soft delete).
-
-| Method and path                             | What it does                                                                                |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `POST /api/watchlist`                       | Upsert by user, product and watch type; `thresholdValue` must be positive                   |
-| `GET /api/watchlist/me`                     | The caller's items                                                                          |
-| `GET /api/watchlist/product/{productApiId}` | The caller's items for one product                                                          |
-| `DELETE /api/watchlist/{id}`                | Soft delete; a repeat delete answers 204, and another user's id answers like an unknown one |
-
-All need a signed-in session (through the backend proxy, see [BACKEND-PROXY.md](BACKEND-PROXY.md)).
-
-**Rules.** A product can carry one rule of each type. The modal (`products/components/forms/watchlist-item-modal.tsx`, `watchlist-type-picker.tsx`) offers "price drops by €" (`ABSOLUTE`, 0.1 to 999 €) and "discount is at least %" (`PERCENTAGE`, 1 to 99 %). The defaults are 10 % and 10 % of the average price (clamped, 1 € when there is no price). The ranges are enforced in the frontend only (`utils/watchlist-thresholds.ts`); the backend checks only that the value is positive.
-
-**How an alert fires.** There is no backend job: alerts are computed in the browser, every time the app has the data.
-
-1. `useWatchedProducts` (`lib/watchlist/use-watched-products.ts`) loads `/api/watchlist/me`, groups the rows by product, and runs one `productByEanQueryOptions` query per product (the same cache entry the product page and the modal use).
-2. For each product, the baseline is the mean of the chains' `avg_price`, compared with the cheapest chain's `min_price`, among the user's pinned chains when they have any (`watchlist-discount-utils.ts`).
-3. A rule fires when that price is below the baseline by at least the threshold, in euros or percent (`watchlist-threshold-utils.ts`). Any one rule firing counts.
-4. `useWatchlistNotifications` (`context/use-watchlist-notifications.ts`) turns the matches into notifications for the bell (`components/custom/notifications/notifications-dropdown.tsx`) and the sidebar's price drop count (`use-watchlist-price-drop-count.ts`). The watchlist page can also turn the discounted items into a shopping list (`create-discounted-list-button.tsx`).
-
-So an alert reaches the user only when they open the app. The backend has no notification store: the unused `notification` table and `/api/notifications` endpoints were removed, and the server-side inbox is planned as #222. `last_notified_at` on watchlist items is still sent but never written; and `spring-boot-starter-mail` is on the classpath but unused. Moving alerts to the server is planned (see [§19](#19-future-improvements-and-todos)).
+On the product page, the watchlist button opens `?modal=watchlist&ean=` to set or edit the rules. Everything else (the API, the threshold maths, the bell, the price drop badge, suggestions and offline behaviour) is documented in [WATCHLIST.md](WATCHLIST.md).
 
 ---
 
@@ -278,6 +258,7 @@ All copy is in the next-intl catalogs, in all five languages ([I18N.md](I18N.md)
 | `frontend/src/lib/cijene-api/schemas.ts`                                                                      | Zod schemas for every upstream response and parameter set             |
 | `frontend/src/lib/cijene-api/keys.ts`                                                                         | Query keys and parameter canonicalization                             |
 | `frontend/src/lib/cijene-api/queries.ts`, `query-hooks.ts`, `hooks.ts`                                        | Browser fetchers, query options with `staleTime`, `usePriceHistory`   |
+| `frontend/src/lib/cijene-api/route-client.ts`                                                                 | The browser's axios client for `/api/cijene`, sends the page language |
 | `frontend/src/lib/cijene-api/price-history-queries.ts`                                                        | The shared per-day history queries                                    |
 | `frontend/src/lib/cijene-api/server/`                                                                         | `getServerProduct`, `getServerProductPrices` (server only, `cache()`) |
 | `frontend/src/lib/cijene-api/utils/`                                                                          | `withCijeneRoute`, the fuzzy fallback, response helpers               |
@@ -395,8 +376,7 @@ Not covered: the proxy routes against real upstream responses, the fuzzy fallbac
 
 **Watchlist and alerts**
 
-- [ ] #222: a server-side notification inbox with read state, shared by in-app, push and email. #221: Web Push alerts. #216: consent and a compliant email alert path. These need a backend job that checks prices, which does not exist today.
-- [ ] #200: re-check the watchlist ownership report against the current code; an ownership test now exists for it (the notification half went away with the notification endpoints).
+- [ ] Tracked in [WATCHLIST.md](WATCHLIST.md#14-future-improvements-and-todos) (#222, #221, #216, #200).
 
 **Browsing and search**
 

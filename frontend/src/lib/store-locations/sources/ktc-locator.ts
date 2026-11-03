@@ -2,6 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
+import { parseKtcHours } from "@/lib/store-hours/sources/ktc-hours";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchText } from "@/lib/store-locations/http";
 import type {
@@ -21,6 +22,7 @@ const markersSchema = z.array(
     City: z.string(),
     Zip: z.string(),
     Mail: z.string(),
+    WorkHoures: z.string().nullish(),
     // The feed swaps the names: X is latitude, Y is longitude.
     PositionX: z.string(),
     PositionY: z.string(),
@@ -62,6 +64,7 @@ export const ktcLocator: IStoreLocator = {
         address: marker.Address,
         city: marker.City,
         zipcode: marker.Zip || undefined,
+        hours: marker.WorkHoures ? parseKtcHours(marker.WorkHoures) : undefined,
         ...coordinates,
       });
     }

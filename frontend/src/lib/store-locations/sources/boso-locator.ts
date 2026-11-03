@@ -1,6 +1,8 @@
 import "server-only";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
+import { weekFromLabelled } from "@/lib/store-hours/sources/hours-text";
+import { labelledLines } from "@/lib/store-hours/sources/labelled-lines";
 import { fetchText } from "@/lib/store-locations/http";
 import type {
   ILocatorStore,
@@ -31,6 +33,16 @@ function parseAddress(line: string) {
   };
 }
 
+// The hours follow the address inside the same info template literal.
+function hoursAfter(html: string, from: number) {
+  const end = html.indexOf("`", from);
+  const lines = labelledLines(html.slice(from, end === -1 ? from : end));
+
+  return lines.length
+    ? { weekly: weekFromLabelled(lines), dated: [] }
+    : undefined;
+}
+
 export const bosoLocator: IStoreLocator = {
   chain: "boso",
 
@@ -47,7 +59,11 @@ export const bosoLocator: IStoreLocator = {
 
       if (!coordinates || !parsed.address) continue;
 
-      stores.push({ ...parsed, ...coordinates });
+      stores.push({
+        ...parsed,
+        hours: hoursAfter(html, match.index + match[0].length),
+        ...coordinates,
+      });
     }
 
     return stores;

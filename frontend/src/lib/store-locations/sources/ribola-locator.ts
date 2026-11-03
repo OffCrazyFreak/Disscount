@@ -2,6 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
+import { parseRibolaHours } from "@/lib/store-hours/sources/ribola-hours";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { delay, fetchJson, fetchText } from "@/lib/store-locations/http";
 import type {
@@ -23,6 +24,7 @@ const storeSchema = z.object({
   postal_code: z.string().nullish(),
   lat: z.coerce.number(),
   lng: z.coerce.number(),
+  open_hours: z.string().nullish(),
 });
 
 // The Agile Store Locator nonce is minted per page render, so it is read
@@ -67,7 +69,8 @@ export const ribolaLocator: IStoreLocator = {
 
       if (!parsed.success) continue;
 
-      const { title, street, city, postal_code, lat, lng } = parsed.data;
+      const { title, street, city, postal_code, lat, lng, open_hours } =
+        parsed.data;
       const coordinates = sanitizeCoordinates(lat, lng);
 
       if (!coordinates) continue;
@@ -77,6 +80,7 @@ export const ribolaLocator: IStoreLocator = {
         address: street,
         city: city || undefined,
         zipcode: postal_code || undefined,
+        hours: open_hours ? parseRibolaHours(open_hours) : undefined,
         ...coordinates,
       });
     }

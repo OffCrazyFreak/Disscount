@@ -6,6 +6,8 @@
     "sessionChanged": "Another account signed in. Refreshing your data.",
     "notFound": "We can't find that",
     "refreshPage": "Something went wrong. Refresh the page and try again",
-    "unavailable": "Service unavailable"
+    "unavailable": "Service unavailable",
+    "badRequest": "Bad request",
+    "tooManyRequests": "Too many tries, wait a moment"
   }
 }

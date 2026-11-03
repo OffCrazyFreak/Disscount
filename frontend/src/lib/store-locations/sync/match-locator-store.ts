@@ -18,11 +18,11 @@ import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
  * shares it, otherwise by address. The town has to agree too, because the same
  * street and number exist in many towns ("Zagrebačka 10").
  */
-export function matchLocatorStore(
+export function matchLocatorStore<T extends ILocatorStore>(
   target: ISyncTarget,
-  records: ILocatorStore[],
+  records: T[],
   chainCodes: string[] = [target.code],
-): ILocatorStore | null {
+): T | null {
   const byCode = records.find((record) => record.code === target.code);
   if (byCode) return byCode;
 
@@ -41,10 +41,10 @@ export function matchLocatorStore(
   return match?.approximate ? null : match;
 }
 
-function matchByAddress(
+function matchByAddress<T extends ILocatorStore>(
   target: ISyncTarget,
-  records: ILocatorStore[],
-): ILocatorStore | null {
+  records: T[],
+): T | null {
   const address = parseAddress(target.address);
   const city = normalizeCity(target.city);
   const sameAddress = records.filter((record) =>
@@ -74,11 +74,11 @@ function matchByAddress(
  * also needs the address or the town to agree, and no other upstream code of
  * the chain may end in the same number.
  */
-function matchByCodeSuffix(
+function matchByCodeSuffix<T extends ILocatorStore>(
   target: ISyncTarget,
-  records: ILocatorStore[],
+  records: T[],
   chainCodes: string[],
-): ILocatorStore | null {
+): T | null {
   const record = numberedRecord(target, records, chainCodes);
   if (!record) return null;
 
@@ -96,10 +96,10 @@ function matchByCodeSuffix(
  * while upstream's town is the municipality, and both write "0" or "bb" for
  * a street without numbers. Only a single candidate is trusted.
  */
-function matchByPlace(
+function matchByPlace<T extends ILocatorStore>(
   target: ISyncTarget,
-  records: ILocatorStore[],
-): ILocatorStore | null {
+  records: T[],
+): T | null {
   const address = readPlacedAddress(target.address);
 
   const candidates = records.filter((record) => {
@@ -115,11 +115,11 @@ function matchByPlace(
 }
 
 /** The one record carrying the store's number, when no other code claims it. */
-export function numberedRecord(
+export function numberedRecord<T extends ILocatorStore>(
   target: ISyncTarget,
-  records: ILocatorStore[],
+  records: T[],
   chainCodes: string[],
-): ILocatorStore | null {
+): T | null {
   const numbered = records.filter(
     ({ codeSuffix }) => codeSuffix && carriesSuffix(target.code, codeSuffix),
   );

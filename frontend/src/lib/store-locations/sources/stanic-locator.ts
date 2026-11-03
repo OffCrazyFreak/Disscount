@@ -2,6 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
+import { parseStanicHours } from "@/lib/store-hours/sources/stanic-hours";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchJson } from "@/lib/store-locations/http";
 import { stanicCodeReader } from "@/lib/store-locations/sources/stanic-store-codes";
@@ -21,6 +22,8 @@ const storeSchema = z.object({
   zip: z.string().nullish(),
   lat: z.coerce.number(),
   lng: z.coerce.number(),
+  hours: z.string().nullish(),
+  url: z.string().nullish(),
 });
 
 export const stanicLocator: IStoreLocator = {
@@ -51,7 +54,7 @@ export const stanicLocator: IStoreLocator = {
 
     const stores: ILocatorStore[] = [];
 
-    for (const { code, address, city, zip, lat, lng } of rows) {
+    for (const { code, address, city, zip, lat, lng, hours, url } of rows) {
       const coordinates = sanitizeCoordinates(lat, lng);
 
       if (!coordinates) continue;
@@ -62,6 +65,8 @@ export const stanicLocator: IStoreLocator = {
         city: city || undefined,
         // The site writes Zagreb's postcode as "1000" on one store.
         zipcode: zip && /^\d{5}$/.test(zip) ? zip : undefined,
+        hours: hours ? parseStanicHours(hours) : undefined,
+        pageUrl: url?.startsWith("https://diskont.hr/") ? url : undefined,
         ...coordinates,
       });
     }

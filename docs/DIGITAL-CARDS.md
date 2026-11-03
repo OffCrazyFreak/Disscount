@@ -253,7 +253,7 @@ Cards have to work in a shop with no signal, so the whole wallet is offline-firs
 
 ## 7. Scanner hardening
 
-Card numbers are long and a misread is worse than no read, so the shared scanner (`components/scanner/`, `context/scanner-context.tsx`) has a stricter mode for cards. Cards call `openScanner({ preset: "all", confirm: true, onScan })`. Products keep `preset: "product"` with no confirm step.
+Card numbers are long and a misread is worse than no read, so the shared scanner (`components/scanner/`, `context/scanner-context.tsx`) has a stricter mode for cards. Cards call `openScanner({ preset: "all", confirm: true, onScan })`. Products keep `preset: "product"` with no confirm step. The shared scanner itself (callers, camera picking, photo scanning) is in [SCANNER.md](SCANNER.md).
 
 - **Consensus.** A code counts only after 3 identical reads within 1.5 seconds, or 4 for the weaker formats (`code_39`, `code_93`, `codabar`, `itf`). Products need 2. Logic: `scan-consensus.ts`, wired by `hooks/use-scan-consensus.ts`.
 - **Check digits.** `utils/barcode/check-digits.ts` validates EAN-13, EAN-8, UPC-A, UPC-E (expanded) and ITF-14. A read that fails its check digit is dropped. After 5 seconds of nothing but rejects, a hint offers manual entry.

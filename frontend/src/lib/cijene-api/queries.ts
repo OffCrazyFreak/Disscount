@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   ListChainsResponse,
   ListStoresResponse,
@@ -25,17 +24,20 @@ import {
   searchStoresParamsSchema,
   getPricesParamsSchema,
 } from "@/lib/cijene-api/schemas";
+import cijeneRouteClient from "@/lib/cijene-api/route-client";
 import { buildQueryString } from "@/utils/generic";
 
 export async function listChains(): Promise<ListChainsResponse> {
-  const response = await axios.get("/api/cijene/chains");
+  const response = await cijeneRouteClient.get("/api/cijene/chains");
   return listChainsResponseSchema.parse(response.data);
 }
 
 export async function listStoresByChain(
   chainCode: string,
 ): Promise<ListStoresResponse> {
-  const response = await axios.get(`/api/cijene/stores/${chainCode}`);
+  const response = await cijeneRouteClient.get(
+    `/api/cijene/stores/${chainCode}`,
+  );
   return listStoresResponseSchema.parse(response.data);
 }
 
@@ -48,7 +50,7 @@ export async function searchStores(
     Object.entries(validated).filter(([, v]) => v != null && v !== ""),
   );
 
-  const response = await axios.get("/api/cijene/stores", {
+  const response = await cijeneRouteClient.get("/api/cijene/stores", {
     params: filteredParams,
   });
   return listStoresResponseSchema.parse(response.data);
@@ -64,7 +66,7 @@ export async function getProductByEan(
   if (validatedParams.chains)
     queryParams.append("chains", validatedParams.chains);
 
-  const response = await axios.get(
+  const response = await cijeneRouteClient.get(
     `/api/cijene/products/${validatedParams.ean}?${queryParams.toString()}`,
   );
   return productResponseSchema.parse(response.data);
@@ -75,7 +77,7 @@ export async function getProductByName(
 ): Promise<ProductSearchResponse> {
   const validatedParams = searchProductsParamsSchema.parse(params);
 
-  const response = await axios.get(
+  const response = await cijeneRouteClient.get(
     `/api/cijene/products?${buildQueryString(validatedParams)}`,
   );
   return productSearchResponseSchema.parse(response.data);
@@ -93,7 +95,7 @@ export async function getPrices(
     }
   });
 
-  const response = await axios.get(
+  const response = await cijeneRouteClient.get(
     `/api/cijene/prices?${queryParams.toString()}`,
   );
   return storePricesResponseSchema.parse(response.data);
@@ -111,18 +113,18 @@ export async function getLocationPrices(params: {
   });
   params.cities.forEach((city) => queryParams.append("city", city));
 
-  const response = await axios.get(
+  const response = await cijeneRouteClient.get(
     `/api/cijene/location-prices?${queryParams.toString()}`,
   );
   return locationPricesResponseSchema.parse(response.data);
 }
 
 export async function getChainStats(): Promise<ChainStatsResponse> {
-  const response = await axios.get("/api/cijene/chain-stats");
+  const response = await cijeneRouteClient.get("/api/cijene/chain-stats");
   return chainStatsResponseSchema.parse(response.data);
 }
 
 export async function healthCheck(): Promise<HealthCheckResponse> {
-  const response = await axios.get("/api/cijene/health");
+  const response = await cijeneRouteClient.get("/api/cijene/health");
   return healthCheckResponseSchema.parse(response.data);
 }

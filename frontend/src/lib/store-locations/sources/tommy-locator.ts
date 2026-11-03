@@ -3,6 +3,10 @@ import "server-only";
 import { z } from "zod";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
+import {
+  parseTommyHours,
+  tommyHoursSchema,
+} from "@/lib/store-hours/sources/tommy-hours";
 import { fetchText } from "@/lib/store-locations/http";
 import type {
   ILocatorStore,
@@ -25,6 +29,7 @@ const channelSchema = z.object({
     latitude: z.number().nullable(),
     longitude: z.number().nullable(),
   }),
+  businessHours: tommyHoursSchema,
 });
 
 // The channels sit in React Query's dehydrated cache, whose exact path can
@@ -62,7 +67,7 @@ export const tommyLocator: IStoreLocator = {
 
       if (!parsed.success) continue;
 
-      const { address, position } = parsed.data;
+      const { address, position, businessHours } = parsed.data;
       const coordinates = sanitizeCoordinates(
         position.latitude,
         position.longitude,
@@ -81,6 +86,7 @@ export const tommyLocator: IStoreLocator = {
         address: address.street,
         city: address.city ?? undefined,
         zipcode: address.postcode ?? undefined,
+        hours: parseTommyHours(businessHours),
         ...coordinates,
       });
     }

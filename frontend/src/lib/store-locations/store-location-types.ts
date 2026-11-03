@@ -1,6 +1,7 @@
 import type { z } from "zod";
 
 import type { locationSourceSchema } from "@/lib/api/schemas";
+import type { IParsedHours } from "@/lib/store-hours/sync/hours-source-types";
 
 /** Where a store's coordinates came from, best first. */
 export type LocationSource = z.infer<typeof locationSourceSchema>;
@@ -24,6 +25,10 @@ export interface ILocatorStore {
   zipcode?: string;
   lat: number;
   lon: number;
+  /** Opening hours, where the locator publishes them; the location sync ignores them. */
+  hours?: IParsedHours;
+  /** The store's own page on the chain's site. */
+  pageUrl?: string;
 }
 
 /** Reads every store a chain publishes, with coordinates. */

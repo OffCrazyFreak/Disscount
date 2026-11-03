@@ -61,12 +61,12 @@ flowchart LR
     BE -.->|fetch JWKS, internal| FE
 ```
 
-| Service    | Tech                                                  | Internal address | Public?               | Role                                                                                   |
-| ---------- | ----------------------------------------------------- | ---------------- | --------------------- | -------------------------------------------------------------------------------------- |
-| `frontend` | Next.js 16 (standalone)                               | `frontend:3000`  | **yes** (via Traefik) | UI + **better-auth** identity provider; proxies `/api/*` to backend                    |
-| `backend`  | Spring Boot 4.1 / Java 21                             | `backend:8080`   | no                    | REST API; validates better-auth JWTs (resource server)                                 |
-| `db`       | Postgres 17                                           | `db:5432`        | no                    | one shared database, used by both                                                      |
-| `migrate`  | (frontend build image; `disscount-migrator` on `dev`) | n/a              | no                    | one-shot: runs drizzle migrations (auth tables, store locations) on deploy, then exits |
+| Service    | Tech                                                  | Internal address | Public?               | Role                                                                                                |
+| ---------- | ----------------------------------------------------- | ---------------- | --------------------- | --------------------------------------------------------------------------------------------------- |
+| `frontend` | Next.js 16 (standalone)                               | `frontend:3000`  | **yes** (via Traefik) | UI + **better-auth** identity provider; proxies `/api/*` to backend                                 |
+| `backend`  | Spring Boot 4.1 / Java 21                             | `backend:8080`   | no                    | REST API; validates better-auth JWTs (resource server)                                              |
+| `db`       | Postgres 17                                           | `db:5432`        | no                    | one shared database, used by both                                                                   |
+| `migrate`  | (frontend build image; `disscount-migrator` on `dev`) | n/a              | no                    | one-shot: runs drizzle migrations (auth tables, store locations, store hours) on deploy, then exits |
 
 **Why the backend isn't public:** the browser only ever calls `https://disscount.me/api/...` (relative URLs). A Next.js route handler (`app/api/[...path]`, see [BACKEND-PROXY.md](BACKEND-PROXY.md)) forwards those to `backend:8080` _server-side_, inside the Docker network. This means no CORS config is needed and the backend/DB have no internet-facing attack surface.
 
@@ -195,7 +195,7 @@ Digital card photos live in their own Cloudflare R2 bucket, separate from the ba
 
 All four are **optional**. If any one is blank the backend runs without photos (uploads answer 503 and the form hides the photo fields); the rest of the wallet is unaffected. They are backend-only and read at startup, so a change needs a backend restart, not a rebuild. Locally they live in `backend/.env.example`.
 
-> Both compose files forward the four `R2_*` variables to the backend, blank by default, and the root `.env.example` lists them. Photos stay off until all four are set.
+> All three compose files (`docker-compose.yml`, `docker-compose.prod.yml`, `docker-compose.images.yml`) forward the four `R2_*` variables to the backend, blank by default, and the root `.env.example` lists them. Photos stay off until all four are set.
 
 ### Product photo env vars
 
@@ -210,7 +210,7 @@ Product photos are public, so they live in a second R2 bucket that is readable t
 
 All four are **optional**. If any one (or `R2_ENDPOINT`) is blank, product pages show no photos, uploads answer 503 and the background jobs do nothing. The URL must be `https://`: the frontend's Content Security Policy only allows images from `https:` origins. Backend-only and read at startup, so a change needs a backend restart.
 
-> Both compose files forward the four `R2_PUBLIC_*` variables to the backend, blank by default. A variable missing from `docker-compose.images.yml` never reaches the dev backend, even when Dokploy has it.
+> All three compose files forward the four `R2_PUBLIC_*` variables to the backend, blank by default. A variable missing from `docker-compose.images.yml` never reaches the dev backend, even when Dokploy has it.
 
 ---
 
@@ -382,7 +382,7 @@ docker exec pg-test psql -U postgres -d restoretest -c '\dt'   # verify
 - The UptimeRobot checks are published as a **public status page** at https://stats.uptimerobot.com/ej4ROz2eMo, linked from the README so anyone can see uptime and response times without an account.
 - `/health` (frontend) is a lightweight liveness route; the backend also has `/actuator/health` (internal only, used by the container healthcheck).
 - Auth secrets in URLs (the reset `?token=`, verify-email and OAuth `code` and `state`) are filtered by `frontend/src/lib/sentry/scrub-sensitive-data.ts` in all three Sentry inits and in Replay's network records, and the reset token leaves the page URL before Sentry starts; see [AUTH.md](AUTH.md).
-- Sentry `send-default-pii=false` (privacy). The Sentry user is only the signed-in account's UUID (`Sentry.setUser` in `frontend/src/context/user-context.tsx`), never an email or name. The server SDK still attaches incoming request bodies to events, so a failing sign-in or sign-up request carries the email it was sent with. Cookies, the `Authorization` header and password fields in JSON and form bodies are filtered by the same scrub helper.
+- Sentry privacy baseline: the backend sets `sentry.send-default-pii=false`, and the three frontend inits share `dataCollection` from `frontend/src/lib/sentry/data-collection.ts`, which pins the v10 `sendDefaultPii: false` behaviour field by field (no user details or IP address, IP and proxy headers denied, no GenAI or database query data), and is stricter on two points: no cookies and no GraphQL documents. Sentry fills any field left out, nested ones included, with defaults that collect everything, and from v11 that is the only behaviour, so the object's type requires every field down to the nested ones and a Sentry upgrade that adds a category fails `tsc` until someone decides it. The Sentry user is only the signed-in account's UUID (`Sentry.setUser` in `frontend/src/context/user-context.tsx`), never an email or name. The server SDK still attaches incoming request bodies to events, so a failing sign-in or sign-up request carries the email it was sent with. Cookies, the `Authorization` header and password fields in JSON and form bodies are filtered by the same scrub helper.
 - Images built in CI tag every event with the commit as its release: the frontend through `release.name` in `next.config.ts`, the backend through `SentryReleaseConfig`, which reads the `GIT_SHA` the backend image bakes in. Each frontend release also records a deploy to its `SENTRY_ENVIRONMENT`. Builds on the server from `docker-compose.prod.yml` pass no `GIT_SHA`, so their events carry no release until that environment moves to images.
 - The CI image build uploads frontend source maps with the `SENTRY_AUTH_TOKEN` secret of the GitHub `dev` environment, passed as a BuildKit secret. `sentry-cli` needs the system CA store, so the Dockerfile's build stage installs `ca-certificates`; without it every upload fails on TLS while the build still passes, so check the build log for upload errors. Production builds on the server without the token, so its stack traces arrive minified: expect frames like `app:///_next/static/chunks/6506-….js:1:34191 (o.register)` and be ready to grep the built chunk in `.next/static` to place them.
 - Backend errors reach Sentry through the `sentry-logback` appender (minimum event level `error`), because `GlobalExceptionHandler` turns every unexpected exception into a 500 and only logs it. The same appender reports failed `@Scheduled` and `@Async` tasks. Warnings stay out. Hibernate's SQL error logger (`org.hibernate.orm.jdbc.error`) is off and the PostgreSQL driver's `logServerErrorDetail` is false, because both put the failing row's values into error text.

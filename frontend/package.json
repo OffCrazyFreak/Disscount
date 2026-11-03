@@ -47,6 +47,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "date-holidays": "^3.38.0",
     "drizzle-orm": "0.45.2",
     "fflate": "^0.8.3",
     "hibp": "^15.2.1",

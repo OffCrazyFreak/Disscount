@@ -40,25 +40,3 @@ export function createApiResponse<T>(
 
   return response;
 }
-
-/**
- * Creates an error response with appropriate status and headers
- */
-export function createApiError<T = unknown>(
-  message: string,
-  options: {
-    status?: number;
-    details?: T;
-    additionalHeaders?: Record<string, string>;
-  } = {},
-) {
-  const { status = 500, details, additionalHeaders = {} } = options;
-
-  const errorData = details ? { error: message, details } : { error: message };
-
-  return createApiResponse(errorData, {
-    status,
-    cacheControl: status >= 400 ? "no-store" : "no-cache",
-    additionalHeaders,
-  });
-}
