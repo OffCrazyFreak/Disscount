@@ -22,7 +22,6 @@
 	</licenses>
 	<properties>
 		<java.version>21</java.version>
-		<!-- Overrides the spring-boot-dependencies default; used by the processor path too. -->
 		<lombok.version>1.18.48</lombok.version>
 		<!-- The logback appender must match the starter's SDK version. -->
 		<sentry.version>8.62.0</sentry.version>
