@@ -71,6 +71,8 @@ export function useDistanceOrigin(
       ? { lat: gps.lat, lon: gps.lon, source: "gps" as const, town: null }
       : town,
     town,
+    /** A town is picked or saved, so a sort can start before the stores load. */
+    hasKnownTown: picked != null || saved != null,
     towns: listStoreTowns(directory),
     pickTown,
   };

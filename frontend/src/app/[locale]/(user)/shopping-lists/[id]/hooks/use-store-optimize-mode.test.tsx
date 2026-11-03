@@ -2,6 +2,7 @@ import { act, cleanup, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { useDistanceOrigin } from "@/hooks/use-distance-origin";
 import { useStoreOptimizeMode } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-store-optimize-mode";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
@@ -22,8 +23,10 @@ const konzum = {
   lon: 15.97,
   locationSource: "upstream",
 };
+const spar = { ...konzum, chain: "spar", city: "Split", zipcode: "21000" };
 
-vi.mock("@/context/user-context", () => ({ useUser: () => ({ user: null }) }));
+let user: { pinnedPlaces?: { placeApiId: string }[] } | null = null;
+vi.mock("@/context/user-context", () => ({ useUser: () => ({ user }) }));
 
 // The browser APIs are a boundary the suite cannot run: each test decides
 // what the permission query answers, and the position watch never answers.
@@ -59,7 +62,7 @@ describe("useStoreOptimizeMode", () => {
     server.use(
       http.get("*/api/cijene/store-directory", () =>
         HttpResponse.json({
-          stores: [konzum],
+          stores: [konzum, spar],
           generatedAt: "2026-01-01T00:00:00Z",
         }),
       ),
@@ -69,6 +72,10 @@ describe("useStoreOptimizeMode", () => {
   afterEach(() => {
     // Unmount first: the hook clears its watch on the stubbed navigator.
     cleanup();
+    user = null;
+    renderHookWithProviders(() =>
+      useDistanceOrigin(undefined, null),
+    ).result.current.pickTown(null);
     vi.unstubAllGlobals();
   });
 
@@ -101,6 +108,34 @@ describe("useStoreOptimizeMode", () => {
     const { result } = await mount();
 
     expect(result.current.chosen).toBe("products");
+    expect(locate).not.toHaveBeenCalled();
+  });
+
+  it("restores distance from the saved place without asking", async () => {
+    setStoreOptimizeMode("distance");
+    user = { pinnedPlaces: [{ placeApiId: "Split" }] };
+    const locate = fakeBrowser(
+      answering(() => Promise.resolve({ state: "prompt" })),
+    );
+
+    const { result } = await mount();
+
+    await waitFor(() => expect(result.current.state).toBe("ready"));
+    expect(result.current.origin).toMatchObject({ source: "saved" });
+    expect(locate).not.toHaveBeenCalled();
+  });
+
+  it("restores distance from this session's town without asking", async () => {
+    setStoreOptimizeMode("distance");
+    renderHookWithProviders(() =>
+      useDistanceOrigin(undefined, null),
+    ).result.current.pickTown("Split");
+    const locate = fakeBrowser(undefined);
+
+    const { result } = await mount();
+
+    await waitFor(() => expect(result.current.state).toBe("ready"));
+    expect(result.current.origin).toMatchObject({ source: "picked" });
     expect(locate).not.toHaveBeenCalled();
   });
 

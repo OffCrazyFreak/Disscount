@@ -171,7 +171,10 @@ export function useDistanceSort<TMode extends string>(
   const gps = isFromTown
     ? { status: "unavailable" as const, position: null }
     : location;
-  const { origin, towns, pickTown } = useDistanceOrigin(stores, gps.position);
+  const { origin, towns, pickTown, hasKnownTown } = useDistanceOrigin(
+    stores,
+    gps.position,
+  );
 
   const lat = origin?.lat;
   const lon = origin?.lon;
@@ -212,19 +215,25 @@ export function useDistanceSort<TMode extends string>(
     if (directory.isError) void directory.refetch();
   }
 
-  // A town is picked instead of the location, so it sorts without asking again.
-  function chooseTown(town: string) {
+  // Sorts from the picked or saved town without asking for the location.
+  function chooseKnownTown() {
     location.clear();
-    pickTown(town);
     setIsFromTown(true);
     setFailure(null);
     setChosen("distance" as TMode);
+  }
+
+  function chooseTown(town: string) {
+    pickTown(town);
+    chooseKnownTown();
   }
 
   return {
     chosen,
     choose,
     chooseTown,
+    chooseKnownTown,
+    hasKnownTown,
     towns,
     state,
     ...readSortResult({
