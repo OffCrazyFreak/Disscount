@@ -66,7 +66,7 @@ export default function MapOpenFilter({
               type="button"
               variant="link"
               size="sm"
-              onClick={onRetry}
+              onClick={() => onRetry()}
               className="h-auto p-0"
             >
               {t("load.retry")}
