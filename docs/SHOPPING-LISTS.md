@@ -322,7 +322,7 @@ The price range bar compares only chains that carry every item (`store-chain-com
 
 1. `getPriceHistoryDates` builds the list of days for the period, never before `PRICE_ARCHIVE_START` (2025-05-16), the first day the upstream archive has.
 2. For every EAN and every day it runs one product lookup at that date, built by `priceHistoryQueries` (`lib/cijene-api/price-history-queries.ts`). The product page's chart uses the same builder, so the two share cache entries; the key and `staleTime` must stay identical.
-3. `buildChartData` (`[id]/utils/price-history-chart-data.ts`) averages, per product and day, the average prices of the selected chains, rounded to cents. Results stay aligned with their dates by position, which is why missing days are kept as holes rather than filtered out.
+3. `buildChartData` (`[id]/utils/price-history-chart-data.ts`) averages, per product and day, the average prices of the selected chains, rounded to cents. Results stay aligned with their dates by position, which is why missing days are kept as holes rather than filtered out. Each row keeps the raw `YYYY-MM-DD` date; the shared chart shell formats it for the axis and the tooltip ([PRODUCTS.md](PRODUCTS.md), price history).
 4. `calculateTotalPriceChange` compares the first and the last day, counting only products priced on both, so a product priced on one side only cannot show a price change no price made.
 
 The period and the selected chains are remembered per list in local storage (`priceHistoryPeriod`, `priceHistoryChains`). The first time, the chain selection is the user's pinned chains that appear in the data, else every chain; it waits until every lookup has settled, so a half loaded list cannot save a wrong default.
@@ -458,7 +458,7 @@ Versions are the ranges in `frontend/package.json` and the parent in `backend/po
 | Frontend (Vitest) | Item schema rules, response parsing (`queries.test.tsx`), hooks and optimism (`hooks.test.tsx`), shared list access, dead link detection, the offline replay, the Sentry list privacy filter, the detail client, items, quick add, the store group header, the update status announcement, list data and price states, the store sort mode, grouping, the chart data, store cards, the merge mirror, totals, the store sort, the plain item modal, and the share text's suggested stores (`use-list-share-text.test.tsx`) |
 | Backend (H2)      | `ShoppingListItemServiceAddTest` (plain items, blank EAN, merging by name and EAN, takeovers, an update without an EAN), `ShoppingListItemRequestTest`, `ShoppingListOwnershipTest`, `ShoppingListLinkAccessTest`, `ShoppingListWireFormatTest`, and the list half of `AccountErasureTest`                                                                                                                                                                                                                                |
 
-Not covered by an automated test: the info table maths against real prices, the stores tab ranking against live data, and the price history chart rendering. Those are checked in the browser.
+Not covered by an automated test: the info table maths against real prices, the stores tab ranking against live data, and the price history chart's lines. Those are checked in the browser. The chart's date labels are covered by `price-history-chart-shell.test.tsx`.
 
 ---
 
