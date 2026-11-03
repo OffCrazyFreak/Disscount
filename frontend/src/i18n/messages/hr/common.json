@@ -167,8 +167,8 @@
   "distanceSort": {
     "locating": "Tražimo tvoju lokaciju za poredak po udaljenosti…",
     "ready": "Poredano po udaljenosti od tvoje lokacije. Lokaciju ne spremamo niti je šaljemo.",
-    "readyFromTown": "Poredano po udaljenosti od središta mjesta {town}.",
-    "readyFromSavedPlace": "Lokacija nije dostupna, pa je poredano po udaljenosti od mjesta {town} (tvoje spremljeno mjesto).",
+    "readyFromTown": "Poredano od mjesta {town}.",
+    "readyFromSavedPlace": "Bez lokacije: poredano od mjesta {town}.",
     "denied": "Pristup lokaciji je odbijen, pa ostaje zadani poredak. Dopusti ga u postavkama preglednika i ponovno odaberi udaljenost.",
     "unavailable": "Lokacija trenutačno nije dostupna, pa ostaje zadani poredak. Ponovno odaberi udaljenost za novi pokušaj.",
     "timeout": "Lokacija se ne može odrediti, pa ostaje zadani poredak. Provjeri je li lokacija uključena na uređaju i ponovno odaberi udaljenost.",

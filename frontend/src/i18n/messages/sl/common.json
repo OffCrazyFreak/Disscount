@@ -167,8 +167,8 @@
   "distanceSort": {
     "locating": "Iščemo tvojo lokacijo za razvrstitev po razdalji…",
     "ready": "Razvrščeno po razdalji od tvoje lokacije. Lokacije ne shranjujemo in je ne pošiljamo.",
-    "readyFromTown": "Razvrščeno po razdalji od središča kraja {town}.",
-    "readyFromSavedPlace": "Tvoja lokacija ni na voljo, zato je razvrščeno po razdalji od kraja {town} (tvoj shranjeni kraj).",
+    "readyFromTown": "Razvrščeno od kraja {town}.",
+    "readyFromSavedPlace": "Brez lokacije: razvrščeno od kraja {town}.",
     "denied": "Dostop do lokacije je zavrnjen, zato ostane privzeti vrstni red. Dovoli ga v nastavitvah brskalnika in znova izberi razdaljo.",
     "unavailable": "Tvoja lokacija trenutno ni na voljo, zato ostane privzeti vrstni red. Znova izberi razdaljo za nov poskus.",
     "timeout": "Tvoje lokacije ni mogoče določiti, zato ostane privzeti vrstni red. Preveri, ali je lokacija na napravi vklopljena, in znova izberi razdaljo.",

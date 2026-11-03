@@ -58,7 +58,7 @@ describe("DistanceSortNote", () => {
     );
 
     expect(screen.getByRole("status")).toHaveTextContent(
-      "od mjesta Split (tvoje spremljeno mjesto)",
+      "Bez lokacije: poredano od mjesta Split.",
     );
     expect(
       screen.getByRole("button", { name: "Promijeni mjesto" }),
