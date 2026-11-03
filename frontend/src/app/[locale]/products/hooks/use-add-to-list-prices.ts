@@ -1,90 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import type { UseFormReturn } from "react-hook-form";
 
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import type { PinnedStoreDto } from "@/lib/api/schemas/preferences";
 import type { AddToListFormData } from "@/app/[locale]/products/typings/add-to-list";
+import { getAveragePrice } from "@/app/[locale]/products/utils/product-utils";
 import {
-  getAveragePriceForItem,
-  getStorePricesForItem,
-  findCheapestStoreForItem,
+  getStorePricesFromProduct,
+  findCheapestStoreFromProduct,
 } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 
 /**
- * Loads average/store prices and the cheapest chain for a product once per
- * open, and pre-selects the cheapest chain in the form if none is chosen.
+ * Derives average/store prices and the cheapest chain from the product the
+ * modal already holds, and pre-selects the cheapest chain if none is chosen.
  */
 export function useAddToListPrices(
   product: ProductResponse | null | undefined,
   pinnedStores: PinnedStoreDto[] | undefined,
   form: UseFormReturn<AddToListFormData>,
 ) {
-  const [storePrices, setStorePrices] = useState<Record<string, number>>({});
-  const [averagePrice, setAveragePrice] = useState<number | null>(null);
-  const [cheapestStore, setCheapestStore] = useState<string | null>(null);
+  const storePrices = product ? getStorePricesFromProduct(product) : {};
+  const averagePrice = product ? getAveragePrice(product) || null : null;
+  const cheapestStore = product
+    ? findCheapestStoreFromProduct(product, pinnedStores)
+    : null;
 
   useEffect(() => {
-    if (!product) return;
-    let ignore = false;
-
-    // Drop the previous product's prices so switching products can't submit stale
-    // data mid-fetch. This clears state the async fetch below owns, so it belongs
-    // with the fetch and its `ignore` cleanup rather than in render.
-    /* eslint-disable react-hooks/set-state-in-effect */
-    setStorePrices({});
-    setAveragePrice(null);
-    setCheapestStore(null);
-    /* eslint-enable react-hooks/set-state-in-effect */
-
-    async function fetchPrices() {
-      if (!product) return;
-      try {
-        const tempItem = {
-          id: "",
-          shoppingListId: "",
-          ean: product.ean,
-          name: product.name || "",
-          brand: product.brand || undefined,
-          quantity: product.quantity || undefined,
-          unit: product.unit || undefined,
-          amount: 1,
-          isChecked: false,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          updatedByUserId: null,
-          avgPrice: null,
-          storePrice: null,
-          chainCode: null,
-        };
-
-        const [avgPrice, prices, cheapest] = await Promise.all([
-          getAveragePriceForItem(tempItem),
-          getStorePricesForItem(tempItem),
-          findCheapestStoreForItem(tempItem, pinnedStores),
-        ]);
-
-        if (ignore) return;
-
-        setAveragePrice(avgPrice);
-        setStorePrices(prices);
-        setCheapestStore(cheapest);
-
-        if (cheapest && !form.getValues("chainCode")) {
-          form.setValue("chainCode", cheapest);
-        }
-      } catch (error) {
-        if (!ignore) console.error("Error fetching prices:", error);
-      }
+    if (cheapestStore && !form.getValues("chainCode")) {
+      form.setValue("chainCode", cheapestStore);
     }
-
-    fetchPrices();
-
-    return () => {
-      ignore = true;
-    };
-  }, [product, pinnedStores, form]);
+  }, [cheapestStore, form]);
 
   return { storePrices, averagePrice, cheapestStore };
 }
