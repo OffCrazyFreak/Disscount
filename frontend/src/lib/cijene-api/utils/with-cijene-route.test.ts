@@ -64,6 +64,28 @@ describe("withCijeneRoute", () => {
     expect((await response.json()).title).toBe("Dienst nicht verfügbar");
   });
 
+  it.each([
+    [404, "not_found", 404, "Non lo troviamo"],
+    [429, "too_many_requests", 429, "Troppi tentativi, aspetta un attimo"],
+    [422, "bad_request", 400, "Richiesta non valida"],
+  ])(
+    "translates an upstream %i the caller could act on",
+    async (upstreamStatus, code, status, title) => {
+      const response = await withCijeneRoute(
+        requestIn("it"),
+        "product",
+        schema,
+        () => Promise.reject(new CijeneApiError(upstreamStatus, "Upstream")),
+      );
+
+      expect(response.status).toBe(status);
+      expect(response.headers.get("content-type")).toBe(
+        "application/problem+json",
+      );
+      expect(await response.json()).toEqual({ status, code, title });
+    },
+  );
+
   it("passes the payload through when it matches", async () => {
     const response = await withCijeneRoute(
       requestIn("hr"),
