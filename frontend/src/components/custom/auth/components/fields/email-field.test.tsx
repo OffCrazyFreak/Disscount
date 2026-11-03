@@ -45,7 +45,7 @@ describe("EmailField", () => {
 
     const input = screen.getByLabelText("Email");
     expect(input).toHaveAttribute("aria-invalid", "true");
-    expect(input).toHaveAccessibleDescription("Unesi važeći email");
+    expect(input).toHaveAccessibleDescription("Upiši ispravan email");
   });
 
   it("clears the error state once the email is valid", async () => {

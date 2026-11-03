@@ -5,7 +5,7 @@
   },
   "client": {
     "loginTitle": "Spremljani izdelki",
-    "loginDescription": "Spremljanje ti javi takoj, ko cena izdelka pade.",
+    "loginDescription": "Spremljaj izdelke, ki jih kupuješ, in prejmi obvestilo, takoj ko jim cena pade.",
     "searchPlaceholder": "Išči med spremljanimi izdelki..."
   },
   "header": {
@@ -32,11 +32,11 @@
     "srSuffix": ", {infoLabel}, odpri nastavitve trgovin"
   },
   "discountInfo": {
-    "loadError": "Napaka pri nalaganju",
+    "loadError": "Ni naloženo",
     "noData": "Ni podatkov",
     "unavailable": "Ni na voljo",
     "setPreferences": "Nastavi trgovine",
-    "preferredStoresInfo": "Trgovine s popustom med tvojimi priljubljenimi trgovinami",
+    "preferredStoresInfo": "Popusti v tvojih trgovinah",
     "allStoresInfo": "Vse trgovine s popustom"
   },
   "item": {
@@ -44,9 +44,9 @@
     "unavailable": "Izdelek ni na voljo"
   },
   "removal": {
-    "success": "Izdelka ne spremljaš več",
-    "error": "Napaka pri odstranjevanju izdelka",
-    "partial": "Delno odstranjeno. Odstranitev ni uspela pri {count, plural, one {# izdelku} two {# izdelkih} few {# izdelkih} other {# izdelkih}}."
+    "success": "Tega izdelka ne spremljaš več.",
+    "error": "Odstranitev ni uspela. Poskusi znova.",
+    "partial": "Odstranitev ni uspela pri {count, plural, one {# izdelku} two {# izdelkih} few {# izdelkih} other {# izdelkih}}. Poskusi znova."
   },
   "createList": {
     "label": "Ustvari seznam izdelkov na popustu",
@@ -54,14 +54,14 @@
     "loading": "Ustvarjanje seznama...",
     "listTitle": "Popusti {date}",
     "productCount": "Izdelkov za nov seznam: {count}.",
-    "success": "Seznam izdelkov na popustu je ustvarjen",
-    "createError": "Napaka pri ustvarjanju seznama izdelkov na popustu",
-    "addFailedRemoved": "Nekaterih izdelkov ni bilo mogoče dodati. Seznam je samodejno odstranjen.",
-    "addFailedKept": "Nekaterih izdelkov ni bilo mogoče dodati, seznama pa ni mogoče samodejno odstraniti."
+    "success": "Seznam s popusti je pripravljen!",
+    "createError": "Seznama ni bilo mogoče ustvariti. Poskusi znova.",
+    "addFailedRemoved": "Nekaterih izdelkov ni bilo mogoče dodati, zato je seznam odstranjen. Poskusi znova.",
+    "addFailedKept": "Nekaterih izdelkov ni bilo mogoče dodati. Seznam je ostal, zato ga lahko dokončaš ali izbrišeš."
   },
   "validation": {
     "productRequired": "Izdelek je obvezen",
     "watchTypeRequired": "Izberi, kdaj te obvestimo",
-    "thresholdPositive": "Najmanjši popust mora biti pozitivno število"
+    "thresholdPositive": "Najmanjši popust mora biti večji od 0"
   }
 }

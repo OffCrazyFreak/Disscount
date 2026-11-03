@@ -13,16 +13,16 @@
     "backToMap": "Nazaj na zemljevid"
   },
   "load": {
-    "error": "Trgovin trenutno ni mogoče naložiti.",
+    "error": "Trgovin ni bilo mogoče naložiti.",
     "retry": "Poskusi znova",
     "loading": "Nalagam trgovine..."
   },
   "unavailable": {
     "browser": "Tvoj brskalnik ne more prikazati zemljevida. Vse trgovine so še vedno na seznamu.",
     "style": "Zemljevida trenutno ni mogoče naložiti. Vse trgovine so še vedno na seznamu.",
-    "contextLost": "Zemljevid se je prekinil.",
+    "contextLost": "Zemljevid je prenehal delovati. Vse trgovine so še vedno na seznamu.",
     "reload": "Naloži znova",
-    "noGpu": "Tvoj brskalnik je izklopil grafično pospeševanje, zato ne more prikazati zemljevida. Običajno pomaga, da brskalnik znova zaženeš. Vse trgovine so še vedno na seznamu."
+    "noGpu": "Brskalnik je izklopil grafično pospeševanje, zato ne prikaže zemljevida. Poskusi ga znova zagnati. Vse trgovine so še vedno na seznamu."
   },
   "chains": {
     "all": "Vsi trgovci"
@@ -69,7 +69,7 @@
   "favorites": {
     "add": "Dodaj med priljubljene",
     "remove": "Odstrani iz priljubljenih",
-    "limit": "Največ {max, number} priljubljenih trgovin.",
+    "limit": "Imaš lahko največ {max, number} priljubljenih trgovin.",
     "saveFailed": "Shranjevanje ni uspelo. Poskusi znova."
   },
   "actions": {

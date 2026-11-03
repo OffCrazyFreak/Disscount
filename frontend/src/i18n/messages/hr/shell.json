@@ -9,7 +9,7 @@
     "watchlist": "Praćeni proizvodi",
     "watchlistShort": "Praćenje",
     "watchlistShortcut": "Pogledaj proizvode koje pratiš",
-    "watchlistPriceDrops": "{label}, {count, plural, one {# novo sniženje} few {# nova sniženja} other {# novih sniženja}}",
+    "watchlistPriceDrops": "{label}, {count, plural, one {# novi popust} few {# nova popusta} other {# novih popusta}}",
     "digitalCards": "Kartice vjernosti",
     "digitalCardsShort": "Kartice",
     "digitalCardsShortcut": "Otvori svoje kartice vjernosti",
@@ -32,7 +32,7 @@
     "myAccount": "Moj račun",
     "support": "Pomoć i podrška",
     "comingSoon": "USKORO",
-    "toggle": "Prebaci"
+    "toggle": "Prikaži ili sakrij filtre"
   },
   "search": {
     "productsPlaceholder": "Pretraži proizvode...",
@@ -60,12 +60,12 @@
   },
   "modalRouter": {
     "gate": {
-      "addToList": "Prijavi se za dodavanje proizvoda na popis za kupnju.",
-      "watchlist": "Prijavi se za praćenje popusta ovog proizvoda.",
-      "manageLists": "Prijavi se za upravljanje popisima za kupnju.",
-      "manageCards": "Prijavi se za upravljanje karticama vjernosti.",
-      "settings": "Prijavi se za otvaranje postavki.",
-      "onboarding": "Prijavi se za početak."
+      "addToList": "Prijavi se da dodaš proizvod na popis.",
+      "watchlist": "Prijavi se da pratiš ovaj proizvod.",
+      "manageLists": "Prijavi se da složiš svoje popise.",
+      "manageCards": "Prijavi se da spremiš svoje kartice vjernosti.",
+      "settings": "Prijavi se da otvoriš postavke.",
+      "onboarding": "Prijavi se i kreni."
     },
     "deleteList": {
       "title": "Obriši popis za kupnju",

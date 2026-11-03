@@ -7,7 +7,7 @@
   },
   "notFound": {
     "title": "Proizvod nije pronađen",
-    "description": "Nije moguće učitati podatke za ovaj proizvod."
+    "description": "Ne možemo učitati ovaj proizvod. Probaj ga potražiti ponovno."
   },
   "sort": {
     "label": "Sortiraj po:",
@@ -18,7 +18,7 @@
   "chains": {
     "title": "Cijene po trgovinama",
     "refreshed": "Cijene osvježene {time}",
-    "loadError": "Greška pri učitavanju cijena. Pokušaj ponovno.",
+    "loadError": "Cijene se nisu učitale. Pokušaj ponovno.",
     "empty": "Nema dostupnih cijena za ovaj proizvod.",
     "whereToBuy": "Gdje kupiti"
   },
@@ -26,7 +26,7 @@
     "title": "Povijest cijena",
     "hide": "Sakrij",
     "show": "Prikaži",
-    "empty": "Nema dostupnih povijesnih podataka.",
+    "empty": "Još nema povijesti cijena.",
     "average": "Prosjek",
     "period": {
       "week": "(posljednjih 7 dana)",

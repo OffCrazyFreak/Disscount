@@ -118,7 +118,7 @@ describe("ShoppingListItems price states", () => {
     );
 
     expect(offline).toHaveAccessibleName(
-      "Trgovina Cijene nisu spremljene za izvanmrežni rad",
+      "Trgovina Cijene nisu spremljene za rad bez interneta",
     );
     expect(offline).toHaveAccessibleDescription("");
 
@@ -174,7 +174,7 @@ describe("ShoppingListItems price states", () => {
     renderItems([item("a", { chainCode: "konzum" })], { a: "offline" });
 
     expect(screen.getByRole("combobox")).toHaveTextContent(
-      "Konzum: Cijene nisu spremljene za izvanmrežni rad",
+      "Konzum: Cijene nisu spremljene za rad bez interneta",
     );
   });
 

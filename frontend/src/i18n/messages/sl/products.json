@@ -1,29 +1,29 @@
 {
   "meta": {
     "title": "Izdelki",
-    "description": "Pregled razpoložljivih izdelkov."
+    "description": "Poišči izdelke in primerjaj cene v trgovinah po vsej Hrvaški."
   },
   "clearFilters": {
     "label": "Počisti filtre"
   },
   "addToList": {
-    "title": "Dodaj izdelek na nakupovalni seznam",
+    "title": "Dodaj na nakupovalni seznam",
     "description": "Izberi seznam, količino in trgovino.",
     "submit": "Dodaj",
     "cancel": "Prekliči",
     "reset": "Ponastavi",
     "productNotFound": "Izdelka ni mogoče najti.",
     "removeFromList": "Odstrani s tega seznama",
-    "duplicateTitle": "Izdelek je že na nakupovalnem seznamu",
-    "duplicateText": "Ta izdelek je že na izbranem nakupovalnem seznamu. Če ga dodaš še enkrat, bo količina na seznamu {next} namesto {current}.",
+    "duplicateTitle": "Že na seznamu",
+    "duplicateText": "Izdelek je že na tem seznamu. Če ga dodaš, bo količina {next} namesto {current}.",
     "toast": {
       "pickList": "Izberi ali ustvari nakupovalni seznam.",
-      "quantityIncreased": "Količina izdelka je povečana na seznamu »{name}«",
-      "added": "Izdelek je dodan na seznam »{name}«",
+      "quantityIncreased": "Količina je povečana na seznamu »{name}«",
+      "added": "Dodano na seznam »{name}«",
       "open": "Odpri",
       "fallbackListName": "seznam",
       "removed": "Izdelek je odstranjen s seznama.",
-      "removeFailed": "Napaka pri odstranjevanju izdelka."
+      "removeFailed": "Izdelka ni bilo mogoče odstraniti. Poskusi znova."
     }
   },
   "createListOption": {
@@ -31,11 +31,11 @@
   },
   "markAsChecked": {
     "label": "Izdelek vnaprej označi kot kupljen",
-    "description": "To lahko pozneje spremeniš na nakupovalnem seznamu"
+    "description": "To lahko pozneje spremeniš na seznamu."
   },
   "actionsSheet": {
     "pricesUnavailableTitle": "Cene niso na voljo",
-    "pricesUnavailableText": "Dejanja za izdelek lahko še vedno uporabljaš. Poskusi znova za trenutni cenovni razpon.",
+    "pricesUnavailableText": "Vsa dejanja še vedno delujejo. Za cenovni razpon poskusi znova.",
     "partialPricesTitle": "Nekatere cene niso na voljo",
     "partialPricesText": "Razpon vključuje lokacije, katerih cene smo uspeli pridobiti."
   },
@@ -45,7 +45,7 @@
   "listSelector": {
     "label": "Nakupovalni seznam",
     "searchPlaceholder": "Poišči med svojimi seznami ali ustvari novega...",
-    "empty": "Vpiši ime in kar tu ustvari svoj prvi nakupovalni seznam.",
+    "empty": "Vpiši ime in tu ustvari prvi seznam.",
     "existingLists": "Obstoječi seznami",
     "newList": "Nov nakupovalni seznam",
     "updatedAt": "({date})",
@@ -55,30 +55,30 @@
     "loading": "Nalaganje...",
     "createNamed": "Ustvari nov seznam »{title}«",
     "choose": "Izberi seznam...",
-    "createFirst": "Kar tu ustvari prvi seznam..."
+    "createFirst": "Ustvari prvi seznam..."
   },
   "storeChainField": {
     "label": "Trgovina"
   },
   "watchlistModal": {
     "title": "Spremljaj izdelek",
-    "description": "Nastavi najmanjši popust in obvestili te bomo, ko bo dosežen.",
+    "description": "Nastavi najmanjši popust in javimo ti, ko ga izdelek doseže.",
     "save": "Shrani",
     "track": "Spremljaj",
     "cancel": "Prekliči",
     "reset": "Ponastavi",
     "productNotFound": "Izdelka ni mogoče najti.",
     "removeFromWatchlist": "Prenehaj spremljati",
-    "existingTitle": "Izdelek že spremljaš",
-    "existingBoth": "Ta izdelek že spremljaš z najmanjšim popustom {percentage} % in {amount, number, ::currency/EUR}.",
-    "existingPercentage": "Ta izdelek že spremljaš z najmanjšim popustom {percentage} %.",
-    "existingAbsolute": "Ta izdelek že spremljaš z najmanjšim popustom {amount, number, ::currency/EUR}.",
+    "existingTitle": "Ta izdelek že spremljaš",
+    "existingBoth": "Spremljaš ga z najmanjšim popustom {percentage} % in {amount, number, ::currency/EUR}.",
+    "existingPercentage": "Spremljaš ga z najmanjšim popustom {percentage} %.",
+    "existingAbsolute": "Spremljaš ga z najmanjšim popustom {amount, number, ::currency/EUR}.",
     "toast": {
       "updated": "Najmanjši popust je spremenjen iz {from} v {to}",
       "added": "Izdelek zdaj spremljaš",
-      "removedPercentage": "Odstotek za izdelek se ne spremlja več",
-      "removedAbsolute": "Cena izdelka se ne spremlja več",
-      "removeFailed": "Napaka pri odstranjevanju"
+      "removedPercentage": "Popusta v odstotkih ne spremljaš več",
+      "removedAbsolute": "Padca cene v evrih ne spremljaš več",
+      "removeFailed": "Odstranitev ni uspela. Poskusi znova."
     }
   },
   "threshold": {
@@ -87,24 +87,24 @@
     "loading": "Nalaganje najmanjšega popusta",
     "placeholderAbsolute": "Npr. 12",
     "placeholderPercentage": "Npr. 15",
-    "willUpdate": "Najmanjši popust bo spremenjen iz {from} v {to}."
+    "willUpdate": "Najmanjši popust se spremeni iz {from} v {to}."
   },
   "typePicker": {
     "label": "Obvesti me, ko",
     "absolute": {
       "label": "Cena pade za €",
-      "description": "Obvestili te bomo, ko cena pade za določen znesek"
+      "description": "Javimo ti, ko cena pade za tvoj znesek"
     },
     "percentage": {
       "label": "Popust je vsaj %",
-      "description": "Obvestili te bomo, ko popust doseže določen odstotek"
+      "description": "Javimo ti, ko popust doseže tvoj odstotek"
     }
   },
   "actions": {
     "addToList": "Dodaj na nakupovalni seznam",
     "editListEntry": "Uredi vnos na nakupovalnem seznamu",
     "watch": "Spremljaj izdelek",
-    "editWatch": "Posodobi spremljanje",
+    "editWatch": "Uredi spremljanje",
     "share": "Deli izdelek",
     "searchImage": "Poišči sliko izdelka",
     "group": "Dejanja za izdelek"
@@ -158,13 +158,13 @@
     "locations": "Razpon objavljenih cen, ki ustrezajo izbranim filtrom."
   },
   "validation": {
-    "listRequired": "Nakupovalni seznam je obvezen",
-    "amountRange": "Količina mora biti med 1 in 999",
+    "listRequired": "Izberi nakupovalni seznam",
+    "amountRange": "Vpiši količino od 1 do 999",
     "listTitleMin": "Ime mora imeti vsaj 3 znake",
     "listTitleMax": "Ime sme imeti največ 100 znakov",
-    "thresholdInvalid": "Vnesi veljavno vrednost",
-    "percentageRange": "Odstotek mora biti med 1 % in 99 %",
-    "absoluteRange": "Znesek mora biti med 0,10 € in 999 €"
+    "thresholdInvalid": "Vpiši število, npr. 15",
+    "percentageRange": "Vpiši odstotek od 1 do 99",
+    "absoluteRange": "Vpiši znesek od 0,10 € do 999 €"
   },
   "list": {
     "searchPlaceholder": "Išči izdelke...",
@@ -172,18 +172,18 @@
     "resultsTitleWithCount": "Rezultati iskanja za »{query}« ({count}{suffix})",
     "resultsStatus": "{count, plural, =0 {Ni rezultatov} one {# rezultat} two {# rezultata} few {# rezultati} other {# rezultatov}}{truncated, select, yes { ali več} other {}}",
     "partialPricesTitle": "Nekatere cene niso na voljo",
-    "partialPricesText": "Prikazujemo razpoložljive cene, vendar ene ali več izbranih lokacij trenutno nismo mogli pridobiti.",
-    "errorTitle": "Napaka pri iskanju",
-    "errorText": "Pri pridobivanju podatkov je prišlo do napake. Poskusi znova.",
+    "partialPricesText": "Za nekatere izbrane lokacije trenutno nimamo cen, zato prikazujemo ostale.",
+    "errorTitle": "Iskanje ni uspelo",
+    "errorText": "Izdelkov ni bilo mogoče naložiti. Poskusi znova.",
     "noResultsForFilters": "Ni rezultatov za izbrane filtre",
     "noPriceInLocationsTitle": "{count, plural, one {V izbranem kraju ni cen} two {V izbranih krajih ni cen} few {V izbranih krajih ni cen} other {V izbranih krajih ni cen}}",
     "noPriceInLocationsText": "{count, plural, one {Našli smo izdelke, vendar nobena trgovina v kraju {locations} zanje nima objavljene cene.} two {Našli smo izdelke, vendar nobena trgovina v krajih {locations} zanje nima objavljene cene.} few {Našli smo izdelke, vendar nobena trgovina v krajih {locations} zanje nima objavljene cene.} other {Našli smo izdelke, vendar nobena trgovina v krajih {locations} zanje nima objavljene cene.}}",
     "showAllLocations": "Prikaži cene po vsej Hrvaški",
     "clearFilters": "Počisti filtre",
     "enterQueryTitle": "Vpiši iskalni izraz",
-    "enterQueryText": "Filtri so nastavljeni, rezultati bodo prikazani po iskanju",
+    "enterQueryText": "Filtri so pripravljeni. Vpiši, kaj iščeš, in prikažemo rezultate.",
     "startTitle": "Išči izdelke",
-    "startText": "Vpiši ime izdelka, ki ga iščeš",
+    "startText": "Vpiši, kaj iščeš",
     "noResultsAddPlain": "Nismo našli izdelka s tem imenom. Še vedno ga lahko dodaš na seznam.",
     "addPlainItem": "Dodaj »{query}« na seznam"
   },

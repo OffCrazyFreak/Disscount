@@ -1,34 +1,37 @@
 {
-  "meta": { "title": "Prodotti", "description": "I prodotti disponibili." },
+  "meta": {
+    "title": "Prodotti",
+    "description": "Cerca i prodotti e confronta i prezzi nei negozi di tutta la Croazia."
+  },
   "clearFilters": { "label": "Cancella i filtri" },
   "addToList": {
-    "title": "Aggiungi il prodotto alla lista della spesa",
+    "title": "Aggiungi alla lista della spesa",
     "description": "Scegli la lista, la quantità e il negozio.",
     "submit": "Aggiungi",
     "cancel": "Annulla",
     "reset": "Reimposta",
     "productNotFound": "Prodotto non trovato.",
     "removeFromList": "Rimuovi da questa lista",
-    "duplicateTitle": "Prodotto già nella lista della spesa",
-    "duplicateText": "Questo prodotto è già nella lista scelta. Aggiungendolo di nuovo, la quantità passa da {current} a {next}.",
+    "duplicateTitle": "Già nella lista",
+    "duplicateText": "Il prodotto è già in questa lista. Se lo aggiungi, la quantità passa da {current} a {next}.",
     "toast": {
       "pickList": "Scegli o crea una lista della spesa.",
       "quantityIncreased": "Quantità aumentata in «{name}»",
-      "added": "Prodotto aggiunto a «{name}»",
+      "added": "Aggiunto a «{name}»",
       "open": "Apri",
       "fallbackListName": "lista",
       "removed": "Prodotto rimosso dalla lista.",
-      "removeFailed": "Non siamo riusciti a rimuovere il prodotto."
+      "removeFailed": "Non siamo riusciti a rimuovere il prodotto. Riprova."
     }
   },
   "createListOption": { "label": "Crea «<name>{title}</name>»" },
   "markAsChecked": {
     "label": "Segna subito il prodotto come acquistato",
-    "description": "Potrai cambiarlo più tardi nella lista della spesa"
+    "description": "Puoi cambiarlo più tardi nella lista."
   },
   "actionsSheet": {
     "pricesUnavailableTitle": "Prezzi non disponibili",
-    "pricesUnavailableText": "Puoi comunque usare le azioni del prodotto. Riprova per avere l'intervallo di prezzi aggiornato.",
+    "pricesUnavailableText": "Tutte le azioni funzionano comunque. Riprova per vedere l'intervallo di prezzi.",
     "partialPricesTitle": "Alcuni prezzi non sono disponibili",
     "partialPricesText": "L'intervallo comprende le località di cui siamo riusciti a ottenere i prezzi."
   },
@@ -36,7 +39,7 @@
   "listSelector": {
     "label": "Lista della spesa",
     "searchPlaceholder": "Cerca tra le tue liste o creane una nuova...",
-    "empty": "Scrivi un nome per creare qui la tua prima lista della spesa.",
+    "empty": "Scrivi un nome e crea qui la tua prima lista.",
     "existingLists": "Liste esistenti",
     "newList": "Nuova lista della spesa",
     "updatedAt": "({date})",
@@ -46,28 +49,28 @@
     "loading": "Caricamento...",
     "createNamed": "Crea la nuova lista «{title}»",
     "choose": "Scegli una lista...",
-    "createFirst": "Crea subito la prima lista..."
+    "createFirst": "Crea la prima lista..."
   },
   "storeChainField": { "label": "Negozio" },
   "watchlistModal": {
     "title": "Segui questo prodotto",
-    "description": "Scegli lo sconto minimo e ti avvisiamo quando viene raggiunto.",
+    "description": "Scegli lo sconto minimo e ti avvisiamo quando il prodotto lo raggiunge.",
     "save": "Salva",
     "track": "Segui",
     "cancel": "Annulla",
     "reset": "Reimposta",
     "productNotFound": "Prodotto non trovato.",
     "removeFromWatchlist": "Smetti di seguire",
-    "existingTitle": "Prodotto già tra quelli seguiti",
-    "existingBoth": "Questo prodotto è già tra quelli seguiti con uno sconto minimo del {percentage}% e di {amount, number, ::currency/EUR}.",
-    "existingPercentage": "Questo prodotto è già tra quelli seguiti con uno sconto minimo del {percentage}%.",
-    "existingAbsolute": "Questo prodotto è già tra quelli seguiti con uno sconto minimo di {amount, number, ::currency/EUR}.",
+    "existingTitle": "Segui già questo prodotto",
+    "existingBoth": "Lo segui con uno sconto minimo del {percentage}% e di {amount, number, ::currency/EUR}.",
+    "existingPercentage": "Lo segui con uno sconto minimo del {percentage}%.",
+    "existingAbsolute": "Lo segui con uno sconto minimo di {amount, number, ::currency/EUR}.",
     "toast": {
-      "updated": "Sconto minimo aggiornato da {from} a {to}",
+      "updated": "Sconto minimo cambiato da {from} a {to}",
       "added": "Prodotto aggiunto ai seguiti",
-      "removedPercentage": "Avviso in percentuale rimosso per questo prodotto",
-      "removedAbsolute": "Avviso di prezzo rimosso per questo prodotto",
-      "removeFailed": "Non siamo riusciti a rimuoverlo"
+      "removedPercentage": "Non segui più lo sconto in percentuale",
+      "removedAbsolute": "Non segui più il calo di prezzo in euro",
+      "removeFailed": "Non siamo riusciti a rimuoverlo. Riprova."
     }
   },
   "threshold": {
@@ -82,11 +85,11 @@
     "label": "Avvisami quando",
     "absolute": {
       "label": "Il prezzo scende di €",
-      "description": "Ti avvisiamo quando il prezzo scende di un certo importo"
+      "description": "Ti avvisiamo quando il prezzo scende dell'importo che scegli"
     },
     "percentage": {
       "label": "Lo sconto è almeno del %",
-      "description": "Ti avvisiamo quando lo sconto supera una certa percentuale"
+      "description": "Ti avvisiamo quando lo sconto raggiunge la percentuale che scegli"
     }
   },
   "actions": {
@@ -146,12 +149,12 @@
   },
   "validation": {
     "listRequired": "Scegli una lista della spesa",
-    "amountRange": "La quantità deve essere tra 1 e 999",
+    "amountRange": "Inserisci una quantità da 1 a 999",
     "listTitleMin": "Scrivi un nome di almeno 3 caratteri",
     "listTitleMax": "Scrivi un nome di massimo 100 caratteri",
-    "thresholdInvalid": "Inserisci un valore valido",
-    "percentageRange": "La percentuale deve essere tra 1% e 99%",
-    "absoluteRange": "L'importo deve essere tra 0,10 € e 999 €"
+    "thresholdInvalid": "Inserisci un numero, ad es. 15",
+    "percentageRange": "Inserisci una percentuale da 1 a 99",
+    "absoluteRange": "Inserisci un importo da 0,10 € a 999 €"
   },
   "list": {
     "searchPlaceholder": "Cerca prodotti...",
@@ -159,18 +162,18 @@
     "resultsTitleWithCount": "Risultati per «{query}» ({count}{suffix})",
     "resultsStatus": "{count, plural, =0 {Nessun risultato} one {# risultato} other {# risultati}}{truncated, select, yes { o più} other {}}",
     "partialPricesTitle": "Alcuni prezzi non sono disponibili",
-    "partialPricesText": "Mostriamo i prezzi disponibili, ma per ora non siamo riusciti a ottenere quelli di una o più località scelte.",
-    "errorTitle": "Errore di ricerca",
-    "errorText": "Non siamo riusciti a caricare i dati. Riprova.",
+    "partialPricesText": "Per alcune località scelte al momento non abbiamo prezzi, quindi mostriamo gli altri.",
+    "errorTitle": "Ricerca non riuscita",
+    "errorText": "Non siamo riusciti a caricare i prodotti. Riprova.",
     "noResultsForFilters": "Nessun risultato per i filtri scelti",
     "noPriceInLocationsTitle": "{count, plural, one {Nessun prezzo nel luogo che hai scelto} other {Nessun prezzo nei luoghi che hai scelto}}",
     "noPriceInLocationsText": "{count, plural, other {Abbiamo trovato dei prodotti, ma nessun negozio a {locations} ha un prezzo pubblicato.}}",
     "showAllLocations": "Mostra i prezzi in tutta la Croazia",
     "clearFilters": "Cancella i filtri",
     "enterQueryTitle": "Scrivi cosa cercare",
-    "enterQueryText": "I filtri sono impostati, i risultati appaiono dopo la ricerca",
+    "enterQueryText": "I filtri sono pronti. Scrivi cosa cerchi per vedere i risultati.",
     "startTitle": "Cerca prodotti",
-    "startText": "Scrivi il nome del prodotto che cerchi",
+    "startText": "Scrivi cosa cerchi",
     "noResultsAddPlain": "Non abbiamo trovato nessun prodotto con questo nome. Puoi comunque aggiungerlo a una lista.",
     "addPlainItem": "Aggiungi «{query}» a una lista"
   },

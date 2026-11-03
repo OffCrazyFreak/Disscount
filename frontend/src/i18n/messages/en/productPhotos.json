@@ -24,7 +24,7 @@
     "gallery": "Photo gallery",
     "report": "Report photo",
     "reported": "Thanks, we'll take a look at that photo.",
-    "reportFailed": "The report didn't go through.",
+    "reportFailed": "Your report wasn't sent. Try again.",
     "setMain": "Set as main",
     "isMain": "Main photo",
     "setMainDone": "The main photo has changed."
@@ -39,15 +39,15 @@
     "submit": "Send photo",
     "submitting": "Sending photo",
     "preparing": "Preparing photo",
-    "public": "The photo is public. It's verified when another user adds their own photo of the same product or an admin reviews it.",
+    "public": "The photo is public. We'll verify it when someone else adds a photo of the same product or our team reviews it.",
     "adminNote": "Photos added by admins become the main photo right away.",
     "done": "Thanks! The photo has been added.",
-    "failed": "The photo wasn't sent.",
+    "failed": "The photo wasn't sent. Try again.",
     "errors": {
       "cannotOpen": "That image can't be opened.",
       "cannotProcess": "That image can't be processed.",
       "cannotSave": "The image can't be saved.",
-      "tooLarge": "The image is still too large after shrinking it."
+      "tooLarge": "The image is too large even after shrinking it. Try another one."
     }
   },
   "manager": {

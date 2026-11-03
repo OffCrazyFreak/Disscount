@@ -6,11 +6,11 @@
     "save": "Save card",
     "cancel": "Cancel",
     "reset": "Reset",
-    "loadErrorOffline": "You're offline and this card isn't saved on your device yet. Connect to the internet and try again.",
+    "loadErrorOffline": "You're offline and this card isn't on your device yet. Connect and try again.",
     "loadError": "Couldn't load the card. Try again.",
     "notFound": "Card not found. It may have been deleted.",
     "saveFailed": "Couldn't save the card. Check the details you entered.",
-    "savedOffline": "You're offline. The change will sync when you're back online.",
+    "savedOffline": "You're offline. We'll save the change as soon as you're back online.",
     "saved": "Card saved.",
     "storeLabel": "Store",
     "storePlaceholder": "Choose or type a store",
@@ -58,7 +58,7 @@
     "noteTooLong": "A note can have at most 500 characters",
     "balanceNegative": "The amount can't be negative",
     "balanceTooLarge": "The amount is too large",
-    "expiresBeforeStart": "A card can't expire before it starts"
+    "expiresBeforeStart": "The expiry date must be after the start date"
   },
   "cardTypes": {
     "loyalty": "Loyalty card",
@@ -113,9 +113,9 @@
     },
     "preview": "Photo preview: {label}",
     "status": {
-      "removed": "The photo will be removed when you save",
-      "added": "The new photo is saved with the card",
-      "uploading": "Uploading",
+      "removed": "We'll remove the photo when you save",
+      "added": "We'll save the photo with the card",
+      "uploading": "Uploading...",
       "queued": "Waiting to upload",
       "error": "Upload failed",
       "saved": "Saved",
@@ -129,7 +129,7 @@
     "discardAria": "Discard new photo: {label}",
     "removeAria": "Remove photo: {label}",
     "errors": {
-      "processFailed": "Couldn't process the photo.",
+      "processFailed": "We can't process this photo. Try another one.",
       "saveFailed": "Couldn't save the photo. Try again.",
       "removeFailed": "Couldn't delete the photo. Try again."
     }
@@ -140,7 +140,7 @@
   },
   "list": {
     "loginTitle": "Loyalty cards",
-    "loginDescription": "Keep all your loyalty cards in one place, always handy.",
+    "loginDescription": "All your loyalty cards in one place, always handy.",
     "searchPlaceholder": "Search loyalty cards...",
     "searchResults": "Search results for “{query}” ({count})",
     "myCards": "My loyalty cards",
@@ -185,7 +185,7 @@
       "link": "About the Moj dm app"
     },
     "konzum": {
-      "text": "The MultiPlus card rules forbid copying the card. Use the saved number only for your own card.",
+      "text": "The MultiPlus card rules don't allow copying. Only save the number of your own card.",
       "link": "MultiPlus card rules"
     }
   },
@@ -219,7 +219,7 @@
       "twoDimensional": "2D code",
       "linear": "Barcode",
       "withValue": "{kind}: {value}",
-      "cannotDraw": "This code can't be drawn. Read the number below or try another type."
+      "cannotDraw": "We can't show this code. Read the number below or try another type."
     },
     "switcher": {
       "shownAs": "Shown as: {type}",
@@ -266,10 +266,10 @@
     }
   },
   "offline": {
-    "cardLimit": "You've reached the maximum number of cards.",
+    "cardLimit": "You already have the most cards allowed. Delete one you don't use.",
     "cardSaveFailed": "Couldn't save the card. Try again.",
     "cardDeleteFailed": "Couldn't delete the card. Try again.",
-    "photoDeleteFailed": "Couldn't delete the photo.",
-    "photoSendFailed": "Couldn't send the card photo."
+    "photoDeleteFailed": "Couldn't delete the photo. Try again.",
+    "photoSendFailed": "The card photo wasn't saved. Add it again."
   }
 }

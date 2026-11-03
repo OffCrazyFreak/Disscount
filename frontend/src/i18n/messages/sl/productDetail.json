@@ -7,7 +7,7 @@
   },
   "notFound": {
     "title": "Izdelek ni najden",
-    "description": "Podatkov za ta izdelek ni mogoče naložiti."
+    "description": "Tega izdelka ne moremo naložiti. Poskusi ga znova poiskati."
   },
   "sort": {
     "label": "Razvrsti po:",
@@ -18,7 +18,7 @@
   "chains": {
     "title": "Cene po trgovcih",
     "refreshed": "Cene posodobljene {time}",
-    "loadError": "Napaka pri nalaganju cen. Poskusi znova.",
+    "loadError": "Cen ni bilo mogoče naložiti. Poskusi znova.",
     "empty": "Za ta izdelek ni cen.",
     "whereToBuy": "Kje kupiti"
   },
@@ -26,7 +26,7 @@
     "title": "Zgodovina cen",
     "hide": "Skrij",
     "show": "Pokaži",
-    "empty": "Ni zgodovinskih podatkov.",
+    "empty": "Zgodovine cen še ni.",
     "average": "Povprečje",
     "period": {
       "week": "(zadnjih 7 dni)",

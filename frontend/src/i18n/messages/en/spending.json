@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Spending",
-    "description": "See and analyze your spending."
+    "description": "See how much you spend by store and category."
   },
   "title": "Spending",
   "loginRequired": {

@@ -74,7 +74,9 @@ describe("ShoppingListUpdateStatus", () => {
 
     rerender(statusElement(changedList, NEXT_FETCH));
 
-    expect(screen.getByRole("status")).toHaveTextContent("Popis je ažuriran");
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Netko je upravo promijenio popis.",
+    );
   });
 
   it("speaks the page language", () => {
@@ -82,7 +84,9 @@ describe("ShoppingListUpdateStatus", () => {
 
     rerender(statusElement(changedList, NEXT_FETCH));
 
-    expect(screen.getByRole("status")).toHaveTextContent("List updated");
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Someone just changed this list.",
+    );
   });
 
   it("stays quiet when the change came from your own write", () => {
@@ -115,7 +119,9 @@ describe("ShoppingListUpdateStatus", () => {
     rerender(statusElement(makeList(), NEXT_FETCH));
     rerender(statusElement(changedList, NEXT_FETCH + 5_000));
 
-    expect(screen.getByRole("status")).toHaveTextContent("Popis je ažuriran");
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Netko je upravo promijenio popis.",
+    );
   });
 
   it("still announces when your only write was submitted before the last fetch", () => {
@@ -125,7 +131,9 @@ describe("ShoppingListUpdateStatus", () => {
 
     rerender(statusElement(changedList, NEXT_FETCH));
 
-    expect(screen.getByRole("status")).toHaveTextContent("Popis je ažuriran");
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Netko je upravo promijenio popis.",
+    );
   });
 
   it("stays quiet when a cached list opened later refetches your own write", () => {

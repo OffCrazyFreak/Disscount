@@ -7,7 +7,7 @@
   },
   "notFound": {
     "title": "Prodotto non trovato",
-    "description": "Impossibile caricare i dati di questo prodotto."
+    "description": "Non riusciamo a caricare questo prodotto. Prova a cercarlo di nuovo."
   },
   "sort": {
     "label": "Ordina per:",
@@ -26,7 +26,7 @@
     "title": "Storico prezzi",
     "hide": "Nascondi",
     "show": "Mostra",
-    "empty": "Nessun dato storico disponibile.",
+    "empty": "Ancora nessuno storico prezzi.",
     "average": "Media",
     "period": {
       "week": "(ultimi 7 giorni)",

@@ -77,7 +77,9 @@ describe("FavoriteStoreButton", () => {
     await screen.findByRole("button", { name: "Ukloni iz omiljenih" });
     await user.click(screen.getByRole("button", { name: "Dodaj u omiljene" }));
 
-    expect(toast.error).toHaveBeenCalledWith("Najviše 10 omiljenih trgovina.");
+    expect(toast.error).toHaveBeenCalledWith(
+      "Možeš imati najviše 10 omiljenih trgovina.",
+    );
   });
 
   it("does not save before the saved list has loaded", async () => {

@@ -24,7 +24,7 @@
     "gallery": "Galerija slik",
     "report": "Prijavi sliko",
     "reported": "Hvala, pogledali bomo to sliko.",
-    "reportFailed": "Prijava ni uspela.",
+    "reportFailed": "Prijava slike ni bila poslana. Poskusi znova.",
     "setMain": "Nastavi kot glavno",
     "isMain": "Glavna slika",
     "setMainDone": "Glavna slika je spremenjena."
@@ -39,15 +39,15 @@
     "submit": "Pošlji sliko",
     "submitting": "Pošiljam sliko",
     "preparing": "Pripravljam sliko",
-    "public": "Slika je javna. Potrjena je, ko drug uporabnik doda svojo sliko istega izdelka ali ko jo pregleda skrbnik.",
+    "public": "Slika je javna. Potrdimo jo, ko nekdo drug doda sliko istega izdelka ali ko jo pregleda naša ekipa.",
     "adminNote": "Slike skrbnikov takoj postanejo glavne.",
     "done": "Hvala! Slika je dodana.",
-    "failed": "Slika ni bila poslana.",
+    "failed": "Slika ni bila poslana. Poskusi znova.",
     "errors": {
       "cannotOpen": "Te slike ni mogoče odpreti.",
       "cannotProcess": "Te slike ni mogoče obdelati.",
       "cannotSave": "Slike ni mogoče shraniti.",
-      "tooLarge": "Slika je prevelika tudi po pomanjšanju."
+      "tooLarge": "Slika je prevelika tudi po pomanjšanju. Poskusi z drugo."
     }
   },
   "manager": {

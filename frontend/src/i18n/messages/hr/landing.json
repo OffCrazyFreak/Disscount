@@ -41,7 +41,7 @@
       },
       "save": {
         "title": "Uštedi pri kupnji",
-        "description": "Odaberi najpovoljniju trgovinu i kupuj bez listanja kataloga."
+        "description": "Odaberi najpovoljniju trgovinu i plati manje."
       }
     }
   },
@@ -61,8 +61,8 @@
     }
   },
   "features": {
-    "title": "Sve za pametnu kupovinu",
-    "subtitle": "Ono što radi već danas i ono što uskoro stiže.",
+    "title": "Sve za pametnu kupnju",
+    "subtitle": "Što radi već danas i što uskoro stiže.",
     "items": {
       "scanner": {
         "title": "Skeniranje barkoda",
@@ -137,7 +137,7 @@
       },
       "sync": {
         "title": "Sinkronizacija kad se vratiš",
-        "description": "Promjene napravljene offline automatski se spremaju čim se vratiš na mrežu."
+        "description": "Što promijeniš offline, sprema se čim se vratiš na mrežu."
       }
     }
   },
@@ -189,7 +189,7 @@
       },
       "offline": {
         "question": "Radi li aplikacija bez interneta?",
-        "answer": "Da. Disscount možeš instalirati kao aplikaciju na mobitel ili računalo, a spremljeni popisi i pregledani proizvodi dostupni su i offline. Promjene se automatski sinkroniziraju kad se vratiš na mrežu."
+        "answer": "Da. Instaliraj Disscount na mobitel ili računalo i spremljeni popisi i pregledani proizvodi radit će i bez interneta. Promjene se spremaju čim se vratiš na mrežu."
       }
     }
   },
