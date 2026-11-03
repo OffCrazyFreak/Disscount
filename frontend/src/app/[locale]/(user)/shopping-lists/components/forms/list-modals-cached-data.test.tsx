@@ -28,8 +28,8 @@ const LIST: ShoppingListDto = {
   items: [],
 };
 
-/** A list the cache already holds, whose background refetch then fails. */
-function cachedListWithFailingRefetch() {
+/** A list the cache already holds, whose background refetch then fails with `status`. */
+function cachedListWithFailingRefetch(status = 500) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -39,7 +39,7 @@ function cachedListWithFailingRefetch() {
   });
   server.use(
     http.get(`*/api/shopping-lists/${LIST_ID}`, () =>
-      HttpResponse.json({ status: 500 }, { status: 500 }),
+      HttpResponse.json({ status }, { status }),
     ),
   );
   return queryClient;
@@ -73,6 +73,22 @@ describe("list modals over cached data", () => {
     await refetchFailed(queryClient);
 
     expect(screen.queryByText(hr.shoppingLists.modal.notFound)).toBeNull();
+    expect(
+      screen.getByRole("button", {
+        name: hr.shoppingLists.shareModal.shareText,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("drops the cached list once the refetch says it is gone", async () => {
+    const queryClient = cachedListWithFailingRefetch(404);
+    renderWithProviders(<ShareListModal open id={LIST_ID} />, { queryClient });
+
+    await refetchFailed(queryClient);
+
+    expect(
+      screen.getByText(hr.shoppingLists.modal.notFound),
+    ).toBeInTheDocument();
   });
 
   it("keeps the copy form when a background refetch fails", async () => {

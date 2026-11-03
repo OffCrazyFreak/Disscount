@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { shoppingListService } from "@/lib/api";
+import { isDeadListLink } from "@/lib/api/shopping-lists/is-dead-list-link";
 import type { ShoppingListRequest } from "@/lib/api/types";
 import { shoppingListRequestSchema } from "@/lib/api/types";
 import { shoppingListPath } from "@/utils/shopping-list-links";
@@ -62,7 +63,10 @@ export function useCopyListModal(id: string) {
 
   const listQuery = shoppingListService.useGetShoppingListById(id);
   const copyMutation = shoppingListService.useCopyShoppingList();
-  const shoppingList = listQuery.data ?? null;
+  // A failed refetch keeps the cached list; only a 404 means it is gone, as on the list page.
+  const shoppingList = isDeadListLink(listQuery.error)
+    ? null
+    : (listQuery.data ?? null);
 
   // Server-enforced too; this keeps the control honest about it.
   const canCopySharing = resolveShoppingListAccess(
