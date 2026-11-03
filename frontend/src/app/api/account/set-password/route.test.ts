@@ -42,6 +42,8 @@ describe("POST /api/account/set-password", () => {
   });
 
   it("refuses a short password before it is set", async () => {
+    mocks.getSession.mockResolvedValue({ session: { createdAt: new Date() } });
+
     const response = await setPassword("short");
 
     expect(response.status).toBe(400);
@@ -58,6 +60,9 @@ describe("POST /api/account/set-password", () => {
     const response = await setPassword("correct horse battery staple");
 
     expect(response.status).toBe(200);
-    expect(mocks.setPassword).toHaveBeenCalledOnce();
+    expect(mocks.setPassword).toHaveBeenCalledExactlyOnceWith({
+      body: { newPassword: "correct horse battery staple" },
+      headers: expect.any(Headers),
+    });
   });
 });
