@@ -6,6 +6,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 import { DEFAULT_LOCALE, LOCALES } from "./src/i18n/locales";
 import { SENTRY_APPLICATION_KEY } from "./src/lib/sentry/application-key";
 import { clientEnv, validateClientEnv } from "./src/lib/env";
+import { buildContentSecurityPolicy } from "./src/utils/content-security-policy";
 import { isIndexableOrigin } from "./src/utils/indexing";
 
 // Fails `next build` and `next dev` on a malformed public variable, before it is baked in.
@@ -60,23 +61,9 @@ const nextConfig: NextConfig = {
   },
 
   async headers() {
-    // Pragmatic CSP: since Next needs 'unsafe-inline'/'unsafe-eval', a granular
-    // per-domain allowlist buys little real XSS protection while breaking third-party
-    // scripts. We allow https: broadly and keep the cheap, high-value protections
-    // (no framing of our pages, no plugins, locked base URI).
-    const csp = [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https:",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https:",
-      "font-src 'self' data:",
-      "connect-src 'self' https: ws: wss:",
-      "frame-src 'self' https:",
-      "worker-src 'self' blob:",
-      "frame-ancestors 'none'",
-      "object-src 'none'",
-      "base-uri 'self'",
-    ].join("; ");
+    const csp = buildContentSecurityPolicy(
+      process.env.NODE_ENV === "development",
+    );
 
     return [
       {
