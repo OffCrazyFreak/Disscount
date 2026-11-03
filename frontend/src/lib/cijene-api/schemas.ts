@@ -34,11 +34,8 @@ export type StoreResponse = z.infer<typeof storeResponseSchema>;
 export type ListStoresResponse = z.infer<typeof listStoresResponseSchema>;
 
 // Product schemas
-// Prices arrive as decimal text; one that does not parse would surface as NaN in every
-// total, sort and cheapest pick, so it is rejected here instead of at each parseFloat.
-const priceText = z
-  .string()
-  .refine((value) => Number.isFinite(Number.parseFloat(value)));
+// Upstream serialises Python Decimals: dot-decimal text such as "1.29", rarely "1E+1".
+const PRICE_TEXT = /^\d+(\.\d+)?(E[+-]?\d+)?$/i;
 
 const chainProductResponseSchema = z.object({
   chain: z.string(),
@@ -48,9 +45,9 @@ const chainProductResponseSchema = z.object({
   category: z.string().nullable(),
   unit: z.string().nullable(),
   quantity: z.string().nullable(),
-  min_price: priceText,
-  max_price: priceText,
-  avg_price: priceText,
+  min_price: z.string(),
+  max_price: z.string(),
+  avg_price: z.string(),
   price_date: z.iso.date(),
 });
 
@@ -60,11 +57,17 @@ export const productResponseSchema = z.object({
   name: z.string().nullable(),
   quantity: z.string().nullable(),
   unit: z.string().nullable(),
-  // A malformed chain entry is dropped rather than failing the whole product, so the
-  // other chains' prices still show.
+  // A chain with an unreadable price is dropped, not failed: it would be NaN in every total,
+  // sort and cheapest pick, and the other chains still show. A shape change still fails loudly.
   chains: z
-    .array(chainProductResponseSchema.nullable().catch(null))
-    .transform((chains) => chains.filter((chain) => chain !== null)),
+    .array(chainProductResponseSchema)
+    .transform((chains) =>
+      chains.filter((chain) =>
+        [chain.min_price, chain.max_price, chain.avg_price].every((price) =>
+          PRICE_TEXT.test(price),
+        ),
+      ),
+    ),
 });
 
 export const productSearchResponseSchema = z.object({

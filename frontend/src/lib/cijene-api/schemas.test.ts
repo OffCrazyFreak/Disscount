@@ -38,12 +38,32 @@ describe("productResponseSchema", () => {
     expect(parsed.chains.map((entry) => entry.chain)).toEqual(["lidl"]);
   });
 
-  it("drops a malformed chain entry without failing the product", () => {
+  it("drops a price with a comma or trailing text, which parseFloat would misread", () => {
     const parsed = productResponseSchema.parse(
-      product([{ chain: "spar" }, chain("lidl", "1.29")]),
+      product([
+        chain("spar", "1,29"),
+        chain("dm", "1.29abc"),
+        chain("lidl", "1.29"),
+      ]),
     );
 
     expect(parsed.chains.map((entry) => entry.chain)).toEqual(["lidl"]);
+  });
+
+  it("still fails when a chain entry has the wrong shape, so an upstream change is noticed", () => {
+    expect(() =>
+      productResponseSchema.parse(
+        product([{ chain: "spar" }, chain("lidl", "1.29")]),
+      ),
+    ).toThrow();
+  });
+
+  it("keeps a Decimal written with an exponent", () => {
+    const parsed = productResponseSchema.parse(
+      product([chain("lidl", "1E+1")]),
+    );
+
+    expect(parsed.chains).toHaveLength(1);
   });
 
   it("keeps the output parseable again, as the proxy route and the client both parse it", () => {
