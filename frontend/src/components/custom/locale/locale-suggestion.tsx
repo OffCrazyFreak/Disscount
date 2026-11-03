@@ -51,8 +51,9 @@ export default function LocaleSuggestion() {
   // The live region stays mounted so the offer is announced when it appears.
   // The pill takes its own row instead of floating, because floating over the
   // page top covered each page's first control (a search field, a status banner).
+  // Positioned only to paint above the phone map, which is a fixed layer.
   return (
-    <div role="status">
+    <div role="status" className="relative z-[var(--z-locale-suggestion)]">
       {preferred && (
         <div className="mb-4 flex justify-center">
           <div className="flex max-w-full items-center gap-2 rounded-full border bg-card py-1 pr-1 pl-3 shadow-sm">
