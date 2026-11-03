@@ -86,6 +86,17 @@ describe("withCijeneRoute", () => {
     },
   );
 
+  it("reports an upstream timeout as unavailable, so it stays retryable", async () => {
+    const response = await withCijeneRoute(
+      requestIn("en"),
+      "product",
+      schema,
+      () => Promise.reject(new CijeneApiError(408, "Request timeout")),
+    );
+
+    expect(response.status).toBe(502);
+  });
+
   it("passes the payload through when it matches", async () => {
     const response = await withCijeneRoute(
       requestIn("hr"),

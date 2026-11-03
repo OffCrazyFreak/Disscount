@@ -49,10 +49,11 @@ export async function withCijeneRoute<TSchema extends z.ZodType>(
  * Whether an upstream status describes something the caller can fix. Our own
  * API token authenticates the v1 client, so a 401 or 403 means this proxy is
  * misconfigured, and reporting it as-is would tell the user they are logged
- * out. Status 0 means the request never landed at all.
+ * out. A 408 means upstream gave up waiting on us, so it is a gateway failure
+ * that stays retryable. Status 0 means the request never landed at all.
  */
 function isCallerFault(status: number): boolean {
-  if (status === 401 || status === 403) return false;
+  if (status === 401 || status === 403 || status === 408) return false;
 
   return status >= 400 && status < 500;
 }
