@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { ComponentProps } from "react";
 import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -306,19 +307,25 @@ describe("ShoppingListItems focus", () => {
     await waitFor(() => expect(screen.getByRole("combobox")).toHaveFocus());
   });
 
-  it("focuses the items section when the retried row is gone", async () => {
+  it("focuses the items tab panel when the retried row is gone", async () => {
     const user = userEvent.setup();
     const onRetry = vi.fn(async () => false);
-    const { rerender } = renderItems([item("a")], { a: "failed" }, onRetry);
+    // On the page the items sit in a tab panel; this stands in for it.
+    const inPanel = (children: ReactNode) => (
+      <div role="tabpanel" aria-label="Proizvodi" tabIndex={0}>
+        {children}
+      </div>
+    );
+    const view = renderWithProviders(
+      inPanel(listItems([item("a")], { a: "failed" }, onRetry)),
+    );
 
     await user.click(screen.getByRole("button", { name: "Pokušaj ponovno" }));
-    rerender(listItems([item("b")], { b: "ready" }, onRetry));
+    view.rerender(inPanel(listItems([item("b")], { b: "ready" }, onRetry)));
 
-    // Outside the page's tabs there is no tab panel, so the section's own wrapper takes focus.
     await waitFor(() =>
-      expect(document.activeElement).toHaveAttribute("tabindex", "-1"),
+      expect(screen.getByRole("tabpanel", { name: "Proizvodi" })).toHaveFocus(),
     );
-    expect(document.activeElement).not.toBe(document.body);
   });
 
   it("leaves focus alone when the retry button no longer had it", async () => {

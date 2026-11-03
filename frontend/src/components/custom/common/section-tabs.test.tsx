@@ -24,7 +24,34 @@ describe("SectionTabs", () => {
     renderTabs([TABS[0]]);
 
     expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
-    expect(screen.getByText("Popis")).toBeInTheDocument();
+    expect(screen.queryByRole("tabpanel")).not.toBeInTheDocument();
+    expect(screen.getByText("Popis").parentElement).not.toHaveAttribute(
+      "aria-labelledby",
+    );
+  });
+
+  it("keeps the content mounted when a second section appears", () => {
+    const view = renderWithProviders(
+      <SectionTabs label="Odjeljci popisa" tabs={[TABS[0]]} />,
+    );
+    const content = screen.getByText("Popis");
+
+    view.rerender(<SectionTabs label="Odjeljci popisa" tabs={TABS} />);
+
+    expect(screen.getByText("Popis")).toBe(content);
+    expect(
+      screen.getByRole("tabpanel", { name: "Proizvodi" }),
+    ).toContainElement(content);
+  });
+
+  it("writes the hash without passing Next's history state back", async () => {
+    const user = userEvent.setup();
+    window.history.replaceState({ __NA: true }, "", "/");
+    renderTabs();
+
+    await user.click(screen.getByRole("tab", { name: "Trgovine 3" }));
+
+    expect(window.history.state).not.toHaveProperty("__NA");
   });
 
   it("opens the first tab and renders only its panel", () => {

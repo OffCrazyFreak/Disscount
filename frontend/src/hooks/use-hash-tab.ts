@@ -36,7 +36,9 @@ export function useHashTab(ids: string[]) {
     // Replaced, not pushed: Back should leave the page, not step through its tabs.
     const url = new URL(window.location.href);
     url.hash = id;
-    window.history.replaceState(window.history.state, "", url);
+    // Never pass history.state through: Next would skip its router sync, then drop the hash
+    // on its next navigation. See lib/modal/modal-navigation.ts.
+    window.history.replaceState({}, "", url);
     window.dispatchEvent(new Event(HASH_TAB_CHANGE_EVENT));
   }, []);
 

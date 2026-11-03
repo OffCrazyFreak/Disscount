@@ -1,7 +1,7 @@
 import { IsRestoringProvider } from "@tanstack/react-query";
 import { screen, within } from "@testing-library/react";
 import { AxiosError, AxiosHeaders } from "axios";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import ShoppingListDetailClient from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-detail-client";
 import type { ShoppingListDto } from "@/lib/api/types";
@@ -98,6 +98,10 @@ function httpError(status: number) {
 }
 
 describe("ShoppingListDetailClient", () => {
+  afterEach(() => {
+    window.history.replaceState(null, "", "/");
+  });
+
   it("does not call the list unavailable while the cache restores", () => {
     data.shoppingList = undefined;
     data.error = null;
@@ -144,7 +148,6 @@ describe("ShoppingListDetailClient", () => {
       renderWithProviders(<ShoppingListDetailClient listId={LIST.id} />);
 
       expect(screen.queryByText("summary error") !== null).toBe(hasError);
-      window.history.replaceState(null, "", "/");
     },
   );
 

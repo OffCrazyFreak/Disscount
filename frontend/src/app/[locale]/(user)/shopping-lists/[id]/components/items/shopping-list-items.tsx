@@ -61,19 +61,16 @@ export default function ShoppingListItems({
     .map((item) => item.id);
 
   // A row still without prices explains the retry's outcome; one that loaded does not. When
-  // no retried row is left on screen, the section itself is the nearest place left.
+  // no retried row is left on screen, the tab panel is the nearest place left, named by its tab.
   function focusRetriedItem(retriedItemIds: readonly string[]) {
     const unpriced = retriedItemIds.filter((id) => priceStates[id] !== "ready");
     if (!focusStoreSelect(unpriced.length > 0 ? unpriced : retriedItemIds)) {
-      // The tab panel is named by its tab, so landing there still says where focus went.
-      const panel =
-        sectionRef.current?.closest<HTMLElement>('[role="tabpanel"]');
-      (panel ?? sectionRef.current)?.focus();
+      sectionRef.current?.closest<HTMLElement>('[role="tabpanel"]')?.focus();
     }
   }
 
   return (
-    <div ref={sectionRef} tabIndex={-1} className="space-y-3 outline-none">
+    <div ref={sectionRef} className="space-y-3">
       <ShoppingListPriceStatus
         failedItemIds={failedPriceItemIds}
         isRetrying={isRetryingPrices}
