@@ -204,6 +204,26 @@
       "revoked": "Sessioni chiuse su tutti gli altri dispositivi.",
       "deleted": "Account eliminato.",
       "deleteFailed": "Non siamo riusciti a eliminare l'account. Riprova."
+    },
+    "reauth": {
+      "cancel": "Annulla",
+      "passwordHint": "Inserisci la password per confermare che sei tu.",
+      "codeSending": "Ti stiamo inviando un codice via email...",
+      "codeSent": "Abbiamo inviato un codice a <strong>{email}</strong>.",
+      "codeSendFailed": "Non siamo riusciti a inviare il codice. Riprova.",
+      "codeEmailLimit": "Abbiamo inviato troppe email al tuo indirizzo. Riprova tra un'ora.",
+      "codeLabel": "Codice dell'email",
+      "codeMissing": "Non è arrivato?",
+      "resend": "Invia di nuovo",
+      "resendIn": "Invia di nuovo tra {wait}",
+      "wrongCode": "Il codice non è corretto. Riprova.",
+      "wrongCodeAttempts": "Il codice non è corretto. {attemptsLeft, plural, one {Ti resta # tentativo.} other {Ti restano # tentativi.}}",
+      "codeExpired": "Il codice è scaduto o è già stato usato. Chiedine uno nuovo.",
+      "unlinkTitle": "Scollegare {provider}?",
+      "unlinkDescription": "Conferma che sei tu e scolleghiamo {provider} dal tuo account.",
+      "setPasswordTitle": "Imposta una password",
+      "setPasswordDescription": "Conferma che sei tu e salviamo la tua nuova password.",
+      "setPasswordConfirm": "Salva password"
     }
   }
 }

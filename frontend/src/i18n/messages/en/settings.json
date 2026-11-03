@@ -204,6 +204,26 @@
       "revoked": "Signed out of all other devices.",
       "deleted": "Your account has been deleted.",
       "deleteFailed": "Couldn't delete your account. Try again."
+    },
+    "reauth": {
+      "cancel": "Cancel",
+      "passwordHint": "Enter your password to confirm it's you.",
+      "codeSending": "Sending you a code by email...",
+      "codeSent": "We sent a code to <strong>{email}</strong>.",
+      "codeSendFailed": "We couldn't send the code. Try again.",
+      "codeEmailLimit": "We've sent too many emails to your address. Try again in an hour.",
+      "codeLabel": "Code from the email",
+      "codeMissing": "Didn't get it?",
+      "resend": "Send again",
+      "resendIn": "Send again in {wait}",
+      "wrongCode": "That code isn't right. Try again.",
+      "wrongCodeAttempts": "That code isn't right. {attemptsLeft, plural, one {You have # try left.} other {You have # tries left.}}",
+      "codeExpired": "The code expired or was already used. Ask for a new one.",
+      "unlinkTitle": "Unlink {provider}?",
+      "unlinkDescription": "Confirm it's you, then we'll unlink {provider} from your account.",
+      "setPasswordTitle": "Set a password",
+      "setPasswordDescription": "Confirm it's you, then we'll save your new password.",
+      "setPasswordConfirm": "Save password"
     }
   }
 }

@@ -8,13 +8,26 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import SettingRow from "@/components/custom/settings/ui/setting-row";
 import { useSecurityActions } from "@/components/custom/settings/security/security-actions";
+import { useSecurity } from "@/components/custom/settings/security/security-context";
 
 export default function AccountActions() {
   const t = useTranslations("settings");
-  const { revokeOtherSessions, deleteAccount, revoking, deleting } =
-    useSecurityActions();
+  const { revokeOtherSessions, deleteAccount, revoking } = useSecurityActions();
+  const { reauth, status } = useSecurity();
   const [revokeOpen, setRevokeOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  // Always asks, even inside the 15 minute window: the proof travels with the delete itself.
+  function askToDelete() {
+    reauth.ask(
+      {
+        title: t("security.actions.deleteDialogTitle"),
+        description: t("security.actions.deleteDialogDescription"),
+        confirmLabel: t("security.actions.deleteButton"),
+        isDestructive: true,
+      },
+      deleteAccount,
+    );
+  }
 
   async function confirmRevoke() {
     await revokeOtherSessions();
@@ -62,8 +75,9 @@ export default function AccountActions() {
               variant="destructive"
               icon={Trash2}
               iconPlacement="left"
-              disabled={deleting}
-              onClick={() => setDeleteOpen(true)}
+              // The proof method depends on the account's sign-in methods.
+              disabled={status !== "success"}
+              onClick={askToDelete}
             >
               {t("security.actions.deleteButton")}
             </Button>
@@ -83,16 +97,6 @@ export default function AccountActions() {
         isLoading={revoking}
       />
 
-      <ConfirmDialog
-        isOpen={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        variant="destructive"
-        title={t("security.actions.deleteDialogTitle")}
-        description={t("security.actions.deleteDialogDescription")}
-        confirmLabel={t("security.actions.deleteButton")}
-        onConfirm={deleteAccount}
-        isLoading={deleting}
-      />
     </>
   );
 }

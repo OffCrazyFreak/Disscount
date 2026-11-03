@@ -1,5 +1,6 @@
 import type { CredentialsFormValues } from "@/components/custom/settings/security/credentials-schema";
 import { isPasswordPolicyCode } from "@/lib/auth/password-policy";
+import type { IProofFailure } from "@/components/custom/settings/security/reauth/reauth-requests";
 
 const TOO_MANY_ATTEMPTS = "settings.security.submit.tooManyAttempts";
 const CURRENT_PASSWORD_WRONG = "settings.security.submit.currentPasswordWrong";
@@ -31,31 +32,18 @@ export function changePasswordError(
   };
 }
 
+export function currentPasswordError(failure: IProofFailure): string {
+  if (failure.reason === "wrong-password") return CURRENT_PASSWORD_WRONG;
+  if (failure.reason === "too-many") return TOO_MANY_ATTEMPTS;
+  return "settings.security.submit.changeEmailFailed";
+}
+
 export function changeEmailError(
   code: string | undefined,
-  afterPasswordChange: boolean,
 ): ICredentialsFieldError {
-  const tooManyAttempts = code === "too_many_attempts";
-
-  // With a password change the check used the new password, so only the email failed.
-  if (
-    !afterPasswordChange &&
-    (tooManyAttempts || code === "invalid_password")
-  ) {
-    return {
-      field: "currentPassword",
-      message: tooManyAttempts ? TOO_MANY_ATTEMPTS : CURRENT_PASSWORD_WRONG,
-    };
-  }
-
   if (code === "social_linked") {
     return { field: "email", message: "settings.security.submit.socialLinked" };
   }
 
-  return {
-    field: "email",
-    message: tooManyAttempts
-      ? TOO_MANY_ATTEMPTS
-      : "settings.security.submit.changeEmailFailed",
-  };
+  return { field: "email", message: "settings.security.submit.changeEmailFailed" };
 }

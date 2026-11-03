@@ -204,6 +204,26 @@
       "revoked": "Odjavljeni su svi ostali uređaji.",
       "deleted": "Tvoj račun je obrisan.",
       "deleteFailed": "Greška pri brisanju računa. Pokušaj ponovo."
+    },
+    "reauth": {
+      "cancel": "Odustani",
+      "passwordHint": "Upiši lozinku da potvrdiš da si to ti.",
+      "codeSending": "Šaljemo ti kod na email...",
+      "codeSent": "Poslali smo kod na <strong>{email}</strong>.",
+      "codeSendFailed": "Kod nismo uspjeli poslati. Pokušaj ponovno.",
+      "codeEmailLimit": "Na tvoju adresu poslali smo previše emailova. Pokušaj ponovno za sat vremena.",
+      "codeLabel": "Kod iz emaila",
+      "codeMissing": "Nije stigao?",
+      "resend": "Pošalji ponovno",
+      "resendIn": "Pošalji ponovno za {wait}",
+      "wrongCode": "Kod nije točan. Pokušaj ponovno.",
+      "wrongCodeAttempts": "Kod nije točan. {attemptsLeft, plural, one {Preostao ti je još # pokušaj.} few {Preostala su ti još # pokušaja.} other {Preostalo ti je još # pokušaja.}}",
+      "codeExpired": "Kod je istekao ili je iskorišten. Zatraži novi.",
+      "unlinkTitle": "Odspojiti {provider}?",
+      "unlinkDescription": "Potvrdi da si to ti, pa odspajamo {provider} s tvog računa.",
+      "setPasswordTitle": "Postavi lozinku",
+      "setPasswordDescription": "Potvrdi da si to ti, pa spremamo tvoju novu lozinku.",
+      "setPasswordConfirm": "Spremi lozinku"
     }
   }
 }
