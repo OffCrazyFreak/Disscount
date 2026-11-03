@@ -109,6 +109,10 @@ export const auth = betterAuth({
     // Default, set explicitly: the window slides only when the session is used,
     // and is rewritten at most once a day rather than on every request.
     updateAge: 60 * 60 * 24,
+    // security-policy.ts owns freshness: in 1.6.25 only /delete-user, /unlink-account and
+    // /list-sessions read freshAge, and the auth hook guards all three more strictly. Left at
+    // its one day default, a code-proven delete from an older session would still fail.
+    freshAge: 0,
   },
 
   emailAndPassword: {

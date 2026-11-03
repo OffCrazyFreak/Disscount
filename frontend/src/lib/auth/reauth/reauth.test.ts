@@ -42,6 +42,8 @@ const auth = betterAuth({
   database: memoryAdapter(tables),
   emailAndPassword: { enabled: true },
   user: { deleteUser: { enabled: true } },
+  // Same as the app: the rule table, not better-auth's one day default, owns freshness.
+  session: { freshAge: 0 },
   hooks: {
     before: createAuthMiddleware(async (ctx) => guardSensitiveAction(ctx)),
   },
@@ -50,6 +52,7 @@ const auth = betterAuth({
 
 const PASSWORD = "correct horse battery staple";
 const SIXTEEN_MINUTES_MS = 16 * 60 * 1000;
+const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
 
 function cookieFrom(headers: Headers) {
   const token = headers
@@ -66,9 +69,9 @@ async function signUp(email: string) {
   return { headers: cookieFrom(headers), userId: response.user.id };
 }
 
-function ageSessions(userId: string) {
+function ageSessions(userId: string, ageMs = SIXTEEN_MINUTES_MS) {
   for (const row of tables.session.filter((s) => s.userId === userId)) {
-    row.createdAt = new Date(Date.now() - SIXTEEN_MINUTES_MS);
+    row.createdAt = new Date(Date.now() - ageMs);
   }
 }
 
@@ -184,6 +187,20 @@ describe("reauth proofs", () => {
   it("deletes a passwordless account with the emailed code", async () => {
     const { headers, userId } = await signUp("google-only@example.com");
     dropPassword(userId);
+
+    await auth.api.reauthSendCode({ headers });
+    await auth.api.deleteUser({
+      body: { code: sentCodes[0] } as Record<string, string>,
+      headers,
+    });
+
+    expect(tables.user.find((row) => row.id === userId)).toBeUndefined();
+  });
+
+  it("deletes with the code from a session signed in days ago", async () => {
+    const { headers, userId } = await signUp("old-session@example.com");
+    dropPassword(userId);
+    ageSessions(userId, TWO_DAYS_MS);
 
     await auth.api.reauthSendCode({ headers });
     await auth.api.deleteUser({

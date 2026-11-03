@@ -132,3 +132,11 @@ describe("session country", () => {
     });
   });
 });
+
+// The rule table guards every path that reads freshAge; the one day default would still
+// refuse a code-proven delete from an older session.
+describe("session freshness", () => {
+  it("is owned by the re-auth rule table, not better-auth's default", () => {
+    expect(auth.options.session?.freshAge).toBe(0);
+  });
+});
