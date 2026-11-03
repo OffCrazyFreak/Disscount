@@ -19,6 +19,7 @@ import disscount.storeName.dao.StoreNameUsageRepository;
 import disscount.storeName.service.StoreNameService;
 import disscount.storeName.service.StoreNameUpsert;
 import disscount.exceptions.BadRequestException;
+import disscount.user.avatar.AvatarSanitizer;
 import disscount.user.dao.AuthIdentityDao;
 import disscount.user.dao.ErasureLedgerRepository;
 import disscount.user.dao.UserRepository;
@@ -69,7 +70,7 @@ import static org.mockito.Mockito.verify;
 @Import({UserService.class, AccountErasureService.class, DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
         StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, PhotoUploadRateLimiter.class,
         CardPhotoWriter.class, CardUserLock.class, PhotoCleanupService.class, FavoriteStoreService.class,
-        UserServiceDeleteAccountTest.StoreConfig.class})
+        AvatarSanitizer.class, UserServiceDeleteAccountTest.StoreConfig.class})
 class UserServiceDeleteAccountTest {
 
     @TestConfiguration

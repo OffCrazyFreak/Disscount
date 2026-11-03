@@ -8,6 +8,7 @@ import disscount.digitalCard.service.DigitalCardService;
 import disscount.favoriteStore.service.FavoriteStoreService;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.ConflictException;
+import disscount.user.avatar.AvatarSanitizer;
 import disscount.user.dao.AuthIdentityDao;
 import disscount.user.dao.ErasureLedgerRepository;
 import disscount.user.dao.UserRepository;
@@ -48,6 +49,7 @@ public class UserService {
     private final DigitalCardService digitalCardService;
     private final FavoriteStoreService favoriteStoreService;
     private final ErasureLedgerRepository erasureLedger;
+    private final AvatarSanitizer avatarSanitizer;
 
     // Compared against better-auth's UTC session timestamps, so the JVM zone must not leak in.
     private static LocalDateTime nowUtc() {
@@ -189,7 +191,7 @@ public class UserService {
         // null = leave unchanged, "" = clear the avatar, otherwise store the new base64 image
         String image = request.getImage();
         if (image != null) {
-            user.setImage(image.isEmpty() ? null : image);
+            user.setImage(image.isEmpty() ? null : avatarSanitizer.sanitize(image));
         }
 
         // Outcome may be overwritten by re-running the wizard, but the completion
