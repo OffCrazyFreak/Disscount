@@ -143,4 +143,16 @@ describe("withTrustedClientIp", () => {
       '{"email":"a@b.hr"}',
     );
   });
+
+  it("keeps the abort signal, so a dropped connection still cancels", () => {
+    const controller = new AbortController();
+    const request = new Request("http://localhost/api/auth/get-session", {
+      signal: controller.signal,
+    });
+
+    const trusted = withTrustedClientIp(nextProxy(request));
+    controller.abort();
+
+    expect(trusted.signal.aborted).toBe(true);
+  });
 });
