@@ -69,7 +69,7 @@ export default function AuthStatusModal({
   linkError,
 }: IAuthStatusModalProps) {
   const t = useTranslations("auth");
-  const { refreshUser, isAuthenticated } = useUser();
+  const { refreshUser, isAuthenticated, isLoading } = useUser();
 
   function handleContinue() {
     // Pull the freshly verified/updated identity before closing.
@@ -102,6 +102,8 @@ export default function AuthStatusModal({
           isAlreadyVerified ? "statusModal.continue" : failure.submit,
         )}
         submitIcon={isAlreadyVerified ? CircleCheck : failure.submitIcon}
+        // Until the session loads, the signed-in branch is unknown.
+        submitDisabled={isLoading}
         onSubmit={nextStep}
       />
     );

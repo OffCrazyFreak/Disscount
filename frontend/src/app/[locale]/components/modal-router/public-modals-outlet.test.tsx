@@ -7,7 +7,7 @@ import { parseModalParam } from "@/lib/modal/modal-param-parser";
 import { renderWithProviders } from "@/test/render";
 
 const { user } = vi.hoisted(() => ({
-  user: { isAuthenticated: false, refreshUser: vi.fn() },
+  user: { isAuthenticated: false, isLoading: false, refreshUser: vi.fn() },
 }));
 
 vi.mock("@/context/user-context", () => ({ useUser: () => user }));
@@ -42,7 +42,7 @@ describe("PublicModalsOutlet verification landings", () => {
         name: "Poveznica više ne vrijedi",
       });
       expect(dialog).toHaveAccessibleDescription(
-        "Istekla je ili je već iskorištena. Prijavi se i poslat ćemo ti novu.",
+        "Istekla je ili nije ispravna. Prijavi se i poslat ćemo ti novu.",
       );
       expect(dialog).toContainElement(document.activeElement as HTMLElement);
       expect(screen.queryByText("Email potvrđen")).not.toBeInTheDocument();
