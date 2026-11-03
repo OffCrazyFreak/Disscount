@@ -27,6 +27,14 @@ describe("failureAction", () => {
     expect(failureAction(httpError(status))).toBe("drop");
   });
 
+  it("drops an upload the server refuses because photo storage is off", () => {
+    const unavailable = httpError(503, {
+      status: 503,
+      code: "error.cardPhoto.unavailable",
+    });
+    expect(failureAction(unavailable)).toBe("drop");
+  });
+
   it("keeps on an error that is not an HTTP answer", () => {
     expect(failureAction(new Error("boom"))).toBe("keep");
   });

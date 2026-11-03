@@ -198,7 +198,8 @@ class DigitalCardControllerTest {
         mvc.perform(multipart(HttpMethod.PUT, "/api/digital-cards/{id}/photos/{slot}", cardId, "icon")
                         .file(full).with(auth()))
                 .andExpect(status().isServiceUnavailable())
-                .andExpect(jsonPath("$.detail").value("Slike trenutno nisu dostupne"));
+                .andExpect(jsonPath("$.detail").value("Slike trenutno nisu dostupne"))
+                .andExpect(jsonPath("$.code").value("error.cardPhoto.unavailable"));
         mvc.perform(multipart(HttpMethod.PUT, "/api/digital-cards/{id}/photos/{slot}", cardId, "icon")
                         .file(full).with(auth()))
                 .andExpect(status().isTooManyRequests())

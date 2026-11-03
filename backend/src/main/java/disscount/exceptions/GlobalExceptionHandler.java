@@ -106,7 +106,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ServiceUnavailableException.class)
     public ProblemDetail handleServiceUnavailable(ServiceUnavailableException ex) {
-        return problem(HttpStatus.SERVICE_UNAVAILABLE, "unavailable", message(ex.getMessage()));
+        ProblemDetail detail = problem(HttpStatus.SERVICE_UNAVAILABLE, "unavailable", message(ex.getMessage()));
+        // Clients tell a switched off feature from a passing outage by the code, since the detail is translated.
+        detail.setProperty("code", ex.getMessage());
+        return detail;
     }
 
     @ExceptionHandler(TooManyRequestsException.class)

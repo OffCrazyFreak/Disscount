@@ -11,6 +11,9 @@ export type CardWriteMessageKey =
 
 export const CARD_LIMIT_KEY = "offline.cardLimit";
 
+// Photo storage is switched off for the deployment, so resending cannot succeed.
+const PHOTOS_UNAVAILABLE_CODE = "error.cardPhoto.unavailable";
+
 /**
  * "keep": a later attempt can succeed (offline, signed out, throttled, server trouble),
  * so the entry stays queued and the replay stops. "drop": the server refused it for good.
@@ -20,6 +23,10 @@ export function failureAction(error: unknown): "keep" | "drop" {
   if (isNetworkFailure(error)) return "keep";
 
   const status = httpStatus(error);
+  if (status === 503 && parseProblem(error)?.code === PHOTOS_UNAVAILABLE_CODE) {
+    return "drop";
+  }
+
   return status !== undefined && PERMANENT_STATUSES.has(status)
     ? "drop"
     : "keep";
