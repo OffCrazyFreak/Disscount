@@ -4,7 +4,7 @@
  * a query key under this root.
  *
  * The version segment retires cached data whose shape changed: a blob persisted by an
- * older build restores for up to 7 days, and a new reader would crash on it. Bump it
+ * older build is restored on the next visit, and a new reader would crash on it. Bump it
  * whenever the card DTO changes shape.
  */
 export const DIGITAL_CARD_KEY_VERSION = "v2";

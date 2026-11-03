@@ -35,7 +35,22 @@ export function isOfflineMutationKey(mutationKey: MutationKey | undefined) {
     : false;
 }
 
+/**
+ * A card write still in flight, not only a paused one. Every card write is a PUT or
+ * DELETE by a client-minted id, so sending one again after a reload is harmless; a list
+ * item add is a POST and would be duplicated, so list writes persist only once paused.
+ */
+export function isInFlightCardWrite(mutation: Mutation) {
+  return (
+    mutation.state.status === "pending" &&
+    mutation.options.scope?.id === DIGITAL_CARD_MUTATION_SCOPE.id
+  );
+}
+
 // Off-allowlist writes just fail offline, as before.
 export function shouldPersistMutation(mutation: Mutation) {
-  return isOfflineMutationKey(mutation.options.mutationKey);
+  return (
+    isOfflineMutationKey(mutation.options.mutationKey) &&
+    (mutation.state.isPaused || isInFlightCardWrite(mutation))
+  );
 }
