@@ -20,7 +20,7 @@ describe("proxy share images", () => {
   )("serves %s without a redirect", (path) => {
     const response = run(path);
 
-    expect(response.status).toBe(200);
+    expect(response.headers.get("x-middleware-next")).toBe("1");
     expect(response.headers.get("location")).toBeNull();
   });
 
