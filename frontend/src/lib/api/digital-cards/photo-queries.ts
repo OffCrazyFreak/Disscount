@@ -29,7 +29,11 @@ export async function deleteCardPhoto(
   await apiClient.delete(`/api/digital-cards/${cardId}/photos/${slot}`);
 }
 
-/** Through apiClient because an <img src> cannot carry the bearer token. */
+/**
+ * Through apiClient because an <img src> cannot carry the bearer token. The browser HTTP
+ * cache is keyed by URL, not account, so it is bypassed: the photo blob store is the cache,
+ * and it is scoped to the account and purged on a change of identity.
+ */
 export async function fetchCardPhotoBlob(
   cardId: string,
   slot: CardPhotoSlot,
@@ -38,7 +42,13 @@ export async function fetchCardPhotoBlob(
 ): Promise<Blob> {
   const response = await apiClient.get<Blob>(
     `/api/digital-cards/${cardId}/photos/${slot}`,
-    { params: { size, v: sha256 }, responseType: "blob" },
+    {
+      params: { size, v: sha256 },
+      responseType: "blob",
+      // XHR cannot opt out of the HTTP cache; fetch's cache mode can.
+      adapter: "fetch",
+      fetchOptions: { cache: "no-store" },
+    },
   );
   return response.data;
 }
