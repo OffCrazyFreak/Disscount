@@ -1,29 +1,29 @@
 {
   "meta": {
     "title": "Produkte",
-    "description": "Alle verfügbaren Produkte im Überblick."
+    "description": "Suche Produkte und vergleiche Preise bei Händlern in ganz Kroatien."
   },
   "clearFilters": {
     "label": "Filter zurücksetzen"
   },
   "addToList": {
-    "title": "Produkt zur Einkaufsliste hinzufügen",
+    "title": "Zur Einkaufsliste hinzufügen",
     "description": "Wähle Liste, Menge und Händler.",
     "submit": "Hinzufügen",
     "cancel": "Abbrechen",
     "reset": "Zurücksetzen",
     "productNotFound": "Produkt nicht gefunden.",
     "removeFromList": "Von dieser Liste entfernen",
-    "duplicateTitle": "Produkt steht schon auf der Liste",
-    "duplicateText": "Dieses Produkt ist schon auf der gewählten Einkaufsliste. Wenn du es erneut hinzufügst, steigt nur die Menge von {current} auf {next}.",
+    "duplicateTitle": "Steht schon auf der Liste",
+    "duplicateText": "Das Produkt ist schon auf dieser Liste. Fügst du es hinzu, steigt die Menge von {current} auf {next}.",
     "toast": {
       "pickList": "Wähle eine Einkaufsliste aus oder erstelle eine neue.",
-      "quantityIncreased": "Menge erhöht in „{name}“",
-      "added": "Produkt zu „{name}“ hinzugefügt",
+      "quantityIncreased": "Menge auf „{name}“ erhöht",
+      "added": "Zu „{name}“ hinzugefügt",
       "open": "Öffnen",
       "fallbackListName": "Liste",
       "removed": "Produkt von der Liste entfernt.",
-      "removeFailed": "Entfernen hat nicht geklappt."
+      "removeFailed": "Entfernen hat nicht geklappt. Versuch es noch mal."
     }
   },
   "createListOption": {
@@ -31,11 +31,11 @@
   },
   "markAsChecked": {
     "label": "Produkt gleich als gekauft markieren",
-    "description": "Das kannst du später in der Einkaufsliste ändern"
+    "description": "Das kannst du später auf der Liste ändern."
   },
   "actionsSheet": {
     "pricesUnavailableTitle": "Preise nicht verfügbar",
-    "pricesUnavailableText": "Die Optionen für das Produkt kannst du trotzdem nutzen. Versuche es erneut, um die aktuelle Preisspanne zu sehen.",
+    "pricesUnavailableText": "Alle Optionen funktionieren weiter. Für die Preisspanne versuch es noch mal.",
     "partialPricesTitle": "Einige Preise fehlen",
     "partialPricesText": "Die Spanne enthält nur Standorte, deren Preise wir abrufen konnten."
   },
@@ -45,7 +45,7 @@
   "listSelector": {
     "label": "Einkaufsliste",
     "searchPlaceholder": "Deine Listen durchsuchen oder neue erstellen...",
-    "empty": "Gib hier einen Namen ein, um deine erste Einkaufsliste zu erstellen.",
+    "empty": "Gib einen Namen ein und erstelle hier deine erste Liste.",
     "existingLists": "Vorhandene Listen",
     "newList": "Neue Einkaufsliste",
     "updatedAt": "({date})",
@@ -55,14 +55,14 @@
     "loading": "Wird geladen...",
     "createNamed": "Neue Liste „{title}“ erstellen",
     "choose": "Liste auswählen...",
-    "createFirst": "Erste Liste direkt erstellen..."
+    "createFirst": "Erste Liste erstellen..."
   },
   "storeChainField": {
     "label": "Händler"
   },
   "watchlistModal": {
     "title": "Preisalarm setzen",
-    "description": "Lege einen Mindestrabatt fest, wir sagen dir Bescheid, sobald er erreicht ist.",
+    "description": "Leg einen Mindestrabatt fest, wir sagen dir Bescheid, sobald das Produkt ihn erreicht.",
     "save": "Speichern",
     "track": "Preisalarm setzen",
     "cancel": "Abbrechen",
@@ -70,15 +70,15 @@
     "productNotFound": "Produkt nicht gefunden.",
     "removeFromWatchlist": "Preisalarm entfernen",
     "existingTitle": "Preisalarm schon gesetzt",
-    "existingBoth": "Für dieses Produkt gibt es schon einen Preisalarm, mit einem Mindestrabatt von {percentage} % und {amount, number, ::currency/EUR}.",
-    "existingPercentage": "Für dieses Produkt gibt es schon einen Preisalarm, mit einem Mindestrabatt von {percentage} %.",
-    "existingAbsolute": "Für dieses Produkt gibt es schon einen Preisalarm, mit einem Mindestrabatt von {amount, number, ::currency/EUR}.",
+    "existingBoth": "Dein Preisalarm hat einen Mindestrabatt von {percentage} % und {amount, number, ::currency/EUR}.",
+    "existingPercentage": "Dein Preisalarm hat einen Mindestrabatt von {percentage} %.",
+    "existingAbsolute": "Dein Preisalarm hat einen Mindestrabatt von {amount, number, ::currency/EUR}.",
     "toast": {
       "updated": "Mindestrabatt von {from} auf {to} geändert",
       "added": "Preisalarm gesetzt",
       "removedPercentage": "Preisalarm nach Prozent entfernt",
-      "removedAbsolute": "Preisalarm nach Preis entfernt",
-      "removeFailed": "Entfernen hat nicht geklappt"
+      "removedAbsolute": "Preisalarm in Euro entfernt",
+      "removeFailed": "Entfernen hat nicht geklappt. Versuch es noch mal."
     }
   },
   "threshold": {
@@ -87,17 +87,17 @@
     "loading": "Mindestrabatt wird geladen",
     "placeholderAbsolute": "z. B. 12",
     "placeholderPercentage": "z. B. 15",
-    "willUpdate": "Der Mindestrabatt wird von {from} auf {to} geändert."
+    "willUpdate": "Der Mindestrabatt ändert sich von {from} auf {to}."
   },
   "typePicker": {
     "label": "Alarm, wenn",
     "absolute": {
       "label": "Preis sinkt um €",
-      "description": "Du wirst benachrichtigt, wenn der Preis um einen bestimmten Betrag fällt"
+      "description": "Wir sagen dir Bescheid, wenn der Preis um deinen Betrag fällt"
     },
     "percentage": {
       "label": "Rabatt mindestens %",
-      "description": "Du wirst benachrichtigt, wenn der Rabatt mindestens einen bestimmten Prozentsatz erreicht"
+      "description": "Wir sagen dir Bescheid, wenn der Rabatt deinen Prozentsatz erreicht"
     }
   },
   "actions": {
@@ -159,12 +159,12 @@
   },
   "validation": {
     "listRequired": "Wähle eine Einkaufsliste aus",
-    "amountRange": "Die Menge muss zwischen 1 und 999 liegen",
+    "amountRange": "Gib eine Menge von 1 bis 999 ein",
     "listTitleMin": "Gib einen Namen mit mindestens 3 Zeichen ein",
     "listTitleMax": "Gib einen Namen mit höchstens 100 Zeichen ein",
-    "thresholdInvalid": "Gib einen gültigen Wert ein",
-    "percentageRange": "Der Prozentsatz muss zwischen 1 % und 99 % liegen",
-    "absoluteRange": "Der Betrag muss zwischen 0,10 € und 999 € liegen"
+    "thresholdInvalid": "Gib eine Zahl ein, z. B. 15",
+    "percentageRange": "Gib einen Prozentsatz von 1 bis 99 ein",
+    "absoluteRange": "Gib einen Betrag von 0,10 € bis 999 € ein"
   },
   "list": {
     "searchPlaceholder": "Produkte suchen...",
@@ -172,18 +172,18 @@
     "resultsTitleWithCount": "Suchergebnisse für „{query}“ ({count}{suffix})",
     "resultsStatus": "{count, plural, =0 {Keine Ergebnisse} one {# Ergebnis} other {# Ergebnisse}}{truncated, select, yes { oder mehr} other {}}",
     "partialPricesTitle": "Einige Preise fehlen",
-    "partialPricesText": "Wir zeigen die verfügbaren Preise, aber mindestens ein gewählter Standort konnte gerade nicht abgerufen werden.",
+    "partialPricesText": "Für einige gewählte Standorte haben wir gerade keine Preise, deshalb zeigen wir die übrigen.",
     "errorTitle": "Suche fehlgeschlagen",
-    "errorText": "Beim Laden der Daten ist etwas schiefgelaufen. Versuche es erneut.",
+    "errorText": "Wir konnten die Produkte nicht laden. Versuch es noch mal.",
     "noResultsForFilters": "Keine Ergebnisse für die gewählten Filter",
     "noPriceInLocationsTitle": "{count, plural, one {Keine Preise am gewählten Ort} other {Keine Preise an den gewählten Orten}}",
     "noPriceInLocationsText": "{count, plural, other {Wir haben Produkte gefunden, aber kein Geschäft in {locations} hat einen veröffentlichten Preis dafür.}}",
     "showAllLocations": "Preise in ganz Kroatien anzeigen",
     "clearFilters": "Filter zurücksetzen",
     "enterQueryTitle": "Gib einen Suchbegriff ein",
-    "enterQueryText": "Die Filter sind gesetzt, die Ergebnisse erscheinen nach der Suche",
+    "enterQueryText": "Die Filter sind bereit. Gib einen Suchbegriff ein, um Ergebnisse zu sehen.",
     "startTitle": "Produkte suchen",
-    "startText": "Gib den Namen des Produkts ein, das du suchst",
+    "startText": "Gib ein, was du suchst",
     "noResultsAddPlain": "Wir haben kein Produkt mit diesem Namen gefunden. Du kannst es trotzdem zu einer Liste hinzufügen.",
     "addPlainItem": "„{query}“ zu einer Liste hinzufügen"
   },

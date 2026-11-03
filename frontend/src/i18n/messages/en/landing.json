@@ -41,7 +41,7 @@
       },
       "save": {
         "title": "Save on your shopping",
-        "description": "Pick the cheapest store and skip the catalogs."
+        "description": "Pick the cheapest store and pay less."
       }
     }
   },
@@ -137,7 +137,7 @@
       },
       "sync": {
         "title": "Syncs when you're back online",
-        "description": "Changes made offline are saved automatically as soon as you're back online."
+        "description": "Whatever you change offline is saved as soon as you're back online."
       }
     }
   },
@@ -189,7 +189,7 @@
       },
       "offline": {
         "question": "Does the app work offline?",
-        "answer": "Yes. You can install Disscount as an app on your phone or computer, and your saved lists and viewed products are available offline too. Changes sync automatically when you're back online."
+        "answer": "Yes. Install Disscount on your phone or computer and your saved lists and viewed products work without internet too. Changes are saved as soon as you're back online."
       }
     }
   },

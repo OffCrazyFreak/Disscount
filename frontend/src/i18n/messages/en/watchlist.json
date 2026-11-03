@@ -5,7 +5,7 @@
   },
   "client": {
     "loginTitle": "Watchlist",
-    "loginDescription": "Your watchlist lets you watch products and get notified as soon as a price drops.",
+    "loginDescription": "Watch the products you buy and get notified as soon as the price drops.",
     "searchPlaceholder": "Search your watchlist..."
   },
   "header": {
@@ -36,7 +36,7 @@
     "noData": "No data",
     "unavailable": "Unavailable",
     "setPreferences": "Set preferences",
-    "preferredStoresInfo": "Discounted stores among your preferred stores",
+    "preferredStoresInfo": "Discounts in your stores",
     "allStoresInfo": "All discounted stores"
   },
   "item": {
@@ -44,9 +44,9 @@
     "unavailable": "Product unavailable"
   },
   "removal": {
-    "success": "Product removed from your watchlist",
+    "success": "Removed from your watchlist.",
     "error": "Couldn't remove the product. Try again.",
-    "partial": "Partly removed: {count, plural, one {# item} other {# items}} couldn't be removed."
+    "partial": "{count, plural, one {# product wasn't removed. Try again.} other {# products weren't removed. Try again.}}"
   },
   "createList": {
     "label": "Create list of deals",
@@ -54,14 +54,14 @@
     "loading": "Creating list...",
     "listTitle": "Deals {date}",
     "productCount": "{count, plural, one {# product} other {# products}} for the new list.",
-    "success": "List of deals created",
-    "createError": "Couldn't create the list of deals. Try again.",
-    "addFailedRemoved": "Some items couldn't be added. The list was removed automatically.",
-    "addFailedKept": "Some items couldn't be added, and the list couldn't be removed automatically."
+    "success": "Your deals list is ready!",
+    "createError": "Couldn't create the list. Try again.",
+    "addFailedRemoved": "Some products weren't added, so the list was removed. Try again.",
+    "addFailedKept": "Some products weren't added. The list is still there, so you can finish or delete it."
   },
   "validation": {
     "productRequired": "Product is required",
     "watchTypeRequired": "Choose when to alert you",
-    "thresholdPositive": "Minimum discount must be a positive number"
+    "thresholdPositive": "Minimum discount must be more than 0"
   }
 }

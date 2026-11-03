@@ -36,7 +36,7 @@ describe("PriceDropStatus", () => {
     rerender(<PriceDropStatus />);
 
     expect(screen.getByRole("status")).toHaveTextContent(
-      "Praćenje, 3 nova sniženja",
+      "Praćenje, 3 nova popusta",
     );
   });
 
@@ -47,7 +47,7 @@ describe("PriceDropStatus", () => {
     rerender(<PriceDropStatus />);
 
     expect(screen.getByRole("status")).toHaveTextContent(
-      "Spremljanje, 2 novi znižanji",
+      "Spremljanje, 2 nova popusta",
     );
   });
 
@@ -80,7 +80,7 @@ describe("PriceDropStatus", () => {
     rerender(<PriceDropStatus />);
 
     expect(screen.getByRole("status")).toHaveTextContent(
-      "Praćenje, 2 nova sniženja",
+      "Praćenje, 2 nova popusta",
     );
   });
 

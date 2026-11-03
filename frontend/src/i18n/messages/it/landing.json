@@ -41,7 +41,7 @@
       },
       "save": {
         "title": "Risparmia sulla spesa",
-        "description": "Scegli il negozio più conveniente e fai la spesa senza sfogliare cataloghi."
+        "description": "Scegli il negozio più conveniente e paga meno."
       }
     }
   },
@@ -62,7 +62,7 @@
   },
   "features": {
     "title": "Tutto per una spesa intelligente",
-    "subtitle": "Quello che funziona già oggi e quello che arriva presto.",
+    "subtitle": "Cosa funziona già oggi e cosa arriva presto.",
     "items": {
       "scanner": {
         "title": "Scansione codici a barre",
@@ -137,7 +137,7 @@
       },
       "sync": {
         "title": "Sincronizzazione al ritorno online",
-        "description": "Le modifiche fatte offline si salvano da sole appena torni in rete."
+        "description": "Quello che cambi offline si salva appena torni in rete."
       }
     }
   },
@@ -189,7 +189,7 @@
       },
       "offline": {
         "question": "L'app funziona senza internet?",
-        "answer": "Sì. Puoi installare Disscount come app sul telefono o sul computer, e le liste salvate e i prodotti già visti sono disponibili anche offline. Le modifiche si sincronizzano da sole quando torni in rete."
+        "answer": "Sì. Installa Disscount sul telefono o sul computer e le liste salvate e i prodotti già visti funzionano anche senza internet. Le modifiche si salvano appena torni in rete."
       }
     }
   },

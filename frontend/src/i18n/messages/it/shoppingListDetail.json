@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Lista della spesa: dettagli",
+    "title": "Lista della spesa",
     "description": "Visualizza e gestisci gli articoli della lista."
   },
   "toggle": {
@@ -9,7 +9,7 @@
   },
   "backToLists": "Torna alle liste della spesa",
   "lastSynced": "Lista aggiornata {time}",
-  "updatedByOthers": "Lista aggiornata",
+  "updatedByOthers": "Qualcuno ha appena modificato la lista.",
   "access": {
     "view": "Puoi solo visualizzare questa lista.",
     "shop": "Puoi segnare cosa hai preso e scegliere il negozio, ma non modificare la lista.",
@@ -17,7 +17,7 @@
     "withNextStep": "{text} {nextStep}",
     "signIn": "Accedi per modificare.",
     "askOwner": "Per avere più permessi, chiedi a chi ha creato la lista.",
-    "checking": "Stiamo ancora verificando i permessi per questa lista."
+    "checking": "Verifichiamo i tuoi permessi..."
   },
   "actions": {
     "deleteTitle": "Elimina lista della spesa",
@@ -32,9 +32,9 @@
   "toasts": {
     "linkCopied": "Link copiato",
     "shareFailed": "Condivisione non riuscita",
-    "itemDeleted": "Articolo eliminato",
-    "listDeleted": "Lista della spesa eliminata",
-    "listDeleteFailed": "Non siamo riusciti a eliminare la lista della spesa. Riprova."
+    "itemDeleted": "Prodotto rimosso.",
+    "listDeleted": "Lista eliminata.",
+    "listDeleteFailed": "Non siamo riusciti a eliminare la lista. Riprova."
   },
   "unavailable": {
     "deadLinkTitle": "Il link non è più valido",
@@ -59,8 +59,8 @@
   "items": {
     "titleWithChecked": "Prodotti ({checked}/{total} acquistati)",
     "title": "Prodotti ({total})",
-    "emptyOwner": "Questa lista non ha ancora prodotti. Cerca un prodotto e aggiungilo qui.",
-    "empty": "Questa lista non ha ancora prodotti.",
+    "emptyOwner": "La lista è ancora vuota. Cerca dei prodotti e aggiungili qui.",
+    "empty": "La lista è ancora vuota.",
     "searchProducts": "Cerca prodotti",
     "markUnbought": "Segna {name} come da acquistare",
     "markBought": "Segna {name} come acquistato",
@@ -83,19 +83,19 @@
   },
   "priceHistory": {
     "title": "Storico prezzi",
-    "noData": "Nessun dato storico disponibile."
+    "noData": "Ancora nessuno storico prezzi."
   },
   "stores": {
     "title": "Prezzi per catena",
-    "noItems": "Questa lista non ha ancora prodotti. Cerca un prodotto e aggiungilo qui.",
-    "allChecked": "Tutti i prodotti sono segnati come acquistati.",
+    "noItems": "La lista è ancora vuota. Cerca dei prodotti e aggiungili qui.",
+    "allChecked": "Hai preso tutto!",
     "loadError": "Impossibile caricare i prezzi. Riprova.",
     "noPrices": "Nessun prezzo disponibile per gli articoli della lista.",
-    "optimizeBy": "Ottimizza per:",
+    "optimizeBy": "Ordina per:",
     "optimize": {
-      "products": "Numero di prodotti",
+      "products": "Numero di prodotti disponibili",
       "basket": "Carrello più economico",
-      "total": "Prodotti singoli",
+      "total": "Numero di prodotti più economici",
       "distance": "Distanza"
     },
     "availableItems": "Disponibili {count}/{total}",

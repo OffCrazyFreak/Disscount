@@ -5,13 +5,16 @@ import { TriangleAlert } from "lucide-react";
 import { Banner } from "@/components/custom/common/banner";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { Button } from "@/components/ui/button";
+import { useRetryFocusHandoff } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-retry-focus-handoff";
 import { PRICE_STATUS_BANNER_ID } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
 
 interface IShoppingListPriceStatusProps {
-  failedCount: number;
+  failedItemIds: string[];
   isRetrying: boolean;
   /** Resolves true when every retried price loaded. */
   onRetry: () => Promise<boolean>;
+  /** Hands focus on when a retry that did not load every price took the banner, and its button, away. */
+  onRetryFocusLost: (retriedItemIds: readonly string[]) => void;
 }
 
 /**
@@ -19,12 +22,14 @@ interface IShoppingListPriceStatusProps {
  * stays mounted while silent, so a failure that arrives later is still announced.
  */
 export default function ShoppingListPriceStatus({
-  failedCount,
+  failedItemIds,
   isRetrying,
   onRetry,
+  onRetryFocusLost,
 }: IShoppingListPriceStatusProps) {
   const t = useTranslations("shoppingListDetail");
   const successRef = useRef<HTMLParagraphElement>(null);
+  const failedCount = failedItemIds.length;
 
   // Each new failure starts a generation, and a retry only counts for the one it was pressed
   // in, so a failure arriving mid-retry, then removed, cannot surface a stale success.
@@ -40,6 +45,12 @@ export default function ShoppingListPriceStatus({
   const [recoveredGeneration, setRecoveredGeneration] = useState<number | null>(
     null,
   );
+  const { setUnresolvedRetry, retryButtonRef } = useRetryFocusHandoff(
+    failedCount,
+    failureGeneration,
+    onRetryFocusLost,
+  );
+
   const isRecovered =
     recoveredGeneration === failureGeneration && failedCount === 0;
 
@@ -54,8 +65,11 @@ export default function ShoppingListPriceStatus({
   async function retry() {
     if (isRetrying) return;
     const generation = failureGeneration;
+    const itemIds = failedItemIds;
     setRecoveredGeneration(null);
+    setUnresolvedRetry(null);
     if (await onRetry()) setRecoveredGeneration(generation);
+    else setUnresolvedRetry({ failureGeneration: generation, itemIds });
   }
 
   return (
@@ -84,6 +98,7 @@ export default function ShoppingListPriceStatus({
 
             {/* aria-disabled, not the loading prop: that sets disabled, which drops keyboard focus. */}
             <Button
+              ref={retryButtonRef}
               type="button"
               variant="outline"
               size="sm"

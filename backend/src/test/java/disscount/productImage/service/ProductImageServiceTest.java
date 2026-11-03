@@ -12,6 +12,7 @@ import disscount.productImage.FakeProductImageStore;
 import disscount.productImage.dao.ProductImageReportRepository;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
+import disscount.productImage.domain.HiddenReason;
 import disscount.productImage.domain.ImageSource;
 import disscount.productImage.domain.ImageStatus;
 import disscount.productImage.domain.ProductImage;
@@ -23,6 +24,7 @@ import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
 import disscount.productImage.off.OffProductPhotos;
 import disscount.productImage.off.OpenFoodFactsClient;
 import disscount.user.service.UserService;
+import disscount.util.Timestamps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +34,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -70,6 +74,8 @@ class ProductImageServiceTest {
     @Autowired ProductImageReportRepository reports;
     @Autowired FakePhotoStore originals;
     @Autowired FakeProductImageStore publicStore;
+    @Autowired OffCandidateWriter candidates;
+    @Autowired PlatformTransactionManager transactions;
     @MockitoBean UserService userService;
     @MockitoBean OpenFoodFactsClient off;
 
@@ -268,7 +274,88 @@ class ProductImageServiceTest {
         candidate("front_en", "1129", "en");
 
         assertThat(queries.thumbnails(List.of(EAN, "5449000000996")).thumbnails()).containsOnlyKeys(EAN);
-        assertThatThrownBy(() -> queries.thumbnails(List.of("abc"))).hasMessage("error.productImage.invalidEan");
+    }
+
+    @Test
+    void aMalformedEanIsLeftOutOfThumbnailsInsteadOfFailingTheBatch() {
+        writes.upload(ana, EAN, jpeg());
+
+        assertThat(queries.thumbnails(List.of("abc", EAN)).thumbnails()).containsOnlyKeys(EAN);
+    }
+
+    @Test
+    void aFrontTheJobSkippedComesBackWhenOpenFoodFactsHasANewVersion() {
+        ProductImage front = candidate("front_hr", "4", "hr");
+        front.setStatus(ImageStatus.HIDDEN);
+        front.setHiddenReason(HiddenReason.JOB_SKIPPED);
+        front.setRenderRetryAt(Timestamps.nowUtc().plusHours(1));
+        front.setRenderAttempts(5);
+        images.save(front);
+
+        candidates.upsert(EAN, "front_hr", "4", "hr");
+        assertThat(images.findById(front.getId())).get().extracting(ProductImage::getStatus).isEqualTo(ImageStatus.HIDDEN);
+
+        candidates.upsert(EAN, "front_hr", "5", "hr");
+        assertThat(images.findById(front.getId())).get().satisfies(i -> {
+            assertThat(i.getStatus()).isEqualTo(ImageStatus.CANDIDATE);
+            assertThat(i.getExternalRev()).isEqualTo("5");
+            assertThat(i.getHiddenReason()).isNull();
+            assertThat(i.getRenderRetryAt()).isNull();
+            assertThat(i.getRenderAttempts()).isNull();
+        });
+    }
+
+    @Test
+    void aFrontTheAdminHidStaysHiddenWhenOpenFoodFactsHasANewVersion() {
+        ProductImage front = candidate("front_hr", "4", "hr");
+        admin.setStatus(adminId, front.getId(), "HIDDEN");
+
+        candidates.upsert(EAN, "front_hr", "5", "hr");
+
+        assertThat(images.findById(front.getId())).get().satisfies(i -> {
+            assertThat(i.getStatus()).isEqualTo(ImageStatus.HIDDEN);
+            assertThat(i.getHiddenReason()).isEqualTo(HiddenReason.ADMIN);
+        });
+    }
+
+    @Test
+    void aFrontHiddenBeforeReasonsWereRecordedCountsAsTheAdminsChoice() {
+        ProductImage front = candidate("front_hr", "4", "hr");
+        front.setStatus(ImageStatus.HIDDEN);
+        images.save(front);
+
+        candidates.upsert(EAN, "front_hr", "5", "hr");
+
+        assertThat(images.findById(front.getId())).get().extracting(ProductImage::getStatus).isEqualTo(ImageStatus.HIDDEN);
+    }
+
+    @Test
+    void aHiddenCopiedPhotoStaysHiddenWhenOpenFoodFactsHasANewVersion() {
+        ProductImage front = candidate("front_hr", "4", "hr");
+        when(off.download(anyString())).thenReturn(TestImages.jpeg(300, 200));
+        admin.setMain(adminId, EAN, front.getId());
+        admin.setStatus(adminId, front.getId(), "HIDDEN");
+
+        candidates.upsert(EAN, "front_hr", "5", "hr");
+
+        assertThat(images.findById(front.getId())).get().satisfies(i -> {
+            assertThat(i.getStatus()).isEqualTo(ImageStatus.HIDDEN);
+            assertThat(i.getExternalRev()).isEqualTo("4");
+        });
+    }
+
+    @Test
+    void aRolledBackCropKeepsTheFilesTheStoredRowStillPointsAt() {
+        writes.upload(ana, EAN, jpeg());
+        ProductImage photo = images.findByEanOrderByCreatedAtAsc(EAN).get(0);
+
+        new TransactionTemplate(transactions).executeWithoutResult(status -> {
+            admin.crop(adminId, photo.getId(), 0, new CropDto(10, 10, 100, 80));
+            status.setRollbackOnly();
+        });
+
+        assertThat(images.findById(photo.getId())).get().extracting(ProductImage::getFullKey).isEqualTo(photo.getFullKey());
+        assertThat(publicStore.objects).containsKeys(photo.getFullKey(), photo.getThumbKey());
     }
 
     @Test

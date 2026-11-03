@@ -14,6 +14,6 @@ describe("ForgotPasswordForm", () => {
 
     const input = screen.getByLabelText("Email");
     expect(input).toHaveAttribute("aria-invalid", "true");
-    expect(input).toHaveAccessibleDescription("Unesi važeći email");
+    expect(input).toHaveAccessibleDescription("Upiši ispravan email");
   });
 });

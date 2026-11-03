@@ -1,17 +1,17 @@
 {
   "meta": {
     "title": "Liste della spesa",
-    "description": "Gestisci le tue liste della spesa."
+    "description": "Crea liste della spesa e confronta i prezzi dei negozi."
   },
   "client": {
     "loginTitle": "Liste della spesa",
-    "loginDescription": "Le liste della spesa ti aiutano a organizzare gli acquisti e a confrontare i prezzi dei negozi in un unico posto.",
+    "loginDescription": "Crea una lista e confronta i prezzi dei negozi in un unico posto.",
     "searchPlaceholder": "Cerca liste della spesa...",
     "searchResults": "Risultati per «{query}» ({count})",
     "myLists": "Le mie liste della spesa",
     "myListsWithCount": "Le mie liste della spesa ({count})",
     "empty": {
-      "title": "Nessuna lista della spesa",
+      "title": "Non hai ancora liste",
       "description": "Crea una lista della spesa o cerca dei prodotti e aggiungili a una nuova lista.",
       "browseProducts": "Cerca prodotti"
     }
@@ -50,15 +50,15 @@
       "shared": "Chiunque abbia il link"
     },
     "hint": {
-      "NONE": "Condivisione disattivata: solo tu puoi aprire questa lista.",
+      "NONE": "Solo tu puoi aprire questa lista.",
       "VIEW": "Può vedere tutta la lista, ma non modificarla.",
-      "SHOP": "Può vedere tutta la lista, scegliere il negozio e segnare cosa è stato preso.",
+      "SHOP": "Vede la lista, sceglie il negozio e segna cosa è stato preso.",
       "EDIT": "Può modificare tutta la lista, ma non aggiungere nuovi prodotti."
     }
   },
   "modal": {
     "cancel": "Annulla",
-    "notFound": "Lista non trovata. Forse è stata eliminata o non hai accesso."
+    "notFound": "Non troviamo questa lista. Forse è stata eliminata o non hai accesso."
   },
   "titleField": {
     "label": "Nome della lista",
@@ -73,16 +73,16 @@
     "reset": "Reimposta",
     "loadError": "Impossibile caricare la lista. Riprova.",
     "offlineToast": "Sei offline. La modifica si sincronizzerà quando torni online.",
-    "updatedToast": "Lista della spesa aggiornata!",
-    "createdToast": "Lista della spesa creata!"
+    "updatedToast": "Lista salvata!",
+    "createdToast": "La lista è pronta!"
   },
   "copyModal": {
     "title": "Copia lista",
-    "description": "Scegli cosa portare nella copia.",
+    "description": "Scegli cosa tiene la copia.",
     "submit": "Copia",
     "titleSuffix": " (copia)",
-    "successToast": "Lista della spesa copiata!",
-    "errorToast": "Non siamo riusciti a copiare la lista della spesa",
+    "successToast": "Lista copiata!",
+    "errorToast": "Non siamo riusciti a copiare la lista. Riprova.",
     "options": {
       "items": {
         "label": "Prodotti",
@@ -107,7 +107,7 @@
     "shareLink": "Condividi il link",
     "shareText": "Condividi il testo",
     "accessLabel": "Chi ha accesso alla lista",
-    "settingsUpdatedToast": "Impostazioni di condivisione aggiornate.",
+    "settingsUpdatedToast": "Condivisione salvata.",
     "settingsFailedToast": "Non siamo riusciti a salvare la modifica. Riprova.",
     "linkCopiedToast": "Link copiato",
     "textCopiedToast": "Testo della lista copiato",

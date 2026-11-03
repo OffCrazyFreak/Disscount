@@ -19,17 +19,17 @@
       "change": "Spremeni sliko",
       "remove": "Odstrani sliko",
       "formats": "PNG, JPG, WebP ali GIF (shrani se kot WebP).",
-      "tooLarge": "Slika je prevelika. Največja velikost je 15 MB.",
+      "tooLarge": "Slika je prevelika, največ 15 MB.",
       "loadFailed": "Slike ni mogoče naložiti, poskusi z JPG ali PNG."
     },
     "username": {
       "label": "Uporabniško ime",
-      "description": "Kako naj te kličemo? Ne sme biti že zasedeno."
+      "description": "Kako naj te kličemo? Ime mora biti samo tvoje."
     },
     "acquisition": {
       "label": "Od kod poznaš Disscount?",
       "placeholder": "Izberi vir",
-      "description": "Pomaga nam vedeti, kje te lahko bolje najdemo."
+      "description": "Tako vemo, kje nas ljudje najdejo."
     },
     "channels": {
       "GOOGLE_SEARCH": "Iskanje v Googlu",
@@ -50,11 +50,11 @@
     "hint": "Izberi, kako, o čem in kdaj želiš prejemati obvestila o popustih in novicah.",
     "push": {
       "label": "Dovoli obvestila aplikacije",
-      "description": "Obvestila o popustih v mobilni aplikaciji bodo samo za izdelke, ki jih izbereš, brez spama."
+      "description": "Javimo ti samo popuste za izdelke, ki jih spremljaš, brez spama."
     },
     "email": {
       "label": "Dovoli obvestila po e-pošti",
-      "description": "Obvestila o popustih na tvoj e-naslov bodo samo za izdelke, ki jih izbereš, brez spama."
+      "description": "Po e-pošti ti javimo samo popuste za izdelke, ki jih spremljaš, brez spama."
     },
     "newsletter": {
       "label": "Novice in posodobitve",
@@ -62,7 +62,7 @@
     },
     "feedback": {
       "label": "Stik za povratne informacije",
-      "description": "Dovoli, da se ti oglasimo zaradi povratnih informacij o aplikaciji."
+      "description": "Občasno te lahko vprašamo, kaj misliš o aplikaciji."
     }
   },
   "preferences": {
@@ -83,23 +83,23 @@
     }
   },
   "save": {
-    "offline": "Brez povezave si. Spremembe bodo sinhronizirane, ko se vrneš na splet.",
+    "offline": "Brez povezave si. Spremembe bomo shranili, ko se znova povežeš.",
     "onboardingDone": "Vse je pripravljeno!",
     "settingsSaved": "Nastavitve so shranjene!",
     "errors": {
-      "user": "Napaka pri shranjevanju profila.",
-      "stores": "Napaka pri shranjevanju trgovin.",
-      "places": "Napaka pri shranjevanju lokacij."
+      "user": "Profila ni bilo mogoče shraniti. Poskusi znova.",
+      "stores": "Trgovin ni bilo mogoče shraniti. Poskusi znova.",
+      "places": "Lokacij ni bilo mogoče shraniti. Poskusi znova."
     }
   },
   "validation": {
-    "usernameMin": "Uporabniško ime mora imeti vsaj 2 znaka",
-    "usernameMax": "Uporabniško ime sme imeti največ 40 znakov",
-    "emailInvalid": "Vnesi veljaven e-naslov",
+    "usernameMin": "Vpiši vsaj 2 znaka",
+    "usernameMax": "Vpiši največ 40 znakov",
+    "emailInvalid": "Vpiši veljaven e-naslov",
     "currentPasswordRequired": "Vnesi trenutno geslo"
   },
   "onboarding": {
-    "fallbackDescription": "Kratka nastavitev računa, vse lahko pozneje spremeniš.",
+    "fallbackDescription": "Kratka nastavitev računa. Vse lahko pozneje spremeniš.",
     "progress": "Korak {current} od {total}",
     "logout": "Odjava",
     "logoutFailed": "Odjava ni uspela. Poskusi znova.",
@@ -144,7 +144,7 @@
     },
     "done": {
       "title": "Disscount je pripravljen zate.",
-      "text": "Ko izbereš Končaj, shranimo tvoje izbire. Vse lahko pozneje spremeniš v nastavitvah računa."
+      "text": "Ko izbereš Končaj, shranimo tvoje izbire. Vse lahko pozneje spremeniš v nastavitvah."
     }
   },
   "security": {
@@ -162,48 +162,48 @@
       "currentPasswordDescription": "Potrebno za potrditev spremembe e-naslova ali gesla."
     },
     "submit": {
-      "setPasswordFailed": "Napaka pri nastavljanju gesla.",
+      "setPasswordFailed": "Gesla ni bilo mogoče nastaviti. Poskusi znova.",
       "passwordSet": "Geslo je nastavljeno! Zdaj se lahko prijaviš tudi z e-naslovom.",
       "noChanges": "Ni sprememb za shranjevanje.",
       "currentPasswordWrong": "Trenutno geslo ni pravilno.",
-      "changePasswordFailed": "Napaka pri spremembi gesla.",
+      "changePasswordFailed": "Gesla ni bilo mogoče spremeniti. Poskusi znova.",
       "socialLinked": "Za spremembo e-naslova najprej prekini povezavo s povezanimi računi (Google, Facebook).",
-      "changeEmailFailed": "Napaka pri spremembi e-naslova.",
+      "changeEmailFailed": "E-naslova ni bilo mogoče spremeniti. Poskusi znova.",
       "passwordChanged": "Geslo je spremenjeno.",
       "passwordChangedConfirmEmail": "Geslo je spremenjeno. Spremembo e-naslova potrdi s povezavo, poslano na tvoj trenutni naslov.",
-      "emailConfirmationSent": "Povezavo za potrditev smo poslali na tvoj trenutni e-naslov. Sprememba bo veljala po potrditvi.",
+      "emailConfirmationSent": "Povezavo smo poslali na tvoj trenutni naslov. E-naslov zamenjamo, ko jo potrdiš.",
       "generic": "Nekaj je šlo narobe. Poskusi znova.",
       "tooManyAttempts": "Preveč napačnih poskusov. Poskusi znova čez 15 minut."
     },
     "recovery": {
       "title": "Preveri svojo e-pošto",
       "description": "Poslali smo ti povezavo za spremembo gesla. Po spremembi te bomo odjavili z vseh naprav.",
-      "sendFailed": "Napaka pri pošiljanju povezave. Poskusi znova."
+      "sendFailed": "Povezave ni bilo mogoče poslati. Poskusi znova."
     },
     "linked": {
       "label": "Povezani računi",
       "hint": "Poveži račun Google ali Facebook za hitrejšo prijavo.",
       "link": "Poveži",
       "unlink": "Prekini povezavo",
-      "linkFailed": "Napaka pri povezovanju računa.",
-      "unlinkFailed": "Napaka pri prekinitvi povezave z računom.",
+      "linkFailed": "Računa ni bilo mogoče povezati. Poskusi znova.",
+      "unlinkFailed": "Povezave z računom ni bilo mogoče prekiniti. Poskusi znova.",
       "unlinked": "Povezava z računom je prekinjena."
     },
     "actions": {
       "revokeLabel": "Odjava z drugih naprav",
-      "revokeDescription": "Zapri vse aktivne prijave razen trenutne.",
+      "revokeDescription": "Odjavi se z vseh naprav razen te.",
       "revokeButton": "Odjavi",
       "deleteLabel": "Izbriši račun",
       "deleteDescription": "Trajno izbriše tvoj račun in vse povezane podatke.",
       "deleteButton": "Izbriši",
       "revokeDialogTitle": "Odjaviti z drugih naprav?",
-      "revokeDialogDescription": "Vse aktivne prijave razen trenutne bodo zaprte.",
+      "revokeDialogDescription": "Odjavimo te z vseh naprav razen te.",
       "deleteDialogTitle": "Izbrisati račun?",
-      "deleteDialogDescription": "Tvoj račun in vsi povezani podatki bodo nepovratno izbrisani.",
-      "revokeFailed": "Napaka pri odjavi z drugih naprav.",
-      "revoked": "Vse druge naprave so odjavljene.",
+      "deleteDialogDescription": "Tvoj račun in vse podatke trajno izbrišemo. Tega ne moreš razveljaviti.",
+      "revokeFailed": "Drugih naprav ni bilo mogoče odjaviti. Poskusi znova.",
+      "revoked": "Druge naprave so odjavljene.",
       "deleted": "Tvoj račun je izbrisan.",
-      "deleteFailed": "Napaka pri brisanju računa. Poskusi znova."
+      "deleteFailed": "Računa ni bilo mogoče izbrisati. Poskusi znova."
     }
   }
 }

@@ -9,7 +9,7 @@
   },
   "health": {
     "checking": "Checking status...",
-    "error": "❌ Couldn't check if the API is available",
+    "error": "❌ We can't check whether the price API is up",
     "available": "✅ The price API is available",
     "unavailable": "❌ The price API isn't available"
   },

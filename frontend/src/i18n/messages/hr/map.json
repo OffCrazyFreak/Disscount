@@ -13,16 +13,16 @@
     "backToMap": "Natrag na kartu"
   },
   "load": {
-    "error": "Trgovine se trenutačno ne mogu učitati.",
+    "error": "Trgovine se nisu učitale.",
     "retry": "Pokušaj ponovno",
     "loading": "Učitavam trgovine..."
   },
   "unavailable": {
     "browser": "Tvoj preglednik ne može prikazati kartu. Sve trgovine i dalje su na popisu.",
-    "style": "Karta se trenutačno ne može učitati. Sve trgovine i dalje su na popisu.",
-    "contextLost": "Karta se prekinula.",
+    "style": "Karta se trenutno ne može učitati. Sve trgovine i dalje su na popisu.",
+    "contextLost": "Karta je prestala raditi. Sve trgovine i dalje su na popisu.",
     "reload": "Učitaj ponovno",
-    "noGpu": "Tvoj preglednik je isključio grafičko ubrzanje pa ne može prikazati kartu. Obično pomaže da ponovno pokreneš preglednik. Sve trgovine i dalje su na popisu."
+    "noGpu": "Preglednik je isključio grafičko ubrzanje pa ne prikazuje kartu. Probaj ga ponovno pokrenuti. Sve trgovine i dalje su na popisu."
   },
   "chains": {
     "all": "Sve trgovine"
@@ -32,7 +32,7 @@
     "clear": "Ukloni moju lokaciju",
     "approximate": "Prikazujemo trgovine prema približnoj lokaciji. Uključi lokaciju na uređaju za točniji redoslijed.",
     "denied": "Pristup lokaciji je odbijen. Dopusti ga u postavkama preglednika ili pretraži po gradu.",
-    "unavailable": "Lokacija trenutačno nije dostupna. Pretraži po gradu ili adresi.",
+    "unavailable": "Lokacija trenutno nije dostupna. Pretraži po gradu ili adresi.",
     "timeout": "Lokacija se ne može odrediti. Provjeri je li lokacija uključena na uređaju ili pretraži po gradu."
   },
   "recent": {
@@ -69,7 +69,7 @@
   "favorites": {
     "add": "Dodaj u omiljene",
     "remove": "Ukloni iz omiljenih",
-    "limit": "Najviše {max, number} omiljenih trgovina.",
+    "limit": "Možeš imati najviše {max, number} omiljenih trgovina.",
     "saveFailed": "Spremanje nije uspjelo. Pokušaj ponovno."
   },
   "actions": {

@@ -9,7 +9,7 @@
     "watchlist": "Prodotti seguiti",
     "watchlistShort": "Seguiti",
     "watchlistShortcut": "Guarda i prodotti che segui",
-    "watchlistPriceDrops": "{label}, {count, plural, one {# nuovo calo di prezzo} other {# nuovi cali di prezzo}}",
+    "watchlistPriceDrops": "{label}, {count, plural, one {# nuovo sconto} other {# nuovi sconti}}",
     "digitalCards": "Carte fedeltà",
     "digitalCardsShort": "Carte",
     "digitalCardsShortcut": "Apri le tue carte fedeltà",
@@ -32,7 +32,7 @@
     "myAccount": "Il mio account",
     "support": "Aiuto e assistenza",
     "comingSoon": "PRESTO",
-    "toggle": "Apri o chiudi"
+    "toggle": "Mostra o nascondi i filtri"
   },
   "search": {
     "productsPlaceholder": "Cerca prodotti...",
@@ -60,12 +60,12 @@
   },
   "modalRouter": {
     "gate": {
-      "addToList": "Accedi per aggiungere prodotti alla lista della spesa.",
-      "watchlist": "Accedi per seguire questo prodotto e ricevere un avviso quando il prezzo scende.",
-      "manageLists": "Accedi per gestire le liste della spesa.",
-      "manageCards": "Accedi per gestire le carte fedeltà.",
+      "addToList": "Accedi per aggiungere il prodotto a una lista.",
+      "watchlist": "Accedi per seguire questo prodotto.",
+      "manageLists": "Accedi per creare le tue liste.",
+      "manageCards": "Accedi per salvare le tue carte fedeltà.",
       "settings": "Accedi per aprire le impostazioni.",
-      "onboarding": "Accedi per iniziare."
+      "onboarding": "Accedi e inizia."
     },
     "deleteList": {
       "title": "Elimina lista della spesa",

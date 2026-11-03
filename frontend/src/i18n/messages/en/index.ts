@@ -3,6 +3,7 @@ import common from "./common.json";
 import dashboard from "./dashboard.json";
 import digitalCards from "./digitalCards.json";
 import emails from "./emails.json";
+import errorPage from "./errorPage.json";
 import errors from "./errors.json";
 import landing from "./landing.json";
 import locale from "./locale.json";
@@ -30,6 +31,7 @@ const messages = {
   dashboard,
   digitalCards,
   emails,
+  errorPage,
   errors,
   landing,
   locale,

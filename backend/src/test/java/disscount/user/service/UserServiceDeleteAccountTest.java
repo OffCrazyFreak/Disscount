@@ -23,6 +23,7 @@ import disscount.user.dao.AuthIdentityDao;
 import disscount.user.dao.ErasureLedgerRepository;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
+import disscount.util.Timestamps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -204,6 +207,17 @@ class UserServiceDeleteAccountTest {
                 .isInstanceOf(AccountErasedException.class);
 
         assertThat(users.findById(user.getId()).orElseThrow().getDeletedAt()).isNotNull();
+    }
+
+    @Test
+    void aProfileSoftDeletedBeforeTheLedgerExistedIsNotRevived() {
+        LocalDateTime deletedAt = Timestamps.nowUtc().minusDays(30).truncatedTo(ChronoUnit.MILLIS);
+        User user = users.save(User.builder().id(UUID.randomUUID()).deletedAt(deletedAt).build());
+
+        assertThatThrownBy(() -> userService.ensureActiveProfile(user.getId(), "marko@example.com", "Marko", null))
+                .isInstanceOf(AccountErasedException.class);
+
+        assertThat(users.findById(user.getId()).orElseThrow().getDeletedAt()).isEqualTo(deletedAt);
     }
 
     @Test
