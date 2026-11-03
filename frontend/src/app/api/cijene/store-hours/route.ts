@@ -1,13 +1,11 @@
+import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
 import { getStoreHours } from "@/lib/store-hours/get-store-hours";
-import {
-  createApiError,
-  createApiResponse,
-} from "@/lib/cijene-api/utils/response-utils";
+import { createApiResponse } from "@/lib/cijene-api/utils/response-utils";
 
 // Reads the database, so it must never be prerendered at build.
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     return createApiResponse(await getStoreHours(), {
       cacheControl: "public, max-age=3600, stale-while-revalidate=86400",
@@ -15,6 +13,6 @@ export async function GET() {
   } catch (error) {
     console.error("[store-hours] failed", error);
 
-    return createApiError("Failed to load store hours", { status: 502 });
+    return proxyProblem("upstream_unavailable", request);
   }
 }
