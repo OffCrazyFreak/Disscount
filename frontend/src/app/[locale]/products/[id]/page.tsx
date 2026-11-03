@@ -1,5 +1,6 @@
 import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
+import { HydrationBoundary } from "@tanstack/react-query";
 import { getLocale, getTranslations } from "next-intl/server";
 import ProductDetailClient from "@/app/[locale]/products/[id]/components/product-detail-client";
 import ProductJsonLd from "@/app/[locale]/products/[id]/components/product-json-ld";
@@ -8,7 +9,9 @@ import {
   translatedProductRobots,
 } from "@/app/[locale]/products/[id]/utils/product-metadata";
 import { getMainPhotoUrl } from "@/lib/api/product-images/server";
+import { productCacheState } from "@/app/[locale]/products/[id]/utils/product-cache-state";
 import { getServerProduct } from "@/lib/cijene-api/server/get-product";
+import { getServerProductPrices } from "@/lib/cijene-api/server/get-product-prices";
 import { BRAND_OG_IMAGE_ID } from "@/app/og/localized-og";
 import { appUrl } from "@/lib/env";
 import { localePath } from "@/i18n/locale-path";
@@ -69,11 +72,12 @@ export default async function ProductDetailsPage(
   props: PageProps<"/[locale]/products/[id]">,
 ) {
   // The client keeps the raw segment it always had; only server lookups and URLs decode it.
-  // It still renders the body itself: its price history and stores sections read saved
-  // preferences from localStorage on first render, which would not match server HTML.
   const { id: rawId } = await props.params;
   const ean = decodeProductId(rawId);
-  const result = await getServerProduct(ean);
+  const [result, prices] = await Promise.all([
+    getServerProduct(ean),
+    getServerProductPrices(ean),
+  ]);
 
   // loading.tsx has already streamed a 200, so Next marks this noindex instead.
   if (result.status === "missing") notFound();
@@ -97,7 +101,9 @@ export default async function ProductDetailsPage(
         }
       />
 
-      <ProductDetailClient ean={rawId} />
+      <HydrationBoundary state={productCacheState(rawId, product, prices)}>
+        <ProductDetailClient ean={rawId} />
+      </HydrationBoundary>
     </>
   );
 }

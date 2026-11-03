@@ -142,7 +142,7 @@ Written by the small domain helpers in `utils/browser/storage/*`, each of which 
 | Field                      | Meaning                                                                                                                                                        | Helper              |
 | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
 | `viewModes`                | grid/list toggle, per list key (parked, see below)                                                                                                             | `view-mode.ts`      |
-| `productsPreferences`      | price-history period + chains + open state, per product EAN                                                                                                    | `products.ts`       |
+| `productsPreferences`      | price-history period + chains + open state, and the stores section's open state, per product EAN                                                               | `products.ts`       |
 | `shoppingListsPreferences` | section open states, group-by-store switch + price-history prefs, per list                                                                                     | `shopping-lists.ts` |
 | `storeOptimizeMode`        | preferred store-list sort, all lists; `distance` only if location granted                                                                                      | `shopping-lists.ts` |
 | `preferredCameraId`        | manually chosen scanner camera (absent means auto-pick)                                                                                                        | `scanner.ts`        |
@@ -214,23 +214,25 @@ Not everything should be remembered. These are intentionally **not** persisted, 
 
 ## 9. Key files
 
-| File                                                              | Role                                                             |
-| ----------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `frontend/src/hooks/use-form-draft.ts`                            | modal-form draft save/restore engine (24h TTL, diff-vs-defaults) |
-| `frontend/src/utils/browser/storage/core.ts`                      | single-key `Disscount_app` localStorage read/merge/write         |
-| `frontend/src/utils/browser/storage/drafts.ts`                    | draft read/write/expiry helpers                                  |
-| `frontend/src/utils/browser/local-storage.ts`                     | barrel re-exporting the storage helpers                          |
-| `frontend/src/typings/local-storage.ts`                           | `AppData` shape (drafts + all preferences)                       |
-| `frontend/src/utils/browser/storage/products.ts`                  | per-EAN price-history preferences                                |
-| `frontend/src/utils/browser/storage/shopping-lists.ts`            | per-list section + sort preferences                              |
-| `frontend/src/utils/browser/storage/view-mode.ts`                 | grid/list toggle preference                                      |
-| `frontend/src/utils/browser/storage/scanner.ts`                   | preferred scanner camera                                         |
-| `frontend/src/utils/browser/storage/pwa.ts`                       | install-banner snooze                                            |
-| `frontend/src/utils/browser/storage/auth.ts`                      | last-used sign-in method                                         |
-| `frontend/src/hooks/use-search-navigation.ts`                     | reads/writes the `?q=` search param                              |
-| `frontend/src/app/[locale]/products/hooks/use-filter-params.ts`   | writes product filters to the query string                       |
-| `frontend/src/app/[locale]/products/hooks/use-product-filters.ts` | reads filters back and resolves them                             |
-| `frontend/src/lib/modal/use-modal-url.ts`                         | reads the `?modal=` target                                       |
+| File                                                                       | Role                                                                   |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `frontend/src/hooks/use-form-draft.ts`                                     | modal-form draft save/restore engine (24h TTL, diff-vs-defaults)       |
+| `frontend/src/utils/browser/storage/core.ts`                               | single-key `Disscount_app` localStorage read/merge/write               |
+| `frontend/src/utils/browser/storage/drafts.ts`                             | draft read/write/expiry helpers                                        |
+| `frontend/src/utils/browser/local-storage.ts`                              | barrel re-exporting the storage helpers                                |
+| `frontend/src/typings/local-storage.ts`                                    | `AppData` shape (drafts + all preferences)                             |
+| `frontend/src/utils/browser/storage/products.ts`                           | per-EAN price-history preferences                                      |
+| `frontend/src/app/[locale]/products/[id]/hooks/use-product-preferences.ts` | reads and merges one product's panel preferences, hydration safe       |
+| `frontend/src/utils/browser/storage/storage-subscription.ts`               | same-tab and cross-tab change notifications for `useSyncExternalStore` |
+| `frontend/src/utils/browser/storage/shopping-lists.ts`                     | per-list section + sort preferences                                    |
+| `frontend/src/utils/browser/storage/view-mode.ts`                          | grid/list toggle preference                                            |
+| `frontend/src/utils/browser/storage/scanner.ts`                            | preferred scanner camera                                               |
+| `frontend/src/utils/browser/storage/pwa.ts`                                | install-banner snooze                                                  |
+| `frontend/src/utils/browser/storage/auth.ts`                               | last-used sign-in method                                               |
+| `frontend/src/hooks/use-search-navigation.ts`                              | reads/writes the `?q=` search param                                    |
+| `frontend/src/app/[locale]/products/hooks/use-filter-params.ts`            | writes product filters to the query string                             |
+| `frontend/src/app/[locale]/products/hooks/use-product-filters.ts`          | reads filters back and resolves them                                   |
+| `frontend/src/lib/modal/use-modal-url.ts`                                  | reads the `?modal=` target                                             |
 
 ---
 
@@ -258,6 +260,7 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
 ## 11. Gotchas & lessons learned
 
+- **The product page's panel preferences render their defaults on the server.** The product page is server rendered, and the server cannot read localStorage, so `useProductPreferences` reads `productsPreferences` through `useSyncExternalStore` with a server snapshot of "nothing saved": stores open, price history closed. React switches to the saved entry right after hydration, so a returning visitor who saved other states sees the defaults for a moment. Writes happen in the toggle and chart handlers, never in an effect, because an effect running during hydration would overwrite the saved state with the server default.
 - **Always go through the storage helpers, never `localStorage.setItem` directly.** Everything shares the one `Disscount_app` object, and `setAppStorage` merges your partial into the rest. A raw `setItem` would overwrite the whole object and wipe unrelated preferences and drafts.
 
 - **Drafts diff against `defaultValues`, not RHF `dirtyFields`.** The React Hook Form dirty proxy can read empty inside a stable callback, which made persistence unreliable. `useFormDraft` compares current values to the form defaults instead, so what gets saved is genuinely what changed.
