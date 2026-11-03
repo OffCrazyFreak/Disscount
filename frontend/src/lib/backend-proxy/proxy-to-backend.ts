@@ -25,6 +25,7 @@ const UPSTREAM_TIMEOUT_MS = 30_000;
 const BODYLESS_STATUSES = new Set([204, 304]);
 
 function reportFailure(
+  request: Request,
   code: ProxyProblemCode,
   pathRoot: string,
   error: unknown,
@@ -33,7 +34,7 @@ function reportFailure(
   Sentry.captureException(error, {
     tags: { flow: "backend-proxy", proxyFailure: code, pathRoot },
   });
-  return proxyProblem(code);
+  return proxyProblem(code, request);
 }
 
 /** The token to forward with (null for an anonymous call), or the refusal to answer with. */
@@ -45,14 +46,15 @@ async function authorize(
   try {
     session = await mintSessionToken(request.headers);
   } catch (error) {
-    return reportFailure("auth_unavailable", pathRoot, error);
+    return reportFailure(request, "auth_unavailable", pathRoot, error);
   }
 
   const identity = decideIdentity(
     identityPin(request),
     session?.userId ?? null,
   );
-  if (identity.action === "refuse") return proxyProblem("session_changed");
+  if (identity.action === "refuse")
+    return proxyProblem("session_changed", request);
   return { token: session?.token ?? null };
 }
 
@@ -83,7 +85,7 @@ async function forward(
     if (request.signal.aborted) return new Response(null, { status: 499 });
     const isTimeout = error instanceof Error && error.name === "TimeoutError";
     const code = isTimeout ? "backend_timeout" : "backend_unavailable";
-    return reportFailure(code, url.pathname.split("/")[2], error);
+    return reportFailure(request, code, url.pathname.split("/")[2], error);
   }
 }
 
@@ -107,8 +109,9 @@ export async function proxyToBackend(
   segments: string[],
 ): Promise<Response> {
   const url = backendUrl(segments, new URL(request.url).search, BACKEND_ORIGIN);
-  if (!url) return proxyProblem("not_found");
-  if (!isCsrfSafe(request, appUrl())) return proxyProblem("csrf_rejected");
+  if (!url) return proxyProblem("not_found", request);
+  if (!isCsrfSafe(request, appUrl()))
+    return proxyProblem("csrf_rejected", request);
 
   const authStart = performance.now();
   const authorized = await authorize(request, segments[0]);

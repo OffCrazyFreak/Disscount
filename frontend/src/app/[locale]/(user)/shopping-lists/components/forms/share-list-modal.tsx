@@ -20,7 +20,6 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
   const {
     shoppingList,
     isLoading,
-    isError,
     linkAccess,
     setLinkAccess,
     isSaving,
@@ -48,7 +47,7 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
         </div>
-      ) : isError || !shoppingList || !canManageShare ? (
+      ) : !shoppingList || !canManageShare ? (
         <p className="text-sm text-muted-foreground">{t("modal.notFound")}</p>
       ) : (
         <ShareListPanel

@@ -19,10 +19,11 @@ export const serverSession = { userId: null as string | null };
  */
 export function actingAs(request: Request): string {
   if (!isCsrfSafe(request, window.location.origin)) {
-    throw proxyProblem("csrf_rejected");
+    throw proxyProblem("csrf_rejected", request);
   }
 
   const identity = decideIdentity(identityPin(request), serverSession.userId);
-  if (identity.action === "refuse") throw proxyProblem("session_changed");
+  if (identity.action === "refuse")
+    throw proxyProblem("session_changed", request);
   return identity.asUser ?? ANONYMOUS;
 }

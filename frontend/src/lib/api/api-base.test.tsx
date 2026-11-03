@@ -59,7 +59,11 @@ describe("apiClient through the backend proxy", () => {
 
   it("refetches the session once when the proxy says the cookie names another account", async () => {
     const refetches = recordSessionRefetches();
-    server.use(http.get("*/api/probe", () => proxyProblem("session_changed")));
+    server.use(
+      http.get("*/api/probe", ({ request }) =>
+        proxyProblem("session_changed", request),
+      ),
+    );
 
     await expect(apiClient.get("/api/probe")).rejects.toMatchObject({
       response: { status: 401 },
