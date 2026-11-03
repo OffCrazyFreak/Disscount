@@ -3,10 +3,14 @@ import { createTranslator } from "next-intl";
 import { Link } from "react-email";
 
 import type { IActionEmailProps } from "@/emails/components/action-email";
+import type { ICodeEmailProps } from "@/emails/components/code-email";
 import { DEFAULT_LOCALE, isLocale, type AppLocale } from "@/i18n/locales";
 import type hrMessages from "@/i18n/messages/hr";
 import { loadMessages } from "@/i18n/load-messages";
-import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth";
+import {
+  REAUTH_CODE_TTL_MINUTES,
+  RESET_TOKEN_TTL_SECONDS,
+} from "@/constants/auth";
 import { localePath } from "@/i18n/locale-path";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://disscount.me";
@@ -38,6 +42,10 @@ function linkTo(href: string) {
       chunks,
     );
   };
+}
+
+function homeLink(locale: AppLocale) {
+  return { link: linkTo(`${APP_URL}${localePath(locale, "/")}`) };
 }
 
 export async function buildActionEmail(
@@ -87,9 +95,38 @@ export function actionEmailFrom(
       buttonUrl: url,
       fallback: t.rich("layout.fallback", { url, link: linkTo(url) }),
       footnote: t(`${kind}.footnote`),
-      footer: t.rich("layout.footer", {
-        link: linkTo(`${APP_URL}${localePath(locale, "/")}`),
-      }),
+      footer: t.rich("layout.footer", homeLink(locale)),
+    },
+  };
+}
+
+export async function buildCodeEmail(
+  locale: AppLocale,
+  code: string,
+): Promise<{ subject: string; props: ICodeEmailProps }> {
+  const messages = (await loadMessages(locale)) as typeof hrMessages;
+  return codeEmailFrom(messages, locale, code);
+}
+
+// Synchronous for the same reason as actionEmailFrom.
+export function codeEmailFrom(
+  messages: typeof hrMessages,
+  locale: AppLocale,
+  code: string,
+): { subject: string; props: ICodeEmailProps } {
+  const t = createTranslator({ locale, messages, namespace: "emails" });
+  const timing = { minutes: REAUTH_CODE_TTL_MINUTES };
+
+  return {
+    subject: t("reauthCode.subject"),
+    props: {
+      locale,
+      preview: t("reauthCode.preview", timing),
+      heading: t("reauthCode.heading"),
+      intro: t("reauthCode.intro", timing),
+      code,
+      footnote: t("reauthCode.footnote"),
+      footer: t.rich("layout.footer", homeLink(locale)),
     },
   };
 }

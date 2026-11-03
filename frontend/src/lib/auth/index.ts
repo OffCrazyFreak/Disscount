@@ -34,6 +34,8 @@ import {
 } from "@/lib/auth/erase-backend-account";
 import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password-policy";
 import { CLIENT_IP_HEADER } from "@/lib/client-ip/client-ip";
+import { guardSensitiveAction } from "@/lib/auth/sensitive-action-guard";
+import { reauth } from "@/lib/auth/reauth/reauth-plugin";
 
 const BETTER_AUTH_URL = requireEnv("BETTER_AUTH_URL");
 const BETTER_AUTH_SECRET = requireEnv("BETTER_AUTH_SECRET");
@@ -43,6 +45,10 @@ const FACEBOOK_CLIENT_ID = requireEnv("FACEBOOK_CLIENT_ID");
 const FACEBOOK_CLIENT_SECRET = requireEnv("FACEBOOK_CLIENT_SECRET");
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
+
+// Guesses at a password or code, per client address; a correct proof lasts 15 minutes,
+// so an honest person needs very few of these.
+const PROOF_RATE_LIMIT = { window: 15 * 60, max: 5 };
 
 // Endpoints that set a password, and the body field carrying it. /set-password is
 // server-only with no HTTP path, so its route calls assertPasswordAcceptable itself.
@@ -80,6 +86,13 @@ export const auth = betterAuth({
   rateLimit: {
     enabled: true,
     storage: "database",
+    customRules: {
+      "/reauth/verify-password": PROOF_RATE_LIMIT,
+      "/reauth/send-code": PROOF_RATE_LIMIT,
+      "/reauth/verify-code": PROOF_RATE_LIMIT,
+      // Carries the password or code itself, so it is a guessing surface too.
+      "/delete-user": PROOF_RATE_LIMIT,
+    },
   },
 
   session: {
@@ -165,6 +178,8 @@ export const auth = betterAuth({
     // Must run before the handler: /reset-password consumes its token before hashing,
     // so a later refusal would burn the link.
     before: createAuthMiddleware(async (ctx) => {
+      await guardSensitiveAction(ctx);
+
       const field = NEW_PASSWORD_FIELDS[ctx.path];
       const password: unknown = field ? ctx.body?.[field] : undefined;
 
@@ -263,6 +278,7 @@ export const auth = betterAuth({
         }),
       },
     }),
+    reauth(),
     nextCookies(), // must be last
   ],
 

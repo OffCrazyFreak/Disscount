@@ -58,5 +58,12 @@
     "intro": "Nekdo se je pravkar poskušal registrirati v Disscount s tem e-naslovom. Račun zanj že obstaja, a naslov še ni potrjen. Če je račun tvoj, nastavi geslo z gumbom spodaj in s tem potrdi naslov. Povezava poteče čez {minutes, plural, one {# minuto} two {# minuti} few {# minute} other {# minut}}.",
     "button": "Nastavi geslo",
     "footnote": "To ni tvoja zahteva? Prezri to sporočilo. Dokler naslov ni potrjen, se v ta račun nihče ne more prijaviti z geslom."
+  },
+  "reauthCode": {
+    "subject": "Tvoja koda za potrditev",
+    "preview": "Koda velja {minutes, plural, one {# minuto} two {# minuti} few {# minute} other {# minut}}.",
+    "heading": "Potrdi, da si to ti",
+    "intro": "Vnesi to kodo v Disscount, da potrdiš spremembo na svojem računu. Koda velja {minutes, plural, one {# minuto} two {# minuti} few {# minute} other {# minut}}.",
+    "footnote": "Ta zahteva ni tvoja? Kode ne deli z nikomer in se v nastavitvah odjavi z vseh drugih naprav."
   }
 }

@@ -1,4 +1,8 @@
-import { actionEmailFrom, type EmailKind } from "@/lib/email/email-copy";
+import {
+  actionEmailFrom,
+  codeEmailFrom,
+  type EmailKind,
+} from "@/lib/email/email-copy";
 import type { AppLocale } from "@/i18n/locales";
 import hr from "@/i18n/messages/hr";
 import en from "@/i18n/messages/en";
@@ -26,4 +30,8 @@ export function previewProps(kind: EmailKind, locale = PREVIEW_LOCALE) {
   return actionEmailFrom(CATALOGS[locale], locale, kind, PREVIEW_URLS[kind], {
     newEmail: "nova.adresa@example.com",
   }).props;
+}
+
+export function codePreviewProps(locale = PREVIEW_LOCALE) {
+  return codeEmailFrom(CATALOGS[locale], locale, "482915").props;
 }

@@ -58,5 +58,12 @@
     "intro": "Netko se upravo pokušao registrirati na Disscount s ovom email adresom. Račun za nju već postoji, ali adresa još nije potvrđena. Ako je račun tvoj, postavi lozinku putem gumba ispod i time potvrdi adresu. Poveznica vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
     "button": "Postavi lozinku",
     "footnote": "Ovo nije od tebe? Slobodno zanemari ovaj email. Dok adresa nije potvrđena, nitko se ne može prijaviti lozinkom u ovaj račun."
+  },
+  "reauthCode": {
+    "subject": "Tvoj kod za potvrdu",
+    "preview": "Kod vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
+    "heading": "Potvrdi da si to ti",
+    "intro": "Upiši ovaj kod u Disscount da potvrdiš promjenu na svom računu. Kod vrijedi {minutes, plural, one {# minutu} few {# minute} other {# minuta}}.",
+    "footnote": "Ovaj zahtjev nije od tebe? Nikome ne daj ovaj kod i u postavkama se odjavi sa svih ostalih uređaja."
   }
 }
