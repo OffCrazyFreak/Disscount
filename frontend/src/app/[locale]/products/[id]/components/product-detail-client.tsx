@@ -19,9 +19,10 @@ export default function ProductDetailClient({
   const detail = useProductDetail(ean);
   const { product, productLoading, productError } = detail;
   // Restoring queries report idle, not loading, and the server render is always restoring.
+  // A product the server seeded is already in the cache, so it renders straight away.
   const isRestoring = useIsRestoring();
 
-  if (productLoading || isRestoring) {
+  if (!product && (productLoading || isRestoring)) {
     return (
       <div className="grid place-items-center">
         <BlockLoadingSpinner />
