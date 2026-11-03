@@ -154,7 +154,7 @@ The seven `filterByFields` callers gained tokenized, ranked, abbreviation-tolera
 
 Worth stating plainly, because it is easy to assume otherwise.
 
-Across all eleven Spring controllers the only query parameters are `includeDeleted` on the admin contact list and a `Pageable` on notifications. There is **no** `LIKE`, no `ILIKE`, no `tsvector`, no `pg_trgm`, no derived `Containing` method, and no pagination anywhere else.
+Across the Spring controllers the only list filters are `includeDeleted` on the admin contact list and `filter` on the admin photo queue, which is also the only paged endpoint (`page`, `size`). There is **no** `ILIKE`, no `tsvector`, no `pg_trgm`, no derived `Containing` method, and no pagination anywhere else; the one `LIKE` is the store-name suggestion lookup (`StoreNameSuggestionRepository`), a prefix and substring match on a normalised name.
 
 So every "search" outside products is the browser filtering an array it already downloaded. That is fine at the current sizes and would not be at ten thousand rows.
 

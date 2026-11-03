@@ -227,7 +227,7 @@ All need a signed-in session (through the backend proxy, see [BACKEND-PROXY.md](
 3. A rule fires when that price is below the baseline by at least the threshold, in euros or percent (`watchlist-threshold-utils.ts`). Any one rule firing counts.
 4. `useWatchlistNotifications` (`context/use-watchlist-notifications.ts`) turns the matches into notifications for the bell (`components/custom/notifications/notifications-dropdown.tsx`) and the sidebar's price drop count (`use-watchlist-price-drop-count.ts`). The watchlist page can also turn the discounted items into a shopping list (`create-discounted-list-button.tsx`).
 
-So an alert reaches the user only when they open the app. The backend's `notification` table and `/api/notifications` endpoints exist but nothing creates a notification in production code and the frontend does not call them; `last_notified_at` is never written; and `spring-boot-starter-mail` is on the classpath but unused. Moving alerts to the server is planned (see [§19](#19-future-improvements-and-todos)).
+So an alert reaches the user only when they open the app. The backend has no notification store: the unused `notification` table and `/api/notifications` endpoints were removed, and the server-side inbox is planned as #222. `last_notified_at` on watchlist items is still sent but never written; and `spring-boot-starter-mail` is on the classpath but unused. Moving alerts to the server is planned (see [§19](#19-future-improvements-and-todos)).
 
 ---
 
@@ -394,7 +394,7 @@ Not covered: the proxy routes against real upstream responses, the fuzzy fallbac
 **Watchlist and alerts**
 
 - [ ] #222: a server-side notification inbox with read state, shared by in-app, push and email. #221: Web Push alerts. #216: consent and a compliant email alert path. These need a backend job that checks prices, which does not exist today.
-- [ ] #200: re-check the notification and watchlist ownership report against the current code; ownership tests now exist for both.
+- [ ] #200: re-check the watchlist ownership report against the current code; an ownership test now exists for it (the notification half went away with the notification endpoints).
 
 **Browsing and search**
 
