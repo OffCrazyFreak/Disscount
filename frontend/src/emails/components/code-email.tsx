@@ -34,7 +34,7 @@ export default function CodeEmail({
       </Text>
 
       <Section className="mb-6 rounded-md bg-gray-100 py-4 text-center">
-        <Text className="m-0 font-mono text-3xl font-bold tracking-[0.3em] text-gray-800">
+        <Text className="m-0 font-mono text-3xl font-bold tracking-widest text-gray-800">
           {code}
         </Text>
       </Section>

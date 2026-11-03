@@ -61,7 +61,7 @@ export default function ReauthCodeField({
         maxLength={REAUTH_CODE_LENGTH}
         value={value}
         onChange={(event) => onChange(event.target.value.replace(/\D/g, ""))}
-        className="text-center font-mono text-2xl tracking-[0.5em]"
+        className="text-center font-mono text-2xl tracking-widest"
         aria-invalid={errorId ? true : undefined}
         aria-describedby={errorId}
       />
