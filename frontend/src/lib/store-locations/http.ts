@@ -58,6 +58,38 @@ export async function fetchStream(
   return response.body;
 }
 
+/**
+ * The HTTP status a page answers with, or null when it cannot be reached.
+ * HEAD first to spare the body; servers that refuse HEAD get a GET.
+ */
+export async function fetchStatus(
+  url: string,
+  signal: AbortSignal,
+): Promise<number | null> {
+  async function statusFor(method: "HEAD" | "GET") {
+    const response = await fetch(url, {
+      method,
+      headers: { "User-Agent": USER_AGENT },
+      signal: AbortSignal.any([signal, AbortSignal.timeout(TIMEOUT_MS)]),
+      cache: "no-store",
+    });
+
+    await response.body?.cancel();
+
+    return response.status;
+  }
+
+  try {
+    const status = await statusFor("HEAD");
+
+    return status === 405 || status === 501 ? await statusFor("GET") : status;
+  } catch (error) {
+    if (signal.aborted) throw error;
+
+    return null;
+  }
+}
+
 /** Pauses between requests so a sync never hammers one host. */
 export function delay(ms: number, signal: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {

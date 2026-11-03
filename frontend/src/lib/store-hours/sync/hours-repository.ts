@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, lt, sql } from "drizzle-orm";
+import { and, eq, isNotNull, lt, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
@@ -13,6 +13,7 @@ import type {
   IDatedRanges,
   IParsedHours,
 } from "@/lib/store-hours/sync/hours-source-types";
+import type { LinkStatus } from "@/lib/store-hours/sync/link-status";
 import type { RunStatus } from "@/lib/store-hours/sync/run-gate";
 
 export type HoursJob = "template" | "overlay";
@@ -119,4 +120,28 @@ export async function recordRun(
       target: [storeHoursRun.job, storeHoursRun.chainCode],
       set: fields,
     });
+}
+
+export async function readCheckUrls(): Promise<string[]> {
+  const rows = await db
+    .selectDistinct({ url: storeHours.checkUrl })
+    .from(storeHours)
+    .where(isNotNull(storeHours.checkUrl));
+
+  return rows.flatMap((row) => (row.url ? [row.url] : []));
+}
+
+/** Every store sharing the link gets its verdict; failures count up until a check succeeds. */
+export async function saveLinkStatus(
+  url: string,
+  status: LinkStatus,
+): Promise<void> {
+  await db
+    .update(storeHours)
+    .set({
+      linkStatus: status,
+      linkCheckedAt: new Date(),
+      linkFailures: status === "ok" ? 0 : sql`${storeHours.linkFailures} + 1`,
+    })
+    .where(eq(storeHours.checkUrl, url));
 }
