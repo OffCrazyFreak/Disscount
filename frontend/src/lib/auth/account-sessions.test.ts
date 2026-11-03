@@ -97,3 +97,22 @@ describe("revokeAccountSession", () => {
     expect(await revokeAccountSession("user-1", "someone-else")).toBe(false);
   });
 });
+
+describe("listAccountSessions with an unreadable user agent", () => {
+  it("names nothing instead of an empty string", async () => {
+    const day = new Date();
+    fake.rows = [
+      {
+        id: "s",
+        userAgent: "undici",
+        country: null,
+        createdAt: day,
+        updatedAt: day,
+      },
+    ];
+
+    const [session] = await listAccountSessions("user-1", "other");
+
+    expect(session).toMatchObject({ browser: null, os: null });
+  });
+});

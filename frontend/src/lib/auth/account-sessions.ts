@@ -15,9 +15,10 @@ function describeDevice(userAgent: string | null) {
   const parsed = Bowser.parse(userAgent);
   const type = parsed.platform.type;
 
+  // bowser answers "" for a part it cannot read, which the list treats as unknown.
   return {
-    browser: parsed.browser.name ?? null,
-    os: parsed.os.name ?? null,
+    browser: parsed.browser.name || null,
+    os: parsed.os.name || null,
     deviceType:
       type && DEVICE_TYPES.has(type)
         ? (type as AccountSessionDto["deviceType"])
