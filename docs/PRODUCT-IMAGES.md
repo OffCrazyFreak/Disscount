@@ -92,13 +92,13 @@ Admin, under `/api/admin/product-images`: `GET /queue?filter=todo|pending|report
 
 ## 9. Automatic vs manual
 
-| Task                                                 | Automatic? | Where                                                                                 |
-| ---------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------- |
-| Weekly catalogue import and Open Food Facts seed     | ✅ auto    | backend job                                                                           |
-| Copying main photos into the bucket                  | ✅ auto    | backend job, a few thousand an hour                                                   |
-| **Creating the public bucket, its domain and token** | ❌ manual  | Cloudflare dashboard once (see [DEPLOYMENT.md](DEPLOYMENT.md#product-photo-env-vars)) |
-| **Setting the four `R2_PUBLIC_*` variables**         | ❌ manual  | Dokploy, per environment                                                              |
-| **Choosing the best photo for popular products**     | ❌ manual  | the dashboard queue                                                                   |
+| Task                                                 | Automatic? | Where                                                                                         |
+| ---------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------- |
+| Weekly catalogue import and Open Food Facts seed     | ✅ auto    | backend job                                                                                   |
+| Copying main photos into the bucket                  | ✅ auto    | backend job, a few thousand an hour                                                           |
+| **Creating the public bucket, its domain and token** | ❌ manual  | Cloudflare dashboard once (see [INFRASTRUCTURE.md](INFRASTRUCTURE.md#product-photo-env-vars)) |
+| **Setting the four `R2_PUBLIC_*` variables**         | ❌ manual  | Dokploy, per environment                                                                      |
+| **Choosing the best photo for popular products**     | ❌ manual  | the dashboard queue                                                                           |
 
 ## 10. Gotchas
 
