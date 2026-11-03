@@ -1,6 +1,8 @@
 import type { ILatLon } from "@/utils/distance";
-import { compareHr } from "@/utils/strings";
+import { compareHr, normalizeForSearch } from "@/utils/strings";
 import { getLocationLabel } from "@/utils/labels";
+import type { County } from "@/constants/counties";
+import { readMainCounty, readPostalArea } from "@/utils/postcodes";
 
 interface ITownStore {
   city: string | null;
@@ -9,15 +11,122 @@ interface ITownStore {
   lon: number | null;
 }
 
+type PinnedStore = ITownStore & { lat: number; lon: number };
+
 export interface IStoreTown {
+  /** Unique: the name, plus "|" and the postal area when another town shares it. */
+  key: string;
   name: string;
+  /** Set only when another town shares the name, to tell them apart. */
+  county: County | null;
   zipcodes: string[];
 }
 
-function isPinned(
-  store: ITownStore,
-): store is ITownStore & { lat: number; lon: number } {
+interface ITownGroup extends IStoreTown {
+  area: string | null;
+  stores: PinnedStore[];
+}
+
+function isPinned(store: ITownStore): store is PinnedStore {
   return store.lat != null && store.lon != null;
+}
+
+/** How a saved place names one of several towns that share a name. */
+export function townKey(name: string, area: string | null) {
+  return area ? `${name}|${area}` : name;
+}
+
+function parseTownKey(key: string) {
+  const [name, area = null] = key.split("|");
+
+  return { name, area };
+}
+
+function countAccents(name: string) {
+  return [...name].filter(
+    (char) => normalizeForSearch(char) !== char.toLowerCase(),
+  ).length;
+}
+
+function isCapitals(name: string) {
+  return name === name.toUpperCase() && name !== name.toLowerCase();
+}
+
+interface ISpelledGroup {
+  spellings: Map<string, number>;
+  stores: PinnedStore[];
+}
+
+// Chains that send ASCII only ("Plaski") would otherwise split a town from
+// the accented spelling ("Plaški") the others send, so names group folded.
+function groupByFoldedName(stores: ITownStore[]) {
+  const byName = new Map<string, ISpelledGroup>();
+
+  for (const store of stores) {
+    const name = getLocationLabel(store.city?.trim());
+    if (!name || !isPinned(store)) continue;
+
+    const folded = normalizeForSearch(name);
+    const group: ISpelledGroup = byName.get(folded) ?? {
+      spellings: new Map(),
+      stores: [],
+    };
+    group.spellings.set(name, (group.spellings.get(name) ?? 0) + 1);
+    group.stores.push(store);
+    byName.set(folded, group);
+  }
+
+  // The accented spelling wins, then one not in capitals, then the one most
+  // stores send.
+  return [...byName.values()].map(({ spellings, stores: inTown }) => ({
+    name: [...spellings].sort(
+      ([a, aCount], [b, bCount]) =>
+        countAccents(b) - countAccents(a) ||
+        Number(isCapitals(a)) - Number(isCapitals(b)) ||
+        bCount - aCount ||
+        compareHr(a, b),
+    )[0][0],
+    stores: inTown,
+  }));
+}
+
+function splitByArea(stores: PinnedStore[]) {
+  const byArea = new Map<string | null, PinnedStore[]>();
+
+  for (const store of stores) {
+    const area = readPostalArea(store.zipcode);
+    byArea.set(area, [...(byArea.get(area) ?? []), store]);
+  }
+
+  const withoutPostcode = byArea.get(null) ?? [];
+  byArea.delete(null);
+  // A store without a postcode joins its town only when the name is unambiguous.
+  if (byArea.size <= 1) {
+    const area = [...byArea.keys()][0] ?? null;
+    byArea.set(area, [...(byArea.get(area) ?? []), ...withoutPostcode]);
+  }
+
+  return byArea;
+}
+
+function groupTowns(stores: ITownStore[]): ITownGroup[] {
+  return groupByFoldedName(stores).flatMap(({ name, stores: named }) => {
+    const byArea = splitByArea(named);
+    const isShared = byArea.size > 1;
+
+    return [...byArea].map(([area, inTown]) => ({
+      key: isShared ? townKey(name, area) : name,
+      name,
+      county: isShared
+        ? readMainCounty(inTown.map((store) => store.zipcode))
+        : null,
+      area,
+      zipcodes: [
+        ...new Set(inTown.flatMap((store) => store.zipcode?.trim() || [])),
+      ].sort(),
+      stores: inTown,
+    }));
+  });
 }
 
 /**
@@ -25,34 +134,48 @@ function isPinned(
  * has a centre. Names match the ones pinned places are saved under.
  */
 export function listStoreTowns(stores: ITownStore[]): IStoreTown[] {
-  const zipcodesByTown = new Map<string, Set<string>>();
+  return groupTowns(stores)
+    .sort((a, b) => compareHr(a.name, b.name) || compareHr(a.key, b.key))
+    .map(({ key, name, county, zipcodes }) => ({
+      key,
+      name,
+      county,
+      zipcodes,
+    }));
+}
 
-  for (const store of stores) {
-    const name = getLocationLabel(store.city?.trim());
-    if (!name || !isPinned(store)) continue;
+function findTown(towns: ITownGroup[], key: string) {
+  const exact = towns.find((town) => town.key === key);
+  if (exact) return exact;
 
-    const zipcodes = zipcodesByTown.get(name) ?? new Set<string>();
-    if (store.zipcode) zipcodes.add(store.zipcode.trim());
-    zipcodesByTown.set(name, zipcodes);
-  }
+  const { name, area } = parseTownKey(key);
+  const named = towns
+    .filter(
+      (town) => normalizeForSearch(town.name) === normalizeForSearch(name),
+    )
+    .sort((a, b) => compareHr(a.area ?? "", b.area ?? ""));
 
-  return [...zipcodesByTown]
-    .map(([name, zipcodes]) => ({ name, zipcodes: [...zipcodes].sort() }))
-    .sort((a, b) => compareHr(a.name, b.name));
+  // A saved place from before namesakes were told apart knows only the name.
+  return named.find((town) => town.area === area) ?? named[0];
 }
 
 /**
- * The middle of a town's pinned stores. Towns are known only by name, so this
- * stands in for a geocoder and sends nothing anywhere.
+ * The middle of a town's pinned stores, found by its key. Towns are known
+ * only by name, so this stands in for a geocoder and sends nothing anywhere.
  */
-export function townCenter(stores: ITownStore[], town: string): ILatLon | null {
-  const inTown = stores
-    .filter(isPinned)
-    .filter((store) => getLocationLabel(store.city?.trim()) === town);
-  if (inTown.length === 0) return null;
+export function townCenter(
+  stores: ITownStore[],
+  key: string,
+): (ILatLon & Pick<IStoreTown, "name" | "county">) | null {
+  const town = findTown(groupTowns(stores), key);
+  if (!town) return null;
+
+  const inTown = town.stores;
 
   return {
     lat: inTown.reduce((sum, store) => sum + store.lat, 0) / inTown.length,
     lon: inTown.reduce((sum, store) => sum + store.lon, 0) / inTown.length,
+    name: town.name,
+    county: town.county,
   };
 }

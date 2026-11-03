@@ -180,5 +180,31 @@
     "townSearch": "Ort oder Postleitzahl suchen",
     "townList": "Orte mit Geschäften",
     "townEmpty": "Kein Ort mit Geschäften passt dazu."
+  },
+  "towns": {
+    "withCounty": "{town} ({county})",
+    "counties": {
+      "cityOfZagreb": "Stadt Zagreb",
+      "zagrebCounty": "Gespanschaft Zagreb",
+      "krapinaZagorje": "Krapina-Zagorje",
+      "sisakMoslavina": "Sisak-Moslavina",
+      "karlovac": "Karlovac",
+      "varazdin": "Varaždin",
+      "koprivnicaKrizevci": "Koprivnica-Križevci",
+      "bjelovarBilogora": "Bjelovar-Bilogora",
+      "primorjeGorskiKotar": "Primorje-Gorski kotar",
+      "likaSenj": "Lika-Senj",
+      "viroviticaPodravina": "Virovitica-Podravina",
+      "pozegaSlavonia": "Požega-Slawonien",
+      "brodPosavina": "Brod-Posavina",
+      "zadar": "Zadar",
+      "osijekBaranja": "Osijek-Baranja",
+      "sibenikKnin": "Šibenik-Knin",
+      "vukovarSrijem": "Vukovar-Srijem",
+      "splitDalmatia": "Split-Dalmatien",
+      "istria": "Istrien",
+      "dubrovnikNeretva": "Dubrovnik-Neretva",
+      "medimurje": "Međimurje"
+    }
   }
 }

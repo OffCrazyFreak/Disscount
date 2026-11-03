@@ -5,6 +5,7 @@ import type { DistanceSortState } from "@/hooks/use-distance-sort";
 import type { IDistanceOrigin } from "@/hooks/use-distance-origin";
 import type { IStoreTown } from "@/utils/store-towns";
 import TownPicker from "@/components/custom/distance-sort/town-picker";
+import { useTownLabel } from "@/hooks/use-town-label";
 
 interface IDistanceSortNoteProps {
   id: string;
@@ -36,6 +37,7 @@ export default function DistanceSortNote({
   onPickTown,
 }: IDistanceSortNoteProps) {
   const t = useTranslations("common.distanceSort");
+  const townLabel = useTownLabel();
   const hasTownOrigin = origin?.town != null;
   // Still shown while a picked town's sort finishes loading, so focus stays.
   const isFromTown =
@@ -60,7 +62,11 @@ export default function DistanceSortNote({
       >
         {state === "idle"
           ? null
-          : t(readMessageKey(state, origin), { town: origin?.town ?? "" })}
+          : t(readMessageKey(state, origin), {
+              town: origin?.town
+                ? townLabel({ ...origin, name: origin.town })
+                : "",
+            })}
       </p>
 
       {(isFromTown || isLocationFailure) && towns.length > 0 && (
