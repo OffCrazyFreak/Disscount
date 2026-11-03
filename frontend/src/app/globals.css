@@ -640,6 +640,8 @@ html {
    tokens because the ladder is only reviewable when its rungs sit together, and
    a magic z-[44] in one file says nothing about what it must stay under. */
 :root {
+  /* Only while focused; nothing may cover the first stop of the tab order */
+  --z-skip-link: 70;
   --z-offline: 60;
   --z-overlay: 50;
   --z-bottom-nav: 45;

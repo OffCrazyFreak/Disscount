@@ -94,5 +94,8 @@
     "registering": "Signing up...",
     "linking": "Linking...",
     "unlinking": "Unlinking..."
+  },
+  "skipLink": {
+    "label": "Skip to main content"
   }
 }
