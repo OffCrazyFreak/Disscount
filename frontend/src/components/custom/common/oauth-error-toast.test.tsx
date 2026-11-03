@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import OAuthErrorToast from "@/components/custom/common/oauth-error-toast";
+import hr from "@/i18n/messages/hr";
 import { renderWithProviders } from "@/test/render";
 
 const { search, toastError } = vi.hoisted(() => ({
@@ -26,6 +27,15 @@ describe("OAuthErrorToast", () => {
 
     expect(toastError).toHaveBeenCalledOnce();
     expect(window.location.search).toBe("");
+  });
+
+  it("explains a link refused for a different email address", () => {
+    renderAt("?error=email_does_not_match");
+
+    expect(toastError).toHaveBeenCalledWith(
+      hr.common.oauthError.emailMismatch,
+      expect.anything(),
+    );
   });
 
   it("leaves a failed verification link's error to its status modal", () => {

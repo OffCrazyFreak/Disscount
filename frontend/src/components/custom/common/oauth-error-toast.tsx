@@ -11,7 +11,7 @@ import { parseModalParam } from "@/lib/modal/modal-param-parser";
 const ERROR_MESSAGE_KEYS = {
   email_not_found: "oauthError.emailNotFound",
   // Linking flow: the provider's email differs from the logged-in account's email.
-  "email_doesn't_match": "oauthError.emailMismatch",
+  email_does_not_match: "oauthError.emailMismatch",
   // Linking flow: that exact provider account already belongs to another Disscount user.
   account_already_linked_to_different_user: "oauthError.alreadyLinked",
   // Sign-in flow: a matching account exists but can't be auto-linked under current rules.
