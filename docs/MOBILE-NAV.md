@@ -388,6 +388,7 @@ The whole ladder lives in `globals.css` as `--z-*` tokens, in descending order, 
 
 | z   | Token                    | Element                                                     |
 | --- | ------------------------ | ----------------------------------------------------------- |
+| 70  | `--z-skip-link`          | skip link, only while it has keyboard focus                 |
 | 60  | `--z-offline`            | offline indicator                                           |
 | 50  | `--z-overlay`            | dialogs, popovers, dropdowns, tooltips, selects             |
 | 50  | -                        | mobile sidebar drawer, modal and deliberately above the bar |
