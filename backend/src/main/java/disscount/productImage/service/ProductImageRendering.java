@@ -21,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /** Renders a photo from its untouched source, so a new crop never compounds an earlier one. */
 @Component
@@ -85,11 +87,25 @@ public class ProductImageRendering {
     private void deleteIfUnused(String oldKey, String newKey) {
         if (oldKey == null || oldKey.equals(newKey)) return;
         if (images.existsByFullKey(oldKey) || images.existsByThumbKey(oldKey)) return;
+        // A rolled back transaction still points at the old file, so it may only go once the new keys are committed.
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    delete(oldKey);
+                }
+            });
+        } else {
+            delete(oldKey);
+        }
+    }
+
+    private void delete(String key) {
         try {
-            store.delete(oldKey);
+            store.delete(key);
         } catch (RuntimeException e) {
             // An orphaned file costs a few kilobytes; failing the admin's crop over it would cost more.
-            log.warn("Could not delete replaced product photo {}", oldKey, e);
+            log.warn("Could not delete replaced product photo {}", key, e);
         }
     }
 }

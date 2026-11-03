@@ -47,6 +47,10 @@ public class ProductImage {
     @Column(nullable = false, length = 12)
     private ImageStatus status;
 
+    @Convert(converter = HiddenReason.Column.class)
+    @Column(name = "hidden_reason", length = 12)
+    private HiddenReason hiddenReason;
+
     /** Open Food Facts image name: "front_hr" for a selected front, "raw:100" for an uploaded photo. */
     @Column(name = "external_key", length = 32)
     private String externalKey;
@@ -92,6 +96,14 @@ public class ProductImage {
 
     @Column(name = "rendered_at")
     private LocalDateTime renderedAt;
+
+    /** The background copy leaves this photo alone until then, after Open Food Facts refused or failed it. */
+    @Column(name = "render_retry_at")
+    private LocalDateTime renderRetryAt;
+
+    /** Copies that failed with a refusal or server error; the job gives up on the photo at a cap. */
+    @Column(name = "render_attempts")
+    private Integer renderAttempts;
 
     @Column(name = "contributor_id")
     private UUID contributorId;

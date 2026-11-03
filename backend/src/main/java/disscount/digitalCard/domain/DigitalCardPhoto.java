@@ -2,6 +2,8 @@ package disscount.digitalCard.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -29,7 +31,9 @@ public class DigitalCardPhoto {
     @Column(nullable = false, length = 8)
     private String slot;
 
-    @Column(nullable = false, length = 64, columnDefinition = "char(64)")
+    // A raw char(64) definition reads back from PostgreSQL as bpchar, which ddl-auto=update re-alters at every start.
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(nullable = false, length = 64)
     private String sha256;
 
     @Column(name = "full_key", nullable = false, length = 255)
