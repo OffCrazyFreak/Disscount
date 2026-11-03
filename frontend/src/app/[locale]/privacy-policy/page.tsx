@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { localizedUrl } from "@/i18n/alternates";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
 import LegalPage from "@/components/custom/legal/legal-page";
@@ -12,12 +13,19 @@ export const metadata: Metadata = {
   description: "Kako Disscount prikuplja i koristi tvoje podatke.",
 };
 
-export default function PrivacyPolicyPage() {
+export default async function PrivacyPolicyPage() {
+  // The rest of the page is Croatian in every locale, so this section matches it; the
+  // other locales' strings are ready for the rewrite.
+  const t = await getTranslations({
+    locale: DEFAULT_LOCALE,
+    namespace: "privacyPolicy.errorTracking",
+  });
+
   return (
     <LegalPage
       title="Pravila privatnosti"
       intro="Ova pravila objašnjavaju koje podatke Disscount prikuplja i kako ih koristi."
-      lastUpdated="2. studenoga 2026."
+      lastUpdated="3. studenoga 2026."
     >
       <LegalSection heading="Koje podatke prikupljamo">
         <p>
@@ -60,6 +68,11 @@ export default function PrivacyPolicyPage() {
           kao dio podataka o proizvodu, ali više nisu povezane s tvojim imenom.
           Ako želiš da uklonimo neku tvoju sliku, javi nam se.
         </p>
+      </LegalSection>
+
+      <LegalSection heading={t("heading")}>
+        <p>{t("collected")}</p>
+        <p>{t("replay")}</p>
       </LegalSection>
 
       <LegalSection heading="Dijeljenje podataka">

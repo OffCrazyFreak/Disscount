@@ -39,12 +39,18 @@ export function removeResetTokenFromUrl() {
   window.history.replaceState(window.history.state, "", url);
 }
 
-// Runs before Sentry.init, so Replay's first snapshot already has a clean URL.
-export function moveResetTokenOutOfUrl() {
+/**
+ * Runs before Sentry.init, so Replay's first snapshot already has a clean URL. Returns
+ * whether a reset token is still in the URL, in which case Replay must stay off.
+ */
+export function moveResetTokenOutOfUrl(): boolean {
   const params = new URLSearchParams(window.location.search);
   const token = params.get("token");
-  if (params.get("modal") !== "reset-password" || !token) return;
+  if (params.get("modal") !== "reset-password" || !token) return false;
 
   // Blocked storage keeps the token in the URL, the modal's only other way to get it.
-  if (storeResetToken(token)) removeResetTokenFromUrl();
+  if (!storeResetToken(token)) return true;
+
+  removeResetTokenFromUrl();
+  return false;
 }

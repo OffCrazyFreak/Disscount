@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { DEFAULT_LOCALE, LOCALES } from "./src/i18n/locales";
+import { SENTRY_APPLICATION_KEY } from "./src/lib/sentry/application-key";
 import { isIndexableOrigin } from "./src/utils/indexing";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
@@ -129,10 +130,18 @@ export default withSerwist(
 
     project: "disscount-frontend",
 
+    applicationKey: SENTRY_APPLICATION_KEY,
+
     // Both are empty outside CI image builds, which skips the upload and auto-detects the release.
     authToken: process.env.SENTRY_AUTH_TOKEN,
 
-    release: { name: process.env.GIT_SHA },
+    release: {
+      name: process.env.GIT_SHA,
+      // Marks which environment each release went to; skipped when the build has none.
+      deploy: process.env.SENTRY_ENVIRONMENT
+        ? { env: process.env.SENTRY_ENVIRONMENT }
+        : undefined,
+    },
 
     // Image builds run inside BuildKit without CI set, so the token is what marks an upload.
     silent: !process.env.SENTRY_AUTH_TOKEN,

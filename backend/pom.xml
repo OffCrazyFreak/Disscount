@@ -24,6 +24,8 @@
 		<java.version>21</java.version>
 		<!-- Overrides the spring-boot-dependencies default; used by the processor path too. -->
 		<lombok.version>1.18.48</lombok.version>
+		<!-- The logback appender must match the starter's SDK version. -->
+		<sentry.version>8.62.0</sentry.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -108,7 +110,12 @@
 		<dependency>
 			<groupId>io.sentry</groupId>
 			<artifactId>sentry-spring-boot-starter-jakarta</artifactId>
-			<version>8.62.0</version>
+			<version>${sentry.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.sentry</groupId>
+			<artifactId>sentry-logback</artifactId>
+			<version>${sentry.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>software.amazon.awssdk</groupId>

@@ -1,0 +1,7 @@
+{
+  "errorTracking": {
+    "heading": "Monitoraggio degli errori",
+    "collected": "Quando nell'app si verifica un errore, inviamo i dati tecnici a Sentry, il nostro responsabile del trattamento, che li conserva nell'Unione europea: la descrizione dell'errore, il browser e il dispositivo, l'indirizzo della pagina, l'indirizzo IP e l'identificativo interno del tuo account. Non associamo il tuo nome né la tua email agli eventi, ma una richiesta di accesso o registrazione non riuscita può contenere l'indirizzo email che hai inserito.",
+    "replay": "Per una piccola parte delle visite e per quelle con un errore effettuiamo anche una registrazione della sessione, con tutto il testo e i campi mascherati. Password, token e cookie di sessione vengono rimossi prima dell'invio. Usiamo questi dati solo per correggere gli errori. Sentry li conserva per al massimo 30 giorni. La base giuridica è il legittimo interesse (art. 6, par. 1, lett. f del GDPR)."
+  }
+}
