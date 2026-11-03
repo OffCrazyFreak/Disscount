@@ -61,15 +61,15 @@ export default function TownPicker({
 
             {towns.map((town) => (
               <CommandItem
-                key={town.name}
-                value={town.name}
+                key={town.label}
+                value={town.label}
                 keywords={[town.name, ...town.zipcodes]}
                 onSelect={() => {
-                  onPick(town.name);
+                  onPick(town.label);
                   setOpen(false);
                 }}
               >
-                {town.name}
+                {town.label}
               </CommandItem>
             ))}
           </CommandList>

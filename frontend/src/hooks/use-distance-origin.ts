@@ -10,7 +10,7 @@ export type DistanceOriginSource = "gps" | "picked" | "saved";
 
 export interface IDistanceOrigin extends ILatLon {
   source: DistanceOriginSource;
-  /** The town the centre belongs to; null for a GPS fix. */
+  /** The label of the town the centre belongs to; null for a GPS fix. */
   town: string | null;
 }
 
@@ -43,7 +43,9 @@ function locateTown(
 ): IDistanceOrigin | null {
   const center = town ? townCenter(stores, town) : null;
 
-  return center && town ? { ...center, source, town } : null;
+  return center
+    ? { lat: center.lat, lon: center.lon, source, town: center.label }
+    : null;
 }
 
 /**

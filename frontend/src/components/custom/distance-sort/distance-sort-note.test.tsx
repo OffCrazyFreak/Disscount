@@ -6,8 +6,8 @@ import DistanceSortNote from "@/components/custom/distance-sort/distance-sort-no
 import { renderWithProviders } from "@/test/render";
 
 const TOWNS = [
-  { name: "Split", zipcodes: ["21000"] },
-  { name: "Zagreb", zipcodes: ["10000"] },
+  { name: "Split", label: "Split", zipcodes: ["21000"] },
+  { name: "Zagreb", label: "Zagreb", zipcodes: ["10000"] },
 ];
 
 // Browser APIs jsdom lacks, which the popover and the cmdk list measure with.
@@ -44,6 +44,38 @@ describe("DistanceSortNote", () => {
     await user.keyboard("{Enter}");
 
     expect(onPickTown).toHaveBeenCalledWith("Split");
+  });
+
+  it("tells apart towns that share a name by postcode", async () => {
+    const onPickTown = vi.fn();
+    const user = userEvent.setup();
+    renderWithProviders(
+      <DistanceSortNote
+        id="note"
+        state="denied"
+        origin={null}
+        towns={[
+          {
+            name: "Sveta Nedelja",
+            label: "Sveta Nedelja (10431)",
+            zipcodes: ["10431"],
+          },
+          {
+            name: "Sveta Nedelja",
+            label: "Sveta Nedelja (52231)",
+            zipcodes: ["52231"],
+          },
+        ]}
+        onPickTown={onPickTown}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Odaberi mjesto" }));
+    await user.click(
+      screen.getByRole("option", { name: "Sveta Nedelja (52231)" }),
+    );
+
+    expect(onPickTown).toHaveBeenCalledWith("Sveta Nedelja (52231)");
   });
 
   it("names the saved place it sorted from and offers to change it", () => {
