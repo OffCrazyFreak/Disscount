@@ -6,30 +6,6 @@ How Disscount shows product photos: where they come from, how they are stored an
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [How a photo flows](#2-how-a-photo-flows)
-3. [Where photos come from](#3-where-photos-come-from)
-4. [States and the main photo](#4-states-and-the-main-photo)
-5. [Background jobs](#5-background-jobs)
-6. [Rendering and the white background](#6-rendering-and-the-white-background)
-7. [How photos reach the page](#7-how-photos-reach-the-page)
-8. [Uploads](#8-uploads)
-9. [The admin review flow](#9-the-admin-review-flow)
-10. [Data model](#10-data-model)
-11. [API](#11-api)
-12. [Tests](#12-tests)
-13. [Key files](#13-key-files)
-14. [Config and env vars](#14-config-and-env-vars)
-15. [Libraries](#15-libraries)
-16. [Failure modes](#16-failure-modes)
-17. [What is automatic vs manual](#17-what-is-automatic-vs-manual)
-18. [Gotchas](#18-gotchas)
-19. [Future work](#19-future-work)
-
----
-
 ## 1. Quick reference
 
 | Thing              | Value                                                                                                                                                                |
@@ -235,11 +211,6 @@ The browser reaches all of them through the backend proxy ([BACKEND-PROXY.md](BA
 
 ## 12. Tests
 
-| Suite             | What it covers                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Backend (H2)      | `ProductImageRendererTest`, `ProductImageServiceTest`, `ProductImageControllerTest`, `ProductImageWireFormatTest`, `ProductImageJobsTest`, `ProductImageJobsRenderTest`, `ProductImageJobsStaleWriteTest`, `CatalogArchiveReaderTest`, `OpenFoodFactsParsingTest`, with `FakeProductImageStore` and `FakeProductOriginalStore` in place of real storage; `AtomicFileStoreTest`, `FilesystemPhotoStoreTest`, `FilesystemProductImageStoreTest` and the three `*StoreConfigTest` classes run the disk stores on a temp folder                                                                                                                                                                                                                                                                                                           |
-| Frontend (Vitest) | `crop-math.test.ts`, `product-images/hooks.test.tsx`, `product-thumbnail.test.tsx` (one request per list, the placeholder for no photo, a typed item, a failed request, a broken image, and the retry after reconnecting), `product-info-display.test.tsx` (the modal header keeps its photo box without a photo), `product-photo-gallery.test.tsx` (a signed out add opens the sign in modal, the main tile uses the small file and shows the unconfirmed badge, a single photo has no strip, and seven photos show two tiles with "+5" on the last), `use-queue-keys.test.tsx`, `og/products/[ean]/[file]/route.test.ts` (the share card's redirects), `render-product-og.test.ts` (a real JPEG render, a WebP photo drawn into the card, its size limit, and that a failed one throws), `product-metadata.test.ts` (its meta tags) |
-
 Not covered by tests: a real upload to R2, durability of the disk stores across a power cut (the sync calls run, but no test can prove they reach the platter), the real Open Food Facts export, how photos look under dark mode extensions, and how the share card looks; those need a manual check.
 
 ---
@@ -313,17 +284,14 @@ Issue #486 moves photos from R2 to folders on the server. The code for it is in 
 
 ## 15. Libraries
 
-Versions read from `frontend/package.json` and `backend/pom.xml`.
+Versions are in `frontend/package.json` and `backend/pom.xml`. The ones whose role is not obvious from the name:
 
-| Library                        | Version    | Role here                                                 |
-| ------------------------------ | ---------- | --------------------------------------------------------- |
-| `yet-another-react-lightbox`   | `^3.33.0`  | The viewer, with its zoom, thumbnails and counter plugins |
-| `react-image-crop`             | `^11.1.2`  | The admin crop screen                                     |
-| `@tanstack/react-query`        | `^5.90.12` | Photo and thumbnail queries                               |
-| `sharp`                        | `^0.35.5`  | Encodes the share card as JPEG                            |
-| `software.amazon.awssdk` (BOM) | `2.57.6`   | `s3` and `url-connection-client` for both R2 buckets      |
-| JDK ImageIO                    | Java 21    | Decoding, and JPEG encoding of originals on the backend   |
-| `webp-imageio`                 | `0.11.0`   | WebP encoding of the public files (bundles libwebp)       |
+- `yet-another-react-lightbox`: the viewer, with its zoom, thumbnails and counter plugins.
+- `react-image-crop`: the admin crop screen.
+- `sharp`: encodes the share card as JPEG.
+- `software.amazon.awssdk` (BOM): `s3` and `url-connection-client` for both R2 buckets.
+- JDK ImageIO: decoding, and JPEG encoding of originals on the backend.
+- `webp-imageio`: WebP encoding of the public files (bundles libwebp).
 
 ---
 

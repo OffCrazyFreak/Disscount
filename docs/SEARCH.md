@@ -4,20 +4,6 @@ How every "type something and see it filter" surface in the app works, why they 
 
 This is a frontend document. The backend's only search is the store-name suggestion lookup, see [§9](#9-the-backend-searches-only-store-names). Where product results come from (the upstream API, the exact then fuzzy proxy search) is in [PRODUCTS.md](PRODUCTS.md#4-product-search-and-the-product-list).
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [The problem this replaced](#2-the-problem-this-replaced)
-3. [Architecture](#3-architecture)
-4. [How a query is matched](#4-how-a-query-is-matched)
-5. [How results are ranked](#5-how-results-are-ranked)
-6. [Collation: sorting Croatian](#6-collation-sorting-croatian)
-7. [Every surface that consumes it](#7-every-surface-that-consumes-it)
-8. [Key files](#8-key-files)
-9. [The backend searches only store names](#9-the-backend-searches-only-store-names)
-10. [Gotchas & lessons learned](#10-gotchas--lessons-learned)
-11. [Future improvements & TODOs](#11-future-improvements--todos)
-
 ## 1. Quick reference
 
 | Question                         | Answer                                                     |
@@ -33,17 +19,7 @@ This is a frontend document. The backend's only search is the store-name suggest
 
 ## 2. The problem this replaced
 
-The app used to have **three matchers giving three different answers to the same gesture**.
-
-| Engine                                       | Semantics                          | Callers |
-| -------------------------------------------- | ---------------------------------- | ------- |
-| `scoreOption`                                | tokenized, ranked, diacritic-blind | 1       |
-| `filterByFields`                             | whole-string substring, unranked   | 7       |
-| an inline filter in the shopping-list picker | substring, unranked, keywords only | 1       |
-
-Typing `kruh crni` ranked correctly in a products dropdown, found nothing in the watchlist, and nothing in the shopping-list picker. The most capable matcher had one caller and the least capable had seven.
-
-The third one had forked for a real reason: its item values are UUIDs, and because cmdk scores an item's `value` as well as its keywords, a short hex query matched unrelated lists. That is the same class of bug as a chain-code list where typing `trgovina` surfaces a row labelled **Jadranka**, because the invisible value is `jadranka_trgovina`.
+The app once had three matchers that answered the same gesture differently: `kruh crni` ranked correctly in a products dropdown and found nothing in the watchlist or the shopping-list picker. The reason the picker had forked still binds: cmdk scores an item's `value` as well as its keywords, so a UUID value lets a short hex query match unrelated lists, and a chain-code value surfaces **Jadranka** for `trgovina` because the invisible value is `jadranka_trgovina`.
 
 ## 3. Architecture
 

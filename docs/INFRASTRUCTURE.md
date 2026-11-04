@@ -8,25 +8,6 @@ _Last verified end-to-end on 2026-06-28: prod + dev healthy, redirects and certs
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [Architecture](#2-architecture)
-3. [Accounts & services](#3-accounts--services)
-4. [How a deploy works (git to live)](#4-how-a-deploy-works-git-to-live)
-5. [Environment variables (the #1 gotcha)](#5-environment-variables-the-1-gotcha)
-6. [Domains, DNS & HTTPS](#6-domains-dns--https)
-7. [Security & networking](#7-security--networking)
-8. [Backups & restore](#8-backups--restore)
-9. [Monitoring & alerts](#9-monitoring--alerts)
-10. [What's automatic vs manual](#10-whats-automatic-vs-manual)
-11. [Common operations (how-to)](#11-common-operations-how-to)
-12. [Deploying ANOTHER app on this VPS (Umami, cijene-api, etc.)](#12-deploying-another-app-on-this-vps)
-13. [Gotchas & lessons learned](#13-gotchas--lessons-learned)
-14. [Future improvements & TODOs](#14-future-improvements--todos)
-
----
-
 ## 1. Quick reference
 
 | Thing            | Value                                                                                 |
@@ -293,7 +274,7 @@ Traffic is encrypted in transit (Cloudflare to the browser, Traefik's certificat
 
 ## 8. Backups & restore
 
-**Three automated backups:** the app's Postgres database (off-site + local), plus Dokploy's own config.
+What runs in production today is below. Its replacement, a backup sidecar, is built but not running yet: its schedule, bucket layout, settings and restore steps are in [BACKUPS.md](BACKUPS.md), and the owner's decisions are tracked in [#486](https://github.com/OffCrazyFreak/Disscount/issues/486).
 
 | Copy                 | How                                                                        | Schedule      | Retention | Where                                                              |
 | -------------------- | -------------------------------------------------------------------------- | ------------- | --------- | ------------------------------------------------------------------ |
@@ -301,26 +282,11 @@ Traffic is encrypted in transit (Cloudflare to the browser, Traefik's certificat
 | **App DB, local**    | Dokploy **global Schedule** (`/dashboard/schedules`, "Server" script type) | nightly 02:00 | 7 days    | `/etc/dokploy/backups/disscount` on the VPS                        |
 | **Dokploy config**   | Dokploy **Web Server Backups** (its internal DB + `/etc/dokploy`)          | daily 04:00   | keep 7    | Cloudflare R2, prefix `dokploy/`                                   |
 
-- The app DB dumps use the consistent logical dump `pg_dump -Fc --no-acl --no-owner ... | gzip` (no downtime).
 - **Why back up Dokploy too:** the app DB alone cannot rebuild your _setup_. The **Web Server backup** captures Dokploy's internal database (projects, services, domains, env vars, schedules) plus `/etc/dokploy`, so if the VPS dies you reinstall Dokploy and restore all of it. Restore from **Web Server, Backups**.
-- **R2 lifecycle backstops (current setup, replaced by the #486 plan below):** two R2 rules cap storage and cost even if Dokploy's own pruning ever fails. `Clear old db backups` deletes `disscount-prod/` objects after 60 days, and `Clear old dokploy backups` deletes `dokploy/` objects after 15 days. Each is set longer than its Dokploy keep-count, so it only ever removes stragglers, never a backup Dokploy still wants.
+- **R2 lifecycle rules** cap storage even if Dokploy's pruning fails: `Clear old db backups` deletes `disscount-prod/` objects after 60 days, and `Clear old dokploy backups` deletes `dokploy/` objects after 15 days. In R2 the dumps sit under `<database app name>_db/disscount-prod/` and the zips under `<web server backup name>/dokploy/`, so check that the two rules match those full prefixes, otherwise they delete nothing.
 - **Alerts:** Dokploy, Settings, Notifications (Resend) emails you on **deploy failures**. Per-backup notifications are intentionally **off** (Dokploy fires one on _every_ backup = daily spam), see [Monitoring](#9-monitoring--alerts) for how to catch a _failed_ backup instead.
-- **Personal data in dumps:** the dumps include the auth tables, so a session row or address the app already removed survives in a backup until that backup rotates out (today 30 days off-site, 60 at most through the R2 rule, 7 locally; under the #486 plan at most 30 days plus the day R2 takes to delete).
-- ✅ **Restore-tested:** confirmed a dump restores cleanly (all tables + rows) into a throwaway container.
-
-### Measured on 3 November 2026, and the decided plan
-
-- **Sizes:** the production database is about 10 MB and one dump is about 250 KB, growing about 1.4% a month. Of the 799 MB in `disscount-backups`, about 792 MB are the seven Dokploy config zips (about 113 MB each, mostly the cloned repositories under `/etc/dokploy/compose` with their `.git` folders); the dumps are about 7 MB.
-- **Known issues:** the config zip also contains `/etc/dokploy/ssh` and the env vars, unencrypted (see "What is encrypted and why"). In R2 the dumps sit under `<database app name>_db/disscount-prod/` and the zips under `<web server backup name>/dokploy/`, so check that the two lifecycle rules match those full prefixes, otherwise they delete nothing. Only production is backed up; dev holds test data and stays unbacked by decision. A dump is checked by nothing after it is written, and the restore test above has no date.
-- **R2 has no versioning and Cloudflare documents no recovery of deleted objects**, so the card photo and product originals buckets have no copy today; a deletion bug or a leaked key would lose them.
-- **Decided by the owner (not built yet):** dump the database **hourly, keep 48**, plus **nightly, keep 30**, and ping a **healthchecks.io** check from every backup job so a missing run emails the owner. WAL archiving was rejected for now: it ships whole 16 MB segments, which at this size costs more storage than hourly dumps for little gain.
-- **Decided for photos and the rest (3 November 2026, tracked in #486, not built yet):**
-  - Card photos, product originals and public product photos move from R2 to plain folders on the VPS local disk (two named Docker volumes, private and public). Public photos are served by a read-only nginx container behind Cloudflare. A Hetzner Volume is suggested for later in #483.
-  - R2 becomes the backup only: one EU bucket, encrypted with rclone crypt, written by a token scoped to that bucket. Bucket Lock and lifecycle rules are set per prefix: a lock blocks every deletion until it ends, lifecycle rules included, so each prefix's lock is shorter than or equal to its expiry. Cloudflare removes an expired object within about a day.
-  - Photos: a full copy every 14 days into a new generation prefix, plus an hourly `rclone copy` of new files. Locked 28 days and deleted at 30, so two full copies exist as long as the 14-day job runs (healthchecks.io alerts on a missed run), and an erased photo leaves the backup within about 31 days. Nothing in the backup is kept longer than 30 days plus that removal day.
-  - Database: hourly dumps under their own prefix, locked and deleted at 2 days (so about 48 exist), and nightly dumps locked 28 days and deleted at 30, in the same bucket, encrypted with age (private key kept offline by the owner), with a nightly scratch restore. Dokploy's config backup runs nightly with the same 28 and 30 days, rebuilt without `.git` folders and encrypted.
-  - The jobs run in a backup sidecar: a `backup` service in `docker-compose.images.yml` whose image CI builds next to the app images, so it deploys and rolls back with them. supercronic runs a crontab from the repo, the service starts only where `COMPOSE_PROFILES=backup` is set (production), its `BACKUP_*` settings live in the Dokploy compose environment, and each job pings healthchecks.io. Dokploy schedules were rejected because of scheduler bugs where jobs silently never run. Built, not yet running: schedule, bucket layout, settings, owner setup and restore steps are in [BACKUPS.md](BACKUPS.md).
-  - Erasures are recorded in a log without personal data and replayed after any restore; the privacy policy states the backup periods.
+- **Personal data in dumps:** the dumps include the auth tables, so a session row or address the app already removed survives in a backup until that backup rotates out (today 30 days off-site, 60 at most through the R2 rule, 7 locally; under the sidecar at most 30 days plus the day R2 takes to delete).
+- **WAL archiving was rejected by the owner for now:** it ships whole 16 MB segments, which at this size (a dump is about 250 KB) costs more storage than hourly dumps for little gain.
 
 > ⚠️ Do **NOT** use Dokploy **Volume Backups** for Postgres: copying the live data volume risks a corrupt backup (it'd need to stop the DB). The `pg_dump` approach above is the correct one.
 
@@ -510,38 +476,6 @@ Three layers keep build cache and images from filling the disk. Dev deploys pull
   "builder": { "gc": { "enabled": true, "defaultReservedSpace": "2GB", "defaultMaxUsedSpace": "10GB", "defaultMinFreeSpace": "15GB" } }
   ```
   BuildKit then trims after every build, so the cache stays under about 10 GB and leaves at least 15 GB free. Use only these global keys, with no custom `policy` array, and never set `defaultReservedSpace` alone. `daemon.json` has no `keepDuration` key even though the Docker docs examples show one; it is silently ignored, and `dockerd --validate` accepts unknown keys, so it proves nothing. Changing it needs sudo and `sudo systemctl restart docker`; `live-restore` is off, so every container restarts (about a minute of downtime on both sites), so do it at a quiet hour. `docker buildx inspect` shows the active values: reserved 2 GiB, max used 10 GiB, min free 15 GiB.
-
----
-
-## 12. Deploying ANOTHER app on this VPS
-
-You can host more apps on the same server (e.g. **Umami** analytics, a self-hosted **cijene-api**, etc.). The pattern is always the same:
-
-```mermaid
-flowchart LR
-    A[Cloudflare: add subdomain A-record to YOUR_VPS_IP] --> B[Dokploy: create app/compose/template]
-    B --> C[Set env vars]
-    C --> D[Deploy]
-    D --> E[Dokploy Domains: subdomain + port + HTTPS]
-    E --> F[Redeploy if Compose, cert issues]
-```
-
-**Step-by-step:**
-
-1. **DNS** (Cloudflare): add `something.disscount.me`, A, `YOUR_VPS_IP`, **DNS only (grey)** first (so the cert can issue), proxy later if you want. The firewall now admits only Cloudflare, so this needs DNS-01 instead (see [Client IP and rate limiting](#client-ip-and-rate-limiting)).
-2. **Create the app in Dokploy:**
-   - **Templates** (easiest): Dokploy has a one-click **Umami** template (and Plausible, etc.). Create, pick the template, it sets up the app + its DB.
-   - **From a Docker image:** Create, Application, set the image + env.
-   - **From a Git repo / compose:** like our app, point at the repo + compose file.
-3. **Env:** set whatever the app needs (DB URL, secrets). Each app gets its own DB/volume.
-4. **Deploy.**
-5. **Domain:** Dokploy, the app, **Domains**, Host `something.disscount.me`, the app's container **port**, HTTPS **Let's Encrypt**. For Compose apps, **redeploy once** so labels attach.
-6. **No firewall change needed:** it's served over 443 through Traefik, which is already open.
-
-> **Important for any Compose app you write yourself** (Dokploy rules): don't set `container_name`, join the **external `dokploy-network`**, and don't publish host ports, so Dokploy's Domains feature can route it. (See `docker-compose.prod.yml` for a working example.)
-
-> **Umami note:** it's free + self-hostable and has a Dokploy template, an ideal first extra app.
-> **cijene-api note:** today the app _consumes_ the hosted `https://api.cijene.dev` via env (`CIJENE_API_URL` / `CIJENE_API_TOKEN`); to self-host it, deploy its repo/compose as above and point `CIJENE_API_URL` at the new internal/subdomain URL.
 
 ---
 

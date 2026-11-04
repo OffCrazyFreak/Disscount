@@ -8,31 +8,6 @@ _Last verified end-to-end on 2026-07-26 against `feat/mobile-bottom-nav`, measur
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [Why this exists](#2-why-this-exists)
-3. [Anatomy of the bar](#3-anatomy-of-the-bar)
-4. [How a touch becomes an action](#4-how-a-touch-becomes-an-action)
-5. [The surface](#5-the-surface)
-6. [The products sheet](#6-the-products-sheet), and [its filters panel](#61-the-filters-panel)
-7. [SheetShell, the shared bottom sheet](#7-sheetshell-the-shared-bottom-sheet)
-8. [Long-press gestures](#8-long-press-gestures)
-9. [Live state on the bar](#9-live-state-on-the-bar)
-10. [Layout, safe areas and CSS tokens](#10-layout-safe-areas-and-css-tokens)
-11. [What the bar replaced](#11-what-the-bar-replaced)
-12. [Design decisions and the roads not taken](#12-design-decisions-and-the-roads-not-taken)
-13. [Key files](#13-key-files)
-14. [Config, env vars and flags](#14-config-env-vars-and-flags)
-15. [Libraries](#15-libraries)
-16. [Accessibility](#16-accessibility)
-17. [What's automatic vs manual](#17-whats-automatic-vs-manual)
-18. [Gotchas & lessons learned](#18-gotchas--lessons-learned)
-19. [Future improvements & TODOs](#19-future-improvements--todos)
-20. [Regression checklist](#20-regression-checklist)
-
----
-
 ## 1. Quick reference
 
 | Thing                 | Value                                                                                                                                                                                                                                         |
@@ -627,46 +602,6 @@ That 92px is close to the floor. 84px of it is the bar itself plus the gap it fl
 
 ---
 
-## 11. What the bar replaced
-
-The mobile `FabMenu` used to sit at `bottom-4 right-4 z-50`, exactly where the bar goes. But both of its jobs moved into the bar, so it was **redundant with it, not merely colliding**:
-
-| Old FAB job                | Where it went now                                                   |
-| -------------------------- | ------------------------------------------------------------------- |
-| Per-page create action     | a long press, plus the inline button which is now visible on mobile |
-| Back-to-top on `/products` | re-tapping the active tab                                           |
-
-| File                         | Fate                                       |
-| ---------------------------- | ------------------------------------------ |
-| `fab/fab-menu.tsx`           | deleted                                    |
-| `fab/page-fab.tsx`           | deleted                                    |
-| `fab/fab-action.ts`          | deleted                                    |
-| `fab/back-to-top-button.tsx` | kept, `BackToTopButton` still builds on it |
-| `fab/back-to-top-button.tsx` | kept, now `hidden md:block`                |
-
-Two consequences worth remembering:
-
-- The inline create buttons **had** to lose `hidden sm:inline-flex`. With the FAB gone they were the only remaining tappable path, and a long press alone would fail WCAG 2.1.1.
-- Being visible at 360px, they also had to get shorter wording there. `ResponsiveLabel` (`components/custom/common/responsive-label.tsx`) renders both strings and swaps them with `sm:hidden` / `hidden sm:inline`, so the choice is CSS and the label never changes on hydration. The control keeps the full wording in its own `aria-label`, which wins over either string as the accessible name, so nothing is lost to a screen reader.
-
-  | Button         | From `sm` up                        | Below `sm`       |
-  | -------------- | ----------------------------------- | ---------------- |
-  | Shopping lists | Stvori popis za kupnju              | Stvori popis     |
-  | Watchlist      | Stvori popis sniženih proizvoda (N) | Stvori popis (N) |
-  | Digital cards  | Dodaj karticu                       | Dodaj            |
-
-- `BackToTopButton` moved from `sm` to `md`, or widths between 640px and 768px would have shown the bar and the FAB at once.
-
-Three other bottom-anchored elements needed offsetting:
-
-| Element                          | Change                                                                                                    |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `pwa/install-banner.tsx`         | `bottom-[var(--bottom-nav-total)]` below `md`; it was directly on top of the bar at `z-50`                |
-| `providers/toaster-provider.tsx` | `mobileOffset` from `--bottom-nav-total`, or every toast landed on the bar                                |
-| dev overlays                     | Next's indicator and the React Query button both sat on the bar; see [§14](#14-config-env-vars-and-flags) |
-
----
-
 ## 12. Design decisions and the roads not taken
 
 Recorded so the next person does not re-litigate them. Each of these was an explicit choice against a real alternative.
@@ -712,6 +647,21 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 - **Sound design.** Needs user activation, and phones are on silent.
 - **Adaptive tabs that change per section.** Directly against the HIG rule that a tab set stays stable.
 - **Double-tap as a distinct action.** Would force a ~250ms wait on every tap to disambiguate, making all taps feel broken. Even Spotify removed theirs.
+
+### Rules left by removing the mobile FAB
+
+The mobile FAB's jobs moved into the bar: the per-page create action became a long press plus the inline button, and back-to-top on `/products` became re-tapping the active tab.
+
+- The inline create buttons must stay visible below `sm`. They are the only tappable path, and a long press alone would fail WCAG 2.1.1.
+- Below `sm` those buttons use shorter wording through `ResponsiveLabel` (`components/custom/common/responsive-label.tsx`), which swaps two strings with CSS so the label never changes on hydration. The control's `aria-label` keeps the full wording.
+- `BackToTopButton` stays `hidden md:block`, or widths between 640px and 768px would show the bar and the button at once.
+- Anything anchored to the bottom offsets from `--bottom-nav-total`: the install banner and the toaster's `mobileOffset` do, or they land on the bar.
+
+### Accepted as they are
+
+- **The install banner and the desktop FAB share the bottom-right corner.** The layer stack decides which wins.
+- **"Obavijesti me" opens a settings tab whose toggles are all `comingSoon`.** A product decision, not a defect.
+- **Multi-line explanatory comments** stay in this subsystem: they record browser and library behaviour that no rename or split can encode.
 
 ---
 
@@ -814,23 +764,11 @@ There are no production env vars for this feature, and nothing to configure in D
 
 ## 15. Libraries
 
-Versions read from `frontend/package.json`. **Nothing new was installed** for this feature.
+Nothing was installed for this feature; versions are in `frontend/package.json`. The ones whose role is not obvious from the name:
 
-| Library                          | Version   | Used for                                                         |
-| -------------------------------- | --------- | ---------------------------------------------------------------- |
-| `next`                           | 16.4.5    | `usePathname`, `useRouter`, the `Viewport` export                |
-| `react`                          | 19.2.8    | Pointer event types, context, refs                               |
-| `motion`                         | ^12.23.26 | The `layoutId` active disc and `useReducedMotion`                |
-| `@base-ui/react`                 | ^1.9.0    | The drawer under `SheetShell` and the mobile sidebar, with swipe |
-| `radix-ui`                       | ^1.4.3    | Dialogs, menus and tooltips opened over or inside the sheets     |
-| `lucide-react`                   | ^1.26.0   | Every icon on the bar                                            |
-| `tailwindcss`                    | ^4        | All styling, including the pill's translucent blurred surface    |
-| `sonner`                         | ^2.0.7    | Toasts, offset above the bar                                     |
-| `@tanstack/react-query`          | ^5.90.12  | The list-completion query                                        |
-| `@tanstack/react-query-devtools` | ^5.91.1   | Now behind the env flag above                                    |
-| `react-hook-form`                | ^7.90.0   | Inside `SearchBar`                                               |
-| `@yudiel/react-qr-scanner`       | ^2.6.0    | The scanner the centre long press opens                          |
-| `barcode-detector`               | ^3.2.1    | Barcode decoding for that scanner                                |
+- `@base-ui/react`: the drawer under `SheetShell` and the mobile sidebar, with swipe.
+- `radix-ui`: dialogs, menus and tooltips opened over or inside the sheets.
+- `@yudiel/react-qr-scanner` and `barcode-detector`: the scanner the centre long press opens, and its barcode decoding.
 
 There is **no shadcn bottom-navigation component** and no suitable Radix primitive, so the bar is hand-built. Radix `Tabs` would be the wrong semantics, see [§16](#16-accessibility).
 
@@ -1007,15 +945,6 @@ Together those are the general rule: a measured-overflow container can only meas
 
 ## 19. Future improvements & TODOs
 
-### On the Disscount Roadmap board, in Backlog
-
-| Item                                                    | Domain         | Notes                                                                                                                                                      |
-| ------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Price-drop pulse on the Praćenje icon                   | Watchlist      | One 300ms scale pulse when a watched price drops while the app is open, at most once a minute, off under reduced motion. Uses `useWatchlistPriceDropCount` |
-| Selection mode: the bar becomes a contextual action bar | Shopping Lists | On `/shopping-lists/[id]`, long-press an item to get "N odabrano" plus move, delete, mark bought, and "nađi najjeftiniji lanac za ovih N"                  |
-
-Selection mode is the one with real product upside: costing a subset of a list across chains is something no competing Croatian price app does. It is also its own feature, needing selection state and back-button semantics, so it is a separate PR rather than a line item.
-
 ### Deferred pending a look on real hardware
 
 - **Strip the mobile header** to brand plus account. `HeaderNav` is already hidden below `md` and `HeaderSearch` below `lg`, so this is mostly about not having two nav landmarks competing at 360px.
@@ -1040,34 +969,7 @@ Selection mode is the one with real product upside: costing a subset of a list a
 - **Finish the off-route filters guard.** A facet pick from the sheet is routed to `/products` (`product-search-filters.tsx`), but `clearFilters` in `use-filter-params.ts` still does a `router.replace(pathname)` on whatever route the sheet is open over, and the displayed selections and the active count read that route's own search params. No shipped route carries `chain`, `location`, `category` or `brand`, so nothing misbehaves today, but the guard is one-sided and the next route that takes any of those params would expose it.
 - **Consider deriving the products sheet's close rule** instead of running it in an effect on `pathname`. Today the sheet paints one frame on the new route before closing, which is cosmetic. The obvious derived alternative reopens the sheet on a Back navigation, so it needs the open flag cleared as well as derived, not simply swapped.
 
-### Settled in the 2026-07 multi-tool review
-
-A four-reviewer sweep (Claude Opus 5 subagents, Codex `gpt-5.6-sol`, CodeRabbit CLI, plus CodeRabbit's passes on PR #125) produced 71 findings against this branch. What it changed, and what it deliberately did not:
-
-**Fixed, and worth knowing about**
-
-| Was                                                          | Now                                                                                                                               |
-| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| `decodeURIComponent` unguarded in root-layout chrome         | Guarded. `/products/50%` used to throw `URIError` during every page's render and white-screen the whole app shell                 |
-| The two gated quick actions closed the sheet, then pushed    | They replace the history entry. `closeModalUrl` pops with an async `history.back()`, so the push landed first and was thrown away |
-| A cold `?modal=product-actions` link rendered nothing        | The shell always renders: skeleton while pending, a message plus a close button when the product never resolves                   |
-| The bar's gesture accepted any pointer                       | Bound to the initiating `pointerId`. A second finger's release used to commit the cell under IT and cancel the real gesture       |
-| The hold ring was derived separately from the hold itself    | `resolveHoldTarget` answers once and the bar passes `hasHold` down                                                                |
-| Locked cells used the `disabled` attribute                   | `aria-disabled` plus `tabIndex={-1}`, because a disabled control swallows pointer events and a scrub could not start on one       |
-| The FAB sat below `--z-scroll-fade`                          | Raised to `--z-fab` (42). It was painting under an always-mounted 89.6px gradient exactly when visible                            |
-| The FAB was 44.8px with a 19.2px inset                       | Material's 56px / 24px / 24px, in explicit rem, because `--spacing: 0.2rem` made the utilities lie                                |
-| Every `navigator.share` rejection read as a dismissal        | Only `AbortError` and `InvalidStateError` do; the rest fall through to the clipboard                                              |
-| Six surfaces each derived the coming-soon rule               | One `isNavItemLocked`                                                                                                             |
-| Seven places built a `/products/<ean>` path, three unencoded | One `productPath`                                                                                                                 |
-
-**Deliberately not fixed**
-
-- **Resolved: poppers inside a sheet.** A facet select used to be collision-positioned low in the products sheet and could land under the pill, trapped in a `z-44` stacking context its own `z-50` could not escape. Facet selects below `md` now expand in flow instead of opening a popper, so nothing is positioned inside the sheet at all. Any future popper inside a sheet would still hit the same stacking limit.
-- **The install banner and the desktop FAB share the bottom-right corner.** The ladder decides which wins now, rather than paint order. Accepted as-is.
-- **"Obavijesti me" opens a settings tab whose toggles are all `comingSoon`.** A product decision, not a defect, and out of scope for a review pass.
-- **Multi-line explanatory comments.** AGENTS.md discourages them and this subsystem is full of them. Kept deliberately: they record browser and library behaviour that no rename or split can encode, and this document exists for the rest.
-
-**Still open**
+### Still open
 
 - **Relevance ranking only ever sorts one page.** `sortProductsByRelevance` can reorder only what the capped request returned, so a better match beyond the limit cannot surface. Blocked on the price API: raised upstream on [senko/cijene-api#65](https://github.com/senko/cijene-api/issues/65#issuecomment-5083698321), asking for relevance-ordered results before the limit, plus `offset` and `total` so a client can rank across the whole set.
 - **`viewportFit: "cover"` beyond the bottom inset.** The bar now consumes the horizontal insets, which are 0 except on a notched device in landscape, but the fixed header and side controls have not been checked on real hardware.

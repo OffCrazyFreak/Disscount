@@ -4,20 +4,6 @@ Disscount is free to use. The support flow gives people a voluntary way to help 
 
 Ko-fi is the only live payment destination today. GitHub Sponsors and public recognition are intentionally future work, because there is not yet an approved Sponsors profile or anyone to list.
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [How the support flow works](#2-how-the-support-flow-works)
-3. [Entry points](#3-entry-points)
-4. [Automatic and manual work](#4-automatic-and-manual-work)
-5. [Key files](#5-key-files)
-6. [Payment platform and fees](#6-payment-platform-and-fees)
-7. [GitHub repository funding](#7-github-repository-funding)
-8. [Accessibility and external-link safety](#8-accessibility-and-external-link-safety)
-9. [Verification checklist](#9-verification-checklist)
-10. [Gotchas](#10-gotchas)
-11. [Future improvements and TODOs](#11-future-improvements-and-todos)
-
 ## 1. Quick reference
 
 | Thing                 | Current value                                      |
