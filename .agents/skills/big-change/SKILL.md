@@ -22,7 +22,7 @@ Target: $ARGUMENTS
 
 1. Ground. Read the repository's instructions, then the code and its history (`git log -p`, blame, linked PRs) to learn why it is this way. Measure lines, files and callers. Collect the evidence that it is wrong today: file:line, incidents, how many times it came back.
 
-2. Research. Send one `researcher` per independent question: official docs for the installed versions, code of apps that solved it, people who ran it. Ask each for who disagrees and why.
+2. Research. Send `researcher` agents: official docs for the installed versions, code of apps that solved it, people who ran it. Ask each for who disagrees and why.
 
 3. Choose a path. Prefer making the change easy and then making the easy change (Beck, Fowler's preparatory refactoring). Prefer a strangler path, old and new running side by side until the old has no callers, over a big-bang rewrite (Spolsky, Fowler). Keep duplication over an abstraction that needs a flag per caller (Metz).
 
