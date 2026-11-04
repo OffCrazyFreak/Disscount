@@ -82,6 +82,7 @@ describe("ProductPhotoGallery", () => {
 
   it("leaves the add button to the viewer when there is only the main photo", async () => {
     server.use(photos([photo("a")]));
+    const user = userEvent.setup();
 
     renderWithProviders(
       <ProductPhotoGallery
@@ -90,12 +91,17 @@ describe("ProductPhotoGallery", () => {
       />,
     );
 
-    await screen.findByRole("button", {
+    const open = await screen.findByRole("button", {
       name: "Otvori slike: Barilla Spaghetti Nº5",
     });
     expect(
       screen.queryByRole("button", { name: "Dodaj sliku" }),
     ).not.toBeInTheDocument();
+
+    await user.click(open);
+    expect(
+      await screen.findByRole("button", { name: "Dodaj sliku" }),
+    ).toBeInTheDocument();
   });
 
   it("counts the photos past the strip on its last tile, and all extra photos on the badge", async () => {
@@ -118,5 +124,8 @@ describe("ProductPhotoGallery", () => {
       screen.queryByRole("button", { name: "Prikaži sliku 4 od 7" }),
     ).not.toBeInTheDocument();
     expect(screen.getByText("+6")).toBeInTheDocument();
+
+    await userEvent.setup().click(last);
+    expect(await screen.findByText("3 / 7")).toBeInTheDocument();
   });
 });

@@ -33,7 +33,8 @@ export default function ProductThumbnail({
   className,
 }: IProductThumbnailProps) {
   const t = useTranslations("productPhotos");
-  const [isViewing, setIsViewing] = useState(false);
+  // Bumped on every tap, so a viewer whose photo request failed is mounted again and asks again.
+  const [viewing, setViewing] = useState<number | null>(null);
   const { data: url, isLoading } = useProductThumbnail(ean ?? undefined);
   const isOnline = useOnlineStatus();
   // Offline or a vanished file: the placeholder instead of a broken image icon. A change in
@@ -55,7 +56,7 @@ export default function ProductThumbnail({
           onClick={(event) => {
             event.preventDefault();
             event.stopPropagation();
-            setIsViewing(true);
+            setViewing((count) => (count ?? 0) + 1);
           }}
           // The row owns a hold gesture; a press here must not also start it.
           onPointerDown={stopEvent}
@@ -74,7 +75,7 @@ export default function ProductThumbnail({
             <PhotoBand action="open" className="[&_svg]:size-3" />
           </PhotoTile>
         </button>
-        {isViewing && (
+        {viewing !== null && (
           // React bubbles events out of the viewer's portal to the row, which would read them as a hold or a tap.
           <span
             className="contents"
@@ -83,9 +84,10 @@ export default function ProductThumbnail({
             onPointerUp={stopEvent}
           >
             <ProductThumbnailViewer
+              key={viewing}
               ean={ean}
               productName={productName}
-              onClose={() => setIsViewing(false)}
+              onClose={() => setViewing(null)}
             />
           </span>
         )}

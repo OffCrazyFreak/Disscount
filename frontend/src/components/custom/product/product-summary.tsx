@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import MediaRow from "@/components/custom/common/media-row";
 import ProductThumbnail from "@/components/custom/product-photos/product-thumbnail";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,6 +42,7 @@ export default function ProductSummary({
   className,
   ...aside
 }: IProductSummaryProps) {
+  const t = useTranslations("products");
   const displayName = name && quantity ? `${name} (${quantity})` : name;
 
   return (
@@ -53,7 +56,9 @@ export default function ProductSummary({
               ean={ean}
               // Only a row that links to its product opens the viewer: inside a modal sheet the
               // lightbox would sit outside the dialog's focus trap and pointer lock.
-              productName={href ? (name ?? undefined) : undefined}
+              productName={
+                href ? name || t("productInfo.unknownProduct") : undefined
+              }
             />
           )
         }

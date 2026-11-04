@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import dynamic from "next/dynamic";
 
 import { useUser } from "@/context/user-context";
@@ -24,6 +25,7 @@ export default function ProductThumbnailViewer({
   onClose,
 }: IProductThumbnailViewerProps) {
   const { user } = useUser();
+  const [index, setIndex] = useState(0);
   const { data } = useProductImages(ean);
   const images = data?.images ?? [];
 
@@ -34,8 +36,8 @@ export default function ProductThumbnailViewer({
       ean={ean}
       productName={productName}
       images={images}
-      index={0}
-      onIndexChange={() => {}}
+      index={index}
+      onIndexChange={setIndex}
       onClose={onClose}
       canReport={Boolean(user)}
       isAdmin={isAdmin(user?.accountType)}

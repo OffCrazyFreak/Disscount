@@ -9,7 +9,9 @@ const MARKER = "__disscountPhotoViewer";
 export function useBackCloses(open: boolean, close: () => void) {
   // Runs only once our entry is gone, so anything it pushes (the sign-in modal) is not popped with it.
   const afterClose = useRef<(() => void) | null>(null);
+  const isClosing = useRef(false);
   const onPop = useEffectEvent(() => {
+    isClosing.current = false;
     close();
     afterClose.current?.();
     afterClose.current = null;
@@ -24,6 +26,9 @@ export function useBackCloses(open: boolean, close: () => void) {
 
   return function requestClose(then?: () => void) {
     if (window.history.state?.[MARKER]) {
+      // A second tap before the pop lands would step Back again, past the page.
+      if (isClosing.current) return;
+      isClosing.current = true;
       afterClose.current = then ?? null;
       window.history.back();
     } else {
