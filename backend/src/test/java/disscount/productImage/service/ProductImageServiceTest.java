@@ -160,6 +160,19 @@ class ProductImageServiceTest {
     }
 
     @Test
+    void aPhotoRenderedBeforeTheSmallFileServesItsThumbAsTheSmallOne() {
+        writes.upload(ana, EAN, jpeg());
+        ProductImage photo = images.findByEanOrderByCreatedAtAsc(EAN).get(0);
+        assertThat(queries.forProduct(EAN).images()).singleElement()
+                .satisfies(i -> assertThat(i.smallUrl()).endsWith(photo.getSmallKey()));
+
+        photo.setSmallKey(null);
+        images.save(photo);
+        assertThat(queries.forProduct(EAN).images()).singleElement()
+                .satisfies(i -> assertThat(i.smallUrl()).endsWith(photo.getThumbKey()));
+    }
+
+    @Test
     void uploadsDoNotDependOnTheCardPhotoStore() {
         cardPhotos.enabled = false;
 
