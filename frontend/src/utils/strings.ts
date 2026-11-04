@@ -19,7 +19,8 @@ export function decodeEntities(text: string): string {
         ? parseInt(body.slice(2), 16)
         : parseInt(body.slice(1), 10);
 
-    return Number.isFinite(code) ? String.fromCodePoint(code) : whole;
+    // fromCodePoint throws past Unicode's last code point, which would fail a whole feed.
+    return code <= 0x10ffff ? String.fromCodePoint(code) : whole;
   });
 }
 
