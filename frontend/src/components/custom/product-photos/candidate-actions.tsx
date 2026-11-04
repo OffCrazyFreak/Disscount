@@ -48,7 +48,7 @@ export default function CandidateActions({
         variant="outline"
         icon={Crop}
         iconPlacement="left"
-        disabled={busy || !image.originalUrl}
+        disabled={busy}
         onClick={onCrop}
       >
         {t("manager.crop")}
