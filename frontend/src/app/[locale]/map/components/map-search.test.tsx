@@ -5,6 +5,7 @@ import MapSearch from "@/app/[locale]/map/components/map-search";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { CameraScannerProvider } from "@/context/scanner-context";
 import { renderWithProviders } from "@/test/render";
+import { stubTextFit, textWidth } from "@/test/stub-text-fit";
 
 // Boundaries the suite cannot run: the App Router and the camera.
 vi.mock("@/components/scanner/camera-scanner", () => ({ default: () => null }));
@@ -16,13 +17,15 @@ vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
 }));
 
-function renderAtWidth(width: number) {
-  vi.stubGlobal("innerWidth", width);
+// The sidebar still reads the phone breakpoint; the placeholder must not depend on it.
+function renderWithFieldWidth(width: number) {
+  vi.stubGlobal("innerWidth", 360);
   vi.stubGlobal("matchMedia", () => ({
-    matches: width < 768,
+    matches: true,
     addEventListener: () => {},
     removeEventListener: () => {},
   }));
+  stubTextFit(width);
 
   renderWithProviders(
     <SidebarProvider>
@@ -36,15 +39,17 @@ function renderAtWidth(width: number) {
 }
 
 describe("MapSearch", () => {
-  it("shows the short placeholder on phones and keeps the full accessible name", () => {
-    const field = renderAtWidth(360);
+  it("shows the short placeholder while the field is too narrow for the full one", () => {
+    const field = renderWithFieldWidth(
+      textWidth("Trgovina, grad ili adresa") - 1,
+    );
 
     expect(field).toHaveAttribute("placeholder", "Trgovina");
     expect(field).toHaveAccessibleName("Trgovina, grad ili adresa");
   });
 
-  it("shows the full placeholder from the phone breakpoint up", () => {
-    const field = renderAtWidth(768);
+  it("shows the full placeholder as soon as the field is wide enough, even on a phone", () => {
+    const field = renderWithFieldWidth(textWidth("Trgovina, grad ili adresa"));
 
     expect(field).toHaveAttribute("placeholder", "Trgovina, grad ili adresa");
     expect(field).toHaveAccessibleName("Trgovina, grad ili adresa");

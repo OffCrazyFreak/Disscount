@@ -19,3 +19,7 @@ afterEach(() => {
   setCacheIdentity(null);
   serverSession.userId = null;
 });
+
+// jsdom logs "not implemented" on every canvas call; null is what it returns anyway,
+// and callers treat it as "cannot measure text".
+HTMLCanvasElement.prototype.getContext = () => null;
