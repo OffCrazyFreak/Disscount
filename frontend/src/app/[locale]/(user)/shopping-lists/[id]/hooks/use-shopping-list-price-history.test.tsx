@@ -88,7 +88,7 @@ describe("useShoppingListPriceHistory", () => {
       expect(result.current.chartData.at(-1)?.date).toBe("2026-10-13"),
     );
     expect(result.current.chartData[0].date).toBe("2026-10-07");
-    expect(requestedDates).toContain("2026-10-13");
+    await waitFor(() => expect(requestedDates).toContain("2026-10-13"));
   });
 
   it("keeps the chart when a background refetch of cached history fails", async () => {
