@@ -54,7 +54,13 @@ public class AuthIdentityDao {
         return identitiesById;
     }
 
+    @SuppressWarnings("unchecked")
+    public List<UUID> findAllIds() {
+        return entityManager.createNativeQuery("SELECT id FROM \"user\"").getResultList();
+    }
+
     /** Removes the identity, which cascades its sessions and accounts. */
+    @Transactional
     public void deleteById(UUID userId) {
         entityManager.createNativeQuery("DELETE FROM \"user\" WHERE id = :id")
                 .setParameter("id", userId)

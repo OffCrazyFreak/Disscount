@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# One backup job per call: db-hourly, db-nightly, photos or dokploy.
+# One backup job per call: db-hourly, db-nightly, photos, dokploy or erasure-markers.
 # Jobs only ever add objects; R2 lifecycle rules delete them, and Bucket Lock stops anyone deleting them early.
 set -euo pipefail
 
-job="${1:?usage: backup-job db-hourly|db-nightly|photos|dokploy}"
+job="${1:?usage: backup-job db-hourly|db-nightly|photos|dokploy|erasure-markers}"
 
 exec 9>"/tmp/backup-$job.lock"
 flock -n 9 || { echo "backup $job: previous run still going, skipping"; exit 0; }
@@ -87,6 +87,28 @@ scratch_restore() {
   gosu postgres pg_ctl --pgdata="$data/pg" --silent --wait --mode=fast stop
 }
 
+# One marker per recent erasure, so a restore can erase again whoever an older dump brings back.
+# Named by a keyed hash, so a reader of the bucket cannot tell who left.
+write_erasure_markers() {
+  local key="${BACKUP_ERASURE_HMAC_KEY:?BACKUP_ERASURE_HMAC_KEY is not set}"
+  [[ "$key" =~ ^[0-9a-f]{64}$ ]] || { echo "BACKUP_ERASURE_HMAC_KEY must be 64 lowercase hex characters" >&2; return 1; }
+  local prefix="$remote/_erasures/v1" status=0
+  # A locked marker cannot be overwritten, so only missing ones are uploaded. Exit 3 means none exist yet.
+  rclone lsf --files-only "$prefix" >"$work/existing" || status=$?
+  ((status == 0 || status == 3)) || return "$status"
+  # Every dump a restore can use is at most 30 days old, so an older erasure is already inside all of them.
+  psql -At -F ' ' -c "select scope, user_id, to_char(erased_at, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') from erasure_ledger
+    where erased_at > (now() at time zone 'utc') - interval '30 days'" >"$work/ledger"
+  local scope id erased_at name written=0
+  while read -r scope id erased_at; do
+    name="$(printf '%s' "$scope:$id" | openssl dgst -sha256 -mac HMAC -macopt "hexkey:$key" -r | cut -d' ' -f1)"
+    grep -qxF "$name" "$work/existing" && continue
+    printf '{"v":1,"scope":"%s","erasedAt":"%s"}\n' "$scope" "$erased_at" | rclone rcat "$prefix/$name"
+    written=$((written + 1))
+  done <"$work/ledger"
+  note "erasure markers: $written written for $(wc -l <"$work/ledger") erasures in the last 30 days"
+}
+
 run() {
   case "$job" in
     db-hourly)
@@ -124,6 +146,9 @@ run() {
       ((status <= 1)) || return "$status"
       upload_encrypted "$work/dokploy.dump" "dokploy/$stamp.dump"
       upload_encrypted "$work/etc-dokploy.tar" "dokploy/$stamp.etc.tar"
+      ;;
+    erasure-markers)
+      write_erasure_markers
       ;;
     *)
       echo "unknown job: $job" >&2

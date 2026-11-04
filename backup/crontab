@@ -10,3 +10,6 @@ CRON_TZ=UTC
 
 # Dokploy: its own database and /etc/dokploy, nightly (30 days).
 27 2 * * * backup-job dokploy
+
+# Erasure markers: every minute, so an account deleted after the last dump is still erased again after a restore (30 days).
+* * * * * backup-job erasure-markers
