@@ -78,6 +78,20 @@
     // Every remaining eslint-disable is deliberate and reviewed; as of Fallow 3.37 there is no baseline or reason exemption for them.
     "added-suppression": "off"
   },
+  // Temporary: the owner approved the test removals in #599 and #603, so delete this block once both merge. `[[]` and `[]]` match literal brackets in a glob.
+  "overrides": [
+    {
+      "files": [
+        "src/app/[[]locale[]]/layout.test.ts",
+        "src/constants/pwa-shortcuts.test.ts",
+        "src/lib/api/admin/index.test.tsx",
+        "src/lib/api/schemas/{auth-user,contact-message,shopping-list-item,watchlist}.test.ts",
+        "src/lib/api/users/index.test.ts",
+        "src/lib/auth/index.test.ts"
+      ],
+      "rules": { "weakened-tests": "off" }
+    }
+  ],
   "ignoreExportsUsedInFile": true,
   "ignoreFindings": ["**/products/components/view-switcher.tsx"],
   "ignoreDependencyOverrides": [
