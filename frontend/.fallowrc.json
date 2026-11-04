@@ -63,7 +63,6 @@
     "@react-email/ui",
     "baseline-browser-mapping",
     "esbuild",
-    "kysely",
     "serwist"
   ],
   "health": {
