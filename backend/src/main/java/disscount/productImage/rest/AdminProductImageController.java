@@ -1,9 +1,11 @@
 package disscount.productImage.rest;
 
+import java.util.List;
 import java.util.UUID;
 
 import disscount.productImage.dto.ProductImageDtos.AdminProductDto;
 import disscount.productImage.dto.ProductImageDtos.AdminQueuePageDto;
+import disscount.productImage.dto.ProductImageDtos.ContributorPhotoCountDto;
 import disscount.productImage.dto.ProductImageDtos.CropRequest;
 import disscount.productImage.dto.ProductImageDtos.ImageStatusRequest;
 import disscount.productImage.dto.ProductImageDtos.SetMainRequest;
@@ -18,6 +20,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -71,6 +74,18 @@ public class AdminProductImageController {
     @PutMapping("/images/{imageId}/status")
     public AdminProductDto status(@PathVariable UUID imageId, @Valid @RequestBody ImageStatusRequest request) {
         return admin.setStatus(SecurityUtils.getCurrentUserId(), imageId, request.status());
+    }
+
+    @Operation(summary = "Delete a photo's files for good; the same file or Open Food Facts photo cannot come back")
+    @DeleteMapping("/images/{imageId}")
+    public AdminProductDto delete(@PathVariable UUID imageId) {
+        return admin.delete(SecurityUtils.getCurrentUserId(), imageId);
+    }
+
+    @Operation(summary = "Photos each user uploaded and how many an admin deleted")
+    @GetMapping("/contributors")
+    public List<ContributorPhotoCountDto> contributors() {
+        return admin.contributorCounts();
     }
 
     @Operation(summary = "Rotate and crop a photo from its original; a null crop keeps the whole photo")

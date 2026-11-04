@@ -321,6 +321,23 @@
       "required" : [ "message", "subject" ],
       "type" : "object"
     },
+    "ContributorPhotoCountDto" : {
+      "properties" : {
+        "deleted" : {
+          "format" : "int64",
+          "type" : "integer"
+        },
+        "uploaded" : {
+          "format" : "int64",
+          "type" : "integer"
+        },
+        "userId" : {
+          "format" : "uuid",
+          "type" : "string"
+        }
+      },
+      "type" : "object"
+    },
     "CropDto" : {
       "properties" : {
         "height" : {

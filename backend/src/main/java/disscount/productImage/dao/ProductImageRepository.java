@@ -30,6 +30,26 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, UUID
 
     boolean existsBySmallKey(String smallKey);
 
+    boolean existsByContentSha256InAndDeletedAtIsNotNull(Collection<String> hashes);
+
+    /** Photos each user uploaded and how many of those an admin deleted. */
+    @Query("""
+            select i.contributorId as userId, count(i) as uploaded,
+                   sum(case when i.deletedAt is not null then 1 else 0 end) as deleted
+            from ProductImage i
+            where i.contributorId is not null
+            group by i.contributorId
+            """)
+    List<ContributorCount> countByContributor();
+
+    interface ContributorCount {
+        UUID getUserId();
+
+        long getUploaded();
+
+        long getDeleted();
+    }
+
     @Query("""
             select i from ProductImage i, ProductImageSet s
             where s.ean in :eans and i.id = s.mainImageId and i.thumbKey is not null

@@ -9,7 +9,9 @@ import {
 import { PRODUCT_IMAGE_KEYS } from "@/lib/api/product-images/keys";
 import {
   cropPhoto,
+  deletePhoto,
   getAdminProductPhotos,
+  getContributorPhotoCounts,
   getPhotoQueue,
   markProductReviewed,
   refreshFromOpenFoodFacts,
@@ -68,6 +70,9 @@ function usePhotoChange<TVariables>(
       void queryClient.invalidateQueries({
         queryKey: PRODUCT_IMAGE_KEYS.queueAll,
       });
+      void queryClient.invalidateQueries({
+        queryKey: PRODUCT_IMAGE_KEYS.contributors,
+      });
     },
   });
 }
@@ -85,6 +90,18 @@ export function useSetPhotoStatus(ean: string) {
     ean,
     ({ imageId, status }) => setPhotoStatus(imageId, status),
   );
+}
+
+export function useDeletePhoto(ean: string) {
+  return usePhotoChange<string>(ean, deletePhoto);
+}
+
+/** Uploaded and deleted photo counts per user, for the admin users list. */
+export function useContributorPhotoCounts() {
+  return useQuery({
+    queryKey: PRODUCT_IMAGE_KEYS.contributors,
+    queryFn: getContributorPhotoCounts,
+  });
 }
 
 export function useCropPhoto(ean: string) {

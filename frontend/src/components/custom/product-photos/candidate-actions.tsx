@@ -1,4 +1,4 @@
-import { Check, Crop, Eye, EyeOff, Star } from "lucide-react";
+import { Check, Crop, Eye, EyeOff, Star, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ export interface ICandidateHandlers {
   onCrop: () => void;
   onToggleHidden: () => void;
   onApprove: () => void;
+  onDelete: () => void;
 }
 
 interface ICandidateActionsProps extends ICandidateHandlers {
@@ -23,6 +24,7 @@ export default function CandidateActions({
   onCrop,
   onToggleHidden,
   onApprove,
+  onDelete,
 }: ICandidateActionsProps) {
   const t = useTranslations("productPhotos");
   const hidden = image.status === "HIDDEN";
@@ -76,6 +78,17 @@ export default function CandidateActions({
           {hidden ? t("manager.restore") : t("manager.hide")}
         </Button>
       )}
+      <Button
+        size="sm"
+        className="col-span-2"
+        variant="destructiveSoft"
+        icon={Trash2}
+        iconPlacement="left"
+        disabled={busy}
+        onClick={onDelete}
+      >
+        {t("manager.delete")}
+      </Button>
     </div>
   );
 }

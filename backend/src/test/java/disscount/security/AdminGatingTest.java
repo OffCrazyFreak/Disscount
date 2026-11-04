@@ -54,7 +54,9 @@ class AdminGatingTest extends FullStackTest {
         MARK_REVIEWED("POST", "/api/admin/product-images/{ean}/reviewed", null),
         SET_PHOTO_STATUS("PUT", "/api/admin/product-images/images/{image}/status", "{\"status\":\"VERIFIED\"}"),
         CROP_PHOTO("PUT", "/api/admin/product-images/images/{image}/crop", "{\"rotation\":90,\"crop\":null}"),
-        PHOTO_ORIGINAL("GET", "/api/admin/product-images/images/{image}/original", null);
+        PHOTO_ORIGINAL("GET", "/api/admin/product-images/images/{image}/original", null),
+        DELETE_PHOTO("DELETE", "/api/admin/product-images/images/{image}", null),
+        PHOTO_CONTRIBUTORS("GET", "/api/admin/product-images/contributors", null);
 
         final String method;
         final String path;

@@ -20,6 +20,7 @@ import disscount.productImage.domain.ProductImageSet;
 import disscount.productImage.dto.ProductImageDtos.AdminProductDto;
 import disscount.productImage.dto.ProductImageDtos.AdminQueueItemDto;
 import disscount.productImage.dto.ProductImageDtos.AdminQueuePageDto;
+import disscount.productImage.dto.ProductImageDtos.ContributorPhotoCountDto;
 import disscount.productImage.dto.ProductImageDtos.CropDto;
 import disscount.productImage.off.OffProductPhotos;
 import disscount.productImage.off.OpenFoodFactsClient;
@@ -50,6 +51,7 @@ public class ProductImageAdminService {
     private final ProductImageViews views;
     private final OpenFoodFactsClient off;
     private final OffCandidateWriter candidates;
+    private final ProductImageRemoval removal;
     @Qualifier(PhotoStoreConfig.PRODUCT_ORIGINALS)
     private final PhotoStore originals;
 
@@ -115,7 +117,7 @@ public class ProductImageAdminService {
 
     @Transactional
     public AdminProductDto setStatus(UUID adminId, UUID imageId, String status) {
-        ProductImage image = images.findById(imageId).orElseThrow(ProductImageAdminService::notFound);
+        ProductImage image = live(imageId);
         ProductImageSet set = loadOrCreate(image.getEan());
 
         switch (status) {
@@ -124,12 +126,7 @@ public class ProductImageAdminService {
                 image.setStatus(ImageStatus.HIDDEN);
                 image.setHiddenReason(HiddenReason.ADMIN);
                 images.save(image);
-                if (image.getId().equals(set.getMainImageId())) {
-                    // The admin rejected the shown photo, so the automatic pick takes over again.
-                    set.setPinned(false);
-                    set.setMainImageId(MainPicker.pick(images.findByEanOrderByCreatedAtAsc(image.getEan()))
-                            .map(ProductImage::getId).orElse(null));
-                }
+                releaseMain(set, image);
             }
             default -> throw new BadRequestException("error.productImage.invalidStatus");
         }
@@ -137,9 +134,27 @@ public class ProductImageAdminService {
         return product(image.getEan());
     }
 
+    /** Deletes the photo's files for good; the row stays so the same file or Open Food Facts photo cannot return. */
+    @Transactional
+    public AdminProductDto delete(UUID adminId, UUID imageId) {
+        ProductImage image = live(imageId);
+        ProductImageSet set = loadOrCreate(image.getEan());
+        removal.delete(adminId, image);
+        releaseMain(set, image);
+        sets.save(set);
+        return product(image.getEan());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ContributorPhotoCountDto> contributorCounts() {
+        return images.countByContributor().stream()
+                .map(c -> new ContributorPhotoCountDto(c.getUserId(), c.getUploaded(), c.getDeleted()))
+                .toList();
+    }
+
     @Transactional
     public AdminProductDto crop(UUID adminId, UUID imageId, int rotation, CropDto crop) {
-        ProductImage image = images.findById(imageId).orElseThrow(ProductImageAdminService::notFound);
+        ProductImage image = live(imageId);
         image.setRotation(ProductImageRenderer.normalizeRotation(rotation));
         image.setCropX(crop == null ? null : crop.x());
         image.setCropY(crop == null ? null : crop.y());
@@ -164,7 +179,7 @@ public class ProductImageAdminService {
     @Transactional(readOnly = true)
     public StoredPhoto original(UUID imageId) {
         ProductImage image = images.findById(imageId)
-                .filter(i -> i.getSource() != ImageSource.OPEN_FOOD_FACTS && i.getOriginalKey() != null)
+                .filter(i -> i.getSource() != ImageSource.OPEN_FOOD_FACTS && i.getOriginalKey() != null && !i.isDeleted())
                 .orElseThrow(ProductImageAdminService::notFound);
         if (!originals.enabled()) throw new ServiceUnavailableException("error.productImage.unavailable");
         return originals.get(image.getOriginalKey()).orElseThrow(ProductImageAdminService::notFound);
@@ -184,6 +199,14 @@ public class ProductImageAdminService {
         } else {
             images.save(image);
         }
+    }
+
+    private void releaseMain(ProductImageSet set, ProductImage image) {
+        if (!image.getId().equals(set.getMainImageId())) return;
+        // The admin rejected the shown photo, so the automatic pick takes over again.
+        set.setPinned(false);
+        set.setMainImageId(MainPicker.pick(images.findByEanOrderByCreatedAtAsc(image.getEan()))
+                .map(ProductImage::getId).orElse(null));
     }
 
     private void markReviewed(ProductImageSet set, UUID adminId) {
@@ -208,8 +231,13 @@ public class ProductImageAdminService {
 
     private ProductImage imageOf(String ean, UUID imageId) {
         return images.findById(imageId)
-                .filter(i -> i.getEan().equals(ean))
+                .filter(i -> i.getEan().equals(ean) && !i.isDeleted())
                 .orElseThrow(ProductImageAdminService::notFound);
+    }
+
+    /** A deleted photo has no files left, so nothing but its tombstone may change. */
+    private ProductImage live(UUID imageId) {
+        return images.findById(imageId).filter(i -> !i.isDeleted()).orElseThrow(ProductImageAdminService::notFound);
     }
 
     private ProductImageSet loadOrCreate(String ean) {

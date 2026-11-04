@@ -22,7 +22,8 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "product_image",
-        indexes = @Index(name = "idx_product_image_ean", columnList = "ean"),
+        indexes = {@Index(name = "idx_product_image_ean", columnList = "ean"),
+                @Index(name = "idx_product_image_sha256", columnList = "content_sha256")},
         uniqueConstraints = @UniqueConstraint(name = "uq_product_image_external",
                 columnNames = {"ean", "source", "external_key"}))
 @Getter
@@ -122,6 +123,17 @@ public class ProductImage {
     @Column(name = "flagged_at")
     private LocalDateTime flaggedAt;
 
+    /** SHA-256 of the uploaded file, or of the stored original for photos uploaded before this column; blocks re-uploads of a deleted photo. */
+    @Column(name = "content_sha256", length = 64)
+    private String contentSha256;
+
+    /** Set when an admin deleted the files; the row stays as a tombstone so neither an upload nor the import brings the photo back. */
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @Column(name = "deleted_by_id")
+    private UUID deletedById;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -132,6 +144,10 @@ public class ProductImage {
 
     public boolean isRendered() {
         return fullKey != null && thumbKey != null;
+    }
+
+    public boolean isDeleted() {
+        return deletedAt != null;
     }
 
     public boolean hasCrop() {

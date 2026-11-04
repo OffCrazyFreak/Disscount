@@ -19,6 +19,7 @@ import {
   ACCOUNT_TYPE_LABELS,
   UserDto,
 } from "@/lib/api/schemas/auth-user";
+import type { ContributorPhotoCount } from "@/lib/api/types";
 
 const ACCOUNT_TYPES = Object.keys(ACCOUNT_TYPE_LABELS) as AccountType[];
 
@@ -28,6 +29,8 @@ interface IAdminUserRowProps {
   user: UserDto;
   isSelf: boolean;
   isUpdating: boolean;
+  /** Missing while the counts load, and for users who never uploaded a photo. */
+  photos?: ContributorPhotoCount;
   onAccountTypeChange: (userId: string, accountType: AccountType) => void;
   onDelete: (user: UserDto) => void;
 }
@@ -36,6 +39,7 @@ export default function AdminUserRow({
   user,
   isSelf,
   isUpdating,
+  photos,
   onAccountTypeChange,
   onDelete,
 }: IAdminUserRowProps) {
@@ -59,6 +63,13 @@ export default function AdminUserRow({
 
       <TableCell className="text-muted-foreground whitespace-nowrap text-sm">
         <RelativeTime value={user.lastLoginAt} />
+      </TableCell>
+
+      <TableCell className="text-muted-foreground whitespace-nowrap text-sm">
+        {t("users.photoCount", {
+          uploaded: photos?.uploaded ?? 0,
+          deleted: photos?.deleted ?? 0,
+        })}
       </TableCell>
 
       <TableCell>

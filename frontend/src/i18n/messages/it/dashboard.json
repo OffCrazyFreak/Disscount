@@ -37,6 +37,8 @@
     "colEmail": "Email",
     "colLastLogin": "Ultimo accesso",
     "colAccountType": "Tipo di account",
+    "colPhotos": "Foto",
+    "photoCount": "{uploaded} · {deleted, plural, one {# eliminata} other {# eliminate}}",
     "deleteTitle": "Elimina account",
     "deleteDescription": "Vuoi davvero eliminare l'account {name}? L'azione non si può annullare.",
     "deleteConfirm": "Elimina account"

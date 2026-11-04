@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import AdminUserRow from "@/app/[locale]/dashboard/components/admin-user-row";
 import { adminService } from "@/lib/api";
+import { useContributorPhotoCounts } from "@/lib/api/product-images/admin-hooks";
 import { AccountType, UserDto } from "@/lib/api/schemas/auth-user";
 import { useUser } from "@/context/user-context";
 
@@ -24,6 +25,10 @@ export default function AdminUsersTable() {
   const { data: users, isLoading, isError } = adminService.useGetAllUsers();
   const updateAccountType = adminService.useUpdateUserAccountType();
   const deleteUser = adminService.useDeleteUser();
+  const { data: photoCounts } = useContributorPhotoCounts();
+  const photosByUser = new Map(
+    photoCounts?.map((count) => [count.userId, count]),
+  );
 
   const [updatingIds, setUpdatingIds] = useState<ReadonlySet<string>>(
     new Set(),
@@ -83,6 +88,7 @@ export default function AdminUsersTable() {
               <TableHead>{t("users.colUsername")}</TableHead>
               <TableHead>{t("users.colEmail")}</TableHead>
               <TableHead>{t("users.colLastLogin")}</TableHead>
+              <TableHead>{t("users.colPhotos")}</TableHead>
               <TableHead className="w-48">
                 {t("users.colAccountType")}
               </TableHead>
@@ -97,6 +103,7 @@ export default function AdminUsersTable() {
                 user={user}
                 isSelf={user.id === currentUser?.id}
                 isUpdating={updatingIds.has(user.id)}
+                photos={photosByUser.get(user.id)}
                 onAccountTypeChange={handleChange}
                 onDelete={setDeleteTarget}
               />

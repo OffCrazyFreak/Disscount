@@ -88,6 +88,16 @@ export const adminPhotoQueuePageSchema = z.object({
   reviewedCount: z.number().int(),
 });
 
+export const contributorPhotoCountSchema = z.object({
+  userId: z.string(),
+  uploaded: z.number().int(),
+  deleted: z.number().int(),
+});
+
+export const contributorPhotoCountsSchema = z.array(
+  contributorPhotoCountSchema,
+);
+
 export const photoQueueFilterSchema = z.enum(["todo", "pending", "reported"]);
 
 export type ProductImage = z.infer<typeof productImageSchema>;
@@ -97,4 +107,5 @@ export type AdminProductImage = z.infer<typeof adminProductImageSchema>;
 export type AdminProductPhotos = z.infer<typeof adminProductPhotosSchema>;
 export type AdminPhotoQueueItem = z.infer<typeof adminPhotoQueueItemSchema>;
 export type AdminPhotoQueuePage = z.infer<typeof adminPhotoQueuePageSchema>;
+export type ContributorPhotoCount = z.infer<typeof contributorPhotoCountSchema>;
 export type PhotoQueueFilter = z.infer<typeof photoQueueFilterSchema>;
