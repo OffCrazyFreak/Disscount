@@ -5,7 +5,7 @@ set -euo pipefail
 
 # Compose secrets keep these values out of `docker inspect`; a plain variable still works for local runs.
 for name in BACKUP_R2_SECRET_ACCESS_KEY BACKUP_CRYPT_PASSWORD BACKUP_CRYPT_SALT \
-  BACKUP_HEALTHCHECKS_PING_KEY BACKUP_DOKPLOY_DB_PASSWORD POSTGRES_PASSWORD; do
+  BACKUP_HEALTHCHECKS_PING_KEY BACKUP_DOKPLOY_DB_PASSWORD BACKUP_ERASURE_HMAC_KEY POSTGRES_PASSWORD; do
   file="/run/secrets/$(echo "$name" | tr '[:upper:]' '[:lower:]')"
   if [[ -s "$file" ]]; then
     export "$name=$(cat "$file")"

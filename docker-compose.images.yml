@@ -181,6 +181,7 @@ services:
       - backup_crypt_salt
       - backup_healthchecks_ping_key
       - backup_dokploy_db_password
+      - backup_erasure_hmac_key
     volumes:
       - photos-private:/data/photos-private:ro
       - photos-public:/data/photos-public:ro
@@ -236,3 +237,5 @@ secrets:
     environment: BACKUP_HEALTHCHECKS_PING_KEY
   backup_dokploy_db_password:
     environment: BACKUP_DOKPLOY_DB_PASSWORD
+  backup_erasure_hmac_key:
+    environment: BACKUP_ERASURE_HMAC_KEY
