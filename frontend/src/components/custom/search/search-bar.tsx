@@ -48,7 +48,7 @@ export default function SearchBar({
   const { routeQuery, isUnchanged, search, syncQuery, openResult } =
     useSearchNavigation(searchRoute, { shallow });
   const { setOpen } = useSidebar();
-  const { register, handleSubmit, reset, queryValue } = useSearchBarQuery({
+  const { register, handleSubmit, clearQuery, queryValue } = useSearchBarQuery({
     routeQuery,
     autoSearch,
     disabled,
@@ -59,9 +59,14 @@ export default function SearchBar({
   function submit(data: { query: string }) {
     if (disabled) return;
 
-    const query = data.query?.trim() ?? "";
+    const typed = data.query ?? "";
+    const query = typed.trim();
 
     dismissTouchKeyboard();
+
+    // Only a field emptied over a searched page has anything to do: it drops the query.
+    if (!query && (typed || !routeQuery)) return;
+
     setOpen(false);
     search(query);
     onSubmitted?.(query);
@@ -85,8 +90,10 @@ export default function SearchBar({
   }
 
   function handleClear() {
-    reset({ query: "" });
-    search("");
+    clearQuery();
+
+    // A live filter's own sync drops the query, and a field off its route has none to drop.
+    if (!autoSearch && routeQuery) search("");
   }
 
   const handleScan = useCallback(
