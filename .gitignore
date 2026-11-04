@@ -22,7 +22,6 @@ Thumbs.db
 
 # --- Java/Spring Boot Backend ---
 backend/target/
-backend/.gradle/
 backend/.classpath
 backend/.project
 backend/.settings/
@@ -30,7 +29,6 @@ backend/.apt_generated/
 backend/.factorypath
 backend/.springBeans
 backend/.sts4-cache
-backend/build/
 backend/HELP.md
 backend/.mvn/wrapper/maven-wrapper.jar
 !backend/src/**/target/
@@ -41,13 +39,6 @@ backend/.idea/
 backend/*.iml
 backend/*.ipr
 backend/*.iws
-
-# NetBeans
-backend/nbproject/private/
-backend/nbbuild/
-backend/dist/
-backend/nbdist/
-backend/.nb-gradle/
 
 # --- Node/Next.js Frontend ---
 frontend/node_modules/
@@ -64,10 +55,7 @@ frontend/build/
 frontend/.DS_Store
 frontend/.vscode/
 frontend/npm-debug.log*
-frontend/yarn-debug.log*
-frontend/yarn-error.log*
 frontend/package-lock.json
-frontend/yarn.lock
 
 # --- Misc ---
 *.bak
