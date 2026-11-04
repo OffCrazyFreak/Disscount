@@ -25,7 +25,7 @@ flowchart TD
   Page --> Faq[FaqSection]
   Page --> Cta[FinalCtaSection]
 
-  Hero -.client island.-> HeroActions["HeroActions + SearchBar + scanner"]
+  Hero -.client island.-> HeroActions["HeroActions + ProductSearchBar + scanner"]
   Hero -.client island.-> HeroCart["HeroCart (cursor pose + CartChaser)"]
   Feat -.client island.-> FCA["FeatureCardAction (scanner / notifications)"]
   Stores -.client island.-> Marquee["StoreChainLogo (CSS marquee)"]

@@ -271,7 +271,7 @@ Five deliberate choices:
 
 Its bottom `--sheet-bottom-clearance` is the shell's, 92px at 360x740, so whatever the sheet's height its last control ends 8px above the `<nav>`.
 
-The sheet reuses `SearchBar` rather than adding a second search field. `SearchBar` gained `inputRef` for the focus, `formId` so the footer button can own its form, and `onQueryChange` so that button can tell a real search from a no-op.
+The sheet reuses `SearchBar`, through `ProductSearchBar`, rather than adding a second search field. `SearchBar` gained `inputRef` for the focus and `formId` so the footer button can own its form. That button reads the shared product draft to tell a real search from a no-op, and the field and the page's own search box mirror the same text ([SEARCH.md §10](SEARCH.md#10-gotchas--lessons-learned)).
 
 ### The `/products` exception
 
@@ -779,19 +779,19 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 
 ### Touched elsewhere
 
-| File                                         | Change                                                                                      |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `app/[locale]/layout.tsx`                    | Viewport flags, `min-h-svh`, wrapper padding, mounts bar and sheet                          |
-| `app/globals.css`                            | The custom properties and the compaction keyframes                                          |
-| `app/providers/providers.tsx`                | Adds `ProductsSheetProvider`                                                                |
-| `constants/navigation.ts`                    | Added `productsNavItem` and the shared `findNavItem()` lookup                               |
-| `components/custom/search/search-bar.tsx`    | Added `inputRef`, `formId`, `onQueryChange` and `onSubmitted`, plus search input attributes |
-| `hooks/use-search-navigation.ts`             | Added `isUnchanged()`, so every submit button shares one rule                               |
-| `components/custom/product/product-card.tsx` | Accepts `pressProps`                                                                        |
-| `components/custom/product/product-item/…`   | Wires the long press and the quick-actions sheet                                            |
-| `components/custom/common/coming-soon.tsx`   | Accepts an `action` slot                                                                    |
-| `app/[locale]/(user)/spending/page.tsx`      | A value prop plus the notify CTA, from when it was a bar cell                               |
-| `components/custom/header/components/…`      | `HeaderNavItem` locks on an `isLocked` prop, not on `comingSoon`                            |
+| File                                         | Change                                                                     |
+| -------------------------------------------- | -------------------------------------------------------------------------- |
+| `app/[locale]/layout.tsx`                    | Viewport flags, `min-h-svh`, wrapper padding, mounts bar and sheet         |
+| `app/globals.css`                            | The custom properties and the compaction keyframes                         |
+| `app/providers/providers.tsx`                | Adds `ProductsSheetProvider`                                               |
+| `constants/navigation.ts`                    | Added `productsNavItem` and the shared `findNavItem()` lookup              |
+| `components/custom/search/search-bar.tsx`    | Added `inputRef`, `formId` and `onSubmitted`, plus search input attributes |
+| `hooks/use-search-navigation.ts`             | Added `isUnchanged()`, so every submit button shares one rule              |
+| `components/custom/product/product-card.tsx` | Accepts `pressProps`                                                       |
+| `components/custom/product/product-item/…`   | Wires the long press and the quick-actions sheet                           |
+| `components/custom/common/coming-soon.tsx`   | Accepts an `action` slot                                                   |
+| `app/[locale]/(user)/spending/page.tsx`      | A value prop plus the notify CTA, from when it was a bar cell              |
+| `components/custom/header/components/…`      | `HeaderNavItem` locks on an `isLocked` prop, not on `comingSoon`           |
 
 ---
 
