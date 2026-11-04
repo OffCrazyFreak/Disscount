@@ -33,7 +33,7 @@ export default async function PrivacyPolicyPage() {
     <LegalPage
       title="Pravila privatnosti"
       intro="Ova pravila objašnjavaju koje podatke Disscount prikuplja i kako ih koristi."
-      lastUpdated="3. studenoga 2026."
+      lastUpdated="4. studenoga 2026."
     >
       <LegalSection heading="Koje podatke prikupljamo">
         <p>
@@ -81,8 +81,10 @@ export default async function PrivacyPolicyPage() {
           snimanja i povezujemo je s tvojim računom kako bismo spriječili
           zlouporabu. Slika je javno vidljiva, bez tvog imena. Slike čuvamo na
           našem poslužitelju kod Hetznera u Finskoj, u Europskoj uniji. Ako
-          obrišeš račun, slike ostaju kao dio podataka o proizvodu, ali više
-          nisu povezane s tvojim imenom. Ako želiš da uklonimo neku tvoju sliku,
+          obrišeš račun, brišemo tvoje slike koje još nitko nije potvrdio i
+          izvorne datoteke svih tvojih slika. Slike koje je potvrdio drugi
+          korisnik ili administrator ostaju kao dio podataka o proizvodu, bez
+          ikakve veze s tvojim računom. Ako želiš da uklonimo neku tvoju sliku,
           javi nam se.
         </p>
       </LegalSection>

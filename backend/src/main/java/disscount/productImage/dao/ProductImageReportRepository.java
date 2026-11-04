@@ -1,5 +1,6 @@
 package disscount.productImage.dao;
 
+import java.util.List;
 import java.util.UUID;
 
 import disscount.productImage.domain.ProductImageReport;
@@ -11,6 +12,8 @@ import org.springframework.data.repository.query.Param;
 public interface ProductImageReportRepository extends JpaRepository<ProductImageReport, UUID> {
 
     boolean existsByImageIdAndUserId(UUID imageId, UUID userId);
+
+    List<ProductImageReport> findByUserId(UUID userId);
 
     @Modifying
     @Query("delete from ProductImageReport r where r.imageId = :imageId")

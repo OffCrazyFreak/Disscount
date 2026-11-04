@@ -65,7 +65,12 @@ class ProductImageRemoval {
         reports.deleteByImageId(image.getId());
 
         rendering.dropFiles(full, thumb, small);
-        if (original != null) afterCommit(() -> deleteOriginal(original));
+        deleteOriginalAfterCommit(original);
+    }
+
+    /** A rolled back transaction still points at the original, so the file may only go after the commit. */
+    void deleteOriginalAfterCommit(String key) {
+        if (key != null) afterCommit(() -> deleteOriginal(key));
     }
 
     /**
@@ -98,7 +103,6 @@ class ProductImageRemoval {
         }
     }
 
-    // A rolled back deletion still points at the original, so the file may only go after the commit.
     private static void afterCommit(Runnable action) {
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
             action.run();
