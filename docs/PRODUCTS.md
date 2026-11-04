@@ -255,28 +255,13 @@ All copy is in the next-intl catalogs, in all five languages ([I18N.md](I18N.md)
 
 | Path                                                                                                          | Role                                                                  |
 | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `frontend/src/lib/cijene-api/client.ts`, `errors.ts`                                                          | The three upstream axios clients; `CijeneApiError`                    |
-| `frontend/src/lib/cijene-api/schemas.ts`                                                                      | Zod schemas for every upstream response and parameter set             |
 | `frontend/src/lib/cijene-api/keys.ts`                                                                         | Query keys and parameter canonicalization                             |
-| `frontend/src/lib/cijene-api/queries.ts`, `query-hooks.ts`, `hooks.ts`                                        | Browser fetchers, query options with `staleTime`, `usePriceHistory`   |
 | `frontend/src/lib/cijene-api/route-client.ts`                                                                 | The browser's axios client for `/api/cijene`, sends the page language |
-| `frontend/src/lib/cijene-api/price-history-queries.ts`                                                        | The shared per-day history queries                                    |
-| `frontend/src/lib/cijene-api/server/`                                                                         | `getServerProduct`, `getServerProductPrices`, `searchProducts`        |
 | `frontend/src/lib/cijene-api/utils/`                                                                          | `withCijeneRoute`, the fuzzy fallback, response helpers               |
 | `frontend/src/lib/cijene-api/location-prices/`                                                                | City price reduction and its in-memory cache                          |
-| `frontend/src/app/api/cijene/`                                                                                | The proxy route handlers                                              |
-| `frontend/src/app/[locale]/products/page.tsx`, `components/`, `hooks/`, `utils/`                              | The product list, facets, cards and the product modal forms           |
-| `frontend/src/app/[locale]/products/[id]/page.tsx`                                                            | The server rendered product page and its metadata                     |
-| `frontend/src/app/[locale]/products/[id]/utils/`                                                              | Metadata, JSON-LD, cache seeding                                      |
-| `frontend/src/app/[locale]/products/[id]/components/`                                                         | Detail client, chains section, store rows, price history              |
 | `frontend/src/app/products/sitemap.ts`, `frontend/src/utils/product-sitemap.ts`, `frontend/src/app/robots.ts` | Product sitemaps and their listing                                    |
 | `frontend/src/utils/product-id.ts`, `product-links.ts`                                                        | Product id shape and decoding; the one place the product URL is built |
 | `frontend/src/constants/price-history.ts`                                                                     | Periods, the archive start date, disabled periods                     |
-| `frontend/src/lib/watchlist/`, `frontend/src/context/use-watchlist-notifications.ts`                          | Alert computation and notifications                                   |
-| `frontend/src/app/[locale]/(user)/watchlist/`                                                                 | The watchlist page                                                    |
-| `frontend/src/lib/api/watchlist/`, `frontend/src/lib/api/schemas/watchlist.ts`                                | Watchlist API client and schemas                                      |
-| `backend/.../watchlistItem/`                                                                                  | Watchlist entity, controller, service                                 |
-| `backend/.../shoppingListItem/`                                                                               | Shopping list items, including the product snapshot fields            |
 | `backend/.../productImage/catalog/`                                                                           | The weekly catalogue import behind the sitemap's EAN list             |
 
 `backend/...` is `backend/src/main/java/disscount/`.
@@ -363,22 +348,11 @@ Not covered: the proxy routes against real upstream responses, the fuzzy fallbac
 
 ## 19. Future improvements and TODOs
 
-**Product page**
-
 - [ ] #433, follow-ups from the server render review: read "today" once instead of in render, let the chain panels toggle when the `localStorage` write fails, keep showing the cached product when a background refetch fails, an offline state for an expanded chain with no cached prices, and confirm the JSON-LD script warning is gone.
 - [ ] #230, product page SEO: what is left after PRs #392 and #418, such as caching the server fetch and checking the rich result in Search Console.
 - [ ] `getServerProduct` uses the client's 30 second timeout, while prices and the photo have their own short ones; a slow upstream holds the HTML that long.
-
-**Prices and history**
-
 - [ ] #62 and #45: periods longer than a month, once history can be fetched in one request instead of one per day.
 - [ ] #278: show sale prices and flag sales that are not below the 30-day low. #63: base discount detection on price history.
 - [ ] #279: each store's price level against its chain on the map. #277: where a whole shopping list is cheapest.
-
-**Watchlist and alerts**
-
 - [ ] Tracked in [WATCHLIST.md](WATCHLIST.md#14-future-improvements-and-todos) (#222, #221, #216, #200).
-
-**Browsing and search**
-
 - [ ] #82, #83, #84: browse by category, by discount and by brand. #162 and #406: search while typing and suggestions from local data.

@@ -175,17 +175,12 @@ The hook's own comment calls it a stand-in until the server inbox (#222) can ret
 
 ## 10. Key files
 
-| Path                                                                                      | Role                                                                                                           |
-| ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `frontend/src/app/[locale]/(user)/watchlist/`                                             | The page: client, list, header, suggestions, sort and display utils                                            |
-| `frontend/src/app/[locale]/products/components/forms/watchlist-*.tsx`                     | The rule modal, type picker and threshold input                                                                |
-| `frontend/src/app/[locale]/products/utils/watchlist-thresholds.ts`                        | Ranges, defaults, threshold parsing                                                                            |
-| `frontend/src/lib/watchlist/`                                                             | Shared logic: watched product queries, discount and threshold maths, price-drop snapshot rules, the badge hook |
-| `frontend/src/context/use-watchlist-notifications.ts`, `build-watchlist-notifications.ts` | The bell's notification list and summary                                                                       |
-| `frontend/src/components/custom/watchlist/price-drop-status.tsx`                          | Screen reader announcement of badge changes                                                                    |
-| `frontend/src/utils/browser/storage/watchlist.ts`                                         | The localStorage snapshot store, cached for `useSyncExternalStore`                                             |
-| `frontend/src/lib/api/watchlist/`, `frontend/src/lib/api/schemas/watchlist.ts`            | API client, query keys, zod schemas                                                                            |
-| `backend/src/main/java/disscount/watchlistItem/`                                          | Entity, repository, service, controller                                                                        |
+| Path                                                                                      | Role                                                               |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `frontend/src/app/[locale]/products/components/forms/watchlist-*.tsx`                     | The rule modal, type picker and threshold input                    |
+| `frontend/src/app/[locale]/products/utils/watchlist-thresholds.ts`                        | Ranges, defaults, threshold parsing                                |
+| `frontend/src/context/use-watchlist-notifications.ts`, `build-watchlist-notifications.ts` | The bell's notification list and summary                           |
+| `frontend/src/utils/browser/storage/watchlist.ts`                                         | The localStorage snapshot store, cached for `useSyncExternalStore` |
 
 ---
 

@@ -142,21 +142,12 @@ Sentry events carry only the tags `flow: backend-proxy`, `proxyFailure` and `pat
 
 | Path (under `frontend/src/` unless noted)            | Role                                                                                                           |
 | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `app/api/[...path]/route.ts`                         | The catch-all route; every method calls `proxyToBackend`.                                                      |
-| `lib/backend-proxy/proxy-to-backend.ts`              | The six steps above, `Server-Timing`, Sentry. `server-only`.                                                   |
 | `lib/backend-proxy/backend-path.ts`                  | `BACKEND_ROOTS` and the URL builder (the SSRF guard).                                                          |
 | `lib/backend-proxy/request-guards.ts`                | `isCsrfSafe`, `identityPin`, `decideIdentity`. Pure, so the jsdom test harness reuses them.                    |
-| `lib/backend-proxy/session-token.ts`                 | `mintSessionToken`: `auth.api.getToken` plus the token's `sub`. `server-only`.                                 |
-| `lib/backend-proxy/forwarded-headers.ts`             | Both header allow-lists and the default `cache-control`.                                                       |
-| `lib/backend-proxy/proxy-problem.ts`                 | The problem responses.                                                                                         |
 | `lib/backend-proxy/proxy-contract.ts`                | The two header names and `session_changed`, shared by browser and server.                                      |
-| `lib/backend-proxy/client-headers.ts`                | `backendProxyHeaders()`, what the browser sends.                                                               |
-| `lib/api/api-base.ts`                                | The axios client: proxy headers, `Accept-Language`, the `session_changed` hook.                                |
-| `lib/api/session-changed.ts`                         | Refetches the session on a `session_changed` 401.                                                              |
 | `context/user-context.tsx`                           | `handleUserLogin` moves the pin before the profile load.                                                       |
 | `lib/auth/index.ts`                                  | jwt plugin: `disableSettingJwtHeader: true`, token life `BACKEND_TOKEN_TTL_MINUTES`.                           |
 | `test/backend-identity.ts`                           | `actingAs(request)` for jsdom tests: decides the account as the proxy would, from the pin and `serverSession`. |
-| `test/proxy-call.ts`                                 | Node test helpers that call `proxyToBackend` with the client's headers.                                        |
 | `backend/src/main/java/disscount/util/ClientIp.java` | Trusts the forwarded IP headers the proxy passes verbatim.                                                     |
 
 ---

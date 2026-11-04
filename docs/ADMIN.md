@@ -167,21 +167,11 @@ Swagger lists them all at `/api-docs`.
 
 ## 10. Key files
 
-| Path                                                                                   | Role                                                                      |
-| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `frontend/src/app/[locale]/dashboard/page.tsx`                                         | Metadata and the guard                                                    |
-| `frontend/src/app/[locale]/dashboard/components/dashboard-guard.tsx`                   | Browser redirect for other account types                                  |
-| `frontend/src/app/[locale]/dashboard/components/dashboard-content.tsx`                 | The tabs, or "coming soon" for non-admins                                 |
-| `frontend/src/app/[locale]/dashboard/components/admin-*.tsx`                           | Stats cards, users table and row, contact table, row and detail           |
-| `frontend/src/app/[locale]/dashboard/components/product-photos/`                       | The photo queue tab                                                       |
-| `frontend/src/app/[locale]/dashboard/utils/user-activity.ts`                           | WAU and MAU counting                                                      |
-| `frontend/src/app/[locale]/dashboard/hooks/use-contact-inbox.ts`                       | Inbox mutations with their toasts                                         |
-| `frontend/src/lib/api/admin/`, `lib/api/contact/`, `lib/api/product-images/admin-*.ts` | API clients and query keys                                                |
-| `frontend/src/lib/api/schemas/auth-user.ts`                                            | `canAccessDashboard`, `isAdmin`                                           |
-| `backend/src/main/java/disscount/admin/`                                               | `AdminController`, `UpdateAccountTypeRequest`                             |
-| `backend/src/main/java/disscount/contactMessage/`                                      | Contact entity, public and admin controllers, service, rate limiter       |
-| `backend/src/main/java/disscount/user/service/UserService.java`                        | `requireAdmin`, `findAllActive`, `updateAccountType`, `deleteUserAsAdmin` |
-| `backend/src/main/java/disscount/user/dao/AuthIdentityDao.java`                        | Reads and deletes better-auth rows from Spring                            |
+| Path                                                            | Role                                                                      |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `frontend/src/lib/api/schemas/auth-user.ts`                     | `canAccessDashboard`, `isAdmin`                                           |
+| `backend/src/main/java/disscount/user/service/UserService.java` | `requireAdmin`, `findAllActive`, `updateAccountType`, `deleteUserAsAdmin` |
+| `backend/src/main/java/disscount/user/dao/AuthIdentityDao.java` | Reads and deletes better-auth rows from Spring                            |
 
 ---
 
@@ -216,7 +206,3 @@ No admin-specific environment variables or feature flags. The page uses the shad
 ## 14. Future improvements and TODOs
 
 - [ ] Admin hardening (method security, last-admin and self-change guards, a smaller user list): proposed in #214, which is closed, while AUTH.md records the current manual checks as an accepted decision. Reopen or file a new issue if the decision changes.
-- [ ] More dashboard tabs: the code comment in `dashboard-content.tsx` expects feature plans to add their own (bug reports, ideas).
-- [ ] Features for `ENTERPRISE` and `PUBLIC_SECTOR` accounts, which today see only "coming soon".
-- [ ] Server-side WAU and MAU, then pagination for the users list.
-- [ ] An alert (email or in-app) when a contact message arrives, and a purge of old soft-deleted messages.

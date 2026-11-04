@@ -70,9 +70,6 @@ The browser steps are a convenience; the server check is the real guard, because
 | File                                                                  | Role                                                   |
 | --------------------------------------------------------------------- | ------------------------------------------------------ |
 | `frontend/src/utils/browser/image.ts`                                 | Shared decode, resize, encode and size stepping        |
-| `frontend/src/utils/browser/avatar-image.ts`                          | Avatar settings                                        |
-| `frontend/src/utils/browser/card-image.ts`                            | Card photo settings                                    |
-| `frontend/src/utils/browser/product-photo.ts`                         | Product photo settings                                 |
 | `frontend/src/components/custom/settings/components/avatar-field.tsx` | Avatar picker; turns the blob into a data URI          |
 | `backend/.../digitalCard/photo/PhotoValidator.java`                   | Format sniffing, size and dimension checks, sanitising |
 | `backend/.../user/avatar/AvatarSanitizer.java`                        | Data URI in, sanitised data URI out                    |
