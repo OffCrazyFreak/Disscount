@@ -109,10 +109,13 @@ export default function ShoppingListSelector({
                             list={list}
                             isSelected={selectedList?.id === list.id}
                             onSelect={() => {
+                              // The list goes first: the title rule only applies to "new",
+                              // so validating the cleared title before it would flag it.
+                              onSelectList(list.id);
                               formField.setValue("customListTitle", "", {
                                 shouldDirty: true,
+                                shouldValidate: true,
                               });
-                              onSelectList(list.id);
                               setOpen(false);
                             }}
                           />
@@ -125,10 +128,12 @@ export default function ShoppingListSelector({
                         <CreateListOption
                           customListTitle={search}
                           onSelect={() => {
+                            // "new" goes first so the title is validated as a new list's.
+                            onSelectList("new");
                             formField.setValue("customListTitle", search, {
                               shouldDirty: true,
+                              shouldValidate: true,
                             });
-                            onSelectList("new");
                             setOpen(false);
                           }}
                         />
@@ -151,6 +156,18 @@ export default function ShoppingListSelector({
             </PopoverContent>
           </Popover>
           <FormMessage />
+
+          {/* The title has no input of its own (it comes from the create row), so its error shows here; `contents` adds no gap while empty. */}
+          <FormField
+            control={formField.control}
+            name="customListTitle"
+            render={() => (
+              <FormItem className="contents">
+                {/* An alert, because the trigger's aria-describedby points at the list field's message, not this one. */}
+                <FormMessage role="alert" />
+              </FormItem>
+            )}
+          />
         </FormItem>
       )}
     />

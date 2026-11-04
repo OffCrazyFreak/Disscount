@@ -282,4 +282,46 @@ describe("AddPlainItemModal", { timeout: 30_000 }, () => {
     );
     expect(getFormDraft("add-plain-item.kruh integralni")).toBeNull();
   });
+
+  it("explains why a too short new list title blocks the add", async () => {
+    const user = userEvent.setup();
+    server.use(
+      http.get("*/api/shopping-lists/me", () =>
+        HttpResponse.json([newest, older]),
+      ),
+      http.get("*/api/shopping-lists/:id", ({ params }) =>
+        HttpResponse.json(params.id === older.id ? older : newest),
+      ),
+    );
+
+    renderWithProviders(<AddPlainItemModal open itemName="Staklenke" />);
+    const trigger = await screen.findByRole("combobox", {
+      name: "Popis za kupnju",
+    });
+    await waitFor(() => expect(trigger).toHaveTextContent("Tjedna kupnja"));
+    await user.click(trigger);
+    await user.type(
+      await screen.findByPlaceholderText(/Pretraži svoje popise/),
+      "ab",
+    );
+    await user.click(await screen.findByRole("option", { name: /ab/ }));
+
+    expect(
+      await screen.findByText("Upiši naziv s najmanje 3 znaka"),
+    ).toBeVisible();
+    expect(screen.getByRole("button", { name: "Dodaj" })).toBeDisabled();
+
+    await user.click(trigger);
+    // Reopening prefills the search with the new title, which hides the lists.
+    await user.clear(
+      await screen.findByPlaceholderText(/Pretraži svoje popise/),
+    );
+    await user.click(await screen.findByRole("option", { name: /Vikendica/ }));
+
+    await waitFor(() =>
+      expect(
+        screen.queryByText("Upiši naziv s najmanje 3 znaka"),
+      ).not.toBeInTheDocument(),
+    );
+  });
 });
