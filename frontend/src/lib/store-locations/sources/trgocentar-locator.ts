@@ -5,6 +5,7 @@ import { z } from "zod";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { parseTrgocentarWeek } from "@/lib/store-hours/sources/trgocentar-hours";
 import { fetchText } from "@/lib/store-locations/http";
+import { decodeEntities } from "@/utils/strings";
 import type {
   ILocatorStore,
   IStoreLocator,
@@ -22,22 +23,6 @@ const mapSchema = z.object({
     }),
   ),
 });
-
-const ENTITIES: Record<string, string> = {
-  "&quot;": '"',
-  "&lt;": "<",
-  "&gt;": ">",
-  "&#039;": "'",
-  "&#39;": "'",
-  "&amp;": "&",
-};
-
-function decodeEntities(value: string): string {
-  return value.replace(
-    /&(?:quot|lt|gt|amp|#0?39);/g,
-    (entity) => ENTITIES[entity],
-  );
-}
 
 function extractMap(html: string): unknown {
   const match = /data-adv-maps="([^"]*)"/.exec(html);

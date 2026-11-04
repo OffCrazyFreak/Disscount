@@ -1,6 +1,29 @@
 import { parseServerDate } from "@/utils/date";
 import { formatLocale, TIME_ZONE } from "@/i18n/formatting";
 
+const ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+};
+
+/** Decodes the five XML named entities and numeric references, once. */
+export function decodeEntities(text: string): string {
+  return text.replace(/&(#x[0-9a-f]+|#\d+|\w+);/gi, (whole, body: string) => {
+    if (body[0] !== "#") return ENTITIES[body] ?? whole;
+
+    const code =
+      body[1] === "x" || body[1] === "X"
+        ? parseInt(body.slice(2), 16)
+        : parseInt(body.slice(1), 10);
+
+    // fromCodePoint throws past Unicode's last code point, which would fail a whole feed.
+    return code <= 0x10ffff ? String.fromCodePoint(code) : whole;
+  });
+}
+
 /**
  * Normalize strings for search: remove diacritics and apply language-specific replacements.
  * Works well for Croatian and German diacritics.

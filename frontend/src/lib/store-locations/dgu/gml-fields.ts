@@ -1,23 +1,4 @@
-const ENTITIES: Record<string, string> = {
-  amp: "&",
-  lt: "<",
-  gt: ">",
-  quot: '"',
-  apos: "'",
-};
-
-function decodeEntities(text: string): string {
-  return text.replace(/&(#x[0-9a-f]+|#\d+|\w+);/gi, (whole, body: string) => {
-    if (body[0] !== "#") return ENTITIES[body] ?? whole;
-
-    const code =
-      body[1] === "x" || body[1] === "X"
-        ? parseInt(body.slice(2), 16)
-        : parseInt(body.slice(1), 10);
-
-    return Number.isFinite(code) ? String.fromCodePoint(code) : whole;
-  });
-}
+import { decodeEntities } from "@/utils/strings";
 
 const KINDS: Record<string, number> = {
   ThoroughfareName: 1,

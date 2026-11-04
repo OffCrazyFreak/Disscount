@@ -158,7 +158,6 @@
     "reload": "Neu laden"
   },
   "validation": {
-    "emailInvalid": "Gib eine gültige E-Mail-Adresse ein",
     "fullNameMax": "Der Name darf höchstens 255 Zeichen lang sein",
     "subjectRequired": "Gib einen Betreff ein",
     "subjectMax": "Der Betreff darf höchstens 255 Zeichen lang sein",

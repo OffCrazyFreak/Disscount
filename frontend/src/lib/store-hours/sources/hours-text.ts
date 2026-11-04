@@ -4,6 +4,7 @@ import type {
   IParsedHours,
 } from "@/lib/store-hours/sync/hours-source-types";
 import { addDays, isoWeekday, SUNDAY } from "@/lib/store-hours/zagreb-clock";
+import { normalizeForSearch } from "@/utils/strings";
 
 export type Weekly = IParsedHours["weekly"];
 
@@ -35,7 +36,7 @@ const CLOCK_RANGE =
   /^(\d{1,2})(?:[:.](\d\d))?\s*[-–]\s*(\d{1,2})(?:[:.](\d\d))?$/;
 
 export function fold(text: string): string {
-  return text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().trim();
+  return normalizeForSearch(text).trim();
 }
 
 function clock(hours: string, minutes = "00"): string | null {
