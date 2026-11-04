@@ -380,7 +380,7 @@ Versions read from `frontend/package.json` and `backend/pom.xml`.
 | ---------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------- |
 | `@bwip-js/browser`                             | `^4.11.4`              | Draws barcodes and QR codes as SVG, in the browser, with no server round trip               |
 | `@base-ui/react`                               | `^1.9.0`               | The headless Autocomplete primitive behind the store field, via the reui registry component |
-| `vitest`                                       | `^5.0.3` (dev)         | Frontend unit tests, `pnpm test`                                                            |
+| `vitest`                                       | `^5.0.4` (dev)         | Frontend unit tests, `pnpm test`                                                            |
 | `idb-keyval`                                   | `^6.2.5`               | IndexedDB stores for photo blobs, the photo outbox and the last-used queue                  |
 | `@tanstack/react-query` and persist client     | see `package.json`     | The persisted cache and paused mutations                                                    |
 | `software.amazon.awssdk:bom`                   | see `pom.xml` (import) | Pins the AWS SDK v2 versions                                                                |
