@@ -45,6 +45,7 @@ class ProductImageViews {
 
     AdminProductDto adminView(ProductImageSet set, List<ProductImage> all) {
         List<AdminImageDto> images = all.stream()
+                .filter(i -> !i.isDeleted())
                 .sorted(Comparator.comparing((ProductImage i) -> !i.getId().equals(set.getMainImageId()))
                         .thenComparing(ProductImageViews::adminRank)
                         .thenComparing(ProductImage::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder())))

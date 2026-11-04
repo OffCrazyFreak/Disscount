@@ -158,6 +158,13 @@ public class ProductImageRendering {
         }
     }
 
+    /** Deletes a deleted photo's public files once no other row points at them; call after clearing the row's keys. */
+    void dropFiles(String fullKey, String thumbKey, String smallKey) {
+        deleteIfUnused(fullKey, null);
+        deleteIfUnused(thumbKey, null);
+        deleteIfUnused(smallKey, null);
+    }
+
     private void deleteIfUnused(String oldKey, String newKey) {
         if (oldKey == null || oldKey.equals(newKey)) return;
         if (images.existsByFullKey(oldKey) || images.existsByThumbKey(oldKey) || images.existsBySmallKey(oldKey)) return;

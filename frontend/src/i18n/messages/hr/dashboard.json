@@ -37,6 +37,8 @@
     "colEmail": "Email",
     "colLastLogin": "Zadnja prijava",
     "colAccountType": "Vrsta računa",
+    "colPhotos": "Slike",
+    "photoCount": "{uploaded} · {deleted, plural, one {# obrisana} few {# obrisane} other {# obrisanih}}",
     "deleteTitle": "Brisanje računa",
     "deleteDescription": "Sigurno želiš obrisati račun {name}? Ovo se ne može poništiti.",
     "deleteConfirm": "Obriši račun"
