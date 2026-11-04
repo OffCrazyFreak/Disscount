@@ -21,14 +21,15 @@ export default function CreateListOption({
   return (
     <CommandItem
       value={`new-${customListTitle}`}
-      // The list filters on keywords alone, so this needs its own. The search
-      // text and this title are the same field, so it always matches.
+      // The list filters on keywords alone, so this needs its own. The title is
+      // the search text, so it always matches.
       keywords={[customListTitle]}
       onSelect={onSelect}
       className="text-nowrap"
     >
       <Plus className="size-4" />
-      {label}
+      {/* One flex item: bare text nodes would each get the item's gap, spacing the quotes. */}
+      <span className="flex min-w-0">{label}</span>
     </CommandItem>
   );
 }
