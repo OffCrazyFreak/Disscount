@@ -198,7 +198,7 @@
   "list": {
     "loginTitle": "Kartice vjernosti",
     "loginDescription": "Sve kartice vjernosti na jednom mjestu, uvijek pri ruci.",
-    "searchPlaceholder": "Pretraži kartice vjernosti...",
+    "searchPlaceholder": "Pretraži kartice vjernosti",
     "searchResults": "Rezultati pretrage za \"{query}\" ({count})",
     "myCards": "Moje kartice vjernosti",
     "myCardsWithCount": "Moje kartice vjernosti ({count})",

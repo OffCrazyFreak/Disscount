@@ -79,7 +79,7 @@
       "subject": "Zadeva",
       "subjectPlaceholder": "Npr. Vprašanje o Disscountu",
       "message": "Sporočilo",
-      "messagePlaceholder": "Napiši nam, kako ti lahko pomagamo...",
+      "messagePlaceholder": "Napiši nam, kako ti lahko pomagamo",
       "charactersLeft": "{count, plural, one {Še # znak} two {Še # znaka} few {Še # znaki} other {Še # znakov}}"
     },
     "modal": {

@@ -35,8 +35,8 @@
     "toggle": "Prikaži ili sakrij filtre"
   },
   "search": {
-    "productsPlaceholder": "Pretraži proizvode...",
-    "placeholder": "Pretraži...",
+    "productsPlaceholder": "Pretraži proizvode",
+    "placeholder": "Pretraži",
     "submit": "Pretraži",
     "clear": "Očisti pretragu",
     "scanBarcode": "Skeniraj barkod",

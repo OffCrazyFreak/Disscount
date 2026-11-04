@@ -6,7 +6,7 @@
   "client": {
     "loginTitle": "Praćeni proizvodi",
     "loginDescription": "Prati proizvode koje kupuješ i dobij obavijest čim im cijena padne.",
-    "searchPlaceholder": "Pretraži praćene proizvode..."
+    "searchPlaceholder": "Pretraži praćene proizvode"
   },
   "header": {
     "searchResultsTitle": "Rezultati pretrage za \"{query}\" ({count})",

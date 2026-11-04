@@ -35,8 +35,8 @@
     "toggle": "Filter ein- oder ausblenden"
   },
   "search": {
-    "productsPlaceholder": "Produkte suchen...",
-    "placeholder": "Suchen...",
+    "productsPlaceholder": "Produkte suchen",
+    "placeholder": "Suchen",
     "submit": "Suchen",
     "clear": "Suche leeren",
     "scanBarcode": "Barcode scannen",

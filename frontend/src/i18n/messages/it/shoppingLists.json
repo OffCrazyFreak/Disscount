@@ -6,7 +6,7 @@
   "client": {
     "loginTitle": "Liste della spesa",
     "loginDescription": "Crea una lista e confronta i prezzi dei negozi in un unico posto.",
-    "searchPlaceholder": "Cerca liste della spesa...",
+    "searchPlaceholder": "Cerca liste della spesa",
     "searchResults": "Risultati per «{query}» ({count})",
     "myLists": "Le mie liste della spesa",
     "myListsWithCount": "Le mie liste della spesa ({count})",

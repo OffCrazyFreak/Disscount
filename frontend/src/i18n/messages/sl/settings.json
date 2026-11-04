@@ -73,7 +73,7 @@
     "places": {
       "label": "Lokacije",
       "hint": "Izberi lokacije v svoji bližini.",
-      "placeholder": "Izberi lokacije..."
+      "placeholder": "Izberi lokacije"
     },
     "selectedMark": "✓",
     "language": {

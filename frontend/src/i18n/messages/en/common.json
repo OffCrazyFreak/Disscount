@@ -79,7 +79,7 @@
       "subject": "Subject",
       "subjectPlaceholder": "E.g. A question about Disscount",
       "message": "Message",
-      "messagePlaceholder": "Tell us how we can help...",
+      "messagePlaceholder": "Tell us how we can help",
       "charactersLeft": "{count, plural, one {# character left} other {# characters left}}"
     },
     "modal": {

@@ -5,7 +5,7 @@
     "detailTitle": "Prijedlog | Ideje i prijedlozi",
     "detailDescription": "Detalji prijedloga i komentari zajednice."
   },
-  "searchPlaceholder": "Pretraži ideje i prijedloge...",
+  "searchPlaceholder": "Pretraži ideje i prijedloge",
   "heading": "Ideje i prijedlozi ({count})",
   "searchHeading": "Rezultati pretrage za \"{query}\" ({count})",
   "separator": "·",

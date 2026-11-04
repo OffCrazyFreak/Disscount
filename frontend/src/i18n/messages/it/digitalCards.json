@@ -141,7 +141,7 @@
   "list": {
     "loginTitle": "Carte fedeltà",
     "loginDescription": "Tutte le carte fedeltà in un unico posto, sempre a portata di mano.",
-    "searchPlaceholder": "Cerca carte fedeltà...",
+    "searchPlaceholder": "Cerca carte fedeltà",
     "searchResults": "Risultati per «{query}» ({count})",
     "myCards": "Le mie carte fedeltà",
     "myCardsWithCount": "Le mie carte fedeltà ({count})",

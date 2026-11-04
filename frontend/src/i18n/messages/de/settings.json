@@ -73,7 +73,7 @@
     "places": {
       "label": "Standorte",
       "hint": "Wähle Standorte in deiner Nähe.",
-      "placeholder": "Standorte auswählen..."
+      "placeholder": "Standorte auswählen"
     },
     "selectedMark": "✓",
     "language": {

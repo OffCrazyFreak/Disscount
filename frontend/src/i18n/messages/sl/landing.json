@@ -8,7 +8,7 @@
   },
   "hero": {
     "title": "Poišči <underline>najboljše cene</underline> na Hrvaškem",
-    "searchPlaceholder": "Išči izdelke...",
+    "searchPlaceholder": "Išči izdelke",
     "or": "ali",
     "scanBarcode": "Skeniraj črtno kodo"
   },

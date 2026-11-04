@@ -38,7 +38,7 @@
   "quantity": { "label": "Quantità" },
   "listSelector": {
     "label": "Lista della spesa",
-    "searchPlaceholder": "Cerca tra le tue liste o creane una nuova...",
+    "searchPlaceholder": "Cerca tra le tue liste o creane una nuova",
     "empty": "Scrivi un nome e crea qui la tua prima lista.",
     "existingLists": "Liste esistenti",
     "newList": "Nuova lista della spesa",
@@ -104,26 +104,26 @@
   "facets": {
     "stores": {
       "label": "Negozi",
-      "placeholder": "Scegli i negozi...",
-      "search": "Cerca negozi...",
+      "placeholder": "Scegli i negozi",
+      "search": "Cerca negozi",
       "empty": "Nessun negozio"
     },
     "locations": {
       "label": "Località",
-      "placeholder": "Scegli le località...",
-      "search": "Cerca località...",
+      "placeholder": "Scegli le località",
+      "search": "Cerca località",
       "empty": "Nessuna località"
     },
     "categories": {
       "label": "Categorie",
-      "placeholder": "Scegli le categorie...",
-      "search": "Cerca categorie...",
+      "placeholder": "Scegli le categorie",
+      "search": "Cerca categorie",
       "empty": "Nessuna categoria"
     },
     "brands": {
       "label": "Marca",
-      "placeholder": "Scegli la marca...",
-      "search": "Cerca marche...",
+      "placeholder": "Scegli la marca",
+      "search": "Cerca marche",
       "empty": "Nessuna marca"
     },
     "count": "({count})"
@@ -157,7 +157,7 @@
     "absoluteRange": "Inserisci un importo da 0,10 € a 999 €"
   },
   "list": {
-    "searchPlaceholder": "Cerca prodotti...",
+    "searchPlaceholder": "Cerca prodotti",
     "resultsTitle": "Risultati per «{query}»",
     "resultsTitleWithCount": "Risultati per «{query}» ({count}{suffix})",
     "resultsStatus": "{count, plural, =0 {Nessun risultato} one {# risultato} other {# risultati}}{truncated, select, yes { o più} other {}}",
@@ -213,5 +213,5 @@
       "quantityIncreased": "Quantità dell'articolo aumentata in «{name}»"
     }
   },
-  "storeChainSelect": { "multiPlaceholder": "Scegli le catene..." }
+  "storeChainSelect": { "multiPlaceholder": "Scegli le catene" }
 }

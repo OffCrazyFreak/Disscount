@@ -35,8 +35,8 @@
     "toggle": "Mostra o nascondi i filtri"
   },
   "search": {
-    "productsPlaceholder": "Cerca prodotti...",
-    "placeholder": "Cerca...",
+    "productsPlaceholder": "Cerca prodotti",
+    "placeholder": "Cerca",
     "submit": "Cerca",
     "clear": "Cancella ricerca",
     "scanBarcode": "Scansiona codice a barre",

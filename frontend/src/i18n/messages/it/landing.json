@@ -8,7 +8,7 @@
   },
   "hero": {
     "title": "Trova i <underline>prezzi migliori</underline> in Croazia",
-    "searchPlaceholder": "Cerca prodotti...",
+    "searchPlaceholder": "Cerca prodotti",
     "or": "oppure",
     "scanBarcode": "Scansiona codice a barre"
   },

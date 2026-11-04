@@ -198,7 +198,7 @@
   "list": {
     "loginTitle": "Kundenkarten",
     "loginDescription": "Alle Kundenkarten an einem Ort, immer griffbereit.",
-    "searchPlaceholder": "Kundenkarten suchen...",
+    "searchPlaceholder": "Kundenkarten suchen",
     "searchResults": "Suchergebnisse für „{query}“ ({count})",
     "myCards": "Meine Kundenkarten",
     "myCardsWithCount": "Meine Kundenkarten ({count})",

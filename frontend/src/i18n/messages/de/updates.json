@@ -6,7 +6,7 @@
   },
   "author": "Disscount-Team",
   "separator": "·",
-  "searchPlaceholder": "Neuigkeiten durchsuchen...",
+  "searchPlaceholder": "Neuigkeiten durchsuchen",
   "heading": "Neuigkeiten ({count})",
   "searchHeading": "Suchergebnisse für „{query}“ ({count})",
   "newPost": "Neuer Beitrag",

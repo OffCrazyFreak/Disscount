@@ -6,7 +6,7 @@
   "client": {
     "loginTitle": "Nakupovalni seznami",
     "loginDescription": "Sestavi seznam in na enem mestu primerjaj cene po trgovinah.",
-    "searchPlaceholder": "Išči nakupovalne sezname...",
+    "searchPlaceholder": "Išči nakupovalne sezname",
     "searchResults": "Rezultati iskanja za »{query}« ({count})",
     "myLists": "Moji nakupovalni seznami",
     "myListsWithCount": "Moji nakupovalni seznami ({count})",
