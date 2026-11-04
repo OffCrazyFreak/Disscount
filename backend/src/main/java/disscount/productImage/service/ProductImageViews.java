@@ -38,9 +38,8 @@ class ProductImageViews {
     }
 
     ProductImageDto toPublic(ProductImage image) {
-        String small = image.getSmallKey() != null ? image.getSmallKey() : image.getThumbKey();
-        return new ProductImageDto(image.getId(), store.publicUrl(image.getFullKey()), store.publicUrl(image.getThumbKey()),
-                store.publicUrl(small), image.getSource().name(), image.getStatus().name());
+        return new ProductImageDto(image.getId(), store.publicUrl(image.getFullKey()), image.getFullWidth(),
+                image.getFullHeight(), store.publicUrl(image.listKey()), image.getSource().name(), image.getStatus().name());
     }
 
     AdminProductDto adminView(ProductImageSet set, List<ProductImage> all) {
@@ -66,7 +65,7 @@ class ProductImageViews {
     }
 
     String previewUrl(ProductImage image) {
-        if (image.isRendered()) return store.publicUrl(image.getThumbKey());
+        if (image.isRendered()) return store.publicUrl(image.listKey());
         if (image.getSource() == ImageSource.OPEN_FOOD_FACTS) {
             return OffImageUrls.preview(image.getEan(), image.getExternalKey(), image.getExternalRev());
         }

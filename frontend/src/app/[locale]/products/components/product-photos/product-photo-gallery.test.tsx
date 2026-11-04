@@ -20,7 +20,8 @@ function photo(id: string, status = "VERIFIED") {
   return {
     id,
     fullUrl: `https://images.test/${id}.webp`,
-    thumbUrl: `https://images.test/${id}-t.webp`,
+    fullWidth: 1600,
+    fullHeight: 1200,
     smallUrl: `https://images.test/${id}-s.webp`,
     source: "USER",
     status,

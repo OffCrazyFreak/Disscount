@@ -92,12 +92,20 @@ public class ProductImage {
     @Column(name = "full_key", length = 255)
     private String fullKey;
 
+    /** The 400 pixel file of photos rendered before the 1600 pixel full one; the re-render clears it. */
     @Column(name = "thumb_key", length = 255)
     private String thumbKey;
 
-    /** The 160 pixel list file; null on photos rendered before it existed, which lists then show at thumb size. */
+    /** The 256 pixel square list file; null on photos rendered before it existed. */
     @Column(name = "small_key", length = 255)
     private String smallKey;
+
+    /** Size of the full file, which keeps the photo's shape; null on photos rendered as a 1080 pixel square. */
+    @Column(name = "full_width")
+    private Integer fullWidth;
+
+    @Column(name = "full_height")
+    private Integer fullHeight;
 
     @Column(name = "rendered_at")
     private LocalDateTime renderedAt;
@@ -143,7 +151,12 @@ public class ProductImage {
     }
 
     public boolean isRendered() {
-        return fullKey != null && thumbKey != null;
+        return fullKey != null;
+    }
+
+    /** The square file lists and tiles show, until the re-render gives an older photo its small file. */
+    public String listKey() {
+        return smallKey != null ? smallKey : thumbKey;
     }
 
     public boolean isDeleted() {

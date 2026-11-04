@@ -140,11 +140,11 @@ public class ProductImageJobs {
     }
 
     /**
-     * Brings photos rendered before WebP and the list file up to date, only while no new photo waits, and at the
+     * Brings photos rendered before the 1600 pixel full file up to date, only while no new photo waits, and at the
      * same one-at-a-time pace, because the Open Food Facts ones are downloaded again.
      */
     private void rerenderOlderPhotos() {
-        List<ProductImage> older = images.findRenderedWithoutSmallFile(List.of(ImageStatus.VERIFIED, ImageStatus.PENDING),
+        List<ProductImage> older = images.findRenderedBeforeCurrentFiles(List.of(ImageStatus.VERIFIED, ImageStatus.PENDING),
                 MAX_RENDER_ATTEMPTS, Timestamps.nowUtc(), PageRequest.of(0, RENDER_BATCH));
         for (ProductImage image : older) {
             try {

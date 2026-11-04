@@ -27,13 +27,14 @@ import com.luciad.imageio.webp.WebPWriteParam;
 import disscount.exceptions.BadRequestException;
 
 /**
- * Turns any source photo into the three square WebP files we serve. The white background is painted into
- * the pixels on purpose: dark mode extensions recolour CSS backgrounds but leave image pixels alone.
+ * Turns any source photo into the two WebP files we serve: the full one in the photo's own shape for the
+ * viewer, and a small square for lists and tiles. The white background is painted into the pixels on
+ * purpose: dark mode extensions recolour CSS backgrounds but leave image pixels alone.
  */
 public final class ProductImageRenderer {
 
-    public static final int FULL_SIDE = 1080;
-    public static final int THUMB_SIDE = 400;
+    /** Long edge of the full file: sharp on 2x laptop and 3x phone screens without zoom. */
+    public static final int FULL_MAX_SIDE = 1600;
     /** Used wherever a photo is drawn small (list rows, the product page tile up to about 128 CSS pixels), sharp on 2x screens. */
     public static final int SMALL_SIDE = 256;
     public static final int MIN_CROP_SIDE = 16;
@@ -46,17 +47,17 @@ public final class ProductImageRenderer {
     // WebP quality 80 measured about half the bytes of the earlier JPEG at 86 on our photos.
     private static final float[] QUALITY_STEPS = {0.80f, 0.70f, 0.60f, 0.50f};
     // Noisy photos can blow past the usual size; each step down trades a little detail to stay under these.
-    public static final int FULL_MAX_BYTES = 200_000;
-    public static final int THUMB_MAX_BYTES = 60_000;
+    public static final int FULL_MAX_BYTES = 350_000;
     public static final int SMALL_MAX_BYTES = 30_000;
 
     public record Crop(int x, int y, int width, int height) {}
 
-    public record Rendered(byte[] full, byte[] thumb, byte[] small, String sha256, int sourceWidth, int sourceHeight) {
+    public record Rendered(byte[] full, int fullWidth, int fullHeight, byte[] small, String sha256,
+                           int sourceWidth, int sourceHeight) {
 
         /** True when even the lowest quality step left a file over its ceiling. */
         public boolean overCeiling() {
-            return full.length > FULL_MAX_BYTES || thumb.length > THUMB_MAX_BYTES || small.length > SMALL_MAX_BYTES;
+            return full.length > FULL_MAX_BYTES || small.length > SMALL_MAX_BYTES;
         }
     }
 
@@ -71,12 +72,11 @@ public final class ProductImageRenderer {
         BufferedImage rotated = rotate(onWhite(decoded), normalizeRotation(rotation));
         BufferedImage content = crop == null ? rotated : cropped(rotated, crop);
 
-        BufferedImage full = squareOnWhite(content, FULL_SIDE);
-        BufferedImage thumb = scaled(full, Math.min(THUMB_SIDE, full.getWidth()));
-        BufferedImage small = scaled(thumb, Math.min(SMALL_SIDE, thumb.getWidth()));
+        BufferedImage full = fitWithin(content, FULL_MAX_SIDE);
+        BufferedImage small = squareOnWhite(content, SMALL_SIDE);
 
         byte[] fullBytes = encode(full, FULL_MAX_BYTES);
-        return new Rendered(fullBytes, encode(thumb, THUMB_MAX_BYTES), encode(small, SMALL_MAX_BYTES),
+        return new Rendered(fullBytes, full.getWidth(), full.getHeight(), encode(small, SMALL_MAX_BYTES),
                 sha256(fullBytes), sourceWidth, sourceHeight);
     }
 
@@ -187,8 +187,15 @@ public final class ProductImageRenderer {
         return canvas;
     }
 
-    private static BufferedImage scaled(BufferedImage square, int side) {
-        return resize(square, side, side);
+    /** Keeps the photo's shape, so a wide or tall product fills the file instead of white padding. */
+    private static BufferedImage fitWithin(BufferedImage content, int maxSide) {
+        int longEdge = Math.max(content.getWidth(), content.getHeight());
+        // Never upscale: a small source gains nothing but blur from more pixels.
+        if (longEdge <= maxSide) return content;
+        double scale = (double) maxSide / longEdge;
+        int width = Math.max(1, (int) Math.round(content.getWidth() * scale));
+        int height = Math.max(1, (int) Math.round(content.getHeight() * scale));
+        return resize(content, width, height);
     }
 
     /** Halves first: a single bicubic step from a much larger image skips pixels and looks jagged. */
