@@ -51,11 +51,6 @@ public class UserService {
     private final ErasureLedgerRepository erasureLedger;
     private final AvatarSanitizer avatarSanitizer;
 
-    // Compared against better-auth's UTC session timestamps, so the JVM zone must not leak in.
-    private static LocalDateTime nowUtc() {
-        return Timestamps.nowUtc();
-    }
-
     // Read-only: the class-level @Transactional would otherwise keep a dirty-checking
     // flush at commit for a query that never writes.
     @Transactional(readOnly = true)
@@ -93,7 +88,7 @@ public class UserService {
             // image is intentionally not synced here: the avatar is user-owned after creation,
             // so a cleared avatar must not be repopulated from the provider on the next request
             if (isActivityStampStale(user.getLastActiveAt())) {
-                user.setLastActiveAt(nowUtc());
+                user.setLastActiveAt(Timestamps.nowUtc());
                 userRepository.save(user);
             }
         } else {
@@ -105,7 +100,7 @@ public class UserService {
             String username = seedUsername(name, email);
             // Newsletter stays null: marketing email needs prior opt-in consent, and a pre-set
             // switch is not consent (GDPR Recital 32, ZEK Art. 50). The other three start ON.
-            LocalDateTime now = nowUtc();
+            LocalDateTime now = Timestamps.nowUtc();
             User.UserBuilder profile = User.builder()
                     .id(id)
                     .image(image)
@@ -130,7 +125,7 @@ public class UserService {
 
     private boolean isActivityStampStale(LocalDateTime lastActiveAt) {
         return lastActiveAt == null
-                || lastActiveAt.isBefore(nowUtc().minus(ACTIVITY_STAMP_INTERVAL));
+                || lastActiveAt.isBefore(Timestamps.nowUtc().minus(ACTIVITY_STAMP_INTERVAL));
     }
 
     /**
@@ -212,7 +207,7 @@ public class UserService {
             user.setOnboardingOutcome(outcome);
             if (ONBOARDING_COMPLETED.equals(outcome)
                     && user.getOnboardingCompletedAt() == null) {
-                user.setOnboardingCompletedAt(nowUtc());
+                user.setOnboardingCompletedAt(Timestamps.nowUtc());
             }
         }
 
@@ -230,7 +225,7 @@ public class UserService {
             return current;
         }
         if (desired) {
-            return current != null ? current : nowUtc();
+            return current != null ? current : Timestamps.nowUtc();
         }
         return null;
     }
@@ -248,7 +243,7 @@ public class UserService {
         userRepository.findByIdForUpdate(userId).ifPresent(user -> {
             user.setUsername(null);
             user.setImage(null);
-            user.setDeletedAt(nowUtc());
+            user.setDeletedAt(Timestamps.nowUtc());
             // Flushed now because the card purge below clears the persistence context, dropping any unsaved change.
             userRepository.saveAndFlush(user);
         });
@@ -260,7 +255,7 @@ public class UserService {
 
         if (!erasureLedger.existsById(userId)) {
             // Flushed so a concurrent deletion's tombstone collides here, where AccountErasureService can catch it.
-            erasureLedger.saveAndFlush(new ErasureLedgerEntry(userId, nowUtc()));
+            erasureLedger.saveAndFlush(new ErasureLedgerEntry(userId, Timestamps.nowUtc()));
         }
     }
 
@@ -367,7 +362,7 @@ public class UserService {
                 .build();
     }
 
-    // The column is zone-less but written by nowUtc(), so UTC is the offset it was stamped with.
+    // The column is zone-less but written by Timestamps.nowUtc(), so UTC is the offset it was stamped with.
     private Instant toUtcInstant(LocalDateTime value) {
         return value == null ? null : value.toInstant(ZoneOffset.UTC);
     }

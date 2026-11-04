@@ -35,6 +35,8 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * All errors are returned as RFC 9457 Problem Details (application/problem+json).
@@ -167,15 +169,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /** SQLState 23505 is unique_violation in both PostgreSQL and the H2 the tests run on. */
     private static boolean isUniqueViolation(Throwable ex) {
-        for (Throwable cause = ex; cause != null; cause = cause.getCause()) {
-            if (cause instanceof SQLException sql && "23505".equals(sql.getSQLState())) {
-                return true;
-            }
-            if (cause.getCause() == cause) {
-                break;
-            }
-        }
-        return false;
+        return causeChain(ex).anyMatch(cause -> cause instanceof SQLException sql && "23505".equals(sql.getSQLState()));
+    }
+
+    private static Stream<Throwable> causeChain(Throwable ex) {
+        return Stream.iterate(ex, Objects::nonNull, cause -> cause.getCause() == cause ? null : cause.getCause());
     }
 
     /** The constraint name only; the message around it carries the colliding value. */
@@ -199,10 +197,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             fieldErrors.put(key, error.getDefaultMessage());
         });
 
-        ProblemDetail problemDetail =
-                problem(HttpStatus.BAD_REQUEST, "validation", message("problem.detail.validation"));
-        problemDetail.setProperty("fieldErrors", fieldErrors);
-        return respond(ex, problemDetail, headers, status, request);
+        return respond(ex, validationProblem(fieldErrors), headers, status, request);
     }
 
     /**
@@ -223,6 +218,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         }
         log.warn("Entity validation failed on fields: {}", fieldErrors.keySet());
 
+        return validationProblem(fieldErrors);
+    }
+
+    private ProblemDetail validationProblem(Map<String, String> fieldErrors) {
         ProblemDetail problemDetail =
                 problem(HttpStatus.BAD_REQUEST, "validation", message("problem.detail.validation"));
         problemDetail.setProperty("fieldErrors", fieldErrors);
@@ -230,15 +229,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     private static jakarta.validation.ConstraintViolationException entityViolationsOf(Throwable ex) {
-        for (Throwable cause = ex; cause != null; cause = cause.getCause()) {
-            if (cause instanceof jakarta.validation.ConstraintViolationException violations) {
-                return violations;
-            }
-            if (cause.getCause() == cause) {
-                break;
-            }
-        }
-        return null;
+        return causeChain(ex)
+                .filter(jakarta.validation.ConstraintViolationException.class::isInstance)
+                .map(jakarta.validation.ConstraintViolationException.class::cast)
+                .findFirst().orElse(null);
     }
 
     /**
