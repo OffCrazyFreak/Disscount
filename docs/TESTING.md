@@ -44,7 +44,8 @@ The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Cr
 
 - **`render.tsx`**: `renderWithProviders(ui, { locale, queryClient })` and `renderHookWithProviders(hook, options)` wrap the real `NextIntlClientProvider`, with the real catalogs and the Zagreb time zone, and a fresh `QueryClient` with retries off. Croatian is the default. They also set `<html lang>`, which the API client sends as `Accept-Language`.
 - **`msw-server.ts`**: the MSW server, with no handlers. Each test declares the endpoints it expects with `server.use(...)`. Any request nobody declared fails the test that made it, even when the code under test catches the network error, so a forgotten call cannot pass silently.
-- **Navigation** has no shared mock yet. `@/i18n/navigation` hooks need a mounted App Router, so a component that uses them mocks the module in its test file: `vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => "/" }))`. Move it into `src/test/` once a second test needs the same mock.
+- **`search-bar-harness.tsx`** and **`user-context-mocks.ts`**: the module mocks and state the search bar and `UserProvider` tests share. A `vi.mock` in an imported helper only applies from when the helper loads, so import these first in the test file. A test's own `vi.mock` of the same module loses to the helper's.
+- **Navigation** has no general shared mock. `@/i18n/navigation` hooks need a mounted App Router, so a component that uses them mocks the module in its test file: `vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => "/" }))`.
 
 ## Writing a test
 
