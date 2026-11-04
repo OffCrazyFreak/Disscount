@@ -163,4 +163,19 @@ describe("AdminUsersTable photo counts", () => {
     const ivoRow = screen.getByText("ivo").closest("tr")!;
     expect(within(ivoRow).getByText("0 · 0 obrisanih")).toBeInTheDocument();
   });
+
+  it("shows a dash instead of zero when the counts fail to load", async () => {
+    server.use(
+      serveUsers(() => [ANA]),
+      http.get("*/api/admin/product-images/contributors", () =>
+        HttpResponse.json({ status: 500 }, { status: 500 }),
+      ),
+    );
+
+    renderWithProviders(<AdminUsersTable />);
+
+    const anaRow = (await screen.findByText("ana")).closest("tr")!;
+    expect(within(anaRow).queryByText(/obrisan/)).toBeNull();
+    expect(within(anaRow).getAllByText("-").length).toBeGreaterThan(0);
+  });
 });

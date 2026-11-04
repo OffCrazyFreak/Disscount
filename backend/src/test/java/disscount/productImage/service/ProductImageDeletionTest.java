@@ -30,8 +30,10 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -52,6 +54,7 @@ class ProductImageDeletionTest {
     @Autowired ProductImageSetRepository sets;
     @Autowired ProductImageReportRepository reports;
     @Autowired OffCandidateWriter candidates;
+    @Autowired PlatformTransactionManager transactions;
     @Autowired @Qualifier(PhotoStoreConfig.PRODUCT_ORIGINALS) FakePhotoStore originals;
     @Autowired @Qualifier(PhotoStoreConfig.PRODUCT_PHOTOS) FakePhotoStore publicStore;
     @MockitoBean UserService userService;
@@ -97,6 +100,21 @@ class ProductImageDeletionTest {
             // The shown photo is gone, so the product goes back to the review queue.
             assertThat(set.isNeedsReview()).isTrue();
         });
+    }
+
+    @Test
+    void aRolledBackDeletionKeepsEveryFile() {
+        writes.upload(ana, EAN, jpeg(400, 300));
+        ProductImage photo = images.findByEanOrderByCreatedAtAsc(EAN).get(0);
+
+        new TransactionTemplate(transactions).executeWithoutResult(status -> {
+            admin.delete(adminId, photo.getId());
+            status.setRollbackOnly();
+        });
+
+        assertThat(images.findById(photo.getId())).get().extracting(ProductImage::isDeleted).isEqualTo(false);
+        assertThat(originals.objects).containsKey(photo.getOriginalKey());
+        assertThat(publicStore.objects).containsKeys(photo.getFullKey(), photo.getThumbKey(), photo.getSmallKey());
     }
 
     @Test

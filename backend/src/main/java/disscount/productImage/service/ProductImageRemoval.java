@@ -84,8 +84,8 @@ class ProductImageRemoval {
             try (StoredPhoto photo = stored; InputStream in = photo.stream()) {
                 return ProductImageRenderer.sha256(in.readAllBytes());
             } catch (IOException e) {
-                log.warn("Could not fingerprint the original {} before deleting it", originalKey, e);
-                return null;
+                // Deleting without the fingerprint would let the same file be uploaded again.
+                throw new IllegalStateException("Could not fingerprint the original before deleting it", e);
             }
         }).orElse(null);
     }
