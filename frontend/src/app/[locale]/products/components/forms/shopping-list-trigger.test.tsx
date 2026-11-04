@@ -52,14 +52,12 @@ describe("ShoppingListTrigger truncation", () => {
     expect(screen.getByText(/Vikend/)).toHaveClass("truncate");
   });
 
-  it("shrinks the title and the date but keeps the progress whole", () => {
+  it("cuts only the title and keeps the date and progress whole", () => {
     renderTrigger({ selectedList: LIST });
 
     expect(screen.getByText("Tjedna kupnja")).toHaveClass("truncate");
-    expect(screen.getByText("(01.11.2026.)")).toHaveClass(
-      "min-w-0",
-      "truncate",
-    );
+    expect(screen.getByText("(01.11.2026.)")).toHaveClass("shrink-0");
+    expect(screen.getByText("(01.11.2026.)")).not.toHaveClass("truncate");
     expect(screen.getByText("0/0")).toHaveClass("shrink-0");
   });
 });

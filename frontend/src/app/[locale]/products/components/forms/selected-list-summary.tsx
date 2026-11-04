@@ -20,7 +20,7 @@ export default function SelectedListSummary({
       <span className="truncate">{list.title}</span>
 
       {list.updatedAt && (
-        <span className="text-muted-foreground text-xs min-w-0 truncate">
+        <span className="shrink-0 whitespace-nowrap text-muted-foreground text-xs">
           {t("listSelector.updatedAt", {
             date: formatDate(list.updatedAt, locale),
           })}
