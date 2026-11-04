@@ -24,6 +24,13 @@ A hook test is a `.tsx` file even when it renders no JSX of its own, because it 
 
 Both projects share `src/test/setup.ts`, which starts the MSW server. The `dom` project adds `src/test/setup-dom.ts`, which loads the jest-dom matchers and, after every test, unmounts what was rendered, clears cookies and web storage, and resets the API client's cached auth token and the session user it is checked against.
 
+The `dom` project raises two limits, because jsdom tests that take a few hundred milliseconds idle can blow past the defaults on a loaded machine (a busy laptop, a shared CI runner):
+
+- `testTimeout` is 30 s in `vitest.config.mts` (Vitest's default is 5 s).
+- Testing Library's `asyncUtilTimeout`, which bounds `findBy*` and `waitFor`, is 10 s in `setup-dom.ts` (the default is 1 s).
+
+A query that finds its element returns at once, so a larger limit only delays a test that was going to fail anyway. Do not lower them, and do not add per-file `configure` calls or `{ timeout }` options to fit a slow test: they are margins for a starved worker, not waits a test relies on. The `unit` project keeps Vitest's defaults, since Node tests have no such spread. The limits do not cure a `waitFor` hang under fake timers (see "Control time" below).
+
 The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Croatia, and a zone with an offset catches UTC-versus-local mistakes that a UTC machine would hide.
 
 ## Where tests live
@@ -44,7 +51,7 @@ The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Cr
 - **Test behaviour, not structure.** Query the way a person finds things: `getByRole` with the accessible name first, then `getByLabelText`, and `getByTestId` only as a last resort. A role query that cannot find a button is usually an accessibility bug.
 - **Use real translations.** Render with the catalogs instead of mocking `useTranslations`, the way next-intl's testing guide does. Assert on the Croatian text the user sees, or pass `locale` to check another language.
 - **Click with `userEvent.setup()`**, created before the action, and `await` every interaction.
-- **Wait for async results** with `findBy*` or `waitFor`. Never wrap `render` in `act` yourself.
+- **Wait for async results** with `findBy*` or `waitFor`. Never wrap `render` in `act` yourself. A toast that sonner dismisses is removed on a 200 ms timer, so wait for it to disappear before the test ends, or the timer fires against a torn-down jsdom.
 - **Mock the network with MSW,** not axios or the service module, so the real interceptors, headers and zod parsing run. The API client sends no token, so a test needs no session handler; to assert which account Spring would act as, call `actingAs(request)` from `test/backend-identity.ts` in the handler (it applies the backend proxy's identity rules against `serverSession`, see [BACKEND-PROXY.md](BACKEND-PROXY.md#10-testing)).
 - **Mock modules only at a boundary** you cannot run: the better-auth session hook, the router, a hook that writes cookies and navigates. `vi.mock` must sit at the top of the file, and any variable its factory uses comes from `vi.hoisted`.
 - **Control time** with `vi.useFakeTimers({ now })` and switch back in `afterEach`. Testing Library's `waitFor` only detects Jest's fake timers and hangs under Vitest's, so flush with `act(() => vi.advanceTimersByTimeAsync(0))` instead (see `shopping-lists/hooks.test.tsx`). If user-event clicks under fake timers, pass `advanceTimers: vi.advanceTimersByTime` to `userEvent.setup`, or the click waits for a timer that never fires.
