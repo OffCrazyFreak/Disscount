@@ -96,7 +96,7 @@ Decrypt and restore `<timestamp>.globals.sql.age` first on a new server if roles
 
 **Photos:** with an rclone config that has the same `r2` and `photos` (crypt) remotes and the same password and salt, `rclone copy photos:gen-<n>/private <photo folder>` and the same for `public`. Copy the previous generation first and the newest on top (only the newest if just one exists). The newest holds every photo still on disk when it started plus newer ones, but its first copy may not have finished; `copy` only adds and keys are unique per upload, so the two together miss nothing. Photos deleted since the older generation started come back as files no restored row points to; delete them before reopening.
 
-**Checking restored card photos:** `wallet_card_photo.sha256` is a version id, not the file's hash. With a thumbnail it is the SHA-256 of `<full file hash>:<thumb file hash>`, so a check recomputes it from both files; without one (the icon slot) it is the file's own hash.
+**Checking restored card photos:** `wallet_card_photo.sha256` depends on the slot. For the icon, which has no thumbnail, it is the SHA-256 of the file. For the front and back it is the SHA-256 of `<full file hash>:<thumb file hash>`, so a check recomputes it from both files.
 
 **Dokploy:** decrypt `<timestamp>.dump.age` and `<timestamp>.etc.tar.age` the same way, restore the dump into Dokploy's database and unpack the tar into `/etc/dokploy`, then redeploy the services to clone their repositories again.
 
