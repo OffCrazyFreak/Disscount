@@ -15,7 +15,7 @@ import { GITHUB_REPO_URL, LINKEDIN_URL } from "@/constants/contact";
 
 export default function FooterSection() {
   const t = useTranslations("common");
-  const currentYear = new Date().getFullYear();
+  const currentYear = new Date().getUTCFullYear();
 
   return (
     <footer className="mt-auto">

@@ -3,6 +3,44 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTypescript from "eslint-config-next/typescript";
 import i18next from "eslint-plugin-i18next";
 
+const ENV_MESSAGE =
+  "Read environment variables through clientEnv (@/lib/env) or serverEnv (@/lib/server-env).";
+
+const ENV_SELECTORS = [
+  {
+    selector:
+      "MemberExpression[object.object.name='process'][object.property.name='env'][property.name!=/^(NODE_ENV|NEXT_RUNTIME)$/]",
+    message: ENV_MESSAGE,
+  },
+  {
+    selector:
+      ":not(MemberExpression) > MemberExpression[object.name='process'][property.name='env']",
+    message: ENV_MESSAGE,
+  },
+];
+
+// Date slips are a recurring bug here: readers are in Zagreb and servers in UTC, so a calendar
+// date always goes through a helper that names its zone.
+const DATE_SELECTORS = [
+  {
+    selector:
+      "CallExpression[callee.property.name=/^(get|set)(FullYear|Month|Date|Day|Hours|Minutes)$/]",
+    message:
+      "This reads or writes in the machine's zone. Use zagrebClock or addDays (@/lib/store-hours/zagreb-clock), or the UTC variant when UTC is meant.",
+  },
+  {
+    selector:
+      "CallExpression[callee.property.name=/^(slice|split)$/][callee.object.callee.property.name='toISOString']",
+    message:
+      "Cutting toISOString gives the UTC date, not the reader's. Use zagrebClock (@/lib/store-hours/zagreb-clock).",
+  },
+  {
+    selector: "NewExpression[callee.name='Date'][arguments.length>=3]",
+    message:
+      "new Date(y, m, d) builds in the machine's zone. Use Date.UTC, or addDays (@/lib/store-hours/zagreb-clock).",
+  },
+];
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTypescript,
@@ -115,22 +153,13 @@ const eslintConfig = defineConfig([
       "src/test/**",
     ],
     rules: {
-      "no-restricted-syntax": [
-        "error",
-        {
-          selector:
-            "MemberExpression[object.object.name='process'][object.property.name='env'][property.name!=/^(NODE_ENV|NEXT_RUNTIME)$/]",
-          message:
-            "Read environment variables through clientEnv (@/lib/env) or serverEnv (@/lib/server-env).",
-        },
-        {
-          selector:
-            ":not(MemberExpression) > MemberExpression[object.name='process'][property.name='env']",
-          message:
-            "Read environment variables through clientEnv (@/lib/env) or serverEnv (@/lib/server-env).",
-        },
-      ],
+      "no-restricted-syntax": ["error", ...ENV_SELECTORS, ...DATE_SELECTORS],
     },
+  },
+  // The one module allowed to do clock arithmetic, because it holds the Zagreb conversion.
+  {
+    files: ["src/lib/store-hours/zagreb-clock.ts"],
+    rules: { "no-restricted-syntax": ["error", ...ENV_SELECTORS] },
   },
   // Test fixtures pass literal labels; they are inputs, never shown to anyone.
   {

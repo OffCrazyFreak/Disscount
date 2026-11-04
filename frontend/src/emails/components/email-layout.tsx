@@ -53,7 +53,7 @@ export default function EmailLayout({
             <Text className="m-0 text-xs text-gray-500">{footer}</Text>
 
             <Text className="m-0 mt-2 text-xs text-gray-400">
-              {`© ${new Date().getFullYear()} Disscount`}
+              {`© ${new Date().getUTCFullYear()} Disscount`}
             </Text>
           </Container>
         </Body>
