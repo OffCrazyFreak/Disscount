@@ -55,8 +55,14 @@ export function useSearchBarQuery({
     // bar mounted off its own route from redirecting there.
     if (!queryValue && !routeQuery) return;
 
+    // A route change just replaced the draft earlier in this pass, so queryValue is the
+    // text from before it: sending that would push over the entry Back just reached.
+    if (queryValue !== (draft.getTyped() ?? routeQuery)) return;
+    if (queryValue === routeQuery) return;
+
+    draft.navigatingTo(queryValue);
     syncQuery(queryValue);
-  }, [autoSearch, disabled, queryValue, routeQuery, syncQuery]);
+  }, [autoSearch, disabled, draft, queryValue, routeQuery, syncQuery]);
 
   // Never reset() the form: it drops the input's registration, and the compiler memoizes
   // register() so the input never registers again, leaving the field dead.
@@ -64,5 +70,11 @@ export function useSearchBarQuery({
     onChange: (event) => draft.type(event.target.value),
   });
 
-  return { registration, handleSubmit, clearQuery: draft.clear, queryValue };
+  return {
+    registration,
+    handleSubmit,
+    clearQuery: draft.clear,
+    markSubmitted: draft.navigatingTo,
+    queryValue,
+  };
 }
