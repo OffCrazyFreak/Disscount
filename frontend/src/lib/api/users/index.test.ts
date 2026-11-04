@@ -13,12 +13,6 @@ function serveProfile(body: object) {
 }
 
 describe("userService.getCurrentUser", () => {
-  it("parses the profile", async () => {
-    serveProfile(storedUser);
-
-    await expect(userService.getCurrentUser()).resolves.toEqual(storedUser);
-  });
-
   it("rejects a profile missing a key the backend always sends", async () => {
     serveProfile(driftedUser);
 

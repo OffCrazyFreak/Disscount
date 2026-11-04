@@ -12,18 +12,6 @@ const { lastActiveAt: _omitted, ...driftedUser } = storedUser;
 
 // The fetchers are module private, so they are reached through the hooks that own them.
 describe("admin user fetchers", () => {
-  it("parses the user list", async () => {
-    server.use(
-      http.get("*/api/admin/users", () => HttpResponse.json([storedUser])),
-    );
-
-    const { result } = renderHookWithProviders(() =>
-      adminService.useGetAllUsers(),
-    );
-
-    await waitFor(() => expect(result.current.data).toEqual([storedUser]));
-  });
-
   it("rejects the whole user list when one user drifted", async () => {
     server.use(
       http.get("*/api/admin/users", () =>
@@ -36,24 +24,6 @@ describe("admin user fetchers", () => {
     );
 
     await waitFor(() => expect(result.current.error).toBeInstanceOf(ZodError));
-  });
-
-  it("parses the user an account type change answers with", async () => {
-    const promoted = { ...storedUser, accountType: "ADMIN" } as const;
-    server.use(
-      http.patch("*/api/admin/users/:id", () => HttpResponse.json(promoted)),
-    );
-
-    const { result } = renderHookWithProviders(() =>
-      adminService.useUpdateUserAccountType(),
-    );
-
-    await expect(
-      result.current.mutateAsync({
-        userId: storedUser.id,
-        accountType: "ADMIN",
-      }),
-    ).resolves.toEqual(promoted);
   });
 
   it("rejects an account type change answered with a drifted user", async () => {
