@@ -141,8 +141,9 @@ const MIRRORED_ENUMS: Record<string, string[]> = {
   WatchType: enumValues(watchlistItemDtoSchema.shape.watchType),
 };
 
-// Why a photo was hidden is backend bookkeeping that no response carries.
-const BACKEND_ONLY_ENUMS = ["HiddenReason"];
+// Why a photo was hidden is backend bookkeeping that no response carries, and a stored
+// file's visibility only sets its permissions on disk.
+const BACKEND_ONLY_ENUMS = ["HiddenReason", "Visibility"];
 
 function enumValues(schema: z.ZodType): string[] {
   const described = describeZodSchema(schema);
