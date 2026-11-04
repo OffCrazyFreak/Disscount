@@ -53,7 +53,6 @@ Put these to me instead of working around them: I say yes far more often than no
 - Land release review findings as their own `fix:` PR, and keep the notes in `~/Documents/Disscount`.
 - Before any merge, settle every PR comment and `pulls/N/reviews` body, bots included: fix it or reply with the reason.
 - Merge once CI is green and review is settled, as the orchestrating session; a delegate reports instead of merging.
-- Follow the `ui-handover` skill for any change to what renders.
 
 ## Board and issues
 
@@ -62,7 +61,7 @@ Put these to me instead of working around them: I say yes far more often than no
 - Give a plan a tracking issue with the why, decisions, an ordered PR checklist and open questions.
 - Set a tracking issue to In progress once its first PR runs, otherwise Sprint; tick each step its PR completes.
 - Put owner-only steps (logins, payments, phone) as a draft at the top of In progress, with links and numbered steps.
-- Move merged user-facing work to For review, following `ui-handover`.
+- Move merged user-facing work to For review.
 - Move merged invisible work to Done.
 
 ## Releases and production
@@ -99,14 +98,9 @@ Conventions:
 
 - Write an `I`-prefixed Props interface in the component's file, one component per file, default export, `function name() {}`, kebab-case filenames.
 - Import React names directly: `import { useState } from "react"`.
-- Import `server-only` in any module that must never reach the client.
 - Edit `components/ui/` (shadcn output) only where the primitive is the natural home; ours live in `components/custom/`.
 - Put API and domain types as zod `*Dto` / `*Response` in `lib/api/schemas/*`, and price API types in `lib/cijene-api/schemas.ts`.
 - Put query hooks beside their service in `lib/api/<domain>/`.
-- Outside the `useForm` caller, read with `useWatch` and `useFormState`, never `form.watch()` or `form.formState` in render, because the compiler caches reads off `form`.
-- Destructure every form flag you need, because react-hook-form computes only those read.
-- Memoize nothing by hand, derive values in render, and make a function a hook only if it calls one; the React Compiler does the rest.
-- When an effect must retry a possible no-op, use `"use no memo"` with a comment saying why, because the compiler otherwise runs it once.
 - Read the `frontend-design` skill before generating or redesigning UI.
 
 Copy and i18n (`docs/I18N.md`):
@@ -130,14 +124,10 @@ Copy and i18n (`docs/I18N.md`):
 - Mark a nullable DTO field `@Schema(nullable = true)`, because springdoc ignores JSpecify `@Nullable`.
 - Stamp zone-less timestamp columns through `Timestamps.nowUtc()`, never `LocalDateTime.now()`, because the JVM zone would leak into what `parseServerDate` reads as UTC.
 
-## Skills
-
-- Keep skills in `.agents/skills`, linked from `.claude/skills`.
-- Change `research`, `unslop`, `big-change` and `debloat` in `~/.config/agents/skills`, then copy them here.
-- Replace third-party skills wholesale; `skills-lock.json` tracks those the skills CLI installed, which excludes `frontend-design` and `sentry-nextjs-sdk`.
-
 ## Writing
 
+- Write issue, commit and PR titles and bodies in plain words a newcomer can follow.
+- Explain in plain words, and define any jargon in one phrase.
 - Write Markdown with one physical line per paragraph and bullet.
 - Write numeric dates as `03.11.2026.` in Croatian text and ISO `2026-11-03` in English, with straight quotes (`docs/I18N.md`).
 
