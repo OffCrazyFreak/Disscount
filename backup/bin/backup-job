@@ -129,7 +129,8 @@ run() {
       for folder in private public; do
         [[ -d "/data/photos-$folder" ]] || { echo "/data/photos-$folder is not mounted" >&2; return 1; }
         # Keys are unique per upload, so a file already in the generation never needs replacing.
-        rclone copy --ignore-existing --exclude '.tmp-*' --stats-one-line --stats 0 \
+        # Small files are bound by upload latency, so parallel uploads set the speed of a generation's first full copy.
+        rclone copy --ignore-existing --transfers 32 --exclude '.tmp-*' --stats-one-line --stats 0 \
           "/data/photos-$folder" "photos:gen-$generation/$folder"
       done
       note "photos copied into generation $generation"
