@@ -2,11 +2,11 @@
 # the frontend config and root Markdown with the root ignore file. Agents commit
 # through `git commit`, where no editor format-on-save ever fires.
 #
-# Calls the binary directly: `pnpm exec` inside a worktree resolves through the
-# symlinked node_modules and can purge the main tree's copy.
+# Calls the binary directly, because `pnpm exec` through a symlinked node_modules
+# can purge the main tree's copy.
 modules=frontend/node_modules/.bin
 
-# A new worktree has no node_modules, and skipping silently here caused format failures in CI.
+# A worktree still installing has no node_modules, and skipping silently here caused format failures in CI.
 if [ ! -x "$modules/lint-staged" ]; then
   main_checkout=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")
   modules="$main_checkout/frontend/node_modules/.bin"

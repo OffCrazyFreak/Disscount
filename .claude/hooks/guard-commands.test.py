@@ -10,7 +10,7 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HOOK = os.path.join(HERE, "guard-commands.py")
-# The main checkout even when this runs from a linked worktree, where pnpm is blocked.
+# The main checkout even when this runs from a linked worktree.
 MAIN = os.path.dirname(
     subprocess.run(
         ["git", "-C", HERE, "rev-parse", "--path-format=absolute", "--git-common-dir"],
@@ -43,6 +43,13 @@ def build_real_worktree(root):
     run("git", "commit", "-qm", "init")
     linked = os.path.join(root, "linked")
     run("git", "worktree", "add", "-q", "-b", "wt", linked)
+    os.makedirs(os.path.join(linked, "frontend"))
+    os.symlink(os.path.join(repo, "frontend", "node_modules"), os.path.join(linked, "frontend", "node_modules"))
+    installed = os.path.join(root, "installed")
+    run("git", "worktree", "add", "-q", "-b", "wt-installed", installed)
+    os.makedirs(os.path.join(installed, "frontend", "node_modules"))
+    fresh = os.path.join(root, "fresh")
+    run("git", "worktree", "add", "-q", "-b", "wt-fresh", fresh)
     on_main = os.path.join(root, "on-main")
     run("git", "worktree", "add", "-q", "-b", "main", on_main)
     # A branch tracking origin/dev is what push.default=upstream sends to dev.
@@ -65,10 +72,10 @@ def build_real_worktree(root):
     run("git", "-C", with_hooks, "config", "core.hooksPath", "hooks/_")
     os.makedirs(os.path.join(with_hooks, "hooks", "_"))
 
-    return repo, linked, on_main, tracks_dev, tracks_own, no_hooks, with_hooks
+    return repo, linked, on_main, tracks_dev, tracks_own, no_hooks, with_hooks, installed, fresh
 
 
-def cases(real_repo, real_worktree, on_main, tracks_dev, tracks_own, no_hooks, with_hooks):
+def cases(real_repo, real_worktree, on_main, tracks_dev, tracks_own, no_hooks, with_hooks, installed, fresh):
     return [
         # ALLOW: dev servers and Docker run in the main tree
         ("pnpm dev", MAIN, False),
@@ -93,7 +100,16 @@ def cases(real_repo, real_worktree, on_main, tracks_dev, tracks_own, no_hooks, w
         # BLOCK: command substitution used to hide the command
         ("echo $(pnpm install)", WT, True),
         ("echo `pnpm install`", WT, True),
-        # BLOCK: pnpm inside a worktree, by convention and by git metadata
+        # ALLOW: a worktree with its own install, or none yet, has no link to purge through
+        ("pnpm install --frozen-lockfile", installed, False),
+        ("pnpm check", installed, False),
+        ("sudo -u root pnpm install", installed, False),
+        (f"cd {installed}/frontend && pnpm check", MAIN, False),
+        ("pnpm install --frozen-lockfile", fresh, False),
+        ('bash -c "pnpm install"', fresh, False),
+        # BLOCK: a symlinked install, from the root and from frontend/, and a dangling link
+        (f"cd {real_worktree}/frontend && pnpm check", MAIN, True),
+        # BLOCK: pnpm where node_modules is linked or git cannot say
         ("pnpm lint", WT, True),
         ("pnpm exec tsc --noEmit", WT, True),
         ("pnpm install", WT, True),
@@ -283,7 +299,7 @@ def main():
     root = tempfile.mkdtemp(prefix="guard-commands-")
     try:
         fixture = build_real_worktree(root)
-        real_repo, real_worktree, on_main, tracks_dev, tracks_own, no_hooks, with_hooks = fixture
+        real_repo, real_worktree, on_main, tracks_dev, tracks_own, no_hooks, with_hooks, installed, fresh = fixture
         fails = 0
 
         for command, cwd, expect_block in cases(*fixture):

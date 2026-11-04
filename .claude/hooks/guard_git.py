@@ -3,8 +3,8 @@ and branching from `origin/dev` with tracking.
 
 `--no-verify` skips the hooks that keep formatting, trailers and dashes out of
 commits. `main` only ever receives the release pull request from `dev`, and
-`dev` only ever receives merged pull requests. This repository's machines set
-push.default=upstream, so a branch that tracks origin/dev pushes straight to it.
+`dev` only ever receives merged pull requests. A clone left on
+push.default=upstream sends a branch that tracks origin/dev straight to it.
 """
 
 import os
@@ -168,7 +168,7 @@ def protected_push_target(args, cwd):
     if refspecs or "--tags" in args:
         return None
 
-    # A bare push follows push.default, which here means the upstream.
+    # A bare push follows push.default, which a clone may have left on upstream.
     if cwd is None:
         return "main"
     branch = current_branch(cwd)
@@ -284,8 +284,8 @@ def git_refusal(args, cwd, raw_tokens=()):
 
     if starts_tracking_dev(sub, rest):
         return (
-            "Blocked: this branch would track origin/dev, and push.default=upstream "
-            "then sends a bare push straight to dev. Add --no-track, e.g. "
+            "Blocked: this branch would track origin/dev, and under "
+            "push.default=upstream a bare push lands on dev. Add --no-track, e.g. "
             "git checkout --no-track -b <branch> origin/dev."
         )
 

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """PreToolUse guard for Bash commands.
 
-It blocks pnpm inside a git worktree: pnpm resolves the workspace through
-the symlinked node_modules and offers to purge the MAIN tree's copy. It aborts
-on a missing TTY today, so with CI=true set it would delete the real one.
+It blocks pnpm in a git worktree whose frontend/node_modules is a symlink: pnpm
+resolves the workspace through it and offers to purge the MAIN tree's copy. It
+aborts on a missing TTY today, so with CI=true set it would delete the real one.
+A worktree with its own install is safe, and pnpm runs there as usual.
 It also blocks `--no-verify`, pushes to `main` or `dev`, branches that would
 track origin/dev (rules in guard_git.py), and `pkill -f` or `pgrep -f` patterns
 that match their own command line (guard_process.py).
@@ -268,6 +269,24 @@ def in_worktree(cwd):
     return git_dir != common_dir
 
 
+def modules_are_linked(cwd):
+    """True when this checkout's frontend/node_modules is a symlink, or git cannot say."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", cwd, "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return True
+
+    if result.returncode != 0:
+        return True
+
+    return os.path.islink(os.path.join(result.stdout.strip(), "frontend", "node_modules"))
+
+
 def check(command, cwd, depth=0, root=None):
     """Return a refusal message, or None to allow.
 
@@ -335,13 +354,13 @@ def check(command, cwd, depth=0, root=None):
                     "cannot resolve, so it cannot tell whether the directory is a "
                     "git worktree. Run pnpm from a literal path instead."
                 )
-            if in_worktree(effective_cwd):
+            if in_worktree(effective_cwd) and modules_are_linked(effective_cwd):
                 return (
-                    f"Blocked: `{segment}` runs pnpm inside a git worktree "
-                    f"({effective_cwd}).\n"
-                    "pnpm resolves the workspace through the symlinked node_modules "
-                    "and will offer to purge the MAIN tree's copy. Call the binary "
-                    "directly instead, e.g. ./node_modules/.bin/tsc --noEmit."
+                    f"Blocked: `{segment}` runs pnpm in a git worktree with a symlinked "
+                    f"frontend/node_modules ({effective_cwd}).\n"
+                    "pnpm resolves the workspace through the link and will offer to purge "
+                    "the MAIN tree's copy. Delete the link and run pnpm install "
+                    "--frozen-lockfile in frontend/, or call the binary directly."
                 )
 
     return None
