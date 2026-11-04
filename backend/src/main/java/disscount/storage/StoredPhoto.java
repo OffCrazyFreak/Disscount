@@ -1,4 +1,4 @@
-package disscount.digitalCard.storage;
+package disscount.storage;
 
 import java.io.Closeable;
 import java.io.IOException;

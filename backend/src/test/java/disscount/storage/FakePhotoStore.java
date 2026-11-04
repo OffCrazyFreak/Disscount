@@ -1,7 +1,4 @@
-package disscount.digitalCard.service;
-
-import disscount.digitalCard.storage.PhotoStore;
-import disscount.digitalCard.storage.StoredPhoto;
+package disscount.storage;
 
 import java.io.ByteArrayInputStream;
 import java.util.Map;
@@ -12,7 +9,7 @@ public class FakePhotoStore implements PhotoStore {
 
     public final Map<String, byte[]> objects = new ConcurrentHashMap<>();
     public volatile boolean enabled = true;
-    volatile boolean failDeletes = false;
+    public volatile boolean failDeletes = false;
 
     @Override
     public boolean enabled() {
@@ -28,7 +25,8 @@ public class FakePhotoStore implements PhotoStore {
     public Optional<StoredPhoto> get(String key) {
         byte[] bytes = objects.get(key);
         return bytes == null ? Optional.empty()
-                : Optional.of(new StoredPhoto(new ByteArrayInputStream(bytes), bytes.length, "image/webp"));
+                : Optional.of(new StoredPhoto(new ByteArrayInputStream(bytes), bytes.length,
+                        key.endsWith(".jpg") ? "image/jpeg" : "image/webp"));
     }
 
     @Override
@@ -41,5 +39,10 @@ public class FakePhotoStore implements PhotoStore {
     public void deletePrefix(String prefix) {
         if (failDeletes) throw new IllegalStateException("storage down");
         objects.keySet().removeIf(k -> k.startsWith(prefix));
+    }
+
+    @Override
+    public String publicUrl(String key) {
+        return key == null ? null : "https://images.test/" + key;
     }
 }

@@ -1,5 +1,7 @@
 package disscount.digitalCard.service;
 
+import disscount.storage.PhotoStoreConfig;
+import org.springframework.beans.factory.annotation.Qualifier;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +18,8 @@ import disscount.digitalCard.domain.DigitalCardPhoto;
 import disscount.digitalCard.dto.CardPhotoDto;
 import disscount.digitalCard.photo.PhotoValidator;
 import disscount.digitalCard.photo.ValidatedPhoto;
-import disscount.digitalCard.storage.PhotoStore;
-import disscount.digitalCard.storage.StoredPhoto;
+import disscount.storage.PhotoStore;
+import disscount.storage.StoredPhoto;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.NotFoundException;
 import disscount.exceptions.ServiceUnavailableException;
@@ -45,6 +47,7 @@ public class DigitalCardPhotoService {
     private final DigitalCardRepository cardRepository;
     private final DigitalCardPhotoRepository photoRepository;
     private final CardPhotoWriter writer;
+    @Qualifier(PhotoStoreConfig.CARD_PHOTOS)
     private final PhotoStore photoStore;
     private final PhotoValidator validator;
     @Qualifier(UploadLimitConfig.CARD_PHOTOS)

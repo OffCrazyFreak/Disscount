@@ -8,20 +8,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.NotFoundException;
-import disscount.productImage.off.OffImageGoneException;
-import disscount.productImage.off.OffImageUnavailableException;
+import disscount.productImage.catalog.CatalogImportService;
 import disscount.productImage.dao.ProductImageImportRunRepository;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
-import disscount.productImage.catalog.CatalogImportService;
 import disscount.productImage.domain.HiddenReason;
 import disscount.productImage.domain.ImageStatus;
 import disscount.productImage.domain.ProductImage;
 import disscount.productImage.domain.ProductImageImportRun;
-import disscount.productImage.storage.ProductImageStore;
+import disscount.productImage.off.OffImageGoneException;
+import disscount.productImage.off.OffImageUnavailableException;
+import disscount.storage.PhotoStore;
+import disscount.storage.PhotoStoreConfig;
 import disscount.util.Timestamps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -39,7 +41,8 @@ public class ProductImageJobs {
     static final int MAX_RENDER_ATTEMPTS = 5;
 
     private final boolean enabled;
-    private final ProductImageStore store;
+    @Qualifier(PhotoStoreConfig.PRODUCT_PHOTOS)
+    private final PhotoStore store;
     private final CatalogImportService catalog;
     private final OffSeedService seed;
     private final ProductImageRendering rendering;
@@ -50,7 +53,7 @@ public class ProductImageJobs {
     private final AtomicBoolean renderingNow = new AtomicBoolean();
 
     public ProductImageJobs(@Value("${product-images.jobs.enabled:true}") boolean enabled,
-                            ProductImageStore store, CatalogImportService catalog, OffSeedService seed,
+                            @Qualifier(PhotoStoreConfig.PRODUCT_PHOTOS) PhotoStore store, CatalogImportService catalog, OffSeedService seed,
                             ProductImageRendering rendering, ProductImageRepository images,
                             ProductImageSetRepository sets, ProductImageImportRunRepository runs) {
         this.enabled = enabled;

@@ -5,8 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
-import disscount.digitalCard.storage.FilesystemPhotoStore;
-import disscount.digitalCard.storage.PhotoStore;
+import disscount.storage.AtomicFileStore;
+import disscount.storage.FilesystemPhotoStore;
+import disscount.storage.PhotoStore;
+import disscount.storage.PhotoStoreConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -16,8 +18,9 @@ class PhotoKeysTest {
 
     @Test
     void everyGeneratedKeyPassesTheDiskStoresValidation(@TempDir Path directory) throws IOException {
-        Files.createDirectory(directory.resolve(PhotoStore.ROOT_FOLDER));
-        PhotoStore store = new FilesystemPhotoStore(directory, PhotoStore.ROOT_FOLDER, "error.cardPhoto.unavailable");
+        Files.createDirectory(directory.resolve(PhotoStoreConfig.CARD_FOLDER));
+        PhotoStore store = new FilesystemPhotoStore(directory, PhotoStoreConfig.CARD_FOLDER,
+                AtomicFileStore.Visibility.OWNER_ONLY, "error.cardPhoto.unavailable", null);
         UUID userId = UUID.randomUUID();
         UUID cardId = UUID.randomUUID();
         String sha256 = "a".repeat(64);

@@ -7,6 +7,7 @@ import disscount.digitalCard.dao.PhotoCleanupRepository;
 import disscount.digitalCard.domain.PhotoCleanup;
 import disscount.digitalCard.photo.PhotoValidator;
 import disscount.digitalCard.photo.TestImages;
+import disscount.storage.FakePhotoStore;
 import disscount.storeName.dao.StoreNameSuggestionRepository;
 import disscount.storeName.dao.StoreNameUsageRepository;
 import disscount.storeName.service.StoreNameService;

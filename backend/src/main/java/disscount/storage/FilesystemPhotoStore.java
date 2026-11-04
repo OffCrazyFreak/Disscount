@@ -1,4 +1,4 @@
-package disscount.digitalCard.storage;
+package disscount.storage;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import disscount.exceptions.ServiceUnavailableException;
-import disscount.storage.AtomicFileStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,10 +15,14 @@ public class FilesystemPhotoStore implements PhotoStore {
 
     private final AtomicFileStore files;
     private final String unavailableMessageKey;
+    private final String publicBaseUrl;
 
-    public FilesystemPhotoStore(Path directory, String folderName, String unavailableMessageKey) {
-        this.files = new AtomicFileStore(directory, folderName, AtomicFileStore.Visibility.OWNER_ONLY);
+    /** publicBaseUrl is null on a private folder; the web server in front of a public one sets its headers. */
+    public FilesystemPhotoStore(Path directory, String folderName, AtomicFileStore.Visibility visibility,
+                                String unavailableMessageKey, String publicBaseUrl) {
+        this.files = new AtomicFileStore(directory, folderName, visibility);
         this.unavailableMessageKey = unavailableMessageKey;
+        this.publicBaseUrl = publicBaseUrl;
     }
 
     @Override
@@ -32,7 +35,7 @@ public class FilesystemPhotoStore implements PhotoStore {
         try {
             files.write(key, bytes);
         } catch (IOException e) {
-            // Usually a full disk: the user can retry later, and the log line is what alerts us.
+            // Usually a full disk: the user or the job retries later, and the log line is what alerts us.
             log.error("Could not store photo {}", key, e);
             throw new ServiceUnavailableException(unavailableMessageKey);
         }
@@ -63,6 +66,11 @@ public class FilesystemPhotoStore implements PhotoStore {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public String publicUrl(String key) {
+        return publicBaseUrl == null ? null : publicBaseUrl + "/" + key;
     }
 
     // A file has no metadata to hold the type, and validation only ever produces these two extensions.

@@ -18,8 +18,8 @@ import disscount.productImage.domain.ProductImage;
 import disscount.productImage.domain.ProductImageReport;
 import disscount.productImage.domain.ProductImageSet;
 import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
-import disscount.productImage.storage.ProductImageStore;
-import disscount.productImage.storage.ProductOriginalStore;
+import disscount.storage.PhotoStore;
+import disscount.storage.PhotoStoreConfig;
 import disscount.user.service.UserService;
 import disscount.util.FixedWindowLimiter;
 import disscount.util.Timestamps;
@@ -36,8 +36,10 @@ public class ProductImageWriteService {
     private final ProductImageRepository images;
     private final ProductImageSetRepository sets;
     private final ProductImageReportRepository reports;
-    private final ProductImageStore store;
-    private final ProductOriginalStore originals;
+    @Qualifier(PhotoStoreConfig.PRODUCT_PHOTOS)
+    private final PhotoStore store;
+    @Qualifier(PhotoStoreConfig.PRODUCT_ORIGINALS)
+    private final PhotoStore originals;
     private final PhotoValidator validator;
     @Qualifier(UploadLimitConfig.PRODUCT_PHOTOS)
     private final FixedWindowLimiter limiter;
@@ -66,7 +68,7 @@ public class ProductImageWriteService {
 
         ProductImageSet set = sets.findById(ean).orElseGet(() -> sets.save(ProductImageSet.builder().ean(ean).build()));
 
-        String originalKey = ProductOriginalStore.ROOT_FOLDER + "/" + ean + "/" + UUID.randomUUID() + ".jpg";
+        String originalKey = PhotoStoreConfig.ORIGINALS_FOLDER + "/" + ean + "/" + UUID.randomUUID() + ".jpg";
         originals.put(originalKey, photo.bytes(), photo.contentType());
 
         ProductImage image = images.save(ProductImage.builder()
