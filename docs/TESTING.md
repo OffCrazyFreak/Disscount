@@ -1,6 +1,10 @@
 # Testing
 
-The frontend uses Vitest with Testing Library, jsdom and MSW. The backend has its own JUnit suite on H2, covered in `AGENTS.md`, plus `DoubleBootSchemaTest`, which starts the app twice on real `postgres:17-alpine` with main's `application.properties` and fails if the second start changes the schema, so `mvn -B verify` needs Docker. This file covers the frontend.
+The frontend uses Vitest with Testing Library, jsdom and MSW. The backend has its own JUnit suite on H2, plus `DoubleBootSchemaTest`, which starts the app twice on real `postgres:17-alpine` with main's `application.properties` and fails if the second start changes the schema, so `mvn -B verify` needs Docker. The rest of this file covers the frontend.
+
+## What the backend suite covers
+
+`mvn -B verify` covers digital cards, store names, account deletion, security chains, JWT decoding, JSON dates, problem responses, per-feature ownership, admin gating and the fields the frontend reads. Pricing, merging and jobs are mostly untested, so a change there needs its own check and a line in the PR saying so.
 
 ## Commands
 
@@ -11,7 +15,7 @@ Run from `frontend/`:
 - `pnpm test:coverage` writes a V8 coverage report to `frontend/coverage/`.
 - `pnpm exec vitest run --project unit` or `--project dom` runs one half; a path argument (`pnpm test src/utils`) narrows it further.
 
-Inside a git worktree, call `./node_modules/.bin/vitest run` instead, since the guard hook blocks `pnpm` there.
+`pnpm check` runs every frontend done-check in one go: route types, `tsc`, both Prettier runs, the translation catalogs, ESLint, the Fallow verdict and Vitest.
 
 ## Two projects
 
