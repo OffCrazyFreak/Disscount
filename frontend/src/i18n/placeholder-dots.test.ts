@@ -17,10 +17,13 @@ function leafEntries(value: unknown, path = ""): [string, string][] {
   );
 }
 
-// Facet search fields hold their placeholder under a key named plain "search".
+// Facet search fields hold their placeholder under a key named plain "search", and the
+// shopping list picker shows its prompt as the trigger's empty-state text.
 function isPlaceholderKey(path: string) {
   return (
-    /placeholder/i.test(path) || /^products\.facets\.\w+\.search$/.test(path)
+    /placeholder/i.test(path) ||
+    /^products\.facets\.\w+\.search$/.test(path) ||
+    /^products\.listTrigger\.(choose|createFirst)$/.test(path)
   );
 }
 
