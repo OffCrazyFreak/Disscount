@@ -9,6 +9,7 @@ import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
+import { setFormDraft } from "@/utils/browser/local-storage";
 
 vi.mock("@/lib/modal/modal-navigation", () => ({
   openModalUrl: vi.fn(),
@@ -122,5 +123,23 @@ describe("AddToShoppingListForm", () => {
     await waitFor(() =>
       expect(screen.queryByText(TOO_SHORT)).not.toBeInTheDocument(),
     );
+  });
+
+  it("explains a too short title restored from a draft", async () => {
+    setFormDraft(`add-to-list.${SUGAR.ean}`, {
+      shoppingListId: "new",
+      customListTitle: "ab",
+    });
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    queryClient.setQueryData(CIJENE_QUERY_KEYS.productByEan(SUGAR.ean), SUGAR);
+
+    renderWithProviders(<AddToShoppingListForm open ean={SUGAR.ean} />, {
+      queryClient,
+    });
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(TOO_SHORT);
+    expect(screen.getByRole("button", { name: "Dodaj" })).toBeDisabled();
   });
 });

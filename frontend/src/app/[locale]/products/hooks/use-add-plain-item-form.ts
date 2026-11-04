@@ -76,6 +76,7 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
     draftKey,
     form,
     enabled: isFormReady,
+    validateRestored: ["customListTitle"],
   });
   // Same gate: restoring the draft resets the form, which would wipe an error shown earlier.
   useModalError(isFormReady, draftKey, form);

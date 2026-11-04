@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import AddPlainItemModal from "@/app/[locale]/products/components/forms/add-plain-item-modal";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { getFormDraft } from "@/utils/browser/local-storage";
+import { getFormDraft, setFormDraft } from "@/utils/browser/local-storage";
 
 const { openModalUrl, closeModalUrl } = vi.hoisted(() => ({
   openModalUrl: vi.fn(),
@@ -323,5 +323,25 @@ describe("AddPlainItemModal", { timeout: 30_000 }, () => {
         screen.queryByText("Upiši naziv s najmanje 3 znaka"),
       ).not.toBeInTheDocument(),
     );
+  });
+
+  it("explains a too short title restored from a draft", async () => {
+    server.use(
+      http.get("*/api/shopping-lists/me", () =>
+        HttpResponse.json([newest, older]),
+      ),
+      http.get("*/api/shopping-lists/:id", () => HttpResponse.json(newest)),
+    );
+    setFormDraft("add-plain-item.staklenke", {
+      shoppingListId: "new",
+      customListTitle: "ab",
+    });
+
+    renderWithProviders(<AddPlainItemModal open itemName="Staklenke" />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Upiši naziv s najmanje 3 znaka",
+    );
+    expect(screen.getByRole("button", { name: "Dodaj" })).toBeDisabled();
   });
 });

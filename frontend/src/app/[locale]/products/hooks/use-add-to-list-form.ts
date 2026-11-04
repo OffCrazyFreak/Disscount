@@ -80,6 +80,7 @@ export function useAddToListForm(
     draftKey,
     form,
     enabled: open && !selection.isLoadingLists,
+    validateRestored: ["customListTitle"],
   });
 
   const pricing = useAddToListPrices(
