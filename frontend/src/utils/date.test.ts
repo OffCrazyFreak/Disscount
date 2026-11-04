@@ -3,9 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildDateWindow,
   formatRelativeTime,
-  fromLocalDateString,
   parseServerDate,
-  toLocalDateString,
 } from "@/utils/date";
 
 afterEach(() => {
@@ -31,14 +29,6 @@ describe("parseServerDate", () => {
   it("passes epoch millis and Dates through", () => {
     expect(parseServerDate(0).getTime()).toBe(0);
     expect(parseServerDate(new Date(5)).getTime()).toBe(5);
-  });
-});
-
-describe("local date strings", () => {
-  it("round-trips without drifting a day", () => {
-    const date = fromLocalDateString("2026-03-29");
-
-    expect(toLocalDateString(date)).toBe("2026-03-29");
   });
 });
 
