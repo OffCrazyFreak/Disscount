@@ -123,7 +123,6 @@ jobs:
 
       - run: mvn -B verify
 
-  # The other images are proven by the frontend and backend checks; this one is only built on push otherwise.
   # Workflow files fail only when they run, often on the release or deploy path, so check them up front.
   actionlint:
     name: Workflow lint
@@ -138,6 +137,7 @@ jobs:
         with:
           args: -color
 
+  # The other images are proven by the frontend and backend checks; this one is only built on push otherwise.
   backup-image:
     name: Backup image
     if: github.event_name == 'pull_request' && !github.event.pull_request.draft
