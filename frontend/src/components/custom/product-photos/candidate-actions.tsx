@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import type { AdminProductImage } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
-// A label longer than its button wraps inside it instead of spilling over the next one.
-const WRAPPING = "h-auto min-h-9 whitespace-normal";
+// A label longer than its button wraps inside it, hyphenating a word too long for the tile, instead of spilling over.
+const WRAPPING =
+  "h-auto min-h-9 py-1.5 whitespace-normal hyphens-auto wrap-anywhere";
 
 export interface ICandidateHandlers {
   onSetMain: () => void;

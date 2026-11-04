@@ -48,9 +48,9 @@ export default function PhotoManager({
 
   if (isLoading || !data) {
     return (
-      <div className="space-y-4">
+      <div className="@container space-y-4">
         <Skeleton className="h-16 w-full" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 @lg:grid-cols-3">
           {[0, 1, 2].map((key) => (
             <Skeleton key={key} className="aspect-square rounded-2xl" />
           ))}
