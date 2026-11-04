@@ -86,6 +86,25 @@ class ProductImageWireFormatTest extends FullStackTest {
     }
 
     @Test
+    void everyAdminPhotoCarriesAnOriginalUrlWhateverItsSource() throws Exception {
+        // The frontend schema reads originalUrl as a non-null string for all sources.
+        images.save(ProductImage.builder().ean(ean).source(ImageSource.ADMIN).status(ImageStatus.VERIFIED)
+                .fullKey("products/" + ean + "/admin-full.jpg").thumbKey("products/" + ean + "/admin-thumb.jpg").build());
+        images.save(ProductImage.builder().ean(ean).source(ImageSource.OPEN_FOOD_FACTS).status(ImageStatus.CANDIDATE)
+                .externalKey("front_hr").externalRev("3").build());
+
+        JsonNode product = body(mvc.perform(get("/api/admin/product-images/{ean}", ean).with(as(newAdmin())))
+                .andExpect(status().isOk()));
+
+        assertThat(product.get("images")).extracting(image -> image.get("source").asString())
+                .containsExactlyInAnyOrder("USER", "ADMIN", "OPEN_FOOD_FACTS");
+        assertThat(product.get("images")).allSatisfy(image -> {
+            assertThat(image.get("originalUrl").isString()).isTrue();
+            assertThat(image.get("originalUrl").asString()).isNotBlank();
+        });
+    }
+
+    @Test
     void theAdminQueueIsOurOwnPageShape() throws Exception {
         // The unreviewed queue sorts by store listings, and no other test lists a product this widely.
         sets.save(sets.findById(ean).map(set -> {
