@@ -35,7 +35,7 @@ const DATE_SELECTORS = [
       "Cutting toISOString gives the UTC date, not the reader's. Use zagrebClock (@/lib/store-hours/zagreb-clock).",
   },
   {
-    selector: "NewExpression[callee.name='Date'][arguments.length>=3]",
+    selector: "NewExpression[callee.name='Date'][arguments.length>=2]",
     message:
       "new Date(y, m, d) builds in the machine's zone. Use Date.UTC, or addDays (@/lib/store-hours/zagreb-clock).",
   },
