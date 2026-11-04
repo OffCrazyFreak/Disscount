@@ -136,7 +136,7 @@ All three are **optional**. A blank directory turns its stores off: uploads answ
 
 > All three compose files forward the three variables to the backend, blank by default, and the root `.env.example` lists them. A variable missing from `docker-compose.images.yml` never reaches the dev backend, even when Dokploy has it.
 
-- **Dev** has run on disk since 04.11.2026.
+- **Dev** has run on disk since 2026-11-04.
 - **Production** deploys from `main`, which has no photo code yet. It gets photos on disk when it moves to `docker-compose.images.yml` ([#74](https://github.com/OffCrazyFreak/Disscount/issues/74)), with `PHOTO_DIR=/data/photos-private`, `PUBLIC_PHOTO_DIR=/data/photos-public`, `R2_PUBLIC_URL=https://images.disscount.me` and a Dokploy domain for the `images` service on port 80.
 - **Production sets the two folders only once its backup runs.** On disk a photo has no second copy until the `backup` sidecar copies it, so `COMPOSE_PROFILES=backup` and the [owner setup in BACKUPS.md](BACKUPS.md#owner-setup-once-before-production-runs-it) come first, then `PHOTO_DIR` and `PUBLIC_PHOTO_DIR`. Dev is not backed up by decision, so it runs on disk without one.
 
