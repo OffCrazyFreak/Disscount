@@ -1,4 +1,4 @@
-package disscount.digitalCard.storage;
+package disscount.storage;
 
 import java.util.Optional;
 
@@ -24,4 +24,9 @@ public class DisabledPhotoStore implements PhotoStore {
 
     @Override
     public void deletePrefix(String prefix) {}
+
+    @Override
+    public String publicUrl(String key) {
+        return null;
+    }
 }

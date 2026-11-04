@@ -1,4 +1,4 @@
-package disscount.digitalCard.storage;
+package disscount.storage;
 
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -17,10 +17,15 @@ public class R2PhotoStore implements PhotoStore, AutoCloseable {
 
     private final S3Client s3;
     private final String bucket;
+    private final String cacheControl;
+    private final String publicBaseUrl;
 
-    public R2PhotoStore(S3Client s3, String bucket) {
+    /** cacheControl and publicBaseUrl are null on a private bucket. */
+    public R2PhotoStore(S3Client s3, String bucket, String cacheControl, String publicBaseUrl) {
         this.s3 = s3;
         this.bucket = bucket;
+        this.cacheControl = cacheControl;
+        this.publicBaseUrl = publicBaseUrl;
     }
 
     @Override
@@ -31,7 +36,7 @@ public class R2PhotoStore implements PhotoStore, AutoCloseable {
     @Override
     public void put(String key, byte[] bytes, String contentType) {
         s3.putObject(
-                PutObjectRequest.builder().bucket(bucket).key(key).contentType(contentType).build(),
+                PutObjectRequest.builder().bucket(bucket).key(key).contentType(contentType).cacheControl(cacheControl).build(),
                 RequestBody.fromBytes(bytes));
     }
 
@@ -60,6 +65,11 @@ public class R2PhotoStore implements PhotoStore, AutoCloseable {
         for (S3Object object : s3.listObjectsV2Paginator(list).contents()) {
             delete(object.key());
         }
+    }
+
+    @Override
+    public String publicUrl(String key) {
+        return publicBaseUrl == null ? null : publicBaseUrl + "/" + key;
     }
 
     @Override

@@ -1,26 +1,26 @@
 package disscount.digitalCard.rest;
 
-import tools.jackson.databind.ObjectMapper;
 import disscount.config.SecurityConfig;
 import disscount.digitalCard.dto.DigitalCardDto;
 import disscount.digitalCard.dto.DigitalCardRequest;
 import disscount.digitalCard.service.DigitalCardPhotoService;
 import disscount.digitalCard.service.DigitalCardService;
-import disscount.digitalCard.storage.StoredPhoto;
 import disscount.exceptions.ConflictException;
 import disscount.exceptions.NotFoundException;
 import disscount.exceptions.ServiceUnavailableException;
 import disscount.exceptions.TooManyRequestsException;
+import disscount.storage.StoredPhoto;
 import disscount.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;

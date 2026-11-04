@@ -17,8 +17,10 @@ import disscount.productImage.domain.ProductImageSet;
 import disscount.productImage.dto.ProductImageDtos.ListedEansDto;
 import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
 import disscount.productImage.dto.ProductImageDtos.ProductThumbnailsDto;
-import disscount.productImage.storage.ProductImageStore;
+import disscount.storage.PhotoStore;
+import disscount.storage.PhotoStoreConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +32,8 @@ public class ProductImageQueryService {
 
     private final ProductImageRepository images;
     private final ProductImageSetRepository sets;
-    private final ProductImageStore store;
+    @Qualifier(PhotoStoreConfig.PRODUCT_PHOTOS)
+    private final PhotoStore store;
     private final ProductImageViews views;
 
     @Transactional(readOnly = true)

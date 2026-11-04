@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+import disscount.productImage.domain.ImageSource;
 import disscount.productImage.domain.ProductImage;
 import disscount.productImage.domain.ProductImageSet;
 import disscount.productImage.dto.ProductImageDtos.AdminImageDto;
@@ -13,9 +14,10 @@ import disscount.productImage.dto.ProductImageDtos.CropDto;
 import disscount.productImage.dto.ProductImageDtos.ProductImageDto;
 import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
 import disscount.productImage.off.OffImageUrls;
-import disscount.productImage.domain.ImageSource;
-import disscount.productImage.storage.ProductImageStore;
+import disscount.storage.PhotoStore;
+import disscount.storage.PhotoStoreConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,7 +26,8 @@ class ProductImageViews {
 
     static final String ORIGINAL_PATH = "/api/admin/product-images/images/%s/original";
 
-    private final ProductImageStore store;
+    @Qualifier(PhotoStoreConfig.PRODUCT_PHOTOS)
+    private final PhotoStore store;
     private final ProductImageRendering rendering;
 
     ProductImagesDto publicView(String ean, UUID mainId, List<ProductImage> all) {

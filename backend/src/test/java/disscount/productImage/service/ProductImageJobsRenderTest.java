@@ -3,8 +3,6 @@ package disscount.productImage.service;
 import java.util.List;
 
 import disscount.digitalCard.photo.TestImages;
-import disscount.productImage.FakeProductImageStore;
-import disscount.productImage.FakeProductOriginalStore;
 import disscount.productImage.catalog.CatalogImportService;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
@@ -16,15 +14,18 @@ import disscount.productImage.domain.ProductImageSet;
 import disscount.productImage.off.OffImageGoneException;
 import disscount.productImage.off.OffImageUnavailableException;
 import disscount.productImage.off.OpenFoodFactsClient;
+import disscount.storage.FakePhotoStore;
+import disscount.storage.PhotoStoreConfig;
 import disscount.util.Timestamps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,20 +48,20 @@ class ProductImageJobsRenderTest {
     @TestConfiguration
     static class StoreConfig {
         @Bean
-        FakeProductOriginalStore productOriginalStore() {
-            return new FakeProductOriginalStore();
+        FakePhotoStore productOriginalStore() {
+            return new FakePhotoStore();
         }
 
         @Bean
-        FakeProductImageStore productImageStore() {
-            return new FakeProductImageStore();
+        FakePhotoStore productImageStore() {
+            return new FakePhotoStore();
         }
     }
 
     @Autowired ProductImageJobs jobs;
     @Autowired ProductImageRepository images;
     @Autowired ProductImageSetRepository sets;
-    @Autowired FakeProductImageStore publicStore;
+    @Autowired @Qualifier(PhotoStoreConfig.PRODUCT_PHOTOS) FakePhotoStore publicStore;
     @MockitoBean OpenFoodFactsClient off;
     @MockitoBean CatalogImportService catalog;
     @MockitoBean OffSeedService seed;

@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import disscount.digitalCard.storage.StoredPhoto;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.NotFoundException;
 import disscount.exceptions.ServiceUnavailableException;
@@ -25,9 +24,12 @@ import disscount.productImage.dto.ProductImageDtos.CropDto;
 import disscount.productImage.off.OffProductPhotos;
 import disscount.productImage.off.OpenFoodFactsClient;
 import disscount.productImage.render.ProductImageRenderer;
-import disscount.productImage.storage.ProductOriginalStore;
+import disscount.storage.PhotoStore;
+import disscount.storage.PhotoStoreConfig;
+import disscount.storage.StoredPhoto;
 import disscount.util.Timestamps;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -48,7 +50,8 @@ public class ProductImageAdminService {
     private final ProductImageViews views;
     private final OpenFoodFactsClient off;
     private final OffCandidateWriter candidates;
-    private final ProductOriginalStore originals;
+    @Qualifier(PhotoStoreConfig.PRODUCT_ORIGINALS)
+    private final PhotoStore originals;
 
     @Transactional(readOnly = true)
     public AdminQueuePageDto queue(String filter, int page, int size) {

@@ -1,5 +1,7 @@
 package disscount.digitalCard.service;
 
+import disscount.storage.PhotoStoreConfig;
+import org.springframework.beans.factory.annotation.Qualifier;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +15,7 @@ import java.util.Objects;
 import disscount.digitalCard.dao.DigitalCardPhotoRepository;
 import disscount.digitalCard.dao.PhotoCleanupRepository;
 import disscount.digitalCard.domain.PhotoCleanup;
-import disscount.digitalCard.storage.PhotoStore;
+import disscount.storage.PhotoStore;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class PhotoCleanupService {
 
     private final PhotoCleanupRepository repository;
     private final DigitalCardPhotoRepository photoRepository;
+    @Qualifier(PhotoStoreConfig.CARD_PHOTOS)
     private final PhotoStore photoStore;
 
     /**
