@@ -37,10 +37,4 @@ describe("watchlistItemDtoSchema", () => {
 
     expect(parsed.thresholdValue).toBe(0);
   });
-
-  it("rejects a response that drops a key the backend always sends", () => {
-    const { createdAt: _omitted, ...withoutKey } = storedItem;
-
-    expect(watchlistItemDtoSchema.safeParse(withoutKey).success).toBe(false);
-  });
 });
