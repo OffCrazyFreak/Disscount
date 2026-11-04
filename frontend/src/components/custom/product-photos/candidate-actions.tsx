@@ -3,6 +3,10 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import type { AdminProductImage } from "@/lib/api/types";
+import { cn } from "@/lib/utils";
+
+// A label longer than its button wraps inside it instead of spilling over the next one.
+const WRAPPING = "h-auto min-h-9 whitespace-normal";
 
 export interface ICandidateHandlers {
   onSetMain: () => void;
@@ -33,10 +37,11 @@ export default function CandidateActions({
     !hidden && (image.status === "PENDING" || image.reportCount > 0);
 
   return (
-    <div className="grid grid-cols-2 gap-1.5">
+    // Crop and its neighbour share a row only when both labels fit on the tile.
+    <div className="flex flex-wrap gap-1.5">
       <Button
         size="sm"
-        className="col-span-2"
+        className={cn("basis-full", WRAPPING)}
         variant={image.main ? "primarySoft" : "primary"}
         icon={Star}
         iconPlacement="left"
@@ -47,6 +52,7 @@ export default function CandidateActions({
       </Button>
       <Button
         size="sm"
+        className={cn("flex-auto", WRAPPING)}
         variant="outline"
         icon={Crop}
         iconPlacement="left"
@@ -58,6 +64,7 @@ export default function CandidateActions({
       {needsDecision ? (
         <Button
           size="sm"
+          className={cn("flex-auto", WRAPPING)}
           variant="outline"
           icon={Check}
           iconPlacement="left"
@@ -69,6 +76,7 @@ export default function CandidateActions({
       ) : (
         <Button
           size="sm"
+          className={cn("flex-auto", WRAPPING)}
           variant="outline"
           icon={hidden ? Eye : EyeOff}
           iconPlacement="left"
@@ -80,7 +88,7 @@ export default function CandidateActions({
       )}
       <Button
         size="sm"
-        className="col-span-2"
+        className={cn("basis-full", WRAPPING)}
         variant="destructiveSoft"
         icon={Trash2}
         iconPlacement="left"
