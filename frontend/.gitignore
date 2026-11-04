@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+# husky's generated hooks, linked from the main checkout inside a worktree
+/.husky/_
 /.pnp
 .pnp.*
 .yarn/*

@@ -7,6 +7,14 @@ description: Sets up a Disscount git worktree to run the frontend and backend ch
 
 Worktrees live under `/home/jj/.t3/worktrees/Disscount/<name>`. pnpm is blocked there by the guard hook, because it resolves through a symlinked `node_modules` and can purge the main checkout's copy.
 
+## Git hooks
+
+husky generates `frontend/.husky/_` only in the main checkout, so a new worktree has no hooks and commits skip the checks with no warning. The guard hook refuses `git commit` until this exists:
+
+```bash
+ln -s /home/jj/Desktop/Disscount/frontend/.husky/_ frontend/.husky/_
+```
+
 ## Frontend checks
 
 Link the main checkout's dependencies once, then call binaries directly from `frontend/`:

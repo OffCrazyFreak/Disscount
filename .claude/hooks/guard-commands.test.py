@@ -56,10 +56,19 @@ def build_real_worktree(root):
     run("git", "worktree", "add", "-q", "--no-track", "-b", "feat-b", tracks_own, "origin/dev")
     subprocess.run(["git", "push", "-qu", "origin", "feat-b"], cwd=tracks_own, env=env, capture_output=True, check=True)
 
-    return repo, linked, on_main, tracks_dev, tracks_own
+    # husky's generated hook folder exists only in the checkout that installed it.
+    no_hooks = os.path.join(root, "no-hooks")
+    run("git", "init", "-q", "-b", "dev", no_hooks)
+    run("git", "-C", no_hooks, "config", "core.hooksPath", "hooks/_")
+    with_hooks = os.path.join(root, "with-hooks")
+    run("git", "init", "-q", "-b", "dev", with_hooks)
+    run("git", "-C", with_hooks, "config", "core.hooksPath", "hooks/_")
+    os.makedirs(os.path.join(with_hooks, "hooks", "_"))
+
+    return repo, linked, on_main, tracks_dev, tracks_own, no_hooks, with_hooks
 
 
-def cases(real_repo, real_worktree, on_main, tracks_dev, tracks_own):
+def cases(real_repo, real_worktree, on_main, tracks_dev, tracks_own, no_hooks, with_hooks):
     return [
         # ALLOW: dev servers and Docker run in the main tree
         ("pnpm dev", MAIN, False),
@@ -211,6 +220,12 @@ def cases(real_repo, real_worktree, on_main, tracks_dev, tracks_own):
         ("git branch -f x origin/dev", real_repo, False),
         ("git log origin/dev..HEAD", real_repo, False),
         ("git diff origin/dev", real_repo, False),
+        # BLOCK: a commit that would silently run no hooks
+        ('git commit -m "x"', no_hooks, True),
+        # ALLOW: hooks in place, or nothing configured, or not a commit
+        ('git commit -m "x"', with_hooks, False),
+        ('git commit -m "x"', real_repo, False),
+        ("git status", no_hooks, False),
         # BLOCK: a -f pattern that matches the shell running it
         ("pkill -f next-server", real_repo, True),
         ("pkill -9 -f next-server", real_repo, True),
@@ -247,10 +262,11 @@ def main():
 
     root = tempfile.mkdtemp(prefix="guard-commands-")
     try:
-        real_repo, real_worktree, on_main, tracks_dev, tracks_own = build_real_worktree(root)
+        fixture = build_real_worktree(root)
+        real_repo, real_worktree, on_main, tracks_dev, tracks_own, no_hooks, with_hooks = fixture
         fails = 0
 
-        for command, cwd, expect_block in cases(real_repo, real_worktree, on_main, tracks_dev, tracks_own):
+        for command, cwd, expect_block in cases(*fixture):
             payload = json.dumps(
                 {"tool_name": "Bash", "tool_input": {"command": command}, "cwd": cwd}
             )

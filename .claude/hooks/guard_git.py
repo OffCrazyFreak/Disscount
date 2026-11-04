@@ -217,6 +217,40 @@ def disables_hooks(args, raw_tokens):
     return False
 
 
+def missing_hooks_path(cwd):
+    """The relative core.hooksPath that does not exist here, or None.
+
+    husky generates that folder only where it was installed, so in a linked
+    worktree git finds no hooks and commits with no checks and no warning.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "-C", cwd, "rev-parse", "--show-toplevel", "--path-format=absolute", "--git-common-dir"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        hooks = subprocess.run(
+            ["git", "-C", cwd, "config", "core.hooksPath"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+    lines = result.stdout.split()
+    path = hooks.stdout.strip()
+    if result.returncode != 0 or len(lines) != 2 or not path or os.path.isabs(path):
+        return None
+
+    top_level, common_dir = lines
+    if os.path.isdir(os.path.join(top_level, path)):
+        return None
+
+    return os.path.join(top_level, path), os.path.join(os.path.dirname(common_dir), path)
+
+
 def git_refusal(args, cwd, raw_tokens=()):
     """A refusal message for this `git` invocation, or None to allow."""
     raw_tokens = list(raw_tokens)
@@ -226,6 +260,13 @@ def git_refusal(args, cwd, raw_tokens=()):
         return (
             "Blocked: --no-verify skips the hooks that keep formatting, trailers "
             "and dashes out of commits. Fix what the hook flags and commit again."
+        )
+
+    missing = missing_hooks_path(cwd) if sub == "commit" and cwd else None
+    if missing:
+        return (
+            "Blocked: this worktree has no git hooks, so this commit would skip "
+            f"formatting and the message checks. Link them once: ln -s {missing[1]} {missing[0]}"
         )
 
     if sub == "push":
