@@ -13,9 +13,10 @@ import {
 import { useSearchBarQuery } from "@/components/custom/search/use-search-bar-query";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useSidebar } from "@/components/ui/sidebar";
+import type { ISearchDraftStore } from "@/components/custom/search/search-draft-store";
 import { IScannedCode } from "@/typings/scanned-code";
 
-interface ISearchBarProps extends ISearchBarFieldOptions {
+export interface ISearchBarProps extends ISearchBarFieldOptions {
   searchRoute: string;
   autoSearch?: boolean;
   disabled?: boolean;
@@ -23,8 +24,8 @@ interface ISearchBarProps extends ISearchBarFieldOptions {
   submitLabel?: string;
   /** Names the form, so an owner can put the submit button outside it */
   formId?: string;
-  /** Mirrors what is typed, for an owner rendering the submit button itself */
-  onQueryChange?: (query: string) => void;
+  /** The draft this field mirrors with others; left out, it keeps its own */
+  draftStore?: ISearchDraftStore;
   /** Updates `q` in place, without a server render, keeping the hash */
   shallow?: boolean;
   /** Fires once a search or a scan has navigated away */
@@ -38,7 +39,7 @@ export default function SearchBar({
   disabled = false,
   submitLabel: submitLabelProp,
   formId,
-  onQueryChange,
+  draftStore,
   onSubmitted,
   shallow = false,
   ...field
@@ -48,13 +49,14 @@ export default function SearchBar({
   const { routeQuery, isUnchanged, search, syncQuery, openResult } =
     useSearchNavigation(searchRoute, { shallow });
   const { setOpen } = useSidebar();
-  const { register, handleSubmit, clearQuery, queryValue } = useSearchBarQuery({
-    routeQuery,
-    autoSearch,
-    disabled,
-    syncQuery,
-    onQueryChange,
-  });
+  const { registration, handleSubmit, clearQuery, queryValue } =
+    useSearchBarQuery({
+      routeQuery,
+      autoSearch,
+      disabled,
+      syncQuery,
+      draftStore,
+    });
 
   function submit(data: { query: string }) {
     if (disabled) return;
@@ -82,7 +84,7 @@ export default function SearchBar({
     if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
     // Enter on the clear or scan button is that button's own click.
     if (!(event.target instanceof HTMLInputElement)) return;
-    if (!hasSearchButton || !isUnchanged(queryValue ?? "")) return;
+    if (!hasSearchButton || !isUnchanged(queryValue)) return;
     if (!isTouchPointer()) return;
 
     event.preventDefault();
@@ -116,7 +118,7 @@ export default function SearchBar({
       >
         <SearchBarField
           {...field}
-          registration={register("query")}
+          registration={registration}
           queryValue={queryValue}
           disabled={disabled}
           onClear={handleClear}
@@ -127,7 +129,7 @@ export default function SearchBar({
           <SearchActionButton
             label={submitLabel}
             block={submitButtonLocation === "block"}
-            isUnchanged={isUnchanged(queryValue ?? "")}
+            isUnchanged={isUnchanged(queryValue)}
             disabled={disabled}
           />
         )}

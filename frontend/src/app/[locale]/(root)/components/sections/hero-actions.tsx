@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useCameraScanner } from "@/context/scanner-context";
 import { IScannedCode } from "@/typings/scanned-code";
-import SearchBar from "@/components/custom/search/search-bar";
+import ProductSearchBar from "@/components/custom/search/product-search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import { productPath } from "@/utils/product-links";
 
@@ -32,9 +32,8 @@ export default function HeroActions() {
     <>
       <Card className="bg-background max-w-xl mx-auto rounded-2xl shadow-xl p-8 space-y-4">
         <Suspense fallback={<SearchBarSkeleton submitButtonLocation="block" />}>
-          <SearchBar
+          <ProductSearchBar
             placeholder={t("hero.searchPlaceholder")}
-            searchRoute="/products"
             clearable={true}
             allowScanning={false}
             submitButtonLocation="block"

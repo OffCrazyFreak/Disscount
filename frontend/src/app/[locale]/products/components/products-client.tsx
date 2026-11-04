@@ -11,7 +11,7 @@ import ProductsResults from "@/app/[locale]/products/components/products-results
 import ProductsResultsStatus from "@/app/[locale]/products/components/products-results-status";
 import ProductsResultsTitle from "@/app/[locale]/products/components/products-results-title";
 import { Suspense } from "react";
-import SearchBar from "@/components/custom/search/search-bar";
+import ProductSearchBar from "@/components/custom/search/product-search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import { Banner } from "@/components/custom/common/banner";
 
@@ -70,9 +70,8 @@ export default function ProductsClient({ query }: IProductsClientProps) {
   return (
     <div className="space-y-4">
       <Suspense fallback={<SearchBarSkeleton />}>
-        <SearchBar
+        <ProductSearchBar
           placeholder={t("list.searchPlaceholder")}
-          searchRoute={pathname}
           clearable={true}
           allowScanning={true}
         />
