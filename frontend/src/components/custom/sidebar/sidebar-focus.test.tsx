@@ -63,7 +63,7 @@ function DrawerControls() {
   );
 }
 
-function shell() {
+function shell(allowScanning = true) {
   return (
     <SidebarProvider defaultOpen>
       <CameraScannerProvider>
@@ -79,7 +79,7 @@ function shell() {
             searchRoute="/products"
             placeholder="Sidebar"
             submitButtonLocation="none"
-            allowScanning
+            allowScanning={allowScanning}
           />
           <ClosingLink />
         </Sidebar>
@@ -175,6 +175,19 @@ describe("focus when the sidebar closes", () => {
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     expect(container).not.toHaveAttribute("inert");
     expect(trigger).not.toHaveFocus();
+  });
+
+  it("falls back to the sidebar field when the scan button is gone", async () => {
+    const { rerender } = renderWithProviders(shell());
+    const sidebarField = screen.getByRole("searchbox", { name: "Sidebar" });
+
+    fireEvent.click(screen.getByRole("button", { name: "Skeniraj barkod" }));
+    await screen.findByRole("button", { name: "Fake scan" });
+    rerender(shell(false));
+    await userEvent.keyboard("{Escape}");
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(sidebarField).toHaveFocus();
   });
 
   it("stays in a field outside the sidebar that searched", async () => {

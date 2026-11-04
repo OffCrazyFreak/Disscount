@@ -46,19 +46,21 @@ export default function CameraScanner({
           // Radix only restores focus to a DialogTrigger, and the scanner has none.
           event.preventDefault();
 
+          // The scan button can be gone by now (the page re-rendered), but its field may remain.
+          const searchInput = openerFieldRef.current?.querySelector("input");
+
           // A scan closes the sidebar it started in: the desktop one turns inert and the mobile
           // drawer unmounts, either way leaving focus nowhere to go back to.
           const isOpenerInertOrGone =
             openerRef.current?.closest("[inert]") ||
-            (openedInSidebarRef.current && !openerRef.current?.isConnected);
+            (openedInSidebarRef.current &&
+              !openerRef.current?.isConnected &&
+              !searchInput?.isConnected);
 
           if (isOpenerInertOrGone) {
             focusSidebarTrigger();
             return;
           }
-
-          // The scan button can be gone by now (the page re-rendered), but its field may remain.
-          const searchInput = openerFieldRef.current?.querySelector("input");
 
           for (const target of [openerRef.current, searchInput]) {
             if (!(target instanceof HTMLElement) || !target.isConnected)
