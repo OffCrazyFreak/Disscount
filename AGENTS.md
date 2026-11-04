@@ -61,7 +61,7 @@ Project board 8, owner OffCrazyFreak. Status is never empty.
 
 ## Releases and production
 
-- Work lands on `dev`; a release is a `dev` into `main` PR. Before one, dev-vs-main gets a Sonnet `reviewer` per app area plus CodeRabbit and Greptile (their automatic reviews or their CLIs), and this is the one review that waits for both bots. Findings land as their own `fix:` PR, and the notes stay in `~/Documents/Disscount`.
+- Work lands on `dev`; a release is a `dev` into `main` PR. Before one, dev-vs-main gets one Sonnet `reviewer` per app area the release touches, so their number follows its size, plus CodeRabbit and Greptile (their automatic reviews or their CLIs), and this is the one review that waits for both bots. Findings land as their own `fix:` PR, and the notes stay in `~/Documents/Disscount`.
 - Anything a release needs (a data step already run, a migration, an env step, a check after deploy) goes in the open release PR body in the same turn, saying what happened and what is left and by whom. Append; never reword existing notes.
 - Dokploy, Cloudflare, Sentry, `gh` and `ssh disscount` are yours to use on dev and production, without asking. Read the official docs for each step, verify it, and report every production change.
 - Databases are containers named `disscount-{development,production}-*-db-1`, reached with `docker exec <container> psql` over `ssh disscount`. `docs/INFRASTRUCTURE.md` has the full reference.
