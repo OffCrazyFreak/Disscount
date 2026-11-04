@@ -39,8 +39,14 @@ afterEach(() => {
 
 describe("usePriceHistory", () => {
   it("moves the window to the new Zagreb day when a mounted tab crosses midnight", async () => {
+    const requestedDates: string[] = [];
     server.use(
-      http.get("*/api/cijene/products/*", () => HttpResponse.json(PRODUCT)),
+      http.get("*/api/cijene/products/*", ({ request }) => {
+        requestedDates.push(
+          new URL(request.url).searchParams.get("date") ?? "",
+        );
+        return HttpResponse.json(PRODUCT);
+      }),
     );
     // Only Date is faked, so React Query and MSW keep their real timers.
     vi.useFakeTimers({
@@ -70,6 +76,7 @@ describe("usePriceHistory", () => {
         "2026-10-13",
       ]),
     );
+    expect(requestedDates).toContain("2026-10-13");
   });
 
   it("keeps the chart when a background refetch of cached history fails", async () => {
