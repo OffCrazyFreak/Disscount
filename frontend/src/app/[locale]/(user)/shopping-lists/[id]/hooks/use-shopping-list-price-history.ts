@@ -6,6 +6,7 @@ import { PeriodOption } from "@/typings/history-period-options";
 import { periodOptions } from "@/constants/price-history";
 import { priceHistoryQueries } from "@/lib/cijene-api/price-history-queries";
 import { useUser } from "@/context/user-context";
+import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 import { usePriceHistoryChains } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-price-history-chains";
 import {
   getPriceHistoryDates,
@@ -23,6 +24,10 @@ export function useShoppingListPriceHistory(
   shoppingList: ShoppingListDto,
   period: PeriodOption,
 ) {
+  "use no memo";
+  // The compiler caches `new Date()` as a constant, so a tab left open past Zagreb midnight
+  // would keep yesterday as its last day; reading the clock each render needs the opt-out.
+  const today = zagrebClock(new Date()).date;
   const { accountUser } = useUser();
 
   const daysToShow = useMemo(() => {
@@ -34,7 +39,10 @@ export function useShoppingListPriceHistory(
     [shoppingList.items],
   );
 
-  const dates = useMemo(() => getPriceHistoryDates(daysToShow), [daysToShow]);
+  const dates = useMemo(
+    () => getPriceHistoryDates(daysToShow, today),
+    [daysToShow, today],
+  );
 
   const queries = useQueries({
     queries: eans.flatMap((ean) => priceHistoryQueries(ean, dates)),
