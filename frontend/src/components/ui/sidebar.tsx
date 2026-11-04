@@ -303,6 +303,7 @@ function Sidebar({
 function SidebarTrigger({
   className,
   onClick,
+  onKeyDown,
   ...props
 }: React.ComponentProps<typeof Button>) {
   const t = useTranslations("ui");
@@ -319,6 +320,12 @@ function SidebarTrigger({
       onClick={(event) => {
         onClick?.(event);
         toggleSidebar();
+      }}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+
+        // Closing hands focus here, so an Enter still held from a search would reopen the sidebar.
+        if (event.repeat) event.preventDefault();
       }}
       {...props}
     >

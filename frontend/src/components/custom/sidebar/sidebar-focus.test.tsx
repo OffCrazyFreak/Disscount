@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -106,6 +106,17 @@ describe("focus when the sidebar closes", () => {
     expect(router.push).toHaveBeenCalledWith("/products?q=sir");
     expect(container).toHaveAttribute("inert");
     expect(trigger).toHaveFocus();
+  });
+
+  it("ignores an Enter still held from the search on the trigger", () => {
+    const { trigger } = renderShell();
+
+    const isDefaultAllowed = fireEvent.keyDown(trigger, {
+      key: "Enter",
+      repeat: true,
+    });
+
+    expect(isDefaultAllowed).toBe(false);
   });
 
   it("moves to the trigger after a link inside it closes it", async () => {
