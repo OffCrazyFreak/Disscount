@@ -421,7 +421,7 @@ Read from `frontend/package.json`.
 | `@tanstack/query-async-storage-persister` | `^5.101.1` (pinned) | async persister used with IndexedDB                                                           |
 | `idb-keyval`                              | `^6.2.5`            | tiny IndexedDB key-value wrapper backing the persister                                        |
 | `sharp`                                   | `^0.35.5`           | image generation for icons and splash screens; also encodes the product share card at runtime |
-| `next`                                    | `16.4.3`            | App Router, dynamic manifest, metadata hoisting                                               |
+| `next`                                    | `16.4.5`            | App Router, dynamic manifest, metadata hoisting                                               |
 | `react`                                   | `19.2.8`            | renders and hoists the `<link>`/metadata tags                                                 |
 | `@yudiel/react-qr-scanner`                | `^2.6.0`            | barcode/QR scanning (used by digital cards; native Barcode Detection is a future option)      |
 
