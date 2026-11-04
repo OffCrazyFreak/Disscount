@@ -118,7 +118,7 @@ Skills live in `.agents/skills`, linked from `.claude/skills`. `research`, `unsl
 ## Writing
 
 - Markdown: one physical line per paragraph and bullet, never hard-wrapped. Prettier and `.prettierignore` cover the rest.
-- Numeric Croatian dates read `03.11.2026.`, and quotes are straight, Croatian included (`docs/I18N.md`).
+- Numeric dates read `03.11.2026.` in Croatian text and ISO `2026-11-03` in English, and quotes are straight, Croatian included (`docs/I18N.md`).
 
 ## Commits
 

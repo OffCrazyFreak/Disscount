@@ -142,7 +142,7 @@ All three are **optional**. A blank directory turns its stores off: uploads answ
 
 ### R2 buckets
 
-Cloudflare R2 now holds backups only; the buckets, tokens and rules are in [BACKUPS.md](BACKUPS.md) and [§8](#8-backups--restore). Every bucket is in the **EU jurisdiction** (fixed at creation) and has its own Account API token scoped to that one bucket.
+Cloudflare R2 now holds backups only; the buckets, tokens and rules are in [BACKUPS.md](BACKUPS.md) and [§8](#8-backups--restore). Every bucket is in the **EU jurisdiction** (fixed at creation) and has its own Account API token scoped to that one bucket. The Cloudflare MCP drops the jurisdiction header, so EU buckets need the dashboard or Wrangler.
 
 The photo buckets from before the move are retired: `disscount-card-photos`, `disscount-product-images` and `disscount-product-originals`, each with a `-dev` twin. Nothing in the app reads them. They stay untouched as a fallback copy for 30 days after each environment switches to disk; then the owner deletes them and their tokens.
 
@@ -191,7 +191,7 @@ Keep the records **Proxied**: `100::` is not routable, so the names only work be
 v=DMARC1; p=quarantine; np=reject; rua=mailto:<id>@dmarc-reports.cloudflare.net
 ```
 
-It began in monitor mode (`p=none`) and is now at `p=quarantine`. `np=reject` is stricter than the main policy on purpose: it covers non-existent subdomains, which never send legitimate mail, so nothing can break by rejecting them outright. Aggregate reports go to Cloudflare's hosted DMARC Management rather than an inbox. It stays at `p=quarantine` until real test mail from each sender has produced aggregate reports; there are none yet, because nothing has sent real mail. The remaining step is `p=reject`, which should wait until those reports stay clean across all three senders (Resend, MailerLite, Cloudflare Email Routing), since any one of them falling out of alignment under `reject` means silent delivery failure rather than a spam-folder warning.
+It began in monitor mode (`p=none`) and is now at `p=quarantine`. `np=reject` is stricter than the main policy on purpose: it covers non-existent subdomains, which never send legitimate mail, so nothing can break by rejecting them outright. Aggregate reports go to Cloudflare's hosted DMARC Management rather than an inbox. It stays at `p=quarantine` until real test mail from each sender has produced aggregate reports; there are none yet, because nothing has sent real mail. The remaining step is `p=reject`, which should wait until those reports stay clean across all three senders (Resend, MailerLite, Cloudflare Email Routing), since any one of them falling out of alignment under `reject` means silent delivery failure rather than a spam-folder warning. Check a new sender's DKIM alignment before adding it.
 
 ---
 
