@@ -147,6 +147,8 @@ public class ProductImageRendering {
         if (image.getSource() == ImageSource.OPEN_FOOD_FACTS) {
             return off.download(originalUrl(image));
         }
+        // A kept photo of an erased user has no original left to crop from.
+        if (image.getOriginalKey() == null) throw new NotFoundException("error.productImage.notFound");
         // The row exists but its folder is switched off, which is an outage rather than a missing photo.
         if (!originals.enabled()) throw new ServiceUnavailableException("error.productImage.unavailable");
         StoredPhoto stored = originals.get(image.getOriginalKey())
@@ -178,6 +180,18 @@ public class ProductImageRendering {
             });
         } else {
             delete(oldKey);
+        }
+    }
+
+    /**
+     * The erasure's version of dropFiles: deletes now and lets a failure fail the erasure, since a file of an
+     * erased account must not stay public behind a log line. Call after deleting the row.
+     */
+    void eraseFiles(String fullKey, String thumbKey, String smallKey) {
+        for (String key : new String[]{fullKey, thumbKey, smallKey}) {
+            if (key == null) continue;
+            if (images.existsByFullKey(key) || images.existsByThumbKey(key) || images.existsBySmallKey(key)) continue;
+            store.delete(key);
         }
     }
 

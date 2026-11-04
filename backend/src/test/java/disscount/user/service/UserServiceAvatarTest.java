@@ -5,6 +5,7 @@ import disscount.digitalCard.service.DigitalCardService;
 import disscount.exceptions.BadRequestException;
 import disscount.favoriteStore.service.FavoriteStoreService;
 import disscount.user.avatar.AvatarSanitizer;
+import disscount.productImage.service.ProductImageErasure;
 import disscount.user.dao.AuthIdentityDao;
 import disscount.user.dao.ErasureLedgerRepository;
 import disscount.user.dao.UserRepository;
@@ -29,7 +30,7 @@ class UserServiceAvatarTest {
 
     private final UserRepository userRepository = mock(UserRepository.class);
     private final UserService userService = new UserService(userRepository, mock(AuthIdentityDao.class),
-            mock(UserProfileCreator.class), mock(DigitalCardService.class), mock(FavoriteStoreService.class),
+            mock(UserProfileCreator.class), mock(DigitalCardService.class), mock(FavoriteStoreService.class), mock(ProductImageErasure.class),
             mock(ErasureLedgerRepository.class), new AvatarSanitizer(new PhotoValidator()));
 
     private final User user = User.builder().id(UUID.randomUUID()).username("ana").image("data:image/webp;base64,old").build();

@@ -8,6 +8,7 @@ import disscount.digitalCard.service.DigitalCardService;
 import disscount.favoriteStore.service.FavoriteStoreService;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.ConflictException;
+import disscount.productImage.service.ProductImageErasure;
 import disscount.user.avatar.AvatarSanitizer;
 import disscount.user.dao.AuthIdentityDao;
 import disscount.user.dao.ErasureLedgerRepository;
@@ -47,6 +48,7 @@ public class UserService {
     private final UserProfileCreator profileCreator;
     private final DigitalCardService digitalCardService;
     private final FavoriteStoreService favoriteStoreService;
+    private final ProductImageErasure productImageErasure;
     private final ErasureLedgerRepository erasureLedger;
     private final AvatarSanitizer avatarSanitizer;
 
@@ -248,11 +250,18 @@ public class UserService {
         digitalCardService.deleteAllForUser(userId);
         // Favourite stores show where the person shops.
         favoriteStoreService.deleteAllForUser(userId);
+        // Unconfirmed photos and private originals may show the person or their home.
+        productImageErasure.eraseContributor(userId);
 
         if (!erasureLedger.existsById(userId)) {
             // Flushed so a concurrent deletion's tombstone collides here, where AccountErasureService can catch it.
             erasureLedger.saveAndFlush(new ErasureLedgerEntry(userId, Timestamps.nowUtc()));
         }
+    }
+
+    /** Locks the caller's profile until commit, so a write racing the account deletion either lands first or is refused. */
+    public void lockActive(UUID userId) {
+        userRepository.requireActiveForUpdate(userId);
     }
 
     public boolean isActiveAdmin(UUID userId) {

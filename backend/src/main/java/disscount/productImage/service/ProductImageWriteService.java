@@ -58,6 +58,7 @@ public class ProductImageWriteService {
     public ProductImagesDto upload(UUID userId, String ean, MultipartFile file) {
         ProductImageQueryService.requireEan(ean);
         requireStorage();
+        userService.lockActive(userId);
 
         boolean admin = userService.isActiveAdmin(userId);
         if (!admin) limiter.check(userId);
@@ -109,6 +110,7 @@ public class ProductImageWriteService {
     /** One report per user and photo; repeating it is not an error. */
     @Transactional
     public void report(UUID userId, UUID imageId) {
+        userService.lockActive(userId);
         ProductImage image = images.findById(imageId)
                 .filter(i -> i.getStatus() != ImageStatus.HIDDEN && i.getStatus() != ImageStatus.CANDIDATE)
                 .orElseThrow(() -> new NotFoundException("error.productImage.notFound"));

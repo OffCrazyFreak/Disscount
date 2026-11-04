@@ -69,6 +69,17 @@ class ProductImageRemoval {
     }
 
     /**
+     * Deletes an erased user's original now and fails the erasure if it cannot, because a logged failure after
+     * the commit would leave the most personal file behind with nothing pointing at it. A rollback costs only
+     * the re-crop of a photo the erasure was removing anyway, and the user's retry finishes the rest.
+     */
+    void eraseOriginal(String key) {
+        if (key == null) return;
+        if (!originals.enabled()) throw new ServiceUnavailableException("error.productImage.unavailable");
+        originals.delete(key);
+    }
+
+    /**
      * Refuses a photo an admin deleted, on any product. The hash is of the cleaned copy the validator
      * writes, which is also what the originals folder holds, so metadata changes do not get a copy through.
      */
@@ -98,7 +109,6 @@ class ProductImageRemoval {
         }
     }
 
-    // A rolled back deletion still points at the original, so the file may only go after the commit.
     private static void afterCommit(Runnable action) {
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
             action.run();
