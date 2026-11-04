@@ -38,8 +38,7 @@ Legal copy is the exception to asking about wording: change it as you judge righ
 
 ## PRs and review
 
-- Fill in `.github/PULL_REQUEST_TEMPLATE.md`. Decisions carry my choices and my reasons in my words, never the agent's rationale.
-- Every PR gets one Sonnet high review, and a second only after large fixes.
+- Fill in `.github/PULL_REQUEST_TEMPLATE.md`.
 - CodeRabbit and Greptile are for big or sensitive PRs: about 500+ changed lines or 15+ files, or anything touching auth, security, personal data or migrations. Comment `@coderabbitai review` and `@greptileai review` once. Never wait on their quota, because the Sonnet review is enough.
 - Before a merge, read every comment and review, bots included, and settle each: fix it or reply with the reason. Read the `pulls/N/reviews` bodies too, since CodeRabbit keeps nitpicks and out-of-diff findings there, not in inline comments.
 - The orchestrating session merges a PR once CI is green and review is settled. Delegates do not merge.
@@ -91,7 +90,6 @@ Copy and i18n (`docs/I18N.md`):
 
 - Hr, en, it, sl and de, with informal singular and ungendered forms in every language: Croatian "ti", never "vi". The company voice "mi" stays. This covers `alt`, `title` and accessible names.
 - Add a key to `src/i18n/messages/hr/` and the same file in every other locale; `pnpm i18n:check` enforces it. Use ICU plurals and number formats. Croatian needs `one`, `few`, `other`; Slovenian adds `two`. Data constants hold `labelKey`, not text.
-- Croatian or English naming and wording choices go to me, except legal copy (above).
 - Import `Link`, `redirect`, `useRouter`, `usePathname` from `@/i18n/navigation`.
 - A new backend error or validation message needs a key in all five `messages*.properties`.
 
@@ -115,7 +113,7 @@ Skills live in `.agents/skills`, linked from `.claude/skills`. `research`, `unsl
 
 ## Commits
 
-One purpose per commit, written from the staged diff, in this template. The hooks in `frontend/.husky/` format staged files and reject trailers and dashes.
+Write the message from the staged diff in this template, and do not repeat it in chat. The hooks in `frontend/.husky/` format staged files and reject trailers and dashes.
 
 ```text
 type(scope): Short summary in imperative mood
