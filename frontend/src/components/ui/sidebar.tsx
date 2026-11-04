@@ -55,6 +55,21 @@ function useSidebar() {
   return context;
 }
 
+/** Moves focus to the trigger on screen: others stay in the closed sidebar or are hidden. */
+function focusSidebarTrigger() {
+  const triggers = document.querySelectorAll<HTMLElement>(
+    "[data-slot=sidebar-trigger]",
+  );
+
+  for (const trigger of triggers) {
+    if (trigger.closest("[inert]")) continue;
+
+    // The header stays on screen, so there is never a reason to scroll to it.
+    trigger.focus({ preventScroll: true });
+    if (document.activeElement === trigger) return;
+  }
+}
+
 function SidebarProvider({
   defaultOpen = true,
   open: openProp,
@@ -78,6 +93,15 @@ function SidebarProvider({
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === "function" ? value(open) : value;
+
+      // Closing makes the sidebar inert, which would drop focus inside it to the page's top.
+      if (
+        !openState &&
+        document.activeElement?.closest("[data-slot=sidebar-container]")
+      ) {
+        focusSidebarTrigger();
+      }
+
       if (setOpenProp) {
         setOpenProp(openState);
       } else {
@@ -775,4 +799,5 @@ export {
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
+  focusSidebarTrigger,
 };
