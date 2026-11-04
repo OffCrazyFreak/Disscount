@@ -20,7 +20,6 @@ import disscount.user.dto.UserDto;
 import disscount.user.dto.UserRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import disscount.exceptions.ForbiddenException;
 import disscount.util.Timestamps;
 
 import java.time.Duration;
@@ -261,15 +260,6 @@ public class UserService {
         }
     }
 
-    /**
-     * Throws unless the given user is an active ADMIN. Used to gate admin-only endpoints.
-     */
-    public void requireAdmin(UUID userId) {
-        if (!isActiveAdmin(userId)) {
-            throw new ForbiddenException("error.user.adminRequired");
-        }
-    }
-
     public boolean isActiveAdmin(UUID userId) {
         return userRepository.findByIdAndDeletedAtIsNull(userId)
                 .map(u -> u.getAccountType() == AccountType.ADMIN)
@@ -330,10 +320,6 @@ public class UserService {
     }
 
     public UserDto updateAccountType(UUID userId, AccountType accountType) {
-        if (accountType == null) {
-            throw new BadRequestException("error.user.accountTypeRequired");
-        }
-
         // The target of an admin action, not the caller: the admin's own session is fine, so no 401 here.
         User user = userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new BadRequestException("error.user.notFound"));

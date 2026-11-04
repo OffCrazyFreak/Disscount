@@ -54,7 +54,7 @@ class JwtDecoderCharacterizationTest {
         jwks.start();
 
         String jwksUri = "http://127.0.0.1:" + jwks.getAddress().getPort() + "/api/auth/jwks";
-        decoder = new SecurityConfig(null).jwtDecoder(jwksUri, ISSUER);
+        decoder = new SecurityConfig(null, null).jwtDecoder(jwksUri, ISSUER);
     }
 
     @AfterAll
