@@ -66,6 +66,26 @@ class ProductImageRendererTest {
     }
 
     @Test
+    void aCropAwayFromTheCornerKeepsItsOwnPixels() throws IOException {
+        BufferedImage halves = new BufferedImage(200, 100, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = halves.createGraphics();
+        g.setColor(Color.RED);
+        g.fillRect(0, 0, 100, 100);
+        g.setColor(Color.BLUE);
+        g.fillRect(100, 0, 100, 100);
+        g.dispose();
+        ByteArrayOutputStream png = new ByteArrayOutputStream();
+        ImageIO.write(halves, "png", png);
+
+        BufferedImage full = decode(ProductImageRenderer.render(png.toByteArray(), 0, new Crop(110, 20, 60, 40)).full());
+
+        assertThat(full.getWidth()).isEqualTo(60);
+        int centre = full.getRGB(30, 20);
+        assertThat(centre & 0xff).as("blue").isGreaterThan(200);
+        assertThat((centre >> 16) & 0xff).as("red").isLessThan(60);
+    }
+
+    @Test
     void cropIsMeasuredAgainstTheRotatedFrame() {
         byte[] wide = TestImages.jpeg(200, 100);
 

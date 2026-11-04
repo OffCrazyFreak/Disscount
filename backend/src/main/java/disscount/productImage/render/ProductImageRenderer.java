@@ -190,8 +190,11 @@ public final class ProductImageRenderer {
     /** Keeps the photo's shape, so a wide or tall product fills the file instead of white padding. */
     private static BufferedImage fitWithin(BufferedImage content, int maxSide) {
         int longEdge = Math.max(content.getWidth(), content.getHeight());
-        // Never upscale: a small source gains nothing but blur from more pixels.
-        if (longEdge <= maxSide) return content;
+        // Never upscale: a small source gains nothing but blur from more pixels. Copied all the same, because a
+        // crop is a view into the rotated photo and the WebP writer ignores a view's offset, writing garbage.
+        if (longEdge <= maxSide) {
+            return draw(content, content.getWidth(), content.getHeight(), RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        }
         double scale = (double) maxSide / longEdge;
         int width = Math.max(1, (int) Math.round(content.getWidth() * scale));
         int height = Math.max(1, (int) Math.round(content.getHeight() * scale));
