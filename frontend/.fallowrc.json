@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/fallow/schema.json",
-  "entry": ["src/app/sw.ts", "src/emails/*.tsx", "scripts/*.mjs"],
+  "entry": ["src/app/sw.ts", "src/emails/**/*.tsx", "scripts/**/*.mjs"],
   "boundaries": {
     "zones": [
       {
