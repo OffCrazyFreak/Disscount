@@ -32,13 +32,16 @@ class ErasureReplayRunner implements ApplicationRunner {
     private final ErasureReplay replay;
     private final Path markers;
     private final Path keyFile;
+    private final boolean allowEmpty;
 
     ErasureReplayRunner(ErasureReplay replay,
                         @Value("${erasure-replay.markers}") Path markers,
-                        @Value("${erasure-replay.key-file}") Path keyFile) {
+                        @Value("${erasure-replay.key-file}") Path keyFile,
+                        @Value("${erasure-replay.allow-empty:false}") boolean allowEmpty) {
         this.replay = replay;
         this.markers = markers;
         this.keyFile = keyFile;
+        this.allowEmpty = allowEmpty;
     }
 
     @Override
@@ -54,6 +57,10 @@ class ErasureReplayRunner implements ApplicationRunner {
         List<String> strangers = names.stream().filter(name -> !MARKER.matcher(name).matches()).toList();
         if (!strangers.isEmpty()) {
             throw new IllegalStateException("Not erasure markers, check the folder: " + strangers);
+        }
+        // A failed download looks the same as a month with no deletions, so only the operator can say it is the latter.
+        if (names.isEmpty() && !allowEmpty) {
+            throw new IllegalStateException("No erasure markers found; pass --erasure-replay.allow-empty=true if none is expected");
         }
 
         Set<String> markerNames = Set.copyOf(names);

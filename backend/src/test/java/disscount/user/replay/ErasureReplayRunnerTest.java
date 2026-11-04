@@ -24,9 +24,13 @@ class ErasureReplayRunnerTest {
     private final ErasureReplay replay = mock(ErasureReplay.class);
 
     private ErasureReplayRunner runner(String key) throws Exception {
+        return runner(key, false);
+    }
+
+    private ErasureReplayRunner runner(String key, boolean allowEmpty) throws Exception {
         Path keyFile = Files.writeString(dir.resolve("hmac.key"), key + "\n");
         Path markers = Files.createDirectories(dir.resolve("markers"));
-        return new ErasureReplayRunner(replay, markers, keyFile);
+        return new ErasureReplayRunner(replay, markers, keyFile, allowEmpty);
     }
 
     @Test
@@ -49,8 +53,18 @@ class ErasureReplayRunnerTest {
     }
 
     @Test
+    void refusesAnEmptyFolderUnlessTold() throws Exception {
+        assertThatThrownBy(() -> runner("e".repeat(64)).run(null)).hasMessageContaining("allow-empty");
+        verifyNoInteractions(replay);
+
+        runner("e".repeat(64), true).run(null);
+        verify(replay).replay(HexFormat.of().parseHex("e".repeat(64)), Set.of());
+    }
+
+    @Test
     void refusesAShortKey() throws Exception {
         ErasureReplayRunner runner = runner("e".repeat(62));
+        Files.writeString(dir.resolve("markers").resolve(MARKER), "{}");
 
         assertThatThrownBy(() -> runner.run(null)).hasMessageContaining("64 hex");
         verify(replay, never()).replay(any(), any());
