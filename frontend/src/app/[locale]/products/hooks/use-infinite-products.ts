@@ -22,7 +22,6 @@ interface IUseInfiniteProductsOptions {
   selectedBrands?: string[];
   selectedLocations?: string[];
   selectedSourceCities?: string[];
-  batchSize?: number;
 }
 
 interface IUseInfiniteProductsResult {
@@ -40,6 +39,7 @@ interface IUseInfiniteProductsResult {
 }
 
 const EMPTY_SELECTION: string[] = [];
+const BATCH_SIZE = 50;
 
 // An old "no results" would read as the answer to the new search, so it counts as loading.
 function isShowingPreviousEmptyResults(
@@ -60,12 +60,7 @@ export default function useInfiniteProducts(
     selectedBrands = EMPTY_SELECTION,
     selectedLocations = EMPTY_SELECTION,
     selectedSourceCities = EMPTY_SELECTION,
-    batchSize = 50,
   } = options ?? {};
-
-  // Guard a 0/NaN size, which would make the batching loop never advance.
-  const safeBatchSize =
-    Number.isInteger(batchSize) && batchSize > 0 ? batchSize : 50;
 
   // One unfiltered request, filtered client-side, so facet counts match results.
   const { data, isLoading, isPlaceholderData, error } = useGetProductByName({
@@ -119,8 +114,8 @@ export default function useInfiniteProducts(
   }, [pricedItems, selectedBrands, selectedCategories]);
 
   const batchedItems = useMemo(
-    () => splitIntoBatches(filteredItems, safeBatchSize),
-    [filteredItems, safeBatchSize],
+    () => splitIntoBatches(filteredItems, BATCH_SIZE),
+    [filteredItems],
   );
 
   const batchKey = [
