@@ -1,36 +1,16 @@
+import { router, searchBarShell } from "@/test/search-bar-harness";
 import type { ReactNode } from "react";
 import { act, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import ProductSearchBar from "@/components/custom/search/product-search-bar";
 import SearchBar from "@/components/custom/search/search-bar";
 import { productSearchDraft } from "@/components/custom/search/search-draft-store";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { CameraScannerProvider } from "@/context/scanner-context";
 import { renderWithProviders } from "@/test/render";
 
-const router = vi.hoisted(() => ({
-  pathname: "/products",
-  search: "",
-  push: vi.fn(),
-  replace: vi.fn(),
-}));
-
-vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(router.search),
-}));
-vi.mock("@/i18n/navigation", () => ({
-  usePathname: () => router.pathname,
-  useRouter: () => ({ push: router.push, replace: router.replace }),
-}));
-
 function renderShell(children: ReactNode) {
-  return renderWithProviders(
-    <SidebarProvider>
-      <CameraScannerProvider>{children}</CameraScannerProvider>
-    </SidebarProvider>,
-  );
+  return renderWithProviders(searchBarShell(children));
 }
 
 function ProductBoxes() {
@@ -126,12 +106,12 @@ describe("ProductSearchBar", () => {
 
     await user.type(field("Header"), "kruh");
     rerender(
-      <SidebarProvider>
-        <CameraScannerProvider>
+      searchBarShell(
+        <>
           <ProductSearchBar placeholder="Header" submitButtonLocation="none" />
           <ProductSearchBar placeholder="Sheet" submitButtonLocation="none" />
-        </CameraScannerProvider>
-      </SidebarProvider>,
+        </>,
+      ),
     );
 
     expect(field("Sheet")).toHaveValue("kruh");
