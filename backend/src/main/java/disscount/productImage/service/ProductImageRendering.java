@@ -63,6 +63,23 @@ public class ProductImageRendering {
         apply(current, copy);
     }
 
+    /** Renders a shown photo again from its source, dropping the result when an admin reframed or replaced it meanwhile. */
+    public void rerender(ProductImage loaded) {
+        Copy copy = upload(loaded);
+        ProductImage current = images.findById(loaded.getId())
+                .filter(i -> Objects.equals(i.getFullKey(), loaded.getFullKey()) && sameFraming(i, loaded))
+                .orElse(null);
+        if (current == null) {
+            deleteIfUnused(copy.fullKey(), null);
+            deleteIfUnused(copy.thumbKey(), null);
+            deleteIfUnused(copy.smallKey(), null);
+            return;
+        }
+        current.setRenderAttempts(null);
+        current.setRenderRetryAt(null);
+        apply(current, copy);
+    }
+
     /** True while the row is still the uncopied candidate the job loaded, so the job may write to it. */
     static boolean stillWaiting(ProductImage current, ProductImage loaded) {
         return current.getStatus() == ImageStatus.CANDIDATE && !current.isRendered()
@@ -82,6 +99,10 @@ public class ProductImageRendering {
                 ? new Crop(image.getCropX(), image.getCropY(), image.getCropWidth(), image.getCropHeight())
                 : null;
         Rendered rendered = ProductImageRenderer.render(source(image), image.getRotation(), crop);
+        if (rendered.overCeiling()) {
+            log.info("Product photo {} for {} stays over its size ceiling at the lowest quality: full {}, thumb {}, small {} bytes",
+                    image.getId(), image.getEan(), rendered.full().length, rendered.thumb().length, rendered.small().length);
+        }
 
         String base = ProductImageStore.ROOT_FOLDER + "/" + image.getEan() + "/" + rendered.sha256().substring(0, 20);
         Copy copy = new Copy(base + ".webp", base + "-thumb.webp", base + "-small.webp",

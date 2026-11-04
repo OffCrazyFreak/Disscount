@@ -47,4 +47,16 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, UUID
             """)
     List<ProductImage> findUnrenderedMains(@Param("candidate") ImageStatus candidate, @Param("now") LocalDateTime now,
                                            Pageable page);
+
+    /** Shown photos rendered before the WebP files and the small list file existed, most widely sold first. */
+    @Query("""
+            select i from ProductImage i, ProductImageSet s
+            where s.ean = i.ean and i.fullKey is not null and i.smallKey is null and i.status in :visible
+              and (i.renderAttempts is null or i.renderAttempts < :maxAttempts)
+              and (i.renderRetryAt is null or i.renderRetryAt <= :now)
+            order by s.storeListings desc
+            """)
+    List<ProductImage> findRenderedWithoutSmallFile(@Param("visible") Collection<ImageStatus> visible,
+                                                    @Param("maxAttempts") int maxAttempts,
+                                                    @Param("now") LocalDateTime now, Pageable page);
 }

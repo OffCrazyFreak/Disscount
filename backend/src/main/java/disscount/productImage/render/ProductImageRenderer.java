@@ -34,8 +34,8 @@ public final class ProductImageRenderer {
 
     public static final int FULL_SIDE = 1080;
     public static final int THUMB_SIDE = 400;
-    /** List rows draw at most 64 CSS pixels, so 160 stays sharp at 2.5x. */
-    public static final int SMALL_SIDE = 160;
+    /** List rows draw at most 64 CSS pixels, so 192 stays sharp on 3x screens. */
+    public static final int SMALL_SIDE = 192;
     public static final int MIN_CROP_SIDE = 16;
 
     // Decoded as 4 bytes a pixel, so this caps one render at roughly 100 MB of heap.
@@ -46,13 +46,19 @@ public final class ProductImageRenderer {
     // WebP quality 80 measured about half the bytes of the earlier JPEG at 86 on our photos.
     private static final float[] QUALITY_STEPS = {0.80f, 0.70f, 0.60f, 0.50f};
     // Noisy photos can blow past the usual size; each step down trades a little detail to stay under these.
-    static final int FULL_MAX_BYTES = 200_000;
-    static final int THUMB_MAX_BYTES = 60_000;
-    static final int SMALL_MAX_BYTES = 16_000;
+    public static final int FULL_MAX_BYTES = 200_000;
+    public static final int THUMB_MAX_BYTES = 60_000;
+    public static final int SMALL_MAX_BYTES = 20_000;
 
     public record Crop(int x, int y, int width, int height) {}
 
-    public record Rendered(byte[] full, byte[] thumb, byte[] small, String sha256, int sourceWidth, int sourceHeight) {}
+    public record Rendered(byte[] full, byte[] thumb, byte[] small, String sha256, int sourceWidth, int sourceHeight) {
+
+        /** True when even the lowest quality step left a file over its ceiling. */
+        public boolean overCeiling() {
+            return full.length > FULL_MAX_BYTES || thumb.length > THUMB_MAX_BYTES || small.length > SMALL_MAX_BYTES;
+        }
+    }
 
     private ProductImageRenderer() {}
 

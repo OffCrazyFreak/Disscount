@@ -188,6 +188,57 @@ class ProductImageJobsRenderTest {
         verify(off, never()).download(anyString());
     }
 
+    @Test
+    void anOlderJpegPhotoIsRenderedAgainAsWebpOnceNoNewPhotoWaits() {
+        ProductImage older = renderedJpegMain(WIDELY_SOLD);
+        when(off.download(anyString())).thenReturn(TestImages.jpeg(600, 400));
+
+        jobs.renderMainPhotos();
+
+        ProductImage after = images.findById(older.getId()).orElseThrow();
+        assertThat(after.getFullKey()).endsWith(".webp");
+        assertThat(after.getSmallKey()).endsWith("-small.webp");
+        assertThat(publicStore.objects).doesNotContainKeys(older.getFullKey(), older.getThumbKey()).hasSize(3);
+    }
+
+    @Test
+    void olderPhotosWaitWhileANewPhotoIsStillToBeCopied() {
+        ProductImage older = renderedJpegMain(WIDELY_SOLD);
+        mainCandidate(LESS_SOLD, 40);
+        when(off.download(anyString())).thenReturn(TestImages.jpeg(600, 400));
+
+        jobs.renderMainPhotos();
+
+        assertThat(images.findById(older.getId()).orElseThrow().getSmallKey()).isNull();
+    }
+
+    @Test
+    void anOlderPhotoWhoseSourceIsGoneKeepsItsFilesAndIsTriedAgainLater() {
+        ProductImage older = renderedJpegMain(WIDELY_SOLD);
+        when(off.download(anyString())).thenThrow(new OffImageGoneException("url", 404));
+
+        jobs.renderMainPhotos();
+
+        ProductImage after = images.findById(older.getId()).orElseThrow();
+        assertThat(after.getFullKey()).isEqualTo(older.getFullKey());
+        assertThat(after.getStatus()).isEqualTo(ImageStatus.VERIFIED);
+        assertThat(after.getRenderAttempts()).isEqualTo(1);
+        assertThat(after.getRenderRetryAt()).isAfter(Timestamps.nowUtc());
+        assertThat(publicStore.objects).containsKeys(older.getFullKey(), older.getThumbKey());
+    }
+
+    /** A main photo copied before WebP: JPEG keys and no small list file. */
+    private ProductImage renderedJpegMain(String ean) {
+        String base = "products/" + ean + "/0123456789abcdef0123";
+        ProductImage image = images.save(ProductImage.builder().ean(ean).source(ImageSource.OPEN_FOOD_FACTS)
+                .status(ImageStatus.VERIFIED).externalKey("front_hr").externalRev("4").lang("hr")
+                .fullKey(base + ".jpg").thumbKey(base + "-thumb.jpg").renderedAt(Timestamps.nowUtc()).build());
+        sets.save(ProductImageSet.builder().ean(ean).storeListings(500).mainImageId(image.getId()).build());
+        publicStore.objects.put(image.getFullKey(), new byte[] {1});
+        publicStore.objects.put(image.getThumbKey(), new byte[] {1});
+        return image;
+    }
+
     private ProductImage mainCandidate(String ean, int storeListings) {
         ProductImage image = images.save(ProductImage.builder().ean(ean).source(ImageSource.OPEN_FOOD_FACTS)
                 .status(ImageStatus.CANDIDATE).externalKey("front_hr").externalRev("4").lang("hr").build());
