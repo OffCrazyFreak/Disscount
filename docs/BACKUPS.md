@@ -105,7 +105,7 @@ Researched 4 November 2026 and decided by the owner. Dokploy schedules were reje
 - **Rollback:** commits from before the backup image have none, so the deploy action leaves the backup tag where it is when rolling back to one.
 - **A deploy replaces the container.** supercronic waits for a running job on shutdown, and `stop_grace_period` is 10 minutes; a job cut off anyway fails its ping and the next run starts clean.
 - **The container runs as root** to read `/etc/dokploy`, which holds root-only SSH keys. It mounts nothing writable from the host and has no Docker socket. The scratch restore runs as `postgres`.
-- **Photo volumes are empty until the migration** in #486 moves photos from R2 to the server; the job then copies nothing and still succeeds. A missing mount fails the job.
+- **Photo volumes:** in `docker-compose.images.yml` the backend and the backup sidecar mount the same `photos-private` and `photos-public` volumes, so every photo the backend writes on disk is in the hourly copy. Before photos move to disk (`PHOTO_DIR` and `PUBLIC_PHOTO_DIR` blank) the volumes are empty; the job then copies nothing and still succeeds. A missing mount fails the job.
 - **Bucket Lock means no fixing mistakes by deleting:** a bad upload stays until its lock ends. Test changes on a separate bucket.
 
 ## Future work

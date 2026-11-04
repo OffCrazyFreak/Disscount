@@ -58,6 +58,7 @@ flowchart LR
 - `docker-compose.yml`: **local development** (publishes ports to localhost, named container names).
 - `docker-compose.prod.yml`: **Dokploy** (no host ports, joins the external `dokploy-network`, no `container_name`, and Traefik handles routing). This is the file Dokploy deploys for `main`, which still builds on the server.
 - `docker-compose.images.yml`: the same stack, pulling the CI-built GHCR images by `IMAGE_TAG` instead of building. This is the file Dokploy deploys for `dev` ([§4](#4-how-a-deploy-works-git-to-live)).
+- Both Dokploy files also mount the `photos-private` and `photos-public` volumes on the backend, run a one-shot `photo-folders` service that creates the photo folders, and serve public product photos from an `images` nginx service ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#storage-on-the-servers-disk)). Its inline `configs` need Docker Compose 2.23 or newer; the server runs v5.6.1.
 
 ---
 

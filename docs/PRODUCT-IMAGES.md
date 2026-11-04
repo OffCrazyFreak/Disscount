@@ -247,7 +247,7 @@ Properties with defaults, not env vars: `product-images.jobs.enabled` (true; fal
 
 ### Storage on the server's disk
 
-Issue #486 moves photos from R2 to folders on the server. The code for it is in place and off by default: with `PHOTO_DIR` and `PUBLIC_PHOTO_DIR` blank everything stays on R2. The volumes, the nginx container and the data move come later in #486.
+Issue #486 moves photos from R2 to folders on the server. The code for it is in place and off by default: with `PHOTO_DIR` and `PUBLIC_PHOTO_DIR` blank everything stays on R2. `docker-compose.images.yml` and `docker-compose.prod.yml` mount the `photos-private` and `photos-public` volumes on the backend at `/data/photos-private` and `/data/photos-public`, so those are the values to set. A one-shot `photo-folders` service creates the three folders owned by uid 1001 before the backend starts, and the `images` service (nginx, read-only) serves `products/` on the image hostname with `Cache-Control: public, max-age=31536000, immutable`; it refuses anything else (404, or 403 for a bare folder), `.tmp-*` included. Dokploy routes the image hostname to `images` on port 80 as a domain of the compose service.
 
 | Var                | What it controls                                                        | Folders it needs inside                                              |
 | ------------------ | ----------------------------------------------------------------------- | -------------------------------------------------------------------- |
@@ -260,13 +260,12 @@ Issue #486 moves photos from R2 to folders on the server. The code for it is in 
 
 **Writes.** A write goes to `.tmp-<random>` beside the target, is synced, renamed over the target, and the directory is synced. A reader sees the old file or the whole new one, and a write that returned survives a power cut. A failed write, usually a full disk, is logged as an error and answers 503.
 
-**Gotchas for the steps still to come.**
+**Gotchas.**
 
-- The app never creates the top folders: a missing folder means the volume is not mounted, and writes there would vanish on the next deploy. Something must create them owned by uid 1001.
-- If the image itself contains those folders and the compose file forgets the volume, the check passes and writes land in the container layer. Create them from outside the image.
-- The hourly backup must skip `.tmp-*`, which holds unfinished writes. A crash can leave one behind: under `cards/` an erasure removes it, elsewhere nothing sweeps it yet.
+- The app never creates the top folders: a missing folder means the volume is not mounted, and writes there would vanish on the next deploy. `photo-folders` creates them inside the volumes, never in the image, so a compose file that forgets a volume leaves that store off instead of writing into the container layer.
+- The hourly backup skips `.tmp-*`, which holds unfinished writes. A crash can leave one behind: under `cards/` an erasure removes it, elsewhere nothing sweeps it yet.
 - Copy `product-originals/` before the first deploy with `PHOTO_DIR` set, or crops of existing uploads answer 404 until it arrives.
-- nginx runs under another uid, so public files are `644` in `755` directories and private ones `600` in `700`. nginx has to send the `Cache-Control: public, max-age=31536000, immutable` that R2 stores per object today.
+- nginx runs under another uid, so public files are `644` in `755` directories and private ones `600` in `700`. Files copied in by hand need the same owner (1001) and modes.
 - `R2_PUBLIC_URL` keeps its name for now even on disk.
 - Directory sync works on Linux only, so these stores do not run on Windows.
 
