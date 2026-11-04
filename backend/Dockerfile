@@ -10,6 +10,8 @@ COPY pom.xml .
 RUN mvn -B -q dependency:go-offline
 
 # Copy source and build the executable jar (tests run in CI, not in the image build).
+# lombok.config copies @Qualifier onto generated constructors; without it the photo stores and upload limiters are ambiguous.
+COPY lombok.config .
 COPY src ./src
 RUN mvn -B -q clean package -DskipTests
 
