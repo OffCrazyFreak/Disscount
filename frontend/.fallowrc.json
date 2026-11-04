@@ -70,9 +70,7 @@
     "ignore": ["src/components/ui/**"]
   },
   "audit": {
-    "gate": "new-only",
-    "healthBaseline": ".fallow-baselines/health.json",
-    "dupesBaseline": ".fallow-baselines/dupes.json"
+    "gate": "new-only"
   },
   "rules": {
     // Every remaining eslint-disable is deliberate and reviewed; as of Fallow 3.37 there is no baseline or reason exemption for them.
