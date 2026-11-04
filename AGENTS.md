@@ -23,7 +23,7 @@ Legal copy is the exception to asking about wording: change it as you judge righ
 
 ## Done means
 
-- Frontend: `tsc --noEmit`, `eslint src --max-warnings 0`, Vitest and Prettier pass, and `fallow audit --base origin/dev` says `pass`. CI fails any other verdict, including the `warn` new duplication gets.
+- Frontend: `tsc --noEmit`, `eslint src --max-warnings 0`, Vitest, `pnpm i18n:check` and both Prettier runs (`src`, and the Markdown files with `--ignore-path ../.prettierignore`) pass, and `fallow audit --base origin/dev` says `pass`. CI fails any other verdict, including the `warn` new duplication gets.
 - Backend: `mvn -B verify` passes. It needs Docker for `DoubleBootSchemaTest`. Its tests cover digital cards, store names, account deletion, security chains, JWT decoding, JSON dates, problem responses, per-feature ownership, admin gating and the fields the frontend reads. Pricing, merging and jobs are mostly untested, so say so when you touch them.
 - A failure unrelated to your change: report the command and the error, say it looks pre-existing, and leave it. Never re-run a check I interrupted.
 - After editing `.claude/hooks/`, run `python3 .claude/hooks/guard-commands.test.py`.

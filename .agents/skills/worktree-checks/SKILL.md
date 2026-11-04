@@ -27,7 +27,9 @@ cd frontend
 ./node_modules/.bin/eslint src --max-warnings 0
 ./node_modules/.bin/vitest run
 ./node_modules/.bin/fallow audit --base origin/dev
+node scripts/check-i18n.mjs
 ./node_modules/.bin/prettier --check src
+./node_modules/.bin/prettier --check --ignore-path ../.prettierignore "../README.md" "../AGENTS.md" "../docs/**/*.md" "../.github/**/*.md" "../.agents/**/*.md"
 ```
 
 The link is enough for the CLI checks and is gitignored. If the main checkout is behind on dependencies, a check can fail on a missing package; use the scratch clone below and link its `node_modules` instead.
