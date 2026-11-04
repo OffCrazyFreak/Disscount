@@ -52,6 +52,17 @@ export default function ShoppingListSelector({
     control: formField.control,
     name: "customListTitle",
   });
+  // Local to the popover: only choosing "create" turns it into the form's title,
+  // so a search that ends without a choice never reaches the saved draft.
+  const [search, setSearch] = useState("");
+
+  function handleOpenChange(isOpen: boolean) {
+    if (isOpen)
+      setSearch(
+        formField.getValues("shoppingListId") === "new" ? customListTitle : "",
+      );
+    setOpen(isOpen);
+  }
 
   return (
     <FormField
@@ -61,7 +72,7 @@ export default function ShoppingListSelector({
         <FormItem className="flex flex-col">
           <FormLabel>{t("listSelector.label")}</FormLabel>
 
-          <Popover open={open} onOpenChange={setOpen} modal={true}>
+          <Popover open={open} onOpenChange={handleOpenChange} modal={true}>
             <PopoverTrigger asChild>
               <FormControl>
                 <ShoppingListTrigger
@@ -80,12 +91,8 @@ export default function ShoppingListSelector({
               <Command filter={commandFilter}>
                 <CommandInput
                   placeholder={t("listSelector.searchPlaceholder")}
-                  value={customListTitle}
-                  onValueChange={(title) =>
-                    formField.setValue("customListTitle", title, {
-                      shouldDirty: true,
-                    })
-                  }
+                  value={search}
+                  onValueChange={setSearch}
                 />
                 {/* List only, so the top fade stays below the search box */}
                 <div className="relative flex min-h-0 flex-col">
@@ -102,6 +109,9 @@ export default function ShoppingListSelector({
                             list={list}
                             isSelected={selectedList?.id === list.id}
                             onSelect={() => {
+                              formField.setValue("customListTitle", "", {
+                                shouldDirty: true,
+                              });
                               onSelectList(list.id);
                               setOpen(false);
                             }}
@@ -110,11 +120,14 @@ export default function ShoppingListSelector({
                       </CommandGroup>
                     )}
 
-                    {customListTitle.trim() && (
+                    {search.trim() && (
                       <CommandGroup heading={t("listSelector.newList")}>
                         <CreateListOption
-                          customListTitle={customListTitle}
+                          customListTitle={search}
                           onSelect={() => {
+                            formField.setValue("customListTitle", search, {
+                              shouldDirty: true,
+                            });
                             onSelectList("new");
                             setOpen(false);
                           }}
