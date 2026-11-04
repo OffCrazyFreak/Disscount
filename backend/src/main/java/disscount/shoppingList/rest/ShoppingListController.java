@@ -79,7 +79,6 @@ public class ShoppingListController {
         return ResponseEntity.noContent().build();
     }
     
-    // reccomendations for watchlist
     @Operation(summary = "Get all items from user's active shopping lists")
     @GetMapping("/items")
     public ResponseEntity<List<ShoppingListItemDto>> getAllUserShoppingListItems() {
