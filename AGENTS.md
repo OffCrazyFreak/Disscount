@@ -106,7 +106,7 @@ Copy and i18n (`docs/I18N.md`):
 
 ## Skills
 
-Skills live in `.agents/skills`, linked from `.claude/skills`. `research`, `unslop`, `big-change` and `debloat` are copies of `~/.config/agents/skills`: change them there, then copy. Vendored ones are tracked in `skills-lock.json` and replaced wholesale.
+Skills live in `.agents/skills`, linked from `.claude/skills`. `research`, `unslop`, `big-change` and `debloat` are copies of `~/.config/agents/skills`: change them there, then copy. Third-party ones are replaced wholesale; `skills-lock.json` tracks those the skills CLI installed, which excludes `frontend-design` and `sentry-nextjs-sdk`.
 
 ## Writing
 
