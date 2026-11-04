@@ -55,7 +55,7 @@ The config sets `restoreMocks`, `unstubEnvs` and `unstubGlobals`, and Vitest 5 c
 
 ## Backend contract
 
-`src/lib/api/schemas/backend-contract.test.ts` compares every zod schema that mirrors a backend DTO or enum with `contracts/backend-api.json`. A failure means the two sides disagree; [API-CONTRACT.md](API-CONTRACT.md) has the steps to fix it.
+`src/lib/api/schemas/backend-contract.test.ts` compares every zod schema that mirrors a backend DTO or enum with `contracts/backend-api.json`. That covers fields, types, nullability and enum values. A failure means the two sides disagree; [API-CONTRACT.md](API-CONTRACT.md) has the steps to fix it.
 
 ## What unit tests do not cover
 

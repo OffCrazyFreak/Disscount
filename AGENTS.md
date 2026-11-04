@@ -136,7 +136,7 @@ Before wiring an API call, confirm the endpoint exists in `backend/` or upstream
 - Versions come from the `spring-boot-starter-parent` BOM, so most dependencies carry no `<version>`. Only the ones outside the BOM pin their own, `lombok.version` is pinned because the compiler's annotation processor path needs it explicitly, and `h2.version` overrides the BOM's H2 until it ships a release with the check constraint fix named in `pom.xml`.
 - Swagger UI is at `/api-docs`, and springdoc's major has to track the Spring Boot major.
 - `ddl-auto=update` never drops anything, so changing an enum column to String leaves a stale CHECK constraint that 500s on write.
-- A change to a DTO or enum the frontend reads also changes `contracts/backend-api.json`: refresh it with `mvn -B test -Dtest=ApiContractTest -Dcontract.update=true`, then update the zod schema until `backend-contract.test.ts` passes (`docs/API-CONTRACT.md`).
+- A change to a DTO or enum the frontend reads also changes `contracts/backend-api.json`: refresh it with `mvn -B test -Dtest=ApiContractTest -Dcontract.update=true`, then update the zod schema until `backend-contract.test.ts` passes (`docs/API-CONTRACT.md`). A DTO field that can be null carries `@Schema(nullable = true)`; springdoc ignores JSpecify `@Nullable`.
 - Stamp every zone-less timestamp column through `Timestamps.nowUtc()`, never `LocalDateTime.now()`; `JpaConfig` points JPA auditing at the same clock. The columns carry no offset, so the JVM zone would leak into the wire format, and the frontend's `parseServerDate` reads them back as UTC.
 
 ## Branches and releases
