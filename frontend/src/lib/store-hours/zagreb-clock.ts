@@ -1,7 +1,9 @@
+import { TIME_ZONE } from "@/i18n/formatting";
+
 // Every store is in Croatia, so hours are read on Zagreb's wall clock whatever
 // zone the device or the server runs in.
 const zagrebParts = new Intl.DateTimeFormat("en-CA", {
-  timeZone: "Europe/Zagreb",
+  timeZone: TIME_ZONE,
   year: "numeric",
   month: "2-digit",
   day: "2-digit",

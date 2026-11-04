@@ -1,4 +1,9 @@
 import { formatLocale } from "@/i18n/formatting";
+import {
+  addDays,
+  daysBetween,
+  zagrebClock,
+} from "@/lib/store-hours/zagreb-clock";
 
 export const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
 
@@ -18,33 +23,22 @@ export function fromLocalDateString(value: string): Date {
 }
 
 /**
- * Local YYYY-MM-DD strings ending today, chronological, never reaching earlier
- * than `earliest`. Pass -1 for every day since `earliest`.
+ * YYYY-MM-DD strings ending today in Zagreb, chronological, never reaching earlier
+ * than `earliest`. Pass -1 for every day since `earliest`. Price dates are Croatian
+ * calendar days, so the device's own zone must not pick the last day.
  */
 export function buildDateWindow(
   daysToShow: number,
   earliest: string,
 ): string[] {
-  const today = new Date();
-  const availableDays = Math.max(
-    0,
-    Math.floor(
-      (today.getTime() - fromLocalDateString(earliest).getTime()) /
-        MILLISECONDS_PER_DAY,
-    ) + 1,
-  );
+  const today = zagrebClock(new Date()).date;
+  const availableDays = Math.max(0, daysBetween(earliest, today) + 1);
   const cappedDays =
     daysToShow === -1 ? availableDays : Math.min(daysToShow, availableDays);
 
-  const dates: string[] = [];
-
-  for (let i = cappedDays - 1; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(today.getDate() - i);
-    dates.push(toLocalDateString(date));
-  }
-
-  return dates;
+  return Array.from({ length: cappedDays }, (_, index) =>
+    addDays(today, index - cappedDays + 1),
+  );
 }
 
 // A date and time carrying neither "Z" nor a numeric offset.
