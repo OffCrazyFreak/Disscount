@@ -4,8 +4,14 @@ name: Rollback
 on:
   workflow_dispatch:
     inputs:
+      environment:
+        description: Environment to roll back
+        required: true
+        type: choice
+        options: [dev, prod]
+        default: dev
       sha:
-        description: Full commit SHA of the earlier build to put back live
+        description: Full commit SHA of an earlier build from that environment's branch
         required: true
         type: string
 
@@ -14,14 +20,14 @@ permissions:
 
 jobs:
   rollback:
-    name: Roll back dev
+    name: Roll back ${{ inputs.environment }}
     runs-on: ubuntu-latest
     environment:
-      name: dev
+      name: ${{ inputs.environment }}
       url: ${{ vars.NEXT_PUBLIC_APP_URL }}
     # Shares the deploy group, so tags never move while a deploy is running.
     concurrency:
-      group: deploy-dev
+      group: deploy-${{ inputs.environment }}
       cancel-in-progress: false
     permissions:
       contents: read
@@ -35,7 +41,7 @@ jobs:
       - uses: ./.github/actions/dokploy-deploy
         with:
           release-id: ${{ inputs.sha }}
-          environment-tag: dev
+          environment-tag: ${{ inputs.environment }}
           registry-token: ${{ secrets.GITHUB_TOKEN }}
           dokploy-url: ${{ secrets.DOKPLOY_URL }}
           api-key: ${{ secrets.DOKPLOY_API_KEY }}

@@ -123,6 +123,67 @@ jobs:
 
       - run: mvn -B verify
 
+  # Boots the backend and migrator images the way Dokploy runs them. Only a boot catches a Dockerfile
+  # that builds but leaves the app unable to start (a file the build stage never copied). No draft
+  # skip, so a broken image shows up as soon as it is pushed.
+  image-smoke:
+    name: Image smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      IMAGE_TAG: smoke
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # .env.example holds a complete set of placeholder values, so no CI-only env file exists to drift.
+      - name: Check the compose files
+        run: |
+          for file in docker-compose.yml docker-compose.prod.yml docker-compose.images.yml; do
+            docker compose --env-file .env.example -f "$file" config -q
+          done
+
+      - name: Lint the Dockerfiles
+        run: |
+          docker build --check backend
+          docker build --check --target migrator frontend
+          docker build --check frontend
+          docker build --check backup
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      # Reads the cache the images job writes; the packages are public, so forks need no login.
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: backend
+          target: runtime
+          load: true
+          tags: ghcr.io/offcrazyfreak/disscount-backend:smoke
+          cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-backend:buildcache
+
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: frontend
+          target: migrator
+          load: true
+          tags: ghcr.io/offcrazyfreak/disscount-migrator:smoke
+          cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-migrator:buildcache
+
+      # --pull missing: the app images exist only locally, while Postgres and Alpine still come from the registry.
+      - name: Boot the stack and wait for healthy
+        run: |
+          docker network create dokploy-network
+          docker compose --env-file .env.example -f docker-compose.images.yml up --detach --wait --wait-timeout 180 --pull missing backend
+
+      - name: Show container logs
+        if: failure()
+        run: docker compose --env-file .env.example -f docker-compose.images.yml logs --no-color --tail 200
+
+      - name: Tear down
+        if: always()
+        run: docker compose --env-file .env.example -f docker-compose.images.yml down --volumes
+
   # Workflow files fail only when they run, often on the release or deploy path, so check them up front.
   actionlint:
     name: Workflow lint
@@ -152,14 +213,57 @@ jobs:
           docker build -t backup-check backup
           docker run --rm --entrypoint sh backup-check -c 'rclone version && age --version && supercronic -version && pg_dump --version && bash -n /usr/local/bin/backup-job'
 
+  # Chooses where a push deploys: main goes to prod, dev to dev. Production builds on the server until
+  # its Dokploy cutover (docs/INFRASTRUCTURE.md, section 4), so while prod lacks its settings this
+  # job answers not ready and the image and deploy jobs skip.
+  target:
+    name: Deploy target
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+      deployment: false
+    outputs:
+      environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+      ready: ${{ steps.settings.outputs.ready }}
+    steps:
+      - id: settings
+        env:
+          DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          DOKPLOY_COMPOSE_ID: ${{ secrets.DOKPLOY_COMPOSE_ID }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL }}
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+          NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${{ vars.NEXT_PUBLIC_UMAMI_WEBSITE_ID }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+          SENTRY_ENVIRONMENT: ${{ vars.SENTRY_ENVIRONMENT }}
+        run: |
+          missing=""
+          for name in DOKPLOY_URL DOKPLOY_API_KEY DOKPLOY_COMPOSE_ID SENTRY_AUTH_TOKEN NEXT_PUBLIC_API_URL NEXT_PUBLIC_APP_URL NEXT_PUBLIC_GOOGLE_CLIENT_ID NEXT_PUBLIC_UMAMI_WEBSITE_ID NEXT_PUBLIC_SENTRY_DSN SENTRY_ENVIRONMENT; do
+            if [ -z "${!name}" ]; then
+              missing="$missing $name"
+            fi
+          done
+          if [ -z "$missing" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          elif [ "$GITHUB_REF_NAME" = main ]; then
+            echo "::notice::The prod environment lacks$missing, so CI builds and deploys nothing for this push."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::The dev environment lacks$missing."
+            exit 1
+          fi
+
   images:
     name: Image (${{ matrix.image }})
-    needs: [frontend, backend]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    needs: [target, frontend, backend, image-smoke]
+    if: needs.target.outputs.ready == 'true'
     runs-on: ubuntu-latest
-    # Reads the dev values without recording a deployment; the deploy job records it.
+    # Reads the environment's values without recording a deployment; the deploy job records it.
     environment:
-      name: dev
+      name: ${{ needs.target.outputs.environment }}
       deployment: false
     permissions:
       contents: read
@@ -168,7 +272,7 @@ jobs:
     # its builds afterwards would cancel the newer images. Each commit builds its own sha- tags.
     strategy:
       matrix:
-        # The dokploy-deploy action moves the dev tag for exactly these images.
+        # The dokploy-deploy action moves the environment's tag for exactly these images.
         include:
           - image: frontend
             context: frontend
@@ -199,8 +303,9 @@ jobs:
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ghcr.io/offcrazyfreak/disscount-${{ matrix.image }}
-          # The moving dev tag is set by the deploy job, once every image exists.
-          tags: type=sha,format=long
+          # The moving tag is set by the deploy job, once every image exists. Prod has its own commit
+          # tags because the frontend bundle carries each environment's public values.
+          tags: type=sha,format=long,prefix=${{ needs.target.outputs.environment == 'prod' && 'prod-sha-' || 'sha-' }}
 
       # Only the frontend stages read these; the other images ignore them.
       - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
@@ -226,9 +331,8 @@ jobs:
   # Runs before the deploy job queues, because a stale deploy waiting in the group would replace
   # the newer pending one and then have nothing to do.
   freshness:
-    name: Still the dev tip
+    name: Still the branch tip
     needs: images
-    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
     outputs:
       is-tip: ${{ steps.tip.outputs.is-tip }}
@@ -239,25 +343,26 @@ jobs:
           sparse-checkout: .github/actions
 
       - id: tip
-        uses: ./.github/actions/dev-tip
+        uses: ./.github/actions/branch-tip
         with:
           release-id: ${{ github.sha }}
+          branch: ${{ github.ref_name }}
           token: ${{ github.token }}
 
   deploy:
-    name: Deploy (dev)
-    needs: [images, freshness]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/dev' && needs.freshness.outputs.is-tip == 'true'
+    name: Deploy (${{ needs.target.outputs.environment }})
+    needs: [target, images, freshness]
+    if: needs.freshness.outputs.is-tip == 'true'
     runs-on: ubuntu-latest
     environment:
-      name: dev
+      name: ${{ needs.target.outputs.environment }}
       url: ${{ vars.NEXT_PUBLIC_APP_URL }}
     permissions:
       contents: read
       packages: write
     # A deploy in flight always finishes; a newer one waits behind it.
     concurrency:
-      group: deploy-dev
+      group: deploy-${{ needs.target.outputs.environment }}
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -267,16 +372,17 @@ jobs:
 
       # Checked again inside the lock: re-running this job reuses the freshness job's old answer.
       - id: tip
-        uses: ./.github/actions/dev-tip
+        uses: ./.github/actions/branch-tip
         with:
           release-id: ${{ github.sha }}
+          branch: ${{ github.ref_name }}
           token: ${{ github.token }}
 
       - if: steps.tip.outputs.is-tip == 'true'
         uses: ./.github/actions/dokploy-deploy
         with:
           release-id: ${{ github.sha }}
-          environment-tag: dev
+          environment-tag: ${{ needs.target.outputs.environment }}
           registry-token: ${{ secrets.GITHUB_TOKEN }}
           dokploy-url: ${{ secrets.DOKPLOY_URL }}
           api-key: ${{ secrets.DOKPLOY_API_KEY }}
