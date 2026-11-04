@@ -147,6 +147,8 @@ The seven `filterByFields` callers gained tokenized, ranked, abbreviation-tolera
 | `utils/pinned-stores.ts`                           | `chainMatchesPinnedStore`, `isPinnedChain`                            |
 | `app/[locale]/products/utils/product-relevance.ts` | product ranking, composed from `rank.ts`                              |
 | `app/[locale]/products/utils/product-filters.ts`   | `normalizeChainCode`, the code-only normalizer                        |
+| `components/custom/search/search-draft-store.ts`   | Typed text apart from the URL, shared by the product search boxes     |
+| `components/custom/search/product-search-bar.tsx`  | `SearchBar` bound to `/products` and the shared draft                 |
 
 **Libraries: none.** Matching is entirely in-repo. cmdk `^1.1.1` supplies the combobox, but its own `command-score` filter is replaced by `commandFilter`.
 
@@ -189,7 +191,9 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 
 **Client ranking cannot fix a truncated server response.** Products come back capped at 100 rows chosen by the upstream API's own opaque ranking, so `sortProductsByRelevance` only reorders what already arrived. A better match beyond the cap cannot surface.
 
-**Never `reset()` a search field's form.** `SearchBar` uses `register`, and `reset` also resets react-hook-form's field references. The input only registers again if `register("query")` runs again, which the React Compiler's memoization prevents, so the old text stays and typing is ignored until a reload. `clearQuery` in `use-search-bar-query.ts` uses `setValue` instead. It also skips the route sync for the empty `q` a clear causes, because that arrives in a transition and would wipe anything typed in the meantime.
+**Never `reset()` a search field's form.** `SearchBar` uses `register`, and `reset` also resets react-hook-form's field references. The input only registers again if `register("query")` runs again, which the React Compiler's memoization prevents, so the old text stays and typing is ignored until a reload. `use-search-bar-query.ts` pushes the draft into the form with `setValue` instead. `search-draft-store.ts` also skips the route sync for the empty `q` a clear causes, because that arrives in a transition and would wipe anything typed in the meantime.
+
+**Product search boxes mirror one draft; the URL stays the submitted query.** The header, sidebar, home hero, `/products` page and phone sheet all render `ProductSearchBar`, because each has its own submit button and each used to submit only its own field, so a button did nothing or searched old text when the words were typed in another box. A field shows what was typed (`productSearchDraft`), else the URL's `q`. Typing writes only to the draft, so results change on submit alone (the decision on #162, search while typing). Any change of `q` drops the draft, a clear empties it everywhere, and a box that mounts later (the opened sheet) picks it up. A draft survives moving between pages while `q` does not change, and a full reload drops it. Local filters (watchlist, lists, cards, map, updates, suggestions) use `SearchBar` directly, which gives each its own private draft, so they cannot mirror.
 
 **A clear or a blank submit never leaves the page.** A bar off its search route has no `q` to drop, so clearing it only empties the field, and a live filter's own sync drops its query. Enter on only spaces searches nothing and at most closes a touch keyboard; Enter on a field emptied by hand drops `q` only where the search route is the current page.
 

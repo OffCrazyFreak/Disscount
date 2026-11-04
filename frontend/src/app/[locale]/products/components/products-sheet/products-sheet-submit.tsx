@@ -2,12 +2,14 @@
 
 import { useTranslations } from "next-intl";
 import SearchActionButton from "@/components/custom/search/search-action-button";
+import {
+  productSearchDraft,
+  useSearchDraftValue,
+} from "@/components/custom/search/search-draft-store";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 
 interface IProductsSheetSubmitProps {
   searchRoute: string;
-  /** The live field value, so the button can tell a real search from a no-op */
-  query: string;
   /** The form this button owns, which it sits outside of */
   form: string;
 }
@@ -21,11 +23,11 @@ interface IProductsSheetSubmitProps {
  */
 export default function ProductsSheetSubmit({
   searchRoute,
-  query,
   form,
 }: IProductsSheetSubmitProps) {
   const t = useTranslations("products");
-  const { isUnchanged } = useSearchNavigation(searchRoute);
+  const { routeQuery, isUnchanged } = useSearchNavigation(searchRoute);
+  const query = useSearchDraftValue(productSearchDraft, routeQuery);
 
   return (
     <SearchActionButton

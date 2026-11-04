@@ -1,9 +1,9 @@
 "use client";
 
 import { usePathname } from "@/i18n/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslations } from "next-intl";
-import SearchBar from "@/components/custom/search/search-bar";
+import ProductSearchBar from "@/components/custom/search/product-search-bar";
 import SearchNavButton from "@/components/custom/search/search-nav-button";
 import ProductsSheetSubmit from "@/app/[locale]/products/components/products-sheet/products-sheet-submit";
 import SheetShell from "@/components/custom/modal/sheet-shell";
@@ -38,20 +38,9 @@ export default function ProductsSheet() {
     close,
   } = useProductsSheet();
   const t = useTranslations("products");
-  const [typedQuery, setTypedQuery] = useState("");
-  const [wasOpen, setWasOpen] = useState(false);
   const pathname = usePathname();
   const isMobile = useIsMobile();
   const { user } = useUser();
-
-  // Adjust-during-render rather than an effect, the same pattern as
-  // useLingeringTarget: the field unmounts with the sheet and remounts from the
-  // URL, so a value typed before a close would light the submit button against an
-  // empty input on reopen.
-  if (wasOpen !== isOpen) {
-    setWasOpen(isOpen);
-    if (!isOpen) setTypedQuery("");
-  }
 
   // Any navigation closes it, so a search never leaves its own results covered.
   useEffect(() => {
@@ -85,20 +74,17 @@ export default function ProductsSheet() {
       footer={
         <ProductsSheetSubmit
           searchRoute={FILTERED_ROUTE}
-          query={typedQuery}
           form={PRODUCTS_FORM_ID}
         />
       }
       className="md:hidden"
     >
-      <SearchBar
-        searchRoute={FILTERED_ROUTE}
+      <ProductSearchBar
         placeholder={t("list.searchPlaceholder")}
         allowScanning
         submitButtonLocation="none"
         formId={PRODUCTS_FORM_ID}
         inputRef={inputRef}
-        onQueryChange={setTypedQuery}
         onSubmitted={close}
       />
 

@@ -22,7 +22,7 @@ export interface ISearchBarFieldOptions {
 
 interface ISearchBarFieldProps extends ISearchBarFieldOptions {
   registration: UseFormRegisterReturn<"query">;
-  queryValue: string | undefined;
+  queryValue: string;
   disabled: boolean;
   onClear: () => void;
   onScanned: (code: IScannedCode) => void;

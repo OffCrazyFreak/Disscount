@@ -25,7 +25,7 @@ import SidebarMainNav from "@/components/custom/sidebar/sidebar-main-nav";
 import SidebarProductNav from "@/components/custom/sidebar/sidebar-product-nav";
 import SidebarSupportNav from "@/components/custom/sidebar/sidebar-support-nav";
 import ScrollFade from "@/components/custom/common/scroll-fade";
-import SearchBar from "@/components/custom/search/search-bar";
+import ProductSearchBar from "@/components/custom/search/product-search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 
 export default function AppSidebar() {
@@ -66,9 +66,8 @@ export default function AppSidebar() {
             <Suspense
               fallback={<SearchBarSkeleton submitButtonLocation="block" />}
             >
-              <SearchBar
+              <ProductSearchBar
                 placeholder={t("search.productsPlaceholder")}
-                searchRoute="/products"
                 clearable={true}
                 allowScanning={true}
                 submitButtonLocation="block"

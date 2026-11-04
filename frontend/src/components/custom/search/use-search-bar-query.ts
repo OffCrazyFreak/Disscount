@@ -1,78 +1,68 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import {
+  createSearchDraftStore,
+  useSearchDraftValue,
+  type ISearchDraftStore,
+} from "@/components/custom/search/search-draft-store";
 
 interface IUseSearchBarQueryOptions {
   routeQuery: string;
   autoSearch: boolean;
   disabled: boolean;
   syncQuery: (query: string) => void;
-  onQueryChange?: (query: string) => void;
+  /** Shared with the other fields it mirrors; left out, the field keeps its own */
+  draftStore?: ISearchDraftStore;
 }
 
-/** The search field's form, kept in step with the URL's `q` both ways. */
+/** The search field's form, kept in step with its draft and the URL's `q`. */
 export function useSearchBarQuery({
   routeQuery,
   autoSearch,
   disabled,
   syncQuery,
-  onQueryChange,
+  draftStore,
 }: IUseSearchBarQueryOptions) {
-  const { register, handleSubmit, control, setValue, getValues } = useForm<{
+  const [ownDraft] = useState(createSearchDraftStore);
+  const draft = draftStore ?? ownDraft;
+  const queryValue = useSearchDraftValue(draft, routeQuery);
+  const { register, handleSubmit, setValue, getValues } = useForm<{
     query: string;
   }>({
-    defaultValues: { query: routeQuery },
-  });
-  const isClearOnItsWay = useRef(false);
-
-  // useWatch, not form.watch: watch() signals changes outside React state, so the
-  // React Compiler skips memoizing every component that reads it.
-  const queryValue = useWatch({
-    control,
-    name: "query",
-    defaultValue: routeQuery,
+    defaultValues: { query: queryValue },
   });
 
   useEffect(() => {
-    const isEchoOfClear = isClearOnItsWay.current && !routeQuery;
-    isClearOnItsWay.current = false;
+    draft.followRoute(routeQuery);
+  }, [draft, routeQuery]);
 
-    // The URL follows a clear in a transition: echoing it would wipe what was typed since.
-    if (isEchoOfClear) return;
-
-    if (getValues("query") !== routeQuery) {
-      setValue("query", routeQuery, {
+  useEffect(() => {
+    if (getValues("query") !== queryValue) {
+      setValue("query", queryValue, {
         shouldDirty: false,
         shouldTouch: false,
         shouldValidate: false,
       });
     }
-  }, [routeQuery, setValue, getValues]);
-
-  // Watched rather than hooked to onChange, so a clear or a route sync counts too.
-  useEffect(() => {
-    onQueryChange?.(queryValue ?? "");
-  }, [queryValue, onQueryChange]);
+  }, [queryValue, setValue, getValues]);
 
   useEffect(() => {
     if (!autoSearch || disabled) return;
 
-    const query = queryValue ?? "";
-
     // An empty input over an empty URL has nothing to mirror; this also stops a
     // bar mounted off its own route from redirecting there.
-    if (!query && !routeQuery) return;
+    if (!queryValue && !routeQuery) return;
 
-    syncQuery(query);
+    syncQuery(queryValue);
   }, [autoSearch, disabled, queryValue, routeQuery, syncQuery]);
 
-  // Never reset(): it drops the input's registration, and the compiler memoizes
+  // Never reset() the form: it drops the input's registration, and the compiler memoizes
   // register() so the input never registers again, leaving the field dead.
-  function clearQuery() {
-    isClearOnItsWay.current = Boolean(routeQuery);
-    setValue("query", "");
-  }
+  const registration = register("query", {
+    onChange: (event) => draft.type(event.target.value),
+  });
 
-  return { register, handleSubmit, clearQuery, queryValue };
+  return { registration, handleSubmit, clearQuery: draft.clear, queryValue };
 }
