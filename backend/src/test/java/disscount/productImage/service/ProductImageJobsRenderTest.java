@@ -64,7 +64,6 @@ class ProductImageJobsRenderTest {
     @MockitoBean OpenFoodFactsClient off;
     @MockitoBean CatalogImportService catalog;
     @MockitoBean OffSeedService seed;
-    @MockitoBean ProductPhotoUploadLimiter limiter;
 
     @BeforeEach
     void setUp() {

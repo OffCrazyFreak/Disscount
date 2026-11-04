@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import disscount.config.UploadLimitConfig;
 import disscount.digitalCard.photo.PhotoValidator;
 import disscount.digitalCard.photo.TestImages;
 import disscount.digitalCard.service.FakePhotoStore;
@@ -50,7 +51,7 @@ import static org.mockito.Mockito.when;
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @Import({ProductImageQueryService.class, ProductImageWriteService.class, ProductImageAdminService.class,
-        ProductImageViews.class, ProductImageRendering.class, OffCandidateWriter.class, ProductPhotoUploadLimiter.class,
+        ProductImageViews.class, ProductImageRendering.class, OffCandidateWriter.class, UploadLimitConfig.class,
         PhotoValidator.class, ProductImageServiceTest.StoreConfig.class})
 class ProductImageServiceTest {
 

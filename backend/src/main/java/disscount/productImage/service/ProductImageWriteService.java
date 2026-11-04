@@ -3,6 +3,7 @@ package disscount.productImage.service;
 import java.io.IOException;
 import java.util.UUID;
 
+import disscount.config.UploadLimitConfig;
 import disscount.digitalCard.photo.PhotoValidator;
 import disscount.digitalCard.photo.ValidatedPhoto;
 import disscount.exceptions.BadRequestException;
@@ -20,8 +21,10 @@ import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
 import disscount.productImage.storage.ProductImageStore;
 import disscount.productImage.storage.ProductOriginalStore;
 import disscount.user.service.UserService;
+import disscount.util.FixedWindowLimiter;
 import disscount.util.Timestamps;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,7 +39,8 @@ public class ProductImageWriteService {
     private final ProductImageStore store;
     private final ProductOriginalStore originals;
     private final PhotoValidator validator;
-    private final ProductPhotoUploadLimiter limiter;
+    @Qualifier(UploadLimitConfig.PRODUCT_PHOTOS)
+    private final FixedWindowLimiter limiter;
     private final ProductImageRendering rendering;
     private final ProductImageViews views;
     private final UserService userService;

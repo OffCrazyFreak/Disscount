@@ -43,7 +43,6 @@ class ProductImageJobsStaleWriteTest {
     @MockitoBean OpenFoodFactsClient off;
     @MockitoBean CatalogImportService catalog;
     @MockitoBean OffSeedService seed;
-    @MockitoBean ProductPhotoUploadLimiter limiter;
 
     UUID photoId;
 

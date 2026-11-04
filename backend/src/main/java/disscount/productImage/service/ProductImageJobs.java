@@ -46,15 +46,13 @@ public class ProductImageJobs {
     private final ProductImageRepository images;
     private final ProductImageSetRepository sets;
     private final ProductImageImportRunRepository runs;
-    private final ProductPhotoUploadLimiter limiter;
     private final AtomicBoolean importing = new AtomicBoolean();
     private final AtomicBoolean renderingNow = new AtomicBoolean();
 
     public ProductImageJobs(@Value("${product-images.jobs.enabled:true}") boolean enabled,
                             ProductImageStore store, CatalogImportService catalog, OffSeedService seed,
                             ProductImageRendering rendering, ProductImageRepository images,
-                            ProductImageSetRepository sets, ProductImageImportRunRepository runs,
-                            ProductPhotoUploadLimiter limiter) {
+                            ProductImageSetRepository sets, ProductImageImportRunRepository runs) {
         this.enabled = enabled;
         this.store = store;
         this.catalog = catalog;
@@ -63,7 +61,6 @@ public class ProductImageJobs {
         this.images = images;
         this.sets = sets;
         this.runs = runs;
-        this.limiter = limiter;
     }
 
     /**
@@ -174,11 +171,6 @@ public class ProductImageJobs {
             log.warn("Could not re-render product photo {} for {} (attempt {}): {}", image.getId(), image.getEan(),
                     attempts, cause.getMessage());
         });
-    }
-
-    @Scheduled(fixedDelay = 300_000L)
-    public void sweepUploadLimiter() {
-        limiter.sweep();
     }
 
     private void postpone(ProductImage loaded, RuntimeException cause) {
