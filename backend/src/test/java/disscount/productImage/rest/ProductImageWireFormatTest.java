@@ -6,6 +6,7 @@ import disscount.productImage.domain.ImageSource;
 import disscount.productImage.domain.ImageStatus;
 import disscount.productImage.domain.ProductImage;
 import disscount.productImage.domain.ProductImageSet;
+import disscount.support.ApiContract;
 import disscount.support.FullStackTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,9 +43,9 @@ class ProductImageWireFormatTest extends FullStackTest {
     void thePublicPhotoListIsTheEanAndItsPhotos() throws Exception {
         JsonNode photos = body(mvc.perform(get("/api/products/{ean}/images", ean)).andExpect(status().isOk()));
 
-        assertThat(fieldNames(photos)).containsExactlyInAnyOrder("ean", "images");
+        assertThat(fieldNames(photos)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("ProductImagesDto"));
         assertThat(photos.get("images")).singleElement().satisfies(image -> {
-            assertThat(fieldNames(image)).containsExactlyInAnyOrder("id", "fullUrl", "thumbUrl", "source", "status");
+            assertThat(fieldNames(image)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("ProductImageDto"));
             assertThat(image.get("source").asString()).isEqualTo("USER");
             assertThat(image.get("status").asString()).isEqualTo("VERIFIED");
         });
@@ -55,7 +56,7 @@ class ProductImageWireFormatTest extends FullStackTest {
         JsonNode thumbnails = body(mvc.perform(get("/api/products/images/thumbnails").param("eans", ean))
                 .andExpect(status().isOk()));
 
-        assertThat(fieldNames(thumbnails)).containsExactly("thumbnails");
+        assertThat(fieldNames(thumbnails)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("ProductThumbnailsDto"));
         assertThat(thumbnails.get("thumbnails").get(ean).isString()).isTrue();
     }
 
@@ -63,7 +64,7 @@ class ProductImageWireFormatTest extends FullStackTest {
     void theListedEansAreAnArray() throws Exception {
         JsonNode listed = body(mvc.perform(get("/api/products/catalog/eans")).andExpect(status().isOk()));
 
-        assertThat(fieldNames(listed)).containsExactly("eans");
+        assertThat(fieldNames(listed)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("ListedEansDto"));
         assertThat(listed.get("eans").isArray()).isTrue();
     }
 
@@ -74,13 +75,10 @@ class ProductImageWireFormatTest extends FullStackTest {
         JsonNode product = body(mvc.perform(get("/api/admin/product-images/{ean}", ean).with(as(newAdmin())))
                 .andExpect(status().isOk()));
 
-        assertThat(fieldNames(product)).containsExactlyInAnyOrder("ean", "name", "brand", "storeListings", "chainCount",
-                "mainImageId", "pinned", "needsReview", "reviewedAt", "offDetailsFetchedAt", "images");
+        assertThat(fieldNames(product)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("AdminProductDto"));
         assertThat(product.get("reviewedAt").asString()).matches(LOCAL_DATE_TIME);
         assertThat(product.get("images")).singleElement().satisfies(image -> {
-            assertThat(fieldNames(image)).containsExactlyInAnyOrder("id", "source", "status", "lang", "previewUrl",
-                    "fullUrl", "originalUrl", "rendered", "main", "rotation", "crop", "originalWidth", "originalHeight",
-                    "reportCount", "createdAt");
+            assertThat(fieldNames(image)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("AdminImageDto"));
             assertThat(image.get("main").asBoolean()).isTrue();
             assertThat(image.get("crop").isNull()).isTrue();
             assertThat(image.get("createdAt").asString()).matches(LOCAL_DATE_TIME);
@@ -98,12 +96,11 @@ class ProductImageWireFormatTest extends FullStackTest {
         JsonNode page = body(mvc.perform(get("/api/admin/product-images/queue").param("size", "1").with(as(newAdmin())))
                 .andExpect(status().isOk()));
 
-        assertThat(fieldNames(page)).containsExactlyInAnyOrder("items", "total", "page", "size", "reviewedCount");
+        assertThat(fieldNames(page)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("AdminQueuePageDto"));
         assertThat(page.get("page").asInt()).isZero();
         assertThat(page.get("size").asInt()).isEqualTo(1);
         assertThat(page.get("items")).singleElement().satisfies(item -> {
-            assertThat(fieldNames(item)).containsExactlyInAnyOrder("ean", "name", "brand", "storeListings", "chainCount",
-                    "previewUrl", "imageCount", "pendingCount", "reportedCount", "needsReview", "reviewedAt");
+            assertThat(fieldNames(item)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("AdminQueueItemDto"));
             assertThat(item.get("ean").asString()).isEqualTo(ean);
             assertThat(item.get("previewUrl").isString()).isTrue();
         });

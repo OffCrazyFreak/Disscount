@@ -6,6 +6,7 @@ import {
 } from "@/app/[locale]/products/utils/product-utils";
 import { ChainSummary } from "@/app/[locale]/(user)/shopping-lists/[id]/typings/store-chain-types";
 import { itemsToCompare } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
+import { isPriceDateToday } from "@/utils/product-price-utils";
 
 interface IStoreCardMetricsParams {
   chain: ChainSummary;
@@ -38,8 +39,7 @@ export function getStoreCardMetrics({
   const isPreferred =
     pinnedStores?.some((s) => s.storeApiId === chain.chain) || false;
 
-  const today = new Date().toISOString().split("T")[0];
-  const isDataFromToday = chain.price_date === today;
+  const isDataFromToday = isPriceDateToday(chain.price_date);
 
   const storeMinPrice = parseFloat(chain.min_price);
   const storeAvgPrice = parseFloat(chain.avg_price);

@@ -19,13 +19,13 @@ import {
   StorePrice,
 } from "@/lib/cijene-api/schemas";
 import { formatDate } from "@/utils/strings";
+import { isPriceDateToday } from "@/utils/product-price-utils";
 import { useUser } from "@/context/user-context";
 import StorePriceSummary from "@/app/[locale]/products/[id]/components/store-item/store-price-summary";
 import StorePricesDetails, {
   type StorePricesStatus,
 } from "@/app/[locale]/products/[id]/components/store-item/store-prices-details";
 import NearestStoreDistance from "@/components/custom/distance-sort/nearest-store-distance";
-import { TIME_ZONE } from "@/i18n/formatting";
 import type { INearestStore } from "@/utils/nearest-chain-distance";
 
 interface IStoreItemProps {
@@ -58,11 +58,7 @@ const StoreItem = memo(
       accountUser?.pinnedStores?.some((s) => s.storeApiId === store.chain) ||
       false;
 
-    // price_date is a Croatian calendar date; en-CA formats as YYYY-MM-DD.
-    const today = new Intl.DateTimeFormat("en-CA", {
-      timeZone: TIME_ZONE,
-    }).format(new Date());
-    const isDataFromToday = store.price_date === today;
+    const isDataFromToday = isPriceDateToday(store.price_date);
 
     return (
       <Collapsible open={isExpanded} onOpenChange={onToggle}>

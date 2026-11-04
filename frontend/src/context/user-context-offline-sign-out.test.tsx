@@ -10,6 +10,7 @@ import {
 } from "@/lib/offline/cache-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
+import { storedUser } from "@/test/stored-user";
 import {
   getPendingSignOut,
   setLastSession,
@@ -65,7 +66,12 @@ function AccountProbe() {
 function answerProfile() {
   server.use(
     http.get("*/api/users/me", () =>
-      HttpResponse.json({ id: tab.userId, pinnedStores: [], pinnedPlaces: [] }),
+      HttpResponse.json({
+        ...storedUser,
+        id: tab.userId,
+        pinnedStores: [],
+        pinnedPlaces: [],
+      }),
     ),
   );
 }

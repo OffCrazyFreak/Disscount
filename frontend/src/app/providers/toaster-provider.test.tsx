@@ -68,7 +68,7 @@ describe("ToasterProvider", () => {
     );
   });
 
-  it("gives toast buttons a 44px touch target", async () => {
+  it("keeps sonner's own button height instead of stretching the buttons", async () => {
     renderWithProviders(<ToasterProvider>{null}</ToasterProvider>);
 
     act(() => {
@@ -78,11 +78,13 @@ describe("ToasterProvider", () => {
       });
     });
 
-    expect(await screen.findByRole("button", { name: "Reload" })).toHaveClass(
-      "min-h-[2.75rem]!",
-    );
-    expect(screen.getByRole("button", { name: "Later" })).toHaveClass(
-      "min-h-[2.75rem]!",
-    );
+    const reload = await screen.findByRole("button", { name: "Reload" });
+
+    for (const button of [
+      reload,
+      screen.getByRole("button", { name: "Later" }),
+    ]) {
+      expect(button.className).not.toMatch(/(^|\s)(min-)?h-/);
+    }
   });
 });

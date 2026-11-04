@@ -53,6 +53,10 @@ The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Cr
 
 The config sets `restoreMocks`, `unstubEnvs` and `unstubGlobals`, and Vitest 5 clears mock calls before every test by default, so tests do not need their own cleanup for spies, stubs or env vars.
 
+## Backend contract
+
+`src/lib/api/schemas/backend-contract.test.ts` compares every zod schema that mirrors a backend DTO or enum with `contracts/backend-api.json`. A failure means the two sides disagree; [API-CONTRACT.md](API-CONTRACT.md) has the steps to fix it.
+
 ## What unit tests do not cover
 
 - **Async Server Components, `generateMetadata` and server actions.** Vitest cannot render async Server Components (the Next.js testing guide says so too). Move the logic into a plain function and test that, and leave the page itself to end-to-end tests.

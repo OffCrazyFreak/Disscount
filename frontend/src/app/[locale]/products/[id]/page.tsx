@@ -8,13 +8,10 @@ import {
   productMetadata,
   translatedProductRobots,
 } from "@/app/[locale]/products/[id]/utils/product-metadata";
-import { getMainPhotoUrl } from "@/lib/api/product-images/server";
+import { getVerifiedMainPhotoUrl } from "@/lib/api/product-images/server";
 import { productCacheState } from "@/app/[locale]/products/[id]/utils/product-cache-state";
 import { getServerProduct } from "@/lib/cijene-api/server/get-product";
 import { getServerProductPrices } from "@/lib/cijene-api/server/get-product-prices";
-import { BRAND_OG_IMAGE_ID } from "@/app/og/localized-og";
-import { appUrl } from "@/lib/env";
-import { localePath } from "@/i18n/locale-path";
 import { formatPrice } from "@/utils/price";
 import { getMinPrice } from "@/utils/product-price-utils";
 import { productPageUrl } from "@/utils/product-links";
@@ -63,7 +60,7 @@ export async function generateMetadata(
             chains: product.chains.length,
             price: formatPrice(lowPrice, locale),
           }),
-    photoUrl: await getMainPhotoUrl(product.ean),
+    photoUrl: await getVerifiedMainPhotoUrl(product.ean),
     parent: await parent,
   });
 }
@@ -88,17 +85,14 @@ export default async function ProductDetailsPage(
 
   const { product } = result;
   const locale = await getLocale();
-  const photoUrl = await getMainPhotoUrl(product.ean);
+  const photoUrl = await getVerifiedMainPhotoUrl(product.ean);
 
   return (
     <>
       <ProductJsonLd
         product={product}
         url={productPageUrl(product.ean, locale)}
-        image={
-          photoUrl ??
-          `${appUrl()}${localePath(locale, `/opengraph-image/${BRAND_OG_IMAGE_ID}`)}`
-        }
+        image={photoUrl}
       />
 
       <HydrationBoundary state={productCacheState(rawId, product, prices)}>

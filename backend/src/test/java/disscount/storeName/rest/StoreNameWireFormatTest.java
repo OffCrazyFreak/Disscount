@@ -1,5 +1,6 @@
 package disscount.storeName.rest;
 
+import disscount.support.ApiContract;
 import disscount.support.FullStackTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -31,7 +32,7 @@ class StoreNameWireFormatTest extends FullStackTest {
                 .andExpect(status().isOk()));
 
         assertThat(found).singleElement().satisfies(suggestion -> {
-            assertThat(fieldNames(suggestion)).containsExactly("name");
+            assertThat(fieldNames(suggestion)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("StoreNameSuggestionDto"));
             assertThat(suggestion.get("name").asString()).isEqualTo(store);
         });
     }

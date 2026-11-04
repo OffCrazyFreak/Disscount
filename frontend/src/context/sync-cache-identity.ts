@@ -7,6 +7,7 @@ import {
   setCacheIdentity,
   toCacheIdentity,
 } from "@/lib/offline/cache-identity";
+import { adoptGuestFormDrafts } from "@/utils/browser/storage/drafts";
 
 /** A failed lookup is not a sign-out, the rule the cache purge follows too. */
 export function isUnverifiedAccount(
@@ -40,6 +41,11 @@ export function syncCacheIdentity(
   // queued write on the first offline reload, which is the failure this branch exists
   // to prevent.
   if (sessionError || identity === cacheIdentityRef.current) return;
+
+  // Before the purge, which would delete the guest's drafts as the departing identity's.
+  if (cacheIdentityRef.current === null && identity !== null) {
+    adoptGuestFormDrafts(identity);
+  }
 
   // Pass the departing identity, not the arriving one. The purge awaits an IndexedDB
   // delete, and setCacheIdentity below runs first, so a key resolved inside the purge

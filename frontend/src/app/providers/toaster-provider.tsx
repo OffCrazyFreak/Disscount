@@ -23,13 +23,13 @@ const TOASTER_THEME_STYLE = {
 } as CSSProperties;
 
 // The `!` is required: sonner's button rules are unlayered CSS, which outranks
-// any Tailwind utility layer, so a plain class would never apply. The rem
-// height is spelled out because the spacing scale is shrunk, so h-11 is not 44px.
+// any Tailwind utility layer, so a plain class would never apply. Sonner's own
+// height is kept; it already meets the 24px target size of WCAG 2.5.8.
 const TOAST_CLASS_NAMES = {
   actionButton:
-    "min-h-[2.75rem]! bg-primary! text-primary-foreground! hover:bg-primary/90! focus-visible:ring-2! focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "bg-primary! text-primary-foreground! hover:bg-primary/90! focus-visible:ring-2! focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   cancelButton:
-    "min-h-[2.75rem]! border! border-primary/40! bg-primary/10! text-foreground! hover:bg-primary/15! focus-visible:ring-2! focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "border! border-primary/40! bg-primary/10! text-foreground! hover:bg-primary/15! focus-visible:ring-2! focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
 };
 
 export default function ToasterProvider({ children }: IToasterProviderProps) {

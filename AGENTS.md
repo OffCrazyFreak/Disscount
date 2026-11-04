@@ -22,6 +22,7 @@ Ask first:
 - Anything needing a backend endpoint that does not exist yet.
 - Widening scope beyond what I asked.
 - A reading of my instruction that leads to materially different work. Routine judgment calls are yours.
+- Changing how the app looks: size, spacing, colour or layout, including a change made for accessibility or as a side effect of another task. Show me before and after screenshots first. White text on the brand green is my deliberate choice: do not reopen it.
 
 **Ask means ask.** Put each item above to me as a question. Never route around it by working around a missing endpoint, hand-rolling the dependency, or narrowing the task: I say yes far more often than no, so the quiet workaround costs me the better answer. Everything else is your call: decide, finish the whole task, and say in your summary what you decided and why.
 
@@ -115,6 +116,8 @@ Check these before handing over UI work; accessibility is what I most often fix 
 - Counts and status that change without a navigation are announced.
 - Motion respects `prefers-reduced-motion`.
 
+These checks never license a visual change on their own: a fix that would alter size, spacing or colour goes to me first (see Ask first).
+
 Copy in every language uses informal singular address and ungendered forms: Croatian "ti" (never "vi"), "you", "tu", "ti", "du". The company voice ("mi") stays. This covers accessible names, `alt` and `title` too. The app ships in Croatian, English, Italian, Slovenian and German through next-intl; `docs/I18N.md` explains the setup.
 
 - Never inline copy. Add the key to `frontend/src/i18n/messages/hr/` and the same file in every other locale, then run `pnpm i18n:check` (CI runs it too).
@@ -133,6 +136,7 @@ Before wiring an API call, confirm the endpoint exists in `backend/` or upstream
 - Versions come from the `spring-boot-starter-parent` BOM, so most dependencies carry no `<version>`. Only the ones outside the BOM pin their own, `lombok.version` is pinned because the compiler's annotation processor path needs it explicitly, and `h2.version` overrides the BOM's H2 until it ships a release with the check constraint fix named in `pom.xml`.
 - Swagger UI is at `/api-docs`, and springdoc's major has to track the Spring Boot major.
 - `ddl-auto=update` never drops anything, so changing an enum column to String leaves a stale CHECK constraint that 500s on write.
+- A change to a DTO or enum the frontend reads also changes `contracts/backend-api.json`: refresh it with `mvn -B test -Dtest=ApiContractTest -Dcontract.update=true`, then update the zod schema until `backend-contract.test.ts` passes (`docs/API-CONTRACT.md`).
 - Stamp every zone-less timestamp column through `Timestamps.nowUtc()`, never `LocalDateTime.now()`; `JpaConfig` points JPA auditing at the same clock. The columns carry no offset, so the JVM zone would leak into the wire format, and the frontend's `parseServerDate` reads them back as UTC.
 
 ## Branches and releases

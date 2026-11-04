@@ -21,10 +21,12 @@ export function normalizeForSearch(s: string) {
   );
 }
 
+type DateShape = "date" | "dateTime" | "dayMonth";
+
 const dateFormatters = new Map<string, Intl.DateTimeFormat>();
 
-function dateFormatter(locale: string, withTime: boolean) {
-  const key = `${locale}:${withTime}`;
+function dateFormatter(locale: string, shape: DateShape) {
+  const key = `${locale}:${shape}`;
   let formatter = dateFormatters.get(key);
 
   if (!formatter) {
@@ -34,8 +36,8 @@ function dateFormatter(locale: string, withTime: boolean) {
     formatter = new Intl.DateTimeFormat(formatLocale(locale), {
       day: spelledMonth ? "numeric" : "2-digit",
       month: spelledMonth ? "short" : "2-digit",
-      year: "numeric",
-      ...(withTime && { hour: "2-digit", minute: "2-digit" }),
+      ...(shape !== "dayMonth" && { year: "numeric" }),
+      ...(shape === "dateTime" && { hour: "2-digit", minute: "2-digit" }),
       timeZone: TIME_ZONE,
     });
     dateFormatters.set(key, formatter);
@@ -44,17 +46,35 @@ function dateFormatter(locale: string, withTime: boolean) {
   return formatter;
 }
 
+// Owner's choice over both CLDR (03. 11. 2026.) and pravopis.hr (3. 11. 2026.): 03.11.2026.
+function withoutSpacesInCroatianDate(parts: Intl.DateTimeFormatPart[]) {
+  return parts
+    .map((part, index) => {
+      const previous = parts[index - 1]?.type;
+      const followsDayOrMonth = previous === "day" || previous === "month";
+
+      return part.type === "literal" && followsDayOrMonth
+        ? part.value.trim()
+        : part.value;
+    })
+    .join("");
+}
+
 function formatServerDate(
   dateString: string | null | undefined,
   locale: string,
-  withTime: boolean,
+  shape: DateShape,
 ) {
   if (!dateString) return "";
 
   const d = parseServerDate(dateString);
   if (Number.isNaN(d.getTime())) return dateString;
 
-  return dateFormatter(locale, withTime).format(d);
+  const formatter = dateFormatter(locale, shape);
+
+  return formatLocale(locale) === "hr-HR"
+    ? withoutSpacesInCroatianDate(formatter.formatToParts(d))
+    : formatter.format(d);
 }
 
 /**
@@ -65,7 +85,7 @@ export function formatDate(
   dateString: string | null | undefined,
   locale: string,
 ) {
-  return formatServerDate(dateString, locale, false);
+  return formatServerDate(dateString, locale, "date");
 }
 
 /** Same as formatDate, with hours and minutes. */
@@ -73,20 +93,15 @@ export function formatDateTime(
   dateString: string | null | undefined,
   locale: string,
 ) {
-  return formatServerDate(dateString, locale, true);
+  return formatServerDate(dateString, locale, "dateTime");
 }
 
-/**
- * Same as formatDate, but Croatian drops the leading zeros its orthography
- * never writes (3. 11. 2026.), which the CLDR data pads to 03. 11. 2026.
- */
-export function formatPlainDate(
+/** Same as formatDate, without the year. */
+export function formatDayMonth(
   dateString: string | null | undefined,
   locale: string,
 ) {
-  const formatted = formatDate(dateString, locale);
-
-  return locale === "hr" ? formatted.replace(/\b0(\d)/g, "$1") : formatted;
+  return formatServerDate(dateString, locale, "dayMonth");
 }
 
 /**

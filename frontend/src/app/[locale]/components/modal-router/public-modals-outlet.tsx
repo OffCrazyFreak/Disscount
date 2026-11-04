@@ -7,6 +7,7 @@ import AuthStatusModal from "@/components/custom/auth/auth-status-modal";
 import ContactModal from "@/components/custom/contact/contact-modal";
 import DonationModal from "@/components/custom/donation/donation-modal";
 import type { ModalTarget } from "@/lib/modal/modal-registry";
+import { useUser } from "@/context/user-context";
 
 interface IPublicModalsOutletProps {
   target: ModalTarget | null;
@@ -17,6 +18,7 @@ export default function PublicModalsOutlet({
   target,
 }: IPublicModalsOutletProps) {
   const name = target?.name;
+  const { user } = useUser();
   // Held after close, not on a timer, so the exit animation never flips to the success copy.
   const [linkError, setLinkError] = useState<string>();
   if (name === "email-verified" || name === "email-changed") {
@@ -38,7 +40,8 @@ export default function PublicModalsOutlet({
         linkError={linkError}
       />
 
-      <ContactModal open={name === "contact"} />
+      {/* Keyed by account: it stays mounted across sign-ins, and its form holds what was typed. */}
+      <ContactModal key={user?.id} open={name === "contact"} />
       <DonationModal open={name === "donate"} />
     </>
   );

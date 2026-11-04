@@ -122,7 +122,7 @@ flowchart TD
     M --> GP["getServerProduct(ean)<br/>React cache(), shared with the page"]
     P --> GP
     P --> GPR["getServerProductPrices(ean)<br/>5 s timeout"]
-    P --> PH["getMainPhotoUrl(ean)<br/>backend, 3 s timeout"]
+    P --> PH["getVerifiedMainPhotoUrl(ean)<br/>backend, 3 s timeout"]
     GP -->|found| H[JSON-LD + HydrationBoundary + ProductDetailClient]
     GP -->|missing| NF[notFound: noindex not-found page]
     GP -->|unavailable| CO[ProductDetailClient alone: the browser fetches]
@@ -147,18 +147,18 @@ Issue #230 (product page SEO) asked for real titles, server rendered data, sitem
 
 **Metadata** (`[id]/utils/product-metadata.ts`):
 
-| Case                 | Title                                       | Robots                           | Other                                                                                                                                                                                                                             |
-| -------------------- | ------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Product found        | `productDetail.meta.productTitle`, absolute | Croatian indexed, others noindex | Description with the lowest price and the chain count; canonical; Open Graph and Twitter with a 1200x630 card of the main photo ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#7-how-photos-reach-the-page)), or the layout's brand image |
-| Upstream unavailable | Generic `productDetail.meta.title`          | Same as found                    | Canonical kept, so an outage never marks a real product noindex                                                                                                                                                                   |
-| Product missing      | `productDetail.notFound.title`              | `noindex, nofollow`              | The page calls `notFound()`                                                                                                                                                                                                       |
+| Case                 | Title                                       | Robots                           | Other                                                                                                                                                                                                                                       |
+| -------------------- | ------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Product found        | `productDetail.meta.productTitle`, absolute | Croatian indexed, others noindex | Description with the lowest price and the chain count; canonical; Open Graph and Twitter with a 1200x630 card of the confirmed main photo ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#7-how-photos-reach-the-page)), or the layout's brand image |
+| Upstream unavailable | Generic `productDetail.meta.title`          | Same as found                    | Canonical kept, so an outage never marks a real product noindex                                                                                                                                                                             |
+| Product missing      | `productDetail.notFound.title`              | `noindex, nofollow`              | The page calls `notFound()`                                                                                                                                                                                                                 |
 
 - The title is `absolute`, because the layout template would otherwise prefix "Disscount - " to a product name.
 - Only the Croatian page is indexed. The translations repeat the Croatian product data around translated boilerplate, which Google treats as thin duplicates. For the same reason there is no hreflang set: Google ignores a set whose other members are noindex. `translatedProductRobots` keeps `follow` only on an indexable origin.
 - The canonical uses the EAN as upstream returns it (leading zeros stripped), so every spelling of a barcode lands on one URL.
 - `openGraph` and `twitter` replace the layout's whole objects in Next, so the page passes the parent's resolved images through when there is no product photo.
 
-**JSON-LD** (`[id]/utils/product-json-ld.ts`, rendered by `product-json-ld.tsx`): a schema.org `Product` with `name`, `url`, `image` (the main photo, or the brand OG image), `brand`, `gtin` only for a public GTIN (valid GS1 check digit, not an in-store code with prefix 2, mirroring the backend's `Barcodes.isPublicGtin`), and an `AggregateOffer` with `lowPrice`, `highPrice`, `priceCurrency: "EUR"` and `offerCount` (the number of chains). `AggregateOffer`, not `Offer`, because we compare prices and sell nothing, and Google reserves merchant listings for shops. The numbers are the page's own visible chain prices, as Google requires.
+**JSON-LD** (`[id]/utils/product-json-ld.ts`, rendered by `product-json-ld.tsx`): a schema.org `Product` with `name`, `url`, `image` (the confirmed main photo, left out when there is none), `brand`, `gtin` only for a public GTIN (valid GS1 check digit, not an in-store code with prefix 2, mirroring the backend's `Barcodes.isPublicGtin`), and an `AggregateOffer` with `lowPrice`, `highPrice`, `priceCurrency: "EUR"` and `offerCount` (the number of chains). `AggregateOffer`, not `Offer`, because we compare prices and sell nothing, and Google reserves merchant listings for shops. The numbers are the page's own visible chain prices, as Google requires.
 
 **Sitemaps.**
 
@@ -177,16 +177,16 @@ The chains tab (`product-chains-section.tsx`) lists every chain carrying the pro
 
 - **Data.** `useProductDetail` (`[id]/hooks/use-product-detail.ts`) reads the product and `useGetPrices({ eans })`, groups the store prices by chain, and sorts the chains.
 - **Sort modes** (`utils/product-chain-sort.ts`): `stores` (default: pinned chains first, then the lowest average price), `price` (the chain with the single cheapest store first, ignoring preferences), and `distance` (the chain whose nearest store is closest, from the device location or a chosen town via `use-distance-sort.ts`, chains without a located store last).
-- **Store rows** show the city, the address with a link to the map, and one price: the special price when there is one, otherwise the regular price (`store-price-cell.tsx`). The chain header says which day its data is from, compared with today in Zagreb time (`store-item.tsx`). `unit_price`, `best_price_30` and `anchor_price` are parsed but not shown yet. The "refreshed" label shows when the prices were last fetched (`LastSyncedLabel`).
+- **Store rows** show the city, the address with a link to the map, and one price: the special price when there is one, otherwise the regular price (`store-price-cell.tsx`). The chain header says which day its data is from, compared with today in Zagreb time (`isPriceDateToday` in `utils/product-price-utils.ts`, which the shopping list's store cards use too). `unit_price`, `best_price_30` and `anchor_price` are parsed but not shown yet. The "refreshed" label shows when the prices were last fetched (`LastSyncedLabel`).
 - **City price ranges** for the product list come from our own `/api/cijene/location-prices` route (`lib/cijene-api/location-prices/`). Upstream takes one city per request, and every visitor shares one token with a daily request quota, so the route decides how to spend requests: it asks per city for up to three uncached cities (`MAX_CITY_REQUESTS`), and above that makes one country wide request and reduces it by city, remembering the cities nobody asked for yet too. Results sit in an in-memory cache per server process (one hour, 5,000 entries) that stores promises, so concurrent searches for the same city share one upstream request, and a failed request is evicted at once. If some cities fail the response is `partial: true`; if all fail the upstream status is kept.
 
 ---
 
 ## 8. Price history
 
-The price history tab draws one line per chain over time with Recharts (`price-history/price-history-chart.tsx`, shell in `components/custom/price/price-history-chart-shell.tsx`).
+The price history tab draws one line per chain over time with Recharts (`price-history/price-history-chart.tsx`, shell in `components/custom/price/price-history-chart-shell.tsx`). Chart rows carry the raw `YYYY-MM-DD` date, and the shell is the one place that formats it: `formatDayMonth` for the axis, `formatDate` for the tooltip.
 
-**How it is fetched.** Upstream has no history endpoint, so history is the product fetched once per day with `?date=YYYY-MM-DD`. `usePriceHistory` (`lib/cijene-api/hooks.ts`) builds the date window (`buildDateWindow`, never before `PRICE_ARCHIVE_START`, 2025-05-16) and runs one query per day with `useQueries`. A week is 7 requests, a month 30.
+**How it is fetched.** Upstream has no history endpoint, so history is the product fetched once per day with `?date=YYYY-MM-DD`. `usePriceHistory` (`lib/cijene-api/hooks.ts`) builds the date window (`buildDateWindow`, ending on today's Zagreb date whatever zone the device is in, never before `PRICE_ARCHIVE_START`, 2025-05-16) and runs one query per day with `useQueries`. A week is 7 requests, a month 30.
 
 **`priceHistoryQueries`** (`lib/cijene-api/price-history-queries.ts`) builds those query options in one place, because the product page and the shopping list chart (`use-shopping-list-price-history.ts`) share the cache entries, so the key and `staleTime` must be identical:
 

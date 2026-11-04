@@ -3,20 +3,18 @@ import { ChartDataPoint } from "@/typings/chart-data";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { ShoppingListItemDto } from "@/lib/api/types";
 import { isCatalogItem } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
-import { formatDate } from "@/utils/strings";
 
 export function buildChartData(
   priceHistoriesByEan: Record<string, (ProductResponse | undefined)[]>,
   eans: string[],
   dates: string[],
   selectedChains: string[],
-  locale: string,
 ): ChartDataPoint[] {
   if (eans.length === 0 || dates.length === 0) {
     return [];
   }
 
-  const dateMap = new Map<string, { isoDate: string; data: ChartDataPoint }>();
+  const dateMap = new Map<string, ChartDataPoint>();
 
   eans.forEach((ean) => {
     const products = priceHistoriesByEan[ean] || [];
@@ -26,10 +24,7 @@ export function buildChartData(
       if (!date) return;
 
       if (!dateMap.has(date)) {
-        dateMap.set(date, {
-          isoDate: date,
-          data: { date: formatDate(date, locale) },
-        });
+        dateMap.set(date, { date });
       }
 
       const prices = (product?.chains ?? [])
@@ -41,13 +36,13 @@ export function buildChartData(
 
       const averagePrice =
         prices.reduce((sum, price) => sum + price, 0) / prices.length;
-      dateMap.get(date)!.data[ean] = parseFloat(averagePrice.toFixed(2));
+      dateMap.get(date)![ean] = parseFloat(averagePrice.toFixed(2));
     });
   });
 
-  return Array.from(dateMap.values())
-    .sort((a, b) => a.isoDate.localeCompare(b.isoDate))
-    .map((entry) => entry.data);
+  return Array.from(dateMap.values()).sort((a, b) =>
+    a.date.localeCompare(b.date),
+  );
 }
 
 export function buildChartConfig(

@@ -9,6 +9,7 @@ import apiClient from "@/lib/api/api-base";
 import { actingAs, serverSession } from "@/test/backend-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
+import { storedUser } from "@/test/stored-user";
 
 // A session store that re-renders only what reads it, as better-auth's atom does, so the
 // component under test is not re-rendered by the session landing.
@@ -80,7 +81,12 @@ describe("UserProvider after an OAuth return", () => {
     serverSession.userId = "user-b";
     server.use(
       http.get("*/api/users/me", () =>
-        HttpResponse.json({ id: "user-b", pinnedStores: [], pinnedPlaces: [] }),
+        HttpResponse.json({
+          ...storedUser,
+          id: "user-b",
+          pinnedStores: [],
+          pinnedPlaces: [],
+        }),
       ),
       http.get("*/api/probe", ({ request }) =>
         HttpResponse.json({ account: actingAs(request) }),

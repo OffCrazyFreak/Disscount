@@ -44,16 +44,70 @@ export const storeHoursDto = z.object({
   checkUrl: z.url({ protocol: /^https?$/ }).nullable(),
 });
 
-export const storeHoursResponse = z.object({
-  stores: z.record(z.string(), storeHoursDto),
-  /** Croatian public holidays around today, ISO dates. */
-  holidays: z.array(isoDate),
-  generatedAt: z.iso.datetime(),
-});
+const tableIndex = z.number().int().nonnegative();
+
+/**
+ * The wire and cache form of the hours: most stores of a chain share a week
+ * and a list of dated days, so each store points into shared tables instead of
+ * repeating them. `decodeStoreHours` turns this back into `StoreHoursResponse`.
+ */
+export const compactStoreHoursResponse = z
+  .object({
+    weeklyTemplates: z.array(storeHoursDto.shape.weekly),
+    /** The date that the day offsets in `datedLists` count from. */
+    baseDate: isoDate,
+    /** `[days from baseDate, ranges, index into verifiedTimes]` per entry. */
+    datedLists: z.array(
+      z.array(z.tuple([z.number().int(), dayRangesDto, tableIndex])),
+    ),
+    verifiedTimes: z.array(z.iso.datetime()),
+    checkUrls: z.array(storeHoursDto.shape.checkUrl.unwrap()),
+    /** `[weekly template, dated list, verified time, check URL, source, sundays]`. */
+    stores: z.record(
+      z.string(),
+      z.tuple([
+        tableIndex,
+        tableIndex,
+        tableIndex,
+        tableIndex.nullable(),
+        hoursSourceSchema,
+        sundayRuleSchema,
+      ]),
+    ),
+    /** Croatian public holidays around today, ISO dates. */
+    holidays: z.array(isoDate),
+    generatedAt: z.iso.datetime(),
+  })
+  .refine(
+    ({ weeklyTemplates, datedLists, verifiedTimes, checkUrls, stores }) => {
+      const hasDanglingDatedEntry = datedLists.some((list) =>
+        list.some(([, , verified]) => verified >= verifiedTimes.length),
+      );
+
+      return (
+        !hasDanglingDatedEntry &&
+        Object.values(stores).every(
+          ([weekly, dated, verified, checkUrl]) =>
+            weekly < weeklyTemplates.length &&
+            dated < datedLists.length &&
+            verified < verifiedTimes.length &&
+            (checkUrl === null || checkUrl < checkUrls.length),
+        )
+      );
+    },
+  );
 
 export type TimeRangeDto = z.infer<typeof timeRangeDto>;
 export type DatedHoursDto = z.infer<typeof datedHoursDto>;
 export type HoursSource = z.infer<typeof hoursSourceSchema>;
 export type SundayRule = z.infer<typeof sundayRuleSchema>;
 export type StoreHoursDto = z.infer<typeof storeHoursDto>;
-export type StoreHoursResponse = z.infer<typeof storeHoursResponse>;
+export type CompactStoreHoursResponse = z.infer<
+  typeof compactStoreHoursResponse
+>;
+
+/** The hours as the status function and the UI read them. */
+export type StoreHoursResponse = Pick<
+  CompactStoreHoursResponse,
+  "holidays" | "generatedAt"
+> & { stores: Record<string, StoreHoursDto> };

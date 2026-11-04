@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { getStoreCardMetrics } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/store-card-utils";
 import type { ChainSummary } from "@/app/[locale]/(user)/shopping-lists/[id]/typings/store-chain-types";
@@ -26,6 +26,10 @@ function listWith(items: Array<{ ean: string | null; isChecked: boolean }>) {
   } as ShoppingListDto;
 }
 
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 describe("getStoreCardMetrics", () => {
   it("lets a store cover the list when only plain items are missing", () => {
     const metrics = getStoreCardMetrics({
@@ -41,5 +45,20 @@ describe("getStoreCardMetrics", () => {
 
     expect(metrics.totalItemsInList).toBe(1);
     expect(metrics.hasAllItems).toBe(true);
+  });
+
+  it("treats prices dated the Zagreb day as today just after midnight there", () => {
+    // 00:30 in Zagreb on 4 November, while UTC is still on 3 November.
+    vi.useFakeTimers({ now: new Date("2026-11-03T23:30:00Z") });
+
+    const metrics = getStoreCardMetrics({
+      chain: { ...chain, price_date: "2026-11-04" },
+      shoppingList: listWith([{ ean: "1", isChecked: false }]),
+      absoluteMinPrice: 1,
+      absoluteMaxPrice: 3,
+      pinnedStores: [],
+    });
+
+    expect(metrics.isDataFromToday).toBe(true);
   });
 });

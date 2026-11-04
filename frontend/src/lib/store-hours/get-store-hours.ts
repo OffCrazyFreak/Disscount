@@ -4,11 +4,12 @@ import { after } from "next/server";
 
 import { db } from "@/db";
 import { storeHours, storeHoursOverlay } from "@/db/store-hours-schema";
-import type { StoreHoursResponse } from "@/lib/api/schemas";
+import type { CompactStoreHoursResponse } from "@/lib/api/schemas";
 import {
   buildStoreHours,
   hoursWindow,
 } from "@/lib/store-hours/build-store-hours";
+import { encodeStoreHours } from "@/lib/store-hours/compact-store-hours";
 import { croatianHolidaysBetween } from "@/lib/store-hours/croatian-holidays";
 import {
   dueHoursJob,
@@ -22,11 +23,11 @@ const MEMO_MS = 10 * 60 * 1000;
 // Under the lease's two hours, so a stuck run is cut before another may start.
 const JOB_TIMEOUT_MS = 90 * 60 * 1000;
 
-let memo: { value: StoreHoursResponse; at: number } | null = null;
+let memo: { value: CompactStoreHoursResponse; at: number } | null = null;
 let jobRunning = false;
 
 /** Every store's hours with the holidays the status function needs. */
-export async function getStoreHours(): Promise<StoreHoursResponse> {
+export async function getStoreHours(): Promise<CompactStoreHoursResponse> {
   after(startHoursJobIfDue);
 
   if (memo && Date.now() - memo.at < MEMO_MS) return memo.value;
@@ -37,11 +38,11 @@ export async function getStoreHours(): Promise<StoreHoursResponse> {
     db.select().from(storeHours),
     db.select().from(storeHoursOverlay),
   ]);
-  const value = {
+  const value = encodeStoreHours({
     stores: buildStoreHours(rows, overlays, window),
     holidays: croatianHolidaysBetween(window.from, window.to),
     generatedAt: now.toISOString(),
-  };
+  });
 
   memo = { value, at: Date.now() };
 

@@ -166,6 +166,16 @@ Admin is the `ADMIN` value of `app_user.account_type`, read from the database on
 - **This is an accepted decision.** The owner knows admin rights rest on manual checks rather than `@PreAuthorize`, and that admins can demote each other down to none, and has accepted both. Issue #214 holds the hardening proposal.
 - **The dashboard gate is cosmetic.** `/dashboard` is gated only in the browser by `DashboardGuard`, which redirects anyone whose `accountType` is not `ADMIN`, `ENTERPRISE` or `PUBLIC_SECTOR`. That is a convenience, not a boundary: the data comes from the Spring endpoints above, which check again. The dashboard itself is described in [ADMIN.md](ADMIN.md).
 
+### 7.2 The profile in the browser
+
+`UserProvider` (`context/user-context.tsx`) joins the two halves on the client: `useSession` says who is signed in, and `useProfileLoader` loads that account's `GET /api/users/me` into React state. Three rules keep them apart:
+
+- **A profile is only shown under its own session.** When another tab signs in a different account without a sign-out here, the session moves first and the previous profile stays in state until the new one answers. `isProfileOfAnotherAccount` compares the two ids on every render and withholds the old profile: `user` and `accountUser` are null, while `isAuthenticated` and `canShowAccountData` stay true and `isLoading` and `isInitializing` turn true. The session really is signed in, so login gates, the header's login button and `LoginRequired` stay away, the header shows its skeleton and `ModalRouter` mounts its signed-in modals only once the new profile exists. A consumer that needs profile fields therefore has to handle `isAuthenticated` with a null `user`. If the new profile fails to load, the tab reads as signed out, like any failed load.
+- **The newest load wins.** Each load takes a number, and an answer or failure from an older one is dropped, so a slow answer for the previous account cannot replace the current one or leave the tab loading.
+- **The response is parsed.** `userService.getCurrentUser` parses it with `userDtoSchema`, the schema the admin list uses. A drifted response counts as a load error: the tab reads as signed out, and the `ZodError` goes to Sentry, because this load is not a React Query query and the query cache's reporting never sees it.
+
+Going from signed out to an account in another tab is different: there is no old profile to hide, so the login button stays until the profile arrives.
+
 ## 8. Password reset, set password, and change email
 
 All three reuse Better Auth's token machinery but are worded and gated for their case.
@@ -201,7 +211,7 @@ Two implementation points that matter for safety and correctness:
 
 ### 8.2 Mandatory onboarding after sign-in
 
-`OnboardingGate` mounts inside the authenticated branch of `ModalRouter`. Once the user profile is available, it treats only `onboardingOutcome === "completed"` as finished. A missing outcome and every historical `skipped:<step>` outcome open the required wizard at `?modal=onboarding`; `onboardingCompletedAt` is retained for backend history but does not satisfy this client gate.
+`OnboardingGate` mounts inside the branch of `ModalRouter` that needs a loaded profile. Once the user profile is available, it treats only `onboardingOutcome === "completed"` as finished. A missing outcome and every historical `skipped:<step>` outcome open the required wizard at `?modal=onboarding`; `onboardingCompletedAt` is retained for backend history but does not satisfy this client gate.
 
 | Mode     | URL                        | Entry                                                                | Dismissal                                                                                        | Starting step                                      |
 | -------- | -------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------- |
@@ -376,7 +386,7 @@ Backend: Spring Boot `4.1.2` on Java `21`, using `spring-boot-starter-security-o
 
 - **Better Auth is a module singleton; Next.js HMR does not recreate it.** After editing `lib/auth/index.ts` you must restart the dev server, or the new config silently does not apply. This was the single biggest time sink during development ("verification email not sent", "linking not working" were all stale config).
 - **A backend call never runs as another account than the tab believes.** The browser pins every call with `X-Disscount-User`, its cache identity (`getCacheIdentity()`). The proxy answers 401 `session_changed` and forwards nothing when the session cookie names a different account, or names one while the pin says `anon` (another tab signed in). The interceptor then refetches the session, and `UserProvider` switches the identity and purges, after which calls carry the new pin; nothing is retried, so a queued write of the previous account is purged rather than sent as the new one. A pin naming an account whose session has ended goes on anonymously, as with the old browser token. `handleUserLogin` moves the pin to the new account (from a fresh `getSession`) before the profile load, because `useSession` may not have seen the sign-in yet. A failed session lookup (offline, a 5xx) leaves the pin as it was.
-- **A missing env var fails the boot, not the request.** If any auth env var is missing (including `RESEND_API_KEY`, `EMAIL_FROM`, and the `FACEBOOK_*` pair), `validateServerEnv()` in `instrumentation.ts` throws when the server starts, and `serverEnv` throws at module load. Every environment that builds or runs the app needs all of them set or it will not start: Dokploy for `dev` and production, and Netlify for PR previews.
+- **A missing env var fails the boot, not the request.** If any auth env var is missing (including `RESEND_API_KEY`, `EMAIL_FROM`, and the `FACEBOOK_*` pair), `validateServerEnv()` in `instrumentation.ts` throws when the server starts, and `serverEnv` throws at module load. Every environment that builds or runs the app needs all of them set or it will not start: Dokploy for `dev` and production.
 - **The correct change-email key is `sendChangeEmailConfirmation`, not `...Verification`.** Better Auth silently ignores unknown option keys, so a typo fails quietly; rely on `tsc` to catch it.
 - **React Email 6 changed imports.** Import components, `render`, and `pixelBasedPreset` from the single `react-email` package, not `@react-email/components`.
 - **The Resend SDK returns `{ data, error }` and does not throw for API errors, but it can still throw on transport failures.** `resend-provider.ts` normalizes both into an `EmailResult`, and `EmailService` then throws when `result.error` is set, so the fire-and-forget `.catch(logEmailFailure)` handlers actually log a failed send instead of it resolving as if it succeeded.

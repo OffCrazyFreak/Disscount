@@ -2,6 +2,7 @@ package disscount.contactMessage.rest;
 
 import disscount.contactMessage.dao.ContactMessageRepository;
 import disscount.contactMessage.domain.ContactMessage;
+import disscount.support.ApiContract;
 import disscount.support.FullStackTest;
 import disscount.user.domain.User;
 import org.junit.jupiter.api.Test;
@@ -19,9 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /** Pins ContactMessageDto against contactMessageDtoSchema, which the admin inbox parses on every read. */
 class ContactMessageWireFormatTest extends FullStackTest {
 
-    static final Set<String> MESSAGE_FIELDS = Set.of(
-            "id", "userId", "email", "fullName", "subject", "message", "sourcePath",
-            "readAt", "createdAt", "updatedAt", "deletedAt");
+    static final Set<String> MESSAGE_FIELDS = ApiContract.fields("ContactMessageDto");
 
     @Autowired ContactMessageRepository messages;
 

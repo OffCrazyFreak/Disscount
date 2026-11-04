@@ -7,7 +7,7 @@ import { useStoreOpening } from "@/components/custom/store-hours/store-hours-con
 import { useOpeningStatusText } from "@/components/custom/store-hours/use-opening-status-text";
 import { HOURS_CHAINS } from "@/lib/store-hours/hours-chains";
 import { getChainLabel } from "@/utils/labels";
-import { formatPlainDate } from "@/utils/strings";
+import { formatDate } from "@/utils/strings";
 
 interface IStoreHoursSourceProps {
   storeKey: string;
@@ -56,7 +56,7 @@ export default function StoreHoursSource({
           {status.asOf
             ? t("source.dated", {
                 source,
-                date: formatPlainDate(status.asOf, locale),
+                date: formatDate(status.asOf, locale),
               })
             : source}
         </span>

@@ -1,5 +1,7 @@
 import { http, HttpResponse } from "msw";
-import { describe, expect, it } from "vitest";
+import { randomBytes } from "node:crypto";
+import sharp from "sharp";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import renderProductOg from "@/app/og/render-product-og";
 import { server } from "@/test/msw-server";
 
@@ -16,18 +18,34 @@ function servePhoto(body: Uint8Array | string, status = 200) {
 }
 
 describe("renderProductOg", () => {
-  it("renders a 1200x630 PNG with the year-long cache", async () => {
+  it("renders a 1200x630 JPEG with the year-long cache", async () => {
     servePhoto(ONE_PIXEL_JPEG);
 
     const response = await renderProductOg(PHOTO);
-    const png = Buffer.from(await response.arrayBuffer());
+    const card = await sharp(await response.arrayBuffer()).metadata();
 
-    expect(response.headers.get("content-type")).toBe("image/png");
+    expect(response.headers.get("content-type")).toBe("image/jpeg");
     expect(response.headers.get("cache-control")).toBe(
       "public, max-age=31536000, immutable",
     );
-    expect(png.readUInt32BE(16)).toBe(1200);
-    expect(png.readUInt32BE(20)).toBe(630);
+    expect(card.format).toBe("jpeg");
+    expect(card.isProgressive).toBe(false);
+    expect(card.width).toBe(1200);
+    expect(card.height).toBe(630);
+  });
+
+  it("stays under WhatsApp's 600 KB limit with a photo of pure noise", async () => {
+    const side = 1080;
+    const noise = await sharp(randomBytes(side * side * 3), {
+      raw: { width: side, height: side, channels: 3 },
+    })
+      .jpeg({ quality: 86 })
+      .toBuffer();
+    servePhoto(noise);
+
+    const response = await renderProductOg(PHOTO);
+
+    expect((await response.arrayBuffer()).byteLength).toBeLessThan(600_000);
   });
 
   it("throws when the photo cannot be fetched", async () => {
@@ -40,5 +58,25 @@ describe("renderProductOg", () => {
     servePhoto("not an image");
 
     await expect(renderProductOg(PHOTO)).rejects.toThrow();
+  });
+
+  describe("when sharp's native binary is missing", () => {
+    afterEach(() => {
+      vi.doUnmock("sharp");
+      vi.resetModules();
+    });
+
+    it("still loads the module and rejects only the render, so the route can fall back", async () => {
+      vi.resetModules();
+      vi.doMock("sharp", () => {
+        throw new Error("Could not load the sharp module");
+      });
+      servePhoto(ONE_PIXEL_JPEG);
+
+      const { default: renderWithoutSharp } =
+        await import("@/app/og/render-product-og");
+
+      await expect(renderWithoutSharp(PHOTO)).rejects.toThrow();
+    });
   });
 });
