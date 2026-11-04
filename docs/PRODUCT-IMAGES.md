@@ -2,24 +2,24 @@
 
 How Disscount shows product photos: where they come from, how they are stored and rendered, how they reach the page, who can change them, what breaks and how, and what has to be set up by hand. Written for someone new to the code, so the concepts are explained as they come up. Product data itself (names, prices) is in [PRODUCTS.md](PRODUCTS.md).
 
-> **Mental model in one sentence:** every product (EAN) keeps a list of candidate photos from Open Food Facts and from users; one of them is the main photo, each is rendered from its untouched source into three square WebP files on baked-in white in the public photo folder on the server's disk, the browser loads those files straight from the image hostname, and the admin curates the list from the product page or from a popularity-ordered queue in the dashboard.
+> **Mental model in one sentence:** every product (EAN) keeps a list of candidate photos from Open Food Facts and from users; one of them is the main photo, each is rendered from its untouched source into two WebP files on baked-in white (the full one in the photo's own shape, a small square) in the public photo folder on the server's disk, the browser loads those files straight from the image hostname, and the admin curates the list from the product page or from a popularity-ordered queue in the dashboard.
 
 ---
 
 ## 1. Quick reference
 
-| Thing              | Value                                                                                                                                                                                                    |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Sources            | Open Food Facts (CC BY-SA, credited in the terms of service) and photos uploaded by users and admins                                                                                                     |
-| Storage            | The server's disk: `products/` in `PUBLIC_PHOTO_DIR`, served by the `images` nginx service on its own hostname; user originals in `product-originals/` in `PHOTO_DIR`                                    |
-| Files served       | `products/<ean>/<hash>.webp` (the photo's own shape, up to 1600 px on its long edge) and `-small.webp` (256 px square, for list rows and small tiles), cached for a year                                 |
-| Delivery           | Plain `<img>` tags pointing at the image hostname; no `next/image`, no proxy through the app                                                                                                             |
-| Viewer             | `yet-another-react-lightbox` with the zoom, thumbnails and counter plugins; zoom stops at the file's own pixels (the default `maxZoomPixelRatio` of 1, counted in CSS px), so it never stretches a photo |
-| Crop               | `react-image-crop` in the admin; the backend renders the crop from the original                                                                                                                          |
-| Env vars           | `PHOTO_DIR`, `PUBLIC_PHOTO_DIR`, `R2_PUBLIC_URL` (backend)                                                                                                                                               |
-| Off switch         | `PUBLIC_PHOTO_DIR` or `R2_PUBLIC_URL` blank: no photos anywhere, uploads answer 503, the jobs copy nothing                                                                                               |
-| Admin entry points | "Uredi slike" on a product page, and the "Slike proizvoda" tab in `/dashboard`                                                                                                                           |
-| Introduced in      | PR #372 (product photos from Open Food Facts and users, with admin curation)                                                                                                                             |
+| Thing              | Value                                                                                                                                                                                                                                                                        |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sources            | Open Food Facts (CC BY-SA, credited in the terms of service) and photos uploaded by users and admins                                                                                                                                                                         |
+| Storage            | The server's disk: `products/` in `PUBLIC_PHOTO_DIR`, served by the `images` nginx service on its own hostname; user originals in `product-originals/` in `PHOTO_DIR`                                                                                                        |
+| Files served       | `products/<ean>/<hash>.webp` (the photo's own shape, up to 1600 px on its long edge) and `-small.webp` (256 px square, for list rows and small tiles), cached for a year                                                                                                     |
+| Delivery           | Plain `<img>` tags pointing at the image hostname; no `next/image`, no proxy through the app                                                                                                                                                                                 |
+| Viewer             | `yet-another-react-lightbox` with the zoom, thumbnails and counter plugins; zoom stops at one CSS pixel per file pixel (the default `maxZoomPixelRatio` of 1), so on a 2x screen it stretches a pixel over at most 2x2 device pixels, where the old setting of 2 allowed 4x4 |
+| Crop               | `react-image-crop` in the admin; the backend renders the crop from the original                                                                                                                                                                                              |
+| Env vars           | `PHOTO_DIR`, `PUBLIC_PHOTO_DIR`, `R2_PUBLIC_URL` (backend)                                                                                                                                                                                                                   |
+| Off switch         | `PUBLIC_PHOTO_DIR` or `R2_PUBLIC_URL` blank: no photos anywhere, uploads answer 503, the jobs copy nothing                                                                                                                                                                   |
+| Admin entry points | "Uredi slike" on a product page, and the "Slike proizvoda" tab in `/dashboard`                                                                                                                                                                                               |
+| Introduced in      | PR #372 (product photos from Open Food Facts and users, with admin curation)                                                                                                                                                                                                 |
 
 ---
 
@@ -33,7 +33,7 @@ flowchart TD
     U[User or admin upload] -->|JPEG prepared in the browser| O[Sanitized original<br/>private photo folder]
     O --> R
     C -->|main photo, most widely sold first| J[Render job every 15 s]
-    J --> R[ProductImageRenderer<br/>rotate, crop, white square]
+    J --> R[ProductImageRenderer<br/>rotate, crop, fit, white]
     R --> P["Public photo folder<br/>products/ean/hash.webp, -small.webp"]
     P -->|smallUrl, fullUrl| B[Browser img tags]
     P -->|fullUrl of a confirmed main photo| LD[JSON-LD image]
@@ -45,7 +45,7 @@ Step by step:
 
 1. **Catalogue.** Once a week the backend reads the latest cijene daily archive into `product_image_set`: one row per EAN with its name, brand and how widely it is sold (`store_listings`, the priced store rows). That popularity orders every queue, and the same table feeds the product sitemap ([PRODUCTS.md §6](PRODUCTS.md#6-seo-metadata-json-ld-and-sitemaps)).
 2. **Candidates.** The same import streams the Open Food Facts export and records the selected front photo of every EAN we carry as a `CANDIDATE`. Nothing is downloaded yet.
-3. **Copy.** Every 15 seconds the render job takes up to 10 main photos that are not copied yet, downloads each from Open Food Facts, renders it, and writes the three WebP files to the public photo folder. When no main photo is waiting, the same tick re-renders up to 10 photos copied before WebP (see [§6](#6-rendering-and-the-white-background)).
+3. **Copy.** Every 15 seconds the render job takes up to 10 main photos that are not copied yet, downloads each from Open Food Facts, renders it, and writes the two WebP files to the public photo folder. When no main photo is waiting, the same tick re-renders up to 10 photos copied before the 1600 px full file (see [§6](#6-rendering-and-the-white-background)).
 4. **Uploads.** A user's upload is sanitized, kept as an original in the private photo folder, and rendered at once.
 5. **Show.** The public API returns `smallUrl`, `fullUrl` and the full file's `fullWidth` and `fullHeight` for each visible photo. On a photo still waiting for its re-render the size is null and `smallUrl` may be its older 400 px file (`ProductImage.listKey`). The browser loads them directly from the image hostname.
 
@@ -123,7 +123,7 @@ The gallery is fetched in the browser, not seeded by the server render, so the s
 
 **Only confirmed photos leave the app.** A `PENDING` main photo still shows in our own gallery, with its badge, but it never becomes the share card or the JSON-LD image: nobody has looked at it, and a link preview or a search result would present it as the product with no badge. Only the main photo counts: a confirmed photo further down the list does not stand in, because the main photo is what the page leads with. The check reads `status` from the public images response, so it needs no backend change.
 
-**The share card.** Photos are square, which Meta shows as a small image and X crops to 2:1, while [Meta asks for about 1.91:1 at 1200x630](https://developers.facebook.com/docs/sharing/webmasters/images/). So `og:image` and `twitter:image` point at a card that `app/og/render-product-og.tsx` composes with `next/og` and encodes as JPEG with `sharp`: the brand gradient, the wordmark, and the photo on a white tile in the middle, because a chat app may crop to the centre square. JSON-LD keeps the real photo, because it describes the product, not a link preview. The tags carry width, height, type and alt, which lets Meta show the image on the very first share.
+**The share card.** A product photo is square or upright far more often than 1.91:1, which Meta shows as a small image and X crops to 2:1, while [Meta asks for about 1.91:1 at 1200x630](https://developers.facebook.com/docs/sharing/webmasters/images/). So `og:image` and `twitter:image` point at a card that `app/og/render-product-og.tsx` composes with `next/og` and encodes as JPEG with `sharp`: the brand gradient, the wordmark, and the photo fitted inside a white square tile in the middle, because a chat app may crop to the centre square. JSON-LD keeps the real photo, because it describes the product, not a link preview. The tags carry width, height, type and alt, which lets Meta show the image on the very first share.
 
 - **The URL follows the photo and the design.** The file name is a hash of `fullUrl` and `CARD_DESIGN_VERSION` (`app/og/product-share-image.ts`), so a new main photo or a raised version gets a new URL, and platforms and Cloudflare, which all cache by URL, pick it up. That is what makes the year-long `immutable` cache safe. A link already shared on Meta keeps its old preview until someone refreshes it in the Sharing Debugger.
 - **It ends in `.jpg` on purpose.** `proxy.ts` skips paths with a file extension, so next-intl never redirects it, and [Cloudflare caches `.jpg` by default](https://developers.cloudflare.com/cache/concepts/default-cache-behavior/). Without a Cache Rule, a card renders once per Cloudflare location, not once per crawler.
