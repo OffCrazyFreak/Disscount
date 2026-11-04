@@ -49,7 +49,7 @@ export default function SearchBar({
   const { routeQuery, isUnchanged, search, syncQuery, openResult } =
     useSearchNavigation(searchRoute, { shallow });
   const { setOpen } = useSidebar();
-  const { registration, handleSubmit, clearQuery, queryValue } =
+  const { registration, handleSubmit, clearQuery, markSubmitted, queryValue } =
     useSearchBarQuery({
       routeQuery,
       autoSearch,
@@ -70,6 +70,7 @@ export default function SearchBar({
     if (!query && (typed || !routeQuery)) return;
 
     setOpen(false);
+    markSubmitted(query);
     search(query);
     onSubmitted?.(query);
   }
