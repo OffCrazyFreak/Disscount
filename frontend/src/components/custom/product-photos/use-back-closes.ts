@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 
 const MARKER = "__disscountPhotoViewer";
 
@@ -7,7 +7,13 @@ const MARKER = "__disscountPhotoViewer";
  * the page. Same marker pattern as openModalUrl: only our flag is passed, so Next re-attaches its own.
  */
 export function useBackCloses(open: boolean, close: () => void) {
-  const onPop = useEffectEvent(() => close());
+  // Runs only once our entry is gone, so anything it pushes (the sign-in modal) is not popped with it.
+  const afterClose = useRef<(() => void) | null>(null);
+  const onPop = useEffectEvent(() => {
+    close();
+    afterClose.current?.();
+    afterClose.current = null;
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -16,11 +22,13 @@ export function useBackCloses(open: boolean, close: () => void) {
     return () => window.removeEventListener("popstate", onPop);
   }, [open]);
 
-  return function requestClose() {
+  return function requestClose(then?: () => void) {
     if (window.history.state?.[MARKER]) {
+      afterClose.current = then ?? null;
       window.history.back();
     } else {
       close();
+      then?.();
     }
   };
 }

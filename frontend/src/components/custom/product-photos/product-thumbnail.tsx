@@ -11,6 +11,10 @@ import { useOnlineStatus } from "@/hooks/use-online-status";
 import { useProductThumbnail } from "@/lib/api/product-images/hooks";
 import { cn } from "@/lib/utils";
 
+function stopEvent(event: { stopPropagation: () => void }) {
+  event.stopPropagation();
+}
+
 interface IProductThumbnailProps {
   /** A row without a barcode, such as a typed shopping list item, shows the placeholder. */
   ean: string | null | undefined;
@@ -53,6 +57,9 @@ export default function ProductThumbnail({
             event.stopPropagation();
             setIsViewing(true);
           }}
+          // The row owns a hold gesture; a press here must not also start it.
+          onPointerDown={stopEvent}
+          onPointerUp={stopEvent}
           className={cn(
             "relative z-10 shrink-0 cursor-zoom-in rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",
             className,
@@ -68,11 +75,19 @@ export default function ProductThumbnail({
           </PhotoTile>
         </button>
         {isViewing && (
-          <ProductThumbnailViewer
-            ean={ean}
-            productName={productName}
-            onClose={() => setIsViewing(false)}
-          />
+          // React bubbles events out of the viewer's portal to the row, which would read them as a hold or a tap.
+          <span
+            className="contents"
+            onClick={stopEvent}
+            onPointerDown={stopEvent}
+            onPointerUp={stopEvent}
+          >
+            <ProductThumbnailViewer
+              ean={ean}
+              productName={productName}
+              onClose={() => setIsViewing(false)}
+            />
+          </span>
         )}
       </>
     );

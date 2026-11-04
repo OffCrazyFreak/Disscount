@@ -54,7 +54,7 @@ describe("ProductPhotoGallery", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows the small main photo as a button that opens the viewer, badged while unverified", async () => {
+  it("puts the small main photo in the open button, badged while unverified", async () => {
     server.use(photos([photo("a", "PENDING"), photo("b")]));
 
     renderWithProviders(

@@ -33,7 +33,14 @@ export default function ProductOverview({
 
   // Where each fact sits: an L around the photo on narrow screens, a two-column table on wide ones.
   const cells: [IProductInfoField | null, string][] = [
-    [brand, "col-start-2 row-start-1 border-b border-gray-200 md:border-r"],
+    [
+      brand,
+      cn(
+        "col-start-2 row-start-1 border-b border-gray-200 md:border-r",
+        // From md up a lone first row is also the card's last, whose edge is the outline's.
+        !(quantity || prices) && "md:border-b-0",
+      ),
+    ],
     [
       barcode,
       cn(
@@ -43,7 +50,10 @@ export default function ProductOverview({
     ],
     [
       quantity,
-      "col-start-2 row-start-3 md:row-start-2 md:border-r md:border-b md:border-gray-200",
+      cn(
+        "col-start-2 row-start-3 md:row-start-2 md:border-r md:border-gray-200",
+        unitPrices && "md:border-b",
+      ),
     ],
     [
       prices,

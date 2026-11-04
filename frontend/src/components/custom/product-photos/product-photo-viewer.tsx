@@ -62,7 +62,7 @@ export default function ProductPhotoViewer({
   return (
     <Lightbox
       open
-      close={requestClose}
+      close={() => requestClose()}
       index={index}
       slides={slides}
       plugins={[Zoom, Thumbnails, Counter]}
@@ -83,7 +83,12 @@ export default function ProductPhotoViewer({
         buttonPrev: images.length > 1 ? undefined : () => null,
         buttonNext: images.length > 1 ? undefined : () => null,
         controls: () =>
-          onAdd ? <ViewerFooter onAdd={onAdd} onManage={onManage} /> : null,
+          onAdd ? (
+            <ViewerFooter
+              onAdd={() => requestClose(onAdd)}
+              onManage={onManage && (() => requestClose(onManage))}
+            />
+          ) : null,
       }}
       toolbar={{
         buttons: [

@@ -49,7 +49,12 @@ export default function ProductSummary({
         className={cn("p-3 @md:p-4", className)}
         media={
           ean !== undefined && (
-            <ProductThumbnail ean={ean} productName={name ?? undefined} />
+            <ProductThumbnail
+              ean={ean}
+              // Only a row that links to its product opens the viewer: inside a modal sheet the
+              // lightbox would sit outside the dialog's focus trap and pointer lock.
+              productName={href ? (name ?? undefined) : undefined}
+            />
           )
         }
       >
