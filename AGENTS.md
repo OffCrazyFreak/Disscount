@@ -51,7 +51,7 @@ Put these to me instead of working around them: I say yes far more often than no
 - For 5000+ changed lines, 50+ files, or auth, security, personal data or migrations, also run Greptile once: `@greptileai review` or its CLI.
 - For a release into `main`, run one `reviewer` per app area plus CodeRabbit and Greptile (automatic or CLI), and wait for all of them.
 - Land release review findings as their own `fix:` PR, and keep the notes in `~/Documents/Disscount`.
-- Before any merge, settle every PR comment and `pulls/N/reviews` body, bots included: fix it or reply with the reason.
+- Before any merge, settle every PR comment and `pulls/N/reviews` body, bots included, with the smallest fix, the same mistake elsewhere in the PR included, or a reply giving the reason.
 - Merge once CI is green and review is settled, as the orchestrating session; a delegate reports instead of merging.
 
 ## Board and issues
