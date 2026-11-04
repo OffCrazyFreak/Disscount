@@ -5,6 +5,8 @@ import java.util.UUID;
 import disscount.config.UploadLimitConfig;
 import disscount.digitalCard.photo.PhotoValidator;
 import disscount.digitalCard.photo.TestImages;
+import disscount.exceptions.NotFoundException;
+import disscount.exceptions.ServiceUnavailableException;
 import disscount.productImage.dao.ProductImageReportRepository;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @DataJpaTest(showSql = false)
@@ -79,8 +82,30 @@ class ProductImageErasureTest {
         assertThat(images.findById(anas.getId())).isEmpty();
         assertThat(originals.objects.keySet()).noneMatch(key -> key.equals(anas.getOriginalKey()));
         assertThat(publicStore.objects.keySet()).doesNotContain(anas.getFullKey(), anas.getThumbKey(), anas.getSmallKey());
-        assertThat(sets.findById(EAN)).get().extracting(ProductImageSet::getMainImageId)
-                .isEqualTo(images.findByContributorId(marko).get(0).getId());
+        assertThat(sets.findById(EAN)).get().satisfies(s -> {
+            assertThat(s.getMainImageId()).isEqualTo(images.findByContributorId(marko).get(0).getId());
+            assertThat(s.isNeedsReview()).isTrue();
+        });
+    }
+
+    @Test
+    void withoutTheOriginalsFolderTheErasureFailsRatherThanLeaveTheFile() {
+        writes.upload(ana, EAN, jpeg(400, 300));
+        originals.enabled = false;
+
+        assertThatThrownBy(() -> erasure.eraseContributor(ana)).isInstanceOf(ServiceUnavailableException.class);
+        assertThat(images.findByContributorId(ana)).hasSize(1);
+    }
+
+    @Test
+    void aKeptPhotoCannotBeCroppedOnceItsOriginalIsGone() {
+        writes.upload(ana, EAN, jpeg(400, 300));
+        writes.upload(marko, EAN, jpeg(500, 300));
+        UUID kept = images.findByContributorId(ana).get(0).getId();
+
+        erasure.eraseContributor(ana);
+
+        assertThatThrownBy(() -> admin.crop(adminId, kept, 90, null)).isInstanceOf(NotFoundException.class);
     }
 
     @Test

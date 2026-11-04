@@ -147,6 +147,8 @@ public class ProductImageRendering {
         if (image.getSource() == ImageSource.OPEN_FOOD_FACTS) {
             return off.download(originalUrl(image));
         }
+        // A kept photo of an erased user has no original left to crop from.
+        if (image.getOriginalKey() == null) throw new NotFoundException("error.productImage.notFound");
         // The row exists but its folder is switched off, which is an outage rather than a missing photo.
         if (!originals.enabled()) throw new ServiceUnavailableException("error.productImage.unavailable");
         StoredPhoto stored = originals.get(image.getOriginalKey())

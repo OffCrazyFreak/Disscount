@@ -65,12 +65,18 @@ class ProductImageRemoval {
         reports.deleteByImageId(image.getId());
 
         rendering.dropFiles(full, thumb, small);
-        deleteOriginalAfterCommit(original);
+        if (original != null) afterCommit(() -> deleteOriginal(original));
     }
 
-    /** A rolled back transaction still points at the original, so the file may only go after the commit. */
-    void deleteOriginalAfterCommit(String key) {
-        if (key != null) afterCommit(() -> deleteOriginal(key));
+    /**
+     * Deletes an erased user's original now and fails the erasure if it cannot, because a logged failure after
+     * the commit would leave the most personal file behind with nothing pointing at it. A rollback costs only
+     * the re-crop of a photo the erasure was removing anyway, and the user's retry finishes the rest.
+     */
+    void eraseOriginal(String key) {
+        if (key == null) return;
+        if (!originals.enabled()) throw new ServiceUnavailableException("error.productImage.unavailable");
+        originals.delete(key);
     }
 
     /**

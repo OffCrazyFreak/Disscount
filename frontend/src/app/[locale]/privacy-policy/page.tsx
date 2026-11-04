@@ -81,11 +81,11 @@ export default async function PrivacyPolicyPage() {
           snimanja i povezujemo je s tvojim računom kako bismo spriječili
           zlouporabu. Slika je javno vidljiva, bez tvog imena. Slike čuvamo na
           našem poslužitelju kod Hetznera u Finskoj, u Europskoj uniji. Ako
-          obrišeš račun, brišemo tvoje slike koje još nitko nije potvrdio i
-          izvorne datoteke svih tvojih slika. Slike koje je potvrdio drugi
-          korisnik ili administrator ostaju kao dio podataka o proizvodu, bez
-          ikakve veze s tvojim računom. Ako želiš da uklonimo neku tvoju sliku,
-          javi nam se.
+          obrišeš račun, brišemo tvoje slike koje još nitko nije potvrdio ili su
+          skrivene te izvorne datoteke svih tvojih slika. Slike koje je potvrdio
+          drugi korisnik ili administrator ostaju kao dio podataka o proizvodu,
+          bez ikakve veze s tvojim računom. Ako želiš da uklonimo neku tvoju
+          sliku, javi nam se.
         </p>
       </LegalSection>
 

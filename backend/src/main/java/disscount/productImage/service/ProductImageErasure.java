@@ -33,6 +33,7 @@ public class ProductImageErasure {
     public void eraseContributor(UUID userId) {
         Set<String> eansToRepick = new HashSet<>();
         for (ProductImage image : images.findByContributorId(userId)) {
+            // A photo an admin hid was rejected, so it goes even if someone had confirmed it.
             if (image.getStatus() == ImageStatus.VERIFIED && !image.isDeleted()) {
                 keepWithoutAuthor(image);
             } else if (image.isDeleted()) {
@@ -60,14 +61,14 @@ public class ProductImageErasure {
         // The original may show more than the product; the admin re-uploads to re-crop a kept photo.
         image.setOriginalKey(null);
         images.save(image);
-        removal.deleteOriginalAfterCommit(original);
+        removal.eraseOriginal(original);
     }
 
     private void deleteEntirely(ProductImage image) {
         reports.deleteByImageId(image.getId());
         images.delete(image);
         rendering.dropFiles(image.getFullKey(), image.getThumbKey(), image.getSmallKey());
-        removal.deleteOriginalAfterCommit(image.getOriginalKey());
+        removal.eraseOriginal(image.getOriginalKey());
     }
 
     private void withdrawReports(List<ProductImageReport> own) {
@@ -85,6 +86,8 @@ public class ProductImageErasure {
         sets.findById(ean).ifPresent(set -> {
             if (set.getMainImageId() == null || images.existsById(set.getMainImageId())) return;
             set.setPinned(false);
+            // The shown photo changed without an admin, so the product goes back to the review queue.
+            set.setNeedsReview(true);
             set.setMainImageId(MainPicker.pick(images.findByEanOrderByCreatedAtAsc(ean))
                     .map(ProductImage::getId).orElse(null));
             sets.save(set);
