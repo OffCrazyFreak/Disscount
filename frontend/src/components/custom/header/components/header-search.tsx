@@ -12,7 +12,6 @@ export default function HeaderSearch() {
         <ProductSearchBar
           placeholder={t("search.productsPlaceholder")}
           submitButtonLocation="none"
-          clearable={true}
           allowScanning={true}
         />
       </Suspense>

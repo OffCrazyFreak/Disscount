@@ -1,6 +1,6 @@
 ---
 name: document-subsystem
-description: Write a detailed reference doc under docs for one part of the Disscount app, in the style of docs/INFRASTRUCTURE.md. Explore the code first, then document what it is, how it works, automatic vs manual, key files, config/env, libraries, gotchas, and future TODOs. Use when the user asks to document, write docs for, or create a reference for a feature or subsystem.
+description: Write a detailed reference doc under docs for one part of the Disscount app, in the style of docs/INFRASTRUCTURE.md. Explore the code first, then document what it is, how it works, automatic vs manual, key files, config/env, gotchas, and future TODOs. Use when the user asks to document, write docs for, or create a reference for a feature or subsystem.
 ---
 
 # Document a subsystem
@@ -16,7 +16,7 @@ Write a detailed, beginner-friendly reference doc for the part of the app named 
    - What is automatic vs what needs manual work (a table).
    - Key files, only those whose role is not obvious from the name or that sit outside the feature folder (a table with paths and roles).
    - Config, env vars, and feature flags involved.
-   - Libraries used, with versions read from `frontend/package.json` or `backend/pom.xml`.
+   - Libraries whose role a reader cannot guess from the name, one line each, with no versions: `frontend/package.json` and `backend/pom.xml` hold those.
    - Gotchas and lessons that would bite someone (the traps, with the fix).
    - A final "Future improvements & TODOs" section: current limitations, open decisions and links to tracking issues. Plans live on the GitHub board, not here.
 
@@ -28,5 +28,6 @@ Assume the reader is still learning, so explain the concepts clearly. Use tables
 - No em dashes.
 - Do not hard-wrap Markdown; write one physical line per paragraph and per bullet, and let the editor wrap.
 - Match the structure and tone of `docs/INFRASTRUCTURE.md`.
+- No table of contents (GitHub renders a heading outline) and no list of test files (`docs/TESTING.md` says where tests live); a sentence on what the tests do not cover is welcome.
 
 Do one subsystem per run so the exploration stays focused. The finished file is added to a PR into `dev`, then `main`.

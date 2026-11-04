@@ -158,7 +158,6 @@
     "reload": "Reload"
   },
   "validation": {
-    "emailInvalid": "Enter a valid email",
     "fullNameMax": "Your name can be up to 255 characters",
     "subjectRequired": "Enter a subject",
     "subjectMax": "Subject can be up to 255 characters",

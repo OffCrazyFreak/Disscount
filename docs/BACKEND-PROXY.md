@@ -6,28 +6,9 @@ How the browser reaches the Spring backend: every `/api/*` call that belongs to 
 
 ---
 
-## Table of contents
-
-1. [What it replaced and why](#1-what-it-replaced-and-why)
-2. [One request, step by step](#2-one-request-step-by-step)
-3. [The two headers the browser sends](#3-the-two-headers-the-browser-sends)
-4. [Headers, bodies and status codes](#4-headers-bodies-and-status-codes)
-5. [Errors](#5-errors)
-6. [What's automatic vs manual](#6-whats-automatic-vs-manual)
-7. [Key files](#7-key-files)
-8. [Config, env vars and libraries](#8-config-env-vars-and-libraries)
-9. [Measuring it](#9-measuring-it)
-10. [Testing](#10-testing)
-11. [Gotchas & lessons learned](#11-gotchas--lessons-learned)
-12. [Future improvements & TODOs](#12-future-improvements--todos)
-
----
-
 ## 1. What it replaced and why
 
-Before, `next.config.ts` had a `rewrites()` rule that sent `/api/*` (except `cijene`, `auth` and `account`) to Spring, and the browser attached a bearer token itself. `lib/api/api-base.ts` fetched that token from better-auth's `/api/auth/token`, cached it, tracked which account it belonged to and retried a 401 with a fresh one: about fifteen module level variables, and the source of about ten race fixes in one day (#355, #356, #374).
-
-Two security problems came with it:
+The browser used to fetch a bearer token from better-auth and send it to Spring itself, through a `rewrites()` rule in `next.config.ts`. That took about fifteen module level variables and caused about ten race fixes in one day (#355, #356, #374), and it had two security problems:
 
 - Any script in the page could mint a token and send it off the device, where it worked against Spring for its whole life (10 minutes).
 - A token outlived the session that produced it, so signing a device out only took effect once its token expired.

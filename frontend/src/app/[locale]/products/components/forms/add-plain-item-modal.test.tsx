@@ -48,14 +48,6 @@ describe("AddPlainItemModal", () => {
     localStorage.clear();
     // jsdom has no scrollIntoView; cmdk calls it on the highlighted list option.
     Element.prototype.scrollIntoView ??= vi.fn();
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
   });
 
   it("reopens a failed add with the list and amount the user chose", async () => {

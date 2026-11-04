@@ -39,14 +39,6 @@ beforeEach(() => {
       HttpResponse.json({ thumbnails: {} }),
     ),
   );
-  vi.stubGlobal(
-    "ResizeObserver",
-    class {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-    },
-  );
 });
 
 function item(id: string, extra: Partial<ShoppingListItemDto> = {}) {

@@ -32,7 +32,6 @@ export default function SuggestionsClient({ query }: ISuggestionsClientProps) {
         <SearchBar
           placeholder={t("searchPlaceholder")}
           searchRoute={pathname}
-          clearable={true}
           submitButtonLocation="none"
           autoSearch={true}
         />

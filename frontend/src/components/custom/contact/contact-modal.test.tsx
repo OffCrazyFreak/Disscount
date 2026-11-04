@@ -31,14 +31,6 @@ const PROFILE = { email: "ana@example.com", name: "Ana Anić" };
 describe("ContactModal", () => {
   beforeEach(() => {
     localStorage.clear();
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
     userState.current = { user: null, isLoading: true };
   });
 

@@ -148,10 +148,6 @@
   --chart-11: oklch(0.646 0.222 41.116);
   --chart-12: oklch(72.927% 0.1747 42.563);
   --chart-13: oklch(79.444% 0.17083 71.184);
-  --gradient-lime: var(--chart-2);
-  --gradient-ocean: var(--chart-4);
-  --gradient-wine: var(--chart-9);
-  --gradient-rust: var(--chart-11);
   --sidebar: oklch(0.9911 0 0);
   --sidebar-foreground: oklch(0.5452 0 0);
   --sidebar-primary: oklch(0.742 0.244 141.3909);
@@ -668,7 +664,6 @@ html {
   --z-header: 20;
   /* A page's sticky section tabs: page chrome under the header, over the filter sidebar */
   --z-section-nav: 12;
-  --z-sidebar: 10;
   /* The language offer row: above the phone map's fixed layer (z 1), below its
      search takeover (z 3), so it never covers the store list */
   --z-locale-suggestion: 2;

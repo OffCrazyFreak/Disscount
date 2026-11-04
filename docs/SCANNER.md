@@ -8,24 +8,6 @@ Card-specific hardening (consensus counts, check digits, normalization, the conf
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [How it works end to end](#2-how-it-works-end-to-end)
-3. [Who opens the scanner](#3-who-opens-the-scanner)
-4. [Presets: products vs cards](#4-presets-products-vs-cards)
-5. [The camera](#5-the-camera)
-6. [Scanning a photo instead](#6-scanning-a-photo-instead)
-7. [Errors, feedback and accessibility](#7-errors-feedback-and-accessibility)
-8. [What is automatic vs manual](#8-what-is-automatic-vs-manual)
-9. [Key files](#9-key-files)
-10. [Config, security headers and libraries](#10-config-security-headers-and-libraries)
-11. [Tests](#11-tests)
-12. [Gotchas and lessons learned](#12-gotchas-and-lessons-learned)
-13. [Future improvements and TODOs](#13-future-improvements-and-todos)
-
----
-
 ## 1. Quick reference
 
 | Thing               | Value                                                                                                     |
@@ -182,7 +164,7 @@ No environment variables or feature flags.
 
 ## 11. Tests
 
-`components/scanner/scan-consensus.test.ts` covers the consensus rules. The check digit and normalization helpers under `utils/barcode/` have their own tests ([DIGITAL-CARDS.md](DIGITAL-CARDS.md)). The camera, the photo path and the dialog are browser-only and have no automated test; [TESTING.md](TESTING.md) explains what is left to a real browser.
+The camera, the photo path and the dialog are browser-only and have no automated test; [TESTING.md](TESTING.md) explains what is left to a real browser.
 
 ---
 

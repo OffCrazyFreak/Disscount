@@ -95,7 +95,6 @@
   "validation": {
     "usernameMin": "Vpiši vsaj 2 znaka",
     "usernameMax": "Vpiši največ 40 znakov",
-    "emailInvalid": "Vpiši veljaven e-naslov",
     "currentPasswordRequired": "Vnesi trenutno geslo"
   },
   "onboarding": {

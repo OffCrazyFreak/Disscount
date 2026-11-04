@@ -8,23 +8,6 @@ _Last audited end-to-end on 2026-07-22: every user-facing input and form account
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [Architecture](#2-architecture)
-3. [Layer 1: URL state](#3-layer-1-url-state)
-4. [Layer 2: localStorage (`Disscount_app`)](#4-layer-2-localstorage-disscount_app)
-5. [Layer 3: IndexedDB offline cache](#5-layer-3-indexeddb-offline-cache)
-6. [Deliberately ephemeral state](#6-deliberately-ephemeral-state)
-7. [Coverage matrix (every input and form)](#7-coverage-matrix-every-input-and-form)
-8. [What's automatic vs manual](#8-whats-automatic-vs-manual)
-9. [Key files](#9-key-files)
-10. [Config, flags, and libraries](#10-config-flags-and-libraries)
-11. [Gotchas & lessons learned](#11-gotchas--lessons-learned)
-12. [Future improvements & TODOs](#12-future-improvements--todos)
-
----
-
 ## 1. Quick reference
 
 | Thing              | Value                                                                                        |

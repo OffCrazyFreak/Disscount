@@ -117,19 +117,6 @@ function renderShell() {
 describe("focus when the sidebar closes", () => {
   beforeEach(() => {
     router.push.mockClear();
-    vi.stubGlobal("matchMedia", () => ({
-      matches: false,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-    }));
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
   });
 
   it("moves to the trigger after a search from inside it", async () => {

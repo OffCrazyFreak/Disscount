@@ -4,20 +4,6 @@ How Disscount knows whether a store is open, where the hours come from, and why 
 
 > **Mental model in one sentence:** each store has a weekly template plus dated entries (its own exceptions and the chain's Sunday and holiday announcements), and one pure function, `openingStatusAt`, turns that into "open until 21:00", "closing soon", "closed, opens at 07:00", "opening soon" or "hours not confirmed" for any instant, in Zagreb time, on the server and in the browser alike.
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [The model](#2-the-model)
-3. [Deciding open or closed](#3-deciding-open-or-closed)
-4. [Serving the hours](#4-serving-the-hours)
-5. [Refreshing the hours](#5-refreshing-the-hours)
-6. [Sources per chain](#6-sources-per-chain)
-7. [Automatic vs manual](#7-automatic-vs-manual)
-8. [Key files](#8-key-files)
-9. [Config and libraries](#9-config-and-libraries)
-10. [Gotchas](#10-gotchas)
-11. [Future improvements and TODOs](#11-future-improvements-and-todos)
-
 ## 1. Quick reference
 
 | Question                         | Answer                                                                                                              |

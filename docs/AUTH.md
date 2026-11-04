@@ -349,20 +349,12 @@ Backend (`backend/.env`, referenced in `application.properties`):
 
 ## 12. Libraries
 
-Frontend (versions from `frontend/package.json`):
+Versions are in `frontend/package.json` and `backend/pom.xml`. The ones whose role is not obvious from the name:
 
-| Library                       | Version               | Role                                                        |
-| ----------------------------- | --------------------- | ----------------------------------------------------------- |
-| `better-auth`                 | `1.7.15`              | Identity provider (auth logic, OAuth, JWT).                 |
-| `drizzle-orm` / `drizzle-kit` | `0.45.2` / `^0.31.10` | Owns the auth tables.                                       |
-| `pg`                          | `8.22.0`              | Postgres driver.                                            |
-| `resend`                      | `^6.14.0`             | Transactional email API.                                    |
-| `hibp`                        | `^15.2.1`             | Pwned Passwords range lookup (k-anonymity, padded).         |
-| `react-email`                 | `^6.6.3`              | Email templates (v6 imports everything from `react-email`). |
-| `server-only`                 | `^0.0.1`              | Build-time guard so the Resend key cannot reach the client. |
-| `zod`                         | `^4.1.13`             | Request/schema validation.                                  |
-
-Backend: Spring Boot `4.1.2` on Java `21`, using `spring-boot-starter-security-oauth2-resource-server` (which brings in the Nimbus JOSE JWT library).
+- `hibp`: Pwned Passwords range lookup (k-anonymity, padded).
+- `react-email`: email templates; v6 imports everything from `react-email`.
+- `server-only`: build-time guard so the Resend key cannot reach the client.
+- `spring-boot-starter-security-oauth2-resource-server`: backend JWT validation, brings in the Nimbus JOSE JWT library.
 
 ## 13. Gotchas and lessons
 

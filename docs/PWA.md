@@ -8,25 +8,6 @@ _Last verified on branch `feat/pwa`, 2026-07-04: installable on Android/iOS, off
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [The four layers of the PWA](#2-the-four-layers-of-the-pwa)
-3. [Architecture](#3-architecture)
-4. [Installability](#4-installability)
-5. [Offline reads: caching and persistence](#5-offline-reads-caching-and-persistence)
-6. [Offline writes: queue and replay](#6-offline-writes-queue-and-replay)
-7. [Native polish: status bar, splash, icons, screenshots](#7-native-polish-status-bar-splash-icons-screenshots)
-8. [Key files](#8-key-files)
-9. [Config, build, and environment](#9-config-build-and-environment)
-10. [Libraries and versions](#10-libraries-and-versions)
-11. [What is automatic vs manual](#11-what-is-automatic-vs-manual)
-12. [How to test and verify](#12-how-to-test-and-verify)
-13. [Gotchas and lessons learned](#13-gotchas-and-lessons-learned)
-14. [Future improvements and TODOs](#14-future-improvements-and-todos)
-
----
-
 ## 1. Quick reference
 
 | Thing                        | Value                                                                                                                                                                                                                                 |

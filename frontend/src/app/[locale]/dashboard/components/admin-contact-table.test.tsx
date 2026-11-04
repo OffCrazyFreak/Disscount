@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { onlineManager, QueryClient } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw/http";
-import { beforeEach, describe, expect, it, onTestFinished, vi } from "vitest";
+import { describe, expect, it, onTestFinished, vi } from "vitest";
 
 import AdminContactTable from "@/app/[locale]/dashboard/components/admin-contact-table";
 import hr from "@/i18n/messages/hr";
@@ -29,18 +29,6 @@ const DELETED: ContactMessageDto = {
 };
 
 describe("AdminContactTable", () => {
-  beforeEach(() => {
-    // jsdom has no ResizeObserver; the table and Radix Select call it.
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
-  });
-
   it("keeps the filters usable when a view fails to load", async () => {
     server.use(
       http.get("*/api/admin/contact", ({ request }) =>

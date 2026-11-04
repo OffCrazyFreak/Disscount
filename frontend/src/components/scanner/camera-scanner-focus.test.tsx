@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import SearchBar from "@/components/custom/search/search-bar";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -48,22 +48,6 @@ async function expectClosed() {
 }
 
 describe("focus when the scanner is cancelled", () => {
-  beforeEach(() => {
-    vi.stubGlobal("matchMedia", () => ({
-      matches: false,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-    }));
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
-  });
-
   it("returns to the scan button on Escape", async () => {
     const { user, scanButton } = await openScanner();
 

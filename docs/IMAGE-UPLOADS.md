@@ -2,16 +2,6 @@
 
 How every photo a user or admin uploads is shrunk, cleaned and checked, in the browser and again on the server.
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [The shared browser pipeline](#2-the-shared-browser-pipeline)
-3. [Per upload settings](#3-per-upload-settings)
-4. [What the server does](#4-what-the-server-does)
-5. [Key files](#5-key-files)
-6. [Gotchas](#6-gotchas)
-7. [Future work](#7-future-work)
-
 ## 1. Quick reference
 
 | Question                                   | Answer                                                                                                                               |

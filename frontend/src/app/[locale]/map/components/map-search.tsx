@@ -21,7 +21,6 @@ export default function MapSearch({ inputRef }: IMapSearchProps) {
         shortPlaceholder={t("search.placeholderShort")}
         ariaLabel={t("search.placeholder")}
         searchRoute="/map"
-        clearable
         autoSearch
         shallow
         submitButtonLocation="none"

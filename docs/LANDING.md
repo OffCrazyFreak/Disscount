@@ -222,15 +222,7 @@ There are no landing-specific secrets. All copy comes from the `landing` message
 
 ## Libraries
 
-Versions come from `frontend/package.json`.
-
-| Library           | Version     | Use on the landing                                              |
-| ----------------- | ----------- | --------------------------------------------------------------- |
-| next              | `16.4.5`    | App Router, RSC, metadata, `next/font`, `next/og`, `next/image` |
-| react / react-dom | `19.2.8`    | Server + client components                                      |
-| motion            | `^12.23.26` | Scroll reveals, doodle path-draws, tagline cross-fade           |
-| lucide-react      | `^1.26.0`   | Feature and perk icons                                          |
-| tailwindcss       | `^4`        | Styling, CSS-first theme, keyframes                             |
+`motion` drives the scroll reveals, doodle path-draws and tagline cross-fade. The rest is the app's usual stack; versions are in `frontend/package.json`.
 
 ## Gotchas
 

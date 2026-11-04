@@ -95,7 +95,6 @@
   "validation": {
     "usernameMin": "Gib mindestens 2 Zeichen ein",
     "usernameMax": "Gib höchstens 40 Zeichen ein",
-    "emailInvalid": "Gib eine gültige E-Mail-Adresse ein",
     "currentPasswordRequired": "Gib dein aktuelles Passwort ein"
   },
   "onboarding": {

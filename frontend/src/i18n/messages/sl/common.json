@@ -158,7 +158,6 @@
     "reload": "Osveži"
   },
   "validation": {
-    "emailInvalid": "Vpiši veljaven e-naslov",
     "fullNameMax": "Ime ima lahko največ 255 znakov",
     "subjectRequired": "Vpiši zadevo",
     "subjectMax": "Zadeva ima lahko največ 255 znakov",

@@ -1,36 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { calculateDiscountInfo } from "@/lib/watchlist/watchlist-discount-utils";
-import type {
-  ChainProductResponse,
-  ProductResponse,
-} from "@/lib/cijene-api/schemas";
+import { chain as priceChain, product } from "@/test/price-fixtures";
 
-function chain(name: string, min: string, avg: string): ChainProductResponse {
-  return {
-    chain: name,
-    code: "1",
-    name: "Mlijeko",
-    brand: null,
-    category: null,
-    unit: null,
-    quantity: null,
-    min_price: min,
-    max_price: min,
-    avg_price: avg,
-    price_date: "2026-10-13",
-  };
-}
-
-function product(chains: ChainProductResponse[]): ProductResponse {
-  return {
-    ean: "1",
-    brand: null,
-    name: null,
-    quantity: null,
-    unit: null,
-    chains,
-  };
+function chain(name: string, min: string, avg: string) {
+  return priceChain(name, min, min, avg);
 }
 
 describe("calculateDiscountInfo", () => {

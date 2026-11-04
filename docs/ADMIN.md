@@ -8,25 +8,6 @@ How admin is granted, why there is no `@PreAuthorize`, and the accepted risks (a
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [Who sees what](#2-who-sees-what)
-3. [How a request is checked](#3-how-a-request-is-checked)
-4. [Users tab](#4-users-tab)
-5. [Contact tab](#5-contact-tab)
-6. [Photos tab](#6-photos-tab)
-7. [Endpoints](#7-endpoints)
-8. [Tables the dashboard touches](#8-tables-the-dashboard-touches)
-9. [What is automatic vs manual](#9-what-is-automatic-vs-manual)
-10. [Key files](#10-key-files)
-11. [Config, env vars and libraries](#11-config-env-vars-and-libraries)
-12. [Tests](#12-tests)
-13. [Gotchas and lessons learned](#13-gotchas-and-lessons-learned)
-14. [Future improvements and TODOs](#14-future-improvements-and-todos)
-
----
-
 ## 1. Quick reference
 
 | Thing               | Value                                                                                                                               |
@@ -177,15 +158,6 @@ Swagger lists them all at `/api-docs`.
 ## 11. Config, env vars and libraries
 
 No admin-specific environment variables or feature flags. The page uses the shadcn `Tabs`, `Table` and dialog primitives, `sonner` (`^2.0.7`) for toasts and `@tanstack/react-query` (`^5.90.12`) for data; the backend is `spring-boot-starter-parent` `4.1.2`.
-
----
-
-## 12. Tests
-
-| Side     | Tests                                                                                                                                                                                                                          |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Backend  | `AdminGatingTest` walks every mapped `/api/admin/**` route (401 anonymous, 403 consumer, 2xx admin) and fails when a route is missing from its table. `AccountErasureTest` covers the admin delete and the self-delete refusal |
-| Frontend | `admin-users-table.test.tsx`, `user-activity.test.ts`, `product-photos/use-queue-keys.test.tsx`                                                                                                                                |
 
 ---
 

@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { formatDate, formatDateTime, formatDayMonth } from "@/utils/strings";
+import {
+  decodeEntities,
+  formatDate,
+  formatDateTime,
+  formatDayMonth,
+} from "@/utils/strings";
 
 const MORNING = "2026-11-03T06:05:00Z";
 
@@ -47,5 +52,17 @@ describe("input that is not a date", () => {
 
   it("falls back to the original text", () => {
     expect(formatDate("not a date", "hr")).toBe("not a date");
+  });
+});
+
+describe("decoding entities", () => {
+  it("decodes named and numeric references once", () => {
+    expect(decodeEntities("A&amp;B &#8211; &#x27;c&#39; &amp;lt;")).toBe(
+      "A&B \u2013 'c' &lt;",
+    );
+  });
+
+  it("leaves a reference past the last code point as it is", () => {
+    expect(decodeEntities("a &#99999999; b")).toBe("a &#99999999; b");
   });
 });

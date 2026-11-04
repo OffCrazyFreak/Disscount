@@ -64,14 +64,6 @@ function getForm() {
 }
 
 beforeEach(() => {
-  vi.stubGlobal(
-    "ResizeObserver",
-    class {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-    },
-  );
   // cmdk scrolls the active row into view, which jsdom does not implement.
   Element.prototype.scrollIntoView = vi.fn();
 });
