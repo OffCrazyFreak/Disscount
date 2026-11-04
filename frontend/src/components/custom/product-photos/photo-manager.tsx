@@ -48,9 +48,9 @@ export default function PhotoManager({
 
   if (isLoading || !data) {
     return (
-      <div className="space-y-4">
+      <div className="@container space-y-4">
         <Skeleton className="h-16 w-full" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 @lg:grid-cols-3">
           {[0, 1, 2].map((key) => (
             <Skeleton key={key} className="aspect-square rounded-2xl" />
           ))}
@@ -60,7 +60,8 @@ export default function PhotoManager({
   }
 
   return (
-    <div className="space-y-4">
+    // Columns follow the manager's own width, because on the dashboard it sits in a narrow pane.
+    <div className="@container space-y-4">
       <PhotoManagerHeader
         product={data}
         name={name}
@@ -73,7 +74,7 @@ export default function PhotoManager({
           {t("manager.empty")}
         </p>
       ) : (
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-3 @lg:grid-cols-3 @4xl:grid-cols-4">
           {data.images.map((image, index) => (
             <CandidateTile
               key={image.id}
