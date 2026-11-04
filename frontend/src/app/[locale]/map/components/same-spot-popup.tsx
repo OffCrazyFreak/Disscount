@@ -21,7 +21,6 @@ interface ISameSpotPopupProps {
   onClose: () => void;
 }
 
-/** Stores at one address (a mall), which no zoom level pulls apart. */
 export default function SameSpotPopup({
   spot,
   stores,
@@ -34,8 +33,7 @@ export default function SameSpotPopup({
 
   const rows = spot ? stores.filter((row) => spot.keys.includes(row.key)) : [];
 
-  // A filter that hides every store here closes the list for good, rather
-  // than leaving it to reappear over an old spot when the filter clears.
+  // A filter hiding every store here closes the list for good, rather than it reappearing over an old spot when the filter clears.
   const isEmpty = spot != null && rows.length === 0;
   useEffect(() => {
     if (isEmpty) onClose();
@@ -68,8 +66,7 @@ export default function SameSpotPopup({
         onEscapeKeyDown={() => {
           closedByEscape.current = true;
         }}
-        // There is no trigger to return to. After Escape, focus goes back to
-        // the map; after a click elsewhere it stays where the user put it.
+        // There is no trigger to return to: after Escape focus goes to the map, and after a click elsewhere it stays where the user put it.
         onCloseAutoFocus={(event) => {
           event.preventDefault();
           if (closedByEscape.current) map?.getCanvas().focus();

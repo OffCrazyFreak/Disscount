@@ -12,8 +12,7 @@ import UserMenuHeader from "@/components/custom/user-menu/components/user-menu-h
 import UserMenuItems from "@/components/custom/user-menu/components/user-menu-items";
 
 interface IUserMenuProps {
-  /** Replaces the avatar trigger (e.g. the sidebar's user row). Must be a
-   *  single element, since `asChild` clones it to attach props and a ref. */
+  /** Must be a single element, since `asChild` clones it to attach props and a ref. */
   trigger?: ReactElement;
   side?: "top" | "right" | "bottom" | "left";
 }
@@ -46,7 +45,6 @@ export default function UserMenu({ trigger, side }: IUserMenuProps = {}) {
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" side={side} className="w-max">
-        {/* User name and email */}
         <UserMenuHeader avatarUser={avatarUser} user={user} />
 
         <DropdownMenuSeparator />

@@ -63,9 +63,7 @@ export function registerOfflineMutationDefaults(
     mutationKey: QueryKey,
     mutationFn: (variables: TVariables) => Promise<TData>,
     invalidatedKeys: (variables: TVariables) => QueryKey[],
-    // A reload also loses the onError passed at mutate() time, so a write that fails on
-    // replay reverts with no explanation. Only pass this for mutations whose call sites
-    // do NOT handle errors themselves, or the user gets the same toast twice.
+    // A reload loses the onError passed at mutate() time; pass this only when call sites do not handle errors, or the toast shows twice.
     onError?: (error: Error) => void,
     // Persisted with the mutation; mutations sharing a scope replay one at a time.
     scope?: MutationScope,
@@ -133,16 +131,11 @@ export function registerOfflineMutationDefaults(
     ({ listId, itemId }: { listId: string; itemId: string }) =>
       deleteShoppingListItem(listId, itemId),
     ({ listId }) => listAndItemsKeys(listId),
-    // Deletes get their own handler: a replayed delete for an item that is already gone
-    // answers 404, which is the desired end state rather than a failure, and the shared
-    // handler would blame it on lost access.
+    // Own handler because a replayed delete for a gone item answers 404, the desired end, and the shared handler would blame lost access.
     (error) => deleteWriteFailed(error, t),
   );
 
-  // Tombstones for the two keys sharing used before it moved from a token to the list id.
-  // A write queued by the previous build hydrates under one of these, and without a
-  // mutationFn resuming it throws. Nothing can replay them: they carry a token, and the
-  // endpoint behind it no longer exists. So they resolve, say what happened, and stop.
+  // Tombstones: a queued write under a retired key hydrates with no mutationFn and throws on resume; it carries a token no endpoint accepts, so it resolves.
   for (const retiredKey of [
     ["sharedShoppingList", "items", "update"],
     ["sharedShoppingList", "items", "delete"],

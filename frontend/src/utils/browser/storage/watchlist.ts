@@ -1,8 +1,7 @@
 import { getAppStorage, setAppStorage } from "@/utils/browser/storage/core";
 import type { IWatchlistPriceSnapshot } from "@/typings/local-storage";
 
-// useSyncExternalStore needs the same object back until something changes, and
-// localStorage parses into a new one on every read, so reads go through this cache.
+// useSyncExternalStore needs the same object until a change, and localStorage parses a new one per read, so reads go through this cache.
 const cachedSnapshots = new Map<string, IWatchlistPriceSnapshot | null>();
 const listeners = new Set<() => void>();
 
@@ -10,8 +9,7 @@ function notify() {
   listeners.forEach((listener) => listener());
 }
 
-// Another tab's visit resets the baseline; without this, a stale cache here would write
-// the old prices back over it.
+// Another tab's visit resets the baseline, and a stale cache here would write the old prices back over it.
 function onStorage(event: StorageEvent) {
   if (event.storageArea !== localStorage) return;
 
@@ -36,7 +34,6 @@ export function readStoredWatchlistPriceSnapshot(
   return getAppStorage().watchlistPriceSnapshots?.[userId] ?? null;
 }
 
-/** The best price per watched EAN as this account last saw it on this device. */
 export function getWatchlistPriceSnapshot(
   userId: string | undefined,
 ): IWatchlistPriceSnapshot | null {

@@ -1,14 +1,4 @@
-/**
- * Which account the persisted query cache belongs to.
- *
- * The offline cache is one browser-wide IndexedDB entry, so without this every account on
- * a device reads and writes the same blob, and the only defence is a destructive purge.
- * That was tolerable while everything cached was your own; shared lists make it someone
- * else's data, so the store is now keyed by identity and each account gets its own entry.
- *
- * Mirrored in localStorage because the persister has to choose a key synchronously at boot,
- * before the session has resolved.
- */
+/** Keyed by identity because shared lists put someone else's data here; mirrored in localStorage because the persister picks a key before the session resolves. */
 const IDENTITY_STORAGE_KEY = "disscount-cache-identity";
 export const ANONYMOUS_IDENTITY = "anon";
 
@@ -23,8 +13,7 @@ function readStoredIdentity(): string {
       window.localStorage.getItem(IDENTITY_STORAGE_KEY) ?? ANONYMOUS_IDENTITY
     );
   } catch {
-    // Private mode or blocked storage. Everyone shares the anonymous bucket, which is
-    // the pre-existing behaviour rather than a regression.
+    // Private mode or blocked storage: everyone shares the anonymous bucket.
     return ANONYMOUS_IDENTITY;
   }
 }
@@ -34,7 +23,6 @@ export function getCacheIdentity(): string {
   return currentIdentity;
 }
 
-/** The account this device's cache belongs to, or null when it is anonymous. */
 export function persistedCacheIdentity(): string | null {
   return getCacheIdentity() === ANONYMOUS_IDENTITY ? null : getCacheIdentity();
 }
@@ -65,12 +53,7 @@ export function setCacheIdentity(userId: string | null): void {
   }
 }
 
-/**
- * Appends an identity, so one account's cache is unreadable under another.
- *
- * `identity` is explicit for the purge, which has to clear the account that is leaving
- * rather than whichever one happens to be current by the time it awaits.
- */
+/** `identity` is explicit for the purge, which must clear the account that is leaving rather than whichever is current after it awaits. */
 export function scopedCacheKey(baseKey: string, identity?: string): string {
   return `${baseKey}:${identity ?? getCacheIdentity()}`;
 }

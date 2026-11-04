@@ -19,8 +19,6 @@ function priceFormatter(locale: string, signed: boolean) {
   return formatter;
 }
 
-// "1,99 €" in Croatian, "€1.99" in English: symbol position and separators are the
-// locale's, the currency is always EUR.
 export function formatPrice(value: number, locale: string): string {
   return priceFormatter(locale, false).format(value);
 }

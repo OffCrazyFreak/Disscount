@@ -8,7 +8,6 @@ interface IForgotPasswordLinkProps {
   sending?: boolean;
 }
 
-// Shared by the login modal and the security tab, so both read as one affordance.
 export default function ForgotPasswordLink({
   onClick,
   sending = false,
@@ -18,9 +17,7 @@ export default function ForgotPasswordLink({
   return (
     <button
       type="button"
-      // aria-disabled rather than the native attribute: a disabled element cannot
-      // hold focus, so setting it in the click handler blurred the very control
-      // the user had just activated and dropped focus to the body.
+      // aria-disabled because a disabled element cannot hold focus, which would drop focus to the body right after activating it.
       aria-disabled={sending}
       onClick={() => {
         if (sending) return;

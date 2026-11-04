@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// What the public form submits. Email/name are optional; honeypot must stay empty.
 export const contactMessageRequestSchema = z.object({
   email: z.email("auth.validation.emailInvalid").or(z.literal("")).optional(),
   fullName: z.string().max(255, "common.validation.fullNameMax").optional(),
@@ -17,8 +16,7 @@ export const contactMessageRequestSchema = z.object({
   honeypot: z.string().max(0).optional(),
 });
 
-// What the admin inbox reads back. Its own object, so the form's length and format rules
-// never reject a message the server already stored.
+// Its own object, so the form's length and format rules never reject a message the server already stored.
 export const contactMessageDtoSchema = z.object({
   id: z.string(),
   userId: z.string().nullable(),

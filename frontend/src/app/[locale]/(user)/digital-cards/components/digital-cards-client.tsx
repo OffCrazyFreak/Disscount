@@ -23,8 +23,7 @@ import { usePathname } from "@/i18n/navigation";
 
 export default function DigitalCardsClient() {
   const t = useTranslations("digitalCards");
-  // Read on the client and searched shallowly: offline, a server render per keystroke
-  // would fall back to the precached page and lose what was typed.
+  // Read on the client and searched shallowly, because offline a server render per keystroke would lose what was typed.
   const query = useSearchParams().get("q") ?? "";
   const pathname = usePathname();
   const [sortMode, setSortMode] = useDigitalCardsSort();

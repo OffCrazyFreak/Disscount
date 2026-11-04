@@ -30,7 +30,6 @@ interface ISearchBarFieldProps extends ISearchBarFieldOptions {
   onScanned: (code: IScannedCode) => void;
 }
 
-/** The search input with its icon and the clear and scan buttons. */
 export default function SearchBarField({
   placeholder: placeholderProp,
   shortPlaceholder,

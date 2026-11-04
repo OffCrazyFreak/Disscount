@@ -19,11 +19,7 @@ interface IShoppingListActionsSheetProps {
   onRequestDelete: (shoppingList: ShoppingListDto) => void;
 }
 
-/**
- * What a long press on a shopping-list card opens. Copy and share need the whole
- * list including its items, so the sheet resolves the DTO rather than taking one,
- * seeding from the collection cache while the by-id query settles.
- */
+/** Copy and share need the whole list with items, so the sheet resolves the DTO, seeding from the collection cache meanwhile. */
 export default function ShoppingListActionsSheet({
   open,
   id,
@@ -67,10 +63,7 @@ interface ISheetActionsProps {
   onRequestDelete: (shoppingList: ShoppingListDto) => void;
 }
 
-/**
- * Split out because useShoppingListActions needs a list, and the sheet above has
- * to render its pending and missing states before one exists.
- */
+/** Split out because useShoppingListActions needs a list, and the sheet must render pending and missing states before one exists. */
 function SheetActions({ shoppingList, onRequestDelete }: ISheetActionsProps) {
   const { canManageShare, isShared, handleShare, handleCopy, handleEdit } =
     useShoppingListActions(shoppingList);
@@ -79,9 +72,7 @@ function SheetActions({ shoppingList, onRequestDelete }: ISheetActionsProps) {
     <ShoppingListQuickActionsList
       isOwner={canManageShare}
       isShared={isShared}
-      // Two different destinations. The owner opens the share settings modal, which
-      // replaces this one for the history reason below. Everyone else gets the OS
-      // share sheet, which reads better over the page than over this one.
+      // The owner's share modal replaces this one for the history reason below; others get the OS share sheet, which reads better over the page.
       onShare={() => {
         if (canManageShare) {
           void handleShare({ replace: true });
@@ -91,8 +82,7 @@ function SheetActions({ shoppingList, onRequestDelete }: ISheetActionsProps) {
         closeModalUrl();
         void handleShare();
       }}
-      // Left open deliberately: a successful copy routes to the new list, which
-      // drops the modal param anyway, and a failed one keeps its error in view.
+      // Left open: a successful copy routes to the new list, dropping the modal param, and a failed one keeps its error in view.
       onCopy={() => handleCopy({ replace: true })}
       // Replaces rather than closing first, for the history reason above.
       onEdit={() => handleEdit({ replace: true })}

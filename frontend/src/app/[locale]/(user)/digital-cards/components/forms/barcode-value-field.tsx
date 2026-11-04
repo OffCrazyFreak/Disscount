@@ -25,8 +25,7 @@ export default function BarcodeValueField() {
     name: "barcodeValue",
   });
 
-  // Derived from the value: an empty string keeps the input open mid-edit, null closes it,
-  // and a form reset turns the toggle off with no extra state to clear.
+  // Derived from the value: empty string keeps the input open mid-edit, null closes it, and a form reset needs no extra state.
   const enabled = barcodeValue != null;
 
   function handleToggle(checked: boolean) {

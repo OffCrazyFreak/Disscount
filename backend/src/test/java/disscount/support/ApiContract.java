@@ -11,10 +11,7 @@ import java.util.TreeSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * The committed contract the frontend's zod schemas are checked against. Wire format tests read
- * real responses against it, so a real response, this file and the zod schemas cannot disagree.
- */
+/** Wire format tests read real responses against it, so a response, this file and the zod schemas cannot disagree. */
 public final class ApiContract {
 
     // Surefire runs from backend/, and the file sits above it because both sides read it.

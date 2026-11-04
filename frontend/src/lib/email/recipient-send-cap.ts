@@ -1,5 +1,4 @@
-// Caps mail to one address however many IPs or accounts ask for it, so the
-// auth flows cannot be used to flood a stranger's inbox or burn the provider quota.
+// Caps mail to one address however many IPs or accounts ask, so auth flows cannot flood a stranger's inbox or burn the quota.
 export const RECIPIENT_SENDS_PER_HOUR = 3;
 export const RECIPIENT_SENDS_PER_DAY = 10;
 
@@ -9,9 +8,7 @@ export interface IRecipientSendCounts {
 }
 
 export interface IRecipientSendGate {
-  // Records the send and returns true, or returns false without recording.
   tryReserve(recipient: string): Promise<boolean>;
-  // Gives back the latest reserved slot when the provider did not send.
   release(recipient: string): Promise<void>;
 }
 

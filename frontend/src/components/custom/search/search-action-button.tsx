@@ -16,22 +16,11 @@ interface ISearchActionButtonProps {
   disabled?: boolean;
   /** True when submitting this query would leave the page exactly as it is */
   isUnchanged: boolean;
-  /**
-   * The form to submit, for a button rendered outside it. An owning `form`
-   * attribute also makes it that form's default button, so Enter in the field
-   * keeps working from wherever the button sits.
-   */
+  /** An owning `form` attribute makes it that form's default button, so Enter in the field works wherever the button sits. */
   form?: string;
 }
 
-/**
- * The one loud action under a search field.
- *
- * With something new typed it submits. With nothing to submit on a scrolled
- * page it returns you to the top instead, since a disabled Pretraži is a whole
- * button's worth of space saying no. Unscrolled it falls back to the disabled
- * state, which is honest: there is nowhere to go and nothing to search.
- */
+/** With nothing to submit on a scrolled page it returns to the top, because a disabled Pretraži wastes a whole button saying no. */
 export default function SearchActionButton({
   label,
   block = false,

@@ -12,7 +12,6 @@ import {
   STORE_SOURCE_ID,
 } from "@/app/[locale]/map/utils/store-layers";
 
-/** Deepest zoom the map allows. */
 export const MAP_MAX_ZOOM = 20;
 
 interface IMapStoreSourceProps {
@@ -21,11 +20,7 @@ interface IMapStoreSourceProps {
   onStackClick: (stack: IMapFeatureRef) => void;
 }
 
-/**
- * Every store in one source, so nearby stores of any chain merge into one
- * stack. Clustering runs to the deepest zoom: stores sharing an address (a
- * mall) never split apart, so they stay one stack that opens as a list.
- */
+/** Clustering runs to the deepest zoom, because stores sharing an address never split apart, so they stay one stack that opens as a list. */
 export default function MapStoreSource({
   chains,
   data,

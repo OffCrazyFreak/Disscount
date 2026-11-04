@@ -39,10 +39,7 @@ export function useAddToListForm(
   // Same query key as the product page, so this is a cache hit unless deep-linked.
   const productQuery = cijeneService.useGetProductByEan({ ean });
   const product = productQuery.data;
-  // Read once on mount, not every render. getFormDraft parses the whole app blob
-  // and removes the entry when its TTL has passed, so calling it in the hook body
-  // made a localStorage write part of rendering. It is also the value as it was
-  // when the modal opened, which is what the selection effect wants.
+  // Read once on mount because getFormDraft can remove an expired entry, which would make a localStorage write part of rendering.
   const [restoredListId] = useState(() => {
     const drafted = getFormDraft(draftKey)?.values.shoppingListId;
 
@@ -62,8 +59,7 @@ export function useAddToListForm(
     restoredListId,
     preferredListId,
   );
-  // useWatch, not form.watch: watch() signals changes outside React state, so the
-  // React Compiler skips memoizing every component that reads it.
+  // useWatch, because watch() signals changes outside React state and the React Compiler skips memoizing every component that reads it.
   const customListTitle = useWatch({
     control: form.control,
     name: "customListTitle",

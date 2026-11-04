@@ -46,8 +46,7 @@ interface ISpelledGroup {
   stores: PinnedStore[];
 }
 
-// Chains that send ASCII only ("Plaski") would otherwise split a town from
-// the accented spelling ("Plaški") the others send, so names group folded.
+// Chains sending ASCII only ("Plaski") would split a town from its accented spelling, so names group folded.
 function groupByFoldedName(stores: ITownStore[]) {
   const byName = new Map<string, ISpelledGroup>();
 
@@ -65,8 +64,7 @@ function groupByFoldedName(stores: ITownStore[]) {
     byName.set(folded, group);
   }
 
-  // The accented spelling wins, then one not in capitals, then the one most
-  // stores send.
+  // The accented spelling wins, then one not in capitals, then the one most stores send.
   return [...byName.values()].map(({ spellings, stores: inTown }) => ({
     name: [...spellings].sort(
       ([a, aCount], [b, bCount]) =>
@@ -116,10 +114,7 @@ function groupTowns(stores: ITownStore[]): ITownGroup[] {
   });
 }
 
-/**
- * The towns that have at least one store with a pin, so every town on offer
- * has a centre. Names match the ones pinned places are saved under.
- */
+/** Only towns with a pinned store, so every town on offer has a centre; names match what pinned places are saved under. */
 export function listStoreTowns(stores: ITownStore[]): IStoreTown[] {
   return groupTowns(stores)
     .sort(
@@ -135,10 +130,7 @@ export function listStoreTowns(stores: ITownStore[]): IStoreTown[] {
     }));
 }
 
-/**
- * The middle of a town's pinned stores, found by its key. Towns are known
- * only by name, so this stands in for a geocoder and sends nothing anywhere.
- */
+/** Towns are known only by name, so this stands in for a geocoder and sends nothing anywhere. */
 export function townCenter(
   stores: ITownStore[],
   key: string,

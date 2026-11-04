@@ -18,7 +18,6 @@ interface IViewerActionsProps {
   isAdmin: boolean;
 }
 
-/** Toolbar buttons for the photo on screen; rendered inside the lightbox, which owns the index. */
 export default function ViewerActions({
   ean,
   images,

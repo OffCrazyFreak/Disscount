@@ -8,9 +8,7 @@ import ScanOverlay from "@/components/scanner/scan-overlay";
 import usePageVisible from "@/hooks/use-page-visible";
 import "@/components/scanner/scanner.css";
 
-// The library defaults to 500 without a tracker; 750 measurably slowed decoding of a
-// real barcode. Cards ("all") need up to four reads inside 1.5 s, which 400 ms cannot
-// fit alongside decode time. Products need only two, so they spare the battery.
+// 750 slowed decoding of a real barcode; cards need up to four reads inside 1.5 s, which 400 ms cannot fit; products need two, sparing battery.
 const RETRY_DELAY_BY_PRESET: Record<ScanPreset, number> = {
   all: 200,
   product: 400,
@@ -67,13 +65,7 @@ export default function CameraView({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isPageVisible = usePageVisible();
 
-  // Ideals only on the axes: min and max are both mandatory, so either one lets a
-  // device with no conforming mode raise OverconstrainedError, and the error copy
-  // blames the camera choice, which is not what went wrong. Capping at 720p also
-  // cost real detail across an EAN-13's bars at arm's length. frameRate keeps its
-  // max because every camera has a mode at or under 30fps, and uncapped means
-  // 60fps of decode work for no extra accuracy. exact on deviceId stays, since a
-  // bare id is only a hint.
+  // Ideals only, because min or max let a device raise OverconstrainedError; frameRate keeps its max to avoid 60fps decode; exact deviceId, since a bare id is a hint.
   const constraints = useMemo(
     () => ({
       width: { ideal: 1920 },
@@ -98,9 +90,7 @@ export default function CameraView({
 
       if (!track) return;
 
-      // The torch is reset per stream, the notification only once. Latching both
-      // together skipped the reset on the stream rebuilt after a tab switch, so
-      // a device that remembers the torch came back with it still lit.
+      // The torch is reset per stream, the notification only once, so a device that remembers the torch does not come back lit after a tab switch.
       turnTorchOff(track);
 
       if (hasNotifiedReady) return;

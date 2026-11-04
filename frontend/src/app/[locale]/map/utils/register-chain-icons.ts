@@ -9,10 +9,6 @@ import {
   SELECTED_STACK_FRAME_ID,
 } from "@/app/[locale]/map/utils/chain-icon";
 
-/**
- * Adds every chain logo and the selection frames as map
- * images, once per map.
- */
 export async function registerChainIcons(map: MapLibreMap, chains: string[]) {
   const drawn = [
     [SELECTED_FRAME_ID, () => renderSelectedFrame(false)],

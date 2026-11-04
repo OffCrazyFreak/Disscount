@@ -40,8 +40,7 @@ describe("splitByView", () => {
   });
 
   it("leaves out stores past the edge of a rotated map", () => {
-    // A map turned 45 degrees: a diamond, whose bounding box would also hold
-    // the store near its corner.
+    // A map turned 45 degrees: a diamond, whose bounding box would also hold the store near its corner.
     const rotated: IViewArea = {
       corners: [
         [16, 46],

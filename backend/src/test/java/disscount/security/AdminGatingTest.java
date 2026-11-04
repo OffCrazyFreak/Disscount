@@ -31,10 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * Every /api/admin route answers 401 without a token, 403 to a signed-in consumer and 2xx to
- * an admin, through the URL rule in SecurityConfig.
- */
+/** Through the URL rule in SecurityConfig: 401 without a token, 403 to a consumer, 2xx to an admin. */
 class AdminGatingTest extends FullStackTest {
 
     enum Route {

@@ -8,8 +8,7 @@ import {
   getMapRecentSearches,
 } from "@/utils/browser/storage/map";
 
-// Search runs as you type, so only a query left alone this long is one the
-// user actually meant, not a half-typed word.
+// Search runs as you type, so only a query left alone this long is one the user meant, not a half-typed word.
 const SETTLE_MS = 2_000;
 
 const EMPTY: string[] = [];
@@ -31,7 +30,6 @@ function refresh() {
   listeners.forEach((listener) => listener());
 }
 
-/** Remembers settled store-map searches on this device. */
 export function useRecentSearches(query: string, hasResults: boolean) {
   const recent = useSyncExternalStore(subscribe, getSnapshot, () => EMPTY);
 

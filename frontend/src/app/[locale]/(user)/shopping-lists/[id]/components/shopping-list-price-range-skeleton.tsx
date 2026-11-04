@@ -1,12 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-/**
- * Purely visual: the table it sits in carries aria-busy, and announcing here as
- * well put two competing live regions in one table while announcing nothing,
- * since every child is hidden. motion-reduce matters because the spinner this
- * replaced had its animation cancelled under a reduced-motion preference and
- * Tailwind's animate-pulse carries no such guard.
- */
+/** Purely visual because the table carries aria-busy; motion-reduce because Tailwind's animate-pulse has no reduced-motion guard. */
 export default function ShoppingListPriceRangeSkeleton() {
   return (
     <div

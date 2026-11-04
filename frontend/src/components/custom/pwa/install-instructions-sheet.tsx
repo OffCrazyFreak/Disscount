@@ -26,9 +26,7 @@ interface IInstallInstructionsSheetProps {
 
 const ICON_CLASS = "inline size-5 text-primary";
 
-// iOS 26 took Podijeli off the toolbar and put it behind the ... beside the
-// address bar. Both layouts are named, since the wording has to match whichever
-// iPhone is reading it, and the sheet has to be scrolled to reach the entry.
+// iOS 26 put Podijeli behind the ... beside the address bar, so both layouts are named to match whichever iPhone is reading.
 const IOS_STEPS = [
   "install.steps.iosMenu",
   "install.steps.iosAdd",
@@ -41,16 +39,14 @@ const MAC_SAFARI_STEPS = [
   "install.steps.confirmAdd",
 ] as const;
 
-// Chrome is merging "Instaliraj aplikaciju" and "Dodaj na početni zaslon" into
-// one entry, and Firefox only ever had the latter, so both names are given.
+// Chrome is merging the two entries and Firefox only has the latter, so both names are given.
 const ANDROID_STEPS = [
   "install.steps.androidMenu",
   "install.steps.androidChoose",
   "install.steps.confirmInstall",
 ] as const;
 
-// No "home screen" on a desktop: the address-bar icon is the quick route, and
-// the menu entry sits under a submenu rather than at the top level.
+// No "home screen" on a desktop: the address-bar icon is the quick route, and the menu entry sits under a submenu.
 const DESKTOP_STEPS = [
   "install.steps.desktopIcon",
   "install.steps.desktopMenu",
@@ -64,7 +60,6 @@ const STEPS_BY_PLATFORM = {
   desktop: DESKTOP_STEPS,
 } satisfies Record<InstallPlatform, readonly string[]>;
 
-// Manual steps for browsers with no usable install-prompt API.
 export default function InstallInstructionsSheet({
   open,
   onOpenChange,

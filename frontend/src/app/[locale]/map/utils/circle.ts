@@ -22,7 +22,6 @@ export function circleBounds(
   ];
 }
 
-/** A GeoJSON polygon close enough to a circle at country scale. */
 export function circlePolygon(center: ILatLon, radiusM: number, steps = 64) {
   const { dLat, dLon } = degreeSpan(center, radiusM);
   const ring = Array.from({ length: steps + 1 }, (_, i) => {

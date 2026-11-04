@@ -18,15 +18,7 @@ const ACCESS_TEXT_KEYS = {
   EDIT: "access.edit",
 } as const satisfies Partial<Record<ListAccess, string>>;
 
-/**
- * What the visitor can actually do here. Without it the page is a set of greyed-out
- * controls with no stated reason, which a screen reader renders as "dimmed" and nothing
- * else. The level is only knowable from myAccess, since linkAccess is nulled for anyone
- * who is not the owner.
- *
- * <p>Always renders the element, even when silent: disabled item controls point at its id
- * with aria-describedby, and a cached DTO with no myAccess would leave that dangling.
- */
+/** Always renders, because disabled controls point at its id with aria-describedby and a cached DTO with no myAccess would leave that dangling. */
 export default function ShoppingListAccessBanner({
   myAccess,
   isSignedIn,

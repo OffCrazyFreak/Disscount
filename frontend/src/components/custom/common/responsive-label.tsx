@@ -5,15 +5,7 @@ interface IResponsiveLabelProps {
   short: string;
 }
 
-/**
- * Swaps wording by breakpoint in CSS rather than through a media-query hook, so
- * the label ships in the prerendered HTML and never changes on hydration.
- *
- * Both strings are in the DOM, but the hidden one is `display: none`, which the
- * accessible name computation ignores, so the name already follows the visible
- * breakpoint. Do NOT add an `aria-label`: it would win over both and leave the
- * visible text outside the accessible name, which is a WCAG 2.5.3 failure.
- */
+/** CSS swap so the label prerenders; never add `aria-label`, which would leave the visible text outside the name (WCAG 2.5.3). */
 export default function ResponsiveLabel({
   full,
   short,

@@ -11,8 +11,7 @@ import {
   type MultiSelectPresentation,
 } from "@/components/custom/form/multi-select-context";
 
-// One component per file, named back up here so this stays the single import
-// path and no call site has to know the layout.
+// One component per file, named back up here so this stays the single import path.
 export { default as MultiSelectTrigger } from "@/components/custom/form/multi-select-trigger";
 export { default as MultiSelectValue } from "@/components/custom/form/multi-select-value";
 export { default as MultiSelectContent } from "@/components/custom/form/multi-select-content";
@@ -43,29 +42,19 @@ export function MultiSelect({
   );
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  // Below md the list drops into the page instead of floating, so a viewport
-  // shrinking for the software keyboard has nothing to push it behind.
-  // useIsMobile reports false on the server and the list only mounts on a tap,
-  // so the swap at hydration is never on screen.
+  // Below md the list drops into the page so a viewport shrinking for the keyboard has nothing to push it behind; the swap is never on screen at hydration.
   const presentation: MultiSelectPresentation = useIsMobile()
     ? "inline"
     : "popover";
 
-  // Crossing the breakpoint swaps Popover for Collapsible, which remounts the
-  // list and re-fires the search field's autoFocus. Rotating a tablet with a
-  // facet open would otherwise pop the keyboard nobody asked for.
-  //
-  // Adjusted during render rather than in an effect, which is React's own
-  // guidance for resetting state when a derived value changes: an effect would
-  // paint the wrong presentation open for one frame first.
+  // Crossing the breakpoint remounts the list and refires autoFocus; adjusted during render so the wrong presentation never paints open for a frame.
   const [lastPresentation, setLastPresentation] = useState(presentation);
   if (presentation !== lastPresentation) {
     setLastPresentation(presentation);
     setOpen(false);
   }
 
-  // A controlled owner can change `values` behind our back, so the toggle reads
-  // them rather than the internal set, which is only ever seeded once.
+  // A controlled owner can change `values`, so the toggle reads them rather than the internal set, which is seeded only once.
   const currentValues = values ? new Set(values) : selectedValues;
 
   function toggleValue(value: string) {
@@ -113,10 +102,7 @@ export function MultiSelect({
     });
   }, []);
 
-  // Clearing on close, not only when a value is added: a search left behind
-  // reopened the list still filtered, which reads as the facet having no other
-  // options. This is what the context hands out, so the paths that close the
-  // list themselves (Escape on the inline one) clear it too.
+  // Cleared on close, because a search left behind reopens the list filtered, which reads as the facet having no other options.
   function handleOpenChange(next: boolean) {
     setOpen(next);
     if (!next) setSearchValue("");
@@ -141,11 +127,7 @@ export function MultiSelect({
   return (
     <MultiSelectContext value={context}>
       {presentation === "inline" ? (
-        // Only this branch puts a box between the caller's layout and the
-        // trigger, since Collapsible's root is a real div where Popover's is
-        // nothing. It has no overflow-hidden of its own to zero the automatic
-        // minimum a flex or grid parent gives it, so it would size to the badge
-        // row's min-content, and a row that cannot shrink never overflows.
+        // Only this branch boxes the trigger, because Collapsible's root is a real div; with no zeroed minimum it would size to the badge row's min-content.
         <Collapsible
           className="min-w-0"
           open={open}

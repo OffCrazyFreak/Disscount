@@ -25,8 +25,7 @@ export function useShoppingListPriceHistory(
   period: PeriodOption,
 ) {
   "use no memo";
-  // The compiler caches `new Date()` as a constant, so a tab left open past Zagreb midnight
-  // would keep yesterday as its last day; reading the clock each render needs the opt-out.
+  // The compiler caches `new Date()` as a constant, so a tab left open past Zagreb midnight would keep yesterday without the opt-out.
   const today = zagrebClock(new Date()).date;
   const { accountUser } = useUser();
 

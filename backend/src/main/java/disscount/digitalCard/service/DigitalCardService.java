@@ -79,12 +79,7 @@ public class DigitalCardService {
         return photoStore.enabled();
     }
 
-    /**
-     * Idempotent create-or-update. The three outcomes are explicit rather than left to save():
-     * a replayed create after a delete must never resurrect the card, and another user's id
-     * must look exactly like an unused one. The user lock makes the cap check and the insert
-     * atomic and turns a concurrent replay of the same id into a plain update.
-     */
+    /** Outcomes are explicit so a replayed create after delete never resurrects and another user's id looks unused; the lock makes the cap atomic. */
     public DigitalCardDto upsert(UUID userId, UUID id, DigitalCardRequest request) {
         User user = userLock.acquire(userId);
         DigitalCard card = cardRepository.findById(id).orElse(null);
@@ -170,7 +165,6 @@ public class DigitalCardService {
         storeNameService.forgetUser(userId);
     }
 
-    /** Hard deletes cards soft deleted before the cutoff; returns how many went. */
     public int purgeDeletedBefore(LocalDateTime cutoff) {
         List<DigitalCard> stale = cardRepository.findDeletedBefore(cutoff);
         for (DigitalCard card : stale) {

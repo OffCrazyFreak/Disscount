@@ -15,7 +15,6 @@ import { usePasswordRecovery } from "@/components/custom/settings/security/hooks
 import { useReauth } from "@/components/custom/settings/security/hooks/use-reauth";
 import { listLinkedAccounts } from "@/components/custom/settings/security/list-linked-accounts";
 
-// Lifted here so the parent's shared footer can drive submit, reset and dirty.
 export function useSecuritySettings(active: boolean) {
   const { user } = useUser();
   const currentEmail = user?.email ?? "";

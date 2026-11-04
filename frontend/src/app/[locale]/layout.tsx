@@ -137,12 +137,9 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#121212" },
   ],
-  // Without this every env(safe-area-inset-*) resolves to 0, so the bottom nav
-  // would sit under the iOS home indicator.
+  // Without this every env(safe-area-inset-*) resolves to 0, so the bottom nav would sit under the iOS home indicator.
   viewportFit: "cover",
-  // Shrinks the layout viewport when the keyboard opens, so fixed bottom
-  // elements reposition instead of hiding behind it. Chrome Android 108+,
-  // Firefox Android 133+ and Samsung Internet; iOS Safari ignores it.
+  // Shrinks the layout viewport when the keyboard opens, so fixed bottom elements reposition instead of hiding behind it; iOS Safari ignores it.
   interactiveWidget: "resizes-content",
 };
 
@@ -166,11 +163,7 @@ export default async function RootLayout({
       >
         <SkipLink />
 
-        {/* Chrome fires beforeinstallprompt before React hydrates, and never
-            re-fires it, so the React-side listener alone can miss it and lose
-            the native prompt. use-install-prompt.ts adopts whatever this
-            catches. It sits in <body> because React rejects a <script> as a
-            direct child of <html>; Next runs it before hydration either way. */}
+        {/* Chrome fires beforeinstallprompt before hydration and never again, so a React listener alone can lose it; React rejects a script directly in html. */}
         <Script id="install-prompt-capture" strategy="beforeInteractive">
           {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__installPrompt=e;});`}
         </Script>
@@ -199,14 +192,10 @@ export default async function RootLayout({
               <ModalRouter />
             </Suspense>
 
-            {/* The clearance sits here, not on <main>: the footer renders after
-              main with mt-auto, so it is the element the bar would cover. */}
+            {/* Here, not on <main>, because the footer renders after main with mt-auto and is the element the bar would cover. */}
             <div className="min-h-svh md:has-[[data-page-width=full]]:h-svh md:has-[[data-page-width=full]]:min-h-[40rem] flex flex-col w-full pb-[calc(var(--bottom-nav-total)+0.5rem)] md:pb-0">
-              {/* pattern background */}
               <div className="absolute inset-0 z-[-15] bg-[url('/+_pattern.png')] bg-repeat opacity-100" />
-              {/* radial fade to white, spreading from the page centre outward */}
               <div className="absolute inset-0 -z-10 [background:radial-gradient(100%_100%_at_50%_50%,transparent_0%,#ffffff_60%)]" />
-              {/* linear gradient from center to left and right */}
               <div className="absolute inset-0 -z-10 size-full [background:linear-gradient(90deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.0)_30%,rgba(255,255,255,0.0)_70%,rgba(255,255,255,0.9)_100%)]" />
 
               <Header />
@@ -217,14 +206,8 @@ export default async function RootLayout({
                 </Suspense>
               </aside>
 
-              {/* Clip the x axis only. Clipping both axes cut the last child's
-                bottom border and shadow off, since main has no bottom padding. */}
-              {/* data-page-width="full" turns main into a full-width column that
-                fills the screen above the footer, for pages like the map. The
-                wrapper above is then exactly one screen tall on desktop, so
-                heights inside resolve and the page itself never scrolls; only a
-                screen shorter than 40rem scrolls, so the map never shrinks to
-                nothing. */}
+              {/* Clip the x axis only, because clipping both cut the last child's bottom border and shadow, since main has no bottom padding. */}
+              {/* data-page-width="full" makes one screen-tall wrapper so inner heights resolve; only a screen under 40rem scrolls, so the map never shrinks to nothing. */}
               <main
                 id={MAIN_CONTENT_ID}
                 tabIndex={-1}
@@ -239,11 +222,9 @@ export default async function RootLayout({
 
               <Footer />
 
-              {/* Bottom scrim on every scrollable page; self-hides at the end */}
               <WindowScrollFade />
 
-              {/* Desktop only, and only past 600px of scroll, so a short page
-                never shows one and no page has to opt in */}
+              {/* Only past 600px of scroll, so a short page never shows one and no page has to opt in. */}
               <BackToTopButton />
 
               <BottomNav />

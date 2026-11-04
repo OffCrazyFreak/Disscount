@@ -32,7 +32,6 @@ interface IProductPhotoGalleryProps {
 const TILE_FOCUS =
   "relative block size-full cursor-zoom-in rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none";
 
-/** The product page's photo: the main tile, the strip beside it on wide screens, and the viewer. */
 export default function ProductPhotoGallery({
   ean,
   productName,

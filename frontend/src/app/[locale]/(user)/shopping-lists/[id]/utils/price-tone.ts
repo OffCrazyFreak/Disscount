@@ -4,7 +4,6 @@ export interface IPriceTones {
   neutral: string;
 }
 
-/** Picks the class for a price that may be the lowest or highest across chains. */
 export function priceTone(
   tones: IPriceTones,
   isLowestPrice: boolean,

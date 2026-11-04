@@ -17,9 +17,7 @@ export function useSelectedShoppingList(
   /** The list the modal was opened from, chosen over the most recent one. */
   preferredListId?: string,
 ) {
-  // The preselect effect's first run lands before the modal portal registers the field,
-  // so resetField no-ops; it only succeeds because a later render re-runs the effect.
-  // Compiled, sortedShoppingLists is memoized and that retry never comes.
+  // The first effect run lands before the modal portal registers the field, and only a later render retries, which a memoized list would stop.
   "use no memo";
 
   const t = useTranslations("products");
@@ -27,8 +25,7 @@ export function useSelectedShoppingList(
     shoppingListService.useGetCurrentUserShoppingLists({ enabled });
   const removeItemMutation = shoppingListService.useDeleteShoppingListItem();
 
-  // Shared with the product rows, which have to agree with this hook on which list is
-  // "the latest" or the icon they show would contradict the list the modal preselects.
+  // Shared with the product rows, which must agree on "the latest" or their icon would contradict the list the modal preselects.
   const sortedShoppingLists = sortShoppingListsByRecency(shoppingLists);
 
   const selectedListId = useWatch({

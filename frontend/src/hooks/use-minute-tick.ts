@@ -2,16 +2,13 @@
 
 import { useEffect, useState } from "react";
 
-// Re-renders every minute so relative-time labels stay current. Returns false
-// until mounted, so a Date.now()-based render never mismatches the server.
+// Returns false until mounted, so a Date.now()-based render never mismatches the server.
 export function useMinuteTick(): boolean {
   const [mounted, setMounted] = useState(false);
   const [, setTick] = useState(0);
 
   useEffect(() => {
-    // The mount gate cannot be derived: the server has no way to agree with a
-    // Date.now()-based label, so the first client render has to match the server's
-    // and only then start ticking.
+    // Not derivable, because the server cannot agree with a Date.now()-based label, so the first client render matches and only then ticks.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
 

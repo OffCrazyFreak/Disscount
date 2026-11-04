@@ -11,8 +11,7 @@ import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 import { storedUser } from "@/test/stored-user";
 
-// A session store that re-renders only what reads it, as better-auth's atom does, so the
-// component under test is not re-rendered by the session landing.
+// A session store re-rendering only readers, like better-auth's atom, so the component is not re-rendered by the session landing.
 const sessionStore = vi.hoisted(() => {
   let state = { isPending: true, userId: null as string | null };
   const listeners = new Set<() => void>();

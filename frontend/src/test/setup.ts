@@ -13,10 +13,7 @@ function describeFrame(data: unknown, protocol: string) {
   return protocol;
 }
 
-// Erroring the request is not enough: the API client and React Query catch network
-// errors, so a test could still pass. Recording them fails the test that made them.
-// Listening here rather than in beforeAll patches fetch before any app module loads:
-// better-auth's client keeps the fetch it saw at import and would bypass MSW.
+// Recording fails the test, because the client and React Query catch network errors; here not beforeAll, because better-auth keeps the fetch it saw at import.
 server.listen({
   onUnhandledFrame({ frame, defaults }) {
     undeclared.push(describeFrame(frame.data, frame.protocol));

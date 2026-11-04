@@ -16,10 +16,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-/**
- * The one-shot replay command, run against a restored database before traffic reopens
- * (docs/BACKUPS.md, Restore). A failure throws, so the process exits non-zero.
- */
+/** Run against a restored database before traffic reopens (docs/BACKUPS.md, Restore); a failure throws, so the process exits non-zero. */
 @Component
 @Profile(ErasureReplayRunner.PROFILE)
 @Slf4j

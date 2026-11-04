@@ -5,8 +5,7 @@ import type { ILookupAddress } from "@/lib/store-locations/store-location-types"
 
 const PAGE_URL = "https://stridon.hr/hr/distribucija/maloprodaja-4";
 
-// The page spells Croatian letters as named entities ("&scaron;"), and
-// writes č as ĉ ("Oriovĉanina").
+// The page spells Croatian letters as named entities and writes č as ĉ ("Oriovĉanina").
 const ENTITIES: Record<string, string> = {
   nbsp: " ",
   amp: "&",
@@ -37,11 +36,7 @@ function cellText(html: string): string {
     .trim();
 }
 
-/**
- * Stridon's store list, keyed by upstream code: the table's "Prod. 10" is
- * cijene-api's "Prod.10". It has no coordinates, but its addresses are
- * spelled out where upstream abbreviates ("Lj.Posavskog 23, V.gorica").
- */
+/** No coordinates, but addresses are spelled out where upstream abbreviates; the table's "Prod. 10" is cijene-api's "Prod.10". */
 export async function fetchStridonAddresses(
   signal: AbortSignal,
 ): Promise<Map<string, ILookupAddress>> {

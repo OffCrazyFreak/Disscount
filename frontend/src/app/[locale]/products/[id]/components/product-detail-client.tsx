@@ -20,8 +20,7 @@ export default function ProductDetailClient({
   const tSections = useTranslations("common.sectionNav");
   const detail = useProductDetail(ean);
   const { product, productLoading, productError } = detail;
-  // Restoring queries report idle, not loading, and the server render is always restoring.
-  // A product the server seeded is already in the cache, so it renders straight away.
+  // Restoring queries report idle, not loading, and the server always restores; a product the server seeded is already cached, so it renders at once.
   const isRestoring = useIsRestoring();
 
   if (!product && (productLoading || isRestoring)) {

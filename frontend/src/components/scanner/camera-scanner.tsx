@@ -49,8 +49,7 @@ export default function CameraScanner({
           // The scan button can be gone by now (the page re-rendered), but its field may remain.
           const searchInput = openerFieldRef.current?.querySelector("input");
 
-          // A scan closes the sidebar it started in: the desktop one turns inert and the mobile
-          // drawer unmounts, either way leaving focus nowhere to go back to.
+          // A scan closes the sidebar it started in, so the desktop one turns inert or the drawer unmounts, leaving focus nowhere to go back to.
           const isOpenerInertOrGone =
             openerRef.current?.closest("[inert]") ||
             (openedInSidebarRef.current &&

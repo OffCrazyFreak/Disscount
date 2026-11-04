@@ -3,10 +3,7 @@ package disscount.digitalCard.photo;
 import disscount.exceptions.BadRequestException;
 import org.springframework.stereotype.Component;
 
-/**
- * Accepts only WebP and JPEG, decided by magic bytes and never by the client's Content-Type or
- * file name, and returns freshly written bytes with all metadata removed.
- */
+/** Decided by magic bytes, never by the client's Content-Type or file name. */
 @Component
 public class PhotoValidator {
 

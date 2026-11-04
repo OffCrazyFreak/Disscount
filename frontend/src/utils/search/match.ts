@@ -17,13 +17,7 @@ export interface IWholeQueryMatch {
   position: number;
 }
 
-/**
- * Where and how well `query` sits in `haystack`.
- *
- * Both arguments must already be normalized. Callers comparing one query
- * against many texts normalize each text once, so normalizing in here would
- * undo that.
- */
+/** Both arguments must be normalized already, because callers normalize each text once and doing it here would undo that. */
 export function findWholeQuery(
   haystack: string,
   query: string,
@@ -50,15 +44,7 @@ const SCATTERED_SCORE = 0.25;
 /** Sub-sequence hits rank under every literal hit, so they never displace a real match. */
 const FUZZY_BAND = 0.2;
 
-/**
- * Scores one candidate against a prepared query, best field wins.
- *
- * Pass only the fields that are actually meaningful to a human. Several option
- * lists carry an opaque value (a chain code, a list UUID), and including those
- * surfaces rows with nothing visible to explain the hit.
- *
- * Returns 0 for no match; higher is better.
- */
+/** Pass only fields meaningful to a human, because an opaque value such as a chain code surfaces rows with nothing to explain the hit. */
 export function scoreFields(fields: string[], query: IPreparedQuery): number {
   const haystacks: string[] = [];
   for (const field of fields) {

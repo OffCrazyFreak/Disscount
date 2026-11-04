@@ -10,9 +10,7 @@ import { readVerificationToken } from "@/lib/auth/verification-token";
 
 type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
-// A marker row records the last link mailed for one purpose, so a repeat request sends
-// nothing while that link still works. Returns null to skip the send, otherwise a release
-// to call if the send fails, so the next request retries.
+// Returns null to skip the send, otherwise a release to call if the send fails, so the next request retries.
 async function claimMarker(
   identifier: string,
   value: string,
@@ -54,9 +52,7 @@ async function claimMarker(
   };
 }
 
-// The marked link counts only while its reset row lives: using the link deletes the row,
-// so a later forgot-password request mails a new one. Assumes the default plain
-// verification.storeIdentifier, the form better-auth writes `reset-password:<token>` in.
+// Using the link deletes the reset row, so a later request mails a new one; assumes plain verification.storeIdentifier for `reset-password:<token>`.
 export function claimResetEmail(userId: string, token: string) {
   return claimMarker(
     `reset-email:${userId}`,
@@ -78,10 +74,7 @@ export function claimResetEmail(userId: string, token: string) {
   );
 }
 
-// Verification links are stateless JWTs, so the marker carries what the link is for and
-// the token's expiry. A change-email link (`updateTo`) gets a marker per target inbox, since
-// its confirmation link needs no session and mails the new address on every reload; the
-// value is the current address, because the link stops working once that changes.
+// Stateless JWTs, so the marker holds purpose and expiry; change-email gets one per target inbox, because its link mails on every reload.
 export async function claimVerificationEmail(userId: string, token: string) {
   const { email, exp, updateTo } = readVerificationToken(token);
   const [identifier, value] = updateTo
@@ -98,8 +91,7 @@ export async function claimVerificationEmail(userId: string, token: string) {
 
 const SIGN_UP_NOTICE_INTERVAL_SECONDS = 60 * 60;
 
-// Nobody asked for the mail a sign-up with a registered address triggers, so any unexpired
-// marker blocks the next one: at most one such mail per user per hour.
+// Nobody asked for this mail, so any unexpired marker blocks the next one: at most one per user per hour.
 export function claimSignUpNotice(userId: string, noticeId: string) {
   return claimMarker(
     `sign-up-notice:${userId}`,

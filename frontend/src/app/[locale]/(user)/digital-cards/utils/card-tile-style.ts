@@ -5,10 +5,7 @@ import { LIGHT_TEXT_COLOR, DARK_TEXT_COLOR } from "@/utils/color-contrast";
 const ARCHIVED_GREY_FOR_LIGHT_INK = "#3d3d3d";
 const ARCHIVED_GREY_FOR_DARK_INK = "#e2e2e2";
 
-/**
- * Per-tile custom properties. `--away` is the colour every decorative layer moves toward,
- * the far side from the ink, so no layer can lower the text contrast.
- */
+/** `--away` is the colour every decorative layer moves toward, the far side from the ink, so no layer can lower text contrast. */
 export function cardTileStyle(
   cardColor: string,
   ink: string,

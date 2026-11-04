@@ -35,16 +35,13 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
   const { deleteShoppingListMutation, confirmDelete, handleCopy } =
     useShoppingListMutations(shoppingList.id, shoppingList);
 
-  // Returns the promise so a caller that unmounts on completion can await the
-  // request instead of tearing the mutation down mid-flight.
+  // Returns the promise so a caller that unmounts on completion can await the request instead of tearing the mutation down mid-flight.
   async function handleConfirmDelete() {
     setIsDeleteDialogOpen(false);
     await confirmDelete();
   }
 
-  // Takes options so a caller already inside a modal can replace its history
-  // entry: closeModalUrl pops with history.back(), which is async, so closing
-  // first and pushing straight after would land the push and then lose it.
+  // Takes options because closeModalUrl pops with an async history.back(), so closing first and pushing straight after would lose the push.
   function handleEdit(options?: IOpenModalOptions) {
     openModalUrl(
       {
@@ -58,14 +55,9 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
 
   const { canManageShare } = resolveShoppingListAccess(shoppingList.myAccess);
 
-  // No pending state on purpose. Nothing here is fetched, and shareOrCopy
-  // documents why a flag cleared on completion strands the button spinning.
-  //
-  // Takes the same options as handleEdit, and for the same reason: when the owner's
-  // branch opens a modal from inside another one, that has to replace rather than push.
+  // No pending state, because shareOrCopy documents why a flag cleared on completion strands the button spinning; options as in handleEdit.
   async function handleShare(options?: IOpenModalOptions) {
-    // The owner gets the settings panel, where the link is created and revoked. Everyone
-    // else can still pass the list on: either the link they already hold, or plain text.
+    // Only the owner gets the settings panel; everyone else can still pass the list on, by link or plain text.
     if (canManageShare) {
       openModalUrl(
         {
@@ -79,9 +71,7 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
     }
 
     try {
-      // Every viewer can pass the list on, because the URL is simply the list's own and
-      // they are already looking at it. Whether it opens for the recipient is the owner's
-      // call through the share modal, not something to withhold here.
+      // Whether the link opens for the recipient is the owner's call through the share modal, not something to withhold here.
       const text = listShareText(shoppingList);
       const url = shareListUrl(shoppingList.id, locale);
       const outcome = await shareOrCopy({
@@ -93,15 +83,12 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
       if (outcome === "copied") toast.success(t("toasts.linkCopied"));
       if (outcome === "failed") toast.error(t("toasts.shareFailed"));
     } catch {
-      // shareOrCopy resolves an outcome rather than throwing, but appUrl() does
-      // throw on a misconfigured NEXT_PUBLIC_APP_URL. This is wired straight to
-      // onClick and never awaited, so without a catch the failure is invisible.
+      // shareOrCopy resolves rather than throws, but appUrl() throws on a bad NEXT_PUBLIC_APP_URL, and onClick never awaits, so the failure would be invisible.
       toast.error(t("toasts.shareFailed"));
     }
   }
 
-  // linkAccess comes back null for anyone but the owner, so a recipient passing the link
-  // on stays on the plain share icon, which is exactly what their button does.
+  // linkAccess is null for anyone but the owner, so a recipient stays on the plain share icon, which is what their button does.
   const isShared =
     !!shoppingList.linkAccess && shoppingList.linkAccess !== "NONE";
 

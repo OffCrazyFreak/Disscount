@@ -13,10 +13,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Sliding hour and day windows per client IP for the public contact form. In memory, like
- * the photo upload limiter: one backend instance, and a deploy resetting it costs little.
- */
+/** In memory, like the photo limiter: one backend instance, and a deploy resetting it costs little. */
 @Component
 public class ContactRateLimiter {
 
@@ -57,10 +54,7 @@ public class ContactRateLimiter {
         }
     }
 
-    /**
-     * IPv6 visitors usually hold a whole /64 (Hetzner hands one to every server), so one
-     * bucket per /64, as better-auth does; otherwise each message could use a fresh address.
-     */
+    /** IPv6 visitors usually hold a whole /64, so one bucket per /64, or each message could use a fresh address. */
     static String bucketKey(String clientIp) {
         if (!clientIp.contains(":")) {
             return clientIp;

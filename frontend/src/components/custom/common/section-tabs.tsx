@@ -29,11 +29,7 @@ interface ISectionTabsProps {
   tabs: ISectionTab[];
 }
 
-/**
- * A page's sections as tabs in a bar that sticks just under the header, where it
- * morphs into a centred pill like the chart period tabs. Only the open panel
- * renders, so a heavy one such as price history loads on open.
- */
+/** Only the open panel renders, so a heavy one such as price history loads on open. */
 export default function SectionTabs({ label, tabs }: ISectionTabsProps) {
   const format = useFormatter();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -44,8 +40,7 @@ export default function SectionTabs({ label, tabs }: ISectionTabsProps) {
     ? { duration: 0 }
     : LAYOUT_TRANSITION;
 
-  // One section needs no tabs and reads as the page itself. The tree stays the same, so
-  // content does not remount (losing focus and drafts) when a second section appears.
+  // The tree stays the same with one section, so content does not remount (losing focus and drafts) when a second appears.
   const hasTabs = tabs.length > 1;
 
   function handleChange(id: string) {

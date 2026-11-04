@@ -30,8 +30,7 @@ export interface IReauthRequest extends IReauthCopy {
 // "needs-proof" only when the server answered REAUTH_REQUIRED; other outcomes report themselves.
 export type FreshAction = () => Promise<"done" | "needs-proof">;
 
-// One dialog for every sensitive action: the server decides when a proof is due, and
-// this only mirrors it, so a tampered client still meets the same rule.
+// The server decides when a proof is due and this only mirrors it, so a tampered client still meets the same rule.
 export function useReauth(method: ReauthMethod) {
   const [request, setRequest] = useState<IReauthRequest | null>(null);
   const [isOpen, setIsOpen] = useState(false);

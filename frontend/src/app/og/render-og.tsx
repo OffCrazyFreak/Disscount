@@ -3,8 +3,6 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { CART_VIEW_BOX } from "@/components/icons/cart-logo";
 
-// Shared by opengraph-image.tsx, twitter-image.tsx and the product share card.
-
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -17,9 +15,7 @@ const INK = "#252525";
 const BRAND_IMAGE_CACHE_CONTROL =
   "public, max-age=86400, stale-while-revalidate=604800";
 
-// Satori can't read woff2, so these are .ttf and .woff builds of the app fonts.
-// Next's file tracing follows this read into the standalone image, which the product
-// card needs because it renders at request time.
+// Satori cannot read woff2, so these are .ttf and .woff builds; file tracing follows this read into the standalone image the product card needs.
 export async function loadFonts() {
   const dir = join(process.cwd(), "src", "app", "fonts");
 

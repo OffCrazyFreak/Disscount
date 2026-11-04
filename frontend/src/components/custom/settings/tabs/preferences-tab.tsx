@@ -10,8 +10,7 @@ import PinnedPlacesSelect from "@/components/custom/settings/components/pinned-p
 import LanguageSelect from "@/components/custom/settings/components/language-select";
 
 interface IPreferencesTabProps {
-  // Onboarding reuses this tab outside the security provider the picker reads, and
-  // the page language there is already the one the account starts with.
+  // Onboarding reuses this tab outside the security provider the picker reads, and the page language is already the account's start.
   showLanguage?: boolean;
 }
 

@@ -29,42 +29,27 @@ export interface ICenterRequest extends ILatLon {
   radius?: number;
 }
 
-// Counted from when location is allowed, so running out means the device
-// itself could not find a position.
+// Counted from when location is allowed, so running out means the device itself could not find a position.
 const GIVE_UP_MS = 15_000;
 
-// The spec does not count time spent on the permission prompt against
-// `timeout`, so an ignored prompt would spin forever without our own timer. It
-// is long enough for a slow Allow and ends without blaming device settings.
+// The spec excludes permission prompt time from `timeout`, so an ignored prompt would spin forever without our own timer.
 const PROMPT_GIVE_UP_MS = 60_000;
 
-// Chrome on Android with the device's location off never answers at all, so a
-// tap that already has permission shows the IP guess this soon and keeps
-// listening for a real fix.
+// Chrome on Android with location off never answers, so a permitted tap shows the IP guess this soon and keeps listening.
 const GUESS_AFTER_MS = 1_500;
 
 // Home connections usually land within this; mobile data can land a city off.
 export const GUESS_RADIUS_M = 10_000;
 
-// A fast Wi-Fi or cell fix comes first; GPS is only worth waiting for when
-// that fix is vaguer than a street.
+// A fast Wi-Fi or cell fix comes first; GPS is only worth waiting for when that fix is vaguer than a street.
 const REFINE_ABOVE_M = 100;
 
 interface IGeolocationOptions {
-  /**
-   * Start watching on mount when the browser already allows it. Only the map
-   * does: elsewhere the position is read only after the shopper asks.
-   */
+  /** Only the map does; elsewhere the position is read only after the shopper asks. */
   watchWhenAllowed?: boolean;
 }
 
-/**
- * Watches the position while the page is visible, from the first tap (or
- * from the start, when asked to and the browser already allows it), and
- * never stores or sends it. A tap moves to the latest fix at once and
- * sharpens it with one GPS reading. When a tap gets no position, the IP guess
- * stands in, labelled approximate.
- */
+/** The position is never stored or sent. */
 export function useGeolocation(
   fallback: ILatLon | null,
   { watchWhenAllowed = false }: IGeolocationOptions = {},
@@ -124,8 +109,7 @@ export function useGeolocation(
     settle("approximate");
   }
 
-  // Once location is allowed only finding a fix is left, and no prompt can be
-  // open for a guess to flash under.
+  // Once location is allowed only finding a fix is left, and no prompt can be open for a guess to flash under.
   function armTap(id: number) {
     if (fallback) {
       timers.current.push(
@@ -140,8 +124,7 @@ export function useGeolocation(
   function refine(id: number) {
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        // A newer request, a clear, or a sharper watch fix since wins over a
-        // late refinement.
+        // A newer request, a clear or a sharper watch fix wins over a late refinement.
         const best = latest.current;
         if (
           requests.current !== id ||
@@ -240,8 +223,7 @@ export function useGeolocation(
       if (known.accuracy > REFINE_ABOVE_M) refine(id);
       if (fresh.current) return;
 
-      // Back from a hidden tab the fix may be hours old, so the next one
-      // centres again, as long as it comes soon.
+      // Back from a hidden tab the fix may be hours old, so the next one centres again, as long as it comes soon.
       pendingTap.current = id;
       timers.current.push(
         setTimeout(() => {
@@ -265,8 +247,7 @@ export function useGeolocation(
     getWatch().restart();
   }
 
-  // Watching without a tap is fine only when no prompt can appear. Safari may
-  // report "prompt" for a granted permission; that just means waiting for a tap.
+  // Watching without a tap is fine only when no prompt can appear; Safari may report "prompt" for a granted permission, which just waits for a tap.
   useEffect(() => {
     let cancelled = false;
     let status: PermissionStatus | null = null;

@@ -17,11 +17,7 @@ interface IProductActionsSheetProps {
   ean: string;
 }
 
-/**
- * Resolves the product a shared link names and lends the sheet the price
- * display, which belongs to this feature rather than to the shared sheet. The
- * opener seeds the by-ean cache, so only a cold link actually fetches.
- */
+/** The opener seeds the by-ean cache, so only a cold link fetches; the price display belongs to this feature, not the shared sheet. */
 export default function ProductActionsSheet({
   open,
   ean,

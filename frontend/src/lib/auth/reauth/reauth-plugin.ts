@@ -25,11 +25,7 @@ const codeSchema = z.object({
   code: z.string().regex(new RegExp(`^\\d{${REAUTH_CODE_LENGTH}}$`)),
 });
 
-/**
- * Proof endpoints for the security settings: a correct password, or a code emailed to
- * an account that has none, rotates this device's session so the 15 minute rule passes.
- * They live under the auth base path so the database rate limiter covers them.
- */
+/** Under the auth base path so the database rate limiter covers them; a proof rotates the session so the 15 minute rule passes. */
 export function reauth() {
   return {
     id: "reauth",

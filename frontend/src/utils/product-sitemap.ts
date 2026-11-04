@@ -1,9 +1,6 @@
 import { appUrl } from "@/lib/env";
 
-/**
- * Fixed so robots.txt can name every file without asking the backend at build time.
- * Eight files leave room for 400,000 products under Google's 50,000 URLs per file.
- */
+/** Fixed so robots.txt can name every file without the backend at build time; eight files hold 400,000 products under Google's per-file limit. */
 export const PRODUCT_SITEMAP_IDS = [0, 1, 2, 3, 4, 5, 6, 7];
 
 /** Hashing keeps each EAN in the same file from one weekly import to the next. */

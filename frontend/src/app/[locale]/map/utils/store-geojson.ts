@@ -15,7 +15,6 @@ export interface IStoreFeatureCollection {
   }>;
 }
 
-/** Every placed store in one collection, so nearby chains cluster together. */
 export function toStoreCollection(
   stores: DirectoryStoreDto[],
 ): IStoreFeatureCollection {

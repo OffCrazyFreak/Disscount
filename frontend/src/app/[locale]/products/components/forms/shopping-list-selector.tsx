@@ -52,8 +52,7 @@ export default function ShoppingListSelector({
     control: formField.control,
     name: "customListTitle",
   });
-  // Local to the popover: only choosing "create" turns it into the form's title,
-  // so a search that ends without a choice never reaches the saved draft.
+  // Local to the popover, so a search that ends without choosing "create" never reaches the saved draft.
   const [search, setSearch] = useState("");
 
   function handleOpenChange(isOpen: boolean) {
@@ -109,8 +108,7 @@ export default function ShoppingListSelector({
                             list={list}
                             isSelected={selectedList?.id === list.id}
                             onSelect={() => {
-                              // The list goes first: the title rule only applies to "new",
-                              // so validating the cleared title before it would flag it.
+                              // The list goes first because the title rule only applies to "new", and validating the cleared title before it would flag it.
                               onSelectList(list.id);
                               formField.setValue("customListTitle", "", {
                                 shouldDirty: true,

@@ -2,11 +2,7 @@ import type { IStoreLocation } from "@/typings/store-location";
 import { normalizeForSearch } from "@/utils/strings";
 import { normalizeChainCode } from "@/app/[locale]/products/utils/product-filters";
 
-/**
- * Resolves the chain + location filters into the chain codes a product may
- * appear in: null = unfiltered, empty array = selections with no overlap.
- * A city filters by the chains that have a store there.
- */
+/** A city filters by the chains that have a store there; null means unfiltered and an empty array means no overlap. */
 export function resolveAllowedChains(
   selectedChains: string[],
   selectedLocations: string[],
@@ -31,11 +27,7 @@ export function resolveAllowedChains(
     );
   }
 
-  // Both branches emit canonical codes. Comparing a raw selection against
-  // normalized keys used to drop any chain whose casing came from a hand-edited
-  // URL, and returning the raw spelling from one branch and normalized from the
-  // other gave two cache keys for one filter, because callers build those keys
-  // by joining this array.
+  // Both branches emit canonical codes, because callers join this array into cache keys and a raw spelling would give two keys for one filter.
   return selectedChains.length > 0
     ? selectedChains
         .map(normalizeChainCode)

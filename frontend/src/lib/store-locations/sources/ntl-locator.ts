@@ -51,16 +51,12 @@ function splitPlace(place: string | undefined) {
     : { zipcode: undefined, city: place?.trim() || undefined };
 }
 
-// "NTL TRGOVINA BR. 350". Only three and four digit numbers follow the code
-// scheme; one and two digit ones ("BR. 33") belong to stores coded otherwise.
+// Only three and four digit numbers follow the code scheme; shorter ones belong to stores coded otherwise.
 function codeSuffixOf(title: string | undefined): string | undefined {
   return /\bbr\.?\s*(\d{3,4})\s*$/i.exec(title ?? "")?.[1].padStart(4, "0");
 }
 
-// Stores ntl.hr itself pins in the wrong place, checked on 2026-10-24: CRET
-// sits in the Cret near Krapina, not the one near Bizovac, TERA in Osijek,
-// not Šodolovci, and the two Piškorevci stores in Đakovo, 6 km north. A
-// corrected point no longer matches and is used.
+// ntl.hr pins these in the wrong place, checked 2026-10-24: CRET near Krapina, TERA in Osijek, two Piškorevci stores in Đakovo; a corrected point stops matching.
 const WRONG_POINTS = [
   { title: "NTL CRET", lat: 46.0978, lon: 15.838 },
   { title: "NTL TERA", lat: 45.5593, lon: 18.6784 },
@@ -113,8 +109,7 @@ export const ntlLocator: IStoreLocator = {
         approximate: isNumberless(parsed.data.street),
         address: parsed.data.street,
         ...splitPlace(parsed.data.place),
-        // The page sits in a week-long LiteSpeed cache, so its "open this
-        // Sunday" flag may describe a past Sunday and is not used.
+        // The page sits in a week-long LiteSpeed cache, so its "open this Sunday" flag may describe a past Sunday and is not used.
         hours: parsed.data.working_hours.length
           ? {
               weekly: weekFromLabelled(

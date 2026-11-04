@@ -1,8 +1,4 @@
-/**
- * Whether the browser hands out a WebGL2 context right now. Chromium refuses
- * one for the rest of the session after its GPU process crashes a few times,
- * so a browser that showed the map yesterday can fail today.
- */
+/** Chromium refuses a context for the session after repeated GPU crashes, so a browser that showed the map yesterday can fail today. */
 export function canUseWebGL2(): boolean {
   try {
     const context = document.createElement("canvas").getContext("webgl2");
@@ -15,7 +11,6 @@ export function canUseWebGL2(): boolean {
   }
 }
 
-/** MapLibre's error for a missing or refused WebGL2 context. */
 export function isGpuError(error: unknown): boolean {
   return error instanceof Error && error.name === "GPUInitializationError";
 }

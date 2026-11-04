@@ -6,7 +6,6 @@ import {
 } from "@/lib/store-locations/address-key";
 import { normalizeForSearch } from "@/utils/strings";
 
-/** An address with the village some sources append taken out. */
 export interface IPlacedAddress extends IParsedAddress {
   /** The other end of a range like "75-77", which may be the one listed. */
   rangeEnd: string | null;
@@ -19,8 +18,7 @@ export interface IPlacedAddress extends IParsedAddress {
 // "B. RADICA 9, Ladimirevci": a comma, then a name with no digits.
 const COMMA_PLACE = /^(.*\p{L}.*?)\s*,\s*([^,\d]+)$/u;
 
-// "Ul. Matije Gupca 6 Sladojevci": words after the number. Three letters at
-// least, so a house letter ("25 B") is not read as a village.
+// Three letters at least, so a house letter ("25 B") is not read as a village.
 const TRAILING_PLACE = /^(.*\p{L}.*?\d+)\s+(\p{L}{3,}(?:\s+\p{L}+)*)$/u;
 
 // "bb" after a comma, or the end of "Ulica 1 svibnja bb", is no village.
@@ -58,12 +56,7 @@ export function readPlacedAddress(
   };
 }
 
-/**
- * Whether the target's address and a record's name the same building: same
- * street, and the same number or one end of the target's range. A street
- * without numbers matches only when upstream says so with "0" or "bb", since
- * a number that is merely missing could be any building on the street.
- */
+/** A street without numbers matches only when upstream says "0" or "bb", since a merely missing number could be any building on the street. */
 export function placedAddressesAgree(
   target: IPlacedAddress,
   record: IPlacedAddress,
@@ -91,10 +84,7 @@ function numbersAgree(target: IPlacedAddress, record: IPlacedAddress) {
   return ends(target).some((end) => ends(record).includes(end));
 }
 
-/**
- * Whether two addresses lie in the same place. When both name a village, the
- * villages decide: two villages of one municipality are different places.
- */
+/** When both name a village, the villages decide: two villages of one municipality are different places. */
 export function placesAgree(
   cityA: string | null | undefined,
   a: IPlacedAddress,
@@ -112,9 +102,7 @@ export function placesAgree(
   );
 }
 
-// A village without streets numbers its houses on the village name ("Bebrina
-// 83"), so that street names the town even when the other side's town field
-// holds a bigger place. Exact names only: "Zagrebačka" never means Zagreb.
+// A village without streets numbers houses on its name ("Bebrina 83"), so that street names the town; exact only, as "Zagrebačka" never means Zagreb.
 function namesTown(address: IPlacedAddress, towns: string[]): boolean {
   const name = address.tokens.join(" ");
 
@@ -125,7 +113,6 @@ function townsOf(city: string | null | undefined, address: IPlacedAddress) {
   return [normalizeCity(city), ...address.places].filter(Boolean);
 }
 
-/** Whether any town or village of one side is a town or village of the other. */
 export function townsAgree(a: string[], b: string[]): boolean {
   return a.some((one) => b.some((other) => townContains(one, other)));
 }

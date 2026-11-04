@@ -1,13 +1,11 @@
 import { z } from "zod";
 
-// Chain schemas
 export const listChainsResponseSchema = z.object({
   chains: z.array(z.string()),
 });
 
 export type ListChainsResponse = z.infer<typeof listChainsResponseSchema>;
 
-// Store schemas
 const storeFields = {
   code: z.string(),
   type: z.string().nullable(),
@@ -33,7 +31,6 @@ export const listStoresResponseSchema = z.object({
 export type StoreResponse = z.infer<typeof storeResponseSchema>;
 export type ListStoresResponse = z.infer<typeof listStoresResponseSchema>;
 
-// Product schemas
 // Upstream serialises Python Decimals: dot-decimal text such as "1.29", rarely "1E+1".
 const PRICE_TEXT = /^\d+(\.\d+)?(E[+-]?\d+)?$/i;
 
@@ -57,8 +54,7 @@ export const productResponseSchema = z.object({
   name: z.string().nullable(),
   quantity: z.string().nullable(),
   unit: z.string().nullable(),
-  // A chain with an unreadable price is dropped, not failed: it would be NaN in every total,
-  // sort and cheapest pick, and the other chains still show. A shape change still fails loudly.
+  // An unreadable price is dropped, because it would be NaN in every total and sort; a shape change still fails loudly.
   chains: z
     .array(chainProductResponseSchema)
     .transform((chains) =>
@@ -78,7 +74,6 @@ export type ChainProductResponse = z.infer<typeof chainProductResponseSchema>;
 export type ProductResponse = z.infer<typeof productResponseSchema>;
 export type ProductSearchResponse = z.infer<typeof productSearchResponseSchema>;
 
-// Price schemas
 const storePriceSchema = z.object({
   chain: z.string(),
   ean: z.string(),
@@ -113,7 +108,6 @@ export type LocationPricesResponse = z.infer<
   typeof locationPricesResponseSchema
 >;
 
-// Chain stats schemas
 const chainStatsSchema = z.object({
   chain_code: z.string(),
   price_date: z.iso.date(),
@@ -129,7 +123,6 @@ export const chainStatsResponseSchema = z.object({
 export type ChainStats = z.infer<typeof chainStatsSchema>;
 export type ChainStatsResponse = z.infer<typeof chainStatsResponseSchema>;
 
-// Archive schemas
 const archiveInfoSchema = z.object({
   date: z.string(),
   url: z.string(),
@@ -141,7 +134,6 @@ export const listArchivesResponseSchema = z.object({
   archives: z.array(archiveInfoSchema),
 });
 
-// API parameter schemas
 export const getProductParamsSchema = z.object({
   ean: z.string(),
   date: z.iso.date().optional(),
@@ -180,7 +172,6 @@ export type SearchProductsParams = z.infer<typeof searchProductsParamsSchema>;
 export type SearchStoresParams = z.infer<typeof searchStoresParamsSchema>;
 export type GetPricesParams = z.infer<typeof getPricesParamsSchema>;
 
-// Health check schema
 export const healthCheckResponseSchema = z.object({
   status: z.string().optional(),
   message: z.string().optional(),

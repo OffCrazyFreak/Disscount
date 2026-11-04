@@ -11,15 +11,7 @@ import {
 } from "@/utils/browser/local-storage";
 import { useUser } from "@/context/user-context";
 
-/**
- * Whether a product already sits on the list the add-to-list modal would preselect,
- * so a product row can offer "edit the entry" rather than "add" before the modal
- * opens.
- *
- * Reads the cached me query rather than fetching the list by id: that payload
- * already carries each list's items, so this costs nothing beyond a subscription.
- * Signed-out visitors skip it, since the endpoint would only answer 401.
- */
+/** Reads the cached me query, whose payload already has each list's items; signed-out visitors skip it, since it would only answer 401. */
 export function useIsOnPreselectedShoppingList(
   ean: string | undefined,
 ): boolean {
@@ -36,10 +28,7 @@ export function useIsOnPreselectedShoppingList(
   const drafted = peekFormDraft(`add-to-list.${ean}`)?.values.shoppingListId;
   const draftedListId = typeof drafted === "string" ? drafted : null;
 
-  // The same rule useSelectedShoppingList applies, or the icon would describe a
-  // list the modal is not going to open on: a drafted choice wins while that list
-  // still exists, the newest list is the fallback, and a drafted "new" list has no
-  // items to be on.
+  // The same rule as useSelectedShoppingList, or the icon would describe a list the modal is not going to open on.
   if (draftedListId === "new") return false;
 
   const sorted = sortShoppingListsByRecency(shoppingLists);

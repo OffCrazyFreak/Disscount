@@ -46,10 +46,7 @@ public class ProductImageRendering {
         apply(image, upload(image));
     }
 
-    /**
-     * The background copy downloads for seconds, so it writes onto the row as it is now and drops its copy
-     * when an admin or the weekly import changed the photo meanwhile.
-     */
+    /** Downloads take seconds, so it writes onto the row as it is now and drops its copy if an admin or the import changed the photo. */
     public void renderCandidate(ProductImage loaded) {
         Copy copy = upload(loaded);
         ProductImage current = images.findById(loaded.getId())
@@ -183,10 +180,7 @@ public class ProductImageRendering {
         }
     }
 
-    /**
-     * The erasure's version of dropFiles: deletes now and lets a failure fail the erasure, since a file of an
-     * erased account must not stay public behind a log line. Call after deleting the row.
-     */
+    /** Fails the erasure on failure, because a file of an erased account must not stay public behind a log line; call after deleting the row. */
     void eraseFiles(String fullKey, String thumbKey, String smallKey) {
         for (String key : new String[]{fullKey, thumbKey, smallKey}) {
             if (key == null) continue;

@@ -7,13 +7,7 @@ import {
 
 export const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
 
-/**
- * YYYY-MM-DD strings ending today in Zagreb, chronological, never reaching earlier
- * than `earliest`. Pass -1 for every day since `earliest`. Price dates are Croatian
- * calendar days, so the device's own zone must not pick the last day. A caller that
- * stays mounted across Zagreb midnight passes `today` from its own render, so the
- * window is rebuilt for the new day instead of reusing a cached one.
- */
+/** Price dates are Croatian calendar days, so the device's zone must not pick the last day; a mounted caller passes `today` to rebuild past midnight. */
 export function buildDateWindow(
   daysToShow: number,
   earliest: string,
@@ -32,15 +26,7 @@ export function buildDateWindow(
 const ZONELESS_DATE_TIME =
   /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2})?(\.\d+)?$/;
 
-/**
- * Parses a timestamp the way the backend meant it.
- *
- * Spring serialises LocalDateTime columns without a zone, and the backend stamps them
- * in UTC, but JS reads a zone-less date and time as *local*. Left alone, every server
- * timestamp renders shifted by the reader's offset, which in Croatia means an hour or
- * two. Date-only strings and anything already carrying an offset pass through, since
- * the spec already reads those as UTC and as written respectively.
- */
+/** Spring serialises LocalDateTime without a zone, stamped in UTC, but JS reads that as local, shifting every server timestamp by the reader's offset. */
 export function parseServerDate(value: string | number | Date): Date {
   if (typeof value !== "string") return new Date(value);
 

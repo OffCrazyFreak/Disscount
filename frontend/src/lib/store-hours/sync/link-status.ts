@@ -1,9 +1,6 @@
 export type LinkStatus = "ok" | "broken" | "unverified";
 
-/**
- * Only a page the site itself says is gone (404, 410) counts as broken; bot
- * walls (403), rate limits (429) and outages (5xx) prove nothing about it.
- */
+/** Only a site's own 404 or 410 counts as broken; bot walls, rate limits and outages prove nothing. */
 export function linkStatusOf(httpStatus: number | null): LinkStatus {
   if (httpStatus === 404 || httpStatus === 410) return "broken";
   if (httpStatus !== null && httpStatus >= 200 && httpStatus < 400) return "ok";
@@ -11,7 +8,6 @@ export function linkStatusOf(httpStatus: number | null): LinkStatus {
   return "unverified";
 }
 
-/** Links grouped by host, so each host is visited one page at a time. */
 export function linksByHost(urls: Iterable<string>): string[][] {
   const groups = new Map<string, string[]>();
 

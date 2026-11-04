@@ -19,9 +19,7 @@ export default function useCameraDevices() {
 
         setDevices(
           availableDevices.filter(
-            // Before permission is granted the spec returns one placeholder per
-            // kind with every field blank. Radix Select throws on an empty item
-            // value, so a placeholder reaching CameraSelect takes down the dialog.
+            // Before permission the spec returns blank placeholders, and Radix Select throws on an empty item value, taking down the dialog.
             (device) => device.kind === "videoinput" && device.deviceId,
           ),
         );

@@ -140,9 +140,7 @@ describe("create list row", () => {
       const [opening, closing] = QUOTES[locale];
 
       expect(row).toHaveTextContent(`${opening}tjedna${closing}`);
-      // The row is a flex container with a gap, which spaces apart every direct
-      // child, text nodes included. The label must be one child so the quotes
-      // stay against the title; jsdom cannot see the gap, only this structure.
+      // The label must be one child so the quotes stay against the title, because the row's flex gap spaces even text nodes; jsdom only sees this structure.
       const bareText = Array.from(row.childNodes).filter(
         (node) => node.nodeType === Node.TEXT_NODE,
       );

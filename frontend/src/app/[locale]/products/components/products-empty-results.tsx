@@ -16,7 +16,6 @@ interface IProductsEmptyResultsProps {
   showAllLocations: () => void;
 }
 
-/** A search that returned nothing, worded by what the filters ruled out. */
 export default function ProductsEmptyResults({
   query,
   activeFilterCount,

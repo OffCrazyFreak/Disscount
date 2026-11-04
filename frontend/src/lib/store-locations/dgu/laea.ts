@@ -24,10 +24,7 @@ const D =
   Math.sqrt(1 - E2 * Math.sin(LAT0) ** 2) /
   (RQ * Math.cos(BETA0));
 
-/**
- * Inverse Lambert Azimuthal Equal Area (EPSG method 9820) for EPSG:3035.
- * ETRS89 and WGS84 agree to about a metre, which is fine for a map pin.
- */
+/** ETRS89 and WGS84 agree to about a metre, which is fine for a map pin. */
 export function etrs89LaeaToWgs84(
   northing: number,
   easting: number,

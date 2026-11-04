@@ -14,9 +14,7 @@ export default function Header() {
   const isScrolled = useScrolledPast(50);
   const navRef = useRef<HTMLElement>(null);
   useHeaderBottomVariable(navRef);
-  // On phones the map puts its store search here in place of the logo, and
-  // the page never scrolls, so the header floats there from the start. Done
-  // with CSS rather than by unmounting, so the server render already matches.
+  // On phones the map's search sits here and the page never scrolls, so the header floats; CSS rather than unmounting so the server render matches.
   const isMap = usePathname() === "/map";
 
   return (

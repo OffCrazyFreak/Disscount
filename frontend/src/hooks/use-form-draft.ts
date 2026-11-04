@@ -24,8 +24,7 @@ interface IUseFormDraftOptions<T extends FieldValues> {
   restore?: boolean;
   // Fields that must never touch localStorage (passwords, base64 images).
   exclude?: Path<T>[];
-  // reset() clears errors and mode "onChange" validates only on edits, so a restored value that
-  // breaks a rule would otherwise block submit with no message.
+  // reset() clears errors and "onChange" validates only on edits, so a restored value breaking a rule would block submit with no message.
   validateRestored?: Path<T>[];
 }
 
@@ -47,8 +46,7 @@ function applyDraftValues(
 
   for (const [field, value] of Object.entries(draftValues)) {
     if (exclude.includes(field)) continue;
-    // A field the form no longer has, from a draft written before the shape
-    // changed. Restoring it would keep the dead key alive for the whole TTL.
+    // A field the form no longer has; restoring it would keep the dead key alive for the whole TTL.
     if (!(field in values)) continue;
     const current = values[field];
     if (typeChanged(current, value)) continue;
@@ -60,12 +58,7 @@ function applyDraftValues(
   return changed;
 }
 
-/**
- * Persists a modal form's changed values to localStorage (24h TTL) so users can
- * close a modal and resume later. "Changed" is computed by comparing current
- * values against the form's default values (not RHF's dirtyFields, whose proxy
- * can read empty inside a callback), which makes persistence reliable.
- */
+/** Changed is computed against default values because RHF's dirtyFields proxy can read empty inside a callback. */
 export function useFormDraft<T extends FieldValues>({
   draftKey,
   form,
@@ -81,8 +74,7 @@ export function useFormDraft<T extends FieldValues>({
   // Taken on each open, not at mount: an always-mounted modal outlives sign-ins.
   const ownerIdentityRef = useRef<string | null>(null);
 
-  // A subscription, not form.formState: the React Compiler caches reads off the stable
-  // form object, and RHF never refreshes a flag that no render has read.
+  // A subscription, not form.formState, because the React Compiler caches reads off the form and RHF never refreshes an unread flag.
   const { defaultValues, isSubmitted, isSubmitting } = useFormState({
     control: form.control,
   });
@@ -105,8 +97,7 @@ export function useFormDraft<T extends FieldValues>({
   });
 
   useEffect(() => {
-    // A modal that stays mounted while closed must restore again on its next open,
-    // since another surface may have written its draft in between.
+    // A modal mounted while closed must restore on its next open, since another surface may have written its draft.
     if (!enabled) restoredKeyRef.current = null;
     if (enabled) ownerIdentityRef.current = getCacheIdentity();
     if (!enabled || !restore || restoredKeyRef.current === draftKey) return;
@@ -132,8 +123,7 @@ export function useFormDraft<T extends FieldValues>({
   const flushDraft = useCallback(() => {
     // Writing now makes a queued save redundant, and a stale one would overwrite what follows.
     clearTimeout(saveTimerRef.current);
-    // An account switch moves the identity before this form unmounts, and its last flush
-    // would otherwise save the departing account's values as the next account's draft.
+    // An account switch moves the identity before this form unmounts, so its last flush would save these values as the next account's draft.
     if (getCacheIdentity() !== ownerIdentityRef.current) return;
 
     const values = form.getValues() as Record<string, unknown>;

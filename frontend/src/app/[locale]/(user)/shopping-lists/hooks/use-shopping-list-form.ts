@@ -27,20 +27,14 @@ export function useShoppingListForm({
   const form = useForm<ShoppingListRequest>({
     resolver: zodResolver(shoppingListRequestSchema),
     mode: "onChange",
-    // No linkAccess here on purpose: sharing lives in its own modal, and the backend
-    // treats an absent linkAccess on PUT as "leave it alone", so renaming a shared list
-    // from here cannot silently unshare it.
+    // No linkAccess: the backend treats an absent one on PUT as "leave it alone", so renaming cannot silently unshare the list.
     defaultValues: { title: "" },
   });
 
-  // Destructured, never read inline: formState is a Proxy that subscribes to a
-  // field the first time it is read during render. Behind a || the read gets
-  // short-circuited away, so RHF never recomputes that field and the button
-  // reacts a keystroke late.
+  // Destructured, never read inline: formState is a Proxy that subscribes on first read, and a || could short-circuit it, leaving the button a keystroke late.
   const { isDirty, isValid, errors } = form.formState;
 
-  // Draft wins over the loaded list, so an in-progress edit is never clobbered.
-  // An Effect Event, so the first keystroke flipping isDirty never reruns the seed.
+  // Draft wins over the loaded list so an in-progress edit survives; an Effect Event so the first keystroke never reruns the seed.
   const seedForm = useEffectEvent((loaded: ShoppingListDto, key: string) => {
     if (isDirty) return;
 

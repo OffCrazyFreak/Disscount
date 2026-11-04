@@ -26,10 +26,7 @@ function isoOf(text: string): string | null {
     : null;
 }
 
-/**
- * `radno` numbers days from Sunday (JavaScript's getDay), "Ne radi" is
- * closed; retail shops list their working Sundays in `nedjelje`.
- */
+/** `radno` numbers days from Sunday (JavaScript's getDay); "Ne radi" is closed; retail shops list working Sundays in `nedjelje`. */
 export function parseRotoHours(
   site: RotoHours,
   today: string,

@@ -6,11 +6,7 @@ import { useEffect, useState } from "react";
 const DIALOG_EXIT_MS = 200;
 export const SHEET_EXIT_MS = 450;
 
-/**
- * Keeps the last non-null value mounted after it clears, so a modal can play its
- * exit animation instead of vanishing the moment the URL drops its parameter.
- * Unmounting early cuts the animation off partway.
- */
+/** Keeps the last value mounted after it clears, or the modal's exit animation is cut off when the URL drops its parameter. */
 export default function useLingeringTarget<T>(
   target: T | null,
   exitMs: number = DIALOG_EXIT_MS,

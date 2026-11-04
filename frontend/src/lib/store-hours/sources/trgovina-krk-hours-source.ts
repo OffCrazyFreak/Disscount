@@ -34,12 +34,7 @@ function splitAddress(raw: string) {
     : { address: raw.slice(0, cut).trim(), city: raw.slice(cut + 1).trim() };
 }
 
-/**
- * The site's "Rad nedjeljom" map feed, richer than the locator's: weekly
- * hours as text, the Sunday hours (`radnox`) and a flag for the coming
- * Sunday. The flag is named `neradna_nedjelja` yet the site's own "Otvoreno
- * ove nedjelje" filter selects the rows where it is "1".
- */
+/** The flag is named `neradna_nedjelja`, yet the site's own "Otvoreno ove nedjelje" filter selects rows where it is "1". */
 export const trgovinaKrkHoursSource: IHoursSource = {
   chain: "trgovina-krk",
 

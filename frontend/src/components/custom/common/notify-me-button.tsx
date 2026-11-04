@@ -10,11 +10,7 @@ interface INotifyMeButtonProps {
   label?: string;
 }
 
-/**
- * Turns a coming-soon page into something you can act on, using the notification
- * preferences that already exist rather than a separate waitlist. Signed out, the
- * modal router gates this into login on its own.
- */
+/** Uses the existing notification preferences rather than a separate waitlist; the modal router gates signed-out visitors into login. */
 export default function NotifyMeButton({ label }: INotifyMeButtonProps) {
   const t = useTranslations("common.comingSoon");
 

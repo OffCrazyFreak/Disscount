@@ -29,11 +29,7 @@ interface IShareAccessRowProps {
   hintId?: string;
 }
 
-/**
- * Who can reach the list, as one row: an icon and a headline that state the situation, and
- * a single select that changes it. Private is the first option rather than a separate
- * switch, so there is one control and one thing to read.
- */
+/** Private is the first option rather than a separate switch, so there is one control and one thing to read. */
 export default function ShareAccessRow({
   linkAccess,
   onLevelChange,
@@ -59,8 +55,7 @@ export default function ShareAccessRow({
               : "bg-muted text-muted-foreground",
           )}
         >
-          {/* size-6 matches the bottom nav glyph and the list card's own visibility
-              indicator, so the same icons read at one size across the app. */}
+          {/* size-6 matches the bottom nav glyph and the list card's visibility indicator, so the same icons read at one size. */}
           <Icon className="size-6" aria-hidden="true" />
         </span>
 
@@ -88,16 +83,7 @@ export default function ShareAccessRow({
           aria-describedby={describedById}
           className="w-full bg-background sm:w-48 sm:shrink-0"
         >
-          {/* Grouped, because the trigger is justify-between: as three loose children the
-              icon, the label and the chevron would spread across the full width. One group
-              keeps them gap-2 apart, the same spacing the options use, and leaves the
-              chevron on the right.
-
-              The icon sits here rather than inside SelectValue so the spinner can take its
-              place while a save is in flight. Both render at 16px, so the swap moves the
-              label by nothing: size-5 is 1rem here, because --spacing is 0.2rem rather
-              than Tailwind's stock 0.25rem, and passing the spinner 20 made it 4px wider
-              than the icon it replaces. */}
+          {/* Grouped because the trigger is justify-between; size-5 is 1rem here because --spacing is 0.2rem, so the spinner swap moves the label by nothing. */}
           <span className="flex min-w-0 items-center gap-2">
             {isSaving ? (
               <BlockLoadingSpinner size={16} className="px-0 text-primary" />

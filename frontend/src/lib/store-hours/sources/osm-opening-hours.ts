@@ -45,8 +45,7 @@ function parseTimes(selector: string): TimeRangeDto[] | null {
 
 type Rule = { days: number[]; ranges: TimeRangeDto[] };
 
-// One ";" rule: "Mo-Sa 07:00-21:00", "Su off", a bare "07:00-22:00" (every
-// day), "Su,PH off" (the holiday part is the law's to decide).
+// "Su,PH off": the holiday part is the law's to decide.
 function parseRule(rule: string): Rule | null {
   const words = rule.replace(/(^|,)PH(?=,|\s)|,PH\b/g, "").split(/\s+/);
   const [selector, times, ...rest] =
@@ -57,13 +56,7 @@ function parseRule(rule: string): Rule | null {
   return days && ranges && rest.length === 0 ? { days, ranges } : null;
 }
 
-/**
- * Reads the plain weekly subset of OSM `opening_hours` ("Mo-Sa 07:00-21:00;
- * Su off; PH off"). Anything richer (months, week numbers, comments, open
- * ends) returns null rather than a guess, since one evaluator decides open
- * or closed. Public holiday rules are skipped: the law closes shops then.
- * Days a value leaves out are closed, as the OSM specification says.
- */
+/** Anything richer returns null rather than a guess, since one evaluator decides; holiday rules are skipped because the law closes shops then. */
 export function parseOsmOpeningHours(value: string): Weekly | null {
   const trimmed = value.trim();
 

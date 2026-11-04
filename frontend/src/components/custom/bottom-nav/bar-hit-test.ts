@@ -1,19 +1,12 @@
 /** Past this, a press has left the bar, so releasing commits nothing */
 const BAR_VERTICAL_SLOP_PX = 24;
 
-/**
- * The cells, by marker rather than by taking bar.children, so an index means the
- * cell index even if anything else ever renders inside the list.
- */
+/** By marker rather than bar.children, so an index means the cell index even if anything else renders inside the list. */
 export function navCells(bar: HTMLElement): HTMLElement[] {
   return [...bar.querySelectorAll<HTMLElement>("[data-nav-cell]")];
 }
 
-/**
- * Which cell a point belongs to, measured from the cells themselves so the
- * flexible gaps and pill padding resolve to their nearest cell. A point that has
- * left the bar vertically resolves to none.
- */
+/** Measured from the cells so flexible gaps and pill padding resolve to their nearest cell. */
 export default function indexFromPoint(
   bar: HTMLElement,
   x: number,

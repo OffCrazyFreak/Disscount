@@ -11,11 +11,7 @@ interface IMapChainSelectProps {
   onChange: (chains: string[] | typeof ALL_CHAINS) => void;
 }
 
-/**
- * The map's chain filter. Nothing picked means every chain, as in the product
- * filters, so the field starts empty instead of holding a badge per chain.
- * Ticking every chain stays a list, so "select all" leaves them all ticked.
- */
+/** Nothing picked means every chain, as in the product filters, so the field starts empty instead of holding a badge per chain. */
 export default function MapChainSelect({
   chains,
   selected,

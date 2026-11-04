@@ -6,7 +6,6 @@ interface ISparkleDoodleProps {
   duration?: number;
 }
 
-// Stagger siblings via delay, vary their rhythm via duration, both in seconds.
 export default function SparkleDoodle({
   className,
   delay = 0,

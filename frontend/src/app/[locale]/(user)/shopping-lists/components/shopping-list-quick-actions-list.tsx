@@ -16,11 +16,7 @@ interface IShoppingListQuickActionsListProps {
   onDelete: () => void;
 }
 
-/**
- * A shopping list's four actions as sheet rows. Share and copy are open to
- * anyone holding the link, since copy creates a list under the viewer's own
- * account, while edit and delete resolve through the owner and would only fail.
- */
+/** Share and copy are open to anyone with the link, since copy creates a list on the viewer's account; edit and delete would only fail. */
 export default function ShoppingListQuickActionsList({
   isOwner,
   isShared,

@@ -37,8 +37,7 @@ describe("backend proxy request headers", () => {
       body: "{}",
     });
 
-    // ClientIp.java trusts only the last hop and CF-Connecting-IP behind a Cloudflare edge,
-    // so an appended or rewritten hop would key the contact and photo limits on the frontend.
+    // ClientIp.java trusts only the last hop and CF-Connecting-IP, so a rewritten hop would key the limits on the frontend.
     const headers = received[0].headers;
     expect(headers.get("x-forwarded-for")).toBe(
       `${VISITOR}, ${CLOUDFLARE_EDGE}`,

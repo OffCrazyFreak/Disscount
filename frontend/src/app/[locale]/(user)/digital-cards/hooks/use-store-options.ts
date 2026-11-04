@@ -12,7 +12,6 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 const SUGGESTION_DEBOUNCE_MS = 250;
 
-/** Autocomplete groups for the typed text: official chains, community names, then an "add" row. */
 export function useStoreOptions(query: string): IStoreGroup[] {
   const t = useTranslations("digitalCards.form");
   const locale = useLocale();

@@ -42,8 +42,7 @@ export default function StoreChainMultiSelect({
               const label = getChainLabel(chainCode);
 
               return (
-                // The value is a chain code, so the visible label has to be
-                // named as a keyword or it cannot be searched for.
+                // The value is a chain code, so the visible label must be a keyword or it cannot be searched for.
                 <MultiSelectItem
                   key={chainCode}
                   value={chainCode}

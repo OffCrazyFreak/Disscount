@@ -11,15 +11,7 @@ function isFresh(verifiedAt: string, at: Date): boolean {
   return at.getTime() - Date.parse(verifiedAt) <= STALE_AFTER_MS;
 }
 
-/**
- * Resolves one day as known at instant `at`: a dated entry wins (the store's own exception or the
- * chain's Sunday and holiday announcement), then the law, then the weekly
- * template. Shops are closed on public holidays and on every Sunday but the
- * 16 each trader picks (NN 33/2023), so without a dated entry a holiday is
- * closed and a Sunday is unknown, never open from the template. Each layer
- * counts only while fresh: a new Sunday announcement still counts when the
- * template has gone stale, and an old one never confirms a day.
- */
+/** A dated entry wins, then the law, then the template: shops close on holidays and all but 16 Sundays (NN 33/2023), so a Sunday is never open from the template. */
 export function hoursOnDate(
   hours: StoreHoursDto,
   date: string,
@@ -31,8 +23,7 @@ export function hoursOnDate(
   if (dated && isFresh(dated.verifiedAt, at)) return dated;
   if (!isFresh(hours.verifiedAt, at)) return null;
 
-  // Exempt stores (stations, ports) may open on holidays, and none of our
-  // sources says which holidays, so those stay unknown.
+  // Exempt stores (stations, ports) may open on holidays, and no source says which, so those stay unknown.
   const exempt = hours.sundays === "weekly";
 
   if (holidays.has(date)) {

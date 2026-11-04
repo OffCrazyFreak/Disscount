@@ -12,7 +12,6 @@ import {
 import type { ILookupAddress } from "@/lib/store-locations/store-location-types";
 import { storeKey } from "@/lib/store-locations/upstream-stores";
 
-/** A store the sync still has to place. */
 export interface ISyncTarget {
   chain: string;
   code: string;
@@ -21,10 +20,7 @@ export interface ISyncTarget {
   zipcode: string | null;
   /** Geoapify missed it within the retry window, so only Nominatim tries. */
   skipGeoapify: boolean;
-  /**
-   * The chain's own, fuller spelling of the address. Geocoders search with
-   * it; the pin still records upstream's address, which the stale check uses.
-   */
+  /** Geocoders search with it; the pin still records upstream's address, which the stale check uses. */
   lookup?: ILookupAddress;
 }
 
@@ -46,12 +42,7 @@ function isRecent(at: Date | null | undefined, now: number): boolean {
   return at != null && now - at.getTime() <= RETRY_AFTER_MS;
 }
 
-/**
- * Stores upstream cannot place and we have not placed either, or placed from
- * an address upstream has since changed, minus stores pinned or held in code and
- * those that every source failed on within the last week: addresses rarely
- * change, so retrying them daily would only spend geocoder quota.
- */
+/** Skips stores every source failed on within the last week, because addresses rarely change and daily retries only spend quota. */
 export function findSyncTargets(
   upstream: StoreResponse[],
   locations: StoreLocationRow[],

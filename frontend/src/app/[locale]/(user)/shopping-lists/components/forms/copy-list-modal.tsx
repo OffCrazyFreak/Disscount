@@ -17,7 +17,6 @@ interface ICopyListModalProps {
   id: string;
 }
 
-/** What to carry into the copy. Everything is optional, including the products. */
 export default function CopyListModal({ open, id }: ICopyListModalProps) {
   const t = useTranslations("shoppingLists");
   const tShell = useTranslations("shell");
@@ -65,9 +64,7 @@ export default function CopyListModal({ open, id }: ICopyListModalProps) {
             onSubmit={form.handleSubmit((data) => void copyList(data))}
             className="space-y-4"
           >
-            {/* No autofocus: the field mounts only once the list query settles, so
-                focusing it would land mid-announcement and, on mobile, open the
-                keyboard over the options this modal is actually about. */}
+            {/* No autofocus: the field mounts only once the query settles, so focus would land mid-announcement and open the mobile keyboard over the options. */}
             <ShoppingListTitleField control={form.control} autoFocus={false} />
 
             <CopyOptionRow
@@ -82,8 +79,7 @@ export default function CopyListModal({ open, id }: ICopyListModalProps) {
               icon={ListChecks}
               label={t("copyModal.options.progress.label")}
               description={t("copyModal.options.progress.description")}
-              // Coerced, not just disabled: a box that stays ticked while inert states a
-              // choice the copy will not honour.
+              // Coerced, not just disabled: a box that stays ticked while inert states a choice the copy will not honour.
               checked={options.progress && options.items}
               disabled={!options.items}
               onCheckedChange={(next) => setOption("progress", next)}

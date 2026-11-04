@@ -10,12 +10,7 @@ import {
 } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 import { productLookupQuery } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/product-lookup-query";
 
-/**
- * The list as share text, naming for each unpicked item the chain its store select
- * suggests. Prices come from the cache only: sharing runs inside a tap, and waiting on
- * the network first can outlast the tap's permission to open the share sheet. Where
- * nothing is cached the list page is not showing a suggestion either.
- */
+/** Prices come from the cache only, because waiting on the network can outlast the tap's permission to open the share sheet. */
 export function useListShareText() {
   const t = useTranslations("shoppingLists");
   const locale = useLocale();

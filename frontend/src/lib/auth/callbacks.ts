@@ -79,8 +79,7 @@ export async function dispatchVerificationEmail(
   }
 }
 
-// Links sent on sign-in carry better-auth's default "/" callback, because a callbackURL on
-// signIn.email would also redirect every successful sign-in; land them like the sign-up link.
+// Links sent on sign-in carry the default "/" callback, because a callbackURL on signIn.email would redirect every sign-in too.
 function withEmailVerifiedLanding(url: string, locale: AppLocale) {
   const link = new URL(url);
   if (link.searchParams.get("callbackURL") !== "/") return url;
@@ -92,9 +91,7 @@ function withEmailVerifiedLanding(url: string, locale: AppLocale) {
   return link.toString();
 }
 
-// A completed reset proves the inbox, so it verifies the address and drops every social
-// link, which on an unverified account may be a squatter's. Never throws: better-auth
-// revokes the sessions only after this callback returns.
+// A completed reset proves the inbox, so it drops every social link, which may be a squatter's; never throws, because better-auth revokes sessions after this.
 export async function claimUnverifiedAccountOnReset(resetUser: {
   id: string;
   emailVerified: boolean;
@@ -140,7 +137,6 @@ export async function hasLinkedSocialAccount(userId: string): Promise<boolean> {
   return rows.length > 0;
 }
 
-// Logs a failed fire-and-forget send without ever logging the recipient address.
 export function logEmailFailure(kind: string) {
   return (error: unknown) => {
     console.error(

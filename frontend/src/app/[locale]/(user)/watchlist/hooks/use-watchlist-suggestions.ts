@@ -109,10 +109,7 @@ export function useWatchlistSuggestions({
       brand: item.product?.brand || "",
     }));
 
-    // Relevance leads, then how often the product appears, then the discount.
-    // Sorting straight by occurrence used to discard the match score entirely,
-    // so searching here ranked differently from searching anywhere else.
-    // Scores tie readily, so the other two still decide most of the order.
+    // Relevance leads so searching here ranks like everywhere else; scores tie readily, so occurrence and discount still decide most of the order.
     const ranked = rankByFields(searchableItems, query, [
       "productName",
       "brand",

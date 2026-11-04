@@ -14,11 +14,7 @@ interface IShoppingListVisibilityIndicatorProps {
   className?: string;
 }
 
-// One glyph per level, the same map the share modal and the shared-list banner use, so a
-// list shows the same picture wherever you meet it. This was binary Lock and Globe at
-// first, on the reasoning that a glance only needs to answer "is this shared"; carrying
-// the level costs nothing once the glyphs are already taught elsewhere, and the tooltip
-// still spells it out.
+// One glyph per level, the same map the share modal and shared-list banner use, so a list shows the same picture everywhere.
 const SHARED_LABEL_KEYS = {
   NONE: "visibility.NONE",
   VIEW: "visibility.VIEW",
@@ -31,8 +27,7 @@ export default function ShoppingListVisibilityIndicator({
   className,
 }: IShoppingListVisibilityIndicatorProps) {
   const t = useTranslations("shoppingLists");
-  // Non-owners are sent null on purpose, so they see private rather than a level they
-  // cannot change.
+  // Non-owners are sent null, so they see private rather than a level they cannot change.
   const access = linkAccess ?? "NONE";
   const isShared = access !== "NONE";
   const label = t(SHARED_LABEL_KEYS[access]);
@@ -41,8 +36,7 @@ export default function ShoppingListVisibilityIndicator({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        {/* Focusable so the tooltip is reachable without a pointer: hover-only would
-            hide the level from keyboard and touch users entirely. */}
+        {/* Focusable because hover-only would hide the level from keyboard and touch users. */}
         <span
           className={cn(
             "inline-flex shrink-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",

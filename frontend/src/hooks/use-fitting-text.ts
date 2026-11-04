@@ -2,12 +2,7 @@
 
 import { type RefObject, useLayoutEffect, useState } from "react";
 
-/**
- * `preferred` while it fits on one line in the text box of the ref'd element, else
- * `fallback`. Measured with the element's own font, so it holds in every locale and
- * at every width, which a breakpoint cannot promise. Without a `fallback` nothing is
- * measured.
- */
+/** Measured with the element's own font, so it holds in every locale and width, which a breakpoint cannot promise. */
 export function useFittingText(
   ref: RefObject<HTMLElement | null>,
   preferred: string,

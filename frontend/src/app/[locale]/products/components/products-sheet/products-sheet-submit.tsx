@@ -10,17 +10,10 @@ import { useSearchNavigation } from "@/hooks/use-search-navigation";
 
 interface IProductsSheetSubmitProps {
   searchRoute: string;
-  /** The form this button owns, which it sits outside of */
   form: string;
 }
 
-/**
- * The products sheet's footer button.
- *
- * Its own component because it reads the URL, and `ProductsSheet` is mounted in the
- * root layout: a `useSearchParams` call up there would drop every page out of the
- * prerender. Down here it only runs while the sheet is open.
- */
+/** Its own component because a `useSearchParams` call in the root layout's `ProductsSheet` would drop every page out of the prerender. */
 export default function ProductsSheetSubmit({
   searchRoute,
   form,

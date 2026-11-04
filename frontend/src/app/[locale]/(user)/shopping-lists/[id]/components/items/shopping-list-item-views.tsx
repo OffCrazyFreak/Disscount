@@ -26,7 +26,6 @@ interface IShoppingListItemViewsProps {
   rowProps: Omit<IShoppingListItemRowsProps, "items">;
 }
 
-/** The items A to Z, or split by store, with the switch between the two remembered per list. */
 export default function ShoppingListItemViews({
   listId,
   items,

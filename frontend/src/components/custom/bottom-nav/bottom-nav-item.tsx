@@ -28,12 +28,7 @@ interface IBottomNavItemProps extends IBottomNavItemRingsProps {
   onKeyboardActivate: () => void;
 }
 
-/**
- * One cell of the bar. A button rather than a link, which is what makes the long
- * press viable: iOS shows a link-preview popover and a callout on a long-pressed
- * anchor, and `-webkit-touch-callout: none` is unreliable as of iOS 26. The
- * crawlable links for these routes already ship in the header and the sidebar.
- */
+/** A button, not a link, because iOS shows a preview popover on a long-pressed anchor; crawlable links ship in the header and sidebar. */
 export default function BottomNavItem({
   entry,
   isActive,
@@ -47,8 +42,7 @@ export default function BottomNavItem({
 }: IBottomNavItemProps) {
   const { item } = entry;
 
-  // A locked cell is still `aria-current` when its route is open by URL, but it
-  // must not look like a tab you arrived at by tapping it.
+  // A locked cell is still `aria-current` when open by URL, but must not look like a tab you arrived at by tapping it.
   const showsActive = isActive && !isLocked;
   const isPressed = isScrubbed && !isLocked;
 
@@ -56,9 +50,7 @@ export default function BottomNavItem({
     <li className={CELL_ITEM_CLASS} data-nav-cell>
       <button
         type="button"
-        // aria-disabled, not disabled: browsers suppress pointer events on a
-        // disabled control, so a press starting here would never reach the list
-        // and you could not scrub off a locked cell onto a usable one.
+        // aria-disabled, because browsers suppress pointer events on a disabled control, so you could not scrub off a locked cell onto a usable one.
         aria-disabled={isLocked || undefined}
         tabIndex={isLocked ? -1 : undefined}
         aria-current={isActive ? "page" : undefined}
@@ -73,8 +65,7 @@ export default function BottomNavItem({
           isLocked && "text-muted-foreground/70 cursor-not-allowed",
         )}
       >
-        {/* The disc and both rings enclose icon and label together, so they come
-            before them in paint order */}
+        {/* The disc and rings enclose icon and label together, so they come first in paint order. */}
         <BottomNavItemRings {...rings} />
 
         <BottomNavItemGlyph

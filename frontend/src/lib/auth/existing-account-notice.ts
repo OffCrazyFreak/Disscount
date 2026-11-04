@@ -20,9 +20,7 @@ import {
 
 const BETTER_AUTH_URL = serverEnv.BETTER_AUTH_URL;
 
-// A sign-up with a registered address answers the caller like a new one and tells the
-// owner instead. An unverified owner gets a set-password link, because the password on
-// file may be a squatter's and the link is the only proof of the inbox.
+// An unverified owner gets a set-password link, because the password on file may be a squatter's and the link proves the inbox.
 export async function notifyExistingAccount(user: User) {
   const noticeId = randomUUID();
   const release = await claimSignUpNotice(user.id, noticeId);
@@ -65,8 +63,7 @@ async function sendCompleteSignUp(
   const token = randomBytes(32).toString("base64url");
   const identifier = `reset-password:${token}`;
 
-  // Same row shape requestPasswordReset writes, so the stock /reset-password consumes it.
-  // Written before the claim, so a concurrent forgot-password request sees this link as live.
+  // Same shape as requestPasswordReset so /reset-password consumes it; before the claim, so a concurrent request sees this link as live.
   await db.insert(verification).values({
     identifier,
     value: userId,

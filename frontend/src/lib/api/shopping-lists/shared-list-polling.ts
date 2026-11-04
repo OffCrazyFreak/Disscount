@@ -4,8 +4,7 @@ import type { ShoppingListDto } from "@/lib/api/types";
 
 const ACTIVE_POLL_MS = 5_000;
 const IDLE_POLL_MS = 30_000;
-// A list someone is shopping changes every few seconds, one left open on a counter does
-// not, so polling fast only while it recently changed keeps idle viewers cheap.
+// Polling fast only while the list recently changed keeps idle viewers cheap, because one left open on a counter does not change.
 const ACTIVE_WINDOW_MS = 2 * 60_000;
 
 /** Someone else can change it: a list the owner shares by link, or anyone's reached by one. */
@@ -18,18 +17,13 @@ export function isSharedList(
   );
 }
 
-// Keyed by the query object so every observer of one list shares the same clock and an
-// evicted query takes its entry with it.
+// Keyed by the query object so observers of one list share a clock and an evicted query takes its entry with it.
 const lastChanges = new WeakMap<
   object,
   { updatedAt: string; changedAt: number }
 >();
 
-/**
- * The refetchInterval for a list, recomputed by TanStack Query on every render and update.
- * The first version this cache entry sees counts as a change, since opening a shared list
- * usually means someone is about to shop it; a reopened list keeps the clock it had.
- */
+/** The first version seen counts as a change, since opening a shared list usually means someone is about to shop it. */
 export function sharedListRefetchInterval(
   query: { state: QueryState<ShoppingListDto, Error> },
   isWritingLists: boolean,
@@ -43,8 +37,7 @@ export function sharedListRefetchInterval(
   // A poll landing mid-write would replace the optimistic cache with the pre-write list.
   if (isWritingLists) return false;
 
-  // Anything but a 404 is likely a dropped request on shop wifi, and a phone left on the
-  // list may never fire the focus refetch that would otherwise restart polling.
+  // Anything but a 404 is likely dropped shop wifi, and a phone left on the list may never fire the focus refetch to restart polling.
   if (query.state.status === "error") return IDLE_POLL_MS;
 
   const now = Date.now();

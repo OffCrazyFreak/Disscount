@@ -15,22 +15,13 @@ import useSheetDragUp from "@/components/custom/modal/use-sheet-drag-up";
 import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
 import { cn } from "@/lib/utils";
 
-// The grab handle: darker than shadcn's bg-muted, which all but vanished on a
-// light surface. Applied from here rather than by editing the primitive.
+// Darker than shadcn's bg-muted, which all but vanished on a light surface; applied here rather than editing the primitive.
 const HANDLE_CLASS = "[&>[data-slot=drawer-handle]]:bg-muted-foreground/40";
 
-/**
- * Under the bottom nav, so the bar stays visible above every sheet, and wearing
- * the bar's blur so the two read as one family of floating chrome.
- *
- * Far less translucent than the bar, though: a sheet is full of white inputs, and
- * at the bar's own 50% the page ghosts through hard enough that every field looks
- * like it is floating in front of the sheet rather than sitting in it.
- */
+/** Far less translucent than the bar, because at 50% the page ghosts through and every white field looks like it floats in front of the sheet. */
 const CONTENT_CLASS =
   "max-h-[85dvh] bg-background/85 backdrop-blur-xs pb-[var(--sheet-bottom-clearance)]";
-// A sheet opened from inside another drawer, such as the install sheet in the
-// mobile sidebar, has to clear that drawer's layer rather than sit under it.
+// A sheet opened from inside another drawer has to clear that drawer's layer rather than sit under it.
 const VIEWPORT_CLASS =
   "z-[var(--z-bottom-sheet)] data-nested:z-[var(--z-overlay)]";
 // A nested sheet's scrim follows its sheet up, so it also covers the drawer below.
@@ -49,33 +40,16 @@ export interface ISheetShellProps extends ISheetShellHeaderProps {
   onDragUp?: () => void;
   /** Focused on open, so the user can start typing straight away */
   initialFocusRef?: RefObject<HTMLElement | null>;
-  /**
-   * Focused on close, for a sheet whose opener is not the element focused when
-   * it opened. Without it focus returns to whatever was focused before.
-   */
+  /** For a sheet whose opener is not the focused element when it opened; without it focus returns to whatever was focused before. */
   returnFocusRef?: RefObject<HTMLElement | null>;
-  /**
-   * On it adds the scrim, the scroll lock and the focus trap, and lets an outside
-   * press dismiss; off, the page behind stays usable and only the handle, Escape
-   * and an explicit control can. Defaults on, because only a
-   * sheet the page changes behind earns the opt-out, and forgetting the prop
-   * should cost a scrim rather than tap-outside-to-close.
-   */
+  /** Defaults on because only a sheet the page changes behind earns the opt-out, and forgetting the prop should cost a scrim, not tap-outside-to-close. */
   modal?: boolean;
   bodyClassName?: string;
   className?: string;
   children?: ReactNode;
 }
 
-/**
- * ModalShell's bottom-sheet counterpart: a Base UI drawer with the grab handle, so
- * every sheet in the app can be swiped closed the same way and only the content
- * differs.
- *
- * The geometry is the shell's business, not the caller's. Height, layer and the
- * inset that keeps the sheet clear of the mobile bar are all fixed here, which is
- * what stops four sheets from drifting into four different shapes again.
- */
+/** Geometry is fixed here, not by the caller, so sheets cannot drift into different shapes. */
 export default function SheetShell({
   open,
   onOpenChange,
@@ -98,8 +72,7 @@ export default function SheetShell({
       open={open}
       onOpenChange={onOpenChange}
       modal={modal}
-      // Non-modal means the page behind is in use: a press or focus out there
-      // must not close the sheet, so it needs its own way out.
+      // Non-modal means the page behind is in use, so a press or focus there must not close the sheet.
       disablePointerDismissal={!modal}
     >
       {/* Keeps a focused field in view above a phone's software keyboard. */}
@@ -109,9 +82,7 @@ export default function SheetShell({
           className={cn(CONTENT_CLASS, HANDLE_CLASS, className)}
           overlayClassName={OVERLAY_CLASS}
           viewportClassName={VIEWPORT_CLASS}
-          // Focus the named field, or the sheet itself: focusing the first control
-          // instead would pop its tooltip.
-          // preventScroll by hand: Base UI only passes it when focusing the popup.
+          // Focusing the first control would pop its tooltip; preventScroll by hand because Base UI only passes it when focusing the popup.
           initialFocus={() => {
             // Reopened mid-exit, focus is still inside: keep the first opener.
             const opener = document.activeElement;
@@ -129,9 +100,7 @@ export default function SheetShell({
 
             return false;
           }}
-          // Only reclaim focus the sheet still holds. A press that closed a
-          // non-modal sheet has already put focus where the user wanted it, and
-          // pulling it back would drop the phone keyboard off a field.
+          // Only reclaim focus the sheet still holds, because pulling it back after a closing press would drop the phone keyboard off a field.
           finalFocus={() => {
             const active = document.activeElement;
             const isFocusLeftBehind =
@@ -141,9 +110,7 @@ export default function SheetShell({
 
             if (!isFocusLeftBehind) return false;
 
-            // Nothing was focused when it opened (a tap on iOS, a shared link),
-            // so there is nothing to go back to.
-            // Base UI checks isConnected only on its own fallbacks, not on ours.
+            // Nothing was focused when it opened (an iOS tap, a shared link); Base UI checks isConnected only on its own fallbacks.
             const opener = openerRef.current?.isConnected
               ? openerRef.current
               : null;
@@ -154,8 +121,7 @@ export default function SheetShell({
         >
           <SheetShellHeader {...header} />
 
-          {/* The fades end at the body's own bottom, so they stop above the footer
-            and the nav clearance. */}
+          {/* The fades end at the body's own bottom, so they stop above the footer and the nav clearance. */}
           {children && (
             <ScrollFadeArea
               className={cn(BODY_CLASS, bodyClassName)}

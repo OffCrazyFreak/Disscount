@@ -1,25 +1,12 @@
 import { normalizeForSearch } from "@/utils/strings";
 
-/**
- * A query normalized and tokenized once per keystroke rather than once per
- * candidate. `null` means there is no query, which every caller reads as
- * "match everything".
- */
+/** `null` means no query, which every caller reads as "match everything". */
 export interface IPreparedQuery {
   normalized: string;
   tokens: string[];
 }
 
-/**
- * Option lists are stable between keystrokes, so the same strings get
- * normalized over and over: the Lokacije facet and the pinned-places select
- * both run over several hundred city names per keypress.
- *
- * This only helps while the working set fits. Products are also scored through
- * here and a loaded list can hold thousands of distinct names and brands, which
- * is why eviction drops the oldest half rather than clearing: a wholesale clear
- * mid-pass would leave the rest of that same pass missing every lookup.
- */
+/** Several hundred city names per keypress repeat; eviction drops the oldest half, because a full clear mid-pass would miss every lookup in that pass. */
 const CACHE_LIMIT = 8192;
 const cache = new Map<string, string>();
 
@@ -41,10 +28,7 @@ export function normalizeCached(value: string): string {
   return normalized;
 }
 
-// cmdk calls the filter once per option, so without this the query would be
-// re-normalized for every row of every keystroke. One entry is all it takes for
-// that loop, which is the case it exists for; two components filtering
-// different queries in the same tick simply miss.
+// cmdk calls the filter per option, so this one entry stops re-normalizing for every row of every keystroke.
 let lastRaw: string | null = null;
 let lastPrepared: IPreparedQuery | null = null;
 
@@ -53,9 +37,7 @@ export function prepareQuery(query: string): IPreparedQuery | null {
 
   const normalized = normalizeForSearch(query).trim();
 
-  // Frozen because every caller in the process shares this one object, module
-  // state included on the server. A caller that sorted or pushed to `tokens`
-  // would otherwise corrupt the query for whoever holds it next.
+  // Frozen because every caller shares this object, so sorting or pushing to `tokens` would corrupt the query for whoever holds it next.
   const prepared = normalized
     ? Object.freeze({
         normalized,

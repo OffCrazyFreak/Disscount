@@ -10,11 +10,7 @@ interface ISignedInContext extends GenericEndpointContext {
   };
 }
 
-/**
- * Swaps this device's session for a new one after a proof. better-auth counts freshness
- * from session.createdAt only, so this is what restarts the clock, and OWASP asks for a
- * new session id after re-authentication anyway.
- */
+/** better-auth counts freshness from session.createdAt only, so this restarts the clock, and OWASP asks for a new id after re-authentication. */
 export async function rotateSession(ctx: ISignedInContext): Promise<void> {
   const { session, user } = ctx.context.session;
   const dontRememberMe = Boolean(

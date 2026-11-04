@@ -54,10 +54,7 @@ export function setShoppingListGroupByStore(listId: string, grouped: boolean) {
   setListPrefs(listId, { groupByStore: grouped });
 }
 
-/**
- * Preferred store-list optimisation mode, shared across all shopping lists.
- * Returns undefined when nothing is stored; the caller validates the value.
- */
+/** The caller validates the value. */
 export function getStoreOptimizeMode(): string | undefined {
   return getAppStorage().storeOptimizeMode;
 }

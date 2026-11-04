@@ -23,9 +23,7 @@ function isKnownError(code: string): code is keyof typeof ERROR_MESSAGE_KEYS {
   return Object.hasOwn(ERROR_MESSAGE_KEYS, code);
 }
 
-// Mounted app-wide, since linking errors happen while the auth modal is unmounted.
-// Reads ?error= via useSearchParams, not window.location, which loses a race with
-// the URL rewrite during session load.
+// Mounted app-wide since linking errors happen while the auth modal is unmounted; useSearchParams because window.location loses a race with the URL rewrite.
 export default function OAuthErrorToast() {
   const t = useTranslations("common");
   const searchParams = useSearchParams();

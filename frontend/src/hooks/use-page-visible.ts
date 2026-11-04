@@ -12,15 +12,7 @@ function getSnapshot() {
   return document.visibilityState === "visible";
 }
 
-/**
- * Whether the tab is in the foreground, read as an external store so no render
- * is ever stale. Nothing about it is scanner-specific; anything that should idle
- * in a background tab can use it.
- */
+/** Read as an external store so no render is ever stale. */
 export default function usePageVisible() {
-  return useSyncExternalStore(
-    subscribe,
-    getSnapshot,
-    () => true, // assume visible during SSR
-  );
+  return useSyncExternalStore(subscribe, getSnapshot, () => true);
 }

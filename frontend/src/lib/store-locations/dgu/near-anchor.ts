@@ -1,13 +1,8 @@
 type Point = { lat: number; lon: number };
 
-// Farther than this from an independent source, a register address is a
-// different building.
+// Farther than this from an independent source, a register address is a different building.
 const MAX_ANCHOR_M = 150;
 
-/**
- * The register's place for an ambiguous address nearest an independent source
- * (the chain's own point, or a geocoded building), if it is close enough.
- */
 export function pickNearAnchor(points: Point[], anchor: Point): Point | null {
   const [nearest] = points
     .map((point) => ({ point, metres: metresApart(point, anchor) }))

@@ -6,14 +6,7 @@ import type {
 } from "@/lib/api/schemas/shopping-list";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 
-/**
- * Optimistic edits to a list's own fields, as opposed to its items.
- *
- * Without this, a save reads as new, then old, then new: `invalidateQueries` only starts a
- * refetch, so anything rendering the list keeps showing the pre-save value for a whole
- * round trip. Mirroring the value in component state does not fix it either, because that
- * mirror has to be cleared at some point and the cache is still stale when it is.
- */
+/** Without this a save reads new, old, new, because `invalidateQueries` only starts a refetch, and a component-state mirror cannot fix it. */
 export interface IListRollback {
   byId?: ShoppingListDto;
   all?: ShoppingListDto[];
@@ -53,8 +46,7 @@ export async function patchListOptimistically(
     old ? patch(old, data) : old,
   );
 
-  // The cards carry the same title and sharing indicator, so leaving them out would just
-  // move the stale read somewhere else.
+  // The cards carry the same title and sharing indicator, so leaving them out would just move the stale read.
   queryClient.setQueryData<ShoppingListDto[] | undefined>(
     SHOPPING_LIST_QUERY_KEYS.me,
     (old) =>
@@ -64,7 +56,6 @@ export async function patchListOptimistically(
   return rollback;
 }
 
-/** Writes the server's answer in, which carries what the patch cannot know, such as the new `updatedAt`. */
 export function applyListResult(
   queryClient: QueryClient,
   id: string,

@@ -17,9 +17,7 @@ import { shouldPersistMutation } from "@/lib/offline/offline-mutation-keys";
 
 const IDB_CACHE_KEY = "disscount-react-query-cache";
 
-// Bumping is heavier than it looks: a mismatch calls removeClient(), discarding queued
-// writes under EVERY key, not just the changed one. Prefer tombstone defaults in
-// offline-mutations.ts. History and reasoning in docs/PWA.md.
+// Bumping discards queued writes under every key on mismatch, so prefer tombstone defaults in offline-mutations.ts; see docs/PWA.md.
 const CACHE_BUSTER = "3";
 
 // Key resolved per call, so an identity change takes effect without rebuilding this.
@@ -30,8 +28,7 @@ const indexedDbStorage = {
   removeItem: (key: string) => del(scopedCacheKey(key)),
 };
 
-// Tagged when the snapshot is dehydrated: the throttle can hold it past a purge, and by
-// the time it is written the key would name whoever signed in next.
+// Tagged at dehydration because the throttle can hold it past a purge, when the key would name whoever signed in next.
 const snapshotGeneration = new WeakMap<PersistedClient, number>();
 
 async function serializeUnlessPurged(client: PersistedClient) {
@@ -50,11 +47,7 @@ const throttledPersister = createAsyncStoragePersister({
   serialize: serializeUnlessPurged,
 });
 
-/**
- * Stores a card write that was in flight as paused. On restore only paused mutations are
- * resumed, and a pending one left unpaused would also block every later card write in
- * its scope forever.
- */
+/** Only paused mutations resume on restore, and a pending one left unpaused would block every later card write in its scope forever. */
 function withInFlightWritesPaused(client: PersistedClient): PersistedClient {
   const mutations = client.clientState.mutations.map((mutation) =>
     mutation.state.status === "pending" && !mutation.state.isPaused
@@ -74,25 +67,17 @@ const offlinePersister: Persister = {
   },
 };
 
-/**
- * Deletes one identity's snapshot by name.
- *
- * `offlinePersister.removeClient()` resolves the key when it runs, which is the wrong
- * moment for a purge: the identity has already moved on by then, so it would delete the
- * arriving account's cache and leave the departing one's behind.
- */
+/** `offlinePersister.removeClient()` resolves the key when it runs, after the identity moved on, deleting the arriving account's cache. */
 export function removePersistedCacheFor(identity: string): Promise<void> {
   return del(scopedCacheKey(IDB_CACHE_KEY, identity));
 }
 
 export const persistOptions: Omit<PersistQueryClientOptions, "queryClient"> = {
   persister: offlinePersister,
-  // Never expires, so a wallet last opened months ago still opens at the till. The
-  // "last synced" labels show staleness, and an identity change purges the snapshot.
+  // Never expires, so a wallet last opened months ago still opens at the till; labels show staleness and an identity change purges.
   maxAge: Infinity,
   buster: CACHE_BUSTER,
   dehydrateOptions: {
-    // Persist only successful queries that are on the offline whitelist.
     shouldDehydrateQuery: (query) =>
       defaultShouldDehydrateQuery(query) && shouldPersistQuery(query.queryKey),
     // Only allowlisted writes persist, so only they replay on reconnect.

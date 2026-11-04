@@ -11,7 +11,6 @@ import {
 } from "@/lib/api/favorite-stores/hooks";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 
-/** The signed-in user's favourite stores, and a toggle that asks a guest to sign in. */
 export function useFavoriteStores() {
   const t = useTranslations("map.favorites");
   const { isAuthenticated } = useUser();
@@ -28,8 +27,7 @@ export function useFavoriteStores() {
       return;
     }
 
-    // Every save replaces the whole list, so one built before the saved list
-    // arrived would erase it.
+    // Every save replaces the whole list, so one built before the saved list arrived would erase it.
     if (!query.isSuccess) {
       toast.error(t("saveFailed"));
       return;

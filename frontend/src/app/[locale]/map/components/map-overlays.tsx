@@ -33,7 +33,6 @@ function point({ lat, lon }: ILatLon) {
   };
 }
 
-/** A frame around the selected store and the user's dot or guessed area. */
 export default function MapOverlays({
   ready,
   selected,

@@ -17,7 +17,6 @@ import {
   snoozeInstallBanner,
 } from "@/utils/browser/local-storage";
 
-// Dismissible with a 7-day snooze, shown only on browsers that can install.
 export default function InstallBanner() {
   const t = useTranslations("common");
   const { canShowInstallUI, canInstall, platform, promptInstall } =
@@ -26,10 +25,7 @@ export default function InstallBanner() {
   const [instructionsOpen, setInstructionsOpen] = useState(false);
 
   useEffect(() => {
-    // Read the persisted snooze on the client to avoid a hydration mismatch. It
-    // compares a stored timestamp against Date.now(), so neither the value nor the
-    // comparison exists on the server. Starts dismissed, so the banner cannot flash
-    // before the snooze is known.
+    // Read on the client because it compares a stored timestamp to Date.now(); starts dismissed so the banner cannot flash.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDismissed(isInstallBannerSnoozed());
   }, []);
@@ -52,8 +48,7 @@ export default function InstallBanner() {
 
   return (
     <>
-      {/* Sits above the bottom nav, which owns the bottom strip below md, and
-          below the sheet it opens */}
+      {/* Above the bottom nav, which owns the bottom strip below md, and below the sheet it opens. */}
       <div className="fixed inset-x-0 bottom-[var(--bottom-nav-total)] z-[var(--z-install-banner)] p-4 md:bottom-0 md:inset-x-auto md:right-4 md:max-w-sm">
         <div className="flex flex-col gap-3 rounded-xl border bg-card p-3 shadow-lg">
           <div className="flex items-center gap-3">

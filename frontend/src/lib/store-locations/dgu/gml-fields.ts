@@ -10,8 +10,7 @@ export const STREET_KIND = 1;
 
 const KIND_SPAN = 1e11;
 
-// Ids are kept as numbers because a substring of a member keeps the whole
-// text chunk it was cut from alive, which adds up over 1.7M addresses.
+// Ids are numbers because a substring of a member keeps its whole text chunk alive, which adds up over 1.7M addresses.
 function featureKey(id: string): number | null {
   const [kind, serial] = id.split(".");
   const code = KINDS[kind];
@@ -31,7 +30,6 @@ export function featureId(member: string): number | null {
   return id ? featureKey(id) : null;
 }
 
-/** The first geographical name spelling in a name feature. */
 export function spellingText(member: string): string | null {
   const text = /<gn:text>([^<]*)<\/gn:text>/.exec(member)?.[1];
 
@@ -51,10 +49,7 @@ export function componentRefs(member: string): number[] {
   return keys;
 }
 
-/**
- * The house number with its letter. DGU stores "56A" as two designators, an
- * address number and an extension, so both are joined.
- */
+/** DGU stores "56A" as two designators, an address number and an extension, so both are joined. */
 export function houseNumber(member: string): string | null {
   let number: string | null = null;
   let extension = "";
@@ -69,10 +64,7 @@ export function houseNumber(member: string): string | null {
   return number === null ? null : decodeEntities(number + extension);
 }
 
-/**
- * The point as [northing, easting]. EPSG:3035 declares latitude-first axis
- * order, so gml:pos lists northing before easting.
- */
+/** EPSG:3035 declares latitude-first axis order, so gml:pos lists northing before easting. */
 export function pointNorthingEasting(member: string): [number, number] | null {
   const pos = /<gml:pos>\s*([-\d.eE+]+)\s+([-\d.eE+]+)\s*<\/gml:pos>/.exec(
     member,

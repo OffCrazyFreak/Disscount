@@ -11,13 +11,9 @@ import { setWatchlistPriceSnapshot } from "@/utils/browser/storage/watchlist";
 // Public data is identical logged in or out, so it survives logout.
 const PUBLIC_QUERY_ROOT = "cijene";
 
-// Buckets holding data belonging to whoever was just here. Each leaks by its key set
-// rather than its payload: which lists this device opened, which EANs were looked at.
-// "others" is where serwist actually puts navigations, since its "pages" rule matches a
-// Content-Type header browsers omit on one.
+// Each leaks by its key set; "others" is where serwist puts navigations, since its "pages" rule matches a Content-Type header browsers omit.
 const SCOPED_CACHE_NAMES = ["shopping-list-pages", "cijene-api", "others"];
 
-// Everything outside the public root is user-specific and gets purged.
 function isUserSpecific(query: Query): boolean {
   return query.queryKey[0] !== PUBLIC_QUERY_ROOT;
 }
@@ -30,18 +26,13 @@ async function purgeServiceWorkerCaches() {
 
   await Promise.all(
     names
-      // Exact match: a substring test on "pages" would also take out serwist's
-      // "pages-rsc" and "pages-rsc-prefetch", every RSC payload in the app.
+      // Exact match, because a substring test on "pages" would also take out serwist's "pages-rsc" and every RSC payload.
       .filter((name) => SCOPED_CACHE_NAMES.includes(name))
       .map((name) => caches.delete(name)),
   );
 }
 
-/**
- * @param identity whose snapshot to delete. Named rather than resolved from the current
- *   value, because the caller switches identity as soon as this is fired and the delete
- *   happens later, which would otherwise clear the wrong account.
- */
+/** @param identity Named, not resolved, because the caller switches identity once this fires and the later delete would clear the wrong account. */
 export function purgeOfflineCache(
   queryClient: QueryClient,
   identity: string,
@@ -56,8 +47,7 @@ async function runPurge(queryClient: QueryClient, identity: string) {
   // Cancel in-flight work first so a late-resolving request can't repopulate what we clear.
   await queryClient.cancelQueries({ predicate: isUserSpecific });
 
-  // A removed query still on screen is never refetched, so it would stay failed or empty
-  // as the new account. Resetting clears its data at once and refetches with the new pin.
+  // A removed query still on screen is never refetched, so reset clears its data and refetches with the new pin.
   void queryClient.resetQueries({
     predicate: (query) => isUserSpecific(query) && query.isActive(),
   });
@@ -66,9 +56,7 @@ async function runPurge(queryClient: QueryClient, identity: string) {
   });
   queryClient.getMutationCache().clear();
 
-  // Wipe the snapshot so no authed data lingers; public data re-persists on next save.
-  // allSettled, not sequential awaits: one failing delete must not cancel the other and
-  // leave the departing account's data in the buckets it did not reach.
+  // allSettled so one failing delete cannot leave the departing account's data in the buckets it did not reach.
   const results = await Promise.allSettled([
     removePersistedCacheFor(identity),
     deleteForIdentity(identity),

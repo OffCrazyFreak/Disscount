@@ -47,10 +47,7 @@ async function rotated(
   return blob;
 }
 
-/**
- * The original, turned the way the server will turn it, so the frame the admin draws lands on the
- * same pixels the server crops. Coordinates come back in that rotated frame.
- */
+/** Turned the way the server will turn it, so the frame the admin draws lands on the same pixels the server crops. */
 export function useCropSource(originalUrl: string, rotation: number) {
   const [source, setSource] = useState<CropSource>({ status: "loading" });
 

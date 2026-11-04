@@ -26,10 +26,7 @@ import com.luciad.imageio.webp.WebPWriteParam;
 
 import disscount.exceptions.BadRequestException;
 
-/**
- * Turns any source photo into the three square WebP files we serve. The white background is painted into
- * the pixels on purpose: dark mode extensions recolour CSS backgrounds but leave image pixels alone.
- */
+/** White is painted into the pixels because dark mode extensions recolour CSS backgrounds but leave image pixels alone. */
 public final class ProductImageRenderer {
 
     public static final int FULL_SIDE = 1080;
@@ -54,7 +51,6 @@ public final class ProductImageRenderer {
 
     public record Rendered(byte[] full, byte[] thumb, byte[] small, String sha256, int sourceWidth, int sourceHeight) {
 
-        /** True when even the lowest quality step left a file over its ceiling. */
         public boolean overCeiling() {
             return full.length > FULL_MAX_BYTES || thumb.length > THUMB_MAX_BYTES || small.length > SMALL_MAX_BYTES;
         }
@@ -88,7 +84,6 @@ public final class ProductImageRenderer {
         return normalized;
     }
 
-    /** Width and height of the source once rotated, the frame a crop is measured against. */
     public static int[] rotatedSize(int width, int height, int rotation) {
         int normalized = normalizeRotation(rotation);
         return normalized == 90 || normalized == 270 ? new int[] {height, width} : new int[] {width, height};
@@ -214,7 +209,6 @@ public final class ProductImageRenderer {
         return out;
     }
 
-    /** Steps the quality down until the file fits its ceiling; the lowest step is kept even when it does not. */
     static byte[] encode(BufferedImage image, int maxBytes) {
         byte[] encoded = null;
         for (float quality : QUALITY_STEPS) {

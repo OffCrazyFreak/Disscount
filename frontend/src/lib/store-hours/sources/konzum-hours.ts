@@ -21,8 +21,7 @@ function rangesOf(day: z.infer<typeof daySchema>): TimeRangeDto[] {
   return opens && closes && opens !== closes ? [{ opens, closes }] : [];
 }
 
-// A closed day carries no timestamp, so its date comes from its place in
-// the run of consecutive days, anchored on any day that has one.
+// A closed day carries no timestamp, so its date comes from its place in the run of consecutive days.
 function firstDate(days: z.infer<typeof daySchema>[], today: string) {
   const anchor = days.findIndex((day) => day.from_hour);
 
@@ -33,12 +32,7 @@ function firstDate(days: z.infer<typeof daySchema>[], today: string) {
   return dayIndex(days[0]?.name ?? "") === isoWeekday(today) ? today : null;
 }
 
-/**
- * Konzum publishes no weekly template, only the next ten dated days
- * (`work_hours`, JSON inside the JSON), holidays and Sundays included. Each
- * day is kept as a dated entry; the template takes each weekday's open
- * instance, since a holiday shows up as a closed one.
- */
+/** Konzum publishes only the next ten dated days; the template takes each weekday's open instance, since a holiday shows as closed. */
 export function parseKonzumHours(
   workHours: string,
   today: string,

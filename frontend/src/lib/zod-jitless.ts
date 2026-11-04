@@ -1,6 +1,4 @@
 import { z } from "zod";
 
-// The production CSP blocks eval, and Zod probes `new Function` the first time it builds
-// an object schema, which logs a CSP violation even though Zod falls back. Import this
-// before anything that defines a schema at module scope.
+// The production CSP blocks eval, and Zod's `new Function` probe logs a violation even though it falls back; import before any module-scope schema.
 z.config({ jitless: true });

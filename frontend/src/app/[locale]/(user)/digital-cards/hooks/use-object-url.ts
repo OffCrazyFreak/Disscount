@@ -5,7 +5,6 @@ interface IObjectUrl {
   url: string;
 }
 
-/** Object URL for a picked file, revoked when the file changes or the component unmounts. */
 export function useObjectUrl(
   file: File | null | undefined,
 ): string | undefined {

@@ -154,8 +154,7 @@ async function replayOnce(queryClient: QueryClient, t: PhotoToastTranslator) {
   );
 
   for (const key of queuedKeys) {
-    // The account may have changed while earlier entries were uploading, and the
-    // listing above can be stale: re-read, so a dequeued or replaced entry is not sent.
+    // The account may have changed during earlier uploads and the listing can be stale, so re-read rather than send a dequeued entry.
     if (getCacheIdentity() !== identity) return;
 
     const peeked = await get<IOutboxEntry>(key, outboxStore());
@@ -180,9 +179,7 @@ async function replayOnce(queryClient: QueryClient, t: PhotoToastTranslator) {
   }
 }
 
-// An earlier waiting send may already have handled the newest choice for a slot, so a
-// later caller still needs to learn which choice that was and how it ended. Results are
-// dropped once no caller waits, since an upload error holds both photo blobs.
+// An earlier send may have handled the newest choice, so a later caller still learns it; dropped once none waits, since an error holds both blobs.
 const lastHandled = new Map<string, ISendResult>();
 const waiting = new Map<string, number>();
 
@@ -193,12 +190,7 @@ export interface ISendResult {
   error?: unknown;
 }
 
-/**
- * Sends the newest queued choice for one slot. Choices are written to the outbox before
- * this runs, so a reload while it waits loses nothing; only the sends are serialized, so
- * an older send cannot land after a newer one. With keepOn404, a 404 stays queued because
- * the card's own paused save has not reached the server yet.
- */
+/** Written to the outbox first so a reload loses nothing; sends are serialized so an older one cannot land after a newer; a 404 can stay queued. */
 export function sendQueuedCardPhoto(
   queryClient: QueryClient,
   cardId: string,
@@ -270,13 +262,7 @@ async function sendEntry(
   }
 }
 
-/**
- * Sends queued photo uploads and removals for the current account, oldest key first. A
- * rejection that can still succeed later keeps the entry and ends the run; one the
- * server refused for good drops it. A call made while a run is active schedules one more
- * run instead of being lost. Call after paused card saves have resumed, or an upload for
- * a card the server has not seen yet answers 404.
- */
+/** Call after paused card saves resume, or an upload for a card the server has not seen answers 404; a refusal for good drops the entry. */
 export async function replayCardPhotoOutbox(
   queryClient: QueryClient,
   t: PhotoToastTranslator,

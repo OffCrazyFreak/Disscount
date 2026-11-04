@@ -27,15 +27,11 @@ public class User {
     @Id
     private UUID id;
 
-    // Unique, so version 2 can invite somebody by name and mean one person. Nullable
-    // rather than required, because deleteAccount nulls it to free the name, and Postgres
-    // lets a unique index hold as many nulls as it likes. Presence is the frontend's job:
-    // the settings form will not save without one.
+    // Nullable because deleteAccount nulls it to free the name, and Postgres lets a unique index hold many nulls; the settings form requires one.
     @Column(nullable = true, unique = true)
     private String username;
 
-    // Preference toggles are stored as timestamps instead of booleans: null = off,
-    // non-null = on AND when it was last switched on (lightweight usage stat without an event log).
+    // Timestamps, not booleans: null is off, and non-null also records when it was switched on, a light usage stat with no event log.
     @Column(name = "notifications_push_enabled_at")
     private LocalDateTime notificationsPushEnabledAt;
 
@@ -66,8 +62,7 @@ public class User {
     @Column(name = "onboarding_outcome")
     private String onboardingOutcome;
 
-    // Set on first login: ADMIN if no users exist yet, otherwise CONSUMER.
-    // Elevated to ENTERPRISE / PUBLIC_SECTOR manually via the admin dashboard.
+    // Set on first login; elevated to ENTERPRISE or PUBLIC_SECTOR by hand via the admin dashboard.
     @Enumerated(EnumType.STRING)
     @Column(name = "account_type", nullable = false)
     @Builder.Default
@@ -76,8 +71,7 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // Refreshed on authenticated requests (throttled) so activity survives sign-out and
-    // session expiry, which the better-auth `session` rows do not.
+    // Throttled so activity survives sign-out and session expiry, which the better-auth `session` rows do not.
     @Column(name = "last_active_at")
     private LocalDateTime lastActiveAt;
 

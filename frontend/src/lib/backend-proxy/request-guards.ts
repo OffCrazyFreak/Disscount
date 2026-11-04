@@ -7,12 +7,7 @@ import { ANONYMOUS_IDENTITY } from "@/lib/offline/cache-identity";
 
 const SAFE_METHODS = new Set(["GET", "HEAD"]);
 
-/**
- * The session cookie rides along on any request to our origin, so the proxy needs its own
- * CSRF check. SameSite=Lax alone lets a sibling subdomain through; the custom header and
- * Sec-Fetch-Site close that, and the header is required on GET too so a top-level
- * navigation to an API URL never runs as the signed-in account.
- */
+/** The cookie rides on any request to our origin, and SameSite=Lax lets sibling subdomains through; the header is required on GET too, so navigation cannot run as the account. */
 export function isCsrfSafe(request: Request, appOrigin: string): boolean {
   const { headers } = request;
   if (headers.get(CLIENT_HEADER) !== CLIENT_HEADER_VALUE) return false;
@@ -27,12 +22,7 @@ export function isCsrfSafe(request: Request, appOrigin: string): boolean {
 export type IdentityDecision =
   { action: "forward"; asUser: string | null } | { action: "refuse" };
 
-/**
- * Compares the tab's pin with the account the session cookie names. Only a request that
- * would run as a different account than the tab believes is refused. A pin naming an
- * account whose session has ended goes on anonymously, as it did with a browser token:
- * there is no account to cross into, and public routes and shared lists keep loading.
- */
+/** Only a request running as a different account is refused; a pin for an ended session goes on anonymously, so public routes keep loading. */
 export function decideIdentity(
   pin: string | null,
   sessionUserId: string | null,

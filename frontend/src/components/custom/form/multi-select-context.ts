@@ -7,13 +7,9 @@ import {
   type RefObject,
 } from "react";
 
-/**
- * `popover` floats the list beside its trigger; `inline` drops it into the page
- * under the trigger. Chosen by viewport, not by the caller.
- */
+/** Chosen by viewport, not by the caller. */
 export type MultiSelectPresentation = "popover" | "inline";
 
-/** What "select all" needs to know about an option beyond its label. */
 export interface IMultiSelectOption {
   keywords?: string[];
   disabled?: boolean;
@@ -24,7 +20,6 @@ export interface IMultiSelectContext {
   setOpen: (open: boolean) => void;
   selectedValues: Set<string>;
   toggleValue: (value: string) => void;
-  /** Replaces the whole selection, for "select all" and "clear all". */
   setValues: (values: string[]) => void;
   searchValue: string;
   setSearchValue: (value: string) => void;

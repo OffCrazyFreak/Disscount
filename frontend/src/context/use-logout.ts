@@ -13,7 +13,6 @@ import {
 import { purgeOfflineCache } from "@/lib/offline/purge";
 import { removeFormDraftsFor } from "@/utils/browser/storage/drafts";
 
-/** Signs out on the server, or later when offline, and clears the account from the device. */
 export function useLogout(
   cacheIdentityRef: RefObject<string | null>,
   setUser: Dispatch<SetStateAction<UserDto | null>>,
@@ -30,12 +29,10 @@ export function useLogout(
     Sentry.setUser(null);
     setUser(null);
     await purgeOfflineCache(queryClient, leavingIdentity);
-    // Cleared with the data: a device still marked as the account reads as its
-    // unverified account offline, showing empty pages instead of a login prompt.
+    // Cleared with the data, because a device still marked as the account reads as unverified offline, showing empty pages instead of login.
     setCacheIdentity(null);
     cacheIdentityRef.current = null;
-    // Again after the purge: a form unmounted by the sign-out flushes its draft while the
-    // purge awaits IndexedDB, still as this account, so the purge's own delete misses it.
+    // Again after the purge, because a form unmounted by sign-out flushes its draft during the purge, and the delete misses it.
     removeFormDraftsFor(leavingIdentity);
     // Staying on a protected route signed out would just show a login gate.
     if (isProtectedRoute(pathname)) router.push("/");

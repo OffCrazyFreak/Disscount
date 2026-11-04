@@ -17,9 +17,7 @@ import { storeKey } from "@/lib/store-locations/upstream-stores";
 type StoreHoursRow = typeof storeHours.$inferSelect;
 type OverlayRow = typeof storeHoursOverlay.$inferSelect;
 
-// The days the status function can reach (last night's late shift, a week
-// ahead), with room for a response cached for days; anything outside only
-// weighs down the payload.
+// Days the status function can reach, with room for a response cached for days; anything outside only weighs down the payload.
 const DAYS_BEFORE = 2;
 const DAYS_AFTER = 45;
 
@@ -58,10 +56,7 @@ function groupOverlays(overlays: OverlayRow[], from: string, to: string) {
   return byStore;
 }
 
-// Exceptions come with the weekly refresh and announcements with the later
-// Sunday poll, often for the same date from the same feed, so the latest
-// observation wins. On a tie the more specific layer (listed first) does:
-// the store's exception, the chain's word on that store, then the chain.
+// Exceptions and announcements often cover one date from one feed, so the latest wins; on a tie the more specific layer, listed first, does.
 function mergeDated(...layers: DatedHoursDto[][]): DatedHoursDto[] {
   const byDate = new Map<string, DatedHoursDto>();
 
@@ -78,8 +73,7 @@ function mergeDated(...layers: DatedHoursDto[][]): DatedHoursDto[] {
   return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
 }
 
-// A link the checker found dead (404 or 410) gives way to the chain's
-// finder; one it could not verify stays, since bot walls answer 403.
+// A dead link (404 or 410) gives way to the chain's finder; an unverified one stays, since bot walls answer 403.
 function checkUrlOf(row: StoreHoursRow): string | null {
   const finder = HOURS_CHAINS[row.chainCode]?.finderUrl ?? null;
 
@@ -88,7 +82,6 @@ function checkUrlOf(row: StoreHoursRow): string | null {
   return row.checkUrl;
 }
 
-/** The hours every enabled source has for each store, keyed `chain:code`. */
 export function buildStoreHours(
   rows: StoreHoursRow[],
   overlays: OverlayRow[],

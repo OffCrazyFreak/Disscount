@@ -52,8 +52,7 @@ export default function CardPhotoSlotRow({
   const label = tRoot(CARD_PHOTO_SLOT_LABEL_KEYS[slot]);
   const hasImage = change ? true : change === undefined && !!saved;
 
-  // One button for remove, restore and discard keeps the focused element mounted as the
-  // label changes; discarding a not-yet-saved photo hides it, so focus moves to the add button.
+  // One button for all three actions keeps focus mounted as the label changes; discarding an unsaved photo moves focus to add.
   function handleAction() {
     if (change === undefined) {
       onChange(null);

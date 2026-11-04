@@ -10,11 +10,7 @@ interface ISettledCount {
   count: number;
 }
 
-/**
- * Announces the Praćenje count when it changes without a navigation. Mounted once in the
- * layout, outside the nav surfaces, because a changed aria-label is never announced and
- * a region inside each surface would announce twice wherever two are on screen.
- */
+/** Mounted once in the layout because a changed aria-label is never announced, and a region per nav surface would announce twice. */
 export default function PriceDropStatus() {
   const t = useTranslations("shell");
   const { user } = useUser();
@@ -22,8 +18,7 @@ export default function PriceDropStatus() {
   const [settled, setSettled] = useState<ISettledCount | null>(null);
   const [isAnnouncing, setIsAnnouncing] = useState(false);
 
-  // The first settled count per account is what loading produced, not a change, so only
-  // later ones speak; a cold start or a sign-in would otherwise talk over the page.
+  // The first settled count per account comes from loading, not a change, so only later ones speak.
   if (settled && settled.userId !== user?.id) {
     setSettled(null);
     setIsAnnouncing(false);

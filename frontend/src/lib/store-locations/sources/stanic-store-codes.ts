@@ -1,12 +1,6 @@
 import { normalizeForSearch } from "@/utils/strings";
 
-// cijene-api gives Stanić stores a code and a city only, and diskont.hr has
-// no codes, so this pairs them by hand: each code's name comes from the
-// upstream price file name ("MP_131_DISKONT ŽITNJAK 1_<date>.xlsx"), checked
-// against the diskont.hr store with that name or street and, where it lists
-// the code, catalog.hr's Stanić branch list. 1301 is a mobile shop. Once
-// upstream publishes Stanić street addresses, address matching makes this
-// table unnecessary.
+// cijene-api gives Stanić a code and city only, and diskont.hr has no codes, so this pairs them by hand until upstream publishes street addresses.
 const CODE_BY_STORE_NAME: Record<string, string> = {
   "Zagreb Žitnjak": "131",
   "Zagreb Veletržnica": "133",
@@ -27,8 +21,7 @@ const CODE_BY_STORE_NAME: Record<string, string> = {
   Medulin: "7302",
   Rovinj: "7307",
   Labin: "7308",
-  // "PULA" and "PULA 4" upstream; catalog.hr puts 734 at Bože Gumpca 34 and
-  // 739 at Rizzijeva 59, the addresses of diskont.hr's "Pula" and "Pula 2".
+  // "PULA" and "PULA 4" upstream; catalog.hr puts 734 at Bože Gumpca 34 and 739 at Rizzijeva 59, the addresses of diskont.hr's "Pula" and "Pula 2".
   Pula: "734",
   "Pula 2": "739",
   Poreč: "731",
@@ -60,7 +53,6 @@ const CODES = new Map(
   ]),
 );
 
-/** The cijene-api code for a diskont.hr store title, if the table knows it. */
 export function stanicCodeFor(storeTitle: string): string | undefined {
   return CODES.get(nameKey(storeTitle));
 }
@@ -73,11 +65,7 @@ function titleOf(row: unknown): string | undefined {
     : undefined;
 }
 
-/**
- * Reads codes for one feed. Two rows under one title would make the code a
- * guess, so neither keeps it, counted over every row with a title, so an
- * unusable twin still makes the other ambiguous.
- */
+/** Two rows under one title would make the code a guess, so neither keeps it, counted over every titled row so an unusable twin still counts. */
 export function stanicCodeReader(
   rows: unknown[],
 ): (storeTitle: string) => string | undefined {

@@ -25,11 +25,7 @@ interface IProductSummaryProps extends IProductSummaryAsideProps {
   className?: string;
 }
 
-/**
- * How a product reads wherever it is listed: its identity on the left, whatever
- * the surface cares about on the right. The container is a wrapper rather than
- * the row, since an element cannot answer a query it establishes itself.
- */
+/** The container is a wrapper rather than the row, since an element cannot answer a query it establishes itself. */
 export default function ProductSummary({
   name,
   brand,
@@ -54,8 +50,7 @@ export default function ProductSummary({
           ean !== undefined && (
             <ProductThumbnail
               ean={ean}
-              // Only a row that links to its product opens the viewer: inside a modal sheet the
-              // lightbox would sit outside the dialog's focus trap and pointer lock.
+              // Only a linking row opens the viewer, because inside a modal sheet the lightbox would sit outside the dialog's focus trap and pointer lock.
               productName={
                 href ? name || t("productInfo.unknownProduct") : undefined
               }

@@ -23,11 +23,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("SELECT u.id FROM User u WHERE u.deletedAt IS NULL")
     List<UUID> findActiveIds();
 
-    /**
-     * Spans soft-deleted rows too, matching the unique index, which does not care that an
-     * account is gone. In practice they never collide: deleteAccount nulls the username,
-     * which is what frees the name for somebody else.
-     */
+    /** Spans soft-deleted rows too, matching the unique index; deleteAccount nulls the username, which frees the name. */
     boolean existsByUsername(String username);
 
     /** Row lock held until the transaction ends; the per-user mutex for card writes. */

@@ -24,22 +24,13 @@ export function isUnverifiedAccount(
   );
 }
 
-/** Purges the offline cache when a resolved session names a different account. */
 export function syncCacheIdentity(
   queryClient: QueryClient,
   cacheIdentityRef: RefObject<string | null>,
   identity: string | null,
   sessionError: unknown,
 ) {
-  // Purge on a change of identity, not on every anonymous load. This effect runs on
-  // mount, so purging whenever there is no session wiped the cache and the queued
-  // write replay on every single page load for a visitor who is not logged in, which
-  // silently dropped anything they had ticked off while offline.
-  // A failed session lookup is not a logout. /api/auth/get-session is NetworkOnly in
-  // the service worker, so offline it rejects and useSession settles to data: null with
-  // an error set. Purging on that would wipe the signed-in user's cache and every
-  // queued write on the first offline reload, which is the failure this branch exists
-  // to prevent.
+  // On a change of identity only: purging anonymous loads would drop offline writes, and a failed lookup offline is not a logout.
   if (sessionError || identity === cacheIdentityRef.current) return;
 
   // Before the purge, which would delete the guest's drafts as the departing identity's.
@@ -47,9 +38,7 @@ export function syncCacheIdentity(
     adoptGuestFormDrafts(identity);
   }
 
-  // Pass the departing identity, not the arriving one. The purge awaits an IndexedDB
-  // delete, and setCacheIdentity below runs first, so a key resolved inside the purge
-  // would name the account that just arrived.
+  // The departing identity, because setCacheIdentity below runs first and a key resolved inside the purge would name the arriving account.
   void purgeOfflineCache(
     queryClient,
     toCacheIdentity(cacheIdentityRef.current),

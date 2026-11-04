@@ -11,14 +11,7 @@ interface IUseSwipeHorizontalOptions {
   enabled?: boolean;
 }
 
-/**
- * Pointer props that fire once per gesture on a deliberate horizontal swipe.
- *
- * Touch and pen only: a mouse drag stays free to select text. Resolved on
- * pointer up rather than mid-move, so a swipe never competes with the vertical
- * scroll of the container it sits in, and only when the horizontal travel
- * clearly out-measures the vertical drift.
- */
+/** Touch and pen so a mouse drag can select text; resolved on pointer up so a swipe never competes with vertical scroll. */
 export default function useSwipeHorizontal({
   onSwipeLeft,
   onSwipeRight,

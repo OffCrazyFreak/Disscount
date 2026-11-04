@@ -14,12 +14,7 @@ import { useSession } from "@/lib/auth/client";
 
 const DISMISSED_KEY = "disscount-locale-suggestion-dismissed";
 
-/**
- * A page opened in another language than the saved one (a shared link, a search
- * result) offers the switch instead of redirecting, so every URL keeps meaning
- * one language for crawlers and for whoever shared it. A first visit with nothing
- * saved offers the browser's language the same way.
- */
+/** Offers the switch instead of redirecting, so every URL keeps meaning one language for crawlers and whoever shared it. */
 export default function LocaleSuggestion() {
   const t = useTranslations("locale");
   const locale = useLocale();
@@ -30,10 +25,7 @@ export default function LocaleSuggestion() {
   const accountLocale = session?.user?.locale;
 
   useEffect(() => {
-    // The cookie and sessionStorage exist only in the browser, so this cannot be
-    // derived during render without a hydration mismatch.
-    // The cookie first: a switch writes it at once, while the account value lags
-    // until the session refetches. Sign-in copies the account value into it.
+    // Browser-only storage, so it cannot derive during render; the cookie first because the account value lags until the session refetches.
     const saved =
       readLocaleCookie() ??
       (isLocale(accountLocale) ? accountLocale : null) ??
@@ -48,10 +40,7 @@ export default function LocaleSuggestion() {
     setPreferred(null);
   }
 
-  // The live region stays mounted so the offer is announced when it appears.
-  // The pill takes its own row instead of floating, because floating over the
-  // page top covered each page's first control (a search field, a status banner).
-  // Positioned only to paint above the phone map, which is a fixed layer.
+  // The live region stays mounted so the offer is announced; its own row, because floating covers each page's first control.
   return (
     <div role="status" className="relative z-[var(--z-locale-suggestion)]">
       {preferred && (

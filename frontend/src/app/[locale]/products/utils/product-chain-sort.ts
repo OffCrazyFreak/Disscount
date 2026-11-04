@@ -16,16 +16,7 @@ const minPrice: PriceReader = (chain) => parseFloat(chain.min_price);
 const avgPrice: PriceReader = (chain) => parseFloat(chain.avg_price);
 const maxPrice: PriceReader = (chain) => parseFloat(chain.max_price);
 
-/**
- * Order the chains carrying one product.
- *
- * "stores" follows the user's preferences: pinned chains lead, then whichever
- * charges least on average. "price" ignores preferences entirely and leads
- * with the chain holding the single cheapest store, which is the one worth
- * a detour. "distance" ignores preferences too and leads with the chain whose
- * nearest store is closest, chains without a located store last, price
- * breaking ties.
- */
+/** "stores" follows preferences, "price" leads with the single cheapest store, the one worth a detour, and "distance" with the nearest store. */
 export function compareProductChains(
   a: ChainProductResponse,
   b: ChainProductResponse,

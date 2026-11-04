@@ -12,12 +12,7 @@ interface IPriceStackProps {
   className?: string;
 }
 
-/**
- * Two tiers of figures split by a divider, as both the product card and the
- * watchlist card trail their rows with. The rhythm lives here because the two
- * cards sit in the same lists and drifted apart in height once each owned its
- * own spacing.
- */
+/** The rhythm lives here because the two cards sit in the same lists and drifted apart in height with their own spacing. */
 export default function PriceStack({
   primary,
   secondary,
@@ -35,13 +30,10 @@ export default function PriceStack({
         {primary}
       </div>
 
-      {/* Neither a truthiness check nor a plain null check. 0 is a legitimate price that
-          truthiness would drop, while false is what `condition && <Price/>` yields and
-          renders nothing, so it would draw a separator above an empty tier. */}
+      {/* Neither truthiness nor a null check, because 0 is a legitimate price and `condition && <Price/>` yields false, which would draw a separator over nothing. */}
       {secondary != null && typeof secondary !== "boolean" && (
         <>
-          {/* Margin on both sides: a 24px icon overhangs the 20px line box it
-              sits in, so a divider flush to the tier touches the glyph. */}
+          {/* Margin on both sides, because a 24px icon overhangs its 20px line box and a flush divider touches the glyph. */}
           <Separator className="my-1" />
 
           <div className="flex items-center justify-center gap-2">

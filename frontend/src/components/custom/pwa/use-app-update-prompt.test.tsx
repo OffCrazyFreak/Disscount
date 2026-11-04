@@ -63,8 +63,7 @@ describe("AppUpdatePrompt", () => {
       { once: true },
     );
 
-    // Sonner removes a dismissed toast on a 200 ms timer; letting it fire after the test ends
-    // runs it against a torn-down jsdom under load.
+    // Sonner removes a dismissed toast on a 200 ms timer, which would fire against a torn-down jsdom under load.
     await waitFor(() =>
       expect(
         screen.queryByText("Dostupna je nova verzija Disscounta."),

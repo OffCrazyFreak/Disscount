@@ -23,7 +23,6 @@ interface IProductPhotoDialogsProps {
   onManagingChange: (open: boolean) => void;
 }
 
-/** The upload and admin dialogs, opened from the photo tiles and from inside the viewer. */
 export default function ProductPhotoDialogs({
   ean,
   productName,

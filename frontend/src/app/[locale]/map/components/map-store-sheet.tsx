@@ -16,10 +16,7 @@ interface IMapStoreSheetProps {
   onClose: () => void;
   /** The sheet's height in pixels, 0 once it closes. */
   onHeightChange: (height: number) => void;
-  /**
-   * Takes focus when the sheet closes. A map control, not the search field,
-   * whose focus would raise the phone keyboard after an X tap.
-   */
+  /** A map control, not the search field, whose focus would raise the phone keyboard after an X tap. */
   returnFocusRef: RefObject<HTMLElement | null>;
 }
 
@@ -31,14 +28,12 @@ export default function MapStoreSheet({
   returnFocusRef,
 }: IMapStoreSheetProps) {
   const id = useId();
-  // State, not a ref: the drawer's portal mounts a render after the sheet
-  // opens, and the measuring has to start once the body actually exists.
+  // State, not a ref: the drawer's portal mounts a render after the sheet opens, and measuring must start once the body exists.
   const [body, setBody] = useState<HTMLDivElement | null>(null);
 
   const reportHeight = useEffectEvent(onHeightChange);
 
-  // The drawer itself is out of reach inside SheetShell, so it is found from
-  // the body, which it wraps edge to edge.
+  // The drawer is out of reach inside SheetShell, so it is found from the body, which it wraps edge to edge.
   useEffect(() => {
     const drawer = body?.closest<HTMLElement>('[data-slot="drawer-popup"]');
     if (!drawer) {
@@ -61,8 +56,7 @@ export default function MapStoreSheet({
       onOpenChange={(open) => !open && onClose()}
       title={row?.chainLabel ?? ""}
       srOnlyTitle
-      // The map stays in use behind it: panning or tapping another store must
-      // neither be blocked nor close the sheet.
+      // The map stays in use behind it: panning or tapping another store must neither be blocked nor close the sheet.
       modal={false}
       returnFocusRef={returnFocusRef}
       bodyClassName="gap-0 px-1"
@@ -73,8 +67,7 @@ export default function MapStoreSheet({
           <div ref={setBody} className="flex items-center gap-3 px-3 py-1">
             <StoreSummary row={row} isOpen id={id} />
 
-            {/* In the store's row rather than the sheet's header band, which
-                would spend a whole row on it. */}
+            {/* In the store's row rather than the header band, which would spend a whole row on it. */}
             <DrawerClose
               render={
                 <Button

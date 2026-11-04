@@ -17,8 +17,7 @@ export const EMPTY_CARD_VALUES: DigitalCardRequest = {
   balanceUnit: "EUR",
 };
 
-// Hidden fields keep their values in the form, so the request must not carry a balance
-// the user can no longer see.
+// Hidden fields keep their values in the form, so the request must not carry a balance the user can no longer see.
 export function toCardRequest(values: DigitalCardRequest): DigitalCardRequest {
   const hasBalance = values.cardType === "gift" && values.balance != null;
 

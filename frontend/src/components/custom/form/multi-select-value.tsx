@@ -29,8 +29,7 @@ export default function MultiSelectValue({
   );
 
   if (selectedValues.size === 0 && placeholder) {
-    // Keeps the caller's props: an id or aria attribute that vanished until
-    // something was selected would break whatever pointed at it.
+    // Keeps the caller's props, because an id or aria attribute that vanished until selection would break whatever pointed at it.
     return (
       <span
         {...props}
@@ -49,13 +48,9 @@ export default function MultiSelectValue({
       {...props}
       ref={containerRef}
       className={cn(
-        // min-w-0 undoes a flex item's automatic minimum, which here is the
-        // combined width of every badge, since each one is shrink-0 and
-        // nowrap. Without it the row cannot shrink, so it never scrolls, the
-        // overflow measurement always reads zero and the badges just spill.
+        // min-w-0 undoes a flex item's automatic minimum, the width of every shrink-0 badge, or the row never scrolls and the badges spill.
         "flex w-full min-w-0 gap-1.5 overflow-hidden",
-        // About three and a half rows, so the cut-off row shows it scrolls;
-        // unbounded, a long selection pushed the option list off a phone.
+        // About three and a half rows, so the cut-off row shows it scrolls; unbounded, a long selection pushes the list off a phone.
         open && "h-full max-h-26 flex-wrap overflow-y-auto overscroll-contain",
         className,
       )}
@@ -76,12 +71,7 @@ export default function MultiSelectValue({
             }}
           >
             {items.get(value)}
-            {/* Decorative, and the click behind it is pointer-only on purpose: a
-                badge renders inside the trigger button, so it cannot become a
-                control without nesting one. Deselecting in the list is the
-                keyboard and screen-reader path. Nothing is announced from in
-                here, because text inside the button becomes part of the
-                button's own accessible name. */}
+            {/* Decorative and pointer-only, because a badge inside the trigger cannot be a control without nesting; deselecting in the list is the keyboard path. */}
             <XIcon
               aria-hidden="true"
               className="size-3.5 shrink-0 text-muted-foreground group-hover:text-destructive"

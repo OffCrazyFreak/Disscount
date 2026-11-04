@@ -1,6 +1,5 @@
 import type { ModalTarget } from "@/lib/modal/modal-registry";
 
-// Every search param a modal target writes, so opening or closing one leaves none behind.
 const MODAL_PARAM_NAMES = [
   "modal",
   "id",

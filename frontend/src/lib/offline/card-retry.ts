@@ -4,18 +4,10 @@ import { isNetworkFailure } from "@/lib/offline/is-network-failure";
 
 const MAX_DELAY_MS = 30_000;
 
-// Five attempts, about 15 seconds. Then the failure is surfaced: the form reopens with
-// what was typed, or, for a write replayed from disk, a toast names what failed.
+// Five attempts, about 15 seconds, then the failure surfaces: the form reopens with what was typed, or a replay toast names what failed.
 const MAX_HTTP_RETRIES = 4;
 
-/**
- * No answer at all is retried for as long as the page stays open, since TanStack pauses
- * retries while offline and the paused write is persisted. A failure the server may get
- * over is bounded instead: a write in flight is persisted too, so a reload no longer
- * loses it and there is no reason to retry an outage forever. Never after
- * session_changed: a retry carries the new pin, so it would save one account's write
- * into the other.
- */
+/** Network failures retry while the page is open since writes persist; never after session_changed, which would save one account's write into the other. */
 export function shouldRetryCardWrite(failureCount: number, error: unknown) {
   if (isNetworkFailure(error)) return true;
 

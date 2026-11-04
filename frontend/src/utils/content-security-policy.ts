@@ -1,11 +1,7 @@
-// The only cross-origin script: the Umami tracker in the locale layout. Sentry posts
-// through the same-origin /monitoring tunnel, and Google and Facebook sign-in are redirects.
+// Sentry posts through the same-origin /monitoring tunnel, and Google and Facebook sign-in are redirects.
 const SCRIPT_ORIGINS = ["https://cloud.umami.is"];
 
-/**
- * No nonces: a nonce CSP forces every page to render dynamically, so Next's inline
- * bootstrap scripts still need 'unsafe-inline'.
- */
+/** No nonces, because a nonce CSP forces every page dynamic, so Next's inline bootstrap scripts still need 'unsafe-inline'. */
 export function buildContentSecurityPolicy(isDevelopment: boolean): string {
   const scriptSources = [
     "'self'",

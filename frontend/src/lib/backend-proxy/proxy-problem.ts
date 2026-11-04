@@ -9,7 +9,6 @@ import itErrors from "@/i18n/messages/it/errors.json";
 import slErrors from "@/i18n/messages/sl/errors.json";
 import { SESSION_CHANGED } from "@/lib/backend-proxy/proxy-contract";
 
-// The backend and Cijene proxies' own refusals and failures, in the Problem Details shape problem-details.ts reads.
 export type ProxyProblemCode =
   | "not_found"
   | "csrf_rejected"

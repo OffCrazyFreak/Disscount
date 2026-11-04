@@ -10,7 +10,6 @@ import {
 } from "@/app/[locale]/map/utils/open-filter";
 import { toStoreKey } from "@/utils/store-key";
 
-/** The map's hours, whether they failed, and what the open now filter keeps. */
 export function useMapHours(openFilter: OpenFilter) {
   const hours = useStoreHoursNow();
   const query = useStoreHours();
@@ -18,8 +17,7 @@ export function useMapHours(openFilter: OpenFilter) {
   const hasHoursFailed =
     !query.data && (query.isError || query.fetchStatus === "paused");
 
-  // Until the hours load, the filter waits rather than emptying the list; off,
-  // it passes nothing, so the minute clock does not rebuild every pin.
+  // Until the hours load, the filter waits rather than emptying the list; off, it passes nothing, so the minute clock does not rebuild every pin.
   const keep =
     hours && openFilter !== "off"
       ? (store: DirectoryStoreDto) =>

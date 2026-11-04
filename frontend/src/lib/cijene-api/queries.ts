@@ -44,7 +44,6 @@ export async function listStoresByChain(
 export async function searchStores(
   params?: SearchStoresParams,
 ): Promise<ListStoresResponse> {
-  // default to empty filter object
   const validated = searchStoresParamsSchema.parse(params ?? {});
   const filteredParams = Object.fromEntries(
     Object.entries(validated).filter(([, v]) => v != null && v !== ""),

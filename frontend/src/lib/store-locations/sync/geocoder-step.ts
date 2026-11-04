@@ -24,10 +24,7 @@ interface IGeocoderStepResult {
   failed: ISyncTarget[];
 }
 
-/**
- * Geocodes targets one at a time at the provider's pace. Targets past the
- * limit stay in the remaining list untouched, so the next run picks them up.
- */
+/** Targets past the limit stay untouched, so the next run picks them up. */
 export async function resolveWithGeocoder(
   targets: ISyncTarget[],
   { geocode, limit, intervalMs }: IGeocoderStepOptions,
@@ -62,8 +59,7 @@ export async function resolveWithGeocoder(
     } catch (error) {
       if (signal.aborted) throw error;
 
-      // A rate limit or outage says nothing about the address, so it is
-      // retried next run instead of waiting out the 7-day backoff.
+      // A rate limit or outage says nothing about the address, so it is retried next run instead of waiting out the 7-day backoff.
       console.warn(
         `[store-locations] geocoding ${target.chain}:${target.code} failed`,
         error,

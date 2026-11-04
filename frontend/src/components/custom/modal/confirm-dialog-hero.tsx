@@ -23,7 +23,6 @@ export default function ConfirmDialogHero({
       transition={{ type: "spring", stiffness: 320, damping: 20 }}
       className="relative flex size-14 items-center justify-center"
     >
-      {/* Concentric halo rings that ground the icon and set the tone. */}
       <span
         className={cn(
           "absolute inset-0 rounded-full",

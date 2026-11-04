@@ -12,9 +12,7 @@ import {
 
 const ENDPOINT = "https://nominatim.openstreetmap.org/search";
 
-// Usage policy (https://operations.osmfoundation.org/policies/nominatim/):
-// scripts running regularly are limited to 4 requests per minute. The caller
-// paces calls with this; geocodeWithNominatim itself makes exactly one request.
+// Nominatim's usage policy limits regular scripts to 4 requests per minute; the caller paces calls with this.
 export const NOMINATIM_MIN_INTERVAL_MS = 15_000;
 
 const BUILDING_TYPES = new Set([

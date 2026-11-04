@@ -1,5 +1,4 @@
-// Drawn at twice the CSS size and registered with pixelRatio 2, so logos stay
-// sharp on high-density screens.
+// Drawn at twice the CSS size and registered with pixelRatio 2, so logos stay sharp on high-density screens.
 export const ICON_PIXEL_RATIO = 2;
 
 // 36 CSS px: above WCAG 2.5.8's 24 px target with room for the logo to read.
@@ -64,12 +63,7 @@ function tile(
   roundedRect(context, inset, ICON_SIZE, ICON_SIZE, radius);
 }
 
-/**
- * The chain logo as a rounded square tile, the shape the logos are drawn in
- * and the one the landing page shows. The dark rim keeps 3:1 contrast against
- * any basemap colour (WCAG 1.4.11). A logo that fails to load leaves a plain
- * tile rather than a missing marker.
- */
+/** The dark rim keeps 3:1 contrast against any basemap colour (WCAG 1.4.11); a logo that fails to load leaves a plain tile, not a missing marker. */
 export async function renderChainIcon(chain: string): Promise<ImageData> {
   const context = createCanvas(ICON_SIZE);
 
@@ -110,10 +104,6 @@ export async function renderChainIcon(chain: string): Promise<ImageData> {
 
 const FRAME_STROKE = 4 * ICON_PIXEL_RATIO;
 
-/**
- * The green rounded square around the selected store, the same shape as the
- * logo tiles. A stack gets a wider one that fits its fanned tiles.
- */
 export function renderSelectedFrame(stack: boolean): ImageData {
   const width = (stack ? 68 : 48) * ICON_PIXEL_RATIO;
   const height = (stack ? 52 : 48) * ICON_PIXEL_RATIO;

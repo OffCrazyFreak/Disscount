@@ -27,8 +27,7 @@ const storeSchema = z.object({
   open_hours: z.string().nullish(),
 });
 
-// The Agile Store Locator nonce is minted per page render, so it is read
-// from the page every run rather than stored.
+// The nonce is minted per page render, so it is read from the page every run rather than stored.
 async function fetchNonce(signal: AbortSignal): Promise<string> {
   const html = await fetchText(PAGE_URL, signal);
   const literal = SETTINGS_PATTERN.exec(html)?.[1];

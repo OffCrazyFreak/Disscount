@@ -19,11 +19,7 @@ function subjectOf(token: string): string | null {
   return typeof claims.sub === "string" ? claims.sub : null;
 }
 
-/**
- * Signs a fresh backend JWT for the session the cookie names, or null when there is none.
- * Minted per request and never cached, so a revoked session stops at its next call.
- * Anything but "no session" (the database is down) throws.
- */
+/** Minted per request and never cached, so a revoked session stops at its next call; anything but "no session" throws. */
 export async function mintSessionToken(
   headers: Headers,
 ): Promise<ISessionToken | null> {

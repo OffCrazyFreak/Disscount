@@ -86,9 +86,7 @@ export function getMaxDiscountPercentage(
   discountInfo: IDiscountInfo | null,
   hasPinnedStores: boolean,
 ): number {
-  // The stored percentage is unsigned, so an above-average price would otherwise
-  // rank as if it were a discount of the same size. The amount is floored at 0,
-  // so it doubles as the "is actually discounted" test.
+  // The stored percentage is unsigned, so an above-average price would rank as a discount; the amount is floored at 0, doubling as the test.
   if (getMaxDiscountAmount(discountInfo, hasPinnedStores) <= 0) {
     return 0;
   }

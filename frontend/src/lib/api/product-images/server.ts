@@ -10,11 +10,7 @@ import {
 const PHOTO_TIMEOUT_MS = 3_000;
 const LISTED_EANS_TIMEOUT_MS = 15_000;
 
-/**
- * Full-size main photo for public use (share card, JSON-LD), or null when it has none, the
- * backend is unreachable, or nobody has confirmed it: a user's unconfirmed upload must not
- * represent the product outside our own gallery, where it carries a badge.
- */
+/** A user's unconfirmed upload must not represent the product outside our own gallery, where it carries a badge. */
 export const getVerifiedMainPhotoUrl = cache(
   async (ean: string): Promise<string | null> => {
     try {
@@ -35,7 +31,6 @@ export const getVerifiedMainPhotoUrl = cache(
   },
 );
 
-/** EANs some chain priced in the latest weekly catalogue import */
 export async function getListedEans(): Promise<string[]> {
   const response = await fetch(`${BACKEND_ORIGIN}/api/products/catalog/eans`, {
     next: { revalidate: 60 * 60 },

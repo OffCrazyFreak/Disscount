@@ -6,14 +6,7 @@ import java.util.Optional;
 
 import disscount.shoppingListItem.domain.ShoppingListItem;
 
-/**
- * Finds the row an added item merges into. Catalog products match by EAN, because two products
- * can share a name; plain items match by name ignoring case and outer whitespace. A catalog
- * product also takes over a plain row of the same name, which links that row to its prices.
- *
- * <p>Matching runs in Java over the list's items, not in SQL, so Croatian letters fold the same
- * way on Postgres (whose lower() depends on the database collation) and on H2.
- */
+/** Catalog products match by EAN because names can repeat; in Java, not SQL, so Croatian letters fold alike on Postgres and H2. */
 final class ShoppingListItemMatcher {
 
     private ShoppingListItemMatcher() {

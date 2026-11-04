@@ -17,7 +17,6 @@ interface IUseSearchBarQueryOptions {
   draftStore?: ISearchDraftStore;
 }
 
-/** The search field's form, kept in step with its draft and the URL's `q`. */
 export function useSearchBarQuery({
   routeQuery,
   autoSearch,
@@ -51,12 +50,10 @@ export function useSearchBarQuery({
   useEffect(() => {
     if (!autoSearch || disabled) return;
 
-    // An empty input over an empty URL has nothing to mirror; this also stops a
-    // bar mounted off its own route from redirecting there.
+    // An empty input over an empty URL has nothing to mirror; this also stops a bar off its own route from redirecting there.
     if (!queryValue && !routeQuery) return;
 
-    // A route change just replaced the draft earlier in this pass, so queryValue is the
-    // text from before it: sending that would push over the entry Back just reached.
+    // A route change just replaced the draft, so queryValue is stale, and sending it would push over the entry Back just reached.
     if (queryValue !== (draft.getTyped() ?? routeQuery)) return;
     if (queryValue === routeQuery) return;
 
@@ -64,8 +61,7 @@ export function useSearchBarQuery({
     syncQuery(queryValue);
   }, [autoSearch, disabled, draft, queryValue, routeQuery, syncQuery]);
 
-  // Never reset() the form: it drops the input's registration, and the compiler memoizes
-  // register() so the input never registers again, leaving the field dead.
+  // Never reset() the form: it drops the registration, and the compiler memoizes register(), leaving the field dead.
   const registration = register("query", {
     onChange: (event) => draft.type(event.target.value),
   });

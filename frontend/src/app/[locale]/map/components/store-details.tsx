@@ -11,10 +11,6 @@ interface IStoreDetailsProps {
   row: IListedStore;
 }
 
-/**
- * The body of an open list item. The name, address and distance stay in the
- * row above, so this holds only what the closed row has no room for.
- */
 export default function StoreDetails({ row }: IStoreDetailsProps) {
   const t = useTranslations("map.details");
   const { store } = row;
@@ -29,8 +25,7 @@ export default function StoreDetails({ row }: IStoreDetailsProps) {
         </p>
       )}
 
-      {/* Keyed so the phone sheet, which stays mounted across stores, announces
-          only a status change and not every newly picked store. */}
+      {/* Keyed so the phone sheet, which stays mounted across stores, announces only a status change and not every newly picked store. */}
       <StoreHoursSource
         key={row.key}
         storeKey={row.key}

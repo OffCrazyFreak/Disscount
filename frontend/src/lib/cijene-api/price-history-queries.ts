@@ -3,8 +3,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import { getProductByEan } from "@/lib/cijene-api/queries";
 
-// Product and shopping list charts share these cache entries, so both build
-// them here to keep the key and staleTime identical.
+// Product and shopping list charts share these entries, so both build them here to keep the key and staleTime identical.
 export function priceHistoryQueries(ean: string, dates: string[]) {
   return dates.map((date, index) =>
     queryOptions({

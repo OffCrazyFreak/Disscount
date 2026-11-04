@@ -14,11 +14,7 @@ function isNearPageEnd(): boolean {
   return scrollY + viewport >= fullHeight - 10000;
 }
 
-/**
- * How many batches to show, growing by one as the user nears the page end.
- * A background price refresh may change the items, but should not collapse
- * batches the user already revealed for the same batch key.
- */
+/** A background price refresh may change the items, but must not collapse batches the user already revealed for the same key. */
 export default function useRevealedBatches(
   batchKey: string,
   batchCount: number,

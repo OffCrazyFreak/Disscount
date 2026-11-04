@@ -1,9 +1,6 @@
 import type { IFacetSelect } from "@/app/[locale]/products/hooks/use-product-facets";
 
-/**
- * Whether the values pick every option that has results. Options with none
- * are disabled and "select all" skips them, so they do not count.
- */
+/** Options with no results are disabled and "select all" skips them, so they do not count. */
 export function selectsEveryOption(
   facet: IFacetSelect,
   values: string[],

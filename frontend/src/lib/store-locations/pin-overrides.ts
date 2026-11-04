@@ -1,16 +1,9 @@
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { storeKey } from "@/lib/store-locations/upstream-stores";
 
-/**
- * Stores whose automatic pin is verified wrong, pinned by hand in code. Only
- * OpenStreetMap points (ODbL, credited on the map) or places a person has
- * confirmed belong here, never coordinates copied from Google Maps. When the
- * store moves, replace the entry: deleting it brings back the source's own
- * point, which was wrong.
- */
+/** Only OSM points or person-confirmed places belong here, never Google Maps; replace rather than delete, which brings back the wrong point. */
 export const PIN_OVERRIDES = new Map<string, { lat: number; lon: number }>([
-  // Stanić Biograd: diskont.hr's point is 194 m off, on empty ground. OSM
-  // node 2432262893 (shop "Stanić"), 12 m from the store, checked 2026-10-24.
+  // Stanić Biograd: diskont.hr's point is 194 m off, on empty ground; OSM node 2432262893 (shop "Stanić"), 12 m from the store, checked 2026-10-24.
   [storeKey("stanic", "935"), { lat: 43.942276, lon: 15.4545024 }],
   // Gavranović Duga Resa: Geoapify 132 m off; OSM node 2175649707 "market Gavranović".
   [storeKey("gavranovic", "332"), { lat: 45.4477819, lon: 15.5015569 }],
@@ -26,8 +19,7 @@ export const PIN_OVERRIDES = new Map<string, { lat: number; lon: number }>([
   [storeKey("gavranovic", "519"), { lat: 45.5079844, lon: 15.4146165 }],
   // Gavranović Krnjak: the register's point is a bakery 69 m east; OSM node 1434059889 "Market Gavranović".
   [storeKey("gavranovic", "402"), { lat: 45.3377235, lon: 15.6089138 }],
-  // Gavranović Gažanski trg, Karlovac: centre of OSM way 83376926 "Gavranović", which Google agrees with.
-  // Its fixme asks whether the shop is at 14 or at 8 as upstream says.
+  // Gavranović Gažanski trg, Karlovac: centre of OSM way 83376926, which Google agrees with; its fixme asks whether the shop is at 14 or 8.
   [storeKey("gavranovic", "457"), { lat: 45.4966094, lon: 15.5575964 }],
   // NTL Bužanova 36, Zagreb: ntl.hr's point is 157 m off; OSM node 5576855520 "NTL".
   [storeKey("ntl", "10108"), { lat: 45.8122334, lon: 16.00583 }],

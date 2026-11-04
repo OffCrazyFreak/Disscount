@@ -22,7 +22,6 @@ interface IAuthFormShellProps<T extends IEmailValues> {
   children: ReactNode;
 }
 
-/** An email and password form's frame: the root error and the email field, then the rest. */
 export default function AuthFormShell<T extends IEmailValues>({
   form,
   onSubmit,

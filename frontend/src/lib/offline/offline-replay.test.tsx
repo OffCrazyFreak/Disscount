@@ -51,7 +51,6 @@ async function flushUntil(isDone: () => boolean) {
   expect(isDone()).toBe(true);
 }
 
-/** Queues a write offline, then restores it into a fresh client, as a reload does. */
 async function restoreQueuedWrite(
   mutationKey: MutationKey,
   variables: unknown,
@@ -71,7 +70,6 @@ async function restoreQueuedWrite(
   return after;
 }
 
-/** Saves the cache through the real persister and restores it into a fresh client. */
 async function reloadThroughDisk(before: QueryClient) {
   void persistOptions.persister.persistClient({
     timestamp: Date.now(),

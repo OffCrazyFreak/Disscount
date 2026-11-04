@@ -11,7 +11,6 @@ function byLabel(a: ISidebarFilterOption, b: ISidebarFilterOption): number {
   return compareHr(a.label, b.label);
 }
 
-/** Store chain and city options for the sidebar's products filter menus */
 export function useSidebarFilterOptions() {
   const { data: chainStats } = cijeneService.useGetChainStats();
   const { data: locations } = useAllLocations();

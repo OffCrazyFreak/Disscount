@@ -10,8 +10,7 @@ import it from "@/i18n/messages/it";
 import sl from "@/i18n/messages/sl";
 import de from "@/i18n/messages/de";
 
-// Change this to preview every email in another language; the underscore keeps the
-// folder out of the preview server's sidebar.
+// Change this to preview every email in another language; the underscore keeps the folder out of the preview sidebar.
 const PREVIEW_LOCALE: AppLocale = "hr";
 
 const CATALOGS = { hr, en, it, sl, de } as Record<AppLocale, typeof hr>;

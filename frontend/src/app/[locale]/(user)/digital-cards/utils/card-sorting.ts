@@ -65,7 +65,6 @@ const COMPARATORS: Record<
     compareHr(a.cardName, b.cardName),
 };
 
-/** Pinned cards lead in every mode; the chosen mode orders within each half. */
 export function sortCards(
   cards: readonly DigitalCardDto[],
   mode: CardSortMode,

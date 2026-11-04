@@ -7,9 +7,7 @@ import {
 
 import { WatchType } from "@/lib/api";
 
-// One field per mode, not one shared field: the two numbers mean different things
-// and are saved as separate watchlist entries, so switching modes has to keep an
-// in-progress edit of the other one instead of overwriting it.
+// One field per mode because they are saved as separate entries, so switching keeps an in-progress edit of the other.
 export function thresholdField(
   watchType: WatchType,
 ): "percentageValue" | "absoluteValue" {
@@ -24,8 +22,7 @@ export const watchlistFormSchema = z
     absoluteValue: z.string(),
   })
   .superRefine((data, ctx) => {
-    // Only the selected mode is submitted, so an unfinished number left in the
-    // other one must not hold the form invalid.
+    // Only the selected mode is submitted, so an unfinished number in the other must not hold the form invalid.
     const path = thresholdField(data.watchType);
     const value = parseThreshold(data[path]);
 

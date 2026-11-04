@@ -21,7 +21,6 @@ export function toPercent(
   };
 }
 
-/** Pixels of the rotated original, clamped inside it; null when the frame covers the whole photo. */
 export function toPixels(
   crop: PercentCrop,
   width: number,

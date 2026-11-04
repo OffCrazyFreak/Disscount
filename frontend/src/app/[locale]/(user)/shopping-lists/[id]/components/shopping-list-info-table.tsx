@@ -46,8 +46,7 @@ export default function ShoppingListInfoTable({
   const unpricedCount = countUnpricedItems(shoppingList.items, averagePrices);
 
   return (
-    // One live region for the whole table, so the totals are announced once when
-    // they land rather than each skeleton competing to say nothing.
+    // One live region for the whole table, so the totals are announced once instead of each skeleton competing.
     <div
       role="status"
       aria-live="polite"

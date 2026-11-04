@@ -21,10 +21,7 @@ export const addToListFormSchema = z
     isChecked: z.boolean(),
     chainCode: z.string().nullable().optional(),
   })
-  // The inline "create a list" branch posts straight to the same endpoint as the
-  // dedicated form, so it has to state the same rules. Without them this path
-  // created one-character lists, and a title past the column width came back as
-  // an unactionable 500 instead of a field error.
+  // The inline create branch posts to the same endpoint as the dedicated form, so it states the same rules, or a long title returns a 500.
   .superRefine((values, context) => {
     if (values.shoppingListId !== "new") return;
 

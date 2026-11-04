@@ -105,9 +105,7 @@ export default function WatchlistItemModal({
     draftKey,
     form,
     enabled: open && !isCheckingWatchlist,
-    // The mode comes from the button that opened the modal, so it is never drafted:
-    // arriving from the € button must not land you on % because that is where you
-    // left off. The numbers are drafted per mode, so neither one is lost.
+    // Never drafted because the mode comes from the button that opened the modal; numbers are drafted per mode, so neither is lost.
     exclude: ["watchType"],
   });
 
@@ -133,8 +131,7 @@ export default function WatchlistItemModal({
           ? t("watchlistModal.save")
           : t("watchlistModal.track")
       }
-      // EyePen rather than a generic Save, so editing an existing alert is marked the
-      // same way here as on the product row that opened this.
+      // EyePen so editing an existing alert is marked the same way here as on the product row that opened this.
       submitIcon={existingItemForType ? EyePen : Eye}
       submitLoading={isSaving}
       submitDisabled={
@@ -142,8 +139,7 @@ export default function WatchlistItemModal({
       }
       cancelLabel={t("watchlistModal.cancel")}
       resetLabel={t("watchlistModal.reset")}
-      // Enabled while either mode's number differs from what is tracked, including
-      // the one not on screen, because reset puts both of them back.
+      // Enabled while either mode's number differs from what is tracked, including the one off screen, because reset puts both back.
       resetDisabled={!isEditedInAnyMode}
       onReset={() => {
         clearDraft();

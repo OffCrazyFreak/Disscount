@@ -14,15 +14,13 @@ async function getStoreHours(): Promise<CompactStoreHoursResponse> {
   return compactStoreHoursResponse.parse(response.data);
 }
 
-// Under the "cijene" root so the hours persist offline; the status function
-// turns them unconfirmed by itself once they are two weeks old.
+// Under the "cijene" root so the hours persist offline; the status function turns them unconfirmed once two weeks old.
 export function useStoreHours({ enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({
     enabled,
     queryKey: CIJENE_QUERY_KEYS.storeHours,
     queryFn: getStoreHours,
-    // The cache keeps the compact form because the persister rewrites the whole
-    // cache as JSON on every save; a module-level select runs once per new data.
+    // The cache keeps the compact form because the persister rewrites the whole cache as JSON on every save.
     select: decodeStoreHours,
     staleTime: 60 * 60 * 1000,
   });

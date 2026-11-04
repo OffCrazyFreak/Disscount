@@ -16,19 +16,7 @@ const THRESHOLD_PX = 600;
 
 const LABEL = "Natrag na vrh";
 
-/**
- * Returns a long, scrolled page to the top.
- *
- * Material's regular FAB is 56dp with a 24dp icon, held 24dp off the edge of a
- * desktop window. The 28px icon optically compensates for the empty space in
- * Lucide's double-chevron view box. These are explicit rem values because this
- * project sets --spacing to 0.2rem, so numeric size utilities render smaller
- * than their usual pixel equivalents.
- *
- * Desktop only: on mobile the bottom nav's active tab does this, and the bar
- * already owns that corner. Mounted once in the root layout, so every page long
- * enough to scroll gets one without having to ask.
- */
+/** Explicit rem values because --spacing is 0.2rem; desktop only because on mobile the bottom nav's active tab does this. */
 export default function BackToTopButton() {
   const isVisible = useScrolledPast(THRESHOLD_PX);
 
@@ -42,13 +30,9 @@ export default function BackToTopButton() {
             size="icon"
             aria-label={LABEL}
             onClick={scrollToTop}
-            // inert also clears the tab order and the a11y tree, which opacity
-            // alone leaves behind.
+            // inert also clears the tab order and a11y tree, which opacity alone leaves behind.
             inert={!isVisible}
             className={cn(
-              // No sm: variants here: the base classes already apply at every
-              // width, so restating them at a breakpoint only read as if some
-              // rule existed for them to override.
               "pointer-events-auto size-[3.5rem] rounded-full shadow-lg [&_svg]:size-[1.75rem]!",
               "transition duration-300 motion-reduce:transition-none",
               isVisible ? "scale-100 opacity-100" : "scale-75 opacity-0",

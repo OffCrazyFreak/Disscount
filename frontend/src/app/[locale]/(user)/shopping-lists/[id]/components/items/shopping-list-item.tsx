@@ -27,9 +27,7 @@ interface IShoppingListItemProps {
   isFirst: boolean;
   isLast: boolean;
   showSeparator: boolean;
-  /** Ticking off and switching store: the in-the-shop actions. */
   canCheck: boolean;
-  /** Amount and removal. */
   canEditItems: boolean;
   lostFocusItemIdRef: RefObject<string | null>;
 }
@@ -59,7 +57,6 @@ export default function ShoppingListItem({
   return (
     <>
       <div className="relative isolate flex flex-wrap items-center justify-between gap-6 py-1 sm:flex-nowrap">
-        {/* Left side: Checkbox, photo, item name, and delete button (mobile) */}
         <div className="flex items-center gap-4 w-full sm:w-auto">
           <ItemCheckBox
             item={item}
@@ -70,7 +67,6 @@ export default function ShoppingListItem({
           <ItemPhoto item={item} />
           <ItemName item={item} isFirst={isFirst} isLast={isLast} />
 
-          {/* Delete button - shown on mobile in same row as item name */}
           {canEditItems && (
             <RemoveItemButton
               visibilityClassName="relative z-20 sm:hidden"
@@ -80,7 +76,6 @@ export default function ShoppingListItem({
           )}
         </div>
 
-        {/* Right side: Amount controls, price, and remove button */}
         <div className="flex flex-shrink-0 items-center justify-between gap-8 w-full sm:w-auto">
           <div className="flex sm:items-center justify-between gap-4 flex-col sm:flex-row w-full">
             <div className="flex items-center justify-between gap-6">
@@ -127,7 +122,6 @@ export default function ShoppingListItem({
         </div>
       </div>
 
-      {/* Separator (except for last item) */}
       {showSeparator && <Separator className="my-2" />}
     </>
   );

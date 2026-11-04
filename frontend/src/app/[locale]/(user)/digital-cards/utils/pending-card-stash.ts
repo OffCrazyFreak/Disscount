@@ -1,7 +1,4 @@
-// A failed optimistic save closes the modal before the server answers, so the retry needs
-// the card id (an idempotent PUT must not turn into a second card) and the card number.
-// The number is excluded from the localStorage draft on purpose, so it lives in memory only.
-// Picked photos are File objects that cannot be serialised, so they follow the same rule.
+// A failed optimistic save needs the card id, number and photos for the retry, and neither the number nor File objects may enter the localStorage draft.
 import type { CardPhotoChanges } from "@/app/[locale]/(user)/digital-cards/components/forms/digital-card-form-types";
 
 const TTL_MS = 5 * 60_000;

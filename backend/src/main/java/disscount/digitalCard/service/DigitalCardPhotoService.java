@@ -56,10 +56,7 @@ public class DigitalCardPhotoService {
     /** The bytes handed to a controller for streaming; {@code thumb} picks the small variant. */
     public record PhotoStream(StoredPhoto photo, String sha256, boolean thumb) {}
 
-    /**
-     * Deliberately not one transaction: the image is validated and stored first, and only the
-     * row write is transactional. If that write fails, the objects just stored are removed.
-     */
+    /** Not one transaction: only the row write is transactional, and if it fails the objects just stored are removed. */
     public CardPhotoDto upload(UUID userId, UUID cardId, String slot, MultipartFile full, MultipartFile thumb) {
         if (!photoStore.enabled()) {
             throw new ServiceUnavailableException("error.cardPhoto.unavailable");

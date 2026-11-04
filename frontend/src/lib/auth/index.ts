@@ -50,14 +50,12 @@ const GOOGLE_CLIENT_SECRET = serverEnv.GOOGLE_CLIENT_SECRET;
 const FACEBOOK_CLIENT_ID = serverEnv.FACEBOOK_CLIENT_ID;
 const FACEBOOK_CLIENT_SECRET = serverEnv.FACEBOOK_CLIENT_SECRET;
 
-const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
+const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
 
-// Guesses at a password or code, per client address; a correct proof lasts 15 minutes,
-// so an honest person needs very few of these.
+// Guesses per client address; a correct proof lasts 15 minutes, so an honest person needs very few.
 const PROOF_RATE_LIMIT = { window: 15 * 60, max: 5 };
 
-// Endpoints that set a password, and the body field carrying it. /set-password is
-// server-only with no HTTP path, so its route calls assertPasswordAcceptable itself.
+// /set-password is server-only with no HTTP path, so its route calls assertPasswordAcceptable itself.
 const NEW_PASSWORD_FIELDS: Record<string, string> = {
   "/sign-up/email": "password",
   "/reset-password": "newPassword",
@@ -80,15 +78,13 @@ export const auth = betterAuth({
     database: {
       generateId: "uuid",
     },
-    // The auth route rewrites this header from the trusted proxy hop before
-    // better-auth sees it, so a forged value never reaches the limiter.
+    // The auth route rewrites this header from the trusted proxy hop, so a forged value never reaches the limiter.
     ipAddress: {
       ipAddressHeaders: [CLIENT_IP_HEADER],
     },
   },
 
-  // Built-in rules and limits; enabled outside production too, and stored in Postgres
-  // so counters survive a deploy and every route bundle shares them.
+  // Stored in Postgres so counters survive a deploy and every route bundle shares them.
   rateLimit: {
     enabled: true,
     storage: "database",
@@ -107,12 +103,9 @@ export const auth = betterAuth({
       country: { type: "string", required: false, input: false },
     },
     expiresIn: SESSION_TTL_SECONDS,
-    // Default, set explicitly: the window slides only when the session is used,
-    // and is rewritten at most once a day rather than on every request.
+    // The window slides only when the session is used, and is rewritten at most once a day rather than on every request.
     updateAge: 60 * 60 * 24,
-    // security-policy.ts owns freshness: in 1.7.15 only /delete-user, /unlink-account and
-    // /list-sessions read freshAge, and the auth hook guards all three more strictly. Left at
-    // its one day default, a code-proven delete from an older session would still fail.
+    // security-policy.ts owns freshness; better-auth's one day default would still fail a code-proven delete from an older session.
     freshAge: 0,
   },
 
@@ -169,12 +162,10 @@ export const auth = betterAuth({
       clientSecret: GOOGLE_CLIENT_SECRET,
     },
     facebook: {
-      // Hiding the button is not enough, the server must refuse it too: email-match
-      // linking is unsafe for Facebook until #43 is resolved.
+      // The server must refuse it too, because email-match linking is unsafe for Facebook until #43 is resolved.
       enabled: !FACEBOOK_COMING_SOON,
       clientId: FACEBOOK_CLIENT_ID,
       clientSecret: FACEBOOK_CLIENT_SECRET,
-      // Defaults to scopes ["email", "public_profile"] plus the "picture" field.
       // Email is required: a login returning none fails and surfaces to the user.
     },
   },
@@ -184,16 +175,13 @@ export const auth = betterAuth({
     encryptOAuthTokens: true,
     accountLinking: {
       enabled: true,
-      // Auto-links by shared email; the gate requires the EXISTING account verified.
-      // An OAuth user is verified only if the provider's email_verified claim says so.
-      // A trusted provider skips that claim when linking, so Google stays untrusted.
+      // Auto-links by shared email; a trusted provider skips the email_verified claim when linking, so Google stays untrusted.
       trustedProviders: FACEBOOK_COMING_SOON ? [] : ["facebook"],
     },
   },
 
   hooks: {
-    // Must run before the handler: /reset-password consumes its token before hashing,
-    // so a later refusal would burn the link.
+    // Must run before the handler, because /reset-password consumes its token before hashing, and a later refusal would burn the link.
     before: createAuthMiddleware(async (ctx) => {
       await guardSensitiveAction(ctx);
 
@@ -235,8 +223,7 @@ export const auth = betterAuth({
     },
     user: {
       update: {
-        // Re-checks at apply time (the /api/account/change-email POST guard only checks
-        // at request time), closing the link-during-confirmation race.
+        // Re-checks at apply time, closing the link-during-confirmation race the request-time guard leaves open.
         before: async (userData, ctx) => {
           const changingEmail = typeof userData.email === "string";
           const userId = ctx?.context.session?.user.id;
@@ -269,8 +256,7 @@ export const auth = betterAuth({
 
   user: {
     additionalFields: {
-      // Written by the client (input: true), so the validator rejects anything
-      // outside the five locales before it reaches the database.
+      // Written by the client (input: true), so the validator rejects anything outside the five locales.
       locale: {
         type: "string",
         required: false,
@@ -318,7 +304,7 @@ export const auth = betterAuth({
       },
     }),
     reauth(),
-    nextCookies(), // must be last
+    nextCookies(),
   ],
 
   trustedOrigins: [appUrl()],

@@ -10,32 +10,16 @@ type ShoppingListsTranslator = ReturnType<
 // Open-ended rules, so a long title never has to line up with a closing corner.
 const RULE = "═".repeat(18);
 
-/**
- * None of these clients define an escape syntax for their own markers, so a
- * backslash renders literally. Lookalikes read the same and cannot open a run.
- */
+/** None of these clients define an escape syntax for their markers, so a backslash renders literally; lookalikes read the same and cannot open a run. */
 function neutraliseMarkers(text: string): string {
   return text.replace(/\*/g, "\u2217").replace(/~/g, "\u2053");
 }
 
-/**
- * WhatsApp, Viber and Messenger all read *bold* and ~strikethrough~, and all
- * need the markers to sit against a space, so a bought item reads as crossed off
- * rather than as another thing left to find.
- */
+/** WhatsApp, Viber and Messenger all read ~strikethrough~ only when the markers sit against a space. */
 function strikeWhenChecked(text: string, isChecked: boolean): string {
   return isChecked ? `~${text}~` : text;
 }
 
-/**
- * Format shopping list as text for sharing
- * Sorts items by checked status, then shop (chainCode), then brand, then name
- * @param shoppingList The shopping list to format
- * @param t Translator for the "shoppingLists" namespace
- * @param locale Active locale, for the dates
- * @param suggestedChains Item id to the chain its store select suggests, for items with none saved
- * @returns Formatted text ready to share
- */
 export function formatShoppingListForSharing(
   shoppingList: ShoppingListDto,
   t: ShoppingListsTranslator,
@@ -45,7 +29,6 @@ export function formatShoppingListForSharing(
   const shownChain = (item: ShoppingListItemDto) =>
     item.chainCode ?? suggestedChains[item.id] ?? "";
 
-  // Sort items: unchecked first, then by shop, brand, and name
   const sortedItems = [...shoppingList.items].sort((a, b) => {
     if (a.isChecked !== b.isChecked) {
       return a.isChecked ? 1 : -1;

@@ -49,10 +49,7 @@ function ClosingLink() {
   );
 }
 
-// A navigation closes the mobile drawer; the router mock stands in for it. The extra
-// button opens it from somewhere other than the trigger, so the drawer's own focus
-// restore cannot hide a missing handoff. A vanishing opener models a page that swaps
-// the header (the map has its own trigger), which unmounts what opened the drawer.
+// The extra button opens it from elsewhere so the drawer's focus restore cannot hide a missing handoff; a vanishing opener models a swapped header.
 function DrawerControls({ vanishes }: { vanishes: boolean }) {
   const { setOpenMobile } = useSidebar();
   const [isGone, setIsGone] = useState(false);

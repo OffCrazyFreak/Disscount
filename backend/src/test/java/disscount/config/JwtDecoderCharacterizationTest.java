@@ -27,10 +27,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/**
- * Runs the production decoder against a local JWKS, so a Spring Security upgrade that adds a
- * default validator (a typ check, say) shows up here before it logs every user out.
- */
+/** So a Spring Security upgrade adding a default validator shows up here before it logs every user out. */
 class JwtDecoderCharacterizationTest {
 
     private static final String ISSUER = "http://localhost:3000";

@@ -10,15 +10,7 @@ interface IBottomNavIndicatorProps {
   opacity: IndicatorOpacity;
 }
 
-/**
- * The active-tab disc. Exactly one cell renders it at a time, so `layoutId` sees
- * the old element leave and the new one arrive and interpolates between their
- * boxes, which is what makes it slide rather than reappear.
- *
- * It encloses both the icon and the label, and carries the active state without
- * relying on colour, which matters twice over: Lucide is outline-only, so there
- * is no filled counterpart to swap in.
- */
+/** Exactly one cell renders it at a time, so `layoutId` slides it; it carries active state without colour, since Lucide has no filled icons. */
 export default function BottomNavIndicator({
   opacity,
 }: IBottomNavIndicatorProps) {
@@ -28,8 +20,7 @@ export default function BottomNavIndicator({
     <motion.span
       layoutId="bottom-nav-indicator"
       aria-hidden="true"
-      // The spring drives the fade as well as the slide, so the disc dissolves on
-      // its way onto the search cell and resolves on its way off it.
+      // The spring drives the fade too, so the disc dissolves on its way onto the search cell and resolves on its way off.
       initial={{ opacity: opacity.from }}
       animate={{ opacity: opacity.to }}
       className={cn(CELL_DISC_CLASS, "bg-primary/15 rounded-full")}

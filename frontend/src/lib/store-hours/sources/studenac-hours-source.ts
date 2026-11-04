@@ -14,11 +14,7 @@ const LIST_URL = "https://www.studenac.hr/trgovine";
 
 const PAGE_INTERVAL_MS = 1_000;
 
-/**
- * The list page has every store but only today's hours; the week sits on
- * each store's page. Only the stores upstream lists are fetched (about 20
- * of 1,433), joined by the store number both sides use.
- */
+/** The list page has only today's hours, so only stores upstream lists are fetched (about 20 of 1,433), joined by store number. */
 export const studenacHoursSource: IHoursSource = {
   chain: "studenac",
 

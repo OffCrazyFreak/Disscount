@@ -11,11 +11,7 @@ interface IPointRecord {
   lon: number;
 }
 
-/**
- * Drops records that share their exact point with a record at another
- * address: the source geocoded at least one of them wrongly, and nothing
- * says which. Two spellings of one address in one place are the same address.
- */
+/** Records sharing a point at different addresses are dropped, because the source geocoded at least one wrongly and nothing says which. */
 export function withoutSharedPoints<T extends IPointRecord>(records: T[]): T[] {
   const groups = new Map<string, T[]>();
 

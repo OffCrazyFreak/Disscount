@@ -18,7 +18,6 @@ interface IUseSelectedFrameOptions {
   selectedPoint: ILatLon | null;
 }
 
-/** Keeps the selection frame on whatever the selected store is drawn as. */
 export function useSelectedFrame({
   map: mapRef,
   ready,
@@ -44,9 +43,7 @@ export function useSelectedFrame({
     let cancelled = false;
     let latestRun = 0;
 
-    // "idle" fires once tiles and clusters for the new view are drawn, which
-    // a plain moveend can beat. An unchanged frame keeps its object, so the
-    // overlay does not redraw and fire idle again.
+    // "idle" fires once tiles and clusters are drawn, which moveend can beat; an unchanged frame keeps its object so the overlay does not refire idle.
     async function locate() {
       const run = ++latestRun;
       let next: ISelectedFrame | null;
@@ -54,8 +51,7 @@ export function useSelectedFrame({
       try {
         next = await findSelectedFrame(instance, key, point);
       } catch {
-        // A filter change can retire a cluster mid-lookup; the next idle
-        // looks again.
+        // A filter change can retire a cluster mid-lookup; the next idle looks again.
         return;
       }
 

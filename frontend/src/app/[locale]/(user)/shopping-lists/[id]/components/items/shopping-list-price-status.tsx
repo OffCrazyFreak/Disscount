@@ -17,10 +17,7 @@ interface IShoppingListPriceStatusProps {
   onRetryFocusLost: (retriedItemIds: readonly string[]) => void;
 }
 
-/**
- * One notice for every item whose prices failed, instead of one per row. The live region
- * stays mounted while silent, so a failure that arrives later is still announced.
- */
+/** The live region stays mounted while silent, so a failure that arrives later is still announced. */
 export default function ShoppingListPriceStatus({
   failedItemIds,
   isRetrying,
@@ -31,8 +28,7 @@ export default function ShoppingListPriceStatus({
   const successRef = useRef<HTMLParagraphElement>(null);
   const failedCount = failedItemIds.length;
 
-  // Each new failure starts a generation, and a retry only counts for the one it was pressed
-  // in, so a failure arriving mid-retry, then removed, cannot surface a stale success.
+  // A retry only counts for the generation it was pressed in, so a failure arriving mid-retry, then removed, cannot surface a stale success.
   const [failureGeneration, setFailureGeneration] = useState(0);
   const [previousFailedCount, setPreviousFailedCount] = useState(failedCount);
   if (failedCount !== previousFailedCount) {
@@ -54,8 +50,7 @@ export default function ShoppingListPriceStatus({
   const isRecovered =
     recoveredGeneration === failureGeneration && failedCount === 0;
 
-  // The retry button unmounts once every price loads; when it took focus with it, hand focus
-  // to the outcome instead of the page top, but never pull focus away from anything else.
+  // The retry button unmounts once every price loads, so hand focus to the outcome, but never pull it away from anything else.
   useEffect(() => {
     if (isRecovered && document.activeElement === document.body) {
       successRef.current?.focus();

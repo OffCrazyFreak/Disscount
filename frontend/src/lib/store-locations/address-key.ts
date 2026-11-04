@@ -1,6 +1,5 @@
 import { normalizeForSearch } from "@/utils/strings";
 
-/** An address reduced to what two spellings of it have in common. */
 export interface IParsedAddress {
   /** Distinctive street words, e.g. ["franje", "tudmana"]. */
   tokens: string[];
@@ -8,8 +7,7 @@ export interface IParsedAddress {
   number: string | null;
 }
 
-// Words every spelling may add or drop ("Ulica Ilica", "Ul. Ilica", "Ilica"),
-// so they carry no signal when comparing two sources.
+// Words every spelling may add or drop, so they carry no signal when comparing two sources.
 const NOISE = new Set([
   "ulica",
   "ul",
@@ -77,21 +75,14 @@ export function parseAddress(
   return { tokens, number };
 }
 
-/**
- * Whether two addresses name the same building: same house number, and most of
- * the shorter street name appears in the longer one, since sources abbreviate
- * first names ("F. Tuđmana") or drop them altogether.
- */
+/** Most of the shorter street name must appear in the longer, since sources abbreviate first names or drop them. */
 export function addressesMatch(a: IParsedAddress, b: IParsedAddress): boolean {
   if (!a.number || a.number !== b.number) return false;
 
   return streetsMatch(a.tokens, b.tokens);
 }
 
-/**
- * Whether most of the shorter street name appears in the longer one. With
- * `initials`, a Croatian two-letter initial ("Lj." for Ljudevit) counts too.
- */
+/** With `initials`, a Croatian two-letter initial ("Lj." for Ljudevit) counts too. */
 export function streetsMatch(
   a: string[],
   b: string[],
@@ -113,17 +104,14 @@ export function streetsMatch(
   return shared / shorter.length >= 0.6;
 }
 
-// Croatian writes lj, nj and dž as one letter, so "Lj. Gaja" abbreviates
-// "Ljudevita Gaja" with two characters.
+// Croatian writes lj, nj and dž as one letter, so "Lj. Gaja" abbreviates "Ljudevita Gaja" with two characters.
 function isDigraphInitial(a: string, b: string): boolean {
   const [initial, word] = a.length <= b.length ? [a, b] : [b, a];
 
   return /^(lj|nj|dz)$/.test(initial) && word.startsWith(initial);
 }
 
-// Croatian declines street names ("Vukovarska" vs "Vukovarske"), so a shared
-// stem of five letters counts as the same word. Sources also abbreviate
-// ("Set." for "Šetalište"), so a short word that starts the other one counts.
+// Croatian declines street names, so a five-letter stem counts as the same word; sources also abbreviate, so a short prefix counts.
 function isPrefixPair(a: string, b: string): boolean {
   if (startsOther(a, b)) return true;
 
@@ -132,11 +120,7 @@ function isPrefixPair(a: string, b: string): boolean {
   return stem >= 4 && a.slice(0, stem) === b.slice(0, stem);
 }
 
-/**
- * Whether two street names share a word only through the five-letter stem,
- * the loosest rule: "Posavskog" and "Posavska" are different streets as often
- * as they are one street declined.
- */
+/** The loosest rule: "Posavskog" and "Posavska" are different streets as often as one street declined. */
 export function matchedOnlyByStem(a: string[], b: string[]): boolean {
   const [shorter, longer] = a.length <= b.length ? [a, b] : [b, a];
 
@@ -154,11 +138,7 @@ function startsOther(a: string, b: string): boolean {
   return shorter.length >= 3 && longer.startsWith(shorter);
 }
 
-/**
- * Strips what some chains append to the upstream address: a postcode and town
- * ("Stepinca 8B, 10290 Zaprešić") or a store code and chain ("Savska 58 87079
- * Spar"), either of which would otherwise be read as the house number.
- */
+/** Some chains append a postcode and town or a store code and chain, which would otherwise read as the house number. */
 export function cleanUpstreamAddress(address: string | null): string | null {
   if (!address) return address;
 

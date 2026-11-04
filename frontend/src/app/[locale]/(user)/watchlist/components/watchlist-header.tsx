@@ -36,8 +36,7 @@ export default function WatchlistHeader({
         )}
       </div>
 
-      {/* Stays mounted through a background price refetch, which would
-          otherwise pop the button off screen and back. */}
+      {/* Stays mounted through a background refetch, which would otherwise pop the button off screen and back. */}
       <CreateDiscountedListButton
         discountedItems={discountedItems}
         isLoading={productsLoading}

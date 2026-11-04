@@ -2,15 +2,13 @@ import type { ExpressionSpecification, StyleSpecification } from "maplibre-gl";
 
 const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 
-// OpenFreeMap prefers English names ("Zagreb" is fine, "Split" too, but
-// islands and regions come out in English), so prefer the Croatian tag.
+// OpenFreeMap prefers English names, and islands and regions come out in English, so prefer the Croatian tag.
 const CROATIAN_NAME: ExpressionSpecification = [
   "coalesce",
   ["get", "name:hr"],
   ["get", "name"],
 ];
 
-/** Fetches the basemap style and makes its labels Croatian. */
 export async function loadMapStyle(
   signal?: AbortSignal,
 ): Promise<StyleSpecification> {

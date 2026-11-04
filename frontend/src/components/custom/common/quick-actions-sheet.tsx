@@ -20,11 +20,7 @@ interface IQuickActionsSheetProps {
   children?: ReactNode;
 }
 
-/**
- * The shell every long-press actions sheet shares: a summary of what was pressed,
- * then its actions. Kept entity-agnostic so products and shopping lists differ
- * only in their summary and their action rows.
- */
+/** Kept entity-agnostic so products and shopping lists differ only in their summary and action rows. */
 export default function QuickActionsSheet({
   open,
   onOpenChange,
@@ -44,8 +40,7 @@ export default function QuickActionsSheet({
       // The summary names the entity better than a truncated title row could.
       srOnlyTitle
       description={description}
-      // Without an entity there are no action buttons, so the header's button is
-      // the only way out of a sheet a shared link opened.
+      // Without an entity there are no action buttons, so the header's button is the only way out of a sheet a shared link opened.
       showCloseButton={!hasEntity}
       bodyClassName="gap-2"
     >

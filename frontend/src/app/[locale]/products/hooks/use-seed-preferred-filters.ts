@@ -6,15 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useUser } from "@/context/user-context";
 import { FILTER_KEYS } from "@/app/[locale]/products/hooks/use-filter-params";
 
-/**
- * Prepopulate the chain and location filters from the user's pinned stores and
- * places, but only for an unfiltered view. A URL that already carries any
- * filter is a deliberate choice, whether shared as a link or picked here, so
- * it is left alone rather than mixed with preferences that could contradict it.
- *
- * Seeds once per mount, so clearing a filter sticks while the user stays. Pass
- * `false` where another reader on the same route already owns the seeding.
- */
+/** A URL carrying any filter is a deliberate choice, so it is left alone; seeds once per mount, so clearing a filter sticks. */
 export default function useSeedPreferredFilters(enabled = true): void {
   const searchParams = useSearchParams();
   const pathname = usePathname();

@@ -25,8 +25,7 @@ export default function BottomNavItemLabel({
       </span>
 
       {item.comingSoon && (
-        // Rotated off the right edge, the convention the header nav and the
-        // landing page already use.
+        // Rotated off the right edge, the convention the header nav and landing page already use.
         <ComingSoonBadge className="pointer-events-none absolute top-[0.1rem] right-0 rotate-6 px-1 py-0 text-[0.5rem] shadow-none" />
       )}
     </>

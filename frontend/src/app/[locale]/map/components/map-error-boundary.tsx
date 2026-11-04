@@ -13,11 +13,7 @@ interface IMapErrorBoundaryState {
   failed: boolean;
 }
 
-/**
- * MapLibre 6 throws from its constructor when the device has no WebGL2. The
- * list beside the map already holds every store, so the map area just says so
- * instead of taking the page down. A class, because only a class can catch.
- */
+/** MapLibre 6 throws from its constructor without WebGL2, and the list beside it holds every store; a class because only a class can catch. */
 export default class MapErrorBoundary extends Component<
   IMapErrorBoundaryProps,
   IMapErrorBoundaryState
@@ -29,8 +25,7 @@ export default class MapErrorBoundary extends Component<
   }
 
   componentDidCatch(error: unknown) {
-    // A stale MapLibre chunk after a deploy is caught here before the route
-    // boundary could recover it.
+    // A stale MapLibre chunk after a deploy is caught here before the route boundary could recover it.
     if (reloadAfterChunkLoadError(error)) return;
 
     console.warn("[map] could not start", error);

@@ -17,13 +17,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import disscount.Application;
 
-/**
- * Production runs ddl-auto=update, which compares the entities with PostgreSQL at every start. A
- * mapping PostgreSQL reads back differently (#397: char(64) as bpchar) alters the table on every
- * restart, which H2 cannot show. So this starts the app twice on real PostgreSQL with the real
- * application.properties, which the test copy otherwise shadows, and the second start must change
- * nothing.
- */
+/** ddl-auto=update alters tables PostgreSQL reads back differently (#397), which H2 cannot show, so a second start on real PostgreSQL must change nothing. */
 @Testcontainers
 class DoubleBootSchemaTest {
 

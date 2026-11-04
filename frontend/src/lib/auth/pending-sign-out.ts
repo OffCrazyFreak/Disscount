@@ -18,11 +18,7 @@ const RETRYABLE_STATUSES = new Set([408, 429]);
 
 let finishing: Promise<void> | null = null;
 
-/**
- * Ends the server session, or remembers to: offline the request never arrives, the
- * httpOnly cookie survives, and the account would be signed in again once back online.
- * Matched by session id, so a later sign-in, even to the same account, is never undone.
- */
+/** Offline the request never arrives and the httpOnly cookie survives; matched by session id, so a later sign-in is never undone. */
 export function signOutOrDefer(): Promise<void> {
   // Offline the session is unknown, so the account leaving is the one the cache names.
   const fallbackUserId = persistedCacheIdentity();
@@ -51,10 +47,7 @@ async function endSession(pending: IPendingSignOut | null) {
   }
 }
 
-/**
- * The account a resolved session counts as. A session the user signed out of counts as
- * nobody, and is ended again if the server may still hold it; any other answer settles it.
- */
+/** A signed-out session counts as nobody, and is ended again if the server may still hold it. */
 export function sessionIdentity(
   session: ISessionLike | null | undefined,
   sessionError: unknown,

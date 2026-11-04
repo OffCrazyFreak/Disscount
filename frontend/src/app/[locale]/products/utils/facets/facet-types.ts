@@ -17,7 +17,6 @@ export interface IFacetSelections {
   brands: string[];
 }
 
-/** One product reduced to the sets the facet counters compare against */
 export interface IIndexedProduct {
   chainCodes: Set<string>;
   /** normalized -> display */
@@ -30,10 +29,7 @@ export interface ILocationChains {
   chains: Set<string>;
 }
 
-/**
- * The products and selections of one facet computation, normalized once so the
- * matchers and counters can compare sets rather than re-normalize per product.
- */
+/** Normalized once so matchers and counters compare sets rather than re-normalizing per product. */
 export interface IFacetQuery {
   indexed: IIndexedProduct[];
   locations: ILocationChains[];

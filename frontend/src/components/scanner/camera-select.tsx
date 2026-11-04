@@ -70,10 +70,7 @@ export default function CameraSelect({
 
       <Tooltip>
         <TooltipTrigger asChild>
-          {/* aria-disabled rather than the native attribute, matching
-              SearchNavButton: disabled drops the control out of the tab order and
-              kills the pointer events the tooltip needs, so the only explanation
-              of this icon vanished exactly when it was least obvious. */}
+          {/* aria-disabled because disabled leaves the tab order and kills the pointer events the explaining tooltip needs. */}
           <Button
             type="button"
             variant="outline"

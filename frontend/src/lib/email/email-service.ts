@@ -20,7 +20,7 @@ interface IActionEmailArgs {
 }
 
 interface ITokenEmailArgs extends IActionEmailArgs {
-  // Used to build an idempotency key so a retried hook doesn't send a duplicate.
+  // Part of the idempotency key, so a retried hook does not send a duplicate.
   token: string;
 }
 
@@ -52,8 +52,7 @@ export class EmailService {
     private readonly recipientGate: IRecipientSendGate,
   ) {}
 
-  // Provider returns { error } instead of throwing; surface it so .catch(logEmailFailure) fires.
-  // A spent recipient cap throws the same way, so callers stay silent and enumeration-safe.
+  // The provider returns { error } instead of throwing, so surface it for .catch(logEmailFailure); a spent cap throws too, keeping callers enumeration-safe.
   private async send(message: IEmailMessage): Promise<void> {
     if (!(await this.recipientGate.tryReserve(message.to)))
       throw new RecipientCapReachedError();
@@ -109,7 +108,6 @@ export class EmailService {
     return this.sendAction("setPassword", `set-password/${args.token}`, args);
   }
 
-  // Sent when a correct sign-in is refused because the password is in a known breach.
   async sendBreachedPassword(args: ITokenEmailArgs) {
     return this.sendAction(
       "breachedPassword",
@@ -118,7 +116,6 @@ export class EmailService {
     );
   }
 
-  // Sent to a verified owner when someone signs up with their address; links to sign-in.
   async sendAccountExists(args: ITokenEmailArgs) {
     return this.sendAction(
       "accountExists",
@@ -127,7 +124,6 @@ export class EmailService {
     );
   }
 
-  // Sent to an unverified owner on a repeat sign-up: a reset token worded as finishing sign-up.
   async sendCompleteSignUp(args: ITokenEmailArgs) {
     return this.sendAction(
       "completeSignUp",
@@ -141,7 +137,6 @@ export class EmailService {
     return this.sendAction("changeEmail", `change-email/${args.token}`, args);
   }
 
-  // A one-time code that proves it is still the owner before a sensitive change.
   async sendReauthCode({ to, locale, code, codeId }: ICodeEmailArgs) {
     const { subject, props } = await buildCodeEmail(locale, code);
 
@@ -162,8 +157,7 @@ export class EmailService {
     );
   }
 
-  // Sent to the OLD address once the new one is confirmed: the only inbox an owner
-  // locked out by a hijacked email change still reads.
+  // To the old address, the only inbox an owner locked out by a hijacked email change still reads.
   async sendEmailChanged(args: IEmailChangedArgs) {
     return this.sendAction(
       "emailChanged",

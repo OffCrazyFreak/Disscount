@@ -29,7 +29,6 @@ export interface IOnboardingStep {
   component: ComponentType;
 }
 
-// The middle steps ARE the settings tabs - same components, same form context.
 export const ONBOARDING_STEPS: IOnboardingStep[] = [
   {
     id: "welcome",

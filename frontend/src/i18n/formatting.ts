@@ -1,11 +1,9 @@
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locales";
 
-// The server runs on UTC; pinning the zone keeps server and browser output equal
-// and shows Croatian store times as they are in Croatia.
+// The server runs on UTC, so pinning the zone keeps output equal and shows Croatian store times as they are in Croatia.
 export const TIME_ZONE = "Europe/Zagreb";
 
-// Plain "en" formats dates the US way (10/12/2026); the app prices in euros for a
-// European audience, so English follows British conventions.
+// Plain "en" formats dates the US way, so for a European audience pricing in euros, English follows British conventions.
 const FORMAT_LOCALES: Record<AppLocale, string> = {
   hr: "hr-HR",
   en: "en-GB",

@@ -13,12 +13,7 @@ import {
 } from "@/utils/browser/local-storage";
 import { isGeolocationGranted } from "@/utils/browser/geolocation-permission";
 
-/**
- * The store list sort, saved across lists. A saved "distance" comes back from
- * the location when the browser already allows it, else from a picked or saved
- * town, so loading a list never prompts; otherwise the list opens in the
- * default order.
- */
+/** A saved "distance" restores from existing permission or a picked or saved town, so loading a list never prompts. */
 export function useStoreOptimizeMode() {
   const [saved] = useState(() => {
     const stored = getStoreOptimizeMode();
@@ -55,8 +50,7 @@ export function useStoreOptimizeMode() {
     };
   }, [saved, isUserLoading]);
 
-  // "distance" is saved only once it worked, so a failed pick keeps the
-  // earlier choice, and a failed restore stops retrying on every visit.
+  // "distance" is saved only once it worked, so a failed pick keeps the earlier choice and a failed restore stops retrying every visit.
   useEffect(() => {
     if (distance.state === "ready") setStoreOptimizeMode("distance");
     else if (

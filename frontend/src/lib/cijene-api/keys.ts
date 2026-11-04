@@ -37,11 +37,7 @@ function productKey(params: GetProductParams) {
   return ["cijene", "product", "ean", JSON.stringify(params)] as const;
 }
 
-/**
- * The `cijene` root is allowlisted for offline persistence in
- * lib/offline/cached-query-keys.ts, except `prices` keys other than `product`. The persisted
- * cache stores these exact values, so changing one strands every user's offline copy.
- */
+/** The persisted cache stores these exact values, so changing one strands every user's offline copy; see lib/offline/cached-query-keys.ts. */
 export const CIJENE_QUERY_KEYS = {
   chains: ["cijene", "chains"] as const,
   chainStats: ["cijene", "chain-stats"] as const,

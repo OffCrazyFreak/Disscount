@@ -50,7 +50,6 @@ export function proofFailureFrom(
   return { reason: error.status === 429 ? "too-many" : "failed" };
 }
 
-/** Proves it is the owner; on success the server has renewed this device's session. */
 export async function prove(proof: ReauthProof) {
   const { error } =
     "password" in proof

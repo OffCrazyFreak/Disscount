@@ -14,11 +14,7 @@ interface IShoppingListUnavailableProps {
   isSignedIn: boolean;
 }
 
-/**
- * Why the list is not here. Only a 404 means the link is dead, so everything else offers
- * a retry: telling a shopper on flaky mobile data that the owner revoked their access
- * sends them off to ask for a new link they do not need.
- */
+/** Only a 404 means the link is dead; a retry elsewhere stops a shopper on flaky data asking for a new link they do not need. */
 export default function ShoppingListUnavailable({
   error,
   onRetry,
@@ -30,8 +26,7 @@ export default function ShoppingListUnavailable({
   if (isDeadLink) {
     return (
       <div className="mx-auto">
-        {/* A list that stopped being shared and one that never existed read the same on
-            purpose, so the wording cannot be used to confirm an id is real. */}
+        {/* A list that stopped being shared and one that never existed read the same, so the wording cannot confirm an id is real. */}
         <NoResults
           icon={
             <Lock

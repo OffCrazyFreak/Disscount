@@ -20,30 +20,17 @@ export interface ICopyListOptions {
   sharing: boolean;
 }
 
-/**
- * What a copy carries. Products are on because a copy without them is just a title;
- * everything else is off, since the common reason to copy is "same shop, next week" and
- * last week's ticks and prices would make the copy wrong on arrival.
- */
+/** Products on because a copy without them is just a title; the rest off because "same shop, next week" makes old ticks and prices wrong. */
 const DEFAULT_OPTIONS: ICopyListOptions = {
   items: true,
   progress: false,
   sharing: false,
 };
 
-// Read off the schema rather than restated, so raising the limit in one place cannot
-// leave the prefill producing titles the same schema then rejects.
+// Read off the schema so raising the limit cannot leave the prefill producing titles the schema rejects.
 const TITLE_MAX_LENGTH = shoppingListRequestSchema.shape.title.maxLength ?? 100;
 
-/**
- * The name the copy starts with. The original is shortened so the suffix always fits:
- * a prefill that lands over the limit would open the modal on a validation error the
- * user did not cause.
- *
- * Taken a code point at a time so the cut cannot split an emoji in half, but budgeted in
- * UTF-16 units, because that is what zod's max() counts: slicing to 91 code points would
- * leave an emoji title twice that long by the schema's reckoning.
- */
+/** Shortened so a prefill never opens on a validation error; cut by code point to keep emoji whole, budgeted in the UTF-16 units zod's max() counts. */
 function suggestCopyTitle(title: string, suffix: string) {
   const room = TITLE_MAX_LENGTH - suffix.length;
 
@@ -73,8 +60,7 @@ export function useCopyListModal(id: string) {
     shoppingList?.myAccess,
   ).canManageShare;
 
-  // No draft persistence, unlike the create and edit modals: the default comes from
-  // server data the user has not asked to keep, so a stale draft would fight the prefill.
+  // No draft persistence: the default comes from server data the user has not asked to keep, so a stale draft would fight the prefill.
   const form = useForm<ShoppingListRequest>({
     resolver: zodResolver(shoppingListRequestSchema),
     mode: "onChange",
@@ -82,18 +68,13 @@ export function useCopyListModal(id: string) {
   });
 
   const { isDirty } = form.formState;
-  // useWatch, not form.watch: watch() is a function the React Compiler cannot memoize,
-  // so reading it here would opt the whole hook out of compilation.
+  // useWatch, because watch() is a function the React Compiler cannot memoize, which would opt the whole hook out of compilation.
   const title = useWatch({ control: form.control, name: "title" });
 
-  // Parsed rather than read off formState.isValid, the same way the watchlist form does
-  // it: the flag only refreshes when the resolver runs, and the seeding reset below does
-  // not run it, so an untouched valid prefill would read as invalid and leave Kopiraj
-  // dead until the user typed. The resolver still owns the message under the field.
+  // Parsed rather than formState.isValid, which the seeding reset does not refresh, so a valid prefill would leave Kopiraj dead until typing.
   const isValid = shoppingListRequestSchema.safeParse({ title }).success;
 
-  // Seeds the suggested name once the list lands, and never again after the first
-  // keystroke, so a late refetch cannot overwrite what the user typed.
+  // Seeds once and never after the first keystroke, so a late refetch cannot overwrite what the user typed.
   useEffect(() => {
     if (!shoppingList || isDirty) return;
 

@@ -6,19 +6,12 @@ import org.springframework.security.web.util.matcher.IpAddressMatcher;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/**
- * The visitor's address behind Cloudflare, Traefik and the Next.js backend proxy, which
- * forwards X-Forwarded-For and CF-Connecting-IP verbatim. Traefik always writes the peer it accepted the connection from as the
- * last X-Forwarded-For hop, so only that hop is trusted, and CF-Connecting-IP counts only
- * when that peer is a Cloudflare edge. A caller reaching the origin directly is keyed on
- * its own address instead of whatever it put in the header.
- */
+/** Traefik writes its peer as the last X-Forwarded-For hop, so only that is trusted, and CF-Connecting-IP counts only from a Cloudflare edge. */
 public final class ClientIp {
 
     private ClientIp() {}
 
-    // Cloudflare's published ranges (https://www.cloudflare.com/ips/); the frontend's
-    // cloudflare-ip-ranges.ts and the Traefik trustedIPs in docs/INFRASTRUCTURE.md carry the same list.
+    // Cloudflare's published ranges (https://www.cloudflare.com/ips/); cloudflare-ip-ranges.ts and Traefik trustedIPs in docs/INFRASTRUCTURE.md carry the same list.
     private static final List<IpAddressMatcher> CLOUDFLARE = List.of(
             "173.245.48.0/20", "103.21.244.0/22", "103.22.200.0/22", "103.31.4.0/22",
             "141.101.64.0/18", "108.162.192.0/18", "190.93.240.0/20", "188.114.96.0/20",

@@ -9,10 +9,7 @@ export function generateSitemaps() {
   return PRODUCT_SITEMAP_IDS.map((id) => ({ id }));
 }
 
-/**
- * Croatian URLs only, since the translations are noindex. No lastmod: the catalogue
- * gives no honest per-product date, and Google ignores one it cannot trust.
- */
+/** Croatian URLs only, since translations are noindex; no lastmod, because the catalogue has no honest date and Google ignores one it cannot trust. */
 export default async function sitemap(props: {
   id: Promise<string>;
 }): Promise<MetadataRoute.Sitemap> {

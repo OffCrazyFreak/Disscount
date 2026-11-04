@@ -61,11 +61,7 @@ function toFacetSelect(
   };
 }
 
-/**
- * Per-facet dropdown models for the filter bar. With an active query the
- * options come from faceting the (unfiltered) search results; without one
- * they fall back to the full chain/location lists.
- */
+/** With a query, options come from faceting the unfiltered results; without one they fall back to the full chain and location lists. */
 export default function useProductFacets(
   query: string,
   filters: IUseProductFiltersResult,

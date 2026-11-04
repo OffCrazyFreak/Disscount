@@ -15,13 +15,7 @@ import {
 
 interface IShoppingListHeaderProps {
   shoppingList: ShoppingList;
-  /**
-   * False for a logged-out link visitor: copying creates a list on their own account,
-   * and the list index they would go back to is itself behind a login.
-   *
-   * Required rather than defaulting to true. This header is shared between an authed
-   * page and a public one, so the dangerous value must not be the implicit one.
-   */
+  /** Required rather than defaulting to true, because this header is shared with a public page and the dangerous value must not be implicit. */
   isSignedIn: boolean;
 }
 
@@ -31,8 +25,7 @@ export default function ShoppingListHeader({
 }: IShoppingListHeaderProps) {
   const t = useTranslations("shoppingListDetail");
 
-  // The server resolves this, so it stays right for a link recipient too. Editing and
-  // deleting are owner-only on the backend, so a recipient must not see those controls.
+  // Editing and deleting are owner-only on the backend, and the server resolves this, so it stays right for a link recipient.
   const { isOwner } = resolveShoppingListAccess(shoppingList.myAccess);
 
   return (
@@ -61,8 +54,7 @@ export default function ShoppingListHeader({
         </div>
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-          {/* Non-owners are sent a null linkAccess, so this reads as private for them
-              rather than advertising a setting they cannot change. */}
+          {/* Non-owners are sent a null linkAccess, so this would read as private and advertise a setting they cannot change. */}
           {isOwner && (
             <ShoppingListVisibilityIndicator
               linkAccess={shoppingList.linkAccess}

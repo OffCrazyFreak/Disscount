@@ -21,8 +21,7 @@ import {
 // One container today, so an in-process set is enough to serialise the claim per user.
 const claiming = new Set<string>();
 
-// Runs in session.create.before: after the password and email-verified checks pass,
-// before any session row or cookie exists, so a refusal leaves nothing to clean up.
+// In session.create.before, so a refusal leaves no session row or cookie to clean up.
 export async function refuseBreachedSignIn(
   userId: string,
   ctx: GenericEndpointContext | null,
@@ -36,8 +35,7 @@ export async function refuseBreachedSignIn(
   if ((await checkBreached(password, SIGN_IN_TIMEOUT_MS)) !== "breached")
     return;
 
-  // Checked and claimed before any await, so overlapping attempts can't both pass the
-  // marker read below (verification.identifier is not unique).
+  // Checked and claimed before any await, so overlapping attempts cannot both pass the marker read (verification.identifier is not unique).
   if (!claiming.has(userId)) {
     claiming.add(userId);
     try {
@@ -77,8 +75,7 @@ async function sendRecoveryLinkOncePerWindow(
     expiresAt,
   });
 
-  // Awaited, unlike the other sends: the caller already proved the password, so timing
-  // leaks nothing, and any failure after the claim has to release it so the next attempt retries.
+  // Awaited because the caller proved the password, so timing leaks nothing, and a failure after the claim must release it.
   try {
     // Same row shape requestPasswordReset writes, so the stock /reset-password consumes it.
     await adapter.createVerificationValue({

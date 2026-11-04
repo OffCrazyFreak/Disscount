@@ -6,16 +6,7 @@ import {
 import { CijeneApiError } from "@/lib/cijene-api/errors";
 import { createApiResponse } from "@/lib/cijene-api/utils/response-utils";
 
-/**
- * Runs the shared tail of every Cijene proxy route: fetch upstream, validate the
- * payload, and turn any failure into a response.
- *
- * Every failure is a translated problem. An upstream error the caller could act
- * on keeps its meaning; everything else becomes a 502, so a broken proxy is
- * never reported as the caller's mistake.
- *
- * Param parsing stays in each route, since it differs per endpoint.
- */
+/** Upstream errors the caller can act on keep their meaning; everything else becomes a 502, so a broken proxy is never the caller's mistake. */
 export async function withCijeneRoute<TSchema extends z.ZodType>(
   request: Request,
   resource: string,
@@ -45,13 +36,7 @@ export async function withCijeneRoute<TSchema extends z.ZodType>(
   }
 }
 
-/**
- * Whether an upstream status describes something the caller can fix. Our own
- * API token authenticates the v1 client, so a 401 or 403 means this proxy is
- * misconfigured, and reporting it as-is would tell the user they are logged
- * out. A 408 means upstream gave up waiting on us, so it is a gateway failure
- * that stays retryable. Status 0 means the request never landed at all.
- */
+/** Our token authenticates v1, so a 401 or 403 means misconfiguration; a 408 means upstream gave up on us, a retryable gateway failure. */
 function isCallerFault(status: number): boolean {
   if (status === 401 || status === 403 || status === 408) return false;
 

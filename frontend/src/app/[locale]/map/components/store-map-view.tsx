@@ -55,7 +55,6 @@ export interface IStoreMapViewProps {
   onMapError: (event: MapErrorEvent) => void;
 }
 
-/** The live map: store stacks, the selection frame and the user's position. */
 export default function StoreMapView({
   stores,
   selected,

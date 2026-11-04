@@ -79,10 +79,7 @@ async function queryOverpass(signal: AbortSignal): Promise<unknown> {
   }
 }
 
-/**
- * Branded shops OpenStreetMap has hours for, with a chain we know and a
- * value in the plain weekly subset. ODbL, credited on the map.
- */
+/** ODbL, credited on the map. */
 export async function fetchOsmShops(signal: AbortSignal): Promise<IOsmShop[]> {
   const payload = z
     .object({ elements: z.array(z.unknown()) })

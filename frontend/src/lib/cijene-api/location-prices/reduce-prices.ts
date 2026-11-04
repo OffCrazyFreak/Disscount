@@ -1,14 +1,9 @@
 import type { PriceRange, StorePrice } from "@/lib/cijene-api/schemas";
 import { parsePrice } from "@/utils/product-price-utils";
 
-/** Price range per EAN within one city */
 export type CityPrices = Map<string, PriceRange>;
 
-/**
- * Lowest and highest shelf price per EAN, grouped by the store's exact city.
- * Upstream matches `city` as a substring, so a request for "Sesvete" also
- * returns "Sesvete - Kraljevec" stores; only the exact name counts here.
- */
+/** Upstream matches `city` as a substring, so "Sesvete" also returns "Sesvete - Kraljevec" stores; only the exact name counts here. */
 export function reduceByCity(
   rows: StorePrice[],
   onlyCities?: ReadonlySet<string>,
@@ -41,7 +36,6 @@ export function reduceByCity(
   return byCity;
 }
 
-/** Widens each EAN's range across several cities */
 export function mergeCityPrices(
   cities: Iterable<CityPrices>,
 ): Record<string, PriceRange> {

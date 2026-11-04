@@ -10,7 +10,6 @@ interface IProductFiltersRowProps {
   query: string;
 }
 
-/** Every facet inline, for the widths that have room to show them all at once. */
 export default function ProductFiltersRow({
   filters,
   query,

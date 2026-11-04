@@ -1,8 +1,6 @@
 import { ILatLon } from "@/utils/distance";
 
-// Both URL schemes are documented and open the native app when installed.
-// Apple's unified /directions path needs iOS 18.4, so the older ?daddr= form
-// is used, which every version still understands.
+// Apple's unified /directions path needs iOS 18.4, so the older ?daddr= form is used, which every version understands.
 
 export function googleMapsDirectionsUrl({ lat, lon }: ILatLon): string {
   return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;

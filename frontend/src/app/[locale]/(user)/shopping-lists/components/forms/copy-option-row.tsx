@@ -15,11 +15,7 @@ interface ICopyOptionRowProps {
   onCheckedChange: (checked: boolean) => void;
 }
 
-/**
- * One choice in the copy modal. Not SettingRow, which renders its label as a paragraph:
- * a checkbox needs a real label element so it has an accessible name and so the whole
- * row, not just the 40px box, is a hit target.
- */
+/** Not SettingRow, which renders its label as a paragraph: a checkbox needs a real label for its name and a full-row hit target. */
 export default function CopyOptionRow({
   icon: Icon,
   label,
@@ -41,15 +37,11 @@ export default function CopyOptionRow({
             : "bg-muted text-muted-foreground",
         )}
       >
-        {/* size-6 matches the share modal's access row, the bottom nav glyph and the
-            list card's visibility indicator, so the same icons read at one size. */}
+        {/* size-6 matches the share modal, bottom nav and card visibility indicator, so the same icons read at one size. */}
         <Icon aria-hidden="true" className="size-6" />
       </span>
 
-      {/* The description sits outside the label on purpose. Accessible-name computation
-          walks the whole label subtree, so wrapping both would name the checkbox
-          "Proizvodi Prenesi sve proizvode s popisa." and aria-describedby would then
-          announce that sentence a second time. */}
+      {/* Outside the label, because wrapping both would name the checkbox with the description and aria-describedby would then repeat it. */}
       <div className="min-w-0 flex-1 space-y-0.5">
         <label
           htmlFor={id}
@@ -65,9 +57,7 @@ export default function CopyOptionRow({
         </span>
       </div>
 
-      {/* aria-disabled rather than disabled, matching the share modal: a natively
-          disabled control leaves the tab order, taking the description that explains
-          why it is unavailable with it. */}
+      {/* aria-disabled, because a natively disabled control leaves the tab order and takes its explaining description with it. */}
       <Checkbox
         id={id}
         checked={checked}
@@ -76,8 +66,7 @@ export default function CopyOptionRow({
           disabled ? undefined : (next) => onCheckedChange(next === true)
         }
         aria-describedby={descriptionId}
-        // A step below the default size-10 the list items use: these are settings on a
-        // form row, not the primary target of the screen.
+        // A step below the list items' size-10, because these are settings on a form row, not the screen's primary target.
         className="size-8 shrink-0 [&_svg]:size-6"
       />
     </div>

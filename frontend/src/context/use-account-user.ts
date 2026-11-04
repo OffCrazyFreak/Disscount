@@ -9,11 +9,7 @@ import {
   currentPurgeGeneration,
 } from "@/lib/offline/purge-gate";
 
-/**
- * The signed-in user, or for an unverified account the profile this device last loaded,
- * kept in the offline snapshot. Offline the profile request fails, so without it the
- * account's pinned stores, name and avatar are gone. The logout purge clears the copy.
- */
+/** Offline the profile request fails, so without this copy the account's pinned stores, name and avatar are gone; logout clears it. */
 export function useAccountUser(
   user: UserDto | null,
   hasUnverifiedAccount: boolean,
@@ -28,14 +24,12 @@ export function useAccountUser(
   useEffect(() => {
     if (!user) return;
 
-    // A purge fired on an account switch resets this key after its first await, so a
-    // profile saved before it finishes is wiped and the avatar is blank offline.
+    // A purge fired on an account switch resets this key after its first await, so a profile saved before it finishes is wiped.
     const generation = currentPurgeGeneration();
     let isCurrent = true;
 
     void canWriteAfterPurges(generation).then((canWrite) => {
-      // A session switch from another tab moves the identity before this account's
-      // profile is replaced, and the old one must not be saved as the new account's.
+      // A switch from another tab moves the identity before this profile is replaced, and the old one must not be saved as the new account's.
       if (canWrite && isCurrent && user.id === getCacheIdentity()) {
         queryClient.setQueryData(USER_QUERY_KEYS.me, user);
       }

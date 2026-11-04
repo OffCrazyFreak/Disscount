@@ -8,9 +8,7 @@ interface IToasterProviderProps {
   children: ReactNode;
 }
 
-// sonner paints toasts from its own white and grey palette; its variables are
-// read off the toaster element, so pointing them at the theme tokens here makes
-// every toast follow the brand surface and font.
+// sonner's variables are read off the toaster element, so pointing them at theme tokens makes every toast follow the brand.
 const TOASTER_THEME_STYLE = {
   "--normal-bg": "var(--popover)",
   "--normal-text": "var(--foreground)",
@@ -22,9 +20,7 @@ const TOASTER_THEME_STYLE = {
   fontFamily: "var(--font-sans)",
 } as CSSProperties;
 
-// The `!` is required: sonner's button rules are unlayered CSS, which outranks
-// any Tailwind utility layer, so a plain class would never apply. Sonner's own
-// height is kept; it already meets the 24px target size of WCAG 2.5.8.
+// The `!` is required because sonner's button rules are unlayered CSS, which outranks any Tailwind utility layer.
 const TOAST_CLASS_NAMES = {
   actionButton:
     "bg-primary! text-primary-foreground! hover:bg-primary/90! focus-visible:ring-2! focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -39,9 +35,7 @@ export default function ToasterProvider({ children }: IToasterProviderProps) {
     <>
       {children}
 
-      {/* Both offsets, because sonner only applies mobileOffset under 600px while
-          the bar runs to 768px. The token is 0 above md, so desktop keeps a plain
-          inset without sonner needing a breakpoint of its own. */}
+      {/* Both offsets because sonner only applies mobileOffset under 600px while the bar runs to 768px; the token is 0 above md. */}
       <Toaster
         richColors
         containerAriaLabel={t("toaster.label")}

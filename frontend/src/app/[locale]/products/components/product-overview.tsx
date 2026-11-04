@@ -13,16 +13,12 @@ interface IProductOverviewProps {
   displayName: string;
 }
 
-// The square photo spans the first three rows and takes their natural height, so every cell keeps
-// the same padding; the grid then widens the photo's auto column to match. The facts
-// list is a subgrid of the same grid: on narrow screens the card wraps around the photo in an L,
-// on wide ones it is a two-column table to the photo's right.
+// The photo takes its natural height so every cell keeps its padding, and the facts list is a subgrid: an L on narrow screens, a table on wide ones.
 const GRID =
   "[--gap:0.5rem] grid grid-cols-[auto_minmax(0,1fr)] gap-x-(--gap) md:grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)] md:gap-x-0";
 
 const CARD = "border border-gray-300 bg-background";
 
-/** The product page's photo and facts, laid out as one piece. */
 export default function ProductOverview({
   product,
   displayName,
@@ -73,15 +69,13 @@ export default function ProductOverview({
       <ProductPhotoGallery
         ean={product.ean}
         productName={displayName}
-        // Above the facts list, which spans this column too as a subgrid. On wide screens the photo
-        // carries the spacing, because a column gap would also split the table's own columns.
+        // Above the facts subgrid; on wide screens the photo carries the spacing, because a column gap would also split the table's columns.
         className={cn(
           "relative z-[3] col-start-1 row-span-3 row-start-1 md:mr-3 md:mb-0",
           hasLower && "mb-(--gap)",
         )}
       />
 
-      {/* The card outline, drawn behind the facts: two parts joined into an L on narrow screens. */}
       <div
         aria-hidden="true"
         className={cn(

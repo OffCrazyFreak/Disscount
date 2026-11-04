@@ -4,7 +4,6 @@ export interface IDguTarget {
   city: string | null;
 }
 
-/** An address row that fits a target's street and house number. */
 export interface IDguCandidate {
   target: number;
   northing: number;

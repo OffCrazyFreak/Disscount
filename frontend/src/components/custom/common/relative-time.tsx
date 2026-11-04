@@ -11,7 +11,6 @@ interface IRelativeTimeProps {
   fallback?: string;
 }
 
-/** A server timestamp as "prije 5 minuta", with the full date and time behind it. */
 export default function RelativeTime({
   value,
   fallback = "-",

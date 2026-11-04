@@ -12,14 +12,7 @@ interface IProductFiltersBarProps {
   query: string;
 }
 
-/**
- * The filters for the list: inline where there is room, and below `md` a button
- * that opens the products sheet with its filters already expanded.
- *
- * The page used to carry a filters sheet of its own, which meant two sheets built
- * from the same controls. Now there is one, so a query and the facets narrowing it
- * are never split across two layers.
- */
+/** Below `md` a button opens the products sheet expanded, so a query and the facets narrowing it are never split across two layers. */
 export default function ProductFiltersBar({
   filters,
   query,

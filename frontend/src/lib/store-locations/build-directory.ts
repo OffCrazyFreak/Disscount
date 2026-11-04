@@ -15,13 +15,7 @@ import {
   usableOverride,
 } from "@/lib/store-locations/pin-overrides";
 
-/**
- * Merges upstream stores with the coordinates our sync found. A hand-placed pin
- * wins over everything: a "manual" table row first, since someone set it in
- * that environment on purpose, then a pin override from code. Otherwise
- * upstream wins when it has usable coordinates, since it is the source the
- * prices come from.
- */
+/** A hand-placed pin wins over everything; otherwise upstream wins when usable, since it is the source the prices come from. */
 export function buildDirectory(
   upstream: StoreResponse[],
   locations: StoreLocationRow[],
@@ -63,8 +57,7 @@ export function buildDirectory(
 
 type Pin = { point: { lat: number; lon: number }; source: LocationSource };
 
-// A manual table row was set in that environment on purpose, so it beats the
-// reviewed list in code.
+// A manual table row was set in that environment on purpose, so it beats the reviewed list in code.
 function handPlaced(
   saved: Pin | null,
   override: { lat: number; lon: number } | null,
@@ -74,8 +67,7 @@ function handPlaced(
   return override ? { point: override, source: "manual" } : null;
 }
 
-// A pin found from an address upstream has since changed would send people to
-// the old building, so it waits for the next sync instead.
+// A pin found from an address upstream has since changed would send people to the old building, so it waits for the next sync.
 function savedPin(
   row: StoreLocationRow | undefined,
   upstreamAddress: string | null,
@@ -99,8 +91,7 @@ function correctedPin(
   return { point: { lat: correction.lat, lon: correction.lon }, source: "dgu" };
 }
 
-// A held store shows no pin until a person confirms it, unless one already
-// pinned it by hand in the table.
+// A held store shows no pin until a person confirms it, unless one already pinned it by hand in the table.
 function choosePin(
   saved: Pin | null,
   upstreamPoint: { lat: number; lon: number } | null,

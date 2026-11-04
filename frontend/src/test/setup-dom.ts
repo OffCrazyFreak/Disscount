@@ -17,12 +17,10 @@ expect.extend({
   },
 });
 
-// The 1 s findBy and waitFor default is too tight for jsdom on a loaded machine; a passing query
-// returns at once, so the larger limit only delays a test that was going to fail.
+// The 1 s default is too tight for jsdom on a loaded machine; a passing query returns at once, so this only delays a test about to fail.
 configure({ asyncUtilTimeout: 10_000 });
 
-// Testing Library only unmounts on its own when afterEach is a global, and the
-// suite imports it from vitest instead.
+// Testing Library only unmounts by itself when afterEach is global, and the suite imports it from vitest.
 afterEach(() => {
   cleanup();
   document.cookie.split("; ").forEach((cookie) => {
@@ -35,12 +33,10 @@ afterEach(() => {
   serverSession.userId = null;
 });
 
-// jsdom logs "not implemented" on every canvas call; null is what it returns anyway,
-// and callers treat it as "cannot measure text".
+// jsdom logs "not implemented" on every canvas call; null is what it returns anyway, and callers treat it as "cannot measure text".
 HTMLCanvasElement.prototype.getContext = () => null;
 
-// jsdom has neither API. Components only need them to exist; a test that needs real answers
-// overrides these with vi.stubGlobal, which restores this default afterwards.
+// jsdom has neither API; a test needing real answers overrides these with vi.stubGlobal, which restores this default.
 globalThis.ResizeObserver ??= class {
   observe() {}
   unobserve() {}

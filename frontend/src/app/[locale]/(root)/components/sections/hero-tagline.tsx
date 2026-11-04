@@ -15,9 +15,7 @@ export default function HeroTagline() {
   const reduced = useReducedMotionSafe();
 
   useEffect(() => {
-    // Variety without animation: one random tagline per load. Deliberately after
-    // mount, because Math.random() during render would not match the server's
-    // deterministic tagLines[0]. See LANDING.md.
+    // Picked after mount, because Math.random() during render would not match the server's tagLines[0].
     if (reduced) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setIndex(Math.floor(Math.random() * tagLineIds.length));

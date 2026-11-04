@@ -37,13 +37,11 @@ const EMPTY_FORM_VALUES: AddToListFormData = {
   chainCode: null,
 };
 
-// One draft per item, matched the way items merge, so a list picked for one name never
-// preselects itself for another.
+// One draft per item, matched the way items merge, so a list picked for one name never preselects itself for another.
 function draftKeyFor(itemName: string) {
   return `add-plain-item.${nameKey(itemName)}`;
 }
 
-/** Adds an item no store sells to a list of the user's choice. */
 export function useAddPlainItemForm(open: boolean, initialName: string) {
   const t = useTranslations("products");
   const router = useRouter();
@@ -126,8 +124,7 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
       data.shoppingListId !== "new" &&
       mergesIntoExisting(existingList?.items, { name: itemName });
 
-    // Optimistic close, as in the add to list modal: an offline add pauses until reconnect.
-    // Drafted first, so a failure reopens a fresh form with the same list and amount.
+    // Optimistic close because an offline add pauses until reconnect; drafted first so a failure reopens with the same list and amount.
     saveDraftFor(itemName);
     closeModalUrl();
 
@@ -157,8 +154,7 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
         },
       );
     } catch (error) {
-      // Only the submitted name reopens. The close's cleanup flush already ran by now, so
-      // this removal is not written back over.
+      // The close's cleanup flush already ran, so this removal is not written back over.
       const submittedKey = draftKeyFor(itemName);
       if (submittedKey !== draftKey) removeFormDraft(draftKey);
       stashModalError(submittedKey, error);

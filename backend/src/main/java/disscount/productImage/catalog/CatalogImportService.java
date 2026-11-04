@@ -22,7 +22,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
-/** Refreshes popularity and names for every EAN from the latest cijene daily archive. */
 @Service
 public class CatalogImportService {
 

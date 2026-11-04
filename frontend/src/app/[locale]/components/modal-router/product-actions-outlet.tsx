@@ -17,10 +17,7 @@ interface IProductActionsOutletProps {
   target: ModalTarget | null;
 }
 
-/**
- * Mounted outside the router's signed-in branch, since a shared link must open
- * for anyone; the two gated actions raise the auth gate when they are picked.
- */
+/** Mounted outside the signed-in branch, since a shared link must open for anyone; the two gated actions raise the auth gate. */
 export default function ProductActionsOutlet({
   target,
 }: IProductActionsOutletProps) {

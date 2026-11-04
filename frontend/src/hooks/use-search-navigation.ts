@@ -5,24 +5,17 @@ import { useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 
 export interface IUseSearchNavigationResult {
-  /** The `q` param, empty unless the search route is the current page */
   routeQuery: string;
   /** True when submitting this query would leave the page exactly as it is */
   isUnchanged: (query: string) => boolean;
 
-  /** Navigates to the search route, adding the query to the history */
   search: (query: string) => void;
-  /** Mirrors the query into `q` without adding a history entry */
   syncQuery: (query: string) => void;
-  /** Opens a single result's page nested under the search route */
   openResult: (value: string) => void;
 }
 
 export interface IUseSearchNavigationOptions {
-  /**
-   * Rewrites `q` through the History API on the route itself: no server
-   * render, and the hash (the map's view) survives.
-   */
+  /** Rewrites `q` through the History API: no server render, and the hash (the map's view) survives. */
   shallow?: boolean;
 }
 
@@ -30,7 +23,6 @@ function normalizePath(path: string): string {
   return path.replace(/\/$/, "");
 }
 
-/** Reads and writes the `q` param of a search route, leaving other params be. */
 export function useSearchNavigation(
   searchRoute: string,
   { shallow = false }: IUseSearchNavigationOptions = {},
@@ -68,8 +60,7 @@ export function useSearchNavigation(
         return;
       }
 
-      // searchRoute has no language prefix, so the browser's own path is used
-      // to keep /en/map on /en/map.
+      // searchRoute has no language prefix, so the browser's own path keeps /en/map on /en/map.
       const search = url.includes("?") ? url.slice(url.indexOf("?")) : "";
       const withHash = `${window.location.pathname}${search}${window.location.hash}`;
 
@@ -94,13 +85,7 @@ export function useSearchNavigation(
     [isOnRoute, routeQuery, buildSearchUrl, navigate],
   );
 
-  // Off the route every query is a change, since submitting navigates there. The
-  // filters need no comparison: each pick writes itself to the URL as you make it,
-  // so they are never waiting on a submit.
-  //
-  // An empty field counts as unchanged even over a searched page, because the
-  // clear button drops the query itself. Comparing it instead would light the
-  // button up for the render between the field emptying and the URL following.
+  // Filters write themselves to the URL, so they need no comparison; an empty field counts as unchanged because the clear button drops the query.
   const isUnchanged = useCallback(
     (query: string) => {
       const trimmed = query.trim();

@@ -2,21 +2,12 @@ import { appUrl } from "@/lib/env";
 import { localePath } from "@/i18n/locale-path";
 import type { AppLocale } from "@/i18n/locales";
 
-/**
- * The one place the shopping-list route is spelled. It used to be hand-written
- * at each call site, and they disagreed: the card built the path unencoded while
- * the share action encoded it, so the same list produced two different URLs.
- */
+/** The one place the route is spelled, because hand-written paths disagreed on encoding and gave one list two URLs. */
 export function shoppingListPath(id: string): string {
   return `/shopping-lists/${encodeURIComponent(id)}`;
 }
 
-/**
- * The address to hand someone else, which is simply the list's own URL. There is no
- * separate share token: the id is the capability while the list is shared, and it grants
- * nothing once it is not, so the URL an owner sees in the address bar is the one worth
- * sending. Turning sharing off and on again therefore hands back the same URL.
- */
+/** No separate share token: the id is the capability while shared and grants nothing once not, so re-sharing hands back the same URL. */
 export function shareListUrl(id: string, locale: AppLocale): string {
   return `${appUrl()}${localePath(locale, shoppingListPath(id))}`;
 }

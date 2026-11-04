@@ -3,14 +3,7 @@ import type { QueryClient, QueryKey } from "@tanstack/react-query";
 import type { ShoppingListDto } from "@/lib/api/schemas/shopping-list";
 import type { ShoppingListItemDto } from "@/lib/api/schemas/shopping-list-item";
 
-/**
- * Optimistic item edits, scoped to the one item being written.
- *
- * Rolling back a whole-list snapshot looks equivalent and is not: two quick writes
- * overlap, so restoring the list as it was before write A also undoes write B, which the
- * server has already accepted. The item then reads as unbought while the server has it
- * bought, and nothing refetches to correct it.
- */
+/** Scoped to one item, because two quick writes overlap and restoring a whole-list snapshot undoes a write the server accepted. */
 export interface IItemRollback {
   item: ShoppingListItemDto;
   index: number;
@@ -68,7 +61,6 @@ export function removeItemOptimistically(
   );
 }
 
-/** Puts one item back where it was, leaving every other item as it now stands. */
 export function restoreItem(
   queryClient: QueryClient,
   queryKey: QueryKey,

@@ -19,8 +19,7 @@ import { useSettingsUi } from "@/components/custom/settings/settings-context";
 // Only guards decoding: the re-encode below sets the stored size.
 const MAX_AVATAR_BYTES = 15 * 1024 * 1024;
 
-// Outside react-hook-form and drafts on purpose: base64 images would blow the
-// localStorage quota and don't belong in dirty tracking.
+// Outside react-hook-form and drafts because base64 images would blow the localStorage quota and do not belong in dirty tracking.
 export default function AvatarField() {
   const t = useTranslations("settings");
   const { user } = useUser();

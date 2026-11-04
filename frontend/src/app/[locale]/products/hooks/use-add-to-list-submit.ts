@@ -51,8 +51,7 @@ export function useAddToListSubmit({
     return {
       id: list.id,
       name: list.title,
-      // Compared against the values that actually go on the wire:
-      // buildShoppingListItemRequest sends `name ?? ""`.
+      // Compared against the values on the wire: buildShoppingListItemRequest sends `name ?? ""`.
       isQuantityIncrease: mergesIntoExisting(list.items, {
         ean: product?.ean,
         name: product?.name ?? "",
@@ -74,16 +73,12 @@ export function useAddToListSubmit({
 
     const title = data.customListTitle.trim();
 
-    // A legacy draft can restore "new" with no title. Falling through to the
-    // newest existing list silently filed the product somewhere the user never
-    // chose, so refuse instead and let the caller surface it.
+    // A legacy draft can restore "new" with no title, and falling through would file the product somewhere the user never chose, so refuse.
     if (!title) return null;
 
     const created = await createShoppingListMutation.mutateAsync({ title });
 
-    // Recorded before the item is added. If that add fails the modal reopens
-    // from the draft, and leaving "new" selected made every retry create another
-    // empty list before retrying the item.
+    // Recorded before the item is added, so a failed add reopens without "new" selected and a retry cannot create another empty list.
     onListCreated(created.id);
 
     return { id: created.id, name: title, isQuantityIncrease: false };

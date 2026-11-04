@@ -18,8 +18,7 @@ interface IHeaderActionsProps {
 export default function HeaderActions({
   compact = false,
 }: IHeaderActionsProps) {
-  // isInitializing, not isLoading: a background session refresh must not
-  // unmount the bell, or it tears down an open notifications menu mid-use.
+  // isInitializing, not isLoading, because a background refresh must not unmount the bell and tear down an open menu.
   const { canShowAccountData, isInitializing } = useUser();
 
   const t = useTranslations("shell");
@@ -36,8 +35,7 @@ export default function HeaderActions({
         />
       ) : canShowAccountData ? (
         <div className="flex items-center gap-4">
-          {/* The page header stays mounted, hidden, behind the compact bar, and
-              only one bell may answer open requests. */}
+          {/* The page header stays mounted, hidden, behind the compact bar, and only one bell may answer open requests. */}
           <NotificationsDropdown openViaContext={!compact} />
           <UserMenu />
         </div>

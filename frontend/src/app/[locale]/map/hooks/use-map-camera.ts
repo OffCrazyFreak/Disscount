@@ -15,7 +15,6 @@ interface IUseMapCameraOptions {
   initialView: (ILatLon & { zoom: number }) | null;
 }
 
-/** Moves the map to the selected store, a GPS fix or the pinned place. */
 export function useMapCamera({
   mapRef,
   mapReady,
@@ -38,8 +37,7 @@ export function useMapCamera({
     const map = mapRef.current;
     if (!mapReady || !map || selectedLat == null || selectedLon == null) return;
 
-    // easeTo snaps instantly under prefers-reduced-motion, as long as the
-    // animation is not marked essential.
+    // easeTo snaps instantly under prefers-reduced-motion, as long as the animation is not marked essential.
     map.easeTo({
       center: [selectedLon, selectedLat],
       zoom: Math.max(map.getZoom(), 15),
@@ -49,8 +47,7 @@ export function useMapCamera({
   const hasSelection = selectedLat != null;
 
   const centerOn = useEffectEvent((request: ICenterRequest) => {
-    // A fix nobody tapped for must not yank the map from where the user moved
-    // it, or from the store a shared link opened.
+    // A fix nobody tapped for must not yank the map from where the user moved it, or from the store a shared link opened.
     if (request.auto && (userMoved.current || hasSelection || openedWithView)) {
       return;
     }
@@ -60,8 +57,7 @@ export function useMapCamera({
     if (!map) return;
 
     if (request.radius) {
-      // The guess area fills about 60% of the narrower side, so a landscape
-      // phone's padding never outgrows its height.
+      // The guess area fills about 60% of the narrower side, so a landscape phone's padding never outgrows its height.
       const { clientWidth, clientHeight } = map.getContainer();
       map.fitBounds(circleBounds(request, request.radius), {
         padding: Math.round(Math.min(clientWidth, clientHeight) * 0.2),
@@ -87,8 +83,7 @@ export function useMapCamera({
     });
   });
 
-  // The pinned place needs the profile and the store list, which can arrive
-  // after the map has already opened on the IP guess or all of Croatia.
+  // The pinned place needs the profile and store list, which can arrive after the map has opened on the IP guess or all of Croatia.
   useEffect(() => {
     if (mapReady) jumpToInitialView();
   }, [mapReady, initialView?.lat, initialView?.lon, initialView?.zoom]);

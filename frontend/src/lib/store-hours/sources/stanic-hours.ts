@@ -7,11 +7,7 @@ import {
   plainText,
 } from "@/lib/store-hours/sources/hours-text";
 
-/**
- * WP Store Locator's hours table: one row per day, English names, the
- * times in `<time datetime="06:00">` pairs (several pairs for a split
- * shift), or "Closed".
- */
+/** Several `<time>` pairs mean a split shift. */
 export function parseStanicHours(table: string): IParsedHours | undefined {
   const weekly = emptyWeek();
   let rows = 0;

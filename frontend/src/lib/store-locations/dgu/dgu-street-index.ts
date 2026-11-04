@@ -4,9 +4,7 @@ import {
   type IParsedAddress,
 } from "@/lib/store-locations/address-key";
 
-// Two street words can only match when their first three letters agree (an
-// abbreviation like "set" for "seta"; see isPrefixPair in address-key), so
-// that prefix is a safe lookup key.
+// Two street words can only match when their first three letters agree (see isPrefixPair), so that prefix is a safe lookup key.
 const STEM = 3;
 
 export interface IStreetIndex {

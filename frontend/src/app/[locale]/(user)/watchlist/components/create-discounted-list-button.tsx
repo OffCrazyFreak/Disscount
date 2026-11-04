@@ -106,18 +106,13 @@ export default function CreateDiscountedListButton({
       >
         <ResponsiveLabel full={buttonText} short={t("createList.short")} />
 
-        {/* Visual only: inside the label it would leave the visible text outside
-            the accessible name, and re-announce on every change. The margin is
-            explicit because expandIcon zeroes the button's gap, so the count
-            would otherwise sit flush against the label. */}
+        {/* Visual only, because inside the label it would re-announce on every change; the margin is explicit because expandIcon zeroes the gap. */}
         <span aria-hidden="true" className="ml-1">
           {`(${addableProducts.length})`}
         </span>
       </Button>
 
-      {/* The count is hidden from the button's own name so it does not re-announce the
-          whole control on every change. It still has to be announced somehow, so it is
-          mirrored here, outside the button, where a polite region can carry it alone. */}
+      {/* Mirrored outside the button so a polite region announces the count alone, without re-announcing the whole control. */}
       <span aria-live="polite" className="sr-only">
         {t("createList.productCount", { count: addableProducts.length })}
       </span>

@@ -1,9 +1,7 @@
 import type { AppLocale } from "@/i18n/locales";
 import { authClient } from "@/lib/auth/client";
 
-// One queue for every account language save (the first-sign-in seed and each
-// explicit switch), at module scope so saves land in order across the remount a
-// switch causes.
+// Module scope so saves land in order across the remount a switch causes.
 let queue: Promise<void> = Promise.resolve();
 
 export function queueAccountLocaleSave(

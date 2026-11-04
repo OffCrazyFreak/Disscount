@@ -17,14 +17,12 @@ const SUGGESTION_DEBOUNCE_MS = 300;
 const MIN_QUERY_LENGTH = 2;
 const SUGGESTION_LIMIT = 8;
 
-/** The quick-add field's text, its catalog suggestions, and the two ways to add. */
 export function useQuickAddItem(listId: string) {
   const tUi = useTranslations("ui");
   const queryClient = useQueryClient();
   const [text, setText] = useState("");
   const query = useDebouncedValue(text.trim(), SUGGESTION_DEBOUNCE_MS);
-  // Checks the live text too, so a cleared or retyped field never shows the last item's
-  // suggestions while the debounce catches up; typing on or deleting back keeps them.
+  // Checks the live text too, so a cleared or retyped field never shows the last item's suggestions while the debounce catches up.
   const live = text.trim().toLowerCase();
   const settled = query.toLowerCase();
   const hasQuery =

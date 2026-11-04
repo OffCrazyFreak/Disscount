@@ -14,11 +14,7 @@ export const CARD_LIMIT_KEY = "offline.cardLimit";
 // Photo storage is switched off for the deployment, so resending cannot succeed.
 const PHOTOS_UNAVAILABLE_CODE = "error.cardPhoto.unavailable";
 
-/**
- * "keep": a later attempt can succeed (offline, signed out, throttled, server trouble),
- * so the entry stays queued and the replay stops. "drop": the server refused it for good.
- * Statuses outside the permanent set also keep, so an unexpected answer never loses a photo.
- */
+/** "keep" stops the replay and stays queued; statuses outside the permanent set keep too, so an unexpected answer never loses a photo. */
 export function failureAction(error: unknown): "keep" | "drop" {
   if (isNetworkFailure(error)) return "keep";
 
@@ -37,7 +33,6 @@ export function httpStatus(error: unknown): number | undefined {
   return isAxiosError(error) ? error.response?.status : undefined;
 }
 
-/** The `digitalCards` message key for a failed card write, or null when the failure needs no toast. */
 export function cardWriteMessage(error: unknown): CardWriteMessageKey | null {
   const status = httpStatus(error);
 

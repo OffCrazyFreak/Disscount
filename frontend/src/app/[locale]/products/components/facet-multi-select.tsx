@@ -24,7 +24,6 @@ interface IFacetMultiSelectProps {
   className?: string;
 }
 
-/** One filter dropdown: searchable multi-select with optional option counts */
 export default function FacetMultiSelect({
   facet,
   label,
@@ -55,8 +54,7 @@ export default function FacetMultiSelect({
             const optionLabel = getLabel?.(value) ?? value;
             const count = facet.counts?.[value];
 
-            // Unavailable options stay listed but disabled; a selected one that
-            // dropped to zero stays enabled so it can still be removed.
+            // Unavailable options stay listed but disabled; a selected one that dropped to zero stays enabled so it can still be removed.
             const isDisabled = count === 0 && !facet.selected.includes(value);
 
             return (
@@ -64,8 +62,7 @@ export default function FacetMultiSelect({
                 key={value}
                 value={value}
                 badgeLabel={optionLabel}
-                // Chains are listed by code, so the visible label has to be
-                // named as a keyword or it cannot be searched for.
+                // Chains are listed by code, so the visible label must be a keyword or it cannot be searched for.
                 keywords={[optionLabel]}
                 disabled={isDisabled}
               >

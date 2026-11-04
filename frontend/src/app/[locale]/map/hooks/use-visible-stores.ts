@@ -17,7 +17,6 @@ export interface IListedStore {
   distanceKm: number | null;
 }
 
-/** A store with the labels and distance the list and the card display. */
 export function toListedStore(
   store: DirectoryStoreDto,
   origin: ILatLon | null,
@@ -45,11 +44,7 @@ interface IUseVisibleStoresOptions {
   keep?: (store: DirectoryStoreDto) => boolean;
 }
 
-/**
- * The stores the list and the map show: filtered by chain and search, nearest
- * first once there is a position, otherwise alphabetical. Stores without
- * coordinates stay in the list, they just cannot be pinned.
- */
+/** Stores without coordinates stay in the list, because they just cannot be pinned. */
 export function useVisibleStores({
   stores,
   chains,

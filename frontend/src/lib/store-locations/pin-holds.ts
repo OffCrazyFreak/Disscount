@@ -1,11 +1,6 @@
 import { storeKey } from "@/lib/store-locations/upstream-stores";
 
-/**
- * Stores whose pin failed or was doubtful in independent verification and
- * that no OpenStreetMap point can fix. Their pin stays hidden and the sync
- * leaves them alone until a person confirms the place in issue #261; then
- * the entry moves to a pin override or is deleted.
- */
+/** No OpenStreetMap point can fix these, so the pin stays hidden until a person confirms the place in issue #261. */
 export const PIN_HOLDS = new Set<string>([
   // ntl.hr's own coordinates for these are wrong or doubtful.
   storeKey("ntl", "10104"),
@@ -35,8 +30,7 @@ export const PIN_HOLDS = new Set<string>([
   storeKey("ntl", "20710"),
   storeKey("ntl", "32046"),
   storeKey("ntl", "34026"),
-  // Saved address-register pins that failed or were doubtful in verification;
-  // the sync never revisits a saved pin, so a hold is what hides them.
+  // The sync never revisits a saved pin, so a hold is what hides these.
   storeKey("gavranovic", "405"),
   storeKey("gavranovic", "431"),
   storeKey("gavranovic", "443"),

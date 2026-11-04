@@ -78,9 +78,7 @@ export default function SearchBar({
   // formId means the owner renders the search button outside the form.
   const hasSearchButton = submitButtonLocation !== "none" || Boolean(formId);
 
-  // The button never searches an unchanged query (it is disabled, or back to top
-  // once scrolled), so Enter on a touch keyboard only closes it rather than
-  // doing nothing or, with no submit button left in the form, searching again.
+  // The button never searches an unchanged query, so Enter on a touch keyboard only closes it rather than searching again.
   function handleKeyDown(event: KeyboardEvent<HTMLFormElement>) {
     if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
     // Enter on the clear or scan button is that button's own click.

@@ -41,12 +41,7 @@ function groupPostcodesByCounty(stores: IPlaceStore[]) {
   return byName;
 }
 
-/**
- * The places a shopper can save: one per name, split by county only where
- * stores of that name sit in more than one county. A value saved under an
- * older key takes the place of the option it names; one that names nothing
- * stays on offer, so it can still be seen and removed.
- */
+/** A value saved under an older key takes the place of its option; one naming nothing stays on offer, so it can be seen and removed. */
 export function listPlaceOptions(
   names: string[],
   stores: IPlaceStore[],

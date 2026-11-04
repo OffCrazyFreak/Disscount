@@ -1,6 +1,5 @@
 import { parseAddress } from "@/lib/store-locations/address-key";
 
-/** The house number asked for, e.g. "44a", or null for "bb" and no number. */
 export function requestedHouseNumber(address: string): string | null {
   return parseAddress(address).number;
 }

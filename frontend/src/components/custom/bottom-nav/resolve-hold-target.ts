@@ -8,14 +8,7 @@ interface IHoldContext {
   openScanner: () => void;
 }
 
-/**
- * The one answer to both "what does this hold do" and "does this cell hold at
- * all", so the firing path and the enablement check cannot drift apart.
- *
- * On a product's page the cells act on that product instead: Praćenje watches
- * it, Popisi adds it to a list. Elsewhere they fall back to their own target,
- * which for Praćenje is nothing at all.
- */
+/** One answer to both "what does this hold do" and "does this cell hold", so the firing path and enablement check cannot drift apart. */
 export default function resolveHoldTarget(
   entry: IBottomNavItem,
   { productEan, isLocked, openScanner }: IHoldContext,

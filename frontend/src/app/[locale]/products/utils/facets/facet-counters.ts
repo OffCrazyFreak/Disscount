@@ -36,8 +36,7 @@ function toSortedOptions(counts: CountsByKey): IFacetOption[] {
   return [...counts.values()].sort((a, b) => compareHr(a.value, b.value));
 }
 
-// Every distinct value seen across the query results, so another facet reduces
-// a value's count to zero rather than dropping it from the dropdown.
+// Every value seen across the results, so another facet reduces a count to zero rather than dropping it from the dropdown.
 function collectUniverse(
   query: IFacetQuery,
   pick: (product: IIndexedProduct) => Map<string, string>,

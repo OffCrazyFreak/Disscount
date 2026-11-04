@@ -66,10 +66,7 @@ public class ProductImageJobs {
         this.runs = runs;
     }
 
-    /**
-     * Checked every few hours but runs weekly; the last run is stored so restarts do not repeat it.
-     * The catalogue also feeds the product sitemap, so it runs without the photo store; only the photo seed needs it.
-     */
+    /** Runs weekly with the last run stored so restarts do not repeat it; the catalogue feeds the sitemap, so it runs without the photo store. */
     @Scheduled(fixedDelay = 6 * 3_600_000L, initialDelay = 10 * 60_000L)
     public void weeklyImport() {
         if (!enabled || !importing.compareAndSet(false, true)) return;
@@ -87,8 +84,7 @@ public class ProductImageJobs {
             }
             // An interrupt during the download can surface as an IOException, so it is checked again here.
             if (Thread.currentThread().isInterrupted()) return;
-            // Tracked apart, so turning the photo store on mid-week seeds at the next check instead of up to a
-            // week later; a fresh import seeds its new EANs straight away.
+            // Tracked apart, so turning the photo store on mid-week seeds at the next check, not up to a week later.
             if (store.enabled() && (imported || isDue(PHOTO_SEED))) {
                 seed.seed();
                 runs.save(new ProductImageImportRun(PHOTO_SEED, Timestamps.nowUtc()));
@@ -139,10 +135,7 @@ public class ProductImageJobs {
         }
     }
 
-    /**
-     * Brings photos rendered before WebP and the list file up to date, only while no new photo waits, and at the
-     * same one-at-a-time pace, because the Open Food Facts ones are downloaded again.
-     */
+    /** Only while no new photo waits and one at a time, because the Open Food Facts ones are downloaded again. */
     private void rerenderOlderPhotos() {
         List<ProductImage> older = images.findRenderedWithoutSmallFile(List.of(ImageStatus.VERIFIED, ImageStatus.PENDING),
                 MAX_RENDER_ATTEMPTS, Timestamps.nowUtc(), PageRequest.of(0, RENDER_BATCH));

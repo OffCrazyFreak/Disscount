@@ -20,8 +20,7 @@ interface IPinToggleButtonProps {
   pinned: boolean;
 }
 
-// A sibling of the tile's open button, never a child: buttons cannot nest, and a click
-// here must not also open the card.
+// A sibling of the tile's open button, because buttons cannot nest and a click here must not also open the card.
 export default function PinToggleButton({
   cardId,
   cardName,
@@ -31,8 +30,7 @@ export default function PinToggleButton({
   const pinMutation = digitalCardService.usePinDigitalCard();
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  // Pinning moves the tile to the other grid, so this is a fresh mount that must pick
-  // focus back up from the one that was clicked.
+  // Pinning remounts the tile in the other grid, so this fresh mount must pick focus back up.
   useEffect(() => {
     if (takePinFocus(cardId)) buttonRef.current?.focus();
   }, [cardId]);

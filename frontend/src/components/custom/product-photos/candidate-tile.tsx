@@ -17,7 +17,6 @@ interface ICandidateTileProps extends ICandidateHandlers {
   busy: boolean;
 }
 
-/** One frame of the contact sheet: the photo, where it came from, and what the admin can do with it. */
 export default function CandidateTile({
   image,
   index,

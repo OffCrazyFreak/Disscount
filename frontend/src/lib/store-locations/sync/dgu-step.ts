@@ -7,13 +7,7 @@ import { saveResolvedLocation } from "@/lib/store-locations/location-repository"
 import { storeKey } from "@/lib/store-locations/upstream-stores";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 
-/**
- * Places targets against the official address register. The register is one
- * 84 MB download streamed per run, so it is skipped when nothing is left to
- * place, and a failed download only defers its targets to the geocoders.
- * An address the town has in far-apart places is placed only where an
- * independent source puts the store.
- */
+/** The register is one 84 MB download per run, so it is skipped with nothing to place; a failed download defers targets to the geocoders. */
 export async function resolveWithDgu(
   targets: ISyncTarget[],
   signal: AbortSignal,

@@ -11,7 +11,6 @@ interface IStorePricesDetailsProps {
   product: ProductResponse;
 }
 
-/** A chain's per-store prices, or why they are not here yet. */
 export default function StorePricesDetails({
   storePrices,
   status,

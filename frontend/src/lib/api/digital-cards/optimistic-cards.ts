@@ -42,7 +42,6 @@ export async function patchCards(
   return rollback;
 }
 
-/** Puts one card back (or removes it if it did not exist) and leaves the rest alone. */
 export function restoreCardIn(
   cards: DigitalCardDto[],
   { cardId, previous, index }: ICardsRollback,

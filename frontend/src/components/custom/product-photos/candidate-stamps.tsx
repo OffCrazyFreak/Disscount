@@ -10,7 +10,6 @@ interface ICandidateStampsProps {
   status: string;
 }
 
-/** The labels printed on a contact-sheet frame: where the photo came from and what state it is in. */
 export default function CandidateStamps({
   image,
   source,

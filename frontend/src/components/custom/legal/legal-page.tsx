@@ -8,7 +8,6 @@ interface ILegalPageProps {
   children: ReactNode;
 }
 
-// Shared by terms, privacy and data deletion.
 export default function LegalPage({
   title,
   intro,

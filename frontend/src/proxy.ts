@@ -15,8 +15,7 @@ const PRODUCT_PATH = new RegExp(
   `^(?:/(${LOCALES.join("|")}))?/products/([^/]+)/?$`,
 );
 
-// Next advertises og:image and twitter:image with the locale prefix even for Croatian,
-// and link preview bots may drop an image behind as-needed's redirect to the bare URL.
+// Next advertises share images with the locale prefix even for Croatian, and preview bots may drop an image behind the redirect to the bare URL.
 const PREFIXED_SHARE_IMAGE_PATH = new RegExp(
   `^/(?:${LOCALES.join("|")})/(?:opengraph-image|twitter-image)(?:/|$)`,
 );
@@ -30,11 +29,7 @@ function hasValidEscapes(segment: string): boolean {
   }
 }
 
-/**
- * loading.tsx streams a 200 before the page can look a product up, so only a check
- * here can send a real 404. It stays a shape check: the upstream lookup happens in
- * the page, whose notFound() then gets Next's streamed noindex.
- */
+/** loading.tsx streams a 200 before the page can look a product up, so only a check here can send a real 404. */
 function malformedProductResponse(request: NextRequest): NextResponse | null {
   const match = PRODUCT_PATH.exec(request.nextUrl.pathname);
   if (!match) return null;
@@ -57,9 +52,7 @@ export default function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Only the bare root follows a saved choice: typing the domain or launching the
-  // installed app lands there. Crawlers never carry the cookie, and every other URL
-  // keeps showing its own language.
+  // Only the bare root follows a saved choice; crawlers carry no cookie, and every other URL keeps its own language.
   if (request.nextUrl.pathname === "/") {
     const saved = request.cookies.get(LOCALE_COOKIE)?.value;
 
@@ -74,9 +67,7 @@ export default function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Skips API and auth routes, Next internals, the Sentry tunnel, route handlers
-  // that live outside [locale], and anything with a file extension (sw.js,
-  // manifest.webmanifest, sitemap.xml, images).
+  // Skips API and auth routes, Next internals, the Sentry tunnel, handlers outside [locale] and files with an extension.
   matcher: [
     "/((?!api|_next|_vercel|monitoring|health|share-target|.*\\..*).*)",
   ],

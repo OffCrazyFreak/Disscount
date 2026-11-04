@@ -12,11 +12,7 @@ interface IUseLongPressOptions {
   onLongPress: () => void;
 }
 
-/**
- * Long press for a single element, via Pointer Events rather than `contextmenu`,
- * which iOS has not fired on long press since 13.1. The timer itself lives in
- * useLongPressTimer, shared with the bottom bar.
- */
+/** Pointer Events rather than `contextmenu`, which iOS has not fired on long press since 13.1. */
 export default function useLongPress({ onLongPress }: IUseLongPressOptions) {
   const timer = useLongPressTimer();
   const origin = useRef({ x: 0, y: 0 });
@@ -29,8 +25,7 @@ export default function useLongPress({ onLongPress }: IUseLongPressOptions) {
 
   const start = useCallback(
     (event: ReactPointerEvent<HTMLElement>) => {
-      // Touch and pen only. Holding a mouse button is not a long press, and the
-      // callout suppression below would take the desktop context menu with it.
+      // Touch and pen only, because a mouse hold is no long press and the callout suppression would take the desktop context menu.
       if (event.pointerType === "mouse" || !event.isPrimary) return;
 
       origin.current = { x: event.clientX, y: event.clientY };
@@ -58,11 +53,7 @@ export default function useLongPress({ onLongPress }: IUseLongPressOptions) {
     onPointerUp: timer.cancel,
     onPointerCancel: timer.cancel,
     onPointerLeave: timer.cancel,
-    // Suppressed for the whole gesture, not just while it is pending. The hold
-    // fires at 450ms and Chrome on Android raises its link menu at roughly 500,
-    // so checking isPending alone let the menu open on top of the sheet that had
-    // just opened. hasFired stays true until the next start(), and a desktop
-    // right-click never starts one, so its menu is untouched.
+    // For the whole gesture, because the hold fires at 450ms and Chrome on Android raises its link menu at about 500, over the opened sheet.
     onContextMenu: (event: ReactMouseEvent<HTMLElement>) => {
       if (timer.isPending() || timer.hasFired()) event.preventDefault();
     },

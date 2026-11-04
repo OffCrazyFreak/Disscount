@@ -36,7 +36,6 @@ interface ISidebarFilterMenuProps {
   onOpenChange: (open: boolean) => void;
 }
 
-/** Collapsible list of products filter links, e.g. store chains or cities. */
 export default function SidebarFilterMenu({
   item,
   filterKey,
@@ -96,8 +95,7 @@ export default function SidebarFilterMenu({
                     asChild
                     isActive={selected.includes(option.value)}
                   >
-                    {/* The primitive's fixed h-7 clips a name that wraps, and
-                        its truncate rule squeezes the count to "(…". */}
+                    {/* The primitive's fixed h-7 clips a name that wraps, and its truncate rule squeezes the count to "(…". */}
                     <Link
                       href={buildHref(option.value)}
                       className="h-auto min-h-7 justify-between py-1"
