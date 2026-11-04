@@ -22,6 +22,7 @@ export default function CameraScanner({
   onScan,
 }: ICameraScannerProps) {
   const openerRef = useRef<Element | null>(null);
+  const openerFieldRef = useRef<HTMLElement | null>(null);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -30,13 +31,31 @@ export default function CameraScanner({
         onOpenAutoFocus={() => {
           // Fires before Radix moves focus in, so this is still the opener.
           openerRef.current = document.activeElement;
+          openerFieldRef.current =
+            openerRef.current?.closest<HTMLElement>(
+              "[data-slot=search-field]",
+            ) ?? null;
         }}
         onCloseAutoFocus={(event) => {
-          // A scan closes the sidebar it started in, which leaves focus nowhere to go back to.
-          if (!openerRef.current?.closest("[inert]")) return;
-
+          // Radix only restores focus to a DialogTrigger, and the scanner has none.
           event.preventDefault();
-          focusSidebarTrigger();
+
+          // A scan closes the sidebar it started in, which leaves focus nowhere to go back to.
+          if (openerRef.current?.closest("[inert]")) {
+            focusSidebarTrigger();
+            return;
+          }
+
+          // The scan button can be gone by now (the page re-rendered), but its field may remain.
+          const searchInput = openerFieldRef.current?.querySelector("input");
+
+          for (const target of [openerRef.current, searchInput]) {
+            if (!(target instanceof HTMLElement) || !target.isConnected)
+              continue;
+
+            target.focus();
+            if (document.activeElement === target) return;
+          }
         }}
       >
         <ScannerContent preset={preset} confirm={confirm} onScan={onScan} />
