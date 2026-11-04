@@ -44,7 +44,7 @@ Legal copy needs no wording question: change it as you judge right and log what 
 ## PRs and review
 
 - Fill in `.github/PULL_REQUEST_TEMPLATE.md`.
-- CodeRabbit reviews on its own, with no `.coderabbit.yaml`. Never wait on it, because the Sonnet review is enough.
+- CodeRabbit reviews on its own, with no `.coderabbit.yaml`. Outside release reviews, never wait on it, because the Sonnet review is enough.
 - Greptile is for big or sensitive PRs: 500 or more changed lines or 15 or more files, or anything touching auth, security, personal data or migrations. Comment `@greptileai review` once.
 - Before a merge, read every comment and review, bots included, and settle each: fix it or reply with the reason. Read the `pulls/N/reviews` bodies too, since CodeRabbit keeps nitpicks and out-of-diff findings there, not in inline comments.
 - The orchestrating session merges a PR once CI is green and review is settled. Delegates do not merge.
@@ -61,7 +61,7 @@ Project board 8, owner OffCrazyFreak. Status is never empty.
 
 ## Releases and production
 
-- Work lands on `dev`; a release is a `dev` into `main` PR. Before one, dev-vs-main gets the Sonnet review plus both bots, findings land as their own `fix:` PR, and the notes stay in `~/Documents/Disscount`.
+- Work lands on `dev`; a release is a `dev` into `main` PR. Before one, dev-vs-main gets a Sonnet `reviewer` per app area plus CodeRabbit and Greptile (their automatic reviews or their CLIs), and this is the one review that waits for both bots. Findings land as their own `fix:` PR, and the notes stay in `~/Documents/Disscount`.
 - Anything a release needs (a data step already run, a migration, an env step, a check after deploy) goes in the open release PR body in the same turn, saying what happened and what is left and by whom. Append; never reword existing notes.
 - Dokploy, Cloudflare, Sentry, `gh` and `ssh disscount` are yours to use on dev and production, without asking. Read the official docs for each step, verify it, and report every production change.
 - Databases are containers named `disscount-{development,production}-*-db-1`, reached with `docker exec <container> psql` over `ssh disscount`. `docs/INFRASTRUCTURE.md` has the full reference.
