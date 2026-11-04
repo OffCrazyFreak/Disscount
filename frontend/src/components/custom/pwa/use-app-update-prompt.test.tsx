@@ -1,4 +1,4 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { Toaster } from "sonner";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -61,6 +61,14 @@ describe("AppUpdatePrompt", () => {
       "controllerchange",
       expect.any(Function),
       { once: true },
+    );
+
+    // Sonner removes a dismissed toast on a 200 ms timer; letting it fire after the test ends
+    // runs it against a torn-down jsdom under load.
+    await waitFor(() =>
+      expect(
+        screen.queryByText("Dostupna je nova verzija Disscounta."),
+      ).not.toBeInTheDocument(),
     );
   });
 
