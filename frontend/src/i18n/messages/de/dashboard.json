@@ -37,6 +37,8 @@
     "colEmail": "E-Mail",
     "colLastLogin": "Letzte Anmeldung",
     "colAccountType": "Kontotyp",
+    "colPhotos": "Fotos",
+    "photoCount": "{uploaded} · {deleted} gelöscht",
     "deleteTitle": "Konto löschen",
     "deleteDescription": "Möchtest du das Konto {name} wirklich löschen? Das kann nicht rückgängig gemacht werden.",
     "deleteConfirm": "Konto löschen"

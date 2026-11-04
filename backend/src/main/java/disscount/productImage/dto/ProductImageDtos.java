@@ -65,6 +65,9 @@ public final class ProductImageDtos {
 
     public record AdminQueuePageDto(List<AdminQueueItemDto> items, long total, int page, int size, long reviewedCount) {}
 
+    /** Photos one user uploaded and how many of them an admin deleted, for the admin users list. */
+    public record ContributorPhotoCountDto(UUID userId, long uploaded, long deleted) {}
+
     public record SetMainRequest(@NotNull UUID imageId) {}
 
     public record ImageStatusRequest(@NotNull String status) {}

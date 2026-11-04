@@ -51,7 +51,7 @@ import static org.mockito.Mockito.when;
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @Import({ProductImageQueryService.class, ProductImageWriteService.class, ProductImageAdminService.class,
-        ProductImageViews.class, ProductImageRendering.class, OffCandidateWriter.class, UploadLimitConfig.class,
+        ProductImageViews.class, ProductImageRendering.class, ProductImageRemoval.class, OffCandidateWriter.class, UploadLimitConfig.class,
         PhotoValidator.class, ProductImageServiceTest.StoreConfig.class})
 class ProductImageServiceTest {
 

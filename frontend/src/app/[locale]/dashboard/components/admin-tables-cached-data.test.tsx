@@ -1,7 +1,7 @@
 import { screen, waitFor } from "@testing-library/react";
 import { QueryClient, type QueryKey } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw/http";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import AdminContactTable from "@/app/[locale]/dashboard/components/admin-contact-table";
 import AdminUsersTable from "@/app/[locale]/dashboard/components/admin-users-table";
@@ -58,6 +58,14 @@ async function refetchFailed(queryClient: QueryClient, queryKey: QueryKey) {
 }
 
 describe("admin tables over cached data", () => {
+  beforeEach(() => {
+    server.use(
+      http.get("*/api/admin/product-images/contributors", () =>
+        HttpResponse.json([]),
+      ),
+    );
+  });
+
   it("keeps the users when a background refetch fails", async () => {
     const queryClient = cachedWithFailingRefetch(
       ADMIN_QUERY_KEYS.users,

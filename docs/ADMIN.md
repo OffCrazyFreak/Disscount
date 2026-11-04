@@ -67,13 +67,14 @@ The proxy that turns the session into a backend token is in [BACKEND-PROXY.md](B
 
 **Table** (`admin-users-table.tsx`, `admin-user-row.tsx`): username (with a "you" badge on your own row), email, last sign-in, account type select, and a delete button.
 
-| Column       | Comes from                                                                                     |
-| ------------ | ---------------------------------------------------------------------------------------------- |
-| Username     | `app_user.username`                                                                            |
-| Email        | better-auth's `user` table, joined in `UserService.findAllActive` through `AuthIdentityDao`    |
-| Last sign-in | The later of `user.last_login_at` and the newest surviving session's `created_at`              |
-| Last active  | The later of `app_user.last_active_at` and the newest session's `updated_at` (feeds the stats) |
-| Account type | `app_user.account_type`                                                                        |
+| Column       | Comes from                                                                                            |
+| ------------ | ----------------------------------------------------------------------------------------------------- |
+| Username     | `app_user.username`                                                                                   |
+| Email        | better-auth's `user` table, joined in `UserService.findAllActive` through `AuthIdentityDao`           |
+| Last sign-in | The later of `user.last_login_at` and the newest surviving session's `created_at`                     |
+| Last active  | The later of `app_user.last_active_at` and the newest session's `updated_at` (feeds the stats)        |
+| Photos       | `GET /api/admin/product-images/contributors`: photos the user uploaded, and how many an admin deleted |
+| Account type | `app_user.account_type`                                                                               |
 
 `lastLoginAt` and `lastActiveAt` are sent as `Instant`s with an offset, so the browser's date maths is not shifted by each admin's time zone ([AUTH.md](AUTH.md#13-gotchas-and-lessons)).
 

@@ -18,6 +18,7 @@ import disscount.productImage.domain.ProductImage;
 import disscount.productImage.domain.ProductImageReport;
 import disscount.productImage.domain.ProductImageSet;
 import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
+import disscount.productImage.render.ProductImageRenderer;
 import disscount.storage.PhotoStore;
 import disscount.storage.PhotoStoreConfig;
 import disscount.user.service.UserService;
@@ -44,6 +45,7 @@ public class ProductImageWriteService {
     @Qualifier(UploadLimitConfig.PRODUCT_PHOTOS)
     private final FixedWindowLimiter limiter;
     private final ProductImageRendering rendering;
+    private final ProductImageRemoval removal;
     private final ProductImageViews views;
     private final UserService userService;
 
@@ -65,6 +67,7 @@ public class ProductImageWriteService {
         if (!"image/jpeg".equals(photo.contentType())) {
             throw new BadRequestException("error.productImage.jpegOnly");
         }
+        removal.requireNotDeleted(photo.bytes());
 
         ProductImageSet set = sets.findById(ean).orElseGet(() -> sets.save(ProductImageSet.builder().ean(ean).build()));
 
@@ -79,6 +82,7 @@ public class ProductImageWriteService {
                 .originalWidth(photo.width())
                 .originalHeight(photo.height())
                 .contributorId(userId)
+                .contentSha256(ProductImageRenderer.sha256(photo.bytes()))
                 .build());
         rendering.render(image);
 

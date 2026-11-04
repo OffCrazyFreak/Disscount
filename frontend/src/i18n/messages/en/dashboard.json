@@ -37,6 +37,8 @@
     "colEmail": "Email",
     "colLastLogin": "Last sign-in",
     "colAccountType": "Account type",
+    "colPhotos": "Photos",
+    "photoCount": "{uploaded} · {deleted} deleted",
     "deleteTitle": "Delete account",
     "deleteDescription": "Delete the account {name}? This can't be undone.",
     "deleteConfirm": "Delete account"
