@@ -1,3 +1,4 @@
+import { tab as session } from "@/test/user-context-mocks";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw/http";
@@ -11,35 +12,6 @@ import { actingAs, serverSession } from "@/test/backend-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 import { storedUser } from "@/test/stored-user";
-
-const { session } = vi.hoisted(() => ({
-  session: {
-    userId: "user-a" as string | null,
-    error: null as Error | null,
-  },
-}));
-
-// Only useSession is faked; authClient stays real so MSW answers its requests.
-vi.mock("@/lib/auth/client", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/auth/client")>();
-  return {
-    authClient: actual.authClient,
-    useSession: () => ({
-      data: session.userId ? { user: { id: session.userId } } : null,
-      isPending: false,
-      error: session.error,
-    }),
-  };
-});
-
-vi.mock("@/i18n/navigation", () => ({
-  usePathname: () => "/",
-  useRouter: () => ({ push: vi.fn() }),
-}));
-
-vi.mock("@/lib/offline/purge", () => ({ purgeOfflineCache: vi.fn() }));
-
-vi.mock("@sentry/nextjs", () => ({ setUser: vi.fn() }));
 
 function SignInButton() {
   const { handleUserLogin } = useUser();

@@ -1,8 +1,9 @@
+import { tab } from "@/test/user-context-mocks";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw/http";
 import { useForm } from "react-hook-form";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { UserProvider, useUser } from "@/context/user-context";
 import { useFormDraft } from "@/hooks/use-form-draft";
@@ -10,44 +11,17 @@ import {
   getCacheIdentity,
   setCacheIdentity,
 } from "@/lib/offline/cache-identity";
+import { purgeOfflineCache } from "@/lib/offline/purge";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 import { storedUser } from "@/test/stored-user";
 
-const { tab } = vi.hoisted(() => ({
-  tab: { userId: null as string | null },
-}));
-
-vi.mock("@/lib/auth/client", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/auth/client")>();
-  return {
-    authClient: actual.authClient,
-    useSession: () => ({
-      data: tab.userId
-        ? {
-            user: { id: tab.userId },
-            session: { id: "session-1", userId: tab.userId },
-          }
-        : null,
-      isPending: false,
-      error: null,
-    }),
-  };
-});
-
-vi.mock("@/i18n/navigation", () => ({
-  usePathname: () => "/",
-  useRouter: () => ({ push: vi.fn() }),
-}));
-
 // The real purge awaits IndexedDB deletes, long enough for React to unmount the form.
-vi.mock("@/lib/offline/purge", () => ({
-  purgeOfflineCache: vi.fn(
+beforeEach(() => {
+  vi.mocked(purgeOfflineCache).mockImplementation(
     () => new Promise<void>((resolve) => setTimeout(resolve, 50)),
-  ),
-}));
-
-vi.mock("@sentry/nextjs", () => ({ setUser: vi.fn() }));
+  );
+});
 
 function DraftedForm() {
   const form = useForm({ defaultValues: { username: "" } });
@@ -64,10 +38,6 @@ function AccountProbe() {
     </>
   );
 }
-
-afterEach(() => {
-  tab.userId = null;
-});
 
 describe("UserProvider sign-out", () => {
   it("leaves nothing the account typed in the device's drafts", async () => {

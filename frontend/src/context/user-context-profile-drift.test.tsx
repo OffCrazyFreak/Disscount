@@ -1,3 +1,4 @@
+import { tab } from "@/test/user-context-mocks";
 import { screen, waitFor } from "@testing-library/react";
 import * as Sentry from "@sentry/nextjs";
 import { http, HttpResponse } from "msw/http";
@@ -9,30 +10,6 @@ import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 import { storedUser } from "@/test/stored-user";
-
-vi.mock("@/lib/auth/client", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/auth/client")>();
-  return {
-    authClient: actual.authClient,
-    useSession: () => ({
-      data: { user: { id: "user-a" } },
-      isPending: false,
-      error: null,
-    }),
-  };
-});
-
-vi.mock("@/i18n/navigation", () => ({
-  usePathname: () => "/",
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
-}));
-
-vi.mock("@/lib/offline/purge", () => ({ purgeOfflineCache: vi.fn() }));
-
-vi.mock("@sentry/nextjs", () => ({
-  setUser: vi.fn(),
-  captureException: vi.fn(),
-}));
 
 const { accountType: _omitted, ...driftedProfile } = storedUser;
 
@@ -52,6 +29,7 @@ function serveProfile(body: object) {
 }
 
 beforeEach(() => {
+  tab.userId = "user-a";
   setCacheIdentity(null);
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
