@@ -44,16 +44,17 @@ Legal copy is the exception to asking about wording: change it as you judge righ
 ## PRs and review
 
 - Fill in `.github/PULL_REQUEST_TEMPLATE.md`.
-- CodeRabbit and Greptile are for big or sensitive PRs: about 500+ changed lines or 15+ files, or anything touching auth, security, personal data or migrations. Comment `@coderabbitai review` and `@greptileai review` once. Never wait on their quota, because the Sonnet review is enough.
+- CodeRabbit reviews on its own, with no `.coderabbit.yaml`. Never wait on it, because the Sonnet review is enough.
+- Greptile is for big or sensitive PRs: 500 or more changed lines or 15 or more files, or anything touching auth, security, personal data or migrations. Comment `@greptileai review` once.
 - Before a merge, read every comment and review, bots included, and settle each: fix it or reply with the reason. Read the `pulls/N/reviews` bodies too, since CodeRabbit keeps nitpicks and out-of-diff findings there, not in inline comments.
 - The orchestrating session merges a PR once CI is green and review is settled. Delegates do not merge.
-- UI change: run the worktree's dev server, open every changed screen in the T3 preview, then ask whether to attach screenshots to the PR. Attach with `gh pr edit --attach '<file>#<alt>'`, never from a branch, because GitHub can collect the commits behind those links once it is deleted. `--attach` rewrites Markdown images, not `<img>` tags.
+- UI change: run the worktree's dev server, open every changed screen in the T3 preview, then ask whether to attach screenshots to the PR. Attach with `gh pr create`, `gh pr edit` or `gh issue comment` and `--attach '<file>#<alt>'`, never from a branch, because GitHub can collect the commits behind those links once it is deleted. `--attach` rewrites Markdown images, not `<img>` tags.
 
 ## Board and issues
 
 Project board 8, owner OffCrazyFreak. Status is never empty.
 
-- New issues: top of Backlog, each researched by its own Sonnet agent, with permalinks at a fixed SHA, sources, a fix plan and how to verify.
+- New issues: top of Backlog, each researched by its own `researcher` agent, with permalinks at a fixed SHA, sources, a fix plan and how to verify.
 - Plans: a tracking issue with the why, decisions, an ordered PR checklist and open questions, In progress once its first PR runs, otherwise Sprint. A PR that completes a step ticks it.
 - Owner-only steps (their logins, payments, phone): a draft at the top of In progress with links and numbered steps.
 - Merged user-facing work: For review, with screenshots on the card, because I move it to Done after looking. Capture the changed screens on dev.disscount.me and attach them with `gh issue comment --attach`; a draft becomes an issue first. A delegate lists "attach screenshots?" under Open questions. Invisible work: Done on merge.

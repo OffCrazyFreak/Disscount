@@ -29,7 +29,7 @@ cd frontend
 ./node_modules/.bin/fallow audit --base origin/dev
 node scripts/check-i18n.mjs
 ./node_modules/.bin/prettier --check src
-./node_modules/.bin/prettier --check --ignore-path ../.prettierignore "../README.md" "../AGENTS.md" "../docs/**/*.md" "../.github/**/*.md" "../.agents/**/*.md"
+./node_modules/.bin/prettier --check --ignore-path ../.prettierignore "../README.md" "../AGENTS.md" "../CLAUDE.md" "../docs/**/*.md" "../.github/**/*.md" "../.agents/**/*.md"
 ```
 
 The link is enough for the CLI checks and is gitignored. If the main checkout is behind on dependencies, a check can fail on a missing package; use the scratch clone below and link its `node_modules` instead.
@@ -45,9 +45,9 @@ Gitignored env files may be missing from a new worktree. Copy `.env`, `backend/.
 The lockfile is regenerated in full for every dependency change, a single bump included, in a scratch clone at a literal path:
 
 ```bash
-git clone --quiet /home/jj/Desktop/Disscount /home/jj/.t3/scratch/disscount-deps
-cp frontend/package.json frontend/pnpm-workspace.yaml /home/jj/.t3/scratch/disscount-deps/frontend/
-cd /home/jj/.t3/scratch/disscount-deps/frontend
+git clone --quiet /home/jj/Desktop/Disscount /home/jj/Documents/Disscount/scratch/deps
+cp frontend/package.json frontend/pnpm-workspace.yaml /home/jj/Documents/Disscount/scratch/deps/frontend/
+cd /home/jj/Documents/Disscount/scratch/deps/frontend
 rm -rf node_modules pnpm-lock.yaml .next
 pnpm install
 ```
