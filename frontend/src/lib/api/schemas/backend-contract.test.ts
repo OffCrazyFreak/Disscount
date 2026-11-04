@@ -157,7 +157,7 @@ describe("backend contract", () => {
     );
   });
 
-  it("keeps every mirrored DTO's fields, types and enums equal to the backend's", () => {
+  it("keeps every mirrored DTO's fields, types, nullability and enums equal to the backend's", () => {
     const drift = Object.assign(
       {},
       ...Object.entries(MIRRORED_DTOS).map(([name, schema]) =>
@@ -166,6 +166,7 @@ describe("backend contract", () => {
           name,
           contract.schemas[name],
           describeZodSchema(schema),
+          name.endsWith("Request") ? "request" : "response",
         ),
       ),
     );

@@ -3,12 +3,20 @@ import { fileURLToPath } from "node:url";
 
 import { z } from "zod";
 
-interface IJsonSchema {
+import {
+  acceptsNull,
+  NULLABILITY,
+  nullabilityDrift,
+  type WireDirection,
+} from "@/test/nullability-drift";
+
+export interface IJsonSchema {
   $ref?: string;
   type?: string | string[];
   enum?: unknown[];
   pattern?: string;
   properties?: Record<string, IJsonSchema>;
+  required?: string[];
   items?: IJsonSchema;
   additionalProperties?: IJsonSchema | boolean;
   anyOf?: IJsonSchema[];
@@ -79,15 +87,27 @@ function scalarDrift(backend: IJsonSchema, frontend: IJsonSchema) {
 function fieldDrift(
   contract: IApiContract,
   path: string,
-  backendFields: Record<string, IJsonSchema>,
-  frontendFields: Record<string, IJsonSchema>,
+  backend: IJsonSchema,
+  frontend: IJsonSchema,
+  direction: WireDirection,
 ) {
+  const backendFields = backend.properties ?? {};
+  const frontendFields = frontend.properties ?? {};
   const drift: Record<string, string> = {};
+
   for (const field of Object.keys({ ...backendFields, ...frontendFields })) {
     const fieldPath = `${path}.${field}`;
     if (!backendFields[field]) drift[fieldPath] = "only in the zod schema";
     else if (!frontendFields[field]) drift[fieldPath] = "only in the backend";
     else {
+      const nullability = nullabilityDrift(direction, {
+        isBackendNullable: acceptsNull(backendFields[field]),
+        isBackendRequired: backend.required?.includes(field) ?? false,
+        isZodNullable: acceptsNull(frontendFields[field]),
+        isZodOptional: !frontend.required?.includes(field),
+      });
+      if (nullability) drift[`${fieldPath}${NULLABILITY}`] = nullability;
+
       Object.assign(
         drift,
         findDrift(
@@ -95,6 +115,7 @@ function fieldDrift(
           fieldPath,
           backendFields[field],
           frontendFields[field],
+          direction,
         ),
       );
     }
@@ -114,10 +135,13 @@ export function findDrift(
   path: string,
   backendSchema: IJsonSchema,
   zodSchema: IJsonSchema,
+  direction: WireDirection,
 ): Record<string, string> {
-  const backend = backendSchema.$ref
-    ? contract.schemas[backendSchema.$ref.split("/").at(-1) ?? ""]
-    : backendSchema;
+  const backend = withoutNull(
+    backendSchema.$ref
+      ? contract.schemas[backendSchema.$ref.split("/").at(-1) ?? ""]
+      : backendSchema,
+  );
   const frontend = withoutNull(zodSchema);
 
   // Named rather than skipped, so a union can never hide a field or an enum unnoticed.
@@ -131,12 +155,12 @@ export function findDrift(
     ...(scalar && { [path]: scalar }),
     ...(backend.properties &&
       frontend.properties &&
-      fieldDrift(contract, path, backend.properties, frontend.properties)),
+      fieldDrift(contract, path, backend, frontend, direction)),
     ...(backendItems &&
       frontendItems &&
-      findDrift(contract, `${path}[]`, backendItems, frontendItems)),
+      findDrift(contract, `${path}[]`, backendItems, frontendItems, direction)),
     ...(isSchema(backendMap) &&
       isSchema(frontendMap) &&
-      findDrift(contract, `${path}{}`, backendMap, frontendMap)),
+      findDrift(contract, `${path}{}`, backendMap, frontendMap, direction)),
   };
 }

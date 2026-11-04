@@ -37,7 +37,7 @@ export const shoppingListItemDtoSchema = shoppingListItemFieldsSchema.extend({
   amount: z.number().int(),
   isChecked: z.boolean(),
   createdAt: z.string(),
-  updatedAt: z.string().nullable(),
+  updatedAt: z.string(),
   updatedByUserId: z.string().nullable(),
 });
 
