@@ -12,7 +12,6 @@ export const clientEnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: httpUrl.optional(),
   NEXT_PUBLIC_UMAMI_WEBSITE_ID: z.string().optional(),
   NEXT_PUBLIC_SENTRY_DSN: httpUrl.optional(),
-  NEXT_PUBLIC_ENABLE_REACT_SCAN: optionalFlag,
   NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS: optionalFlag,
   // Not NEXT_PUBLIC, but next.config.ts inlines it through `env` for the browser Sentry init.
   SENTRY_ENVIRONMENT: z.string().optional(),
@@ -28,7 +27,6 @@ function readClientEnv(): Record<keyof ClientEnv, string | undefined> {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
-    NEXT_PUBLIC_ENABLE_REACT_SCAN: process.env.NEXT_PUBLIC_ENABLE_REACT_SCAN,
     NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS:
       process.env.NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS,
     SENTRY_ENVIRONMENT: process.env.SENTRY_ENVIRONMENT,

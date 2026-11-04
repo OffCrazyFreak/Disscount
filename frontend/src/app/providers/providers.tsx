@@ -4,7 +4,6 @@ import { type ReactNode } from "react";
 import ReactQueryProviderWrapper from "@/app/providers/react-query-provider";
 import SidebarProvider from "@/app/providers/sidebar-provider";
 import ToasterProvider from "@/app/providers/toaster-provider";
-import ReactScan from "@/app/providers/react-scan";
 import { UserProvider } from "@/context/user-context";
 import { CameraScannerProvider } from "@/context/scanner-context";
 import { NotificationsProvider } from "@/context/notifications-context";
@@ -26,7 +25,6 @@ export default function Providers({ children }: IProvidersProps) {
             <CameraScannerProvider>
               <ProductsSheetProvider>
                 <ToasterProvider>
-                  <ReactScan />
                   <RequestPersistentStorage />
                   <ScanShortcut />
                   <AppUpdatePrompt />
