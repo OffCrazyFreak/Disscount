@@ -143,20 +143,24 @@ Copy and i18n (`docs/I18N.md`):
 
 ## Commits
 
-Write the message from the staged diff in this template, without repeating it in chat. The hooks in `frontend/.husky/` check it.
+Write the message from the staged diff in this template, without repeating it in chat. `frontend/.husky/commit-msg` rejects an unknown type, a subject over 72 characters, trailers and dashes.
 
 ```text
-type(scope): Short summary in imperative mood
+type(scope): Imperative summary
+
+Why paragraph.
 
 Changes:
 - Specific change
 
-Brief explanation of why the change was needed.
+Notes: A tradeoff.
 ```
 
-- Add a `Notes:` section only for something a reviewer would otherwise miss.
-- Use type `fix`, `feat`, `docs`, `refactor`, `chore`, `style`, `perf` or `ci`.
-- Use a kebab-case scope: `products`, `pwa`, `watchlist`, `shopping-lists`, `settings`, `auth`, `search`, `scanner`, `landing`, `header`, `sidebar`, `bottom-nav`, `price-history`, `modals`, `ui`, `brand`, `a11y`, `i18n`, `deps`, `agents`.
+- Use type `fix`, `feat`, `docs`, `refactor`, `chore`, `style`, `perf`, `ci` or `test`.
+- Leave the scope out or reuse one from `git log`.
+- Write the why paragraph in every commit: the problem and the reason, never repeating the subject.
+- Add `Changes:` only for two or more separable parts.
+- Add `Notes:` only for a tradeoff.
 - Cite commits by full 40-character SHA.
 - Write "Part of #N" in a PR into `dev`, because `Closes #N` fires only on a merge into `main`; I close it by hand.
 - Link anything filed on `senko/cijene-api` back to https://disscount.me and this repository.
