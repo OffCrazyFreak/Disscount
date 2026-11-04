@@ -3,10 +3,12 @@ package disscount.digitalCard.service;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import disscount.config.UploadLimitConfig;
 import disscount.digitalCard.dao.DigitalCardPhotoRepository;
 import disscount.digitalCard.dao.DigitalCardRepository;
 import disscount.digitalCard.domain.DigitalCard;
@@ -19,6 +21,7 @@ import disscount.digitalCard.storage.StoredPhoto;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.NotFoundException;
 import disscount.exceptions.ServiceUnavailableException;
+import disscount.util.FixedWindowLimiter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -44,7 +47,8 @@ public class DigitalCardPhotoService {
     private final CardPhotoWriter writer;
     private final PhotoStore photoStore;
     private final PhotoValidator validator;
-    private final PhotoUploadRateLimiter rateLimiter;
+    @Qualifier(UploadLimitConfig.CARD_PHOTOS)
+    private final FixedWindowLimiter rateLimiter;
 
     /** The bytes handed to a controller for streaming; {@code thumb} picks the small variant. */
     public record PhotoStream(StoredPhoto photo, String sha256, boolean thumb) {}

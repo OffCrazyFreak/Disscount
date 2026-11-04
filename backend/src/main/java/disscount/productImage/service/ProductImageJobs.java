@@ -46,15 +46,13 @@ public class ProductImageJobs {
     private final ProductImageRepository images;
     private final ProductImageSetRepository sets;
     private final ProductImageImportRunRepository runs;
-    private final ProductPhotoUploadLimiter limiter;
     private final AtomicBoolean importing = new AtomicBoolean();
     private final AtomicBoolean renderingNow = new AtomicBoolean();
 
     public ProductImageJobs(@Value("${product-images.jobs.enabled:true}") boolean enabled,
                             ProductImageStore store, CatalogImportService catalog, OffSeedService seed,
                             ProductImageRendering rendering, ProductImageRepository images,
-                            ProductImageSetRepository sets, ProductImageImportRunRepository runs,
-                            ProductPhotoUploadLimiter limiter) {
+                            ProductImageSetRepository sets, ProductImageImportRunRepository runs) {
         this.enabled = enabled;
         this.store = store;
         this.catalog = catalog;
@@ -63,7 +61,6 @@ public class ProductImageJobs {
         this.images = images;
         this.sets = sets;
         this.runs = runs;
-        this.limiter = limiter;
     }
 
     /**
@@ -167,8 +164,7 @@ public class ProductImageJobs {
     /** The photo keeps showing its earlier files; after the last attempt it simply keeps them. */
     private void retryOlderLater(ProductImage loaded, RuntimeException cause) {
         images.findById(loaded.getId()).ifPresent(image -> {
-            int attempts = (image.getRenderAttempts() == null ? 0 : image.getRenderAttempts()) + 1;
-            image.setRenderAttempts(attempts);
+            int attempts = countFailedAttempt(image);
             image.setRenderRetryAt(Timestamps.nowUtc().plus(RENDER_RETRY_AFTER));
             images.save(image);
             log.warn("Could not re-render product photo {} for {} (attempt {}): {}", image.getId(), image.getEan(),
@@ -176,16 +172,10 @@ public class ProductImageJobs {
         });
     }
 
-    @Scheduled(fixedDelay = 300_000L)
-    public void sweepUploadLimiter() {
-        limiter.sweep();
-    }
-
     private void postpone(ProductImage loaded, RuntimeException cause) {
         ProductImage image = current(loaded);
         if (image == null) return;
-        int attempts = (image.getRenderAttempts() == null ? 0 : image.getRenderAttempts()) + 1;
-        image.setRenderAttempts(attempts);
+        int attempts = countFailedAttempt(image);
         if (attempts >= MAX_RENDER_ATTEMPTS) {
             // A photo that keeps failing would hold the main slot forever, so the next photo or a user upload takes it.
             hide(image, cause);
@@ -194,6 +184,12 @@ public class ProductImageJobs {
         log.warn("Retrying product photo {} for {} later: {}", image.getId(), image.getEan(), cause.getMessage());
         image.setRenderRetryAt(Timestamps.nowUtc().plus(RENDER_RETRY_AFTER));
         images.save(image);
+    }
+
+    private static int countFailedAttempt(ProductImage image) {
+        int attempts = (image.getRenderAttempts() == null ? 0 : image.getRenderAttempts()) + 1;
+        image.setRenderAttempts(attempts);
+        return attempts;
     }
 
     /** A photo that cannot be read (a CMYK JPEG, a dead link) would otherwise block the head of the queue forever. */

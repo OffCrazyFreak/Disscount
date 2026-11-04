@@ -1,5 +1,6 @@
 package disscount.user.service;
 
+import disscount.config.UploadLimitConfig;
 import disscount.digitalCard.dao.DigitalCardPhotoRepository;
 import disscount.digitalCard.dao.DigitalCardRepository;
 import disscount.digitalCard.dao.PhotoCleanupRepository;
@@ -12,7 +13,6 @@ import disscount.digitalCard.service.DigitalCardPhotoService;
 import disscount.digitalCard.service.DigitalCardService;
 import disscount.digitalCard.service.FakePhotoStore;
 import disscount.digitalCard.service.PhotoCleanupService;
-import disscount.digitalCard.service.PhotoUploadRateLimiter;
 import disscount.digitalCard.storage.PhotoStore;
 import disscount.storeName.dao.StoreNameSuggestionRepository;
 import disscount.storeName.dao.StoreNameUsageRepository;
@@ -68,7 +68,7 @@ import static org.mockito.Mockito.verify;
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @Import({UserService.class, AccountErasureService.class, DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
-        StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, PhotoUploadRateLimiter.class,
+        StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, UploadLimitConfig.class,
         CardPhotoWriter.class, CardUserLock.class, PhotoCleanupService.class, FavoriteStoreService.class,
         AvatarSanitizer.class, UserServiceDeleteAccountTest.StoreConfig.class})
 class UserServiceDeleteAccountTest {

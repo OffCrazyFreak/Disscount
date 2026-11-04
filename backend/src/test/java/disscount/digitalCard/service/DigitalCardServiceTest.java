@@ -1,5 +1,6 @@
 package disscount.digitalCard.service;
 
+import disscount.config.UploadLimitConfig;
 import disscount.digitalCard.dao.DigitalCardPhotoRepository;
 import disscount.digitalCard.dao.DigitalCardRepository;
 import disscount.digitalCard.dao.PhotoCleanupRepository;
@@ -51,7 +52,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @Import({DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
-        StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, PhotoUploadRateLimiter.class,
+        StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, UploadLimitConfig.class,
         CardPhotoWriter.class, CardUserLock.class, PhotoCleanupService.class,
         DigitalCardServiceTest.StoreConfig.class})
 class DigitalCardServiceTest {

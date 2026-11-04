@@ -70,7 +70,7 @@ class ApiContractTest extends FullStackTest {
 
         assertThatThrownBy(() -> ApiContract.assertMatches("AdminProductDto", product))
                 .hasMessageContaining("AdminProductDto.ean")
-                .hasMessageNotContaining("AdminProductDto.mainImageId");
+                .hasMessageNotContaining("AdminProductDto.reviewedAt");
     }
 
     // Scanned, not listed, so a new enum reaches the contract without anyone remembering it.
