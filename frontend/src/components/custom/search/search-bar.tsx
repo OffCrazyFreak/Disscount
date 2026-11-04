@@ -62,10 +62,11 @@ export default function SearchBar({
     const typed = data.query ?? "";
     const query = typed.trim();
 
+    dismissTouchKeyboard();
+
     // Only a field emptied over a searched page has anything to do: it drops the query.
     if (!query && (typed || !routeQuery)) return;
 
-    dismissTouchKeyboard();
     setOpen(false);
     search(query);
     onSubmitted?.(query);

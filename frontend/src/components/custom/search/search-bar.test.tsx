@@ -267,6 +267,18 @@ describe("SearchBar", () => {
       expect(router.push).not.toHaveBeenCalled();
     });
 
+    it("still closes the touch keyboard, without searching", async () => {
+      stubPointer(true);
+      router.pathname = "/watchlist";
+      const user = userEvent.setup();
+      const field = renderSearchBar("none");
+
+      await user.type(field, "   {Enter}");
+
+      expect(field).not.toHaveFocus();
+      expect(router.push).not.toHaveBeenCalled();
+    });
+
     it("ignores an empty field on another page", async () => {
       router.pathname = "/watchlist";
       const user = userEvent.setup();
