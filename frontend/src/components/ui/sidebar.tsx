@@ -243,7 +243,7 @@ function Sidebar({
             if (
               opener instanceof HTMLElement &&
               opener !== document.body &&
-              !opener.closest("[inert]")
+              !opener.closest("[inert], [data-mobile]")
             ) {
               opener.focus({ preventScroll: true });
               if (document.activeElement === opener) return false;
