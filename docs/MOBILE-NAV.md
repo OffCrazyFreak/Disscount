@@ -400,9 +400,8 @@ The whole ladder lives in `globals.css` as `--z-*` tokens, in descending order, 
 | 39  | `--z-bottom-nav-covered` | what `--z-bottom-nav` becomes while a modal sheet is open   |
 | 30  | `--z-fab`                | back-to-top FAB                                             |
 | 20  | `--z-header`             | header                                                      |
-| 10  | `--z-sidebar`            | desktop sidebar                                             |
 
-`--z-sidebar` is declared but not yet consumed, and `--z-overlay` only by a nested sheet: dialogs and the desktop sidebar still carry shadcn's own `z-50` and `z-10`.
+`--z-overlay` is consumed only by a nested sheet: dialogs and the desktop sidebar still carry shadcn's own `z-50` and `z-10`.
 
 Two moves made room for the bar: the FAB dropped from `z-50` (it is desktop-only and belongs under every layer) and the PWA banner from `z-50` to the install-banner token, since it opens the install sheet and must not float over it.
 
@@ -1035,7 +1034,7 @@ Selection mode is the one with real product upside: costing a subset of a list a
 - **Decide whether Pretraži should be the apply gate for the filters.** Today every pick applies itself, so the button only ever answers for the query. Batching the picks would make the sheet a form you fill and submit, at the cost of the live filtering behind it. A product call, not a technical one.
 - **Close the double-submit window.** Typing a new query on `/products?q=...` leaves Pretraži live until the navigation lands, so it can be pressed twice. Harmless today because the second press is idempotent, but a shared pending-navigation flag would tidy it.
 - **View transitions between tabs.** Two board items already exist for `<ViewTransition>` and `<Activity>` boundaries under Design System & Shell; a tab bar is a natural place to use them.
-- **Finish the layer scale.** `--z-overlay` and `--z-sidebar` are declared but unconsumed: dialogs, popovers and the desktop sidebar still carry shadcn's own `z-50` and `z-10`. Either migrate them or drop the two tokens, because a declared rung nothing stands on is worse than no rung.
+- **Finish the layer scale.** `--z-overlay` is consumed only by a nested sheet: dialogs, popovers and the desktop sidebar still carry shadcn's own `z-50` and `z-10`. Either migrate them or drop the token, because a declared rung nothing stands on is worse than no rung.
 - **Clamp the active disc.** It is a hardcoded 3.6rem. That clears the pill by 7.5px at 320px, so there is headroom today, but a longer label in a future locale would need a `min()` against the cell width rather than a fixed size.
 - **Finish the off-route filters guard.** A facet pick from the sheet is routed to `/products` (`product-search-filters.tsx`), but `clearFilters` in `use-filter-params.ts` still does a `router.replace(pathname)` on whatever route the sheet is open over, and the displayed selections and the active count read that route's own search params. No shipped route carries `chain`, `location`, `category` or `brand`, so nothing misbehaves today, but the guard is one-sided and the next route that takes any of those params would expose it.
 - **Consider deriving the products sheet's close rule** instead of running it in an effect on `pathname`. Today the sheet paints one frame on the new route before closing, which is cosmetic. The obvious derived alternative reopens the sheet on a Back navigation, so it needs the open flag cleared as well as derived, not simply swapped.
