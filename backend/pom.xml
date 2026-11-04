@@ -27,6 +27,8 @@
 		<sentry.version>8.62.0</sentry.version>
 		<!-- Boot 4.1 manages H2 2.4.240, whose IN check constraints fail once the connection that created them closes (h2database issue 4291). Drop when the BOM moves past it. -->
 		<h2.version>2.5.252</h2.version>
+		<!-- webp-imageio is the only Kotlin library here and is built against 2.4; the Boot BOM would pull kotlin-stdlib down to an older minor. -->
+		<kotlin.version>2.4.0</kotlin.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -121,6 +123,12 @@
 			<groupId>io.sentry</groupId>
 			<artifactId>sentry-logback</artifactId>
 			<version>${sentry.version}</version>
+		</dependency>
+		<!-- The JDK cannot write WebP; this bundles libwebp for Linux x86_64 and arm64 and registers an ImageIO writer. -->
+		<dependency>
+			<groupId>com.github.usefulness</groupId>
+			<artifactId>webp-imageio</artifactId>
+			<version>0.11.0</version>
 		</dependency>
 		<dependency>
 			<groupId>software.amazon.awssdk</groupId>

@@ -6,6 +6,9 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 
@@ -79,6 +82,31 @@ class ProductImageRendererTest {
     }
 
     @Test
+    void rendersThreeWebpFilesUnderTheirCeilings() throws IOException {
+        Rendered rendered = ProductImageRenderer.render(TestImages.jpeg(2000, 1500), 0, null);
+
+        for (byte[] file : new byte[][] {rendered.full(), rendered.thumb(), rendered.small()}) {
+            assertThat(isWebp(file)).isTrue();
+        }
+        assertThat(decode(rendered.thumb()).getWidth()).isEqualTo(ProductImageRenderer.THUMB_SIDE);
+        assertThat(decode(rendered.small()).getWidth()).isEqualTo(ProductImageRenderer.SMALL_SIDE);
+        assertThat(rendered.full().length).isLessThanOrEqualTo(ProductImageRenderer.FULL_MAX_BYTES);
+        assertThat(rendered.thumb().length).isLessThanOrEqualTo(ProductImageRenderer.THUMB_MAX_BYTES);
+        assertThat(rendered.small().length).isLessThanOrEqualTo(ProductImageRenderer.SMALL_MAX_BYTES);
+    }
+
+    @Test
+    void stepsTheQualityDownUntilANoisyPhotoFitsItsCeiling() {
+        BufferedImage noise = noise(400);
+        int atFirstStep = ProductImageRenderer.encode(noise, Integer.MAX_VALUE).length;
+
+        byte[] capped = ProductImageRenderer.encode(noise, atFirstStep - 1);
+
+        assertThat(capped.length).isLessThan(atFirstStep);
+        assertThat(isWebp(capped)).isTrue();
+    }
+
+    @Test
     void rejectsSourcesTooLargeToDecodeSafely() {
         assertThatThrownBy(() -> ProductImageRenderer.render(TestImages.png(ProductImageRenderer.MAX_SOURCE_SIDE + 1, 1), 0, null))
                 .hasMessage("error.productImage.dimensions");
@@ -93,6 +121,21 @@ class ProductImageRendererTest {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(image, "png", out);
         return out.toByteArray();
+    }
+
+    private static boolean isWebp(byte[] file) {
+        return file.length > 12
+                && new String(Arrays.copyOfRange(file, 0, 4), StandardCharsets.US_ASCII).equals("RIFF")
+                && new String(Arrays.copyOfRange(file, 8, 12), StandardCharsets.US_ASCII).equals("WEBP");
+    }
+
+    private static BufferedImage noise(int side) {
+        BufferedImage image = new BufferedImage(side, side, BufferedImage.TYPE_INT_RGB);
+        Random random = new Random(42);
+        for (int y = 0; y < side; y++) {
+            for (int x = 0; x < side; x++) image.setRGB(x, y, random.nextInt(0x1000000));
+        }
+        return image;
     }
 
     private static BufferedImage decode(byte[] bytes) throws IOException {

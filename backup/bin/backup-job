@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+# One backup job per call: db-hourly, db-nightly, photos or dokploy.
+# Jobs only ever add objects; R2 lifecycle rules delete them, and Bucket Lock stops anyone deleting them early.
+set -euo pipefail
+
+job="${1:?usage: backup-job db-hourly|db-nightly|photos|dokploy}"
+
+exec 9>"/tmp/backup-$job.lock"
+flock -n 9 || { echo "backup $job: previous run still going, skipping"; exit 0; }
+
+work="$(mktemp -d /tmp/backup-"$job".XXXXXX)"
+summary="$work/summary"
+stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+remote="r2:$BACKUP_R2_BUCKET"
+
+ping() {
+  # healthchecks.io: start, success and fail per job, so a run that never happens also alerts.
+  [[ -n "${BACKUP_HEALTHCHECKS_PING_KEY:-}" ]] || return 0
+  local suffix="$1"
+  curl -fsS -m 10 --retry 3 -o /dev/null --data-binary "@${2:-/dev/null}" \
+    "https://hc-ping.com/$BACKUP_HEALTHCHECKS_PING_KEY/disscount-$job$suffix?create=1" || true
+}
+
+# Only these lines reach healthchecks.io; tool output, which can quote user rows, stays in the container log.
+note() {
+  echo "$*"
+  echo "$*" >>"$summary"
+}
+
+finish() {
+  local status=$?
+  # A restore that failed halfway leaves its server running.
+  if [[ -f "$work/scratch/pg/postmaster.pid" ]]; then
+    gosu postgres pg_ctl --pgdata="$work/scratch/pg" --silent --mode=fast stop || true
+  fi
+  if ((status == 0)); then
+    note "backup $job: ok"
+    ping "" "$summary"
+  else
+    note "backup $job: failed with exit $status, details in the container log"
+    ping "/fail" "$summary"
+  fi
+  rm -rf "$work"
+}
+
+# Encrypts a finished local file with age and uploads it under a name that is never reused.
+upload_encrypted() {
+  local source="$1" target="$2"
+  age -r "$BACKUP_AGE_RECIPIENT" -o "$source.age" "$source"
+  rclone copyto --s3-no-check-bucket "$source.age" "$remote/$target.age"
+  note "uploaded $target.age ($(stat -c %s "$source.age") bytes)"
+}
+
+# pg_dump writes to a temp file first, so a failed or empty dump is never uploaded.
+dump_database() {
+  local file="$1"
+  shift
+  pg_dump --format=custom --compress=zstd "$@" --file="$file"
+  [[ -s "$file" ]] || { echo "dump is empty" >&2; return 1; }
+  pg_restore --list "$file" >/dev/null
+}
+
+# Restores the dump into a throwaway Postgres inside this container and compares user counts.
+scratch_restore() {
+  local dump="$1" data="$work/scratch"
+  chmod 755 "$work"
+  install -d -o postgres -g postgres "$data"
+  chown postgres "$dump"
+  gosu postgres initdb --pgdata="$data/pg" --auth=trust >/dev/null 2>&1
+  # The server gets its own log and no inherited descriptors, or it would hold the job's output and its lock open.
+  gosu postgres pg_ctl --pgdata="$data/pg" --silent --wait --log="$data/server.log" \
+    -o "-c listen_addresses='' -c unix_socket_directories=$data" start </dev/null >/dev/null 2>&1 9>&-
+  # The app's PG* settings would point these at the live database's role, which the scratch cluster lacks.
+  local scratch=(env PGHOST="$data" PGUSER=postgres PGDATABASE=restore PGPASSWORD= gosu postgres)
+  "${scratch[@]}" createdb restore
+  "${scratch[@]}" pg_restore --dbname=restore --no-owner --no-acl --exit-on-error "$dump"
+  local restored live
+  restored="$("${scratch[@]}" psql -Atc 'select count(*) from "user"')"
+  live="$(psql -Atc 'select count(*) from "user"')"
+  note "scratch restore: $restored users restored, $live live"
+  # Sign-ups and deletions since the dump move the live count a little either way; a broken restore misses far more.
+  local tolerance=$((live / 20 > 5 ? live / 20 : 5))
+  ((restored > 0 && restored >= live - tolerance && restored <= live + tolerance)) || {
+    echo "restored user count looks wrong" >&2
+    return 1
+  }
+  gosu postgres pg_ctl --pgdata="$data/pg" --silent --wait --mode=fast stop
+}
+
+run() {
+  case "$job" in
+    db-hourly)
+      dump_database "$work/db.dump"
+      upload_encrypted "$work/db.dump" "db/hourly/$stamp.dump"
+      ;;
+    db-nightly)
+      dump_database "$work/db.dump"
+      pg_dumpall --globals-only --no-role-passwords >"$work/globals.sql"
+      upload_encrypted "$work/db.dump" "db/nightly/$stamp.dump"
+      upload_encrypted "$work/globals.sql" "db/nightly/$stamp.globals.sql"
+      scratch_restore "$work/db.dump"
+      ;;
+    photos)
+      # A new generation starts every 14 days; its first run copies everything, later runs only new files.
+      local generation=$(($(date -u +%s) / 86400 / 14))
+      local folder
+      for folder in private public; do
+        [[ -d "/data/photos-$folder" ]] || { echo "/data/photos-$folder is not mounted" >&2; return 1; }
+        # Keys are unique per upload, so a file already in the generation never needs replacing.
+        rclone copy --ignore-existing --exclude '.tmp-*' --stats-one-line --stats 0 \
+          "/data/photos-$folder" "photos:gen-$generation/$folder"
+      done
+      note "photos copied into generation $generation"
+      ;;
+    dokploy)
+      PGHOST=dokploy-postgres PGUSER=dokploy PGDATABASE=dokploy \
+        PGPASSWORD="${BACKUP_DOKPLOY_DB_PASSWORD:?BACKUP_DOKPLOY_DB_PASSWORD is not set}" \
+        dump_database "$work/dokploy.dump"
+      # Cloned repositories and deploy logs are rebuilt by a redeploy, so they stay out.
+      # GNU tar exits 1 when a file changes while read (a live log or cert); only 2 and up is a failure.
+      local status=0
+      tar -C /host/etc/dokploy --exclude=.git --exclude=./logs --exclude='./compose/*/code' \
+        --warning=no-file-changed -cf "$work/etc-dokploy.tar" . || status=$?
+      ((status <= 1)) || return "$status"
+      upload_encrypted "$work/dokploy.dump" "dokploy/$stamp.dump"
+      upload_encrypted "$work/etc-dokploy.tar" "dokploy/$stamp.etc.tar"
+      ;;
+    *)
+      echo "unknown job: $job" >&2
+      return 2
+      ;;
+  esac
+}
+
+trap finish EXIT
+touch "$summary"
+ping "/start"
+run

@@ -94,6 +94,10 @@ public class ProductImage {
     @Column(name = "thumb_key", length = 255)
     private String thumbKey;
 
+    /** The 160 pixel list file; null on photos rendered before it existed, which lists then show at thumb size. */
+    @Column(name = "small_key", length = 255)
+    private String smallKey;
+
     @Column(name = "rendered_at")
     private LocalDateTime renderedAt;
 

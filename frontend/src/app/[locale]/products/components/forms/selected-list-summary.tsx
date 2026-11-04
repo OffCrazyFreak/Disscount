@@ -20,14 +20,14 @@ export default function SelectedListSummary({
       <span className="truncate">{list.title}</span>
 
       {list.updatedAt && (
-        <span className="text-muted-foreground text-xs whitespace-nowrap">
+        <span className="shrink-0 whitespace-nowrap text-muted-foreground text-xs">
           {t("listSelector.updatedAt", {
             date: formatDate(list.updatedAt, locale),
           })}
         </span>
       )}
 
-      <span className="ml-auto text-xs text-muted-foreground">
+      <span className="ml-auto shrink-0 text-xs text-muted-foreground">
         {t("listSelector.progress", {
           checked,
           total: list.items?.length ?? 0,

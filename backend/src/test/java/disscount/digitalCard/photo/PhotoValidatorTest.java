@@ -61,6 +61,15 @@ class PhotoValidatorTest {
     }
 
     @Test
+    void neverStoresAJpegBiggerThanTheUpload() throws IOException {
+        byte[] upload = noisyJpeg(600, 0.6f);
+
+        ValidatedPhoto photo = new PhotoValidator().validate(upload);
+
+        assertThat(photo.bytes().length).isLessThanOrEqualTo(upload.length);
+    }
+
+    @Test
     void stripsJpegMetadata() {
         byte[] withExif = jpegWithApp1(jpeg(32, 32), "secret-gps");
         assertThat(contains(withExif, "secret-gps")).isTrue();
@@ -179,5 +188,25 @@ class PhotoValidatorTest {
 
     private void assertRejected(byte[] data) {
         assertThatThrownBy(() -> validator.validate(data)).isInstanceOf(BadRequestException.class);
+    }
+
+    private static byte[] noisyJpeg(int side, float quality) throws IOException {
+        BufferedImage image = new BufferedImage(side, side, BufferedImage.TYPE_INT_RGB);
+        java.util.Random random = new java.util.Random(7);
+        for (int y = 0; y < side; y++) {
+            for (int x = 0; x < side; x++) image.setRGB(x, y, random.nextInt(0x1000000));
+        }
+        javax.imageio.ImageWriter writer = ImageIO.getImageWritersByFormatName("jpeg").next();
+        javax.imageio.ImageWriteParam param = writer.getDefaultWriteParam();
+        param.setCompressionMode(javax.imageio.ImageWriteParam.MODE_EXPLICIT);
+        param.setCompressionQuality(quality);
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        try (var output = new javax.imageio.stream.MemoryCacheImageOutputStream(out)) {
+            writer.setOutput(output);
+            writer.write(null, new javax.imageio.IIOImage(image, null, null), param);
+        } finally {
+            writer.dispose();
+        }
+        return out.toByteArray();
     }
 }

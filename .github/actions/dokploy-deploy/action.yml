@@ -33,7 +33,7 @@ runs:
         username: ${{ github.actor }}
         password: ${{ inputs.registry-token }}
 
-    # All three tags move together, and only once every image exists, so the server never
+    # The app tags move together, and only once every image exists, so the server never
     # pulls a frontend from one commit and a backend or migrator from another.
     - name: Point the moving tag at this commit
       shell: bash
@@ -49,6 +49,15 @@ runs:
         for image in $images; do
           docker buildx imagetools inspect "ghcr.io/offcrazyfreak/disscount-$image:sha-$RELEASE_ID" >/dev/null
         done
+        # Commits from before the backup image have none, so a Rollback to one leaves the backup tag where it is.
+        if inspect_error="$(docker buildx imagetools inspect "ghcr.io/offcrazyfreak/disscount-backup:sha-$RELEASE_ID" 2>&1 >/dev/null)"; then
+          images="$images backup"
+        elif grep -qi "not found" <<<"$inspect_error"; then
+          echo "::warning::No backup image for $RELEASE_ID; the backup tag stays on its current commit."
+        else
+          echo "::error::Could not check the backup image: $inspect_error"
+          exit 1
+        fi
         for image in $images; do
           docker buildx imagetools create \
             --tag "ghcr.io/offcrazyfreak/disscount-$image:$ENVIRONMENT_TAG" \

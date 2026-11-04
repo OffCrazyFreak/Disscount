@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import disscount.exceptions.BadRequestException;
+import disscount.exceptions.NotFoundException;
 import disscount.productImage.off.OffImageGoneException;
 import disscount.productImage.off.OffImageUnavailableException;
 import disscount.productImage.dao.ProductImageImportRunRepository;
@@ -132,9 +133,47 @@ public class ProductImageJobs {
                     return;
                 }
             }
+            if (batch.isEmpty()) rerenderOlderPhotos();
         } finally {
             renderingNow.set(false);
         }
+    }
+
+    /**
+     * Brings photos rendered before WebP and the list file up to date, only while no new photo waits, and at the
+     * same one-at-a-time pace, because the Open Food Facts ones are downloaded again.
+     */
+    private void rerenderOlderPhotos() {
+        List<ProductImage> older = images.findRenderedWithoutSmallFile(List.of(ImageStatus.VERIFIED, ImageStatus.PENDING),
+                MAX_RENDER_ATTEMPTS, Timestamps.nowUtc(), PageRequest.of(0, RENDER_BATCH));
+        for (ProductImage image : older) {
+            try {
+                rendering.rerender(image);
+            } catch (OffImageUnavailableException e) {
+                if (!e.concernsThisImageOnly()) {
+                    log.warn("Re-rendering older product photos paused: {}", e.getMessage());
+                    return;
+                }
+                retryOlderLater(image, e);
+            } catch (BadRequestException | OffImageGoneException | IllegalArgumentException | NotFoundException e) {
+                retryOlderLater(image, e);
+            } catch (RuntimeException e) {
+                log.warn("Re-rendering older product photos paused: {}", e.getMessage());
+                return;
+            }
+        }
+    }
+
+    /** The photo keeps showing its earlier files; after the last attempt it simply keeps them. */
+    private void retryOlderLater(ProductImage loaded, RuntimeException cause) {
+        images.findById(loaded.getId()).ifPresent(image -> {
+            int attempts = (image.getRenderAttempts() == null ? 0 : image.getRenderAttempts()) + 1;
+            image.setRenderAttempts(attempts);
+            image.setRenderRetryAt(Timestamps.nowUtc().plus(RENDER_RETRY_AFTER));
+            images.save(image);
+            log.warn("Could not re-render product photo {} for {} (attempt {}): {}", image.getId(), image.getEan(),
+                    attempts, cause.getMessage());
+        });
     }
 
     @Scheduled(fixedDelay = 300_000L)

@@ -2,7 +2,7 @@
 
 How Disscount shows product photos: where they come from, how they are stored and rendered, how they reach the page, who can change them, what breaks and how, and what has to be set up by hand. Written for someone new to the code, so the concepts are explained as they come up. Product data itself (names, prices) is in [PRODUCTS.md](PRODUCTS.md).
 
-> **Mental model in one sentence:** every product (EAN) keeps a list of candidate photos from Open Food Facts and from users; one of them is the main photo, each is rendered from its untouched source into two square JPEGs on baked-in white in a public R2 bucket, the browser loads those files straight from the bucket's own domain, and the admin curates the list from the product page or from a popularity-ordered queue in the dashboard.
+> **Mental model in one sentence:** every product (EAN) keeps a list of candidate photos from Open Food Facts and from users; one of them is the main photo, each is rendered from its untouched source into three square WebP files on baked-in white in a public R2 bucket, the browser loads those files straight from the bucket's own domain, and the admin curates the list from the product page or from a popularity-ordered queue in the dashboard.
 
 ---
 
@@ -32,18 +32,18 @@ How Disscount shows product photos: where they come from, how they are stored an
 
 ## 1. Quick reference
 
-| Thing              | Value                                                                                                                      |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------- |
-| Sources            | Open Food Facts (CC BY-SA, credited in the terms of service) and photos uploaded by users and admins                       |
-| Storage            | Public R2 bucket (EU jurisdiction) behind its own domain; user originals in the private card photo bucket                  |
-| Files served       | `products/<ean>/<hash>.jpg` (up to 1080 px square) and `-thumb.jpg` (up to 400 px), cached for a year                      |
-| Delivery           | Plain `<img>` tags pointing at the bucket's domain; no `next/image`, no proxy through our servers                          |
-| Viewer             | `yet-another-react-lightbox` with the zoom, thumbnails and counter plugins                                                 |
-| Crop               | `react-image-crop` in the admin; the backend renders the crop from the original                                            |
-| Env vars           | `R2_ENDPOINT` plus `R2_PUBLIC_BUCKET`, `R2_PUBLIC_ACCESS_KEY_ID`, `R2_PUBLIC_SECRET_ACCESS_KEY`, `R2_PUBLIC_URL` (backend) |
-| Off switch         | Any of those five blank: no photos anywhere, uploads answer 503, the jobs copy nothing                                     |
-| Admin entry points | "Uredi slike" on a product page, and the "Slike proizvoda" tab in `/dashboard`                                             |
-| Introduced in      | PR #372 (product photos from Open Food Facts and users, with admin curation)                                               |
+| Thing              | Value                                                                                                                                                                |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sources            | Open Food Facts (CC BY-SA, credited in the terms of service) and photos uploaded by users and admins                                                                 |
+| Storage            | Public R2 bucket (EU jurisdiction) behind its own domain; user originals in the private card photo bucket                                                            |
+| Files served       | `products/<ean>/<hash>.webp` (up to 1080 px square), `-thumb.webp` (up to 400 px) and `-small.webp` (up to 256 px, for list rows and small tiles), cached for a year |
+| Delivery           | Plain `<img>` tags pointing at the bucket's domain; no `next/image`, no proxy through our servers                                                                    |
+| Viewer             | `yet-another-react-lightbox` with the zoom, thumbnails and counter plugins                                                                                           |
+| Crop               | `react-image-crop` in the admin; the backend renders the crop from the original                                                                                      |
+| Env vars           | `R2_ENDPOINT` plus `R2_PUBLIC_BUCKET`, `R2_PUBLIC_ACCESS_KEY_ID`, `R2_PUBLIC_SECRET_ACCESS_KEY`, `R2_PUBLIC_URL` (backend)                                           |
+| Off switch         | Any of those five blank: no photos anywhere, uploads answer 503, the jobs copy nothing                                                                               |
+| Admin entry points | "Uredi slike" on a product page, and the "Slike proizvoda" tab in `/dashboard`                                                                                       |
+| Introduced in      | PR #372 (product photos from Open Food Facts and users, with admin curation)                                                                                         |
 
 ---
 
@@ -58,7 +58,7 @@ flowchart TD
     O --> R
     C -->|main photo, most widely sold first| J[Render job every 15 s]
     J --> R[ProductImageRenderer<br/>rotate, crop, white square]
-    R --> P["Public bucket<br/>products/ean/hash.jpg and -thumb.jpg"]
+    R --> P["Public bucket<br/>products/ean/hash.webp, -thumb.webp, -small.webp"]
     P -->|thumbUrl, fullUrl| B[Browser img tags]
     P -->|fullUrl of a confirmed main photo| LD[JSON-LD image]
     P -->|fullUrl of a confirmed main photo| CARD["Share card route<br/>1200x630 JPEG"]
@@ -69,7 +69,7 @@ Step by step:
 
 1. **Catalogue.** Once a week the backend reads the latest cijene daily archive into `product_image_set`: one row per EAN with its name, brand and how widely it is sold (`store_listings`, the priced store rows). That popularity orders every queue, and the same table feeds the product sitemap ([PRODUCTS.md §6](PRODUCTS.md#6-seo-metadata-json-ld-and-sitemaps)).
 2. **Candidates.** The same import streams the Open Food Facts export and records the selected front photo of every EAN we carry as a `CANDIDATE`. Nothing is downloaded yet.
-3. **Copy.** Every 15 seconds the render job takes up to 10 main photos that are not copied yet, downloads each from Open Food Facts, renders it, and writes the two JPEGs to the public bucket.
+3. **Copy.** Every 15 seconds the render job takes up to 10 main photos that are not copied yet, downloads each from Open Food Facts, renders it, and writes the three WebP files to the public bucket. When no main photo is waiting, the same tick re-renders up to 10 photos copied before WebP (see [§6](#6-rendering-and-the-white-background)).
 4. **Uploads.** A user's upload is sanitized, kept as an original in the private bucket, and rendered at once.
 5. **Show.** The public API returns `thumbUrl` and `fullUrl` for each visible photo. The browser loads them directly from the bucket's domain.
 
@@ -121,9 +121,9 @@ How the render job treats a failure is in [§16](#16-failure-modes).
 
 ## 6. Rendering and the white background
 
-`ProductImageRenderer` decodes the source (JPEG or PNG, at most 10,000 px a side and 24 megapixels), paints it on white, rotates by a multiple of 90 degrees, crops, centres it on a white square with a 4% margin and writes two JPEGs at quality 0.86: 1080 px (`FULL_SIDE`) and 400 px (`THUMB_SIDE`). It never upscales, and a crop must be at least 16 px a side. The crop is stored as `x, y, width, height` in pixels of the rotated original plus the rotation, like Open Food Facts stores it, so a new crop always starts from the original.
+`ProductImageRenderer` decodes the source (JPEG or PNG, at most 10,000 px a side and 24 megapixels), paints it on white, rotates by a multiple of 90 degrees, crops, centres it on a white square with a 4% margin and writes three WebP files: 1080 px (`FULL_SIDE`), 400 px (`THUMB_SIDE`) and 256 px (`SMALL_SIDE`, for list rows and other small tiles, sharp up to about 128 CSS px on 2x screens). Each starts at quality 0.80 and steps down (0.70, 0.60, 0.50) until it fits its ceiling: 200 KB full, 60 KB thumb, 30 KB small. The lowest step is kept even if a very noisy photo still exceeds it, and that case is logged. WebP at 0.80 measured about half the bytes of the earlier JPEG at 0.86 on dev photos ([#563](https://github.com/OffCrazyFreak/Disscount/issues/563)). The encoder is `com.github.usefulness:webp-imageio`, which bundles libwebp for Linux x86_64 and arm64; the JDK cannot write WebP. It never upscales, and a crop must be at least 16 px a side. The crop is stored as `x, y, width, height` in pixels of the rotated original plus the rotation, like Open Food Facts stores it, so a new crop always starts from the original.
 
-The key is `products/<ean>/<first 20 hex characters of the SHA-256 of the full JPEG>.jpg`, plus `-thumb.jpg`. A new render is a new hash and so a new URL, which is what makes the one-year immutable cache safe.
+The key is `products/<ean>/<first 20 hex characters of the SHA-256 of the full file>.webp`, plus `-thumb.webp` and `-small.webp`. Photos rendered before the switch keep their `.jpg` keys and stay valid. The render job re-renders them in the background, most widely sold first, only while no new main photo waits and at the same one-at-a-time pace, because Open Food Facts photos are downloaded again (`findRenderedWithoutSmallFile`, `ProductImageRendering.rerender`). A re-render is dropped when an admin reframed or replaced the photo meanwhile, and a photo whose source keeps failing is tried five times an hour apart, then keeps its JPEG files. Until it is re-rendered a photo has no small file, so lists show its thumb. A new render is a new hash and so a new URL, which is what makes the one-year immutable cache safe.
 
 The white is part of the file on purpose. Dark Reader's default mode recolours CSS backgrounds but leaves image pixels alone, its filter modes and iOS Smart Invert invert images back, and Windows forced colours keeps images. The tile around a photo is a plain `<img>` (never a CSS background, which Dark Reader hides or inverts), with `color-scheme: only light` so Chrome's auto dark mode leaves it alone and `forced-color-adjust: none` for high contrast. Samsung Internet's forced dark still greys whites inside images and cannot be opted out of.
 
@@ -131,14 +131,14 @@ The white is part of the file on purpose. Dark Reader's default mode recolours C
 
 ## 7. How photos reach the page
 
-**Direct URLs, no image optimizer.** The one exception is the share card below, which crawlers fetch from our server. The backend answers with absolute URLs on `R2_PUBLIC_URL` (`R2ProductImageStore.publicUrl`). The browser loads them with a plain `<img>` in `PhotoTile` (`components/custom/product-photos/photo-tile.tsx`), never `next/image`, so no request goes through our servers and `next.config.ts` needs no `images` setting. The files are already the right sizes and formats, so an optimizer would only add a hop.
+**Direct URLs, no image optimizer.** The one exception is the share card below, which crawlers fetch from our server. The backend answers with absolute URLs on `R2_PUBLIC_URL` (`R2ProductImageStore.publicUrl`). The browser loads them with a plain `<img>` in `PhotoTile` (`components/custom/product-photos/photo-tile.tsx`), never `next/image`, so no request goes through our servers and `next.config.ts` needs no `images` setting. The files are already the right sizes and formats, including a 256 px file for list rows and small tiles, so an optimizer would only add a hop.
 
 | Where                                          | File used                           | How it gets the URL                                                                                                                                 |
 | ---------------------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Product page gallery, main tile                | `thumbUrl` (400 px)                 | `useProductImages(ean)` in the browser, `GET /api/products/{ean}/images` through the backend proxy                                                  |
 | Product page gallery, thumbnails strip         | `thumbUrl`                          | Same response                                                                                                                                       |
 | Viewer (lightbox)                              | `fullUrl` (1080 px)                 | Same response                                                                                                                                       |
-| Product rows, shopping list rows, modal header | thumbnail                           | `useProductThumbnail(ean)`; `thumbnail-batcher.ts` gathers every ask within 15 ms into one `GET /api/products/images/thumbnails?eans=` of up to 100 |
+| Product rows, shopping list rows, modal header | small (256 px), else thumb          | `useProductThumbnail(ean)`; `thumbnail-batcher.ts` gathers every ask within 15 ms into one `GET /api/products/images/thumbnails?eans=` of up to 100 |
 | JSON-LD `image`                                | `fullUrl` of a confirmed main photo | `getVerifiedMainPhotoUrl` on the server (`lib/api/product-images/server.ts`), 3 second timeout, `null` when unconfirmed or on any failure           |
 | `og:image`, `twitter:image`                    | 1200x630 share card                 | `/og/products/<ean>/<version>.jpg`, composed from that same URL at request time; see below                                                          |
 
@@ -176,7 +176,7 @@ The gallery is fetched in the browser, not seeded by the server render, so the s
 
 ## 8. Uploads
 
-The browser side (decode, resize to a 2048 px long edge, JPEG at 0.82 stepping down until under 480 KB, white behind transparency, metadata stripped by the re-encode) is shared with avatars and card photos and is described in [IMAGE-UPLOADS.md](IMAGE-UPLOADS.md). Product photos are always JPEG, because the server renders them with ImageIO, which cannot write WebP.
+The browser side (decode, resize to a 2048 px long edge, JPEG at 0.82 stepping down until under 480 KB, white behind transparency, metadata stripped by the re-encode) is shared with avatars and card photos and is described in [IMAGE-UPLOADS.md](IMAGE-UPLOADS.md). Product photo uploads are always JPEG, because the renderer decodes only JPEG and PNG and the admin crops from the original; the public files rendered from it are WebP.
 
 On the server, `POST /api/products/{ean}/images` takes the multipart field `photo`, applies the same Spring multipart limits and `PhotoValidator` as card photos, then accepts JPEG only. The sanitized bytes are stored as `product-originals/<ean>/<uuid>.jpg` through `ProductOriginalStore` ([server disk storage](#storage-on-the-servers-disk) gives them their own folder; on R2 they stay in the private card photo bucket), and `ProductImageRenderer` writes the public files. A user may upload 10 photos per 10 minutes (`ProductPhotoUploadLimiter`, in memory per instance); admins are exempt.
 
@@ -210,12 +210,12 @@ flowchart LR
 
 Entities in `backend/.../productImage/domain/`. Tables are created by Hibernate `ddl-auto=update`.
 
-| Table                      | Key columns                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `product_image_set`        | `ean` (primary key), `name`, `brand`, `store_listings` (indexed, the popularity order), `chain_count`, `main_image_id`, `pinned`, `needs_review`, `reviewed_at`, `reviewed_by_id`, `off_details_fetched_at`                                                                                                                                                                                                                                   |
-| `product_image`            | `id`, `ean` (indexed), `source`, `status`, `hidden_reason` (`ADMIN` or `JOB_SKIPPED`), `external_key` and `external_rev` (the Open Food Facts photo), `lang`, `original_key`, `original_width`, `original_height`, `rotation`, `crop_x`, `crop_y`, `crop_width`, `crop_height`, `full_key`, `thumb_key`, `rendered_at`, `render_retry_at`, `render_attempts`, `contributor_id`, `confirmed_by_id`, `report_count`, `flagged_at`, `created_at` |
-| `product_image_report`     | `id`, `image_id`, `user_id`, `created_at`; one per user and photo                                                                                                                                                                                                                                                                                                                                                                             |
-| `product_image_import_run` | `kind` (`weekly-import`), `finished_at`                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Table                      | Key columns                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `product_image_set`        | `ean` (primary key), `name`, `brand`, `store_listings` (indexed, the popularity order), `chain_count`, `main_image_id`, `pinned`, `needs_review`, `reviewed_at`, `reviewed_by_id`, `off_details_fetched_at`                                                                                                                                                                                                                                                                                      |
+| `product_image`            | `id`, `ean` (indexed), `source`, `status`, `hidden_reason` (`ADMIN` or `JOB_SKIPPED`), `external_key` and `external_rev` (the Open Food Facts photo), `lang`, `original_key`, `original_width`, `original_height`, `rotation`, `crop_x`, `crop_y`, `crop_width`, `crop_height`, `full_key`, `thumb_key`, `small_key` (null on photos rendered before WebP), `rendered_at`, `render_retry_at`, `render_attempts`, `contributor_id`, `confirmed_by_id`, `report_count`, `flagged_at`, `created_at` |
+| `product_image_report`     | `id`, `image_id`, `user_id`, `created_at`; one per user and photo                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `product_image_import_run` | `kind` (`weekly-import`), `finished_at`                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
 ---
 
@@ -231,10 +231,10 @@ The browser reaches all of them through the backend proxy ([BACKEND-PROXY.md](BA
 
 ## 12. Tests
 
-| Suite             | What it covers                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Backend (H2)      | `ProductImageRendererTest`, `ProductImageServiceTest`, `ProductImageControllerTest`, `ProductImageWireFormatTest`, `ProductImageJobsTest`, `ProductImageJobsRenderTest`, `ProductImageJobsStaleWriteTest`, `CatalogArchiveReaderTest`, `OpenFoodFactsParsingTest`, with `FakeProductImageStore` and `FakeProductOriginalStore` in place of real storage; `AtomicFileStoreTest`, `FilesystemPhotoStoreTest`, `FilesystemProductImageStoreTest` and the three `*StoreConfigTest` classes run the disk stores on a temp folder                                                                       |
-| Frontend (Vitest) | `crop-math.test.ts`, `product-images/hooks.test.tsx`, `product-thumbnail.test.tsx` (one request per list, the placeholder for no photo, a typed item, a failed request, a broken image, and the retry after reconnecting), `product-info-display.test.tsx` (the modal header keeps its photo box without a photo), `product-photo-gallery.test.tsx`, `use-queue-keys.test.tsx`, `og/products/[ean]/[file]/route.test.ts` (the share card's redirects), `render-product-og.test.ts` (a real JPEG render, its size limit, and that a failed one throws), `product-metadata.test.ts` (its meta tags) |
+| Suite             | What it covers                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Backend (H2)      | `ProductImageRendererTest`, `ProductImageServiceTest`, `ProductImageControllerTest`, `ProductImageWireFormatTest`, `ProductImageJobsTest`, `ProductImageJobsRenderTest`, `ProductImageJobsStaleWriteTest`, `CatalogArchiveReaderTest`, `OpenFoodFactsParsingTest`, with `FakeProductImageStore` and `FakeProductOriginalStore` in place of real storage; `AtomicFileStoreTest`, `FilesystemPhotoStoreTest`, `FilesystemProductImageStoreTest` and the three `*StoreConfigTest` classes run the disk stores on a temp folder                                                                                                         |
+| Frontend (Vitest) | `crop-math.test.ts`, `product-images/hooks.test.tsx`, `product-thumbnail.test.tsx` (one request per list, the placeholder for no photo, a typed item, a failed request, a broken image, and the retry after reconnecting), `product-info-display.test.tsx` (the modal header keeps its photo box without a photo), `product-photo-gallery.test.tsx`, `use-queue-keys.test.tsx`, `og/products/[ean]/[file]/route.test.ts` (the share card's redirects), `render-product-og.test.ts` (a real JPEG render, a WebP photo drawn into the card, its size limit, and that a failed one throws), `product-metadata.test.ts` (its meta tags) |
 
 Not covered by tests: a real upload to R2, durability of the disk stores across a power cut (the sync calls run, but no test can prove they reach the platter), the real Open Food Facts export, how photos look under dark mode extensions, and how the share card looks; those need a manual check.
 
@@ -244,7 +244,7 @@ Not covered by tests: a real upload to R2, durability of the disk stores across 
 
 | File                                                             | What                                                                                       |
 | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `backend/.../productImage/render/ProductImageRenderer.java`      | Decode, rotate, crop, white square, JPEG                                                   |
+| `backend/.../productImage/render/ProductImageRenderer.java`      | Decode, rotate, crop, white square, WebP                                                   |
 | `backend/.../productImage/service/`                              | Reads, uploads, admin actions, jobs, the main photo rules (`MainPicker`)                   |
 | `backend/.../productImage/off/`                                  | Open Food Facts client, URL layout, export reader                                          |
 | `backend/.../productImage/catalog/`                              | cijene archive reader and import                                                           |
@@ -318,7 +318,8 @@ Versions read from `frontend/package.json` and `backend/pom.xml`.
 | `@tanstack/react-query`        | `^5.90.12` | Photo and thumbnail queries                               |
 | `sharp`                        | `^0.35.5`  | Encodes the share card as JPEG                            |
 | `software.amazon.awssdk` (BOM) | `2.57.6`   | `s3` and `url-connection-client` for both R2 buckets      |
-| JDK ImageIO                    | Java 21    | Decoding and JPEG encoding on the backend                 |
+| JDK ImageIO                    | Java 21    | Decoding, and JPEG encoding of originals on the backend   |
+| `webp-imageio`                 | `0.11.0`   | WebP encoding of the public files (bundles libwebp)       |
 
 ---
 
@@ -364,7 +365,8 @@ A successful copy clears `render_attempts` and `render_retry_at`.
 - **Do not fetch Open Food Facts on page views.** Their limit is per IP and the whole server shares one.
 - **The export is about 1.5 GB.** It is streamed and never written to disk; only lines whose barcode we carry are split.
 - **Barcodes are matched without leading zeros.** Sources disagree about padding.
-- **Product photos are JPEG only.** The JDK cannot write WebP without a native library; the browser always sends JPEG.
+- **Public files are WebP, originals stay JPEG.** The browser always sends JPEG and the sanitized original keeps that format; only the rendered public files are WebP, through `webp-imageio`. That library is written in Kotlin, so `pom.xml` overrides `kotlin.version` to the one it is built against.
+- **The share card converts the photo to JPEG first.** `render-product-og.tsx` re-encodes the fetched photo with `sharp` before handing it to Satori, whose docs never list WebP; a test renders a WebP photo and checks it lands in the card.
 - **`R2_PUBLIC_URL` must be `https://`.** The Content Security Policy allows images only from `https:`, so a local `http://` S3 stand-in shows broken images unless you widen `img-src` while testing.
 - **Never use `next/image` or a CSS background for a product photo.** The optimizer would proxy files that are already sized, and a CSS background is what dark mode extensions hide or invert.
 - **Photos exist only for barcode shaped ids.** The backend accepts 8 to 14 digits (`Barcodes.isEanShape`), while cijene also has longer codes and `<chain>:<code>` ids. For those, `GET /{ean}/images` answers 400, the thumbnails request drops them, and the product page falls back to the brand share image.

@@ -16,8 +16,11 @@ const YEAR_IN_SECONDS = 31_536_000;
 // it forces progressive encoding, and baseline is the safe bet for link preview crawlers.
 const JPEG_OPTIONS = { quality: 85, chromaSubsampling: "4:4:4" } as const;
 
+type Sharp = (typeof import("sharp"))["default"];
+
 // Fetched here, not by Satori, so a slow or failing bucket hits our timeout and our error path.
-async function photoDataUri(photoUrl: string): Promise<string> {
+// Re-encoded as JPEG because photos are stored as WebP, which Satori's docs never list as supported.
+async function photoDataUri(photoUrl: string, sharp: Sharp): Promise<string> {
   const response = await fetch(photoUrl, {
     cache: "no-store",
     signal: AbortSignal.timeout(PHOTO_TIMEOUT_MS),
@@ -27,7 +30,8 @@ async function photoDataUri(photoUrl: string): Promise<string> {
   }
 
   const bytes = Buffer.from(await response.arrayBuffer());
-  return `data:image/jpeg;base64,${bytes.toString("base64")}`;
+  const jpeg = await sharp(bytes).jpeg(JPEG_OPTIONS).toBuffer();
+  return `data:image/jpeg;base64,${jpeg.toString("base64")}`;
 }
 
 /** The photo sits in the middle because chat apps may crop a card to its centre square. */
@@ -38,7 +42,7 @@ export default async function renderProductOg(photoUrl: string) {
   const { default: sharp } = await import("sharp");
 
   const [photo, fonts] = await Promise.all([
-    photoDataUri(photoUrl),
+    photoDataUri(photoUrl, sharp),
     loadFonts(),
   ]);
 

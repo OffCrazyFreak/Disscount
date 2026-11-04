@@ -818,7 +818,7 @@ Versions read from `frontend/package.json`. **Nothing new was installed** for th
 
 | Library                          | Version   | Used for                                                         |
 | -------------------------------- | --------- | ---------------------------------------------------------------- |
-| `next`                           | 16.4.3    | `usePathname`, `useRouter`, the `Viewport` export                |
+| `next`                           | 16.4.5    | `usePathname`, `useRouter`, the `Viewport` export                |
 | `react`                          | 19.2.8    | Pointer event types, context, refs                               |
 | `motion`                         | ^12.23.26 | The `layoutId` active disc and `useReducedMotion`                |
 | `@base-ui/react`                 | ^1.9.0    | The drawer under `SheetShell` and the mobile sidebar, with swipe |

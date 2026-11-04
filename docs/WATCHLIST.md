@@ -196,7 +196,7 @@ No environment variables or feature flags. The watchlist uses the app's common s
 
 | Library                      | Version                   | Used for                                    |
 | ---------------------------- | ------------------------- | ------------------------------------------- |
-| `@tanstack/react-query`      | `^5.90.12` (lock 5.105.1) | Rule and product queries, offline mutations |
+| `@tanstack/react-query`      | `^5.90.12` (lock 5.105.3) | Rule and product queries, offline mutations |
 | `react-hook-form`, `zod`     | `^7.90.0`, `^4.1.13`      | The rule modal and response parsing         |
 | `spring-boot-starter-parent` | `4.1.2`                   | The backend                                 |
 

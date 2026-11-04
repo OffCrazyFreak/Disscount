@@ -263,7 +263,7 @@ Libraries (versions read from `frontend/package.json`):
 | `react-hook-form`       | `^7.90.0`  | owns every form's values, dirty state, and the `watch` drafts hook |
 | `@hookform/resolvers`   | `^5.2.2`   | bridges Zod schemas into the forms                                 |
 | `zod`                   | `^4.1.13`  | validates form values                                              |
-| `next`                  | `16.4.3`   | `useSearchParams` / `useRouter` power all URL state                |
+| `next`                  | `16.4.5`   | `useSearchParams` / `useRouter` power all URL state                |
 | `@tanstack/react-query` | `^5.90.12` | the offline data cache (layer 3, see PWA.md)                       |
 | `idb-keyval`            | `^6.2.5`   | IndexedDB backing store for the persisted cache (layer 3)          |
 

@@ -113,6 +113,21 @@ jobs:
 
       - run: mvn -B verify
 
+  # The other images are proven by the frontend and backend checks; this one is only built on push otherwise.
+  backup-image:
+    name: Backup image
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build and smoke test
+        run: |
+          docker build -t backup-check backup
+          docker run --rm --entrypoint sh backup-check -c 'rclone version && age --version && supercronic -version && pg_dump --version && bash -n /usr/local/bin/backup-job'
+
   images:
     name: Image (${{ matrix.image }})
     needs: [frontend, backend]
@@ -140,6 +155,9 @@ jobs:
           - image: backend
             context: backend
             target: runtime
+          - image: backup
+            context: backup
+            target: ""
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -157,7 +175,7 @@ jobs:
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ghcr.io/offcrazyfreak/disscount-${{ matrix.image }}
-          # The moving dev tag is set by the deploy job, once all three images exist.
+          # The moving dev tag is set by the deploy job, once every image exists.
           tags: type=sha,format=long
 
       # Only the frontend stages read these; the other images ignore them.

@@ -18,6 +18,19 @@ minimumReleaseAgeExclude:
   - electron-to-chromium
   - caniuse-lite
   - baseline-browser-mapping
+  # Next.js 16.4.5 security release, inside the gate: GHSA-pc58-hwjq-p385, GHSA-7qx7-33qx-rqx2, GHSA-f3mh-rxg3-f5g2, GHSA-mfr8-8qww-v76h, GHSA-vc7v-qv4w-wrv8, GHSA-vvgp-ww4w-46vf, GHSA-rhh4-g77r-r9qj
+  - next@16.4.5
+  - eslint-config-next@16.4.5
+  - "@next/env@16.4.5"
+  - "@next/eslint-plugin-next@16.4.5"
+  - "@next/swc-darwin-arm64@16.4.5"
+  - "@next/swc-darwin-x64@16.4.5"
+  - "@next/swc-linux-arm64-gnu@16.4.5"
+  - "@next/swc-linux-arm64-musl@16.4.5"
+  - "@next/swc-linux-x64-gnu@16.4.5"
+  - "@next/swc-linux-x64-musl@16.4.5"
+  - "@next/swc-win32-arm64-msvc@16.4.5"
+  - "@next/swc-win32-x64-msvc@16.4.5"
 
 # Force patched versions of vulnerable transitive deps (Dependabot #1-3, #13-14).
 # Range selectors bump only the vulnerable copies; already-safe copies stay put.

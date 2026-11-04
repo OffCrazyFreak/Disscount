@@ -121,6 +121,39 @@ services:
       backend:
         condition: service_healthy
 
+  # Scheduled encrypted backups to R2 (docs/BACKUPS.md). Only runs where COMPOSE_PROFILES includes backup.
+  backup:
+    image: ghcr.io/offcrazyfreak/disscount-backup:${IMAGE_TAG:?IMAGE_TAG must be set}
+    pull_policy: always
+    restart: unless-stopped
+    profiles: [backup]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      BACKUP_R2_ENDPOINT: ${BACKUP_R2_ENDPOINT:-}
+      BACKUP_R2_BUCKET: ${BACKUP_R2_BUCKET:-}
+      BACKUP_R2_ACCESS_KEY_ID: ${BACKUP_R2_ACCESS_KEY_ID:-}
+      BACKUP_AGE_RECIPIENT: ${BACKUP_AGE_RECIPIENT:-}
+    # Files under /run/secrets, so these stay out of `docker inspect` and the container's environment.
+    secrets:
+      - postgres_password
+      - backup_r2_secret_access_key
+      - backup_crypt_password
+      - backup_crypt_salt
+      - backup_healthchecks_ping_key
+      - backup_dokploy_db_password
+    volumes:
+      - photos-private:/data/photos-private:ro
+      - photos-public:/data/photos-public:ro
+      - /etc/dokploy:/host/etc/dokploy:ro
+    # dokploy-network reaches Dokploy's own database for the nightly config backup.
+    networks: [internal, dokploy-network]
+    # Lets a running dump or upload finish when a deploy replaces the container.
+    stop_grace_period: 10m
+    depends_on:
+      db:
+        condition: service_healthy
+
 networks:
   internal:
   dokploy-network:
@@ -128,3 +161,19 @@ networks:
 
 volumes:
   pgdata:
+  photos-private:
+  photos-public:
+
+secrets:
+  postgres_password:
+    environment: POSTGRES_PASSWORD
+  backup_r2_secret_access_key:
+    environment: BACKUP_R2_SECRET_ACCESS_KEY
+  backup_crypt_password:
+    environment: BACKUP_CRYPT_PASSWORD
+  backup_crypt_salt:
+    environment: BACKUP_CRYPT_SALT
+  backup_healthchecks_ping_key:
+    environment: BACKUP_HEALTHCHECKS_PING_KEY
+  backup_dokploy_db_password:
+    environment: BACKUP_DOKPLOY_DB_PASSWORD
