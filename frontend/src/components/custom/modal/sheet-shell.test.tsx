@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { axeDialog } from "@/test/axe-dialog";
 import { renderWithProviders } from "@/test/render";
 
 interface IHarnessProps {
@@ -125,6 +126,19 @@ describe("SheetShell", () => {
       ).not.toBeInTheDocument(),
     );
     expect(opener).toHaveFocus();
+  });
+
+  it("has no axe violations with the sheet and a dialog open", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<Harness withDialog modal={false} />);
+
+    await user.click(screen.getByRole("button", { name: "open sheet" }));
+    await screen.findByRole("textbox", { name: "sheet field" });
+    expect(await axeDialog(document.body)).toHaveNoViolations();
+
+    await user.click(screen.getByRole("button", { name: "open dialog" }));
+    await screen.findByRole("textbox", { name: "dialog field" });
+    expect(await axeDialog(document.body)).toHaveNoViolations();
   });
 
   // Product quick actions open a Radix dialog from inside the sheet, so the two
