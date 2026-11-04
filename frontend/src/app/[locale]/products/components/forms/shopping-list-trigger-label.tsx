@@ -39,7 +39,11 @@ export default function ShoppingListTriggerLabel({
 
   if (selectedList) return <SelectedListSummary list={selectedList} />;
 
-  return hasShoppingLists
-    ? t("listTrigger.choose")
-    : t("listTrigger.createFirst");
+  return (
+    <div className="truncate">
+      {hasShoppingLists
+        ? t("listTrigger.choose")
+        : t("listTrigger.createFirst")}
+    </div>
+  );
 }
