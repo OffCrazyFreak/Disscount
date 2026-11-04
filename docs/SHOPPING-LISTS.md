@@ -320,7 +320,7 @@ The price range bar compares only chains that carry every item (`store-chain-com
 
 "Povijest cijena" (`shopping-list-price-history.tsx`, hook `use-shopping-list-price-history.ts`) charts each catalogue item's price over a chosen period, one line per product, using recharts through the shadcn chart wrapper.
 
-1. `getPriceHistoryDates` builds the list of days for the period, never before `PRICE_ARCHIVE_START` (2025-05-16), the first day the upstream archive has.
+1. `getPriceHistoryDates` builds the list of days for the period, never before `PRICE_ARCHIVE_START` (2025-05-16), the first day the upstream archive has. The hook reads today's Zagreb date on every render and opts out of the React Compiler (`"use no memo"`), so a tab left open past midnight rebuilds the window for the new day on its next render, as `usePriceHistory` does ([PRODUCTS.md](PRODUCTS.md), price history).
 2. For every EAN and every day it runs one product lookup at that date, built by `priceHistoryQueries` (`lib/cijene-api/price-history-queries.ts`). The product page's chart uses the same builder, so the two share cache entries; the key and `staleTime` must stay identical.
 3. `buildChartData` (`[id]/utils/price-history-chart-data.ts`) averages, per product and day, the average prices of the selected chains, rounded to cents. Results stay aligned with their dates by position, which is why missing days are kept as holes rather than filtered out. Each row keeps the raw `YYYY-MM-DD` date; the shared chart shell formats it for the axis and the tooltip ([PRODUCTS.md](PRODUCTS.md), price history).
 4. `calculateTotalPriceChange` compares the first and the last day, counting only products priced on both, so a product priced on one side only cannot show a price change no price made.
