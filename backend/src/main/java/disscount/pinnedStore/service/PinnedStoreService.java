@@ -25,8 +25,7 @@ public class PinnedStoreService {
     private final UserRepository userRepository;
 
     public List<PinnedStoreDto> updatePinnedStores(UUID userId, BulkPinnedStoreRequest request) {
-        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
-                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
+        User user = userRepository.requireActive(userId);
 
         // First, delete all existing pinned stores for this user
         List<PinnedStore> existingStores = pinnedStoreRepository.findByUserId(userId);

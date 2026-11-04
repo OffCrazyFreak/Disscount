@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import disscount.exceptions.BadRequestException;
 import disscount.exceptions.NotFoundException;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
@@ -28,8 +27,7 @@ public class WatchlistItemService {
     private final UserRepository userRepository;
 
     public WatchlistItemDto addOrUpdateWatchlist(UUID userId, WatchlistItemRequest request) {
-        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
-                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
+        User user = userRepository.requireActive(userId);
 
         // Check if product with the same watch type exists
         Optional<WatchlistItem> existing = watchlistItemRepository
