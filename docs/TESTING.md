@@ -27,9 +27,9 @@ Both projects share `src/test/setup.ts`, which starts the MSW server. The `dom` 
 The `dom` project raises two limits, because jsdom tests that take a few hundred milliseconds idle can blow past the defaults on a loaded machine (a busy laptop, a shared CI runner):
 
 - `testTimeout` is 30 s in `vitest.config.mts` (Vitest's default is 5 s).
-- Testing Library's `asyncUtilTimeout`, which bounds `findBy*` and `waitFor`, is 10 s in `setup-dom.ts` (the default is 1 s).
+- Testing Library's `asyncUtilTimeout`, which bounds `findBy*` and Testing Library's `waitFor`, is 10 s in `setup-dom.ts` (the default is 1 s).
 
-A query that finds its element returns at once, so a larger limit only delays a test that was going to fail anyway. Do not lower them, and do not add per-file `configure` calls or `{ timeout }` options to fit a slow test: they are margins for a starved worker, not waits a test relies on. The `unit` project keeps Vitest's defaults, since Node tests have no such spread. The limits do not cure a `waitFor` hang under fake timers (see "Control time" below).
+A query that finds its element returns at once, so a larger limit only delays a test that was going to fail anyway. Do not lower them, and do not add per-file `configure` calls or `{ timeout }` options to fit a slow test: they are margins for a starved worker, not waits a test relies on. `vi.waitFor` is Vitest's own helper and keeps its 1 s default, so pass it `{ timeout }` or use Testing Library's `waitFor`. The `unit` project keeps Vitest's defaults, since Node tests have no such spread. The limits do not cure a `waitFor` hang under fake timers (see "Control time" below).
 
 The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Croatia, and a zone with an offset catches UTC-versus-local mistakes that a UTC machine would hide.
 
