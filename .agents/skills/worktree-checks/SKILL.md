@@ -5,56 +5,38 @@ description: Sets up a Disscount git worktree to run the frontend and backend ch
 
 # Checks inside a worktree
 
-Worktrees live under `/home/jj/.t3/worktrees/Disscount/<name>`. pnpm is blocked there by the guard hook, because it resolves through a symlinked `node_modules` and can purge the main checkout's copy.
+Worktrees live under `/home/jj/.t3/worktrees/Disscount/<name>`. Each one gets its own dependencies, so `pnpm` works there as in the main checkout.
 
-## Git hooks
+## Install
 
-husky generates `frontend/.husky/_` only in the main checkout, so a new worktree has no hooks and commits skip the checks with no warning. The guard hook refuses `git commit` until this exists:
-
-```bash
-ln -s /home/jj/Desktop/Disscount/frontend/.husky/_ frontend/.husky/_
-```
-
-## Frontend checks
-
-Link the main checkout's dependencies once, then call binaries directly from `frontend/`:
+The `t3.json` script runs this when T3 creates a worktree. Run it yourself when `frontend/node_modules` is missing:
 
 ```bash
-ln -s /home/jj/Desktop/Disscount/frontend/node_modules frontend/node_modules
 cd frontend
-./node_modules/.bin/next typegen
-./node_modules/.bin/tsc --noEmit
-./node_modules/.bin/eslint src --max-warnings 0
-./node_modules/.bin/vitest run
-./node_modules/.bin/fallow audit --base origin/dev
-node scripts/check-i18n.mjs
-./node_modules/.bin/prettier --check src
-./node_modules/.bin/prettier --check --ignore-path ../.prettierignore "../README.md" "../AGENTS.md" "../CLAUDE.md" "../docs/**/*.md" "../.github/**/*.md" "../.agents/**/*.md"
+pnpm install --frozen-lockfile
 ```
 
-The link is enough for the CLI checks and is gitignored. If the main checkout is behind on dependencies, a check can fail on a missing package; use the scratch clone below and link its `node_modules` instead.
+The guard hook blocks `pnpm` while `frontend/node_modules` is a symlink, because pnpm can purge the main checkout's copy through it. Delete the link with `rm frontend/node_modules` (no trailing slash), then install.
+
+The install also generates `frontend/.husky/_`, the hook folder. The guard hook refuses `git commit` until it exists.
+
+## Checks
+
+From `frontend/`, run `pnpm check`. From `backend/`, run `mvn -B verify`, which needs Docker running for the Postgres schema test.
 
 ## Dev server
 
-Turbopack rejects the symlinked `node_modules`, so run `./node_modules/.bin/next dev --webpack`.
+Run `pnpm dev` from `frontend/`, and stop it by PID.
 
-Gitignored env files may be missing from a new worktree. Copy `.env`, `backend/.env` and `frontend/.env.local` from `/home/jj/Desktop/Disscount/` when they are, and delete the copies when done. Stop the server by PID.
+Copy `.env`, `backend/.env` and `frontend/.env.local` from `/home/jj/Desktop/Disscount/` when T3 did not copy them, and delete the copies when done.
 
 ## Dependency change
 
-The lockfile is regenerated in full for every dependency change, a single bump included, in a scratch clone at a literal path, starting from the worktree root:
+Regenerate the lockfile in full for every dependency change, a single bump included. From `frontend/`:
 
 ```bash
-rm -rf /home/jj/Documents/Disscount/scratch/deps
-git clone --quiet /home/jj/Desktop/Disscount /home/jj/Documents/Disscount/scratch/deps
-cp frontend/package.json frontend/pnpm-workspace.yaml /home/jj/Documents/Disscount/scratch/deps/frontend/
-cd /home/jj/Documents/Disscount/scratch/deps/frontend
 rm -rf node_modules pnpm-lock.yaml .next
 pnpm install
 ```
 
-For a new package run `pnpm add <name>@<version>` there first. Copy `package.json`, `pnpm-lock.yaml` and `pnpm-workspace.yaml` back, run the checks with that clone's `node_modules` linked, list the unrelated updates in the PR body, and delete the clone.
-
-## Backend
-
-From `backend/`, `mvn -B verify` is the gate. It needs Docker running, for the Postgres schema test.
+For a new package, run `pnpm add <name>@<version>` first. List the unrelated updates in the PR body.
