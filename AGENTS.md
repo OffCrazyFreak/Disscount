@@ -13,18 +13,21 @@ Croatian grocery price comparison app: Next.js frontend, Spring Boot backend, se
 
 Put these to me rather than working around them: I say yes far more often than no, so the quiet workaround costs me the better answer.
 
+Hand back interactive installers and `init` wizards, except `pnpm dlx shadcn@latest add <component>`, which you may run.
+
 Legal copy is the exception to asking about wording: change it as you judge right and log what changed, why and the sources on #217, because the legal pages get one full rewrite later.
 
 ## Never commit
 
 - Secrets, the server IP or the SSH user; docs use placeholders.
-- Unrelated changes already in the worktree.
+- Unrelated changes already in the worktree: do not revert, reformat, stage or claim them.
 - A hand-edited dependency entry or lockfile, or a `package-lock.json`: pnpm is the only package manager.
 
 ## Done means
 
 - Frontend: `tsc --noEmit`, `eslint src --max-warnings 0`, Vitest, `pnpm i18n:check` and both Prettier runs (`src`, and the Markdown files with `--ignore-path ../.prettierignore`) pass, and `fallow audit --base origin/dev` says `pass`. CI fails any other verdict, including the `warn` new duplication gets.
 - Backend: `mvn -B verify` passes. It needs Docker for `DoubleBootSchemaTest`. Its tests cover digital cards, store names, account deletion, security chains, JWT decoding, JSON dates, problem responses, per-feature ownership, admin gating and the fields the frontend reads. Pricing, merging and jobs are mostly untested, so say so when you touch them.
+- Fix type errors in `frontend/src/` and compile and test failures in `backend/src/`; ignore errors from generated types and dependencies.
 - A failure unrelated to your change: report the command and the error, say it looks pre-existing, and leave it. Never re-run a check I interrupted.
 - After editing `.claude/hooks/`, run `python3 .claude/hooks/guard-commands.test.py`.
 - Docs go in the same PR as their own `docs:` commit before the PR opens, and again if behaviour changes. A new or reshaped subsystem gets its reference doc through the `document-subsystem` skill. The summary lists docs touched and those checked and left alone.
@@ -51,16 +54,17 @@ Project board 8, owner OffCrazyFreak. Status is never empty.
 - New issues: top of Backlog, each researched by its own Sonnet agent, with permalinks at a fixed SHA, sources, a fix plan and how to verify.
 - Plans: a tracking issue with the why, decisions, an ordered PR checklist and open questions, In progress once its first PR runs, otherwise Sprint. A PR that completes a step ticks it.
 - Owner-only steps (their logins, payments, phone): a draft at the top of In progress with links and numbered steps.
-- Merged user-facing work: For review, with screenshots of the changed screens on the card, because I move it to Done after looking. Invisible work: Done on merge.
+- Merged user-facing work: For review, with screenshots on the card, because I move it to Done after looking. Capture the changed screens on dev.disscount.me and attach them with `gh issue comment --attach`; a draft becomes an issue first. A delegate lists "attach screenshots?" under Open questions. Invisible work: Done on merge.
 
 ## Releases and production
 
-- Work lands on `dev`; a release is a `dev` into `main` PR. Before one, dev-vs-main gets the Sonnet review plus both bots, and findings land as their own `fix:` PR.
+- Work lands on `dev`; a release is a `dev` into `main` PR. Before one, dev-vs-main gets the Sonnet review plus both bots, findings land as their own `fix:` PR, and the notes stay in `~/Documents/Disscount`.
 - Anything a release needs (a data step already run, a migration, an env step, a check after deploy) goes in the open release PR body in the same turn, saying what happened and what is left and by whom. Append; never reword existing notes.
 - Dokploy, Cloudflare, Sentry, `gh` and `ssh disscount` are yours to use on dev and production, without asking. Read the official docs for each step, verify it, and report every production change.
 - Databases are containers named `disscount-{development,production}-*-db-1`, reached with `docker exec <container> psql` over `ssh disscount`. `docs/INFRASTRUCTURE.md` has the full reference.
 - Environment variables live in Dokploy per environment. Saving one changes nothing until that service's next deploy, and `NEXT_PUBLIC_*` is baked at build time, so it needs a redeploy.
-- A new variable: say what it controls and whether it is required, server-only or public, then add it with a placeholder to `.env.example`, `frontend/.env.local.example` or `backend/.env.example`.
+- A new variable: say what it controls and whether it is required, server-only or public, then add it with a placeholder to `.env.example`, `frontend/.env.local.example` or `backend/.env.example`. Keep each example file in sync with its real counterpart, with no real values.
+- A variable nothing reads anymore gets deleted everywhere: Dokploy dev and production, GitHub environment variables and secrets, the server and the local `.env` files. Production keeps what `main` still reads. Print names only, never values.
 - Dokploy deploys everything and there are no preview deployments. Netlify is disconnected; ask rather than revive it.
 
 ## Frontend
@@ -71,16 +75,18 @@ Dependency intent the code does not show:
 - `@vitest/coverage-v8` stays on the exact `vitest` version, because its peer dependency is exact.
 - `next`, `react`, `react-dom`, `better-auth`, `drizzle-orm` and `pg` stay exact-pinned so auth and data bumps go through a reviewed PR. Everything else takes a range.
 - Every dependency change, a single bump included, regenerates the lockfile in full: delete `node_modules`, `pnpm-lock.yaml` and `.next`, then install. A plain install keeps the old resolution. List the unrelated updates in the PR.
-- Updates come from Renovate, which reads `renovate.json` from `main` only, so a change takes effect at the next release. Majors wait on the Dependency Dashboard issue.
+- Renovate owns updates and reads `renovate.json` from `main` only, so a change takes effect at the next release, and Dependabot PRs still appear until then. Majors wait on the Dependency Dashboard issue.
 - The Next.js docs for the installed version ship in `frontend/node_modules/next/dist/docs/`, so read those for Next; other libraries use their official docs for the version in `package.json`.
 - Resetting the database means dropping both `public` and `drizzle`. Dropping only `public` leaves the journal behind and `drizzle-kit migrate` silently does nothing.
 
 Conventions:
 
 - `I`-prefixed Props interface in the component's file, one component per file, default export, `function name() {}`, kebab-case filenames, `import { useState } from "react"`.
+- Import `server-only` in any module that must never reach the client.
 - `components/ui/` is shadcn output, edited only where the primitive is the natural home. Ours live in `components/custom/`.
 - API and domain types are zod `*Dto` / `*Response` in `lib/api/schemas/*`; price API types in `lib/cijene-api/schemas.ts`; query hooks beside their service in `lib/api/<domain>/`.
 - The React Compiler caches reads off the stable `form` object, so anything that did not call `useForm` uses `useWatch` and `useFormState`, never `form.watch()` or `form.formState` in render. Destructure every flag; react-hook-form computes only those read.
+- The React Compiler does the memoization, so memoize nothing by hand, derive values in render, and make a function a hook only if it calls one.
 - An effect that retries a possible no-op runs once, because the compiler memoizes what used to be rebuilt. The escape hatch is `"use no memo"` with a comment saying why.
 - Read the `frontend-design` skill before generating or redesigning UI.
 
