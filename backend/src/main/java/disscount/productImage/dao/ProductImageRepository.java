@@ -32,6 +32,10 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, UUID
 
     boolean existsByContentSha256AndDeletedAtIsNotNull(String contentSha256);
 
+    List<ProductImage> findByContributorId(UUID contributorId);
+
+    List<ProductImage> findByConfirmedById(UUID confirmedById);
+
     /** Photos each user uploaded and how many of those an admin deleted. */
     @Query("""
             select i.contributorId as userId, count(i) as uploaded,

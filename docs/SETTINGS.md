@@ -151,17 +151,18 @@ sequenceDiagram
 
 **What is erased and what stays** (`UserService.deleteAccount`):
 
-| Data                                                      | What happens                                                                            |
-| --------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| better-auth identity, sessions, linked accounts           | Deleted by better-auth after Spring commits                                             |
-| `app_user` username and avatar                            | Nulled; the row is soft deleted                                                         |
-| Digital cards and their photos                            | Hard deleted, photos queued for deletion ([DIGITAL-CARDS.md](DIGITAL-CARDS.md))         |
-| Favourite stores                                          | Deleted                                                                                 |
-| Custom store names typed on cards                         | Their usage rows are deleted and the shared counts drop (`StoreNameService.forgetUser`) |
-| `erasure_ledger`                                          | A tombstone with the user id and time                                                   |
-| Shopping lists, watchlist rules, pinned stores and places | Kept, attached to the anonymised row                                                    |
-| Notification switch timestamps, acquisition channel       | Kept on the anonymised row                                                              |
-| Contact messages                                          | Kept, including the email and name typed into the form                                  |
+| Data                                                      | What happens                                                                                                                                                                                                                    |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| better-auth identity, sessions, linked accounts           | Deleted by better-auth after Spring commits                                                                                                                                                                                     |
+| `app_user` username and avatar                            | Nulled; the row is soft deleted                                                                                                                                                                                                 |
+| Digital cards and their photos                            | Hard deleted, photos queued for deletion ([DIGITAL-CARDS.md](DIGITAL-CARDS.md))                                                                                                                                                 |
+| Favourite stores                                          | Deleted                                                                                                                                                                                                                         |
+| Product photos (`ProductImageErasure`)                    | Unconfirmed ones and ones an admin hid deleted with their files; confirmed ones kept without `contributor_id` or their private original; the user's confirmations and reports unlinked ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)) |
+| Custom store names typed on cards                         | Their usage rows are deleted and the shared counts drop (`StoreNameService.forgetUser`)                                                                                                                                         |
+| `erasure_ledger`                                          | A tombstone with the user id and time                                                                                                                                                                                           |
+| Shopping lists, watchlist rules, pinned stores and places | Kept, attached to the anonymised row                                                                                                                                                                                            |
+| Notification switch timestamps, acquisition channel       | Kept on the anonymised row                                                                                                                                                                                                      |
+| Contact messages                                          | Kept, including the email and name typed into the form                                                                                                                                                                          |
 
 The failure modes (Spring committed but the identity delete failed, the 410 `account_erased` answer, finishing a half-done deletion) are in [AUTH.md section 13](AUTH.md#13-gotchas-and-lessons). An admin deleting someone runs the same `deleteAccount` ([ADMIN.md](ADMIN.md#4-users-tab)).
 

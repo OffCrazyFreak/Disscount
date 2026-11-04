@@ -3,6 +3,7 @@ package disscount.user.service;
 import disscount.digitalCard.service.DigitalCardService;
 import disscount.favoriteStore.service.FavoriteStoreService;
 import disscount.user.avatar.AvatarSanitizer;
+import disscount.productImage.service.ProductImageErasure;
 import disscount.user.dao.AuthIdentityDao;
 import disscount.user.dao.ErasureLedgerRepository;
 import disscount.user.dao.UserRepository;
@@ -24,7 +25,7 @@ class UserServiceNewProfileDefaultsTest {
     private final UserRepository userRepository = mock(UserRepository.class);
     private final UserProfileCreator profileCreator = mock(UserProfileCreator.class);
     private final UserService userService = new UserService(userRepository, mock(AuthIdentityDao.class),
-            profileCreator, mock(DigitalCardService.class), mock(FavoriteStoreService.class),
+            profileCreator, mock(DigitalCardService.class), mock(FavoriteStoreService.class), mock(ProductImageErasure.class),
             mock(ErasureLedgerRepository.class), mock(AvatarSanitizer.class));
 
     @Test

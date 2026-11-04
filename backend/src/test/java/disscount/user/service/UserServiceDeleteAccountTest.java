@@ -20,6 +20,7 @@ import disscount.storeName.service.StoreNameService;
 import disscount.storeName.service.StoreNameUpsert;
 import disscount.exceptions.BadRequestException;
 import disscount.user.avatar.AvatarSanitizer;
+import disscount.productImage.service.ProductImageErasure;
 import disscount.user.dao.AuthIdentityDao;
 import disscount.user.dao.ErasureLedgerRepository;
 import disscount.user.dao.UserRepository;
@@ -83,6 +84,7 @@ class UserServiceDeleteAccountTest {
 
     @MockitoBean AuthIdentityDao authIdentityDao;
     @MockitoBean UserProfileCreator profileCreator;
+    @MockitoBean ProductImageErasure productImageErasure;
 
     @Autowired UserService userService;
     @Autowired AccountErasureService accountErasureService;
@@ -132,6 +134,15 @@ class UserServiceDeleteAccountTest {
         assertThat(photos.findAll()).isEmpty();
         assertThat(((FakePhotoStore) store).objects).isEmpty();
         assertThat(cleanup.findAll()).isEmpty();
+    }
+
+    @Test
+    void deleteAccountErasesTheUsersProductPhotos() {
+        User user = users.save(User.builder().id(UUID.randomUUID()).username("marko").build());
+
+        userService.deleteAccount(user.getId());
+
+        verify(productImageErasure).eraseContributor(user.getId());
     }
 
     @Test

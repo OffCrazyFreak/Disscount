@@ -7,6 +7,8 @@ import disscount.digitalCard.photo.TestImages;
 import disscount.favoriteStore.dao.FavoriteStoreRepository;
 import disscount.pinnedStore.dao.PinnedStoreRepository;
 import disscount.shoppingList.dao.ShoppingListRepository;
+import disscount.productImage.dao.ProductImageRepository;
+import disscount.productImage.domain.ImageSource;
 import disscount.storage.FakePhotoStore;
 import disscount.storeName.dao.StoreNameSuggestionRepository;
 import disscount.storeName.dao.StoreNameUsageRepository;
@@ -51,6 +53,7 @@ class AccountErasureTest extends FullStackTest {
     @Autowired StoreNameUsageRepository storeNameUsages;
     @Autowired StoreNameSuggestionRepository storeNames;
     @Autowired ErasureLedgerRepository erasureLedger;
+    @Autowired ProductImageRepository productImages;
     @Autowired ShoppingListRepository shoppingLists;
     @Autowired WatchlistItemRepository watchlist;
     @Autowired PinnedStoreRepository pinnedStores;
@@ -70,6 +73,9 @@ class AccountErasureTest extends FullStackTest {
                 """.formatted(customStore)).with(as(user))).andExpect(status().isOk());
         mvc.perform(multipart(HttpMethod.PUT, "/api/digital-cards/{id}/photos/{slot}", cardId, "icon")
                 .file(new MockMultipartFile("full", "icon.webp", "image/webp", TestImages.webp(32, 32)))
+                .with(as(user))).andExpect(status().isOk());
+        mvc.perform(multipart("/api/products/{ean}/images", "3850123456789")
+                .file(new MockMultipartFile("photo", "p.jpg", "image/jpeg", TestImages.jpeg(400, 300)))
                 .with(as(user))).andExpect(status().isOk());
         mvc.perform(withJson(put("/api/favorite-stores/bulk"), "{\"stores\":[{\"storeKey\":\"konzum:1\"}]}").with(as(user)))
                 .andExpect(status().isOk());
@@ -98,6 +104,14 @@ class AccountErasureTest extends FullStackTest {
         assertThat(((FakePhotoStore) photoStore).objects.keySet()).noneMatch(key -> key.contains(id.toString()));
         assertThat(photoCleanup.findAll()).noneMatch(row -> row.getKeyOrPrefix().contains(id.toString()));
         assertThat(favoriteStores.findByUserId(id)).isEmpty();
+        // Product photos lose every link to the person, and a kept photo loses its private original.
+        assertThat(productImages.findByContributorId(id)).isEmpty();
+        assertThat(productImages.findByConfirmedById(id)).isEmpty();
+        assertThat(productImages.findAll())
+                .filteredOn(image -> image.getContributorId() == null && image.getSource() != ImageSource.OPEN_FOOD_FACTS)
+                .allMatch(image -> image.getOriginalKey() == null);
+        assertThat(((FakePhotoStore) productOriginalStore).objects.keySet()).allMatch(key ->
+                productImages.findAll().stream().anyMatch(image -> key.equals(image.getOriginalKey())));
         assertThat(storeNameUsages.findAll()).noneMatch(usage -> usage.getUserId().equals(id));
 
         // Business data stays, attached to the anonymised profile.
