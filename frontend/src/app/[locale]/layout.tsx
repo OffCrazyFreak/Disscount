@@ -26,7 +26,7 @@ import { isIndexableOrigin } from "@/utils/indexing";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { LOCALES, OPEN_GRAPH_LOCALES } from "@/i18n/locales";
-import { huninn, sairaStencil } from "@/app/fonts";
+import { baselineEllipsis, huninn, sairaStencil } from "@/app/fonts";
 import { appUrl, clientEnv } from "@/lib/env";
 import { iosStartupImages } from "@/constants/ios-startup-images";
 import { X_HANDLE } from "@/constants/social";
@@ -162,7 +162,7 @@ export default async function RootLayout({
       className="scroll-pb-[var(--bottom-nav-total)] md:scroll-pb-0"
     >
       <body
-        className={`${sairaStencil.variable} ${huninn.variable} antialiased bg-zinc-50 relative`}
+        className={`${sairaStencil.variable} ${baselineEllipsis.variable} ${huninn.variable} antialiased bg-zinc-50 relative`}
       >
         <SkipLink />
 

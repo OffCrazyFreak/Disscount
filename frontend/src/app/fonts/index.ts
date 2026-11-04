@@ -13,6 +13,20 @@ export const huninn = localFont({
   declarations: [{ prop: "descent-override", value: "26%" }],
 });
 
+// Huninn draws U+2026 vertically centred and CJK wide; this one-glyph face is three
+// Huninn periods, so a CSS overflow ellipsis sits on the baseline.
+export const baselineEllipsis = localFont({
+  src: "./Ellipsis/baseline-ellipsis.woff2",
+  weight: "400",
+  style: "normal",
+  variable: "--font-baseline-ellipsis",
+  display: "swap",
+  // The generated fallback face has no unicode-range, so it would sit ahead of
+  // Huninn in the stack and take over every character.
+  adjustFontFallback: false,
+  declarations: [{ prop: "unicode-range", value: "U+2026" }],
+});
+
 export const sairaStencil = localFont({
   src: "./Saira_Stencil/static/SairaStencil-SemiBold.ttf",
   weight: "600",
