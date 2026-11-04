@@ -37,13 +37,13 @@ export const acquisitionChannelSchema = z.enum([
   "OTHER",
 ]);
 
+export const usernameSchema = z
+  .string()
+  .min(2, "settings.validation.usernameMin")
+  .max(40, "settings.validation.usernameMax");
+
 export const userRequestSchema = z.object({
-  username: z
-    .string()
-    .min(2, "auth.validation.usernameMin")
-    .max(40, "auth.validation.usernameMax")
-    .nullable()
-    .optional(),
+  username: usernameSchema.nullable().optional(),
   notificationsPush: z.boolean().optional(),
   notificationsEmail: z.boolean().optional(),
   newsletter: z.boolean().optional(),
