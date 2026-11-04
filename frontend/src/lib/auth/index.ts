@@ -304,7 +304,7 @@ export const auth = betterAuth({
       },
     }),
     reauth(),
-    nextCookies(),
+    nextCookies(), // must be last
   ],
 
   trustedOrigins: [appUrl()],

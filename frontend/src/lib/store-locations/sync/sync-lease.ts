@@ -11,7 +11,7 @@ export interface ISyncLease {
 
 const LOCATION_LEASE: ISyncLease = { id: "store-locations", every: "24 hours" };
 
-/** One conditional upsert, so two app instances cannot both win. */
+/** Taken once the last run is due, or a run started over two hours ago died; one conditional upsert, so two app instances cannot both win. */
 export async function acquireSyncLease({
   id,
   every,

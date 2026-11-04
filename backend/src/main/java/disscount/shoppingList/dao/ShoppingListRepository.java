@@ -14,7 +14,7 @@ import java.util.UUID;
 @Repository
 public interface ShoppingListRepository extends JpaRepository<ShoppingList, UUID> {
 
-    /** Fetch-joined because convertToDto walks lazy items; the id tiebreak only keeps order stable, as Postgres and H2 order uuids differently. */
+    /** Fetch-joined because convertToDto walks lazy items, safe only while unpaginated; tests assert the id tiebreak's stability, as Postgres and H2 order uuids differently. */
     @Query("SELECT sl FROM ShoppingList sl LEFT JOIN FETCH sl.items "
             + "WHERE sl.owner = :owner AND sl.deletedAt IS NULL "
             + "ORDER BY sl.updatedAt DESC, sl.createdAt DESC, sl.id DESC")

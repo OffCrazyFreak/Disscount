@@ -41,8 +41,7 @@ const DATE_SELECTORS = [
   },
 ];
 
-const COMMENT_DIRECTIVE =
-  /^\s*(eslint[- ]|globals? |@ts-|\/ *<(reference|amd))/;
+const COMMENT_DIRECTIVE = /^\s*(eslint[- ]|@ts-|\/ *<(reference|amd))/;
 const COMMENT_HISTORY = /\b(used to|previously|originally)\b/i;
 
 const commentRulesPlugin = {

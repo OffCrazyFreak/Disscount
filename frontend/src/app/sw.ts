@@ -67,7 +67,7 @@ const runtimeCaching: RuntimeCaching[] = [
       sameOrigin && url.pathname.startsWith("/api/"),
     handler: new NetworkOnly(),
   },
-  // Own bucket, above defaultCache because list URLs reveal what this device opened; NetworkFirst, because NetworkOnly made the offline queue unreachable.
+  // Above defaultCache, which matches in order; own bucket, because two ExpirationPlugins on one cache disagree; NetworkFirst, because NetworkOnly made the offline queue unreachable.
   {
     matcher: ({ url, sameOrigin }) =>
       sameOrigin && SHOPPING_LIST_PATH.test(url.pathname),

@@ -166,7 +166,7 @@ public class UserService {
             user.setImage(image.isEmpty() ? null : avatarSanitizer.sanitize(image));
         }
 
-        // Only "completed" stamps it, and a finished account is never downgraded, because a slow skipped ping could lock the user back in the required flow.
+        // Only "completed" stamps the completion timestamp, and a finished account is never downgraded, because a slow skipped ping could lock the user back in the required flow.
         String outcome = request.getOnboardingOutcome();
         boolean isDowngrade = outcome != null
                 && !ONBOARDING_COMPLETED.equals(outcome)

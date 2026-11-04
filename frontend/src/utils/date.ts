@@ -7,7 +7,7 @@ import {
 
 export const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
 
-/** Price dates are Croatian calendar days, so the device's zone must not pick the last day; a mounted caller passes `today` to rebuild past midnight. */
+/** Pass -1 for every day since `earliest`; dates are Croatian calendar days, so the device's zone must not pick the last day; a mounted caller passes `today`. */
 export function buildDateWindow(
   daysToShow: number,
   earliest: string,

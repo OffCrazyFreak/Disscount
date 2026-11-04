@@ -11,7 +11,7 @@ function withoutDeploymentParam(url: URL): string {
   return copy.href;
 }
 
-/** Serwist tests a RegExp against the full URL and defaultCache's rules end in `$`, so `chunk.js?dpl=...` would fall through to the page bucket. */
+/** Serwist tests a RegExp against the full URL and defaultCache's rules end in `$`, so `chunk.js?dpl=...` would fall through to the page bucket; a cross-origin URL must still match from its start. */
 function matchIgnoringDeploymentParam(pattern: RegExp): RouteMatchCallback {
   return ({ url, sameOrigin }) => {
     const match = pattern.exec(withoutDeploymentParam(url));
