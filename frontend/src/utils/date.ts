@@ -7,31 +7,18 @@ import {
 
 export const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
 
-// Format as YYYY-MM-DD in local time; toISOString would shift a day near midnight.
-export function toLocalDateString(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-export function fromLocalDateString(value: string): Date {
-  const [year, month, day] = value.split("-").map(Number);
-
-  return new Date(year, month - 1, day);
-}
-
 /**
  * YYYY-MM-DD strings ending today in Zagreb, chronological, never reaching earlier
  * than `earliest`. Pass -1 for every day since `earliest`. Price dates are Croatian
- * calendar days, so the device's own zone must not pick the last day.
+ * calendar days, so the device's own zone must not pick the last day. A caller that
+ * stays mounted across Zagreb midnight passes `today` from its own render, so the
+ * window is rebuilt for the new day instead of reusing a cached one.
  */
 export function buildDateWindow(
   daysToShow: number,
   earliest: string,
+  today: string = zagrebClock(new Date()).date,
 ): string[] {
-  const today = zagrebClock(new Date()).date;
   const availableDays = Math.max(0, daysBetween(earliest, today) + 1);
   const cappedDays =
     daysToShow === -1 ? availableDays : Math.min(daysToShow, availableDays);

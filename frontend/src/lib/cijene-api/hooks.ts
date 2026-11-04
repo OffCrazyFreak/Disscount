@@ -74,6 +74,7 @@ import { useQueries } from "@tanstack/react-query";
 import { HistoryDataPoint } from "@/lib/cijene-api/history-data-point";
 import type { IUsePriceHistoryArgs } from "@/lib/cijene-api/hooks-types";
 import { buildDateWindow } from "@/utils/date";
+import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 import { PRICE_ARCHIVE_START } from "@/constants/price-history";
 import { priceHistoryQueries } from "@/lib/cijene-api/price-history-queries";
 
@@ -86,9 +87,13 @@ import { priceHistoryQueries } from "@/lib/cijene-api/price-history-queries";
  */
 
 export function usePriceHistory({ ean, days = 7 }: IUsePriceHistoryArgs) {
+  "use no memo";
+  // The compiler caches `new Date()` as a constant, so a tab left open past Zagreb midnight
+  // would keep yesterday as its last day; reading the clock each render needs the opt-out.
+  const today = zagrebClock(new Date()).date;
   const dates = useMemo(
-    () => buildDateWindow(days, PRICE_ARCHIVE_START),
-    [days],
+    () => buildDateWindow(days, PRICE_ARCHIVE_START, today),
+    [days, today],
   );
 
   const queries = useQueries({
