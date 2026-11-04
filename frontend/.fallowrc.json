@@ -80,12 +80,6 @@
   },
   "ignoreExportsUsedInFile": true,
   "ignoreFindings": ["**/products/components/view-switcher.tsx"],
-  "ignoreDependencyOverrides": [
-    {
-      "package": "shell-quote",
-      "source": "pnpm-workspace.yaml"
-    }
-  ],
   "duplicates": {
     "ignore": ["src/app/globals.css", "src/i18n/messages/*/index.ts"]
   }
