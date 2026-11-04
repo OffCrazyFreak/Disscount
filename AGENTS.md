@@ -9,6 +9,7 @@ Croatian grocery price comparison app: Next.js frontend, Spring Boot backend, se
 - Anything needing a backend endpoint that does not exist yet. Before wiring an API call, confirm the endpoint in `backend/` or upstream in https://github.com/senko/cijene-api, which is not ours to change, and name exactly what is missing.
 - Where a new product, price, store or search feature belongs: the owner plans their own price service and has not decided its architecture.
 - A change to how the app looks (size, spacing, colour, layout), with before and after screenshots. This includes accessibility fixes and side effects: #480 and #540 both changed the look unasked.
+- Anything that can bill: services, plans and CI stay free or hard-capped, even with 100k users.
 - Reversing an owner decision, such as an issue closed as won't fix. Search closed issues first. White text on the brand green is one of these and stays.
 
 Put these to me rather than working around them: I say yes far more often than no, so the quiet workaround costs me the better answer.
@@ -37,6 +38,7 @@ Legal copy is the exception to asking about wording: change it as you judge righ
 - Worktrees live under `/home/jj/.t3/worktrees/Disscount/<name>`. pnpm is blocked there because it can purge the main checkout's `node_modules` through the symlink. The `worktree-checks` skill has the setup, the checks, `next dev --webpack` and dependency changes.
 - Branches are `<type>/<kebab-description>`, never a tool prefix such as `t3code/`, created with `git checkout --no-track -b <branch> origin/dev` and pushed with `git push -u origin HEAD:refs/heads/<branch>`. `push.default=upstream` would otherwise land a tracking branch on `dev`; the guard hook refuses that.
 - On `Permission denied (publickey)`, GitHub has refused this machine's valid key before. Repeat that one command over HTTPS: `git -c credential.helper= -c "credential.helper=!gh auth git-credential" push https://github.com/OffCrazyFreak/Disscount.git HEAD:refs/heads/<branch>`.
+- Fetch and merge the latest `origin/dev` before resuming an open PR.
 - One worktree and branch per PR into `dev`. Commit, push and open the PR yourself. Move one change to another branch by cherry-picking, because `dev` usually carries unrelated work.
 
 ## PRs and review
