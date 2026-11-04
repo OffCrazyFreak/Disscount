@@ -2,8 +2,11 @@ import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { buildDateWindow } from "@/utils/date";
 import { PRICE_ARCHIVE_START } from "@/constants/price-history";
 
-export function getPriceHistoryDates(daysToShow: number): string[] {
-  return buildDateWindow(daysToShow, PRICE_ARCHIVE_START);
+export function getPriceHistoryDates(
+  daysToShow: number,
+  today?: string,
+): string[] {
+  return buildDateWindow(daysToShow, PRICE_ARCHIVE_START, today);
 }
 
 export function groupPriceHistoriesByEan(
