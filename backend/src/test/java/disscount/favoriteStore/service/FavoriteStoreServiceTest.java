@@ -7,6 +7,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import disscount.exceptions.BadRequestException;
+import disscount.exceptions.UnauthorizedException;
 import disscount.favoriteStore.dao.FavoriteStoreRepository;
 import disscount.favoriteStore.dto.BulkFavoriteStoreRequest;
 import disscount.favoriteStore.dto.FavoriteStoreDto;
@@ -61,7 +62,7 @@ class FavoriteStoreServiceTest {
         users.save(user);
 
         assertThatThrownBy(() -> service.updateFavoriteStores(user.getId(), request("konzum:1")))
-                .isInstanceOf(BadRequestException.class)
+                .isInstanceOf(UnauthorizedException.class)
                 .hasMessage("error.user.notFound");
     }
 

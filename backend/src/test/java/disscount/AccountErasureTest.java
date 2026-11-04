@@ -22,6 +22,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +31,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -169,6 +171,38 @@ class AccountErasureTest extends FullStackTest {
 
         verify(authIdentityDao).deleteById(leaving.getId());
         assertErased(leaving);
+    }
+
+    // A minted token outlives its account by minutes, so each write refuses the deleted caller itself.
+    @Test
+    void everyWriteByADeletedAccountIs401() throws Exception {
+        User gone = newUser("gone");
+        gone.setDeletedAt(java.time.LocalDateTime.now());
+        users.save(gone);
+
+        for (MockHttpServletRequestBuilder write : List.of(
+                withJson(put("/api/pinned-stores/bulk"), "{\"stores\":[]}"),
+                withJson(put("/api/pinned-places/bulk"), "{\"places\":[]}"),
+                withJson(put("/api/favorite-stores/bulk"), "{\"stores\":[]}"),
+                withJson(post("/api/watchlist"), "{\"productApiId\":\"1\",\"watchType\":\"PERCENTAGE\",\"thresholdValue\":10}"),
+                withJson(patch("/api/users/me"), "{}"),
+                withJson(post("/api/shopping-lists"), "{\"title\":\"Popis\"}"),
+                withJson(put("/api/digital-cards/{id}", UUID.randomUUID()), """
+                        {"cardName":"Moja","cardType":"loyalty","storeName":"Konzum","codeValue":"123","codeType":"ean_13","cardColor":"#D50000"}
+                        """))) {
+            mvc.perform(write.with(as(gone))).andExpect(status().isUnauthorized());
+        }
+    }
+
+    // The 401 speaks about the caller; an admin naming a missing account is still signed in.
+    @Test
+    void anAdminNamingAnUnknownUserIs400() throws Exception {
+        User admin = newAdmin();
+        UUID unknown = UUID.randomUUID();
+
+        mvc.perform(withJson(patch("/api/admin/users/{id}", unknown), "{\"accountType\":\"ENTERPRISE\"}").with(as(admin)))
+                .andExpect(status().isBadRequest());
+        mvc.perform(delete("/api/admin/users/{id}", unknown).with(as(admin))).andExpect(status().isBadRequest());
     }
 
     @Test

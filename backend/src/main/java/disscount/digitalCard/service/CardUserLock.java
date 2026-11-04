@@ -3,7 +3,6 @@ package disscount.digitalCard.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import disscount.exceptions.UnauthorizedException;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 
@@ -21,8 +20,6 @@ public class CardUserLock {
     private final UserRepository userRepository;
 
     public User acquire(UUID userId) {
-        return userRepository.findByIdForUpdate(userId)
-                .filter(u -> u.getDeletedAt() == null)
-                .orElseThrow(() -> new UnauthorizedException("error.user.notFound"));
+        return userRepository.requireActiveForUpdate(userId);
     }
 }

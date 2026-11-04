@@ -79,6 +79,8 @@ The last row is an owner decision made while building it: there is no account to
 
 When the proxy answers `session_changed`, the axios response interceptor (`lib/api/session-changed.ts`) calls `authClient.$store.notify("$sessionSignal")`, which makes better-auth refetch the session. `UserProvider` then switches the cache identity and purges the old account's offline data, after which calls carry the new pin. Nothing is retried automatically: `shouldRetryCardWrite` (`lib/offline/card-retry.ts`) stops on `isSessionChanged` (`lib/api/problem-details.ts`), and the card toasts show the refusal's own title (the account changed, the data refreshes) instead of the generic failure. A queued photo refused this way stays in the outbox and is purged with the account it belonged to.
 
+Any other 401 from Spring (no token, or a token whose account is gone) makes the same call, at most once per 30 seconds, so a burst of failures or a card write's retries refetch once and a session lookup that keeps failing cannot start a loop. The interceptor sits on `apiClient` alone, so 401s from better-auth, the `/api/account` routes and the price API never reach it. It does not sign out: better-auth answers, and `UserProvider` clears the tab only if the session really ended.
+
 After an email sign-in, `handleUserLogin` (`context/user-context.tsx`) reads the new session with `authClient.getSession()` and moves the cache identity to it before loading the profile, because `useSession` may not have seen the sign-in yet and the profile call would otherwise still be pinned to `anon`.
 
 ---
@@ -151,8 +153,8 @@ Sentry events carry only the tags `flow: backend-proxy`, `proxyFailure` and `pat
 | `lib/backend-proxy/proxy-problem.ts`                 | The problem responses.                                                                                         |
 | `lib/backend-proxy/proxy-contract.ts`                | The two header names and `session_changed`, shared by browser and server.                                      |
 | `lib/backend-proxy/client-headers.ts`                | `backendProxyHeaders()`, what the browser sends.                                                               |
-| `lib/api/api-base.ts`                                | The axios client: proxy headers, `Accept-Language`, the `session_changed` hook.                                |
-| `lib/api/session-changed.ts`                         | Refetches the session on a `session_changed` 401.                                                              |
+| `lib/api/api-base.ts`                                | The axios client: proxy headers, `Accept-Language`, the session refetch on a 401.                              |
+| `lib/api/session-changed.ts`                         | Refetches the session on any 401, at most once per 30 seconds unless it is `session_changed`.                  |
 | `context/user-context.tsx`                           | `handleUserLogin` moves the pin before the profile load.                                                       |
 | `lib/auth/index.ts`                                  | jwt plugin: `disableSettingJwtHeader: true`, token life `BACKEND_TOKEN_TTL_MINUTES`.                           |
 | `test/backend-identity.ts`                           | `actingAs(request)` for jsdom tests: decides the account as the proxy would, from the pin and `serverSession`. |
@@ -205,7 +207,7 @@ The decision in #430 is to add a short per-session token memo only if `auth` exc
 | `lib/backend-proxy/proxy-failures.test.ts`                                                                                                   | 502, 503, 504, abort propagation, no token, cookie or list id in a Sentry event.                                                    |
 | `lib/backend-proxy/backend-path.test.ts`                                                                                                     | URL building, and that no `app/api/*` folder or `cijene` collides with a backend root.                                              |
 | `lib/backend-proxy/proxy-problem.test.ts`                                                                                                    | Problem titles follow `Accept-Language`, match a regional tag on its language, and fall back to Croatian.                           |
-| `lib/api/api-base.test.tsx`                                                                                                                  | The client sends both headers and no token, and refetches the session only on `session_changed`.                                    |
+| `lib/api/api-base.test.tsx`                                                                                                                  | The client sends both headers and no token, and refetches the session on a 401, once per burst.                                     |
 | `context/user-context-session-changes.test.tsx`, `lib/offline/offline-replay.test.tsx`, `lib/api/shopping-lists/shared-list-access.test.tsx` | The account switch, sign-out, revoke, deletion, offline replay and shared list behaviour from #437, through `actingAs`.             |
 
 In jsdom tests, an MSW handler calls `actingAs(request)` to learn which account Spring would act as. It runs the real `isCsrfSafe` and `decideIdentity` against `serverSession.userId` (the account the test's session cookie names) and throws the proxy's refusal as the response, so a refused call never reaches the handler body. `test/setup-dom.ts` resets `serverSession` and the cache identity after each test.

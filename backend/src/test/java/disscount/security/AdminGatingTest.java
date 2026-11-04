@@ -33,8 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Every /api/admin route answers 401 without a token, 403 to a signed-in consumer and 2xx to
- * an admin. Today the check is inline per handler, and for the contact routes inside
- * ContactMessageService only; this must stay green when a URL rule replaces them.
+ * an admin, through the URL rule in SecurityConfig.
  */
 class AdminGatingTest extends FullStackTest {
 

@@ -27,7 +27,6 @@ public class AdminController {
     @Operation(summary = "List all active users (admin only)")
     @GetMapping("/users")
     public ResponseEntity<List<UserDto>> getAllUsers() {
-        userService.requireAdmin(SecurityUtils.getCurrentUserId());
         return ResponseEntity.ok(userService.findAllActive());
     }
 
@@ -37,16 +36,13 @@ public class AdminController {
             @PathVariable UUID userId,
             @Valid @RequestBody UpdateAccountTypeRequest request
     ) {
-        userService.requireAdmin(SecurityUtils.getCurrentUserId());
         return ResponseEntity.ok(userService.updateAccountType(userId, request.getAccountType()));
     }
 
     @Operation(summary = "Delete a user (admin only)")
     @DeleteMapping("/users/{userId}")
     public ResponseEntity<Map<String, String>> deleteUser(@PathVariable UUID userId) {
-        UUID adminUserId = SecurityUtils.getCurrentUserId();
-        userService.requireAdmin(adminUserId);
-        userService.deleteUserAsAdmin(userId, adminUserId);
+        userService.deleteUserAsAdmin(userId, SecurityUtils.getCurrentUserId());
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
     }
 }
