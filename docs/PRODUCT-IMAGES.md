@@ -2,7 +2,7 @@
 
 How Disscount shows product photos: where they come from, how they are stored and rendered, how they reach the page, who can change them, what breaks and how, and what has to be set up by hand. Written for someone new to the code, so the concepts are explained as they come up. Product data itself (names, prices) is in [PRODUCTS.md](PRODUCTS.md).
 
-> **Mental model in one sentence:** every product (EAN) keeps a list of candidate photos from Open Food Facts and from users; one of them is the main photo, each is rendered from its untouched source into two square JPEGs on baked-in white in a public R2 bucket, the browser loads those files straight from the bucket's own domain, and the admin curates the list from the product page or from a popularity-ordered queue in the dashboard.
+> **Mental model in one sentence:** every product (EAN) keeps a list of candidate photos from Open Food Facts and from users; one of them is the main photo, each is rendered from its untouched source into three square WebP files on baked-in white in a public R2 bucket, the browser loads those files straight from the bucket's own domain, and the admin curates the list from the product page or from a popularity-ordered queue in the dashboard.
 
 ---
 
@@ -121,9 +121,9 @@ How the render job treats a failure is in [§16](#16-failure-modes).
 
 ## 6. Rendering and the white background
 
-`ProductImageRenderer` decodes the source (JPEG or PNG, at most 10,000 px a side and 24 megapixels), paints it on white, rotates by a multiple of 90 degrees, crops, centres it on a white square with a 4% margin and writes two JPEGs at quality 0.86: 1080 px (`FULL_SIDE`) and 400 px (`THUMB_SIDE`). It never upscales, and a crop must be at least 16 px a side. The crop is stored as `x, y, width, height` in pixels of the rotated original plus the rotation, like Open Food Facts stores it, so a new crop always starts from the original.
+`ProductImageRenderer` decodes the source (JPEG or PNG, at most 10,000 px a side and 24 megapixels), paints it on white, rotates by a multiple of 90 degrees, crops, centres it on a white square with a 4% margin and writes three WebP files: 1080 px (`FULL_SIDE`), 400 px (`THUMB_SIDE`) and 160 px (`SMALL_SIDE`, for list rows). Each starts at quality 0.80 and steps down (0.70, 0.60, 0.50) until it fits its ceiling: 200 KB full, 60 KB thumb, 16 KB small; the lowest step is kept even if a very noisy photo still exceeds it. WebP at 0.80 measured about half the bytes of the earlier JPEG at 0.86 on dev photos ([#563](https://github.com/OffCrazyFreak/Disscount/issues/563)). The encoder is `com.github.usefulness:webp-imageio`, which bundles libwebp for Linux x86_64 and arm64; the JDK cannot write WebP. It never upscales, and a crop must be at least 16 px a side. The crop is stored as `x, y, width, height` in pixels of the rotated original plus the rotation, like Open Food Facts stores it, so a new crop always starts from the original.
 
-The key is `products/<ean>/<first 20 hex characters of the SHA-256 of the full JPEG>.jpg`, plus `-thumb.jpg`. A new render is a new hash and so a new URL, which is what makes the one-year immutable cache safe.
+The key is `products/<ean>/<first 20 hex characters of the SHA-256 of the full file>.webp`, plus `-thumb.webp` and `-small.webp`. Photos rendered before the switch keep their `.jpg` keys and stay valid; they get WebP on their next render (a crop, or a new Open Food Facts revision), and until then they have no small file, so lists show their thumb. A new render is a new hash and so a new URL, which is what makes the one-year immutable cache safe.
 
 The white is part of the file on purpose. Dark Reader's default mode recolours CSS backgrounds but leaves image pixels alone, its filter modes and iOS Smart Invert invert images back, and Windows forced colours keeps images. The tile around a photo is a plain `<img>` (never a CSS background, which Dark Reader hides or inverts), with `color-scheme: only light` so Chrome's auto dark mode leaves it alone and `forced-color-adjust: none` for high contrast. Samsung Internet's forced dark still greys whites inside images and cannot be opted out of.
 
@@ -131,14 +131,14 @@ The white is part of the file on purpose. Dark Reader's default mode recolours C
 
 ## 7. How photos reach the page
 
-**Direct URLs, no image optimizer.** The one exception is the share card below, which crawlers fetch from our server. The backend answers with absolute URLs on `R2_PUBLIC_URL` (`R2ProductImageStore.publicUrl`). The browser loads them with a plain `<img>` in `PhotoTile` (`components/custom/product-photos/photo-tile.tsx`), never `next/image`, so no request goes through our servers and `next.config.ts` needs no `images` setting. The files are already the right sizes and formats, so an optimizer would only add a hop.
+**Direct URLs, no image optimizer.** The one exception is the share card below, which crawlers fetch from our server. The backend answers with absolute URLs on `R2_PUBLIC_URL` (`R2ProductImageStore.publicUrl`). The browser loads them with a plain `<img>` in `PhotoTile` (`components/custom/product-photos/photo-tile.tsx`), never `next/image`, so no request goes through our servers and `next.config.ts` needs no `images` setting. The files are already the right sizes and formats, including a 160 px file for list rows, so an optimizer would only add a hop.
 
 | Where                                          | File used                           | How it gets the URL                                                                                                                                 |
 | ---------------------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Product page gallery, main tile                | `thumbUrl` (400 px)                 | `useProductImages(ean)` in the browser, `GET /api/products/{ean}/images` through the backend proxy                                                  |
 | Product page gallery, thumbnails strip         | `thumbUrl`                          | Same response                                                                                                                                       |
 | Viewer (lightbox)                              | `fullUrl` (1080 px)                 | Same response                                                                                                                                       |
-| Product rows, shopping list rows, modal header | thumbnail                           | `useProductThumbnail(ean)`; `thumbnail-batcher.ts` gathers every ask within 15 ms into one `GET /api/products/images/thumbnails?eans=` of up to 100 |
+| Product rows, shopping list rows, modal header | small (160 px), else thumb          | `useProductThumbnail(ean)`; `thumbnail-batcher.ts` gathers every ask within 15 ms into one `GET /api/products/images/thumbnails?eans=` of up to 100 |
 | JSON-LD `image`                                | `fullUrl` of a confirmed main photo | `getVerifiedMainPhotoUrl` on the server (`lib/api/product-images/server.ts`), 3 second timeout, `null` when unconfirmed or on any failure           |
 | `og:image`, `twitter:image`                    | 1200x630 share card                 | `/og/products/<ean>/<version>.jpg`, composed from that same URL at request time; see below                                                          |
 
@@ -244,7 +244,7 @@ Not covered by tests: a real upload to R2, durability of the disk stores across 
 
 | File                                                             | What                                                                                       |
 | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `backend/.../productImage/render/ProductImageRenderer.java`      | Decode, rotate, crop, white square, JPEG                                                   |
+| `backend/.../productImage/render/ProductImageRenderer.java`      | Decode, rotate, crop, white square, WebP                                                   |
 | `backend/.../productImage/service/`                              | Reads, uploads, admin actions, jobs, the main photo rules (`MainPicker`)                   |
 | `backend/.../productImage/off/`                                  | Open Food Facts client, URL layout, export reader                                          |
 | `backend/.../productImage/catalog/`                              | cijene archive reader and import                                                           |
@@ -318,7 +318,8 @@ Versions read from `frontend/package.json` and `backend/pom.xml`.
 | `@tanstack/react-query`        | `^5.90.12` | Photo and thumbnail queries                               |
 | `sharp`                        | `^0.35.5`  | Encodes the share card as JPEG                            |
 | `software.amazon.awssdk` (BOM) | `2.57.6`   | `s3` and `url-connection-client` for both R2 buckets      |
-| JDK ImageIO                    | Java 21    | Decoding and JPEG encoding on the backend                 |
+| JDK ImageIO                    | Java 21    | Decoding, and JPEG encoding of originals on the backend   |
+| `webp-imageio`                 | `0.11.0`   | WebP encoding of the public files (bundles libwebp)       |
 
 ---
 
@@ -364,7 +365,8 @@ A successful copy clears `render_attempts` and `render_retry_at`.
 - **Do not fetch Open Food Facts on page views.** Their limit is per IP and the whole server shares one.
 - **The export is about 1.5 GB.** It is streamed and never written to disk; only lines whose barcode we carry are split.
 - **Barcodes are matched without leading zeros.** Sources disagree about padding.
-- **Product photos are JPEG only.** The JDK cannot write WebP without a native library; the browser always sends JPEG.
+- **Public files are WebP, originals stay JPEG.** The browser always sends JPEG and the sanitized original keeps that format; only the rendered public files are WebP, through `webp-imageio`. That library is written in Kotlin, so `pom.xml` overrides `kotlin.version` to the one it is built against.
+- **The share card converts the photo to JPEG first.** `render-product-og.tsx` re-encodes the fetched photo with `sharp` before handing it to Satori, whose docs never list WebP; a test renders a WebP photo and checks it lands in the card.
 - **`R2_PUBLIC_URL` must be `https://`.** The Content Security Policy allows images only from `https:`, so a local `http://` S3 stand-in shows broken images unless you widen `img-src` while testing.
 - **Never use `next/image` or a CSS background for a product photo.** The optimizer would proxy files that are already sized, and a CSS background is what dark mode extensions hide or invert.
 - **Photos exist only for barcode shaped ids.** The backend accepts 8 to 14 digits (`Barcodes.isEanShape`), while cijene also has longer codes and `<chain>:<code>` ids. For those, `GET /{ean}/images` answers 400, the thumbnails request drops them, and the product page falls back to the brand share image.
