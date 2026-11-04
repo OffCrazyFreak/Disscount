@@ -1,5 +1,6 @@
 package disscount.digitalCard.rest;
 
+import java.util.Set;
 import disscount.digitalCard.photo.TestImages;
 import disscount.support.ApiContract;
 import disscount.support.FullStackTest;
@@ -10,7 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import tools.jackson.databind.JsonNode;
 
-import java.util.Set;
 import java.util.UUID;
 
 import static disscount.support.WireFormat.DATE;
@@ -25,7 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /** Pins DigitalCardDto, CardPhotoDto and the config against the frontend's digital-card schemas, which parse every response. */
 class DigitalCardWireFormatTest extends FullStackTest {
 
-    static final Set<String> CARD_FIELDS = ApiContract.fields("DigitalCardDto");
 
     @Test
     void aFullCardCarriesEveryFieldInItsWireShape() throws Exception {
@@ -48,7 +47,7 @@ class DigitalCardWireFormatTest extends FullStackTest {
 
         JsonNode card = body(mvc.perform(get("/api/digital-cards/me").with(as(owner))).andExpect(status().isOk())).get(0);
 
-        assertThat(fieldNames(card)).containsExactlyInAnyOrderElementsOf(CARD_FIELDS);
+        ApiContract.assertMatches("DigitalCardDto", card);
         assertThat(card.get("cardType").asString()).isEqualTo("gift");
         assertThat(card.get("codeType").asString()).isEqualTo("ean_13");
         assertThat(card.get("validFrom").asString()).matches(DATE);
@@ -62,9 +61,9 @@ class DigitalCardWireFormatTest extends FullStackTest {
         assertThat(card.get("createdAt").asString()).matches(LOCAL_DATE_TIME);
         assertThat(card.get("updatedAt").asString()).matches(LOCAL_DATE_TIME);
 
-        assertThat(fieldNames(photo)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("CardPhotoDto"));
+        ApiContract.assertMatches("CardPhotoDto", photo);
         assertThat(card.get("photos")).singleElement().satisfies(p -> {
-            assertThat(fieldNames(p)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("CardPhotoDto"));
+            ApiContract.assertMatches("CardPhotoDto", p);
             assertThat(p.get("slot").asString()).isEqualTo("icon");
             assertThat(p.get("sha256").asString()).matches("[0-9a-f]{64}");
         });
@@ -78,7 +77,7 @@ class DigitalCardWireFormatTest extends FullStackTest {
         JsonNode card = body(mvc.perform(put("/api/digital-cards/{id}", cardId).with(as(owner))
                 .contentType(MediaType.APPLICATION_JSON).content(DigitalCardOwnershipTest.CARD)).andExpect(status().isOk()));
 
-        assertThat(fieldNames(card)).containsExactlyInAnyOrderElementsOf(CARD_FIELDS);
+        ApiContract.assertMatches("DigitalCardDto", card);
         for (String field : Set.of("barcodeValue", "note", "validFrom", "expiresOn", "balance", "balanceUnit",
                 "pinnedAt", "lastUsedAt", "archivedAt")) {
             assertThat(card.get(field).isNull()).as(field).isTrue();

@@ -1,5 +1,6 @@
 package disscount.shoppingList.rest;
 
+import java.util.Set;
 import disscount.support.ApiContract;
 import disscount.support.FullStackTest;
 import disscount.user.domain.User;
@@ -7,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import tools.jackson.databind.JsonNode;
 
-import java.util.Set;
 
 import static disscount.support.WireFormat.LOCAL_DATE_TIME;
 import static disscount.support.WireFormat.UUID;
@@ -19,8 +19,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /** Pins ShoppingListDto and ShoppingListItemDto against shoppingListDtoSchema and shoppingListItemDtoSchema. */
 class ShoppingListWireFormatTest extends FullStackTest {
 
-    static final Set<String> LIST_FIELDS = ApiContract.fields("ShoppingListDto");
-    static final Set<String> ITEM_FIELDS = ApiContract.fields("ShoppingListItemDto");
 
     @Test
     void theOwnersListCarriesEveryFieldWithItemsInline() throws Exception {
@@ -33,7 +31,7 @@ class ShoppingListWireFormatTest extends FullStackTest {
 
         JsonNode list = body(mvc.perform(get("/api/shopping-lists/{id}", listId).with(as(owner))).andExpect(status().isOk()));
 
-        assertThat(fieldNames(list)).containsExactlyInAnyOrderElementsOf(LIST_FIELDS);
+        ApiContract.assertMatches("ShoppingListDto", list);
         assertThat(list.get("ownerId").asString()).isEqualTo(owner.getId().toString());
         assertThat(list.get("linkAccess").asString()).isEqualTo("NONE");
         assertThat(list.get("myAccess").asString()).isEqualTo("OWNER");
@@ -41,7 +39,7 @@ class ShoppingListWireFormatTest extends FullStackTest {
         assertThat(list.get("updatedAt").asString()).matches(LOCAL_DATE_TIME);
 
         JsonNode item = list.get("items").get(0);
-        assertThat(fieldNames(item)).containsExactlyInAnyOrderElementsOf(ITEM_FIELDS);
+        ApiContract.assertMatches("ShoppingListItemDto", item);
         assertThat(item.get("shoppingListId").asString()).isEqualTo(listId);
         assertThat(item.get("amount").isIntegralNumber()).isTrue();
         assertThat(item.get("isChecked").isBoolean()).isTrue();
@@ -60,7 +58,7 @@ class ShoppingListWireFormatTest extends FullStackTest {
         JsonNode item = body(mvc.perform(post("/api/shopping-lists/{id}/items", listId).with(as(owner))
                 .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Kruh\"}")).andExpect(status().isOk()));
 
-        assertThat(fieldNames(item)).containsExactlyInAnyOrderElementsOf(ITEM_FIELDS);
+        ApiContract.assertMatches("ShoppingListItemDto", item);
         for (String field : Set.of("ean", "brand", "quantity", "unit", "chainCode", "avgPrice", "storePrice")) {
             assertThat(item.get(field).isNull()).as(field).isTrue();
         }
@@ -77,6 +75,6 @@ class ShoppingListWireFormatTest extends FullStackTest {
         JsonNode items = body(mvc.perform(get("/api/shopping-lists/items").with(as(owner))).andExpect(status().isOk()));
 
         assertThat(items).singleElement()
-                .satisfies(item -> assertThat(fieldNames(item)).containsExactlyInAnyOrderElementsOf(ITEM_FIELDS));
+                .satisfies(item -> ApiContract.assertMatches("ShoppingListItemDto", item));
     }
 }

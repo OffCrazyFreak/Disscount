@@ -43,9 +43,9 @@ class ProductImageWireFormatTest extends FullStackTest {
     void thePublicPhotoListIsTheEanAndItsPhotos() throws Exception {
         JsonNode photos = body(mvc.perform(get("/api/products/{ean}/images", ean)).andExpect(status().isOk()));
 
-        assertThat(fieldNames(photos)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("ProductImagesDto"));
+        ApiContract.assertMatches("ProductImagesDto", photos);
         assertThat(photos.get("images")).singleElement().satisfies(image -> {
-            assertThat(fieldNames(image)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("ProductImageDto"));
+            ApiContract.assertMatches("ProductImageDto", image);
             assertThat(image.get("source").asString()).isEqualTo("USER");
             assertThat(image.get("status").asString()).isEqualTo("VERIFIED");
         });
@@ -56,7 +56,7 @@ class ProductImageWireFormatTest extends FullStackTest {
         JsonNode thumbnails = body(mvc.perform(get("/api/products/images/thumbnails").param("eans", ean))
                 .andExpect(status().isOk()));
 
-        assertThat(fieldNames(thumbnails)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("ProductThumbnailsDto"));
+        ApiContract.assertMatches("ProductThumbnailsDto", thumbnails);
         assertThat(thumbnails.get("thumbnails").get(ean).isString()).isTrue();
     }
 
@@ -64,7 +64,7 @@ class ProductImageWireFormatTest extends FullStackTest {
     void theListedEansAreAnArray() throws Exception {
         JsonNode listed = body(mvc.perform(get("/api/products/catalog/eans")).andExpect(status().isOk()));
 
-        assertThat(fieldNames(listed)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("ListedEansDto"));
+        ApiContract.assertMatches("ListedEansDto", listed);
         assertThat(listed.get("eans").isArray()).isTrue();
     }
 
@@ -75,10 +75,10 @@ class ProductImageWireFormatTest extends FullStackTest {
         JsonNode product = body(mvc.perform(get("/api/admin/product-images/{ean}", ean).with(as(newAdmin())))
                 .andExpect(status().isOk()));
 
-        assertThat(fieldNames(product)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("AdminProductDto"));
+        ApiContract.assertMatches("AdminProductDto", product);
         assertThat(product.get("reviewedAt").asString()).matches(LOCAL_DATE_TIME);
         assertThat(product.get("images")).singleElement().satisfies(image -> {
-            assertThat(fieldNames(image)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("AdminImageDto"));
+            ApiContract.assertMatches("AdminImageDto", image);
             assertThat(image.get("main").asBoolean()).isTrue();
             assertThat(image.get("crop").isNull()).isTrue();
             assertThat(image.get("createdAt").asString()).matches(LOCAL_DATE_TIME);
@@ -96,11 +96,11 @@ class ProductImageWireFormatTest extends FullStackTest {
         JsonNode page = body(mvc.perform(get("/api/admin/product-images/queue").param("size", "1").with(as(newAdmin())))
                 .andExpect(status().isOk()));
 
-        assertThat(fieldNames(page)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("AdminQueuePageDto"));
+        ApiContract.assertMatches("AdminQueuePageDto", page);
         assertThat(page.get("page").asInt()).isZero();
         assertThat(page.get("size").asInt()).isEqualTo(1);
         assertThat(page.get("items")).singleElement().satisfies(item -> {
-            assertThat(fieldNames(item)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("AdminQueueItemDto"));
+            ApiContract.assertMatches("AdminQueueItemDto", item);
             assertThat(item.get("ean").asString()).isEqualTo(ean);
             assertThat(item.get("previewUrl").isString()).isTrue();
         });

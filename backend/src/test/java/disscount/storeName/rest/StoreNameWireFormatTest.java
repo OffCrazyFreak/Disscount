@@ -32,7 +32,7 @@ class StoreNameWireFormatTest extends FullStackTest {
                 .andExpect(status().isOk()));
 
         assertThat(found).singleElement().satisfies(suggestion -> {
-            assertThat(fieldNames(suggestion)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("StoreNameSuggestionDto"));
+            ApiContract.assertMatches("StoreNameSuggestionDto", suggestion);
             assertThat(suggestion.get("name").asString()).isEqualTo(store);
         });
     }

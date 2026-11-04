@@ -24,7 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /** Pins the UserDto the frontend's userDtoSchema reads, on the current user, the admin list and the account type change. */
 class UserWireFormatTest extends FullStackTest {
 
-    static final java.util.Set<String> USER_FIELDS = ApiContract.fields("UserDto");
 
     @Test
     void theCurrentUserHasEveryFieldAndNullsStayInTheBody() throws Exception {
@@ -32,7 +31,7 @@ class UserWireFormatTest extends FullStackTest {
 
         JsonNode me = body(mvc.perform(get("/api/users/me").with(as(user))).andExpect(status().isOk()));
 
-        assertThat(fieldNames(me)).containsExactlyInAnyOrderElementsOf(USER_FIELDS);
+        ApiContract.assertMatches("UserDto", me);
         assertThat(me.get("id").asString()).isEqualTo(user.getId().toString());
         assertThat(me.get("accountType").asString()).isEqualTo("CONSUMER");
         assertThat(me.get("createdAt").asString()).matches(LOCAL_DATE_TIME);
@@ -61,7 +60,7 @@ class UserWireFormatTest extends FullStackTest {
                         .content("{\"notificationsPush\":true,\"acquisitionChannel\":\"FRIEND_OR_FAMILY\",\"onboardingOutcome\":\"completed\"}"))
                 .andExpect(status().isOk()));
 
-        assertThat(fieldNames(updated)).containsExactlyInAnyOrderElementsOf(USER_FIELDS);
+        ApiContract.assertMatches("UserDto", updated);
         assertThat(updated.get("notificationsPushEnabledAt").asString()).matches(LOCAL_DATE_TIME);
         assertThat(updated.get("onboardingCompletedAt").asString()).matches(LOCAL_DATE_TIME);
         assertThat(updated.get("onboardingOutcome").asString()).isEqualTo("completed");
@@ -79,7 +78,7 @@ class UserWireFormatTest extends FullStackTest {
         JsonNode row = all.valueStream().filter(u -> u.get("id").asString().equals(listed.getId().toString()))
                 .findFirst().orElseThrow();
 
-        assertThat(fieldNames(row)).containsExactlyInAnyOrderElementsOf(USER_FIELDS);
+        ApiContract.assertMatches("UserDto", row);
         assertThat(row.get("accountType").asString()).isEqualTo("CONSUMER");
         assertThat(row.get("createdAt").asString()).matches(LOCAL_DATE_TIME);
         assertThat(row.get("email").asString()).isEqualTo("marta@example.com");
@@ -99,7 +98,7 @@ class UserWireFormatTest extends FullStackTest {
                         .contentType(MediaType.APPLICATION_JSON).content("{\"accountType\":\"ENTERPRISE\"}"))
                 .andExpect(status().isOk()));
 
-        assertThat(fieldNames(updated)).containsExactlyInAnyOrderElementsOf(USER_FIELDS);
+        ApiContract.assertMatches("UserDto", updated);
         assertThat(updated.get("id").asString()).isEqualTo(target.getId().toString());
         assertThat(updated.get("accountType").asString()).isEqualTo("ENTERPRISE");
         assertThat(updated.get("createdAt").asString()).matches(LOCAL_DATE_TIME);
