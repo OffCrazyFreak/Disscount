@@ -35,6 +35,9 @@ WRAPPERS = {"sudo", "timeout", "env", "nice", "nohup", "command", "time", "xargs
 # Re-entering a shell hides the real command inside a string argument.
 SHELLS = {"sh", "bash", "zsh", "dash", "ksh", "fish"}
 
+# These lead a command without being one: `while pgrep ...`, `if git push ...`, `! pkill ...`.
+SHELL_KEYWORDS = {"if", "then", "elif", "else", "while", "until", "do", "!", "{"}
+
 ENV_ASSIGN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
 
 # `$(...)` and backticks run their contents as a command.
@@ -159,11 +162,17 @@ def strip_prefixes(tokens):
     without a table per wrapper, so this can still stop on the wrong token.
     `wrapped` tells the caller to fall back to scanning the whole segment.
     """
+    # A subshell's parentheses stay attached to its first and last words.
+    tokens = [token.lstrip("(").rstrip(")") for token in tokens]
     i = 0
     wrapped = False
 
     while i < len(tokens):
         token = tokens[i]
+
+        if token in SHELL_KEYWORDS or not token:
+            i += 1
+            continue
 
         if ENV_ASSIGN.match(token):
             i += 1
@@ -305,8 +314,10 @@ def check(command, cwd, depth=0, root=None):
                     return message
             continue
 
-        if name == "git":
-            message = git_refusal(args, effective_cwd, raw_tokens)
+        names = [basename(token) for token in tokens]
+        if name == "git" or (wrapped and "git" in names):
+            git_args = tokens[names.index("git") + 1 :]
+            message = git_refusal(git_args, effective_cwd, raw_tokens)
             if message:
                 return message
             continue

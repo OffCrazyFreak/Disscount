@@ -153,6 +153,9 @@ def protected_push_target(args, cwd):
         match = PROTECTED_REF.match(ref)
         if match:
             return match.group(1)
+        # A wildcard or a variable can name any branch, so it counts as the worst one.
+        if "*" in ref or "$" in ref:
+            return "main"
 
     # `HEAD` sends the checked-out branch to its own name.
     if any(ref.lstrip("+") == "HEAD" for ref in refspecs):
@@ -161,7 +164,8 @@ def protected_push_target(args, cwd):
         branch = current_branch(cwd)
         return branch if branch in PROTECTED else None
 
-    if refspecs:
+    # `--tags` alone sends only tags, not the branch.
+    if refspecs or "--tags" in args:
         return None
 
     # A bare push follows push.default, which here means the upstream.

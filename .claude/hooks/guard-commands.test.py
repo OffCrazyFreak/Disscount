@@ -224,6 +224,28 @@ def cases(real_repo, real_worktree, on_main, tracks_dev, tracks_own, no_hooks, w
         ('git commit -m "x"', with_hooks, False),
         ('git commit -m "x"', real_repo, False),
         ("git status", no_hooks, False),
+        # BLOCK: a shell keyword or subshell in front of the command used to hide it
+        ("while pgrep -f vitest; do wait; done", real_repo, True),
+        ("until ! pgrep -f vitest; do wait; done", real_repo, True),
+        ("for p in a b; do pkill -f vitest; done", real_repo, True),
+        ("if pgrep -f vitest; then echo x; fi", real_repo, True),
+        ("! pgrep -f vitest", real_repo, True),
+        ("(pkill -f vitest)", real_repo, True),
+        ("{ pkill -f vitest; }", real_repo, True),
+        ("if git push origin dev; then echo x; fi", real_repo, True),
+        ("(git push origin dev)", real_repo, True),
+        ("if true; then git commit --no-verify -m x; fi", real_repo, True),
+        ("if true; then pnpm install; fi", WT, True),
+        # BLOCK: a wrapper's own options used to hide git
+        ("sudo -u root git push origin dev", real_repo, True),
+        ("env -C /tmp git push origin dev", real_repo, True),
+        # BLOCK: a refspec that can name dev or main
+        ("git push origin 'refs/heads/*:refs/heads/*'", tracks_own, True),
+        ('git push origin "$BRANCH"', tracks_own, True),
+        # ALLOW: tags only, even from a branch tracking origin/dev
+        ("git push --tags", tracks_dev, False),
+        ("git push origin --tags", tracks_dev, False),
+        ("git push origin v1.0", tracks_own, False),
         # BLOCK: a -f pattern that matches the shell running it
         ("pkill -f next-server", real_repo, True),
         ("pkill -9 -f next-server", real_repo, True),
