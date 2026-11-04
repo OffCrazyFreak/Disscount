@@ -157,13 +157,14 @@ export default function ShoppingListSelector({
           </Popover>
           <FormMessage />
 
-          {/* The title has no input of its own (it comes from the create row), so its error shows here; `contents` adds no grid gap while empty. */}
+          {/* The title has no input of its own (it comes from the create row), so its error shows here; `contents` adds no gap while empty. */}
           <FormField
             control={formField.control}
             name="customListTitle"
             render={() => (
               <FormItem className="contents">
-                <FormMessage />
+                {/* An alert, because the trigger's aria-describedby points at the list field's message, not this one. */}
+                <FormMessage role="alert" />
               </FormItem>
             )}
           />

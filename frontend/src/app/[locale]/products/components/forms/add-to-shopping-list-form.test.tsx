@@ -95,7 +95,7 @@ describe("AddToShoppingListForm", () => {
   it("explains why a too short new list title blocks the add", async () => {
     await chooseNewList("ab");
 
-    expect(await screen.findByText(TOO_SHORT)).toBeVisible();
+    expect(await screen.findByRole("alert")).toHaveTextContent(TOO_SHORT);
     expect(screen.getByRole("button", { name: "Dodaj" })).toBeDisabled();
   });
 
