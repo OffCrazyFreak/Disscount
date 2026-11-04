@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw/http";
 import { useForm } from "react-hook-form";
@@ -95,7 +95,7 @@ describe("UserProvider sign-out", () => {
     await user.click(screen.getByRole("button", { name: "sign out" }));
 
     expect(screen.queryByLabelText("username")).not.toBeInTheDocument();
-    await vi.waitFor(() => expect(getCacheIdentity()).toBe("anon"));
+    await waitFor(() => expect(getCacheIdentity()).toBe("anon"));
     expect(localStorage.getItem("Disscount_app") ?? "").not.toContain(
       "Review Shots",
     );

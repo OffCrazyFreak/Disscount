@@ -52,7 +52,7 @@ describe("AppUpdatePrompt", () => {
     // A plain click: sonner's pointerdown swipe handler needs setPointerCapture, which jsdom lacks.
     fireEvent.click(screen.getByRole("button", { name: "Osvježi" }));
 
-    await vi.waitFor(() =>
+    await waitFor(() =>
       expect(waitingWorker.postMessage).toHaveBeenCalledWith({
         type: "SKIP_WAITING",
       }),
@@ -82,7 +82,7 @@ describe("AppUpdatePrompt", () => {
       </>,
     );
 
-    await vi.waitFor(() =>
+    await waitFor(() =>
       expect(serviceWorker.getRegistration).toHaveBeenCalled(),
     );
     await Promise.resolve();
