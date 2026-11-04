@@ -5,22 +5,7 @@ import { useAddToListForm } from "@/app/[locale]/products/hooks/use-add-to-list-
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { renderHookWithProviders } from "@/test/render";
-
-function chain(code: string, avgPrice: string) {
-  return {
-    chain: code,
-    code: "1",
-    name: "Šećer 1 kg",
-    brand: "Viro",
-    category: "Šećer",
-    unit: "kg",
-    quantity: "1",
-    min_price: avgPrice,
-    max_price: avgPrice,
-    avg_price: avgPrice,
-    price_date: "2026-11-01",
-  };
-}
+import { chain } from "@/test/price-fixtures";
 
 const SUGAR: ProductResponse = {
   ean: "3850104004421",

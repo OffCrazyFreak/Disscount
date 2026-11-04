@@ -42,16 +42,8 @@ async function chooseAdmin(username: string) {
 }
 
 describe("AdminUsersTable account type", () => {
-  // jsdom lacks the observer, pointer capture and scrolling APIs the table and Radix Select call.
+  // jsdom lacks the pointer capture and scrolling APIs the table and Radix Select call.
   beforeEach(() => {
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
     Element.prototype.hasPointerCapture ??= () => false;
     Element.prototype.releasePointerCapture ??= () => {};
     Element.prototype.scrollIntoView ??= () => {};

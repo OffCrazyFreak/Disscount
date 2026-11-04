@@ -27,3 +27,18 @@ afterEach(() => {
 // jsdom logs "not implemented" on every canvas call; null is what it returns anyway,
 // and callers treat it as "cannot measure text".
 HTMLCanvasElement.prototype.getContext = () => null;
+
+// jsdom has neither API. Components only need them to exist; a test that needs real answers
+// overrides these with vi.stubGlobal, which restores this default afterwards.
+globalThis.ResizeObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
+window.matchMedia ??= () =>
+  ({
+    matches: false,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  }) as unknown as MediaQueryList;

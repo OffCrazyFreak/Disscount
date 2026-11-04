@@ -51,14 +51,6 @@ describe("AddToShoppingListForm", () => {
     localStorage.clear();
     // jsdom has no scrollIntoView; cmdk calls it on the highlighted list option.
     Element.prototype.scrollIntoView ??= vi.fn();
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
     server.use(
       http.get("*/api/shopping-lists/me", () => HttpResponse.json([WEEKLY])),
       http.get("*/api/shopping-lists/:id", () => HttpResponse.json(WEEKLY)),

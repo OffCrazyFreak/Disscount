@@ -4,7 +4,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { badgeVariants } from "@/components/ui/badge";
-import { contrastRatio, oklchToRgb, type Rgb } from "@/test/color-contrast";
+import { oklchToRgb } from "@/test/color-contrast";
+import { rgbContrastRatio, type Rgb } from "@/utils/color-contrast";
 
 type Mode = "light" | "dark";
 type Colors = Map<string, Rgb>;
@@ -137,7 +138,7 @@ describe("badge text contrast", () => {
         : surfaceColor;
 
       expect(
-        contrastRatio(resolveColor(text.name, mode) as Rgb, fillColor),
+        rgbContrastRatio(resolveColor(text.name, mode) as Rgb, fillColor),
       ).toBeGreaterThanOrEqual(WCAG_AA_NORMAL_TEXT);
     },
   );
