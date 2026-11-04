@@ -218,19 +218,20 @@ The frontend runs on http://localhost:3000
 
 ### MCP servers (optional, for AI editors)
 
-The repo ships pre-configured MCP servers so an AI editor picks them up on clone, one file per tool (same servers): `.mcp.json` (Claude Code), `.cursor/mcp.json` (Cursor), `.vscode/mcp.json` (VS Code).
+The repo ships pre-configured MCP servers so an AI editor picks them up on clone, one file per tool: `.mcp.json` (Claude Code), `.cursor/mcp.json` (Cursor), `.vscode/mcp.json` (VS Code). Cursor and VS Code carry `context7`, `chrome-devtools`, `dokploy` and `sentry`; only `.mcp.json` adds `postgres` and `resend`.
 
 | Server            | Purpose                                           |
 | ----------------- | ------------------------------------------------- |
 | `context7`        | Up-to-date library docs                           |
-| `supabase`        | Supabase project access                           |
+| `postgres`        | Query a PostgreSQL database                       |
 | `chrome-devtools` | Chrome DevTools debugging                         |
 | `sentry`          | Error tracking (org scope)                        |
 | `dokploy`         | Deploys, logs and schedules on the Dokploy server |
+| `resend`          | Email sending, domains and logs                   |
 
 `sentry` is scoped to the `disscount` org rather than one project, so it reaches both `disscount-frontend` and `disscount-backend`.
 
-No secrets are committed: `supabase` and `sentry` authenticate via browser OAuth on first use, and `context7` reads `CONTEXT7_API_KEY` from your environment (it still runs keyless if that is unset, at the lower anonymous rate limit), and `dokploy` reads `DOKPLOY_API_KEY` the same way. Export those keys from your shell profile rather than writing it into a config, and a clone works anywhere with no per-machine edit. Note that the VS Code file spells the references `${env:CONTEXT7_API_KEY}` and `${env:DOKPLOY_API_KEY}`, which is that editor's own syntax, while the other two take a bare `${CONTEXT7_API_KEY}`. Never put keys in these files - use env vars or your editor's secret store.
+No secrets are committed: `sentry` and `resend` authenticate via browser OAuth on first use, and `context7` reads `CONTEXT7_API_KEY` from your environment (it still runs keyless if that is unset, at the lower anonymous rate limit), and `dokploy` reads `DOKPLOY_API_KEY` the same way. Export those keys from your shell profile rather than writing it into a config, and a clone works anywhere with no per-machine edit. Note that the VS Code file spells the references `${env:CONTEXT7_API_KEY}` and `${env:DOKPLOY_API_KEY}`, which is that editor's own syntax, while the other two take a bare `${CONTEXT7_API_KEY}`. Never put keys in these files - use env vars or your editor's secret store.
 
 ## Deployment
 

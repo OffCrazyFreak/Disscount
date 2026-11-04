@@ -5,9 +5,6 @@
       "args": ["@upstash/context7-mcp@1.0.31"],
       "env": { "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}" }
     },
-    "supabase": {
-      "url": "https://mcp.supabase.com/mcp"
-    },
     "chrome-devtools": {
       "command": "npx",
       "args": [
