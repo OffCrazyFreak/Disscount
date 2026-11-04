@@ -62,6 +62,9 @@ export default defineConfig({
           environment: "jsdom",
           include: ["src/**/*.test.tsx"],
           setupFiles: ["./src/test/setup-dom.ts"],
+          // jsdom tests take a few hundred ms idle but outgrow the 5 s default on a loaded machine;
+          // the limit is a margin for a starved worker, not a wait any test relies on.
+          testTimeout: 30_000,
         },
       },
     ],
