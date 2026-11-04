@@ -31,19 +31,16 @@ public class WatchlistItemService {
         User user = userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
-        // Check if product with the same watch type exists
         Optional<WatchlistItem> existing = watchlistItemRepository
                 .findByProductApiIdAndWatchType(request.getProductApiId(), request.getWatchType(), userId);
         
         if (existing.isPresent()) {
-            // Update existing threshold
             WatchlistItem watchlistItem = existing.get();
             watchlistItem.setThresholdValue(request.getThresholdValue());
             WatchlistItem saved = watchlistItemRepository.save(watchlistItem);
             return mapToDto(saved);
         }
 
-        // Create new watchlist item
         WatchlistItem watchlistItem = WatchlistItem.builder()
                 .user(user)
                 .productApiId(request.getProductApiId())
@@ -90,7 +87,6 @@ public class WatchlistItemService {
                 .productApiId(watchlistItem.getProductApiId())
                 .watchType(watchlistItem.getWatchType())
                 .thresholdValue(watchlistItem.getThresholdValue())
-                .lastNotifiedAt(watchlistItem.getLastNotifiedAt())
                 .createdAt(watchlistItem.getCreatedAt())
                 .updatedAt(watchlistItem.getUpdatedAt())
                 .build();

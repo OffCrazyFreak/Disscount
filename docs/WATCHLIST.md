@@ -75,7 +75,6 @@ The backend stores the rule and never a price. Entity `WatchlistItem` (`backend/
 | `product_api_id`           | The product's EAN                                                    |
 | `watch_type`               | `PERCENTAGE` or `ABSOLUTE` (stored as a string)                      |
 | `threshold_value`          | The number the user typed: percent, or euros                         |
-| `last_notified_at`         | Never written by anything; always `null` on the wire                 |
 | `created_at`, `updated_at` | Stamped with `Timestamps.nowUtc()` in `@PrePersist` and `@PreUpdate` |
 | `deleted_at`               | Soft delete marker                                                   |
 
@@ -218,12 +217,10 @@ The threshold modal's ranges and the bell's grouping have no dedicated test beyo
 | Gotcha                                              | Why it bites                                                                                                        | What to do                                                                                               |
 | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | **The badge and the bell measure different things** | The badge counts drops since the last visit; the bell lists rule matches. A product can be in one and not the other | Debug the right hook: `useWatchlistPriceDropCount` or `useWatchlistNotifications`                        |
-| **`last_notified_at` is dead**                      | It is in the entity, the DTO and the zod schema, but nothing writes it                                              | Do not build on it; the inbox in #222 will need its own read state                                       |
 | **Ranges are frontend only**                        | The server accepts any positive number                                                                              | A new client must apply `watchlistLimits` itself                                                         |
 | **Re-adding after a delete makes a new row**        | The upsert only matches live rows, so the soft-deleted one stays behind                                             | Expected; history is not reused                                                                          |
 | **One product query per watched EAN**               | A long watchlist means many parallel upstream calls on every page with the bell                                     | Fine at today's sizes; a batched endpoint upstream would fix it (#45 covers history, not current prices) |
 | **The snapshot needs a known scope**                | Writing before pinned stores load would rebase against every chain                                                  | Keep the `isScopeKnown` guard                                                                            |
-| **`spring-boot-starter-mail` is unused**            | It is on the classpath, but no watchlist email exists                                                               | Email alerts need the consent work in #216 first                                                         |
 
 ---
 

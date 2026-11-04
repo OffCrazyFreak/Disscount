@@ -17,8 +17,6 @@ public class WatchlistItemDto {
     private String productApiId;
     private WatchType watchType;
     private Double thresholdValue;
-    @Schema(nullable = true)
-    private LocalDateTime lastNotifiedAt;
     private LocalDateTime createdAt;
     @Schema(nullable = true)
     private LocalDateTime updatedAt;

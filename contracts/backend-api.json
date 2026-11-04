@@ -471,6 +471,7 @@
         "barcodeValue" : {
           "maxLength" : 4096,
           "minLength" : 0,
+          "pattern" : "[^\\x00]*",
           "type" : [ "string", "null" ]
         },
         "cardColor" : {
@@ -479,6 +480,7 @@
         },
         "cardName" : {
           "minLength" : 1,
+          "pattern" : "[^\\x00]*",
           "type" : "string"
         },
         "cardType" : {
@@ -498,6 +500,7 @@
         "codeValue" : {
           "maxLength" : 4096,
           "minLength" : 0,
+          "pattern" : "[^\\x00]*",
           "type" : "string"
         },
         "expiresOn" : {
@@ -507,10 +510,12 @@
         "note" : {
           "maxLength" : 500,
           "minLength" : 0,
+          "pattern" : "[^\\x00]*",
           "type" : [ "string", "null" ]
         },
         "storeName" : {
           "minLength" : 1,
+          "pattern" : "[^\\x00]*",
           "type" : "string"
         },
         "validFrom" : {
@@ -988,10 +993,6 @@
         "id" : {
           "format" : "uuid",
           "type" : "string"
-        },
-        "lastNotifiedAt" : {
-          "format" : "date-time",
-          "type" : [ "string", "null" ]
         },
         "productApiId" : {
           "type" : "string"

@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import disscount.exceptions.ForbiddenException;
 import disscount.exceptions.NotFoundException;
-import disscount.exceptions.UnauthorizedException;
 import disscount.shoppingList.dao.ShoppingListRepository;
 import disscount.shoppingList.domain.ListAccess;
 import disscount.shoppingList.domain.ShoppingList;
@@ -17,14 +16,12 @@ import disscount.shoppingListItem.dao.ShoppingListItemRepository;
 import disscount.shoppingListItem.domain.ShoppingListItem;
 import disscount.shoppingListItem.dto.ShoppingListItemDto;
 import disscount.shoppingListItem.dto.ShoppingListItemRequest;
-import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.util.Timestamps;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Items on a list, for owners and link visitors alike.
@@ -41,7 +38,6 @@ public class ShoppingListItemService {
 
     private final ShoppingListItemRepository shoppingListItemRepository;
     private final ShoppingListRepository shoppingListRepository;
-    private final UserRepository userRepository;
     private final ShoppingListAccessService accessService;
     private final ShoppingListService shoppingListService;
     private final ShoppingListMapper shoppingListMapper;
@@ -136,16 +132,6 @@ public class ShoppingListItemService {
         item.setDeletedAt(Timestamps.nowUtc());
         shoppingListItemRepository.save(item);
         touchList(list);
-    }
-
-    public List<ShoppingListItemDto> getUserShoppingListItems(UUID ownerId) {
-        User owner = userRepository.findByIdAndDeletedAtIsNull(ownerId)
-                .orElseThrow(() -> new UnauthorizedException("error.user.notFound"));
-
-        return shoppingListItemRepository.findAllActiveItemsByUser(owner)
-                .stream()
-                .map(item -> shoppingListMapper.toItemDto(item, ListAccess.OWNER))
-                .collect(Collectors.toList());
     }
 
     private ShoppingListItem findItem(ShoppingList list, UUID itemId) {
