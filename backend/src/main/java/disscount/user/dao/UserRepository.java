@@ -20,6 +20,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByIdAndDeletedAtIsNull(UUID id);
 
+    @Query("SELECT u.id FROM User u WHERE u.deletedAt IS NULL")
+    List<UUID> findActiveIds();
+
     /**
      * Spans soft-deleted rows too, matching the unique index, which does not care that an
      * account is gone. In practice they never collide: deleteAccount nulls the username,

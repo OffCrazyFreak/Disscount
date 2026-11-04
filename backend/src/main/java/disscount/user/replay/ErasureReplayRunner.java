@@ -1,0 +1,63 @@
+package disscount.user.replay;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HexFormat;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+
+/**
+ * The one-shot replay command, run against a restored database before traffic reopens
+ * (docs/BACKUPS.md, Restore). A failure throws, so the process exits non-zero.
+ */
+@Component
+@Profile(ErasureReplayRunner.PROFILE)
+@Slf4j
+class ErasureReplayRunner implements ApplicationRunner {
+
+    static final String PROFILE = "erasure-replay";
+
+    private static final Pattern MARKER = Pattern.compile("[0-9a-f]{64}");
+
+    private final ErasureReplay replay;
+    private final Path markers;
+    private final Path keyFile;
+
+    ErasureReplayRunner(ErasureReplay replay,
+                        @Value("${erasure-replay.markers}") Path markers,
+                        @Value("${erasure-replay.key-file}") Path keyFile) {
+        this.replay = replay;
+        this.markers = markers;
+        this.keyFile = keyFile;
+    }
+
+    @Override
+    public void run(ApplicationArguments args) throws IOException {
+        byte[] key = HexFormat.of().parseHex(Files.readString(keyFile).strip());
+        if (key.length != 32) throw new IllegalStateException("The erasure key must be 64 hex characters");
+
+        List<String> names;
+        try (Stream<Path> files = Files.list(markers)) {
+            names = files.map(file -> file.getFileName().toString()).toList();
+        }
+        // Pointing at the wrong folder (say _erasures/ instead of _erasures/v1/) would otherwise match nothing and pass.
+        List<String> strangers = names.stream().filter(name -> !MARKER.matcher(name).matches()).toList();
+        if (!strangers.isEmpty()) {
+            throw new IllegalStateException("Not erasure markers, check the folder: " + strangers);
+        }
+
+        Set<String> markerNames = Set.copyOf(names);
+        int erased = replay.replay(key, markerNames);
+        log.info("Erasure replay: {} markers read, {} restored accounts erased again", markerNames.size(), erased);
+    }
+}
