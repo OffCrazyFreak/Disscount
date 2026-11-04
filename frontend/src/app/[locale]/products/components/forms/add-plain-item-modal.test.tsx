@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { configure, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw/http";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -32,10 +32,20 @@ function list(id: string, title: string, updatedAt: string) {
   };
 }
 
+// The real closeModalUrl unmounts the modal at once, which also cancels the draft's pending
+// debounced save. A mock that leaves it mounted lets that save land after the failure's cleanup.
+function unmountOnClose(view: { unmount: () => void }) {
+  closeModalUrl.mockImplementation(() => view.unmount());
+}
+
 const newest = list("list-a", "Tjedna kupnja", "2026-11-02T10:00:00");
 const older = list("list-b", "Vikendica", "2026-10-01T10:00:00");
 
-describe("AddPlainItemModal", () => {
+// Each test drives a popover and several clicks in jsdom, work that stays under the 5 s test and
+// 1 s findBy defaults on an idle machine but outgrows them on a CPU-starved CI worker.
+configure({ asyncUtilTimeout: 10_000 });
+
+describe("AddPlainItemModal", { timeout: 30_000 }, () => {
   beforeEach(() => {
     openModalUrl.mockClear();
     closeModalUrl.mockClear();
@@ -217,6 +227,7 @@ describe("AddPlainItemModal", () => {
     const edited = renderWithProviders(
       <AddPlainItemModal open itemName="Kruh integralni" />,
     );
+    unmountOnClose(edited);
     await waitFor(() =>
       expect(
         screen.getByRole("combobox", { name: "Popis za kupnju" }),
@@ -232,7 +243,6 @@ describe("AddPlainItemModal", () => {
         itemName: "Kruh",
       }),
     );
-    edited.unmount();
 
     expect(getFormDraft("add-plain-item.kruh")).toBeNull();
     expect(getFormDraft("add-plain-item.kruh integralni")).toBeNull();
@@ -254,6 +264,7 @@ describe("AddPlainItemModal", () => {
     const edited = renderWithProviders(
       <AddPlainItemModal open itemName="Kruh integralni" />,
     );
+    unmountOnClose(edited);
     const trigger = await screen.findByRole("combobox", {
       name: "Popis za kupnju",
     });
@@ -265,7 +276,6 @@ describe("AddPlainItemModal", () => {
     await user.type(nameInput, "Kruh");
     await user.click(screen.getByRole("button", { name: "Dodaj" }));
     await waitFor(() => expect(openModalUrl).toHaveBeenCalled());
-    edited.unmount();
 
     expect(getFormDraft("add-plain-item.kruh")?.values.shoppingListId).toBe(
       older.id,
