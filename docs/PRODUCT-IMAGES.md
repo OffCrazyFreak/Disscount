@@ -2,24 +2,24 @@
 
 How Disscount shows product photos: where they come from, how they are stored and rendered, how they reach the page, who can change them, what breaks and how, and what has to be set up by hand. Written for someone new to the code, so the concepts are explained as they come up. Product data itself (names, prices) is in [PRODUCTS.md](PRODUCTS.md).
 
-> **Mental model in one sentence:** every product (EAN) keeps a list of candidate photos from Open Food Facts and from users; one of them is the main photo, each is rendered from its untouched source into three square WebP files on baked-in white in a public R2 bucket, the browser loads those files straight from the bucket's own domain, and the admin curates the list from the product page or from a popularity-ordered queue in the dashboard.
+> **Mental model in one sentence:** every product (EAN) keeps a list of candidate photos from Open Food Facts and from users; one of them is the main photo, each is rendered from its untouched source into three square WebP files on baked-in white in the public photo folder on the server's disk, the browser loads those files straight from the image hostname, and the admin curates the list from the product page or from a popularity-ordered queue in the dashboard.
 
 ---
 
 ## 1. Quick reference
 
-| Thing              | Value                                                                                                                                                                |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Sources            | Open Food Facts (CC BY-SA, credited in the terms of service) and photos uploaded by users and admins                                                                 |
-| Storage            | Public R2 bucket (EU jurisdiction) behind its own domain; user originals in the private card photo bucket                                                            |
-| Files served       | `products/<ean>/<hash>.webp` (up to 1080 px square), `-thumb.webp` (up to 400 px) and `-small.webp` (up to 256 px, for list rows and small tiles), cached for a year |
-| Delivery           | Plain `<img>` tags pointing at the bucket's domain; no `next/image`, no proxy through our servers                                                                    |
-| Viewer             | `yet-another-react-lightbox` with the zoom, thumbnails and counter plugins                                                                                           |
-| Crop               | `react-image-crop` in the admin; the backend renders the crop from the original                                                                                      |
-| Env vars           | `R2_ENDPOINT` plus `R2_PUBLIC_BUCKET`, `R2_PUBLIC_ACCESS_KEY_ID`, `R2_PUBLIC_SECRET_ACCESS_KEY`, `R2_PUBLIC_URL` (backend)                                           |
-| Off switch         | Any of those five blank: no photos anywhere, uploads answer 503, the jobs copy nothing                                                                               |
-| Admin entry points | "Uredi slike" on a product page, and the "Slike proizvoda" tab in `/dashboard`                                                                                       |
-| Introduced in      | PR #372 (product photos from Open Food Facts and users, with admin curation)                                                                                         |
+| Thing              | Value                                                                                                                                                                 |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sources            | Open Food Facts (CC BY-SA, credited in the terms of service) and photos uploaded by users and admins                                                                  |
+| Storage            | The server's disk: `products/` in `PUBLIC_PHOTO_DIR`, served by the `images` nginx service on its own hostname; user originals in `product-originals/` in `PHOTO_DIR` |
+| Files served       | `products/<ean>/<hash>.webp` (up to 1080 px square), `-thumb.webp` (up to 400 px) and `-small.webp` (up to 256 px, for list rows and small tiles), cached for a year  |
+| Delivery           | Plain `<img>` tags pointing at the image hostname; no `next/image`, no proxy through the app                                                                          |
+| Viewer             | `yet-another-react-lightbox` with the zoom, thumbnails and counter plugins                                                                                            |
+| Crop               | `react-image-crop` in the admin; the backend renders the crop from the original                                                                                       |
+| Env vars           | `PHOTO_DIR`, `PUBLIC_PHOTO_DIR`, `R2_PUBLIC_URL` (backend)                                                                                                            |
+| Off switch         | `PUBLIC_PHOTO_DIR` or `R2_PUBLIC_URL` blank: no photos anywhere, uploads answer 503, the jobs copy nothing                                                            |
+| Admin entry points | "Uredi slike" on a product page, and the "Slike proizvoda" tab in `/dashboard`                                                                                        |
+| Introduced in      | PR #372 (product photos from Open Food Facts and users, with admin curation)                                                                                          |
 
 ---
 
@@ -30,11 +30,11 @@ flowchart TD
     W[Weekly import] -->|cijene daily archive| S[product_image_set:<br/>name, brand, store listings]
     W -->|Open Food Facts export| C[CANDIDATE rows<br/>one front photo per EAN]
     A[Admin: Dohvati s Open Food Factsa] -->|OFF product API, 10 a minute| C
-    U[User or admin upload] -->|JPEG prepared in the browser| O[Sanitized original<br/>private bucket]
+    U[User or admin upload] -->|JPEG prepared in the browser| O[Sanitized original<br/>private photo folder]
     O --> R
     C -->|main photo, most widely sold first| J[Render job every 15 s]
     J --> R[ProductImageRenderer<br/>rotate, crop, white square]
-    R --> P["Public bucket<br/>products/ean/hash.webp, -thumb.webp, -small.webp"]
+    R --> P["Public photo folder<br/>products/ean/hash.webp, -thumb.webp, -small.webp"]
     P -->|smallUrl, thumbUrl, fullUrl| B[Browser img tags]
     P -->|fullUrl of a confirmed main photo| LD[JSON-LD image]
     P -->|fullUrl of a confirmed main photo| CARD["Share card route<br/>1200x630 JPEG"]
@@ -45,9 +45,9 @@ Step by step:
 
 1. **Catalogue.** Once a week the backend reads the latest cijene daily archive into `product_image_set`: one row per EAN with its name, brand and how widely it is sold (`store_listings`, the priced store rows). That popularity orders every queue, and the same table feeds the product sitemap ([PRODUCTS.md §6](PRODUCTS.md#6-seo-metadata-json-ld-and-sitemaps)).
 2. **Candidates.** The same import streams the Open Food Facts export and records the selected front photo of every EAN we carry as a `CANDIDATE`. Nothing is downloaded yet.
-3. **Copy.** Every 15 seconds the render job takes up to 10 main photos that are not copied yet, downloads each from Open Food Facts, renders it, and writes the three WebP files to the public bucket. When no main photo is waiting, the same tick re-renders up to 10 photos copied before WebP (see [§6](#6-rendering-and-the-white-background)).
-4. **Uploads.** A user's upload is sanitized, kept as an original in the private bucket, and rendered at once.
-5. **Show.** The public API returns `smallUrl`, `thumbUrl` and `fullUrl` for each visible photo (`smallUrl` falls back to the thumb on photos rendered before the small file existed). The browser loads them directly from the bucket's domain.
+3. **Copy.** Every 15 seconds the render job takes up to 10 main photos that are not copied yet, downloads each from Open Food Facts, renders it, and writes the three WebP files to the public photo folder. When no main photo is waiting, the same tick re-renders up to 10 photos copied before WebP (see [§6](#6-rendering-and-the-white-background)).
+4. **Uploads.** A user's upload is sanitized, kept as an original in the private photo folder, and rendered at once.
+5. **Show.** The public API returns `smallUrl`, `thumbUrl` and `fullUrl` for each visible photo (`smallUrl` falls back to the thumb on photos rendered before the small file existed). The browser loads them directly from the image hostname.
 
 ---
 
@@ -67,7 +67,7 @@ Their API allows 15 product reads a minute per IP and may ban an IP that goes ov
 
 | Status      | Meaning                                                      | Shown to users                                                                                                    |
 | ----------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| `CANDIDATE` | Known on Open Food Facts, not copied into our bucket yet     | no                                                                                                                |
+| `CANDIDATE` | Known on Open Food Facts, not copied into our store yet      | no                                                                                                                |
 | `PENDING`   | A user photo nobody has confirmed                            | only while it is the main photo, with a badge, and never outside the app (see [§7](#7-how-photos-reach-the-page)) |
 | `VERIFIED`  | Open Food Facts, admin, or a confirmed user photo            | yes                                                                                                               |
 | `HIDDEN`    | Hidden by the admin, or skipped because it could not be read | no                                                                                                                |
@@ -81,14 +81,14 @@ Their API allows 15 product reads a minute per IP and may ban an IP that goes ov
 
 ## 5. Background jobs
 
-All in `ProductImageJobs`, all off when `product-images.jobs.enabled=false` (the test profile). Without the public bucket only the catalogue part of the weekly import runs, because the product sitemap reads it; the Open Food Facts seed and photo copying wait for the bucket.
+All in `ProductImageJobs`, all off when `product-images.jobs.enabled=false` (the test profile). Without the public photo store only the catalogue part of the weekly import runs, because the product sitemap reads it; the Open Food Facts seed and photo copying wait for the store.
 
-| Job                | When                                                                                                                                    | What                                                                                                                                                                                       |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Weekly import      | checked every 6 h; each part runs when its own last run is over 7 days old, and the seed also runs right after a fresh catalogue import | cijene archive into `product_image_set` (name, brand, store listings, chain count), then the Open Food Facts seed once the bucket is on; a failed import does not block a seed that is due |
-| Render main photos | every 15 s, 10 at a time                                                                                                                | copies uncopied main photos into the bucket, most widely sold first, one download at a time                                                                                                |
+| Job                | When                                                                                                                                    | What                                                                                                                                                                                      |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Weekly import      | checked every 6 h; each part runs when its own last run is over 7 days old, and the seed also runs right after a fresh catalogue import | cijene archive into `product_image_set` (name, brand, store listings, chain count), then the Open Food Facts seed once the store is on; a failed import does not block a seed that is due |
+| Render main photos | every 15 s, 10 at a time                                                                                                                | copies uncopied main photos into the store, most widely sold first, one download at a time                                                                                                |
 
-The first weekly check runs 10 minutes after startup and the first render 2 minutes after. The last catalogue import (`weekly-import`) and the last Open Food Facts seed (`photo-seed`) are stored separately in `product_image_import_run`, so a redeploy does not download the export again, and turning the bucket on mid-week seeds at the next 6-hour check instead of waiting for the next catalogue week. The jobs share a scheduler pool of four threads (`spring.task.scheduling.pool.size`), so the long weekly import never holds back card purges or photo copying.
+The first weekly check runs 10 minutes after startup and the first render 2 minutes after. The last catalogue import (`weekly-import`) and the last Open Food Facts seed (`photo-seed`) are stored separately in `product_image_import_run`, so a redeploy does not download the export again, and turning the store on mid-week seeds at the next 6-hour check instead of waiting for the next catalogue week. The jobs share a scheduler pool of four threads (`spring.task.scheduling.pool.size`), so the long weekly import never holds back card purges or photo copying.
 
 How the render job treats a failure is in [§16](#16-failure-modes).
 
@@ -133,15 +133,15 @@ The gallery is fetched in the browser, not seeded by the server render, so the s
 
 **Caching.**
 
-| Layer              | Rule                                                                                                                       |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------- |
-| R2 objects         | `Cache-Control: public, max-age=31536000, immutable`, set on every put; safe because the key carries the hash              |
-| Image list APIs    | `GET /{ean}/images` and `/images/thumbnails` answer `Cache-Control: no-cache`, so a new main photo shows on the next fetch |
-| Catalogue EAN list | `public, max-age=3600`, and the sitemap fetch revalidates every hour                                                       |
-| React Query        | Photo queries are fresh for 5 minutes; a missing thumbnail is not retried. Photo queries are not persisted to IndexedDB    |
-| Service worker     | The bucket is cross-origin, so it has no rule of its own in `app/sw.ts` and falls under Serwist's `defaultCache` rules     |
+| Layer              | Rule                                                                                                                           |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `images` service   | `Cache-Control: public, max-age=31536000, immutable` on every file; safe because the key carries the hash                      |
+| Image list APIs    | `GET /{ean}/images` and `/images/thumbnails` answer `Cache-Control: no-cache`, so a new main photo shows on the next fetch     |
+| Catalogue EAN list | `public, max-age=3600`, and the sitemap fetch revalidates every hour                                                           |
+| React Query        | Photo queries are fresh for 5 minutes; a missing thumbnail is not retried. Photo queries are not persisted to IndexedDB        |
+| Service worker     | The image hostname is cross-origin, so it has no rule of its own in `app/sw.ts` and falls under Serwist's `defaultCache` rules |
 
-**CSP.** `img-src 'self' data: blob: https:` in `frontend/src/utils/content-security-policy.ts` already allows any `https:` image, so the bucket's domain needs no entry. The admin crop screen shows the private original as a `blob:` URL, which the same rule allows.
+**CSP.** `img-src 'self' data: blob: https:` in `frontend/src/utils/content-security-policy.ts` already allows any `https:` image, so the image hostname needs no entry. The admin crop screen shows the private original as a `blob:` URL, which the same rule allows.
 
 **Loading.** The main tile loads `eager`; every other tile is `lazy` with `decoding="async"`. Alt text is `productPhotos.photo.alt` with the product name.
 
@@ -157,7 +157,7 @@ The gallery is fetched in the browser, not seeded by the server render, so the s
 
 The browser side (decode, resize to a 2048 px long edge, JPEG at 0.82 stepping down until under 480 KB, white behind transparency, metadata stripped by the re-encode) is shared with avatars and card photos and is described in [IMAGE-UPLOADS.md](IMAGE-UPLOADS.md). Product photo uploads are always JPEG, because the renderer decodes only JPEG and PNG and the admin crops from the original; the public files rendered from it are WebP.
 
-On the server, `POST /api/products/{ean}/images` takes the multipart field `photo`, applies the same Spring multipart limits and `PhotoValidator` as card photos, then accepts JPEG only. The sanitized bytes are stored as `product-originals/<ean>/<uuid>.jpg` through the `productOriginalStore` bean ([server disk storage](#storage-on-the-servers-disk) gives them their own folder; on R2 they stay in the private card photo bucket), and `ProductImageRenderer` writes the public files. A user may upload 10 photos per 10 minutes (the `productPhotoUploadLimiter` bean in `config/UploadLimitConfig.java`, in memory per instance, which drops expired windows every 5 minutes); admins are exempt.
+On the server, `POST /api/products/{ean}/images` takes the multipart field `photo`, applies the same Spring multipart limits and `PhotoValidator` as card photos, then accepts JPEG only. The sanitized bytes are stored as `product-originals/<ean>/<uuid>.jpg` through the `productOriginalStore` bean (their own folder on [the server's disk](#storage-on-the-servers-disk)), and `ProductImageRenderer` writes the public files. A user may upload 10 photos per 10 minutes (the `productPhotoUploadLimiter` bean in `config/UploadLimitConfig.java`, in memory per instance, which drops expired windows every 5 minutes); admins are exempt.
 
 A user's upload starts `PENDING` and flags the product for review; an admin's upload is `VERIFIED`, pinned as the main photo, and marks the product reviewed.
 
@@ -210,7 +210,7 @@ The browser reaches all of them through the backend proxy ([BACKEND-PROXY.md](BA
 
 ## 12. Tests
 
-Not covered by tests: a real upload to R2, durability of the disk stores across a power cut (the sync calls run, but no test can prove they reach the platter), the real Open Food Facts export, how photos look under dark mode extensions, and how the share card looks; those need a manual check.
+Not covered by tests: durability of the disk stores across a power cut (the sync calls run, but no test can prove they reach the platter), the real Open Food Facts export, how photos look under dark mode extensions, and how the share card looks; those need a manual check.
 
 ---
 
@@ -219,7 +219,6 @@ Not covered by tests: a real upload to R2, durability of the disk stores across 
 | File                                                            | What                                                                                     |
 | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | `backend/.../storage/AtomicFileStore.java`                      | Key validation and atomic writes shared by every disk store                              |
-| `backend/.../storage/R2Clients.java`                            | The S3 client both buckets use                                                           |
 | `frontend/src/app/[locale]/products/components/product-photos/` | The product page gallery and strip; `../product-overview.tsx` lays it out with the facts |
 | `frontend/src/app/og/products/[ean]/[file]/route.tsx`           | The share card route: fallbacks and redirects                                            |
 | `frontend/src/app/og/render-product-og.tsx`                     | The share card layout, JPEG encoding and cache header                                    |
@@ -232,31 +231,28 @@ Not covered by tests: a real upload to R2, durability of the disk stores across 
 
 ## 14. Config and env vars
 
-All backend, runtime; a change needs a backend restart, not a rebuild. Set them in Dokploy per environment; [INFRASTRUCTURE.md](INFRASTRUCTURE.md#product-photo-env-vars) has the bucket setup.
+All backend, runtime; a change needs a backend restart, not a rebuild. Set them in Dokploy per environment; [INFRASTRUCTURE.md](INFRASTRUCTURE.md#photo-storage-on-the-server) has the volumes and the `images` domain.
 
-| Var                           | Required for photos | What it controls                                                                                                 |
-| ----------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `R2_ENDPOINT`                 | yes                 | The EU R2 endpoint, shared with the card photo bucket                                                            |
-| `R2_PUBLIC_BUCKET`            | yes                 | The public product photo bucket                                                                                  |
-| `R2_PUBLIC_ACCESS_KEY_ID`     | yes, secret         | A token scoped to that one bucket, object read and write                                                         |
-| `R2_PUBLIC_SECRET_ACCESS_KEY` | yes, secret         | Its secret                                                                                                       |
-| `R2_PUBLIC_URL`               | yes                 | The bucket's public `https://` domain                                                                            |
-| `R2_BUCKET` and its key pair  | for uploads only    | The private bucket that keeps upload originals ([DIGITAL-CARDS.md §13](DIGITAL-CARDS.md#13-config-and-env-vars)) |
+| Var                | Required for photos | What it controls                                                                                                |
+| ------------------ | ------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `PUBLIC_PHOTO_DIR` | yes                 | The folder holding `products/`, the rendered public files (`/data/photos-public` in the Dokploy compose files)  |
+| `R2_PUBLIC_URL`    | yes                 | The image hostname that serves `products/`, `https://` and no trailing slash; read as `photos.public-url`       |
+| `PHOTO_DIR`        | for uploads only    | The folder holding `product-originals/`, the upload originals, next to the card photos (`/data/photos-private`) |
 
 Properties with defaults, not env vars: `product-images.jobs.enabled` (true; false in the test profile), `product-images.catalog.list-url` (the cijene `v0/list`), `product-images.off.api-base` and `product-images.off.export-url` (Open Food Facts), `spring.task.scheduling.pool.size=4`.
 
 ### Storage on the server's disk
 
-Issue #486 moves photos from R2 to folders on the server. The code for it is in place and off by default: with `PHOTO_DIR` and `PUBLIC_PHOTO_DIR` blank everything stays on R2. `docker-compose.images.yml` and `docker-compose.prod.yml` mount the `photos-private` and `photos-public` volumes on the backend at `/data/photos-private` and `/data/photos-public`, so those are the values to set. A one-shot `photo-folders` service creates the three folders owned by uid 1001 before the backend starts, and the `images` service (nginx, read-only) serves `products/` on the image hostname with `Cache-Control: public, max-age=31536000, immutable`; it refuses anything else (404, or 403 for a bare folder), `.tmp-*` included. Dokploy routes the image hostname to `images` on port 80 as a domain of the compose service.
+Issue #486 moved photos from R2 to folders on the server, and the disk is now the only photo store: with `PHOTO_DIR` or `PUBLIC_PHOTO_DIR` blank, those photos are off. Dev has run on disk since 04.11.2026; production gets it when it moves to `docker-compose.images.yml` ([INFRASTRUCTURE.md](INFRASTRUCTURE.md#photo-storage-on-the-server)). `docker-compose.images.yml` and `docker-compose.prod.yml` mount the `photos-private` and `photos-public` volumes on the backend at `/data/photos-private` and `/data/photos-public`, so those are the values to set. A one-shot `photo-folders` service creates the three folders owned by uid 1001 before the backend starts, and the `images` service (nginx, read-only) serves `products/` on the image hostname with `Cache-Control: public, max-age=31536000, immutable`; it refuses anything else (404, or 403 for a bare folder), `.tmp-*` included. Dokploy routes the image hostname to `images` on port 80 as a domain of the compose service.
 
-| Var                | What it controls                                                        | Folders it needs inside                                              |
-| ------------------ | ----------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `PHOTO_DIR`        | Server only, optional. When set, card photos and originals use the disk | `cards/` (card photos) and `product-originals/` (product originals)  |
-| `PUBLIC_PHOTO_DIR` | Server only, optional. When set, public product photos use the disk     | `products/`; URLs still come from `R2_PUBLIC_URL`, the same hostname |
+| Var                | What it controls                                               | Folders it needs inside                                             |
+| ------------------ | -------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `PHOTO_DIR`        | Server only, optional. Blank turns card photos and uploads off | `cards/` (card photos) and `product-originals/` (product originals) |
+| `PUBLIC_PHOTO_DIR` | Server only, optional. Blank turns product photos off          | `products/`; URLs come from `R2_PUBLIC_URL`, the image hostname     |
 
-**One switch per store.** Each store is off while its own folder is missing or not writable, checked on every call, so creating the folder turns it on without a restart. Without `product-originals/` uploads answer 503 while Open Food Facts photos and public reads keep working. Without `cards/` card photos answer 503, on upload and on read, and product uploads carry on. Without `products/` the read APIs return empty lists. A set directory never falls back to R2, because that would split photos across two stores.
+**One switch per store.** Each store is off while its own folder is missing or not writable, checked on every call, so creating the folder turns it on without a restart. Without `product-originals/` uploads answer 503 while Open Food Facts photos and public reads keep working. Without `cards/` card photos answer 503, on upload and on read, and product uploads carry on. Without `products/` the read APIs return empty lists.
 
-**Keys are paths.** A key is the file's path below the directory, so an `rclone copy` of a bucket lands every file where the database expects it. `AtomicFileStore` accepts only plain path segments and only keys inside the store's own folder, so the card store cannot read or delete an original, nor the reverse. Each store is also injected by its own qualifier, so the card code cannot be handed the originals.
+**Keys are paths.** A key is the file's path below the directory, so an `rclone copy` of a retired R2 bucket or a backup lands every file where the database expects it. `AtomicFileStore` accepts only plain path segments and only keys inside the store's own folder, so the card store cannot read or delete an original, nor the reverse. Each store is also injected by its own qualifier, so the card code cannot be handed the originals.
 
 **Writes.** A write goes to `.tmp-<random>` beside the target, is synced, renamed over the target, and the directory is synced. A reader sees the old file or the whole new one, and a write that returned survives a power cut. A failed write, usually a full disk, is logged as an error and answers 503.
 
@@ -266,7 +262,7 @@ Issue #486 moves photos from R2 to folders on the server. The code for it is in 
 - The hourly backup skips `.tmp-*`, which holds unfinished writes. A crash can leave one behind: under `cards/` an erasure removes it, elsewhere nothing sweeps it yet.
 - Copy `product-originals/` before the first deploy with `PHOTO_DIR` set, or crops of existing uploads answer 404 until it arrives.
 - nginx runs under another uid, so public files are `644` in `755` directories and private ones `600` in `700`. Files copied in by hand need the same owner (1001) and modes.
-- `R2_PUBLIC_URL` keeps its name for now even on disk.
+- `R2_PUBLIC_URL` keeps its R2 era name on purpose; the backend reads it as `photos.public-url`.
 - Directory sync works on Linux only, so these stores do not run on Windows.
 
 ---
@@ -278,7 +274,6 @@ Versions are in `frontend/package.json` and `backend/pom.xml`. The ones whose ro
 - `yet-another-react-lightbox`: the viewer, with its zoom, thumbnails and counter plugins.
 - `react-image-crop`: the admin crop screen.
 - `sharp`: encodes the share card as JPEG.
-- `software.amazon.awssdk` (BOM): `s3` and `url-connection-client` for both R2 buckets.
 - JDK ImageIO: decoding, and JPEG encoding of originals on the backend.
 - `webp-imageio`: WebP encoding of the public files (bundles libwebp).
 
@@ -288,15 +283,15 @@ Versions are in `frontend/package.json` and `backend/pom.xml`. The ones whose ro
 
 | What fails                                                                                          | What the user sees                                                         | What the system does                                                                                                                                                                                                                                                     |
 | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Any of the five public bucket variables blank                                                       | No photos; the empty tile; uploads answer 503 "unavailable"                | `DisabledPhotoStore`: the read APIs return empty lists, only the catalogue part of the weekly import runs                                                                                                                                                                |
-| The private bucket blank, or the `product-originals` folder missing                                 | Photos show, uploads, crops of uploads and the admin's original answer 503 | Uploads need both stores; Open Food Facts photos keep rendering because they never read an original                                                                                                                                                                      |
+| `PUBLIC_PHOTO_DIR` or `R2_PUBLIC_URL` blank, or the `products` folder missing                       | No photos; the empty tile; uploads answer 503 "unavailable"                | `DisabledPhotoStore`: the read APIs return empty lists, only the catalogue part of the weekly import runs                                                                                                                                                                |
+| `PHOTO_DIR` blank, or the `product-originals` folder missing                                        | Photos show, uploads, crops of uploads and the admin's original answer 503 | Uploads need both stores; Open Food Facts photos keep rendering because they never read an original                                                                                                                                                                      |
 | Open Food Facts photo unreadable, gone (404, 410), too large (15 MB cap) or a key that forms no URL | Nothing; the next pick takes the slot                                      | Hidden with `hidden_reason` `JOB_SKIPPED`, so it cannot block the queue; it comes back as a candidate when the weekly seed or "Dohvati" finds a new revision. An admin hide (`ADMIN`, or no reason on rows hidden before the column existed) never comes back on its own |
 | Any other answer for one image (403, 500)                                                           | Nothing yet                                                                | That photo waits an hour (`render_retry_at`); the fifth failure (`render_attempts`) skips it so the next pick or an upload takes the main slot                                                                                                                           |
-| Rate limiting (429), gateway errors (502 to 504), network or bucket trouble                         | Nothing yet                                                                | The whole batch pauses and retries at the next tick                                                                                                                                                                                                                      |
+| Rate limiting (429), gateway errors (502 to 504), network trouble                                   | Nothing yet                                                                | The whole batch pauses and retries at the next tick                                                                                                                                                                                                                      |
 | An admin edits a photo while the job downloads it                                                   | The admin's change wins                                                    | The job reads the row again before writing and drops its result when the photo is no longer an uncopied candidate, has a new revision or a new crop                                                                                                                      |
 | A crop is rolled back                                                                               | The old files keep showing                                                 | Replaced files are deleted only after the database commit                                                                                                                                                                                                                |
 | The backend is slow or down during a product page render                                            | The page renders; share image falls back to the brand image                | `getVerifiedMainPhotoUrl` gives up after 3 seconds and returns `null`                                                                                                                                                                                                    |
-| The bucket or backend fails while a share card is requested                                         | The preview shows the brand image                                          | The card route answers an uncached 302 to the brand image, so the next request tries again                                                                                                                                                                               |
+| The image host or backend fails while a share card is requested                                     | The preview shows the brand image                                          | The card route answers an uncached 302 to the brand image, so the next request tries again                                                                                                                                                                               |
 | The backend is down when a crawler fetches a product sitemap                                        | Sitemap answers 500                                                        | Deliberate: crawlers retry a 500, an empty sitemap would drop every URL                                                                                                                                                                                                  |
 | The thumbnails request fails                                                                        | Cards show no photo                                                        | Not retried; the next list load asks again                                                                                                                                                                                                                               |
 | A user uploads too often                                                                            | 429 with a message                                                         | 10 per 10 minutes per user, swept every 5 minutes                                                                                                                                                                                                                        |
@@ -307,17 +302,17 @@ A successful copy clears `render_attempts` and `render_retry_at`.
 
 ## 17. What is automatic vs manual
 
-| Task                                                 | Automatic? | Who and where                                                                                        |
-| ---------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------- |
-| Weekly catalogue import and Open Food Facts seed     | ✅ auto    | backend job                                                                                          |
-| Copying main photos into the bucket                  | ✅ auto    | backend job, a few thousand an hour                                                                  |
-| Picking a main photo when nobody pinned one          | ✅ auto    | `MainPicker` on every change                                                                         |
-| Rendering an upload                                  | ✅ auto    | on upload                                                                                            |
-| **Creating the public bucket, its domain and token** | ❌ manual  | Owner, Cloudflare dashboard once (see [INFRASTRUCTURE.md](INFRASTRUCTURE.md#product-photo-env-vars)) |
-| **Setting the `R2_PUBLIC_*` variables**              | ❌ manual  | Agent or owner, Dokploy per environment, then restart the backend                                    |
-| **Choosing the best photo for popular products**     | ❌ manual  | An admin, the dashboard queue                                                                        |
-| **Handling reports**                                 | ❌ manual  | An admin, the `reported` filter                                                                      |
-| **Adding an `ImageStatus` or `ImageSource` value**   | ❌ manual  | Agent, updating the CHECK constraint in every database that has it (see [§18](#18-gotchas))          |
+| Task                                                            | Automatic? | Who and where                                                                                                          |
+| --------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Weekly catalogue import and Open Food Facts seed                | ✅ auto    | backend job                                                                                                            |
+| Copying main photos into the store                              | ✅ auto    | backend job, a few thousand an hour                                                                                    |
+| Picking a main photo when nobody pinned one                     | ✅ auto    | `MainPicker` on every change                                                                                           |
+| Rendering an upload                                             | ✅ auto    | on upload                                                                                                              |
+| **Adding the `images` domain in Dokploy**                       | ❌ manual  | Agent or owner, once per environment, port 80 (see [INFRASTRUCTURE.md](INFRASTRUCTURE.md#photo-storage-on-the-server)) |
+| **Setting `PHOTO_DIR`, `PUBLIC_PHOTO_DIR` and `R2_PUBLIC_URL`** | ❌ manual  | Agent or owner, Dokploy per environment, then restart the backend                                                      |
+| **Choosing the best photo for popular products**                | ❌ manual  | An admin, the dashboard queue                                                                                          |
+| **Handling reports**                                            | ❌ manual  | An admin, the `reported` filter                                                                                        |
+| **Adding an `ImageStatus` or `ImageSource` value**              | ❌ manual  | Agent, updating the CHECK constraint in every database that has it (see [§18](#18-gotchas))                            |
 
 ---
 
@@ -328,7 +323,7 @@ A successful copy clears `render_attempts` and `render_retry_at`.
 - **Barcodes are matched without leading zeros.** Sources disagree about padding.
 - **Public files are WebP, originals stay JPEG.** The browser always sends JPEG and the sanitized original keeps that format; only the rendered public files are WebP, through `webp-imageio`. That library is written in Kotlin, so `pom.xml` overrides `kotlin.version` to the one it is built against.
 - **The share card converts the photo to JPEG first.** `render-product-og.tsx` re-encodes the fetched photo with `sharp` before handing it to Satori, whose docs never list WebP; a test renders a WebP photo and checks it lands in the card.
-- **`R2_PUBLIC_URL` must be `https://`.** The Content Security Policy allows images only from `https:`, so a local `http://` S3 stand-in shows broken images unless you widen `img-src` while testing.
+- **`R2_PUBLIC_URL` must be `https://`.** The Content Security Policy allows images only from `https:`, so a local `http://` image host shows broken images unless you widen `img-src` while testing.
 - **Never use `next/image` or a CSS background for a product photo.** The optimizer would proxy files that are already sized, and a CSS background is what dark mode extensions hide or invert.
 - **Photos exist only for barcode shaped ids.** The backend accepts 8 to 14 digits (`Barcodes.isEanShape`), while cijene also has longer codes and `<chain>:<code>` ids. For those, `GET /{ean}/images` answers 400, the thumbnails request drops them, and the product page falls back to the brand share image.
 - **Never reuse a key.** The year-long immutable cache is only safe because a new render gets a new hash; writing new bytes to an old key would leave every browser on the old photo.
@@ -340,5 +335,5 @@ A successful copy clears `render_attempts` and `render_retry_at`.
 ## 19. Future work
 
 - #463: remove the background from card and product photos with an AI model, so every product sits on the same clean white.
-- #486: move these photos from R2 to the server's disk and decide what account deletion does with a user's originals and `contributor_id` (today nothing deletes an original).
-- Moving avatars from Postgres base64 to the public bucket (decided, separate PR).
+- #486: decide what account deletion does with a user's originals and `contributor_id` (today nothing deletes an original).
+- Moving avatars from Postgres base64 to the public photo store (decided, separate PR).
