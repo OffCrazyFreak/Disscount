@@ -1,7 +1,7 @@
 import { router, searchBarShell } from "@/test/search-bar-harness";
 import { act, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import ProductSearchBar from "@/components/custom/search/product-search-bar";
 import SearchBar, {
@@ -46,20 +46,6 @@ describe("a navigation landing after the field moved on", () => {
     router.search = "";
     router.push.mockClear();
     router.replace.mockClear();
-    vi.stubGlobal("matchMedia", () => ({
-      matches: false,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-    }));
-    // The clear button's tooltip measures itself when focus opens it.
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
   });
 
   // The store outlives a test, so hand the next one an empty draft on an empty URL.
