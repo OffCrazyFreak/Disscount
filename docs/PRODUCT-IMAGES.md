@@ -32,18 +32,18 @@ How Disscount shows product photos: where they come from, how they are stored an
 
 ## 1. Quick reference
 
-| Thing              | Value                                                                                                                                                |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Sources            | Open Food Facts (CC BY-SA, credited in the terms of service) and photos uploaded by users and admins                                                 |
-| Storage            | Public R2 bucket (EU jurisdiction) behind its own domain; user originals in the private card photo bucket                                            |
-| Files served       | `products/<ean>/<hash>.webp` (up to 1080 px square), `-thumb.webp` (up to 400 px) and `-small.webp` (up to 192 px, for list rows), cached for a year |
-| Delivery           | Plain `<img>` tags pointing at the bucket's domain; no `next/image`, no proxy through our servers                                                    |
-| Viewer             | `yet-another-react-lightbox` with the zoom, thumbnails and counter plugins                                                                           |
-| Crop               | `react-image-crop` in the admin; the backend renders the crop from the original                                                                      |
-| Env vars           | `R2_ENDPOINT` plus `R2_PUBLIC_BUCKET`, `R2_PUBLIC_ACCESS_KEY_ID`, `R2_PUBLIC_SECRET_ACCESS_KEY`, `R2_PUBLIC_URL` (backend)                           |
-| Off switch         | Any of those five blank: no photos anywhere, uploads answer 503, the jobs copy nothing                                                               |
-| Admin entry points | "Uredi slike" on a product page, and the "Slike proizvoda" tab in `/dashboard`                                                                       |
-| Introduced in      | PR #372 (product photos from Open Food Facts and users, with admin curation)                                                                         |
+| Thing              | Value                                                                                                                                                                |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sources            | Open Food Facts (CC BY-SA, credited in the terms of service) and photos uploaded by users and admins                                                                 |
+| Storage            | Public R2 bucket (EU jurisdiction) behind its own domain; user originals in the private card photo bucket                                                            |
+| Files served       | `products/<ean>/<hash>.webp` (up to 1080 px square), `-thumb.webp` (up to 400 px) and `-small.webp` (up to 256 px, for list rows and small tiles), cached for a year |
+| Delivery           | Plain `<img>` tags pointing at the bucket's domain; no `next/image`, no proxy through our servers                                                                    |
+| Viewer             | `yet-another-react-lightbox` with the zoom, thumbnails and counter plugins                                                                                           |
+| Crop               | `react-image-crop` in the admin; the backend renders the crop from the original                                                                                      |
+| Env vars           | `R2_ENDPOINT` plus `R2_PUBLIC_BUCKET`, `R2_PUBLIC_ACCESS_KEY_ID`, `R2_PUBLIC_SECRET_ACCESS_KEY`, `R2_PUBLIC_URL` (backend)                                           |
+| Off switch         | Any of those five blank: no photos anywhere, uploads answer 503, the jobs copy nothing                                                                               |
+| Admin entry points | "Uredi slike" on a product page, and the "Slike proizvoda" tab in `/dashboard`                                                                                       |
+| Introduced in      | PR #372 (product photos from Open Food Facts and users, with admin curation)                                                                                         |
 
 ---
 
@@ -121,7 +121,7 @@ How the render job treats a failure is in [§16](#16-failure-modes).
 
 ## 6. Rendering and the white background
 
-`ProductImageRenderer` decodes the source (JPEG or PNG, at most 10,000 px a side and 24 megapixels), paints it on white, rotates by a multiple of 90 degrees, crops, centres it on a white square with a 4% margin and writes three WebP files: 1080 px (`FULL_SIDE`), 400 px (`THUMB_SIDE`) and 192 px (`SMALL_SIDE`, for list rows, sharp at 64 CSS px on 3x screens). Each starts at quality 0.80 and steps down (0.70, 0.60, 0.50) until it fits its ceiling: 200 KB full, 60 KB thumb, 20 KB small. The lowest step is kept even if a very noisy photo still exceeds it, and that case is logged. WebP at 0.80 measured about half the bytes of the earlier JPEG at 0.86 on dev photos ([#563](https://github.com/OffCrazyFreak/Disscount/issues/563)). The encoder is `com.github.usefulness:webp-imageio`, which bundles libwebp for Linux x86_64 and arm64; the JDK cannot write WebP. It never upscales, and a crop must be at least 16 px a side. The crop is stored as `x, y, width, height` in pixels of the rotated original plus the rotation, like Open Food Facts stores it, so a new crop always starts from the original.
+`ProductImageRenderer` decodes the source (JPEG or PNG, at most 10,000 px a side and 24 megapixels), paints it on white, rotates by a multiple of 90 degrees, crops, centres it on a white square with a 4% margin and writes three WebP files: 1080 px (`FULL_SIDE`), 400 px (`THUMB_SIDE`) and 256 px (`SMALL_SIDE`, for list rows and other small tiles, sharp up to about 128 CSS px on 2x screens). Each starts at quality 0.80 and steps down (0.70, 0.60, 0.50) until it fits its ceiling: 200 KB full, 60 KB thumb, 30 KB small. The lowest step is kept even if a very noisy photo still exceeds it, and that case is logged. WebP at 0.80 measured about half the bytes of the earlier JPEG at 0.86 on dev photos ([#563](https://github.com/OffCrazyFreak/Disscount/issues/563)). The encoder is `com.github.usefulness:webp-imageio`, which bundles libwebp for Linux x86_64 and arm64; the JDK cannot write WebP. It never upscales, and a crop must be at least 16 px a side. The crop is stored as `x, y, width, height` in pixels of the rotated original plus the rotation, like Open Food Facts stores it, so a new crop always starts from the original.
 
 The key is `products/<ean>/<first 20 hex characters of the SHA-256 of the full file>.webp`, plus `-thumb.webp` and `-small.webp`. Photos rendered before the switch keep their `.jpg` keys and stay valid. The render job re-renders them in the background, most widely sold first, only while no new main photo waits and at the same one-at-a-time pace, because Open Food Facts photos are downloaded again (`findRenderedWithoutSmallFile`, `ProductImageRendering.rerender`). A re-render is dropped when an admin reframed or replaced the photo meanwhile, and a photo whose source keeps failing is tried five times an hour apart, then keeps its JPEG files. Until it is re-rendered a photo has no small file, so lists show its thumb. A new render is a new hash and so a new URL, which is what makes the one-year immutable cache safe.
 
@@ -131,14 +131,14 @@ The white is part of the file on purpose. Dark Reader's default mode recolours C
 
 ## 7. How photos reach the page
 
-**Direct URLs, no image optimizer.** The one exception is the share card below, which crawlers fetch from our server. The backend answers with absolute URLs on `R2_PUBLIC_URL` (`R2ProductImageStore.publicUrl`). The browser loads them with a plain `<img>` in `PhotoTile` (`components/custom/product-photos/photo-tile.tsx`), never `next/image`, so no request goes through our servers and `next.config.ts` needs no `images` setting. The files are already the right sizes and formats, including a 160 px file for list rows, so an optimizer would only add a hop.
+**Direct URLs, no image optimizer.** The one exception is the share card below, which crawlers fetch from our server. The backend answers with absolute URLs on `R2_PUBLIC_URL` (`R2ProductImageStore.publicUrl`). The browser loads them with a plain `<img>` in `PhotoTile` (`components/custom/product-photos/photo-tile.tsx`), never `next/image`, so no request goes through our servers and `next.config.ts` needs no `images` setting. The files are already the right sizes and formats, including a 256 px file for list rows and small tiles, so an optimizer would only add a hop.
 
 | Where                                          | File used                           | How it gets the URL                                                                                                                                 |
 | ---------------------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Product page gallery, main tile                | `thumbUrl` (400 px)                 | `useProductImages(ean)` in the browser, `GET /api/products/{ean}/images` through the backend proxy                                                  |
 | Product page gallery, thumbnails strip         | `thumbUrl`                          | Same response                                                                                                                                       |
 | Viewer (lightbox)                              | `fullUrl` (1080 px)                 | Same response                                                                                                                                       |
-| Product rows, shopping list rows, modal header | small (192 px), else thumb          | `useProductThumbnail(ean)`; `thumbnail-batcher.ts` gathers every ask within 15 ms into one `GET /api/products/images/thumbnails?eans=` of up to 100 |
+| Product rows, shopping list rows, modal header | small (256 px), else thumb          | `useProductThumbnail(ean)`; `thumbnail-batcher.ts` gathers every ask within 15 ms into one `GET /api/products/images/thumbnails?eans=` of up to 100 |
 | JSON-LD `image`                                | `fullUrl` of a confirmed main photo | `getVerifiedMainPhotoUrl` on the server (`lib/api/product-images/server.ts`), 3 second timeout, `null` when unconfirmed or on any failure           |
 | `og:image`, `twitter:image`                    | 1200x630 share card                 | `/og/products/<ean>/<version>.jpg`, composed from that same URL at request time; see below                                                          |
 
