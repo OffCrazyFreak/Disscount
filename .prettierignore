@@ -26,8 +26,7 @@
 !.agents/skills/document-subsystem
 !.agents/skills/worktree-checks
 
-# Private, secret-containing docs (also gitignored) and generated HTML
-docs/disscount_*
+# Generated HTML
 docs/*.html
 
 # Email HTML is pasted into an ESP verbatim; Prettier rewrites quoted font names
