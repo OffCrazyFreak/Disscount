@@ -114,6 +114,20 @@ jobs:
       - run: mvn -B verify
 
   # The other images are proven by the frontend and backend checks; this one is only built on push otherwise.
+  # Workflow files fail only when they run, often on the release or deploy path, so check them up front.
+  actionlint:
+    name: Workflow lint
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: docker://rhysd/actionlint:1.7.12
+        with:
+          args: -color
+
   backup-image:
     name: Backup image
     if: github.event_name == 'pull_request'
