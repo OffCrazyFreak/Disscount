@@ -102,11 +102,11 @@ Decrypt and restore `<timestamp>.globals.sql.age` first on a new server if roles
 
 A dump made before someone deleted their account still holds that account, so a restore would bring it back. The `erasure_ledger` row that records the deletion is in the database too, so it is lost with it. The markers keep that record outside the database: every minute the `erasure-markers` job writes one object per ledger row from the last 30 days that has none yet. Every dump a restore can use is at most 30 days old, so an older erasure is already inside all of them. A marker is named by `HMAC-SHA256(key, "<scope>:<user id>")` in hex, so someone reading the bucket cannot tell who left; `v1` is the key version, so a new key can start `v2` without a flag day. The job never overwrites a marker, because a locked one cannot be.
 
-The replay is a one-shot run of the backend image with the `erasure-replay` profile: no web server and no scheduled jobs. For every restored login or active profile whose marker exists, it runs the same `AccountErasureService` as a live deletion, then deletes the login the way better-auth would. It logs how many accounts it erased again, and fails, so the process exits non-zero, if the key is malformed or the folder holds anything but marker files. Run it once the database and photos are restored and before the app takes traffic, because a person signing in first would see their deleted account back:
+The replay is a one-shot run of the backend image with the `erasure-replay` profile: no web server and no scheduled jobs. For every restored login or active profile whose marker exists, it runs the same `AccountErasureService` as a live deletion, then deletes the login the way better-auth would. It logs how many accounts it erased again, and fails, so the process exits non-zero, if the key is malformed, the folder holds anything but marker files, or the folder is empty. An empty folder looks the same as a failed download, so when no account was deleted in the last 30 days, add `--erasure-replay.allow-empty=true`. Run it once the database and photos are restored and before the app takes traffic, because a person signing in first would see their deleted account back:
 
 ```bash
 rclone copy r2:<bucket>/_erasures/v1 ./erasures   # no crypt, the names are already hashes
-printf '%s' '<BACKUP_ERASURE_HMAC_KEY from the password manager>' > hmac.key
+read -rs key && printf '%s' "$key" > hmac.key && unset key   # paste BACKUP_ERASURE_HMAC_KEY; stays out of shell history
 docker compose -f docker-compose.images.yml run --rm --no-deps \
   -v "$PWD/erasures:/replay/markers:ro" -v "$PWD/hmac.key:/replay/hmac.key:ro" \
   backend --spring.profiles.active=erasure-replay \
@@ -127,6 +127,7 @@ Researched 4 November 2026 and decided by the owner. Dokploy schedules were reje
 - **A deploy replaces the container.** supercronic waits for a running job on shutdown, and `stop_grace_period` is 10 minutes; a job cut off anyway fails its ping and the next run starts clean.
 - **The container runs as root** to read `/etc/dokploy`, which holds root-only SSH keys. It mounts nothing writable from the host and has no Docker socket. The scratch restore runs as `postgres`.
 - **Photo volumes:** in `docker-compose.images.yml` the backend and the backup sidecar mount the same `photos-private` and `photos-public` volumes, so every photo the backend writes on disk is in the hourly copy. Before photos move to disk (`PHOTO_DIR` and `PUBLIC_PHOTO_DIR` blank) the volumes are empty; the job then copies nothing and still succeeds. A missing mount fails the job.
+- **Dokploy backups are older than the markers cover.** Until they retire, the Dokploy Backups tab keeps dumps for 60 days. Markers cover only the last 30, so restoring one of those older dumps also needs the `erasure_ledger` rows of the newest sidecar dump erased by hand. Prefer a sidecar dump.
 - **Bucket Lock means no fixing mistakes by deleting:** a bad upload stays until its lock ends. Test changes on a separate bucket.
 
 ## Future work
