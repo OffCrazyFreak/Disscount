@@ -47,17 +47,14 @@ update shopping_list_item i
         + case when i.is_checked then interval '1 day' else interval '0' end
   from ordered o where i.id = o.id;
 
--- Watchlist: added over five weeks; every third one has already fired a price alert,
--- and an alert the account really received is left alone.
+-- Watchlist: added over five weeks.
 with ordered as (
   select w.id, row_number() over (order by w.created_at) as n, s.now_utc
   from watchlist_item w join seed_user s on w.user_id = s.id
 )
 update watchlist_item w
   set created_at = o.now_utc - greatest(40 - o.n * 3, 1) * interval '1 day',
-      updated_at = o.now_utc - greatest(40 - o.n * 3, 1) * interval '1 day',
-      last_notified_at = case when o.n % 3 = 0
-        then o.now_utc - (o.n % 5 + 1) * interval '1 day' else w.last_notified_at end
+      updated_at = o.now_utc - greatest(40 - o.n * 3, 1) * interval '1 day'
   from ordered o where w.id = o.id;
 
 with ordered as (
