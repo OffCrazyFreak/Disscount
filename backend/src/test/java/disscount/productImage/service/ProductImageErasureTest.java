@@ -112,6 +112,18 @@ class ProductImageErasureTest {
     }
 
     @Test
+    void aFailedPublicFileDeleteFailsTheErasure() {
+        writes.upload(ana, EAN, jpeg(400, 300));
+        publicStore.failDeletes = true;
+        try {
+            assertThatThrownBy(() -> erasure.eraseContributor(ana)).isInstanceOf(IllegalStateException.class);
+        } finally {
+            publicStore.failDeletes = false;
+        }
+        assertThat(images.findByContributorId(ana)).hasSize(1);
+    }
+
+    @Test
     void aKeptPhotoCannotBeCroppedOnceItsOriginalIsGone() {
         writes.upload(ana, EAN, jpeg(400, 300));
         writes.upload(marko, EAN, jpeg(500, 300));
