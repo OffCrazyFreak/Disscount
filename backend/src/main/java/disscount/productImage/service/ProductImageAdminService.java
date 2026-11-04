@@ -6,10 +6,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import disscount.digitalCard.storage.PhotoStore;
 import disscount.digitalCard.storage.StoredPhoto;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.NotFoundException;
+import disscount.exceptions.ServiceUnavailableException;
 import disscount.productImage.dao.ProductImageReportRepository;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
@@ -25,6 +25,7 @@ import disscount.productImage.dto.ProductImageDtos.CropDto;
 import disscount.productImage.off.OffProductPhotos;
 import disscount.productImage.off.OpenFoodFactsClient;
 import disscount.productImage.render.ProductImageRenderer;
+import disscount.productImage.storage.ProductOriginalStore;
 import disscount.util.Timestamps;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -47,7 +48,7 @@ public class ProductImageAdminService {
     private final ProductImageViews views;
     private final OpenFoodFactsClient off;
     private final OffCandidateWriter candidates;
-    private final PhotoStore originals;
+    private final ProductOriginalStore originals;
 
     @Transactional(readOnly = true)
     public AdminQueuePageDto queue(String filter, int page, int size) {
@@ -162,6 +163,7 @@ public class ProductImageAdminService {
         ProductImage image = images.findById(imageId)
                 .filter(i -> i.getSource() != ImageSource.OPEN_FOOD_FACTS && i.getOriginalKey() != null)
                 .orElseThrow(ProductImageAdminService::notFound);
+        if (!originals.enabled()) throw new ServiceUnavailableException("error.productImage.unavailable");
         return originals.get(image.getOriginalKey()).orElseThrow(ProductImageAdminService::notFound);
     }
 

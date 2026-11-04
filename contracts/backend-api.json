@@ -9,6 +9,7 @@
     "LinkAccess" : [ "EDIT", "NONE", "SHOP", "VIEW" ],
     "ListAccess" : [ "EDIT", "NONE", "OWNER", "SHOP", "VIEW" ],
     "QueueFilter" : [ "PENDING", "REPORTED", "TODO" ],
+    "Visibility" : [ "OWNER_ONLY", "WORLD_READABLE" ],
     "WatchType" : [ "ABSOLUTE", "PERCENTAGE" ]
   },
   "schemas" : {

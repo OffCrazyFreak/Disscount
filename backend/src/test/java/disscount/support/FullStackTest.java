@@ -3,8 +3,10 @@ package disscount.support;
 import disscount.digitalCard.service.FakePhotoStore;
 import disscount.digitalCard.storage.PhotoStore;
 import disscount.productImage.FakeProductImageStore;
+import disscount.productImage.FakeProductOriginalStore;
 import disscount.productImage.off.OpenFoodFactsClient;
 import disscount.productImage.storage.ProductImageStore;
+import disscount.productImage.storage.ProductOriginalStore;
 import disscount.user.dao.AuthIdentityDao;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
@@ -47,6 +49,8 @@ public abstract class FullStackTest {
     protected PhotoStore photoStore;
     @TestBean(methodName = "disscount.support.FullStackTest#fakeProductImageStore")
     protected ProductImageStore productImageStore;
+    @TestBean(methodName = "disscount.support.FullStackTest#fakeProductOriginalStore")
+    protected ProductOriginalStore productOriginalStore;
 
     static PhotoStore fakePhotoStore() {
         return new FakePhotoStore();
@@ -54,6 +58,10 @@ public abstract class FullStackTest {
 
     static ProductImageStore fakeProductImageStore() {
         return new FakeProductImageStore();
+    }
+
+    static ProductOriginalStore fakeProductOriginalStore() {
+        return new FakeProductOriginalStore();
     }
 
     protected User newUser(String name) {
