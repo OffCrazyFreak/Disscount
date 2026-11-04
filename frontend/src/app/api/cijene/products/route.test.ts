@@ -1,14 +1,10 @@
+import { http, HttpResponse } from "msw";
 import { NextRequest } from "next/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { CijeneApiError } from "@/lib/cijene-api/errors";
+import { server } from "@/test/msw-server";
 
 vi.mock("server-only", () => ({}));
-
-const { upstreamGet } = vi.hoisted(() => ({ upstreamGet: vi.fn() }));
-vi.mock("@/lib/cijene-api/client", () => ({
-  cijeneApiV1Client: { get: upstreamGet },
-}));
 
 const { GET } = await import("@/app/api/cijene/products/route");
 
@@ -31,10 +27,6 @@ function search(q: string) {
 }
 
 describe("GET /api/cijene/products", () => {
-  beforeEach(() => {
-    upstreamGet.mockReset();
-  });
-
   it("answers bad parameters with a translated problem", async () => {
     const response = await GET(
       new NextRequest("http://localhost:3000/api/cijene/products", {
@@ -54,34 +46,62 @@ describe("GET /api/cijene/products", () => {
   });
 
   it("finds a typed barcode through the lookup a scan uses", async () => {
-    upstreamGet.mockResolvedValue({ data: product });
+    server.use(
+      http.get(`*/v1/products/${BARCODE}`, () => HttpResponse.json(product)),
+    );
 
     const response = await search(BARCODE);
 
-    expect(upstreamGet).toHaveBeenCalledWith(`/products/${BARCODE}`);
     expect(await response.json()).toMatchObject({
       products: [{ ean: BARCODE, name: "Bananko" }],
     });
   });
 
   it("falls back to the name search for a number no product carries", async () => {
-    upstreamGet.mockImplementation((url: string) =>
-      url.startsWith("/products?")
-        ? Promise.resolve({ data: { products: [] } })
-        : Promise.reject(new CijeneApiError(404, "Not found")),
+    const unknownNumber = "12345678901234567890";
+    server.use(
+      http.get(`*/v1/products/${unknownNumber}`, () =>
+        HttpResponse.json({ detail: "Not found" }, { status: 404 }),
+      ),
+      http.get("*/v1/products", () => HttpResponse.json({ products: [] })),
     );
 
-    const response = await search("12345678901234567890");
+    const response = await search(unknownNumber);
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ products: [] });
   });
 
+  it("still searches by name when the barcode lookup is down", async () => {
+    server.use(
+      http.get(`*/v1/products/${BARCODE}`, () =>
+        HttpResponse.json(null, { status: 500 }),
+      ),
+      http.get("*/v1/products", () =>
+        HttpResponse.json({ products: [product] }),
+      ),
+    );
+
+    const response = await search(BARCODE);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      products: [{ ean: BARCODE }],
+    });
+  });
+
+  // MSW fails any request a test did not declare, so a lookup here would fail the test.
   it("does not spend a barcode lookup on an ordinary search", async () => {
-    upstreamGet.mockResolvedValue({ data: { products: [product] } });
+    server.use(
+      http.get("*/v1/products", () =>
+        HttpResponse.json({ products: [product] }),
+      ),
+    );
 
-    await search("mlijeko");
+    const response = await search("mlijeko");
 
-    expect(upstreamGet).not.toHaveBeenCalledWith("/products/mlijeko");
+    expect(await response.json()).toMatchObject({
+      products: [{ name: "Bananko" }],
+    });
   });
 });
