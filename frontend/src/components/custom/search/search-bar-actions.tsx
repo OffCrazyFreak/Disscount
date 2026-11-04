@@ -1,5 +1,6 @@
 "use client";
 
+import type { MouseEvent } from "react";
 import { ScanBarcode, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,7 @@ interface ISearchBarActionsProps {
   showClear: boolean;
   onClear: () => void;
   allowScanning: boolean;
-  onScan: () => void;
+  onScan: (event: MouseEvent<HTMLButtonElement>) => void;
 }
 
 /** Buttons overlaid on the right edge of the search input */

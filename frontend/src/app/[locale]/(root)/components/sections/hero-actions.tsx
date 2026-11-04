@@ -51,7 +51,9 @@ export default function HeroActions() {
 
         <div>
           <Button
-            onClick={() => openScanner({ onScan: handleScan })}
+            onClick={(event) =>
+              openScanner({ onScan: handleScan, opener: event.currentTarget })
+            }
             variant="outline"
             effect="shine"
             size="lg"

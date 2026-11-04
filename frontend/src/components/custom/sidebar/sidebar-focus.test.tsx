@@ -1,5 +1,6 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useEffect } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import SearchBar from "@/components/custom/search/search-bar";
@@ -14,6 +15,7 @@ import { renderWithProviders } from "@/test/render";
 import type { IScannedCode } from "@/typings/scanned-code";
 
 const router = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn() }));
+const mobile = vi.hoisted(() => ({ closeDrawer: () => {} }));
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
@@ -44,11 +46,29 @@ function ClosingLink() {
   );
 }
 
-function renderShell() {
-  renderWithProviders(
+// A navigation closes the mobile drawer; the router mock stands in for it. The extra
+// button opens it from somewhere other than the trigger, so the drawer's own focus
+// restore cannot hide a missing handoff.
+function DrawerControls() {
+  const { setOpenMobile } = useSidebar();
+
+  useEffect(() => {
+    mobile.closeDrawer = () => setOpenMobile(false);
+  }, [setOpenMobile]);
+
+  return (
+    <button type="button" onClick={() => setOpenMobile(true)}>
+      Open drawer
+    </button>
+  );
+}
+
+function shell(allowScanning = true) {
+  return (
     <SidebarProvider defaultOpen>
       <CameraScannerProvider>
         <SidebarTrigger />
+        <DrawerControls />
         <SearchBar
           searchRoute="/products"
           placeholder="Page"
@@ -59,13 +79,17 @@ function renderShell() {
             searchRoute="/products"
             placeholder="Sidebar"
             submitButtonLocation="none"
-            allowScanning
+            allowScanning={allowScanning}
           />
           <ClosingLink />
         </Sidebar>
       </CameraScannerProvider>
-    </SidebarProvider>,
+    </SidebarProvider>
   );
+}
+
+function renderShell() {
+  renderWithProviders(shell());
 
   return {
     trigger: screen.getByRole("button", {
@@ -153,6 +177,19 @@ describe("focus when the sidebar closes", () => {
     expect(trigger).not.toHaveFocus();
   });
 
+  it("falls back to the sidebar field when the scan button is gone", async () => {
+    const { rerender } = renderWithProviders(shell());
+    const sidebarField = screen.getByRole("searchbox", { name: "Sidebar" });
+
+    fireEvent.click(screen.getByRole("button", { name: "Skeniraj barkod" }));
+    await screen.findByRole("button", { name: "Fake scan" });
+    rerender(shell(false));
+    await userEvent.keyboard("{Escape}");
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(sidebarField).toHaveFocus();
+  });
+
   it("stays in a field outside the sidebar that searched", async () => {
     const user = userEvent.setup();
     const { pageField, container } = renderShell();
@@ -161,5 +198,31 @@ describe("focus when the sidebar closes", () => {
 
     expect(container).toHaveAttribute("inert");
     expect(pageField).toHaveFocus();
+  });
+
+  describe("on a phone, where the sidebar is a drawer", () => {
+    beforeEach(() => {
+      vi.stubGlobal("innerWidth", 500);
+      router.push.mockImplementation(() => mobile.closeDrawer());
+    });
+
+    it("moves to the trigger after a scan started inside the drawer", async () => {
+      const user = userEvent.setup();
+      renderWithProviders(shell());
+      const trigger = screen.getByRole("button", {
+        name: "Prikaži ili sakrij bočnu traku",
+      });
+
+      await user.click(screen.getByRole("button", { name: "Open drawer" }));
+      await user.click(
+        await screen.findByRole("button", { name: "Skeniraj barkod" }),
+      );
+      await user.click(
+        await screen.findByRole("button", { name: "Fake scan" }),
+      );
+
+      await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+      expect(trigger).toHaveFocus();
+    });
   });
 });

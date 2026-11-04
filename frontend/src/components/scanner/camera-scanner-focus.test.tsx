@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -101,5 +101,40 @@ describe("focus when the scanner is cancelled", () => {
 
     await expectClosed();
     expect(screen.getByRole("searchbox", { name: "Pretraži" })).toHaveFocus();
+  });
+
+  // Safari does not focus a button on click, so activeElement is the body when the dialog opens.
+  describe("when the click leaves focus on the page, as in Safari", () => {
+    async function openWithoutFocus() {
+      const user = userEvent.setup();
+      const { rerender } = renderWithProviders(bar(true));
+      const scanButton = screen.getByRole("button", {
+        name: "Skeniraj barkod",
+      });
+
+      fireEvent.click(scanButton);
+      await screen.findByText("Fake camera");
+
+      return { user, rerender, scanButton };
+    }
+
+    it("returns to the scan button that was clicked", async () => {
+      const { user, scanButton } = await openWithoutFocus();
+
+      await user.keyboard("{Escape}");
+
+      await expectClosed();
+      expect(scanButton).toHaveFocus();
+    });
+
+    it("falls back to the search field when that button is gone", async () => {
+      const { user, rerender } = await openWithoutFocus();
+
+      rerender(bar(false));
+      await user.keyboard("{Escape}");
+
+      await expectClosed();
+      expect(screen.getByRole("searchbox", { name: "Pretraži" })).toHaveFocus();
+    });
   });
 });
