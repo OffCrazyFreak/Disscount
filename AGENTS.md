@@ -47,7 +47,7 @@ Put these to me instead of working around them: I say yes far more often than no
 ## PRs and review
 
 - Fill in `.github/PULL_REQUEST_TEMPLATE.md`.
-- Give every PR one Sonnet `reviewer`; CodeRabbit runs on its own and is never waited on.
+- Give every PR one Sonnet `reviewer`; CodeRabbit runs on its own, and only a release waits for it.
 - For 5000+ changed lines, 50+ files, or auth, security, personal data or migrations, also run Greptile once: `@greptileai review` or its CLI.
 - For a release into `main`, run one `reviewer` per app area plus CodeRabbit and Greptile (automatic or CLI), and wait for all of them.
 - Land release review findings as their own `fix:` PR, and keep the notes in `~/Documents/Disscount`.
@@ -75,6 +75,7 @@ Put these to me instead of working around them: I say yes far more often than no
 - Reach databases (`disscount-{development,production}-*-db-1`) with `docker exec <container> psql` over `ssh disscount`; `docs/INFRASTRUCTURE.md` has the rest.
 - Set environment variables in Dokploy per environment; they apply at that service's next deploy, and `NEXT_PUBLIC_*` needs a rebuild.
 - For a new variable, say what it controls and whether it is required, server-only or public, and add a placeholder to its example file.
+- Keep `.env.example`, `frontend/.env.local.example` and `backend/.env.example` in sync with their real counterparts, with no real values.
 - When nothing reads a variable, delete it from Dokploy, GitHub, the server and local `.env` files, keeping what `main` reads; print names only.
 - Deploy everything through Dokploy, with no preview deployments, and ask before reviving Netlify.
 
@@ -122,7 +123,7 @@ Copy and i18n (`docs/I18N.md`):
 
 - The app is a resource server validating better-auth's ES256 JWTs via JWKS.
 - Keep anything Postgres-specific portable or profile-guarded, because tests run on H2 with `src/test` properties and only `DoubleBootSchemaTest` boots main's on Postgres.
-- When changing an enum column to String, drop its CHECK constraint by hand: `ddl-auto=update` keeps it, writes 500, boot tests miss it.
+- When changing an enum column to String, expect a stale CHECK constraint: `ddl-auto=update` keeps it, writes 500, boot tests miss it.
 - Keep springdoc's major on the Spring Boot major.
 - When a DTO or enum the frontend reads changes, run `mvn -B test -Dtest=ApiContractTest -Dcontract.update=true` to refresh `contracts/backend-api.json`.
 - Then update the zod schema until `backend-contract.test.ts` passes (`docs/API-CONTRACT.md`).
