@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
-import disscount.digitalCard.storage.StoredPhoto;
 import disscount.exceptions.NotFoundException;
 import disscount.exceptions.ServiceUnavailableException;
 import disscount.productImage.dao.ProductImageRepository;
@@ -16,12 +15,14 @@ import disscount.productImage.off.OpenFoodFactsClient;
 import disscount.productImage.render.ProductImageRenderer;
 import disscount.productImage.render.ProductImageRenderer.Crop;
 import disscount.productImage.render.ProductImageRenderer.Rendered;
-import disscount.productImage.storage.ProductImageStore;
-import disscount.productImage.storage.ProductOriginalStore;
+import disscount.storage.PhotoStore;
+import disscount.storage.PhotoStoreConfig;
+import disscount.storage.StoredPhoto;
 import disscount.util.Timestamps;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -34,8 +35,10 @@ public class ProductImageRendering {
     private static final Logger log = LoggerFactory.getLogger(ProductImageRendering.class);
     private static final String WEBP = "image/webp";
 
-    private final ProductImageStore store;
-    private final ProductOriginalStore originals;
+    @Qualifier(PhotoStoreConfig.PRODUCT_PHOTOS)
+    private final PhotoStore store;
+    @Qualifier(PhotoStoreConfig.PRODUCT_ORIGINALS)
+    private final PhotoStore originals;
     private final OpenFoodFactsClient off;
     private final ProductImageRepository images;
 
@@ -104,7 +107,7 @@ public class ProductImageRendering {
                     image.getId(), image.getEan(), rendered.full().length, rendered.thumb().length, rendered.small().length);
         }
 
-        String base = ProductImageStore.ROOT_FOLDER + "/" + image.getEan() + "/" + rendered.sha256().substring(0, 20);
+        String base = PhotoStoreConfig.PRODUCTS_FOLDER + "/" + image.getEan() + "/" + rendered.sha256().substring(0, 20);
         Copy copy = new Copy(base + ".webp", base + "-thumb.webp", base + "-small.webp",
                 rendered.sourceWidth(), rendered.sourceHeight());
         store.put(copy.fullKey(), rendered.full(), WEBP);

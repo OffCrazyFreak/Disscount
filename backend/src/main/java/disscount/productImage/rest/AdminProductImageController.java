@@ -2,13 +2,13 @@ package disscount.productImage.rest;
 
 import java.util.UUID;
 
-import disscount.digitalCard.storage.StoredPhoto;
 import disscount.productImage.dto.ProductImageDtos.AdminProductDto;
 import disscount.productImage.dto.ProductImageDtos.AdminQueuePageDto;
 import disscount.productImage.dto.ProductImageDtos.CropRequest;
 import disscount.productImage.dto.ProductImageDtos.ImageStatusRequest;
 import disscount.productImage.dto.ProductImageDtos.SetMainRequest;
 import disscount.productImage.service.ProductImageAdminService;
+import disscount.storage.StoredPhoto;
 import disscount.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

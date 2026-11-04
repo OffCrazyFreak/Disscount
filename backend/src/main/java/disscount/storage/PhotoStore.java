@@ -1,11 +1,8 @@
-package disscount.digitalCard.storage;
+package disscount.storage;
 
 import java.util.Optional;
 
 public interface PhotoStore {
-
-    /** Keys start with this folder, and on disk it is the switch: without it uploads answer 503. */
-    String ROOT_FOLDER = "cards";
 
     /** False when storage is off; uploads then answer 503. */
     boolean enabled();
@@ -17,4 +14,7 @@ public interface PhotoStore {
     void delete(String key);
 
     void deletePrefix(String prefix);
+
+    /** Null on a private store. */
+    String publicUrl(String key);
 }

@@ -1,7 +1,8 @@
+import { tab } from "@/test/user-context-mocks";
 import { screen, waitFor } from "@testing-library/react";
 import { QueryClient } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw/http";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { UserProvider, useUser } from "@/context/user-context";
 import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
@@ -11,31 +12,6 @@ import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 import { storedUser } from "@/test/stored-user";
-
-const { tab } = vi.hoisted(() => ({
-  tab: { userId: null as string | null, error: null as Error | null },
-}));
-
-vi.mock("@/lib/auth/client", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/auth/client")>();
-  return {
-    authClient: actual.authClient,
-    useSession: () => ({
-      data: tab.userId ? { user: { id: tab.userId } } : null,
-      isPending: false,
-      error: tab.error,
-    }),
-  };
-});
-
-vi.mock("@/i18n/navigation", () => ({
-  usePathname: () => "/",
-  useRouter: () => ({ push: vi.fn() }),
-}));
-
-vi.mock("@/lib/offline/purge", () => ({ purgeOfflineCache: vi.fn() }));
-
-vi.mock("@sentry/nextjs", () => ({ setUser: vi.fn() }));
 
 const PINNED = [
   {
@@ -59,11 +35,6 @@ function PinnedProbe() {
     <p>{accountUser?.pinnedStores?.[0]?.storeName ?? "no pinned stores"}</p>
   );
 }
-
-afterEach(() => {
-  tab.userId = null;
-  tab.error = null;
-});
 
 describe("UserProvider saved profile", () => {
   it("keeps the loaded profile, pinned stores included, in the offline snapshot", async () => {

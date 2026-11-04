@@ -1,51 +1,27 @@
+import { router, searchBarShell } from "@/test/search-bar-harness";
 import { act, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import ProductSearchBar from "@/components/custom/search/product-search-bar";
 import SearchBar, {
   type ISearchBarProps,
 } from "@/components/custom/search/search-bar";
 import { productSearchDraft } from "@/components/custom/search/search-draft-store";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { CameraScannerProvider } from "@/context/scanner-context";
 import { renderWithProviders } from "@/test/render";
-
-const router = vi.hoisted(() => ({
-  pathname: "/products",
-  search: "",
-  push: vi.fn(),
-  replace: vi.fn(),
-}));
-
-vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(router.search),
-}));
-vi.mock("@/i18n/navigation", () => ({
-  usePathname: () => router.pathname,
-  useRouter: () => ({ push: router.push, replace: router.replace }),
-}));
-
-function shell(children: React.ReactNode) {
-  return (
-    <SidebarProvider>
-      <CameraScannerProvider>{children}</CameraScannerProvider>
-    </SidebarProvider>
-  );
-}
 
 /** Renders the bar; `landOn` makes a navigation arrive, whenever the test says it does. */
 function renderBar(props: Partial<ISearchBarProps> = {}) {
   const bar = () => (
     <SearchBar searchRoute="/products" placeholder="Pretraži" {...props} />
   );
-  const { rerender } = renderWithProviders(shell(bar()));
+  const { rerender } = renderWithProviders(searchBarShell(bar()));
 
   return {
     field: screen.getByRole("searchbox", { name: "Pretraži" }),
     landOn(search: string) {
       router.search = search;
-      rerender(shell(bar()));
+      rerender(searchBarShell(bar()));
     },
   };
 }
@@ -149,14 +125,14 @@ describe("a navigation landing after the field moved on", () => {
           <ProductSearchBar placeholder="Page" />
         </>
       );
-      const { rerender } = renderWithProviders(shell(boxes()));
+      const { rerender } = renderWithProviders(searchBarShell(boxes()));
       const header = screen.getByRole("searchbox", { name: "Header" });
       const page = screen.getByRole("searchbox", { name: "Page" });
 
       await user.type(header, "sir{Enter}");
       await user.keyboard("a");
       router.search = "q=sir";
-      rerender(shell(boxes()));
+      rerender(searchBarShell(boxes()));
 
       expect(header).toHaveValue("sira");
       expect(page).toHaveValue("sira");

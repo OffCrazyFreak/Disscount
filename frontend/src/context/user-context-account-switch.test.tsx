@@ -1,35 +1,13 @@
+import { tab } from "@/test/user-context-mocks";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { UserProvider, useUser } from "@/context/user-context";
 import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 import { storedUser } from "@/test/stored-user";
-
-const { tab } = vi.hoisted(() => ({
-  tab: { userId: null as string | null },
-}));
-
-vi.mock("@/lib/auth/client", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/auth/client")>();
-  return {
-    authClient: actual.authClient,
-    useSession: () => ({
-      data: tab.userId ? { user: { id: tab.userId } } : null,
-      isPending: false,
-      error: null,
-    }),
-  };
-});
-
-vi.mock("@/i18n/navigation", () => ({
-  usePathname: () => "/",
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
-}));
-
-vi.mock("@/lib/offline/purge", () => ({ purgeOfflineCache: vi.fn() }));
 
 function profile(id: string) {
   return {
@@ -122,7 +100,6 @@ function rendersUnder(userId: string) {
 }
 
 beforeEach(() => {
-  tab.userId = null;
   renders.length = 0;
   setCacheIdentity(null);
 });

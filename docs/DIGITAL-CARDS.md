@@ -141,7 +141,7 @@ All card endpoints need a valid JWT. Errors are RFC 9457 `ProblemDetail` bodies 
 
 ## 5. Photos and R2
 
-Photos are optional and sit behind a `PhotoStore` interface (`put`, `get`, `delete`, `deletePrefix`). Three implementations exist, chosen in `PhotoStoreConfig`: `FilesystemPhotoStore` when `PHOTO_DIR` is set (files under `cards/` in that directory; off while the folder is missing, see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#storage-on-the-servers-disk)), otherwise `R2PhotoStore`, or `DisabledPhotoStore` if any of the four `R2_*` values is blank, and the wallet then works without photos.
+Photos are optional and sit behind a `PhotoStore` interface (`put`, `get`, `delete`, `deletePrefix`). Three implementations exist, chosen in `storage/PhotoStoreConfig`, which builds the product photo stores from the same classes: `FilesystemPhotoStore` when `PHOTO_DIR` is set (files under `cards/` in that directory; off while the folder is missing, see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#storage-on-the-servers-disk)), otherwise `R2PhotoStore`, or `DisabledPhotoStore` if any of the four `R2_*` values is blank, and the wallet then works without photos.
 
 ### What the browser does
 

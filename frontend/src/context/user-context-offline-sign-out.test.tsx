@@ -1,3 +1,4 @@
+import { tab } from "@/test/user-context-mocks";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw/http";
@@ -16,41 +17,6 @@ import {
   setLastSession,
   setPendingSignOut,
 } from "@/utils/browser/storage/auth";
-
-const { tab } = vi.hoisted(() => ({
-  tab: {
-    userId: null as string | null,
-    sessionId: "session-1",
-    error: null as Error | null,
-  },
-}));
-
-// Only useSession is faked; authClient stays real so MSW answers its requests.
-vi.mock("@/lib/auth/client", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/auth/client")>();
-  return {
-    authClient: actual.authClient,
-    useSession: () => ({
-      data: tab.userId
-        ? {
-            user: { id: tab.userId },
-            session: { id: tab.sessionId, userId: tab.userId },
-          }
-        : null,
-      isPending: false,
-      error: tab.error,
-    }),
-  };
-});
-
-vi.mock("@/i18n/navigation", () => ({
-  usePathname: () => "/",
-  useRouter: () => ({ push: vi.fn() }),
-}));
-
-vi.mock("@/lib/offline/purge", () => ({ purgeOfflineCache: vi.fn() }));
-
-vi.mock("@sentry/nextjs", () => ({ setUser: vi.fn() }));
 
 function AccountProbe() {
   const { logout, isAuthenticated, canShowAccountData } = useUser();
@@ -79,8 +45,6 @@ function answerProfile() {
 afterEach(() => {
   setPendingSignOut(null);
   setLastSession(null);
-  tab.userId = null;
-  tab.error = null;
 });
 
 describe("UserProvider sign-out while offline", () => {

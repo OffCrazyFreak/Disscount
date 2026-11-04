@@ -7,11 +7,8 @@ import java.util.UUID;
 import disscount.config.UploadLimitConfig;
 import disscount.digitalCard.photo.PhotoValidator;
 import disscount.digitalCard.photo.TestImages;
-import disscount.digitalCard.service.FakePhotoStore;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.ServiceUnavailableException;
-import disscount.productImage.FakeProductImageStore;
-import disscount.productImage.FakeProductOriginalStore;
 import disscount.productImage.dao.ProductImageReportRepository;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
@@ -27,17 +24,20 @@ import disscount.productImage.dto.ProductImageDtos.CropDto;
 import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
 import disscount.productImage.off.OffProductPhotos;
 import disscount.productImage.off.OpenFoodFactsClient;
+import disscount.storage.FakePhotoStore;
+import disscount.storage.PhotoStoreConfig;
 import disscount.user.service.UserService;
 import disscount.util.Timestamps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,13 +66,13 @@ class ProductImageServiceTest {
         }
 
         @Bean
-        FakeProductOriginalStore productOriginalStore() {
-            return new FakeProductOriginalStore();
+        FakePhotoStore productOriginalStore() {
+            return new FakePhotoStore();
         }
 
         @Bean
-        FakeProductImageStore productImageStore() {
-            return new FakeProductImageStore();
+        FakePhotoStore productImageStore() {
+            return new FakePhotoStore();
         }
     }
 
@@ -82,9 +82,9 @@ class ProductImageServiceTest {
     @Autowired ProductImageRepository images;
     @Autowired ProductImageSetRepository sets;
     @Autowired ProductImageReportRepository reports;
-    @Autowired FakeProductOriginalStore originals;
-    @Autowired FakePhotoStore cardPhotos;
-    @Autowired FakeProductImageStore publicStore;
+    @Autowired @Qualifier(PhotoStoreConfig.PRODUCT_ORIGINALS) FakePhotoStore originals;
+    @Autowired @Qualifier(PhotoStoreConfig.CARD_PHOTOS) FakePhotoStore cardPhotos;
+    @Autowired @Qualifier(PhotoStoreConfig.PRODUCT_PHOTOS) FakePhotoStore publicStore;
     @Autowired OffCandidateWriter candidates;
     @Autowired PlatformTransactionManager transactions;
     @MockitoBean UserService userService;

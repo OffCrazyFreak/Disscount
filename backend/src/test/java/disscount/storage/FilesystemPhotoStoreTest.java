@@ -1,8 +1,9 @@
-package disscount.digitalCard.storage;
+package disscount.storage;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 
 import disscount.exceptions.ServiceUnavailableException;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +21,8 @@ class FilesystemPhotoStoreTest {
     @BeforeEach
     void setUp() throws IOException {
         Files.createDirectory(directory.resolve("cards"));
-        store = new FilesystemPhotoStore(directory, "cards", "error.cardPhoto.unavailable");
+        store = new FilesystemPhotoStore(directory, "cards", AtomicFileStore.Visibility.OWNER_ONLY,
+                "error.cardPhoto.unavailable", null);
     }
 
     @Test
@@ -80,10 +82,23 @@ class FilesystemPhotoStoreTest {
 
     @Test
     void isOffWithoutItsFolderAndOnAsSoonAsItExists() throws IOException {
-        FilesystemPhotoStore unmounted = new FilesystemPhotoStore(directory, "other", "error.cardPhoto.unavailable");
+        FilesystemPhotoStore unmounted = new FilesystemPhotoStore(directory, "other", AtomicFileStore.Visibility.OWNER_ONLY,
+                "error.cardPhoto.unavailable", null);
         assertThat(unmounted.enabled()).isFalse();
 
         Files.createDirectory(directory.resolve("other"));
         assertThat(unmounted.enabled()).isTrue();
+    }
+
+    @Test
+    void aPublicFolderWritesFilesTheWebServerCanReadAndBuildsTheirUrl() throws IOException {
+        Files.createDirectory(directory.resolve("products"));
+        FilesystemPhotoStore products = new FilesystemPhotoStore(directory, "products",
+                AtomicFileStore.Visibility.WORLD_READABLE, "error.productImage.unavailable", "https://images.test");
+        products.put("products/1/hash.webp", new byte[]{1}, "image/webp");
+        assertThat(PosixFilePermissions.toString(Files.getPosixFilePermissions(directory.resolve("products/1/hash.webp"))))
+                .isEqualTo("rw-r--r--");
+        assertThat(products.publicUrl("products/1/hash.webp")).isEqualTo("https://images.test/products/1/hash.webp");
+        assertThat(store.publicUrl("cards/u/c/a.jpg")).isNull();
     }
 }

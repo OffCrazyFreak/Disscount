@@ -1,29 +1,13 @@
+import { router, searchBarShell } from "@/test/search-bar-harness";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import SearchBar from "@/components/custom/search/search-bar";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { CameraScannerProvider } from "@/context/scanner-context";
 import { renderWithProviders } from "@/test/render";
-
-const router = vi.hoisted(() => ({
-  pathname: "/products",
-  search: "",
-  push: vi.fn(),
-  replace: vi.fn(),
-}));
 
 // Boundaries the suite cannot run: the App Router and the camera.
 vi.mock("@/components/scanner/camera-scanner", () => ({ default: () => null }));
-vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(router.search),
-}));
-vi.mock("@/i18n/navigation", () => ({
-  usePathname: () => router.pathname,
-  useRouter: () => ({ push: router.push, replace: router.replace }),
-}));
-
 function stubPointer(isCoarse: boolean) {
   vi.stubGlobal("matchMedia", (query: string) => ({
     matches: query === "(pointer: coarse)" ? isCoarse : false,
@@ -38,16 +22,14 @@ function renderSearchBar(
   searchRoute = "/products",
 ) {
   renderWithProviders(
-    <SidebarProvider>
-      <CameraScannerProvider>
-        <SearchBar
-          searchRoute={searchRoute}
-          placeholder="Pretraži"
-          submitButtonLocation={submitButtonLocation}
-          autoSearch={autoSearch}
-        />
-      </CameraScannerProvider>
-    </SidebarProvider>,
+    searchBarShell(
+      <SearchBar
+        searchRoute={searchRoute}
+        placeholder="Pretraži"
+        submitButtonLocation={submitButtonLocation}
+        autoSearch={autoSearch}
+      />,
+    ),
   );
 
   return screen.getByRole("searchbox", { name: "Pretraži" });
