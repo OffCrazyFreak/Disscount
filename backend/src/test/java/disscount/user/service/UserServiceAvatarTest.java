@@ -13,7 +13,6 @@ import disscount.user.dto.UserRequest;
 import org.junit.jupiter.api.Test;
 
 import java.util.Base64;
-import java.util.Optional;
 import java.util.UUID;
 
 import static disscount.digitalCard.photo.TestImages.contains;
@@ -36,7 +35,7 @@ class UserServiceAvatarTest {
     private final User user = User.builder().id(UUID.randomUUID()).username("ana").image("data:image/webp;base64,old").build();
 
     private UserRequest withImage(String image) {
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.requireActive(user.getId())).thenReturn(user);
         when(userRepository.save(any(User.class))).thenAnswer(call -> call.getArgument(0));
         UserRequest request = new UserRequest();
         request.setImage(image);

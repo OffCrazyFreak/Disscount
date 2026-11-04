@@ -20,7 +20,6 @@ import disscount.user.dto.UserDto;
 import disscount.user.dto.UserRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import disscount.exceptions.ForbiddenException;
 import disscount.util.Timestamps;
 
 import java.time.Duration;
@@ -55,8 +54,7 @@ public class UserService {
     // flush at commit for a query that never writes.
     @Transactional(readOnly = true)
     public Optional<UserDto> findById(UUID id) {
-        return userRepository.findById(id)
-                .filter(user -> user.getDeletedAt() == null)
+        return userRepository.findByIdAndDeletedAtIsNull(id)
                 .map(this::convertToUserDto);
     }
 
@@ -160,9 +158,7 @@ public class UserService {
     }
 
     public UserDto updateProfile(UUID userId, UserRequest request) {
-        User user = userRepository.findById(userId)
-                .filter(u -> u.getDeletedAt() == null)
-                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
+        User user = userRepository.requireActive(userId);
 
         String username = request.getUsername();
         if (username != null && !username.equals(user.getUsername())) {
@@ -259,18 +255,8 @@ public class UserService {
         }
     }
 
-    /**
-     * Throws unless the given user is an active ADMIN. Used to gate admin-only endpoints.
-     */
-    public void requireAdmin(UUID userId) {
-        if (!isActiveAdmin(userId)) {
-            throw new ForbiddenException("error.user.adminRequired");
-        }
-    }
-
     public boolean isActiveAdmin(UUID userId) {
-        return userRepository.findById(userId)
-                .filter(u -> u.getDeletedAt() == null)
+        return userRepository.findByIdAndDeletedAtIsNull(userId)
                 .map(u -> u.getAccountType() == AccountType.ADMIN)
                 .orElse(false);
     }
@@ -329,12 +315,8 @@ public class UserService {
     }
 
     public UserDto updateAccountType(UUID userId, AccountType accountType) {
-        if (accountType == null) {
-            throw new BadRequestException("error.user.accountTypeRequired");
-        }
-
-        User user = userRepository.findById(userId)
-                .filter(u -> u.getDeletedAt() == null)
+        // The target of an admin action, not the caller: the admin's own session is fine, so no 401 here.
+        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         user.setAccountType(accountType);

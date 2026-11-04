@@ -2,7 +2,7 @@
 
 A reference for the admin dashboard (`/dashboard`) and the `/api/admin/**` endpoints behind it: who can open it, what each tab does, which tables it reads and writes, and where the security boundary really is. Written for someone still learning the codebase.
 
-> **Mental model in one sentence:** `/dashboard` is a client page whose guard is only a convenience; the real boundary is that every Spring handler under `/api/admin/**` calls `UserService.requireAdmin` by hand, and a test walks every admin route to prove it.
+> **Mental model in one sentence:** `/dashboard` is a client page whose guard is only a convenience; the real boundary is the `/api/admin/**` rule in Spring's `SecurityConfig`, and a test walks every admin route to prove it.
 
 How admin is granted, why there is no `@PreAuthorize`, and the accepted risks (admins can demote each other down to none) are documented once in [AUTH.md section 7.1](AUTH.md#71-admin-access). The photo review queue has its own doc, [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md). This doc covers the dashboard as a whole and links there.
 
@@ -35,7 +35,7 @@ How admin is granted, why there is no `@PreAuthorize`, and the accepted risks (a
 | Nav link            | Header and sidebar, shown when `canAccessDashboard(accountType)` is true                                                            |
 | Tabs (admins)       | Korisnici (users), Kontakt (contact inbox), Slike proizvoda (product photo queue)                                                   |
 | Account types       | `ADMIN`, `CONSUMER` (default), `ENTERPRISE`, `PUBLIC_SECTOR` (`AccountType.java`)                                                   |
-| Backend check       | `UserService.requireAdmin` in every admin handler; `403 error.user.adminRequired` otherwise                                         |
+| Backend check       | `/api/admin/**` rule in `SecurityConfig`, through `UserService.isActiveAdmin`; `403` otherwise                                      |
 | Endpoints           | `/api/admin/users`, `/api/admin/contact`, `/api/admin/product-images`                                                               |
 | Other admin-only UI | The photo gallery's admin controls on the product page, and a "new post" button on `/updates` that only shows a "coming soon" toast |
 | Copy                | `frontend/src/i18n/messages/<locale>/dashboard.json`                                                                                |
@@ -67,14 +67,13 @@ sequenceDiagram
   B->>B: DashboardGuard reads accountType from the user context
   B->>P: GET /api/admin/users (session cookie)
   P->>S: Same request with a short-lived JWT
-  S->>S: SecurityConfig: any ordinary signed-in token passes
-  S->>D: requireAdmin(currentUserId)
+  S->>D: SecurityConfig /api/admin/** rule: isActiveAdmin(currentUserId)
   D-->>S: active row with account_type = ADMIN?
-  S-->>B: 200, or 403 error.user.adminRequired
+  S-->>B: 200, or 403
 ```
 
 - **The guard is cosmetic.** `DashboardGuard` redirects in the browser, after the page's JavaScript has loaded. Anyone can read the dashboard's code; the data is what is protected.
-- **Spring has no admin rule in its security chain.** `/api/admin/**` falls through to the catch-all that admits any signed-in token, so each handler checks for itself. `AdminController` and `AdminProductImageController` call `requireAdmin` at the top of each method; the contact inbox does it inside `ContactMessageService`.
+- **The admin rule is one URL rule in the security chain.** `SecurityConfig` sends everything under `/api/admin/**` through `isActiveAdmin`, before any controller runs, so no handler or service checks for itself and a new route under that path is gated from its first line. The refusal is the chain's plain 403, not a translated problem body; the dashboard shows its own message for it.
 - **The role is read from the database on every call.** The JWT carries no role, so a promotion or demotion applies on the next request.
 
 The proxy that turns the session into a backend token is in [BACKEND-PROXY.md](BACKEND-PROXY.md).
@@ -167,11 +166,11 @@ Swagger lists them all at `/api-docs`.
 
 ## 10. Key files
 
-| Path                                                            | Role                                                                      |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `frontend/src/lib/api/schemas/auth-user.ts`                     | `canAccessDashboard`, `isAdmin`                                           |
-| `backend/src/main/java/disscount/user/service/UserService.java` | `requireAdmin`, `findAllActive`, `updateAccountType`, `deleteUserAsAdmin` |
-| `backend/src/main/java/disscount/user/dao/AuthIdentityDao.java` | Reads and deletes better-auth rows from Spring                            |
+| Path                                                            | Role                                                                       |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `frontend/src/lib/api/schemas/auth-user.ts`                     | `canAccessDashboard`, `isAdmin`                                            |
+| `backend/src/main/java/disscount/user/service/UserService.java` | `isActiveAdmin`, `findAllActive`, `updateAccountType`, `deleteUserAsAdmin` |
+| `backend/src/main/java/disscount/user/dao/AuthIdentityDao.java` | Reads and deletes better-auth rows from Spring                             |
 
 ---
 
@@ -192,14 +191,14 @@ No admin-specific environment variables or feature flags. The page uses the shad
 
 ## 13. Gotchas and lessons learned
 
-| Gotcha                                            | Why it bites                                                                                                                                                          | What to do                                                                                             |
-| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| **A new admin endpoint is open until it checks**  | Spring's chain admits every signed-in token on `/api/admin/**`                                                                                                        | Call `requireAdmin` first, and add the route to `AdminGatingTest`, which fails until you do            |
-| **Self-protection is browser only**               | The disabled select on your own row is UI; a direct PATCH on your own id works, and so does demoting the last admin                                                   | Accepted by the owner ([AUTH.md](AUTH.md#71-admin-access)); recovery is a manual SQL update            |
-| **`GET /api/admin/users` returns everyone**       | No pagination, and WAU and MAU are counted over the full list in the browser, so paginating would break the stats                                                     | Move the counts to the server before paginating ([SEARCH.md](SEARCH.md#11-future-improvements--todos)) |
-| **A drifted user fails the whole list**           | `lib/api/admin/index.ts` parses every user with `userDtoSchema`, so one user missing a key the backend always sends shows the load error instead of a half-filled row | Change `UserDto` and `userDtoSchema` in the same PR                                                    |
-| **Contact list stops at 500**                     | Older messages silently fall off the list                                                                                                                             | Add paging when the inbox grows                                                                        |
-| **Contact messages outlive the sender's account** | Deleting an account leaves the email and name typed into the form                                                                                                     | See the open question in [SETTINGS.md](SETTINGS.md#14-future-improvements-and-todos)                   |
+| Gotcha                                             | Why it bites                                                                                                                                                          | What to do                                                                                             |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| **An admin route outside `/api/admin/**` is open** | The rule matches that path only; anything else gets the catch-all that admits every signed-in token                                                                   | Keep admin routes under `/api/admin/**`, and add each to `AdminGatingTest`, which fails until you do   |
+| **Self-protection is browser only**                | The disabled select on your own row is UI; a direct PATCH on your own id works, and so does demoting the last admin                                                   | Accepted by the owner ([AUTH.md](AUTH.md#71-admin-access)); recovery is a manual SQL update            |
+| **`GET /api/admin/users` returns everyone**        | No pagination, and WAU and MAU are counted over the full list in the browser, so paginating would break the stats                                                     | Move the counts to the server before paginating ([SEARCH.md](SEARCH.md#11-future-improvements--todos)) |
+| **A drifted user fails the whole list**            | `lib/api/admin/index.ts` parses every user with `userDtoSchema`, so one user missing a key the backend always sends shows the load error instead of a half-filled row | Change `UserDto` and `userDtoSchema` in the same PR                                                    |
+| **Contact list stops at 500**                      | Older messages silently fall off the list                                                                                                                             | Add paging when the inbox grows                                                                        |
+| **Contact messages outlive the sender's account**  | Deleting an account leaves the email and name typed into the form                                                                                                     | See the open question in [SETTINGS.md](SETTINGS.md#14-future-improvements-and-todos)                   |
 
 ---
 

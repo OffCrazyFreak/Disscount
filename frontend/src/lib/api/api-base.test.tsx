@@ -1,5 +1,5 @@
 import { http, HttpResponse } from "msw/http";
-import { describe, expect, it, onTestFinished } from "vitest";
+import { describe, expect, it, onTestFinished, vi } from "vitest";
 
 import apiClient from "@/lib/api/api-base";
 import { authClient } from "@/lib/auth/client";
@@ -72,14 +72,38 @@ describe("apiClient through the backend proxy", () => {
     expect(refetches).toHaveLength(1);
   });
 
-  it("leaves the session alone on a 401 from Spring itself", async () => {
+  it("refetches the session once per burst of 401s from Spring, then again after the window", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    onTestFinished(() => {
+      vi.useRealTimers();
+    });
     const refetches = recordSessionRefetches();
     server.use(
       http.get("*/api/probe", () => HttpResponse.json(null, { status: 401 })),
     );
 
+    await Promise.allSettled([
+      apiClient.get("/api/probe"),
+      apiClient.get("/api/probe"),
+      apiClient.get("/api/probe"),
+    ]);
+    expect(refetches).toHaveLength(1);
+
+    vi.advanceTimersByTime(30_000);
     await expect(apiClient.get("/api/probe")).rejects.toMatchObject({
       response: { status: 401 },
+    });
+    expect(refetches).toHaveLength(2);
+  });
+
+  it("leaves the session alone on any other refusal", async () => {
+    const refetches = recordSessionRefetches();
+    server.use(
+      http.get("*/api/probe", () => HttpResponse.json(null, { status: 403 })),
+    );
+
+    await expect(apiClient.get("/api/probe")).rejects.toMatchObject({
+      response: { status: 403 },
     });
 
     expect(refetches).toHaveLength(0);
