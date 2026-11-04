@@ -17,11 +17,11 @@ Times are UTC.
 | Job          | When      | What                                                                                    | Kept in R2              |
 | ------------ | --------- | --------------------------------------------------------------------------------------- | ----------------------- |
 | `db-hourly`  | minute 17 | `pg_dump` of the app database, age-encrypted                                            | 2 days (about 48 dumps) |
-| `db-nightly` | 01:47     | the same dump plus role globals, then a scratch restore that compares user counts       | 30 days                 |
+| `db-nightly` | 01:47     | the same dump plus role globals, then a scratch restore that checks the user count      | 30 days                 |
 | `photos`     | minute 37 | new card photos, product originals and public product photos, through rclone crypt      | 30 days per file        |
-| `dokploy`    | 02:17     | Dokploy's own database and `/etc/dokploy` (without cloned repositories and deploy logs) | 30 days                 |
+| `dokploy`    | 02:27     | Dokploy's own database and `/etc/dokploy` (without cloned repositories and deploy logs) | 30 days                 |
 
-**Photo generations.** Photos are copied into a folder `gen-<n>`, where `n` is the number of whole 14-day periods since 1 January 1970. The first run in a new generation copies every photo, later runs only new files. Each file is deleted 30 days after it was copied, so two complete generations exist as long as the job keeps running, and an erased photo leaves the backup within about 31 days (R2 deletes expired objects within about a day).
+**Photo generations.** Photos are copied into a folder `gen-<n>`, where `n` is the number of whole 14-day periods since 1 January 1970. The first run in a new generation copies every photo, later runs only new files. Each file is deleted 30 days after it was copied, so two or three generations exist (at least two complete) as long as the job keeps running, and an erased photo leaves the backup within about 31 days (R2 deletes expired objects within about a day).
 
 ## Bucket layout
 
@@ -36,10 +36,10 @@ A lock blocks every deletion until it ends, lifecycle rules included, so each pr
 
 ## Key files
 
-- `backup/Dockerfile`: `postgres:17-alpine` (same major as the `db` service, so the dump and the scratch restore match it) plus `rclone`, `age`, `bash`, `curl`, `tar`, `flock` and supercronic, whose download is checked against its published SHA-1.
+- `backup/Dockerfile`: `postgres:17-alpine` pinned by digest (same major as the `db` service, so the dump and the scratch restore match it) plus `rclone`, `age`, `bash`, `curl`, `tar`, `flock` and supercronic, whose download is checked against its published SHA-1. The digest pins the Alpine release, so rclone and age only change through a reviewed digest bump.
 - `backup/crontab`: the schedule.
 - `backup/bin/backup-entrypoint`: reads the secrets under `/run/secrets`, refuses to start if a required setting is missing, and configures rclone from environment variables (an S3 remote `r2` and a crypt remote `photos` on top of it).
-- `backup/bin/backup-job`: one job per call. Each job takes a lock (a second run while one is going is skipped), pings healthchecks.io at start, success and failure, writes to a temp folder, and uploads only finished, non-empty files.
+- `backup/bin/backup-job`: one job per call. Each job takes a lock (a second run while one is going is skipped), pings healthchecks.io at start, success and failure, writes to a temp folder, and uploads only finished, non-empty files. The ping body carries only the job's own summary lines (file names, sizes, counts), never tool output, which can quote database rows; full output is in the container log.
 - `docker-compose.images.yml`: the `backup` service, the `photos-private` and `photos-public` volumes, and the secrets.
 - `.github/workflows/ci.yml` and `.github/actions/dokploy-deploy/action.yml`: build and tag the image.
 
@@ -61,6 +61,10 @@ All settings live in the Dokploy production compose environment. The secret ones
 | `BACKUP_DOKPLOY_DB_PASSWORD`   | yes    | password of Dokploy's database user `dokploy`                            |
 
 The app database settings (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`) are the ones the `db` service already uses.
+
+> ⚠️ **Every secret variable must exist in the Dokploy environment once the profile is on, even if blank** (`BACKUP_HEALTHCHECKS_PING_KEY=` is fine). Compose refuses to start the whole stack, app included, when a variable a secret reads from is missing.
+
+`BACKUP_DOKPLOY_DB_PASSWORD` is the password Dokploy generated at install. It lives in the Swarm secret `dokploy_postgres_password`, which only Dokploy's own containers can read: copy it once from `docker exec <dokploy-postgres container> cat /run/secrets/postgres_password` on the server into the Dokploy variable, without printing it anywhere else.
 
 > ⚠️ **Keep the crypt password, the crypt salt and the age private key somewhere outside the server** (a password manager). They are the only way to read the backups; losing them loses every backup, and the server is exactly what a backup must survive.
 
@@ -85,7 +89,7 @@ pg_restore --list db.dump              # sanity check
 pg_restore --clean --if-exists --no-owner -d "$DATABASE_URL" db.dump
 ```
 
-Restore `<timestamp>.globals.sql` first on a new server if roles are missing. After any restore, replay the erasure log before traffic reopens (#486).
+Decrypt and restore `<timestamp>.globals.sql.age` first on a new server if roles are missing. After any restore, replay the erasure log before traffic reopens (#486).
 
 **Photos:** with an rclone config that has the same `r2` and `photos` (crypt) remotes and the same password and salt, `rclone copy photos:gen-<n>/private <photo folder>` and the same for `public`. Pick the newest complete generation, the one before the current one.
 
