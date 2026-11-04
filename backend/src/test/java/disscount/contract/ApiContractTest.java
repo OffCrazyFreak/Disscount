@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -51,6 +52,25 @@ class ApiContractTest extends FullStackTest {
 
         JsonNode committed = ApiContract.committed();
         assertThat(committed).as("%s is stale; refresh it with: %s", ApiContract.FILE, REFRESH).isEqualTo(current);
+    }
+
+    @Test
+    void theWireCheckRejectsANullTheContractDoesNotDeclare() {
+        ObjectNode card = json.createObjectNode().put("slot", "icon").putNull("sha256");
+
+        assertThatThrownBy(() -> ApiContract.assertMatches("CardPhotoDto", card))
+                .isInstanceOf(AssertionError.class)
+                .hasMessageContaining("CardPhotoDto.sha256");
+    }
+
+    @Test
+    void theWireCheckFollowsNestedDtosAndAcceptsADeclaredNull() {
+        ObjectNode product = json.createObjectNode();
+        ApiContract.committed().at("/schemas/AdminProductDto/properties").propertyNames().forEach(product::putNull);
+
+        assertThatThrownBy(() -> ApiContract.assertMatches("AdminProductDto", product))
+                .hasMessageContaining("AdminProductDto.ean")
+                .hasMessageNotContaining("AdminProductDto.mainImageId");
     }
 
     // Scanned, not listed, so a new enum reaches the contract without anyone remembering it.

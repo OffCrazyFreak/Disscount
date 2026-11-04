@@ -28,7 +28,7 @@ class PreferencesWireFormatTest extends FullStackTest {
     void aFavouriteStoreIsItsIdAndKeyOnly() throws Exception {
         JsonNode row = firstRow("/api/favorite-stores", "{\"stores\":[{\"storeKey\":\"konzum:1\"}]}", newUser("ana"));
 
-        assertThat(fieldNames(row)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("FavoriteStoreDto"));
+        ApiContract.assertMatches("FavoriteStoreDto", row);
         assertThat(row.get("id").asString()).matches(UUID);
         assertThat(row.get("storeKey").asString()).isEqualTo("konzum:1");
     }
@@ -39,7 +39,7 @@ class PreferencesWireFormatTest extends FullStackTest {
         JsonNode row = firstRow("/api/pinned-stores",
                 "{\"stores\":[{\"storeApiId\":\"konzum:1\",\"storeName\":\"Konzum Ilica\"}]}", user);
 
-        assertThat(fieldNames(row)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("PinnedStoreDto"));
+        ApiContract.assertMatches("PinnedStoreDto", row);
         assertThat(row.get("userId").asString()).isEqualTo(user.getId().toString());
     }
 
@@ -49,7 +49,7 @@ class PreferencesWireFormatTest extends FullStackTest {
         JsonNode row = firstRow("/api/pinned-places",
                 "{\"places\":[{\"placeApiId\":\"10000\",\"placeName\":\"Zagreb\"}]}", user);
 
-        assertThat(fieldNames(row)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("PinnedPlaceDto"));
+        ApiContract.assertMatches("PinnedPlaceDto", row);
         assertThat(row.get("userId").asString()).isEqualTo(user.getId().toString());
     }
 }

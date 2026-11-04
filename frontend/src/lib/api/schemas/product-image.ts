@@ -48,7 +48,7 @@ export const adminProductImageSchema = z.object({
   lang: z.string().nullable(),
   previewUrl: z.string().nullable(),
   fullUrl: z.string().nullable(),
-  originalUrl: z.string().nullable(),
+  originalUrl: z.string(),
   rendered: z.boolean(),
   main: z.boolean(),
   rotation: z.number().int(),
