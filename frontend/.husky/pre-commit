@@ -4,11 +4,22 @@
 #
 # Calls the binary directly: `pnpm exec` inside a worktree resolves through the
 # symlinked node_modules and can purge the main tree's copy.
-lint_staged=frontend/node_modules/.bin/lint-staged
+modules=frontend/node_modules/.bin
 
-if [ ! -x "$lint_staged" ]; then
+# A new worktree has no node_modules, and skipping silently here caused format failures in CI.
+if [ ! -x "$modules/lint-staged" ]; then
+  main_checkout=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")
+  modules="$main_checkout/frontend/node_modules/.bin"
+fi
+
+if [ ! -x "$modules/lint-staged" ]; then
   echo "pre-commit: frontend dependencies are not installed, so staged files were not formatted. CI still checks them." >&2
   exit 0
 fi
 
-"$lint_staged"
+# Absolute, because lint-staged runs each config from its own folder and they all call prettier by name.
+case "$modules" in
+  /*) ;;
+  *) modules="$PWD/$modules" ;;
+esac
+PATH="$modules:$PATH" "$modules/lint-staged"
