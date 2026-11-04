@@ -24,6 +24,9 @@ interface IUseFormDraftOptions<T extends FieldValues> {
   restore?: boolean;
   // Fields that must never touch localStorage (passwords, base64 images).
   exclude?: Path<T>[];
+  // reset() clears errors and mode "onChange" validates only on edits, so a restored value that
+  // breaks a rule would otherwise block submit with no message.
+  validateRestored?: Path<T>[];
 }
 
 function typeChanged(current: unknown, draftValue: unknown): boolean {
@@ -32,6 +35,29 @@ function typeChanged(current: unknown, draftValue: unknown): boolean {
     draftValue !== undefined &&
     typeof current !== typeof draftValue
   );
+}
+
+/** Copies the draft's usable values onto `values`; false when none differed. */
+function applyDraftValues(
+  values: Record<string, unknown>,
+  draftValues: Record<string, unknown>,
+  exclude: string[],
+): boolean {
+  let changed = false;
+
+  for (const [field, value] of Object.entries(draftValues)) {
+    if (exclude.includes(field)) continue;
+    // A field the form no longer has, from a draft written before the shape
+    // changed. Restoring it would keep the dead key alive for the whole TTL.
+    if (!(field in values)) continue;
+    const current = values[field];
+    if (typeChanged(current, value)) continue;
+    if (JSON.stringify(current) === JSON.stringify(value)) continue;
+    values[field] = value;
+    changed = true;
+  }
+
+  return changed;
 }
 
 /**
@@ -46,6 +72,7 @@ export function useFormDraft<T extends FieldValues>({
   enabled = true,
   restore = true,
   exclude = [],
+  validateRestored = [],
 }: IUseFormDraftOptions<T>) {
   const [hadDraft] = useState(() => !!getFormDraft(draftKey));
   const [dismissed, setDismissed] = useState(false);
@@ -60,13 +87,20 @@ export function useFormDraft<T extends FieldValues>({
   });
   const stateRef = useRef({
     exclude,
+    validateRestored,
     defaultValues,
     isSubmitted,
     isSubmitting,
   });
 
   useEffect(() => {
-    stateRef.current = { exclude, defaultValues, isSubmitted, isSubmitting };
+    stateRef.current = {
+      exclude,
+      validateRestored,
+      defaultValues,
+      isSubmitted,
+      isSubmitting,
+    };
   });
 
   useEffect(() => {
@@ -81,22 +115,17 @@ export function useFormDraft<T extends FieldValues>({
     if (!draft) return;
 
     const values = { ...form.getValues() } as Record<string, unknown>;
-    let changed = false;
-
-    for (const [field, value] of Object.entries(draft.values)) {
-      if (stateRef.current.exclude.includes(field as Path<T>)) continue;
-      // A field the form no longer has, from a draft written before the shape
-      // changed. Restoring it would keep the dead key alive for the whole TTL.
-      if (!(field in values)) continue;
-      const current = values[field];
-      if (typeChanged(current, value)) continue;
-      if (JSON.stringify(current) === JSON.stringify(value)) continue;
-      values[field] = value;
-      changed = true;
-    }
+    const changed = applyDraftValues(
+      values,
+      draft.values,
+      stateRef.current.exclude as string[],
+    );
 
     if (!changed) return;
     form.reset(values as T, { keepDefaultValues: true });
+    if (stateRef.current.validateRestored.length > 0) {
+      void form.trigger(stateRef.current.validateRestored);
+    }
   }, [enabled, restore, draftKey, form]);
 
   const flushDraft = useCallback(() => {
