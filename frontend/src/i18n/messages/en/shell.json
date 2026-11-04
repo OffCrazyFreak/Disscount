@@ -35,8 +35,8 @@
     "toggle": "Show or hide filters"
   },
   "search": {
-    "productsPlaceholder": "Search products...",
-    "placeholder": "Search...",
+    "productsPlaceholder": "Search products",
+    "placeholder": "Search",
     "submit": "Search",
     "clear": "Clear search",
     "scanBarcode": "Scan barcode",

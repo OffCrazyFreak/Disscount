@@ -79,7 +79,7 @@
       "subject": "Betreff",
       "subjectPlaceholder": "z. B. Frage zu Disscount",
       "message": "Nachricht",
-      "messagePlaceholder": "Schreib uns, wie wir dir helfen können...",
+      "messagePlaceholder": "Schreib uns, wie wir dir helfen können",
       "charactersLeft": "{count, plural, one {# Zeichen übrig} other {# Zeichen übrig}}"
     },
     "modal": {

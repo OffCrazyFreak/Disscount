@@ -159,16 +159,19 @@ The page is also fully static: neither `page.tsx` nor `app/[locale]/layout.tsx` 
 
 ## Fonts
 
-Two fonts are loaded through `next/font/local` in `app/fonts/index.ts`.
+Three fonts are loaded through `next/font/local` in `app/fonts/index.ts`.
 
-| Font                   | Variable               | Role                                                   | Note                                                                                                                                       |
-| ---------------------- | ---------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Huninn                 | `--font-huninn`        | Body font (`--font-sans`)                              | Self-hosted 28 KB latin + latin-ext subset; the full Google TTF is a 4.5 MB CJK font and `next/font/google` has no fallback metrics for it |
-| Saira Stencil SemiBold | `--font-saira-stencil` | The "disscount" wordmark, stat numbers, big CTA titles | Applied via the `.font-saira-stencil-semibold` utility in `globals.css`                                                                    |
+| Font                   | Variable                   | Role                                                   | Note                                                                                                                                       |
+| ---------------------- | -------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Huninn                 | `--font-huninn`            | Body font (`--font-sans`)                              | Self-hosted 28 KB latin + latin-ext subset; the full Google TTF is a 4.5 MB CJK font and `next/font/google` has no fallback metrics for it |
+| Baseline ellipsis      | `--font-baseline-ellipsis` | U+2026 only, ahead of Huninn in `--font-sans`          | 588 byte face with one glyph, limited by `unicode-range`; see below                                                                        |
+| Saira Stencil SemiBold | `--font-saira-stencil`     | The "disscount" wordmark, stat numbers, big CTA titles | Applied via the `.font-saira-stencil-semibold` utility in `globals.css`                                                                    |
 
 The latin-ext subset is what makes Croatian diacritics (č, ć, đ, š, ž) render; a plain latin subset would show tofu.
 
 Huninn carries a `descent-override: 26%` declaration. The file, Google's original included, declares an 18% descent while its descenders reach 23%, so at fractional display scaling (125% is the common case) Chromium cut the bottom pixel row off `g`, `j`, `p` and `y` inside inputs. Keep the override if the subset is ever regenerated.
+
+Huninn draws U+2026 vertically centred and one em wide, so every CSS `text-overflow: ellipsis` showed floating dots. `app/fonts/Ellipsis/baseline-ellipsis.woff2` holds only a U+2026 glyph built from three of Huninn's own period outlines, with Huninn's metrics, so it looks like three typed periods and cannot grow a line box. A string value such as `text-overflow: "..."` is not an alternative: Chromium does not support it. Its `adjustFontFallback: false` is required: the fallback face `next/font` generates has no `unicode-range`, so it would sit ahead of Huninn and take over every character. The glyph is derived from Huninn under the SIL OFL 1.1 (`app/fonts/Ellipsis/OFL.txt`) and named "Disscount Ellipsis". Rebuild it with fontTools and the FontBuilder API if Huninn ever changes; nothing in the repository depends on the tool.
 
 ## Styling and animation
 
@@ -214,7 +217,7 @@ Every CSS animation is disabled under `@media (prefers-reduced-motion: reduce)`,
 | `components/custom/common/{edge-fade,scroll-fade,window-scroll-fade,text-glow}.tsx`     | Shared fade/glow primitives                               |
 | `components/custom/animation/{scroll-reveal,stagger-children}.tsx`                      | Scroll-in reveal and mount stagger wrappers               |
 | `app/{sitemap,robots}.ts`, `app/{opengraph,twitter}-image.tsx`                          | SEO plumbing                                              |
-| `app/fonts/index.ts`                                                                    | Huninn + Saira Stencil                                    |
+| `app/fonts/index.ts`                                                                    | Huninn + baseline ellipsis + Saira Stencil                |
 | `context/{notifications-context,notifications-types,use-watchlist-notifications}.ts(x)` | Lifted notifications open state                           |
 
 ## Config, env, and feature flags

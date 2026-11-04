@@ -6,7 +6,7 @@
   "client": {
     "loginTitle": "Einkaufslisten",
     "loginDescription": "Stell deine Liste zusammen und vergleiche die Preise der Händler an einem Ort.",
-    "searchPlaceholder": "Einkaufslisten suchen...",
+    "searchPlaceholder": "Einkaufslisten suchen",
     "searchResults": "Suchergebnisse für „{query}“ ({count})",
     "myLists": "Meine Einkaufslisten",
     "myListsWithCount": "Meine Einkaufslisten ({count})",

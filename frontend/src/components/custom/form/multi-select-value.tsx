@@ -43,7 +43,7 @@ export default function MultiSelectValue({
       <span
         {...props}
         className={cn(
-          "min-w-0 overflow-hidden font-normal text-muted-foreground",
+          "min-w-0 truncate font-normal text-muted-foreground",
           className,
         )}
       >

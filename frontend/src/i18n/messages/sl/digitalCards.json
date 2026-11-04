@@ -141,7 +141,7 @@
   "list": {
     "loginTitle": "Kartice zvestobe",
     "loginDescription": "Vse kartice zvestobe na enem mestu, vedno pri roki.",
-    "searchPlaceholder": "Išči kartice zvestobe...",
+    "searchPlaceholder": "Išči kartice zvestobe",
     "searchResults": "Rezultati iskanja za »{query}« ({count})",
     "myCards": "Moje kartice zvestobe",
     "myCardsWithCount": "Moje kartice zvestobe ({count})",

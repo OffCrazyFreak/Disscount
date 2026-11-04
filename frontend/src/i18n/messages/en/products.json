@@ -44,7 +44,7 @@
   },
   "listSelector": {
     "label": "Shopping list",
-    "searchPlaceholder": "Search your lists or create a new one...",
+    "searchPlaceholder": "Search your lists or create a new one",
     "empty": "Type a name to create your first list here.",
     "existingLists": "Your lists",
     "newList": "New shopping list",
@@ -112,26 +112,26 @@
   "facets": {
     "stores": {
       "label": "Stores",
-      "placeholder": "Choose stores...",
-      "search": "Search stores...",
+      "placeholder": "Choose stores",
+      "search": "Search stores",
       "empty": "No stores"
     },
     "locations": {
       "label": "Locations",
-      "placeholder": "Choose locations...",
-      "search": "Search locations...",
+      "placeholder": "Choose locations",
+      "search": "Search locations",
       "empty": "No locations"
     },
     "categories": {
       "label": "Categories",
-      "placeholder": "Choose categories...",
-      "search": "Search categories...",
+      "placeholder": "Choose categories",
+      "search": "Search categories",
       "empty": "No categories"
     },
     "brands": {
       "label": "Brand",
-      "placeholder": "Choose brands...",
-      "search": "Search brands...",
+      "placeholder": "Choose brands",
+      "search": "Search brands",
       "empty": "No brands"
     },
     "count": "({count})"
@@ -167,7 +167,7 @@
     "absoluteRange": "Enter an amount from €0.10 to €999"
   },
   "list": {
-    "searchPlaceholder": "Search products...",
+    "searchPlaceholder": "Search products",
     "resultsTitle": "Search results for “{query}”",
     "resultsTitleWithCount": "Search results for “{query}” ({count}{suffix})",
     "resultsStatus": "{count, plural, =0 {No results} one {# result} other {# results}}{truncated, select, yes { or more} other {}}",
@@ -220,7 +220,7 @@
     "all": "All"
   },
   "storeChainSelect": {
-    "multiPlaceholder": "Choose stores..."
+    "multiPlaceholder": "Choose stores"
   },
   "addPlainItem": {
     "title": "Add an item to a list",

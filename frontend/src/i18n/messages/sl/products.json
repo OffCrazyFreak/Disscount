@@ -44,7 +44,7 @@
   },
   "listSelector": {
     "label": "Nakupovalni seznam",
-    "searchPlaceholder": "Poišči med svojimi seznami ali ustvari novega...",
+    "searchPlaceholder": "Poišči med svojimi seznami ali ustvari novega",
     "empty": "Vpiši ime in tu ustvari prvi seznam.",
     "existingLists": "Obstoječi seznami",
     "newList": "Nov nakupovalni seznam",
@@ -112,26 +112,26 @@
   "facets": {
     "stores": {
       "label": "Trgovine",
-      "placeholder": "Izberi trgovine...",
-      "search": "Išči trgovine...",
+      "placeholder": "Izberi trgovine",
+      "search": "Išči trgovine",
       "empty": "Ni trgovin"
     },
     "locations": {
       "label": "Lokacije",
-      "placeholder": "Izberi lokacije...",
-      "search": "Išči lokacije...",
+      "placeholder": "Izberi lokacije",
+      "search": "Išči lokacije",
       "empty": "Ni lokacij"
     },
     "categories": {
       "label": "Kategorije",
-      "placeholder": "Izberi kategorije...",
-      "search": "Išči kategorije...",
+      "placeholder": "Izberi kategorije",
+      "search": "Išči kategorije",
       "empty": "Ni kategorij"
     },
     "brands": {
       "label": "Znamka",
-      "placeholder": "Izberi znamko...",
-      "search": "Išči znamke...",
+      "placeholder": "Izberi znamko",
+      "search": "Išči znamke",
       "empty": "Ni znamk"
     },
     "count": "({count})"
@@ -167,7 +167,7 @@
     "absoluteRange": "Vpiši znesek od 0,10 € do 999 €"
   },
   "list": {
-    "searchPlaceholder": "Išči izdelke...",
+    "searchPlaceholder": "Išči izdelke",
     "resultsTitle": "Rezultati iskanja za »{query}«",
     "resultsTitleWithCount": "Rezultati iskanja za »{query}« ({count}{suffix})",
     "resultsStatus": "{count, plural, =0 {Ni rezultatov} one {# rezultat} two {# rezultata} few {# rezultati} other {# rezultatov}}{truncated, select, yes { ali več} other {}}",
@@ -220,7 +220,7 @@
     "all": "Vse"
   },
   "storeChainSelect": {
-    "multiPlaceholder": "Izberi trgovce..."
+    "multiPlaceholder": "Izberi trgovce"
   },
   "addPlainItem": {
     "title": "Dodaj postavko na seznam",

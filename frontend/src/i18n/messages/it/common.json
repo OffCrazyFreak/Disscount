@@ -79,7 +79,7 @@
       "subject": "Oggetto",
       "subjectPlaceholder": "Es. Una domanda su Disscount",
       "message": "Messaggio",
-      "messagePlaceholder": "Scrivici come possiamo aiutarti...",
+      "messagePlaceholder": "Scrivici come possiamo aiutarti",
       "charactersLeft": "{count, plural, one {# carattere rimasto} other {# caratteri rimasti}}"
     },
     "modal": {

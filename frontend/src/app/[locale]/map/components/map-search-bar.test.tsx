@@ -78,7 +78,7 @@ describe("MapSearchBar", () => {
     expect(screen.queryByText("store list")).not.toBeInTheDocument();
 
     await user.click(
-      screen.getByRole("searchbox", { name: "Trgovina, grad ili adresa..." }),
+      screen.getByRole("searchbox", { name: "Trgovina, grad ili adresa" }),
     );
     expect(await screen.findByText("store list")).toBeInTheDocument();
     await waitFor(() =>
@@ -91,7 +91,7 @@ describe("MapSearchBar", () => {
 
     await user.click(screen.getByRole("button", { name: "Natrag na kartu" }));
     expect(
-      screen.getByRole("searchbox", { name: "Trgovina, grad ili adresa..." }),
+      screen.getByRole("searchbox", { name: "Trgovina, grad ili adresa" }),
     ).not.toHaveFocus();
     expect(
       await screen.findByRole("button", {
@@ -106,7 +106,7 @@ describe("MapSearchBar", () => {
     renderWithProviders(<Harness onOuterEscape={onOuterEscape} />);
 
     const field = screen.getByRole("searchbox", {
-      name: "Trgovina, grad ili adresa...",
+      name: "Trgovina, grad ili adresa",
     });
     await user.click(field);
     fireEvent.keyDown(field, { key: "Escape" });
@@ -124,7 +124,7 @@ describe("MapSearchBar", () => {
     renderWithProviders(<Harness onOuterEscape={vi.fn()} />);
 
     const field = screen.getByRole("searchbox", {
-      name: "Trgovina, grad ili adresa...",
+      name: "Trgovina, grad ili adresa",
     });
     await user.click(field);
     await screen.findByText("store list");
@@ -152,7 +152,7 @@ describe("MapSearchBar", () => {
 
     expect(
       await screen.findByRole("searchbox", {
-        name: "Trgovina, grad ili adresa...",
+        name: "Trgovina, grad ili adresa",
       }),
     ).toBeInTheDocument();
   });

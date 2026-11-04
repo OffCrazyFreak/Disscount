@@ -12,6 +12,8 @@ import { IScannedCode } from "@/typings/scanned-code";
 
 export interface ISearchBarFieldOptions {
   placeholder?: string;
+  /** Names the field when a shortened placeholder would say too little */
+  ariaLabel?: string;
   clearable?: boolean;
   allowScanning?: boolean;
   /** Exposes the field so an owner can focus it inside a gesture's own task */
@@ -29,6 +31,7 @@ interface ISearchBarFieldProps extends ISearchBarFieldOptions {
 /** The search input with its icon and the clear and scan buttons. */
 export default function SearchBarField({
   placeholder: placeholderProp,
+  ariaLabel,
   clearable = true,
   allowScanning = false,
   inputRef: exposedInputRef,
@@ -67,7 +70,7 @@ export default function SearchBarField({
         inputMode="search"
         enterKeyHint="search"
         placeholder={placeholder}
-        aria-label={placeholder || t("search.submit")}
+        aria-label={ariaLabel || placeholder || t("search.submit")}
         disabled={disabled}
         size="lg"
         className="pl-10 pr-22 text-muted-foreground focus:text-foreground bg-popover [&::-webkit-search-cancel-button]:hidden"

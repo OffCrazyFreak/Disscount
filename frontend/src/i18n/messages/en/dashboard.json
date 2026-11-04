@@ -49,7 +49,7 @@
     "viewAll": "All",
     "viewUnread": "Unread",
     "loadError": "Couldn't load messages. Try again.",
-    "searchPlaceholder": "Search messages...",
+    "searchPlaceholder": "Search messages",
     "showDeleted": "Show deleted",
     "colMessage": "Message",
     "colSender": "Sender",

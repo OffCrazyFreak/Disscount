@@ -5,7 +5,8 @@
   },
   "heading": "Mappa dei negozi",
   "search": {
-    "placeholder": "Catena, città o indirizzo..."
+    "placeholder": "Catena, città o indirizzo",
+    "placeholderShort": "Catena"
   },
   "layout": {
     "storeList": "Elenco dei negozi",

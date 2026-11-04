@@ -5,7 +5,7 @@
     "detailTitle": "Suggerimento | Idee e suggerimenti",
     "detailDescription": "Dettagli del suggerimento e commenti della community."
   },
-  "searchPlaceholder": "Cerca idee e suggerimenti...",
+  "searchPlaceholder": "Cerca idee e suggerimenti",
   "heading": "Idee e suggerimenti ({count})",
   "searchHeading": "Risultati per «{query}» ({count})",
   "separator": "·",
