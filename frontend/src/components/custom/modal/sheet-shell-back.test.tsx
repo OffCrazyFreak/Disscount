@@ -91,15 +91,6 @@ function Harness() {
 describe("SheetShell on Android back", () => {
   beforeEach(() => {
     watchers.instances.length = 0;
-    // jsdom has no ResizeObserver; the body's scroll fades are all it drives.
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
   });
 
   // Radix dialogs register no close watcher, so the sheet's older one used to

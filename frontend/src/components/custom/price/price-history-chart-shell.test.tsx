@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { Line } from "recharts";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import PriceHistoryChartShell from "@/components/custom/price/price-history-chart-shell";
 import { ChartTooltipContent } from "@/components/ui/chart";
@@ -33,6 +33,11 @@ function axisTickLabels(container: HTMLElement) {
 }
 
 describe("PriceHistoryChartShell", () => {
+  // Recharts draws at its initial size only when it cannot observe one, and jsdom has no layout.
+  beforeEach(() => {
+    vi.stubGlobal("ResizeObserver", undefined);
+  });
+
   it.each<[AppLocale, string[]]>([
     ["hr", ["03.11.", "04.11."]],
     ["en", ["3 Nov", "4 Nov"]],

@@ -3,11 +3,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useListShareText } from "@/app/[locale]/(user)/shopping-lists/hooks/use-list-share-text";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
-import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import type { PinnedStoreDto } from "@/lib/api/schemas/preferences";
 import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
 import { renderHookWithProviders } from "@/test/render";
 import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
+import { chain, product } from "@/test/price-fixtures";
 
 const signedIn = vi.hoisted(() => ({
   accountUser: null as { pinnedStores: PinnedStoreDto[] } | null,
@@ -37,38 +37,14 @@ function item(
   };
 }
 
-function chain(code: string, price: string) {
-  return {
-    chain: code,
-    code: "1",
-    name: "Proizvod",
-    brand: null,
-    category: null,
-    unit: null,
-    quantity: null,
-    min_price: price,
-    max_price: price,
-    avg_price: price,
-    price_date: "2026-11-01",
-  };
-}
-
 /** Sold at Spar for less than at Konzum, so Spar is the suggestion. */
-function product(ean: string): ProductResponse {
-  return {
-    ean,
-    brand: null,
-    name: "Proizvod",
-    quantity: null,
-    unit: null,
-    chains: [chain("konzum", "2.00"), chain("spar", "1.50")],
-  };
-}
-
 function shareTextFor(items: ShoppingListItemDto[], cachedEans: string[]) {
   const queryClient = new QueryClient();
   for (const ean of cachedEans) {
-    queryClient.setQueryData(CIJENE_QUERY_KEYS.productByEan(ean), product(ean));
+    queryClient.setQueryData(
+      CIJENE_QUERY_KEYS.productByEan(ean),
+      product([chain("konzum", "2.00"), chain("spar", "1.50")], { ean }),
+    );
   }
 
   const list: ShoppingListDto = {

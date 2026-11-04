@@ -1,4 +1,3 @@
-import { AxiosError, type AxiosResponse } from "axios";
 import { toast } from "sonner";
 import { describe, expect, it, vi } from "vitest";
 
@@ -6,15 +5,9 @@ import {
   cardDeleteFailed,
   cardWriteFailed,
 } from "@/lib/offline/card-write-failed";
+import { httpError } from "@/test/http-error";
 
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
-
-function httpError(status: number, data: unknown = {}) {
-  return new AxiosError("x", "ERR", undefined, undefined, {
-    status,
-    data,
-  } as AxiosResponse);
-}
 
 // The proxy translates its own refusal, so the toast shows the title it sent.
 const sessionChanged = () =>

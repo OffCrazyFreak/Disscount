@@ -43,6 +43,8 @@ The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Cr
 ## Shared helpers
 
 - **`render.tsx`**: `renderWithProviders(ui, { locale, queryClient })` and `renderHookWithProviders(hook, options)` wrap the real `NextIntlClientProvider`, with the real catalogs and the Zagreb time zone, and a fresh `QueryClient` with retries off. Croatian is the default. They also set `<html lang>`, which the API client sends as `Accept-Language`.
+- **`price-fixtures.ts`**: `chain(code, min, max, avg)` and `product(chains, overrides)` build the cijene-api price responses, so a change to their shape edits one file.
+- **`http-error.ts`**: `httpError(status, data)` builds a failed Axios request.
 - **`msw-server.ts`**: the MSW server, with no handlers. Each test declares the endpoints it expects with `server.use(...)`. Any request nobody declared fails the test that made it, even when the code under test catches the network error, so a forgotten call cannot pass silently.
 - **Navigation** has no shared mock yet. `@/i18n/navigation` hooks need a mounted App Router, so a component that uses them mocks the module in its test file: `vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => "/" }))`. Move it into `src/test/` once a second test needs the same mock.
 
@@ -56,7 +58,7 @@ The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Cr
 - **Mock modules only at a boundary** you cannot run: the better-auth session hook, the router, a hook that writes cookies and navigates. `vi.mock` must sit at the top of the file, and any variable its factory uses comes from `vi.hoisted`.
 - **Control time** with `vi.useFakeTimers({ now })` and switch back in `afterEach`. Testing Library's `waitFor` only detects Jest's fake timers and hangs under Vitest's, so flush with `act(() => vi.advanceTimersByTimeAsync(0))` instead (see `shopping-lists/hooks.test.tsx`). If user-event clicks under fake timers, pass `advanceTimers: vi.advanceTimersByTime` to `userEvent.setup`, or the click waits for a timer that never fires.
 - **Fake IndexedDB per module.** The offline tests replace `idb-keyval` with a `Map` (see `card-photo-outbox.test.ts`). That keeps unit tests fast and needs no extra dependency.
-- jsdom has no `matchMedia`, `ResizeObserver`, `IntersectionObserver`, canvas or camera. Stub what a test needs with `vi.stubGlobal`; the config restores stubs after each test.
+- jsdom has no `matchMedia`, `ResizeObserver`, `IntersectionObserver`, canvas or camera. `setup-dom.ts` gives every `dom` test a no-op `ResizeObserver` and a `matchMedia` that answers false. For a real answer, or anything else, stub with `vi.stubGlobal`; the config restores stubs after each test.
 
 The config sets `restoreMocks`, `unstubEnvs` and `unstubGlobals`, and Vitest 5 clears mock calls before every test by default, so tests do not need their own cleanup for spies, stubs or env vars.
 

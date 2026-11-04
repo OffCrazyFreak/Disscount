@@ -1,22 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { productResponseSchema } from "@/lib/cijene-api/schemas";
-
-function chain(chainCode: string, avgPrice: string) {
-  return {
-    chain: chainCode,
-    code: "1",
-    name: "Mlijeko",
-    brand: null,
-    category: null,
-    unit: null,
-    quantity: null,
-    min_price: avgPrice,
-    max_price: avgPrice,
-    avg_price: avgPrice,
-    price_date: "2026-11-03",
-  };
-}
+import { chain } from "@/test/price-fixtures";
 
 function product(chains: unknown[]) {
   return {

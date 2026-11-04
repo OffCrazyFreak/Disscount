@@ -1,26 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import type { ChainProductResponse } from "@/lib/cijene-api/schemas";
-
 import {
   compareProductChains,
   type ProductChainSortMode,
 } from "@/app/[locale]/products/utils/product-chain-sort";
+import { chain as priceChain } from "@/test/price-fixtures";
 
 function chain(name: string, minPrice: string, avgPrice: string) {
-  return {
-    chain: name,
-    code: "",
-    name: "",
-    brand: null,
-    category: null,
-    unit: null,
-    quantity: null,
-    min_price: minPrice,
-    max_price: avgPrice,
-    avg_price: avgPrice,
-    price_date: "2026-01-01",
-  } satisfies ChainProductResponse;
+  return priceChain(name, minPrice, avgPrice, avgPrice);
 }
 
 const chains = [

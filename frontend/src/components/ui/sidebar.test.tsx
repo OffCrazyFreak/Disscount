@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { Sidebar, SidebarProvider } from "@/components/ui/sidebar";
 import { renderWithProviders } from "@/test/render";
@@ -22,14 +22,6 @@ function renderSidebar(
 }
 
 describe("Sidebar on desktop", () => {
-  beforeEach(() => {
-    vi.stubGlobal("matchMedia", () => ({
-      matches: false,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-    }));
-  });
-
   it("takes its off-screen contents out of the tab order when closed", () => {
     expect(renderSidebar(false)).toHaveAttribute("inert");
   });

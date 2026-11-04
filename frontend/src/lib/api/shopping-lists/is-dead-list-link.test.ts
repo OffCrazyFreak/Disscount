@@ -1,18 +1,8 @@
-import { AxiosError, AxiosHeaders } from "axios";
+import { AxiosError } from "axios";
 import { describe, expect, it } from "vitest";
 
 import { isDeadListLink } from "@/lib/api/shopping-lists/is-dead-list-link";
-
-function httpError(status: number, data: unknown = { status }) {
-  return new AxiosError("Request failed", undefined, undefined, undefined, {
-    status,
-    statusText: "",
-    headers: {},
-    config: { headers: new AxiosHeaders() },
-    // The backend sends RFC 9457 Problem Details, which is where parseProblem reads it.
-    data,
-  });
-}
+import { httpError } from "@/test/http-error";
 
 describe("isDeadListLink", () => {
   it("is dead once the server says the list is gone", () => {

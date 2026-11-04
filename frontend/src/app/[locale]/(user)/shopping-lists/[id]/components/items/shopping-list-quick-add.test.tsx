@@ -50,15 +50,6 @@ function captureAdds() {
 describe("ShoppingListQuickAdd", () => {
   beforeEach(() => {
     openModalUrl.mockClear();
-    // jsdom has no ResizeObserver; the suggestion list's scroll fade only reads sizes.
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
   });
 
   it("adds the typed text as a plain item on Enter and stays ready for the next one", async () => {

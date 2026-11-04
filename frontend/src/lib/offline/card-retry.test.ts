@@ -1,14 +1,8 @@
-import { AxiosError, type AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { describe, expect, it } from "vitest";
 
 import { cardRetryDelay, shouldRetryCardWrite } from "@/lib/offline/card-retry";
-
-function httpError(status: number, data: unknown = {}) {
-  return new AxiosError("x", "ERR", undefined, undefined, {
-    status,
-    data,
-  } as AxiosResponse);
-}
+import { httpError } from "@/test/http-error";
 
 describe("shouldRetryCardWrite", () => {
   it("retries transient statuses", () => {

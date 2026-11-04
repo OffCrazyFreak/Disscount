@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import SheetShell from "@/components/custom/modal/sheet-shell";
 import {
@@ -87,18 +87,6 @@ function Harness({
 }
 
 describe("SheetShell", () => {
-  // jsdom has no ResizeObserver; the body's scroll fades are all it drives.
-  beforeEach(() => {
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
-  });
-
   // #134: vaul never told Radix the sheet was non-modal, so the page behind was
   // aria-hidden and Tab was trapped inside the sheet.
   it("leaves the page reachable while a non-modal sheet is open", async () => {
