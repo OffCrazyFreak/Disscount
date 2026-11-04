@@ -5,8 +5,6 @@
     "altNumbered": "{name}, photo {index}",
     "thumbnail": "Show photo {index} of {total}",
     "unverified": "Unverified photo",
-    "none": "No photo yet",
-    "noneHint": "Take a photo of the front of the pack and help others recognise the product.",
     "add": "Add photo",
     "manage": "Edit photos"
   },

@@ -35,6 +35,7 @@ export default function PhotoTile({
     >
       {src && (
         // A plain img, never a CSS background: dark mode extensions hide or invert large light backgrounds.
+        // Absolute, so the file's own pixel size never stretches a tile sized by its layout.
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={src}
@@ -43,7 +44,10 @@ export default function PhotoTile({
           decoding="async"
           draggable={false}
           onError={onError}
-          className={cn("size-full object-contain", imgClassName)}
+          className={cn(
+            "absolute inset-0 size-full object-contain",
+            imgClassName,
+          )}
         />
       )}
       {children}

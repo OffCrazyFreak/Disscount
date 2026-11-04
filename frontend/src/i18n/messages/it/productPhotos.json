@@ -5,8 +5,6 @@
     "altNumbered": "{name}, foto {index}",
     "thumbnail": "Mostra la foto {index} di {total}",
     "unverified": "Foto non verificata",
-    "none": "Ancora nessuna foto",
-    "noneHint": "Fotografa il fronte della confezione e aiuta gli altri a riconoscere il prodotto.",
     "add": "Aggiungi foto",
     "manage": "Modifica foto"
   },

@@ -10,6 +10,7 @@ import "yet-another-react-lightbox/plugins/counter.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 
 import ViewerActions from "@/components/custom/product-photos/viewer-actions";
+import ViewerFooter from "@/components/custom/product-photos/viewer-footer";
 import { useBackCloses } from "@/components/custom/product-photos/use-back-closes";
 import type { ProductImage } from "@/lib/api/types";
 
@@ -20,6 +21,10 @@ interface IProductPhotoViewerProps {
   index: number;
   onIndexChange: (index: number) => void;
   onClose: () => void;
+  /** Opens the upload; the caller closes the viewer first so the dialog is not stacked under it. List rows leave it out. */
+  onAdd?: () => void;
+  /** Set for admins only. */
+  onManage?: () => void;
   canReport: boolean;
   isAdmin: boolean;
 }
@@ -35,6 +40,8 @@ export default function ProductPhotoViewer({
   index,
   onIndexChange,
   onClose,
+  onAdd,
+  onManage,
   canReport,
   isAdmin,
 }: IProductPhotoViewerProps) {
@@ -75,6 +82,8 @@ export default function ProductPhotoViewer({
         // One photo needs neither arrows nor a strip of one thumbnail.
         buttonPrev: images.length > 1 ? undefined : () => null,
         buttonNext: images.length > 1 ? undefined : () => null,
+        controls: () =>
+          onAdd ? <ViewerFooter onAdd={onAdd} onManage={onManage} /> : null,
       }}
       toolbar={{
         buttons: [

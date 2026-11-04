@@ -5,8 +5,6 @@
     "altNumbered": "{name}, slika {index}",
     "thumbnail": "Prikaži sliku {index} od {total}",
     "unverified": "Nepotvrđena slika",
-    "none": "Još nema slike",
-    "noneHint": "Uslikaj prednju stranu pakiranja i pomozi drugima da prepoznaju proizvod.",
     "add": "Dodaj sliku",
     "manage": "Uredi slike"
   },

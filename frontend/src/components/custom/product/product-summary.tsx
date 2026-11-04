@@ -1,5 +1,6 @@
 "use client";
 
+import MediaRow from "@/components/custom/common/media-row";
 import ProductThumbnail from "@/components/custom/product-photos/product-thumbnail";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductInfo from "@/components/custom/product/product-info";
@@ -43,17 +44,16 @@ export default function ProductSummary({
 
   return (
     <div className="@container">
-      <div
-        className={cn(
-          "flex flex-col justify-between gap-3 px-3 py-2 @min-[300px]:flex-row @min-[300px]:items-center @md:gap-4 @md:px-4 @md:py-3",
-          className,
-        )}
+      <MediaRow
+        // Even padding, so the photo sits as far from the card's edges as from its top and bottom.
+        className={cn("p-3 @md:p-4", className)}
+        media={
+          ean !== undefined && (
+            <ProductThumbnail ean={ean} productName={name ?? undefined} />
+          )
+        }
       >
-        <div className="flex min-w-0 flex-1 items-center gap-4">
-          {ean !== undefined && (
-            <ProductThumbnail ean={ean} className="size-12 @md:size-16" />
-          )}
-
+        <div className="flex min-w-0 flex-col justify-between gap-3 @min-[300px]:flex-row @min-[300px]:items-center @md:gap-4">
           {isLoading ? (
             <div className="min-w-0 flex-1 space-y-2">
               <Skeleton className="h-3.5 w-24" />
@@ -61,18 +61,20 @@ export default function ProductSummary({
               <Skeleton className="h-3.5 w-32" />
             </div>
           ) : (
-            <ProductInfo
-              name={displayName}
-              brand={brand}
-              category={category}
-              href={href}
-              onNavigate={onNavigate}
-            />
+            <div className="flex min-w-0 flex-1 items-center">
+              <ProductInfo
+                name={displayName}
+                brand={brand}
+                category={category}
+                href={href}
+                onNavigate={onNavigate}
+              />
+            </div>
           )}
-        </div>
 
-        <ProductSummaryAside {...aside} />
-      </div>
+          <ProductSummaryAside {...aside} />
+        </div>
+      </MediaRow>
     </div>
   );
 }
