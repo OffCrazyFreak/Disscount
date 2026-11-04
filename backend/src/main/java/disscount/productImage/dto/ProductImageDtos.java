@@ -13,8 +13,10 @@ public final class ProductImageDtos {
 
     private ProductImageDtos() {}
 
-    /** A photo as everyone sees it; the first in a list is the main one. */
-    /** smallUrl is the 256 px file, or the thumb for a photo rendered before that size existed. */
+    /**
+     * A photo as everyone sees it; the first in a list is the main one. smallUrl is the 256 px file,
+     * or the thumb for a photo rendered before that size existed.
+     */
     public record ProductImageDto(UUID id, String fullUrl, String thumbUrl, String smallUrl, String source, String status) {}
 
     public record ProductImagesDto(String ean, List<ProductImageDto> images) {}
