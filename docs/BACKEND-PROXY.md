@@ -153,7 +153,7 @@ Sentry events carry only the tags `flow: backend-proxy`, `proxyFailure` and `pat
 | `lib/backend-proxy/proxy-problem.ts`                 | The problem responses.                                                                                         |
 | `lib/backend-proxy/proxy-contract.ts`                | The two header names and `session_changed`, shared by browser and server.                                      |
 | `lib/backend-proxy/client-headers.ts`                | `backendProxyHeaders()`, what the browser sends.                                                               |
-| `lib/api/api-base.ts`                                | The axios client: proxy headers, `Accept-Language`, the `session_changed` hook.                                |
+| `lib/api/api-base.ts`                                | The axios client: proxy headers, `Accept-Language`, the session refetch on a 401.                              |
 | `lib/api/session-changed.ts`                         | Refetches the session on any 401, at most once per 30 seconds unless it is `session_changed`.                  |
 | `context/user-context.tsx`                           | `handleUserLogin` moves the pin before the profile load.                                                       |
 | `lib/auth/index.ts`                                  | jwt plugin: `disableSettingJwtHeader: true`, token life `BACKEND_TOKEN_TTL_MINUTES`.                           |
