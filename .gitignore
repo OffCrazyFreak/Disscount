@@ -6,9 +6,6 @@
 .DS_Store
 Thumbs.db
 
-# T3 Code workspace configuration
-/t3.json
-
 # --- OS ---
 .idea/
 # Ignore the folder's contents rather than the folder itself, because git cannot
