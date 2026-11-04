@@ -60,16 +60,9 @@ services:
       SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT}
       # Verbose SDK init/transport logging for debugging; leave unset normally
       SENTRY_DEBUG: ${SENTRY_DEBUG:-false}
-      # Card photos in a private R2 bucket; blank disables photos.
-      R2_ENDPOINT: ${R2_ENDPOINT:-}
-      R2_BUCKET: ${R2_BUCKET:-}
-      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
-      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
-      R2_PUBLIC_BUCKET: ${R2_PUBLIC_BUCKET:-}
-      R2_PUBLIC_ACCESS_KEY_ID: ${R2_PUBLIC_ACCESS_KEY_ID:-}
-      R2_PUBLIC_SECRET_ACCESS_KEY: ${R2_PUBLIC_SECRET_ACCESS_KEY:-}
+      # The image hostname that serves public product photos; blank switches them off.
       R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
-      # Photo folders on the two photo volumes; blank keeps photos on R2 (docs/PRODUCT-IMAGES.md).
+      # Photo folders on the two photo volumes; blank switches those photos off (docs/PRODUCT-IMAGES.md).
       PHOTO_DIR: ${PHOTO_DIR:-}
       PUBLIC_PHOTO_DIR: ${PUBLIC_PHOTO_DIR:-}
     volumes:
