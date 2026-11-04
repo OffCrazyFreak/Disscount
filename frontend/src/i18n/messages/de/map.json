@@ -5,7 +5,8 @@
   },
   "heading": "Karte der Märkte",
   "search": {
-    "placeholder": "Händler, Ort oder Adresse..."
+    "placeholder": "Händler, Ort oder Adresse",
+    "placeholderShort": "Händler"
   },
   "layout": {
     "storeList": "Liste der Märkte",
