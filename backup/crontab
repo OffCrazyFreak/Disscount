@@ -9,4 +9,4 @@ CRON_TZ=UTC
 37 * * * * backup-job photos
 
 # Dokploy: its own database and /etc/dokploy, nightly (30 days).
-17 2 * * * backup-job dokploy
+27 2 * * * backup-job dokploy
