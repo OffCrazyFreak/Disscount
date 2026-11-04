@@ -311,6 +311,8 @@ def check(command, cwd, depth=0, root=None):
     # None means a `cd` landed somewhere unknowable, so cwd-dependent checks
     # can no longer be trusted for the rest of the command.
     effective_cwd = cwd
+    # A symlink made earlier in this same command does not exist yet when the guard runs.
+    links_modules = False
 
     for segment in segments(command):
         raw_tokens = tokens_of(segment)
@@ -345,6 +347,10 @@ def check(command, cwd, depth=0, root=None):
         if message:
             return message
 
+        if name == "ln" and any(arg.rstrip("/").endswith("node_modules") for arg in args):
+            links_modules = True
+            continue
+
         # A wrapper whose options we could not parse may have hidden the real
         # command, so judge the whole segment rather than just its head.
         if name == "pnpm" or (wrapped and "pnpm" in [basename(t) for t in tokens]):
@@ -354,7 +360,7 @@ def check(command, cwd, depth=0, root=None):
                     "cannot resolve, so it cannot tell whether the directory is a "
                     "git worktree. Run pnpm from a literal path instead."
                 )
-            if in_worktree(effective_cwd) and modules_are_linked(effective_cwd):
+            if in_worktree(effective_cwd) and (links_modules or modules_are_linked(effective_cwd)):
                 return (
                     f"Blocked: `{segment}` runs pnpm in a git worktree with a symlinked "
                     f"frontend/node_modules ({effective_cwd}).\n"

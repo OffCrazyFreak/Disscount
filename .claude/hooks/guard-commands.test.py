@@ -107,7 +107,9 @@ def cases(real_repo, real_worktree, on_main, tracks_dev, tracks_own, no_hooks, w
         (f"cd {installed}/frontend && pnpm check", MAIN, False),
         ("pnpm install --frozen-lockfile", fresh, False),
         ('bash -c "pnpm install"', fresh, False),
-        # BLOCK: a symlinked install, from the root and from frontend/, and a dangling link
+        # BLOCK: a link made earlier in the same command, which the guard runs before
+        ("ln -s /main/frontend/node_modules frontend/node_modules && pnpm exec tsc --noEmit", fresh, True),
+        # BLOCK: a symlinked install reached from outside, through frontend/
         (f"cd {real_worktree}/frontend && pnpm check", MAIN, True),
         # BLOCK: pnpm where node_modules is linked or git cannot say
         ("pnpm lint", WT, True),
