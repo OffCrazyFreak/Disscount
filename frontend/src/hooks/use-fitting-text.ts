@@ -24,7 +24,8 @@ export function useFittingText(
     let textBoxWidth = 0;
 
     function measure() {
-      if (!element || !context) return;
+      // The box width arrives with the observer's first callback; before that 0 would read as "too narrow".
+      if (!element || !context || textBoxWidth === 0) return;
 
       const style = getComputedStyle(element);
       context.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;

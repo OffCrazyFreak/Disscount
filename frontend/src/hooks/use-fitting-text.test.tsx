@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { act, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { useRef } from "react";
 
 import { useFittingText } from "@/hooks/use-fitting-text";
@@ -35,5 +35,42 @@ describe("useFittingText", () => {
     render(<Harness />);
 
     expect(screen.getByRole("textbox")).toHaveAttribute("placeholder", FULL);
+  });
+
+  it("does not read the unmeasured box as too narrow when fonts are ready first", async () => {
+    stubTextFit(textWidth(FULL));
+    let reportBox = () => {};
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        constructor(private readonly callback: ResizeObserverCallback) {}
+        observe() {
+          reportBox = () =>
+            this.callback(
+              [
+                {
+                  contentRect: { width: textWidth(FULL) },
+                } as ResizeObserverEntry,
+              ],
+              this as unknown as ResizeObserver,
+            );
+        }
+        disconnect() {}
+      },
+    );
+    Object.defineProperty(document, "fonts", {
+      configurable: true,
+      value: { ready: Promise.resolve() },
+    });
+
+    render(<Harness fallback={SHORT} />);
+    await act(async () => {});
+
+    expect(screen.getByRole("textbox")).toHaveAttribute("placeholder", FULL);
+
+    act(() => reportBox());
+    expect(screen.getByRole("textbox")).toHaveAttribute("placeholder", FULL);
+
+    Reflect.deleteProperty(document, "fonts");
   });
 });
