@@ -164,8 +164,7 @@ public class ProductImageJobs {
     /** The photo keeps showing its earlier files; after the last attempt it simply keeps them. */
     private void retryOlderLater(ProductImage loaded, RuntimeException cause) {
         images.findById(loaded.getId()).ifPresent(image -> {
-            int attempts = (image.getRenderAttempts() == null ? 0 : image.getRenderAttempts()) + 1;
-            image.setRenderAttempts(attempts);
+            int attempts = countFailedAttempt(image);
             image.setRenderRetryAt(Timestamps.nowUtc().plus(RENDER_RETRY_AFTER));
             images.save(image);
             log.warn("Could not re-render product photo {} for {} (attempt {}): {}", image.getId(), image.getEan(),
@@ -176,8 +175,7 @@ public class ProductImageJobs {
     private void postpone(ProductImage loaded, RuntimeException cause) {
         ProductImage image = current(loaded);
         if (image == null) return;
-        int attempts = (image.getRenderAttempts() == null ? 0 : image.getRenderAttempts()) + 1;
-        image.setRenderAttempts(attempts);
+        int attempts = countFailedAttempt(image);
         if (attempts >= MAX_RENDER_ATTEMPTS) {
             // A photo that keeps failing would hold the main slot forever, so the next photo or a user upload takes it.
             hide(image, cause);
@@ -186,6 +184,12 @@ public class ProductImageJobs {
         log.warn("Retrying product photo {} for {} later: {}", image.getId(), image.getEan(), cause.getMessage());
         image.setRenderRetryAt(Timestamps.nowUtc().plus(RENDER_RETRY_AFTER));
         images.save(image);
+    }
+
+    private static int countFailedAttempt(ProductImage image) {
+        int attempts = (image.getRenderAttempts() == null ? 0 : image.getRenderAttempts()) + 1;
+        image.setRenderAttempts(attempts);
+        return attempts;
     }
 
     /** A photo that cannot be read (a CMYK JPEG, a dead link) would otherwise block the head of the queue forever. */
