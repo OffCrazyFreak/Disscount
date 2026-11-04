@@ -63,7 +63,7 @@ public class PhotoStoreConfig {
     ) {
         if (publicUrl.isBlank()) return new DisabledPhotoStore();
         return create(directory, PRODUCTS_FOLDER, Visibility.WORLD_READABLE, "error.productImage.unavailable",
-                endpoint, bucket, accessKeyId, secretAccessKey, IMMUTABLE, publicUrl.replaceAll("/+$", ""));
+                endpoint, bucket, accessKeyId, secretAccessKey, IMMUTABLE, publicUrl.replaceAll("/$", ""));
     }
 
     // A set directory always wins, even when its folder is missing: falling back to R2 would split photos across two stores.
