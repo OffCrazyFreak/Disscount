@@ -123,6 +123,67 @@ jobs:
 
       - run: mvn -B verify
 
+  # Boots the backend and migrator images the way Dokploy runs them. Only a boot catches a Dockerfile
+  # that builds but leaves the app unable to start (a file the build stage never copied). No draft
+  # skip, so a broken image shows up as soon as it is pushed.
+  image-smoke:
+    name: Image smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      IMAGE_TAG: smoke
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # .env.example holds a complete set of placeholder values, so no CI-only env file exists to drift.
+      - name: Check the compose files
+        run: |
+          for file in docker-compose.yml docker-compose.prod.yml docker-compose.images.yml; do
+            docker compose --env-file .env.example -f "$file" config -q
+          done
+
+      - name: Lint the Dockerfiles
+        run: |
+          docker build --check backend
+          docker build --check --target migrator frontend
+          docker build --check frontend
+          docker build --check backup
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      # Reads the cache the images job writes; the packages are public, so forks need no login.
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: backend
+          target: runtime
+          load: true
+          tags: ghcr.io/offcrazyfreak/disscount-backend:smoke
+          cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-backend:buildcache
+
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: frontend
+          target: migrator
+          load: true
+          tags: ghcr.io/offcrazyfreak/disscount-migrator:smoke
+          cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-migrator:buildcache
+
+      # --pull missing: the app images exist only locally, while Postgres and Alpine still come from the registry.
+      - name: Boot the stack and wait for healthy
+        run: |
+          docker network create dokploy-network
+          docker compose --env-file .env.example -f docker-compose.images.yml up --detach --wait --wait-timeout 180 --pull missing backend
+
+      - name: Show container logs
+        if: failure()
+        run: docker compose --env-file .env.example -f docker-compose.images.yml logs --no-color --tail 200
+
+      - name: Tear down
+        if: always()
+        run: docker compose --env-file .env.example -f docker-compose.images.yml down --volumes
+
   # Workflow files fail only when they run, often on the release or deploy path, so check them up front.
   actionlint:
     name: Workflow lint
@@ -154,7 +215,7 @@ jobs:
 
   images:
     name: Image (${{ matrix.image }})
-    needs: [frontend, backend]
+    needs: [frontend, backend, image-smoke]
     if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
     # Reads the dev values without recording a deployment; the deploy job records it.
