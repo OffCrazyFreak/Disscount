@@ -290,6 +290,8 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
 - **Closing mid-debounce still saves, but a finished submit never re-persists.** The watch effect's cleanup flushes the last keystrokes on unmount unless a submit has finished (`isSubmitted` without `isSubmitting`), since that submit already cleared or reset the draft. It still flushes while a submit is in flight, for the optimistic-close pattern: add-to-list, add plain item and the watchlist close the modal before the request starts, the outlet unmounts it, and a failed request reopens a fresh modal that reads only the draft. Both flags come from `useFormState` in render and reach the cleanup through a ref, because `form.formState` read in an effect is the last render's snapshot and react-hook-form never refreshes a flag no render has read.
 
+- **`clearDraft` and `flushDraft` cancel the queued save.** The 500ms timer lives in a ref shared with both, so an edit made just before a failed add's `clearDraft` cannot fire afterwards and write the removed draft back, and a flush that wrote the values leaves no second write behind.
+
 - **Filters use repeated params, not a comma-joined string.** A category or brand can itself contain a comma, so joining would read back as two filters. Chain and location still accept a legacy comma-joined value so links shared before this change keep working.
 
 - **Filter writes use `router.replace`, not `push`.** Otherwise every filter tweak would pile up a browser-history entry and make the back button useless.
