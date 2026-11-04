@@ -49,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-// Not transactional on purpose: R2 cleanup runs after commit, so the service has to really commit.
+// Not transactional on purpose: photo cleanup runs after commit, so the service has to really commit.
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @Import({DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,

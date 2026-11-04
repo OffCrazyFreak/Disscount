@@ -4,27 +4,27 @@ A reference for how the digital wallet works: how a card is created, stored, sho
 
 _Written against the `feat/digital-cards-rebuild` branch. This is the rebuild; the earlier `digital_card` feature is replaced and not described here._
 
-> **Mental model in one sentence:** a card is a small row of text (name, store, the number or barcode payload, a colour) that the browser can draw as a scannable barcode on a white panel, optionally with up to three photos kept in a Cloudflare R2 bucket, and every write works offline because the card id is made on the phone and the write is replayed later.
+> **Mental model in one sentence:** a card is a small row of text (name, store, the number or barcode payload, a colour) that the browser can draw as a scannable barcode on a white panel, optionally with up to three photos kept on the server's disk, and every write works offline because the card id is made on the phone and the write is replayed later.
 
 ---
 
 ## 1. Quick reference
 
-| Thing           | Value                                                                                                |
-| --------------- | ---------------------------------------------------------------------------------------------------- |
-| Route           | `/digital-cards` (login required), plus the modals `?modal=digital-card/new`, `edit&id=`, `view&id=` |
-| Backend package | `disscount.digitalCard` (cards, photos), `disscount.storeName` (community store-name list)           |
-| Tables          | `wallet_card`, `wallet_card_photo`, `store_name_suggestion`, `store_name_usage`, `photo_cleanup`     |
-| Limits          | 300 active cards per user, 60 characters for names, 500 for a note, 4096 for a code                  |
-| Photos          | up to 3 per card (`front`, `back`, `icon`), WebP or JPEG, 512 KB per part, stored in Cloudflare R2   |
-| Photo bucket    | jurisdiction **EU**, endpoint `https://<ACCOUNT_ID>.eu.r2.cloudflarestorage.com`                     |
-| Env vars        | `R2_ENDPOINT`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` (backend, optional)           |
-| No env vars set | the wallet still works; only photos are off (uploads answer 503, the form hides the photo fields)    |
-| Offline         | cards are cached on the device; create, edit, pin, archive and delete queue and replay               |
-| Frontend tests  | `pnpm test` (Vitest)                                                                                 |
-| Backend tests   | `mvn -B test` (H2, no network)                                                                       |
+| Thing           | Value                                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------ |
+| Route           | `/digital-cards` (login required), plus the modals `?modal=digital-card/new`, `edit&id=`, `view&id=`   |
+| Backend package | `disscount.digitalCard` (cards, photos), `disscount.storeName` (community store-name list)             |
+| Tables          | `wallet_card`, `wallet_card_photo`, `store_name_suggestion`, `store_name_usage`, `photo_cleanup`       |
+| Limits          | 300 active cards per user, 60 characters for names, 500 for a note, 4096 for a code                    |
+| Photos          | up to 3 per card (`front`, `back`, `icon`), WebP or JPEG, 512 KB per part, stored on the server's disk |
+| Photo folder    | `cards/` in `PHOTO_DIR`, the `photos-private` volume at `/data/photos-private`                         |
+| Env vars        | `PHOTO_DIR` (backend, optional)                                                                        |
+| No env vars set | the wallet still works; only photos are off (uploads answer 503, the form hides the photo fields)      |
+| Offline         | cards are cached on the device; create, edit, pin, archive and delete queue and replay                 |
+| Frontend tests  | `pnpm test` (Vitest)                                                                                   |
+| Backend tests   | `mvn -B test` (H2, no network)                                                                         |
 
-**Daily workflow:** nothing to configure for cards themselves. Photos need the four `R2_*` variables in Dokploy; see [§13](#13-config-and-env-vars).
+**Daily workflow:** nothing to configure for cards themselves. Photos need `PHOTO_DIR` in Dokploy; see [§13](#13-config-and-env-vars).
 
 ---
 
@@ -93,12 +93,12 @@ One row per photo. Columns: `id` (generated UUID), `card_id` (FK), `slot` (`fron
 
 ### `photo_cleanup` (entity `PhotoCleanup`)
 
-A queue of R2 deletes that still have to happen. Columns: `id`, `key_or_prefix` (an object key, or a `cards/...` prefix when `is_prefix` is true), `is_prefix`, `created_at`.
+A queue of photo deletes that still have to happen. Columns: `id`, `key_or_prefix` (a file key, or a `cards/...` prefix when `is_prefix` is true), `is_prefix`, `created_at`.
 
 - The row is written in the same transaction as the database delete it belongs to (card delete, photo replace or remove, account deletion, the 30-day purge), so the two commit or roll back together.
 - After the commit `PhotoCleanupService` tries the delete and removes the row on success. On failure the row stays.
 - Every upload gets its own key (a random upload id after the hash), so a queued delete of an earlier upload can never remove a newer one, even one with the same bytes. As a second guard, writing a photo row cancels any queued delete for its keys, and every delete attempt skips (and drops) a key that a live photo row still uses.
-- `DigitalCardCleanupJob.retryPhotoCleanup` retries the oldest 200 rows every 15 minutes. With photos disabled (no R2 config) nothing is deleted and the rows stay queued until storage is configured. With storage off, a card delete or purge writes its prefix row only when a photo row still points under it (a photo stored before storage was switched off), so cards without stored photos queue nothing; callers therefore queue before they delete the photo rows. Single key deletes and the account erasure prefix always queue, so an erased account also reaches objects a failed discard left without a row.
+- `DigitalCardCleanupJob.retryPhotoCleanup` retries the oldest 200 rows every 15 minutes. With photos disabled (no `PHOTO_DIR`, or no `cards/` folder) nothing is deleted and the rows stay queued until storage is configured. With storage off, a card delete or purge writes its prefix row only when a photo row still points under it (a photo stored before storage was switched off), so cards without stored photos queue nothing; callers therefore queue before they delete the photo rows. Single key deletes and the account erasure prefix always queue, so an erased account also reaches objects a failed discard left without a row.
 
 ### `store_name_suggestion` (entity `StoreNameSuggestion`)
 
@@ -125,23 +125,23 @@ All card endpoints need a valid JWT. Errors are RFC 9457 `ProblemDetail` bodies 
 | `PUT /api/digital-cards/{id}`                  | Create or update (idempotent upsert). Another user's id, or a soft-deleted id, answers 404, so a replayed create cannot resurrect a deleted card                                                                                 |
 | `PUT /api/digital-cards/{id}/pin`              | Body `{pinned}`. A small write so an offline pin toggle never overwrites a full edit. A bulk update, so it does not bump `updated_at` (a pin is not an edit and must not move the card in "Nedavno uređeno")                     |
 | `PUT /api/digital-cards/{id}/archive`          | Body `{archived}`, same reasons, and likewise leaves `updated_at` alone                                                                                                                                                          |
-| `DELETE /api/digital-cards/{id}`               | Soft delete. The photo rows go at once and the R2 deletes are queued in `photo_cleanup`, because photos are personal data. 204; unknown id 404                                                                                   |
+| `DELETE /api/digital-cards/{id}`               | Soft delete. The photo rows go at once and the file deletes are queued in `photo_cleanup`, because photos are personal data. 204; unknown id 404                                                                                 |
 | `POST /api/digital-cards/used`                 | Body `[{id, usedAt}]`, 1 to 50 entries (otherwise 400). `usedAt` is clamped to between 400 days ago and now. Sets `last_used_at` to the later of the stored and sent time, without bumping `updated_at`. 204                     |
 | `GET /api/digital-cards/config`                | `{photosEnabled}`. The form shows the photo fields only once this answers `true`, so they stay hidden while it loads or fails                                                                                                    |
 | `PUT /api/digital-cards/{id}/photos/{slot}`    | Multipart: `full` (required) and `thumb` (required for `front` and `back`, absent for `icon`). Returns `{slot, sha256}`                                                                                                          |
 | `GET /api/digital-cards/{id}/photos/{slot}`    | Streams bytes. Query `size=full\|thumb` and `v={sha256}`. `Cache-Control: no-store, private`, an `ETag`, and `nosniff`. Conditional GET goes through `WebRequest.checkNotModified`, so weak and multi-value `If-None-Match` work |
-| `DELETE /api/digital-cards/{id}/photos/{slot}` | Removes one photo; the R2 delete is queued in `photo_cleanup`. 204                                                                                                                                                               |
+| `DELETE /api/digital-cards/{id}/photos/{slot}` | Removes one photo; the file delete is queued in `photo_cleanup`. 204                                                                                                                                                             |
 | `GET /api/store-names?q=`                      | Up to 50 visible community names, most used first, matched on the normalized name                                                                                                                                                |
 
 **Validation** (`DigitalCardRequest`): `cardName` and `storeName` 2 to 60 characters after trimming (`@TrimmedLength`, reported as field errors), `cardType` and `codeType` from an allowlist, `codeValue` 1 to 4096, `barcodeValue` up to 4096, `cardColor` a hex colour, `note` up to 500, `balance` 0 to 1,000,000 with two decimals, `balanceUnit` three capital letters, `expiresOn` not before `validFrom`. `cardName`, `storeName`, `codeValue`, `barcodeValue` and `note` may not contain a NUL character (a `@Pattern` on each field), and `GET /api/store-names?q=` with a NUL answers 400. The `POST /used` size and entry checks run through `@Validated` on the controller, and `GlobalExceptionHandler` turns the `ConstraintViolationException` into a 400.
 
-**Limits:** 300 active cards per user (409 "Imaš već najveći dopušteni broj kartica. Obriši neku koju ne koristiš."; archived cards count toward it), exact even under concurrent requests because every card write first locks the user's `app_user` row (see [§5](#5-photos-and-r2)); `POST /used` accepts 1 to 50 entries; photo uploads are limited to 20 per minute per user (429 with a `Retry-After` header, in memory per instance, the `cardPhotoUploadLimiter` bean in `config/UploadLimitConfig.java`). When R2 is not configured the upload answers 503 "Slike trenutno nisu dostupne" with `code` `error.cardPhoto.unavailable` (every 503 problem carries its message code, since the detail is translated).
+**Limits:** 300 active cards per user (409 "Imaš već najveći dopušteni broj kartica. Obriši neku koju ne koristiš."; archived cards count toward it), exact even under concurrent requests because every card write first locks the user's `app_user` row (see [§5](#5-photos)); `POST /used` accepts 1 to 50 entries; photo uploads are limited to 20 per minute per user (429 with a `Retry-After` header, in memory per instance, the `cardPhotoUploadLimiter` bean in `config/UploadLimitConfig.java`). When photo storage is off the upload answers 503 "Slike trenutno nisu dostupne" with `code` `error.cardPhoto.unavailable` (every 503 problem carries its message code, since the detail is translated).
 
 ---
 
-## 5. Photos and R2
+## 5. Photos
 
-Photos are optional and sit behind a `PhotoStore` interface (`put`, `get`, `delete`, `deletePrefix`). Three implementations exist, chosen in `storage/PhotoStoreConfig`, which builds the product photo stores from the same classes: `FilesystemPhotoStore` when `PHOTO_DIR` is set (files under `cards/` in that directory; off while the folder is missing, see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#storage-on-the-servers-disk)), otherwise `R2PhotoStore`, or `DisabledPhotoStore` if any of the four `R2_*` values is blank, and the wallet then works without photos.
+Photos are optional and sit behind a `PhotoStore` interface (`put`, `get`, `delete`, `deletePrefix`). Two implementations exist, chosen in `storage/PhotoStoreConfig`, which builds the product photo stores from the same classes: `FilesystemPhotoStore` when `PHOTO_DIR` is set (files under `cards/` in that directory; off while the folder is missing, see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#storage-on-the-servers-disk)), otherwise `DisabledPhotoStore`, and the wallet then works without photos.
 
 ### What the browser does
 
@@ -169,11 +169,11 @@ The stored bytes are the sanitized ones. For `icon` the `sha256` is the hash of 
 
 ### Write order and the per-user lock
 
-Upload validates both parts, puts them to R2 **outside any transaction** (so no database connection is held during the network call), and only then writes the row in a short transaction (`CardPhotoWriter`). That transaction re-checks that the card is still active, so a delete that committed during the upload wins. If the row write fails, the objects just stored are deleted, unless the live row already references the same keys (the same bytes uploaded twice).
+Upload validates both parts, writes them to disk **outside any transaction** (so no database connection is held while the files are written), and only then writes the row in a short transaction (`CardPhotoWriter`). That transaction re-checks that the card is still active, so a delete that committed during the upload wins. If the row write fails, the objects just stored are deleted, unless the live row already references the same keys (the same bytes uploaded twice).
 
 Every card write (upsert, delete, pin, archive, photo replace and remove, account deletion) first takes `UserRepository.findByIdForUpdate` (`PESSIMISTIC_WRITE`), wrapped by `CardUserLock` (through `requireActiveForUpdate`), which also rejects a deleted user. That serializes one user's writes, which is what makes the 300-card limit exact and turns a concurrent replay of the same id into a plain update. Account deletion takes the lock and flushes the anonymization before the card purge, so it persists.
 
-Object deletes (replaced or removed photos, a deleted card, account deletion, the 30-day purge) are queued in `photo_cleanup` in the same transaction, so a crash or an R2 outage cannot orphan an object for good ([§3](#3-data-model)).
+Object deletes (replaced or removed photos, a deleted card, account deletion, the 30-day purge) are queued in `photo_cleanup` in the same transaction, so a crash or a storage failure cannot orphan a file for good ([§3](#3-data-model)).
 
 ### Key layout
 
@@ -184,19 +184,13 @@ cards/{userId}/{cardId}/{slot}-{sha256}-{uploadId}-thumb.{webp|jpg}
 
 The hash in the key means a replaced photo gets a new key, so a cached copy can never be stale: the client asks for `?v={sha256}`, and a changed photo is a different URL. The `cards/{userId}/` prefix is what lets account deletion remove everything with one prefix sweep.
 
-### The R2 client
+### Deletes after the commit
 
-`PhotoStoreConfig` gets its AWS SDK v2 `S3Client` from the shared `storage/R2Clients.java`, which the product photo bucket uses too ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)). The client points at R2 with `endpointOverride`, region `auto`, path-style access, chunked encoding off, request and response checksums set to `WHEN_REQUIRED`, and `UrlConnectionHttpClient` (the Netty and Apache clients are excluded in `pom.xml` to keep the image small). The client has an `apiCallTimeout` of 20 seconds and an `apiCallAttemptTimeout` of 10 seconds, so a stalled R2 call cannot hold a request thread for the SDK default of minutes. R2 deletes are queued with the database change and attempted **after** the commit (`AfterCommit`), so a rolled-back transaction never loses a photo.
+Photo deletes are queued with the database change and attempted **after** the commit (`AfterCommit`), so a rolled-back transaction never loses a photo. `FilesystemPhotoStore.deletePrefix` removes every file under the prefix, which is how account deletion clears `cards/{userId}/`.
 
-`R2PhotoStore.deletePrefix` lists the prefix and issues one `DeleteObject` per key, not the batch `DeleteObjects` call, because the batch call needs a checksum header that R2 handles differently from S3.
+### Storage setup
 
-### Bucket setup (owner, once)
-
-1. In Cloudflare, create a bucket with **jurisdiction EU**. The jurisdiction is chosen at creation and cannot be changed later.
-2. Create an API token scoped to that bucket with object read and write.
-3. Set the four `R2_*` variables in Dokploy for each environment (see [§13](#13-config-and-env-vars)).
-
-Use a separate bucket from the backup bucket in [`INFRASTRUCTURE.md`](INFRASTRUCTURE.md), and a separate token, so a leaked photo token cannot touch database backups.
+Set `PHOTO_DIR` to `/data/photos-private` in Dokploy for each environment (see [§13](#13-config-and-env-vars)); the `photo-folders` service creates `cards/` inside it. The old R2 photo buckets are retired ([INFRASTRUCTURE.md](INFRASTRUCTURE.md#r2-buckets)).
 
 ---
 
@@ -277,14 +271,14 @@ A loyalty card number is personal data, and a photo of a card more so.
 | Card numbers never reach `localStorage`    | The form draft excludes `codeValue` and `barcodeValue` (`exclude` in `use-digital-card-form.ts`)                                                                                                                                    |
 | Card numbers never reach URLs or search    | Search reads name, store and note only (`filterCards`); the modal URL carries a card id, never a number                                                                                                                             |
 | A failed save can still restore the number | `pending-card-stash.ts` keeps the number in memory for 5 minutes so the reopened form is not empty. Memory only, gone on reload                                                                                                     |
-| Account deletion purges cards              | `UserService.deleteAccount` locks the user, then calls `digitalCardService.deleteAllForUser`, which hard-deletes the user's cards and photo rows and queues removal of the `cards/{userId}/` prefix in R2                           |
+| Account deletion purges cards              | `UserService.deleteAccount` locks the user, then calls `digitalCardService.deleteAllForUser`, which hard-deletes the user's cards and photo rows and queues removal of the `cards/{userId}/` prefix on disk                         |
 | Deleted cards do not linger                | A delete is soft first; the daily `DigitalCardCleanupJob` (03:30 UTC) hard-deletes cards soft-deleted more than 30 days ago                                                                                                         |
-| Photos are removed immediately on delete   | The photo rows and R2 objects go at once, even though the card row stays for the 30 days                                                                                                                                            |
-| Photo metadata is stripped                 | EXIF, XMP and ICC are removed server side, so a location in a photo never lands in R2                                                                                                                                               |
+| Photos are removed immediately on delete   | The photo rows and files go at once, even though the card row stays for the 30 days                                                                                                                                                 |
+| Photo metadata is stripped                 | EXIF, XMP and ICC are removed server side, so a location in a photo never lands on disk                                                                                                                                             |
 | The photo URL is private                   | `Cache-Control: no-store, private`, authenticated, and the owner is checked on every request. The app also fetches photos with cache mode `no-store`, so the browser HTTP cache, keyed by URL rather than account, never holds them |
 | Logout wipes the device                    | `purgeOfflineCache` removes the cached list, photo blobs, the photo outbox and the last-used queue of that account                                                                                                                  |
 | The store-name list is anonymous           | No user reference in `store_name_suggestion`; the private `store_name_usage` is never exposed and is deleted with the account; a name is shown only after two people use it                                                         |
-| The EU jurisdiction bucket                 | Photos stay in the EU                                                                                                                                                                                                               |
+| Photos stay on our server                  | The server is in Helsinki, in the EU                                                                                                                                                                                                |
 
 ---
 
@@ -304,7 +298,7 @@ A loyalty card number is personal data, and a photo of a card more so.
 | Path                                                                                           | Role                                                                                              |
 | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `backend/.../digitalCard/service/CardPhotoWriter.java`, `CardUserLock.java`                    | The short row-write transaction; the per-user lock                                                |
-| `backend/.../digitalCard/service/PhotoCleanupService.java`                                     | Queues R2 deletes in `photo_cleanup`, attempts them, retries                                      |
+| `backend/.../digitalCard/service/PhotoCleanupService.java`                                     | Queues file deletes in `photo_cleanup`, attempts them, retries                                    |
 | `backend/.../digitalCard/service/DigitalCardCleanupJob.java`                                   | Daily 30-day hard delete; retries photo cleanup                                                   |
 | `backend/.../config/UploadLimitConfig.java`                                                    | 20 card photo uploads per minute per user; the limiter sweeps its expired windows every 5 minutes |
 | `frontend/src/lib/offline/card-photo-store.ts`, `card-photo-outbox.ts`, `purge.ts`             | Photo blobs, upload outbox, logout purge                                                          |
@@ -316,18 +310,15 @@ A loyalty card number is personal data, and a photo of a card more so.
 
 ## 13. Config and env vars
 
-Four backend variables, all **optional, runtime, secret** (never `NEXT_PUBLIC_`). Leaving any one blank turns photos off.
+One backend variable, **optional, runtime** (never `NEXT_PUBLIC_`). Leaving it blank turns photos off.
 
-| Var                    | What it controls                                  | Example placeholder                                |
-| ---------------------- | ------------------------------------------------- | -------------------------------------------------- |
-| `R2_ENDPOINT`          | The R2 S3 endpoint of the EU-jurisdiction account | `https://<ACCOUNT_ID>.eu.r2.cloudflarestorage.com` |
-| `R2_BUCKET`            | The bucket name for card photos                   | `<card-photos-bucket>`                             |
-| `R2_ACCESS_KEY_ID`     | Access key of a token scoped to that bucket       | `<access-key-id>`                                  |
-| `R2_SECRET_ACCESS_KEY` | Secret of the same token                          | `<secret-access-key>`                              |
+| Var         | What it controls                                                                                   | Example                |
+| ----------- | -------------------------------------------------------------------------------------------------- | ---------------------- |
+| `PHOTO_DIR` | The folder on the server's disk holding `cards/` (and the product originals, `product-originals/`) | `/data/photos-private` |
 
-They are read in `backend/src/main/resources/application.properties` as `r2.endpoint`, `r2.bucket`, `r2.access-key-id` and `r2.secret-access-key`, and listed in `backend/.env.example`. Set them in **Dokploy, service, Environment**, per environment; a change needs a restart of the backend, not a rebuild.
+It is read in `backend/src/main/resources/application.properties` as `photos.private-dir`, and listed in `backend/.env.example`. Set it in **Dokploy, service, Environment**, per environment; a change needs a restart of the backend, not a rebuild.
 
-Other settings that matter: `spring.servlet.multipart.max-file-size=512KB` and `max-request-size=1100KB` in `application.properties`. The test profile (`backend/src/test/resources/application.properties`) leaves all four R2 values blank, so tests never reach out.
+Other settings that matter: `spring.servlet.multipart.max-file-size=512KB` and `max-request-size=1100KB` in `application.properties`. The test profile (`backend/src/test/resources/application.properties`) leaves `PHOTO_DIR` blank, so tests touch no photo folder.
 
 ---
 
@@ -338,7 +329,6 @@ Versions are in `frontend/package.json` and `backend/pom.xml`. The ones whose ro
 - `@bwip-js/browser`: draws barcodes and QR codes as SVG, in the browser, with no server round trip.
 - `@base-ui/react`: the headless Autocomplete primitive behind the store field, via the reui registry component.
 - `idb-keyval`: IndexedDB stores for photo blobs, the photo outbox and the last-used queue.
-- `software.amazon.awssdk:s3` with `url-connection-client`: the S3 client used against R2 (Netty and Apache clients excluded).
 
 The store field's Autocomplete came from the reui registry (`@reui` in `frontend/components.json`) into `components/reui/autocomplete.tsx`. `components/ui/scroll-area.tsx` was added the same way.
 
@@ -346,46 +336,42 @@ The store field's Autocomplete came from the reui registry (`@reui` in `frontend
 
 ## 15. What is automatic vs manual
 
-| Thing                                                | Auto or manual | How                                                                      |
-| ---------------------------------------------------- | -------------- | ------------------------------------------------------------------------ |
-| Creating the new tables                              | Auto           | Hibernate `ddl-auto=update` on deploy (additive only)                    |
-| Replaying offline writes                             | Auto           | `resumePausedMutations` on reconnect and on cache restore                |
-| Replaying queued photos                              | Auto           | After the card saves, via `replayCardPhotoOutbox`                        |
-| Sending last-used times                              | Auto           | At most once a minute, and when the tab hides                            |
-| Retrying failed R2 deletes                           | Auto           | `DigitalCardCleanupJob.retryPhotoCleanup`, every 15 minutes              |
-| Purging data on logout                               | Auto           | `purgeOfflineCache` on any identity change                               |
-| Hard-deleting cards soft-deleted 30 days ago         | Auto           | `DigitalCardCleanupJob`, daily at 03:30 UTC                              |
-| Removing a user's cards and photos on account delete | Auto           | `UserService.deleteAccount`                                              |
-| Shortcut icons for the PWA                           | Auto           | `scripts/generate-shortcut-icons.mjs` (the icon files are committed)     |
-| **Creating the R2 bucket (EU) and token**            | Manual         | Cloudflare dashboard, once                                               |
-| **Setting the four `R2_*` variables**                | Manual         | Dokploy, per environment; both compose files forward them to the backend |
-| **Dropping the old `digital_card` table**            | Manual         | After deploy, once nothing reads it                                      |
-| **Moderating community store names**                 | Manual         | No admin screen yet; set `hidden = true` in the database by hand         |
-| **Till test with real cards**                        | Manual         | Lidl Plus QR, and the code types Konzum, Spar, Tommy and Studenac print  |
+| Thing                                                | Auto or manual | How                                                                     |
+| ---------------------------------------------------- | -------------- | ----------------------------------------------------------------------- |
+| Creating the new tables                              | Auto           | Hibernate `ddl-auto=update` on deploy (additive only)                   |
+| Replaying offline writes                             | Auto           | `resumePausedMutations` on reconnect and on cache restore               |
+| Replaying queued photos                              | Auto           | After the card saves, via `replayCardPhotoOutbox`                       |
+| Sending last-used times                              | Auto           | At most once a minute, and when the tab hides                           |
+| Retrying failed photo deletes                        | Auto           | `DigitalCardCleanupJob.retryPhotoCleanup`, every 15 minutes             |
+| Purging data on logout                               | Auto           | `purgeOfflineCache` on any identity change                              |
+| Hard-deleting cards soft-deleted 30 days ago         | Auto           | `DigitalCardCleanupJob`, daily at 03:30 UTC                             |
+| Removing a user's cards and photos on account delete | Auto           | `UserService.deleteAccount`                                             |
+| Shortcut icons for the PWA                           | Auto           | `scripts/generate-shortcut-icons.mjs` (the icon files are committed)    |
+| **Setting `PHOTO_DIR`**                              | Manual         | Dokploy, per environment; the compose files forward it to the backend   |
+| **Dropping the old `digital_card` table**            | Manual         | After deploy, once nothing reads it                                     |
+| **Moderating community store names**                 | Manual         | No admin screen yet; set `hidden = true` in the database by hand        |
+| **Till test with real cards**                        | Manual         | Lidl Plus QR, and the code types Konzum, Spar, Tommy and Studenac print |
 
 ---
 
 ## 17. Gotchas & lessons learned
 
-| Gotcha                                              | What happens / fix                                                                                                                                                                                                                                                                     |
-| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **The old `digital_card` table stays**              | `ddl-auto=update` never drops anything, and the rebuild uses new table names (`wallet_card`) so the stale table cannot merge into the new shape. It sits unused until you drop it by hand, after deploy, once nothing reads it. This is a one-way step, so check a backup exists first |
-| **`ddl-auto=update` and enum columns**              | `card_type` and `code_type` are Strings, not Java enums, so adding a type later is an allowlist change, not a stale `CHECK` constraint that 500s on write                                                                                                                              |
-| **Safari returns PNG for a WebP request**           | `canvas.toBlob("image/webp")` silently gives PNG on Safari, and the server rejects PNG. `encodeWebpOrJpeg` in `utils/browser/image.ts` checks `blob.type` and falls back to JPEG. Never remove that check                                                                              |
-| **bwip-js is large**                                | Import only the named encoders from `@bwip-js/browser` (as `generate-code-svg.ts` does) rather than pulling in every symbology, or the bundle carries code for barcode types no card uses. This is a size concern I did not measure here                                               |
-| **R2 and the AWS SDK checksums**                    | Since SDK 2.30 the default adds checksum trailers that R2 rejects. `R2Clients` sets request and response checksums to `WHEN_REQUIRED` and turns chunked encoding off, for both buckets. Upgrading the SDK means re-testing a real upload                                               |
-| **R2 batch delete**                                 | `DeleteObjects` needs a checksum header R2 treats differently from S3, so `deletePrefix` deletes key by key                                                                                                                                                                            |
-| **The EU jurisdiction is fixed at bucket creation** | A bucket made without it cannot be moved. The endpoint also differs (`.eu.` in the host), and the default endpoint will not find an EU bucket                                                                                                                                          |
-| **Photos are not a paused mutation**                | Bytes in a persisted mutation would bloat the single cache blob, so photos use their own outbox. Keep new photo work out of the mutation cache                                                                                                                                         |
-| **Replay order**                                    | Card saves must replay before photo uploads, or the upload 404s and is dropped                                                                                                                                                                                                         |
-| **Bump the query key version with the DTO**         | `DIGITAL_CARD_KEY_VERSION` in `lib/api/digital-cards/keys.ts` retires cached card data when its shape changes. Bump it instead of the persister `buster`                                                                                                                               |
-| **No R2 call inside a transaction**                 | A photo is put to R2 first and the row written after, in a short transaction. Holding a transaction open across the upload would pin a database connection on a slow network                                                                                                           |
-| **Last-used is not a mutation**                     | Opening a card must never wait on the network. A lost write only changes sort order                                                                                                                                                                                                    |
-| **The persister `buster`**                          | Bumping it discards every queued offline write for every user (see [`PWA.md`](PWA.md)). The cards rebuild did not change it; do not bump it for a small field change                                                                                                                   |
-| **Store names must not fail a card save**           | `record` runs in `REQUIRES_NEW` and its failure is logged, not thrown                                                                                                                                                                                                                  |
-| **`navigator.vibrate` moved**                       | The scanner context no longer vibrates on every scan; `scanner-content.tsx` does it once per stable code. Do not add it back to the context                                                                                                                                            |
-| **Gift card PINs are never stored**                 | A PIN is a credential. If a future feature asks for one, treat it as a separate security design, not another text field                                                                                                                                                                |
-| **Draft keys**                                      | The form drafts live under `digital-card.new` and `digital-card.edit.<id>` and never hold a card number                                                                                                                                                                                |
+| Gotcha                                      | What happens / fix                                                                                                                                                                                                                                                                     |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **The old `digital_card` table stays**      | `ddl-auto=update` never drops anything, and the rebuild uses new table names (`wallet_card`) so the stale table cannot merge into the new shape. It sits unused until you drop it by hand, after deploy, once nothing reads it. This is a one-way step, so check a backup exists first |
+| **`ddl-auto=update` and enum columns**      | `card_type` and `code_type` are Strings, not Java enums, so adding a type later is an allowlist change, not a stale `CHECK` constraint that 500s on write                                                                                                                              |
+| **Safari returns PNG for a WebP request**   | `canvas.toBlob("image/webp")` silently gives PNG on Safari, and the server rejects PNG. `encodeWebpOrJpeg` in `utils/browser/image.ts` checks `blob.type` and falls back to JPEG. Never remove that check                                                                              |
+| **bwip-js is large**                        | Import only the named encoders from `@bwip-js/browser` (as `generate-code-svg.ts` does) rather than pulling in every symbology, or the bundle carries code for barcode types no card uses. This is a size concern I did not measure here                                               |
+| **Photos are not a paused mutation**        | Bytes in a persisted mutation would bloat the single cache blob, so photos use their own outbox. Keep new photo work out of the mutation cache                                                                                                                                         |
+| **Replay order**                            | Card saves must replay before photo uploads, or the upload 404s and is dropped                                                                                                                                                                                                         |
+| **Bump the query key version with the DTO** | `DIGITAL_CARD_KEY_VERSION` in `lib/api/digital-cards/keys.ts` retires cached card data when its shape changes. Bump it instead of the persister `buster`                                                                                                                               |
+| **No photo write inside a transaction**     | A photo is written to disk first and the row written after, in a short transaction. Holding a transaction open across the upload would pin a database connection on a slow disk                                                                                                        |
+| **Last-used is not a mutation**             | Opening a card must never wait on the network. A lost write only changes sort order                                                                                                                                                                                                    |
+| **The persister `buster`**                  | Bumping it discards every queued offline write for every user (see [`PWA.md`](PWA.md)). The cards rebuild did not change it; do not bump it for a small field change                                                                                                                   |
+| **Store names must not fail a card save**   | `record` runs in `REQUIRES_NEW` and its failure is logged, not thrown                                                                                                                                                                                                                  |
+| **`navigator.vibrate` moved**               | The scanner context no longer vibrates on every scan; `scanner-content.tsx` does it once per stable code. Do not add it back to the context                                                                                                                                            |
+| **Gift card PINs are never stored**         | A PIN is a credential. If a future feature asks for one, treat it as a separate security design, not another text field                                                                                                                                                                |
+| **Draft keys**                              | The form drafts live under `digital-card.new` and `digital-card.edit.<id>` and never hold a card number                                                                                                                                                                                |
 
 ---
 

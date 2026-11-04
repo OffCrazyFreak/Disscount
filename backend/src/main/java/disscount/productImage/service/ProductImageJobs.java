@@ -68,7 +68,7 @@ public class ProductImageJobs {
 
     /**
      * Checked every few hours but runs weekly; the last run is stored so restarts do not repeat it.
-     * The catalogue also feeds the product sitemap, so it runs without the photo bucket; only the photo seed needs it.
+     * The catalogue also feeds the product sitemap, so it runs without the photo store; only the photo seed needs it.
      */
     @Scheduled(fixedDelay = 6 * 3_600_000L, initialDelay = 10 * 60_000L)
     public void weeklyImport() {
@@ -87,7 +87,7 @@ public class ProductImageJobs {
             }
             // An interrupt during the download can surface as an IOException, so it is checked again here.
             if (Thread.currentThread().isInterrupted()) return;
-            // Tracked apart, so turning the photo bucket on mid-week seeds at the next check instead of up to a
+            // Tracked apart, so turning the photo store on mid-week seeds at the next check instead of up to a
             // week later; a fresh import seeds its new EANs straight away.
             if (store.enabled() && (imported || isDue(PHOTO_SEED))) {
                 seed.seed();
@@ -107,7 +107,7 @@ public class ProductImageJobs {
         return last == null || !last.isAfter(Timestamps.nowUtc().minus(IMPORT_EVERY));
     }
 
-    /** Copies main photos into our bucket one at a time, as Open Food Facts asks of image downloads. */
+    /** Copies main photos into our photo store one at a time, as Open Food Facts asks of image downloads. */
     @Scheduled(fixedDelay = 15_000L, initialDelay = 2 * 60_000L)
     public void renderMainPhotos() {
         if (!enabled || !store.enabled() || !renderingNow.compareAndSet(false, true)) return;
@@ -128,7 +128,7 @@ public class ProductImageJobs {
                     // A 403 or 500 for one file says nothing about the next one, so only this photo waits.
                     postpone(image, e);
                 } catch (RuntimeException e) {
-                    // Network or bucket trouble: stop here and try the same photos at the next tick.
+                    // Network or disk trouble: stop here and try the same photos at the next tick.
                     log.warn("Product photo rendering paused: {}", e.getMessage());
                     return;
                 }

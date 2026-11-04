@@ -30,17 +30,6 @@
 		<!-- webp-imageio is the only Kotlin library here and is built against 2.4; the Boot BOM would pull kotlin-stdlib down to an older minor. -->
 		<kotlin.version>2.4.0</kotlin.version>
 	</properties>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>software.amazon.awssdk</groupId>
-				<artifactId>bom</artifactId>
-				<version>2.57.6</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -125,28 +114,6 @@
 			<groupId>com.github.usefulness</groupId>
 			<artifactId>webp-imageio</artifactId>
 			<version>0.11.0</version>
-		</dependency>
-		<dependency>
-			<groupId>software.amazon.awssdk</groupId>
-			<artifactId>s3</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>software.amazon.awssdk</groupId>
-					<artifactId>netty-nio-client</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>software.amazon.awssdk</groupId>
-					<artifactId>apache-client</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>software.amazon.awssdk</groupId>
-					<artifactId>apache5-client</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>software.amazon.awssdk</groupId>
-			<artifactId>url-connection-client</artifactId>
 		</dependency>
 	</dependencies>
 

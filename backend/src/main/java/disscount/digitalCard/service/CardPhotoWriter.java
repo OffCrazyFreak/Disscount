@@ -16,7 +16,7 @@ import java.util.UUID;
 
 /**
  * The short database half of a photo write. Validation and object storage happen before it, so
- * no transaction (and no pooled connection) is held while the image is re-encoded or sent to R2.
+ * no transaction (and no pooled connection) is held while the image is re-encoded or written to disk.
  */
 @Component
 @RequiredArgsConstructor

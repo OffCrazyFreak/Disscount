@@ -155,7 +155,7 @@ sequenceDiagram
 | --------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | better-auth identity, sessions, linked accounts           | Deleted by better-auth after Spring commits                                             |
 | `app_user` username and avatar                            | Nulled; the row is soft deleted                                                         |
-| Digital cards and their photos                            | Hard deleted, photos queued for R2 deletion ([DIGITAL-CARDS.md](DIGITAL-CARDS.md))      |
+| Digital cards and their photos                            | Hard deleted, photos queued for deletion ([DIGITAL-CARDS.md](DIGITAL-CARDS.md))         |
 | Favourite stores                                          | Deleted                                                                                 |
 | Custom store names typed on cards                         | Their usage rows are deleted and the shared counts drop (`StoreNameService.forgetUser`) |
 | `erasure_ledger`                                          | A tombstone with the user id and time                                                   |

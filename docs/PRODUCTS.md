@@ -204,12 +204,12 @@ The backend stores them in `shopping_list_item` (`ean` nullable for plain text i
 
 Three browser layers and one server layer keep product data fast and available. [PWA.md](PWA.md) describes the machinery; this is what it does for products.
 
-| Layer                       | What it holds for products                                                                                                                                                                | Where                                          |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| React Query, in memory      | Product by EAN, search, store prices: `staleTime` 6 hours. Chains 1 hour, stores 30 minutes, health 30 seconds. History as in [§8](#8-price-history)                                      | `lib/cijene-api/query-hooks.ts`                |
-| React Query, IndexedDB      | Everything under the `cijene` key root, except `prices` keys other than `product`, so the city price ranges are not stored. The watchlist is persisted too. Product photo queries are not | `lib/offline/cached-query-keys.ts`             |
-| Service worker (production) | `GET /api/cijene/*` is stale while revalidate in the `cijene-api` cache (200 entries, 7 days). Other `/api/` calls are network only. R2 photos fall under Serwist's `defaultCache` rules  | `app/sw.ts`                                    |
-| Next.js server              | The in-memory city price cache (1 hour); the sitemap's EAN list (`revalidate: 3600`)                                                                                                      | `location-prices/`, `product-images/server.ts` |
+| Layer                       | What it holds for products                                                                                                                                                                    | Where                                          |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| React Query, in memory      | Product by EAN, search, store prices: `staleTime` 6 hours. Chains 1 hour, stores 30 minutes, health 30 seconds. History as in [§8](#8-price-history)                                          | `lib/cijene-api/query-hooks.ts`                |
+| React Query, IndexedDB      | Everything under the `cijene` key root, except `prices` keys other than `product`, so the city price ranges are not stored. The watchlist is persisted too. Product photo queries are not     | `lib/offline/cached-query-keys.ts`             |
+| Service worker (production) | `GET /api/cijene/*` is stale while revalidate in the `cijene-api` cache (200 entries, 7 days). Other `/api/` calls are network only. Product photos fall under Serwist's `defaultCache` rules | `app/sw.ts`                                    |
+| Next.js server              | The in-memory city price cache (1 hour); the sitemap's EAN list (`revalidate: 3600`)                                                                                                          | `location-prices/`, `product-images/server.ts` |
 
 What that means offline:
 
