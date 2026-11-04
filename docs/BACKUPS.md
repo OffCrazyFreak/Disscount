@@ -94,7 +94,9 @@ pg_restore --clean --if-exists --no-owner -d "$DATABASE_URL" db.dump
 
 Decrypt and restore `<timestamp>.globals.sql.age` first on a new server if roles are missing. After any restore, and before traffic reopens, run the [erasure replay](#erasure-replay).
 
-**Photos:** with an rclone config that has the same `r2` and `photos` (crypt) remotes and the same password and salt, `rclone copy photos:gen-<n>/private <photo folder>` and the same for `public`. Pick the newest complete generation, the one before the current one.
+**Photos:** with an rclone config that has the same `r2` and `photos` (crypt) remotes and the same password and salt, `rclone copy photos:gen-<n>/private <photo folder>` and the same for `public`. Use the newest generation once its first copy has finished, which it has when its file count (`rclone size photos:gen-<n>`) is at least the previous generation's; otherwise use the one before. The newest holds everything the previous one does plus newer files, while an older one also holds photos deleted since.
+
+**Checking restored card photos:** `wallet_card_photo.sha256` is a version id, not the file's hash. With a thumbnail it is the SHA-256 of `<full file hash>:<thumb file hash>`, so a check recomputes it from both files.
 
 **Dokploy:** decrypt `<timestamp>.dump.age` and `<timestamp>.etc.tar.age` the same way, restore the dump into Dokploy's database and unpack the tar into `/etc/dokploy`, then redeploy the services to clone their repositories again.
 
@@ -128,6 +130,7 @@ Researched 4 November 2026 and decided by the owner. Dokploy schedules were reje
 - **The container runs as root** to read `/etc/dokploy`, which holds root-only SSH keys. It mounts nothing writable from the host and has no Docker socket. The scratch restore runs as `postgres`.
 - **Photo volumes:** in `docker-compose.images.yml` the backend and the backup sidecar mount the same `photos-private` and `photos-public` volumes, so every photo the backend writes on disk is in the hourly copy. Before photos move to disk (`PHOTO_DIR` and `PUBLIC_PHOTO_DIR` blank) the volumes are empty; the job then copies nothing and still succeeds. A missing mount fails the job.
 - **Dokploy backups are older than the markers cover.** Until they retire, the Dokploy Backups tab keeps dumps for 60 days. Markers cover only the last 30, so restoring one of those older dumps also needs the `erasure_ledger` rows of the newest sidecar dump erased by hand. Prefer a sidecar dump.
+- **The first copy of a generation is the slow one.** Small files are bound by upload latency, so the job uploads 32 at a time. Measured on dev on 04.11.2026: 11 files a second with rclone's default 4, 46 with 16 and 93 with 32, so dev's 61,000 photo files take about 11 minutes. While it runs, the hourly photo runs skip.
 - **Bucket Lock means no fixing mistakes by deleting:** a bad upload stays until its lock ends. Test changes on a separate bucket.
 
 ## Future work
