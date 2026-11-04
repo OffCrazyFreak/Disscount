@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { configure, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw/http";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -32,13 +32,23 @@ function list(id: string, title: string, updatedAt: string) {
   };
 }
 
+// Closing the real modal turns the draft hook off, which cancels its pending debounced save. A mock
+// that leaves the modal open lets that save land after the failure's cleanup; unmounting stands in.
+function unmountOnClose(view: { unmount: () => void }) {
+  closeModalUrl.mockImplementation(() => view.unmount());
+}
+
 const newest = list("list-a", "Tjedna kupnja", "2026-11-02T10:00:00");
 const older = list("list-b", "Vikendica", "2026-10-01T10:00:00");
 
-describe("AddPlainItemModal", () => {
+// Each test drives a popover and several clicks in jsdom, which outgrows the 5 s test and 1 s findBy
+// defaults on a CPU-starved CI worker; the limits are a margin, not a wait the tests rely on.
+configure({ asyncUtilTimeout: 10_000 });
+
+describe("AddPlainItemModal", { timeout: 30_000 }, () => {
   beforeEach(() => {
     openModalUrl.mockClear();
-    closeModalUrl.mockClear();
+    closeModalUrl.mockReset();
     localStorage.clear();
     // jsdom has no scrollIntoView; cmdk calls it on the highlighted list option.
     Element.prototype.scrollIntoView ??= vi.fn();
@@ -217,6 +227,7 @@ describe("AddPlainItemModal", () => {
     const edited = renderWithProviders(
       <AddPlainItemModal open itemName="Kruh integralni" />,
     );
+    unmountOnClose(edited);
     await waitFor(() =>
       expect(
         screen.getByRole("combobox", { name: "Popis za kupnju" }),
@@ -232,7 +243,6 @@ describe("AddPlainItemModal", () => {
         itemName: "Kruh",
       }),
     );
-    edited.unmount();
 
     expect(getFormDraft("add-plain-item.kruh")).toBeNull();
     expect(getFormDraft("add-plain-item.kruh integralni")).toBeNull();
@@ -254,6 +264,7 @@ describe("AddPlainItemModal", () => {
     const edited = renderWithProviders(
       <AddPlainItemModal open itemName="Kruh integralni" />,
     );
+    unmountOnClose(edited);
     const trigger = await screen.findByRole("combobox", {
       name: "Popis za kupnju",
     });
@@ -265,7 +276,6 @@ describe("AddPlainItemModal", () => {
     await user.type(nameInput, "Kruh");
     await user.click(screen.getByRole("button", { name: "Dodaj" }));
     await waitFor(() => expect(openModalUrl).toHaveBeenCalled());
-    edited.unmount();
 
     expect(getFormDraft("add-plain-item.kruh")?.values.shoppingListId).toBe(
       older.id,
