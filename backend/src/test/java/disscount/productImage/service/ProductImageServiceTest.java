@@ -116,7 +116,7 @@ class ProductImageServiceTest {
         assertThat(stored.getSource()).isEqualTo(ImageSource.USER);
         assertThat(shown.images()).singleElement().satisfies(i -> {
             assertThat(i.status()).isEqualTo("PENDING");
-            assertThat(i.thumbUrl()).startsWith("https://images.test/products/" + EAN + "/");
+            assertThat(i.smallUrl()).startsWith("https://images.test/products/" + EAN + "/");
         });
         assertThat(sets.findById(EAN)).get().satisfies(s -> {
             assertThat(s.getMainImageId()).isEqualTo(stored.getId());
@@ -124,8 +124,8 @@ class ProductImageServiceTest {
         });
         assertThat(originals.objects.keySet()).singleElement().asString().startsWith("product-originals/" + EAN + "/");
         assertThat(cardPhotos.objects).isEmpty();
-        // Full, thumb and the small list file.
-        assertThat(publicStore.objects).hasSize(3);
+        // The full file and the small list file.
+        assertThat(publicStore.objects).hasSize(2);
     }
 
     @Test
@@ -165,10 +165,13 @@ class ProductImageServiceTest {
     void aPhotoRenderedBeforeTheSmallFileServesItsThumbAsTheSmallOne() {
         writes.upload(ana, EAN, jpeg());
         ProductImage photo = images.findByEanOrderByCreatedAtAsc(EAN).get(0);
-        assertThat(queries.forProduct(EAN).images()).singleElement()
-                .satisfies(i -> assertThat(i.smallUrl()).endsWith(photo.getSmallKey()));
+        assertThat(queries.forProduct(EAN).images()).singleElement().satisfies(i -> {
+            assertThat(i.smallUrl()).endsWith(photo.getSmallKey());
+            assertThat(i.fullWidth()).isEqualTo(photo.getFullWidth());
+        });
 
         photo.setSmallKey(null);
+        photo.setThumbKey("products/" + EAN + "/older-thumb.jpg");
         images.save(photo);
         assertThat(queries.forProduct(EAN).images()).singleElement()
                 .satisfies(i -> assertThat(i.smallUrl()).endsWith(photo.getThumbKey()));
@@ -321,7 +324,7 @@ class ProductImageServiceTest {
         ProductImage cropped = images.findById(photo.getId()).orElseThrow();
         assertThat(cropped.getFullKey()).isNotEqualTo(before);
         assertThat(cropped.getStatus()).isEqualTo(ImageStatus.VERIFIED);
-        assertThat(publicStore.objects).doesNotContainKey(before).hasSize(3);
+        assertThat(publicStore.objects).doesNotContainKey(before).hasSize(2);
         assertThatThrownBy(() -> admin.crop(adminId, photo.getId(), 0, new CropDto(0, 0, 5000, 80)))
                 .hasMessage("error.productImage.crop");
     }
@@ -355,9 +358,10 @@ class ProductImageServiceTest {
 
         ProductImage older = images.findByEanOrderByCreatedAtAsc(EAN).getFirst();
         older.setSmallKey(null);
+        older.setThumbKey("products/" + EAN + "/older-thumb.jpg");
         images.save(older);
 
-        assertThat(queries.thumbnails(List.of(EAN)).thumbnails().get(EAN)).endsWith("-thumb.webp");
+        assertThat(queries.thumbnails(List.of(EAN)).thumbnails().get(EAN)).endsWith("older-thumb.jpg");
     }
 
     @Test
@@ -439,7 +443,7 @@ class ProductImageServiceTest {
         });
 
         assertThat(images.findById(photo.getId())).get().extracting(ProductImage::getFullKey).isEqualTo(photo.getFullKey());
-        assertThat(publicStore.objects).containsKeys(photo.getFullKey(), photo.getThumbKey());
+        assertThat(publicStore.objects).containsKeys(photo.getFullKey(), photo.getSmallKey());
     }
 
     @Test

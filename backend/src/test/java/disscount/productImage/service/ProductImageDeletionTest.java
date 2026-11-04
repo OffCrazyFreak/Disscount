@@ -114,7 +114,7 @@ class ProductImageDeletionTest {
 
         assertThat(images.findById(photo.getId())).get().extracting(ProductImage::isDeleted).isEqualTo(false);
         assertThat(originals.objects).containsKey(photo.getOriginalKey());
-        assertThat(publicStore.objects).containsKeys(photo.getFullKey(), photo.getThumbKey(), photo.getSmallKey());
+        assertThat(publicStore.objects).containsKeys(photo.getFullKey(), photo.getSmallKey());
     }
 
     @Test

@@ -57,6 +57,8 @@ class ProductImageRemoval {
         image.setFullKey(null);
         image.setThumbKey(null);
         image.setSmallKey(null);
+        image.setFullWidth(null);
+        image.setFullHeight(null);
         image.setOriginalKey(null);
         image.setRenderedAt(null);
         image.setReportCount(0);

@@ -24,37 +24,65 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ProductImageRendererTest {
 
     @Test
-    void transparentPhotoBecomesASquareOnWhite() throws IOException {
+    void transparentPhotoKeepsItsShapeOnWhiteAndItsSmallFileIsASquare() throws IOException {
         Rendered rendered = ProductImageRenderer.render(transparentPng(600, 200), 0, null);
 
         BufferedImage full = decode(rendered.full());
-        assertThat(full.getWidth()).isEqualTo(full.getHeight());
-        // Corners are padding and the transparent part of the source: both must be white pixels, not CSS.
+        assertThat(full.getWidth()).isEqualTo(600);
+        assertThat(full.getHeight()).isEqualTo(200);
+        assertThat(rendered.fullWidth()).isEqualTo(600);
+        assertThat(rendered.fullHeight()).isEqualTo(200);
+        // The transparent part of the source must become white pixels, not CSS.
         assertWhite(full.getRGB(0, 0));
         assertWhite(full.getRGB(full.getWidth() - 1, full.getHeight() - 1));
-        assertWhite(full.getRGB(full.getWidth() / 2, 5));
 
-        BufferedImage thumb = decode(rendered.thumb());
-        assertThat(thumb.getWidth()).isEqualTo(ProductImageRenderer.THUMB_SIDE);
-        assertThat(thumb.getHeight()).isEqualTo(ProductImageRenderer.THUMB_SIDE);
+        BufferedImage small = decode(rendered.small());
+        assertThat(small.getWidth()).isEqualTo(ProductImageRenderer.SMALL_SIDE);
+        assertThat(small.getHeight()).isEqualTo(ProductImageRenderer.SMALL_SIDE);
+        // Square padding is white too.
+        assertWhite(small.getRGB(small.getWidth() / 2, 2));
         assertThat(rendered.sha256()).hasSize(64);
         assertThat(rendered.sourceWidth()).isEqualTo(600);
         assertThat(rendered.sourceHeight()).isEqualTo(200);
     }
 
     @Test
-    void largeSourceIsCappedAtTheFullSide() throws IOException {
-        BufferedImage full = decode(ProductImageRenderer.render(TestImages.jpeg(2000, 1500), 0, null).full());
-        assertThat(full.getWidth()).isEqualTo(ProductImageRenderer.FULL_SIDE);
+    void largeSourceIsCappedAtTheFullSideOnItsLongEdge() throws IOException {
+        Rendered rendered = ProductImageRenderer.render(TestImages.jpeg(1500, 3000), 0, null);
+
+        BufferedImage full = decode(rendered.full());
+        assertThat(full.getHeight()).isEqualTo(ProductImageRenderer.FULL_MAX_SIDE);
+        assertThat(full.getWidth()).isEqualTo(ProductImageRenderer.FULL_MAX_SIDE / 2);
+        assertThat(rendered.fullHeight()).isEqualTo(full.getHeight());
     }
 
     @Test
     void smallSourceIsNeverUpscaled() throws IOException {
         Rendered rendered = ProductImageRenderer.render(TestImages.jpeg(100, 50), 0, null);
 
+        assertThat(decode(rendered.full()).getWidth()).isEqualTo(100);
         // 100 px plus 4% margin on each side.
-        assertThat(decode(rendered.full()).getWidth()).isEqualTo(108);
-        assertThat(decode(rendered.thumb()).getWidth()).isEqualTo(108);
+        assertThat(decode(rendered.small()).getWidth()).isEqualTo(108);
+    }
+
+    @Test
+    void aCropAwayFromTheCornerKeepsItsOwnPixels() throws IOException {
+        BufferedImage halves = new BufferedImage(200, 100, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = halves.createGraphics();
+        g.setColor(Color.RED);
+        g.fillRect(0, 0, 100, 100);
+        g.setColor(Color.BLUE);
+        g.fillRect(100, 0, 100, 100);
+        g.dispose();
+        ByteArrayOutputStream png = new ByteArrayOutputStream();
+        ImageIO.write(halves, "png", png);
+
+        BufferedImage full = decode(ProductImageRenderer.render(png.toByteArray(), 0, new Crop(110, 20, 60, 40)).full());
+
+        assertThat(full.getWidth()).isEqualTo(60);
+        int centre = full.getRGB(30, 20);
+        assertThat(centre & 0xff).as("blue").isGreaterThan(200);
+        assertThat((centre >> 16) & 0xff).as("red").isLessThan(60);
     }
 
     @Test
@@ -82,16 +110,14 @@ class ProductImageRendererTest {
     }
 
     @Test
-    void rendersThreeWebpFilesUnderTheirCeilings() throws IOException {
+    void rendersTwoWebpFilesUnderTheirCeilings() throws IOException {
         Rendered rendered = ProductImageRenderer.render(TestImages.jpeg(2000, 1500), 0, null);
 
-        for (byte[] file : new byte[][] {rendered.full(), rendered.thumb(), rendered.small()}) {
+        for (byte[] file : new byte[][] {rendered.full(), rendered.small()}) {
             assertThat(isWebp(file)).isTrue();
         }
-        assertThat(decode(rendered.thumb()).getWidth()).isEqualTo(ProductImageRenderer.THUMB_SIDE);
         assertThat(decode(rendered.small()).getWidth()).isEqualTo(ProductImageRenderer.SMALL_SIDE);
         assertThat(rendered.full().length).isLessThanOrEqualTo(ProductImageRenderer.FULL_MAX_BYTES);
-        assertThat(rendered.thumb().length).isLessThanOrEqualTo(ProductImageRenderer.THUMB_MAX_BYTES);
         assertThat(rendered.small().length).isLessThanOrEqualTo(ProductImageRenderer.SMALL_MAX_BYTES);
     }
 

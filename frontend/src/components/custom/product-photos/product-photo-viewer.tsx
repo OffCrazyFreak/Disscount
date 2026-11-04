@@ -29,9 +29,8 @@ interface IProductPhotoViewerProps {
   isAdmin: boolean;
 }
 
-// Rendered squares are at most this size; a smaller source simply stays smaller.
-const FULL_SIDE = 1080;
-const THUMB_SIDE = 400;
+// A photo rendered before the full file kept its shape is a square of at most this size.
+const OLDER_FULL_SIDE = 1080;
 
 export default function ProductPhotoViewer({
   ean,
@@ -51,12 +50,9 @@ export default function ProductPhotoViewer({
   const slides = images.map((image, i) => ({
     src: image.fullUrl,
     alt: t("photo.altNumbered", { name: productName, index: i + 1 }),
-    width: FULL_SIDE,
-    height: FULL_SIDE,
-    srcSet: [
-      { src: image.thumbUrl, width: THUMB_SIDE, height: THUMB_SIDE },
-      { src: image.fullUrl, width: FULL_SIDE, height: FULL_SIDE },
-    ],
+    width: image.fullWidth ?? OLDER_FULL_SIDE,
+    height: image.fullHeight ?? OLDER_FULL_SIDE,
+    thumbnail: image.smallUrl,
   }));
 
   return (
@@ -69,7 +65,8 @@ export default function ProductPhotoViewer({
       on={{ view: ({ index: viewed }) => onIndexChange(viewed) }}
       carousel={{ finite: true, padding: "16px" }}
       controller={{ closeOnPullDown: true, closeOnBackdropClick: true }}
-      zoom={{ maxZoomPixelRatio: 2, scrollToZoom: true }}
+      // The default limit is one CSS pixel per file pixel; the old 2 stretched each file pixel over 4 device pixels at 2x.
+      zoom={{ scrollToZoom: true }}
       thumbnails={{
         width: 64,
         height: 64,
