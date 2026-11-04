@@ -1,6 +1,6 @@
 # Testing
 
-The frontend uses Vitest with Testing Library, jsdom and MSW. The backend has its own JUnit suite on H2, covered in `AGENTS.md`. This file covers the frontend.
+The frontend uses Vitest with Testing Library, jsdom and MSW. The backend has its own JUnit suite on H2, covered in `AGENTS.md`, plus `DoubleBootSchemaTest`, which starts the app twice on real `postgres:17-alpine` with main's `application.properties` and fails if the second start changes the schema, so `mvn -B verify` needs Docker. This file covers the frontend.
 
 ## Commands
 
@@ -51,6 +51,7 @@ The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Cr
 
 ## Writing a test
 
+- **Every test asserts something.** `expect.requireAssertions` is on, so a test that reaches its end without one fails.
 - **Test behaviour, not structure.** Query the way a person finds things: `getByRole` with the accessible name first, then `getByLabelText`, and `getByTestId` only as a last resort. A role query that cannot find a button is usually an accessibility bug.
 - **Use real translations.** Render with the catalogs instead of mocking `useTranslations`, the way next-intl's testing guide does. Assert on the Croatian text the user sees, or pass `locale` to check another language.
 - **Click with `userEvent.setup()`**, created before the action, and `await` every interaction.
@@ -59,6 +60,7 @@ The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Cr
 - **Mock modules only at a boundary** you cannot run: the better-auth session hook, the router, a hook that writes cookies and navigates. `vi.mock` must sit at the top of the file, or of a helper the test imports first, and any variable its factory uses comes from `vi.hoisted`.
 - **Control time** with `vi.useFakeTimers({ now })` and switch back in `afterEach`. Testing Library's `waitFor` only detects Jest's fake timers and hangs under Vitest's, so flush with `act(() => vi.advanceTimersByTimeAsync(0))` instead (see `shopping-lists/hooks.test.tsx`). If user-event clicks under fake timers, pass `advanceTimers: vi.advanceTimersByTime` to `userEvent.setup`, or the click waits for a timer that never fires.
 - **Fake IndexedDB per module.** The offline tests replace `idb-keyval` with a `Map` (see `card-photo-outbox.test.ts`). That keeps unit tests fast and needs no extra dependency.
+- **Run axe on dialogs.** `expect(await axeDialog(document.body)).toHaveNoViolations()` with `axeDialog` from `test/axe-dialog.ts` catches an untitled dialog or an unnamed button in under 100 ms. It turns off colour contrast, which jsdom cannot paint, and the page landmark rule, so pass real children rather than a stub. See `modal-shell.test.tsx`.
 - jsdom has no `matchMedia`, `ResizeObserver`, `IntersectionObserver`, canvas or camera. `setup-dom.ts` gives every `dom` test a no-op `ResizeObserver` and a `matchMedia` that answers false. For a real answer, or anything else, stub with `vi.stubGlobal`; the config restores stubs after each test.
 
 The config sets `restoreMocks`, `unstubEnvs` and `unstubGlobals`, and Vitest 5 clears mock calls before every test by default, so tests do not need their own cleanup for spies, stubs or env vars.
