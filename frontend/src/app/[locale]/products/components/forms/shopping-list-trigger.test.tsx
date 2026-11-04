@@ -46,7 +46,7 @@ describe("ShoppingListTrigger truncation", () => {
     expect(screen.getByText("Stvori prvi popis")).toHaveClass("truncate");
   });
 
-  it("lets a long new list name end in an ellipsis", () => {
+  it("keeps a long new list name ending in an ellipsis", () => {
     renderTrigger({ isNewList: true, customListTitle: "Vikend" });
 
     expect(screen.getByText(/Vikend/)).toHaveClass("truncate");
