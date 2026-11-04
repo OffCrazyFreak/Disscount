@@ -61,7 +61,7 @@ export default function SearchBarField({
   }
 
   return (
-    <div className="relative grow-100">
+    <div data-slot="search-field" className="relative grow-100">
       <Search
         aria-hidden="true"
         className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground size-5"
