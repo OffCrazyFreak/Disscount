@@ -79,10 +79,11 @@ export default async function PrivacyPolicyPage() {
         <p>
           Kad dodaš sliku proizvoda, spremamo je bez metapodataka poput mjesta
           snimanja i povezujemo je s tvojim računom kako bismo spriječili
-          zlouporabu. Slika je javno vidljiva, bez tvog imena. Slike čuvamo kod
-          Cloudflarea (R2) u Europskoj uniji. Ako obrišeš račun, slike ostaju
-          kao dio podataka o proizvodu, ali više nisu povezane s tvojim imenom.
-          Ako želiš da uklonimo neku tvoju sliku, javi nam se.
+          zlouporabu. Slika je javno vidljiva, bez tvog imena. Slike čuvamo na
+          našem poslužitelju kod Hetznera u Finskoj, u Europskoj uniji. Ako
+          obrišeš račun, slike ostaju kao dio podataka o proizvodu, ali više
+          nisu povezane s tvojim imenom. Ako želiš da uklonimo neku tvoju sliku,
+          javi nam se.
         </p>
       </LegalSection>
 
