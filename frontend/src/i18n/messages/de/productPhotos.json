@@ -70,6 +70,7 @@
     "deleteTitle": "Foto endgültig löschen?",
     "deleteDescription": "Die Dateien werden vom Server entfernt. Dasselbe Foto kann nicht mehr hinzugefügt oder aus Open Food Facts importiert werden. Das lässt sich nicht rückgängig machen.",
     "deleteConfirm": "Foto löschen",
+    "deleteCancel": "Abbrechen",
     "deleted": "Foto gelöscht.",
     "reports": "{count, plural, one {# Meldung} other {# Meldungen}}",
     "openProduct": "Produkt öffnen",

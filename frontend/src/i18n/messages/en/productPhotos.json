@@ -70,6 +70,7 @@
     "deleteTitle": "Delete this photo for good?",
     "deleteDescription": "The files are removed from the server. The same photo can no longer be added or imported from Open Food Facts. This cannot be undone.",
     "deleteConfirm": "Delete photo",
+    "deleteCancel": "Cancel",
     "deleted": "Photo deleted.",
     "reports": "{count, plural, one {# report} other {# reports}}",
     "openProduct": "Open product",

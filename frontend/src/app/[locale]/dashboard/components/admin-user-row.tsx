@@ -29,7 +29,7 @@ interface IAdminUserRowProps {
   user: UserDto;
   isSelf: boolean;
   isUpdating: boolean;
-  /** Missing while the counts load, and for users who never uploaded a photo. */
+  /** Missing while the counts load or after they failed. */
   photos?: ContributorPhotoCount;
   onAccountTypeChange: (userId: string, accountType: AccountType) => void;
   onDelete: (user: UserDto) => void;
@@ -66,10 +66,12 @@ export default function AdminUserRow({
       </TableCell>
 
       <TableCell className="text-muted-foreground whitespace-nowrap text-sm">
-        {t("users.photoCount", {
-          uploaded: photos?.uploaded ?? 0,
-          deleted: photos?.deleted ?? 0,
-        })}
+        {photos
+          ? t("users.photoCount", {
+              uploaded: photos.uploaded,
+              deleted: photos.deleted,
+            })
+          : EMPTY_VALUE}
       </TableCell>
 
       <TableCell>

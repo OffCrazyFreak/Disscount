@@ -7,6 +7,7 @@ import disscount.digitalCard.photo.PhotoValidator;
 import disscount.digitalCard.photo.TestImages;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.NotFoundException;
+import disscount.exceptions.ServiceUnavailableException;
 import disscount.productImage.dao.ProductImageReportRepository;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
@@ -76,6 +77,7 @@ class ProductImageDeletionTest {
         writes.upload(ana, EAN, jpeg(400, 300));
         ProductImage photo = images.findByEanOrderByCreatedAtAsc(EAN).get(0);
         writes.report(marko, photo.getId());
+        String cleanedHash = ProductImageRenderer.sha256(originals.objects.values().iterator().next());
 
         assertThat(admin.delete(adminId, photo.getId()).images()).isEmpty();
 
@@ -86,11 +88,26 @@ class ProductImageDeletionTest {
             assertThat(row.isDeleted()).isTrue();
             assertThat(row.getDeletedById()).isEqualTo(adminId);
             assertThat(row.getStatus()).isEqualTo(ImageStatus.HIDDEN);
-            assertThat(row.getContentSha256()).isEqualTo(ProductImageRenderer.sha256(TestImages.jpeg(400, 300)));
+            assertThat(row.getContentSha256()).isEqualTo(cleanedHash);
             assertThat(row.getOriginalKey()).isNull();
             assertThat(row.getFullKey()).isNull();
         });
-        assertThat(sets.findById(EAN)).get().extracting(ProductImageSet::getMainImageId).isNull();
+        assertThat(sets.findById(EAN)).get().satisfies(set -> {
+            assertThat(set.getMainImageId()).isNull();
+            // The shown photo is gone, so the product goes back to the review queue.
+            assertThat(set.isNeedsReview()).isTrue();
+        });
+    }
+
+    @Test
+    void withoutTheOriginalsFolderAnUploadCannotBeDeleted() {
+        writes.upload(ana, EAN, jpeg(400, 300));
+        ProductImage photo = images.findByEanOrderByCreatedAtAsc(EAN).get(0);
+        originals.enabled = false;
+
+        assertThatThrownBy(() -> admin.delete(adminId, photo.getId()))
+                .isInstanceOf(ServiceUnavailableException.class);
+        assertThat(images.findById(photo.getId())).get().extracting(ProductImage::isDeleted).isEqualTo(false);
     }
 
     @Test

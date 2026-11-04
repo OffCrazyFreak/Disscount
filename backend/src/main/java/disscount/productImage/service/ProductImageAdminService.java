@@ -140,6 +140,7 @@ public class ProductImageAdminService {
         ProductImage image = live(imageId);
         ProductImageSet set = loadOrCreate(image.getEan());
         removal.delete(adminId, image);
+        if (image.getId().equals(set.getMainImageId())) set.setNeedsReview(true);
         releaseMain(set, image);
         sets.save(set);
         return product(image.getEan());

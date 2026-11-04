@@ -62,13 +62,12 @@ public class ProductImageWriteService {
         boolean admin = userService.isActiveAdmin(userId);
         if (!admin) limiter.check(userId);
 
-        byte[] uploaded = bytes(file);
-        ValidatedPhoto photo = validator.validate(uploaded);
+        ValidatedPhoto photo = validator.validate(bytes(file));
         // The renderer reads JPEG and PNG only; the app always sends JPEG for product photos.
         if (!"image/jpeg".equals(photo.contentType())) {
             throw new BadRequestException("error.productImage.jpegOnly");
         }
-        removal.requireNotDeleted(uploaded, photo.bytes());
+        removal.requireNotDeleted(photo.bytes());
 
         ProductImageSet set = sets.findById(ean).orElseGet(() -> sets.save(ProductImageSet.builder().ean(ean).build()));
 
@@ -83,7 +82,7 @@ public class ProductImageWriteService {
                 .originalWidth(photo.width())
                 .originalHeight(photo.height())
                 .contributorId(userId)
-                .contentSha256(ProductImageRenderer.sha256(uploaded))
+                .contentSha256(ProductImageRenderer.sha256(photo.bytes()))
                 .build());
         rendering.render(image);
 

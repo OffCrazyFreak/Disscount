@@ -117,6 +117,7 @@ export default function PhotoManager({
         title={t("manager.deleteTitle")}
         description={t("manager.deleteDescription")}
         confirmLabel={t("manager.deleteConfirm")}
+        cancelLabel={t("manager.deleteCancel")}
         variant="destructive"
         isLoading={deletePhoto.isPending}
         onConfirm={() => {

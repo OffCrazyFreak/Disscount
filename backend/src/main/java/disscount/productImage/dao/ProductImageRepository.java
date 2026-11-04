@@ -30,7 +30,7 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, UUID
 
     boolean existsBySmallKey(String smallKey);
 
-    boolean existsByContentSha256InAndDeletedAtIsNotNull(Collection<String> hashes);
+    boolean existsByContentSha256AndDeletedAtIsNotNull(String contentSha256);
 
     /** Photos each user uploaded and how many of those an admin deleted. */
     @Query("""

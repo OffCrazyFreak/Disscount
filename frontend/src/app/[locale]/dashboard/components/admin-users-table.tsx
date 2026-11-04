@@ -29,6 +29,11 @@ export default function AdminUsersTable() {
   const photosByUser = new Map(
     photoCounts?.map((count) => [count.userId, count]),
   );
+  // Undefined until the counts load, so the row shows a dash rather than a false zero.
+  function photosOf(userId: string) {
+    if (!photoCounts) return undefined;
+    return photosByUser.get(userId) ?? { userId, uploaded: 0, deleted: 0 };
+  }
 
   const [updatingIds, setUpdatingIds] = useState<ReadonlySet<string>>(
     new Set(),
@@ -103,7 +108,7 @@ export default function AdminUsersTable() {
                 user={user}
                 isSelf={user.id === currentUser?.id}
                 isUpdating={updatingIds.has(user.id)}
-                photos={photosByUser.get(user.id)}
+                photos={photosOf(user.id)}
                 onAccountTypeChange={handleChange}
                 onDelete={setDeleteTarget}
               />

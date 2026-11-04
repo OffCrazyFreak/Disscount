@@ -123,7 +123,7 @@ public class ProductImage {
     @Column(name = "flagged_at")
     private LocalDateTime flaggedAt;
 
-    /** SHA-256 of the uploaded file, or of the stored original for photos uploaded before this column; blocks re-uploads of a deleted photo. */
+    /** SHA-256 of the stored original (the cleaned upload); blocks re-uploads of a deleted photo. Filled at deletion for older photos. */
     @Column(name = "content_sha256", length = 64)
     private String contentSha256;
 

@@ -70,6 +70,7 @@
     "deleteTitle": "Želiš fotografijo trajno izbrisati?",
     "deleteDescription": "Datoteke se izbrišejo s strežnika. Iste fotografije ni več mogoče dodati ali uvoziti iz Open Food Facts. Tega ni mogoče razveljaviti.",
     "deleteConfirm": "Izbriši fotografijo",
+    "deleteCancel": "Prekliči",
     "deleted": "Fotografija je izbrisana.",
     "reports": "{count, plural, one {# prijava} two {# prijavi} few {# prijave} other {# prijav}}",
     "openProduct": "Odpri izdelek",

@@ -2,10 +2,10 @@ package disscount.productImage.service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.UUID;
 
 import disscount.exceptions.BadRequestException;
+import disscount.exceptions.ServiceUnavailableException;
 import disscount.productImage.dao.ProductImageReportRepository;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.domain.HiddenReason;
@@ -39,6 +39,10 @@ class ProductImageRemoval {
 
     /** Runs inside the caller's transaction. */
     void delete(UUID adminId, ProductImage image) {
+        // Without the folder the original can be neither fingerprinted nor deleted.
+        if (image.getOriginalKey() != null && !originals.enabled()) {
+            throw new ServiceUnavailableException("error.productImage.unavailable");
+        }
         if (image.getContentSha256() == null) image.setContentSha256(fingerprintOfOriginal(image.getOriginalKey()));
 
         String full = image.getFullKey();
@@ -65,18 +69,17 @@ class ProductImageRemoval {
     }
 
     /**
-     * Refuses a photo an admin deleted. Both the uploaded bytes and the cleaned copy are checked, because
-     * photos uploaded before fingerprints existed only have the cleaned copy to hash.
+     * Refuses a photo an admin deleted, on any product. The hash is of the cleaned copy the validator
+     * writes, which is also what the originals folder holds, so metadata changes do not get a copy through.
      */
-    void requireNotDeleted(byte[] uploaded, byte[] cleaned) {
-        List<String> hashes = List.of(ProductImageRenderer.sha256(uploaded), ProductImageRenderer.sha256(cleaned));
-        if (images.existsByContentSha256InAndDeletedAtIsNotNull(hashes)) {
+    void requireNotDeleted(byte[] cleaned) {
+        if (images.existsByContentSha256AndDeletedAtIsNotNull(ProductImageRenderer.sha256(cleaned))) {
             throw new BadRequestException("error.productImage.deleted");
         }
     }
 
     private String fingerprintOfOriginal(String originalKey) {
-        if (originalKey == null || !originals.enabled()) return null;
+        if (originalKey == null) return null;
         return originals.get(originalKey).map(stored -> {
             try (StoredPhoto photo = stored; InputStream in = photo.stream()) {
                 return ProductImageRenderer.sha256(in.readAllBytes());
