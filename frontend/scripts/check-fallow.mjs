@@ -5,7 +5,10 @@ const audit = ["audit", "--base", process.env.FALLOW_AUDIT_BASE ?? "origin/dev"]
 
 execFileSync("fallow", audit, { stdio: "inherit" });
 
-const report = execFileSync("fallow", [...audit, "--quiet", "--format", "json"], { encoding: "utf8" });
+const report = execFileSync("fallow", [...audit, "--quiet", "--format", "json"], {
+  encoding: "utf8",
+  maxBuffer: 64 * 1024 * 1024,
+});
 const { verdict } = JSON.parse(report);
 
 if (verdict !== "pass") {
