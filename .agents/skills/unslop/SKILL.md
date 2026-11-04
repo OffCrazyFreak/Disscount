@@ -5,25 +5,13 @@ description: Cut AI tells from any writing in English or Croatian, including cha
 
 # Unslop
 
-Edit text to remove AI patterns and add human voice. Word lists go stale, so trust the patterns over the words.
+Edit text to remove AI patterns. Word lists go stale, so trust the patterns over the words.
 
 ## Process
 
 1. Scan for the patterns below.
 2. Rewrite. Preserve meaning, match intended tone.
-3. Add voice (next section).
-4. Self-audit: "What makes this obviously AI generated?" Fix what remains.
-
-## Adding voice
-
-Removing patterns is half the job. Sterile, voiceless writing is just as obvious.
-
-- Have opinions. React to facts instead of neutrally listing pros and cons.
-- Vary rhythm. A run of short fragments is as machine-made as a run of long sentences.
-- Acknowledge complexity. "Impressive but also kind of unsettling" beats "impressive."
-- Use "I" when it fits.
-- Let some mess in. Perfect structure looks machine-made.
-- Be specific. Not "this is concerning" but "there's something unsettling about agents churning away at 3am."
+3. Self-audit: "What makes this obviously AI generated?" Fix what remains.
 
 ## Structure and rhetoric
 
@@ -55,7 +43,7 @@ Removing patterns is half the job. Sterile, voiceless writing is just as obvious
 20. No em or en dashes. Use a comma, a colon, parentheses or a rewrite, whichever reads naturally. A hyphen standing in for a dash is the same tell.
 21. Colons and parentheses are fine in their normal jobs: before a list or an example, or for a real aside. The tell is the mid-sentence colon that sets up a reveal ("the answer: simplicity"). Rewrite that one.
 22. Straight quotes everywhere, Croatian text included.
-23. Dates in Croatian and in everything written to the owner: 03.11.2026. (zero-padded, no spaces, final dot). This is the owner's choice over the norm 3. 11. 2026.
+23. Dates in Croatian text only: 03.11.2026. (zero-padded, no spaces, final dot), the owner's choice over the norm 3. 11. 2026. English text uses ISO: 2026-11-03.
 24. Sentence case headings. No decorative emojis. Bold only what the reader must not miss.
 
 ## Chat and email

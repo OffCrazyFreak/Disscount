@@ -13,10 +13,10 @@ Area: $ARGUMENTS (the whole repository if empty)
 
 1. The audit edits nothing. Remove only the entries I approved in a question card.
 2. Behaviour stays the same: the same checks pass before and after. A behaviour change is a finding for the list at the end.
-3. Every removal has evidence: no references in a search, and the repository's dead code tool where it has one. Also check what a search misses: public URLs, sent emails that link to an asset, reflection, config and framework file conventions.
+3. Every removal has evidence: no references in a search, and the repository's dead code tool where it has one. Also check what a search misses: public URLs, sent emails that link to an asset, reflection, config and framework file conventions. Check open issues, docs and comments for deliberate keeps. Ask me before overriding any CI gate.
 4. Net lines must fall. A new abstraction is allowed only when it removes more than it adds.
 5. One PR for the area, with many commits, one kind of removal per commit.
-6. Sonnet at high effort audits (`reviewer`). Opus at medium effort removes (`coder`).
+6. Sonnet at high effort audits (`researcher`). Opus at medium effort removes (`coder`).
 
 ## What counts as bloat
 
@@ -34,7 +34,7 @@ Area: $ARGUMENTS (the whole repository if empty)
 
 1. Baseline. Run the repository's checks and record the results and the line counts. A red baseline goes to me before anything else.
 
-2. Audit. Split the area by concern and send one `reviewer` per part, in parallel, with the list above. Ask for file:line, the evidence, net lines, confidence, and the risk if the evidence is wrong. Tell them to read `git log` for each candidate, since code added by a fix may look unused and still guard something.
+2. Audit. Split the area by concern and send one `researcher` per part, in parallel, with the list above. Ask for file:line, the evidence, net lines, confidence, and the risk if the evidence is wrong. Tell them to read `git log` for each candidate, since code added by a fix may look unused and still guard something.
 
 3. Verify. Check each candidate yourself with a search before listing it. Drop what you cannot confirm, or mark it unconfirmed.
 

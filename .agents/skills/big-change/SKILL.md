@@ -15,7 +15,7 @@ Target: $ARGUMENTS
 2. The change qualifies only if it fixes something wrong today, removes a cause seen three or more times, or makes a requested change easy. If it does none of these, say so and name the smallest change instead.
 3. One PR for one area, with many commits. `/batch` opens many PRs, so it does not fit here.
 4. Every commit passes the checks and reverts on its own. Structure and behaviour go in separate commits.
-5. Opus at medium effort writes the code (`coder`). Sonnet at high effort audits, researches and reviews (`researcher`, `reviewer`).
+5. Opus at medium effort writes the code (`coder`). Sonnet at high effort audits and researches (`researcher`) and reviews (`reviewer`).
 6. Anything outside the approved plan goes in the list at the end. A plan that turns out wrong returns to a question card.
 
 ## Steps
