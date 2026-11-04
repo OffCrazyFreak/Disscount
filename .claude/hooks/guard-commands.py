@@ -4,7 +4,9 @@
 It blocks pnpm inside a git worktree: pnpm resolves the workspace through
 the symlinked node_modules and offers to purge the MAIN tree's copy. It aborts
 on a missing TTY today, so with CI=true set it would delete the real one.
-It also blocks `--no-verify` and pushes to `main` (rules in guard_git.py).
+It also blocks `--no-verify`, pushes to `main` or `dev`, branches that would
+track origin/dev (rules in guard_git.py), and `pkill -f` or `pgrep -f` patterns
+that match their own command line (guard_process.py).
 The permission rules in settings.json are prefix matches, so this parses each
 command instead of matching a prefix.
 
@@ -26,6 +28,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from guard_git import git_refusal  # noqa: E402
+from guard_process import process_match_refusal  # noqa: E402
 
 WRAPPERS = {"sudo", "timeout", "env", "nice", "nohup", "command", "time", "xargs"}
 
@@ -256,8 +259,14 @@ def in_worktree(cwd):
     return git_dir != common_dir
 
 
-def check(command, cwd, depth=0):
-    """Return a refusal message, or None to allow."""
+def check(command, cwd, depth=0, root=None):
+    """Return a refusal message, or None to allow.
+
+    `root` is the whole original command: it is the command line the running
+    shell shows to pgrep, however deep the nesting got.
+    """
+    root = root if root is not None else command
+
     if depth > MAX_DEPTH:
         return (
             "Blocked: command nests shells or substitutions too deeply to check.\n"
@@ -267,7 +276,7 @@ def check(command, cwd, depth=0):
     command = strip_heredocs(command)
 
     for nested in substitutions(command):
-        message = check(nested, cwd, depth + 1)
+        message = check(nested, cwd, depth + 1, root)
         if message:
             return message
 
@@ -291,7 +300,7 @@ def check(command, cwd, depth=0):
 
         if name in SHELLS:
             for payload in shell_payloads(args):
-                message = check(payload, effective_cwd or cwd, depth + 1)
+                message = check(payload, effective_cwd or cwd, depth + 1, root)
                 if message:
                     return message
             continue
@@ -301,6 +310,10 @@ def check(command, cwd, depth=0):
             if message:
                 return message
             continue
+
+        message = process_match_refusal(tokens, wrapped, root)
+        if message:
+            return message
 
         # A wrapper whose options we could not parse may have hidden the real
         # command, so judge the whole segment rather than just its head.
