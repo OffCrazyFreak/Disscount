@@ -43,7 +43,6 @@ export default async function UpdatesPage(
         <SearchBar
           placeholder={t("searchPlaceholder")}
           searchRoute="/updates"
-          clearable={true}
           submitButtonLocation="none"
           autoSearch={true}
         />

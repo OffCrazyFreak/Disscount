@@ -34,7 +34,6 @@ export default function HeroActions() {
         <Suspense fallback={<SearchBarSkeleton submitButtonLocation="block" />}>
           <ProductSearchBar
             placeholder={t("hero.searchPlaceholder")}
-            clearable={true}
             allowScanning={false}
             submitButtonLocation="block"
           />
