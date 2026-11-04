@@ -19,6 +19,7 @@ import disscount.productImage.domain.ImageSource;
 import disscount.productImage.domain.ImageStatus;
 import disscount.productImage.domain.ProductImage;
 import disscount.productImage.domain.ProductImageSet;
+import disscount.productImage.dto.ProductImageDtos.AdminImageDto;
 import disscount.productImage.dto.ProductImageDtos.AdminProductDto;
 import disscount.productImage.dto.ProductImageDtos.AdminQueuePageDto;
 import disscount.productImage.dto.ProductImageDtos.CropDto;
@@ -268,7 +269,7 @@ class ProductImageServiceTest {
         assertThat(copied.getStatus()).isEqualTo(ImageStatus.VERIFIED);
         assertThat(copied.isRendered()).isTrue();
         assertThat(product.pinned()).isTrue();
-        assertThat(product.mainImageId()).isEqualTo(candidate.getId());
+        assertThat(product.images()).filteredOn(AdminImageDto::main).extracting(AdminImageDto::id).containsExactly(candidate.getId());
         assertThat(queries.forProduct(EAN).images()).singleElement()
                 .satisfies(i -> assertThat(i.source()).isEqualTo("OPEN_FOOD_FACTS"));
     }
@@ -285,10 +286,10 @@ class ProductImageServiceTest {
 
         assertThat(product.images()).hasSize(3);
         ProductImage hr = images.findByEanAndSourceAndExternalKey(EAN, ImageSource.OPEN_FOOD_FACTS, "front_hr").orElseThrow();
-        assertThat(product.mainImageId()).isEqualTo(hr.getId());
+        assertThat(product.images()).filteredOn(AdminImageDto::main).extracting(AdminImageDto::id).containsExactly(hr.getId());
         assertThat(images.findByEanAndSourceAndExternalKey(EAN, ImageSource.OPEN_FOOD_FACTS, "front_en"))
                 .get().extracting(ProductImage::getExternalRev).isEqualTo("3900");
-        assertThat(product.offDetailsFetchedAt()).isNotNull();
+        assertThat(sets.findById(EAN)).get().extracting(ProductImageSet::getOffDetailsFetchedAt).isNotNull();
         // Nothing is copied yet, so users still see no photo.
         assertThat(queries.forProduct(EAN).images()).isEmpty();
     }
@@ -304,7 +305,7 @@ class ProductImageServiceTest {
         AdminProductDto product = admin.setStatus(adminId, markos, "HIDDEN");
 
         assertThat(product.pinned()).isFalse();
-        assertThat(product.mainImageId()).isEqualTo(anas);
+        assertThat(product.images()).filteredOn(AdminImageDto::main).extracting(AdminImageDto::id).containsExactly(anas);
         assertThat(queries.forProduct(EAN).images()).extracting(i -> i.id()).containsExactly(anas);
     }
 

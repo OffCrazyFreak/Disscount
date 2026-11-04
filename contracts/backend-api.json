@@ -36,16 +36,8 @@
         "main" : {
           "type" : "boolean"
         },
-        "originalHeight" : {
-          "format" : "int32",
-          "type" : [ "integer", "null" ]
-        },
         "originalUrl" : {
           "type" : "string"
-        },
-        "originalWidth" : {
-          "format" : "int32",
-          "type" : [ "integer", "null" ]
         },
         "previewUrl" : {
           "type" : [ "string", "null" ]
@@ -88,18 +80,7 @@
           },
           "type" : "array"
         },
-        "mainImageId" : {
-          "format" : "uuid",
-          "type" : [ "string", "null" ]
-        },
         "name" : {
-          "type" : [ "string", "null" ]
-        },
-        "needsReview" : {
-          "type" : "boolean"
-        },
-        "offDetailsFetchedAt" : {
-          "format" : "date-time",
           "type" : [ "string", "null" ]
         },
         "pinned" : {
@@ -128,15 +109,8 @@
         "ean" : {
           "type" : "string"
         },
-        "imageCount" : {
-          "format" : "int32",
-          "type" : "integer"
-        },
         "name" : {
           "type" : [ "string", "null" ]
-        },
-        "needsReview" : {
-          "type" : "boolean"
         },
         "pendingCount" : {
           "format" : "int32",

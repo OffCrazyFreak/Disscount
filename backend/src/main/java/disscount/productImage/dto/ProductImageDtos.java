@@ -39,8 +39,6 @@ public final class ProductImageDtos {
             boolean main,
             int rotation,
             @Schema(nullable = true) CropDto crop,
-            @Schema(nullable = true) Integer originalWidth,
-            @Schema(nullable = true) Integer originalHeight,
             int reportCount,
             LocalDateTime createdAt) {}
 
@@ -50,11 +48,8 @@ public final class ProductImageDtos {
             @Schema(nullable = true) String brand,
             int storeListings,
             int chainCount,
-            @Schema(nullable = true) UUID mainImageId,
             boolean pinned,
-            boolean needsReview,
             @Schema(nullable = true) LocalDateTime reviewedAt,
-            @Schema(nullable = true) LocalDateTime offDetailsFetchedAt,
             List<AdminImageDto> images) {}
 
     public record AdminQueueItemDto(
@@ -64,10 +59,8 @@ public final class ProductImageDtos {
             int storeListings,
             int chainCount,
             @Schema(nullable = true) String previewUrl,
-            int imageCount,
             int pendingCount,
             int reportedCount,
-            boolean needsReview,
             @Schema(nullable = true) LocalDateTime reviewedAt) {}
 
     public record AdminQueuePageDto(List<AdminQueueItemDto> items, long total, int page, int size, long reviewedCount) {}
