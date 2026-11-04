@@ -1,5 +1,6 @@
 package disscount.digitalCard.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -26,6 +27,7 @@ public class DigitalCardRequest {
 
     @Size(max = 40, message = "{validation.card.chainCode.tooLong}")
     @Pattern(regexp = "^[a-z0-9_-]+$", message = "{validation.card.chainCode.invalid}")
+    @Schema(nullable = true)
     private String chainCode;
 
     @NotBlank(message = "{validation.card.code.required}")
@@ -35,6 +37,7 @@ public class DigitalCardRequest {
 
     @Size(max = 4096, message = "{validation.card.barcode.tooLong}")
     @NoNul
+    @Schema(nullable = true)
     private String barcodeValue;
 
     @NotNull(message = "{validation.card.codeType.invalid}")
@@ -48,17 +51,22 @@ public class DigitalCardRequest {
 
     @Size(max = 500, message = "{validation.card.note.tooLong}")
     @NoNul
+    @Schema(nullable = true)
     private String note;
 
+    @Schema(nullable = true)
     private LocalDate validFrom;
 
+    @Schema(nullable = true)
     private LocalDate expiresOn;
 
     @DecimalMin(value = "0", message = "{validation.card.balance.negative}")
     @DecimalMax(value = "1000000", message = "{validation.card.balance.tooLarge}")
     @Digits(integer = 7, fraction = 2, message = "{validation.card.balance.decimals}")
+    @Schema(nullable = true)
     private BigDecimal balance;
 
     @Pattern(regexp = "^[A-Z]{3}$", message = "{validation.card.currency.invalid}")
+    @Schema(nullable = true)
     private String balanceUnit;
 }

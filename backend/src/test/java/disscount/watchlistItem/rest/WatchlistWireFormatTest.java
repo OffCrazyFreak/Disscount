@@ -26,7 +26,7 @@ class WatchlistWireFormatTest extends FullStackTest {
         JsonNode listed = body(mvc.perform(get("/api/watchlist/me").with(as(user))).andExpect(status().isOk())).get(0);
 
         for (JsonNode item : new JsonNode[]{created, listed}) {
-            assertThat(fieldNames(item)).containsExactlyInAnyOrderElementsOf(ApiContract.fields("WatchlistItemDto"));
+            ApiContract.assertMatches("WatchlistItemDto", item);
             assertThat(item.get("userId").asString()).isEqualTo(user.getId().toString());
             assertThat(item.get("watchType").asString()).isEqualTo("PERCENTAGE");
             assertThat(item.get("thresholdValue").isNumber()).isTrue();

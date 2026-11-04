@@ -80,7 +80,7 @@ The browser never calls cijene directly. It calls same-origin routes under `/api
 
 | Route                                           | Upstream call                          | Notes                                                                                                                        |
 | ----------------------------------------------- | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `GET /api/cijene/products?q=`                   | v1 `/products?q=` (once or twice)      | Exact search, topped up with fuzzy matches when exact finds fewer than 10 (see [§4](#4-product-search-and-the-product-list)) |
+| `GET /api/cijene/products?q=`                   | v1 `/products/{ean}`, `/products?q=`   | Barcode lookup, else exact search topped up with fuzzy when under 10 rows (see [§4](#4-product-search-and-the-product-list)) |
 | `GET /api/cijene/products/{ean}`                | v1 `/products/{ean}`                   | Optional `date` (for history) and `chains`                                                                                   |
 | `GET /api/cijene/prices?eans=`                  | v1 `/prices`                           | Every store's price for the given EANs, optionally by chain, city or address                                                 |
 | `GET /api/cijene/location-prices`               | v1 `/prices`, per city or country wide | Our own shape: min and max per EAN across cities, plus `partial`                                                             |
@@ -101,6 +101,7 @@ The browser never calls cijene directly. It calls same-origin routes under `/api
 
 The matching, ranking and diacritic folding are covered in [SEARCH.md](SEARCH.md); this section only covers what is specific to products.
 
+- **Typed barcodes.** Upstream's search matches names and brands only, so a typed barcode would find nothing. When `q` passes `isWellFormedProductId` and the request sets no `fuzzy`, `date` or `chains`, `lib/cijene-api/server/search-products.ts` first asks `getServerProduct`, the lookup behind the page a scan opens, and answers with that one product. A miss or an outage falls through to the text search below.
 - **Server side.** `/products?q=` asks upstream with `fuzzy=false` first. When that returns fewer than 10 rows (or fewer than the requested limit) and the query has at least three characters, it asks again with `fuzzy=true` and appends the new EANs (`product-search-fallback.ts`). Upstream fuzzy search ranks by trigram distance, which loses to exact search on every well-spelled query, so it is only a fallback (upstream issue https://github.com/senko/cijene-api/issues/65).
 - **Client side.** `use-infinite-products.ts` re-ranks the result locally with `product-relevance.ts` and reveals it in batches (`use-revealed-batches.ts`, `product-batches.ts`) as the user scrolls.
 - **Facets.** Trgovine (chains), Lokacije (cities), Kategorije and Marka are multi-selects built from the loaded results (`utils/facets/`). On an unfiltered view the chain and location filters are seeded once from the user's pinned stores and places (`use-seed-preferred-filters.ts`); a URL that already carries a filter is left alone. Filters live in the URL (`use-filter-params.ts`), so a filtered search can be shared.
@@ -260,7 +261,7 @@ All copy is in the next-intl catalogs, in all five languages ([I18N.md](I18N.md)
 | `frontend/src/lib/cijene-api/queries.ts`, `query-hooks.ts`, `hooks.ts`                                        | Browser fetchers, query options with `staleTime`, `usePriceHistory`   |
 | `frontend/src/lib/cijene-api/route-client.ts`                                                                 | The browser's axios client for `/api/cijene`, sends the page language |
 | `frontend/src/lib/cijene-api/price-history-queries.ts`                                                        | The shared per-day history queries                                    |
-| `frontend/src/lib/cijene-api/server/`                                                                         | `getServerProduct`, `getServerProductPrices` (server only, `cache()`) |
+| `frontend/src/lib/cijene-api/server/`                                                                         | `getServerProduct`, `getServerProductPrices`, `searchProducts`        |
 | `frontend/src/lib/cijene-api/utils/`                                                                          | `withCijeneRoute`, the fuzzy fallback, response helpers               |
 | `frontend/src/lib/cijene-api/location-prices/`                                                                | City price reduction and its in-memory cache                          |
 | `frontend/src/app/api/cijene/`                                                                                | The proxy route handlers                                              |

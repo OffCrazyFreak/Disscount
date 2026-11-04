@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FakePhotoStore implements PhotoStore {
 
     public final Map<String, byte[]> objects = new ConcurrentHashMap<>();
-    volatile boolean enabled = true;
+    public volatile boolean enabled = true;
     volatile boolean failDeletes = false;
 
     @Override

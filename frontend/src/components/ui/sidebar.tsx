@@ -246,6 +246,8 @@ function Sidebar({
       />
       <div
         data-slot="sidebar-container"
+        // Slid off screen, but its fields and links would stay in the tab order.
+        inert={collapsible === "offcanvas" && state === "collapsed"}
         className={cn(
           "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
           side === "left"

@@ -1,5 +1,6 @@
 package disscount.productImage.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -27,44 +28,44 @@ public final class ProductImageDtos {
             UUID id,
             String source,
             String status,
-            String lang,
-            String previewUrl,
-            String fullUrl,
+            @Schema(nullable = true) String lang,
+            @Schema(nullable = true) String previewUrl,
+            @Schema(nullable = true) String fullUrl,
             String originalUrl,
             boolean rendered,
             boolean main,
             int rotation,
-            CropDto crop,
-            Integer originalWidth,
-            Integer originalHeight,
+            @Schema(nullable = true) CropDto crop,
+            @Schema(nullable = true) Integer originalWidth,
+            @Schema(nullable = true) Integer originalHeight,
             int reportCount,
             LocalDateTime createdAt) {}
 
     public record AdminProductDto(
             String ean,
-            String name,
-            String brand,
+            @Schema(nullable = true) String name,
+            @Schema(nullable = true) String brand,
             int storeListings,
             int chainCount,
-            UUID mainImageId,
+            @Schema(nullable = true) UUID mainImageId,
             boolean pinned,
             boolean needsReview,
-            LocalDateTime reviewedAt,
-            LocalDateTime offDetailsFetchedAt,
+            @Schema(nullable = true) LocalDateTime reviewedAt,
+            @Schema(nullable = true) LocalDateTime offDetailsFetchedAt,
             List<AdminImageDto> images) {}
 
     public record AdminQueueItemDto(
             String ean,
-            String name,
-            String brand,
+            @Schema(nullable = true) String name,
+            @Schema(nullable = true) String brand,
             int storeListings,
             int chainCount,
-            String previewUrl,
+            @Schema(nullable = true) String previewUrl,
             int imageCount,
             int pendingCount,
             int reportedCount,
             boolean needsReview,
-            LocalDateTime reviewedAt) {}
+            @Schema(nullable = true) LocalDateTime reviewedAt) {}
 
     public record AdminQueuePageDto(List<AdminQueueItemDto> items, long total, int page, int size, long reviewedCount) {}
 
@@ -72,5 +73,5 @@ public final class ProductImageDtos {
 
     public record ImageStatusRequest(@NotNull String status) {}
 
-    public record CropRequest(int rotation, @Valid CropDto crop) {}
+    public record CropRequest(int rotation, @Schema(nullable = true) @Valid CropDto crop) {}
 }

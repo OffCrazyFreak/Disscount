@@ -5,12 +5,15 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.file.Path;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * The committed contract the frontend's zod schemas are checked against. Wire format tests read
- * their field lists from it, so a real response, this file and the zod schemas cannot disagree.
+ * real responses against it, so a real response, this file and the zod schemas cannot disagree.
  */
 public final class ApiContract {
 
@@ -26,11 +29,47 @@ public final class ApiContract {
         return JSON.readTree(FILE.toFile());
     }
 
-    public static Set<String> fields(String schema) {
-        JsonNode properties = committed().path("schemas").path(schema).path("properties");
+    /** A real response holds exactly the contract's keys, nested DTOs included, and only the nulls it declares. */
+    public static void assertMatches(String schema, JsonNode response) {
+        List<String> problems = new ArrayList<>();
+        collectProblems(committed().path("schemas"), schema, response, schema, problems);
+        assertThat(problems).as("response against %s in %s", schema, FILE).isEmpty();
+    }
+
+    private static void collectProblems(JsonNode schemas, String schema, JsonNode node, String path, List<String> problems) {
+        JsonNode properties = schemas.path(schema).path("properties");
         if (properties.isMissingNode()) {
             throw new IllegalArgumentException(schema + " is not in " + FILE);
         }
-        return new TreeSet<>(properties.propertyNames());
+        if (!new TreeSet<>(properties.propertyNames()).equals(new TreeSet<>(node.propertyNames()))) {
+            problems.add(path + " has keys " + node.propertyNames());
+        }
+        for (String field : node.propertyNames()) {
+            JsonNode property = properties.path(field);
+            JsonNode value = node.get(field);
+            String fieldPath = path + "." + field;
+            if (value.isNull()) {
+                if (!property.isMissingNode() && !isNullable(property)) {
+                    problems.add(fieldPath + " is null but not nullable; mark it @Schema(nullable = true)");
+                }
+            } else if (value.isObject() && property.has("$ref")) {
+                collectProblems(schemas, referenced(property), value, fieldPath, problems);
+            } else if (value.isArray() && property.path("items").has("$ref")) {
+                for (JsonNode element : value) {
+                    collectProblems(schemas, referenced(property.path("items")), element, fieldPath + "[]", problems);
+                }
+            }
+        }
+    }
+
+    // springdoc writes a nullable scalar as type ["string", "null"], and a nullable nested DTO as $ref beside type "null".
+    private static boolean isNullable(JsonNode property) {
+        JsonNode type = property.path("type");
+        return type.isArray() ? type.valueStream().anyMatch(t -> "null".equals(t.asString())) : "null".equals(type.asString(""));
+    }
+
+    private static String referenced(JsonNode property) {
+        String reference = property.get("$ref").asString();
+        return reference.substring(reference.lastIndexOf('/') + 1);
     }
 }

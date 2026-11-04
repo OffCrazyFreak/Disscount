@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 interface IUseSearchBarQueryOptions {
@@ -19,12 +19,12 @@ export function useSearchBarQuery({
   syncQuery,
   onQueryChange,
 }: IUseSearchBarQueryOptions) {
-  const { register, handleSubmit, control, reset, setValue, getValues } =
-    useForm<{
-      query: string;
-    }>({
-      defaultValues: { query: routeQuery },
-    });
+  const { register, handleSubmit, control, setValue, getValues } = useForm<{
+    query: string;
+  }>({
+    defaultValues: { query: routeQuery },
+  });
+  const isClearOnItsWay = useRef(false);
 
   // useWatch, not form.watch: watch() signals changes outside React state, so the
   // React Compiler skips memoizing every component that reads it.
@@ -35,6 +35,12 @@ export function useSearchBarQuery({
   });
 
   useEffect(() => {
+    const isEchoOfClear = isClearOnItsWay.current && !routeQuery;
+    isClearOnItsWay.current = false;
+
+    // The URL follows a clear in a transition: echoing it would wipe what was typed since.
+    if (isEchoOfClear) return;
+
     if (getValues("query") !== routeQuery) {
       setValue("query", routeQuery, {
         shouldDirty: false,
@@ -61,5 +67,12 @@ export function useSearchBarQuery({
     syncQuery(query);
   }, [autoSearch, disabled, queryValue, routeQuery, syncQuery]);
 
-  return { register, handleSubmit, reset, queryValue };
+  // Never reset(): it drops the input's registration, and the compiler memoizes
+  // register() so the input never registers again, leaving the field dead.
+  function clearQuery() {
+    isClearOnItsWay.current = Boolean(routeQuery);
+    setValue("query", "");
+  }
+
+  return { register, handleSubmit, clearQuery, queryValue };
 }

@@ -141,8 +141,9 @@ const MIRRORED_ENUMS: Record<string, string[]> = {
   WatchType: enumValues(watchlistItemDtoSchema.shape.watchType),
 };
 
-// Why a photo was hidden is backend bookkeeping that no response carries.
-const BACKEND_ONLY_ENUMS = ["HiddenReason"];
+// Why a photo was hidden is backend bookkeeping that no response carries, and a stored
+// file's visibility only sets its permissions on disk.
+const BACKEND_ONLY_ENUMS = ["HiddenReason", "Visibility"];
 
 function enumValues(schema: z.ZodType): string[] {
   const described = describeZodSchema(schema);
@@ -157,7 +158,7 @@ describe("backend contract", () => {
     );
   });
 
-  it("keeps every mirrored DTO's fields, types and enums equal to the backend's", () => {
+  it("keeps every mirrored DTO's fields, types, nullability and enums equal to the backend's", () => {
     const drift = Object.assign(
       {},
       ...Object.entries(MIRRORED_DTOS).map(([name, schema]) =>
@@ -166,6 +167,7 @@ describe("backend contract", () => {
           name,
           contract.schemas[name],
           describeZodSchema(schema),
+          name.endsWith("Request") ? "request" : "response",
         ),
       ),
     );
