@@ -503,26 +503,10 @@ These are the things that actually cost us time, worth remembering:
 
 ## 14. Future improvements & TODOs
 
-**Security / housekeeping**
-
-- [ ] **IP-filter the R2 API tokens** to the VPS egress IP (least privilege).
-- [x] **Before serious traffic:** restrict the Hetzner firewall to Cloudflare (done 3 November 2026; the Cloudflare rate limiting rule already exists), as listed in [Client IP and rate limiting](#client-ip-and-rate-limiting). The app-level limits (Better Auth, per-recipient email cap, contact form) are in place. The exact endpoint list is deliberately not published here.
-
-**Reliability / ops**
-
 - [ ] **Hetzner server backups** (whole-VM images, 7 slots, about 20% of the server price): decided for later, once the app has about 1,000 real users.
 - [ ] Move **production** to the image path (build in GitHub Actions, push to GHCR, Dokploy pulls), as `dev` already does ([§4](#4-how-a-deploy-works-git-to-live), [#74](https://github.com/OffCrazyFreak/Disscount/issues/74)). Once dev has run clean for a week: a `prod` GitHub environment with the production values, the image and deploy jobs extended to `main`, a member user and key for the production service, then `docker-compose.prod.yml` deleted.
-- [ ] Consider **Flyway/Liquibase** instead of Hibernate `ddl-auto=update` for safer prod schema changes.
 - [ ] **Cloudflare DNS-01 challenge** in Traefik (a Cloudflare API token) now required before adding a subdomain or fixing a failing certificate, because the firewall refuses Let's Encrypt's HTTP-01 check from its own servers; renewals of the proxied domains still pass through Cloudflare.
 - [ ] **Backup-failure alerting** with healthchecks.io (decided 3 November 2026), since per-backup notifications are off to avoid spam.
 
-**Product / auth**
-
 - [ ] **Facebook public login**: complete **Meta Business Verification** (needs a registered entity, e.g. a Croatian _obrt_), then flip `FACEBOOK_COMING_SOON` to `false`. Until then Google + email cover login.
 - [ ] **Sentry source-map upload on production** (readable prod stack traces): the dev image build already uploads with an organization token in the GitHub `dev` environment; production gets the same once it moves to CI images, with the token in its own GitHub environment.
-
-**Nice-to-have**
-
-- [ ] Self-host **Umami** (Dokploy template) and/or **PostHog** later.
-- [ ] Per-PR **preview deploys** (wildcard `*.preview.disscount.me`) on top of the existing dev environment.
-- [ ] Point UptimeRobot at additional checks (e.g. an authenticated endpoint) for deeper monitoring.

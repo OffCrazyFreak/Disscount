@@ -185,19 +185,10 @@ The failure modes (Spring committed but the identity delete failed, the 410 `acc
 | Path                                                                                                                        | Role                                                                             |
 | --------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
 | `frontend/src/components/custom/settings/settings-modal-host.tsx`                                                           | The long-lived form, avatar state, draft, onboarding host                        |
-| `frontend/src/components/custom/settings/settings-modal.tsx`                                                                | Tabs, swipe, shared footer, dirty dots                                           |
-| `frontend/src/components/custom/settings/settings-schema.ts`                                                                | Form schema and fields per section                                               |
 | `frontend/src/components/custom/settings/settings-save-jobs.ts`, `settings-save-recovery.ts`, `hooks/use-settings-save*.ts` | Building, running and recovering saves                                           |
-| `frontend/src/components/custom/settings/tabs/`                                                                             | The four tabs                                                                    |
-| `frontend/src/components/custom/settings/components/`                                                                       | Avatar, language, switches, pinned stores and places                             |
-| `frontend/src/components/custom/settings/security/`                                                                         | Sigurnost: credentials, linked accounts, sessions, reauth, deletion              |
 | `frontend/src/components/custom/settings/onboarding/`                                                                       | The onboarding wizard ([AUTH.md](AUTH.md#82-mandatory-onboarding-after-sign-in)) |
 | `frontend/src/lib/modal/modal-registry.ts`                                                                                  | The settings tab ids                                                             |
-| `frontend/src/lib/api/users/`, `lib/api/preferences/`, `lib/api/account-sessions/`                                          | API clients                                                                      |
-| `frontend/src/app/api/account/`                                                                                             | Next.js account routes: sessions, set password, change email, register           |
 | `frontend/src/lib/auth/erase-backend-account.ts`, `finish-erased-account.ts`                                                | Server side of deletion and its recovery                                         |
-| `backend/src/main/java/disscount/user/`                                                                                     | Profile entity, `UserController` (`/api/users/me`), `UserService`, erasure       |
-| `backend/src/main/java/disscount/pinnedStore/`, `pinnedPlace/`                                                              | Pinned stores and places                                                         |
 
 ---
 

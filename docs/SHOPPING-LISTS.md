@@ -338,40 +338,16 @@ The whole `/shopping-lists` subtree is wrapped in `data-sentry-block` (`shopping
 
 Frontend paths are under `frontend/src/`, and `shopping-lists/` means `app/[locale]/(user)/shopping-lists/`. Backend paths are under `backend/src/main/java/disscount/`.
 
-| Path                                                                   | Role                                                                              |
-| ---------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `shoppingList/domain/ShoppingList.java`                                | List entity                                                                       |
-| `shoppingListItem/domain/ShoppingListItem.java`                        | Item entity                                                                       |
-| `shoppingList/rest/ShoppingListController.java`                        | List routes                                                                       |
-| `shoppingListItem/rest/ShoppingListItemController.java`                | Item routes                                                                       |
-| `shoppingList/service/ShoppingListService.java`                        | Create, read, rename, delete, `findVisible`, `requireWriteUser`                   |
-| `shoppingList/service/ShoppingListCopyService.java`                    | The transactional copy                                                            |
-| `shoppingList/service/ShoppingListMapper.java`                         | The one place lists and items become DTOs, with the owner only redaction          |
-| `shoppingListItem/service/ShoppingListItemService.java`                | Add with merge, update by level, delete, `touchList`                              |
-| `shoppingListItem/service/ShoppingListItemMatcher.java`                | The merge rule                                                                    |
-| `shoppingListItem/dto/ShoppingListItemRequest.java`                    | Item request validation (amount, chain code format)                               |
-| `lib/api/schemas/shopping-list.ts`, `shopping-list-item.ts`            | zod request and response schemas                                                  |
-| `lib/api/shopping-lists/queries.ts`                                    | Fetchers, each parsing its response                                               |
-| `lib/api/shopping-lists/hooks.ts`                                      | React Query hooks; attaches the mutation keys and the optimism                    |
-| `lib/api/shopping-lists/keys.ts`                                       | Query keys                                                                        |
-| `lib/api/shopping-lists/optimistic-items.ts`, `optimistic-list.ts`     | Single item and list field optimism with rollback                                 |
-| `lib/offline/offline-mutation-keys.ts`, `offline-mutations.ts`         | The offline write allowlist and its replay functions                              |
-| `lib/offline/list-write-failed.ts`                                     | The failure toasts                                                                |
-| `constants/shopping-list.ts`                                           | `MAX_SHOPPING_LIST_ITEM_AMOUNT` (999), `MAX_SHOPPING_LIST_ITEM_NAME_LENGTH` (255) |
-| `utils/browser/storage/shopping-lists.ts`                              | Per list preferences and the store sort mode in local storage                     |
-| `shopping-lists/[id]/hooks/use-shopping-list-data.ts`                  | The list read, product lookups and per item prices                                |
-| `shopping-lists/[id]/hooks/use-shopping-list-item-mutations.ts`        | Tick, store and amount writes with price capture; remove                          |
-| `shopping-lists/[id]/hooks/use-quick-add-item.ts`                      | Quick add                                                                         |
-| `shopping-lists/[id]/utils/group-items-by-store.ts`                    | Grouping and subtotals                                                            |
-| `shopping-lists/[id]/components/items/store-group-header.tsx`          | Group header and the "Na karti" link                                              |
-| `shopping-lists/[id]/utils/item-price-state.ts`                        | Price states                                                                      |
-| `shopping-lists/[id]/hooks/use-shopping-list-price-history.ts`         | The chart's data                                                                  |
-| `shopping-lists/utils/item-merge.ts`                                   | Frontend mirror of the merge rule, for the toast                                  |
-| `shopping-lists/utils/shopping-list-stats-utils.ts`                    | Info table totals                                                                 |
-| `shopping-lists/utils/store-sorting-utils.ts`                          | Store tab sort modes                                                              |
-| `shopping-lists/utils/shopping-list-access.ts`                         | Client mirror of `ListAccess`                                                     |
-| `utils/shopping-list-links.ts`                                         | `shoppingListPath`, `shareListUrl`                                                |
-| `i18n/messages/<locale>/shoppingLists.json`, `shoppingListDetail.json` | Copy, in all five languages                                                       |
+| Path                                                               | Role                                                                              |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| `shoppingList/service/ShoppingListMapper.java`                     | The one place lists and items become DTOs, with the owner only redaction          |
+| `shoppingListItem/service/ShoppingListItemMatcher.java`            | The merge rule                                                                    |
+| `lib/api/shopping-lists/hooks.ts`                                  | React Query hooks; attaches the mutation keys and the optimism                    |
+| `lib/api/shopping-lists/optimistic-items.ts`, `optimistic-list.ts` | Single item and list field optimism with rollback                                 |
+| `lib/offline/offline-mutation-keys.ts`, `offline-mutations.ts`     | The offline write allowlist and its replay functions                              |
+| `constants/shopping-list.ts`                                       | `MAX_SHOPPING_LIST_ITEM_AMOUNT` (999), `MAX_SHOPPING_LIST_ITEM_NAME_LENGTH` (255) |
+| `shopping-lists/utils/item-merge.ts`                               | Frontend mirror of the merge rule, for the toast                                  |
+| `shopping-lists/utils/shopping-list-access.ts`                     | Client mirror of `ListAccess`                                                     |
 
 ---
 

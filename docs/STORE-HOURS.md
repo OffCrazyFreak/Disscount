@@ -178,24 +178,14 @@ dm is not covered: upstream lists dm as a single chain-wide store, so there is n
 
 ## 8. Key files
 
-| Path (under `frontend/`)                                   | Role                                                        |
-| ---------------------------------------------------------- | ----------------------------------------------------------- |
-| `src/db/store-hours-schema.ts`                             | Drizzle tables                                              |
-| `drizzle/0010_store_hours.sql`                             | The migration                                               |
-| `src/lib/api/schemas/store-hours.ts`                       | Zod schemas and types                                       |
-| `src/lib/store-hours/zagreb-clock.ts`                      | Zagreb wall clock, ISO date arithmetic, ISO weekday         |
-| `src/lib/store-hours/hours-on-date.ts`                     | One day's hours: dated entry, law, template                 |
-| `src/lib/store-hours/opening-status.ts`                    | `openingStatusAt`, the four states                          |
-| `src/lib/store-hours/croatian-holidays.ts`                 | Public holidays between two dates (server only)             |
-| `src/lib/store-hours/hours-chains.ts`                      | Per-chain switch and store finder URL                       |
-| `src/lib/store-hours/build-store-hours.ts`                 | Rows to response: switches, layering, window, link fallback |
-| `src/lib/store-hours/get-store-hours.ts`                   | Database read and memo                                      |
-| `src/app/api/cijene/store-hours/route.ts`                  | The public route                                            |
-| `src/lib/store-hours/sync/link-check.ts`, `link-status.ts` | The weekly link check and its verdict rule                  |
-| `src/lib/store-hours/store-opening.ts`                     | One store's status from the response and the minute         |
-| `src/components/custom/store-hours/`                       | Provider, badge, the source and "Provjeri" line             |
-| `src/hooks/use-current-minute.ts`                          | The minute clock behind every badge                         |
-| `src/app/[locale]/map/utils/open-filter.ts`                | The "open now" filter and its `?open=` value                |
+| Path (under `frontend/`)                    | Role                                                        |
+| ------------------------------------------- | ----------------------------------------------------------- |
+| `src/lib/store-hours/hours-on-date.ts`      | One day's hours: dated entry, law, template                 |
+| `src/lib/store-hours/croatian-holidays.ts`  | Public holidays between two dates (server only)             |
+| `src/lib/store-hours/build-store-hours.ts`  | Rows to response: switches, layering, window, link fallback |
+| `src/lib/store-hours/store-opening.ts`      | One store's status from the response and the minute         |
+| `src/hooks/use-current-minute.ts`           | The minute clock behind every badge                         |
+| `src/app/[locale]/map/utils/open-filter.ts` | The "open now" filter and its `?open=` value                |
 
 ## 9. Config and libraries
 

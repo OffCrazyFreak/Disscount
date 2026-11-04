@@ -14,11 +14,11 @@ Write a detailed, beginner-friendly reference doc for the part of the app named 
 2. **Write `docs/<NAME>.md`** (uppercase kebab of the subsystem, e.g. `AUTH.md`, `PWA.md`, `I18N.md`) covering:
    - What it is and how it works, end to end (add a Mermaid flow diagram if it helps).
    - What is automatic vs what needs manual work (a table).
-   - The key files and where they live (a table with paths and roles).
+   - Key files, only those whose role is not obvious from the name or that sit outside the feature folder (a table with paths and roles).
    - Config, env vars, and feature flags involved.
    - Libraries whose role a reader cannot guess from the name, one line each, with no versions: `frontend/package.json` and `backend/pom.xml` hold those.
    - Gotchas and lessons that would bite someone (the traps, with the fix).
-   - A final "Future improvements & TODOs" section.
+   - A final "Future improvements & TODOs" section: current limitations, open decisions and links to tracking issues. Plans live on the GitHub board, not here.
 
 Assume the reader is still learning, so explain the concepts clearly. Use tables and Mermaid diagrams wherever they make it easier to follow.
 

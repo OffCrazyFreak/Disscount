@@ -133,23 +133,14 @@ The image never leaves the device ([IMAGE-UPLOADS.md](IMAGE-UPLOADS.md) lists th
 
 ## 9. Key files
 
-| Path                                                                                           | Role                                                               |
-| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `frontend/src/context/scanner-context.tsx`                                                     | `CameraScannerProvider` and `useCameraScanner`                     |
-| `frontend/src/components/scanner/camera-scanner.tsx`                                           | The dialog                                                         |
-| `frontend/src/components/scanner/scanner-content.tsx`                                          | Step machine, focus, announcements, vibration                      |
-| `frontend/src/components/scanner/scanner-camera.tsx`                                           | Camera step: error banner, hint, camera select, photo button, beep |
-| `frontend/src/components/scanner/camera-view.tsx`                                              | The library `Scanner`, constraints, torch and track cleanup        |
-| `frontend/src/components/scanner/scan-consensus.ts`, `hooks/use-scan-consensus.ts`             | Repeated-read consensus                                            |
-| `frontend/src/components/scanner/scan-confirm.tsx`, `code-preview.tsx`, `code-choice-list.tsx` | The confirm step                                                   |
-| `frontend/src/components/scanner/scan-manual-entry.tsx`, `manual-entry-error.ts`               | Typing a code                                                      |
-| `frontend/src/components/scanner/scan-image.tsx`                                               | Photo decoding                                                     |
-| `frontend/src/components/scanner/scan-beep.ts`                                                 | Web Audio beep                                                     |
-| `frontend/src/components/scanner/camera-select.tsx`, `hooks/use-camera-devices.ts`             | Camera list and choice                                             |
-| `frontend/src/utils/browser/camera.ts`                                                         | Back camera scoring, camera naming, error mapping                  |
-| `frontend/src/utils/barcode/`                                                                  | Check digits and normalization, shared with cards                  |
-| `frontend/src/constants/scanner.ts`                                                            | Formats per preset                                                 |
-| `frontend/src/components/custom/pwa/scan-shortcut.tsx`                                         | The `/?scan=1` PWA shortcut                                        |
+| Path                                                                               | Role                                                        |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `frontend/src/components/scanner/scanner-content.tsx`                              | Step machine, focus, announcements, vibration               |
+| `frontend/src/components/scanner/camera-view.tsx`                                  | The library `Scanner`, constraints, torch and track cleanup |
+| `frontend/src/components/scanner/scan-consensus.ts`, `hooks/use-scan-consensus.ts` | Repeated-read consensus                                     |
+| `frontend/src/utils/browser/camera.ts`                                             | Back camera scoring, camera naming, error mapping           |
+| `frontend/src/utils/barcode/`                                                      | Check digits and normalization, shared with cards           |
+| `frontend/src/components/custom/pwa/scan-shortcut.tsx`                             | The `/?scan=1` PWA shortcut                                 |
 
 `frontend/src/lib/store-locations/dgu/gml-scanner.ts` has "scanner" in its name but is an XML stream reader for the store map ([MAP.md](MAP.md)), unrelated to barcodes.
 
@@ -195,5 +186,3 @@ The camera, the photo path and the dialog are browser-only and have no automated
 ## 13. Future improvements and TODOs
 
 - [ ] Verify where zxing's `.wasm` is loaded from and whether photo scanning works offline; if it is a CDN, consider self-hosting it so the CSP and privacy story stay first party.
-- [ ] Offer a typed EAN fallback inside the dialog for product scans too, or document the search bar as the fallback in the copy.
-- [ ] Browser coverage: there is no automated test of the camera path; a manual checklist per platform (Android Chrome, iOS Safari, desktop) would catch regressions in camera picking.

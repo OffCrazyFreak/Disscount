@@ -111,20 +111,13 @@ The seven `filterByFields` callers gained tokenized, ranked, abbreviation-tolera
 
 ## 8. Key files
 
-| Path                                               | Role                                                                  |
-| -------------------------------------------------- | --------------------------------------------------------------------- |
-| `utils/search/normalize.ts`                        | `normalizeCached` (memoized fold) and `prepareQuery` (one-entry memo) |
-| `utils/search/fuzzy.ts`                            | `subsequenceScore`, the abbreviation matcher                          |
-| `utils/search/match.ts`                            | `MATCH_TIER`, `findWholeQuery`, `scoreFields`                         |
-| `utils/search/rank.ts`                             | `chainComparators`, `byAsc`, `byDesc`                                 |
-| `utils/search/command-filter.ts`                   | `commandFilter`, the cmdk adapter                                     |
-| `utils/strings.ts`                                 | `normalizeForSearch` (the fold) and `compareHr` (the sort)            |
-| `utils/generic.ts`                                 | `filterByFields`, now a thin wrapper over `scoreFields`               |
-| `utils/pinned-stores.ts`                           | `chainMatchesPinnedStore`, `isPinnedChain`                            |
-| `app/[locale]/products/utils/product-relevance.ts` | product ranking, composed from `rank.ts`                              |
-| `app/[locale]/products/utils/product-filters.ts`   | `normalizeChainCode`, the code-only normalizer                        |
-| `components/custom/search/search-draft-store.ts`   | Typed text apart from the URL, shared by the product search boxes     |
-| `components/custom/search/product-search-bar.tsx`  | `SearchBar` bound to `/products` and the shared draft                 |
+| Path                                             | Role                                                              |
+| ------------------------------------------------ | ----------------------------------------------------------------- |
+| `utils/search/command-filter.ts`                 | `commandFilter`, the cmdk adapter                                 |
+| `utils/strings.ts`                               | `normalizeForSearch` (the fold) and `compareHr` (the sort)        |
+| `utils/generic.ts`                               | `filterByFields`, now a thin wrapper over `scoreFields`           |
+| `app/[locale]/products/utils/product-filters.ts` | `normalizeChainCode`, the code-only normalizer                    |
+| `components/custom/search/search-draft-store.ts` | Typed text apart from the URL, shared by the product search boxes |
 
 **Libraries: none.** Matching is entirely in-repo. cmdk `^1.1.1` supplies the combobox, but its own `command-score` filter is replaced by `commandFilter`.
 

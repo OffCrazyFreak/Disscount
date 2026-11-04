@@ -216,24 +216,15 @@ Not covered by tests: a real upload to R2, durability of the disk stores across 
 
 ## 13. Key files
 
-| File                                                             | What                                                                                       |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `backend/.../productImage/render/ProductImageRenderer.java`      | Decode, rotate, crop, white square, WebP                                                   |
-| `backend/.../productImage/service/`                              | Reads, uploads, admin actions, jobs, the main photo rules (`MainPicker`)                   |
-| `backend/.../productImage/off/`                                  | Open Food Facts client, URL layout, export reader                                          |
-| `backend/.../productImage/catalog/`                              | cijene archive reader and import                                                           |
-| `backend/.../productImage/storage/`                              | `ProductImageStore`, `ProductOriginalStore`, their R2, disk and disabled stores and config |
-| `backend/.../storage/AtomicFileStore.java`                       | Key validation and atomic writes shared by every disk store                                |
-| `backend/.../storage/R2Clients.java`                             | The S3 client both buckets use                                                             |
-| `frontend/src/components/custom/product-photos/`                 | Tile, list thumbnail, viewer, upload, admin editor, crop                                   |
-| `frontend/src/app/[locale]/products/components/product-photos/`  | The product page gallery and strip; `../product-overview.tsx` lays it out with the facts   |
-| `frontend/src/app/[locale]/dashboard/components/product-photos/` | The review queue                                                                           |
-| `frontend/src/lib/api/product-images/`                           | Fetchers, hooks, thumbnail batcher, server helpers                                         |
-| `frontend/src/app/og/products/[ean]/[file]/route.tsx`            | The share card route: fallbacks and redirects                                              |
-| `frontend/src/app/og/render-product-og.tsx`                      | The share card layout, JPEG encoding and cache header                                      |
-| `frontend/src/app/og/product-share-image.ts`                     | The card's versioned URL                                                                   |
-| `frontend/src/lib/api/schemas/product-image.ts`                  | Zod schemas for every response                                                             |
-| `frontend/src/utils/browser/product-photo.ts`                    | Upload preparation settings                                                                |
+| File                                                            | What                                                                                     |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `backend/.../storage/AtomicFileStore.java`                      | Key validation and atomic writes shared by every disk store                              |
+| `backend/.../storage/R2Clients.java`                            | The S3 client both buckets use                                                           |
+| `frontend/src/app/[locale]/products/components/product-photos/` | The product page gallery and strip; `../product-overview.tsx` lays it out with the facts |
+| `frontend/src/app/og/products/[ean]/[file]/route.tsx`           | The share card route: fallbacks and redirects                                            |
+| `frontend/src/app/og/render-product-og.tsx`                     | The share card layout, JPEG encoding and cache header                                    |
+| `frontend/src/app/og/product-share-image.ts`                    | The card's versioned URL                                                                 |
+| `frontend/src/utils/browser/product-photo.ts`                   | Upload preparation settings                                                              |
 
 `backend/...` is `backend/src/main/java/disscount/`.
 
@@ -351,6 +342,4 @@ A successful copy clears `render_attempts` and `render_retry_at`.
 
 - #463: remove the background from card and product photos with an AI model, so every product sits on the same clean white.
 - #486: move these photos from R2 to the server's disk and decide what account deletion does with a user's originals and `contributor_id` (today nothing deletes an original).
-- Contribute user photos back to Open Food Facts (their API accepts end-user photos), which would grow coverage of Croatian products.
-- Seed the gallery from the server render, so the first HTML shows the photo instead of a skeleton.
 - Moving avatars from Postgres base64 to the public bucket (decided, separate PR).

@@ -1,6 +1,6 @@
 # Docs index
 
-Reference documentation for Disscount. Each file is a standalone deep-dive into one part of the system.
+Reference documentation for Disscount. Each file is a standalone deep-dive into one part of the system. A "Key files" section lists only the files whose role is not obvious from the name or that sit outside the feature folder.
 
 - [INFRASTRUCTURE.md](INFRASTRUCTURE.md) - infrastructure, env vars, DNS/SSL, backups, monitoring.
 - [AUTH.md](AUTH.md) - auth architecture (better-auth IdP + Spring resource server, URL-modal flow, mandatory onboarding).

@@ -301,34 +301,16 @@ A loyalty card number is personal data, and a photo of a card more so.
 
 ## 12. Key files
 
-| Path                                                                                           | Role                                                                                                                                  |
-| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `backend/.../digitalCard/domain/`                                                              | `DigitalCard`, `DigitalCardPhoto` entities                                                                                            |
-| `backend/.../digitalCard/rest/`                                                                | `DigitalCardController`, `DigitalCardPhotoController`                                                                                 |
-| `backend/.../digitalCard/service/DigitalCardService.java`                                      | Upsert, ownership checks, soft delete, used-at, account purge                                                                         |
-| `backend/.../digitalCard/service/DigitalCardPhotoService.java`                                 | Upload (validate, put to R2), download, delete; calls the validator and store                                                         |
-| `backend/.../digitalCard/service/CardPhotoWriter.java`, `CardUserLock.java`                    | The short row-write transaction; the per-user lock                                                                                    |
-| `backend/.../digitalCard/service/PhotoCleanupService.java`                                     | Queues R2 deletes in `photo_cleanup`, attempts them, retries                                                                          |
-| `backend/.../digitalCard/service/DigitalCardCleanupJob.java`                                   | Daily 30-day hard delete; retries photo cleanup                                                                                       |
-| `backend/.../config/UploadLimitConfig.java`                                                    | 20 card photo uploads per minute per user; the limiter sweeps its expired windows every 5 minutes                                     |
-| `backend/.../digitalCard/photo/`                                                               | `PhotoValidator`, `WebpSanitizer`, `JpegSanitizer`                                                                                    |
-| `backend/.../digitalCard/storage/`                                                             | `PhotoStore`, `R2PhotoStore`, `FilesystemPhotoStore`, `DisabledPhotoStore`, `PhotoStoreConfig` (client from `storage/R2Clients.java`) |
-| `backend/.../storeName/`                                                                       | Community store-name list, normalizer and controller                                                                                  |
-| `backend/.../config/SchedulingConfig.java`                                                     | `@EnableScheduling` (the first scheduled job in the app)                                                                              |
-| `frontend/src/lib/api/digital-cards/`                                                          | Keys, queries, query and mutation hooks, optimistic patches, last-used, photos                                                        |
-| `frontend/src/lib/api/schemas/digital-card.ts`, `store-name.ts`                                | Zod request and response schemas                                                                                                      |
-| `frontend/src/lib/offline/card-photo-store.ts`, `card-photo-outbox.ts`, `purge.ts`             | Photo blobs, upload outbox, logout purge                                                                                              |
-| `frontend/src/lib/offline/failure-policy.ts`, `card-retry.ts`, `slot-lock.ts`, `purge-gate.ts` | Keep or drop rules and card retries; per-slot photo ordering; purge ordering gate                                                     |
-| `frontend/src/constants/card-codes.ts`                                                         | Code types, card types, photo slots and their labels                                                                                  |
-| `frontend/src/app/[locale]/(user)/digital-cards/`                                              | The page, tiles, view and form modals, hooks and utils                                                                                |
-| `frontend/src/utils/card-code/generate-code-svg.ts`                                            | bwip-js rendering                                                                                                                     |
-| `frontend/src/app/[locale]/(user)/digital-cards/utils/card-palette.ts`                         | The 19 colours                                                                                                                        |
-| `frontend/src/components/scanner/`                                                             | Shared scanner: consensus, confirm step, manual entry                                                                                 |
-| `frontend/src/utils/barcode/`                                                                  | Check digits and normalization                                                                                                        |
-| `frontend/src/utils/browser/card-image.ts`                                                     | Card photo sizes and qualities, on top of the shared `utils/browser/image.ts`                                                         |
-| `frontend/src/components/reui/autocomplete.tsx`                                                | The store field's Autocomplete (reui, built on `@base-ui/react`)                                                                      |
-| `frontend/src/hooks/use-wake-lock.ts`                                                          | Keeps the screen on in the view modal                                                                                                 |
-| `backend/src/test/`                                                                            | The backend suite (H2)                                                                                                                |
+| Path                                                                                           | Role                                                                                              |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `backend/.../digitalCard/service/CardPhotoWriter.java`, `CardUserLock.java`                    | The short row-write transaction; the per-user lock                                                |
+| `backend/.../digitalCard/service/PhotoCleanupService.java`                                     | Queues R2 deletes in `photo_cleanup`, attempts them, retries                                      |
+| `backend/.../digitalCard/service/DigitalCardCleanupJob.java`                                   | Daily 30-day hard delete; retries photo cleanup                                                   |
+| `backend/.../config/UploadLimitConfig.java`                                                    | 20 card photo uploads per minute per user; the limiter sweeps its expired windows every 5 minutes |
+| `frontend/src/lib/offline/card-photo-store.ts`, `card-photo-outbox.ts`, `purge.ts`             | Photo blobs, upload outbox, logout purge                                                          |
+| `frontend/src/lib/offline/failure-policy.ts`, `card-retry.ts`, `slot-lock.ts`, `purge-gate.ts` | Keep or drop rules and card retries; per-slot photo ordering; purge ordering gate                 |
+| `frontend/src/utils/browser/card-image.ts`                                                     | Card photo sizes and qualities, on top of the shared `utils/browser/image.ts`                     |
+| `frontend/src/components/reui/autocomplete.tsx`                                                | The store field's Autocomplete (reui, built on `@base-ui/react`)                                  |
 
 ---
 
@@ -418,7 +400,3 @@ The store field's Autocomplete came from the reui registry (`@reui` in `frontend
 **Later**
 
 - [ ] **Guest mode**: let a visitor keep a few cards without an account and import them on login. The wallet is login-only for now.
-- [ ] **Custom card colour** beyond the 19-colour palette (needs the contrast rule to keep holding).
-- [ ] **Admin moderation of community store names**: a screen to set `hidden`, merge duplicates and fix spellings.
-- [ ] **Google Wallet export** of a card.
-- [ ] **Native `BarcodeDetector`** as a fast path where available (see [`PWA.md`](PWA.md) TODOs).
