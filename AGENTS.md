@@ -34,6 +34,7 @@ Put these to me instead of working around them: I say yes far more often than no
 - Put docs in the same PR as their own `docs:` commit before the PR opens, and again if behaviour changes.
 - Document a new or reshaped subsystem with the `document-subsystem` skill.
 - List docs touched and those checked and left alone in your summary.
+- When the T3 Code preview browser is available, use it for previews and screenshots and for pages that block or error on fetch.
 
 ## Worktrees and git
 
