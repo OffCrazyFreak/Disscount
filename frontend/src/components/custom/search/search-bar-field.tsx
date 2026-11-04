@@ -17,7 +17,6 @@ export interface ISearchBarFieldOptions {
   shortPlaceholder?: string;
   /** Names the field when a shortened placeholder would say too little */
   ariaLabel?: string;
-  clearable?: boolean;
   allowScanning?: boolean;
   /** Exposes the field so an owner can focus it inside a gesture's own task */
   inputRef?: RefObject<HTMLInputElement | null>;
@@ -36,7 +35,6 @@ export default function SearchBarField({
   placeholder: placeholderProp,
   shortPlaceholder,
   ariaLabel,
-  clearable = true,
   allowScanning = false,
   inputRef: exposedInputRef,
   registration,
@@ -89,7 +87,7 @@ export default function SearchBarField({
       />
 
       <SearchBarActions
-        showClear={Boolean(!disabled && clearable && queryValue)}
+        showClear={Boolean(!disabled && queryValue)}
         onClear={handleClear}
         allowScanning={!disabled && allowScanning}
         onScan={(event) =>

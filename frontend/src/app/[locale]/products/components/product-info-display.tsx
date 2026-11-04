@@ -78,12 +78,7 @@ export default function ProductInfoDisplay({
 
         {/* Right side - action buttons on the product page, or a modal action */}
         {enableActionButtons ? (
-          <ProductActionButtons
-            product={product}
-            showSearchImage={true}
-            showAddToList={true}
-            showAddToWatchlist={true}
-          />
+          <ProductActionButtons product={product} />
         ) : (
           action
         )}

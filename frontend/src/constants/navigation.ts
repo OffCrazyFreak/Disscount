@@ -37,7 +37,6 @@ export interface INavigationItem {
   comingSoon?: boolean; // Show an "USKORO" badge for not-yet-available features
   shortcutDescriptionKey?: NavKey; // Read out by assistive tech; its presence opts the item into a PWA shortcut
   showInHeader: boolean; // Show in desktop header navigation
-  isCollapsible?: boolean; // Has sub-menu (Kategorije, Trgovine, Lokacije)
   children?: readonly INavigationItem[]; // Nested items shown indented under this one
 }
 
@@ -127,26 +126,6 @@ const productNavTable = [
 
     showInHeader: false,
   },
-  // TODO(#82): parked until the price API exposes a category taxonomy.
-  // {
-  //   id: "categories",
-  //   href: "#",
-  //   labelKey: "nav.categories",
-  //   icon: List,
-
-  //   showInHeader: false,
-  //   isCollapsible: true,
-  // },
-  // TODO(#84): parked until the price API can list and filter by brand.
-  // {
-  //   id: "brands",
-  //   href: "#",
-  //   labelKey: "nav.brands",
-  //   icon: Tag,
-
-  //   showInHeader: false,
-  //   isCollapsible: true,
-  // },
   {
     id: "map",
     href: "/map",
@@ -164,8 +143,6 @@ const productNavTable = [
         icon: Store,
 
         showInHeader: false,
-
-        isCollapsible: true,
       },
       {
         id: "locations",
@@ -174,8 +151,6 @@ const productNavTable = [
         icon: MapPin,
 
         showInHeader: false,
-
-        isCollapsible: true,
       },
     ],
   },
