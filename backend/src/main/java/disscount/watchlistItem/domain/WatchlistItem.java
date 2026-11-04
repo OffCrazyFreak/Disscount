@@ -38,9 +38,6 @@ public class WatchlistItem {
     @Column(name = "threshold_value", nullable = false)
     private Double thresholdValue;
 
-    @Column(name = "last_notified_at")
-    private LocalDateTime lastNotifiedAt;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

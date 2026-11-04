@@ -986,10 +986,6 @@
           "format" : "uuid",
           "type" : "string"
         },
-        "lastNotifiedAt" : {
-          "format" : "date-time",
-          "type" : [ "string", "null" ]
-        },
         "productApiId" : {
           "type" : "string"
         },

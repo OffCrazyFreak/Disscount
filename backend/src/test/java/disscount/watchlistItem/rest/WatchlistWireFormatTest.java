@@ -32,7 +32,6 @@ class WatchlistWireFormatTest extends FullStackTest {
             assertThat(item.get("thresholdValue").isNumber()).isTrue();
             assertThat(item.get("createdAt").asString()).matches(LOCAL_DATE_TIME);
             // watchlistItemDtoSchema types this as a nullable string, so the key must stay present.
-            assertThat(item.get("lastNotifiedAt").isNull()).isTrue();
         }
     }
 }

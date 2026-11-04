@@ -90,7 +90,6 @@ public class WatchlistItemService {
                 .productApiId(watchlistItem.getProductApiId())
                 .watchType(watchlistItem.getWatchType())
                 .thresholdValue(watchlistItem.getThresholdValue())
-                .lastNotifiedAt(watchlistItem.getLastNotifiedAt())
                 .createdAt(watchlistItem.getCreatedAt())
                 .updatedAt(watchlistItem.getUpdatedAt())
                 .build();
