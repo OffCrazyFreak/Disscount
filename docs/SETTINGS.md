@@ -8,25 +8,6 @@ Most of the security machinery already has a home in [AUTH.md](AUTH.md): re-auth
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [How the modal works](#2-how-the-modal-works)
-3. [Profil](#3-profil)
-4. [Obavijesti](#4-obavijesti)
-5. [Preference: pinned stores, places and language](#5-preference-pinned-stores-places-and-language)
-6. [Saving](#6-saving)
-7. [Sigurnost](#7-sigurnost)
-8. [Deleting the account](#8-deleting-the-account)
-9. [What is automatic vs manual](#9-what-is-automatic-vs-manual)
-10. [Key files](#10-key-files)
-11. [Config, env vars and libraries](#11-config-env-vars-and-libraries)
-12. [Tests](#12-tests)
-13. [Gotchas and lessons learned](#13-gotchas-and-lessons-learned)
-14. [Future improvements and TODOs](#14-future-improvements-and-todos)
-
----
-
 ## 1. Quick reference
 
 | Thing            | Value                                                                                                                                                                                                       |
@@ -235,11 +216,6 @@ No settings-specific environment variables. The auth variables the security tab 
 ---
 
 ## 12. Tests
-
-| Side     | Tests                                                                                                                                                                                                                                                                                                                     |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend | `security-actions.test.tsx`, `use-security-settings.test.tsx`, `use-reauth.test.tsx`, `sign-in-methods.test.ts`, `list-linked-accounts.test.tsx`, `lib/api/account-sessions/queries.test.tsx`, `lib/auth/account-sessions.test.ts`, `lib/auth/erase-backend-account.test.ts`, the `app/api/account/*/route.test.ts` files |
-| Backend  | `AccountErasureTest` (what is erased and kept, repeat erasure, admin delete), `SoftDeletedUserLookupTest`, the `FullStackTest` suites                                                                                                                                                                                     |
 
 The save job building and recovery (`settings-save-jobs.ts`, `settings-save-recovery.ts`) have no test of their own (checked by file name only).
 

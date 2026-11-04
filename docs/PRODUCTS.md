@@ -6,30 +6,6 @@ A reference for how product data reaches the app: where it comes from, how the p
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [Where product data comes from](#2-where-product-data-comes-from)
-3. [The proxy routes](#3-the-proxy-routes)
-4. [Product search and the product list](#4-product-search-and-the-product-list)
-5. [The product page](#5-the-product-page)
-6. [SEO: metadata, JSON-LD and sitemaps](#6-seo-metadata-json-ld-and-sitemaps)
-7. [Chain and store prices](#7-chain-and-store-prices)
-8. [Price history](#8-price-history)
-9. [Watchlist and price alerts](#9-watchlist-and-price-alerts)
-10. [Shopping list integration](#10-shopping-list-integration)
-11. [Caching and offline](#11-caching-and-offline)
-12. [i18n](#12-i18n)
-13. [Key files](#13-key-files)
-14. [Config and env vars](#14-config-and-env-vars)
-15. [Libraries](#15-libraries)
-16. [What is automatic vs manual](#16-what-is-automatic-vs-manual)
-17. [Tests](#17-tests)
-18. [Gotchas and lessons learned](#18-gotchas-and-lessons-learned)
-19. [Future improvements and TODOs](#19-future-improvements-and-todos)
-
----
-
 ## 1. Quick reference
 
 | Thing                | Value                                                                                                                                   |
@@ -297,20 +273,12 @@ All copy is in the next-intl catalogs, in all five languages ([I18N.md](I18N.md)
 
 ## 15. Libraries
 
-Versions read from `frontend/package.json` and `backend/pom.xml`.
+Versions are in `frontend/package.json` and `backend/pom.xml`. The ones whose role is not obvious from the name:
 
-| Library                                | Version    | Role here                                                                |
-| -------------------------------------- | ---------- | ------------------------------------------------------------------------ |
-| `next`                                 | `16.4.5`   | Server rendering, `generateMetadata`, `generateSitemaps`, route handlers |
-| `react`                                | `19.2.8`   | `cache()` for the per-request upstream lookup                            |
-| `@tanstack/react-query`                | `^5.90.12` | Every product, price and history query; hydration from the server        |
-| `@tanstack/react-query-persist-client` | `^5.101.1` | The IndexedDB snapshot                                                   |
-| `axios`                                | `^1.13.2`  | Upstream clients and browser fetchers                                    |
-| `zod`                                  | `^4.1.13`  | Validates every upstream response and parameter                          |
-| `recharts`                             | `^3.10.0`  | The price history charts                                                 |
-| `serwist`, `@serwist/next`             | `^9.5.11`  | Service worker caching of `/api/cijene/*`                                |
-| `next-intl`                            | `^4.14.9`  | Copy and locale routing                                                  |
-| `spring-boot-starter-parent`           | `4.1.2`    | Backend (watchlist, shopping list items, catalogue import)               |
+- `react`: `cache()` for the per-request upstream lookup.
+- `@tanstack/react-query-persist-client`: the IndexedDB snapshot.
+- `recharts`: the price history charts.
+- `serwist`, `@serwist/next`: service worker caching of `/api/cijene/*`.
 
 ---
 
@@ -330,11 +298,6 @@ Versions read from `frontend/package.json` and `backend/pom.xml`.
 ---
 
 ## 17. Tests
-
-| Suite             | What it covers                                                                                                                                                                                                                                                                                                                                                                                   |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Frontend (Vitest) | Product metadata, JSON-LD, cache seeding and the detail client (`[id]/`), chart preferences, chain sort, display prices, batches, facets, search results and their status, add to list prices, city price reduction and cache, query hooks, the price history hook's error rule, sitemap ids, product ids, watchlist discount, price drop and schema rules, the shopping list history chart data |
-| Backend (H2)      | `WatchlistItemOwnershipTest`, `WatchlistWireFormatTest`, `ShoppingListItemServiceAddTest`, `ShoppingListItemRequestTest`, the shopping list ownership, link access and wire format tests, and the product image suite (see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#12-tests))                                                                                                                      |
 
 Not covered: the proxy routes against real upstream responses, the fuzzy fallback, and the price history fetch across a date window. Nothing on the backend computes alerts, so there is nothing there to test yet.
 

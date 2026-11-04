@@ -10,25 +10,6 @@ _Last verified end-to-end on 2026-07-21: all generators run clean, every raster 
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [How it works, end to end](#2-how-it-works-end-to-end)
-3. [The single source of truth](#3-the-single-source-of-truth)
-4. [Folder layout (`public/brand/`)](#4-folder-layout-publicbrand)
-5. [The logo matrix](#5-the-logo-matrix)
-6. [The in-app logo vs the exported files](#6-the-in-app-logo-vs-the-exported-files)
-7. [Favicon, PWA icons & splash (auto-wired)](#7-favicon-pwa-icons--splash-auto-wired)
-8. [Social media kit (manual upload)](#8-social-media-kit-manual-upload)
-9. [The generator scripts](#9-the-generator-scripts)
-10. [What's automatic vs manual](#10-whats-automatic-vs-manual)
-11. [Key files](#11-key-files)
-12. [Libraries & config](#12-libraries--config)
-13. [Gotchas & lessons learned](#13-gotchas--lessons-learned)
-14. [Future improvements & TODOs](#14-future-improvements--todos)
-
----
-
 ## 1. Quick reference
 
 | Thing                | Value                                                                                                                     |

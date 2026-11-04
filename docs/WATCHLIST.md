@@ -6,25 +6,6 @@ A reference for the watchlist (`/watchlist`, "Praćeni proizvodi" in Croatian): 
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [How it works end to end](#2-how-it-works-end-to-end)
-3. [Storage and API](#3-storage-and-api)
-4. [Setting a rule](#4-setting-a-rule)
-5. [When a rule fires](#5-when-a-rule-fires)
-6. [Where alerts show up](#6-where-alerts-show-up)
-7. [The watchlist page](#7-the-watchlist-page)
-8. [Offline and caching](#8-offline-and-caching)
-9. [What is automatic vs manual](#9-what-is-automatic-vs-manual)
-10. [Key files](#10-key-files)
-11. [Config, env vars and libraries](#11-config-env-vars-and-libraries)
-12. [Tests](#12-tests)
-13. [Gotchas and lessons learned](#13-gotchas-and-lessons-learned)
-14. [Future improvements and TODOs](#14-future-improvements-and-todos)
-
----
-
 ## 1. Quick reference
 
 | Thing                 | Value                                                                                                            |
@@ -203,12 +184,7 @@ No environment variables or feature flags. The watchlist uses the app's common s
 
 ## 12. Tests
 
-| Side     | Tests                                                                                                                                                                                                                                                                                                                                                      |
-| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend | `watchlist-discount-utils.test.ts`, `watchlist-price-drop-utils.test.ts`, `use-watchlist-price-drop-count.test.tsx`, `price-drop-status.test.tsx`, `storage/watchlist.test.tsx`, `use-watchlist-data.test.tsx`, `use-watchlist-suggestions.test.tsx`, `watchlist-client.test.tsx`, `lib/api/watchlist/index.test.tsx`, `lib/api/schemas/watchlist.test.ts` |
-| Backend  | `WatchlistItemOwnershipTest` (ownership, repeat delete, 401 without a token), `WatchlistWireFormatTest` (every field, null times), `AccountErasureTest` (rules survive deletion)                                                                                                                                                                           |
-
-The threshold modal's ranges and the bell's grouping have no dedicated test beyond what the hooks above exercise (unverified beyond reading the test names).
+The threshold modal's ranges and the bell's grouping have no dedicated test beyond what the hooks exercise (unverified beyond reading the test names).
 
 ---
 
