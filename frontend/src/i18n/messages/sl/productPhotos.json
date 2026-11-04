@@ -5,8 +5,6 @@
     "altNumbered": "{name}, slika {index}",
     "thumbnail": "Pokaži sliko {index} od {total}",
     "unverified": "Nepotrjena slika",
-    "none": "Še ni slike",
-    "noneHint": "Fotografiraj sprednjo stran embalaže in pomagaj drugim prepoznati izdelek.",
     "add": "Dodaj sliko",
     "manage": "Uredi slike"
   },

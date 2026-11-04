@@ -647,6 +647,9 @@
           "format" : "uuid",
           "type" : "string"
         },
+        "smallUrl" : {
+          "type" : "string"
+        },
         "source" : {
           "type" : "string"
         },
