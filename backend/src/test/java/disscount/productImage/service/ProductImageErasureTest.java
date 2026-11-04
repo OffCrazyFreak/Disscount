@@ -64,7 +64,9 @@ class ProductImageErasureTest {
         sets.deleteAll();
         originals.objects.clear();
         originals.enabled = true;
+        originals.failDeletes = false;
         publicStore.objects.clear();
+        publicStore.failDeletes = false;
         when(userService.isActiveAdmin(adminId)).thenReturn(true);
     }
 
@@ -94,6 +96,18 @@ class ProductImageErasureTest {
         originals.enabled = false;
 
         assertThatThrownBy(() -> erasure.eraseContributor(ana)).isInstanceOf(ServiceUnavailableException.class);
+        assertThat(images.findByContributorId(ana)).hasSize(1);
+    }
+
+    @Test
+    void aFailedFileDeleteFailsTheErasure() {
+        writes.upload(ana, EAN, jpeg(400, 300));
+        originals.failDeletes = true;
+        try {
+            assertThatThrownBy(() -> erasure.eraseContributor(ana)).isInstanceOf(IllegalStateException.class);
+        } finally {
+            originals.failDeletes = false;
+        }
         assertThat(images.findByContributorId(ana)).hasSize(1);
     }
 

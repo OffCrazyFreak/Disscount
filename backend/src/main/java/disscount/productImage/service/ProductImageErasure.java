@@ -67,7 +67,7 @@ public class ProductImageErasure {
     private void deleteEntirely(ProductImage image) {
         reports.deleteByImageId(image.getId());
         images.delete(image);
-        rendering.dropFiles(image.getFullKey(), image.getThumbKey(), image.getSmallKey());
+        rendering.eraseFiles(image.getFullKey(), image.getThumbKey(), image.getSmallKey());
         removal.eraseOriginal(image.getOriginalKey());
     }
 

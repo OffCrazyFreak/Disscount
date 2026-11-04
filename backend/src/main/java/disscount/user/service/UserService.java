@@ -259,6 +259,11 @@ public class UserService {
         }
     }
 
+    /** Locks the caller's profile until commit, so a write racing the account deletion either lands first or is refused. */
+    public void lockActive(UUID userId) {
+        userRepository.requireActiveForUpdate(userId);
+    }
+
     public boolean isActiveAdmin(UUID userId) {
         return userRepository.findByIdAndDeletedAtIsNull(userId)
                 .map(u -> u.getAccountType() == AccountType.ADMIN)

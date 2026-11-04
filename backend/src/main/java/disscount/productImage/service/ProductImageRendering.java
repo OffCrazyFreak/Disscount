@@ -183,6 +183,18 @@ public class ProductImageRendering {
         }
     }
 
+    /**
+     * The erasure's version of dropFiles: deletes now and lets a failure fail the erasure, since a file of an
+     * erased account must not stay public behind a log line. Call after deleting the row.
+     */
+    void eraseFiles(String fullKey, String thumbKey, String smallKey) {
+        for (String key : new String[]{fullKey, thumbKey, smallKey}) {
+            if (key == null) continue;
+            if (images.existsByFullKey(key) || images.existsByThumbKey(key) || images.existsBySmallKey(key)) continue;
+            store.delete(key);
+        }
+    }
+
     private void delete(String key) {
         try {
             store.delete(key);
