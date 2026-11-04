@@ -54,8 +54,8 @@
   "listTrigger": {
     "loading": "Nalaganje...",
     "createNamed": "Ustvari nov seznam »{title}«",
-    "choose": "Izberi seznam...",
-    "createFirst": "Ustvari prvi seznam..."
+    "choose": "Izberi seznam",
+    "createFirst": "Ustvari prvi seznam"
   },
   "storeChainField": {
     "label": "Trgovina"

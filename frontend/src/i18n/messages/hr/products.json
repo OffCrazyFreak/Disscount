@@ -54,8 +54,8 @@
   "listTrigger": {
     "loading": "Učitavanje...",
     "createNamed": "Stvori novi popis \"{title}\"",
-    "choose": "Odaberi popis...",
-    "createFirst": "Stvori prvi popis..."
+    "choose": "Odaberi popis",
+    "createFirst": "Stvori prvi popis"
   },
   "storeChainField": {
     "label": "Trgovina"

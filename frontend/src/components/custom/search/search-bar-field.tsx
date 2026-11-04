@@ -8,10 +8,13 @@ import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import SearchBarActions from "@/components/custom/search/search-bar-actions";
 import { useCameraScanner } from "@/context/scanner-context";
+import { useFittingText } from "@/hooks/use-fitting-text";
 import { IScannedCode } from "@/typings/scanned-code";
 
 export interface ISearchBarFieldOptions {
   placeholder?: string;
+  /** Shown instead of the placeholder when the field is too narrow for all of it */
+  shortPlaceholder?: string;
   /** Names the field when a shortened placeholder would say too little */
   ariaLabel?: string;
   clearable?: boolean;
@@ -31,6 +34,7 @@ interface ISearchBarFieldProps extends ISearchBarFieldOptions {
 /** The search input with its icon and the clear and scan buttons. */
 export default function SearchBarField({
   placeholder: placeholderProp,
+  shortPlaceholder,
   ariaLabel,
   clearable = true,
   allowScanning = false,
@@ -42,9 +46,13 @@ export default function SearchBarField({
   onScanned,
 }: ISearchBarFieldProps) {
   const t = useTranslations("shell");
-  const placeholder = placeholderProp ?? t("search.placeholder");
   const { openScanner } = useCameraScanner();
   const inputRef = useRef<HTMLInputElement>(null);
+  const placeholder = useFittingText(
+    inputRef,
+    placeholderProp ?? t("search.placeholder"),
+    shortPlaceholder,
+  );
   const { ref: registerRef, ...registerProps } = registration;
 
   function handleClear() {

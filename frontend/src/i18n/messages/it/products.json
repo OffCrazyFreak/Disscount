@@ -48,8 +48,8 @@
   "listTrigger": {
     "loading": "Caricamento...",
     "createNamed": "Crea la nuova lista «{title}»",
-    "choose": "Scegli una lista...",
-    "createFirst": "Crea la prima lista..."
+    "choose": "Scegli una lista",
+    "createFirst": "Crea la prima lista"
   },
   "storeChainField": { "label": "Negozio" },
   "watchlistModal": {

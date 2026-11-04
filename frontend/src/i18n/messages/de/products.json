@@ -54,8 +54,8 @@
   "listTrigger": {
     "loading": "Wird geladen...",
     "createNamed": "Neue Liste „{title}“ erstellen",
-    "choose": "Liste auswählen...",
-    "createFirst": "Erste Liste erstellen..."
+    "choose": "Liste auswählen",
+    "createFirst": "Erste Liste erstellen"
   },
   "storeChainField": {
     "label": "Händler"

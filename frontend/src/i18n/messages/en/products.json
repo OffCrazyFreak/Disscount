@@ -54,8 +54,8 @@
   "listTrigger": {
     "loading": "Loading...",
     "createNamed": "Create new list “{title}”",
-    "choose": "Choose a list...",
-    "createFirst": "Create your first list..."
+    "choose": "Choose a list",
+    "createFirst": "Create your first list"
   },
   "storeChainField": {
     "label": "Store"
