@@ -55,7 +55,7 @@ class ProductImageControllerTest {
     void photosAndThumbnailsAreReadableWithoutLogin() throws Exception {
         UUID id = UUID.randomUUID();
         when(queries.forProduct("8076800195057")).thenReturn(new ProductImagesDto("8076800195057",
-                List.of(new ProductImageDto(id, "https://i/full.jpg", "https://i/thumb.jpg", "OPEN_FOOD_FACTS", "VERIFIED"))));
+                List.of(new ProductImageDto(id, "https://i/full.jpg", "https://i/thumb.jpg", "https://i/small.jpg", "OPEN_FOOD_FACTS", "VERIFIED"))));
         when(queries.thumbnails(List.of("8076800195057", "5449000000996")))
                 .thenReturn(new ProductThumbnailsDto(Map.of("8076800195057", "https://i/thumb.jpg")));
 

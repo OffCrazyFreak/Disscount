@@ -35,8 +35,9 @@ class ProductImageViews {
     }
 
     ProductImageDto toPublic(ProductImage image) {
+        String small = image.getSmallKey() != null ? image.getSmallKey() : image.getThumbKey();
         return new ProductImageDto(image.getId(), store.publicUrl(image.getFullKey()), store.publicUrl(image.getThumbKey()),
-                image.getSource().name(), image.getStatus().name());
+                store.publicUrl(small), image.getSource().name(), image.getStatus().name());
     }
 
     AdminProductDto adminView(ProductImageSet set, List<ProductImage> all) {

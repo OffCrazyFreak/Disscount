@@ -17,6 +17,7 @@ export const productImageSchema = z.object({
   id: z.string(),
   fullUrl: z.string(),
   thumbUrl: z.string(),
+  smallUrl: z.string(),
   source: productImageSourceSchema,
   status: productImageStatusSchema,
 });
