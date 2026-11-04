@@ -2,6 +2,7 @@ package disscount.admin.rest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +35,7 @@ public class AdminController {
     @PatchMapping("/users/{userId}")
     public ResponseEntity<UserDto> updateAccountType(
             @PathVariable UUID userId,
-            @RequestBody UpdateAccountTypeRequest request
+            @Valid @RequestBody UpdateAccountTypeRequest request
     ) {
         userService.requireAdmin(SecurityUtils.getCurrentUserId());
         return ResponseEntity.ok(userService.updateAccountType(userId, request.getAccountType()));
