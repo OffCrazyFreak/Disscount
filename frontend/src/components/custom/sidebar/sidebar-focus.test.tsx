@@ -1,6 +1,6 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import SearchBar from "@/components/custom/search/search-bar";
@@ -15,7 +15,10 @@ import { renderWithProviders } from "@/test/render";
 import type { IScannedCode } from "@/typings/scanned-code";
 
 const router = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn() }));
-const mobile = vi.hoisted(() => ({ closeDrawer: () => {} }));
+const mobile = vi.hoisted(() => ({
+  openDrawer: () => {},
+  closeDrawer: () => {},
+}));
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
@@ -48,13 +51,21 @@ function ClosingLink() {
 
 // A navigation closes the mobile drawer; the router mock stands in for it. The extra
 // button opens it from somewhere other than the trigger, so the drawer's own focus
-// restore cannot hide a missing handoff.
-function DrawerControls() {
+// restore cannot hide a missing handoff. A vanishing opener models a page that swaps
+// the header (the map has its own trigger), which unmounts what opened the drawer.
+function DrawerControls({ vanishes }: { vanishes: boolean }) {
   const { setOpenMobile } = useSidebar();
+  const [isGone, setIsGone] = useState(false);
 
   useEffect(() => {
-    mobile.closeDrawer = () => setOpenMobile(false);
-  }, [setOpenMobile]);
+    mobile.openDrawer = () => setOpenMobile(true);
+    mobile.closeDrawer = () => {
+      if (vanishes) setIsGone(true);
+      setOpenMobile(false);
+    };
+  }, [setOpenMobile, vanishes]);
+
+  if (isGone) return null;
 
   return (
     <button type="button" onClick={() => setOpenMobile(true)}>
@@ -63,12 +74,12 @@ function DrawerControls() {
   );
 }
 
-function shell(allowScanning = true) {
+function shell(allowScanning = true, openerVanishes = false) {
   return (
     <SidebarProvider defaultOpen>
       <CameraScannerProvider>
         <SidebarTrigger />
-        <DrawerControls />
+        <DrawerControls vanishes={openerVanishes} />
         <SearchBar
           searchRoute="/products"
           placeholder="Page"
@@ -223,6 +234,61 @@ describe("focus when the sidebar closes", () => {
 
       await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
       expect(trigger).toHaveFocus();
+    });
+
+    it("returns to the button that opened the drawer when it is still there", async () => {
+      const user = userEvent.setup();
+      renderWithProviders(shell());
+      const opener = screen.getByRole("button", { name: "Open drawer" });
+
+      await user.click(opener);
+      await screen.findByRole("searchbox", { name: "Sidebar" });
+      act(() => mobile.closeDrawer());
+
+      await waitFor(() => expect(opener).toHaveFocus());
+    });
+
+    it("moves to the trigger when the opener is gone after the drawer closes", async () => {
+      const user = userEvent.setup();
+      renderWithProviders(shell(true, true));
+      const trigger = screen.getByRole("button", {
+        name: "Prikaži ili sakrij bočnu traku",
+      });
+
+      await user.click(screen.getByRole("button", { name: "Open drawer" }));
+      await screen.findByRole("searchbox", { name: "Sidebar" });
+      act(() => mobile.closeDrawer());
+
+      await waitFor(() => expect(trigger).toHaveFocus());
+    });
+
+    it("moves to the trigger after a search from the drawer when the opener is gone", async () => {
+      const user = userEvent.setup();
+      renderWithProviders(shell(true, true));
+      const trigger = screen.getByRole("button", {
+        name: "Prikaži ili sakrij bočnu traku",
+      });
+
+      await user.click(screen.getByRole("button", { name: "Open drawer" }));
+      await user.type(
+        await screen.findByRole("searchbox", { name: "Sidebar" }),
+        "sir{Enter}",
+      );
+
+      await waitFor(() => expect(trigger).toHaveFocus());
+    });
+
+    it("moves to the trigger when the drawer was opened with no element focused", async () => {
+      renderWithProviders(shell());
+      const trigger = screen.getByRole("button", {
+        name: "Prikaži ili sakrij bočnu traku",
+      });
+
+      act(() => mobile.openDrawer());
+      await screen.findByRole("searchbox", { name: "Sidebar" });
+      act(() => mobile.closeDrawer());
+
+      await waitFor(() => expect(trigger).toHaveFocus());
     });
   });
 });
