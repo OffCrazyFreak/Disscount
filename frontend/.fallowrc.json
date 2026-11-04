@@ -1,6 +1,12 @@
 {
   "$schema": "./node_modules/fallow/schema.json",
-  "entry": ["src/app/sw.ts", "src/emails/**/*.tsx", "scripts/**/*.mjs"],
+  "entry": [
+    "src/app/sw.ts",
+    // The top-level react-email previews (`pnpm email`). Named, not globbed: a `*` here would warn on 3.38 for matching `_templates/` and `components/` before `*` stopped crossing `/`, and those must stay reached by import.
+    "src/emails/{account-exists-email,breached-password-email,change-email-confirmation,complete-sign-up-email,email-changed-email,password-changed-email,password-reset-email,reauth-code-email,set-password-email,verification-email}.tsx",
+    // Scripts run by hand with `node`; check-i18n.mjs and migrate.mjs come from package.json and the Dockerfile, and scripts/lib is reached by import.
+    "scripts/{generate-*,i18n-add-namespace,optimize-store-logos,seed-dev-account}.mjs"
+  ],
   "boundaries": {
     "zones": [
       {
