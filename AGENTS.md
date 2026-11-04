@@ -16,7 +16,7 @@ Put these to me rather than working around them: I say yes far more often than n
 
 Hand back interactive installers and `init` wizards, except `pnpm dlx shadcn@latest add <component>`, which you may run.
 
-Legal copy is the exception to asking about wording: change it as you judge right and log what changed, why and the sources on #217, because the legal pages get one full rewrite later.
+Legal copy needs no wording question: change it as you judge right and log what changed, why and the sources on #217, because the legal pages get one full rewrite later.
 
 ## Never commit
 

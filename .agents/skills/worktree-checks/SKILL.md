@@ -42,9 +42,10 @@ Gitignored env files may be missing from a new worktree. Copy `.env`, `backend/.
 
 ## Dependency change
 
-The lockfile is regenerated in full for every dependency change, a single bump included, in a scratch clone at a literal path:
+The lockfile is regenerated in full for every dependency change, a single bump included, in a scratch clone at a literal path, starting from the worktree root:
 
 ```bash
+rm -rf /home/jj/Documents/Disscount/scratch/deps
 git clone --quiet /home/jj/Desktop/Disscount /home/jj/Documents/Disscount/scratch/deps
 cp frontend/package.json frontend/pnpm-workspace.yaml /home/jj/Documents/Disscount/scratch/deps/frontend/
 cd /home/jj/Documents/Disscount/scratch/deps/frontend
