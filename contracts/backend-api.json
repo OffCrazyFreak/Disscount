@@ -210,6 +210,7 @@
           "type" : "array"
         }
       },
+      "required" : [ "places" ],
       "type" : "object"
     },
     "BulkPinnedStoreRequest" : {
@@ -221,6 +222,7 @@
           "type" : "array"
         }
       },
+      "required" : [ "stores" ],
       "type" : "object"
     },
     "CardArchiveRequest" : {
@@ -875,6 +877,7 @@
           "type" : "string"
         }
       },
+      "required" : [ "accountType" ],
       "type" : "object"
     },
     "UserDto" : {
