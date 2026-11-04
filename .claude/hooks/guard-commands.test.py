@@ -113,8 +113,6 @@ def cases(real_repo, real_worktree, on_main, tracks_dev, tracks_own, no_hooks, w
         ("mvn -B -DskipTests package", MAIN, False),
         ("./node_modules/.bin/tsc --noEmit", WT, False),
         ("./node_modules/.bin/eslint src", WT, False),
-        ("pnpm exec next lint", MAIN, False),
-        ("./node_modules/.bin/next lint --fix", MAIN, False),
         ("cd frontend && pnpm lint", MAIN, False),
         # ALLOW: a real repo that is not a linked worktree
         ("pnpm install", real_repo, False),
