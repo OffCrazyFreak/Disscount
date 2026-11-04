@@ -221,7 +221,6 @@ The threshold modal's ranges and the bell's grouping have no dedicated test beyo
 | **Re-adding after a delete makes a new row**        | The upsert only matches live rows, so the soft-deleted one stays behind                                             | Expected; history is not reused                                                                          |
 | **One product query per watched EAN**               | A long watchlist means many parallel upstream calls on every page with the bell                                     | Fine at today's sizes; a batched endpoint upstream would fix it (#45 covers history, not current prices) |
 | **The snapshot needs a known scope**                | Writing before pinned stores load would rebase against every chain                                                  | Keep the `isScopeKnown` guard                                                                            |
-| **`spring-boot-starter-mail` is unused**            | It is on the classpath, but no watchlist email exists                                                               | Email alerts need the consent work in #216 first                                                         |
 
 ---
 
