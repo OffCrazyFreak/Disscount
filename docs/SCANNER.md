@@ -132,7 +132,7 @@ The image never leaves the device ([IMAGE-UPLOADS.md](IMAGE-UPLOADS.md) lists th
 - **Errors.** `describeScannerError` maps the library's error `kind` to a `scanner.errors.*` key: permission denied, no camera, camera in use, overconstrained, insecure context (camera access needs HTTPS or localhost), or generic. The error replaces the video with a warning banner; picking another camera clears it.
 - **Beep.** `scan-beep.ts` creates a Web Audio context while the opening tap is still a fresh user gesture, then plays a 120 ms, 1 kHz tone per stable code. It exists because iOS Safari ignores the library's sound option for muted video, so the library's own sound is off.
 - **Vibration.** One `navigator.vibrate(80)` per stable code in `ScannerContent`; see the DIGITAL-CARDS gotcha about not adding it back to the context.
-- **Screen readers.** A polite status region announces the found code, several codes, or a typed code. The step title takes focus on every step change. The dialog itself comes from the shadcn `Dialog`, which moves focus in and restores it on close.
+- **Screen readers.** A polite status region announces the found code, several codes, or a typed code. The step title takes focus on every step change. The dialog itself comes from the shadcn `Dialog`, which moves focus in. It has no `DialogTrigger`, so Radix has nothing to restore focus to on close and it falls to the page, except after a scan from the sidebar, which hands it to the sidebar trigger ([SEARCH.md §10](SEARCH.md#10-gotchas--lessons-learned)).
 
 ---
 
