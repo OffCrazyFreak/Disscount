@@ -62,7 +62,8 @@ function focusSidebarTrigger() {
   );
 
   for (const trigger of triggers) {
-    if (trigger.closest("[inert]")) continue;
+    // The drawer's own trigger goes away with it.
+    if (trigger.closest("[inert], [data-mobile]")) continue;
 
     // The header stays on screen, so there is never a reason to scroll to it.
     trigger.focus({ preventScroll: true });
@@ -196,6 +197,7 @@ function Sidebar({
 }) {
   const t = useTranslations("ui");
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+  const drawerOpenerRef = React.useRef<Element | null>(null);
 
   if (collapsible === "none") {
     return (
@@ -227,6 +229,29 @@ function Sidebar({
           data-slot="sidebar"
           data-mobile="true"
           className="bg-sidebar text-sidebar-foreground max-w-8/10 p-0"
+          initialFocus={() => {
+            // Runs before focus moves in, so this is still what opened the drawer.
+            drawerOpenerRef.current = document.activeElement;
+            return true;
+          }}
+          finalFocus={() => {
+            // A link or search can close the drawer on a page where what opened it is
+            // gone or hidden (the map swaps the header's trigger for its own), and Safari
+            // never focuses a tapped button; focus would drop to the page's top.
+            const opener = drawerOpenerRef.current;
+
+            if (
+              opener instanceof HTMLElement &&
+              opener !== document.body &&
+              !opener.closest("[inert]")
+            ) {
+              opener.focus({ preventScroll: true });
+              if (document.activeElement === opener) return false;
+            }
+
+            focusSidebarTrigger();
+            return false;
+          }}
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
