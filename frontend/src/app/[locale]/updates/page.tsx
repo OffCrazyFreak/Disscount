@@ -60,7 +60,7 @@ export default async function UpdatesPage(
       </div>
 
       {matchingPosts.length > 0 ? (
-        <AnimatedGroup className="space-y-4" preset="blur-slide">
+        <AnimatedGroup className="space-y-4">
           {matchingPosts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
