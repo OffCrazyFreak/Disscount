@@ -19,6 +19,8 @@ export default defineConfig({
     restoreMocks: true,
     unstubEnvs: true,
     unstubGlobals: true,
+    // A test that reaches its end without one assertion proves nothing and still passes.
+    expect: { requireAssertions: true },
     setupFiles: ["./src/test/setup.ts"],
     // next-intl imports next/navigation and next/server without a file extension, which
     // only resolves once Vite transforms it instead of Node loading it directly.
