@@ -301,7 +301,7 @@ Versions read from `frontend/package.json` and `backend/pom.xml`.
 
 | Library                                | Version    | Role here                                                                |
 | -------------------------------------- | ---------- | ------------------------------------------------------------------------ |
-| `next`                                 | `16.4.3`   | Server rendering, `generateMetadata`, `generateSitemaps`, route handlers |
+| `next`                                 | `16.4.5`   | Server rendering, `generateMetadata`, `generateSitemaps`, route handlers |
 | `react`                                | `19.2.8`   | `cache()` for the per-request upstream lookup                            |
 | `@tanstack/react-query`                | `^5.90.12` | Every product, price and history query; hydration from the server        |
 | `@tanstack/react-query-persist-client` | `^5.101.1` | The IndexedDB snapshot                                                   |
