@@ -49,7 +49,7 @@ Why they differ:
 
 - The avatar shows at most 96 CSS px in a round frame, so a square crop at 256 px stays sharp on a 2x screen and stores nothing that is never seen.
 - Card photos keep 1280 px so the card number and barcode stay readable to a person. The wallet never scans the photo: the barcode on the card face is drawn from the stored number.
-- Product photos are always JPEG because the server decodes and renders them with ImageIO, which has no WebP support, and the admin crops from the original, so it keeps the most pixels.
+- Product photo uploads are always JPEG because the server's renderer decodes only JPEG and PNG, and the admin crops from the original, so it keeps the most pixels. The public files it renders are WebP ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)).
 
 Offline card photos sit in IndexedDB (`lib/offline/card-photo-outbox.ts`) as the already prepared blobs, so the queue holds the small, clean copies, never the original file.
 
@@ -63,7 +63,7 @@ The browser steps are a convenience; the server check is the real guard, because
 | Card photos   | `PUT /api/digital-cards/{id}/photos/{slot}` | Spring multipart `max-file-size=512KB`, `max-request-size=1100KB`, then `PhotoValidator`            | Sanitised bytes go to the private R2 card bucket                                                                                                         |
 | Product photo | `POST /api/products/{ean}/images`           | The same multipart limits and `PhotoValidator`, then JPEG only                                      | Sanitised original kept, then `ProductImageRenderer` writes 1080 and 400 px JPEGs on white to the public bucket ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)) |
 
-`PhotoValidator` (`backend/.../digitalCard/photo/`) decides the format from the first bytes, never from the claimed type or file name. JPEG is decoded and re-encoded with ImageIO, which drops metadata; it starts at quality 0.85 and steps down to 0.50 until the result is no bigger than the upload, because a phone JPEG is often already below 0.85 and the first step alone made files up to 45% bigger. The 512 KB limit is checked again on the bytes that get stored. WebP is rewritten keeping only the pixel chunks (`VP8X`, `VP8 `, `VP8L`, `ALPH`), which drops EXIF, XMP and ICC. [DIGITAL-CARDS.md §5](DIGITAL-CARDS.md#5-photos-and-r2) lists every rule.
+`PhotoValidator` (`backend/.../digitalCard/photo/`) decides the format from the first bytes, never from the claimed type or file name. JPEG is decoded and re-encoded with ImageIO, which drops metadata; it starts at quality 0.85 and steps down to 0.50 until the result is no bigger than the upload, because a phone JPEG is often already below 0.85 and the first step alone made files bigger (27 to 37% on real dev photos, 45% on a noisy test image). When no step is small enough the smallest is kept, so a JPEG uploaded below quality 0.50 can still grow slightly. The 512 KB limit is checked again on the bytes that get stored. WebP is rewritten keeping only the pixel chunks (`VP8X`, `VP8 `, `VP8L`, `ALPH`), which drops EXIF, XMP and ICC. [DIGITAL-CARDS.md §5](DIGITAL-CARDS.md#5-photos-and-r2) lists every rule.
 
 ## 5. Key files
 
