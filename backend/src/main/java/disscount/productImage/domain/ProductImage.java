@@ -62,7 +62,7 @@ public class ProductImage {
     @Column(length = 8)
     private String lang;
 
-    /** Sanitized upload in the private bucket; Open Food Facts photos are fetched again instead. */
+    /** Sanitized upload in the private photo folder; Open Food Facts photos are fetched again instead. */
     @Column(name = "original_key", length = 255)
     private String originalKey;
 

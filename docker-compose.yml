@@ -66,6 +66,7 @@ services:
       # Verbose SDK init/transport logging for debugging; leave unset normally
       SENTRY_DEBUG: ${SENTRY_DEBUG:-false}
       # Photo folders inside the container and the hostname serving the public ones; blank switches photos off.
+      # Setting them locally also needs the folders mounted, or the stores stay off.
       PHOTO_DIR: ${PHOTO_DIR:-}
       PUBLIC_PHOTO_DIR: ${PUBLIC_PHOTO_DIR:-}
       R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}

@@ -4,7 +4,7 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 public enum ImageStatus {
-    /** Known on Open Food Facts but not copied into our bucket yet. */
+    /** Known on Open Food Facts but not copied into our photo store yet. */
     CANDIDATE,
     /** A user photo nobody else has confirmed; shown only when it is the main photo. */
     PENDING,

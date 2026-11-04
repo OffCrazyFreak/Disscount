@@ -178,7 +178,7 @@ public class ProductImageAdminService {
         image.setFlaggedAt(null);
         reports.deleteByImageId(image.getId());
 
-        // Rendering moves a candidate to VERIFIED once its copy is in our bucket.
+        // Rendering moves a candidate to VERIFIED once its copy is in our photo store.
         if (!image.isRendered()) {
             rendering.render(image);
         } else {
