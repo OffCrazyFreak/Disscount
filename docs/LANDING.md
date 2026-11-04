@@ -222,11 +222,10 @@ Every CSS animation is disabled under `@media (prefers-reduced-motion: reduce)`,
 
 ## Config, env, and feature flags
 
-| Name                            | Where                                    | Effect                                                       |
-| ------------------------------- | ---------------------------------------- | ------------------------------------------------------------ |
-| `NEXT_PUBLIC_APP_URL`           | JSON-LD, sitemap, robots, `metadataBase` | Absolute URLs for SEO; falls back to `http://localhost:3000` |
-| `NEXT_PUBLIC_UMAMI_WEBSITE_ID`  | `app/[locale]/layout.tsx`                | Injects the privacy-friendly analytics script when set       |
-| `NEXT_PUBLIC_ENABLE_REACT_SCAN` | `app/providers/react-scan.tsx`           | Turns on the render-profiling overlay; off by default        |
+| Name                           | Where                                    | Effect                                                       |
+| ------------------------------ | ---------------------------------------- | ------------------------------------------------------------ |
+| `NEXT_PUBLIC_APP_URL`          | JSON-LD, sitemap, robots, `metadataBase` | Absolute URLs for SEO; falls back to `http://localhost:3000` |
+| `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | `app/[locale]/layout.tsx`                | Injects the privacy-friendly analytics script when set       |
 
 There are no landing-specific secrets. All copy comes from the `landing` message namespace in every supported language.
 
@@ -239,7 +238,7 @@ Versions come from `frontend/package.json`.
 | next              | `16.4.5`    | App Router, RSC, metadata, `next/font`, `next/og`, `next/image` |
 | react / react-dom | `19.2.8`    | Server + client components                                      |
 | motion            | `^12.23.26` | Scroll reveals, doodle path-draws, tagline cross-fade           |
-| lucide-react      | `^1.26.0`   | Feature and perk icons                                          |
+| lucide-react      | `^1.67.0`   | Feature and perk icons                                          |
 | tailwindcss       | `^4`        | Styling, CSS-first theme, keyframes                             |
 
 ## Gotchas

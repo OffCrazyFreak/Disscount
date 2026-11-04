@@ -806,7 +806,7 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 | `longPressEnabled` on the Kartice entry   | `bottom-nav-items.ts`                       | Gates the Kartice gesture (now `true`); the flag stays for any future teaser                                                    |
 | `Disscount_app` in `localStorage`         | `utils/browser/storage/*`                   | Unrelated to the bar now; its `bottomNavVariant` key was removed with the variants                                              |
 
-Both dev-overlay switches are read at compile time, so they need a **dev-server restart**, not just a reload. The flag follows the existing `NEXT_PUBLIC_ENABLE_REACT_SCAN` naming.
+Both dev-overlay switches are read at compile time, so they need a **dev-server restart**, not just a reload.
 
 There are no production env vars for this feature, and nothing to configure in Dokploy.
 
@@ -823,7 +823,7 @@ Versions read from `frontend/package.json`. **Nothing new was installed** for th
 | `motion`                         | ^12.23.26 | The `layoutId` active disc and `useReducedMotion`                |
 | `@base-ui/react`                 | ^1.9.0    | The drawer under `SheetShell` and the mobile sidebar, with swipe |
 | `radix-ui`                       | ^1.4.3    | Dialogs, menus and tooltips opened over or inside the sheets     |
-| `lucide-react`                   | ^1.26.0   | Every icon on the bar                                            |
+| `lucide-react`                   | ^1.67.0   | Every icon on the bar                                            |
 | `tailwindcss`                    | ^4        | All styling, including the pill's translucent blurred surface    |
 | `sonner`                         | ^2.0.7    | Toasts, offset above the bar                                     |
 | `@tanstack/react-query`          | ^5.90.12  | The list-completion query                                        |
