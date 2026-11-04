@@ -25,6 +25,7 @@
 .agents/skills/*
 !.agents/skills/document-subsystem
 !.agents/skills/worktree-checks
+!.agents/skills/ui-handover
 
 # Generated HTML
 docs/*.html
