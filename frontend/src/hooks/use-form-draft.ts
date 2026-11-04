@@ -77,6 +77,7 @@ export function useFormDraft<T extends FieldValues>({
   const [hadDraft] = useState(() => !!getFormDraft(draftKey));
   const [dismissed, setDismissed] = useState(false);
   const restoredKeyRef = useRef<string | null>(null);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   // Taken on each open, not at mount: an always-mounted modal outlives sign-ins.
   const ownerIdentityRef = useRef<string | null>(null);
 
@@ -129,6 +130,8 @@ export function useFormDraft<T extends FieldValues>({
   }, [enabled, restore, draftKey, form]);
 
   const flushDraft = useCallback(() => {
+    // Writing now makes a queued save redundant, and a stale one would overwrite what follows.
+    clearTimeout(saveTimerRef.current);
     // An account switch moves the identity before this form unmounts, and its last flush
     // would otherwise save the departing account's values as the next account's draft.
     if (getCacheIdentity() !== ownerIdentityRef.current) return;
@@ -151,14 +154,13 @@ export function useFormDraft<T extends FieldValues>({
   useEffect(() => {
     if (!enabled) return;
 
-    let timer: ReturnType<typeof setTimeout>;
     const subscription = form.watch(() => {
-      clearTimeout(timer);
-      timer = setTimeout(flushDraft, 500);
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = setTimeout(flushDraft, 500);
     });
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(saveTimerRef.current);
       subscription.unsubscribe();
       // A finished submit already cleared the draft, but a failed optimistic submit reopens from it.
       const latest = stateRef.current;
@@ -167,6 +169,8 @@ export function useFormDraft<T extends FieldValues>({
   }, [enabled, draftKey, form, flushDraft]);
 
   const clearDraft = useCallback(() => {
+    // Otherwise a save queued by an edit just before this would write the draft straight back.
+    clearTimeout(saveTimerRef.current);
     removeFormDraft(draftKey);
     setDismissed(true);
   }, [draftKey]);
