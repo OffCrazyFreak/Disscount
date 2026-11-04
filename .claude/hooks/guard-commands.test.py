@@ -10,7 +10,15 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HOOK = os.path.join(HERE, "guard-commands.py")
-MAIN = os.path.dirname(os.path.dirname(HERE))
+# The main checkout even when this runs from a linked worktree.
+MAIN = os.path.dirname(
+    subprocess.run(
+        ["git", "-C", HERE, "rev-parse", "--path-format=absolute", "--git-common-dir"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+)
 
 # A path matching this project's own worktree convention. It need not exist:
 # git cannot answer for it, so the guard falls back to the convention.
@@ -35,13 +43,39 @@ def build_real_worktree(root):
     run("git", "commit", "-qm", "init")
     linked = os.path.join(root, "linked")
     run("git", "worktree", "add", "-q", "-b", "wt", linked)
+    os.makedirs(os.path.join(linked, "frontend"))
+    os.symlink(os.path.join(repo, "frontend", "node_modules"), os.path.join(linked, "frontend", "node_modules"))
+    installed = os.path.join(root, "installed")
+    run("git", "worktree", "add", "-q", "-b", "wt-installed", installed)
+    os.makedirs(os.path.join(installed, "frontend", "node_modules"))
+    fresh = os.path.join(root, "fresh")
+    run("git", "worktree", "add", "-q", "-b", "wt-fresh", fresh)
     on_main = os.path.join(root, "on-main")
     run("git", "worktree", "add", "-q", "-b", "main", on_main)
+    # A branch tracking origin/dev is what push.default=upstream sends to dev.
+    remote = os.path.join(root, "remote.git")
+    run("git", "init", "-q", "--bare", remote)
+    run("git", "remote", "add", "origin", remote)
+    run("git", "push", "-q", "origin", "dev")
+    tracks_dev = os.path.join(root, "tracks-dev")
+    run("git", "worktree", "add", "-q", "--track", "-b", "feat-a", tracks_dev, "origin/dev")
+    tracks_own = os.path.join(root, "tracks-own")
+    run("git", "worktree", "add", "-q", "--no-track", "-b", "feat-b", tracks_own, "origin/dev")
+    subprocess.run(["git", "push", "-qu", "origin", "feat-b"], cwd=tracks_own, env=env, capture_output=True, check=True)
 
-    return repo, linked, on_main
+    # husky's generated hook folder exists only in the checkout that installed it.
+    no_hooks = os.path.join(root, "no-hooks")
+    run("git", "init", "-q", "-b", "dev", no_hooks)
+    run("git", "-C", no_hooks, "config", "core.hooksPath", "hooks/_")
+    with_hooks = os.path.join(root, "with-hooks")
+    run("git", "init", "-q", "-b", "dev", with_hooks)
+    run("git", "-C", with_hooks, "config", "core.hooksPath", "hooks/_")
+    os.makedirs(os.path.join(with_hooks, "hooks", "_"))
+
+    return repo, linked, on_main, tracks_dev, tracks_own, no_hooks, with_hooks, installed, fresh
 
 
-def cases(real_repo, real_worktree, on_main):
+def cases(real_repo, real_worktree, on_main, tracks_dev, tracks_own, no_hooks, with_hooks, installed, fresh):
     return [
         # ALLOW: dev servers and Docker run in the main tree
         ("pnpm dev", MAIN, False),
@@ -66,7 +100,18 @@ def cases(real_repo, real_worktree, on_main):
         # BLOCK: command substitution used to hide the command
         ("echo $(pnpm install)", WT, True),
         ("echo `pnpm install`", WT, True),
-        # BLOCK: pnpm inside a worktree, by convention and by git metadata
+        # ALLOW: a worktree with its own install, or none yet, has no link to purge through
+        ("pnpm install --frozen-lockfile", installed, False),
+        ("pnpm check", installed, False),
+        ("sudo -u root pnpm install", installed, False),
+        (f"cd {installed}/frontend && pnpm check", MAIN, False),
+        ("pnpm install --frozen-lockfile", fresh, False),
+        ('bash -c "pnpm install"', fresh, False),
+        # BLOCK: a link made earlier in the same command, which the guard runs before
+        ("ln -s /main/frontend/node_modules frontend/node_modules && pnpm exec tsc --noEmit", fresh, True),
+        # BLOCK: a symlinked install reached from outside, through frontend/
+        (f"cd {real_worktree}/frontend && pnpm check", MAIN, True),
+        # BLOCK: pnpm where node_modules is linked or git cannot say
         ("pnpm lint", WT, True),
         ("pnpm exec tsc --noEmit", WT, True),
         ("pnpm install", WT, True),
@@ -86,8 +131,6 @@ def cases(real_repo, real_worktree, on_main):
         ("mvn -B -DskipTests package", MAIN, False),
         ("./node_modules/.bin/tsc --noEmit", WT, False),
         ("./node_modules/.bin/eslint src", WT, False),
-        ("pnpm exec next lint", MAIN, False),
-        ("./node_modules/.bin/next lint --fix", MAIN, False),
         ("cd frontend && pnpm lint", MAIN, False),
         # ALLOW: a real repo that is not a linked worktree
         ("pnpm install", real_repo, False),
@@ -99,7 +142,6 @@ def cases(real_repo, real_worktree, on_main):
         # ALLOW: the word appears but nothing is executed
         ('grep -rn "pnpm install" docs/', WT, False),
         ('echo "run pnpm install yourself"', WT, False),
-        ("git push origin dev", MAIN, False),
         ("git checkout dev", MAIN, False),
         ("git log --oneline dev", MAIN, False),
         ("gh pr create --base dev", MAIN, False),
@@ -139,12 +181,115 @@ def cases(real_repo, real_worktree, on_main):
         ("git push", on_main, True),
         ("git push origin HEAD", on_main, True),
         (f"git -C {on_main} push", real_repo, True),
-        # ALLOW: other branches, including names that only contain "main"
-        ("git push", real_repo, False),
-        ("git push origin HEAD", real_repo, False),
+        # BLOCK: any refspec that lands on dev
+        ("git push origin dev", MAIN, True),
+        ("git push origin HEAD:dev", tracks_own, True),
+        ("git push -f origin +dev", tracks_own, True),
+        ("git push origin feat-b:refs/heads/dev", tracks_own, True),
+        ("git push origin :dev", tracks_own, True),
+        ("git push origin --delete dev", tracks_own, True),
+        # BLOCK: a bare push, or HEAD, with dev checked out
+        ("git push", real_repo, True),
+        ("git push origin HEAD", real_repo, True),
+        # BLOCK: a bare push from a branch tracking origin/dev
+        ("git push", tracks_dev, True),
+        ("git push origin", tracks_dev, True),
+        ("git push -f", tracks_dev, True),
+        (f"git -C {tracks_dev} push", real_repo, True),
+        # ALLOW: naming the destination is the way out of tracking dev
+        ("git push -u origin HEAD:refs/heads/feat-a", tracks_dev, False),
+        ("git push origin HEAD", tracks_dev, False),
+        ("git push", tracks_own, False),
+        ("git push", real_worktree, False),
+        # ALLOW: other branches, including names that only contain "main" or "dev"
+        ("git push origin HEAD", tracks_own, False),
         ("git push origin main-docs", real_repo, False),
+        ("git push origin dev-docs", real_repo, False),
+        ("git push origin chore/dev-menu", real_repo, False),
         ("git push origin chore/main-menu", real_repo, False),
         ("git push origin --delete feat/x", real_repo, False),
+        # BLOCK: new branches that would track origin/dev
+        ("git checkout -b x origin/dev", real_repo, True),
+        ("git checkout -B x origin/dev", real_repo, True),
+        ("git checkout --track origin/dev", real_repo, True),
+        ("git checkout -b x refs/remotes/origin/dev", real_repo, True),
+        ("git switch -c x origin/dev", real_repo, True),
+        ("git switch --create x origin/dev", real_repo, True),
+        ("git branch x origin/dev", real_repo, True),
+        ("git branch --track x origin/dev", real_repo, True),
+        ("git worktree add -b x ../x origin/dev", real_repo, True),
+        ("git -C . worktree add ../x -b x origin/dev", real_repo, True),
+        # ALLOW: --no-track, other start points, and reading origin/dev
+        ("git checkout --no-track -b x origin/dev", real_repo, False),
+        ("git checkout -b x --no-track origin/dev", real_repo, False),
+        ("git switch --no-track -c x origin/dev", real_repo, False),
+        ("git branch --no-track x origin/dev", real_repo, False),
+        ("git worktree add --no-track -b x ../x origin/dev", real_repo, False),
+        ("git worktree add ../x origin/dev", real_repo, False),
+        ("git checkout -b x origin/main", real_repo, False),
+        ("git checkout -b x origin/dev~1", real_repo, False),
+        ("git checkout -b x", real_repo, False),
+        ("git checkout origin/dev", real_repo, False),
+        ("git checkout origin/dev -- frontend/package.json", real_repo, False),
+        ("git branch --contains origin/dev", real_repo, False),
+        ("git branch --merged origin/dev", real_repo, False),
+        ("git branch -f x origin/dev", real_repo, False),
+        ("git log origin/dev..HEAD", real_repo, False),
+        ("git diff origin/dev", real_repo, False),
+        # BLOCK: a commit that would silently run no hooks
+        ('git commit -m "x"', no_hooks, True),
+        # ALLOW: hooks in place, or nothing configured, or not a commit
+        ('git commit -m "x"', with_hooks, False),
+        ('git commit -m "x"', real_repo, False),
+        ("git status", no_hooks, False),
+        # BLOCK: a shell keyword or subshell in front of the command used to hide it
+        ("while pgrep -f vitest; do wait; done", real_repo, True),
+        ("until ! pgrep -f vitest; do wait; done", real_repo, True),
+        ("for p in a b; do pkill -f vitest; done", real_repo, True),
+        ("if pgrep -f vitest; then echo x; fi", real_repo, True),
+        ("! pgrep -f vitest", real_repo, True),
+        ("(pkill -f vitest)", real_repo, True),
+        ("{ pkill -f vitest; }", real_repo, True),
+        ("if git push origin dev; then echo x; fi", real_repo, True),
+        ("(git push origin dev)", real_repo, True),
+        ("if true; then git commit --no-verify -m x; fi", real_repo, True),
+        ("if true; then pnpm install; fi", WT, True),
+        # BLOCK: a wrapper's own options used to hide git
+        ("sudo -u root git push origin dev", real_repo, True),
+        ("env -C /tmp git push origin dev", real_repo, True),
+        # BLOCK: a refspec that can name dev or main
+        ("git push origin 'refs/heads/*:refs/heads/*'", tracks_own, True),
+        ('git push origin "$BRANCH"', tracks_own, True),
+        # ALLOW: tags only, even from a branch tracking origin/dev
+        ("git push --tags", tracks_dev, False),
+        ("git push origin --tags", tracks_dev, False),
+        ("git push origin v1.0", tracks_own, False),
+        # BLOCK: a -f pattern that matches the shell running it
+        ("pkill -f next-server", real_repo, True),
+        ("pkill -9 -f next-server", real_repo, True),
+        ("pgrep -f vitest", real_repo, True),
+        ("pgrep -af vitest", real_repo, True),
+        ("pgrep --full vitest", real_repo, True),
+        ("pgrep -f -- vitest", real_repo, True),
+        ("sudo pkill -f next", real_repo, True),
+        ("sudo -u root pkill -f next", real_repo, True),
+        ("bash -c 'pkill -f next'", real_repo, True),
+        ("echo $(pgrep -f vitest)", real_repo, True),
+        ("pgrep -f 'next.*build'", real_repo, True),
+        ("pgrep -f '[v]itest'; echo vitest", real_repo, True),
+        ("pkill -f $TARGET", real_repo, True),
+        # ALLOW: the bracket trick, no -f, and the words only as data
+        ("pgrep -f '[v]itest'", real_repo, False),
+        ("pkill -f '[n]ext-server'", real_repo, False),
+        ("pgrep -af '[n]ext-build|[v]itest|[s]urefire'", real_repo, False),
+        ("while pgrep -f '[s]urefire' >/dev/null; do wait; done", real_repo, False),
+        ("pgrep node", real_repo, False),
+        ("pkill -x node", real_repo, False),
+        ("pkill -TERM node", real_repo, False),
+        ("pgrep -u jj node", real_repo, False),
+        ("kill 1234", real_repo, False),
+        ('grep -rn "pkill -f next" docs/', real_repo, False),
+        ('git commit -m "stop using pkill -f next"', real_repo, False),
     ]
 
 
@@ -155,10 +300,11 @@ def main():
 
     root = tempfile.mkdtemp(prefix="guard-commands-")
     try:
-        real_repo, real_worktree, on_main = build_real_worktree(root)
+        fixture = build_real_worktree(root)
+        real_repo, real_worktree, on_main, tracks_dev, tracks_own, no_hooks, with_hooks, installed, fresh = fixture
         fails = 0
 
-        for command, cwd, expect_block in cases(real_repo, real_worktree, on_main):
+        for command, cwd, expect_block in cases(*fixture):
             payload = json.dumps(
                 {"tool_name": "Bash", "tool_input": {"command": command}, "cwd": cwd}
             )
@@ -168,7 +314,7 @@ def main():
             blocked = result.returncode == 2
             ok = blocked == expect_block
             fails += 0 if ok else 1
-            where = {MAIN: "main", WT: "wt-path", real_worktree: "wt-git", on_main: "on-main"}.get(
+            where = {MAIN: "main", WT: "wt-path", real_worktree: "wt-git", on_main: "on-main", tracks_dev: "trk-dev", tracks_own: "trk-own"}.get(
                 cwd, "repo"
             )
             print(

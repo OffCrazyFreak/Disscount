@@ -4,13 +4,22 @@ on:
   push:
     branches: [main, dev]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
 
+# A new push to a pull request replaces its older run. Pushes to dev and main group by commit and
+# never cancel, because each one builds and deploys its own images.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   frontend:
     name: Frontend checks
+    # Job level, so a required check on a draft reports as skipped instead of pending forever.
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -45,7 +54,7 @@ jobs:
         run: pnpm test
 
       - name: Lint
-        run: pnpm exec eslint src
+        run: pnpm lint
 
       # Dead code, duplication, complexity, import cycles and folder boundaries,
       # configured in frontend/.fallowrc.json. It fails only on findings this
@@ -96,6 +105,7 @@ jobs:
 
   backend:
     name: Backend checks
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -113,10 +123,24 @@ jobs:
 
       - run: mvn -B verify
 
+  # Workflow files fail only when they run, often on the release or deploy path, so check them up front.
+  actionlint:
+    name: Workflow lint
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: docker://rhysd/actionlint:1.7.12
+        with:
+          args: -color
+
   # The other images are proven by the frontend and backend checks; this one is only built on push otherwise.
   backup-image:
     name: Backup image
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && !github.event.pull_request.draft
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

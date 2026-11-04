@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """PreToolUse guard for Bash commands.
 
-It blocks pnpm inside a git worktree: pnpm resolves the workspace through
-the symlinked node_modules and offers to purge the MAIN tree's copy. It aborts
-on a missing TTY today, so with CI=true set it would delete the real one.
-It also blocks `--no-verify` and pushes to `main` (rules in guard_git.py).
+It blocks pnpm in a git worktree whose frontend/node_modules is a symlink: pnpm
+resolves the workspace through it and offers to purge the MAIN tree's copy. It
+aborts on a missing TTY today, so with CI=true set it would delete the real one.
+A worktree with its own install is safe, and pnpm runs there as usual.
+It also blocks `--no-verify`, pushes to `main` or `dev`, branches that would
+track origin/dev (rules in guard_git.py), and `pkill -f` or `pgrep -f` patterns
+that match their own command line (guard_process.py).
 The permission rules in settings.json are prefix matches, so this parses each
 command instead of matching a prefix.
 
@@ -26,11 +29,15 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from guard_git import git_refusal  # noqa: E402
+from guard_process import process_match_refusal  # noqa: E402
 
 WRAPPERS = {"sudo", "timeout", "env", "nice", "nohup", "command", "time", "xargs"}
 
 # Re-entering a shell hides the real command inside a string argument.
 SHELLS = {"sh", "bash", "zsh", "dash", "ksh", "fish"}
+
+# These lead a command without being one: `while pgrep ...`, `if git push ...`, `! pkill ...`.
+SHELL_KEYWORDS = {"if", "then", "elif", "else", "while", "until", "do", "!", "{"}
 
 ENV_ASSIGN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
 
@@ -156,11 +163,17 @@ def strip_prefixes(tokens):
     without a table per wrapper, so this can still stop on the wrong token.
     `wrapped` tells the caller to fall back to scanning the whole segment.
     """
+    # A subshell's parentheses stay attached to its first and last words.
+    tokens = [token.lstrip("(").rstrip(")") for token in tokens]
     i = 0
     wrapped = False
 
     while i < len(tokens):
         token = tokens[i]
+
+        if token in SHELL_KEYWORDS or not token:
+            i += 1
+            continue
 
         if ENV_ASSIGN.match(token):
             i += 1
@@ -256,8 +269,32 @@ def in_worktree(cwd):
     return git_dir != common_dir
 
 
-def check(command, cwd, depth=0):
-    """Return a refusal message, or None to allow."""
+def modules_are_linked(cwd):
+    """True when this checkout's frontend/node_modules is a symlink, or git cannot say."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", cwd, "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return True
+
+    if result.returncode != 0:
+        return True
+
+    return os.path.islink(os.path.join(result.stdout.strip(), "frontend", "node_modules"))
+
+
+def check(command, cwd, depth=0, root=None):
+    """Return a refusal message, or None to allow.
+
+    `root` is the whole original command: it is the command line the running
+    shell shows to pgrep, however deep the nesting got.
+    """
+    root = root if root is not None else command
+
     if depth > MAX_DEPTH:
         return (
             "Blocked: command nests shells or substitutions too deeply to check.\n"
@@ -267,13 +304,15 @@ def check(command, cwd, depth=0):
     command = strip_heredocs(command)
 
     for nested in substitutions(command):
-        message = check(nested, cwd, depth + 1)
+        message = check(nested, cwd, depth + 1, root)
         if message:
             return message
 
     # None means a `cd` landed somewhere unknowable, so cwd-dependent checks
     # can no longer be trusted for the rest of the command.
     effective_cwd = cwd
+    # A symlink made earlier in this same command does not exist yet when the guard runs.
+    links_modules = False
 
     for segment in segments(command):
         raw_tokens = tokens_of(segment)
@@ -291,15 +330,25 @@ def check(command, cwd, depth=0):
 
         if name in SHELLS:
             for payload in shell_payloads(args):
-                message = check(payload, effective_cwd or cwd, depth + 1)
+                message = check(payload, effective_cwd or cwd, depth + 1, root)
                 if message:
                     return message
             continue
 
-        if name == "git":
-            message = git_refusal(args, effective_cwd, raw_tokens)
+        names = [basename(token) for token in tokens]
+        if name == "git" or (wrapped and "git" in names):
+            git_args = tokens[names.index("git") + 1 :]
+            message = git_refusal(git_args, effective_cwd, raw_tokens)
             if message:
                 return message
+            continue
+
+        message = process_match_refusal(tokens, wrapped, root)
+        if message:
+            return message
+
+        if name == "ln" and any(arg.rstrip("/").endswith("node_modules") for arg in args):
+            links_modules = True
             continue
 
         # A wrapper whose options we could not parse may have hidden the real
@@ -311,13 +360,13 @@ def check(command, cwd, depth=0):
                     "cannot resolve, so it cannot tell whether the directory is a "
                     "git worktree. Run pnpm from a literal path instead."
                 )
-            if in_worktree(effective_cwd):
+            if in_worktree(effective_cwd) and (links_modules or modules_are_linked(effective_cwd)):
                 return (
-                    f"Blocked: `{segment}` runs pnpm inside a git worktree "
-                    f"({effective_cwd}).\n"
-                    "pnpm resolves the workspace through the symlinked node_modules "
-                    "and will offer to purge the MAIN tree's copy. Call the binary "
-                    "directly instead, e.g. ./node_modules/.bin/tsc --noEmit."
+                    f"Blocked: `{segment}` runs pnpm in a git worktree with a symlinked "
+                    f"frontend/node_modules ({effective_cwd}).\n"
+                    "pnpm resolves the workspace through the link and will offer to purge "
+                    "the MAIN tree's copy. Delete the link and run pnpm install "
+                    "--frozen-lockfile in frontend/, or call the binary directly."
                 )
 
     return None

@@ -1,32 +1,30 @@
-<!-- Thanks for contributing to Disscount! Please fill in the sections below. -->
+<!--
+Why and Tested are required. Delete any other section that does not apply.
+Closing keywords fire only on a merge into main, so a PR into dev says "Part of #123" and the issue is closed by hand.
+-->
 
-## Summary
+## Why
 
-<!-- What does this PR do, and why? -->
+<!-- The problem, and the issue this belongs to. -->
 
-## Related issue
+## Decisions
 
-<!-- e.g. Closes #123
-     Closing keywords only fire when the PR merges into the default branch, so a
-     PR targeting `dev` links the issue but does not close it. Close those by hand,
-     referencing the commit SHA. -->
+<!-- Choices the code does not show: what was chosen, who chose it, their reason in their own words, what was rejected. Add the research that changed the plan, with links. -->
 
-## Type of change
+## What changed
 
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Documentation
-- [ ] Refactor / chore
-- [ ] Other:
+<!-- By concern. Over 8 commits: a numbered commit list in review order. -->
 
-## Screenshots / recordings
+## Tested
 
-<!-- Required for UI changes. Remove if not applicable. -->
+<!-- Commands and browser flows with results, and what did not run. -->
 
-## Checklist
+## Steps and risks
 
-- [ ] Code builds and any tests pass locally.
-- [ ] Formatting and linting applied (Prettier / lint for frontend, Maven build for backend).
-- [ ] No secrets, credentials, or personal data included.
-- [ ] The linked issue's "Done when" checklist is ticked off, or says what is left.
-- [ ] I have read the [Contributing guide](CONTRIBUTING.md).
+<!-- Migrations, manual database steps, env or config steps, follow-ups. -->
+
+## Where to see it
+
+<!-- UI changes only: the page path for each changed screen, and how to reach each state. -->
+
+Docs touched: <!-- Files changed, or "none went stale". -->

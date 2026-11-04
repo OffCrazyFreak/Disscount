@@ -1,172 +1,149 @@
 # AGENTS.md
 
-Croatian grocery price comparison app: Next.js frontend, Spring Boot backend, self-hosted on Hetzner via Dokploy. `CLAUDE.md` imports this file, so Claude Code and Codex read the same instructions.
+Croatian grocery price comparison app: Next.js frontend, Spring Boot backend, self-hosted on Hetzner via Dokploy.
 
-The repository is public under BUSL-1.1, so it is source-available. Never call it open source, including in marketing copy and docs.
+Call the repository source-available, never open source, because BUSL-1.1 is not an open source license.
 
-## Boundaries
+## Ask first
 
-Never:
+Put these to me instead of working around them: I say yes far more often than no.
 
-- Merge a PR unless I say so, or commit a change that is not the task's.
-- Commit secrets, credentials, the server IP or the SSH user; docs use placeholders.
-- Reference or quote the gitignored private notes under `docs/` from a tracked file. Only `.gitignore` may name them, because the repository is public.
-- Hand-edit dependency entries or lockfiles, use npm, or generate a `package-lock.json`.
-- Commit with `--no-verify` or push to `main`. The hooks in `frontend/.husky/` format staged files and reject trailers and dashes in commit messages; fix what they flag.
-- Touch unrelated changes already in the worktree: do not revert, reformat, stage, or claim them.
+- Ask before adding or renaming an environment variable.
+- Ask before adding a dependency the task does not strictly require.
+- Ask where a new product, price, store or search feature belongs, because my own price service is undecided.
+- Ask before changing how the app looks (size, spacing, colour, layout), accessibility fixes and side effects included, with before and after screenshots.
+- Ask before adding anything that can bill; services, plans and CI stay free or hard-capped, even with 100k users.
+- Hand back interactive installers and `init` wizards, except `pnpm dlx shadcn@latest add <component>`, which you may run.
+- Change legal copy as you judge right without asking, and log what changed, why and the sources on #217.
 
-Ask first:
+## Never commit
 
-- Adding or renaming an environment variable.
-- Adding a dependency the task does not strictly require.
-- Anything needing a backend endpoint that does not exist yet.
-- Widening scope beyond what I asked.
-- A reading of my instruction that leads to materially different work. Routine judgment calls are yours.
-- Changing how the app looks: size, spacing, colour or layout, including a change made for accessibility or as a side effect of another task. Show me before and after screenshots first. White text on the brand green is my deliberate choice: do not reopen it.
+- Never commit secrets, the server IP or the SSH user; use placeholders in docs.
+- Leave unrelated changes already in the worktree alone: no revert, reformat, stage or claim.
+- Use pnpm only; never hand-edit a dependency entry or lockfile, or add a `package-lock.json`.
 
-**Ask means ask.** Put each item above to me as a question. Never route around it by working around a missing endpoint, hand-rolling the dependency, or narrowing the task: I say yes far more often than no, so the quiet workaround costs me the better answer. Everything else is your call: decide, finish the whole task, and say in your summary what you decided and why.
+## Done means
 
-Hand back interactive installers and `init` wizards, except `pnpm dlx shadcn@latest add <component>`, which you may run.
+- Run `pnpm check` in `frontend/` until it passes.
+- Run `mvn -B verify` in `backend/` until it passes; it needs Docker.
+- When you touch code `docs/TESTING.md` lists as mostly untested, say so.
+- Fix type errors in `frontend/src/` and compile and test failures in `backend/src/`; ignore errors from generated types and dependencies.
+- When a failure is unrelated to your change, report the command and the error, say it looks pre-existing, and leave it.
+- Report a check I interrupted as not run, without re-running it.
+- After editing `.claude/hooks/`, run `python3 .claude/hooks/guard-commands.test.py`.
+- Put docs in the same PR as their own `docs:` commit before the PR opens, and again if behaviour changes.
+- Document a new or reshaped subsystem with the `document-subsystem` skill.
+- List docs touched and those checked and left alone in your summary.
 
-Safe without asking, run from `frontend/`:
+## Worktrees and git
 
-- `pnpm exec prettier --write --ignore-path ../.prettierignore "../<changed-path>"`
-- `pnpm exec next typegen`, then `pnpm exec tsc --noEmit`
-- `pnpm lint`
-- `pnpm test`, the Vitest suite: `*.test.ts` runs in Node, `*.test.tsx` runs components and hooks in jsdom through the React Compiler, and MSW fails any request a test did not declare. Conventions are in `docs/TESTING.md`
-- `pnpm test:coverage`, the same suite with a V8 coverage report in `frontend/coverage/`
-- `pnpm exec fallow audit --base origin/dev`, the CI gate for dead code, duplication, complexity, import cycles and the `src/app` versus shared-folder boundary (`.fallowrc.json`). It judges only findings a change adds beyond `.fallow-baselines/`, and CI fails any verdict but `pass`, including the `warn` that new duplication gets; `pnpm exec fallow` prints the whole backlog. Refresh a baseline only when a review agreed the larger backlog is acceptable.
-- `pnpm build`
-- `pnpm add <name>@<version>` and `pnpm remove <name>`, once I have approved the dependency
+- Create worktrees under `/home/jj/.t3/worktrees/Disscount/<name>`; the `worktree-checks` skill has installs, checks, the dev server and dependency changes.
+- Branches are `<type>/<kebab-description>`; rename T3's `t3/<hex>` branch before the first push.
+- On `Permission denied (publickey)`, repeat the push over HTTPS: `git -c credential.helper= -c "credential.helper=!gh auth git-credential" push https://github.com/OffCrazyFreak/Disscount.git HEAD:refs/heads/<branch>`.
+- Fetch and merge the latest `origin/dev` before resuming an open PR.
+- Use one worktree and branch per PR into `dev`, and commit, push and open the PR yourself.
+- Move a change to another branch by cherry-picking, because `dev` usually carries unrelated work.
 
-Inside a git worktree, call binaries directly (`./node_modules/.bin/tsc`), not `pnpm exec`, which purges the main tree's `node_modules` through the symlink; the `.claude/hooks/guard-commands.py` PreToolUse hook blocks `pnpm` there, and `--no-verify` and pushes to `main` everywhere. After editing the hook, `guard_git.py` or `guard-commands.test.py`, run the test.
+## PRs and review
 
-Safe without asking, run from `backend/`:
+- Fill in `.github/PULL_REQUEST_TEMPLATE.md`.
+- Give every PR one Sonnet `reviewer`; CodeRabbit runs on its own, and only a release waits for it.
+- For 5000+ changed lines, 50+ files, or auth, security, personal data or migrations, also run Greptile once: `@greptileai review` or its CLI.
+- For a release into `main`, run one `reviewer` per app area plus CodeRabbit and Greptile (automatic or CLI), and wait for all of them.
+- Land release review findings as their own `fix:` PR, and keep the notes in `~/Documents/Disscount`.
+- Before any merge, settle every PR comment and `pulls/N/reviews` body, bots included: fix it or reply with the reason.
+- Merge once CI is green and review is settled, as the orchestrating session; a delegate reports instead of merging.
+- Follow the `ui-handover` skill for any change to what renders.
 
-- `mvn -B verify`: the CI gate (compile, package, tests).
-- `mvn -B -DskipTests package`: a build-only check while iterating.
-- `mvn -B test`: the suite alone.
+## Board and issues
 
-Tests run on H2 and touch nothing outside the module, so none needs a nod.
+- Use project board 8, owner OffCrazyFreak, and always set Status.
+- File each new issue atop Backlog through its own `researcher`, with fixed-SHA permalinks, sources, a fix plan and how to verify.
+- Give a plan a tracking issue with the why, decisions, an ordered PR checklist and open questions.
+- Set a tracking issue to In progress once its first PR runs, otherwise Sprint; tick each step its PR completes.
+- Put owner-only steps (logins, payments, phone) as a draft at the top of In progress, with links and numbered steps.
+- Move merged user-facing work to For review, following `ui-handover`.
+- Move merged invisible work to Done.
 
-## Definition of done
+## Releases and production
 
-- Frontend: Prettier, `tsc --noEmit` and `pnpm test` pass, and `fallow audit` reports `pass`.
-- Backend: `mvn -B verify` passes; it is the gate, not an extra. Its tests cover digital cards, store names, account deletion, the entity validation handler, and the security chains, JWT decoding, JSON date format and problem responses a framework upgrade could change. Full stack tests on `FullStackTest` also pin per-feature ownership (another user's id answers like an unknown one), admin gating on every `/api/admin/**` route, the response fields the frontend schemas read, and the end to end account erasure. Business rules outside those (pricing, merging, jobs) are mostly untested, so say so.
-- Fix type errors in `frontend/src/` and compile and test failures in `backend/src/`. Ignore errors from generated types or dependencies, and never re-run a check I interrupted.
-- Say which checks passed, failed, or did not run, on both sides. Never report backend work as verified by reading when you could have run `mvn -B verify`.
-- A failure unrelated to your change: report the command and the error, say it looks pre-existing, and leave it alone.
+- Land work on `dev`, and release through a `dev` into `main` PR.
+- Append anything a release needs (data step, migration, env step, post-deploy check) to the release PR body now, saying what is left and by whom.
+- Leave existing release notes as written; only append.
+- Use Dokploy, Cloudflare, Sentry, `gh` and `ssh disscount` on dev and production without asking, verifying each step against official docs.
+- Report every production change.
+- Reach databases (`disscount-{development,production}-*-db-1`) with `docker exec <container> psql` over `ssh disscount`; `docs/INFRASTRUCTURE.md` has the rest.
+- Set environment variables in Dokploy per environment; they apply at that service's next deploy, and `NEXT_PUBLIC_*` needs a rebuild.
+- For a new variable, say what it controls and whether it is required, server-only or public, and add a placeholder to its example file.
+- Keep `.env.example`, `frontend/.env.local.example` and `backend/.env.example` in sync with their real counterparts, with no real values.
+- When nothing reads a variable, delete it from Dokploy, GitHub, the server and local `.env` files, keeping what `main` reads; print names only.
+- Deploy everything through Dokploy, with no preview deployments, and ask before reviving Netlify.
 
-## How I want you to work
+## Frontend
 
-- Nontrivial change, or I say research: run the `research` skill first, then settle open product choices with me. Research-only requests end with the report.
-- A page that blocks fetching (403, login wall, bot check, Reddit): open it in the T3 Code preview browser when one is available before calling it unreadable.
-- Subagents never go above Opus at medium effort: Opus medium for coding and decisions, Sonnet high for code review and research. Review a PR with one Sonnet high pass, and a second only after large fixes.
-- End by explaining what changed and why. I am learning, so the explanation is the point.
-- No em or en dashes anywhere: chat, comments, UI copy, docs, commits, PR text. Use a comma, a colon, parentheses, or rewrite.
-- Run the `unslop` skill on everything written to me (updates, reports, handoffs) and on product copy.
-- Markdown: one physical line per paragraph and per bullet; never hard-wrap.
-- A task's standard-but-optional dimension: do it, or name it with a one-line recommendation and rough effort. Never drop it quietly.
-- Leave `docs/*.md` alone while behaviour can still change. Track what went stale and land it as one `docs:` commit when pushing, opening or closing a PR, unasked, so the docs match what shipped; it is the one exception to a commit carrying only the task's changes. In the summary, list the docs touched and those checked and left alone, or say nothing went stale.
-- Prefer the smallest change that does the job. Merge code that means the same thing, never code that only looks the same.
-- Keep files focused, roughly 50 to 100 lines, split by concern rather than to hit a number. One more file beats one long one.
-- Before writing a shared helper, hook or component, check `utils/`, `hooks/` and the feature folder. An extraction I ask for with no existing match gets its own new file.
-- Feature code lives in the feature folder; shared code in `utils/`, `lib/`, `constants/`, `typings/`.
-- Kebab-case filenames.
-- Comment only non-obvious decisions: business rules, security assumptions, compatibility quirks, why the simpler approach is unsafe. Never restate the code, and never refactor broadly just to delete a comment.
-- Blank line between logical blocks; Prettier does the rest.
-- Do not optimise before it is a problem; the React Compiler handles most hand-tuning.
-- For library APIs, read the official docs for the version in `package.json` or `pom.xml`; never grep `node_modules`. Skip the lookup when the codebase already shows the behaviour.
+Dependency intent the code does not show:
 
-## Frontend (Next.js, `frontend/`)
-
-`package.json` and the lockfile are authoritative for what is installed. What follows is intent and gotchas, not an inventory.
-
-- `dotenv` is read only by `drizzle.config.ts`, to load `.env.local` outside Next.
-- `esbuild` is a direct devDependency only so `frontend/Dockerfile` can bundle `scripts/migrate.mjs` into the migrator image; drizzle-kit's own copy is not linked into `node_modules/.bin`.
-- `baseline-browser-mapping` is a direct dependency only so `frontend/pnpm-workspace.yaml` can exempt it from pnpm's release-age gate.
-- `@vitejs/plugin-react` and `@rolldown/plugin-babel` exist only so Vitest compiles `.tsx` tests through the React Compiler. Next.js builds with its own compiler integration and never loads them. `@vitest/coverage-v8` stays on the exact `vitest` version, because its peer dependency is exact.
-- Import `server-only` in any module that must never reach the client.
-- `next`, `react`, `react-dom`, `better-auth`, `drizzle-orm` and `pg` stay exact-pinned, so auth and data-layer bumps have to go through a reviewed PR. Everything else takes a range. Do not add a pin to a dependency with no security or data blast radius.
-- After changing a dependency or a pnpm override, delete `node_modules`, `pnpm-lock.yaml` and `.next` before reinstalling. A plain `pnpm install` leaves the old resolution in place.
-- Dependency updates come from Renovate (`renovate.json`), not Dependabot. It reads its config from `main` only, so a change to `renovate.json` takes effect at the next release. Majors wait for approval on the Dependency Dashboard issue, and its security PRs may add entries to `minimumReleaseAgeExclude` in `frontend/pnpm-workspace.yaml`.
-- Resetting the database means dropping both the `public` and the `drizzle` schemas. Dropping only `public` leaves the migration journal behind and `drizzle-kit migrate` silently no-ops.
+- `dotenv` is only for `drizzle.config.ts`; `esbuild` only for bundling `scripts/migrate.mjs` in the Dockerfile.
+- `baseline-browser-mapping` is only so `pnpm-workspace.yaml` can exempt it from the release-age gate.
+- `@vitejs/plugin-react` and `@rolldown/plugin-babel` are only so Vitest compiles through the React Compiler.
+- Keep `@vitest/coverage-v8` on the exact `vitest` version, because its peer dependency is exact.
+- Keep `next`, `react`, `react-dom`, `better-auth`, `drizzle-orm` and `pg` exact-pinned so auth and data bumps get reviewed; everything else takes a range.
+- For every dependency change, a single bump included, delete `node_modules`, `pnpm-lock.yaml` and `.next`, then install, because a plain install keeps the old resolution.
+- List the unrelated lockfile updates in the PR.
+- Leave updates to Renovate, which reads `renovate.json` from `main` only; majors wait on the Dependency Dashboard issue.
+- Expect Dependabot PRs until the next release.
+- Read library docs through Context7, the official docs for the installed version, or `frontend/node_modules/next/dist/docs/` for Next.
+- When resetting the database, drop both `public` and `drizzle`, because `drizzle-kit migrate` silently does nothing with the journal left behind.
 
 Conventions:
 
-- No `any`. Define the real type, or take `unknown` and narrow it.
-- `I`-prefixed Props interfaces, in the same file as the component. One component per file, default export.
-- `function name() {}`, not `const name = () => {}`, except for small inline callbacks.
-- `import { useState } from "react"`, never `React.useState`.
-- `components/ui/` is shadcn output; edit it only where the primitive is the natural home (a prop it should own, a sizing rule our `--spacing` override breaks). Our components live in `components/custom/`, grouped by concern.
-- Types: API and domain go in `lib/api/schemas/*` as zod `*Dto` / `*Response`; external price API types in `lib/cijene-api/schemas.ts`; shared UI types in `@/typings`; feature-only types stay colocated in `*-types.ts`.
-- React Query hooks live next to their service in `lib/api/<domain>/`. Feature composition hooks go in the feature's `hooks/`.
-- The React Compiler caches reads off the stable `form` object, so a component or hook that did not call `useForm` reads values with `useWatch` and state with `useFormState`, never `form.watch()` or `form.formState` in render. Destructure every flag you need; react-hook-form computes only the ones read.
-- Never rely on an effect re-running every render: the compiler memoizes what used to be rebuilt, so an effect retrying a possible no-op (`resetField` on a field a portal has not registered, measuring DOM not there yet) runs once. The escape hatch is `"use no memo"` with a comment saying why.
-- Before generating or redesigning UI, read `frontend/.github/skills/frontend-design/SKILL.md` and follow it.
+- Write an `I`-prefixed Props interface in the component's file, one component per file, default export, `function name() {}`, kebab-case filenames.
+- Import React names directly: `import { useState } from "react"`.
+- Import `server-only` in any module that must never reach the client.
+- Edit `components/ui/` (shadcn output) only where the primitive is the natural home; ours live in `components/custom/`.
+- Put API and domain types as zod `*Dto` / `*Response` in `lib/api/schemas/*`, and price API types in `lib/cijene-api/schemas.ts`.
+- Put query hooks beside their service in `lib/api/<domain>/`.
+- Outside the `useForm` caller, read with `useWatch` and `useFormState`, never `form.watch()` or `form.formState` in render, because the compiler caches reads off `form`.
+- Destructure every form flag you need, because react-hook-form computes only those read.
+- Memoize nothing by hand, derive values in render, and make a function a hook only if it calls one; the React Compiler does the rest.
+- When an effect must retry a possible no-op, use `"use no memo"` with a comment saying why, because the compiler otherwise runs it once.
+- Read the `frontend-design` skill before generating or redesigning UI.
 
-Check these before handing over UI work; accessibility is what I most often fix afterwards:
+Copy and i18n (`docs/I18N.md`):
 
-- Every icon-only control has an accessible name, and it does not contradict a visible label sitting next to it.
-- Decorative icons are hidden from the accessibility tree.
-- Anything clickable is keyboard operable, and a control nested inside a card does not trigger the card's own navigation.
-- Dialogs move focus in on open and restore it on close.
-- Counts and status that change without a navigation are announced.
-- Motion respects `prefers-reduced-motion`.
+- Write hr, en, it, sl and de with informal singular and ungendered forms, including `alt`, `title` and accessible names.
+- Use Croatian "ti", never "vi"; the company voice "mi" stays.
+- Add a key to `src/i18n/messages/hr/` and the same file in every other locale; `pnpm i18n:check` enforces it.
+- Use ICU plurals and number formats; Croatian needs `one`, `few`, `other` and Slovenian adds `two`.
+- Hold `labelKey` in data constants, not text.
+- Import `Link`, `redirect`, `useRouter` and `usePathname` from `@/i18n/navigation`.
+- Add a new backend error or validation message to all five `messages*.properties`.
 
-These checks never license a visual change on their own: a fix that would alter size, spacing or colour goes to me first (see Ask first).
+## Backend
 
-Copy in every language uses informal singular address and ungendered forms: Croatian "ti" (never "vi"), "you", "tu", "ti", "du". The company voice ("mi") stays. This covers accessible names, `alt` and `title` too. The app ships in Croatian, English, Italian, Slovenian and German through next-intl; `docs/I18N.md` explains the setup.
+- The app is a resource server validating better-auth's ES256 JWTs via JWKS.
+- Keep anything Postgres-specific portable or profile-guarded, because tests run on H2 with `src/test` properties and only `DoubleBootSchemaTest` boots main's on Postgres.
+- When changing an enum column to String, expect a stale CHECK constraint: `ddl-auto=update` keeps it, writes 500, boot tests miss it.
+- Keep springdoc's major on the Spring Boot major.
+- When a DTO or enum the frontend reads changes, run `mvn -B test -Dtest=ApiContractTest -Dcontract.update=true` to refresh `contracts/backend-api.json`.
+- Then update the zod schema until `backend-contract.test.ts` passes (`docs/API-CONTRACT.md`).
+- Mark a nullable DTO field `@Schema(nullable = true)`, because springdoc ignores JSpecify `@Nullable`.
+- Stamp zone-less timestamp columns through `Timestamps.nowUtc()`, never `LocalDateTime.now()`, because the JVM zone would leak into what `parseServerDate` reads as UTC.
 
-- Never inline copy. Add the key to `frontend/src/i18n/messages/hr/` and the same file in every other locale, then run `pnpm i18n:check` (CI runs it too).
-- Use ICU plurals and number formats instead of building strings by hand. Croatian needs `one`, `few` and `other`, Slovenian adds `two`.
-- Data constants hold message keys (`labelKey`), not text.
-- Import `Link`, `redirect`, `useRouter` and `usePathname` from `@/i18n/navigation`, never from `next/link` or `next/navigation`.
-- Pass the locale to the formatting helpers in `utils/`; they have no Croatian default on purpose.
-- A new backend error or validation message needs a key in all five `messages*.properties` files.
+## Skills
 
-Before wiring an API call, confirm the endpoint exists in `backend/` or upstream in https://github.com/senko/cijene-api, which is not ours to change. Never invent endpoints, fields or auth behaviour; if the contract is missing, finish the rest of the scope and tell me exactly what is missing.
+- Keep skills in `.agents/skills`, linked from `.claude/skills`.
+- Change `research`, `unslop`, `big-change` and `debloat` in `~/.config/agents/skills`, then copy them here.
+- Replace third-party skills wholesale; `skills-lock.json` tracks those the skills CLI installed, which excludes `frontend-design` and `sentry-nextjs-sdk`.
 
-## Backend (Spring, `backend/`)
+## Writing
 
-- The app is a resource server. `oauth2-resource-server` validates better-auth's ES256 JWTs via JWKS.
-- Tests run on H2, so anything Postgres-specific has to be portable or profile-guarded.
-- Versions come from the `spring-boot-starter-parent` BOM, so most dependencies carry no `<version>`. Only the ones outside the BOM pin their own, `lombok.version` is pinned because the compiler's annotation processor path needs it explicitly, and `h2.version` overrides the BOM's H2 until it ships a release with the check constraint fix named in `pom.xml`.
-- Swagger UI is at `/api-docs`, and springdoc's major has to track the Spring Boot major.
-- `ddl-auto=update` never drops anything, so changing an enum column to String leaves a stale CHECK constraint that 500s on write.
-- A change to a DTO or enum the frontend reads also changes `contracts/backend-api.json`: refresh it with `mvn -B test -Dtest=ApiContractTest -Dcontract.update=true`, then update the zod schema until `backend-contract.test.ts` passes (`docs/API-CONTRACT.md`). A DTO field that can be null carries `@Schema(nullable = true)`; springdoc ignores JSpecify `@Nullable`.
-- Stamp every zone-less timestamp column through `Timestamps.nowUtc()`, never `LocalDateTime.now()`; `JpaConfig` points JPA auditing at the same clock. The columns carry no offset, so the JVM zone would leak into the wire format, and the frontend's `parseServerDate` reads them back as UTC.
+- Write Markdown with one physical line per paragraph and bullet.
+- Write numeric dates as `03.11.2026.` in Croatian text and ISO `2026-11-03` in English, with straight quotes (`docs/I18N.md`).
 
-## Branches and releases
+## Commits
 
-- Work lands on `dev`; a release is a `dev` into `main` PR. Before one, dev-vs-main gets a code review (a few Claude subagents plus the CodeRabbit CLI and Greptile) whose findings land as their own `fix:` PR, artifacts in `reviews/`.
-- Move one change to another branch by cherry-picking it, not merging, because `dev` usually carries unrelated work.
-- One worktree and one branch per PR into `dev`. Commit, push and open the PR yourself; merge only when I say so.
-- Before any merge, read every comment and review on the PR, bots included, and settle each one: fix it, or reply with the reason you decline. Unsure about one, ask me before merging.
-- A PR body says why it exists and which issue it belongs to, what changed, how it was tested (checks run and the browser flows walked), the screenshots, and its risks: migrations or manual database steps, config or env steps, follow-ups.
-- UI change in a T3 Code thread: run the worktree's dev server and open every changed screen in the T3 preview. Then ask me how to handle PR screenshots: you attach them, I attach them myself, or none.
-- Attach PR screenshots with `gh pr create`, `gh pr edit` or `gh pr comment` and `--attach '<file>#<alt text>'`. Never host them on a branch: once it is deleted, GitHub can garbage collect the commits the image links point to. `--attach` rewrites Markdown image references but not HTML `<img>` tags.
-- Before adding to the project board, ask me which column. Never leave Status empty.
-
-## Deployment
-
-Dokploy on Hetzner (Docker Compose); full reference in `docs/INFRASTRUCTURE.md`.
-
-The Dokploy MCP server (`@dokploy/mcp`, pinned) is configured per machine for Claude Code and Codex with the owner's `claude-mcp` key, never in the repository. Saving a service's environment changes nothing until that service's next deploy.
-
-Environment variables live in Dokploy per environment, never in committed files. `NEXT_PUBLIC_*` is baked at build time, so changing one needs a redeploy, not a restart.
-
-A new environment variable: tell me what it controls and whether it is required, server-only or public, then add it with a placeholder to its example file:
-
-- root: `.env.example`
-- frontend: `frontend/.env.local.example`
-- backend: `backend/.env.example`
-
-Keep each example file structurally in sync with its real counterpart, with no real values.
-
-## Commit message
-
-Every commit uses this template, written from the staged diff and covering one purpose. Do not repeat the message in chat.
+Write the message from the staged diff in this template, without repeating it in chat. The hooks in `frontend/.husky/` check it.
 
 ```text
 type(scope): Short summary in imperative mood
@@ -177,10 +154,9 @@ Changes:
 Brief explanation of why the change was needed.
 ```
 
-Add a `Notes:` section only when there is something a reviewer would otherwise miss.
-
-Types: `fix`, `feat`, `docs`, `refactor`, `chore`, `style`, `perf`, `ci`. Scope is the kebab-case area, matching a folder where one exists: `products`, `pwa`, `watchlist`, `shopping-lists`, `settings`, `auth`, `search`, `scanner`, `landing`, `header`, `sidebar`, `bottom-nav`, `price-history`, `modals`, `ui`, `brand`, `a11y`, `i18n`, `deps`, `agents`.
-
-Never add a `Co-Authored-By` trailer.
-
-Name the issues a commit or PR closes, and cite commits by full 40-character SHA. `Closes #N` fires only on a merge into `main`, so a PR into `dev` links but never closes; I close those by hand. Anything filed on `senko/cijene-api` links back to https://disscount.me and this repository.
+- Add a `Notes:` section only for something a reviewer would otherwise miss.
+- Use type `fix`, `feat`, `docs`, `refactor`, `chore`, `style`, `perf` or `ci`.
+- Use a kebab-case scope: `products`, `pwa`, `watchlist`, `shopping-lists`, `settings`, `auth`, `search`, `scanner`, `landing`, `header`, `sidebar`, `bottom-nav`, `price-history`, `modals`, `ui`, `brand`, `a11y`, `i18n`, `deps`, `agents`.
+- Cite commits by full 40-character SHA.
+- Write "Part of #N" in a PR into `dev`, because `Closes #N` fires only on a merge into `main`; I close it by hand.
+- Link anything filed on `senko/cijene-api` back to https://disscount.me and this repository.

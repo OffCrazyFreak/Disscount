@@ -99,7 +99,7 @@ flowchart LR
 - **Images are public** on GHCR (the repo is source-available anyway), so the server needs no registry login. `frontend/.dockerignore` keeps every `.env*` file out, and the Sentry auth token reaches the build only as a BuildKit secret, never as a layer.
 - Each environment is **fully isolated:** its own containers **and its own database/volume**. Dev data never touches prod data.
 - **GitHub Actions minutes:** the repository is public and every job runs on `ubuntu-latest`, so GitHub does not bill them and they do not use the account's 2,000 included minutes (on 3 November 2026 Disscount had run 4,028 minutes that month, all discounted to $0). Making the repository private, or moving a job to a larger or non-Linux runner, would start billing at that pace.
-- **CI gate before merge:** every push and PR runs `.github/workflows/ci.yml` (frontend typecheck + unit tests + lint + Fallow audit + translation catalog check + format + a real `next build`, skipped on `dev` pushes where the image build compiles the same code, plus a backend `mvn -B verify`, which compiles, packages and runs the backend tests). `main` is branch-protected, so a PR into `main` cannot merge until **Frontend checks** and **Backend checks** pass. The image jobs on `dev` run only after these checks pass.
+- **CI gate before merge:** every push and PR runs `.github/workflows/ci.yml` (frontend typecheck + unit tests + lint + Fallow audit + translation catalog check + format + a real `next build`, skipped on `dev` pushes where the image build compiles the same code, plus a backend `mvn -B verify`, which compiles, packages and runs the backend tests, and an actionlint job on the workflow files). A new push to a pull request cancels its older run; pushes to `dev` and `main` never cancel. Draft pull requests skip the jobs at job level and run them on `ready_for_review`. `main` is branch-protected, so a PR into `main` cannot merge until **Frontend checks** and **Backend checks** pass. The image jobs on `dev` run only after these checks pass.
 
 > **After a deploy, open tabs offer the new version** with a "Dostupna je nova verzija Disscounta." toast and an Osvježi button, instead of needing a hard refresh. A tab that asks for a chunk the new build no longer has reloads itself once, and on images built in CI (`dev`) `deploymentId` turns a navigation from an older build into a full page load. See [`PWA.md`](PWA.md#5-offline-reads-caching-and-persistence). A hard refresh (Ctrl/Cmd+Shift+R) is still the quick way to skip the prompt.
 
@@ -136,13 +136,13 @@ All three are **optional**. A blank directory turns its stores off: uploads answ
 
 > All three compose files forward the three variables to the backend, blank by default, and the root `.env.example` lists them. A variable missing from `docker-compose.images.yml` never reaches the dev backend, even when Dokploy has it.
 
-- **Dev** has run on disk since 04.11.2026.
+- **Dev** has run on disk since 2026-11-04.
 - **Production** deploys from `main`, which has no photo code yet. It gets photos on disk when it moves to `docker-compose.images.yml` ([#74](https://github.com/OffCrazyFreak/Disscount/issues/74)), with `PHOTO_DIR=/data/photos-private`, `PUBLIC_PHOTO_DIR=/data/photos-public`, `R2_PUBLIC_URL=https://images.disscount.me` and a Dokploy domain for the `images` service on port 80.
 - **Production sets the two folders only once its backup runs.** On disk a photo has no second copy until the `backup` sidecar copies it, so `COMPOSE_PROFILES=backup` and the [owner setup in BACKUPS.md](BACKUPS.md#owner-setup-once-before-production-runs-it) come first, then `PHOTO_DIR` and `PUBLIC_PHOTO_DIR`. Dev is not backed up by decision, so it runs on disk without one.
 
 ### R2 buckets
 
-Cloudflare R2 now holds backups only; the buckets, tokens and rules are in [BACKUPS.md](BACKUPS.md) and [§8](#8-backups--restore). Every bucket is in the **EU jurisdiction** (fixed at creation) and has its own Account API token scoped to that one bucket.
+Cloudflare R2 now holds backups only; the buckets, tokens and rules are in [BACKUPS.md](BACKUPS.md) and [§8](#8-backups--restore). Every bucket is in the **EU jurisdiction** (fixed at creation) and has its own Account API token scoped to that one bucket. The Cloudflare MCP drops the jurisdiction header, so EU buckets need the dashboard or Wrangler.
 
 The photo buckets from before the move are retired: `disscount-card-photos`, `disscount-product-images` and `disscount-product-originals`, each with a `-dev` twin. Nothing in the app reads them. They stay untouched as a fallback copy for 30 days after each environment switches to disk; then the owner deletes them and their tokens.
 
@@ -191,7 +191,7 @@ Keep the records **Proxied**: `100::` is not routable, so the names only work be
 v=DMARC1; p=quarantine; np=reject; rua=mailto:<id>@dmarc-reports.cloudflare.net
 ```
 
-It began in monitor mode (`p=none`) and is now at `p=quarantine`. `np=reject` is stricter than the main policy on purpose: it covers non-existent subdomains, which never send legitimate mail, so nothing can break by rejecting them outright. Aggregate reports go to Cloudflare's hosted DMARC Management rather than an inbox. It stays at `p=quarantine` until real test mail from each sender has produced aggregate reports; there are none yet, because nothing has sent real mail. The remaining step is `p=reject`, which should wait until those reports stay clean across all three senders (Resend, MailerLite, Cloudflare Email Routing), since any one of them falling out of alignment under `reject` means silent delivery failure rather than a spam-folder warning.
+It began in monitor mode (`p=none`) and is now at `p=quarantine`. `np=reject` is stricter than the main policy on purpose: it covers non-existent subdomains, which never send legitimate mail, so nothing can break by rejecting them outright. Aggregate reports go to Cloudflare's hosted DMARC Management rather than an inbox. It stays at `p=quarantine` until real test mail from each sender has produced aggregate reports; there are none yet, because nothing has sent real mail. The remaining step is `p=reject`, which should wait until those reports stay clean across all three senders (Resend, MailerLite, Cloudflare Email Routing), since any one of them falling out of alignment under `reject` means silent delivery failure rather than a spam-folder warning. Check a new sender's DKIM alignment before adding it.
 
 ---
 

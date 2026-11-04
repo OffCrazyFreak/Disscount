@@ -1,7 +1,10 @@
-"""Git commands the guard refuses: skipping hooks, and pushing to `main`.
+"""Git commands the guard refuses: skipping hooks, pushing to `main` or `dev`,
+and branching from `origin/dev` with tracking.
 
 `--no-verify` skips the hooks that keep formatting, trailers and dashes out of
-commits. `main` only ever receives the release pull request from `dev`.
+commits. `main` only ever receives the release pull request from `dev`, and
+`dev` only ever receives merged pull requests. A clone left on
+push.default=upstream sends a branch that tracks origin/dev straight to it.
 """
 
 import os
@@ -25,7 +28,23 @@ NO_VERIFY_MIN = "--no-veri"
 # These push every local branch, `main` included.
 PUSH_EVERYTHING = {"--all", "--mirror", "--branches"}
 
-MAIN_REF = re.compile(r"^\+?(?:[^:]*:)?(?:refs/heads/)?main$")
+PROTECTED = {"main", "dev"}
+
+# A refspec whose destination is a protected branch: `dev`, `+dev`, `x:refs/heads/dev`, `:dev`.
+PROTECTED_REF = re.compile(r"^\+?(?:[^:]*:)?(?:refs/heads/)?(main|dev)$")
+
+UPSTREAM_DEV = "origin/dev"
+
+# git only sets up tracking when the start point is exactly the remote branch,
+# so `origin/dev~1` stays allowed.
+DEV_START_POINT = re.compile(r"^(?:refs/remotes/|remotes/)?origin/dev$")
+
+# Options that only exist to list branches, so an `origin/dev` next to them starts nothing.
+BRANCH_NOT_CREATING = {
+    "--list", "-l", "--merged", "--no-merged", "--contains", "--no-contains",
+    "--points-at", "-a", "-r", "-d", "-D", "--delete", "-m", "-M", "-c", "-C",
+    "--force", "-f",
+}
 
 
 def split_global(args, cwd):
@@ -94,10 +113,21 @@ def current_branch(cwd):
     return result.stdout.strip() if result.returncode == 0 else None
 
 
-def pushes_main(args, cwd):
-    if any(token in PUSH_EVERYTHING for token in args):
-        return True
+def upstream_of(cwd):
+    try:
+        result = subprocess.run(
+            ["git", "-C", cwd, "rev-parse", "--abbrev-ref", "@{upstream}"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
 
+    return result.stdout.strip() if result.returncode == 0 else None
+
+
+def refspecs_of(args):
     positional = []
     skip_next = False
     for token in args:
@@ -110,13 +140,63 @@ def pushes_main(args, cwd):
         if not token.startswith("-"):
             positional.append(token)
 
-    refspecs = positional[1:]
-    if any(MAIN_REF.match(ref) for ref in refspecs):
-        return True
+    return positional[1:]
 
-    # A bare push, or `HEAD`, sends whatever is checked out.
-    if not refspecs or any(ref.lstrip("+") == "HEAD" for ref in refspecs):
-        return cwd is None or current_branch(cwd) == "main"
+
+def protected_push_target(args, cwd):
+    """The protected branch this push would land on, or None."""
+    if any(token in PUSH_EVERYTHING for token in args):
+        return "main"
+
+    refspecs = refspecs_of(args)
+    for ref in refspecs:
+        match = PROTECTED_REF.match(ref)
+        if match:
+            return match.group(1)
+        # A wildcard or a variable can name any branch, so it counts as the worst one.
+        if "*" in ref or "$" in ref:
+            return "main"
+
+    # `HEAD` sends the checked-out branch to its own name.
+    if any(ref.lstrip("+") == "HEAD" for ref in refspecs):
+        if cwd is None:
+            return "main"
+        branch = current_branch(cwd)
+        return branch if branch in PROTECTED else None
+
+    # `--tags` alone sends only tags, not the branch.
+    if refspecs or "--tags" in args:
+        return None
+
+    # A bare push follows push.default, which a clone may have left on upstream.
+    if cwd is None:
+        return "main"
+    branch = current_branch(cwd)
+    if branch in PROTECTED:
+        return branch
+    return "dev" if upstream_of(cwd) == UPSTREAM_DEV else None
+
+
+def starts_tracking_dev(sub, args):
+    """True when this creates a branch that would track origin/dev.
+
+    `git branch -f` stays allowed: it repoints an existing branch, the after-merge
+    pointer recipe uses it, and the bare-push check still catches its upstream.
+    """
+    args = options_of(args)
+    if "--no-track" in args or not any(DEV_START_POINT.match(token) for token in args):
+        return False
+
+    if sub == "checkout":
+        return any(token in {"-b", "-B", "-t", "--track"} for token in args)
+    if sub == "switch":
+        return any(token in {"-c", "-C", "--create", "--force-create", "-t", "--track"} for token in args)
+    if sub == "worktree":
+        return args[:1] == ["add"] and any(token in {"-b", "-B", "--track"} for token in args)
+    if sub == "branch":
+        if any(token in BRANCH_NOT_CREATING for token in args):
+            return False
+        return len([token for token in args if not token.startswith("-")]) >= 2
 
     return False
 
@@ -141,6 +221,40 @@ def disables_hooks(args, raw_tokens):
     return False
 
 
+def missing_hooks_path(cwd):
+    """The relative core.hooksPath that does not exist here, or None.
+
+    husky generates that folder only where it was installed, so in a linked
+    worktree git finds no hooks and commits with no checks and no warning.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "-C", cwd, "rev-parse", "--show-toplevel", "--path-format=absolute", "--git-common-dir"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        hooks = subprocess.run(
+            ["git", "-C", cwd, "config", "core.hooksPath"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+    lines = result.stdout.split()
+    path = hooks.stdout.strip()
+    if result.returncode != 0 or len(lines) != 2 or not path or os.path.isabs(path):
+        return None
+
+    top_level, common_dir = lines
+    if os.path.isdir(os.path.join(top_level, path)):
+        return None
+
+    return os.path.join(top_level, path), os.path.join(os.path.dirname(common_dir), path)
+
+
 def git_refusal(args, cwd, raw_tokens=()):
     """A refusal message for this `git` invocation, or None to allow."""
     raw_tokens = list(raw_tokens)
@@ -152,10 +266,27 @@ def git_refusal(args, cwd, raw_tokens=()):
             "and dashes out of commits. Fix what the hook flags and commit again."
         )
 
-    if sub == "push" and pushes_main(rest, cwd):
+    missing = missing_hooks_path(cwd) if sub == "commit" and cwd else None
+    if missing:
         return (
-            "Blocked: pushing to main. Only the release pull request from dev "
-            "reaches main; push your branch and open a pull request into dev."
+            "Blocked: this worktree has no git hooks, so this commit would skip "
+            f"formatting and the message checks. Link them once: ln -s {missing[1]} {missing[0]}"
+        )
+
+    if sub == "push":
+        target = protected_push_target(rest, cwd)
+        if target:
+            return (
+                f"Blocked: this push lands on {target}. Work reaches dev and main "
+                "only through pull requests. Name the destination: "
+                "git push -u origin HEAD:refs/heads/<branch>."
+            )
+
+    if starts_tracking_dev(sub, rest):
+        return (
+            "Blocked: this branch would track origin/dev, and under "
+            "push.default=upstream a bare push lands on dev. Add --no-track, e.g. "
+            "git checkout --no-track -b <branch> origin/dev."
         )
 
     return None

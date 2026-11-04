@@ -4,7 +4,7 @@
     "src/app/sw.ts",
     // The top-level react-email previews (`pnpm email`), listed by name: `src/emails/*.tsx` makes Fallow 3.38 warn that `*` no longer reaches `_preview/` and `components/`, which must stay reached by import. A new preview file has to be added here.
     "src/emails/{account-exists-email,breached-password-email,change-email-confirmation,complete-sign-up-email,email-changed-email,password-changed-email,password-reset-email,reauth-code-email,set-password-email,verification-email}.tsx",
-    // Scripts run by hand with `node`, so a new one outside `generate-*` is added here; check-i18n.mjs and migrate.mjs come from package.json and the Dockerfile, and scripts/lib is reached by import.
+    // Scripts run by hand with `node`, so a new one outside `generate-*` is added here; check-i18n.mjs, check-fallow.mjs and migrate.mjs come from package.json and the Dockerfile, and scripts/lib is reached by import.
     "scripts/{generate-*,i18n-add-namespace,optimize-store-logos,seed-dev-account}.mjs"
   ],
   "boundaries": {
@@ -70,9 +70,7 @@
     "ignore": ["src/components/ui/**"]
   },
   "audit": {
-    "gate": "new-only",
-    "healthBaseline": ".fallow-baselines/health.json",
-    "dupesBaseline": ".fallow-baselines/dupes.json"
+    "gate": "new-only"
   },
   "rules": {
     // Every remaining eslint-disable is deliberate and reviewed; as of Fallow 3.37 there is no baseline or reason exemption for them.
@@ -80,12 +78,6 @@
   },
   "ignoreExportsUsedInFile": true,
   "ignoreFindings": ["**/products/components/view-switcher.tsx"],
-  "ignoreDependencyOverrides": [
-    {
-      "package": "shell-quote",
-      "source": "pnpm-workspace.yaml"
-    }
-  ],
   "duplicates": {
     "ignore": ["src/app/globals.css", "src/i18n/messages/*/index.ts"]
   }

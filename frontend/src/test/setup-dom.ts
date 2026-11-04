@@ -1,10 +1,21 @@
 import "@testing-library/jest-dom/vitest";
 
 import { cleanup, configure } from "@testing-library/react";
-import { afterEach } from "vitest";
+import { type AxeResultsLike, toHaveNoViolations } from "vi-axe";
+import type {} from "vi-axe/extend-expect";
+import { afterEach, expect } from "vitest";
 
 import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { serverSession } from "@/test/backend-identity";
+
+// The matcher's message may be undefined, which Vitest's type does not allow.
+expect.extend({
+  toHaveNoViolations(results: AxeResultsLike) {
+    const { pass, message } = toHaveNoViolations.toHaveNoViolations(results);
+
+    return { pass, message: () => message() ?? "" };
+  },
+});
 
 // The 1 s findBy and waitFor default is too tight for jsdom on a loaded machine; a passing query
 // returns at once, so the larger limit only delays a test that was going to fail.
