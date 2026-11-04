@@ -34,6 +34,25 @@ describe("renderProductOg", () => {
     expect(card.height).toBe(630);
   });
 
+  it("draws a WebP product photo in the middle of the card", async () => {
+    const red = await sharp({
+      create: { width: 400, height: 400, channels: 3, background: "#ff0000" },
+    })
+      .webp()
+      .toBuffer();
+    servePhoto(red);
+
+    const response = await renderProductOg(PHOTO);
+    const { data } = await sharp(Buffer.from(await response.arrayBuffer()))
+      .extract({ left: 600, top: 315, width: 1, height: 1 })
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    expect(data[0]).toBeGreaterThan(200);
+    expect(data[1]).toBeLessThan(60);
+    expect(data[2]).toBeLessThan(60);
+  });
+
   it("stays under WhatsApp's 600 KB limit with a photo of pure noise", async () => {
     const side = 1080;
     const noise = await sharp(randomBytes(side * side * 3), {

@@ -28,6 +28,8 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, UUID
 
     boolean existsByThumbKey(String thumbKey);
 
+    boolean existsBySmallKey(String smallKey);
+
     @Query("""
             select i from ProductImage i, ProductImageSet s
             where s.ean in :eans and i.id = s.mainImageId and i.thumbKey is not null

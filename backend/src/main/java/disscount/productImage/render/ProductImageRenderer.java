@@ -21,16 +21,21 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 
+import com.luciad.imageio.webp.CompressionType;
+import com.luciad.imageio.webp.WebPWriteParam;
+
 import disscount.exceptions.BadRequestException;
 
 /**
- * Turns any source photo into the two square files we serve. The white background is painted into
+ * Turns any source photo into the three square WebP files we serve. The white background is painted into
  * the pixels on purpose: dark mode extensions recolour CSS backgrounds but leave image pixels alone.
  */
 public final class ProductImageRenderer {
 
     public static final int FULL_SIDE = 1080;
     public static final int THUMB_SIDE = 400;
+    /** List rows draw at most 64 CSS pixels, so 160 stays sharp at 2.5x. */
+    public static final int SMALL_SIDE = 160;
     public static final int MIN_CROP_SIDE = 16;
 
     // Decoded as 4 bytes a pixel, so this caps one render at roughly 100 MB of heap.
@@ -38,11 +43,16 @@ public final class ProductImageRenderer {
     static final int MAX_SOURCE_SIDE = 10_000;
 
     private static final double MARGIN = 0.04;
-    private static final float QUALITY = 0.86f;
+    // WebP quality 80 measured about half the bytes of the earlier JPEG at 86 on our photos.
+    private static final float[] QUALITY_STEPS = {0.80f, 0.70f, 0.60f, 0.50f};
+    // Noisy photos can blow past the usual size; each step down trades a little detail to stay under these.
+    static final int FULL_MAX_BYTES = 200_000;
+    static final int THUMB_MAX_BYTES = 60_000;
+    static final int SMALL_MAX_BYTES = 16_000;
 
     public record Crop(int x, int y, int width, int height) {}
 
-    public record Rendered(byte[] full, byte[] thumb, String sha256, int sourceWidth, int sourceHeight) {}
+    public record Rendered(byte[] full, byte[] thumb, byte[] small, String sha256, int sourceWidth, int sourceHeight) {}
 
     private ProductImageRenderer() {}
 
@@ -57,9 +67,11 @@ public final class ProductImageRenderer {
 
         BufferedImage full = squareOnWhite(content, FULL_SIDE);
         BufferedImage thumb = scaled(full, Math.min(THUMB_SIDE, full.getWidth()));
+        BufferedImage small = scaled(thumb, Math.min(SMALL_SIDE, thumb.getWidth()));
 
-        byte[] fullBytes = encode(full);
-        return new Rendered(fullBytes, encode(thumb), sha256(fullBytes), sourceWidth, sourceHeight);
+        byte[] fullBytes = encode(full, FULL_MAX_BYTES);
+        return new Rendered(fullBytes, encode(thumb, THUMB_MAX_BYTES), encode(small, SMALL_MAX_BYTES),
+                sha256(fullBytes), sourceWidth, sourceHeight);
     }
 
     public static int normalizeRotation(int rotation) {
@@ -196,12 +208,23 @@ public final class ProductImageRenderer {
         return out;
     }
 
-    private static byte[] encode(BufferedImage image) {
-        ImageWriter writer = ImageIO.getImageWritersByFormatName("jpeg").next();
+    /** Steps the quality down until the file fits its ceiling; the lowest step is kept even when it does not. */
+    static byte[] encode(BufferedImage image, int maxBytes) {
+        byte[] encoded = null;
+        for (float quality : QUALITY_STEPS) {
+            encoded = webp(image, quality);
+            if (encoded.length <= maxBytes) return encoded;
+        }
+        return encoded;
+    }
+
+    private static byte[] webp(BufferedImage image, float quality) {
+        ImageWriter writer = ImageIO.getImageWritersByMIMEType("image/webp").next();
         try {
-            ImageWriteParam param = writer.getDefaultWriteParam();
+            WebPWriteParam param = (WebPWriteParam) writer.getDefaultWriteParam();
             param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-            param.setCompressionQuality(QUALITY);
+            param.setCompressionType(CompressionType.Lossy);
+            param.setCompressionQuality(quality);
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             try (MemoryCacheImageOutputStream output = new MemoryCacheImageOutputStream(out)) {
@@ -210,7 +233,7 @@ public final class ProductImageRenderer {
             }
             return out.toByteArray();
         } catch (IOException e) {
-            throw new IllegalStateException("JPEG encoding failed", e);
+            throw new IllegalStateException("WebP encoding failed", e);
         } finally {
             writer.dispose();
         }

@@ -122,7 +122,8 @@ class ProductImageServiceTest {
         });
         assertThat(originals.objects.keySet()).singleElement().asString().startsWith("product-originals/" + EAN + "/");
         assertThat(cardPhotos.objects).isEmpty();
-        assertThat(publicStore.objects).hasSize(2);
+        // Full, thumb and the small list file.
+        assertThat(publicStore.objects).hasSize(3);
     }
 
     @Test
@@ -305,7 +306,7 @@ class ProductImageServiceTest {
         ProductImage cropped = images.findById(photo.getId()).orElseThrow();
         assertThat(cropped.getFullKey()).isNotEqualTo(before);
         assertThat(cropped.getStatus()).isEqualTo(ImageStatus.VERIFIED);
-        assertThat(publicStore.objects).doesNotContainKey(before).hasSize(2);
+        assertThat(publicStore.objects).doesNotContainKey(before).hasSize(3);
         assertThatThrownBy(() -> admin.crop(adminId, photo.getId(), 0, new CropDto(0, 0, 5000, 80)))
                 .hasMessage("error.productImage.crop");
     }
@@ -330,6 +331,18 @@ class ProductImageServiceTest {
         candidate("front_en", "1129", "en");
 
         assertThat(queries.thumbnails(List.of(EAN, "5449000000996")).thumbnails()).containsOnlyKeys(EAN);
+    }
+
+    @Test
+    void thumbnailsPointAtTheSmallListFileAndFallBackToTheThumbForOlderPhotos() {
+        writes.upload(ana, EAN, jpeg());
+        assertThat(queries.thumbnails(List.of(EAN)).thumbnails().get(EAN)).endsWith("-small.webp");
+
+        ProductImage older = images.findByEanOrderByCreatedAtAsc(EAN).getFirst();
+        older.setSmallKey(null);
+        images.save(older);
+
+        assertThat(queries.thumbnails(List.of(EAN)).thumbnails().get(EAN)).endsWith("-thumb.webp");
     }
 
     @Test

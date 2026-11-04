@@ -55,7 +55,8 @@ public class ProductImageQueryService {
 
         Map<String, String> result = new HashMap<>();
         for (ProductImage image : images.findShownMainImages(unique, List.of(ImageStatus.VERIFIED, ImageStatus.PENDING))) {
-            result.put(image.getEan(), store.publicUrl(image.getThumbKey()));
+            String key = image.getSmallKey() != null ? image.getSmallKey() : image.getThumbKey();
+            result.put(image.getEan(), store.publicUrl(key));
         }
         return new ProductThumbnailsDto(result);
     }
