@@ -54,11 +54,12 @@ export default function CodeValueField() {
               variant="outline"
               size="icon"
               aria-label={t("codeScan")}
-              onClick={() =>
+              onClick={(event) =>
                 openScanner({
                   preset: "all",
                   confirm: true,
                   onScan: handleScan,
+                  opener: event.currentTarget,
                 })
               }
             >

@@ -92,7 +92,9 @@ export default function SearchBarField({
         showClear={Boolean(!disabled && clearable && queryValue)}
         onClear={handleClear}
         allowScanning={!disabled && allowScanning}
-        onScan={() => openScanner({ onScan: onScanned })}
+        onScan={(event) =>
+          openScanner({ onScan: onScanned, opener: event.currentTarget })
+        }
       />
     </div>
   );

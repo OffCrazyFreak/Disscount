@@ -16,6 +16,8 @@ interface IOpenScannerOptions {
   onScan: (code: IScannedCode) => void;
   preset?: ScanPreset;
   confirm?: boolean;
+  /** The control that was clicked. Safari does not focus a button on click, so activeElement cannot name it. */
+  opener?: HTMLElement | null;
 }
 
 interface ICameraScannerContext {
@@ -35,6 +37,7 @@ export function CameraScannerProvider({
   const [isOpen, setIsOpen] = useState(false);
   const [preset, setPreset] = useState<ScanPreset>("product");
   const [confirm, setConfirm] = useState(false);
+  const [opener, setOpener] = useState<HTMLElement | null>(null);
   const onScanRef = useRef<IOpenScannerOptions["onScan"] | undefined>(
     undefined,
   );
@@ -43,6 +46,7 @@ export function CameraScannerProvider({
     onScanRef.current = options.onScan;
     setPreset(options.preset ?? "product");
     setConfirm(options.confirm ?? false);
+    setOpener(options.opener ?? null);
     setIsOpen(true);
   }, []);
 
@@ -73,6 +77,7 @@ export function CameraScannerProvider({
         isOpen={isOpen}
         preset={preset}
         confirm={confirm}
+        opener={opener}
         onClose={closeScanner}
         onScan={handleScan}
       />
