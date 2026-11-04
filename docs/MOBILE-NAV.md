@@ -722,7 +722,7 @@ The mobile FAB's jobs moved into the bar: the per-page create action became a lo
 | `longPressEnabled` on the Kartice entry   | `bottom-nav-items.ts`                       | Gates the Kartice gesture (now `true`); the flag stays for any future teaser                                                    |
 | `Disscount_app` in `localStorage`         | `utils/browser/storage/*`                   | Unrelated to the bar now; its `bottomNavVariant` key was removed with the variants                                              |
 
-Both dev-overlay switches are read at compile time, so they need a **dev-server restart**, not just a reload. The flag follows the existing `NEXT_PUBLIC_ENABLE_REACT_SCAN` naming.
+Both dev-overlay switches are read at compile time, so they need a **dev-server restart**, not just a reload.
 
 There are no production env vars for this feature, and nothing to configure in Dokploy.
 

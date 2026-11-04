@@ -109,8 +109,8 @@ The migration runs through the existing `migrate` service. The map needs no CSP 
 ## 8. Gotchas
 
 - **MapLibre 6 needs WebGL2.** The constructor throws `GPUInitializationError`, but react-map-gl 8 creates the map in an effect and catches that error itself, so an error boundary never sees it. `store-map.tsx` therefore probes for a WebGL2 context before mounting the map and also listens to `onError`. Either way it shows a message with a Reload button, and the list keeps working. Chromium refuses WebGL for the rest of a session after its GPU process crashes a few times (common on some Linux driver setups), so the message says a browser restart usually helps.
-- **Blank map after context loss** (maplibre-gl-js#8690, open in 6.14): the map listens for `webglcontextlost` and offers a reload.
-- **Worker under webpack:** `setWorkerUrl(new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url))` at module scope. The 6.14 worker is one self-contained file.
+- **Blank map after context loss** (maplibre-gl-js#8690, open in 6.16): the map listens for `webglcontextlost` and offers a reload.
+- **Worker under webpack:** `setWorkerUrl(new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url))` at module scope. The 6.16 worker is one self-contained file.
 - **`after()` and the memo are per process.** A redeploy clears the memo; the lease lives in the database.
 - **A favourites save replaces the whole list.** A save built before the saved list loads, or two saves arriving out of order, erases favourites; the hook refuses clicks until the list has loaded and runs saves in one TanStack Query mutation scope, so they reach the server in click order.
 - **A ticked shopping list item may have no stored price.** An item added without choosing a chain saves no price when ticked, so the store groups fall back to today's price at the group's chain.

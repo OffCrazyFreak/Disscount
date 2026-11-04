@@ -212,11 +212,10 @@ Every CSS animation is disabled under `@media (prefers-reduced-motion: reduce)`,
 
 ## Config, env, and feature flags
 
-| Name                            | Where                                    | Effect                                                       |
-| ------------------------------- | ---------------------------------------- | ------------------------------------------------------------ |
-| `NEXT_PUBLIC_APP_URL`           | JSON-LD, sitemap, robots, `metadataBase` | Absolute URLs for SEO; falls back to `http://localhost:3000` |
-| `NEXT_PUBLIC_UMAMI_WEBSITE_ID`  | `app/[locale]/layout.tsx`                | Injects the privacy-friendly analytics script when set       |
-| `NEXT_PUBLIC_ENABLE_REACT_SCAN` | `app/providers/react-scan.tsx`           | Turns on the render-profiling overlay; off by default        |
+| Name                           | Where                                    | Effect                                                       |
+| ------------------------------ | ---------------------------------------- | ------------------------------------------------------------ |
+| `NEXT_PUBLIC_APP_URL`          | JSON-LD, sitemap, robots, `metadataBase` | Absolute URLs for SEO; falls back to `http://localhost:3000` |
+| `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | `app/[locale]/layout.tsx`                | Injects the privacy-friendly analytics script when set       |
 
 There are no landing-specific secrets. All copy comes from the `landing` message namespace in every supported language.
 
