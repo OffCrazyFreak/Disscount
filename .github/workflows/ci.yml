@@ -45,7 +45,7 @@ jobs:
         run: pnpm test
 
       - name: Lint
-        run: pnpm exec eslint src
+        run: pnpm lint
 
       # Dead code, duplication, complexity, import cycles and folder boundaries,
       # configured in frontend/.fallowrc.json. It fails only on findings this
