@@ -14,7 +14,6 @@ const storedItem = {
   productApiId: "3850123456789",
   watchType: WatchType.percentage,
   thresholdValue: 10,
-  lastNotifiedAt: null,
   createdAt: "2026-11-03T09:00:00",
   updatedAt: null,
 };
@@ -76,7 +75,7 @@ describe("watchlist fetchers", () => {
   it.each(listQueries)(
     "rejects %s with a drifted item",
     async (_name, route, useQuery) => {
-      const { lastNotifiedAt: _omitted, ...drifted } = storedItem;
+      const { createdAt: _omitted, ...drifted } = storedItem;
       server.use(http.get(route, () => HttpResponse.json([drifted])));
 
       const { result } = renderHookWithProviders(useQuery);

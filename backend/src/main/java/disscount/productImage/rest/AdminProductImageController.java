@@ -9,7 +9,6 @@ import disscount.productImage.dto.ProductImageDtos.CropRequest;
 import disscount.productImage.dto.ProductImageDtos.ImageStatusRequest;
 import disscount.productImage.dto.ProductImageDtos.SetMainRequest;
 import disscount.productImage.service.ProductImageAdminService;
-import disscount.user.service.UserService;
 import disscount.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,59 +34,54 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminProductImageController {
 
     private final ProductImageAdminService admin;
-    private final UserService userService;
 
     @Operation(summary = "Products to go through, most widely sold first (filter: todo, pending, reported)")
     @GetMapping("/queue")
     public AdminQueuePageDto queue(@RequestParam(defaultValue = "todo") String filter,
                                    @RequestParam(defaultValue = "0") int page,
                                    @RequestParam(defaultValue = "50") int size) {
-        requireAdmin();
         return admin.queue(filter, page, size);
     }
 
     @Operation(summary = "Every photo of a product, hidden and unconfirmed included")
     @GetMapping("/{ean}")
     public AdminProductDto product(@PathVariable String ean) {
-        requireAdmin();
         return admin.product(ean);
     }
 
     @Operation(summary = "Fetch all Open Food Facts photos of the product as candidates")
     @PostMapping("/{ean}/refresh")
     public AdminProductDto refresh(@PathVariable String ean) {
-        requireAdmin();
         return admin.refreshFromOpenFoodFacts(ean);
     }
 
     @Operation(summary = "Show this photo first; automatic picks will not replace it")
     @PutMapping("/{ean}/main")
     public AdminProductDto setMain(@PathVariable String ean, @Valid @RequestBody SetMainRequest request) {
-        return admin.setMain(requireAdmin(), ean, request.imageId());
+        return admin.setMain(SecurityUtils.getCurrentUserId(), ean, request.imageId());
     }
 
     @Operation(summary = "Mark the product as gone through")
     @PostMapping("/{ean}/reviewed")
     public AdminProductDto reviewed(@PathVariable String ean) {
-        return admin.reviewed(requireAdmin(), ean);
+        return admin.reviewed(SecurityUtils.getCurrentUserId(), ean);
     }
 
     @Operation(summary = "Verify (also clears reports) or hide a photo")
     @PutMapping("/images/{imageId}/status")
     public AdminProductDto status(@PathVariable UUID imageId, @Valid @RequestBody ImageStatusRequest request) {
-        return admin.setStatus(requireAdmin(), imageId, request.status());
+        return admin.setStatus(SecurityUtils.getCurrentUserId(), imageId, request.status());
     }
 
     @Operation(summary = "Rotate and crop a photo from its original; a null crop keeps the whole photo")
     @PutMapping("/images/{imageId}/crop")
     public AdminProductDto crop(@PathVariable UUID imageId, @Valid @RequestBody CropRequest request) {
-        return admin.crop(requireAdmin(), imageId, request.rotation(), request.crop());
+        return admin.crop(SecurityUtils.getCurrentUserId(), imageId, request.rotation(), request.crop());
     }
 
     @Operation(summary = "The private original of a user or admin photo, for the crop screen")
     @GetMapping("/images/{imageId}/original")
     public ResponseEntity<InputStreamResource> original(@PathVariable UUID imageId) {
-        requireAdmin();
         StoredPhoto photo = admin.original(imageId);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(photo.contentType()))
@@ -95,11 +89,5 @@ public class AdminProductImageController {
                 .cacheControl(CacheControl.noStore())
                 .header("X-Content-Type-Options", "nosniff")
                 .body(new InputStreamResource(photo.stream()));
-    }
-
-    private UUID requireAdmin() {
-        UUID userId = SecurityUtils.getCurrentUserId();
-        userService.requireAdmin(userId);
-        return userId;
     }
 }

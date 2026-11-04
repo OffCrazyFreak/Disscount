@@ -8,25 +8,6 @@ _Last verified on branch `feat/pwa`, 2026-07-04: installable on Android/iOS, off
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [The four layers of the PWA](#2-the-four-layers-of-the-pwa)
-3. [Architecture](#3-architecture)
-4. [Installability](#4-installability)
-5. [Offline reads: caching and persistence](#5-offline-reads-caching-and-persistence)
-6. [Offline writes: queue and replay](#6-offline-writes-queue-and-replay)
-7. [Native polish: status bar, splash, icons, screenshots](#7-native-polish-status-bar-splash-icons-screenshots)
-8. [Key files](#8-key-files)
-9. [Config, build, and environment](#9-config-build-and-environment)
-10. [Libraries and versions](#10-libraries-and-versions)
-11. [What is automatic vs manual](#11-what-is-automatic-vs-manual)
-12. [How to test and verify](#12-how-to-test-and-verify)
-13. [Gotchas and lessons learned](#13-gotchas-and-lessons-learned)
-14. [Future improvements and TODOs](#14-future-improvements-and-todos)
-
----
-
 ## 1. Quick reference
 
 | Thing                        | Value                                                                                                                                                                                                                                 |
@@ -353,44 +334,21 @@ The screenshot generator script was removed after the images were generated, so 
 
 ## 8. Key files
 
-| Path                                                                                         | Role                                                                                        |
-| -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `frontend/src/app/manifest.ts`                                                               | Web App Manifest (name, display, theme, icons, shortcuts, screenshots, launch_handler)      |
-| `frontend/src/app/sw.ts`                                                                     | Serwist service worker source: precache + runtime caching + `/offline` fallback             |
-| `frontend/next.config.ts`                                                                    | wraps the config with `withSerwistInit` (composed around Sentry); disables the SW in dev    |
-| `frontend/src/app/[locale]/offline/page.tsx` + `offline/components/offline-retry-button.tsx` | the offline fallback page and its reload button                                             |
-| `frontend/src/lib/sentry/ignore-service-worker-noise.ts`                                     | drops the registration failures Serwist reports from crawlers and restricted browsers       |
-| `frontend/src/components/custom/pwa/use-install-prompt.ts`                                   | shared install-state store + platform/support detection                                     |
-| `frontend/src/app/[locale]/layout.tsx`                                                       | `beforeInteractive` script that captures `beforeinstallprompt` before hydration             |
-| `frontend/src/components/custom/pwa/install-banner.tsx`                                      | one-time dismissible floating install banner                                                |
-| `frontend/src/components/custom/pwa/install-card.tsx`                                        | install card, in the sidebar and (with `permanent`) on the landing page                     |
-| `frontend/src/components/custom/pwa/install-perk.tsx`                                        | the landing page's clickable install perk row                                               |
-| `frontend/src/components/custom/pwa/install-copy.ts`                                         | shared button label and pitch copy, keyed by platform                                       |
-| `frontend/src/components/custom/pwa/install-instructions-sheet.tsx`                          | manual install steps (iOS / macOS Safari / Android / desktop)                               |
-| `frontend/src/constants/ios-startup-images.ts`                                               | device list for `appleWebApp.startupImage` (`apple-touch-startup-image` links)              |
-| `frontend/src/components/custom/pwa/request-persistent-storage.tsx`                          | requests durable storage                                                                    |
-| `frontend/src/components/custom/pwa/scan-shortcut.tsx`                                       | serves the Skeniraj app shortcut: consumes `?scan=1` and opens the camera                   |
-| `frontend/src/components/custom/pwa/use-app-update-prompt.ts`                                | the "new version" toast, shown while a new service worker waits                             |
-| `frontend/src/lib/pwa/service-worker-update.ts`                                              | detects a waiting worker, activates it on request and reloads                               |
-| `frontend/src/lib/pwa/chunk-load-recovery.ts`                                                | one-time reload after a failed chunk load, with the loop guard                              |
-| `frontend/src/lib/pwa/deployment-param.ts`                                                   | makes `defaultCache`'s RegExp rules ignore the `dpl` asset parameter                        |
-| `frontend/src/app/providers/react-query-provider.tsx`                                        | `PersistQueryClientProvider`, registers offline mutation defaults, resumes paused mutations |
-| `frontend/src/lib/offline/persister.ts`                                                      | IndexedDB persister + persist options (maxAge, buster, dehydrate rules)                     |
-| `frontend/src/lib/offline/cached-query-keys.ts`                                              | whitelist of query keys that may be persisted                                               |
-| `frontend/src/lib/offline/offline-mutation-keys.ts`                                          | allowlist of mutation keys that may queue offline                                           |
-| `frontend/src/lib/offline/offline-mutations.ts`                                              | registers replay `mutationFn` + invalidation per key                                        |
-| `frontend/src/lib/offline/purge.ts`                                                          | clears in-memory + IndexedDB cache on logout                                                |
-| `frontend/src/hooks/use-online-status.ts`                                                    | online/offline state from `onlineManager`                                                   |
-| `frontend/src/components/custom/offline/offline-indicator.tsx`                               | offline banner + queued-writes count                                                        |
-| `frontend/src/components/custom/offline/last-synced-label.tsx`                               | "last synced" relative-time label                                                           |
-| `frontend/src/utils/date.ts`                                                                 | `formatRelativeTime` helper                                                                 |
-| `frontend/src/utils/browser/share.ts`                                                        | `shareOrCopy`: OS share sheet with a clipboard fallback                                     |
-| `frontend/src/app/share-target/route.ts`                                                     | receives a system share and redirects it into `/products?q=`                                |
-| `frontend/src/constants/ios-splash-screens.json`                                             | iOS device list (single source for the generator and the links)                             |
-| `frontend/scripts/generate-pwa-icons.mjs` / `generate-ios-splash.mjs`                        | asset generators (run with `node`)                                                          |
-| `frontend/scripts/generate-shortcut-icons.mjs`                                               | app-shortcut icon generator (white lucide glyph on green; one masked tile + one rounded)    |
-| `frontend/public/brand/{icons,shortcuts}/`                                                   | generated icon and app-shortcut PNGs                                                        |
-| `frontend/public/{splash,screenshots}/`                                                      | generated splash screens and install-dialog screenshots                                     |
+| Path                                                     | Role                                                                                        |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `frontend/next.config.ts`                                | wraps the config with `withSerwistInit` (composed around Sentry); disables the SW in dev    |
+| `frontend/src/lib/sentry/ignore-service-worker-noise.ts` | drops the registration failures Serwist reports from crawlers and restricted browsers       |
+| `frontend/src/app/[locale]/layout.tsx`                   | `beforeInteractive` script that captures `beforeinstallprompt` before hydration             |
+| `frontend/src/components/custom/pwa/scan-shortcut.tsx`   | serves the Skeniraj app shortcut: consumes `?scan=1` and opens the camera                   |
+| `frontend/src/lib/pwa/service-worker-update.ts`          | detects a waiting worker, activates it on request and reloads                               |
+| `frontend/src/lib/pwa/chunk-load-recovery.ts`            | one-time reload after a failed chunk load, with the loop guard                              |
+| `frontend/src/lib/pwa/deployment-param.ts`               | makes `defaultCache`'s RegExp rules ignore the `dpl` asset parameter                        |
+| `frontend/src/app/providers/react-query-provider.tsx`    | `PersistQueryClientProvider`, registers offline mutation defaults, resumes paused mutations |
+| `frontend/src/lib/offline/cached-query-keys.ts`          | whitelist of query keys that may be persisted                                               |
+| `frontend/src/lib/offline/offline-mutation-keys.ts`      | allowlist of mutation keys that may queue offline                                           |
+| `frontend/src/lib/offline/offline-mutations.ts`          | registers replay `mutationFn` + invalidation per key                                        |
+| `frontend/src/lib/offline/purge.ts`                      | clears in-memory + IndexedDB cache on logout                                                |
+| `frontend/src/app/share-target/route.ts`                 | receives a system share and redirects it into `/products?q=`                                |
 
 ---
 
@@ -501,28 +459,9 @@ Read from `frontend/package.json`.
 
 ## 14. Future improvements and TODOs
 
-**The big one (unblocks the core value loop)**
-
-- [ ] **Push notifications**: VAPID keys + a `web-push` sender + a push-subscription store, wired to the watchlist price-drop alerts. Can live entirely in the Next.js app (no Spring change required for sending); the open question is what evaluates thresholds and triggers a send. This is the highest-leverage PWA gap.
-
-**PWA polish**
-
-- [ ] **App Badging API** (`navigator.setAppBadge`) for unread notifications on the installed icon.
+- [ ] **Push notifications** (#221): the highest-leverage PWA gap. Sending can live in the Next.js app with no Spring change; the open question is what evaluates thresholds and triggers a send.
 - [ ] **Max brightness** while showing a loyalty-card barcode. Screen Wake Lock shipped with the digital cards view modal; the app has no way to raise brightness, so the modal shows a dismissible hint instead.
-- [ ] **Native Barcode Detection** as a fast path on Android, keeping `@yudiel/react-qr-scanner` as the universal fallback.
 - [ ] **Real manifest screenshots** to replace the branded placeholder cards.
-- [ ] **Periodic Background Sync** to refresh watchlist/deal prices in the background (Chromium-only and unreliable; a complement to, not a replacement for, a server-side price-check job).
-
-**Offline depth**
-
 - [ ] Optimistic watchlist add/remove offline.
 - [ ] Optimistic offline list creation with temp IDs + reconciliation.
-- [ ] Wire the remaining coming-soon features (potrošnja, novosti, karta) into the persistence whitelist when they ship. Digital cards are done.
-
-**Distribution**
-
 - [ ] Package the PWA for the **Google Play Store** via a Trusted Web Activity (Bubblewrap / PWABuilder), and optionally the iOS App Store. The generated icons and splash/screenshot assets are the same ones a store listing needs.
-
-**Later**
-
-- [ ] Speech-to-search and File System export are noted in the knowledge base as later enhancements.

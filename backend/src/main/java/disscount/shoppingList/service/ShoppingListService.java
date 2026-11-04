@@ -122,8 +122,7 @@ public class ShoppingListService {
     }
 
     private User requireUser(UUID userId) {
-        return userRepository.findByIdAndDeletedAtIsNull(userId)
-                .orElseThrow(() -> new UnauthorizedException("error.user.notFound"));
+        return userRepository.requireActive(userId);
     }
 
     /** Off then on hands back the same URL, since the URL is the id. Intended. */

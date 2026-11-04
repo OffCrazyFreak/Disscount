@@ -20,7 +20,6 @@ import disscount.user.dto.UserDto;
 import disscount.user.dto.UserRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import disscount.exceptions.ForbiddenException;
 import disscount.util.Timestamps;
 
 import java.time.Duration;
@@ -51,17 +50,11 @@ public class UserService {
     private final ErasureLedgerRepository erasureLedger;
     private final AvatarSanitizer avatarSanitizer;
 
-    // Compared against better-auth's UTC session timestamps, so the JVM zone must not leak in.
-    private static LocalDateTime nowUtc() {
-        return Timestamps.nowUtc();
-    }
-
     // Read-only: the class-level @Transactional would otherwise keep a dirty-checking
     // flush at commit for a query that never writes.
     @Transactional(readOnly = true)
     public Optional<UserDto> findById(UUID id) {
-        return userRepository.findById(id)
-                .filter(user -> user.getDeletedAt() == null)
+        return userRepository.findByIdAndDeletedAtIsNull(id)
                 .map(this::convertToUserDto);
     }
 
@@ -93,7 +86,7 @@ public class UserService {
             // image is intentionally not synced here: the avatar is user-owned after creation,
             // so a cleared avatar must not be repopulated from the provider on the next request
             if (isActivityStampStale(user.getLastActiveAt())) {
-                user.setLastActiveAt(nowUtc());
+                user.setLastActiveAt(Timestamps.nowUtc());
                 userRepository.save(user);
             }
         } else {
@@ -105,7 +98,7 @@ public class UserService {
             String username = seedUsername(name, email);
             // Newsletter stays null: marketing email needs prior opt-in consent, and a pre-set
             // switch is not consent (GDPR Recital 32, ZEK Art. 50). The other three start ON.
-            LocalDateTime now = nowUtc();
+            LocalDateTime now = Timestamps.nowUtc();
             User.UserBuilder profile = User.builder()
                     .id(id)
                     .image(image)
@@ -130,7 +123,7 @@ public class UserService {
 
     private boolean isActivityStampStale(LocalDateTime lastActiveAt) {
         return lastActiveAt == null
-                || lastActiveAt.isBefore(nowUtc().minus(ACTIVITY_STAMP_INTERVAL));
+                || lastActiveAt.isBefore(Timestamps.nowUtc().minus(ACTIVITY_STAMP_INTERVAL));
     }
 
     /**
@@ -165,9 +158,7 @@ public class UserService {
     }
 
     public UserDto updateProfile(UUID userId, UserRequest request) {
-        User user = userRepository.findById(userId)
-                .filter(u -> u.getDeletedAt() == null)
-                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
+        User user = userRepository.requireActive(userId);
 
         String username = request.getUsername();
         if (username != null && !username.equals(user.getUsername())) {
@@ -212,7 +203,7 @@ public class UserService {
             user.setOnboardingOutcome(outcome);
             if (ONBOARDING_COMPLETED.equals(outcome)
                     && user.getOnboardingCompletedAt() == null) {
-                user.setOnboardingCompletedAt(nowUtc());
+                user.setOnboardingCompletedAt(Timestamps.nowUtc());
             }
         }
 
@@ -230,7 +221,7 @@ public class UserService {
             return current;
         }
         if (desired) {
-            return current != null ? current : nowUtc();
+            return current != null ? current : Timestamps.nowUtc();
         }
         return null;
     }
@@ -248,7 +239,7 @@ public class UserService {
         userRepository.findByIdForUpdate(userId).ifPresent(user -> {
             user.setUsername(null);
             user.setImage(null);
-            user.setDeletedAt(nowUtc());
+            user.setDeletedAt(Timestamps.nowUtc());
             // Flushed now because the card purge below clears the persistence context, dropping any unsaved change.
             userRepository.saveAndFlush(user);
         });
@@ -260,22 +251,12 @@ public class UserService {
 
         if (!erasureLedger.existsById(userId)) {
             // Flushed so a concurrent deletion's tombstone collides here, where AccountErasureService can catch it.
-            erasureLedger.saveAndFlush(new ErasureLedgerEntry(userId, nowUtc()));
-        }
-    }
-
-    /**
-     * Throws unless the given user is an active ADMIN. Used to gate admin-only endpoints.
-     */
-    public void requireAdmin(UUID userId) {
-        if (!isActiveAdmin(userId)) {
-            throw new ForbiddenException("error.user.adminRequired");
+            erasureLedger.saveAndFlush(new ErasureLedgerEntry(userId, Timestamps.nowUtc()));
         }
     }
 
     public boolean isActiveAdmin(UUID userId) {
-        return userRepository.findById(userId)
-                .filter(u -> u.getDeletedAt() == null)
+        return userRepository.findByIdAndDeletedAtIsNull(userId)
                 .map(u -> u.getAccountType() == AccountType.ADMIN)
                 .orElse(false);
     }
@@ -334,12 +315,8 @@ public class UserService {
     }
 
     public UserDto updateAccountType(UUID userId, AccountType accountType) {
-        if (accountType == null) {
-            throw new BadRequestException("error.user.accountTypeRequired");
-        }
-
-        User user = userRepository.findById(userId)
-                .filter(u -> u.getDeletedAt() == null)
+        // The target of an admin action, not the caller: the admin's own session is fine, so no 401 here.
+        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         user.setAccountType(accountType);
@@ -367,7 +344,7 @@ public class UserService {
                 .build();
     }
 
-    // The column is zone-less but written by nowUtc(), so UTC is the offset it was stamped with.
+    // The column is zone-less but written by Timestamps.nowUtc(), so UTC is the offset it was stamped with.
     private Instant toUtcInstant(LocalDateTime value) {
         return value == null ? null : value.toInstant(ZoneOffset.UTC);
     }

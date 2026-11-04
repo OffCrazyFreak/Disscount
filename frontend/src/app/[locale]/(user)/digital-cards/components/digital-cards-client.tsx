@@ -59,7 +59,6 @@ export default function DigitalCardsClient() {
         <SearchBar
           placeholder={t("list.searchPlaceholder")}
           searchRoute={pathname}
-          clearable={true}
           submitButtonLocation="none"
           autoSearch={true}
           shallow

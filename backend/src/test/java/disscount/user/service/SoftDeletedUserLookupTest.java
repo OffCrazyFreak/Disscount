@@ -8,7 +8,6 @@ import disscount.shoppingList.dto.ShoppingListRequest;
 import disscount.shoppingList.service.ShoppingListAccessService;
 import disscount.shoppingList.service.ShoppingListMapper;
 import disscount.shoppingList.service.ShoppingListService;
-import disscount.shoppingListItem.service.ShoppingListItemService;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.util.Timestamps;
@@ -28,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /** A token minted before the deletion is still valid for its lifetime, so each lookup must refuse the row itself. */
 @DataJpaTest(showSql = false)
 @Import({WatchlistItemService.class, PinnedPlaceService.class, PinnedStoreService.class,
-        ShoppingListService.class, ShoppingListItemService.class, ShoppingListAccessService.class,
+        ShoppingListService.class, ShoppingListAccessService.class,
         ShoppingListMapper.class})
 class SoftDeletedUserLookupTest {
 
@@ -37,7 +36,6 @@ class SoftDeletedUserLookupTest {
     @Autowired PinnedPlaceService pinnedPlaces;
     @Autowired PinnedStoreService pinnedStores;
     @Autowired ShoppingListService shoppingLists;
-    @Autowired ShoppingListItemService shoppingListItems;
 
     private UUID deletedUserId;
 
@@ -70,10 +68,5 @@ class SoftDeletedUserLookupTest {
         assertRefusedAsUnknownUser(() -> shoppingLists.createShoppingList(deletedUserId, new ShoppingListRequest()));
         assertRefusedAsUnknownUser(() -> shoppingLists.getUserShoppingLists(deletedUserId));
         assertRefusedAsUnknownUser(() -> shoppingLists.requireWriteUser(deletedUserId));
-    }
-
-    @Test
-    void aSoftDeletedUserCannotReadShoppingListItems() {
-        assertRefusedAsUnknownUser(() -> shoppingListItems.getUserShoppingListItems(deletedUserId));
     }
 }

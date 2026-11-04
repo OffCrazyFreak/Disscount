@@ -202,22 +202,12 @@ Every CSS animation is disabled under `@media (prefers-reduced-motion: reduce)`,
 
 | Path                                                                                    | Role                                                      |
 | --------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| `app/[locale]/(root)/page.tsx`                                                          | Composes the sections, page metadata, JSON-LD             |
-| `app/[locale]/(root)/components/sections/*`                                             | One file per section                                      |
-| `app/[locale]/(root)/components/sections/section-heading.tsx`                           | Shared heading + `TextGlow`                               |
 | `app/[locale]/(root)/components/sections/feature-card.tsx`                              | Server card; chooses `<Link>` / action / div              |
 | `app/[locale]/(root)/components/sections/feature-card-action.tsx`                       | Client action island (scanner / notifications)            |
 | `app/[locale]/(root)/components/sections/hero-cart.tsx`                                 | Client island: cursor-aware hero cart + mounts the chaser |
-| `app/[locale]/(root)/components/doodles/cart-chaser.tsx`                                | Mini cart that trails the cursor after scroll             |
-| `app/[locale]/(root)/hooks/{use-cursor-pose,use-cursor-follow}.ts`                      | Pose (flip/tilt) and lazy-follow motion values            |
 | `app/[locale]/(root)/utils/cursor.ts`, `hooks/use-fine-pointer.ts`                      | Mirror-safe tilt math; desktop-pointer matchMedia hook    |
-| `app/[locale]/(root)/data/*`                                                            | Ids and keys: landing, features, faq                      |
-| `app/[locale]/(root)/components/doodles/*`                                              | Hand-drawn animated SVGs + `DoodleCanvas`, `SparkleField` |
-| `app/[locale]/(root)/components/json-ld.tsx`                                            | Structured data `@graph`                                  |
 | `components/custom/common/{edge-fade,scroll-fade,window-scroll-fade,text-glow}.tsx`     | Shared fade/glow primitives                               |
 | `components/custom/animation/{scroll-reveal,stagger-children}.tsx`                      | Scroll-in reveal and mount stagger wrappers               |
-| `app/{sitemap,robots}.ts`, `app/{opengraph,twitter}-image.tsx`                          | SEO plumbing                                              |
-| `app/fonts/index.ts`                                                                    | Huninn + baseline ellipsis + Saira Stencil                |
 | `context/{notifications-context,notifications-types,use-watchlist-notifications}.ts(x)` | Lifted notifications open state                           |
 
 ## Config, env, and feature flags
@@ -231,15 +221,7 @@ There are no landing-specific secrets. All copy comes from the `landing` message
 
 ## Libraries
 
-Versions come from `frontend/package.json`.
-
-| Library           | Version     | Use on the landing                                              |
-| ----------------- | ----------- | --------------------------------------------------------------- |
-| next              | `16.4.5`    | App Router, RSC, metadata, `next/font`, `next/og`, `next/image` |
-| react / react-dom | `19.2.8`    | Server + client components                                      |
-| motion            | `^12.23.26` | Scroll reveals, doodle path-draws, tagline cross-fade           |
-| lucide-react      | `^1.67.0`   | Feature and perk icons                                          |
-| tailwindcss       | `^4`        | Styling, CSS-first theme, keyframes                             |
+`motion` drives the scroll reveals, doodle path-draws and tagline cross-fade. The rest is the app's usual stack; versions are in `frontend/package.json`.
 
 ## Gotchas
 
@@ -272,6 +254,4 @@ The exact chain count is never hardcoded. The number of covered retail chains gr
 ## Future improvements and TODOs
 
 - Wire the remaining coming-soon feature cards (Analiza potrošnje, Kartice vjernosti, Karta trgovina) once their pages ship, by uncommenting the `href` in `features.ts` and dropping `comingSoon`.
-- Consider an FAQ-driven long-tail SEO expansion and a real testimonials/social-proof section once there is content for it.
-- Revisit the notifications-from-guest flow: today it opens the login modal, but a dedicated "sign in to get price alerts" nudge could convert better.
 - If the filled-vs-outline button box-model fix is wanted app-wide, bake a transparent border into the filled button variants in `components/ui/button.tsx` instead of per-usage.

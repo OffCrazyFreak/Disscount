@@ -6,30 +6,6 @@ How Disscount shows product photos: where they come from, how they are stored an
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [How a photo flows](#2-how-a-photo-flows)
-3. [Where photos come from](#3-where-photos-come-from)
-4. [States and the main photo](#4-states-and-the-main-photo)
-5. [Background jobs](#5-background-jobs)
-6. [Rendering and the white background](#6-rendering-and-the-white-background)
-7. [How photos reach the page](#7-how-photos-reach-the-page)
-8. [Uploads](#8-uploads)
-9. [The admin review flow](#9-the-admin-review-flow)
-10. [Data model](#10-data-model)
-11. [API](#11-api)
-12. [Tests](#12-tests)
-13. [Key files](#13-key-files)
-14. [Config and env vars](#14-config-and-env-vars)
-15. [Libraries](#15-libraries)
-16. [Failure modes](#16-failure-modes)
-17. [What is automatic vs manual](#17-what-is-automatic-vs-manual)
-18. [Gotchas](#18-gotchas)
-19. [Future work](#19-future-work)
-
----
-
 ## 1. Quick reference
 
 | Thing              | Value                                                                                                                                                                |
@@ -59,7 +35,7 @@ flowchart TD
     C -->|main photo, most widely sold first| J[Render job every 15 s]
     J --> R[ProductImageRenderer<br/>rotate, crop, white square]
     R --> P["Public bucket<br/>products/ean/hash.webp, -thumb.webp, -small.webp"]
-    P -->|thumbUrl, fullUrl| B[Browser img tags]
+    P -->|smallUrl, thumbUrl, fullUrl| B[Browser img tags]
     P -->|fullUrl of a confirmed main photo| LD[JSON-LD image]
     P -->|fullUrl of a confirmed main photo| CARD["Share card route<br/>1200x630 JPEG"]
     CARD --> SEO[og:image and twitter:image]
@@ -71,7 +47,7 @@ Step by step:
 2. **Candidates.** The same import streams the Open Food Facts export and records the selected front photo of every EAN we carry as a `CANDIDATE`. Nothing is downloaded yet.
 3. **Copy.** Every 15 seconds the render job takes up to 10 main photos that are not copied yet, downloads each from Open Food Facts, renders it, and writes the three WebP files to the public bucket. When no main photo is waiting, the same tick re-renders up to 10 photos copied before WebP (see [§6](#6-rendering-and-the-white-background)).
 4. **Uploads.** A user's upload is sanitized, kept as an original in the private bucket, and rendered at once.
-5. **Show.** The public API returns `thumbUrl` and `fullUrl` for each visible photo. The browser loads them directly from the bucket's domain.
+5. **Show.** The public API returns `smallUrl`, `thumbUrl` and `fullUrl` for each visible photo (`smallUrl` falls back to the thumb on photos rendered before the small file existed). The browser loads them directly from the bucket's domain.
 
 ---
 
@@ -111,7 +87,6 @@ All in `ProductImageJobs`, all off when `product-images.jobs.enabled=false` (the
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Weekly import      | checked every 6 h; each part runs when its own last run is over 7 days old, and the seed also runs right after a fresh catalogue import | cijene archive into `product_image_set` (name, brand, store listings, chain count), then the Open Food Facts seed once the bucket is on; a failed import does not block a seed that is due |
 | Render main photos | every 15 s, 10 at a time                                                                                                                | copies uncopied main photos into the bucket, most widely sold first, one download at a time                                                                                                |
-| Limiter sweep      | every 5 min                                                                                                                             | clears the upload rate limiter                                                                                                                                                             |
 
 The first weekly check runs 10 minutes after startup and the first render 2 minutes after. The last catalogue import (`weekly-import`) and the last Open Food Facts seed (`photo-seed`) are stored separately in `product_image_import_run`, so a redeploy does not download the export again, and turning the bucket on mid-week seeds at the next 6-hour check instead of waiting for the next catalogue week. The jobs share a scheduler pool of four threads (`spring.task.scheduling.pool.size`), so the long weekly import never holds back card purges or photo copying.
 
@@ -135,8 +110,8 @@ The white is part of the file on purpose. Dark Reader's default mode recolours C
 
 | Where                                          | File used                           | How it gets the URL                                                                                                                                 |
 | ---------------------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Product page gallery, main tile                | `thumbUrl` (400 px)                 | `useProductImages(ean)` in the browser, `GET /api/products/{ean}/images` through the backend proxy                                                  |
-| Product page gallery, thumbnails strip         | `thumbUrl`                          | Same response                                                                                                                                       |
+| Product page gallery, main tile                | `smallUrl` (256 px, else thumb)     | `useProductImages(ean)` in the browser, `GET /api/products/{ean}/images` through the backend proxy                                                  |
+| Product page gallery, strip tiles              | `smallUrl`                          | Same response                                                                                                                                       |
 | Viewer (lightbox)                              | `fullUrl` (1080 px)                 | Same response                                                                                                                                       |
 | Product rows, shopping list rows, modal header | small (256 px), else thumb          | `useProductThumbnail(ean)`; `thumbnail-batcher.ts` gathers every ask within 15 ms into one `GET /api/products/images/thumbnails?eans=` of up to 100 |
 | JSON-LD `image`                                | `fullUrl` of a confirmed main photo | `getVerifiedMainPhotoUrl` on the server (`lib/api/product-images/server.ts`), 3 second timeout, `null` when unconfirmed or on any failure           |
@@ -170,7 +145,11 @@ The gallery is fetched in the browser, not seeded by the server render, so the s
 
 **Loading.** The main tile loads `eager`; every other tile is `lazy` with `decoding="async"`. Alt text is `productPhotos.photo.alt` with the product name.
 
-**List thumbnails.** `ProductThumbnail` (`components/custom/product-photos/product-thumbnail.tsx`) is the photo box of every row that lists products: search results (list view, and the grid view too once its switcher returns, #61), watchlist rows and the quick actions sheet (all through `ProductSummary`, which shows it when given an `ean`), shopping list rows (`items/item-photo.tsx`), and the product header inside the add to list and watchlist modals (`product-info-display.tsx`, from `sm` up). It keeps a fixed square from the first render (48 px, 64 px in product rows from a 28rem container, 40 px and 48 px on shopping list rows, 64 px in modal headers), so nothing shifts when the photo arrives. While the thumbnail request runs the box is plain `bg-muted`; afterwards it shows the photo, or a `Package` icon on `bg-muted` when there is none: no photo for the EAN, photos switched off, a typed shopping list item without an EAN, a failed request (offline included), or an image that fails to load (`onError` on the `<img>`, so no broken image icon; a change in connection tries the file again). The image is `lazy`, so rows below the fold load their file only when scrolled near, and its alt is empty because the product name sits beside it (in modal headers, the heading). A ticked off shopping list item fades its photo with its struck through name.
+**The product page.** `ProductOverview` (`app/[locale]/products/components/product-overview.tsx`) lays the photo and the facts out as one CSS grid. The photo is a square spanning the first three fact rows (brand, barcode, quantity), so its side is exactly their natural height and every fact cell keeps the same padding. On narrow screens the facts card wraps around the photo in an L: two outline pieces drawn behind a subgrid `dl`, joined by a small radial gradient that rounds the inside corner. From `md` up the facts are a two-column table to the photo's right, and the strip sits between them (`product-photo-strip.tsx`): up to two more photos and a primary add button, in three equal rows, so three slots fill the photo's height exactly and fewer sit at the top. With more than three photos the last tile shows "+N" for the rest, and with only the main photo there is no strip. Narrow screens show a "+N" count badge on the main photo instead. Tapping any photo opens the viewer, whose footer (`viewer-footer.tsx`) holds "Dodaj sliku" and, for admins, "Uredi slike". Without a photo the main tile is the add button. Every tappable photo carries a dark band along its bottom edge (`photo-band.tsx`) with an expand icon, or a camera on the empty tile. Photos and the facts card share the cards' `rounded-xl`; strip tiles and the add button use the icon button's `rounded-md`.
+
+**Squares that follow their row.** A flex row cannot size a square's width from its stretched height, because it never revisits the width after the height is known; a grid does, because it sizes rows first and then widens an `auto` column to fit. So the product page grid, the strip (`grid-rows-3`, slots `h-full aspect-square`) and `MediaRow` (`components/custom/common/media-row.tsx`) all use a grid. `MediaRow` puts a square as tall as the content beside it; `ProductSummary` uses it for the list photo and the store card on the product page (`store-item.tsx`) for the chain logo, each with even padding so the square sits as far from every edge of the card. The image inside `PhotoTile` is absolutely positioned, so the file's own pixel size never sizes its tile.
+
+**List thumbnails.** `ProductThumbnail` (`components/custom/product-photos/product-thumbnail.tsx`) is the photo box of every row that lists products: search results (list view, and the grid view too once its switcher returns, #61), watchlist rows and the quick actions sheet (all through `ProductSummary`, which shows it when given an `ean`), shopping list rows (`items/item-photo.tsx`), and the product header inside the add to list and watchlist modals (`product-info-display.tsx`, from `sm` up). In `ProductSummary` rows it is as tall as the row's text, through `MediaRow`, and tapping it opens the viewer for that product in place (`product-thumbnail-viewer.tsx`, which asks for the product's photos only then) without following the row's link. Shopping list rows (32 px, 38.4 px from `sm`) and modal headers (51.2 px) keep a fixed square. Either way the box is there from the first render, so nothing shifts when the photo arrives. While the thumbnail request runs the box is plain `bg-muted`; afterwards it shows the photo, or a `Package` icon on `bg-muted` when there is none: no photo for the EAN, photos switched off, a typed shopping list item without an EAN, a failed request (offline included), or an image that fails to load (`onError` on the `<img>`, so no broken image icon; a change in connection tries the file again). The image is `lazy`, so rows below the fold load their file only when scrolled near, and its alt is empty because the product name sits beside it (in modal headers, the heading). A ticked off shopping list item fades its photo with its struck through name.
 
 ---
 
@@ -178,7 +157,7 @@ The gallery is fetched in the browser, not seeded by the server render, so the s
 
 The browser side (decode, resize to a 2048 px long edge, JPEG at 0.82 stepping down until under 480 KB, white behind transparency, metadata stripped by the re-encode) is shared with avatars and card photos and is described in [IMAGE-UPLOADS.md](IMAGE-UPLOADS.md). Product photo uploads are always JPEG, because the renderer decodes only JPEG and PNG and the admin crops from the original; the public files rendered from it are WebP.
 
-On the server, `POST /api/products/{ean}/images` takes the multipart field `photo`, applies the same Spring multipart limits and `PhotoValidator` as card photos, then accepts JPEG only. The sanitized bytes are stored as `product-originals/<ean>/<uuid>.jpg` through `ProductOriginalStore` ([server disk storage](#storage-on-the-servers-disk) gives them their own folder; on R2 they stay in the private card photo bucket), and `ProductImageRenderer` writes the public files. A user may upload 10 photos per 10 minutes (`ProductPhotoUploadLimiter`, in memory per instance); admins are exempt.
+On the server, `POST /api/products/{ean}/images` takes the multipart field `photo`, applies the same Spring multipart limits and `PhotoValidator` as card photos, then accepts JPEG only. The sanitized bytes are stored as `product-originals/<ean>/<uuid>.jpg` through `ProductOriginalStore` ([server disk storage](#storage-on-the-servers-disk) gives them their own folder; on R2 they stay in the private card photo bucket), and `ProductImageRenderer` writes the public files. A user may upload 10 photos per 10 minutes (the `productPhotoUploadLimiter` bean in `config/UploadLimitConfig.java`, in memory per instance, which drops expired windows every 5 minutes); admins are exempt.
 
 A user's upload starts `PENDING` and flags the product for review; an admin's upload is `VERIFIED`, pinned as the main photo, and marks the product reviewed.
 
@@ -201,7 +180,7 @@ flowchart LR
 
 - **The queue** (`app/[locale]/dashboard/components/product-photos/`) has three filters, each ordered by `store_listings` (how widely the product is sold): `todo` (never reviewed, or flagged since: a user upload or a report sets `needs_review`), `pending` (has an unconfirmed user photo) and `reported` (has a visible photo with reports). J and K move through the list, R marks the product reviewed and moves on (`use-queue-keys.ts`).
 - **The editor** lists every candidate with its source, language and status stamps, and offers: set as main (pins), verify (also clears reports), hide, crop and rotate, and fetch more from Open Food Facts. Crop opens the original: for an upload, the private original through `GET /api/admin/product-images/images/{id}/original`; for an Open Food Facts photo, the source is downloaded again.
-- **From the viewer**, an admin's toolbar has a star that sets the photo on screen as the main one, and every logged-in user has "Prijavi sliku" (report, once per user and photo).
+- **From the viewer**, opened from the product page, an admin's footer has "Uredi slike", which opens this editor, and the toolbar has a star that sets the photo on screen as the main one, and every logged-in user has "Prijavi sliku" (report, once per user and photo).
 - **Reviewed** stamps `reviewed_at` and `reviewed_by_id` and clears `needs_review`, so the product leaves the `todo` filter until something new happens to it. Setting a main photo marks the product reviewed too.
 
 ---
@@ -231,35 +210,21 @@ The browser reaches all of them through the backend proxy ([BACKEND-PROXY.md](BA
 
 ## 12. Tests
 
-| Suite             | What it covers                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Backend (H2)      | `ProductImageRendererTest`, `ProductImageServiceTest`, `ProductImageControllerTest`, `ProductImageWireFormatTest`, `ProductImageJobsTest`, `ProductImageJobsRenderTest`, `ProductImageJobsStaleWriteTest`, `CatalogArchiveReaderTest`, `OpenFoodFactsParsingTest`, with `FakeProductImageStore` and `FakeProductOriginalStore` in place of real storage; `AtomicFileStoreTest`, `FilesystemPhotoStoreTest`, `FilesystemProductImageStoreTest` and the three `*StoreConfigTest` classes run the disk stores on a temp folder                                                                                                         |
-| Frontend (Vitest) | `crop-math.test.ts`, `product-images/hooks.test.tsx`, `product-thumbnail.test.tsx` (one request per list, the placeholder for no photo, a typed item, a failed request, a broken image, and the retry after reconnecting), `product-info-display.test.tsx` (the modal header keeps its photo box without a photo), `product-photo-gallery.test.tsx`, `use-queue-keys.test.tsx`, `og/products/[ean]/[file]/route.test.ts` (the share card's redirects), `render-product-og.test.ts` (a real JPEG render, a WebP photo drawn into the card, its size limit, and that a failed one throws), `product-metadata.test.ts` (its meta tags) |
-
 Not covered by tests: a real upload to R2, durability of the disk stores across a power cut (the sync calls run, but no test can prove they reach the platter), the real Open Food Facts export, how photos look under dark mode extensions, and how the share card looks; those need a manual check.
 
 ---
 
 ## 13. Key files
 
-| File                                                             | What                                                                                       |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `backend/.../productImage/render/ProductImageRenderer.java`      | Decode, rotate, crop, white square, WebP                                                   |
-| `backend/.../productImage/service/`                              | Reads, uploads, admin actions, jobs, the main photo rules (`MainPicker`)                   |
-| `backend/.../productImage/off/`                                  | Open Food Facts client, URL layout, export reader                                          |
-| `backend/.../productImage/catalog/`                              | cijene archive reader and import                                                           |
-| `backend/.../productImage/storage/`                              | `ProductImageStore`, `ProductOriginalStore`, their R2, disk and disabled stores and config |
-| `backend/.../storage/AtomicFileStore.java`                       | Key validation and atomic writes shared by every disk store                                |
-| `backend/.../storage/R2Clients.java`                             | The S3 client both buckets use                                                             |
-| `frontend/src/components/custom/product-photos/`                 | Tile, list thumbnail, viewer, upload, admin editor, crop                                   |
-| `frontend/src/app/[locale]/products/components/product-photos/`  | The product page gallery                                                                   |
-| `frontend/src/app/[locale]/dashboard/components/product-photos/` | The review queue                                                                           |
-| `frontend/src/lib/api/product-images/`                           | Fetchers, hooks, thumbnail batcher, server helpers                                         |
-| `frontend/src/app/og/products/[ean]/[file]/route.tsx`            | The share card route: fallbacks and redirects                                              |
-| `frontend/src/app/og/render-product-og.tsx`                      | The share card layout, JPEG encoding and cache header                                      |
-| `frontend/src/app/og/product-share-image.ts`                     | The card's versioned URL                                                                   |
-| `frontend/src/lib/api/schemas/product-image.ts`                  | Zod schemas for every response                                                             |
-| `frontend/src/utils/browser/product-photo.ts`                    | Upload preparation settings                                                                |
+| File                                                            | What                                                                                     |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `backend/.../storage/AtomicFileStore.java`                      | Key validation and atomic writes shared by every disk store                              |
+| `backend/.../storage/R2Clients.java`                            | The S3 client both buckets use                                                           |
+| `frontend/src/app/[locale]/products/components/product-photos/` | The product page gallery and strip; `../product-overview.tsx` lays it out with the facts |
+| `frontend/src/app/og/products/[ean]/[file]/route.tsx`           | The share card route: fallbacks and redirects                                            |
+| `frontend/src/app/og/render-product-og.tsx`                     | The share card layout, JPEG encoding and cache header                                    |
+| `frontend/src/app/og/product-share-image.ts`                    | The card's versioned URL                                                                 |
+| `frontend/src/utils/browser/product-photo.ts`                   | Upload preparation settings                                                              |
 
 `backend/...` is `backend/src/main/java/disscount/`.
 
@@ -309,17 +274,14 @@ Issue #486 moves photos from R2 to folders on the server. The code for it is in 
 
 ## 15. Libraries
 
-Versions read from `frontend/package.json` and `backend/pom.xml`.
+Versions are in `frontend/package.json` and `backend/pom.xml`. The ones whose role is not obvious from the name:
 
-| Library                        | Version    | Role here                                                 |
-| ------------------------------ | ---------- | --------------------------------------------------------- |
-| `yet-another-react-lightbox`   | `^3.33.0`  | The viewer, with its zoom, thumbnails and counter plugins |
-| `react-image-crop`             | `^11.1.2`  | The admin crop screen                                     |
-| `@tanstack/react-query`        | `^5.90.12` | Photo and thumbnail queries                               |
-| `sharp`                        | `^0.35.5`  | Encodes the share card as JPEG                            |
-| `software.amazon.awssdk` (BOM) | `2.57.6`   | `s3` and `url-connection-client` for both R2 buckets      |
-| JDK ImageIO                    | Java 21    | Decoding, and JPEG encoding of originals on the backend   |
-| `webp-imageio`                 | `0.11.0`   | WebP encoding of the public files (bundles libwebp)       |
+- `yet-another-react-lightbox`: the viewer, with its zoom, thumbnails and counter plugins.
+- `react-image-crop`: the admin crop screen.
+- `sharp`: encodes the share card as JPEG.
+- `software.amazon.awssdk` (BOM): `s3` and `url-connection-client` for both R2 buckets.
+- JDK ImageIO: decoding, and JPEG encoding of originals on the backend.
+- `webp-imageio`: WebP encoding of the public files (bundles libwebp).
 
 ---
 
@@ -380,6 +342,4 @@ A successful copy clears `render_attempts` and `render_retry_at`.
 
 - #463: remove the background from card and product photos with an AI model, so every product sits on the same clean white.
 - #486: move these photos from R2 to the server's disk and decide what account deletion does with a user's originals and `contributor_id` (today nothing deletes an original).
-- Contribute user photos back to Open Food Facts (their API accepts end-user photos), which would grow coverage of Croatian products.
-- Seed the gallery from the server render, so the first HTML shows the photo instead of a skeleton.
 - Moving avatars from Postgres base64 to the public bucket (decided, separate PR).

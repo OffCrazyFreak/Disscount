@@ -35,8 +35,9 @@ class ProductImageViews {
     }
 
     ProductImageDto toPublic(ProductImage image) {
+        String small = image.getSmallKey() != null ? image.getSmallKey() : image.getThumbKey();
         return new ProductImageDto(image.getId(), store.publicUrl(image.getFullKey()), store.publicUrl(image.getThumbKey()),
-                image.getSource().name(), image.getStatus().name());
+                store.publicUrl(small), image.getSource().name(), image.getStatus().name());
     }
 
     AdminProductDto adminView(ProductImageSet set, List<ProductImage> all) {
@@ -47,8 +48,7 @@ class ProductImageViews {
                 .map(i -> toAdmin(i, set.getMainImageId()))
                 .toList();
         return new AdminProductDto(set.getEan(), set.getName(), set.getBrand(), set.getStoreListings(), set.getChainCount(),
-                set.getMainImageId(), set.isPinned(), set.isNeedsReview(), set.getReviewedAt(), set.getOffDetailsFetchedAt(),
-                images);
+                set.isPinned(), set.getReviewedAt(), images);
     }
 
     /** Shown photos first, then what awaits a decision, then raw Open Food Facts shots, hidden last. */
@@ -88,8 +88,6 @@ class ProductImageViews {
                 image.getId().equals(mainId),
                 image.getRotation(),
                 crop,
-                image.getOriginalWidth(),
-                image.getOriginalHeight(),
                 image.getReportCount(),
                 image.getCreatedAt());
     }

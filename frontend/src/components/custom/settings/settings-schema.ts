@@ -1,13 +1,13 @@
 import { z } from "zod";
 
-import { acquisitionChannelSchema } from "@/lib/api/schemas/auth-user";
+import {
+  acquisitionChannelSchema,
+  usernameSchema,
+} from "@/lib/api/schemas/auth-user";
 
 // Spans the three form tabs; Sigurnost is immediate actions and sits outside.
 export const settingsFormSchema = z.object({
-  username: z
-    .string()
-    .min(2, "settings.validation.usernameMin")
-    .max(40, "settings.validation.usernameMax"),
+  username: usernameSchema,
   acquisitionChannel: acquisitionChannelSchema.nullable().optional(),
   notificationsPush: z.boolean(),
   notificationsEmail: z.boolean(),

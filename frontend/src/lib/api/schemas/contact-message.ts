@@ -2,7 +2,7 @@ import { z } from "zod";
 
 // What the public form submits. Email/name are optional; honeypot must stay empty.
 export const contactMessageRequestSchema = z.object({
-  email: z.email("common.validation.emailInvalid").or(z.literal("")).optional(),
+  email: z.email("auth.validation.emailInvalid").or(z.literal("")).optional(),
   fullName: z.string().max(255, "common.validation.fullNameMax").optional(),
   subject: z
     .string()

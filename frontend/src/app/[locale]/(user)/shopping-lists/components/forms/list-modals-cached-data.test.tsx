@@ -1,7 +1,7 @@
 import { screen, waitFor } from "@testing-library/react";
 import { QueryClient } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw/http";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import CopyListModal from "@/app/[locale]/(user)/shopping-lists/components/forms/copy-list-modal";
 import ShareListModal from "@/app/[locale]/(user)/shopping-lists/components/forms/share-list-modal";
@@ -58,18 +58,6 @@ async function refetchFailed(queryClient: QueryClient) {
 }
 
 describe("list modals over cached data", () => {
-  beforeEach(() => {
-    // jsdom has no ResizeObserver; the modal body's scroll fades are all it drives.
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
-  });
-
   it("keeps the share settings when a background refetch fails", async () => {
     const queryClient = cachedListWithFailingRefetch();
     renderWithProviders(<ShareListModal open id={LIST_ID} />, { queryClient });

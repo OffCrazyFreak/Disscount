@@ -48,7 +48,6 @@ function watching(minPrice: string) {
           productApiId: EAN,
           watchType: "PERCENTAGE",
           thresholdValue: 10,
-          lastNotifiedAt: null,
           createdAt: "2026-10-01T00:00:00",
           updatedAt: null,
         },

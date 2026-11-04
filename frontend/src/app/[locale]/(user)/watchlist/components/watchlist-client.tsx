@@ -68,7 +68,6 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
         <SearchBar
           placeholder={t("client.searchPlaceholder")}
           searchRoute={pathname}
-          clearable={true}
           submitButtonLocation="none"
           autoSearch={true}
           disabled={!listLoading && !hasWatchedProducts}

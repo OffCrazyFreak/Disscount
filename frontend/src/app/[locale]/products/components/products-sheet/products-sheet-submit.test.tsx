@@ -1,6 +1,6 @@
 import { act, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import ProductsSheetSubmit from "@/app/[locale]/products/components/products-sheet/products-sheet-submit";
 import ProductSearchBar from "@/components/custom/search/product-search-bar";
@@ -18,14 +18,6 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 
 describe("ProductsSheetSubmit", () => {
-  beforeEach(() => {
-    vi.stubGlobal("matchMedia", () => ({
-      matches: false,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-    }));
-  });
-
   afterEach(() => {
     act(() => productSearchDraft.clear());
   });

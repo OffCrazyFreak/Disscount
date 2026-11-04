@@ -32,18 +32,6 @@ function stubPointer(isCoarse: boolean) {
   }));
 }
 
-// The clear button's tooltip measures itself when focus opens it.
-function stubResizeObserver() {
-  vi.stubGlobal(
-    "ResizeObserver",
-    class {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-    },
-  );
-}
-
 function renderSearchBar(
   submitButtonLocation?: "none" | "auto" | "block",
   autoSearch = false,
@@ -125,7 +113,6 @@ describe("SearchBar", () => {
     router.search = "q=mlijeko";
     stubPointer(true);
     const user = userEvent.setup();
-    stubResizeObserver();
     renderSearchBar();
 
     screen.getByRole("button", { name: "Očisti pretragu" }).focus();
@@ -153,7 +140,6 @@ describe("SearchBar", () => {
 
     beforeEach(() => {
       stubPointer(false);
-      stubResizeObserver();
     });
 
     it("empties the field, keeps focus in it and drops the query from the URL", async () => {

@@ -68,7 +68,6 @@ export default function AppSidebar() {
             >
               <ProductSearchBar
                 placeholder={t("search.productsPlaceholder")}
-                clearable={true}
                 allowScanning={true}
                 submitButtonLocation="block"
               />

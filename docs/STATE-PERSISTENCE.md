@@ -8,23 +8,6 @@ _Last audited end-to-end on 2026-07-22: every user-facing input and form account
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [Architecture](#2-architecture)
-3. [Layer 1: URL state](#3-layer-1-url-state)
-4. [Layer 2: localStorage (`Disscount_app`)](#4-layer-2-localstorage-disscount_app)
-5. [Layer 3: IndexedDB offline cache](#5-layer-3-indexeddb-offline-cache)
-6. [Deliberately ephemeral state](#6-deliberately-ephemeral-state)
-7. [Coverage matrix (every input and form)](#7-coverage-matrix-every-input-and-form)
-8. [What's automatic vs manual](#8-whats-automatic-vs-manual)
-9. [Key files](#9-key-files)
-10. [Config, flags, and libraries](#10-config-flags-and-libraries)
-11. [Gotchas & lessons learned](#11-gotchas--lessons-learned)
-12. [Future improvements & TODOs](#12-future-improvements--todos)
-
----
-
 ## 1. Quick reference
 
 | Thing              | Value                                                                                        |
@@ -229,21 +212,8 @@ Not everything should be remembered. These are intentionally **not** persisted, 
 | -------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | `frontend/src/hooks/use-form-draft.ts`                                     | modal-form draft save/restore engine (24h TTL, diff-vs-defaults)       |
 | `frontend/src/utils/browser/storage/core.ts`                               | single-key `Disscount_app` localStorage read/merge/write               |
-| `frontend/src/utils/browser/storage/drafts.ts`                             | draft read/write/expiry helpers                                        |
-| `frontend/src/utils/browser/local-storage.ts`                              | barrel re-exporting the storage helpers                                |
-| `frontend/src/typings/local-storage.ts`                                    | `AppData` shape (drafts + all preferences)                             |
-| `frontend/src/utils/browser/storage/products.ts`                           | per-EAN price-history preferences                                      |
 | `frontend/src/app/[locale]/products/[id]/hooks/use-product-preferences.ts` | reads and merges one product's panel preferences, hydration safe       |
 | `frontend/src/utils/browser/storage/storage-subscription.ts`               | same-tab and cross-tab change notifications for `useSyncExternalStore` |
-| `frontend/src/utils/browser/storage/shopping-lists.ts`                     | per-list section + sort preferences                                    |
-| `frontend/src/utils/browser/storage/view-mode.ts`                          | grid/list toggle preference                                            |
-| `frontend/src/utils/browser/storage/scanner.ts`                            | preferred scanner camera                                               |
-| `frontend/src/utils/browser/storage/pwa.ts`                                | install-banner snooze                                                  |
-| `frontend/src/utils/browser/storage/auth.ts`                               | last-used sign-in method, last session, pending sign-out               |
-| `frontend/src/hooks/use-search-navigation.ts`                              | reads/writes the `?q=` search param                                    |
-| `frontend/src/app/[locale]/products/hooks/use-filter-params.ts`            | writes product filters to the query string                             |
-| `frontend/src/app/[locale]/products/hooks/use-product-filters.ts`          | reads filters back and resolves them                                   |
-| `frontend/src/lib/modal/use-modal-url.ts`                                  | reads the `?modal=` target                                             |
 | `frontend/src/lib/cijene-api/keys.ts`, `frontend/src/lib/api/*/keys.ts`    | query key factories; their values are the persisted cache's addresses  |
 | `frontend/src/lib/offline/query-key-values.test.ts`                        | pins every factory key to its persisted value                          |
 
@@ -310,10 +280,4 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
 - **Automated product-filter regression coverage.** The scoped price summarizers and filter contract are verified by TypeScript, the production build, and manual API requests. The frontend now has Vitest (see [TESTING.md](TESTING.md)), and the basic product price helpers have tests, but the filters and scoped summarizers still do not. [Issue #153](https://github.com/OffCrazyFreak/Disscount/issues/153), which recorded the cases to cover, was closed as not planned on 2026-08-05, so the gap is real but untracked. Tests were deliberately excluded from [PR #151](https://github.com/OffCrazyFreak/Disscount/pull/151).
 
-- **Draft indicator UX.** When a draft is restored, the modal shows it as unsaved and offers a "Resetiraj" button, but there is no explicit "restored a draft" banner. A small notice could make it clearer why fields are prefilled.
-
 - **Cross-device drafts.** Drafts are per-device by design. If users ever expect an unsaved message or list to follow them across devices, that would mean moving drafts server-side, which is a much bigger change and probably not worth it for short-lived modal input.
-
-- **Quota awareness.** The single `Disscount_app` object is small today (preferences plus short-lived text drafts), but if future drafts grow, add a guard around `setAppStorage` that catches a `QuotaExceededError` and prunes the oldest drafts rather than failing the write.
-
-- **Persist admin dashboard filters in the URL.** Currently session-only. Making the contact inbox view and search shareable via the URL would be a nice-to-have for the admin tools, not a user-facing gap.

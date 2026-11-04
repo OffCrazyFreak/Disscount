@@ -72,7 +72,6 @@ export default function ProductsClient({ query }: IProductsClientProps) {
       <Suspense fallback={<SearchBarSkeleton />}>
         <ProductSearchBar
           placeholder={t("list.searchPlaceholder")}
-          clearable={true}
           allowScanning={true}
         />
       </Suspense>

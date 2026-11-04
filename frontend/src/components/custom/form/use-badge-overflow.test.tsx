@@ -54,13 +54,6 @@ function stubLayout() {
 beforeEach(() => {
   isWebFontLoaded = false;
   stubLayout();
-  vi.stubGlobal(
-    "ResizeObserver",
-    class {
-      observe() {}
-      disconnect() {}
-    },
-  );
 
   const ready = new Promise<void>((resolve) => {
     resolveFontsReady = resolve;

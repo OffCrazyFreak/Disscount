@@ -2,16 +2,20 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { Package } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import PhotoBand from "@/components/custom/product-photos/photo-band";
 import PhotoTile from "@/components/custom/product-photos/photo-tile";
-import ProductPhotoActions from "@/app/[locale]/products/components/product-photos/product-photo-actions";
-import ProductPhotoEmpty from "@/app/[locale]/products/components/product-photos/product-photo-empty";
-import ProductPhotoThumbs from "@/app/[locale]/products/components/product-photos/product-photo-thumbs";
+import ProductPhotoDialogs from "@/app/[locale]/products/components/product-photos/product-photo-dialogs";
+import ProductPhotoStrip from "@/app/[locale]/products/components/product-photos/product-photo-strip";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@/context/user-context";
 import { useProductImages } from "@/lib/api/product-images/hooks";
 import { isAdmin } from "@/lib/api/schemas/auth-user";
+import { openModalUrl } from "@/lib/modal/modal-navigation";
+import { cn } from "@/lib/utils";
 
 // The viewer and its plugins only load once someone opens a photo.
 const ProductPhotoViewer = dynamic(
@@ -22,74 +26,127 @@ const ProductPhotoViewer = dynamic(
 interface IProductPhotoGalleryProps {
   ean: string;
   productName: string;
+  className?: string;
 }
 
+const TILE_FOCUS =
+  "relative block size-full cursor-zoom-in rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none";
+
+/** The product page's photo: the main tile, the strip beside it on wide screens, and the viewer. */
 export default function ProductPhotoGallery({
   ean,
   productName,
+  className,
 }: IProductPhotoGalleryProps) {
   const t = useTranslations("productPhotos");
   const { user } = useUser();
   const { data, isLoading } = useProductImages(ean);
-  const [shown, setShown] = useState(0);
-  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
+  const [isManaging, setIsManaging] = useState(false);
 
   const admin = isAdmin(user?.accountType);
   const images = data?.images ?? [];
-  const current = images[Math.min(shown, images.length - 1)];
+  const main = images[0];
+
+  // Uploads need an account, so a signed-out visitor gets the shared sign-in modal first.
+  function requestAdd() {
+    setViewerIndex(null);
+    if (user) setIsAdding(true);
+    else openModalUrl({ name: "login" });
+  }
+
+  function requestManage() {
+    setViewerIndex(null);
+    setIsManaging(true);
+  }
 
   return (
-    <section aria-label={t("manager.title")} className="space-y-3">
-      {isLoading ? (
-        <Skeleton className="aspect-square w-full rounded-xl" />
-      ) : current ? (
-        <button
-          type="button"
-          aria-label={t("photo.open", { name: productName })}
-          onClick={() => setViewerOpen(true)}
-          className="block w-full cursor-zoom-in rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
-        >
-          <PhotoTile
-            src={current.thumbUrl}
-            alt={t("photo.alt", { name: productName })}
-            loading="eager"
-            className="shadow-sm"
+    // As tall as the rows the parent grid gives it; the main photo and strip squares follow that height.
+    <section
+      aria-label={t("manager.title")}
+      className={cn("flex gap-2.5", className)}
+    >
+      <div className="aspect-square h-full shrink-0">
+        {isLoading ? (
+          <Skeleton className="size-full rounded-xl" />
+        ) : main ? (
+          <button
+            type="button"
+            aria-label={t("photo.open", { name: productName })}
+            onClick={() => setViewerIndex(0)}
+            className={TILE_FOCUS}
           >
-            {current.status === "PENDING" && (
-              <span className="absolute bottom-2 left-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900">
-                {t("photo.unverified")}
-              </span>
-            )}
-          </PhotoTile>
-        </button>
-      ) : (
-        <ProductPhotoEmpty />
-      )}
+            <PhotoTile
+              src={main.smallUrl}
+              alt={t("photo.alt", { name: productName })}
+              loading="eager"
+              className="size-full shadow-sm"
+            >
+              {main.status === "PENDING" && (
+                <span className="absolute top-2 left-2 max-w-[calc(100%-2.5rem)] truncate rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-900">
+                  {t("photo.unverified")}
+                </span>
+              )}
+              {images.length > 1 && (
+                // Wide screens show the other photos in the strip, so the count is for narrow ones.
+                <Badge
+                  size="count"
+                  aria-hidden="true"
+                  className="absolute top-2 right-2 md:hidden"
+                >
+                  +{images.length - 1}
+                </Badge>
+              )}
+              <PhotoBand action="open" />
+            </PhotoTile>
+          </button>
+        ) : (
+          <button
+            type="button"
+            aria-label={t("photo.add")}
+            onClick={requestAdd}
+            className={cn(TILE_FOCUS, "cursor-pointer")}
+          >
+            <div className="relative flex size-full items-center justify-center overflow-hidden rounded-xl bg-muted">
+              <Package
+                aria-hidden="true"
+                className="size-1/3 text-muted-foreground/60"
+              />
+              <PhotoBand action="add" />
+            </div>
+          </button>
+        )}
+      </div>
 
-      {images.length > 1 && (
-        <ProductPhotoThumbs
-          images={images}
-          shown={shown}
-          productName={productName}
-          onShow={setShown}
-        />
-      )}
+      <ProductPhotoStrip
+        images={images}
+        onOpen={setViewerIndex}
+        onAdd={requestAdd}
+        className="hidden md:grid"
+      />
 
-      <ProductPhotoActions
+      <ProductPhotoDialogs
         ean={ean}
         productName={productName}
         isAdmin={admin}
         isLoggedIn={Boolean(user)}
+        isAdding={isAdding}
+        onAddingChange={setIsAdding}
+        isManaging={isManaging}
+        onManagingChange={setIsManaging}
       />
 
-      {viewerOpen && current && (
+      {viewerIndex !== null && main && (
         <ProductPhotoViewer
           ean={ean}
           productName={productName}
           images={images}
-          index={shown}
-          onIndexChange={setShown}
-          onClose={() => setViewerOpen(false)}
+          index={viewerIndex}
+          onIndexChange={setViewerIndex}
+          onClose={() => setViewerIndex(null)}
+          onAdd={requestAdd}
+          onManage={admin ? requestManage : undefined}
           canReport={Boolean(user)}
           isAdmin={admin}
         />

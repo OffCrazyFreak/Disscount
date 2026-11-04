@@ -95,7 +95,6 @@
   "validation": {
     "usernameMin": "Upiši barem 2 znaka",
     "usernameMax": "Upiši najviše 40 znakova",
-    "emailInvalid": "Upiši ispravan email",
     "currentPasswordRequired": "Unesi trenutnu lozinku"
   },
   "onboarding": {

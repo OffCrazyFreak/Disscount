@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 
 import { BACKEND_ORIGIN } from "@/lib/api/backend-origin";
-import { refetchSessionIfChanged } from "@/lib/api/session-changed";
+import { refetchSessionOnUnauthorized } from "@/lib/api/session-changed";
 import { pageLanguageHeaders } from "@/lib/api/page-language-headers";
 import { backendProxyHeaders } from "@/lib/backend-proxy/client-headers";
 
@@ -26,7 +26,7 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
-    refetchSessionIfChanged(error);
+    refetchSessionOnUnauthorized(error);
     return Promise.reject(error);
   },
 );

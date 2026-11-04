@@ -32,7 +32,6 @@ export default function SuggestionsClient({ query }: ISuggestionsClientProps) {
         <SearchBar
           placeholder={t("searchPlaceholder")}
           searchRoute={pathname}
-          clearable={true}
           submitButtonLocation="none"
           autoSearch={true}
         />
@@ -47,7 +46,7 @@ export default function SuggestionsClient({ query }: ISuggestionsClientProps) {
       </div>
 
       {matchingSuggestions.length > 0 ? (
-        <AnimatedGroup className="space-y-4" preset="blur-slide">
+        <AnimatedGroup className="space-y-4">
           {matchingSuggestions.map((suggestion) => (
             <SuggestionCard key={suggestion.id} suggestion={suggestion} />
           ))}

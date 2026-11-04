@@ -31,8 +31,7 @@ class ProductImageJobsTest {
 
     ProductImageJobs jobs() {
         return new ProductImageJobs(true, store, catalog, seed, mock(ProductImageRendering.class),
-                mock(ProductImageRepository.class), mock(ProductImageSetRepository.class), runs,
-                mock(ProductPhotoUploadLimiter.class));
+                mock(ProductImageRepository.class), mock(ProductImageSetRepository.class), runs);
     }
 
     @Test

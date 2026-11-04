@@ -3,13 +3,14 @@
 import { memo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ChevronDown, TriangleAlert } from "lucide-react";
+import MediaRow from "@/components/custom/common/media-row";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getChainLabel } from "@/utils/labels";
 import { cn } from "@/lib/utils";
@@ -63,23 +64,24 @@ const StoreItem = memo(
     return (
       <Collapsible open={isExpanded} onOpenChange={onToggle}>
         <Card className="shadow-sm hover:shadow-md transition-shadow">
-          <CollapsibleTrigger asChild className="cursor-pointer">
+          <CollapsibleTrigger asChild className="cursor-pointer py-0">
             <button type="button" className="w-full text-left">
-              <CardHeader className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  {/* Store Chain Image */}
-                  <div className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm">
-                    <StoreChainLogo
-                      chain={store.chain}
-                      className={cn(
-                        "object-contain w-full h-full",
-                        !isPreferred &&
-                          (accountUser?.pinnedStores?.length ?? 0) > 0 &&
-                          "opacity-40",
-                      )}
-                    />
-                  </div>
-
+              {/* Even padding, so the logo sits as far from the card's edges as from its top and bottom. */}
+              <MediaRow
+                className="p-3 sm:p-4"
+                media={
+                  <StoreChainLogo
+                    chain={store.chain}
+                    className={cn(
+                      "rounded-xl object-contain shadow-sm",
+                      !isPreferred &&
+                        (accountUser?.pinnedStores?.length ?? 0) > 0 &&
+                        "opacity-40",
+                    )}
+                  />
+                }
+              >
+                <div className="flex items-center justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     {/* Chain Name and Badge */}
                     <div className="flex items-center gap-2 flex-wrap">
@@ -110,21 +112,20 @@ const StoreItem = memo(
                       </div>
                     )}
                   </div>
-                </div>
+                  <div className="flex-1 flex items-center justify-end gap-4">
+                    <p className="hidden sm:inline text-gray-700 text-sm text-pretty text-right">
+                      {t("pricesByLocation")}
+                    </p>
 
-                <div className="flex-1 flex items-center justify-end gap-4">
-                  <p className="hidden sm:inline text-gray-700 text-sm text-pretty text-right">
-                    {t("pricesByLocation")}
-                  </p>
-
-                  <ChevronDown
-                    className={cn(
-                      "size-8 text-gray-500 transition-transform",
-                      isExpanded && "rotate-180",
-                    )}
-                  />
+                    <ChevronDown
+                      className={cn(
+                        "size-8 text-gray-500 transition-transform",
+                        isExpanded && "rotate-180",
+                      )}
+                    />
+                  </div>
                 </div>
-              </CardHeader>
+              </MediaRow>
             </button>
           </CollapsibleTrigger>
 

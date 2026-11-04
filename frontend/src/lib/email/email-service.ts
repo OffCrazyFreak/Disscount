@@ -1,25 +1,25 @@
 import { IEmailMessage, IEmailProvider } from "@/lib/email/provider";
-import { buildActionEmail, buildCodeEmail } from "@/lib/email/email-copy";
+import {
+  buildActionEmail,
+  buildCodeEmail,
+  type EmailKind,
+} from "@/lib/email/email-copy";
 import {
   IRecipientSendGate,
   RecipientCapReachedError,
 } from "@/lib/email/recipient-send-cap";
 import type { AppLocale } from "@/i18n/locales";
-import VerificationEmail from "@/emails/_templates/verification-email";
-import PasswordResetEmail from "@/emails/_templates/password-reset-email";
-import SetPasswordEmail from "@/emails/_templates/set-password-email";
-import ChangeEmailConfirmation from "@/emails/_templates/change-email-confirmation";
-import BreachedPasswordEmail from "@/emails/_templates/breached-password-email";
-import AccountExistsEmail from "@/emails/_templates/account-exists-email";
-import CompleteSignUpEmail from "@/emails/_templates/complete-sign-up-email";
-import ReauthCodeEmail from "@/emails/_templates/reauth-code-email";
-import PasswordChangedEmail from "@/emails/_templates/password-changed-email";
-import EmailChangedEmail from "@/emails/_templates/email-changed-email";
+import ActionEmail from "@/emails/components/action-email";
+import CodeEmail from "@/emails/components/code-email";
 
-interface ITokenEmailArgs {
+interface IActionEmailArgs {
   to: string;
   locale: AppLocale;
   url: string;
+  newEmail?: string;
+}
+
+interface ITokenEmailArgs extends IActionEmailArgs {
   // Used to build an idempotency key so a retried hook doesn't send a duplicate.
   token: string;
 }
@@ -32,10 +32,7 @@ interface ICodeEmailArgs {
   codeId: string;
 }
 
-interface INoticeEmailArgs {
-  to: string;
-  locale: AppLocale;
-  url: string;
+interface INoticeEmailArgs extends IActionEmailArgs {
   // One id per security event, so a retried hook cannot mail the same notice twice.
   eventId: string;
 }
@@ -78,122 +75,70 @@ export class EmailService {
     }
   }
 
-  async sendVerificationEmail({ to, locale, url, token }: ITokenEmailArgs) {
-    const { subject, props } = await buildActionEmail(
-      locale,
-      "verification",
-      url,
-    );
+  private async sendAction(
+    kind: EmailKind,
+    idempotencyKey: string,
+    { to, locale, url, newEmail }: IActionEmailArgs,
+  ) {
+    const { subject, props } = await buildActionEmail(locale, kind, url, {
+      newEmail,
+    });
 
     return this.send({
       to,
       subject,
-      react: VerificationEmail(props),
-      idempotencyKey: `verify-email/${token}`,
+      react: ActionEmail(props),
+      idempotencyKey,
     });
   }
 
-  async sendPasswordReset({ to, locale, url, token }: ITokenEmailArgs) {
-    const { subject, props } = await buildActionEmail(
-      locale,
-      "passwordReset",
-      url,
-    );
+  async sendVerificationEmail(args: ITokenEmailArgs) {
+    return this.sendAction("verification", `verify-email/${args.token}`, args);
+  }
 
-    return this.send({
-      to,
-      subject,
-      react: PasswordResetEmail(props),
-      idempotencyKey: `reset-password/${token}`,
-    });
+  async sendPasswordReset(args: ITokenEmailArgs) {
+    return this.sendAction(
+      "passwordReset",
+      `reset-password/${args.token}`,
+      args,
+    );
   }
 
   // Same underlying reset token, different wording: for OAuth-only accounts adding a password.
-  async sendSetPassword({ to, locale, url, token }: ITokenEmailArgs) {
-    const { subject, props } = await buildActionEmail(
-      locale,
-      "setPassword",
-      url,
-    );
-
-    return this.send({
-      to,
-      subject,
-      react: SetPasswordEmail(props),
-      idempotencyKey: `set-password/${token}`,
-    });
+  async sendSetPassword(args: ITokenEmailArgs) {
+    return this.sendAction("setPassword", `set-password/${args.token}`, args);
   }
 
   // Sent when a correct sign-in is refused because the password is in a known breach.
-  async sendBreachedPassword({ to, locale, url, token }: ITokenEmailArgs) {
-    const { subject, props } = await buildActionEmail(
-      locale,
+  async sendBreachedPassword(args: ITokenEmailArgs) {
+    return this.sendAction(
       "breachedPassword",
-      url,
+      `breached-password/${args.token}`,
+      args,
     );
-
-    return this.send({
-      to,
-      subject,
-      react: BreachedPasswordEmail(props),
-      idempotencyKey: `breached-password/${token}`,
-    });
   }
 
   // Sent to a verified owner when someone signs up with their address; links to sign-in.
-  async sendAccountExists({ to, locale, url, token }: ITokenEmailArgs) {
-    const { subject, props } = await buildActionEmail(
-      locale,
+  async sendAccountExists(args: ITokenEmailArgs) {
+    return this.sendAction(
       "accountExists",
-      url,
+      `account-exists/${args.token}`,
+      args,
     );
-
-    return this.send({
-      to,
-      subject,
-      react: AccountExistsEmail(props),
-      idempotencyKey: `account-exists/${token}`,
-    });
   }
 
   // Sent to an unverified owner on a repeat sign-up: a reset token worded as finishing sign-up.
-  async sendCompleteSignUp({ to, locale, url, token }: ITokenEmailArgs) {
-    const { subject, props } = await buildActionEmail(
-      locale,
+  async sendCompleteSignUp(args: ITokenEmailArgs) {
+    return this.sendAction(
       "completeSignUp",
-      url,
+      `complete-sign-up/${args.token}`,
+      args,
     );
-
-    return this.send({
-      to,
-      subject,
-      react: CompleteSignUpEmail(props),
-      idempotencyKey: `complete-sign-up/${token}`,
-    });
   }
 
-  async sendChangeEmailConfirmation({
-    to,
-    locale,
-    url,
-    token,
-    newEmail,
-  }: IChangeEmailArgs) {
-    const { subject, props } = await buildActionEmail(
-      locale,
-      "changeEmail",
-      url,
-      {
-        newEmail,
-      },
-    );
-
-    return this.send({
-      to,
-      subject,
-      react: ChangeEmailConfirmation(props),
-      idempotencyKey: `change-email/${token}`,
-    });
+  // Goes to the CURRENT address, so a hijacked session can't move the account.
+  async sendChangeEmailConfirmation(args: IChangeEmailArgs) {
+    return this.sendAction("changeEmail", `change-email/${args.token}`, args);
   }
 
   // A one-time code that proves it is still the owner before a sensitive change.
@@ -203,48 +148,27 @@ export class EmailService {
     return this.send({
       to,
       subject,
-      react: ReauthCodeEmail(props),
+      react: CodeEmail(props),
       idempotencyKey: `reauth-code/${codeId}`,
     });
   }
 
   // Security notice after a password change or reset, so a takeover does not go unseen.
-  async sendPasswordChanged({ to, locale, url, eventId }: INoticeEmailArgs) {
-    const { subject, props } = await buildActionEmail(
-      locale,
+  async sendPasswordChanged(args: INoticeEmailArgs) {
+    return this.sendAction(
       "passwordChanged",
-      url,
+      `password-changed/${args.eventId}`,
+      args,
     );
-
-    return this.send({
-      to,
-      subject,
-      react: PasswordChangedEmail(props),
-      idempotencyKey: `password-changed/${eventId}`,
-    });
   }
 
   // Sent to the OLD address once the new one is confirmed: the only inbox an owner
   // locked out by a hijacked email change still reads.
-  async sendEmailChanged({
-    to,
-    locale,
-    url,
-    eventId,
-    newEmail,
-  }: IEmailChangedArgs) {
-    const { subject, props } = await buildActionEmail(
-      locale,
+  async sendEmailChanged(args: IEmailChangedArgs) {
+    return this.sendAction(
       "emailChanged",
-      url,
-      { newEmail },
+      `email-changed/${args.eventId}`,
+      args,
     );
-
-    return this.send({
-      to,
-      subject,
-      react: EmailChangedEmail(props),
-      idempotencyKey: `email-changed/${eventId}`,
-    });
   }
 }

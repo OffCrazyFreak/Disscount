@@ -17,6 +17,7 @@ export const productImageSchema = z.object({
   id: z.string(),
   fullUrl: z.string(),
   thumbUrl: z.string(),
+  smallUrl: z.string(),
   source: productImageSourceSchema,
   status: productImageStatusSchema,
 });
@@ -53,8 +54,6 @@ export const adminProductImageSchema = z.object({
   main: z.boolean(),
   rotation: z.number().int(),
   crop: productImageCropSchema.nullable(),
-  originalWidth: z.number().int().nullable(),
-  originalHeight: z.number().int().nullable(),
   reportCount: z.number().int(),
   createdAt: z.string(),
 });
@@ -69,20 +68,15 @@ const adminProductFactsSchema = z.object({
 });
 
 export const adminProductPhotosSchema = adminProductFactsSchema.extend({
-  mainImageId: z.string().nullable(),
   pinned: z.boolean(),
-  needsReview: z.boolean(),
   reviewedAt: z.string().nullable(),
-  offDetailsFetchedAt: z.string().nullable(),
   images: z.array(adminProductImageSchema),
 });
 
 export const adminPhotoQueueItemSchema = adminProductFactsSchema.extend({
   previewUrl: z.string().nullable(),
-  imageCount: z.number().int(),
   pendingCount: z.number().int(),
   reportedCount: z.number().int(),
-  needsReview: z.boolean(),
   reviewedAt: z.string().nullable(),
 });
 

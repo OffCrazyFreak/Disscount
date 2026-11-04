@@ -8,7 +8,6 @@ import disscount.contactMessage.dto.ContactMessageRequest;
 import disscount.exceptions.NotFoundException;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
-import disscount.user.service.UserService;
 import disscount.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -29,7 +28,6 @@ public class ContactMessageService {
 
     private final ContactMessageRepository contactMessageRepository;
     private final UserRepository userRepository;
-    private final UserService userService;
 
     // Bounds the admin list query; a full paginated UI is a possible follow-up.
     private static final int MAX_ADMIN_MESSAGES = 500;
@@ -58,7 +56,6 @@ public class ContactMessageService {
     }
 
     public List<ContactMessageDto> list(boolean includeDeleted) {
-        requireAdmin();
         Pageable pageable = PageRequest.of(0, MAX_ADMIN_MESSAGES);
         List<ContactMessage> messages = includeDeleted
                 ? contactMessageRepository.findAllByOrderByCreatedAtDesc(pageable)
@@ -67,7 +64,6 @@ public class ContactMessageService {
     }
 
     public ContactMessageDto getById(UUID id) {
-        requireAdmin();
         return convertToDto(loadOrThrow(id));
     }
 
@@ -88,7 +84,6 @@ public class ContactMessageService {
     }
 
     private ContactMessageDto mutate(UUID id, Consumer<ContactMessage> change) {
-        requireAdmin();
         ContactMessage message = loadOrThrow(id);
         change.accept(message);
         return convertToDto(contactMessageRepository.save(message));
@@ -97,10 +92,6 @@ public class ContactMessageService {
     private ContactMessage loadOrThrow(UUID id) {
         return contactMessageRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("error.contactMessage.notFound"));
-    }
-
-    private void requireAdmin() {
-        userService.requireAdmin(SecurityUtils.getCurrentUserId());
     }
 
     private ContactMessageDto convertToDto(ContactMessage message) {

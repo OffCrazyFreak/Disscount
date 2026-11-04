@@ -256,6 +256,18 @@ class DigitalCardControllerTest {
     }
 
     @Test
+    void aMultiLineNoteIsNotMistakenForANul() throws Exception {
+        when(cardService.upsert(eq(userId), eq(cardId), any(DigitalCardRequest.class)))
+                .thenReturn(DigitalCardDto.builder().id(cardId).photos(List.of()).build());
+        String body = validBody().replace("\"cardColor\"", "\"note\":\"prvi red\\ndrugi red\",\"cardColor\"")
+                .replaceFirst("\"note\":null,", "");
+
+        mvc.perform(put("/api/digital-cards/{id}", cardId).with(auth())
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void photoDownloadIsNeverStoredByTheBrowser() throws Exception {
         String sha = "cd".repeat(32);
         byte[] bytes = {1, 2, 3};

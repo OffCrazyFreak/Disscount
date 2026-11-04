@@ -8,24 +8,6 @@ Card-specific hardening (consensus counts, check digits, normalization, the conf
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [How it works end to end](#2-how-it-works-end-to-end)
-3. [Who opens the scanner](#3-who-opens-the-scanner)
-4. [Presets: products vs cards](#4-presets-products-vs-cards)
-5. [The camera](#5-the-camera)
-6. [Scanning a photo instead](#6-scanning-a-photo-instead)
-7. [Errors, feedback and accessibility](#7-errors-feedback-and-accessibility)
-8. [What is automatic vs manual](#8-what-is-automatic-vs-manual)
-9. [Key files](#9-key-files)
-10. [Config, security headers and libraries](#10-config-security-headers-and-libraries)
-11. [Tests](#11-tests)
-12. [Gotchas and lessons learned](#12-gotchas-and-lessons-learned)
-13. [Future improvements and TODOs](#13-future-improvements-and-todos)
-
----
-
 ## 1. Quick reference
 
 | Thing               | Value                                                                                                     |
@@ -151,23 +133,14 @@ The image never leaves the device ([IMAGE-UPLOADS.md](IMAGE-UPLOADS.md) lists th
 
 ## 9. Key files
 
-| Path                                                                                           | Role                                                               |
-| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `frontend/src/context/scanner-context.tsx`                                                     | `CameraScannerProvider` and `useCameraScanner`                     |
-| `frontend/src/components/scanner/camera-scanner.tsx`                                           | The dialog                                                         |
-| `frontend/src/components/scanner/scanner-content.tsx`                                          | Step machine, focus, announcements, vibration                      |
-| `frontend/src/components/scanner/scanner-camera.tsx`                                           | Camera step: error banner, hint, camera select, photo button, beep |
-| `frontend/src/components/scanner/camera-view.tsx`                                              | The library `Scanner`, constraints, torch and track cleanup        |
-| `frontend/src/components/scanner/scan-consensus.ts`, `hooks/use-scan-consensus.ts`             | Repeated-read consensus                                            |
-| `frontend/src/components/scanner/scan-confirm.tsx`, `code-preview.tsx`, `code-choice-list.tsx` | The confirm step                                                   |
-| `frontend/src/components/scanner/scan-manual-entry.tsx`, `manual-entry-error.ts`               | Typing a code                                                      |
-| `frontend/src/components/scanner/scan-image.tsx`                                               | Photo decoding                                                     |
-| `frontend/src/components/scanner/scan-beep.ts`                                                 | Web Audio beep                                                     |
-| `frontend/src/components/scanner/camera-select.tsx`, `hooks/use-camera-devices.ts`             | Camera list and choice                                             |
-| `frontend/src/utils/browser/camera.ts`                                                         | Back camera scoring, camera naming, error mapping                  |
-| `frontend/src/utils/barcode/`                                                                  | Check digits and normalization, shared with cards                  |
-| `frontend/src/constants/scanner.ts`                                                            | Formats per preset                                                 |
-| `frontend/src/components/custom/pwa/scan-shortcut.tsx`                                         | The `/?scan=1` PWA shortcut                                        |
+| Path                                                                               | Role                                                        |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `frontend/src/components/scanner/scanner-content.tsx`                              | Step machine, focus, announcements, vibration               |
+| `frontend/src/components/scanner/camera-view.tsx`                                  | The library `Scanner`, constraints, torch and track cleanup |
+| `frontend/src/components/scanner/scan-consensus.ts`, `hooks/use-scan-consensus.ts` | Repeated-read consensus                                     |
+| `frontend/src/utils/browser/camera.ts`                                             | Back camera scoring, camera naming, error mapping           |
+| `frontend/src/utils/barcode/`                                                      | Check digits and normalization, shared with cards           |
+| `frontend/src/components/custom/pwa/scan-shortcut.tsx`                             | The `/?scan=1` PWA shortcut                                 |
 
 `frontend/src/lib/store-locations/dgu/gml-scanner.ts` has "scanner" in its name but is an XML stream reader for the store map ([MAP.md](MAP.md)), unrelated to barcodes.
 
@@ -191,7 +164,7 @@ No environment variables or feature flags.
 
 ## 11. Tests
 
-`components/scanner/scan-consensus.test.ts` covers the consensus rules. The check digit and normalization helpers under `utils/barcode/` have their own tests ([DIGITAL-CARDS.md](DIGITAL-CARDS.md)). The camera, the photo path and the dialog are browser-only and have no automated test; [TESTING.md](TESTING.md) explains what is left to a real browser.
+The camera, the photo path and the dialog are browser-only and have no automated test; [TESTING.md](TESTING.md) explains what is left to a real browser.
 
 ---
 
@@ -213,5 +186,3 @@ No environment variables or feature flags.
 ## 13. Future improvements and TODOs
 
 - [ ] Verify where zxing's `.wasm` is loaded from and whether photo scanning works offline; if it is a CDN, consider self-hosting it so the CSP and privacy story stay first party.
-- [ ] Offer a typed EAN fallback inside the dialog for product scans too, or document the search bar as the fallback in the copy.
-- [ ] Browser coverage: there is no automated test of the camera path; a manual checklist per platform (Android Chrome, iOS Safari, desktop) would catch regressions in camera picking.

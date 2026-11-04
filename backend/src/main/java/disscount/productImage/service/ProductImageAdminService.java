@@ -199,9 +199,8 @@ public class ProductImageAdminService {
         int pending = (int) all.stream().filter(i -> i.getStatus() == ImageStatus.PENDING).count();
         int reported = (int) all.stream()
                 .filter(i -> i.getReportCount() > 0 && i.getStatus() != ImageStatus.HIDDEN).count();
-        int visible = (int) all.stream().filter(i -> i.getStatus() != ImageStatus.HIDDEN).count();
         return new AdminQueueItemDto(set.getEan(), set.getName(), set.getBrand(), set.getStoreListings(),
-                set.getChainCount(), preview, visible, pending, reported, set.isNeedsReview(), set.getReviewedAt());
+                set.getChainCount(), preview, pending, reported, set.getReviewedAt());
     }
 
     private ProductImage imageOf(String ean, UUID imageId) {

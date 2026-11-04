@@ -5,8 +5,6 @@
     "altNumbered": "{name}, Foto {index}",
     "thumbnail": "Foto {index} von {total} zeigen",
     "unverified": "Unbestätigtes Foto",
-    "none": "Noch kein Foto",
-    "noneHint": "Fotografier die Vorderseite der Packung und hilf anderen, das Produkt zu erkennen.",
     "add": "Foto hinzufügen",
     "manage": "Fotos bearbeiten"
   },

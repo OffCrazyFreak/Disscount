@@ -2,19 +2,6 @@
 
 How `/map` finds, places and shows every store, where the coordinates come from, and what is deliberately left for later.
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [Architecture](#2-architecture)
-3. [Store locations: the sync](#3-store-locations-the-sync)
-4. [The page](#4-the-page)
-5. [Accessibility](#5-accessibility)
-6. [Key files](#6-key-files)
-7. [Config and env](#7-config-and-env)
-8. [Gotchas](#8-gotchas)
-9. [Decisions and why](#9-decisions-and-why)
-10. [Future work](#10-future-work)
-
 ## 1. Quick reference
 
 | Question                   | Answer                                                                                                                                                                |
@@ -104,16 +91,12 @@ A store every source misses is recorded as a failed attempt and retried after 7 
 
 ## 6. Key files
 
-| Area                | Files                                                                                                                                                                               |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Page and layout     | `frontend/src/app/[locale]/map/page.tsx`, `components/map-client.tsx`, `components/map-mobile-layout.tsx`, `components/map-search-bar.tsx`, `components/map-store-sheet.tsx`        |
-| List                | `components/view-sorted-list.tsx`, `components/store-list.tsx`, `components/store-list-item.tsx`, `components/store-details.tsx`                                                    |
-| Map                 | `components/store-map.tsx`, `components/store-map-view.tsx`, `components/map-store-source.tsx`, `utils/store-layers.ts`, `utils/cluster-stack.ts`, `components/same-spot-popup.tsx` |
-| View model          | `hooks/use-map-view-model.ts`, `hooks/use-visible-stores.ts`, `hooks/use-map-url-state.ts`                                                                                          |
-| Directory and route | `frontend/src/lib/store-locations/get-store-directory.ts`, `app/api/cijene/store-directory/`                                                                                        |
-| Sync                | `frontend/src/lib/store-locations/sync/`, `sources/`, `dgu/`, `geocoders/`                                                                                                          |
-| Table               | `frontend/src/db/store-location-schema.ts`, `frontend/drizzle/0003_store_locations.sql`, `0004_store_location_address.sql`                                                          |
-| Pin overrides       | `frontend/src/lib/store-locations/pin-overrides.ts`, `pin-corrections.ts`, `pin-holds.ts`                                                                                           |
+| Area                | Files                                                                                                                      |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Directory and route | `frontend/src/lib/store-locations/get-store-directory.ts`, `app/api/cijene/store-directory/`                               |
+| Sync                | `frontend/src/lib/store-locations/sync/`, `sources/`, `dgu/`, `geocoders/`                                                 |
+| Table               | `frontend/src/db/store-location-schema.ts`, `frontend/drizzle/0003_store_locations.sql`, `0004_store_location_address.sql` |
+| Pin overrides       | `frontend/src/lib/store-locations/pin-overrides.ts`, `pin-corrections.ts`, `pin-holds.ts`                                  |
 
 ## 7. Config and env
 
@@ -198,5 +181,4 @@ These came out of research the owner chose to act on at once ("in progress, do i
 - Favourites whose store left the directory still take one of the 10 slots and cannot be removed from the map; drop unknown keys before counting.
 - In the grouped shopping list, changing an item's chain moves it to another section and loses keyboard focus.
 - Prices on the map and cheapest basket near me.
-- Store photos, a store type filter, an offline map.
 - An admin way to set manual pins (the table already honours them); until then, verified corrections go in the pin override list.

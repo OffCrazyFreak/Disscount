@@ -77,7 +77,6 @@ export default function ShoppingListsClient({
           <SearchBar
             placeholder={t("client.searchPlaceholder")}
             searchRoute={pathname}
-            clearable={true}
             submitButtonLocation="none"
             autoSearch={true}
             disabled={!isUserLoading && shoppingLists.length === 0}

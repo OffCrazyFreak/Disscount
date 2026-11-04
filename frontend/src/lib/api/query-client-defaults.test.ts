@@ -5,7 +5,7 @@ import {
   onlineManager,
   QueryClient,
 } from "@tanstack/react-query";
-import { AxiosError, CanceledError, type AxiosResponse } from "axios";
+import { AxiosError, CanceledError } from "axios";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
@@ -14,15 +14,9 @@ import {
   isUnexpectedFailure,
   shouldRetryQuery,
 } from "@/lib/api/query-client-defaults";
+import { httpError } from "@/test/http-error";
 
 vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
-
-function httpError(status: number) {
-  return new AxiosError("x", "ERR", undefined, undefined, {
-    status,
-    data: {},
-  } as AxiosResponse);
-}
 
 const networkFailure = () => new AxiosError("Network Error", "ERR_NETWORK");
 const parseFailure = () => z.object({ id: z.number() }).safeParse({}).error;

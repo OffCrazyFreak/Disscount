@@ -95,7 +95,6 @@
   "validation": {
     "usernameMin": "Enter at least 2 characters",
     "usernameMax": "Enter at most 40 characters",
-    "emailInvalid": "Enter a valid email",
     "currentPasswordRequired": "Enter your current password"
   },
   "onboarding": {

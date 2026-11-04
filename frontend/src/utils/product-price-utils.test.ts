@@ -8,42 +8,7 @@ import {
   isPriceDateToday,
   parsePrice,
 } from "@/utils/product-price-utils";
-import type {
-  ChainProductResponse,
-  ProductResponse,
-} from "@/lib/cijene-api/schemas";
-
-function chain(
-  name: string,
-  min: string,
-  max = min,
-  avg = min,
-): ChainProductResponse {
-  return {
-    chain: name,
-    code: "1",
-    name: "Mlijeko",
-    brand: null,
-    category: null,
-    unit: null,
-    quantity: null,
-    min_price: min,
-    max_price: max,
-    avg_price: avg,
-    price_date: "2026-10-13",
-  };
-}
-
-function product(chains: ChainProductResponse[]): ProductResponse {
-  return {
-    ean: "1",
-    brand: null,
-    name: null,
-    quantity: null,
-    unit: null,
-    chains,
-  };
-}
+import { chain, product } from "@/test/price-fixtures";
 
 describe("isPriceDateToday", () => {
   afterEach(() => {

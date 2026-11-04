@@ -22,8 +22,6 @@ export const watchlistItemDtoSchema = z.object({
   productApiId: z.string(),
   watchType: z.enum(WatchType),
   thresholdValue: z.number(),
-  // Spring always sends both keys; lastNotifiedAt is null until the first alert and updated_at is a nullable column.
-  lastNotifiedAt: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string().nullable(),
 });

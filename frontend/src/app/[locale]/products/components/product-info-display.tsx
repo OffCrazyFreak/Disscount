@@ -6,7 +6,7 @@ import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { getMostFrequentCategory } from "@/app/[locale]/products/utils/product-utils";
 import ProductActionButtons from "@/app/[locale]/products/components/product-action-buttons";
 import ProductInfoTable from "@/app/[locale]/products/components/product-info-table";
-import ProductPhotoGallery from "@/app/[locale]/products/components/product-photos/product-photo-gallery";
+import ProductOverview from "@/app/[locale]/products/components/product-overview";
 import ProductThumbnail from "@/components/custom/product-photos/product-thumbnail";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
@@ -78,22 +78,14 @@ export default function ProductInfoDisplay({
 
         {/* Right side - action buttons on the product page, or a modal action */}
         {enableActionButtons ? (
-          <ProductActionButtons
-            product={product}
-            showSearchImage={true}
-            showAddToList={true}
-            showAddToWatchlist={true}
-          />
+          <ProductActionButtons product={product} />
         ) : (
           action
         )}
       </div>
 
       {enableActionButtons ? (
-        <div className="grid gap-6 md:grid-cols-[minmax(0,17rem)_1fr] md:items-start">
-          <ProductPhotoGallery ean={product.ean} productName={displayName} />
-          <ProductInfoTable product={product} />
-        </div>
+        <ProductOverview product={product} displayName={displayName} />
       ) : (
         <ProductInfoTable product={product} />
       )}

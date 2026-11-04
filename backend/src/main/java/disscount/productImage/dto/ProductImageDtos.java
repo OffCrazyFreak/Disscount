@@ -13,8 +13,11 @@ public final class ProductImageDtos {
 
     private ProductImageDtos() {}
 
-    /** A photo as everyone sees it; the first in a list is the main one. */
-    public record ProductImageDto(UUID id, String fullUrl, String thumbUrl, String source, String status) {}
+    /**
+     * A photo as everyone sees it; the first in a list is the main one. smallUrl is the 256 px file,
+     * or the thumb for a photo rendered before that size existed.
+     */
+    public record ProductImageDto(UUID id, String fullUrl, String thumbUrl, String smallUrl, String source, String status) {}
 
     public record ProductImagesDto(String ean, List<ProductImageDto> images) {}
 
@@ -36,8 +39,6 @@ public final class ProductImageDtos {
             boolean main,
             int rotation,
             @Schema(nullable = true) CropDto crop,
-            @Schema(nullable = true) Integer originalWidth,
-            @Schema(nullable = true) Integer originalHeight,
             int reportCount,
             LocalDateTime createdAt) {}
 
@@ -47,11 +48,8 @@ public final class ProductImageDtos {
             @Schema(nullable = true) String brand,
             int storeListings,
             int chainCount,
-            @Schema(nullable = true) UUID mainImageId,
             boolean pinned,
-            boolean needsReview,
             @Schema(nullable = true) LocalDateTime reviewedAt,
-            @Schema(nullable = true) LocalDateTime offDetailsFetchedAt,
             List<AdminImageDto> images) {}
 
     public record AdminQueueItemDto(
@@ -61,10 +59,8 @@ public final class ProductImageDtos {
             int storeListings,
             int chainCount,
             @Schema(nullable = true) String previewUrl,
-            int imageCount,
             int pendingCount,
             int reportedCount,
-            boolean needsReview,
             @Schema(nullable = true) LocalDateTime reviewedAt) {}
 
     public record AdminQueuePageDto(List<AdminQueueItemDto> items, long total, int page, int size, long reviewedCount) {}

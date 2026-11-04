@@ -6,25 +6,6 @@ A reference for the watchlist (`/watchlist`, "Praćeni proizvodi" in Croatian): 
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [How it works end to end](#2-how-it-works-end-to-end)
-3. [Storage and API](#3-storage-and-api)
-4. [Setting a rule](#4-setting-a-rule)
-5. [When a rule fires](#5-when-a-rule-fires)
-6. [Where alerts show up](#6-where-alerts-show-up)
-7. [The watchlist page](#7-the-watchlist-page)
-8. [Offline and caching](#8-offline-and-caching)
-9. [What is automatic vs manual](#9-what-is-automatic-vs-manual)
-10. [Key files](#10-key-files)
-11. [Config, env vars and libraries](#11-config-env-vars-and-libraries)
-12. [Tests](#12-tests)
-13. [Gotchas and lessons learned](#13-gotchas-and-lessons-learned)
-14. [Future improvements and TODOs](#14-future-improvements-and-todos)
-
----
-
 ## 1. Quick reference
 
 | Thing                 | Value                                                                                                            |
@@ -75,7 +56,6 @@ The backend stores the rule and never a price. Entity `WatchlistItem` (`backend/
 | `product_api_id`           | The product's EAN                                                    |
 | `watch_type`               | `PERCENTAGE` or `ABSOLUTE` (stored as a string)                      |
 | `threshold_value`          | The number the user typed: percent, or euros                         |
-| `last_notified_at`         | Never written by anything; always `null` on the wire                 |
 | `created_at`, `updated_at` | Stamped with `Timestamps.nowUtc()` in `@PrePersist` and `@PreUpdate` |
 | `deleted_at`               | Soft delete marker                                                   |
 
@@ -176,17 +156,12 @@ The hook's own comment calls it a stand-in until the server inbox (#222) can ret
 
 ## 10. Key files
 
-| Path                                                                                      | Role                                                                                                           |
-| ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `frontend/src/app/[locale]/(user)/watchlist/`                                             | The page: client, list, header, suggestions, sort and display utils                                            |
-| `frontend/src/app/[locale]/products/components/forms/watchlist-*.tsx`                     | The rule modal, type picker and threshold input                                                                |
-| `frontend/src/app/[locale]/products/utils/watchlist-thresholds.ts`                        | Ranges, defaults, threshold parsing                                                                            |
-| `frontend/src/lib/watchlist/`                                                             | Shared logic: watched product queries, discount and threshold maths, price-drop snapshot rules, the badge hook |
-| `frontend/src/context/use-watchlist-notifications.ts`, `build-watchlist-notifications.ts` | The bell's notification list and summary                                                                       |
-| `frontend/src/components/custom/watchlist/price-drop-status.tsx`                          | Screen reader announcement of badge changes                                                                    |
-| `frontend/src/utils/browser/storage/watchlist.ts`                                         | The localStorage snapshot store, cached for `useSyncExternalStore`                                             |
-| `frontend/src/lib/api/watchlist/`, `frontend/src/lib/api/schemas/watchlist.ts`            | API client, query keys, zod schemas                                                                            |
-| `backend/src/main/java/disscount/watchlistItem/`                                          | Entity, repository, service, controller                                                                        |
+| Path                                                                                      | Role                                                               |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `frontend/src/app/[locale]/products/components/forms/watchlist-*.tsx`                     | The rule modal, type picker and threshold input                    |
+| `frontend/src/app/[locale]/products/utils/watchlist-thresholds.ts`                        | Ranges, defaults, threshold parsing                                |
+| `frontend/src/context/use-watchlist-notifications.ts`, `build-watchlist-notifications.ts` | The bell's notification list and summary                           |
+| `frontend/src/utils/browser/storage/watchlist.ts`                                         | The localStorage snapshot store, cached for `useSyncExternalStore` |
 
 ---
 
@@ -204,12 +179,7 @@ No environment variables or feature flags. The watchlist uses the app's common s
 
 ## 12. Tests
 
-| Side     | Tests                                                                                                                                                                                                                                                                                                                                                      |
-| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend | `watchlist-discount-utils.test.ts`, `watchlist-price-drop-utils.test.ts`, `use-watchlist-price-drop-count.test.tsx`, `price-drop-status.test.tsx`, `storage/watchlist.test.tsx`, `use-watchlist-data.test.tsx`, `use-watchlist-suggestions.test.tsx`, `watchlist-client.test.tsx`, `lib/api/watchlist/index.test.tsx`, `lib/api/schemas/watchlist.test.ts` |
-| Backend  | `WatchlistItemOwnershipTest` (ownership, repeat delete, 401 without a token), `WatchlistWireFormatTest` (every field, null times), `AccountErasureTest` (rules survive deletion)                                                                                                                                                                           |
-
-The threshold modal's ranges and the bell's grouping have no dedicated test beyond what the hooks above exercise (unverified beyond reading the test names).
+The threshold modal's ranges and the bell's grouping have no dedicated test beyond what the hooks exercise (unverified beyond reading the test names).
 
 ---
 
@@ -218,12 +188,10 @@ The threshold modal's ranges and the bell's grouping have no dedicated test beyo
 | Gotcha                                              | Why it bites                                                                                                        | What to do                                                                                               |
 | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | **The badge and the bell measure different things** | The badge counts drops since the last visit; the bell lists rule matches. A product can be in one and not the other | Debug the right hook: `useWatchlistPriceDropCount` or `useWatchlistNotifications`                        |
-| **`last_notified_at` is dead**                      | It is in the entity, the DTO and the zod schema, but nothing writes it                                              | Do not build on it; the inbox in #222 will need its own read state                                       |
 | **Ranges are frontend only**                        | The server accepts any positive number                                                                              | A new client must apply `watchlistLimits` itself                                                         |
 | **Re-adding after a delete makes a new row**        | The upsert only matches live rows, so the soft-deleted one stays behind                                             | Expected; history is not reused                                                                          |
 | **One product query per watched EAN**               | A long watchlist means many parallel upstream calls on every page with the bell                                     | Fine at today's sizes; a batched endpoint upstream would fix it (#45 covers history, not current prices) |
 | **The snapshot needs a known scope**                | Writing before pinned stores load would rebase against every chain                                                  | Keep the `isScopeKnown` guard                                                                            |
-| **`spring-boot-starter-mail` is unused**            | It is on the classpath, but no watchlist email exists                                                               | Email alerts need the consent work in #216 first                                                         |
 
 ---
 

@@ -1,4 +1,4 @@
-export type Rgb = [number, number, number];
+import type { Rgb } from "@/utils/color-contrast";
 
 export function oklchToRgb(
   lightness: number,
@@ -22,21 +22,4 @@ export function oklchToRgb(
       ? 12.92 * linear
       : 1.055 * linear ** (1 / 2.4) - 0.055;
   }) as Rgb;
-}
-
-function relativeLuminance(rgb: Rgb) {
-  const [r, g, b] = rgb.map((channel) =>
-    channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4,
-  );
-
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-
-export function contrastRatio(first: Rgb, second: Rgb) {
-  const [high, low] = [
-    relativeLuminance(first),
-    relativeLuminance(second),
-  ].sort((x, y) => y - x);
-
-  return (high + 0.05) / (low + 0.05);
 }

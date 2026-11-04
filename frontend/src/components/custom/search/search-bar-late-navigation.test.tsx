@@ -70,20 +70,6 @@ describe("a navigation landing after the field moved on", () => {
     router.search = "";
     router.push.mockClear();
     router.replace.mockClear();
-    vi.stubGlobal("matchMedia", () => ({
-      matches: false,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-    }));
-    // The clear button's tooltip measures itself when focus opens it.
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
   });
 
   // The store outlives a test, so hand the next one an empty draft on an empty URL.

@@ -36,16 +36,8 @@
         "main" : {
           "type" : "boolean"
         },
-        "originalHeight" : {
-          "format" : "int32",
-          "type" : [ "integer", "null" ]
-        },
         "originalUrl" : {
           "type" : "string"
-        },
-        "originalWidth" : {
-          "format" : "int32",
-          "type" : [ "integer", "null" ]
         },
         "previewUrl" : {
           "type" : [ "string", "null" ]
@@ -88,18 +80,7 @@
           },
           "type" : "array"
         },
-        "mainImageId" : {
-          "format" : "uuid",
-          "type" : [ "string", "null" ]
-        },
         "name" : {
-          "type" : [ "string", "null" ]
-        },
-        "needsReview" : {
-          "type" : "boolean"
-        },
-        "offDetailsFetchedAt" : {
-          "format" : "date-time",
           "type" : [ "string", "null" ]
         },
         "pinned" : {
@@ -128,15 +109,8 @@
         "ean" : {
           "type" : "string"
         },
-        "imageCount" : {
-          "format" : "int32",
-          "type" : "integer"
-        },
         "name" : {
           "type" : [ "string", "null" ]
-        },
-        "needsReview" : {
-          "type" : "boolean"
         },
         "pendingCount" : {
           "format" : "int32",
@@ -471,6 +445,7 @@
         "barcodeValue" : {
           "maxLength" : 4096,
           "minLength" : 0,
+          "pattern" : "[^\\x00]*",
           "type" : [ "string", "null" ]
         },
         "cardColor" : {
@@ -479,6 +454,7 @@
         },
         "cardName" : {
           "minLength" : 1,
+          "pattern" : "[^\\x00]*",
           "type" : "string"
         },
         "cardType" : {
@@ -498,6 +474,7 @@
         "codeValue" : {
           "maxLength" : 4096,
           "minLength" : 0,
+          "pattern" : "[^\\x00]*",
           "type" : "string"
         },
         "expiresOn" : {
@@ -507,10 +484,12 @@
         "note" : {
           "maxLength" : 500,
           "minLength" : 0,
+          "pattern" : "[^\\x00]*",
           "type" : [ "string", "null" ]
         },
         "storeName" : {
           "minLength" : 1,
+          "pattern" : "[^\\x00]*",
           "type" : "string"
         },
         "validFrom" : {
@@ -645,6 +624,9 @@
         },
         "id" : {
           "format" : "uuid",
+          "type" : "string"
+        },
+        "smallUrl" : {
           "type" : "string"
         },
         "source" : {
@@ -985,10 +967,6 @@
         "id" : {
           "format" : "uuid",
           "type" : "string"
-        },
-        "lastNotifiedAt" : {
-          "format" : "date-time",
-          "type" : [ "string", "null" ]
         },
         "productApiId" : {
           "type" : "string"

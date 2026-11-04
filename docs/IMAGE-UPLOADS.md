@@ -2,16 +2,6 @@
 
 How every photo a user or admin uploads is shrunk, cleaned and checked, in the browser and again on the server.
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [The shared browser pipeline](#2-the-shared-browser-pipeline)
-3. [Per upload settings](#3-per-upload-settings)
-4. [What the server does](#4-what-the-server-does)
-5. [Key files](#5-key-files)
-6. [Gotchas](#6-gotchas)
-7. [Future work](#7-future-work)
-
 ## 1. Quick reference
 
 | Question                                   | Answer                                                                                                                               |
@@ -70,9 +60,6 @@ The browser steps are a convenience; the server check is the real guard, because
 | File                                                                  | Role                                                   |
 | --------------------------------------------------------------------- | ------------------------------------------------------ |
 | `frontend/src/utils/browser/image.ts`                                 | Shared decode, resize, encode and size stepping        |
-| `frontend/src/utils/browser/avatar-image.ts`                          | Avatar settings                                        |
-| `frontend/src/utils/browser/card-image.ts`                            | Card photo settings                                    |
-| `frontend/src/utils/browser/product-photo.ts`                         | Product photo settings                                 |
 | `frontend/src/components/custom/settings/components/avatar-field.tsx` | Avatar picker; turns the blob into a data URI          |
 | `backend/.../digitalCard/photo/PhotoValidator.java`                   | Format sniffing, size and dimension checks, sanitising |
 | `backend/.../user/avatar/AvatarSanitizer.java`                        | Data URI in, sanitised data URI out                    |

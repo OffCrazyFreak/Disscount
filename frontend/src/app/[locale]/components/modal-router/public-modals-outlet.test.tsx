@@ -83,17 +83,6 @@ describe("PublicModalsOutlet verification landings", () => {
 });
 
 describe("PublicModalsOutlet contact form", () => {
-  beforeEach(() => {
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
-  });
-
   it("drops what one account typed when another account signs in", async () => {
     user.user = { id: "account-a" };
     setCacheIdentity("account-a");

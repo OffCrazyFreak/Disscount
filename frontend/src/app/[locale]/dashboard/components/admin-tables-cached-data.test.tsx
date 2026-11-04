@@ -1,7 +1,7 @@
 import { screen, waitFor } from "@testing-library/react";
 import { QueryClient, type QueryKey } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw/http";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import AdminContactTable from "@/app/[locale]/dashboard/components/admin-contact-table";
 import AdminUsersTable from "@/app/[locale]/dashboard/components/admin-users-table";
@@ -58,18 +58,6 @@ async function refetchFailed(queryClient: QueryClient, queryKey: QueryKey) {
 }
 
 describe("admin tables over cached data", () => {
-  beforeEach(() => {
-    // jsdom has no ResizeObserver; the table and Radix Select call it.
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
-  });
-
   it("keeps the users when a background refetch fails", async () => {
     const queryClient = cachedWithFailingRefetch(
       ADMIN_QUERY_KEYS.users,

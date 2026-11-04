@@ -5,14 +5,11 @@ import { describe, expect, it } from "vitest";
 import { useGetProductByName } from "@/lib/cijene-api/query-hooks";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
-
-function product(ean: string, name: string) {
-  return { ean, brand: null, name, quantity: null, unit: null, chains: [] };
-}
+import { product } from "@/test/price-fixtures";
 
 const productsByQuery: Record<string, ReturnType<typeof product>[]> = {
-  mlijeko: [product("3850108020090", "Mlijeko 2,8%")],
-  kruh: [product("3858881080416", "Kruh bijeli")],
+  mlijeko: [product([], { ean: "3850108020090", name: "Mlijeko 2,8%" })],
+  kruh: [product([], { ean: "3858881080416", name: "Kruh bijeli" })],
 };
 
 function serveSearch() {
