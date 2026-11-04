@@ -32,8 +32,8 @@ function list(id: string, title: string, updatedAt: string) {
   };
 }
 
-// The real closeModalUrl unmounts the modal at once, which also cancels the draft's pending
-// debounced save. A mock that leaves it mounted lets that save land after the failure's cleanup.
+// Closing the real modal turns the draft hook off, which cancels its pending debounced save. A mock
+// that leaves the modal open lets that save land after the failure's cleanup; unmounting stands in.
 function unmountOnClose(view: { unmount: () => void }) {
   closeModalUrl.mockImplementation(() => view.unmount());
 }
@@ -41,14 +41,14 @@ function unmountOnClose(view: { unmount: () => void }) {
 const newest = list("list-a", "Tjedna kupnja", "2026-11-02T10:00:00");
 const older = list("list-b", "Vikendica", "2026-10-01T10:00:00");
 
-// Each test drives a popover and several clicks in jsdom, work that stays under the 5 s test and
-// 1 s findBy defaults on an idle machine but outgrows them on a CPU-starved CI worker.
+// Each test drives a popover and several clicks in jsdom, which outgrows the 5 s test and 1 s findBy
+// defaults on a CPU-starved CI worker; the limits are a margin, not a wait the tests rely on.
 configure({ asyncUtilTimeout: 10_000 });
 
 describe("AddPlainItemModal", { timeout: 30_000 }, () => {
   beforeEach(() => {
     openModalUrl.mockClear();
-    closeModalUrl.mockClear();
+    closeModalUrl.mockReset();
     localStorage.clear();
     // jsdom has no scrollIntoView; cmdk calls it on the highlighted list option.
     Element.prototype.scrollIntoView ??= vi.fn();
