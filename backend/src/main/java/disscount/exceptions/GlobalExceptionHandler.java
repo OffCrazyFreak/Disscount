@@ -126,7 +126,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return respond(ex, detail, headers, status, request);
     }
 
-    /** Hibernate also reports a unique violation as DataIntegrityViolationException; driver text holds the value. */
+    /** A unique violation also comes as DataIntegrityViolationException; never log driver text, it holds the value. */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ProblemDetail handleDuplicateKey(DataIntegrityViolationException ex) {
         // Rethrowing would bypass this advice and surface a container 500, so the non-conflict case is answered here.

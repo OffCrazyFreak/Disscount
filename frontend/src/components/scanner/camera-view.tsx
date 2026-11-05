@@ -65,7 +65,7 @@ export default function CameraView({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isPageVisible = usePageVisible();
 
-  // Ideals only, or a device can raise OverconstrainedError; frameRate capped to avoid 60fps decode work.
+  // Ideals only, or a device can raise OverconstrainedError; deviceId stays exact; frameRate max avoids 60fps decode.
   const constraints = useMemo(
     () => ({
       width: { ideal: 1920 },

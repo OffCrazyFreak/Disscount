@@ -67,7 +67,7 @@ function handPlaced(
   return override ? { point: override, source: "manual" } : null;
 }
 
-// A pin from an address upstream has since changed would send people to the old building.
+// A pin from an address upstream changed since would send people to the old building, so it waits for the next sync.
 function savedPin(
   row: StoreLocationRow | undefined,
   upstreamAddress: string | null,

@@ -8,7 +8,7 @@ import { isLocale } from "@/i18n/locales";
 import { useSession } from "@/lib/auth/client";
 import { queueAccountLocaleSave } from "@/components/custom/locale/account-locale-save";
 
-/** A language-less account takes its sign-in language; afterwards the account overwrites the device. */
+/** A language-less account takes its sign-in language; on each sign-in the account overwrites the device. */
 // Module scope survives a switch's remount, so a stale session cannot undo its cookie write.
 let syncedUserId: string | null = null;
 

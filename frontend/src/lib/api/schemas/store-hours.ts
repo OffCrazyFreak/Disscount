@@ -4,7 +4,7 @@ const clockTime = z.string().regex(/^(([01]\d|2[0-3]):[0-5]\d|24:00)$/);
 
 const isoDate = z.iso.date();
 
-/** Equal times are refused because feeds write a closed day as `00:00-00:00`. */
+/** Equal times are refused (feeds write a closed day as `00:00-00:00`); closes before opens runs past midnight. */
 export const timeRangeDto = z
   .object({ opens: clockTime, closes: clockTime })
   .refine((range) => range.opens !== range.closes);

@@ -65,7 +65,7 @@ export default function ProductPhotoViewer({
       on={{ view: ({ index: viewed }) => onIndexChange(viewed) }}
       carousel={{ finite: true, padding: "16px" }}
       controller={{ closeOnPullDown: true, closeOnBackdropClick: true }}
-      // The default limit is one CSS pixel per file pixel, which stays sharp at 2x.
+      // Default zoom limit is one CSS pixel per file pixel; a limit of 2 over-stretches each file pixel at 2x.
       zoom={{ scrollToZoom: true }}
       thumbnails={{
         width: 64,

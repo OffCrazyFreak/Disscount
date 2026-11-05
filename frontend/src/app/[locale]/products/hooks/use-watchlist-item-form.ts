@@ -164,7 +164,7 @@ export function useWatchlistItemForm(
     existingItemForType,
     isCheckingWatchlist,
     isFormValid,
-    // A dirty flag can outlive its edit, and a hidden mode's draft would stick the marker for 24h.
+    // A dirty flag can outlive its edit; only the on-screen mode, as a hidden draft would stick the marker for 24h.
     isEdited: !isSameThreshold(
       activeValue,
       watchType === WatchType.absolute

@@ -30,7 +30,7 @@ export function useHeaderSlot(): IHeaderSlot {
 
     function measure() {
       const box = frameElement!.getBoundingClientRect();
-      // Closing shrinks back into the closed box, while its height still follows a rotation.
+      // Open, the frame widens to the screen edges, so keep the closed left and right; height still follows rotation.
       const isOpen = slot!.querySelector(`[${HEADER_SLOT_OPEN_ATTR}]`) != null;
 
       setState((previous) => ({

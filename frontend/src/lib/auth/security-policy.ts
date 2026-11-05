@@ -6,7 +6,7 @@ export const INVALID_CODE = "INVALID_CODE";
 export const CODE_EXPIRED = "CODE_EXPIRED";
 export const CODE_RESEND_TOO_SOON = "CODE_RESEND_TOO_SOON";
 
-// "proof": in this request; "fresh": session created or rotated in the window; "blocked": no HTTP.
+// "proof": password or code in this request; "fresh": session made or rotated in the window; "blocked": never HTTP.
 export type SensitiveRequirement = "proof" | "fresh" | "blocked";
 
 // setPassword has no path, so /api/account/set-password applies the "fresh" rule itself.

@@ -17,7 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/** The standard filter 401s a stale token before authorization, so a share link needs this to go on anonymously. */
+/** A stale token must not 401 a share link; dropping the resource server would demote signed-in recipients to VIEW. */
 @Component
 @RequiredArgsConstructor
 public class OptionalBearerAuthenticationFilter extends OncePerRequestFilter {

@@ -67,7 +67,7 @@ const runtimeCaching: RuntimeCaching[] = [
       sameOrigin && url.pathname.startsWith("/api/"),
     handler: new NetworkOnly(),
   },
-  // Above defaultCache, which matches in order; own bucket, as two ExpirationPlugins on one cache disagree.
+  // Above defaultCache (first match wins); own bucket for expiry; NetworkFirst, as NetworkOnly cuts off the queue.
   {
     matcher: ({ url, sameOrigin }) =>
       sameOrigin && SHOPPING_LIST_PATH.test(url.pathname),

@@ -84,7 +84,7 @@ public class AuthIdentityDao {
     // Native aggregates differ per driver; an unmapped type is logged, as a silent null blanks the column for everyone.
     private Instant toInstant(Object value) {
         if (value == null) return null;
-        // toLocalDateTime() first: the driver reads a zone-less Timestamp in the JVM zone, and toInstant() re-applies.
+        // toLocalDateTime() first: the driver reads a zone-less Timestamp in the JVM zone, so toInstant() shifts it.
         if (value instanceof Timestamp timestamp) return timestamp.toLocalDateTime().toInstant(ZoneOffset.UTC);
         if (value instanceof Instant instant) return instant;
         if (value instanceof OffsetDateTime offsetDateTime) return offsetDateTime.toInstant();

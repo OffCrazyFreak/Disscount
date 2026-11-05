@@ -135,7 +135,7 @@ export function registerOfflineMutationDefaults(
     (error) => deleteWriteFailed(error, t),
   );
 
-  // Tombstones: a retired key's queued write hydrates with no mutationFn and would throw on resume.
+  // Tombstones: a retired key's queued write has no mutationFn and would throw on resume, so a stub resolves it.
   for (const retiredKey of [
     ["sharedShoppingList", "items", "update"],
     ["sharedShoppingList", "items", "delete"],

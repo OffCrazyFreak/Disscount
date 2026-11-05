@@ -100,7 +100,7 @@ export default function SheetShell({
 
             return false;
           }}
-          // Only focus the sheet still holds, or a closing press would drop the phone keyboard off a field.
+          // Only reclaim focus the sheet still holds, or a closing press would drop the phone keyboard off a field.
           finalFocus={() => {
             const active = document.activeElement;
             const isFocusLeftBehind =

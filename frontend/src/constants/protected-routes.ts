@@ -1,6 +1,6 @@
 import { isRouteActive } from "@/utils/routes";
 
-// Stays for the logout bounce, as a login gate is worse; app/robots.ts wants the opposite answer.
+// `/shopping-lists` stays for the logout bounce, as a login gate is worse; app/robots.ts wants the opposite answer.
 export const PROTECTED_ROUTE_PREFIXES = [
   "/shopping-lists",
   "/watchlist",

@@ -5,7 +5,7 @@ interface IResponsiveLabelProps {
   short: string;
 }
 
-/** CSS swap so the label prerenders; an `aria-label` would drop the visible text from the name (WCAG 2.5.3). */
+/** CSS swap so the label prerenders; never add `aria-label`, it drops the visible text from the name (WCAG 2.5.3). */
 export default function ResponsiveLabel({
   full,
   short,

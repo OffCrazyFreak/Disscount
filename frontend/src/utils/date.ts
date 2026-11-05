@@ -7,7 +7,7 @@ import {
 
 export const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
 
-/** -1 means every day since `earliest`; days are Croatian, so the device's zone must not pick the last one. */
+/** -1 means every day since `earliest`; Croatian days, so zone must not pick the last; mounted callers pass `today`. */
 export function buildDateWindow(
   daysToShow: number,
   earliest: string,

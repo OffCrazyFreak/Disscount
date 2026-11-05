@@ -14,7 +14,7 @@ export const CARD_LIMIT_KEY = "offline.cardLimit";
 // Photo storage is switched off for the deployment, so resending cannot succeed.
 const PHOTOS_UNAVAILABLE_CODE = "error.cardPhoto.unavailable";
 
-/** "keep" stays queued, and unknown statuses keep too, so an unexpected answer never loses a photo. */
+/** "keep" stops the replay and stays queued; unknown statuses keep too, so no answer loses a photo. */
 export function failureAction(error: unknown): "keep" | "drop" {
   if (isNetworkFailure(error)) return "keep";
 
