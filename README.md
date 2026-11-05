@@ -139,34 +139,26 @@ Commercial use is restricted unless covered by an Additional Use Grant or separa
 
 ## How to run
 
-The quickest way to run the full stack (frontend + backend + PostgreSQL) locally is with Docker Compose:
+Day to day, run Postgres in Docker and the frontend and backend natively, so both keep hot reload. The steps are below.
 
-```bash
-cp .env.example .env   # then fill in the values
-docker compose up -d --build
-# frontend: http://localhost:3000
-```
-
-To run the services manually instead, follow the steps below.
+`docker compose up -d --build` with the root `docker-compose.yml` instead builds and runs the production images of the whole stack (copy `.env.example` to `.env` first). It has no hot reload, so use it only to try a production build locally.
 
 ### Prerequisites
 
 - Node.js 24 LTS+ and pnpm
 - Java 21 and Maven 3.9+
-- PostgreSQL 14+ (17 in production)
-- Docker + Docker Compose (only for the quick-run path above)
+- Docker + Docker Compose (Postgres 17, the same major as dev and production)
 
 ### Startup flow
 
-The backend and frontend share one PostgreSQL database: the backend owns the app tables (Hibernate `ddl-auto`), the frontend owns the better-auth tables (drizzle). Create the database, run the backend, then the frontend.
+The backend and frontend share one PostgreSQL database: the backend owns the app tables (Hibernate `ddl-auto`), the frontend owns the better-auth tables (drizzle). Start the database, run the backend, then the frontend.
 
 ### 1. Database (PostgreSQL)
 
-Create a database and user (example), and reuse these values in both env files below:
+Set `POSTGRES_DB`, `POSTGRES_USER` and `POSTGRES_PASSWORD` in the root `.env` (see `.env.example`), and reuse them in both env files below. Then start Postgres on `localhost:5432`, with its data in a Docker volume:
 
 ```bash
-sudo -u postgres psql -c "CREATE USER disscount WITH PASSWORD 'secret';"
-sudo -u postgres psql -c "CREATE DATABASE disscount OWNER disscount;"
+docker compose -f docker-compose.local-db.yml up -d
 ```
 
 ### 2. Backend (Spring Boot)
@@ -181,6 +173,7 @@ Set in `backend/.env`:
 - `SPRING_DATASOURCE_URL` (e.g. `jdbc:postgresql://localhost:5432/disscount`)
 - `SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD`
 - `BETTER_AUTH_JWKS_URI` (e.g. `http://localhost:3000/api/auth/jwks`)
+- Optional, to see dev's product photos: `PHOTO_DIR` and `PUBLIC_PHOTO_DIR` (local folders) and `R2_PUBLIC_URL=https://images-dev.disscount.me`, then `scripts/copy-dev-photo-rows.sh` ([docs/PRODUCT-IMAGES.md](docs/PRODUCT-IMAGES.md#local-development))
 
 Build and run with the `local` Spring profile (it supplies local better-auth defaults, the JWKS URL and issuer at `http://localhost:3000`, so the app starts without extra config):
 
