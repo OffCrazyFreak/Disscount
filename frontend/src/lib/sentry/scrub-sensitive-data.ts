@@ -49,11 +49,16 @@ const SENSITIVE_JSON_FIELD = new RegExp(
   "gi",
 );
 
+// A one-time code in a raw JSON body. An UPPER_SNAKE value is an error code, worth keeping.
+const ONE_TIME_CODE_JSON_FIELD =
+  /("code"\s*:\s*)"(?![A-Z][A-Z0-9_]*")(?:[^"\\]|\\.)*"/g;
+
 export function scrubString(text: string): string {
   return text
     .replace(SENSITIVE_QUERY_PARAM, `$1$2=${FILTERED}`)
     .replace(RESET_PASSWORD_PATH_TOKEN, `$1${FILTERED}`)
     .replace(SENSITIVE_JSON_FIELD, `$1"${FILTERED}"`)
+    .replace(ONE_TIME_CODE_JSON_FIELD, `$1"${FILTERED}"`)
     .replace(BETTER_AUTH_COOKIE, `$1${FILTERED}`)
     .replace(BEARER_TOKEN, `$1${FILTERED}`);
 }
@@ -102,6 +107,5 @@ export function scrubSensitiveData<T>(data: T): T {
 export const sentryScrubbingOptions = {
   beforeBreadcrumb: scrubSensitiveData,
   beforeSend: scrubSensitiveData,
-  beforeSendTransaction: scrubSensitiveData,
   beforeSendSpan: scrubSensitiveData,
 };
