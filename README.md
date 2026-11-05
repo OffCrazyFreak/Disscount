@@ -161,6 +161,8 @@ Set `POSTGRES_DB`, `POSTGRES_USER` and `POSTGRES_PASSWORD` in the root `.env` (s
 docker compose -f docker-compose.local-db.yml up -d
 ```
 
+Port 5432 must be free, so stop a system Postgres first (`sudo systemctl disable --now postgresql` on Ubuntu). To keep its data, dump each database with `pg_dump -Fc` before stopping it, then load it with `docker exec -i disscount-local-db-1 pg_restore -U <user> -d <database> --no-owner --no-acl < <file>.dump`.
+
 ### 2. Backend (Spring Boot)
 
 ```bash
