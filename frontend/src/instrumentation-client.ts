@@ -6,7 +6,6 @@ import * as Sentry from "@sentry/nextjs";
 
 import { moveResetTokenOutOfUrl } from "@/lib/auth/reset-token-storage";
 import { SENTRY_APPLICATION_KEY } from "@/lib/sentry/application-key";
-import { sentryDataCollection } from "@/lib/sentry/data-collection";
 import { isServiceWorkerRegistrationNoise } from "@/lib/sentry/ignore-service-worker-noise";
 import {
   scrubSensitiveData,
@@ -72,8 +71,6 @@ Sentry.init({
   // detectors (hydration errors, rage and dead clicks) without crowding out the error path.
   replaysSessionSampleRate: 0.01,
   replaysOnErrorSampleRate: 1.0,
-
-  dataCollection: sentryDataCollection,
 });
 
 // Replay events carry the visited page URLs, and no before* hook sees them.

@@ -44,8 +44,11 @@ const SENSITIVE_FIELDS = new Set(
   SENSITIVE_FIELD_NAMES.map((name) => name.toLowerCase()),
 );
 
+// Only in raw JSON bodies: as an object key, `code` usually names an error code worth keeping.
+const JSON_ONLY_SECRET_FIELDS = ["code"];
+
 const SENSITIVE_JSON_FIELD = new RegExp(
-  `("(?:${SENSITIVE_FIELD_NAMES.join("|")})"\\s*:\\s*)"(?:[^"\\\\]|\\\\.)*"`,
+  `("(?:${[...SENSITIVE_FIELD_NAMES, ...JSON_ONLY_SECRET_FIELDS].join("|")})"\\s*:\\s*)"(?:[^"\\\\]|\\\\.)*"`,
   "gi",
 );
 
@@ -102,6 +105,5 @@ export function scrubSensitiveData<T>(data: T): T {
 export const sentryScrubbingOptions = {
   beforeBreadcrumb: scrubSensitiveData,
   beforeSend: scrubSensitiveData,
-  beforeSendTransaction: scrubSensitiveData,
   beforeSendSpan: scrubSensitiveData,
 };

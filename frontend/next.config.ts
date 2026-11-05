@@ -146,12 +146,8 @@ export default withSerwist(
     // side errors will fail.
     tunnelRoute: "/monitoring",
 
-    webpack: {
-      // Tree-shaking options for reducing bundle size
-      treeshake: {
-        // Automatically tree-shake Sentry logger statements to reduce bundle size
-        removeDebugLogging: true,
-      },
+    bundleSizeOptimizations: {
+      excludeDebugStatements: true,
     },
   }),
 );

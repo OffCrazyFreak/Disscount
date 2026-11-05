@@ -33,7 +33,7 @@
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
-    "@sentry/nextjs": "^10.62.0",
+    "@sentry/nextjs": "^11.10.0",
     "@serwist/next": "^9.5.11",
     "@tanstack/query-async-storage-persister": "^5.101.1",
     "@tanstack/react-query": "^5.90.12",
