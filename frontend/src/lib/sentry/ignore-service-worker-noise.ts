@@ -17,6 +17,9 @@
  *
  * Matched on the message *and* a registration frame together, because either message alone
  * is generic enough to swallow a real error later.
+ *
+ * Chromium also rejects with its own frameless AbortError when `sw.js` cannot be fetched
+ * on a flaky network. Its wording is specific enough to match without a frame.
  */
 const NOISE_MESSAGES = [
   // Anchored: as a substring, "Rejected" would also match things like a WAF's
@@ -33,6 +36,11 @@ const NOISE_MESSAGES = [
 // Minified to `o.register` / `o._registerScript`; Google's shim adds a longer dotted path.
 const REGISTRATION_FRAME = /(^|\.)(register|_registerScript)$/;
 
+// Not anchored: Sentry may add a wrapper exception whose value starts "AbortError: ".
+// A 404 or bad MIME type has different wording and stays visible.
+const SCRIPT_FETCH_FAILURE =
+  /Failed to register a ServiceWorker.*An unknown error occurred when fetching the script/;
+
 interface IServiceWorkerEvent {
   exception?: {
     values?: {
@@ -48,6 +56,8 @@ export function isServiceWorkerRegistrationNoise(
   return (event.exception?.values ?? []).some((exception) => {
     const message = exception.value?.trim();
     if (!message) return false;
+
+    if (SCRIPT_FETCH_FAILURE.test(message)) return true;
 
     if (!NOISE_MESSAGES.some((pattern) => pattern.test(message))) return false;
 
