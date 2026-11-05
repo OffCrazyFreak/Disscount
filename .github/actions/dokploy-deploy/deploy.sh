@@ -66,8 +66,8 @@ trigger_deploy() {
       --header "x-api-key: $DOKPLOY_API_KEY" \
       --header "Content-Type: application/json" \
       --data "{\"composeId\":\"$COMPOSE_ID\"}" || true)
-    # A job right behind another can find the key's count full; the window clears it.
-    if [ "$status" != 401 ] || [ "$attempt" = 2 ]; then
+    # A dev job right behind another can find the key's count full; the window clears it.
+    if [ "$status" != 401 ] || [ "$attempt" = 2 ] || [ "$ENVIRONMENT_TAG" != dev ]; then
       break
     fi
     echo "Dokploy answered 401, possibly the rate limit; trying once more in $DOKPLOY_GAP_SECONDS s."
@@ -162,6 +162,9 @@ move_tag "$RELEASE_ID" || exit 1
 before_deploy=""
 if [ -n "$previous" ]; then
   before_deploy="$(newest_deployment | cut -d' ' -f1)"
+  if [ -z "$before_deploy" ]; then
+    echo "::warning::Could not read the Dokploy deployments, so this run can only time out, after $WAIT_MINUTES minutes, instead of stopping at a failed deploy."
+  fi
 fi
 trigger_deploy "$RELEASE_ID" || exit 1
 wait_for_release "$RELEASE_ID" "$before_deploy" && exit 0
