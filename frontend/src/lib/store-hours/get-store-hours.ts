@@ -14,7 +14,9 @@ import { croatianHolidaysBetween } from "@/lib/store-hours/croatian-holidays";
 import {
   dueHoursJob,
   runHoursJob,
+  TEMPLATE_LEASE,
 } from "@/lib/store-hours/sync/run-hours-sync";
+import { hasSyncFinished } from "@/lib/store-locations/sync/sync-lease";
 
 // Per process, like the store directory: hours change weekly at most, and
 // the Sunday poll lands within the hour.
@@ -25,18 +27,29 @@ const JOB_TIMEOUT_MS = 90 * 60 * 1000;
 
 let memo: { value: CompactStoreHoursResponse; at: number } | null = null;
 let jobRunning = false;
+let importedOnce = false;
 
-/** Every store's hours with the holidays the status function needs. */
-export async function getStoreHours(): Promise<CompactStoreHoursResponse> {
+/**
+ * Every store's hours with the holidays the status function needs. Before
+ * the first import has finished the set is empty or partial, so it is marked
+ * incomplete and nobody may cache it.
+ */
+export async function getStoreHours(): Promise<{
+  hours: CompactStoreHoursResponse;
+  complete: boolean;
+}> {
   after(startHoursJobIfDue);
 
-  if (memo && Date.now() - memo.at < MEMO_MS) return memo.value;
+  if (memo && Date.now() - memo.at < MEMO_MS) {
+    return { hours: memo.value, complete: true };
+  }
 
   const now = new Date();
   const window = hoursWindow(now);
-  const [rows, overlays] = await Promise.all([
+  const [rows, overlays, imported] = await Promise.all([
     db.select().from(storeHours),
     db.select().from(storeHoursOverlay),
+    importedOnce || hasSyncFinished(TEMPLATE_LEASE),
   ]);
   const value = encodeStoreHours({
     stores: buildStoreHours(rows, overlays, window),
@@ -44,9 +57,12 @@ export async function getStoreHours(): Promise<CompactStoreHoursResponse> {
     generatedAt: now.toISOString(),
   });
 
-  memo = { value, at: Date.now() };
+  importedOnce = imported;
+  const complete = imported && rows.length > 0;
 
-  return value;
+  if (complete) memo = { value, at: Date.now() };
+
+  return { hours: value, complete };
 }
 
 /**

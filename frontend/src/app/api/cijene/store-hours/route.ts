@@ -7,8 +7,13 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   try {
-    return createApiResponse(await getStoreHours(), {
-      cacheControl: "public, max-age=3600, stale-while-revalidate=86400",
+    const { hours, complete } = await getStoreHours();
+
+    return createApiResponse(hours, {
+      // An empty or half-imported set would stick for an hour in every browser.
+      cacheControl: complete
+        ? "public, max-age=3600, stale-while-revalidate=86400"
+        : "private, no-store",
     });
   } catch (error) {
     console.error("[store-hours] failed", error);

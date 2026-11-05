@@ -49,6 +49,16 @@ export async function releaseSyncLease(
   `);
 }
 
+/** Whether the job has finished at least once, so its data is a full set. */
+export async function hasSyncFinished({ id }: ISyncLease): Promise<boolean> {
+  const result = await db.execute(sql`
+    select 1 from store_location_sync
+    where id = ${id} and finished_at is not null
+  `);
+
+  return result.rows.length > 0;
+}
+
 /** Cheap read used to decide whether a request should start a sync at all. */
 export async function isSyncDue({
   id,
