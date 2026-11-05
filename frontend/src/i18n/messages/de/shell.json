@@ -40,7 +40,11 @@
     "submit": "Suchen",
     "clear": "Suche leeren",
     "scanBarcode": "Barcode scannen",
-    "backToTop": "Nach oben"
+    "backToTop": "Nach oben",
+    "suggestions": "Suchvorschläge",
+    "recentSearches": "Letzte Suchen",
+    "removeRecent": "Aus den letzten Suchen entfernen: {query}",
+    "suggestionCount": "{count, plural, one {# Vorschlag} other {# Vorschläge}}"
   },
   "header": {
     "login": "Anmelden"

@@ -40,7 +40,11 @@
     "submit": "Išči",
     "clear": "Počisti iskanje",
     "scanBarcode": "Skeniraj črtno kodo",
-    "backToTop": "Nazaj na vrh"
+    "backToTop": "Nazaj na vrh",
+    "suggestions": "Predlogi za iskanje",
+    "recentSearches": "Nedavna iskanja",
+    "removeRecent": "Odstrani iz nedavnih iskanj: {query}",
+    "suggestionCount": "{count, plural, one {# predlog} two {# predloga} few {# predlogi} other {# predlogov}}"
   },
   "header": {
     "login": "Prijava"
