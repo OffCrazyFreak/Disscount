@@ -48,8 +48,7 @@ Put these to me instead of working around them: I say yes far more often than no
 
 - Fill in `.github/PULL_REQUEST_TEMPLATE.md`.
 - Give every PR one Sonnet `reviewer`; CodeRabbit runs on its own, and only a release waits for it.
-- For 5000+ changed lines, 50+ files, or auth, security, personal data or migrations, also run Greptile once: `@greptileai review` or its CLI.
-- For a release into `main`, run one `reviewer` per app area plus CodeRabbit and Greptile (automatic or CLI), and wait for all of them.
+- For a release into `main`, run one `reviewer` per app area plus CodeRabbit, and wait for all of them.
 - Land release review findings as their own `fix:` PR, and keep the notes in `~/Documents/Disscount`.
 - Before any merge, settle every PR comment and `pulls/N/reviews` body, bots included: fix it or reply with the reason.
 - Merge once CI is green and review is settled, as the orchestrating session; a delegate reports instead of merging.
