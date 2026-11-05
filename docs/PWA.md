@@ -70,7 +70,7 @@ flowchart TB
 Two caches, on purpose:
 
 - **Cache Storage (service worker):** the app shell (HTML/JS/CSS precache), static assets, and **public** `/api/cijene/*` GET responses. Never authenticated responses.
-- **IndexedDB (React Query):** the dynamic and **private** data (shopping lists, watchlist, viewed products, recent searches, profile). This is what makes authed screens work offline, and it is purged whenever the session ends (logout, expiry, revoked cookie, or sign-out in another tab).
+- **IndexedDB (React Query):** the dynamic and **private** data (shopping lists, watchlist, viewed products, recent searches, profile). This is what makes authed screens work offline, and it is purged whenever the session ends (logout, expiry, revoked cookie, or sign-out in another tab). The purge of a signed-in session also drops the recent product searches in localStorage and the in-memory product lookups, public data whose keys say what was searched and opened; the store map's recent searches stay.
 
 Everything is same-origin: the browser calls `/api/cijene/*` (Next.js route handlers to the external Cijene API) and `/api/*` (the Next.js backend proxy route to Spring, [BACKEND-PROXY.md](BACKEND-PROXY.md)), so the service worker can see and selectively cache them.
 
