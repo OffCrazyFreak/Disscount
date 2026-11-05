@@ -380,7 +380,7 @@ Read from `frontend/package.json`.
 | `idb-keyval`                              | `^6.2.5`            | tiny IndexedDB key-value wrapper backing the persister                                        |
 | `sharp`                                   | `^0.35.5`           | image generation for icons and splash screens; also encodes the product share card at runtime |
 | `next`                                    | `16.4.5`            | App Router, dynamic manifest, metadata hoisting                                               |
-| `react`                                   | `19.2.8`            | renders and hoists the `<link>`/metadata tags                                                 |
+| `react`                                   | `19.3.1`            | renders and hoists the `<link>`/metadata tags                                                 |
 | `@yudiel/react-qr-scanner`                | `^2.6.0`            | barcode/QR scanning (used by digital cards; native Barcode Detection is a future option)      |
 
 > 🔑 **Version pin:** the two `@tanstack` persist packages (`^5.101.1` in `package.json`) must resolve to the same version as `@tanstack/react-query`. A mismatch pulls a second copy of `@tanstack/query-core`, whose `Query` type is nominally incompatible and breaks `tsc`. If `react-query` is upgraded, bump these in lockstep.
