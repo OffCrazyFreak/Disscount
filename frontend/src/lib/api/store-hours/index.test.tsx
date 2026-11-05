@@ -16,10 +16,12 @@ const EMPTY = {
   stores: {},
   holidays: [],
   generatedAt: "2026-11-05T10:00:00.000Z",
+  complete: false,
 };
 
 const ONE_STORE = {
   ...EMPTY,
+  complete: true,
   weeklyTemplates: [[null, null, null, null, null, null, null]],
   datedLists: [[]],
   verifiedTimes: ["2026-11-05T09:00:00.000Z"],
@@ -53,7 +55,7 @@ async function mountTwice() {
 }
 
 describe("useStoreHours", () => {
-  it("asks again on the next use when the first answer had no stores", async () => {
+  it("asks again on the next use when the answer was incomplete", async () => {
     const seen = serve(EMPTY);
 
     await mountTwice();
@@ -61,7 +63,7 @@ describe("useStoreHours", () => {
     await waitFor(() => expect(seen.calls).toBe(2));
   });
 
-  it("keeps an answer with stores for the hour", async () => {
+  it("keeps a complete answer for the hour", async () => {
     const seen = serve(ONE_STORE);
 
     const second = await mountTwice();

@@ -49,11 +49,14 @@ export async function releaseSyncLease(
   `);
 }
 
-/** Whether the job has finished at least once, so its data is a full set. */
-export async function hasSyncFinished({ id }: ISyncLease): Promise<boolean> {
+/**
+ * Whether the job's last finished run succeeded, so its data is a full set.
+ * A rerun in progress keeps the previous answer: acquiring leaves `finished_at`.
+ */
+export async function hasSyncSucceeded({ id }: ISyncLease): Promise<boolean> {
   const result = await db.execute(sql`
     select 1 from store_location_sync
-    where id = ${id} and finished_at is not null
+    where id = ${id} and finished_at is not null and last_error is null
   `);
 
   return result.rows.length > 0;

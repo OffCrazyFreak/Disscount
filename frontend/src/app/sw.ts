@@ -18,6 +18,7 @@ import {
   ignoreDeploymentParam,
 } from "@/lib/pwa/deployment-param";
 import { OFFLINE_PAGE_PATH, WALLET_PAGE_PATH } from "@/lib/pwa/precached-pages";
+import { skipNoStore } from "@/lib/pwa/skip-no-store";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -54,6 +55,7 @@ const runtimeCaching: RuntimeCaching[] = [
       cacheName: "cijene-api",
       plugins: [
         new CacheableResponsePlugin({ statuses: [0, 200] }),
+        skipNoStore,
         new ExpirationPlugin({
           maxEntries: 200,
           maxAgeSeconds: 7 * 24 * 60 * 60,

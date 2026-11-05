@@ -24,8 +24,8 @@ export function useStoreHours({ enabled = true }: { enabled?: boolean } = {}) {
     // The cache keeps the compact form because the persister rewrites the whole
     // cache as JSON on every save; a module-level select runs once per new data.
     select: decodeStoreHours,
-    // An empty answer means the first import has not run yet, so ask again on the next use.
+    // An incomplete set comes from before a successful import, so ask again on the next use.
     staleTime: ({ state }) =>
-      Object.keys(state.data?.stores ?? {}).length > 0 ? 60 * 60 * 1000 : 0,
+      state.data?.complete === false ? 0 : 60 * 60 * 1000,
   });
 }

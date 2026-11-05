@@ -31,7 +31,7 @@ function request() {
 
 describe("GET /api/cijene/store-hours", () => {
   it("lets browsers keep a complete set for an hour", async () => {
-    load.result = () => Promise.resolve({ hours: HOURS, complete: true });
+    load.result = () => Promise.resolve({ ...HOURS, complete: true });
 
     const response = await GET(request());
 
@@ -41,7 +41,7 @@ describe("GET /api/cijene/store-hours", () => {
   });
 
   it("forbids caching a set from before the first import finished", async () => {
-    load.result = () => Promise.resolve({ hours: HOURS, complete: false });
+    load.result = () => Promise.resolve({ ...HOURS, complete: false });
 
     const response = await GET(request());
 
