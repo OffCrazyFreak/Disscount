@@ -8,7 +8,6 @@ import { readIpLocation } from "@/app/[locale]/map/utils/ip-location";
 import { pageAlternates } from "@/i18n/alternates";
 
 // Reads the visitor's location headers on every request.
-export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();

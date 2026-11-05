@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
 import { SerwistProvider } from "@serwist/next/react";
 import ReactQueryProviderWrapper from "@/app/providers/react-query-provider";
 import SidebarProvider from "@/app/providers/sidebar-provider";
@@ -36,7 +36,9 @@ export default function Providers({ children }: IProvidersProps) {
                 <ProductsSheetProvider>
                   <ToasterProvider>
                     <RequestPersistentStorage />
-                    <ScanShortcut />
+                    <Suspense fallback={null}>
+                      <ScanShortcut />
+                    </Suspense>
                     <AppUpdatePrompt />
 
                     {children}

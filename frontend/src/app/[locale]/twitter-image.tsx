@@ -1,7 +1,5 @@
 import { localizedOgMetadata, renderLocalizedOg } from "@/app/og/localized-og";
 
-export const runtime = "nodejs";
-
 interface ITwitterImageProps {
   params: Promise<{ locale: string }>;
 }

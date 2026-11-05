@@ -1,11 +1,12 @@
+import { connection } from "next/server";
 import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
 import { getStoreHours } from "@/lib/store-hours/get-store-hours";
 import { createApiResponse } from "@/lib/cijene-api/utils/response-utils";
 
 // Reads the database, so it must never be prerendered at build.
-export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
+  await connection();
   try {
     const hours = await getStoreHours();
 

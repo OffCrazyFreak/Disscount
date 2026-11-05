@@ -9,8 +9,6 @@ import { getVerifiedMainPhotoUrl } from "@/lib/api/product-images/server";
 import { appUrl } from "@/lib/env";
 import { isWellFormedProductId } from "@/utils/product-id";
 
-export const runtime = "nodejs";
-
 // Temporary and uncached, because the outcome changes once the photo appears or the outage ends.
 function redirectTo(path: string) {
   return NextResponse.redirect(`${appUrl()}${path}`, {

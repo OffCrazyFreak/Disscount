@@ -209,7 +209,9 @@ export default async function RootLayout({
               {/* linear gradient from center to left and right */}
               <div className="absolute inset-0 -z-10 size-full [background:linear-gradient(90deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.0)_30%,rgba(255,255,255,0.0)_70%,rgba(255,255,255,0.9)_100%)]" />
 
-              <Header />
+              <Suspense fallback={null}>
+                <Header />
+              </Suspense>
 
               <aside>
                 <Suspense fallback={null}>
@@ -237,7 +239,9 @@ export default async function RootLayout({
                 {children}
               </main>
 
-              <Footer />
+              <Suspense fallback={null}>
+                <Footer />
+              </Suspense>
 
               {/* Bottom scrim on every scrollable page; self-hides at the end */}
               <WindowScrollFade />
@@ -246,9 +250,13 @@ export default async function RootLayout({
                 never shows one and no page has to opt in */}
               <BackToTopButton />
 
-              <BottomNav />
+              <Suspense fallback={null}>
+                <BottomNav />
+              </Suspense>
 
-              <PriceDropStatus />
+              <Suspense fallback={null}>
+                <PriceDropStatus />
+              </Suspense>
             </div>
 
             <Suspense fallback={null}>

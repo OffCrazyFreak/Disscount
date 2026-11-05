@@ -2,7 +2,7 @@ import { Dispatch, RefObject, SetStateAction } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Sentry from "@sentry/nextjs";
 
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { isProtectedRoute } from "@/constants/protected-routes";
 import { signOutOrDefer } from "@/lib/auth/pending-sign-out";
 import type { UserDto } from "@/lib/api/types";
@@ -20,9 +20,9 @@ export function useLogout(
 ) {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const pathname = usePathname();
 
   return async function logout() {
+    const pathname = window.location.pathname;
     // Read before the request: its answer can move the identity to anonymous first.
     const leavingIdentity = getCacheIdentity();
     await signOutOrDefer();

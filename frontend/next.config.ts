@@ -19,6 +19,9 @@ const nextConfig: NextConfig = {
   // Emit a minimal self-contained server build (.next/standalone) for a lean Docker image.
   output: "standalone",
 
+  cacheComponents: true,
+  partialPrefetching: true,
+
   // Sentry loads this hook by URL at startup, so the standalone file tracer never finds it.
   // Without it, its diagnostics-channel integrations silently stop recording spans.
   outputFileTracingIncludes: {
