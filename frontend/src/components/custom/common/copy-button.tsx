@@ -19,7 +19,6 @@ interface ICopyButtonProps {
 
 const CONFIRMED_MS = 2000;
 
-/** Ghost icon button that copies `value` to the clipboard and confirms it. */
 export default function CopyButton({
   value,
   label,
@@ -40,8 +39,7 @@ export default function CopyButton({
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(value);
-      // The toast announces it; the icon swap is for anyone who is looking rather
-      // than listening.
+      // The toast announces it; the icon swap is for anyone looking rather than listening.
       toast.success(successMessage);
       setCopied(true);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);

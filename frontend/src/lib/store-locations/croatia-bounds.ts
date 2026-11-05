@@ -1,5 +1,4 @@
-// A generous box around Croatia, islands included. Upstream data has stores
-// with latitude and longitude swapped, which this catches.
+// Upstream data has stores with latitude and longitude swapped, which this generous box catches.
 const BOUNDS = { minLat: 42.3, maxLat: 46.6, minLon: 13.4, maxLon: 19.5 };
 
 export function isInCroatia(lat: number, lon: number): boolean {
@@ -13,7 +12,6 @@ export function isInCroatia(lat: number, lon: number): boolean {
   );
 }
 
-/** Returns usable coordinates, repairing a swapped pair, or null. */
 export function sanitizeCoordinates(
   lat: number | null | undefined,
   lon: number | null | undefined,

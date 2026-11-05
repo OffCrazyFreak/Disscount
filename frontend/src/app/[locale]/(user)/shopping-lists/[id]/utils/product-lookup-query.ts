@@ -8,12 +8,7 @@ function isNotKnownMissing(query: { state: { error: unknown } }) {
   return !isProductNotFound(query.state.error);
 }
 
-/**
- * One set of options for both observers of a list's lookups on this page, since TanStack
- * refetches through whichever observer allows it: a 404 is never asked again, and any other
- * failure waits for the retry button or the next window focus. Observers elsewhere (the watchlist) can still refetch,
- * which is why useShoppingListData remembers each lookup's last answer.
- */
+/** Both observers share these options, since TanStack refetches through whichever allows it. */
 export function productLookupQuery(ean: string) {
   return queryOptions({
     queryKey: CIJENE_QUERY_KEYS.productByEan(ean),

@@ -32,8 +32,7 @@ function list(id: string, title: string, updatedAt: string) {
   };
 }
 
-// Closing the real modal turns the draft hook off, which cancels its pending debounced save. A mock
-// that leaves the modal open lets that save land after the failure's cleanup; unmounting stands in.
+// A mock leaving the modal open lets its debounced save land after cleanup, so unmounting stands in.
 function unmountOnClose(view: { unmount: () => void }) {
   closeModalUrl.mockImplementation(() => view.unmount());
 }

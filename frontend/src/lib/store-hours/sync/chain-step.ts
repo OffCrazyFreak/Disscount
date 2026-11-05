@@ -72,12 +72,7 @@ async function runSource(
   return status === "accepted" ? matched : [];
 }
 
-/**
- * Reads every enabled chain's hours and saves what matches upstream: the
- * whole template for the weekly job, only the Sunday and holiday days for
- * the overlay job. A chain failing or failing the gate keeps its old data.
- * Returns the stores that now have the chain's own hours.
- */
+/** A chain failing the gate keeps its old data. */
 export async function runChainSources(
   job: HoursJob,
   upstream: StoreResponse[],

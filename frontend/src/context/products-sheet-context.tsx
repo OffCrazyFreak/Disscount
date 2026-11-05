@@ -32,14 +32,7 @@ interface IProductsSheetProviderProps {
   children: ReactNode;
 }
 
-/**
- * Holds the mobile products sheet open, so the bottom nav's centre tab can open a
- * sheet that lives outside it in the tree.
- *
- * The filters live here too rather than in the sheet, so each entry point decides
- * their state in the same batch that opens: the centre cell always lands on the
- * compact sheet, the products page's Filteri button lands on the expanded one.
- */
+/** The filters live here so each entry point decides their state in the same batch that opens the sheet. */
 export function ProductsSheetProvider({
   children,
 }: IProductsSheetProviderProps) {

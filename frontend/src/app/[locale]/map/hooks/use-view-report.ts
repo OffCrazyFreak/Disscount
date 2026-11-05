@@ -13,7 +13,6 @@ interface IUseViewReportOptions {
   onViewChange: (area: IViewArea | null) => void;
 }
 
-/** Tells the list which part of the map is actually in sight. */
 export function useViewReport({
   mapRef,
   mapReady,

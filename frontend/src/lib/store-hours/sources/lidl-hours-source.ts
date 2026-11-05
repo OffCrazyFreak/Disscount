@@ -102,7 +102,6 @@ function groceryStoreIn(html: string) {
   return null;
 }
 
-/** The page's schema.org GroceryStore, which carries the weekly and special hours. */
 export function parseLidlStore(
   html: string,
   pageUrl: string,

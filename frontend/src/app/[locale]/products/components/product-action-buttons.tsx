@@ -30,8 +30,7 @@ export default function ProductActionButtons({
   className,
 }: IProductActionButtonsProps) {
   const t = useTranslations("products");
-  // Guarded on a session, like the hold sheet's copy of this read: /products is public,
-  // so an unguarded read is a 401 plus retries for every signed-out visitor.
+  // Guarded on a session because /products is public, and a read would 401 for signed-out visitors.
   const { user } = useUser();
   const { data: currentUserWatchlist = [] } =
     watchlistService.useGetCurrentUserWatchlist({ enabled: !!user });
@@ -43,8 +42,7 @@ export default function ProductActionButtons({
     (watchlistItem) => watchlistItem.productApiId === product.ean,
   );
 
-  // Speaks for whichever list the modal will preselect: a drafted choice if there
-  // is one, the newest list otherwise.
+  // Speaks for whichever list the modal will preselect: a drafted choice if there is one, the newest list otherwise.
   const isOnList = useIsOnPreselectedShoppingList(product.ean);
   const addToListLabel = t(
     isOnList

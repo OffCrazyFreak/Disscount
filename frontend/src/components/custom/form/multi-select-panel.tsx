@@ -28,7 +28,6 @@ interface IMultiSelectPanelProps extends Omit<
   children: ReactNode;
 }
 
-/** The searchable list, identical whether it floats in a popover or sits inline. */
 export default function MultiSelectPanel({
   search,
   listClassName,
@@ -52,19 +51,14 @@ export default function MultiSelectPanel({
         <CommandInput
           value={searchValue}
           onValueChange={setSearchValue}
-          // Inline has no Radix layer to move focus in for it. Letting the
-          // browser scroll the focused field into view is the whole point of
-          // being in flow, so this does not use preventScroll.
+          // Inline has no Radix layer, and scrolling the field into view is the point, so no preventScroll.
           autoFocus={presentation === "inline"}
           placeholder={
             typeof search === "object" ? search.placeholder : undefined
           }
         />
       ) : (
-        // Parks focus inside the list when there is no field to hold it.
-        // Needs an explicit type: inline, this button is in the page's own form,
-        // where an untyped button is a submit button and would become the form's
-        // default one.
+        // Explicit type, or inline this would become the page form's default submit button.
         <button
           type="button"
           autoFocus
@@ -75,8 +69,7 @@ export default function MultiSelectPanel({
 
       <MultiSelectBulkActions />
 
-      {/* Wraps only the list, so the top fade sits under the search box
-          rather than over it */}
+      {/* Wraps only the list, so the top fade sits under the search box rather than over it. */}
       <div className="relative flex min-h-0 flex-1 flex-col">
         <ScrollFade
           targetRef={listRef}

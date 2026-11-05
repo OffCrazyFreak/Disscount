@@ -20,7 +20,6 @@ function hexToRgb(hex: string): Rgb {
   ];
 }
 
-/** WCAG 2 contrast ratio between two colours, from 1 to 21. */
 export function rgbContrastRatio(first: Rgb, second: Rgb) {
   const [lighter, darker] = [
     relativeLuminance(first),
@@ -30,7 +29,6 @@ export function rgbContrastRatio(first: Rgb, second: Rgb) {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-/** WCAG 2 contrast ratio between two #rrggbb colours, from 1 to 21. */
 export function contrastRatio(first: string, second: string) {
   return rgbContrastRatio(hexToRgb(first), hexToRgb(second));
 }

@@ -25,13 +25,7 @@ interface IProductSearchFiltersProps {
   queryInputRef: RefObject<HTMLInputElement | null>;
 }
 
-/**
- * The products filters, inline in the products sheet on every route.
- *
- * Expanding grows the sheet upward instead of stacking a second one over it, so
- * the search field you just used stays in view and there is only ever one layer
- * to dismiss.
- */
+/** Grows upward instead of stacking a second sheet, so the search stays in view with one layer. */
 export default function ProductSearchFilters({
   open,
   onOpenChange,
@@ -50,8 +44,7 @@ export default function ProductSearchFilters({
   const filters = useProductFilters({ seedPreferred: false });
   const facets = useProductFacets(query, filters);
 
-  // Off the route the URL holds no filters to amend, so the pick and whatever is
-  // typed travel together in one navigation rather than editing the page we leave.
+  // Off the route the URL holds no filters to amend, so the pick and the typed text travel together in one navigation.
   function pickAndNavigate(key: ProductFilterKey, values: string[]) {
     const params = new URLSearchParams();
     const typed = queryInputRef.current?.value.trim();

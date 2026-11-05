@@ -14,7 +14,7 @@ Put these to me instead of working around them: I say yes far more often than no
 - Ask before changing how the app looks (size, spacing, colour, layout), accessibility fixes and side effects included, with before and after screenshots.
 - Ask before adding anything that can bill; services, plans and CI stay free or hard-capped, even with 100k users.
 - Hand back interactive installers and `init` wizards, except `pnpm dlx shadcn@latest add <component>`, which you may run.
-- Change legal copy as you judge right without asking, and log what changed, why and the sources on #217.
+- Change legal copy as you judge right without asking, and log what changed, why and the sources on #217 (legal changes log).
 
 ## Never commit
 
@@ -24,16 +24,15 @@ Put these to me instead of working around them: I say yes far more often than no
 
 ## Done means
 
-- Run `pnpm check` in `frontend/` until it passes.
-- Run `mvn -B verify` in `backend/` until it passes; it needs Docker.
+- Run `pnpm check` in `frontend/` until only generated-type, dependency or unrelated errors remain; report each unrelated one with its command, as pre-existing.
+- Run `mvn -B verify` in `backend/` the same way; it needs Docker.
 - When you touch code `docs/TESTING.md` lists as mostly untested, say so.
-- Fix type errors in `frontend/src/` and compile and test failures in `backend/src/`; ignore errors from generated types and dependencies.
-- When a failure is unrelated to your change, report the command and the error, say it looks pre-existing, and leave it.
 - Report a check I interrupted as not run, without re-running it.
 - After editing `.claude/hooks/`, run `python3 .claude/hooks/guard-commands.test.py`.
 - Put docs in the same PR as their own `docs:` commit before the PR opens, and again if behaviour changes.
 - Document a new or reshaped subsystem with the `document-subsystem` skill.
 - List docs touched and those checked and left alone in your summary.
+- When the T3 Code preview browser is available, use it for previews and screenshots and for pages that block or error on fetch.
 
 ## Worktrees and git
 
@@ -50,10 +49,10 @@ Put these to me instead of working around them: I say yes far more often than no
 - Give every PR one Sonnet `reviewer`; CodeRabbit runs on its own, and only a release waits for it.
 - For 5000+ changed lines, 50+ files, or auth, security, personal data or migrations, also run Greptile once: `@greptileai review` or its CLI.
 - For a release into `main`, run one `reviewer` per app area plus CodeRabbit and Greptile (automatic or CLI), and wait for all of them.
-- Land release review findings as their own `fix:` PR, and keep the notes in `~/Documents/Disscount`.
-- Before any merge, settle every PR comment and `pulls/N/reviews` body, bots included: fix it or reply with the reason.
+- Land release review findings as their own `fix:` PR, and keep the notes in `~/Documents/Disscount/research`.
+- Before any merge, settle every PR comment and `pulls/N/reviews` body, bots included.
+- Settle each with the smallest fix for its cause and the same mistake elsewhere, or a reply with the reason, and resolve it.
 - Merge once CI is green and review is settled, as the orchestrating session; a delegate reports instead of merging.
-- Follow the `ui-handover` skill for any change to what renders.
 
 ## Board and issues
 
@@ -62,13 +61,14 @@ Put these to me instead of working around them: I say yes far more often than no
 - Give a plan a tracking issue with the why, decisions, an ordered PR checklist and open questions.
 - Set a tracking issue to In progress once its first PR runs, otherwise Sprint; tick each step its PR completes.
 - Put owner-only steps (logins, payments, phone) as a draft at the top of In progress, with links and numbered steps.
-- Move merged user-facing work to For review, following `ui-handover`.
+- Move merged user-facing work to For review.
 - Move merged invisible work to Done.
 
 ## Releases and production
 
 - Land work on `dev`, and release through a `dev` into `main` PR.
-- Append anything a release needs (data step, migration, env step, post-deploy check) to the release PR body now, saying what is left and by whom.
+- Append anything a release needs (data step, migration, env step, post-deploy check) to the release PR body now.
+- Say there what is left and by whom.
 - Leave existing release notes as written; only append.
 - Use Dokploy, Cloudflare, Sentry, `gh` and `ssh disscount` on dev and production without asking, verifying each step against official docs.
 - Report every production change.
@@ -99,14 +99,10 @@ Conventions:
 
 - Write an `I`-prefixed Props interface in the component's file, one component per file, default export, `function name() {}`, kebab-case filenames.
 - Import React names directly: `import { useState } from "react"`.
-- Import `server-only` in any module that must never reach the client.
 - Edit `components/ui/` (shadcn output) only where the primitive is the natural home; ours live in `components/custom/`.
 - Put API and domain types as zod `*Dto` / `*Response` in `lib/api/schemas/*`, and price API types in `lib/cijene-api/schemas.ts`.
 - Put query hooks beside their service in `lib/api/<domain>/`.
-- Outside the `useForm` caller, read with `useWatch` and `useFormState`, never `form.watch()` or `form.formState` in render, because the compiler caches reads off `form`.
-- Destructure every form flag you need, because react-hook-form computes only those read.
-- Memoize nothing by hand, derive values in render, and make a function a hook only if it calls one; the React Compiler does the rest.
-- When an effect must retry a possible no-op, use `"use no memo"` with a comment saying why, because the compiler otherwise runs it once.
+- Keep shared code free of feature imports.
 - Read the `frontend-design` skill before generating or redesigning UI.
 
 Copy and i18n (`docs/I18N.md`):
@@ -122,6 +118,7 @@ Copy and i18n (`docs/I18N.md`):
 ## Backend
 
 - The app is a resource server validating better-auth's ES256 JWTs via JWKS.
+- Split backend packages by domain, with thin controllers.
 - Keep anything Postgres-specific portable or profile-guarded, because tests run on H2 with `src/test` properties and only `DoubleBootSchemaTest` boots main's on Postgres.
 - When changing an enum column to String, expect a stale CHECK constraint: `ddl-auto=update` keeps it, writes 500, boot tests miss it.
 - Keep springdoc's major on the Spring Boot major.
@@ -130,33 +127,37 @@ Copy and i18n (`docs/I18N.md`):
 - Mark a nullable DTO field `@Schema(nullable = true)`, because springdoc ignores JSpecify `@Nullable`.
 - Stamp zone-less timestamp columns through `Timestamps.nowUtc()`, never `LocalDateTime.now()`, because the JVM zone would leak into what `parseServerDate` reads as UTC.
 
-## Skills
-
-- Keep skills in `.agents/skills`, linked from `.claude/skills`.
-- Change `research`, `unslop`, `big-change` and `debloat` in `~/.config/agents/skills`, then copy them here.
-- Replace third-party skills wholesale; `skills-lock.json` tracks those the skills CLI installed, which excludes `frontend-design` and `sentry-nextjs-sdk`.
-
 ## Writing
 
+- Write issue, commit and PR titles and bodies in plain words a newcomer can follow.
+- Explain in plain words, and define any jargon in one phrase.
+- Write every PR or issue reference as number plus short name, in chat, lists, tables, board cards, comments and bodies, even when repeated.
 - Write Markdown with one physical line per paragraph and bullet.
-- Write numeric dates as `03.11.2026.` in Croatian text and ISO `2026-11-03` in English, with straight quotes (`docs/I18N.md`).
+- In prose, write numeric dates as `03.11.2026.` in Croatian and ISO `2026-11-03` in English (`docs/I18N.md`).
+- Use straight quotes.
+- Write a comment only for a why the code cannot show, in one line; `pnpm lint` rejects longer ones, lines over 120 characters and history words. When code needs a what-comment, rename it instead.
 
 ## Commits
 
-Write the message from the staged diff in this template, without repeating it in chat. The hooks in `frontend/.husky/` check it.
+Write the message from the staged diff in this template, without repeating it in chat.
 
 ```text
-type(scope): Short summary in imperative mood
+type(scope): Imperative summary
+
+Why paragraph.
 
 Changes:
 - Specific change
 
-Brief explanation of why the change was needed.
+Notes: A tradeoff.
 ```
 
-- Add a `Notes:` section only for something a reviewer would otherwise miss.
-- Use type `fix`, `feat`, `docs`, `refactor`, `chore`, `style`, `perf` or `ci`.
-- Use a kebab-case scope: `products`, `pwa`, `watchlist`, `shopping-lists`, `settings`, `auth`, `search`, `scanner`, `landing`, `header`, `sidebar`, `bottom-nav`, `price-history`, `modals`, `ui`, `brand`, `a11y`, `i18n`, `deps`, `agents`.
+- Expect `frontend/.husky/commit-msg` to reject an unknown type, a subject over 72 characters, trailers and em or en dashes.
+- Use type `fix`, `feat`, `docs`, `refactor`, `chore`, `style`, `perf`, `ci` or `test`.
+- Leave the scope out or reuse one from `git log`.
+- Write the why paragraph in every commit: the problem and the reason, never repeating the subject.
+- Add `Changes:` only for two or more separable parts.
+- Add `Notes:` only for a tradeoff.
 - Cite commits by full 40-character SHA.
-- Write "Part of #N" in a PR into `dev`, because `Closes #N` fires only on a merge into `main`; I close it by hand.
+- Write "Part of #N (short name)" in a PR into `dev`, because `Closes #N` fires only on a merge into `main`.
 - Link anything filed on `senko/cijene-api` back to https://disscount.me and this repository.

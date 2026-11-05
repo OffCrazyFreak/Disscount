@@ -2,22 +2,7 @@
 
 import { useEffect, useRef, type RefObject } from "react";
 
-/**
- * Closes an inline list on Escape, before anything around it reacts.
- *
- * Radix's dismissable layers listen for Escape in the capture phase on
- * `document`, and only the topmost layer acts on it. A popover is such a layer,
- * so it closes and the dialog behind it does not. An inline list is not a layer,
- * so without this a dialog around it would take the key and close itself.
- *
- * The capture phase reaches `window` one step before `document`, which is the
- * only place left to stop that. The popover path needs none of this.
- *
- * Only the list holding focus acts. Without that test every open list would
- * answer the same keypress, so two open facets would both close and focus would
- * land on whichever mounted last, and an Escape meant for the sheet around them
- * would be swallowed no matter where the user was typing.
- */
+/** A dialog would take Escape from an inline list, so window capture gets it first, for the focused list only. */
 export default function useMultiSelectEscape(
   active: boolean,
   contentRef: RefObject<HTMLElement | null>,

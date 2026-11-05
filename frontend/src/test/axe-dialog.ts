@@ -1,7 +1,6 @@
 import { configureAxe } from "vi-axe";
 
-// jsdom paints nothing, so contrast cannot be measured. A dialog rendered alone has no page
-// landmarks around it, which is the test's doing rather than the app's.
+// jsdom paints nothing, so contrast cannot be measured; a lone dialog has no landmarks, which is the test's doing.
 export const axeDialog = configureAxe({
   rules: {
     "color-contrast": { enabled: false },

@@ -5,12 +5,7 @@ interface IUnresolvedRetry {
   itemIds: readonly string[];
 }
 
-/**
- * A retry can end with nothing failed yet not every price loaded, such as a 404, and the
- * retry button then leaves with the banner. If it took focus with it, the retried rows get
- * focus, since they say what happened. Returns the setter for the retry that did not load
- * every price, and the retry button's ref.
- */
+/** A retry can end with prices missing and the button gone with the banner, so the retried rows take focus. */
 export function useRetryFocusHandoff(
   failedCount: number,
   failureGeneration: number,

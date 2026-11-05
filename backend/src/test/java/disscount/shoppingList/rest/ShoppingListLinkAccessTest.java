@@ -15,10 +15,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * What holding a share link grants: invisible is 404, an anonymous write is 401, too low a
- * level is 403. Anonymous visitors are capped at VIEW whatever the link says.
- */
+/** Invisible is 404, an anonymous write is 401 and too low a level is 403; anonymous visitors are capped at VIEW. */
 class ShoppingListLinkAccessTest extends FullStackTest {
 
     private ShoppingListFixtures lists;
@@ -119,7 +116,7 @@ class ShoppingListLinkAccessTest extends FullStackTest {
                 .andExpect(status().isNoContent());
     }
 
-    // Adding items and deleting the list are owner rights at every link level; copying is open to any signed-in visitor.
+    // Adding items and deleting the list are owner rights at every level; any signed-in visitor can copy.
     @org.junit.jupiter.params.ParameterizedTest
     @org.junit.jupiter.params.provider.ValueSource(strings = {"VIEW", "SHOP"})
     void lowerLinksNeverGrantOwnerRightsButMayCopy(String level) throws Exception {

@@ -12,10 +12,7 @@ import { trgocentarLocator } from "@/lib/store-locations/sources/trgocentar-loca
 
 const SUNDAYS_URL = "https://trgocentar.com/radne-nedjelje/";
 
-/**
- * The locator's weekly hours plus the "Radne nedjelje" sheet, which names
- * each shop by cijene-api's code and settles every Sunday of its month.
- */
+/** The sheet names each shop by cijene-api's code and settles every Sunday of its month. */
 export const trgocentarHoursSource: IHoursSource = {
   chain: "trgocentar",
 

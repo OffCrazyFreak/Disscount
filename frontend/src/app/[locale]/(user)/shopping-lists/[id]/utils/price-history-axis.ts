@@ -5,7 +5,6 @@ const AXIS_MIN_STEP = 10 ** -AXIS_DECIMALS;
 const AXIS_PADDING = 0.05;
 const TARGET_TICKS = 6;
 
-// Round a target step up to a "nice" 1/2/5 x 10^n value.
 function niceAxisStep(range: number): number {
   if (range <= 0) return 1;
 

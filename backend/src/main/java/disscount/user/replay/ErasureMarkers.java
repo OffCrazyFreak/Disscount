@@ -7,10 +7,7 @@ import java.security.GeneralSecurityException;
 import java.util.HexFormat;
 import java.util.UUID;
 
-/**
- * Names of the erasure markers the backup sidecar writes under {@code _erasures/v1/}: the hex
- * HMAC-SHA256 of {@code <scope>:<id>}. Must match {@code backup/bin/backup-job} byte for byte.
- */
+/** Must match backup/bin/backup-job byte for byte: the hex HMAC-SHA256 of <scope>:<id> under _erasures/v1/. */
 final class ErasureMarkers {
 
     private ErasureMarkers() {}

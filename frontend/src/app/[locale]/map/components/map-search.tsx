@@ -10,7 +10,6 @@ interface IMapSearchProps {
   inputRef?: RefObject<HTMLInputElement | null>;
 }
 
-/** The store search, filtering the list and the map as you type. */
 export default function MapSearch({ inputRef }: IMapSearchProps) {
   const t = useTranslations("map");
 

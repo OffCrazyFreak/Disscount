@@ -16,7 +16,6 @@ interface IMapLocateButtonProps {
   ref?: Ref<HTMLButtonElement>;
 }
 
-/** The phone map's own near-me control, above the zoom buttons. */
 export default function MapLocateButton({
   status,
   onLocate,
@@ -24,13 +23,11 @@ export default function MapLocateButton({
 }: IMapLocateButtonProps) {
   const t = useTranslations("map.nearMe");
   const isLocating = status === "locating";
-  // Counted rather than flagged: a browser without geolocation answers every
-  // tap with the same status, which alone would not rerun the effect.
+  // Counted, because a browser without geolocation repeats one status, which would not rerun the effect.
   const [taps, setTaps] = useState(0);
   const answered = useRef(0);
 
-  // The list shows these under its own button; over the map a toast says it.
-  // Only for this button's own taps, which any settled status answers.
+  // The list shows these under its own button, so over the map a toast says it, only for this button's own taps.
   useEffect(() => {
     if (taps === answered.current || status === "locating") return;
     answered.current = taps;

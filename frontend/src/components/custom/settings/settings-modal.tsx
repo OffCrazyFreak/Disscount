@@ -161,8 +161,7 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
           </TabsContent>
         </form>
 
-        {/* Sigurnost's credentials form lives in SecurityTab (via the security
-            context) and is submitted by the shared footer through its formId. */}
+        {/* Submitted by the shared footer through its formId. */}
         <TabsContent value="sigurnost">
           <SecurityTab />
         </TabsContent>

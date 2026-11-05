@@ -15,7 +15,7 @@ import { httpStatus } from "@/lib/offline/failure-policy";
 import { isNetworkFailure } from "@/lib/offline/is-network-failure";
 
 // An entry gc'd from memory also leaves the persisted snapshot at its next save.
-const UNWATCHED_QUERY_GC_TIME_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+const UNWATCHED_QUERY_GC_TIME_MS = 7 * 24 * 60 * 60 * 1000;
 
 // One retry: a blip gets a second chance, a real failure surfaces fast.
 const MAX_QUERY_RETRIES = 1;
@@ -23,8 +23,7 @@ const MAX_QUERY_RETRIES = 1;
 // Client errors a second attempt can fix: the request timed out, or we were throttled.
 const RETRYABLE_CLIENT_STATUSES = new Set([408, 429]);
 
-// An entry younger than this is not refetched on mount, focus or reconnect;
-// queries that need fresher data set their own.
+// An entry younger than this is not refetched on mount, focus or reconnect; queries needing fresher data set their own.
 const DEFAULT_STALE_TIME_MS = 60_000;
 
 function isClientError(status: number) {
@@ -47,10 +46,7 @@ export function isOffline() {
   );
 }
 
-/**
- * A network failure stays retryable, because React Query pauses a retry while offline and
- * resumes it on reconnect. A parse failure would fail the same way again.
- */
+/** Network failures retry because React Query pauses offline; a parse failure would just repeat. */
 export function shouldRetryQuery(failureCount: number, error: unknown) {
   if (failureCount >= MAX_QUERY_RETRIES || error instanceof ZodError) {
     return false;
@@ -84,8 +80,7 @@ function reportUnexpectedFailure(error: unknown, key: QueryKey | undefined) {
 
   Sentry.captureException(error, {
     tags: { queryKeyRoot, httpStatus: status ?? "none" },
-    // Axios names only the status in its message, so the 5xx of every endpoint would
-    // otherwise group into one issue.
+    // Axios names only the status in its message, so every endpoint's 5xx would group into one issue.
     fingerprint:
       status === undefined
         ? undefined
@@ -95,8 +90,7 @@ function reportUnexpectedFailure(error: unknown, key: QueryKey | undefined) {
   return true;
 }
 
-// A failing query that polls or refetches on focus fails again and again; one event per
-// streak is enough, and a success ends the streak.
+// A failing query that polls or refetches on focus fails repeatedly, so one event per streak is enough.
 const queriesReportedFailing = new WeakSet<Query<unknown, unknown, unknown>>();
 
 export function createQueryClientConfig(): QueryClientConfig {

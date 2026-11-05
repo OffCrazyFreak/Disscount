@@ -17,11 +17,7 @@ export const MONTHLY_WINDOW_DAYS: ActivityWindowDays = "30";
 // Absorbs client clock skew while still dropping rows dated far into the future.
 const FUTURE_SKEW_TOLERANCE_MILLISECONDS = 60 * 60 * 1000;
 
-/**
- * Users seen within the trailing window. Only the latest activity per user is stored,
- * so the window has to reach the present (plus the skew tolerance): a past-to-past range
- * would miss anyone seen since.
- */
+/** Only the latest activity per user is stored, so the window must reach the present. */
 export function countActiveUsers(
   users: UserDto[] | undefined,
   windowDays: ActivityWindowDays,

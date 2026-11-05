@@ -27,7 +27,6 @@ interface ITownPickerProps {
   onPick: (town: string) => void;
 }
 
-/** A searchable list of the towns with stores, matched by name or postcode. */
 export default function TownPicker({
   isChange,
   towns,

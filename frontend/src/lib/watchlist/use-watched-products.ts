@@ -9,7 +9,6 @@ import {
   groupWatchlistItemsByProduct,
 } from "@/lib/watchlist/watchlist-grouping-utils";
 
-/** The user's watchlist grouped by product, with one product query per group. */
 export function useWatchedProducts(
   isAuthenticated: boolean,
   pinnedStores: PinnedStoreDto[] | null | undefined,

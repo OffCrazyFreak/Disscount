@@ -17,10 +17,6 @@ export interface IBottomNavCell {
   isLocked: boolean;
 }
 
-/**
- * The five cells with their route and permission state already resolved, so the
- * bar itself only has to answer what a press does.
- */
 export default function useBottomNavCells(): IBottomNavCell[] {
   const pathname = usePathname();
   const { user } = useUser();

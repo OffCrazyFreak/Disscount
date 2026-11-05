@@ -35,11 +35,7 @@ function nearestShop(
   return near[0]?.shop ?? null;
 }
 
-/**
- * Gives a pinned store without its chain's own hours the hours of the
- * nearest OpenStreetMap shop of the same chain. A chain's own row is never
- * replaced (`saveStoreHours` guards it).
- */
+/** A chain's own row is never replaced, because `saveStoreHours` guards it. */
 export async function runOsmStep(
   directory: DirectoryStoreDto[],
   covered: ReadonlySet<string>,

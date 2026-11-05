@@ -1,6 +1,5 @@
 import type { StorePrice } from "@/lib/cijene-api/schemas";
 
-/** A store price row with only the fields the reducer reads filled in */
 export function storePrice(
   ean: string,
   city: string | null,

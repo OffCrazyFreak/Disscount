@@ -13,10 +13,6 @@ interface ILoginRequiredProps {
   icon?: ReactNode;
 }
 
-/**
- * Friendly gate shown on authenticated-only pages when the visitor has no
- * session. Explains the feature and opens the shared auth modal.
- */
 export default function LoginRequired({
   title,
   description,

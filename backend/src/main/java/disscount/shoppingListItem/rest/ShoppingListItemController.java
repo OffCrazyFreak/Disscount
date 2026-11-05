@@ -22,9 +22,7 @@ public class ShoppingListItemController {
 
     private final ShoppingListItemService shoppingListItemService;
 
-    // These run on the chain where a bearer token is optional, so the caller may be
-    // anonymous and currentUserId() may be null. ShoppingListItemService resolves the
-    // caller's access on every one of them; nothing here may assume an owner.
+    // On the optional-token chain, so currentUserId() may be null; the service resolves access on each.
 
     @Operation(summary = "Add item to shopping list")
     @PostMapping

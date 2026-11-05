@@ -22,15 +22,7 @@ interface IShoppingListActionsOutletProps {
   target: ModalTarget | null;
 }
 
-/**
- * Mounted inside the router's signed-in branch, unlike the product one: a list is
- * owned, so there is nothing here for a signed-out visitor to do.
- *
- * The confirm dialog lives here rather than in the sheet because a Radix dialog
- * nested inside the drawer is dismissed by its own overlay press. The outlet
- * stays mounted even when it renders nothing, so the pending list survives the
- * sheet closing and the two never overlap.
- */
+/** Here because a Radix dialog nested in the drawer is dismissed by its own overlay press. */
 export default function ShoppingListActionsOutlet({
   target,
 }: IShoppingListActionsOutletProps) {
@@ -82,8 +74,7 @@ function DeleteConfirm({ shoppingList, onDone }: IDeleteConfirmProps) {
       })}
       confirmLabel={t("modalRouter.deleteList.confirm")}
       variant="destructive"
-      // Stays mounted until the request settles, so the rollback and the toasts
-      // still have a live observer to run on.
+      // Stays mounted until the request settles, so the rollback and toasts still have a live observer.
       onConfirm={async () => {
         await handleConfirmDelete();
         onDone();

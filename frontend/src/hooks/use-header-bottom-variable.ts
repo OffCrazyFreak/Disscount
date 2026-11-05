@@ -5,10 +5,7 @@ import { useEffect, type RefObject } from "react";
 /** Fired on window each time `--header-bottom` takes a new value. */
 export const HEADER_BOTTOM_CHANGE_EVENT = "disscount:header-bottom-change";
 
-/**
- * Publishes the fixed header's bottom edge as `--header-bottom` on the root, so
- * sticky bars and scroll offsets sit right under it at every width and state.
- */
+/** So sticky bars and scroll offsets sit right under the fixed header at every width and state. */
 export function useHeaderBottomVariable(ref: RefObject<HTMLElement | null>) {
   useEffect(() => {
     const header = ref.current;

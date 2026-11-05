@@ -18,11 +18,7 @@ interface IShoppingListDetailClientProps {
   listId: string;
 }
 
-/**
- * One page for the owner and for anyone holding the link. The list id is the shareable
- * URL, so this route is reachable signed out and nothing here may assume ownership: every
- * control is gated on the access the server resolved into myAccess.
- */
+/** The list id is the shareable URL, so this route is reachable signed out and every control is gated on myAccess. */
 export default function ShoppingListDetailClient({
   listId,
 }: IShoppingListDetailClientProps) {
@@ -67,9 +63,7 @@ export default function ShoppingListDetailClient({
 
   return (
     <div className="space-y-8">
-      {/* Unconditional: it falls silent for an owner on its own, and the disabled item
-          controls point at its id with aria-describedby, so gating it here would leave
-          that IDREF dangling for exactly the people who need the explanation. */}
+      {/* Unconditional, because disabled item controls point at its id with aria-describedby. */}
       <ShoppingListAccessBanner
         myAccess={shoppingList.myAccess}
         isSignedIn={isSignedIn}

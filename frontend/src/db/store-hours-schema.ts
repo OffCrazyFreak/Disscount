@@ -10,11 +10,7 @@ import {
 
 import type { SundayRule, TimeRangeDto } from "@/lib/api/schemas";
 
-/**
- * Each store's weekly hours and the dated exceptions its chain publishes with
- * them, refreshed weekly from the chain's store finder (or OpenStreetMap when
- * the chain publishes none). Keyed like `store_location`.
- */
+/** Keyed like `store_location`; refreshed weekly from the chain finder or OpenStreetMap. */
 export const storeHours = pgTable(
   "store_hours",
   {
@@ -40,10 +36,7 @@ export const storeHours = pgTable(
   (table) => [primaryKey({ columns: [table.chainCode, table.storeCode] })],
 );
 
-/**
- * Sunday and holiday hours a chain announces only days ahead, polled Thursday
- * to Saturday. An empty store code covers the whole chain.
- */
+/** Sunday and holiday hours a chain announces only days ahead; an empty store code covers the whole chain. */
 export const storeHoursOverlay = pgTable(
   "store_hours_overlay",
   {
@@ -59,10 +52,7 @@ export const storeHoursOverlay = pgTable(
   ],
 );
 
-/**
- * The last run per job and chain. A run whose store count drops sharply below
- * the last accepted one is rejected, so a redesigned page cannot wipe a chain.
- */
+/** A run whose store count drops sharply is rejected, so a redesigned page cannot wipe a chain. */
 export const storeHoursRun = pgTable(
   "store_hours_run",
   {

@@ -12,10 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 
-/**
- * Erases again, after a backup restore, every account whose erasure the restored dump predates.
- * The markers come from the backup bucket, because the database being restored cannot hold them.
- */
+/** The markers come from the backup bucket, because the database being restored cannot hold them. */
 @Service
 @RequiredArgsConstructor
 public class ErasureReplay {
@@ -24,7 +21,6 @@ public class ErasureReplay {
     private final UserRepository users;
     private final AccountErasureService accountErasure;
 
-    /** Returns how many restored accounts had a marker and were erased again. */
     public int replay(byte[] key, Set<String> markers) {
         // An identity can exist without a profile, and a profile can outlive its identity.
         Set<UUID> restored = new LinkedHashSet<>(authIdentities.findAllIds());

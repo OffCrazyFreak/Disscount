@@ -15,7 +15,6 @@ import {
 
 const ADMIN_BASE_PATH = "/api/admin/contact";
 
-// Public: submit a contact message (no auth header sent when logged out).
 async function createContactMessage(
   data: ContactMessageRequest,
 ): Promise<ContactMessageDto | null> {
@@ -40,7 +39,6 @@ async function getContactMessages(
   return response.data.map((item) => contactMessageDtoSchema.parse(item));
 }
 
-// Admin state changes: read/unread, archive/unarchive, restore share the patch shape.
 async function patchContactAction(
   id: string,
   action: string,

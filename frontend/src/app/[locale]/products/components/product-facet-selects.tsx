@@ -20,7 +20,6 @@ interface IFacetConfig {
 
 const FACETS: IFacetConfig[] = [
   { key: "chains", filterKey: "chain", messageKey: "stores" },
-  // Every city written out made a 7.7 KB address.
   {
     key: "locations",
     filterKey: "location",
@@ -51,7 +50,6 @@ export default function ProductFacetSelects({
       {FACETS.map((facet) => (
         <div
           key={facet.key}
-          // In a row the filters share the width evenly and may shrink.
           className={isStack ? "space-y-1.5" : "min-w-0 flex-1"}
         >
           {isStack && (

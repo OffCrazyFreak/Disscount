@@ -19,8 +19,7 @@ function reauthRequired() {
   });
 }
 
-// Spring owns erasure_ledger; a row means the backend data is already gone and only the
-// login survived, so finishing that deletion needs no second proof (the first one happened).
+// A row means the backend data is gone and only the login survived, so finishing that deletion needs no second proof.
 async function isErasedAccount(userId: string): Promise<boolean> {
   try {
     const result = await db.execute(
@@ -53,10 +52,7 @@ async function requireProof(ctx: GenericEndpointContext, userId: string) {
   throw reauthRequired();
 }
 
-/**
- * Runs in hooks.before, which better-auth applies to HTTP requests and in-process
- * auth.api calls alike, so our own routes cannot skip the rule either.
- */
+/** In hooks.before, which also wraps in-process auth.api calls, so our own routes cannot skip the rule. */
 export async function guardSensitiveAction(ctx: GenericEndpointContext) {
   const requirement = ctx.path ? SENSITIVE_PATHS[ctx.path] : undefined;
   if (!requirement) return;

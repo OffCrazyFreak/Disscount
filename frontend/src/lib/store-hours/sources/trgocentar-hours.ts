@@ -9,7 +9,6 @@ import {
 } from "@/lib/store-hours/sources/hours-text";
 import { labelledLines } from "@/lib/store-hours/sources/labelled-lines";
 
-/** The lines after "RADNO VRIJEME" in a map place's HTML. */
 export function parseTrgocentarWeek(address: string): IParsedHours | undefined {
   const hours = address.split(/RADNO VRIJEME/i)[1];
   const lines = hours ? labelledLines(hours) : [];
@@ -38,11 +37,7 @@ function isoOf(text: string): string | null {
   return match ? `${match[3]}-${match[2]}-${match[1]}` : null;
 }
 
-/**
- * The "Radne nedjelje" sheet: one column per Sunday of the month, a "1"
- * where the shop trades, at the hours in the third column ("7 – 12"). Every
- * Sunday the sheet covers is settled, open or closed; past ones are dropped.
- */
+/** A "1" means the shop trades at the third column's hours; every Sunday covered is settled; past ones are dropped. */
 export function parseTrgocentarSundays(
   html: string,
   today: string,

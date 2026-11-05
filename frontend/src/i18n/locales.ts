@@ -4,8 +4,7 @@ export type AppLocale = (typeof LOCALES)[number];
 
 export const DEFAULT_LOCALE: AppLocale = "hr";
 
-// Written only when someone picks a language, never on a plain visit: that keeps it
-// inside the ePrivacy exemption for user-interface customisation cookies.
+// Written only when someone picks a language, which keeps it inside the ePrivacy exemption for customisation cookies.
 export const LOCALE_COOKIE = "NEXT_LOCALE";
 export const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 

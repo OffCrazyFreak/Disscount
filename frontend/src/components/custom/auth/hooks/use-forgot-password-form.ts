@@ -35,7 +35,7 @@ export function useForgotPasswordForm() {
         redirectTo: `${appUrl}${localePath(locale, "/reset-password")}`,
       });
     } catch {
-      // Only a thrown transport failure reaches here; the API's { error } is left uninspected so it can't confirm an account.
+      // Only a transport failure reaches here; the API's { error } stays unread so it cannot confirm an account.
       toast.error(t("forgot.sendError"));
       return;
     }

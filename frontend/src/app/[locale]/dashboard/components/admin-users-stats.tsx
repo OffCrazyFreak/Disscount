@@ -9,7 +9,6 @@ import {
 } from "@/app/[locale]/dashboard/utils/user-activity";
 import { adminService } from "@/lib/api";
 
-/** Active-user counters above the user list; shares its cached query, so no extra request. */
 export default function AdminUsersStats() {
   const t = useTranslations("dashboard");
   const { data: users, isLoading, isError } = adminService.useGetAllUsers();

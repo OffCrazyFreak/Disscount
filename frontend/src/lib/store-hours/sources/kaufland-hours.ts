@@ -12,11 +12,7 @@ function rangesOf(opens: string, closes: string) {
   return range ? [range] : [];
 }
 
-/**
- * Reads `wod` ("Monday|07:00|22:00") and the dated `sod`
- * ("2026-11-08|00:00|00:00"), which always holds the coming Sunday and the
- * holidays ahead.
- */
+/** `sod` always holds the coming Sunday and the holidays ahead. */
 export function parseKauflandHours(wod: string[], sod: string[]): IParsedHours {
   const weekly = emptyWeek();
 

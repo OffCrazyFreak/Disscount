@@ -26,14 +26,12 @@ export function usePriceHistoryChart(product: ProductResponse) {
   const availableChains =
     product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
 
-  // If EAN isn't in preferences yet, default to preferred stores only (if any exist)
   const preferredStoreIds =
     accountUser?.pinnedStores?.map((s) => s.storeApiId) || [];
   const preferredChains = availableChains.filter((chain) =>
     preferredStoreIds.includes(chain),
   );
 
-  // Sanitize persisted chains by intersecting with available chains
   const savedChains = saved.chains
     ? Array.from(new Set(saved.chains)).filter((chain) =>
         availableChains.includes(chain),
@@ -82,9 +80,7 @@ export function usePriceHistoryChart(product: ProductResponse) {
   }
 
   function handleChainsChange(chains: string[]) {
-    // Ensure at least one chain is always selected
     if (chains.length > 0) savePreferences({ ...chartPrefs, chains });
-    // If no chains are selected, keep the current selection unchanged
   }
 
   const priceChange = useMemo(() => {

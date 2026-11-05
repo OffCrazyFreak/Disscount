@@ -43,7 +43,7 @@ export default function AdminUsersTable() {
   function handleChange(userId: string, accountType: AccountType) {
     setUpdatingIds((ids) => new Set(ids).add(userId));
 
-    // mutateAsync, not mutate options: those fire only for the latest call, so a row saved earlier would roll back without a toast.
+    // mutateAsync, because mutate options fire only for the latest call, losing an earlier row's toast.
     updateAccountType
       .mutateAsync({ userId, accountType })
       .then(

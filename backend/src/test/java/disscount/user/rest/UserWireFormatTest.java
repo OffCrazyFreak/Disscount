@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** Pins the UserDto the frontend's userDtoSchema reads, on the current user, the admin list and the account type change. */
+/** Pins the UserDto of userDtoSchema, on the current user, the admin list and the account type change. */
 class UserWireFormatTest extends FullStackTest {
 
 

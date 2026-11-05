@@ -42,8 +42,7 @@ export function useDigitalCardForm({
   // Destructured, never read inline: formState is a Proxy that subscribes per field.
   const { isDirty } = form.formState;
 
-  // Draft wins over the loaded card, so an in-progress edit is never clobbered.
-  // An Effect Event, so the first keystroke flipping isDirty never reruns the seed.
+  // Draft wins so an in-progress edit survives; an Effect Event so a keystroke never reruns the seed.
   const seedForm = useEffectEvent((loaded: DigitalCardDto, key: string) => {
     if (isDirty) return;
 

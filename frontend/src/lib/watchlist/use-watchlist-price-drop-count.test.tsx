@@ -80,8 +80,7 @@ function watching(minPrice: string) {
   );
 }
 
-// Observes the cached product without fetching it, so a zero is asserted only after the
-// hook has seen the price rather than before it arrived.
+// Observes without fetching, so a zero is asserted only after the hook has seen the price.
 function useCountAndProduct() {
   return {
     ...useWatchlistPriceDropCount(),

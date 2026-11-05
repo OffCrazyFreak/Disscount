@@ -27,7 +27,6 @@ interface IItemStoreSelectProps {
 
 const STORE_SELECT_CLASS_NAME = "relative z-20 w-full sm:w-72 sm:flex-none";
 
-/** The item's store choice, or what stands in for it until there are live prices to choose from. */
 export default function ItemStoreSelect({
   item,
   onUpdate,

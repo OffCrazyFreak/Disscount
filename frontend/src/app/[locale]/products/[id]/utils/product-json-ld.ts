@@ -18,11 +18,7 @@ interface IProductJsonLdInput {
   image: string | null;
 }
 
-/**
- * Product snippet markup. AggregateOffer, not Offer: we list prices across chains and
- * sell nothing, which Google reserves merchant listings for. The numbers are the
- * page's own chain prices, as Google requires the markup to match what is visible.
- */
+/** AggregateOffer because we sell nothing; the numbers match the page, as Google requires. */
 export function productJsonLd({ product, url, image }: IProductJsonLdInput) {
   const lowPrice = getMinPrice(product);
   const highPrice = getMaxPrice(product);
@@ -32,8 +28,7 @@ export function productJsonLd({ product, url, image }: IProductJsonLdInput) {
     "@type": "Product",
     name: product.name || product.ean,
     url,
-    // Google wants images relevant to the page, and image is optional for product snippets,
-    // so a product without a confirmed photo says nothing rather than show our logo.
+    // Google wants relevant images, so a product with no confirmed photo says nothing, not our logo.
     ...(image && { image }),
     // cijene also keys products by "chain:code" and by in-store codes, neither a GTIN.
     ...(isPublicGtin(product.ean) && { gtin: product.ean }),

@@ -9,7 +9,6 @@ type PrepareState =
   | { status: "ready"; blob: Blob; previewUrl: string }
   | { status: "error"; code: ImageProcessingError["code"] };
 
-/** Turns a picked file into the JPEG we upload, with a preview URL that is revoked when replaced. */
 export function usePreparedPhoto() {
   const [state, setState] = useState<PrepareState>({ status: "idle" });
   const previewUrl = state.status === "ready" ? state.previewUrl : null;

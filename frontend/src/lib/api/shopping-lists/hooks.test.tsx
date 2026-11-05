@@ -27,7 +27,6 @@ function makeList(overrides: Partial<ShoppingListDto> = {}): ShoppingListDto {
   };
 }
 
-/** Serves `served.list` with `served.status` and counts how often the list was fetched. */
 function serveList(list: ShoppingListDto) {
   const served = { list, requests: 0, status: 200 };
   server.use(
@@ -49,8 +48,7 @@ async function advance(ms: number) {
   await act(() => vi.advanceTimersByTimeAsync(ms));
 }
 
-// Testing Library's waitFor only recognises Jest's fake timers and hangs under Vitest's,
-// so this flushes the pending request without moving the clock.
+// waitFor hangs under Vitest's fake timers, so this flushes the request without moving the clock.
 async function flushUntil(isDone: () => boolean) {
   for (let attempt = 0; attempt < 50 && !isDone(); attempt += 1) {
     await advance(0);

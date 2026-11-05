@@ -2,11 +2,9 @@ import type { QueryKey } from "@tanstack/react-query";
 
 import { DIGITAL_CARD_KEY_VERSION } from "@/lib/api/digital-cards/keys";
 
-// Query-key prefixes whose data is persisted to disk; keep in sync with the keys
-// in lib/cijene-api and lib/api/*. Gates query dehydration only, not the offline
-// mutations persisted separately in persister.ts.
+// Keep in sync with keys in lib/cijene-api and lib/api/*; gates query dehydration only.
 const PERSISTED_QUERY_KEY_PREFIXES = [
-  "cijene", // public product / price / store data
+  "cijene",
   "shoppingLists",
   "shoppingListItems",
   "watchlist",
@@ -14,7 +12,7 @@ const PERSISTED_QUERY_KEY_PREFIXES = [
   "pinnedStores",
   "pinnedPlaces",
   "favoriteStores",
-  "users", // current user profile (["users", "me"])
+  "users",
 ] as const;
 
 type PersistedQueryKeyPrefix = (typeof PERSISTED_QUERY_KEY_PREFIXES)[number];

@@ -25,6 +25,8 @@ Accessibility is what the owner most often fixes afterwards, so check each:
 2. Open every changed screen in the T3 preview.
 3. Walk each changed state.
 
+For admin screens on dev, sign in with `DEV_ACCOUNT_*` in an incognito preview tab, and mask other users' names and emails before any screenshot.
+
 ## PR screenshots
 
 1. Ask the owner in a question card: attach them yourself, the owner attaches them, or none.

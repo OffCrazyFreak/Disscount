@@ -1,8 +1,4 @@
-/**
- * Closes the on-screen keyboard after a search commits. A client-side submit
- * never unmounts the field, so touch keyboards stay up over the results.
- * Fine pointers keep focus, so a keyboard user does not lose their place.
- */
+/** A client-side submit keeps the field mounted, so touch keyboards stay up; fine pointers keep focus. */
 export function dismissTouchKeyboard(): void {
   if (!isTouchPointer()) return;
 

@@ -20,8 +20,7 @@ export function resolveInitialView(
   return null;
 }
 
-// Looked up among all stores, so a shared link opens even when the filters
-// would hide that store.
+// Looked up among all stores, so a shared link opens even when the filters would hide that store.
 export function findSelectedStore(
   stores: DirectoryStoreDto[],
   selectedKey: string | null,

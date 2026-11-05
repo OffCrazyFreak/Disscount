@@ -28,8 +28,7 @@ const responseSchema = z.object({
   ),
 });
 
-// "Bolnička cesta 34, 10000 Zagreb": the street itself may contain commas,
-// so only the last segment is the zip and city.
+// The street may contain commas, so only the last segment is the zip and city.
 function splitAddress(raw: string) {
   const cut = raw.lastIndexOf(",");
   const street = cut === -1 ? raw : raw.slice(0, cut);

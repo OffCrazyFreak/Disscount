@@ -20,7 +20,6 @@ import {
 } from "@/app/[locale]/map/utils/map-view";
 import { isVisitableStore } from "@/app/[locale]/map/utils/visitable-store";
 
-/** Everything the map page renders, derived from the data, the URL and the user. */
 export function useMapViewModel(ipLocation: IIpLocation | null) {
   const directory = useStoreDirectory();
   const url = useMapUrlState();

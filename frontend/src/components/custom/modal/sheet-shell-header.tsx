@@ -21,17 +21,7 @@ export interface ISheetShellHeaderProps {
   showCloseButton?: boolean;
 }
 
-/**
- * The band between the grab handle and the body.
- *
- * Its padding is unconditional, and that is the whole point: `sr-only` takes the
- * title out of flow, so a sheet that names itself in its content still keeps the
- * gap that separates the handle from the first control.
- *
- * The top inset is an explicit 1rem rather than `pt-4`, which this project's
- * 0.2rem spacing scale would render as 12.8px, leaving the handle closer to the
- * title than to the sheet's own edge.
- */
+/** Padding keeps the gap as `sr-only` removes the title; 1rem because `pt-4` is only 12.8px here. */
 export default function SheetShellHeader({
   title,
   description,

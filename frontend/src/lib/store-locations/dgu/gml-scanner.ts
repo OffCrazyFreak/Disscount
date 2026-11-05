@@ -1,7 +1,6 @@
 const MEMBER_END = "</wfs:member>";
 
-// Real members are a few kilobytes. Anything this long means the feed changed
-// shape, and buffering on would pull the whole 2.6 GB file into memory.
+// Members are a few kilobytes; this long means a changed feed, and buffering would pull 2.6 GB.
 const MAX_MEMBER_CHARS = 1_000_000;
 
 export interface IMemberScanner {
@@ -9,11 +8,7 @@ export interface IMemberScanner {
   end(): void;
 }
 
-/**
- * Feeds each `<wfs:member>` element of a GML stream to `onMember` as text.
- * Chunks end anywhere, so the decoder keeps split UTF-8 characters and the
- * buffer keeps the unfinished tail until its closing tag arrives.
- */
+/** Chunks end anywhere, so the decoder keeps split UTF-8 characters and the buffer keeps the unfinished tail. */
 export function createMemberScanner(
   onMember: (member: string) => void,
 ): IMemberScanner {

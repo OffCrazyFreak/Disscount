@@ -7,8 +7,7 @@ import { useTranslations } from "next-intl";
 import MapErrorBoundary from "@/app/[locale]/map/components/map-error-boundary";
 import MapUnavailable from "@/app/[locale]/map/components/map-unavailable";
 
-// MapLibre touches window and WebGL on import, and weighs about 430 KB gzip
-// with its worker, so it loads in the browser and only on this page.
+// MapLibre touches window on import and weighs about 430 KB gzip, so it loads only on this page.
 const StoreMap = dynamic(
   () => import("@/app/[locale]/map/components/store-map"),
   {

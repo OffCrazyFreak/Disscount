@@ -16,10 +16,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-/**
- * The one-shot replay command, run against a restored database before traffic reopens
- * (docs/BACKUPS.md, Restore). A failure throws, so the process exits non-zero.
- */
+/** Run on a restored database before traffic reopens (docs/BACKUPS.md, Restore); a failure exits non-zero. */
 @Component
 @Profile(ErasureReplayRunner.PROFILE)
 @Slf4j
@@ -53,7 +50,7 @@ class ErasureReplayRunner implements ApplicationRunner {
         try (Stream<Path> files = Files.list(markers)) {
             names = files.map(file -> file.getFileName().toString()).toList();
         }
-        // Pointing at the wrong folder (say _erasures/ instead of _erasures/v1/) would otherwise match nothing and pass.
+        // The wrong folder (say _erasures/ instead of _erasures/v1/) would otherwise match nothing and pass.
         List<String> strangers = names.stream().filter(name -> !MARKER.matcher(name).matches()).toList();
         if (!strangers.isEmpty()) {
             throw new IllegalStateException("Not erasure markers, check the folder: " + strangers);

@@ -48,7 +48,6 @@ export function buildUserPatch(
 
 export type SaveMode = "settings" | "onboarding";
 
-/** The user PATCH for a save, or null when nothing on the user needs writing. */
 export function buildModeUserPatch(
   mode: SaveMode,
   values: SettingsFormValues,
@@ -56,9 +55,7 @@ export function buildModeUserPatch(
   dirty: Set<SettingsSection>,
   avatar: { touched: boolean; preview: string | null },
 ): UserRequest | null {
-  // Onboarding stamps its outcome in the same patch as the profile fields, so
-  // only one user PATCH runs. A second, later call would land after the pinned
-  // stores and places jobs and, response by response, undo them.
+  // Same patch as the profile fields, because a second, later PATCH would land after the pinned jobs and undo them.
   if (mode === "onboarding") {
     return buildUserPatch(values, defaults, avatar, {
       onboardingOutcome: ONBOARDING_COMPLETED,

@@ -210,6 +210,8 @@ v=DMARC1; p=quarantine; np=reject; rua=mailto:<id>@dmarc-reports.cloudflare.net
 
 It began in monitor mode (`p=none`) and is now at `p=quarantine`. `np=reject` is stricter than the main policy on purpose: it covers non-existent subdomains, which never send legitimate mail, so nothing can break by rejecting them outright. Aggregate reports go to Cloudflare's hosted DMARC Management rather than an inbox. It stays at `p=quarantine` until real test mail from each sender has produced aggregate reports; there are none yet, because nothing has sent real mail. The remaining step is `p=reject`, which should wait until those reports stay clean across all three senders (Resend, MailerLite, Cloudflare Email Routing), since any one of them falling out of alignment under `reject` means silent delivery failure rather than a spam-folder warning. Check a new sender's DKIM alignment before adding it.
 
+Read DMARC reports with the zone GraphQL `dmarcReportsSourcesAdaptiveGroups`, which keeps about 32 days. The REST `dmarc-reports` endpoint only holds settings, and an empty result means no report arrived, usually because no mail was sent.
+
 ---
 
 ## 7. Security & networking

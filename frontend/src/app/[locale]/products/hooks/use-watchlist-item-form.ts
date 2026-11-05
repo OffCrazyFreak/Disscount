@@ -47,8 +47,7 @@ export function useWatchlistItemForm(
     },
   });
 
-  // useWatch, not form.watch: watch() signals changes outside React state, so the
-  // React Compiler skips memoizing every component that reads it.
+  // useWatch, because the React Compiler skips memoizing any component that reads watch().
   const watchType = useWatch({
     control: form.control,
     name: "watchType",
@@ -68,14 +67,7 @@ export function useWatchlistItemForm(
     (item) => item.watchType === watchType,
   );
 
-  // reset, not resetField: resetField only works on a name that is registered right
-  // now, and neither number is while the product loads, nor is the mode that is not
-  // on screen. So the prefill landed on nothing. reset writes both values and both
-  // defaults regardless, which is what makes an untouched prefill not a change, and
-  // keepDirtyValues leaves a number the user (or a restored draft) has already
-  // edited alone. What it does not do is re-run the resolver, so formState.isValid is
-  // still the mount pass over the empty defaults afterwards. That is why isFormValid
-  // below parses the schema itself rather than reading the flag.
+  // reset, because resetField needs registered names; it skips the resolver, so isFormValid parses itself.
   useEffect(() => {
     form.reset(
       {
@@ -90,9 +82,7 @@ export function useWatchlistItemForm(
 
   useModalError(open, draftKey, form);
 
-  // Undoes the whole session: both numbers and the mode the modal opened in. No
-  // keepDirtyValues here, unlike the seed above, because discarding the edits is
-  // the entire point.
+  // No keepDirtyValues, unlike the seed above, because discarding the edits is the entire point.
   function resetForm() {
     form.reset({
       watchType: openingWatchType,
@@ -160,12 +150,7 @@ export function useWatchlistItemForm(
   const activeValue =
     watchType === WatchType.absolute ? absoluteValue : percentageValue;
 
-  // Parsed here rather than read off formState.isValid, for the same reason isEdited
-  // does not read dirtyFields: the flag only refreshes when RHF runs the resolver,
-  // and seeding the prefill through reset does not. The one validation that had run
-  // was the mount pass over the empty defaults, so a prefilled first-time watch was
-  // held invalid until an unrelated change (switching mode) triggered a fresh pass.
-  // The resolver stays in place and still owns the messages under the field.
+  // Parsed, because formState.isValid refreshes only when the resolver runs, which reset skips.
   const isFormValid = watchlistFormSchema.safeParse({
     watchType,
     percentageValue,
@@ -179,16 +164,7 @@ export function useWatchlistItemForm(
     existingItemForType,
     isCheckingWatchlist,
     isFormValid,
-    // Compared against the baselines rather than read off RHF's dirtyFields: the
-    // seed keeps dirty flags so an in-progress edit survives a refetch, which means
-    // a flag can outlive the edit itself (a saved value equals its new baseline but
-    // stays flagged). The comparison cannot drift that way. Only the numbers count,
-    // so switching mode is never a change.
-    // Scoped to the mode on screen. Comparing both modes lit the unsaved marker for a
-    // number the user cannot see and cannot save from here: a draft restores the other
-    // mode's value, and onSubmit only clears the field it saved, so the marker stuck for
-    // the whole 24h draft life. resetDisabled keeps the both-modes comparison, because
-    // reset genuinely clears both.
+    // A dirty flag can outlive its edit; only the on-screen mode, as a hidden draft would stick the marker for 24h.
     isEdited: !isSameThreshold(
       activeValue,
       watchType === WatchType.absolute
@@ -198,8 +174,7 @@ export function useWatchlistItemForm(
     isEditedInAnyMode:
       !isSameThreshold(percentageValue, baselines.percentageValue) ||
       !isSameThreshold(absoluteValue, baselines.absoluteValue),
-    // Re-saving the tracked threshold unchanged is a no-op, so the button waits
-    // for a different number. A mode with nothing tracked yet is always savable.
+    // Re-saving the tracked threshold unchanged is a no-op, so the button waits for a different number.
     hasSavableChange:
       !existingItemForType ||
       parseThreshold(activeValue) !== existingItemForType.thresholdValue,

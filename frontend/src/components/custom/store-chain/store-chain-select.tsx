@@ -18,10 +18,10 @@ interface IStoreChainSelectProps {
   onChange: (value: string) => void;
   disabled?: boolean;
   defaultValue?: string | null;
-  storePrices?: Record<string, number>; // chain code -> price
+  storePrices?: Record<string, number>;
   averagePrice?: number;
-  isChecked?: boolean; // Whether the item is checked
-  storePriceFromDb?: number; // Store price from database when item is checked
+  isChecked?: boolean;
+  storePriceFromDb?: number;
   /** Id of an element saying why this is disabled, when it is. */
   describedById?: string;
   className?: string;
@@ -61,15 +61,13 @@ export default function StoreChainSelect({
   const suggested = suggestedChain(value, isChecked, defaultValue);
 
   const getPriceDifference = (chainCode: string) => {
-    // When item is checked, use database prices
     if (isChecked) {
       if (!averagePrice || !storePriceFromDb) return null;
-      if (chainCode !== value) return null; // Only show difference for selected store when checked
+      if (chainCode !== value) return null;
 
       return computePriceDifference(storePriceFromDb, averagePrice);
     }
 
-    // When item is unchecked, use API prices
     if (!averagePrice || !storePrices[chainCode]) return null;
 
     return computePriceDifference(storePrices[chainCode], averagePrice);
@@ -98,7 +96,6 @@ export default function StoreChainSelect({
         {chainCodes.map((chainCode) => {
           const priceDifference = getPriceDifference(chainCode);
 
-          // Positive = red, negative = green
           const differenceValue = priceDifference
             ? parseFloat(priceDifference.difference)
             : 0;

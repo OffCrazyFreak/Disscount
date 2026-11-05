@@ -1,7 +1,6 @@
 import { expandUpcE, gs1CheckDigit } from "@/utils/barcode/check-digits";
 
-// Six digits (implied number system 0), seven (number system + six) or eight (with check
-// digit) all become the eight digit form the renderer draws; anything else returns null.
+// Anything but six, seven or eight digits returns null, because the renderer draws only the eight digit form.
 export function toEightDigitUpcE(value: string): string | null {
   if (!/^\d{6,8}$/.test(value)) return null;
 

@@ -16,10 +16,7 @@ interface IProductPhotoStripProps {
   className?: string;
 }
 
-/**
- * Up to two more photos and the add button, one per row of the main photo's height on wide screens.
- * With only the main photo there is nothing to show, so the add button lives in the viewer then.
- */
+/** With only the main photo there is nothing to show, so the add button lives in the viewer then. */
 export default function ProductPhotoStrip({
   images,
   onOpen,

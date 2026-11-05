@@ -7,7 +7,6 @@ import { revokeAccountSession } from "@/lib/auth/account-sessions";
 
 const sessionIdSchema = z.uuid();
 
-// Signs one device out by id; the owner check lives in the delete itself.
 export async function DELETE(
   _request: Request,
   { params }: RouteContext<"/api/account/sessions/[id]">,

@@ -37,8 +37,7 @@ export function archiveAnnouncementKey(archived: boolean) {
   return archived ? "announce.archived" : "announce.unarchived";
 }
 
-// Pinning moves a tile to another grid, which remounts it; the new button reads this to
-// take focus back.
+// Pinning remounts the tile in another grid, and the new button reads this to take focus back.
 let pendingFocusId: string | null = null;
 let focusTimer: ReturnType<typeof setTimeout> | undefined;
 

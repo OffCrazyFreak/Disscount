@@ -7,7 +7,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import disscount.exceptions.TooManyRequestsException;
 import org.springframework.scheduling.annotation.Scheduled;
 
-/** Per-user fixed window kept in memory, for the few writes expensive enough to need a cap. */
 public class FixedWindowLimiter {
 
     private record Window(long startedAt, int count) {}

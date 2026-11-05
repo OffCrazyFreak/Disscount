@@ -86,8 +86,7 @@ export const cardPhotoDtoSchema = z.object({
   sha256: z.string(),
 });
 
-// Its own object rather than an extension of the request schema, so a value the server
-// accepted can never fail the form's stricter rules on the way back.
+// Its own object, so a value the server accepted can never fail the form's stricter rules on the way back.
 export const digitalCardDtoSchema = z.object({
   id: z.string(),
   cardName: z.string(),

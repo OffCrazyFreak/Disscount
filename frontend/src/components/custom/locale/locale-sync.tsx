@@ -8,13 +8,8 @@ import { isLocale } from "@/i18n/locales";
 import { useSession } from "@/lib/auth/client";
 import { queueAccountLocaleSave } from "@/components/custom/locale/account-locale-save";
 
-/**
- * Keeps the account and this device agreeing on the language, the way Gitea and
- * Rallly do: an account with no language yet takes the one it signed in on, and
- * on sign-in the account's choice overwrites the device's.
- */
-// Module scope survives the remount a language switch causes, so the switch's own
-// cookie write is not undone by a session that has not refetched yet.
+/** A language-less account takes its sign-in language; on each sign-in the account overwrites the device. */
+// Module scope survives a switch's remount, so a stale session cannot undo its cookie write.
 let syncedUserId: string | null = null;
 
 export default function LocaleSync() {
@@ -23,8 +18,7 @@ export default function LocaleSync() {
   const userId = session?.user?.id;
   const accountLocale = session?.user?.locale;
 
-  // Runs once per sign-in, not on every page: the current page language is only
-  // the seed for an account that has none.
+  // Once per sign-in, because the page language is only the seed for an account that has none.
   const syncAccount = useEffectEvent((signedInId: string) => {
     if (!isLocale(accountLocale)) {
       // A failed seed needs no toast: the account stays empty and seeds again next sign-in.

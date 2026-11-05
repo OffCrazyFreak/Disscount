@@ -2,10 +2,7 @@ import { vi } from "vitest";
 
 const CHARACTER_WIDTH = 8;
 
-/**
- * jsdom has no layout and no canvas: every character is 8 px wide, and the observed
- * element reports `boxWidth` as its text box as soon as it is observed.
- */
+/** jsdom has no layout and no canvas, so every character is 8 px wide and the element reports `boxWidth` at once. */
 export function stubTextFit(boxWidth: number) {
   vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(
     () =>

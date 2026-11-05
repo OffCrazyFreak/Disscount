@@ -3,14 +3,7 @@ package disscount.shoppingList.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-/**
- * What a copy carries. The client used to answer this by creating a list and then firing
- * one add per item, which is not a transaction: a failed item left a half-populated list
- * behind that no retry could tidy up.
- *
- * <p>Booleans rather than a level enum, because the three are independent: a copy can take
- * the products without the shopping progress, or the sharing without the products.
- */
+/** Booleans, not a level enum, as a copy can take products without progress, or sharing without products. */
 @Data
 public class ShoppingListCopyRequest {
 
@@ -20,17 +13,9 @@ public class ShoppingListCopyRequest {
     /** Without this the copy is just the title, which is a legitimate thing to want. */
     private boolean includeItems;
 
-    /**
-     * What was ticked, the shop it was ticked at, and the prices captured at that moment.
-     * One flag for all four: a tick without its price reads as a bargain nobody recorded.
-     * Ignored when {@code includeItems} is false, since there is nothing to carry it on.
-     */
+    /** One flag for all four, as a tick without its price reads as a bargain; ignored without includeItems. */
     private boolean includeProgress;
 
-    /**
-     * Carries the source list's link access onto the copy. Owner-only, enforced server
-     * side: without that check a recipient could copy a list they were merely shown and
-     * hand the owner's people a link at a level the owner never chose to give.
-     */
+    /** Owner-only, enforced server side, or a recipient could hand out a link at a level the owner never chose. */
     private boolean includeSharing;
 }

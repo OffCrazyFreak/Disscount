@@ -22,10 +22,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-/**
- * Object style keys on a local disk, where a key is the file's path below the base directory and every key
- * must stay inside one named folder. Each store gets its own folder, so one can never reach another's files.
- */
+/** A key is a path below the base, inside one named folder, so one store can never reach another's files. */
 public final class AtomicFileStore {
 
     /** Backups must skip files with this name prefix; they are unfinished writes. */
@@ -61,10 +58,7 @@ public final class AtomicFileStore {
         this.visibility = visibility;
     }
 
-    /**
-     * The folder is never created here: a missing one means the volume is not mounted, and files
-     * written anyway would land in the container layer and vanish on the next deploy.
-     */
+    /** Never created here: a missing folder means an unmounted volume, and files written then vanish on deploy. */
     public boolean isAvailable() {
         return Files.isDirectory(folder) && Files.isWritable(folder);
     }
@@ -135,7 +129,7 @@ public final class AtomicFileStore {
                 try {
                     Files.deleteIfExists(visited);
                 } catch (DirectoryNotEmptyException uploadRacedTheDelete) {
-                    // That upload's own row write fails on the deleted card and discards the file; the walk must still finish.
+                    // That upload's row write fails on the deleted card, dropping the file; the walk must still finish.
                 }
                 return FileVisitResult.CONTINUE;
             }
@@ -177,7 +171,7 @@ public final class AtomicFileStore {
         }
     }
 
-    // A rename or new entry is durable only once its directory is synced; opening a directory this way works on Linux only.
+    // A rename or new entry is durable only once its directory is synced; opening a directory works on Linux only.
     private static void syncDirectory(Path directory) throws IOException {
         try (FileChannel channel = FileChannel.open(directory, StandardOpenOption.READ)) {
             channel.force(true);

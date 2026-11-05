@@ -14,10 +14,7 @@ interface IScrollFadeAreaProps {
   children: ReactNode;
 }
 
-/**
- * A vertical scroller with ScrollFade on both edges, for lists and bodies that
- * own their scroll element. Use ScrollFade directly where a primitive owns it.
- */
+/** Use ScrollFade directly where a primitive owns the scroll element. */
 export default function ScrollFadeArea({
   className,
   wrapperClassName,

@@ -2,7 +2,6 @@ import { getAppStorage, setAppStorage } from "@/utils/browser/storage/core";
 
 const MAX_RECENT_SEARCHES = 5;
 
-/** Last store-map searches on this device, newest first. */
 export function getMapRecentSearches(): string[] {
   return getAppStorage().mapRecentSearches ?? [];
 }

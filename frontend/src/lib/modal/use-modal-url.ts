@@ -10,12 +10,7 @@ import {
   swapModalUrl,
 } from "@/lib/modal/modal-navigation";
 
-/**
- * Reactive companion to modal-navigation.ts: parses the current ?modal= target.
- * Uses useSearchParams, so any component calling this must sit under a
- * <Suspense> boundary (the ModalRouter in the root layout does). Components
- * that only OPEN modals should import openModalUrl directly instead.
- */
+/** Callers must sit under <Suspense>; components only opening modals should import openModalUrl. */
 export function useModalUrl() {
   const searchParams = useSearchParams();
 

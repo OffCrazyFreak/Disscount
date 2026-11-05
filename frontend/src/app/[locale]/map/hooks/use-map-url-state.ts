@@ -12,11 +12,7 @@ export const ALL_CHAINS = "all" as const;
 
 type HistoryMode = "push" | "replace";
 
-/**
- * Writes the map's URL without a server round trip. Next keeps useSearchParams
- * in sync with the History API, and the hash the map writes for its view is
- * carried along untouched.
- */
+/** Next syncs useSearchParams with the History API, so no server round trip; the view hash stays. */
 function writeParams(
   mutate: (params: URLSearchParams) => void,
   mode: HistoryMode,
@@ -31,10 +27,7 @@ function writeParams(
   else window.history.replaceState(null, "", url);
 }
 
-/**
- * The map's shareable state. A selected store is pushed, so Back closes it; a
- * chain filter replaces, so toggling chips does not flood the history.
- */
+/** A selected store is pushed so Back closes it; a chain filter replaces, sparing the history. */
 export function useMapUrlState() {
   const searchParams = useSearchParams();
 
@@ -45,11 +38,7 @@ export function useMapUrlState() {
 
   const picked = chainParam?.split(",").filter(Boolean) ?? [];
 
-  /**
-   * Null until the user picks chains, so defaults (pinned chains) can apply.
-   * An empty list means every chain, matching the multiselect's empty state;
-   * older links used it for "no chains".
-   */
+  /** Null until chains are picked, so pinned defaults apply; empty means every chain. */
   const chainFilter =
     chainParam == null
       ? null

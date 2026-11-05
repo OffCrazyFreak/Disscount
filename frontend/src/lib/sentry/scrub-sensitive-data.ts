@@ -1,12 +1,4 @@
-/**
- * Keeps one-time auth secrets out of everything the Sentry SDK sends. The password reset
- * link lands on a page as `?token=`, and verify-email and OAuth callbacks carry `token`,
- * `code` and `state` in request URLs, so URLs are scrubbed by their structure (query key,
- * reset path segment), never by matching message text. The server SDK attaches request
- * bodies as raw JSON or form-encoded strings, so sensitive fields are filtered there as
- * well as as keys. Cookies and the Authorization header carry the session, so they go too,
- * as keys and also as values wherever they turn up in text.
- */
+/** Scrubbed by structure, not message text; the server SDK attaches raw bodies, filtered too. */
 const FILTERED = "[Filtered]";
 
 // better-auth's reset email links to this route with the token as a path segment.
@@ -24,8 +16,7 @@ const SENSITIVE_FIELD_NAMES = [
   "authorization",
 ];
 
-// Every better-auth cookie (session_token, session_data, dont_remember, ...), including the
-// __Secure- and __Host- forms it uses over HTTPS. The value ends where a cookie header's does.
+// Every better-auth cookie, including __Secure- and __Host- forms; the value ends where a cookie header's does.
 const BETTER_AUTH_COOKIE =
   /((?:__Secure-|__Host-)?better-auth\.[\w.-]+=)(?:"[^"]*"|[^;,\s"'\\]*)/gi;
 

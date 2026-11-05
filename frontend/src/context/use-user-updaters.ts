@@ -2,7 +2,6 @@ import { Dispatch, SetStateAction, useCallback } from "react";
 
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
 
-/** Patches the signed-in user in place; a signed-out user stays null. */
 export function useUserUpdaters(
   setUser: Dispatch<SetStateAction<UserDto | null>>,
 ) {

@@ -50,7 +50,6 @@ function providers({
   };
 }
 
-/** Renders inside the app's real providers, with the real catalogs, in Croatian by default. */
 export function renderWithProviders(
   ui: ReactElement,
   options: IProviderOptions = {},

@@ -41,8 +41,7 @@ describe("persisted cache writes", () => {
     await vi.runAllTimersAsync();
     identity = "alice";
 
-    // One save goes through, so the next one waits out the throttle interval the way a
-    // save just before a sign out does.
+    // One save goes through, so the next waits out the throttle the way a save just before a sign out does.
     persistSnapshot();
     await vi.advanceTimersByTimeAsync(0);
     db.clear();

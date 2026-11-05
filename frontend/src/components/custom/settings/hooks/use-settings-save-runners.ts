@@ -13,8 +13,7 @@ export function useSettingsSaveRunners() {
   const placesMutation = preferencesService.useUpdatePinnedPlaces();
 
   const runners: ISaveJobRunners = {
-    // Merged, not replaced: the profile response carries no pinned stores or
-    // places, and this job races the ones that just saved them.
+    // Merged because the response has no pinned data, and this job races the jobs that saved them.
     saveUser: async (patch) => mergeUser(await userMutation.mutateAsync(patch)),
     saveStores: async (chainCodes) =>
       updatePinnedStores(

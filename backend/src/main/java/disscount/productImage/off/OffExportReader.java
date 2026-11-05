@@ -13,7 +13,6 @@ import java.util.zip.GZIPInputStream;
 
 import disscount.productImage.catalog.Barcodes;
 
-/** Streams the tab-separated export once, keeping only the front photo of products we carry. */
 public final class OffExportReader {
 
     public record Front(String externalKey, String rev, String lang) {}

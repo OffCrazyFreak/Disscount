@@ -3,10 +3,7 @@ interface ISpan {
   end: number;
 }
 
-/**
- * Where to scroll so a whole opened row shows, moving the least, and never so
- * far that its header leaves the top. Null when it already fits.
- */
+/** Never so far that the row's header leaves the top. */
 export function revealOffset(row: ISpan, view: ISpan): number | null {
   if (row.start < view.start) return row.start;
 

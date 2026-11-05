@@ -12,12 +12,7 @@ function round(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
-/**
- * Cloudflare's guess at where a request comes from, from its "Add visitor
- * location headers" managed transform. Only a guess inside Croatia is used;
- * anything else falls back to the whole country. A client that bypasses
- * Cloudflare can send these headers itself, which only moves its own map.
- */
+/** Only a guess inside Croatia is used; forging these headers only moves the sender's own map. */
 export function readIpLocation(headers: Headers): IIpLocation | null {
   const latHeader = headers.get("cf-iplatitude");
   const lonHeader = headers.get("cf-iplongitude");

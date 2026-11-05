@@ -11,7 +11,6 @@ import type { ISectionTab } from "@/typings/section-tabs";
 
 type IShoppingListSectionsProps = ComponentProps<typeof ShoppingListItems>;
 
-/** The list's products, stores and price history, as tabs under one sticky bar. */
 export default function ShoppingListSections(
   itemsProps: IShoppingListSectionsProps,
 ) {

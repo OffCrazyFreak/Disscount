@@ -6,7 +6,6 @@ import {
   type PriceExtreme,
 } from "@/app/[locale]/products/utils/product-utils";
 
-/** Counts, per chain, how many list products sit at their extreme average price. */
 function countChainsAtExtreme(
   productsData: ProductResponse[],
   activeItems: ShoppingListItemDto[],

@@ -32,7 +32,6 @@ export function useWatchlistData(query: string) {
 
   const productsLoading = productQueries.some((query) => query.isLoading);
 
-  // Drives the "last synced" label.
   const pricesUpdatedAt = useMemo(() => {
     const timestamps = productQueries
       .map((query) => query.dataUpdatedAt)

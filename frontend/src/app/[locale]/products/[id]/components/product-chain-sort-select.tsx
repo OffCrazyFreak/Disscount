@@ -17,7 +17,6 @@ interface IProductChainSortSelectProps {
   describedById?: string;
 }
 
-/** Picks how the chains carrying one product are ordered. */
 export default function ProductChainSortSelect({
   value,
   onValueChange,

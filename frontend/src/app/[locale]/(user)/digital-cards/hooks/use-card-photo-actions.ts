@@ -91,8 +91,7 @@ export function useCardPhotoActions(cardId: string) {
       return;
     }
 
-    // A 404 means the card's own save has not reached the server yet; the outbox
-    // replays after paused saves resume.
+    // A 404 means the card's own save has not reached the server yet; the outbox replays after paused saves resume.
     const {
       outcome,
       nonce: handled,
@@ -108,9 +107,7 @@ export function useCardPhotoActions(cardId: string) {
     }
 
     mark(slot, outcome === "kept" ? "queued" : "error");
-    // The form has already closed on "saved", so a refusal the server may get over (rate
-    // limit, outage) is said aloud though it stays queued. A lost connection and a card the
-    // server has not seen yet wait quietly for the replay.
+    // The form already closed on "saved", so a refusal is announced; a lost connection waits quietly.
     const waitsQuietly = isNetworkFailure(error) || httpStatus(error) === 404;
     if (outcome === "dropped" || !waitsQuietly) {
       toast.error(problemMessage(error, t("saveFailed")));

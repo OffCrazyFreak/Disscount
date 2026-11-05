@@ -90,9 +90,7 @@ describe("session country", () => {
   });
 });
 
-// The catch-all auth route exposes these endpoints directly, so the policy has to sit in
-// hooks.before, which wraps the same endpoint for HTTP and in-process calls. The test
-// database is unreachable, so a call that got past the hook would fail with a query error.
+// The catch-all exposes these endpoints, so the policy sits in hooks.before.
 describe("new password policy", () => {
   const BREACHED = "password1234";
 

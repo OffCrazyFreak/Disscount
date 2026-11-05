@@ -24,10 +24,7 @@ export interface IModalShellFooterProps {
   caption?: ReactNode;
 }
 
-/**
- * Whether the composed footer would render anything. Exported so ModalShell can
- * decide about its wrapper without a second copy of this condition.
- */
+/** Exported so ModalShell can decide about its wrapper without a second copy of this condition. */
 export function hasFooterContent(props: IModalShellFooterProps): boolean {
   return Boolean(
     props.cancelLabel ||

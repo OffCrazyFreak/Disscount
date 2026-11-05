@@ -4,24 +4,18 @@ import { useMemo } from "react";
 import { getLocationLabel } from "@/utils/labels";
 import { IStoreLocation } from "@/typings/store-location";
 
-/**
- * Hook for fetching all locations/cities from all chains for sidebar
- */
 export function useAllLocations() {
-  // Get all stores from all chains in one request
   const {
     data: storesData,
     isLoading: storesLoading,
     error: storesError,
   } = cijeneService.useSearchStores();
 
-  // Process and combine all store data
   const locations = useMemo<Array<IStoreLocation>>(() => {
     if (storesLoading || !storesData?.stores) {
       return [];
     }
 
-    // Group stores by city and aggregate data
     const cityMap = new Map<
       string,
       {
@@ -32,7 +26,7 @@ export function useAllLocations() {
     >();
 
     storesData.stores.forEach((store: StoreResponse) => {
-      if (!store.city) return; // Skip stores without city info
+      if (!store.city) return;
 
       const city = store.city.trim();
       if (!city) return;
@@ -78,18 +72,11 @@ import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 import { PRICE_ARCHIVE_START } from "@/constants/price-history";
 import { priceHistoryQueries } from "@/lib/cijene-api/price-history-queries";
 
-/**
- * Fetch product price snapshots for the last N days in parallel
- *
- * @param ean - Product EAN code
- * @param days - Number of days to fetch (default 7). Pass -1 for all available history, capped to not go earlier than 2025-05-16
- * @returns Object containing history data, chains, loading/error states
- */
+/** Pass -1 for all available history, capped to not go earlier than 2025-05-16. */
 
 export function usePriceHistory({ ean, days = 7 }: IUsePriceHistoryArgs) {
   "use no memo";
-  // The compiler caches `new Date()` as a constant, so a tab left open past Zagreb midnight
-  // would keep yesterday as its last day; reading the clock each render needs the opt-out.
+  // The compiler caches `new Date()`, so a tab open past Zagreb midnight would keep yesterday without the opt-out.
   const today = zagrebClock(new Date()).date;
   const dates = useMemo(
     () => buildDateWindow(days, PRICE_ARCHIVE_START, today),
@@ -105,7 +92,6 @@ export function usePriceHistory({ ean, days = 7 }: IUsePriceHistoryArgs) {
   const isError = queries.some((q) => q.isError && q.data === undefined);
 
   const { data, chains } = useMemo(() => {
-    // collect all chain codes seen across all days
     const chainSet = new Set<string>();
 
     const rows: HistoryDataPoint[] = dates.flatMap((date, idx) => {

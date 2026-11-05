@@ -58,7 +58,6 @@ const StorePricesTable = memo(
                 const aCity = getLocationLabel(a.store.city);
                 const bCity = getLocationLabel(b.store.city);
 
-                // Pinned locations come first, then city, then address
                 const aIsPreferred = preferredPlaceIds.includes(aCity);
                 const bIsPreferred = preferredPlaceIds.includes(bCity);
 

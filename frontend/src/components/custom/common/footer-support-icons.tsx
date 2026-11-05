@@ -8,7 +8,6 @@ const LIVE_CLASS =
   "text-muted-foreground hover:text-primary transition-all hover:scale-110";
 const DISABLED_CLASS = "text-muted-foreground/50";
 
-/** Support entry icons, sharing supportNavItems with the sidebar group. */
 export default function FooterSupportIcons() {
   const t = useTranslations("common");
   const tShell = useTranslations("shell");

@@ -1,8 +1,7 @@
 import { toEightDigitUpcE } from "@/utils/barcode/upc-e";
 import type { IScannedCode } from "@/typings/scanned-code";
 
-// A UPC-A is an EAN-13 with a leading zero, and EAN-13 is what product lookups
-// and the barcode renderer expect.
+// A UPC-A is an EAN-13 with a leading zero, and EAN-13 is what product lookups and the barcode renderer expect.
 export function normalizeScannedCode(code: IScannedCode): IScannedCode {
   const rawValue = code.rawValue.trim();
 

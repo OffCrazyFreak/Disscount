@@ -52,27 +52,19 @@ public class UserService {
     private final ErasureLedgerRepository erasureLedger;
     private final AvatarSanitizer avatarSanitizer;
 
-    // Read-only: the class-level @Transactional would otherwise keep a dirty-checking
-    // flush at commit for a query that never writes.
+    // Read-only, or the class-level @Transactional would keep a dirty-checking flush for a query that never writes.
     @Transactional(readOnly = true)
     public Optional<UserDto> findById(UUID id) {
         return userRepository.findByIdAndDeletedAtIsNull(id)
                 .map(this::convertToUserDto);
     }
 
-    /**
-     * Idempotent upsert called on every authenticated request via UserProvisioningFilter.
-     * Creates the profile row on first login. A deleted account is never revived: the login
-     * outlived a failed deletion, so the caller is told and the browser can finish it.
-     *
-     * @throws AccountErasedException when the profile is soft-deleted or the id has a tombstone
-     */
+    /** A deleted account is never revived: the login outlived a failed deletion, so the browser can finish it. */
     public void ensureActiveProfile(UUID id, String email, String name, String image) {
         if (email == null) return;
 
         Optional<User> existing = userRepository.findById(id);
-        // Profiles deleted before the ledger existed have no tombstone, so the row itself is the proof.
-        // The ledger is checked only off the hot path: an active profile cannot have been erased.
+        // Profiles deleted before the ledger have no tombstone, so the row is proof; the ledger is off the hot path.
         boolean isErased = existing
                 .map(user -> user.getDeletedAt() != null)
                 .orElseGet(() -> erasureLedger.existsById(id));
@@ -83,23 +75,18 @@ public class UserService {
         if (existing.isPresent()) {
             User user = existing.get();
 
-            // Email is no longer mirrored here: it lives authoritatively in the better-auth `user`
-            // table, and the backend reads it from there (admin list) or the session (current user).
-            // image is intentionally not synced here: the avatar is user-owned after creation,
-            // so a cleared avatar must not be repopulated from the provider on the next request
+            // Email lives in better-auth's `user` table; image is unsynced, so a cleared avatar stays cleared.
             if (isActivityStampStale(user.getLastActiveAt())) {
                 user.setLastActiveAt(Timestamps.nowUtc());
                 userRepository.save(user);
             }
         } else {
-            // First user to ever register becomes the platform admin; everyone else is a consumer.
-            // count() includes soft-deleted rows so a deleted admin never re-triggers auto-promotion.
+            // First user becomes admin; count() includes soft-deleted rows so a deleted admin never re-triggers this.
             AccountType accountType = userRepository.count() == 0
                     ? AccountType.ADMIN
                     : AccountType.CONSUMER;
             String username = seedUsername(name, email);
-            // Newsletter stays null: marketing email needs prior opt-in consent, and a pre-set
-            // switch is not consent (GDPR Recital 32, ZEK Art. 50). The other three start ON.
+            // Null as marketing needs opt-in, and a pre-set switch is not consent (GDPR Recital 32, ZEK Art. 50).
             LocalDateTime now = Timestamps.nowUtc();
             User.UserBuilder profile = User.builder()
                     .id(id)
@@ -113,8 +100,7 @@ public class UserService {
             try {
                 profileCreator.create(profile.username(username).build());
             } catch (DataIntegrityViolationException collision) {
-                // A concurrent first login, or two accounts seeding one username. The insert
-                // ran in its own transaction, so this one is still usable and can retry.
+                // A concurrent first login or two accounts seeding a name; the insert has its own transaction: retry.
                 if (userRepository.existsById(id)) return;
 
                 // Nameless rather than fail: the settings form asks for one immediately.
@@ -128,13 +114,7 @@ public class UserService {
                 || lastActiveAt.isBefore(Timestamps.nowUtc().minus(ACTIVITY_STAMP_INTERVAL));
     }
 
-    /**
-     * Seeds a username for a brand-new profile from the provider display name, falling back
-     * to the email local-part when the name is missing.
-     *
-     * <p>Suffixes on a collision rather than refusing: nobody is present to choose on a
-     * first login. The user-facing edit refuses instead.
-     */
+    /** Suffixes on a collision as nobody is present to choose on first login; the user-facing edit refuses instead. */
     private String seedUsername(String name, String email) {
         String base = (name != null && !name.isBlank())
                 ? name.trim()
@@ -164,8 +144,7 @@ public class UserService {
 
         String username = request.getUsername();
         if (username != null && !username.equals(user.getUsername())) {
-            // Checked here so the answer carries fieldErrors; the unique index catches the
-            // race and renders the same 409.
+            // Checked here so the answer carries fieldErrors; the unique index catches the race with the same 409.
             if (userRepository.existsByUsername(username)) {
                 throw new ConflictException("error.user.usernameTaken");
             }
@@ -187,15 +166,7 @@ public class UserService {
             user.setImage(image.isEmpty() ? null : avatarSanitizer.sanitize(image));
         }
 
-        // Outcome may be overwritten by re-running the wizard, but the completion
-        // timestamp keeps its original value so "first finished" stays meaningful.
-        // Only "completed" stamps it: the wizard writes "skipped:<step>" on every
-        // advance so progress survives a reload, and those must not count as finishing.
-        // A finished account is never downgraded. The wizard fires progress pings
-        // without awaiting them, so a slow "skipped:<step>" can arrive after the
-        // completion it raced and would otherwise lock the user back into the
-        // uncloseable required flow. The client guards this too; this is the copy
-        // that survives a stale tab or a replayed request.
+        // Only "completed" stamps it and finished is never downgraded, or a slow skipped ping could relock the flow.
         String outcome = request.getOnboardingOutcome();
         boolean isDowngrade = outcome != null
                 && !ONBOARDING_COMPLETED.equals(outcome)
@@ -213,11 +184,7 @@ public class UserService {
         return convertToUserDto(user);
     }
 
-    /**
-     * Translates a desired on/off switch state into the stored timestamp:
-     * null = leave unchanged, true = set now() only if currently off (preserve the original
-     * enable time), false = clear.
-     */
+    /** null leaves it unchanged, true sets now only if off, preserving the first enable time, and false clears. */
     private LocalDateTime applyToggle(LocalDateTime current, Boolean desired) {
         if (desired == null) {
             return current;
@@ -228,14 +195,7 @@ public class UserService {
         return null;
     }
 
-    /**
-     * Anonymizes the profile: nulls PII fields and soft-deletes.
-     * The row is kept so business data (watchlists, shopping lists, etc.) remains intact,
-     * except digital cards, which are hard deleted together with their photos.
-     * Records a tombstone in the same transaction. Idempotent, and succeeds for an identity
-     * that never got a profile, because better-auth's beforeDelete hook calls it and only
-     * deletes the identity once this has committed, so any refusal here blocks the deletion.
-     */
+    /** Idempotent and fine with no profile, as better-auth's beforeDelete calls it and a refusal blocks deletion. */
     public void deleteAccount(UUID userId) {
         // Locked so a card write racing the deletion waits and then finds a deleted user.
         userRepository.findByIdForUpdate(userId).ifPresent(user -> {
@@ -259,7 +219,7 @@ public class UserService {
         }
     }
 
-    /** Locks the caller's profile until commit, so a write racing the account deletion either lands first or is refused. */
+    /** Locks the caller's profile until commit, so a write racing account deletion lands first or is refused. */
     public void lockActive(UUID userId) {
         userRepository.requireActiveForUpdate(userId);
     }
@@ -277,8 +237,7 @@ public class UserService {
                 .map(this::convertToUserDto)
                 .toList();
 
-        // Email and sign-in history live in the better-auth tables (shared DB), not in app_user.
-        // Populate them here so the admin list still shows them, keeping a single source of truth.
+        // Email and sign-in history live in better-auth's tables, so the admin list fills them: one source of truth.
         if (!dtos.isEmpty()) {
             Map<UUID, AuthIdentity> identitiesById = authIdentityDao.findByUserIds(dtos.stream().map(UserDto::getId).toList());
             dtos.forEach(dto -> applyAuthIdentity(dto, identitiesById.get(dto.getId())));
@@ -292,8 +251,7 @@ public class UserService {
 
         dto.setEmail(identity.email());
         dto.setLastLoginAt(identity.lastLoginAt());
-        // The stamped column only starts at this feature's rollout, so surviving session rows
-        // fill in the history behind it.
+        // The stamped column starts at this feature's rollout, so surviving session rows fill in the history behind it.
         dto.setLastActiveAt(latestOf(dto.getLastActiveAt(), identity.lastSeenAt()));
     }
 
@@ -303,11 +261,7 @@ public class UserService {
         return first.isAfter(second) ? first : second;
     }
 
-    /**
-     * Fully removes another user (admin action): deletes the better-auth identity - which
-     * cascades its sessions/accounts - then anonymizes and soft-deletes the profile row so
-     * business data stays intact.
-     */
+    /** Identity deletion cascades sessions and accounts; the profile is only anonymized, so business data stays. */
     public void deleteUserAsAdmin(UUID targetUserId, UUID adminUserId) {
         if (targetUserId.equals(adminUserId)) {
             throw new BadRequestException("error.user.cannotDeleteSelf");
@@ -334,8 +288,7 @@ public class UserService {
     }
 
     private UserDto convertToUserDto(User user) {
-        // email is intentionally omitted: the current user reads it from the better-auth session,
-        // and the admin list backfills it from the better-auth `user` table (see findAllActive).
+        // No email: the current user reads the session, and the admin list backfills it (see findAllActive).
         return UserDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())

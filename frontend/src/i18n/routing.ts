@@ -10,7 +10,6 @@ export const routing = defineRouting({
   localeDetection: false,
   // hreflang comes from generateMetadata and the sitemap instead of Link headers.
   alternateLinks: false,
-  // next-intl would rewrite this cookie on every visit; we write it only on an
-  // explicit choice (see LOCALE_COOKIE).
+  // next-intl would rewrite this cookie on every visit; we write it only on an explicit choice (see LOCALE_COOKIE).
   localeCookie: false,
 });

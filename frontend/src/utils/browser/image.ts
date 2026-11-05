@@ -24,7 +24,6 @@ export function needsJpegFallback(blob: Blob | null): boolean {
   return blob?.type !== "image/webp";
 }
 
-/** First blob within `limit`, or undefined when even the last attempt is too big. */
 export async function firstWithinLimit(
   attempts: IEncodeAttempt[],
   encodeAttempt: (attempt: IEncodeAttempt) => Promise<Blob>,

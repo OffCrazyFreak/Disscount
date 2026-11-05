@@ -11,10 +11,7 @@ import java.util.TreeSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * The committed contract the frontend's zod schemas are checked against. Wire format tests read
- * real responses against it, so a real response, this file and the zod schemas cannot disagree.
- */
+/** Wire format tests read real responses against it, so a response, this file and the zod schemas cannot disagree. */
 public final class ApiContract {
 
     // Surefire runs from backend/, and the file sits above it because both sides read it.
@@ -62,7 +59,7 @@ public final class ApiContract {
         }
     }
 
-    // springdoc writes a nullable scalar as type ["string", "null"], and a nullable nested DTO as $ref beside type "null".
+    // springdoc writes a nullable scalar as type ["string", "null"], a nullable nested DTO as $ref beside type "null".
     private static boolean isNullable(JsonNode property) {
         JsonNode type = property.path("type");
         return type.isArray() ? type.valueStream().anyMatch(t -> "null".equals(t.asString())) : "null".equals(type.asString(""));

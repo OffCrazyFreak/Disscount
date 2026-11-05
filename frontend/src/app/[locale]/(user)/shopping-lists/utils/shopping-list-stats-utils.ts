@@ -1,8 +1,4 @@
-/**
- * Calculate shopping list price statistics
- * Total always uses API prices to remain constant
- * Spent uses DB prices for checked items
- */
+/** Total always uses API prices so it stays constant; spent uses DB prices for checked items. */
 export function calculateShoppingListStats(
   items: Array<{
     id: string;
@@ -27,7 +23,6 @@ export function calculateShoppingListStats(
     const amount = item.amount || 1;
     const avgPrice = averagePrices[item.id] || 0;
 
-    // Total always uses API prices (estimations)
     if (avgPrice > 0) {
       const estimatedMin = avgPrice * 0.9;
       const estimatedMax = avgPrice * 1.1;
@@ -45,7 +40,6 @@ export function calculateShoppingListStats(
       moneySpent += itemPrice * amount;
       potentialCostForChecked += itemAvgPrice * amount;
     } else {
-      // For unchecked items, calculate remaining to spend
       if (avgPrice > 0) {
         const estimatedMin = avgPrice * 0.9;
         const estimatedMax = avgPrice * 1.1;

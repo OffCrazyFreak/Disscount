@@ -10,7 +10,6 @@ import {
   type RevealItemTag,
 } from "@/components/custom/animation/reveal-elements";
 
-/** The children as items, with the plain and motion tags a reveal renders them in. */
 export function useRevealItems(
   children: ReactNode,
   as: RevealContainerTag,

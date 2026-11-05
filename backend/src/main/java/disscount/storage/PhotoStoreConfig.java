@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * The three photo stores, each confined to its own folder and injected by its qualifier,
- * so card code can never be handed product originals, nor product code the card photos.
- */
+/** Each store is confined to its folder and injected by qualifier, so card code never gets product originals. */
 @Configuration
 public class PhotoStoreConfig {
 

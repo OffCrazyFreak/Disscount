@@ -20,7 +20,6 @@ export interface IFilterParamsResult {
   clearFilters: () => void;
 }
 
-/** Writes filter values to the query string, preserving `q` and other params */
 export default function useFilterParams(): IFilterParamsResult {
   const searchParams = useSearchParams();
   const pathname = usePathname();

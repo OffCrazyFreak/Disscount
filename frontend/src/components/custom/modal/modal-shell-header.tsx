@@ -26,7 +26,6 @@ interface IModalShellHeaderProps extends IModalShellHeaderContent {
   hasBody: boolean;
 }
 
-/** Separates the header's props from whatever else the shell was given. */
 export function splitHeaderProps<T extends IModalShellHeaderContent>({
   title,
   description,
@@ -64,14 +63,7 @@ export default function ModalShellHeader({
     <DialogHeader
       className={cn(
         "gap-1.5 px-6 pt-6",
-        // With a body, the body is the only flexible track, so a long list
-        // or a large font size scrolls instead of squeezing the title and
-        // the buttons out of shape.
-        //
-        // Without one (confirm, donation, auth-status) there is no such
-        // track, and pinning both header and footer inside overflow-hidden
-        // would clip the buttons away with nothing to scroll. So the header
-        // takes that role instead and the footer stays reachable.
+        // Without a body the header scrolls, or overflow-hidden would clip the buttons.
         hasBody ? "shrink-0" : "min-h-0 flex-1 overflow-y-auto",
         centered ? "items-center text-center sm:text-center" : "text-left",
       )}

@@ -88,8 +88,7 @@ function Harness({
 }
 
 describe("SheetShell", () => {
-  // #134: vaul never told Radix the sheet was non-modal, so the page behind was
-  // aria-hidden and Tab was trapped inside the sheet.
+  // Base UI must tell Radix the sheet is non-modal, or the page behind turns aria-hidden and Tab is trapped inside.
   it("leaves the page reachable while a non-modal sheet is open", async () => {
     const user = userEvent.setup();
     renderWithProviders(<Harness modal={false} />);
@@ -141,8 +140,7 @@ describe("SheetShell", () => {
     expect(await axeDialog(document.body)).toHaveNoViolations();
   });
 
-  // Product quick actions open a Radix dialog from inside the sheet, so the two
-  // focus managers must not fight over the focus.
+  // Quick actions open a Radix dialog from the sheet, so the two focus managers must not fight.
   it("lets a Radix dialog opened from the sheet keep the focus", async () => {
     const user = userEvent.setup();
     renderWithProviders(<Harness withDialog />);
@@ -189,8 +187,7 @@ describe("SheetShell", () => {
     expect(dialog).toContainElement(document.activeElement as HTMLElement);
   });
 
-  // A modal Radix menu sets pointer-events: none on the body, which the scrim
-  // inherits, so the press meant to close the menu lands on <html>.
+  // A modal Radix menu sets pointer-events: none on the body, so the closing press lands on <html>.
   it("closes only a Radix menu when its outside press lands on the scrim", async () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderWithProviders(<Harness withMenu />);

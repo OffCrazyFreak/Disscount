@@ -1,12 +1,4 @@
-/**
- * The `digitalCards` root is allowlisted for offline persistence in
- * lib/offline/cached-query-keys.ts. Photo bytes live in their own idb store and never in
- * a query key under this root.
- *
- * The version segment retires cached data whose shape changed: a blob persisted by an
- * older build is restored on the next visit, and a new reader would crash on it. Bump it
- * whenever the card DTO changes shape.
- */
+/** Retires cached data of an old shape, which a new reader would crash on; bump on a DTO shape change. */
 export const DIGITAL_CARD_KEY_VERSION = "v2";
 
 export const DIGITAL_CARD_QUERY_KEYS = {

@@ -1,7 +1,6 @@
 import { TIME_ZONE } from "@/i18n/formatting";
 
-// Every store is in Croatia, so hours are read on Zagreb's wall clock whatever
-// zone the device or the server runs in.
+// Every store is in Croatia, so hours read Zagreb's wall clock whatever zone the device or server runs in.
 const zagrebParts = new Intl.DateTimeFormat("en-CA", {
   timeZone: TIME_ZONE,
   year: "numeric",
@@ -12,7 +11,6 @@ const zagrebParts = new Intl.DateTimeFormat("en-CA", {
   hourCycle: "h23",
 });
 
-/** The Zagreb calendar date and minutes since its midnight at an instant. */
 export function zagrebClock(at: Date): { date: string; minutes: number } {
   const part = Object.fromEntries(
     zagrebParts.formatToParts(at).map(({ type, value }) => [type, value]),

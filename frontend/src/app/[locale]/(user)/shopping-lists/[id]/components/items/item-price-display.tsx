@@ -27,7 +27,7 @@ export default function ItemPriceDisplay({
     );
   }
 
-  // Average price - from DB for checked items, from API for unchecked items
+  // Checked items show the price stored in the database; unchecked ones show the live API price.
   const displayPrice = item.isChecked ? item.avgPrice : averagePrice;
 
   const avgPricePerUnit =

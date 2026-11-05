@@ -2,9 +2,7 @@ import { PinnedStoreDto } from "@/lib/api/schemas/preferences";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { isPinnedChain } from "@/utils/pinned-stores";
 
-// Guarded against nullish chains although the declared type forbids them. These
-// two are called straight from useShoppingListData with no wrapping guard, and a
-// throw there takes the whole price calculation down.
+// Guarded despite the type, because a throw from useShoppingListData kills the whole price calculation.
 export function getStorePricesFromProduct(
   productData: ProductResponse,
 ): Record<string, number> {

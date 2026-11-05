@@ -28,7 +28,6 @@ export function useWatchlistNotifications(): INotificationsContext {
     )
     .join("|");
 
-  // Generate grouped notifications from products with threshold-matched discounts
   const { notifications, summary } = useMemo(
     () =>
       buildWatchlistNotifications(

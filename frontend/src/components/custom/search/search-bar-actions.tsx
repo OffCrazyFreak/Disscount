@@ -17,7 +17,6 @@ interface ISearchBarActionsProps {
   onScan: (event: MouseEvent<HTMLButtonElement>) => void;
 }
 
-/** Buttons overlaid on the right edge of the search input */
 export default function SearchBarActions({
   showClear,
   onClear,

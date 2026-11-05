@@ -34,8 +34,7 @@ const defaultPalette = [
   "text-primary/40",
 ];
 
-// A seeded PRNG keeps positions identical across SSR; horizontal placement is
-// stratified into one band per index so small counts spread out instead of clustering.
+// Seeded so positions match across SSR; one band per index so small counts spread out instead of clustering.
 export default function SparkleField({
   count,
   seed,

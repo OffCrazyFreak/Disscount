@@ -15,11 +15,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Shared base for feedback-subsystem entities: UUID id, audited timestamps and a
- * soft-delete marker. Auditing fills createdAt/updatedAt via AuditingEntityListener
- * (enabled by JpaConfig); deletedAt is set manually by services.
- */
+/** Auditing fills createdAt and updatedAt; services set deletedAt by hand. */
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 @Getter

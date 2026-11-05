@@ -37,8 +37,7 @@ export default function AppSidebar() {
   useEffect(() => {
     setOpen(false);
     setOpenMobile(false);
-    // The sidebar context rebuilds setOpen whenever it opens, so listing it here
-    // would re-run this and close the sidebar the moment it opens.
+    // The context rebuilds setOpen as it opens, so listing it would close the sidebar at once.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
@@ -77,8 +76,7 @@ export default function AppSidebar() {
       </SidebarHeader>
 
       <div className="relative flex min-h-0 flex-1 flex-col">
-        {/* pr-4 keeps the rows clear of the scrollbar, which otherwise paints
-            over the badges at the end of a row. */}
+        {/* pr-4 keeps the rows clear of the scrollbar, which otherwise paints over the badges at the end of a row. */}
         <SidebarContent
           ref={contentRef}
           className="min-h-0 gap-0 overflow-y-auto pr-4"

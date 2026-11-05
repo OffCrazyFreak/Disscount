@@ -129,7 +129,6 @@ function isSchema(
   return typeof value === "object";
 }
 
-/** Every path where the backend's schema and the zod schema disagree, each with what differs. */
 export function findDrift(
   contract: IApiContract,
   path: string,

@@ -20,7 +20,6 @@ import { useClientSearchParams } from "@/hooks/use-client-search-params";
 
 type OpenSection = "stores" | "locations" | null;
 
-/** Ways into the product catalogue: discounts, the map and its filters. */
 export default function SidebarProductNav() {
   const [openMenu, setOpenMenu] = useState<OpenSection>(null);
   const pathname = usePathname();

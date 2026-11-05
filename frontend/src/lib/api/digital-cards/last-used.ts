@@ -16,12 +16,7 @@ import {
 } from "@/lib/offline/purge-gate";
 import { isQueuedWriteExpired } from "@/lib/offline/queued-write-expiry";
 
-/**
- * Last-used tracking is a local queue, not a paused mutation: opening a card must never
- * wait on the network, and a lost write only costs a sort position. The app's QueryClient
- * is bound once from the React Query provider (bindLastUsedQueryClient), so callers just
- * use recordCardUsed(id) from any event handler.
- */
+/** A local queue, because opening a card must never wait on the network and a lost write only costs a sort position. */
 const FLUSH_INTERVAL_MS = 60_000;
 const MAX_BATCH = 50;
 
@@ -55,8 +50,7 @@ async function flush(keepalive = false) {
   flushing = true;
   lastFlushAt = Date.now();
 
-  // Captured once: a flush belongs to the account that queued the uses, even if the
-  // identity switches while a request is in flight.
+  // Captured once, because a flush belongs to the account that queued it, even across a switch.
   const identity = getCacheIdentity();
 
   try {
@@ -87,8 +81,7 @@ async function flush(keepalive = false) {
         { keepalive },
       );
 
-      // A card opened again while the request was in flight has a newer usedAt and
-      // stays queued for the next flush.
+      // A card opened again mid-request has a newer usedAt and stays queued for the next flush.
       await Promise.all(
         batch.map(({ key, use }) =>
           deleteIf<IQueuedUse>(
@@ -143,8 +136,7 @@ export function recordCardUsed(id: string): void {
 
   void canWriteAfterPurges(generation)
     .then(async (canWrite) => {
-      // A use recorded just before a sign out would otherwise land after the purge and
-      // put the departed account's card history back on disk.
+      // A use just before sign out would land after the purge, restoring the departed account's history.
       if (!canWrite) return;
 
       await set(key, entry, queueStore());
