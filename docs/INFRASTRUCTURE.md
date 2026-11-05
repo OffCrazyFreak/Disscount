@@ -196,7 +196,20 @@ The photo buckets from before the move are retired: `disscount-card-photos`, `di
 
 **Visitor location headers** (Rules, Settings, Managed Transforms, "Add visitor location headers") must be on for the stores map to open near the visitor without GPS. Cloudflare then adds `cf-iplatitude`, `cf-iplongitude` and `cf-ipcity` to requests that reach the origin. It works on this zone; with it off, the map simply opens on all of Croatia. Details in [MAP.md](MAP.md).
 
-**Service worker cache rule** (Caching, Cache Rules): `http.request.uri.path eq "/sw.js"` is set to bypass cache, on the whole zone. It is the zone's only cache rule, and it exists only in Cloudflare. Without it the zone's 4 hour Browser Cache TTL overwrites the file's `Cache-Control`, and Cloudflare stores a copy. Why this matters is in [PWA.md](PWA.md).
+**Cache rules.** The zone has two, both on the whole zone and both only in Cloudflare (Caching, Cache Rules):
+
+- **Service worker** (Cache Rules tab): `http.request.uri.path eq "/sw.js"` is set to bypass cache. Without it the zone's 4 hour Browser Cache TTL overwrites the file's `Cache-Control`, and Cloudflare stores a copy. Why this matters is in [PWA.md](PWA.md).
+- **No stored 4xx** (Cache Response Rules tab, phase `http_response_cache_settings`): expression `http.response.code ge 400 and http.response.code lt 500`, action `set_cache_control` with `"no-store": { "operation": "set", "cloudflare_only": true }`. Next 16.4 serves a missing `.js`, `.png` or `.css` from its static not-found page with `Cache-Control: s-maxage=31536000`, the app cannot change that header (the proxy skips dotted paths), and Cloudflare caches those extensions by default, so a file added later at a once-missing URL would stay a 404 at the edge for a year. The `max-age=14400` that visitors saw on those 404s came from Cloudflare's 4 hour Browser Cache TTL, not from the origin. The rule stops Cloudflare storing any 4xx; visitors still get the origin's header, because `cloudflare_only` limits it to the edge. This rule only sets `no-store`, and it matches only 4xx responses, so it touches only 4xx responses (a 404 of any URL, HTML or `/sw.js` included, is `no-store` at the edge).
+
+Never add a request-phase cache rule with expression `true` for this: on 2026-11-05 one with only an `edge_ttl` status code setting made every response cacheable, the homepage and `/sw.js` included, until it was deleted and the cache purged.
+
+To verify the 4xx rule, request a made-up URL a few times and expect `BYPASS` every time, never `HIT`:
+
+```bash
+R=$RANDOM$RANDOM; for e in js png css; do for i in 1 2 3; do curl -sI https://dev.disscount.me/x-$R.$e | grep -iE 'HTTP|cache-control|cf-cache|^age'; done; done
+```
+
+To remove it, delete the rule under Cache Response Rules in the dashboard, or with the Rulesets API: list the `http_response_cache_settings` phase entrypoint of zone `disscount.me` (`GET /zones/<zone_id>/rulesets/phases/http_response_cache_settings/entrypoint`) to find the rule id, currently `eff224041fdd46068375a132c7f68f7b`, then delete that rule. 404s cached before the rule was added stay for up to a year (the `s-maxage`), so purge the host after adding it to a zone that already has them.
 
 **Retired waitlist subdomains:** `get` / `waitlist` / `zelim` / `želim` (the last is an IDN stored as an `xn--…` name) pointed at the retired Netlify waitlist site. They are now proxied `AAAA 100::` records (Cloudflare's placeholder for a hostname with no origin), and they **301-redirect to `https://disscount.me/`** via a Cloudflare **Redirect Rule** (Rules, Redirect Rules) whose expression is:
 
