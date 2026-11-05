@@ -83,7 +83,7 @@ Put these to me instead of working around them: I say yes far more often than no
 
 Dependency intent the code does not show:
 
-- `dotenv` is only for `drizzle.config.ts`; `esbuild` only for bundling `scripts/migrate.mjs` in the Dockerfile.
+- `dotenv` is only for `drizzle.config.ts`; `esbuild` only for bundling `scripts/migrate.mjs` in the Dockerfile and `src/app/sw.ts` in `serwist build`.
 - `baseline-browser-mapping` is only so `pnpm-workspace.yaml` can exempt it from the release-age gate.
 - `@vitejs/plugin-react` and `@rolldown/plugin-babel` are only so Vitest compiles through the React Compiler.
 - Keep `@vitest/coverage-v8` on the exact `vitest` version, because its peer dependency is exact.
