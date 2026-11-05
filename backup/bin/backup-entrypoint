@@ -33,8 +33,9 @@ export RCLONE_CONFIG_R2_NO_CHECK_BUCKET=true
 # Photos go through rclone crypt, which encrypts file contents and names; rclone wants both keys obscured.
 export RCLONE_CONFIG_PHOTOS_TYPE=crypt
 export RCLONE_CONFIG_PHOTOS_REMOTE="r2:$BACKUP_R2_BUCKET/photos"
-RCLONE_CONFIG_PHOTOS_PASSWORD="$(rclone obscure "$BACKUP_CRYPT_PASSWORD")"
-RCLONE_CONFIG_PHOTOS_PASSWORD2="$(rclone obscure "$BACKUP_CRYPT_SALT")"
+# "--" because a random key can start with "-", which rclone would read as a flag.
+RCLONE_CONFIG_PHOTOS_PASSWORD="$(rclone obscure -- "$BACKUP_CRYPT_PASSWORD")"
+RCLONE_CONFIG_PHOTOS_PASSWORD2="$(rclone obscure -- "$BACKUP_CRYPT_SALT")"
 export RCLONE_CONFIG_PHOTOS_PASSWORD RCLONE_CONFIG_PHOTOS_PASSWORD2
 
 export PGHOST="${PGHOST:-db}" PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" PGDATABASE="$POSTGRES_DB"

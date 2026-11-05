@@ -35,6 +35,8 @@ finish() {
   fi
   if ((status == 0)); then
     note "backup $job: ok"
+    # The container healthcheck reads this, so a job that keeps failing turns the container unhealthy.
+    touch /tmp/backup-heartbeat
     ping "" "$summary"
   else
     note "backup $job: failed with exit $status, details in the container log"
@@ -80,7 +82,8 @@ scratch_restore() {
   note "scratch restore: $restored users restored, $live live"
   # Sign-ups and deletions since the dump move the live count a little either way; a broken restore misses far more.
   local tolerance=$((live / 20 > 5 ? live / 20 : 5))
-  ((restored > 0 && restored >= live - tolerance && restored <= live + tolerance)) || {
+  # An environment without users restores none, which is right; a restore that loses every user is not.
+  (((restored > 0 || live == 0) && restored >= live - tolerance && restored <= live + tolerance)) || {
     echo "restored user count looks wrong" >&2
     return 1
   }
@@ -118,9 +121,10 @@ run() {
     db-nightly)
       dump_database "$work/db.dump"
       pg_dumpall --globals-only --no-role-passwords >"$work/globals.sql"
+      # Restore first: an upload is locked for 28 days, so a dump that does not restore must never reach R2.
+      scratch_restore "$work/db.dump"
       upload_encrypted "$work/db.dump" "db/nightly/$stamp.dump"
       upload_encrypted "$work/globals.sql" "db/nightly/$stamp.globals.sql"
-      scratch_restore "$work/db.dump"
       ;;
     photos)
       # A new generation starts every 14 days; its first run copies everything, later runs only new files.
