@@ -5,7 +5,7 @@ import { useReducedMotion } from "motion/react";
 
 // Stays false through hydration so markup matches, then flips after mount.
 //
-// The gate is still required as of framer-motion 12.42: useReducedMotion reads
+// The gate is still required as of framer-motion 14.9: useReducedMotion reads
 // matchMedia during render, not in an effect, so it returns null on the server and
 // the real preference on the very first client render. Since this hook branches
 // markup rather than styling, that difference is a hydration error, not a flash.
