@@ -14,6 +14,6 @@
   },
   "backups": {
     "heading": "Varnostne kopije",
-    "body": "Bazo podatkov in fotografije redno kopiramo, da jih ne izgubimo zaradi okvare. Kopije hranimo v Evropski uniji, kratek čas na našem strežniku in šifrirane pri Cloudflaru, našem obdelovalcu, nato se same izbrišejo, najpozneje 31 dni po nastanku. Ko izbrišeš račun, tvoji podatki izginejo iz kopij, ko kopije potečejo. Do takrat hranimo tudi zapis o izbrisu s psevdonimiziranim identifikatorjem tvojega računa, iz katerega ni mogoče razbrati ne imena ne e-poštnega naslova. Če bi kdaj morali bazo obnoviti iz kopije, pred ponovnim odprtjem aplikacije znova izbrišemo račune, izbrisane po nastanku te kopije. Pravna podlaga je zakoniti interes (člen 6(1)(f) GDPR)."
+    "body": "Bazo podatkov in fotografije redno kopiramo, da jih ne izgubimo zaradi okvare. Kopije hranimo šifrirane v Evropski uniji, pri Cloudflaru, našem obdelovalcu, nato se same izbrišejo, najpozneje 31 dni po nastanku. Ko izbrišeš račun, tvoji podatki izginejo iz kopij, ko kopije potečejo. Do takrat hranimo tudi zapis o izbrisu s psevdonimiziranim identifikatorjem tvojega računa, iz katerega ni mogoče razbrati ne imena ne e-poštnega naslova. Če bi kdaj morali bazo obnoviti iz kopije, pred ponovnim odprtjem aplikacije znova izbrišemo račune, izbrisane po nastanku te kopije. Pravna podlaga je zakoniti interes (člen 6(1)(f) GDPR)."
   }
 }
