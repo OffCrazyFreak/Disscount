@@ -32,17 +32,9 @@ jobs:
           # checkout does not have.
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: ./.github/actions/setup-frontend
         with:
-          version: 11.9.0
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: 24
-          cache: pnpm
-          cache-dependency-path: frontend/pnpm-lock.yaml
-
-      - run: pnpm install --frozen-lockfile
+          save-cache: "true"
 
       - name: Generate route types
         run: pnpm exec next typegen
@@ -119,9 +111,21 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-          cache: maven
+
+      - id: maven-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('backend/pom.xml') }}
 
       - run: mvn -B verify
+
+      # Pull requests only read: their caches are private to their merge ref, so nothing else could use them.
+      - if: github.event_name == 'push' && steps.maven-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: ${{ steps.maven-cache.outputs.cache-primary-key }}
 
   # Boots the backend and migrator images the way Dokploy runs them. Only a boot catches a Dockerfile
   # that builds but leaves the app unable to start (a file the build stage never copied). No draft
