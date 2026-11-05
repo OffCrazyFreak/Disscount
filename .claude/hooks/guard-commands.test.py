@@ -290,7 +290,84 @@ def cases(real_repo, real_worktree, on_main, tracks_dev, tracks_own, no_hooks, w
         ("kill 1234", real_repo, False),
         ('grep -rn "pkill -f next" docs/', real_repo, False),
         ('git commit -m "stop using pkill -f next"', real_repo, False),
+        # ALLOW: a merge GitHub reports as ready, by every route (the gh stub answers by number)
+        ("gh pr merge 101 --squash", real_repo, False),
+        ("gh pr merge 104", real_repo, False),
+        ("gh pr merge 101 --repo o/r", real_repo, False),
+        ("gh pr merge --squash", real_repo, False),
+        ("gh api -X PUT repos/o/r/pulls/101/merge -f merge_method=squash", real_repo, False),
+        ("gh api --method=PUT /repos/{owner}/{repo}/pulls/101/merge", real_repo, False),
+        # BLOCK: a required check that is red, pending or missing, an --admin merge included
+        ("gh pr merge 102", real_repo, True),
+        ("gh pr merge 102 --admin --squash", real_repo, True),
+        ("gh pr merge 102 -t 101", real_repo, True),
+        ("gh pr merge 102 -Ro/r", real_repo, True),
+        ("gh api -X PUT repos/o/r/pulls/102/merge", real_repo, True),
+        ("gh api -XPUT https://api.github.com/repos/o/r/pulls/102/merge", real_repo, True),
+        ("gh api repos/o/r/pulls/102/merge -f merge_method=squash", real_repo, True),
+        ('bash -c "gh pr merge 102"', real_repo, True),
+        ("sudo -u root gh pr merge 102", real_repo, True),
+        # BLOCK: no answer from GitHub, or a state that is not ready yet
+        ("gh pr merge 103", real_repo, True),
+        ("gh pr merge 105", real_repo, True),
+        # BLOCK: the target or body cannot be read from here
+        ("gh pr merge $N", real_repo, True),
+        ("gh pr merge 101 --repo $R", real_repo, True),
+        ("gh pr merge $(gh pr list --json number)", real_repo, True),
+        ('gh pr merge 101 --body "$(cat notes)"', real_repo, True),
+        ("gh pr list | xargs gh pr merge", real_repo, True),
+        ("gh api -X PUT repos/o/r/pulls/$N/merge", real_repo, True),
+        ("gh api -X PUT repos/$R/pulls/101/merge", real_repo, True),
+        ("gh api -X PUT repos/o/r/pulls/$(gh pr view --json number)/merge", real_repo, True),
+        ("cd $SOMEWHERE && gh pr merge 101", MAIN, True),
+        ("gh api graphql -f query='mutation { mergePullRequest(input: {}) { clientMutationId } }'", real_repo, True),
+        ("gh api graphql --input query.json", real_repo, True),
+        ("gh api graphql --input=query.json", real_repo, True),
+        ('gh api graphql -f query="$(cat q.graphql)"', real_repo, True),
+        ('gh api graphql -f query="$Q"', real_repo, True),
+        ("gh api graphql -f query=@q.graphql", real_repo, True),
+        ("P=pulls/102/merge; gh api -X PUT repos/o/r/$P", real_repo, True),
+        ('gh api -X PUT "$URL"', real_repo, True),
+        ("gh api -X PUT $(cat url)", real_repo, True),
+        ("gh api -X PUT repos/o/r/$(cat path)", real_repo, True),
+        # BLOCK: a wrapped process match still reaches its own guard
+        ("sudo pkill -f gh", real_repo, True),
+        # ALLOW: reading and talking about merges
+        ("gh api repos/o/r/pulls/102/merge", real_repo, False),
+        ("gh api -X GET repos/o/r/pulls/102/merge", real_repo, False),
+        ("gh pr view 102", real_repo, False),
+        ('gh api repos/o/r/pulls/5/comments/9/replies -f body="$(cat reply.md)"', real_repo, False),
+        ('gh api repos/$R/issues/5/comments -f body="$(cat note.md)"', real_repo, False),
+        ('gh api repos/o/r/issues/5/comments -f body="see pulls/102/merge"', real_repo, False),
+        ("gh api graphql -f query='query($n: Int!) { viewer { login } }' -F n=1", real_repo, False),
+        ("gh pr checks 102 --required", real_repo, False),
+        ("gh api graphql -f query='{ viewer { login } }'", real_repo, False),
+        ('grep -rn "gh pr merge 102" docs/', real_repo, False),
+        ("gh pr comment 102 --body-file - <<'EOF'\ngh pr merge 102\nEOF", real_repo, False),
     ]
+
+
+GH_STUB = """#!/bin/sh
+case "$*" in
+  "pr view 101 "*) echo '{"mergeStateStatus":"CLEAN"}' ;;
+  "pr view 104 "*) echo '{"mergeStateStatus":"UNSTABLE"}' ;;
+  "pr view 105 "*) echo '{"mergeStateStatus":"UNKNOWN"}' ;;
+  "pr view 103 "*) exit 1 ;;
+  "pr view --json "*) echo '{"mergeStateStatus":"CLEAN"}' ;;
+  *) echo '{"mergeStateStatus":"BLOCKED"}' ;;
+esac
+"""
+
+
+def install_gh_stub(root):
+    """Answer mergeStateStatus offline, so the merge cases never reach GitHub."""
+    stub_dir = os.path.join(root, "stub-bin")
+    os.makedirs(stub_dir)
+    stub = os.path.join(stub_dir, "gh")
+    with open(stub, "w") as handle:
+        handle.write(GH_STUB)
+    os.chmod(stub, 0o755)
+    os.environ["PATH"] = stub_dir + os.pathsep + os.environ["PATH"]
 
 
 def main():
@@ -300,6 +377,7 @@ def main():
 
     root = tempfile.mkdtemp(prefix="guard-commands-")
     try:
+        install_gh_stub(root)
         fixture = build_real_worktree(root)
         real_repo, real_worktree, on_main, tracks_dev, tracks_own, no_hooks, with_hooks, installed, fresh = fixture
         fails = 0
