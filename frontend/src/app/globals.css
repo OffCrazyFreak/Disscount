@@ -123,6 +123,7 @@
   --popover: oklch(0.9911 0 0);
   --popover-foreground: oklch(0.4386 0 0);
   --primary: oklch(0.7183 0.2344 141.297);
+  /* Owner accepted white on brand green (about 2.3:1, below AA); do not change. */
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.7671 0.1872 140.1916);
   --secondary-foreground: oklch(0.3211 0 0);
