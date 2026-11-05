@@ -18,7 +18,8 @@ concurrency:
 jobs:
   # Picks the jobs a pull request needs, at job level: a workflow-level `paths` would never start, which
   # leaves a required check pending forever, while a job skipped by its `if` reports as passed. Pushes run
-  # everything, because strict mode is off and they build the images. A draft answers false here for the
+  # everything, because strict mode is off and they build the images. So do release pull requests into
+  # main, whose file list can pass the 3000 files GitHub returns. A draft answers false here for the
   # jobs that wait for ready_for_review; the image smoke test has no draft skip. When this job fails,
   # the jobs below run anyway, so a broken filter can never pass a required check unseen.
   changes:
@@ -27,14 +28,14 @@ jobs:
     permissions:
       pull-requests: read
     outputs:
-      frontend: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && steps.filter.outputs.frontend) }}
-      markdown: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && steps.filter.outputs.markdown) }}
-      backend: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && steps.filter.outputs.backend) }}
-      backup: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && steps.filter.outputs.backup) }}
-      smoke: ${{ github.event_name != 'pull_request' || steps.filter.outputs.smoke }}
+      frontend: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && (github.base_ref == 'main' || steps.filter.outputs.frontend)) }}
+      markdown: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && (github.base_ref == 'main' || steps.filter.outputs.markdown)) }}
+      backend: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && (github.base_ref == 'main' || steps.filter.outputs.backend)) }}
+      backup: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && (github.base_ref == 'main' || steps.filter.outputs.backup)) }}
+      smoke: ${{ github.event_name != 'pull_request' || github.base_ref == 'main' || steps.filter.outputs.smoke }}
     steps:
       - id: filter
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.base_ref != 'main'
         uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
           filters: |
