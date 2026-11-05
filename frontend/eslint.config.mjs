@@ -43,6 +43,7 @@ const DATE_SELECTORS = [
 
 const COMMENT_DIRECTIVE = /^\s*(eslint[- ]|@ts-|\/ *<(reference|amd))/;
 const COMMENT_HISTORY = /\b(used to|previously|originally)\b/i;
+const COMMENT_MAX_LINE_LENGTH = 120;
 
 const commentRulesPlugin = {
   rules: {
@@ -54,6 +55,7 @@ const commentRulesPlugin = {
             "Keep a comment to one line, stating only a why the code cannot show.",
           history:
             "Keep history in the commit, not in a comment (used to, previously, originally).",
+          tooLong: "Keep a comment line to 120 characters.",
         },
       },
       create(context) {
@@ -86,6 +88,9 @@ const commentRulesPlugin = {
               }
               if (COMMENT_HISTORY.test(comment.value)) {
                 context.report({ loc: comment.loc, messageId: "history" });
+              }
+              if (comment.loc.end.column > COMMENT_MAX_LINE_LENGTH) {
+                context.report({ loc: comment.loc, messageId: "tooLong" });
               }
               previous = comment;
             }

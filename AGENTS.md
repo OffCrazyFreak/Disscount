@@ -132,7 +132,7 @@ Copy and i18n (`docs/I18N.md`):
 - Write Markdown with one physical line per paragraph and bullet.
 - In prose, write numeric dates as `03.11.2026.` in Croatian and ISO `2026-11-03` in English (`docs/I18N.md`).
 - Use straight quotes.
-- Write a comment only for a why the code cannot show, in one line; `pnpm lint` rejects longer ones and history words. When code needs a what-comment, rename it instead.
+- Write a comment only for a why the code cannot show, in one line; `pnpm lint` rejects longer ones, lines over 120 characters and history words. When code needs a what-comment, rename it instead.
 
 ## Commits
 
