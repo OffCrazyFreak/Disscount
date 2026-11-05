@@ -127,6 +127,8 @@ public class ProductImageJobs {
                     }
                     // A 403 or 500 for one file says nothing about the next one, so only this photo waits.
                     postpone(image, e);
+                } catch (PhotoRenderFailedException e) {
+                    postpone(image, e);
                 } catch (RuntimeException e) {
                     // Network or disk trouble: stop here and try the same photos at the next tick.
                     log.warn("Product photo rendering paused: {}", e.getMessage());
@@ -155,7 +157,8 @@ public class ProductImageJobs {
                     return;
                 }
                 retryOlderLater(image, e);
-            } catch (BadRequestException | OffImageGoneException | IllegalArgumentException | NotFoundException e) {
+            } catch (BadRequestException | OffImageGoneException | IllegalArgumentException | NotFoundException
+                     | PhotoRenderFailedException e) {
                 retryOlderLater(image, e);
             } catch (RuntimeException e) {
                 log.warn("Re-rendering older product photos paused: {}", e.getMessage());

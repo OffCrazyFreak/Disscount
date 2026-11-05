@@ -14,11 +14,13 @@ import disscount.productImage.domain.ProductImageSet;
 import disscount.productImage.off.OffImageGoneException;
 import disscount.productImage.off.OffImageUnavailableException;
 import disscount.productImage.off.OpenFoodFactsClient;
+import disscount.productImage.render.ProductImageRenderer;
 import disscount.storage.FakePhotoStore;
 import disscount.storage.PhotoStoreConfig;
 import disscount.util.Timestamps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -30,8 +32,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -232,6 +238,53 @@ class ProductImageJobsRenderTest {
     }
 
     /** A main photo copied before WebP: JPEG keys and no small list file. */
+    // A renderer fault repeats on the same bytes, so it must cost that photo a try, not stop the queue at it.
+    @Test
+    void aPhotoTheRendererFailsOnWaitsWhileTheRestOfTheQueueIsCopied() {
+        ProductImage failing = mainCandidate(WIDELY_SOLD, 900);
+        ProductImage next = mainCandidate(LESS_SOLD, 40);
+        when(off.download(anyString())).thenReturn(TestImages.jpeg(600, 400));
+
+        try (MockedStatic<ProductImageRenderer> renderer = mockStatic(ProductImageRenderer.class, CALLS_REAL_METHODS)) {
+            renderer.when(() -> ProductImageRenderer.render(any(), anyInt(), any()))
+                    .thenThrow(new IllegalStateException("WebP encoding failed"))
+                    .thenCallRealMethod();
+            jobs.renderMainPhotos();
+        }
+
+        assertThat(images.findById(failing.getId())).get().satisfies(i -> {
+            assertThat(i.getStatus()).isEqualTo(ImageStatus.CANDIDATE);
+            assertThat(i.getRenderAttempts()).isEqualTo(1);
+            assertThat(i.getRenderRetryAt()).isNotNull();
+        });
+        assertThat(images.findById(next.getId())).get().extracting(ProductImage::isRendered).isEqualTo(true);
+    }
+
+    @Test
+    void anOlderPhotoTheRendererFailsOnKeepsItsFilesWhileTheNextOneIsRenderedAgain() {
+        ProductImage failing = renderedJpegMain(WIDELY_SOLD);
+        ProductImage next = renderedJpegMain(LESS_SOLD);
+        sets.findById(LESS_SOLD).ifPresent(set -> {
+            set.setStoreListings(40);
+            sets.save(set);
+        });
+        when(off.download(anyString())).thenReturn(TestImages.jpeg(600, 400));
+
+        try (MockedStatic<ProductImageRenderer> renderer = mockStatic(ProductImageRenderer.class, CALLS_REAL_METHODS)) {
+            renderer.when(() -> ProductImageRenderer.render(any(), anyInt(), any()))
+                    .thenThrow(new IllegalStateException("WebP encoding failed"))
+                    .thenCallRealMethod();
+            jobs.renderMainPhotos();
+        }
+
+        assertThat(images.findById(failing.getId())).get().satisfies(i -> {
+            assertThat(i.getFullKey()).isEqualTo(failing.getFullKey());
+            assertThat(i.getRenderAttempts()).isEqualTo(1);
+            assertThat(i.getRenderRetryAt()).isNotNull();
+        });
+        assertThat(images.findById(next.getId())).get().extracting(ProductImage::getFullWidth).isEqualTo(600);
+    }
+
     private ProductImage renderedJpegMain(String ean) {
         String base = "products/" + ean + "/0123456789abcdef0123";
         ProductImage image = images.save(ProductImage.builder().ean(ean).source(ImageSource.OPEN_FOOD_FACTS)
