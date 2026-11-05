@@ -28,6 +28,8 @@ From `frontend/`, run `pnpm check`. From `backend/`, run `mvn -B verify`, which 
 
 Run `pnpm dev` from `frontend/`, and stop it by PID.
 
+The app needs the local Postgres: start it with `docker compose -f docker-compose.local-db.yml up -d` from the main checkout, which every worktree shares, and leave it running.
+
 Copy `.env`, `backend/.env` and `frontend/.env.local` from `/home/jj/Desktop/Disscount/` when T3 did not copy them, and delete the copies when done.
 
 ## Dependency change
