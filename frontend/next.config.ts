@@ -69,6 +69,11 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Content-Security-Policy", value: csp }],
       },
       {
+        // Cloudflare's Browser Cache TTL would raise the default max-age=0 to 4 hours.
+        source: "/sw.js",
+        headers: [{ key: "Cache-Control", value: "no-cache" }],
+      },
+      {
         // Lists are unlisted, not public. Deliberately a header and not a robots.txt
         // rule: a disallow stops the crawler fetching the page at all, so it would never
         // see the directive. A shared link only leaks by being pasted somewhere

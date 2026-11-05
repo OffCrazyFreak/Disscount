@@ -63,6 +63,7 @@ Put these to me instead of working around them: I say yes far more often than no
 - Put owner-only steps (logins, payments, phone) as a draft at the top of In progress, with links and numbered steps.
 - Move merged user-facing work to For review, following `ui-handover`.
 - Move merged invisible work to Done.
+- Close an issue yourself once its work is merged and verified, unless its card waits in For review.
 
 ## Releases and production
 
@@ -157,5 +158,5 @@ Brief explanation of why the change was needed.
 - Use type `fix`, `feat`, `docs`, `refactor`, `chore`, `style`, `perf` or `ci`.
 - Use a kebab-case scope: `products`, `pwa`, `watchlist`, `shopping-lists`, `settings`, `auth`, `search`, `scanner`, `landing`, `header`, `sidebar`, `bottom-nav`, `price-history`, `modals`, `ui`, `brand`, `a11y`, `i18n`, `deps`, `agents`.
 - Cite commits by full 40-character SHA.
-- Write "Part of #N" in a PR into `dev`, because `Closes #N` fires only on a merge into `main`; I close it by hand.
+- Write "Part of #N" in a PR into `dev`, because `Closes #N` fires only on a merge into `main`.
 - Link anything filed on `senko/cijene-api` back to https://disscount.me and this repository.
