@@ -63,7 +63,7 @@ Put these to me instead of working around them: I say yes far more often than no
 - Put owner-only steps (logins, payments, phone) as a draft at the top of In progress, with links and numbered steps.
 - Move merged user-facing work to For review, following `ui-handover`.
 - Move merged invisible work to Done.
-- Close an issue yourself once its work is merged and verified, unless its card waits in For review.
+- Close an issue yourself when its card reaches For review or Done, then set Status again, because the board's "Item closed" workflow can move the card.
 
 ## Releases and production
 
