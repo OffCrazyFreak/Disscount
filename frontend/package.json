@@ -6,7 +6,7 @@
   "packageManager": "pnpm@11.9.0",
   "scripts": {
     "dev": "next dev",
-    "build": "next build --webpack",
+    "build": "next build && serwist build serwist.config.mjs",
     "start": "next start",
     "lint": "eslint src --max-warnings 0",
     "i18n:check": "node scripts/check-i18n.mjs",
@@ -78,6 +78,7 @@
   "devDependencies": {
     "@react-email/ui": "^6.11.6",
     "@rolldown/plugin-babel": "^0.2.4",
+    "@serwist/cli": "^9.5.13",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",

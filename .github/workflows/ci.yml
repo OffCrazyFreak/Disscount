@@ -117,6 +117,12 @@ jobs:
           CIJENE_API_URL: http://localhost:9999
           CIJENE_API_TOKEN: ci-dummy
 
+      # A missing or empty service worker does not fail the build, and the PWA would die silently.
+      - name: Check the service worker has a precache list
+        run: |
+          test -s public/sw.js
+          test "$(grep -o '/_next/static/[^"'"'"'` ]*' public/sw.js | sort -u | wc -l)" -ge 10
+
       # A push is what seeds the cache: a pull request reads its base branch's copy but cannot write one
       # that anything else reads. This is why the build also runs on dev pushes.
       - if: github.event_name == 'push' && steps.next-cache.outputs.cache-hit != 'true'
