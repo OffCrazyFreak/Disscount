@@ -104,6 +104,8 @@ The price data routes under `/api/cijene/` build every error with the same helpe
 
 Sentry events carry only the tags `flow: backend-proxy`, `proxyFailure` and `pathRoot` (the first segment). Deeper segments hold list and card ids, and headers carry the session, so neither goes in.
 
+The browser's query cache (`lib/api/query-client-defaults.ts`) reports every 5xx too, except the three codes marked "yes" above: `isReportedByProxy` skips them because the proxy already sent a better-tagged event for the same failure. The list lives once, as `SERVER_REPORTED_PROBLEMS` in `proxy-contract.ts`, and `reportFailure` accepts only those codes. A 502 from Spring itself or a Cijene `upstream_unavailable` still reports from the browser.
+
 `lib/offline/failure-policy.ts` treats 401 and every 5xx as "keep", so a queued offline write survives every proxy failure.
 
 ---
