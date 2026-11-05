@@ -5,7 +5,8 @@
 set -uo pipefail
 
 POLL_SECONDS=15
-# Dev: healthy deploys took 54 to 74 s, and compose gives up on the slowest healthcheck chain at 300 s.
+# Dev: the ceiling for a deploy Dokploy never reports as failed. Healthy deploys took 54 to 74 s,
+# and compose gives up on the slowest healthcheck chain at 300 s.
 # Only dev has proved the backstop, so prod keeps its long wait and its manual Rollback.
 if [ "$ENVIRONMENT_TAG" = dev ]; then
   WAIT_MINUTES=5
@@ -68,15 +69,25 @@ trigger_deploy() {
 }
 
 # compose.deploy only queues the job, so success means the site reporting the new commit.
+# With before_deploy set, a failed deployment newer than it ends the wait early; an older
+# failed record says nothing about this deploy.
 wait_for_release() {
-  local deadline=$((SECONDS + WAIT_MINUTES * 60))
+  local release="$1" before_deploy="$2" deadline=$((SECONDS + WAIT_MINUTES * 60)) id status
   while [ "$SECONDS" -lt "$deadline" ]; do
-    if [ "$(live_release)" = "$1" ]; then
-      echo "Live on $1."
+    if [ "$(live_release)" = "$release" ]; then
+      echo "Live on $release."
       return 0
+    fi
+    if [ -n "$before_deploy" ]; then
+      read -r id status <<<"$(newest_deployment)"
+      if [ -n "$id" ] && [ "$id" != "$before_deploy" ] && { [ "$status" = "error" ] || [ "$status" = "cancelled" ]; }; then
+        echo "Dokploy reports this deploy as $status after $SECONDS s."
+        return 1
+      fi
     fi
     sleep "$POLL_SECONDS"
   done
+  echo "$release was not live within $WAIT_MINUTES minutes."
   return 1
 }
 
@@ -135,15 +146,19 @@ if [ "$ENVIRONMENT_TAG" = dev ]; then
 fi
 
 move_tag "$RELEASE_ID" || exit 1
+before_deploy=""
+if [ -n "$previous" ]; then
+  before_deploy="$(newest_deployment | cut -d' ' -f1)"
+fi
 trigger_deploy "$RELEASE_ID" || exit 1
-wait_for_release "$RELEASE_ID" && exit 0
+wait_for_release "$RELEASE_ID" "$before_deploy" && exit 0
 
 if [ -z "$previous" ]; then
   echo "::error::$APP_URL did not report $RELEASE_ID within $WAIT_MINUTES minutes. The $ENVIRONMENT_TAG tag already points at it; run Rollback with the last good commit (or, before Rollback is on main, push a revert) before any Redeploy."
   exit 1
 fi
 
-echo "$RELEASE_ID was not live within $WAIT_MINUTES minutes; restoring $previous."
+echo "Restoring $previous."
 if restore_release "$previous"; then
   echo "::error::Rolled back to $previous; $RELEASE_ID never became healthy."
 else
