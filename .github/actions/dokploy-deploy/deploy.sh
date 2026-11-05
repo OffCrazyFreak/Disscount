@@ -15,7 +15,7 @@ fi
 
 # Empty unless the site answers and calls itself healthy.
 live_release() {
-  curl --silent --fail --max-time 10 "$APP_URL/health" |
+  curl --silent --fail --max-time 10 --retry 2 --retry-delay 3 --retry-all-errors "$APP_URL/health" |
     jq -r 'select(.status == "ok") | .releaseId // empty' 2>/dev/null || true
 }
 
@@ -82,7 +82,7 @@ wait_for_release() {
 
 # Prints "<id> <status>" of the newest deployment and nothing else from the response.
 newest_deployment() {
-  curl --silent --fail --max-time 30 --get \
+  curl --silent --fail --max-time 30 --retry 2 --retry-delay 3 --retry-all-errors --get \
     --header "x-api-key: $DOKPLOY_API_KEY" \
     --data-urlencode "composeId=$COMPOSE_ID" \
     "$DOKPLOY_URL/api/deployment.allByCompose" |
