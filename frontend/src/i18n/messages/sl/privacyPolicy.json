@@ -1,7 +1,7 @@
 {
   "ipAddresses": {
     "heading": "IP-naslovi",
-    "body": "Ob prijavi skupaj s sejo shranimo IP-naslov tvoje naprave, da lahko preverimo sumljive prijave v tvoj račun. Naslov izbrišemo najpozneje 30 dni po prijavi, potečeno sejo pa izbrišemo v celoti. Za zaščito pred zlorabo IP-naslov kratek čas uporabljamo tudi za omejevanje ponavljajočih se poskusov: pri prijavi in podobnih dejanjih do 15 minut v bazi, pri obrazcu za stik pa do 24 ur samo v pomnilniku strežnika. Ko varna povezava z našim strežnikom ne uspe, dnevnik napak strežnika zabeleži naslov te povezave. Te zapise uporabljamo samo za odpravljanje okvar. Varnostne kopije baze lahko te podatke vsebujejo še največ 30 dni. Pravna podlaga je zakoniti interes (člen 6(1)(f) GDPR)."
+    "body": "Ob prijavi skupaj s sejo shranimo IP-naslov tvoje naprave, da lahko preverimo sumljive prijave v tvoj račun. Naslov izbrišemo najpozneje 30 dni po prijavi, potečeno sejo pa izbrišemo v celoti. Za zaščito pred zlorabo IP-naslov kratek čas uporabljamo tudi za omejevanje ponavljajočih se poskusov: pri prijavi in podobnih dejanjih do 15 minut v bazi, pri obrazcu za stik pa do 24 ur samo v pomnilniku strežnika. Ko varna povezava z našim strežnikom ne uspe, dnevnik napak strežnika zabeleži naslov te povezave. Te zapise uporabljamo samo za odpravljanje okvar. Varnostne kopije baze lahko te podatke vsebujejo še največ 31 dni. Pravna podlaga je zakoniti interes (člen 6(1)(f) GDPR)."
   },
   "errorTracking": {
     "heading": "Spremljanje napak",
@@ -14,6 +14,6 @@
   },
   "backups": {
     "heading": "Varnostne kopije",
-    "body": "Bazo podatkov in fotografije redno kopiramo, da jih ne izgubimo ob okvari. Kopije hranimo v Evropski uniji, na našem strežniku in pri Cloudflaru, našem obdelovalcu, največ 30 dni, nato se same izbrišejo. Ko izbrišeš račun, tvoji podatki izginejo iz kopij, ko te potečejo. Če bi kdaj morali bazo obnoviti iz kopije, pred ponovnim odprtjem aplikacije znova izbrišemo vse račune, izbrisane v vmesnem času. Pravna podlaga je zakoniti interes (člen 6(1)(f) GDPR)."
+    "body": "Bazo podatkov in fotografije redno kopiramo, da jih ne izgubimo zaradi okvare. Kopije hranimo v Evropski uniji, kratek čas na našem strežniku in šifrirane pri Cloudflaru, našem obdelovalcu, nato se same izbrišejo, najpozneje 31 dni po nastanku. Ko izbrišeš račun, tvoji podatki izginejo iz kopij, ko kopije potečejo. Do takrat hranimo tudi zapis o izbrisu s psevdonimiziranim identifikatorjem tvojega računa, iz katerega ni mogoče razbrati ne imena ne e-poštnega naslova. Če bi kdaj morali bazo obnoviti iz kopije, pred ponovnim odprtjem aplikacije znova izbrišemo račune, izbrisane po nastanku te kopije. Pravna podlaga je zakoniti interes (člen 6(1)(f) GDPR)."
   }
 }

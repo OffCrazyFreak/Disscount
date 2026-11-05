@@ -1,7 +1,7 @@
 {
   "ipAddresses": {
     "heading": "Indirizzi IP",
-    "body": "Quando accedi, salviamo l'indirizzo IP del tuo dispositivo insieme alla sessione, per poter verificare gli accessi sospetti al tuo account. Cancelliamo l'indirizzo al più tardi 30 giorni dopo l'accesso e cancelliamo per intero una sessione scaduta. Per proteggerci dagli abusi usiamo l'indirizzo IP anche per poco tempo per limitare i tentativi ripetuti: fino a 15 minuti nel nostro database per l'accesso e azioni simili, e fino a 24 ore per il modulo di contatto, solo nella memoria del server. Quando una connessione sicura al nostro server non riesce, il registro degli errori del server annota l'indirizzo di quella connessione. Usiamo queste voci solo per risolvere i guasti. I backup del database possono contenere questi dati per altri 30 giorni al massimo. La base giuridica è il legittimo interesse (art. 6, par. 1, lett. f del GDPR)."
+    "body": "Quando accedi, salviamo l'indirizzo IP del tuo dispositivo insieme alla sessione, per poter verificare gli accessi sospetti al tuo account. Cancelliamo l'indirizzo al più tardi 30 giorni dopo l'accesso e cancelliamo per intero una sessione scaduta. Per proteggerci dagli abusi usiamo l'indirizzo IP anche per poco tempo per limitare i tentativi ripetuti: fino a 15 minuti nel nostro database per l'accesso e azioni simili, e fino a 24 ore per il modulo di contatto, solo nella memoria del server. Quando una connessione sicura al nostro server non riesce, il registro degli errori del server annota l'indirizzo di quella connessione. Usiamo queste voci solo per risolvere i guasti. I backup del database possono contenere questi dati per altri 31 giorni al massimo. La base giuridica è il legittimo interesse (art. 6, par. 1, lett. f del GDPR)."
   },
   "errorTracking": {
     "heading": "Monitoraggio degli errori",
@@ -14,6 +14,6 @@
   },
   "backups": {
     "heading": "Copie di backup",
-    "body": "Copiamo regolarmente il database e le foto per non perderli in caso di guasto. Conserviamo le copie nell'Unione europea, sul nostro server e presso Cloudflare, nostro responsabile del trattamento, per al massimo 30 giorni, poi si cancellano da sole. Quando elimini il tuo account, i tuoi dati spariscono dalle copie man mano che scadono. Se mai dovessimo ripristinare il database da una copia, prima di riaprire l'app eliminiamo di nuovo tutti gli account cancellati nel frattempo. La base giuridica è il legittimo interesse (articolo 6, paragrafo 1, lettera f) del GDPR)."
+    "body": "Copiamo regolarmente il database e le foto per non perderli in caso di guasto. Conserviamo le copie nell'Unione europea, per poco tempo sul nostro server e cifrate presso Cloudflare, nostro responsabile del trattamento, e si cancellano da sole al più tardi 31 giorni dopo la loro creazione. Quando elimini il tuo account, i tuoi dati spariscono dalle copie man mano che scadono. Fino ad allora conserviamo anche una registrazione della cancellazione con un identificativo pseudonimizzato del tuo account, da cui non si ricavano né il nome né l'email. Se mai dovessimo ripristinare il database da una copia, prima di riaprire l'app eliminiamo di nuovo gli account cancellati dopo la creazione di quella copia. La base giuridica è il legittimo interesse (art. 6, par. 1, lett. f del GDPR)."
   }
 }
