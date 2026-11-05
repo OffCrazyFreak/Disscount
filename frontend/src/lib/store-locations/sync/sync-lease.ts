@@ -26,7 +26,7 @@ export async function acquireSyncLease({
     insert into store_location_sync (id, started_at, finished_at)
     values (${id}, now(), null)
     on conflict (id) do update
-      set started_at = now(), last_error = null
+      set started_at = now()
       where (store_location_sync.started_at < now() - interval '2 hours'
              and (store_location_sync.finished_at is null
                   or store_location_sync.finished_at < store_location_sync.started_at))
@@ -51,7 +51,7 @@ export async function releaseSyncLease(
 
 /**
  * Whether the job's last finished run succeeded, so its data is a full set.
- * A rerun in progress keeps the previous answer: acquiring leaves `finished_at`.
+ * A rerun in progress keeps the previous answer, because acquiring changes only `started_at`.
  */
 export async function hasSyncSucceeded({ id }: ISyncLease): Promise<boolean> {
   const result = await db.execute(sql`
