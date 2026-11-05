@@ -131,6 +131,7 @@ Copy and i18n (`docs/I18N.md`):
 
 - Write issue, commit and PR titles and bodies in plain words a newcomer can follow.
 - Explain in plain words, and define any jargon in one phrase.
+- Write every PR or issue reference as number plus short name, in chat, lists, tables, board cards, comments and bodies, even when repeated.
 - Write Markdown with one physical line per paragraph and bullet.
 - In prose, write numeric dates as `03.11.2026.` in Croatian and ISO `2026-11-03` in English (`docs/I18N.md`).
 - Use straight quotes.
@@ -158,5 +159,5 @@ Notes: A tradeoff.
 - Add `Changes:` only for two or more separable parts.
 - Add `Notes:` only for a tradeoff.
 - Cite commits by full 40-character SHA.
-- Write "Part of #N" in a PR into `dev`, because `Closes #N` fires only on a merge into `main`; I close it by hand.
+- Write "Part of #N (short name)" in a PR into `dev`, because `Closes #N` fires only on a merge into `main`.
 - Link anything filed on `senko/cijene-api` back to https://disscount.me and this repository.
