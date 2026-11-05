@@ -7,16 +7,17 @@ import enErrors from "@/i18n/messages/en/errors.json";
 import hrErrors from "@/i18n/messages/hr/errors.json";
 import itErrors from "@/i18n/messages/it/errors.json";
 import slErrors from "@/i18n/messages/sl/errors.json";
-import { SESSION_CHANGED } from "@/lib/backend-proxy/proxy-contract";
+import {
+  SESSION_CHANGED,
+  type SERVER_REPORTED_PROBLEMS,
+} from "@/lib/backend-proxy/proxy-contract";
 
 // The backend and Cijene proxies' own refusals and failures, in the Problem Details shape problem-details.ts reads.
 export type ProxyProblemCode =
   | "not_found"
   | "csrf_rejected"
   | typeof SESSION_CHANGED
-  | "auth_unavailable"
-  | "backend_unavailable"
-  | "backend_timeout"
+  | (typeof SERVER_REPORTED_PROBLEMS)[number]
   | "upstream_unavailable"
   | "bad_request"
   | "too_many_requests";
