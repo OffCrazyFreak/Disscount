@@ -1,14 +1,14 @@
 "use client";
 
-import { useRef, type RefObject } from "react";
+import type { RefObject } from "react";
 import type { UseFormRegisterReturn } from "react-hook-form";
 import { Search } from "lucide-react";
-import { useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
 import SearchBarActions from "@/components/custom/search/search-bar-actions";
+import SearchSuggestions from "@/components/custom/search/search-suggestions";
 import { useCameraScanner } from "@/context/scanner-context";
-import { useFittingText } from "@/hooks/use-fitting-text";
+import { useSearchInputProps } from "@/components/custom/search/use-search-input-props";
 import { IScannedCode } from "@/typings/scanned-code";
 
 export interface ISearchBarFieldOptions {
@@ -28,11 +28,13 @@ interface ISearchBarFieldProps extends ISearchBarFieldOptions {
   disabled: boolean;
   onClear: () => void;
   onScanned: (code: IScannedCode) => void;
+  /** Offers searches to run under the field, and receives the one picked */
+  onPickSuggestion?: (query: string) => void;
 }
 
 /** The search input with its icon and the clear and scan buttons. */
 export default function SearchBarField({
-  placeholder: placeholderProp,
+  placeholder,
   shortPlaceholder,
   ariaLabel,
   allowScanning = false,
@@ -42,21 +44,38 @@ export default function SearchBarField({
   disabled,
   onClear,
   onScanned,
+  onPickSuggestion,
 }: ISearchBarFieldProps) {
-  const t = useTranslations("shell");
   const { openScanner } = useCameraScanner();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const placeholder = useFittingText(
-    inputRef,
-    placeholderProp ?? t("search.placeholder"),
+  const { inputRef, inputProps } = useSearchInputProps({
+    placeholder,
     shortPlaceholder,
-  );
-  const { ref: registerRef, ...registerProps } = registration;
+    ariaLabel,
+    exposedInputRef,
+    registration,
+  });
 
   function handleClear() {
     onClear();
     inputRef.current?.focus();
   }
+
+  const input = (
+    <Input
+      {...inputProps}
+      // A combobox role is not allowed on type="search", and its list is why it has one.
+      type={onPickSuggestion ? "text" : "search"}
+      inputMode="search"
+      enterKeyHint="search"
+      disabled={disabled}
+      size="lg"
+      className="pl-10 pr-22 text-muted-foreground focus:text-foreground bg-popover [&::-webkit-search-cancel-button]:hidden"
+      autoComplete="off"
+      autoCapitalize="off"
+      autoCorrect="off"
+      spellCheck={false}
+    />
+  );
 
   return (
     <div data-slot="search-field" className="relative grow-100">
@@ -65,26 +84,15 @@ export default function SearchBarField({
         className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground size-5"
       />
 
-      <Input
-        ref={(el) => {
-          inputRef.current = el;
-          if (exposedInputRef) exposedInputRef.current = el;
-          registerRef(el);
-        }}
-        {...registerProps}
-        type="search"
-        inputMode="search"
-        enterKeyHint="search"
-        placeholder={placeholder}
-        aria-label={ariaLabel || placeholder || t("search.submit")}
-        disabled={disabled}
-        size="lg"
-        className="pl-10 pr-22 text-muted-foreground focus:text-foreground bg-popover [&::-webkit-search-cancel-button]:hidden"
-        autoComplete="off"
-        autoCapitalize="off"
-        autoCorrect="off"
-        spellCheck={false}
-      />
+      {onPickSuggestion ? (
+        <SearchSuggestions
+          query={queryValue}
+          input={input}
+          onPick={onPickSuggestion}
+        />
+      ) : (
+        input
+      )}
 
       <SearchBarActions
         showClear={Boolean(!disabled && queryValue)}

@@ -48,10 +48,11 @@ export function useSignupForm() {
         };
 
         if (isPasswordPolicyCode(body.error)) {
-          form.setError("password", {
-            type: "server",
-            message: messageForCode(body.error),
-          });
+          form.setError(
+            "password",
+            { type: "server", message: messageForCode(body.error) },
+            { shouldFocus: true },
+          );
           return;
         }
 
