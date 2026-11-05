@@ -6,15 +6,15 @@ How Disscount knows whether a store is open, where the hours come from, and why 
 
 ## 1. Quick reference
 
-| Question                         | Answer                                                                                                              |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Where are hours stored?          | Our own Postgres, tables `store_hours`, `store_hours_overlay`, `store_hours_run` (migration `0010_store_hours.sql`) |
-| Why not in the cijene-api fork?  | Hours change weekly and come from the chains' sites; the fork's store table suits stable fields, and it is AGPL     |
-| Which time zone?                 | Always `Europe/Zagreb`, whatever the device or server runs in                                                       |
-| Can a Sunday be open by default? | No. Without a dated entry a Sunday is "not confirmed", unless the store is marked exempt (`sundays: "weekly"`)      |
-| Public holidays?                 | Closed by law unless a dated entry says otherwise; the dates come from `date-holidays`                              |
-| When does data go stale?         | Each layer 14 days after its own `verifiedAt` (two missed weekly refreshes); a stale layer counts as unknown        |
-| API                              | `GET /api/cijene/store-hours`, cached an hour, stale-while-revalidate a day                                         |
+| Question                         | Answer                                                                                                               |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Where are hours stored?          | Our own Postgres, tables `store_hours`, `store_hours_overlay`, `store_hours_run` (migration `0010_store_hours.sql`)  |
+| Why not in the cijene-api fork?  | Hours change weekly and come from the chains' sites; the fork's store table suits stable fields, and it is AGPL      |
+| Which time zone?                 | Always `Europe/Zagreb`, whatever the device or server runs in                                                        |
+| Can a Sunday be open by default? | No. Without a dated entry a Sunday is "not confirmed", unless the store is marked exempt (`sundays: "weekly"`)       |
+| Public holidays?                 | Closed by law unless a dated entry says otherwise; the dates come from `date-holidays`                               |
+| When does data go stale?         | Each layer 14 days after its own `verifiedAt` (two missed weekly refreshes); a stale layer counts as unknown         |
+| API                              | `GET /api/cijene/store-hours`, cached an hour, stale-while-revalidate a day; not cached before the first import ends |
 
 ## 2. The model
 
@@ -78,7 +78,7 @@ The function is pure and runs in the browser: the server sends the holidays as p
 
 ## 4. Serving the hours
 
-`getStoreHours` (`lib/store-hours/get-store-hours.ts`) reads both tables, keeps each process's result for 10 minutes like the store directory, and `buildStoreHours` turns the rows into the response:
+`getStoreHours` (`lib/store-hours/get-store-hours.ts`) reads both tables, keeps each process's result for 10 minutes like the store directory (only once the template job has finished at least once and rows exist), and `buildStoreHours` turns the rows into the response:
 
 - Rows and announcements read from a chain whose switch is off are dropped; OpenStreetMap rows have their own switch (see [§9](#9-config-and-libraries)).
 - Each store is validated against `storeHoursDto` on its own, so one malformed row (a bad time, a link that is not http or https) drops that store, not the whole response.
@@ -202,6 +202,7 @@ dm is not covered: upstream lists dm as a single chain-wide store, so there is n
 - **Trgocentar's sheet lags.** On 2026-11-03 it still showed October; past dates are dropped, so the Sundays simply stay unconfirmed until the new month is up.
 - **Studenac's list page shows only today.** Its hours text depends on the time of day, so the weekly table is read from each store's page.
 - **Changing the payload shape strands cached copies.** The browser's HTTP cache (an hour), the service worker's `cijene-api` cache (7 days) and the persisted React Query cache all hold the previous shape under the same URL and key. The schema refuses a cached response, and a restored persisted entry skips the schema and fails in `select` instead, so either way the hours show as failed until a fresh response lands. A shape change on a live release needs a new URL and a new query key; bumping `CACHE_BUSTER` also discards queued offline writes.
+- **The first import starts on the first request.** Until the template job has finished once, the table is empty or partial, so the route answers `private, no-store`, the memo stays empty, and `useStoreHours` treats an answer with no stores as stale at once. Without that a fresh deploy would cache "every store unconfirmed" for an hour. The service worker still keeps its copy, but it refreshes it in the background on the next request.
 - **`00:00-00:00` is not 24 hours.** Feeds write a closed day that way, so the schema refuses equal `opens` and `closes`; a parser writes a closed day as `[]` and an all-day opening as `00:00` to `24:00`.
 
 ## 11. Future improvements and TODOs
