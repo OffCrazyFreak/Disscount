@@ -16,9 +16,57 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  frontend:
-    name: Frontend checks
-    # Job level, so a required check on a draft reports as skipped instead of pending forever.
+  frontend-build:
+    name: Frontend build
+    # Job level, so a draft does not spend a runner. On a dev push the image build compiles the same code with the real values.
+    if: (github.event_name != 'pull_request' || !github.event.pull_request.draft) && (github.event_name != 'push' || github.ref != 'refs/heads/dev')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-frontend
+
+      - name: Production build
+        run: pnpm build
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          BETTER_AUTH_URL: http://localhost:3000
+          BETTER_AUTH_SECRET: ci-dummy-secret-not-used-at-runtime
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+          NEXT_PUBLIC_API_URL: http://localhost:8080
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ci-dummy
+          GOOGLE_CLIENT_SECRET: ci-dummy
+          FACEBOOK_CLIENT_ID: ci-dummy
+          FACEBOOK_CLIENT_SECRET: ci-dummy
+          RESEND_API_KEY: re_ci_dummy
+          EMAIL_FROM: ci@example.com
+          CIJENE_API_URL: http://localhost:9999
+          CIJENE_API_TOKEN: ci-dummy
+
+  frontend-test:
+    name: Frontend tests
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-frontend
+
+      - name: Unit tests
+        run: pnpm test
+
+  frontend-static:
+    name: Frontend static checks
     if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
     defaults:
@@ -41,9 +89,6 @@ jobs:
 
       - name: Typecheck
         run: pnpm exec tsc --noEmit
-
-      - name: Unit tests
-        run: pnpm test
 
       - name: Lint
         run: pnpm lint
@@ -76,24 +121,35 @@ jobs:
       - name: Format check (docs & root markdown)
         run: pnpm exec prettier --check --ignore-path ../.prettierignore "../README.md" "../AGENTS.md" "../CLAUDE.md" "../docs/**/*.md" "../.github/**/*.md" "../.agents/**/*.md"
 
-      # On a dev push the image build compiles the same code with the real values.
-      - name: Production build
-        if: github.event_name != 'push' || github.ref != 'refs/heads/dev'
-        run: pnpm build
+  # The required check. It requires success rather than the absence of failure, because a required job
+  # that a failed dependency skipped reports as passed. A new frontend job belongs in `needs` and in the
+  # checks below, or its failure stays invisible here.
+  frontend:
+    name: Frontend checks
+    needs: [frontend-build, frontend-test, frontend-static]
+    if: always() && (github.event_name != 'pull_request' || !github.event.pull_request.draft)
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Require every expected job to have passed
         env:
-          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
-          BETTER_AUTH_URL: http://localhost:3000
-          BETTER_AUTH_SECRET: ci-dummy-secret-not-used-at-runtime
-          NEXT_PUBLIC_APP_URL: http://localhost:3000
-          NEXT_PUBLIC_API_URL: http://localhost:8080
-          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ci-dummy
-          GOOGLE_CLIENT_SECRET: ci-dummy
-          FACEBOOK_CLIENT_ID: ci-dummy
-          FACEBOOK_CLIENT_SECRET: ci-dummy
-          RESEND_API_KEY: re_ci_dummy
-          EMAIL_FROM: ci@example.com
-          CIJENE_API_URL: http://localhost:9999
-          CIJENE_API_TOKEN: ci-dummy
+          BUILD: ${{ needs.frontend-build.result }}
+          BUILD_EXPECTED: ${{ github.event_name != 'push' || github.ref != 'refs/heads/dev' }}
+          TEST: ${{ needs.frontend-test.result }}
+          STATIC: ${{ needs.frontend-static.result }}
+        run: |
+          status=0
+          check() {
+            if [ "$2" = success ] || { [ "$2" = skipped ] && [ "$3" = false ]; }; then
+              return
+            fi
+            echo "::error::$1 finished as $2."
+            status=1
+          }
+          check "Frontend build" "$BUILD" "$BUILD_EXPECTED"
+          check "Frontend tests" "$TEST" true
+          check "Frontend static checks" "$STATIC" true
+          exit "$status"
 
   backend:
     name: Backend checks
