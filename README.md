@@ -158,7 +158,7 @@ The backend and frontend share one PostgreSQL database: the backend owns the app
 Set `POSTGRES_DB`, `POSTGRES_USER` and `POSTGRES_PASSWORD` in the root `.env` (see `.env.example`), and reuse them in both env files below. Then start Postgres on `localhost:5432`, with its data in a Docker volume:
 
 ```bash
-docker compose -f docker-compose.local-db.yml up -d
+docker compose -f docker-compose.local-db.yml up -d --wait
 ```
 
 Port 5432 must be free, so stop a system Postgres first (`sudo systemctl disable --now postgresql` on Ubuntu). To keep its data, dump each database with `pg_dump -Fc` before stopping it, then load it with `docker exec -i disscount-local-db-1 pg_restore -U <user> -d <database> --no-owner --no-acl < <file>.dump`.
