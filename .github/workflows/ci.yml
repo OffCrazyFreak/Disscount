@@ -18,8 +18,8 @@ concurrency:
 jobs:
   frontend-build:
     name: Frontend build
-    # Job level, so a draft does not spend a runner. On a dev push the image build compiles the same code with the real values.
-    if: (github.event_name != 'pull_request' || !github.event.pull_request.draft) && (github.event_name != 'push' || github.ref != 'refs/heads/dev')
+    # Job level, so a draft does not spend a runner.
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -30,6 +30,13 @@ jobs:
           persist-credentials: false
 
       - uses: ./.github/actions/setup-frontend
+
+      - id: next-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: frontend/.next/cache
+          key: next-build-${{ runner.os }}-${{ hashFiles('frontend/pnpm-lock.yaml') }}-${{ hashFiles('frontend/src/**') }}
+          restore-keys: next-build-${{ runner.os }}-${{ hashFiles('frontend/pnpm-lock.yaml') }}-
 
       - name: Production build
         run: pnpm build
@@ -47,6 +54,36 @@ jobs:
           EMAIL_FROM: ci@example.com
           CIJENE_API_URL: http://localhost:9999
           CIJENE_API_TOKEN: ci-dummy
+
+      # A push is what seeds the cache: a pull request reads its base branch's copy but cannot write one
+      # that anything else reads. This is why the build also runs on dev pushes.
+      - if: github.event_name == 'push' && steps.next-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: frontend/.next/cache
+          key: ${{ steps.next-cache.outputs.cache-primary-key }}
+
+  # Each source change saves a new copy, and only the newest is ever read, so the older ones would fill
+  # the repository's cache limit and evict what the next run needs. Separate, so the job that runs
+  # project code never holds a token that can write to Actions.
+  frontend-build-cache-prune:
+    name: Prune old build caches
+    needs: frontend-build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Keep the newest copy on this branch
+        run: |
+          stale=$(gh cache list --ref "$GITHUB_REF" --key next-build- --sort created_at --order desc --json id --jq '.[1:][].id')
+          for id in $stale; do
+            # A run for a newer push may have deleted it first.
+            gh cache delete "$id" || echo "::notice::Cache $id is already gone."
+          done
 
   frontend-test:
     name: Frontend tests
@@ -134,21 +171,19 @@ jobs:
       - name: Require every expected job to have passed
         env:
           BUILD: ${{ needs.frontend-build.result }}
-          BUILD_EXPECTED: ${{ github.event_name != 'push' || github.ref != 'refs/heads/dev' }}
           TEST: ${{ needs.frontend-test.result }}
           STATIC: ${{ needs.frontend-static.result }}
         run: |
           status=0
           check() {
-            if [ "$2" = success ] || { [ "$2" = skipped ] && [ "$3" = false ]; }; then
-              return
+            if [ "$2" != success ]; then
+              echo "::error::$1 finished as $2."
+              status=1
             fi
-            echo "::error::$1 finished as $2."
-            status=1
           }
-          check "Frontend build" "$BUILD" "$BUILD_EXPECTED"
-          check "Frontend tests" "$TEST" true
-          check "Frontend static checks" "$STATIC" true
+          check "Frontend build" "$BUILD"
+          check "Frontend tests" "$TEST"
+          check "Frontend static checks" "$STATIC"
           exit "$status"
 
   backend:
