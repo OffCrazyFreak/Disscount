@@ -77,7 +77,7 @@
   },
   "devDependencies": {
     "@react-email/ui": "^6.11.6",
-    "@rolldown/plugin-babel": "^0.2.4",
+    "@rolldown/plugin-babel": "^0.3.0",
     "@serwist/cli": "^9.5.13",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.2",
