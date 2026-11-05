@@ -35,8 +35,8 @@ finish() {
   fi
   if ((status == 0)); then
     note "backup $job: ok"
-    # The container healthcheck reads this, so a job that keeps failing turns the container unhealthy.
-    touch /tmp/backup-heartbeat
+    # The healthcheck reads this; only the every-minute job, so an hourly success cannot hide it failing.
+    [[ "$job" != erasure-markers ]] || touch /tmp/backup-heartbeat
     ping "" "$summary"
   else
     note "backup $job: failed with exit $status, details in the container log"
