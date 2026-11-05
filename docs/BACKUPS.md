@@ -2,7 +2,7 @@
 
 How production data is copied off the server: the database, user photos and Dokploy's own configuration, encrypted, to one Cloudflare R2 bucket, plus the erasure markers that keep a restore from bringing deleted accounts back. The plan and its decisions are tracked in [#486](https://github.com/OffCrazyFreak/Disscount/issues/486); the research behind where the jobs run is summarised under [Why a sidecar](#why-a-sidecar).
 
-> ⚠️ **Status:** the sidecar is built but not running anywhere yet. It starts on production once production deploys from `docker-compose.images.yml` (#74) and the owner steps below are done. Until then, the Dokploy backups described in [INFRASTRUCTURE.md](INFRASTRUCTURE.md) are the only ones.
+> ⚠️ **Status:** the sidecar is built but not running anywhere yet. It starts on production once production deploys from `docker-compose.images.yml` (#74) and the owner steps below are done. Until then, the only backup is the 7 day local dump schedule described in [INFRASTRUCTURE.md](INFRASTRUCTURE.md); the Dokploy R2 backups were removed on 05.11.2026.
 
 ## What it is
 
@@ -14,13 +14,13 @@ The jobs only ever add files to the bucket. Deleting old backups is left to R2 l
 
 Times are UTC.
 
-| Job               | When         | What                                                                                         | Kept in R2              |
-| ----------------- | ------------ | -------------------------------------------------------------------------------------------- | ----------------------- |
-| `db-hourly`       | minute 17    | `pg_dump` of the app database, age-encrypted                                                 | 2 days (about 48 dumps) |
-| `db-nightly`      | 01:47        | the same dump plus role globals, uploaded only after a scratch restore checks the user count | 30 days                 |
-| `photos`          | minute 37    | new card photos, product originals and public product photos, through rclone crypt           | 30 days per file        |
-| `dokploy`         | 02:27        | Dokploy's own database and `/etc/dokploy` (without cloned repositories and deploy logs)      | 30 days                 |
-| `erasure-markers` | every minute | one marker per account erased in the last 30 days, see [Erasure replay](#erasure-replay)     | 30 days                 |
+| Job               | When         | What                                                                                                                                         | Kept in R2              |
+| ----------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| `db-hourly`       | minute 17    | `pg_dump` of the app database, age-encrypted                                                                                                 | 2 days (about 48 dumps) |
+| `db-nightly`      | 01:47        | the same dump plus role globals, uploaded only after a scratch restore checks the user count; a failed restore leaves that night without one | 30 days                 |
+| `photos`          | minute 37    | new card photos, product originals and public product photos, through rclone crypt                                                           | 30 days per file        |
+| `dokploy`         | 02:27        | Dokploy's own database and `/etc/dokploy` (without cloned repositories and deploy logs)                                                      | 30 days                 |
+| `erasure-markers` | every minute | one marker per account erased in the last 30 days, see [Erasure replay](#erasure-replay)                                                     | 30 days                 |
 
 **Photo generations.** Photos are copied into a folder `gen-<n>`, where `n` is the number of whole 14-day periods since 1 January 1970. The first run in a new generation copies every photo, later runs only new files. Each file is deleted 30 days after it was copied, so two or three generations exist (at least two complete) as long as the job keeps running, and an erased photo leaves the backup within about 31 days (R2 deletes expired objects within about a day).
 
@@ -41,7 +41,7 @@ A lock blocks every deletion until it ends, lifecycle rules included, so each pr
 - `backup/Dockerfile`: `postgres:17-alpine` pinned by digest (same major as the `db` service, so the dump and the scratch restore match it) plus `rclone`, `age`, `openssl` (the marker HMAC), `bash`, `curl`, `tar`, `flock` and supercronic, whose download is checked against its published SHA-1. The digest pins the Alpine release, so rclone and age only change through a reviewed digest bump.
 - `backup/crontab`: the schedule.
 - `backup/bin/backup-entrypoint`: reads the secrets under `/run/secrets`, refuses to start if a required setting is missing, and configures rclone from environment variables (an S3 remote `r2` and a crypt remote `photos` on top of it).
-- `backup/bin/backup-job`: one job per call. Each job takes a lock (a second run while one is going is skipped), pings healthchecks.io at start, success and failure, writes to a temp folder, and uploads only finished files; database dumps must also be non-empty and readable. Each successful job touches `/tmp/backup-heartbeat`, and the container's healthcheck turns unhealthy when no job has succeeded for 5 minutes (`erasure-markers` runs every minute). The ping body carries only the job's own summary lines (file names, sizes, counts), never tool output, which can quote database rows; full output is in the container log.
+- `backup/bin/backup-job`: one job per call. Each job takes a lock (a second run while one is going is skipped), pings healthchecks.io at start, success and failure, writes to a temp folder, and uploads only finished files; database dumps must also be non-empty and readable. Each successful `erasure-markers` run (every minute) touches `/tmp/backup-heartbeat`, and the container's healthcheck turns unhealthy when it has not succeeded for 5 minutes. The other jobs report through healthchecks.io. The ping body carries only the job's own summary lines (file names, sizes, counts), never tool output, which can quote database rows; full output is in the container log.
 - `docker-compose.images.yml`: the `backup` service, the `photos-private` and `photos-public` volumes, and the secrets.
 - `.github/workflows/ci.yml` and `.github/actions/dokploy-deploy/action.yml`: build and tag the image.
 
