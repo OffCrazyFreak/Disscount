@@ -10,7 +10,7 @@ import {
 
 import type { SundayRule, TimeRangeDto } from "@/lib/api/schemas";
 
-/** Keyed like `store_location`; refreshed weekly from the chain's store finder, or OpenStreetMap when the chain publishes none. */
+/** Keyed like `store_location`; refreshed weekly from the chain finder or OpenStreetMap. */
 export const storeHours = pgTable(
   "store_hours",
   {

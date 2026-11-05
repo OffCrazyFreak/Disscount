@@ -40,7 +40,7 @@ export default function QuickActionsSheet({
       // The summary names the entity better than a truncated title row could.
       srOnlyTitle
       description={description}
-      // Without an entity there are no action buttons, so the header's button is the only way out of a sheet a shared link opened.
+      // Without an entity the header's button is the only way out of a sheet a shared link opened.
       showCloseButton={!hasEntity}
       bodyClassName="gap-2"
     >

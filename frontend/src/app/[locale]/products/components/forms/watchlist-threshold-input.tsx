@@ -65,7 +65,7 @@ export default function WatchlistThresholdInput({
               : t("threshold.labelPercentage")}
           </FormLabel>
 
-          {/* Outside FormControl, a Slot that injects the field id onto its child, or the label would point at a non-labelable div during the fetch. */}
+          {/* Outside FormControl, or its Slot would point the label at a non-labelable div. */}
           {loading ? (
             <div role="status" aria-live="polite" className="my-2">
               <Skeleton aria-hidden="true" className="h-14 w-full" />

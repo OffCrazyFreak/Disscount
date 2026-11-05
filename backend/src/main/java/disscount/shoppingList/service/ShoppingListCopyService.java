@@ -15,7 +15,7 @@ import disscount.user.domain.User;
 
 import java.util.UUID;
 
-/** Its own service because it reads someone else's list and must be one transaction, so a failure leaves no half-populated copy. */
+/** Its own service: it reads someone else's list in one transaction, so a failure leaves no half-filled copy. */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -30,7 +30,7 @@ public class ShoppingListCopyService {
         ShoppingList source = shoppingListService.findVisible(listId, userId);
         User owner = shoppingListService.requireWriteUser(userId);
 
-        // Only an owner may carry sharing across, or a recipient could hand out a link at a level the owner never chose.
+        // Only an owner may carry sharing across, or a recipient could hand out a link the owner never chose.
         if (request.isIncludeSharing() && !accessService.resolve(source, userId).isOwner()) {
             throw new ForbiddenException("error.shoppingList.ownerOnlyCopySharing");
         }

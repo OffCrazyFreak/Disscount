@@ -50,7 +50,7 @@ export function useStoreOptimizeMode() {
     };
   }, [saved, isUserLoading]);
 
-  // "distance" is saved only once it worked, so a failed pick keeps the earlier choice and a failed restore stops retrying every visit.
+  // "distance" is saved only once it worked, so a failed pick keeps the earlier choice.
   useEffect(() => {
     if (distance.state === "ready") setStoreOptimizeMode("distance");
     else if (

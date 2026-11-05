@@ -12,7 +12,7 @@ function round(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
-/** Only a guess inside Croatia is used; a client bypassing Cloudflare can send these headers itself, which only moves its own map. */
+/** Only a guess inside Croatia is used; forging these headers only moves the sender's own map. */
 export function readIpLocation(headers: Headers): IIpLocation | null {
   const latHeader = headers.get("cf-iplatitude");
   const lonHeader = headers.get("cf-iplongitude");

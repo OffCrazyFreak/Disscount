@@ -2,7 +2,7 @@ import { useEffect, useEffectEvent, useRef } from "react";
 
 const MARKER = "__disscountPhotoViewer";
 
-/** One history entry of ours sits on top so Back closes the viewer; only our flag is passed, so Next re-attaches its own, as in openModalUrl. */
+/** Our history entry makes Back close the viewer; only our flag is passed, so Next adds its own. */
 export function useBackCloses(open: boolean, close: () => void) {
   // Runs only once our entry is gone, so anything it pushes (the sign-in modal) is not popped with it.
   const afterClose = useRef<(() => void) | null>(null);

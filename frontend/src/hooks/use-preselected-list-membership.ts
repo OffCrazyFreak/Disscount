@@ -11,7 +11,7 @@ import {
 } from "@/utils/browser/local-storage";
 import { useUser } from "@/context/user-context";
 
-/** Reads the cached me query, whose payload already has each list's items; signed-out visitors skip it, since it would only answer 401. */
+/** The cached me query already has each list's items; signed-out visitors would only get 401. */
 export function useIsOnPreselectedShoppingList(
   ean: string | undefined,
 ): boolean {

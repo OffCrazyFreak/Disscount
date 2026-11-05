@@ -8,7 +8,7 @@ import { clientEnv } from "@/lib/env";
 
 const RESEND_COOLDOWN_MS = 60_000;
 
-// The server mails at most one link per window, and that send can fail, so the notice always offers the ordinary reset email too.
+// At most one link per window, and that send can fail, so the ordinary reset email stays on offer.
 export function useBreachedPasswordResend(email: string) {
   const t = useTranslations("auth");
   const locale = useLocale();

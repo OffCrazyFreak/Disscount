@@ -4,7 +4,7 @@ import { DEFAULT_LOCALE } from "@/i18n/locales";
 import { localePath } from "@/i18n/locale-path";
 import { routing } from "@/i18n/routing";
 
-// A route handler, because [locale]/loading.tsx turns a page redirect into a client navigation, so the token would reach Sentry Replay unstripped.
+// A route handler, because a page redirect under loading.tsx would let Sentry Replay see the token.
 export async function GET(
   request: Request,
   context: RouteContext<"/[locale]/reset-password">,

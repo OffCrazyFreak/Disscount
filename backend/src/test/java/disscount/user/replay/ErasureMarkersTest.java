@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ErasureMarkersTest {
 
-    // Computed by the backup image itself: printf %s "account:<id>" | openssl dgst -sha256 -mac HMAC -macopt hexkey:<64 times a>
+    // From the backup image: printf %s "account:<id>" | openssl dgst -sha256 -mac HMAC -macopt hexkey:<64 times a>
     @Test
     void matchesTheSidecarsOpensslHmac() {
         byte[] key = HexFormat.of().parseHex("a".repeat(64));

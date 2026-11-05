@@ -22,7 +22,7 @@ interface IHeaderSlot {
 export function useHeaderSlot(): IHeaderSlot {
   const [state, setState] = useState<IHeaderSlot>({ slot: null, frame: null });
 
-  // Looked up after commit, because a language switch remounts the layout and during that render the old slot is still in the page.
+  // After commit, because during a language switch's remount the old slot is still in the page.
   useEffect(() => {
     const slot = document.getElementById(HEADER_SLOT_ID);
     const frameElement = slot?.closest<HTMLElement>("[data-header-frame]");
@@ -30,7 +30,7 @@ export function useHeaderSlot(): IHeaderSlot {
 
     function measure() {
       const box = frameElement!.getBoundingClientRect();
-      // Open, the frame widens to the screen edges, but closing shrinks back into the closed box; its height still follows a rotation.
+      // Closing shrinks back into the closed box, while its height still follows a rotation.
       const isOpen = slot!.querySelector(`[${HEADER_SLOT_OPEN_ATTR}]`) != null;
 
       setState((previous) => ({

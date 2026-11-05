@@ -47,7 +47,7 @@ export function useMapCamera({
   const hasSelection = selectedLat != null;
 
   const centerOn = useEffectEvent((request: ICenterRequest) => {
-    // A fix nobody tapped for must not yank the map from where the user moved it, or from the store a shared link opened.
+    // An untapped fix must not move the map from where the user or a shared link put it.
     if (request.auto && (userMoved.current || hasSelection || openedWithView)) {
       return;
     }
@@ -83,7 +83,7 @@ export function useMapCamera({
     });
   });
 
-  // The pinned place needs the profile and store list, which can arrive after the map has opened on the IP guess or all of Croatia.
+  // The pinned place's data can arrive after the map opened on the IP guess or all of Croatia.
   useEffect(() => {
     if (mapReady) jumpToInitialView();
   }, [mapReady, initialView?.lat, initialView?.lon, initialView?.zoom]);

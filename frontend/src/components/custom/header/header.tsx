@@ -14,7 +14,7 @@ export default function Header() {
   const isScrolled = useScrolledPast(50);
   const navRef = useRef<HTMLElement>(null);
   useHeaderBottomVariable(navRef);
-  // On phones the map's search sits here and the page never scrolls, so the header floats; CSS rather than unmounting so the server render matches.
+  // The phone map page never scrolls, so the header floats; CSS so the server render matches.
   const isMap = usePathname() === "/map";
 
   return (

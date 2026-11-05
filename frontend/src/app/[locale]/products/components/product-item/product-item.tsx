@@ -43,7 +43,7 @@ const ProductItem = memo(function ProductItem({
       pressProps={pressProps}
       actionProps={actionProps}
       trailing={<ProductUnitPriceDetails product={product} price={price} />}
-      // Four 40px buttons crowd a phone-width row, and a narrow window looks the same whatever drives it, so the viewport counts as well as the pointer.
+      // Four 40px buttons crowd a narrow row whatever drives it, so the viewport counts as well as the pointer.
       actions={<ProductActionButtons product={product} />}
       actionsClassName="hidden pointer-fine:sm:flex"
     />

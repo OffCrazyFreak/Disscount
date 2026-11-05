@@ -25,7 +25,7 @@ interface IProductSearchFiltersProps {
   queryInputRef: RefObject<HTMLInputElement | null>;
 }
 
-/** Expanding grows the sheet upward instead of stacking a second one, so the search field stays in view with one layer to dismiss. */
+/** Grows upward instead of stacking a second sheet, so the search stays in view with one layer. */
 export default function ProductSearchFilters({
   open,
   onOpenChange,

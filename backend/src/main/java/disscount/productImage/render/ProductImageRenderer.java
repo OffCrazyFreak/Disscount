@@ -26,12 +26,12 @@ import com.luciad.imageio.webp.WebPWriteParam;
 
 import disscount.exceptions.BadRequestException;
 
-/** White is painted into the pixels because dark mode extensions recolour CSS backgrounds but leave image pixels alone. */
+/** White is painted into the pixels because dark mode extensions recolour CSS backgrounds but not image pixels. */
 public final class ProductImageRenderer {
 
     /** Long edge of the full file: sharp on 2x laptop and 3x phone screens without zoom. */
     public static final int FULL_MAX_SIDE = 1600;
-    /** Used wherever a photo is drawn small (list rows, the product page tile up to about 128 CSS pixels), sharp on 2x screens. */
+    /** For photos drawn small (list rows, the product tile up to about 128 CSS pixels), sharp on 2x screens. */
     public static final int SMALL_SIDE = 256;
     public static final int MIN_CROP_SIDE = 16;
 
@@ -184,7 +184,7 @@ public final class ProductImageRenderer {
     /** Keeps the photo's shape, so a wide or tall product fills the file instead of white padding. */
     private static BufferedImage fitWithin(BufferedImage content, int maxSide) {
         int longEdge = Math.max(content.getWidth(), content.getHeight());
-        // Never upscale, but always copy, because a crop is a view into the rotated photo and the WebP writer ignores a view's offset.
+        // Never upscale, but always copy: a crop is a view into the rotated photo, and the WebP writer ignores offsets.
         if (longEdge <= maxSide) {
             return draw(content, content.getWidth(), content.getHeight(), RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         }

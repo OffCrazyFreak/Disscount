@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { renderWithProviders } from "@/test/render";
 
-// Base UI reads the platform once at import and registers its watcher only on Android, so both must exist before the drawer loads.
+// Base UI reads the platform once at import, so both must exist before the drawer loads.
 const watchers = vi.hoisted(() => {
   // Mirrors the browser: a vetoable cancel, then destroy, then close.
   class FakeCloseWatcher extends EventTarget {
@@ -91,7 +91,7 @@ describe("SheetShell on Android back", () => {
     watchers.instances.length = 0;
   });
 
-  // Radix dialogs register no close watcher, so the sheet's older one would take the gesture and close the layer underneath.
+  // Radix dialogs register no close watcher, so the sheet's would close the layer underneath.
   it("closes a Radix dialog over a non-modal sheet before the sheet", async () => {
     const user = userEvent.setup();
     renderWithProviders(<Harness />);
@@ -127,7 +127,7 @@ describe("SheetShell on Android back", () => {
     );
   });
 
-  // Past one veto per user activation the browser closes regardless, so the sheet goes and the dialog is left for the next back.
+  // Past one veto per user activation the browser closes regardless, so the sheet goes first.
   it("closes the sheet when the browser will not let the close be vetoed", async () => {
     const user = userEvent.setup();
     renderWithProviders(<Harness />);

@@ -27,7 +27,7 @@ public enum ListAccess {
         return this == OWNER;
     }
 
-    /** Separate from canManageShare because deleting and adding are ownership questions, so a link level managing sharing must not grant them. */
+    /** Apart from canManageShare because deleting and adding are ownership, which no link level may grant. */
     public boolean isOwner() {
         return this == OWNER;
     }

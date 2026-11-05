@@ -35,7 +35,7 @@ export default function StoreListItem({
       onOpenChange={(open) => onSelect(open ? row.key : null)}
       className={cn("rounded-lg", isSelected && "bg-primary/10")}
     >
-      {/* The trigger covers the row instead of wrapping it, so the share pill can sit in the address line without nesting buttons. */}
+      {/* The trigger covers the row so the share pill can sit in it without nesting buttons. */}
       <div className="relative flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent/70">
         <CollapsibleTrigger
           data-store-key={row.key}

@@ -34,7 +34,7 @@ function splitAddress(raw: string) {
     : { address: raw.slice(0, cut).trim(), city: raw.slice(cut + 1).trim() };
 }
 
-/** The flag is named `neradna_nedjelja`, yet the site's own "Otvoreno ove nedjelje" filter selects rows where it is "1". */
+/** Named `neradna_nedjelja`, yet the site's "Otvoreno ove nedjelje" filter selects rows where it is "1". */
 export const trgovinaKrkHoursSource: IHoursSource = {
   chain: "trgovina-krk",
 

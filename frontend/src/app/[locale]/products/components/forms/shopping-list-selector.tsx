@@ -108,7 +108,7 @@ export default function ShoppingListSelector({
                             list={list}
                             isSelected={selectedList?.id === list.id}
                             onSelect={() => {
-                              // The list goes first because the title rule only applies to "new", and validating the cleared title before it would flag it.
+                              // The list goes first, or the title rule would flag the cleared title.
                               onSelectList(list.id);
                               formField.setValue("customListTitle", "", {
                                 shouldDirty: true,
@@ -155,13 +155,13 @@ export default function ShoppingListSelector({
           </Popover>
           <FormMessage />
 
-          {/* The title has no input of its own (it comes from the create row), so its error shows here; `contents` adds no gap while empty. */}
+          {/* The title has no input of its own, so its error shows here; `contents` adds no gap while empty. */}
           <FormField
             control={formField.control}
             name="customListTitle"
             render={() => (
               <FormItem className="contents">
-                {/* An alert, because the trigger's aria-describedby points at the list field's message, not this one. */}
+                {/* An alert, because the trigger's aria-describedby points at the list field's message. */}
                 <FormMessage role="alert" />
               </FormItem>
             )}

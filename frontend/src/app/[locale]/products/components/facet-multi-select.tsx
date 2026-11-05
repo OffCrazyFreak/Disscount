@@ -54,7 +54,7 @@ export default function FacetMultiSelect({
             const optionLabel = getLabel?.(value) ?? value;
             const count = facet.counts?.[value];
 
-            // Unavailable options stay listed but disabled; a selected one that dropped to zero stays enabled so it can still be removed.
+            // A selected option at zero stays enabled so it can still be removed.
             const isDisabled = count === 0 && !facet.selected.includes(value);
 
             return (

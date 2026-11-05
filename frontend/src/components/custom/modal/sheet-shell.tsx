@@ -15,10 +15,10 @@ import useSheetDragUp from "@/components/custom/modal/use-sheet-drag-up";
 import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
 import { cn } from "@/lib/utils";
 
-// Darker than shadcn's bg-muted, which all but vanished on a light surface; applied here rather than editing the primitive.
+// Darker than shadcn's bg-muted, which all but vanished on a light surface.
 const HANDLE_CLASS = "[&>[data-slot=drawer-handle]]:bg-muted-foreground/40";
 
-/** Far less translucent than the bar, because at 50% the page ghosts through and every white field looks like it floats in front of the sheet. */
+/** Less translucent than the bar, because at 50% every white field looks like it floats off the sheet. */
 const CONTENT_CLASS =
   "max-h-[85dvh] bg-background/85 backdrop-blur-xs pb-[var(--sheet-bottom-clearance)]";
 // A sheet opened from inside another drawer has to clear that drawer's layer rather than sit under it.
@@ -40,9 +40,9 @@ export interface ISheetShellProps extends ISheetShellHeaderProps {
   onDragUp?: () => void;
   /** Focused on open, so the user can start typing straight away */
   initialFocusRef?: RefObject<HTMLElement | null>;
-  /** For a sheet whose opener is not the focused element when it opened; without it focus returns to whatever was focused before. */
+  /** For an opener that is not the focused element, or focus returns to whatever held it before. */
   returnFocusRef?: RefObject<HTMLElement | null>;
-  /** Defaults on because only a sheet the page changes behind earns the opt-out, and forgetting the prop should cost a scrim, not tap-outside-to-close. */
+  /** Defaults on, so forgetting the prop costs a scrim, not tap-outside-to-close. */
   modal?: boolean;
   bodyClassName?: string;
   className?: string;
@@ -82,7 +82,7 @@ export default function SheetShell({
           className={cn(CONTENT_CLASS, HANDLE_CLASS, className)}
           overlayClassName={OVERLAY_CLASS}
           viewportClassName={VIEWPORT_CLASS}
-          // Focusing the first control would pop its tooltip; preventScroll by hand because Base UI only passes it when focusing the popup.
+          // The first control would pop its tooltip; preventScroll by hand, as Base UI skips it here.
           initialFocus={() => {
             // Reopened mid-exit, focus is still inside: keep the first opener.
             const opener = document.activeElement;
@@ -100,7 +100,7 @@ export default function SheetShell({
 
             return false;
           }}
-          // Only reclaim focus the sheet still holds, because pulling it back after a closing press would drop the phone keyboard off a field.
+          // Only focus the sheet still holds, or a closing press would drop the phone keyboard off a field.
           finalFocus={() => {
             const active = document.activeElement;
             const isFocusLeftBehind =
@@ -110,7 +110,7 @@ export default function SheetShell({
 
             if (!isFocusLeftBehind) return false;
 
-            // Nothing was focused when it opened (an iOS tap, a shared link); Base UI checks isConnected only on its own fallbacks.
+            // Nothing was focused on open (iOS tap, shared link); Base UI checks isConnected only on its fallbacks.
             const opener = openerRef.current?.isConnected
               ? openerRef.current
               : null;

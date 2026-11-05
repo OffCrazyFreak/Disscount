@@ -19,7 +19,7 @@ function subjectOf(token: string): string | null {
   return typeof claims.sub === "string" ? claims.sub : null;
 }
 
-/** Minted per request and never cached, so a revoked session stops at its next call; anything but "no session" throws. */
+/** Minted per request, so a revoked session stops at its next call; anything but "no session" throws. */
 export async function mintSessionToken(
   headers: Headers,
 ): Promise<ISessionToken | null> {

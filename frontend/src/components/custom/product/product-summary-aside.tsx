@@ -27,7 +27,7 @@ export default function ProductSummaryAside({
 
   return (
     <div className="flex shrink-0 items-center justify-between gap-4">
-      {/* Raised above the name link's stretched pseudo-element so prices stay selectable; actions go higher to keep receiving pointer events. */}
+      {/* Above the name's stretched pseudo-element so prices stay selectable; actions go higher. */}
       {trailing && <div className="relative z-10">{trailing}</div>}
 
       {actions && (

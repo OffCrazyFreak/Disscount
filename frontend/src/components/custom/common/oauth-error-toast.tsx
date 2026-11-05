@@ -23,7 +23,7 @@ function isKnownError(code: string): code is keyof typeof ERROR_MESSAGE_KEYS {
   return Object.hasOwn(ERROR_MESSAGE_KEYS, code);
 }
 
-// Mounted app-wide since linking errors happen while the auth modal is unmounted; useSearchParams because window.location loses a race with the URL rewrite.
+// App-wide since linking errors arrive with the auth modal unmounted; window.location loses a race.
 export default function OAuthErrorToast() {
   const t = useTranslations("common");
   const searchParams = useSearchParams();

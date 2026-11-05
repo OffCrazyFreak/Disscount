@@ -6,7 +6,7 @@ import { productSitemapUrls } from "@/utils/product-sitemap";
 
 const baseUrl = appUrl();
 
-/** Shared lists stay crawlable because a disallowed URL is never fetched, so a crawler would never read the `noindex` header in next.config.ts. */
+/** Crawlable because a disallowed URL is never fetched, hiding the `noindex` header in next.config.ts. */
 const CRAWLER_DISALLOWED = PROTECTED_ROUTE_PREFIXES.filter(
   (prefix) => prefix !== "/shopping-lists",
 );

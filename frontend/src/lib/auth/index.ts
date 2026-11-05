@@ -103,9 +103,9 @@ export const auth = betterAuth({
       country: { type: "string", required: false, input: false },
     },
     expiresIn: SESSION_TTL_SECONDS,
-    // The window slides only when the session is used, and is rewritten at most once a day rather than on every request.
+    // Rewritten at most once a day, and only when the session is used.
     updateAge: 60 * 60 * 24,
-    // security-policy.ts owns freshness; better-auth's one day default would still fail a code-proven delete from an older session.
+    // security-policy.ts owns freshness; the one day default would fail a code-proven delete.
     freshAge: 0,
   },
 
@@ -175,13 +175,13 @@ export const auth = betterAuth({
     encryptOAuthTokens: true,
     accountLinking: {
       enabled: true,
-      // Auto-links by shared email; a trusted provider skips the email_verified claim when linking, so Google stays untrusted.
+      // A trusted provider skips the email_verified claim when linking, so Google stays untrusted.
       trustedProviders: FACEBOOK_COMING_SOON ? [] : ["facebook"],
     },
   },
 
   hooks: {
-    // Must run before the handler, because /reset-password consumes its token before hashing, and a later refusal would burn the link.
+    // Before the handler, because /reset-password consumes its token first, and a refusal would burn it.
     before: createAuthMiddleware(async (ctx) => {
       await guardSensitiveAction(ctx);
 

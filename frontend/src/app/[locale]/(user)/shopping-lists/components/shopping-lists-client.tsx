@@ -48,7 +48,7 @@ export default function ShoppingListsClient({
 
   const isUserLoading = userLoading || isLoading || isRestoring;
 
-  // The API returns these in no defined order, so without this the list reshuffles between fetches; filterByFields sorts stably on top.
+  // The API has no defined order, so without this the list reshuffles between fetches.
   const matchingShoppingLists = filterByFields(
     sortShoppingListsByRecency(shoppingLists),
     query,

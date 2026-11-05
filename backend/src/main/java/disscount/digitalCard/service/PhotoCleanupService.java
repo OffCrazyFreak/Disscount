@@ -52,7 +52,7 @@ public class PhotoCleanupService {
         repository.findOldest(PageRequest.of(0, BATCH)).forEach(this::attempt);
     }
 
-    /** Defence in depth: PhotoKeys gives every upload fresh keys, but a queued delete of a just stored key must never fire. */
+    /** PhotoKeys gives every upload fresh keys, but a queued delete of a just stored key must never fire. */
     public void cancelKeys(Collection<String> keys) {
         List<String> real = keys.stream().filter(Objects::nonNull).toList();
         if (!real.isEmpty()) repository.removePendingKeys(real);

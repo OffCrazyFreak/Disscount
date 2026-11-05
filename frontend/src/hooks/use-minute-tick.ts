@@ -8,7 +8,7 @@ export function useMinuteTick(): boolean {
   const [, setTick] = useState(0);
 
   useEffect(() => {
-    // Not derivable, because the server cannot agree with a Date.now()-based label, so the first client render matches and only then ticks.
+    // The server cannot match a Date.now() label, so the first client render matches, then ticks.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
 

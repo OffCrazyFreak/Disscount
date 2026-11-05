@@ -47,7 +47,7 @@ export function useWatchlistItemForm(
     },
   });
 
-  // useWatch, because watch() signals changes outside React state and the React Compiler skips memoizing every component that reads it.
+  // useWatch, because the React Compiler skips memoizing any component that reads watch().
   const watchType = useWatch({
     control: form.control,
     name: "watchType",
@@ -67,7 +67,7 @@ export function useWatchlistItemForm(
     (item) => item.watchType === watchType,
   );
 
-  // reset, not resetField, which only works on registered names; it does not rerun the resolver, so isFormValid below parses the schema itself.
+  // reset, because resetField needs registered names; it skips the resolver, so isFormValid parses itself.
   useEffect(() => {
     form.reset(
       {
@@ -150,7 +150,7 @@ export function useWatchlistItemForm(
   const activeValue =
     watchType === WatchType.absolute ? absoluteValue : percentageValue;
 
-  // Parsed rather than formState.isValid, which only refreshes when the resolver runs, and seeding through reset does not run it.
+  // Parsed, because formState.isValid refreshes only when the resolver runs, which reset skips.
   const isFormValid = watchlistFormSchema.safeParse({
     watchType,
     percentageValue,
@@ -164,7 +164,7 @@ export function useWatchlistItemForm(
     existingItemForType,
     isCheckingWatchlist,
     isFormValid,
-    // Against baselines because a dirty flag can outlive its edit; only the on-screen mode, because a hidden draft value would stick the marker for 24h.
+    // A dirty flag can outlive its edit, and a hidden mode's draft would stick the marker for 24h.
     isEdited: !isSameThreshold(
       activeValue,
       watchType === WatchType.absolute

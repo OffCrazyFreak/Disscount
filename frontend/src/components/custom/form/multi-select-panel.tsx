@@ -51,14 +51,14 @@ export default function MultiSelectPanel({
         <CommandInput
           value={searchValue}
           onValueChange={setSearchValue}
-          // Inline has no Radix layer to move focus, and the browser scrolling the field into view is the point of being in flow, so no preventScroll.
+          // Inline has no Radix layer, and scrolling the field into view is the point, so no preventScroll.
           autoFocus={presentation === "inline"}
           placeholder={
             typeof search === "object" ? search.placeholder : undefined
           }
         />
       ) : (
-        // Needs an explicit type, because inline this button is in the page's form, where an untyped button would become its default submit.
+        // Explicit type, or inline this would become the page form's default submit button.
         <button
           type="button"
           autoFocus

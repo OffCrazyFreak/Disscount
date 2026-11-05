@@ -84,7 +84,7 @@ export default function ReauthDialog({
       <form
         id={FORM_ID}
         onSubmit={form.handleSubmit}
-        // Enter never runs a destructive action, so the red button stays the one deliberate step; buttons keep Enter or the resend link breaks.
+        // Enter never runs a destructive action; buttons keep Enter or the resend link breaks.
         onKeyDown={(event) => {
           if (
             isDestructive &&

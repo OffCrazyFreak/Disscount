@@ -85,7 +85,7 @@ export function useSearchNavigation(
     [isOnRoute, routeQuery, buildSearchUrl, navigate],
   );
 
-  // Filters write themselves to the URL, so they need no comparison; an empty field counts as unchanged because the clear button drops the query.
+  // Filters write to the URL themselves; an empty field is unchanged, as the clear button drops the query.
   const isUnchanged = useCallback(
     (query: string) => {
       const trimmed = query.trim();

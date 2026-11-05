@@ -30,7 +30,7 @@ interface IBottomNavCenterItemProps {
   onKeyboardActivate: () => void;
 }
 
-/** Tap toggles the products sheet, and the glyph points the way the sheet leaves; a hold scans, since typing and scanning answer the same question. */
+/** The glyph points the way the sheet leaves; a hold scans, as typing and scanning answer one question. */
 export default function BottomNavCenterItem({
   label,
   isActive,
@@ -48,7 +48,7 @@ export default function BottomNavCenterItem({
       <button
         ref={triggerRef}
         type="button"
-        // The visible word stays in the name in both states, so speech control can address the cell while the sheet is open (WCAG 2.5.3).
+        // The visible word stays in the name, so speech control can address the cell (WCAG 2.5.3).
         aria-label={
           isSearchOpen
             ? t("bottomNav.searchClose", { label })

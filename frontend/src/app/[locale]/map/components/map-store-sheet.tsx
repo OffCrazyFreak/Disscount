@@ -28,7 +28,7 @@ export default function MapStoreSheet({
   returnFocusRef,
 }: IMapStoreSheetProps) {
   const id = useId();
-  // State, not a ref: the drawer's portal mounts a render after the sheet opens, and measuring must start once the body exists.
+  // State, because the portal mounts a render later, and measuring must start once the body exists.
   const [body, setBody] = useState<HTMLDivElement | null>(null);
 
   const reportHeight = useEffectEvent(onHeightChange);

@@ -22,7 +22,7 @@ interface IProductsClientProps {
 export default function ProductsClient({ query }: IProductsClientProps) {
   const t = useTranslations("products");
   const pathname = usePathname();
-  // TODO(#61): take the setter here once ViewSwitcher is unparked below; until then the mode is read-only and always the default.
+  // TODO(#61): take the setter once ViewSwitcher is unparked below; the mode is read-only until then.
   const [viewMode] = useViewMode(pathname);
 
   const filters = useProductFilters();

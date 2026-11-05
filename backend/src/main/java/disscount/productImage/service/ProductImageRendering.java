@@ -46,7 +46,7 @@ public class ProductImageRendering {
         apply(image, upload(image));
     }
 
-    /** Downloads take seconds, so it writes onto the row as it is now and drops its copy if an admin or the import changed the photo. */
+    /** Downloads take seconds, so it writes onto the current row and drops its copy if the photo changed meanwhile. */
     public void renderCandidate(ProductImage loaded) {
         Copy copy = upload(loaded);
         ProductImage current = images.findById(loaded.getId())
@@ -62,7 +62,7 @@ public class ProductImageRendering {
         apply(current, copy);
     }
 
-    /** Renders a shown photo again from its source, dropping the result when an admin reframed or replaced it meanwhile. */
+    /** Renders a shown photo again from its source, dropping the result if an admin reframed or replaced it. */
     public void rerender(ProductImage loaded) {
         Copy copy = upload(loaded);
         ProductImage current = images.findById(loaded.getId())
@@ -179,7 +179,7 @@ public class ProductImageRendering {
         }
     }
 
-    /** Fails the erasure on failure, because a file of an erased account must not stay public behind a log line; call after deleting the row. */
+    /** Fails the erasure on failure, so an erased account's file cannot stay public; call after deleting the row. */
     void eraseFiles(String fullKey, String thumbKey, String smallKey) {
         for (String key : new String[]{fullKey, thumbKey, smallKey}) {
             if (key == null) continue;

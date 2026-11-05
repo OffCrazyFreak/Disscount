@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useUser } from "@/context/user-context";
 import { FILTER_KEYS } from "@/app/[locale]/products/hooks/use-filter-params";
 
-/** A URL carrying any filter is a deliberate choice, so it is left alone; seeds once per mount, so clearing a filter sticks. */
+/** A URL with any filter is deliberate, so it is left alone; seeds once, so a cleared filter sticks. */
 export default function useSeedPreferredFilters(enabled = true): void {
   const searchParams = useSearchParams();
   const pathname = usePathname();

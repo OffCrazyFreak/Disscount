@@ -34,7 +34,7 @@ public class ShoppingList {
     @Column(nullable = false)
     private String title;
 
-    // Nullable because ddl-auto=update cannot add NOT NULL to a populated table; read through resolvedLinkAccess(); no token, so re-sharing keeps the URL.
+    // Nullable as ddl-auto=update cannot add NOT NULL to a full table; read through resolvedLinkAccess().
     @Enumerated(EnumType.STRING)
     @Column(name = "link_access", length = 16)
     private ListAccess linkAccess;

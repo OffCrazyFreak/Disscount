@@ -27,7 +27,7 @@ export const shoppingListItemRequestSchema = shoppingListItemFieldsSchema
     isChecked: z.boolean().default(false),
   });
 
-// Not an extension of the request schema, because a row the server holds (saved before a limit, or imported) must still parse.
+// Not the request schema, because a row saved before a limit, or imported, must still parse.
 export const shoppingListItemDtoSchema = shoppingListItemFieldsSchema.extend({
   id: z.string(),
   shoppingListId: z.string(),

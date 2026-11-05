@@ -17,7 +17,7 @@ export interface IWholeQueryMatch {
   position: number;
 }
 
-/** Both arguments must be normalized already, because callers normalize each text once and doing it here would undo that. */
+/** Both arguments must be normalized: callers normalize each text once, and doing it here would undo that. */
 export function findWholeQuery(
   haystack: string,
   query: string,
@@ -44,7 +44,7 @@ const SCATTERED_SCORE = 0.25;
 /** Sub-sequence hits rank under every literal hit, so they never displace a real match. */
 const FUZZY_BAND = 0.2;
 
-/** Pass only fields meaningful to a human, because an opaque value such as a chain code surfaces rows with nothing to explain the hit. */
+/** Pass only fields meaningful to a human, as an opaque value such as a chain code surfaces unexplained rows. */
 export function scoreFields(fields: string[], query: IPreparedQuery): number {
   const haystacks: string[] = [];
   for (const field of fields) {

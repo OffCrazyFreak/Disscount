@@ -1,4 +1,4 @@
-// Allow-lists both ways, so a browser cannot smuggle Authorization or cookies, and Spring's encoding headers never describe a decoded body.
+// Allow-lists, so browsers cannot smuggle Authorization, and encoding headers never describe a decoded body.
 
 const REQUEST_HEADERS = [
   "accept",

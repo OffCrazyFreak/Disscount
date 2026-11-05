@@ -32,7 +32,7 @@ export async function GET(
   const photoUrl = await getVerifiedMainPhotoUrl(ean);
   if (!photoUrl) return redirectTo(brandImagePath);
 
-  // Only the exact advertised URL renders, because a made-up name or query string is a new CDN key that would force a render per request.
+  // Only the exact URL renders, because any other name or query is a new CDN key, forcing a render.
   const isCurrentUrl =
     file === productShareImageFile(photoUrl) && !new URL(request.url).search;
   if (!isCurrentUrl) {

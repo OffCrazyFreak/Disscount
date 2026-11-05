@@ -68,7 +68,7 @@ function readState(
 
     return isLocated ? "noStores" : locationFailure;
   }
-  // Without a fix, a town's centre stands in once store pins can place it; a fix revoked in site settings leaves "located" with no position.
+  // A town's centre stands in without a fix; a revoked fix leaves "located" with no position.
   if (!hasOrigin) return locationFailure;
   if (!measured) return "locating";
 
@@ -139,7 +139,7 @@ function readSortResult<TMode extends string>({
   };
 }
 
-// A tap that failed keeps its watch open, and a fix after the note gave up or a town took over would quietly disagree with it.
+// A failed tap's watch stays open, and a late fix would disagree with the note or chosen town.
 function useStopLocating(isDone: boolean, clear: () => void) {
   const stop = useEffectEvent(clear);
 
@@ -153,7 +153,7 @@ interface IDistanceSortOptions {
   pricedStores?: StorePrice[] | null;
 }
 
-/** Fetched only once the shopper picks distance; a failure keeps its reason until the next pick, so picking again retries. */
+/** Fetched only once picked; a failure keeps its reason, and picking again retries. */
 export function useDistanceSort<TMode extends string>(
   initial: TMode,
   fallback: TMode,
@@ -193,7 +193,7 @@ export function useDistanceSort<TMode extends string>(
     setFailure(state);
   }
 
-  // A town standing in for a failed location is kept like a picked one, because a late fix would reorder the list and unmount the open picker.
+  // A stand-in town is kept like a picked one, as a late fix would reorder the list and unmount the picker.
   if (isStandInTown(isFromTown, state, origin)) setIsFromTown(true);
 
   useStopLocating(failure != null || isFromTown, location.clear);

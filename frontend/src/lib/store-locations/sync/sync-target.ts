@@ -42,7 +42,7 @@ function isRecent(at: Date | null | undefined, now: number): boolean {
   return at != null && now - at.getTime() <= RETRY_AFTER_MS;
 }
 
-/** Skips stores every source failed on within the last week, because addresses rarely change and daily retries only spend quota. */
+/** Skips stores every source failed on this week: addresses rarely change, and daily retries spend quota. */
 export function findSyncTargets(
   upstream: StoreResponse[],
   locations: StoreLocationRow[],

@@ -65,7 +65,7 @@ export function useShoppingListData(listId: string) {
       );
 
       return {
-        // Paired with the requested EAN, because upstream may normalise the one it returns, which would silently miss the lookup below.
+        // Paired with the requested EAN, because upstream may normalise the one it returns.
         productsData: results
           .map((result, index) => [eans[index], result.data] as const)
           .filter((entry): entry is readonly [string, ProductResponse] => {

@@ -12,7 +12,7 @@ interface IPriceStackProps {
   className?: string;
 }
 
-/** The rhythm lives here because the two cards sit in the same lists and drifted apart in height with their own spacing. */
+/** The rhythm lives here because the two cards share lists and drifted apart in height. */
 export default function PriceStack({
   primary,
   secondary,
@@ -30,10 +30,10 @@ export default function PriceStack({
         {primary}
       </div>
 
-      {/* Neither truthiness nor a null check, because 0 is a legitimate price and `condition && <Price/>` yields false, which would draw a separator over nothing. */}
+      {/* 0 is a legitimate price, and `condition && <Price/>` yields false, which would draw a lone separator. */}
       {secondary != null && typeof secondary !== "boolean" && (
         <>
-          {/* Margin on both sides, because a 24px icon overhangs its 20px line box and a flush divider touches the glyph. */}
+          {/* A 24px icon overhangs its 20px line box, so a flush divider would touch the glyph. */}
           <Separator className="my-1" />
 
           <div className="flex items-center justify-center gap-2">

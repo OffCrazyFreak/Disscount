@@ -39,7 +39,7 @@ export function nearestStoreByChain(
   return nearest;
 }
 
-/** The directory corrects pins upstream lacks or gets wrong, so upstream's coordinates only stand in for a store it does not list. */
+/** The directory corrects upstream's pins, so upstream's coordinates only stand in for a store it lacks. */
 export function locatePricedStores(
   prices: StorePrice[],
   directory: DirectoryStoreDto[],

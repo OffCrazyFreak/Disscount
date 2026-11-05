@@ -1,4 +1,4 @@
-/** Renaming a root without cached-query-keys.ts silently stops persistence; `byId` also serves share links, so invalidations reach a visitor's copy. */
+/** Renaming a root without cached-query-keys.ts silently stops persistence. */
 export const SHOPPING_LIST_QUERY_KEYS = {
   all: ["shoppingLists"] as const,
   me: ["shoppingLists", "me"] as const,

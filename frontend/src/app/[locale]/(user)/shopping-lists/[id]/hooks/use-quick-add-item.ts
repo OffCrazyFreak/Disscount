@@ -22,7 +22,7 @@ export function useQuickAddItem(listId: string) {
   const queryClient = useQueryClient();
   const [text, setText] = useState("");
   const query = useDebouncedValue(text.trim(), SUGGESTION_DEBOUNCE_MS);
-  // Checks the live text too, so a cleared or retyped field never shows the last item's suggestions while the debounce catches up.
+  // Checks the live text too, so a retyped field never shows old suggestions during the debounce.
   const live = text.trim().toLowerCase();
   const settled = query.toLowerCase();
   const hasQuery =
@@ -43,7 +43,7 @@ export function useQuickAddItem(listId: string) {
     if (!name) return;
 
     setText("");
-    // mutate's own callbacks fire only for the latest call, so a quick second add would swallow the first one's failure.
+    // mutate's callbacks fire only for the latest call, so a quick second add would swallow the first failure.
     addItemMutation
       .mutateAsync({ listId, data: { name, amount: 1, isChecked: false } })
       .then(

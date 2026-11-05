@@ -1,4 +1,4 @@
-/** A client-side submit never unmounts the field, so touch keyboards stay up; fine pointers keep focus so keyboard users keep their place. */
+/** A client-side submit keeps the field mounted, so touch keyboards stay up; fine pointers keep focus. */
 export function dismissTouchKeyboard(): void {
   if (!isTouchPointer()) return;
 

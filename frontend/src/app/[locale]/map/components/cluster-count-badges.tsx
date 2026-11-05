@@ -20,7 +20,7 @@ interface IClusterCountBadgesProps {
   onStackClick: (stack: IMapFeatureRef) => void;
 }
 
-/** MapLibre's "HTML clusters" pattern, so it matches every other badge; pointer only, because the store list is the keyboard path. */
+/** So it matches every other badge; pointer only, because the store list is the keyboard path. */
 export default function ClusterCountBadges({
   onStackClick,
 }: IClusterCountBadgesProps) {

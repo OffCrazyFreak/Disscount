@@ -10,7 +10,7 @@ import {
 } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 import { productLookupQuery } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/product-lookup-query";
 
-/** Prices come from the cache only, because waiting on the network can outlast the tap's permission to open the share sheet. */
+/** Cache only, because waiting on the network can outlast the tap's permission to open the share sheet. */
 export function useListShareText() {
   const t = useTranslations("shoppingLists");
   const locale = useLocale();

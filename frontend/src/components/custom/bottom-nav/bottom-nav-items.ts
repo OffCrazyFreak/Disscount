@@ -17,11 +17,11 @@ export interface IBottomNavItem {
   productPageTarget?: (ean: string) => ModalTarget;
 }
 
-/** Order must not change once shipped, because a tab bar whose shape shifts cannot build muscle memory; coming-soon items take the hardest thumb spots. */
+/** Fixed once shipped, because a bar whose shape shifts cannot build muscle memory. */
 export const bottomNavItems: IBottomNavItem[] = [
   {
     item: findNavItem("map"),
-    // The map loads pinned stores and centres itself, so the only thing left to reach is where those preferences are set.
+    // The map loads pinned stores itself, so a hold only needs to reach those preferences.
     longPressTarget: { name: "settings", tab: "preference" },
     longPressEnabled: true,
   },

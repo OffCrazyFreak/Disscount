@@ -66,7 +66,7 @@ public class ProductImageJobs {
         this.runs = runs;
     }
 
-    /** Runs weekly with the last run stored so restarts do not repeat it; the catalogue feeds the sitemap, so it runs without the photo store. */
+    /** Weekly, with the last run stored so restarts do not repeat it; it feeds the sitemap, so needs no photo store. */
     @Scheduled(fixedDelay = 6 * 3_600_000L, initialDelay = 10 * 60_000L)
     public void weeklyImport() {
         if (!enabled || !importing.compareAndSet(false, true)) return;

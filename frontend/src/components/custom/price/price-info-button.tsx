@@ -14,7 +14,7 @@ interface IPriceInfoButtonProps extends Omit<
   label: string;
 }
 
-/** Sized here because it sets the row's height; 24px is the WCAG 2.5.8 floor; on the icon because the button's [&_svg] rule would outrank a variant. */
+/** It sets the row's height, and 24px is the WCAG 2.5.8 floor; on the icon so [&_svg] cannot outrank it. */
 export default function PriceInfoButton({
   label,
   className,

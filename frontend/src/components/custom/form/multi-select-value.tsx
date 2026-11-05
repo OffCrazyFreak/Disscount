@@ -29,7 +29,7 @@ export default function MultiSelectValue({
   );
 
   if (selectedValues.size === 0 && placeholder) {
-    // Keeps the caller's props, because an id or aria attribute that vanished until selection would break whatever pointed at it.
+    // Keeps the caller's props, because a vanishing id or aria attribute breaks what points at it.
     return (
       <span
         {...props}
@@ -48,9 +48,9 @@ export default function MultiSelectValue({
       {...props}
       ref={containerRef}
       className={cn(
-        // min-w-0 undoes a flex item's automatic minimum, the width of every shrink-0 badge, or the row never scrolls and the badges spill.
+        // min-w-0 undoes a flex item's automatic minimum, or the row never scrolls and badges spill.
         "flex w-full min-w-0 gap-1.5 overflow-hidden",
-        // About three and a half rows, so the cut-off row shows it scrolls; unbounded, a long selection pushes the list off a phone.
+        // About three and a half rows, so the cut-off shows it scrolls and the list stays on a phone.
         open && "h-full max-h-26 flex-wrap overflow-y-auto overscroll-contain",
         className,
       )}
@@ -71,7 +71,7 @@ export default function MultiSelectValue({
             }}
           >
             {items.get(value)}
-            {/* Decorative and pointer-only, because a badge inside the trigger cannot be a control without nesting; deselecting in the list is the keyboard path. */}
+            {/* Pointer-only, as a badge in the trigger cannot be a control; the list is the keyboard path. */}
             <XIcon
               aria-hidden="true"
               className="size-3.5 shrink-0 text-muted-foreground group-hover:text-destructive"

@@ -11,7 +11,7 @@ interface IUseAutoOpenSingleCardProps {
   singleCardId: string | null;
 }
 
-// One card means they came to scan it, so skip the list once per session; only the first loaded render counts, so saving a first card does not bounce them.
+// One card means they came to scan it; only the first loaded render counts, so saving does not bounce them.
 export function useAutoOpenSingleCard({
   ready,
   singleCardId,

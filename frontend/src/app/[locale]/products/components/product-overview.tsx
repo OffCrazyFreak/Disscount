@@ -13,7 +13,7 @@ interface IProductOverviewProps {
   displayName: string;
 }
 
-// The photo takes its natural height so every cell keeps its padding, and the facts list is a subgrid: an L on narrow screens, a table on wide ones.
+// The photo keeps its natural height so cells keep padding; the facts are a subgrid.
 const GRID =
   "[--gap:0.5rem] grid grid-cols-[auto_minmax(0,1fr)] gap-x-(--gap) md:grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)] md:gap-x-0";
 
@@ -69,7 +69,7 @@ export default function ProductOverview({
       <ProductPhotoGallery
         ean={product.ean}
         productName={displayName}
-        // Above the facts subgrid; on wide screens the photo carries the spacing, because a column gap would also split the table's columns.
+        // On wide screens the photo carries the spacing, because a column gap would split the table.
         className={cn(
           "relative z-[3] col-start-1 row-span-3 row-start-1 md:mr-3 md:mb-0",
           hasLower && "mb-(--gap)",

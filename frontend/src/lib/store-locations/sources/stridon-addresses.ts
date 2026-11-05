@@ -36,7 +36,7 @@ function cellText(html: string): string {
     .trim();
 }
 
-/** No coordinates, but addresses are spelled out where upstream abbreviates; the table's "Prod. 10" is cijene-api's "Prod.10". */
+/** No coordinates, but addresses are spelled out; the table's "Prod. 10" is cijene-api's "Prod.10". */
 export async function fetchStridonAddresses(
   signal: AbortSignal,
 ): Promise<Map<string, ILookupAddress>> {

@@ -16,11 +16,11 @@ import useBottomNavPointer from "@/components/custom/bottom-nav/use-bottom-nav-p
 import useIndicatorOpacity from "@/components/custom/bottom-nav/use-indicator-opacity";
 import { BOTTOM_NAV_SEARCH_INDEX } from "@/components/custom/bottom-nav/bottom-nav-items";
 
-/** Explicit rem values, not spacing utilities, because this project's --spacing is 0.2rem; the surface colour lives in globals.css since the scroll animates it. */
+/** Explicit rem because --spacing is 0.2rem; the colour is in globals.css as the scroll animates it. */
 const SURFACE_CLASS =
   "flex items-stretch justify-between h-[var(--bottom-nav-h)] touch-none mx-[0.5rem] px-[0.4rem] mb-[max(var(--bottom-nav-gap),var(--bottom-nav-safe))] rounded-full border backdrop-blur-xs";
 
-/** Hidden from `md` up through CSS rather than a media-query hook, so the markup prerenders and the page never shifts on hydration. */
+/** Hidden by CSS, not a media-query hook, so the markup prerenders and hydration never shifts it. */
 export default function BottomNav() {
   const t = useTranslations("shell");
   const pathname = usePathname();
@@ -48,7 +48,7 @@ export default function BottomNav() {
     routeKey: pathname,
   });
 
-  // A navigation keeps its destination preview until the pathname catches up, so the disc never returns briefly to the previous route.
+  // Keeps its preview until the pathname catches up, so the disc never snaps back.
   const previewedDisc =
     previewIndex !== null && !cells[previewIndex].isLocked
       ? previewIndex
@@ -63,10 +63,10 @@ export default function BottomNav() {
   return (
     <nav
       aria-label={t("bottomNav.label")}
-      // The products sheet is non-modal and globals.css hands the page back for those; the bar stays inert under real modals, whose overlay covers it.
+      // Non-modal sheets get the page back from globals.css; real modals' overlays cover the inert bar.
       className="bottom-nav-compacts fixed inset-x-0 bottom-0 z-[var(--z-bottom-nav)] md:hidden"
     >
-      {/* touch-none keeps a horizontal scrub from reading as a page pan; role="list" because list-style: none drops list semantics in Safari. */}
+      {/* touch-none stops a scrub reading as a pan; role="list" because list-style: none drops it in Safari. */}
       <ul role="list" className={SURFACE_CLASS} {...listProps}>
         {cells.map(({ entry, isActive, isLocked }, index) =>
           entry.isSearch ? (

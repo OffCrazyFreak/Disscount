@@ -10,7 +10,7 @@ import {
 } from "@/lib/offline/offline-mutation-keys";
 import { isQueuedWriteExpired } from "@/lib/offline/queued-write-expiry";
 
-/** One toast per message; no refetch, because data that old is already stale and refetches as soon as it is shown online. */
+/** No refetch, because data that old refetches as soon as it is shown online. */
 export function dropExpiredWrites(
   queryClient: QueryClient,
   t: OfflineToastTranslator,

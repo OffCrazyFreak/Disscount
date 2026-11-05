@@ -1,4 +1,4 @@
-// TODO(#61): parked until list views become user-personalisable, not dead; its call site is commented out in products-client.tsx.
+// TODO(#61): parked until list views become user-personalisable; its call site is commented out.
 import { Grid, List } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {

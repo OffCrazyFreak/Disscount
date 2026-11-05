@@ -20,7 +20,7 @@ type CompleteDataCollection = Required<
 // Sentry's own header name snippets for client IPs and proxy chains, from its v10 to v11 guide.
 const IP_HEADER_SNIPPETS = ["forwarded", "-ip", "remote-", "via", "-user"];
 
-/** Pins the privacy policy's baseline, because a left-out field collects everything; all fields required, so an upgrade fails the type check. */
+/** A left-out field collects everything; all are required, so an upgrade fails the type check. */
 export const sentryDataCollection = {
   // Also decides whether Sentry infers the IP address from the connection.
   userInfo: false,

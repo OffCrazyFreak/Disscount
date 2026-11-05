@@ -103,7 +103,7 @@ export function useCredentialsSubmit({
     data: CredentialsFormValues,
     afterPasswordChange: boolean,
   ) {
-    // The password change above already renewed the session; otherwise the current password proves it, which the server needs within 15 minutes.
+    // A password change already renewed the session; else the current password proves it within 15 minutes.
     if (!afterPasswordChange) {
       const failure = await prove({ password: data.currentPassword });
       if (failure) {

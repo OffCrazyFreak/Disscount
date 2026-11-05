@@ -30,7 +30,7 @@ export function usePasswordRecovery() {
         redirectTo: `${appUrl}${localePath(locale, "/reset-password")}`,
       });
 
-      // Here the caller is authenticated and owns the address, so there is nothing to leak and a real failure is worth reporting.
+      // The caller is authenticated and owns the address, so there is nothing to leak here.
       if (error) {
         toast.error(t("security.recovery.sendFailed"));
         return;

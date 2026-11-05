@@ -12,7 +12,7 @@ export interface ICodeSize {
   height: number;
 }
 
-/** Whole device pixels per module so bar edges land on boundaries; null when none fit, so the caller scales, which blurs but never overflows. */
+/** Whole device pixels per module keep bar edges sharp; null when none fit, so the caller scales without overflow. */
 export function fitCodeSize({
   modulesWide,
   modulesHigh,

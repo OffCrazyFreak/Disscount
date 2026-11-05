@@ -8,7 +8,7 @@ import ScanOverlay from "@/components/scanner/scan-overlay";
 import usePageVisible from "@/hooks/use-page-visible";
 import "@/components/scanner/scanner.css";
 
-// 750 slowed decoding of a real barcode; cards need up to four reads inside 1.5 s, which 400 ms cannot fit; products need two, sparing battery.
+// 750 slowed decoding; cards need four reads in 1.5 s, which 400 ms cannot fit; products need two.
 const RETRY_DELAY_BY_PRESET: Record<ScanPreset, number> = {
   all: 200,
   product: 400,
@@ -65,7 +65,7 @@ export default function CameraView({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isPageVisible = usePageVisible();
 
-  // Ideals only, because min or max let a device raise OverconstrainedError; frameRate keeps its max to avoid 60fps decode; exact deviceId, since a bare id is a hint.
+  // Ideals only, or a device can raise OverconstrainedError; frameRate capped to avoid 60fps decode work.
   const constraints = useMemo(
     () => ({
       width: { ideal: 1920 },
@@ -90,7 +90,7 @@ export default function CameraView({
 
       if (!track) return;
 
-      // The torch is reset per stream, the notification only once, so a device that remembers the torch does not come back lit after a tab switch.
+      // Reset per stream, notified once, so a remembering device does not come back lit.
       turnTorchOff(track);
 
       if (hasNotifiedReady) return;

@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** The frontend's backend-contract test holds zod to the same file, so a change on either side fails CI until both agree (docs/API-CONTRACT.md). */
+/** The frontend's contract test holds zod to this file, so either side's change fails CI (docs/API-CONTRACT.md). */
 class ApiContractTest extends FullStackTest {
 
     private static final String REFRESH = "cd backend && mvn -B test -Dtest=ApiContractTest -Dcontract.update=true";

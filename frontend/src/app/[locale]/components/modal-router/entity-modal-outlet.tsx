@@ -81,7 +81,7 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
         return <ShareListModal open={open} id={rendered.id} />;
       }
       if (rendered.action === "copy") {
-        // Keyed because this outlet lingers 200ms after close, and a reused instance would carry a typed name over to the next list.
+        // Keyed because this outlet lingers 200ms, and a reused instance would carry a typed name over.
         return <CopyListModal key={rendered.id} open={open} id={rendered.id} />;
       }
       return (
@@ -110,7 +110,7 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
         />
       );
     case "add-to-list":
-      // Keyed because the form restores its draft once at mount, so a reused instance would hand product B product A's draft.
+      // Keyed because the form restores its draft once at mount, or product B gets product A's draft.
       return (
         <AddToShoppingListModal
           key={`${rendered.ean}.${rendered.listId}`}
@@ -129,7 +129,7 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
         />
       );
     case "watchlist":
-      // Keyed on the ean only: a reused instance would carry an edited threshold across products, while switching watch mode keeps both numbers.
+      // Keyed on the ean, so a threshold never crosses products while switching mode keeps both numbers.
       return (
         <WatchlistItemModal
           key={rendered.ean}

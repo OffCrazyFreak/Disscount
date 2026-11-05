@@ -30,7 +30,7 @@ export function syncCacheIdentity(
   identity: string | null,
   sessionError: unknown,
 ) {
-  // On a change of identity only: purging anonymous loads would drop offline writes, and a failed lookup offline is not a logout.
+  // Only on an identity change: anonymous purges drop offline writes, and a failed lookup is no logout.
   if (sessionError || identity === cacheIdentityRef.current) return;
 
   // Before the purge, which would delete the guest's drafts as the departing identity's.
@@ -38,7 +38,7 @@ export function syncCacheIdentity(
     adoptGuestFormDrafts(identity);
   }
 
-  // The departing identity, because setCacheIdentity below runs first and a key resolved inside the purge would name the arriving account.
+  // The departing identity, as setCacheIdentity runs first and a later lookup would name the arriving one.
   void purgeOfflineCache(
     queryClient,
     toCacheIdentity(cacheIdentityRef.current),

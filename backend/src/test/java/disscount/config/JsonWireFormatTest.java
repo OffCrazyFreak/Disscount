@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/** The frontend's parseServerDate reads zone-less timestamps as UTC, so a shape change here silently shifts every time it shows. */
+/** parseServerDate reads zone-less timestamps as UTC, so a shape change here silently shifts every time shown. */
 @SpringBootTest
 @AutoConfigureMockMvc
 class JsonWireFormatTest {

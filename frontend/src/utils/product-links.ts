@@ -12,7 +12,7 @@ export function productImageSearchUrl(product: ProductResponse): string {
   return `https://www.google.com/search?udm=2&q=${encodeURIComponent(query)}`;
 }
 
-/** The one place the route is spelled, because an unencoded EAN with a stray character would build a different URL per call site. */
+/** The one place the route is spelled, as an unencoded EAN with a stray character varies per call site. */
 export function productPath(ean: string): string {
   return `/products/${encodeURIComponent(ean)}`;
 }

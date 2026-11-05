@@ -29,12 +29,12 @@ export function isSettledLookupError(state: ItemPriceState): boolean {
   return state === "failed" || state === "noPrices";
 }
 
-/** `lastError` is the answer it settled on before, since a refetch from any observer clears the error until it answers. */
+/** `lastError` is the settled answer, since a refetch from any observer clears the error until it answers. */
 export function lookupPriceState(
   lookup: ProductLookup,
   lastError: ItemPriceState | undefined,
 ): ItemPriceState {
-  // The row and banner stay put until the refetch answers, even when paused offline, so a retry without a connection keeps focus where it was.
+  // The row and banner wait for the refetch's answer, so a retry without a connection keeps focus.
   if (lookup.errorUpdatedAt > 0 && lookup.fetchStatus !== "idle") {
     return lastError ?? "failed";
   }

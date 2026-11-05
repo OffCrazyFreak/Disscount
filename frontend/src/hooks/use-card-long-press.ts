@@ -6,7 +6,7 @@ function stopEvent(event: { stopPropagation: () => void }) {
   event.stopPropagation();
 }
 
-/** Shields action controls because stopping click alone still let a hold on a button open the sheet and run the button on release. */
+/** Shields controls because stopping click alone still ran the button after the sheet opened. */
 export default function useCardLongPress(onLongPress: () => void) {
   const { hasFired, ...pressProps } = useLongPress({ onLongPress });
 
@@ -19,7 +19,7 @@ export default function useCardLongPress(onLongPress: () => void) {
       onPointerDown: stopEvent,
       onPointerUp: stopEvent,
     },
-    /** A press that already opened the sheet must not follow the link on lift; keyboard activation never starts a hold, so it passes. */
+    /** A press that opened the sheet must not follow the link; keyboard activation never starts a hold. */
     cancelNavigationAfterPress: (viaKeyboard: boolean) => {
       if (!viaKeyboard && hasFired()) return false;
     },

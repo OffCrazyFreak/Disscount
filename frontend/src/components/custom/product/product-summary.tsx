@@ -50,7 +50,7 @@ export default function ProductSummary({
           ean !== undefined && (
             <ProductThumbnail
               ean={ean}
-              // Only a linking row opens the viewer, because inside a modal sheet the lightbox would sit outside the dialog's focus trap and pointer lock.
+              // Only linking rows, because in a modal the lightbox would sit outside its focus trap.
               productName={
                 href ? name || t("productInfo.unknownProduct") : undefined
               }

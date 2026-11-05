@@ -20,13 +20,13 @@ export default function ShareListButtons({
   const t = useTranslations("shoppingLists");
 
   return (
-    // Reversed on desktop so primary sits right; DOM order stays primary-first for keyboard and screen readers at either width.
+    // Reversed on desktop so primary sits right; DOM order stays primary-first for keyboards.
     <div className="flex flex-col gap-2 sm:flex-row-reverse">
       <Button
         type="button"
         variant="primary"
         onClick={canShareLink ? onLinkShare : undefined}
-        // aria-disabled, because a natively disabled button leaves the tab order and a keyboard user never hears why the action went away.
+        // aria-disabled, because a disabled button leaves the tab order and hides why the action went away.
         aria-disabled={!canShareLink}
         className={cn("flex-1", !canShareLink && "opacity-50")}
         // Points at the access hint, so the reason is readable rather than inferred from the select.

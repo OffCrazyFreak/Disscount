@@ -22,7 +22,7 @@ interface IShoppingListActionsOutletProps {
   target: ModalTarget | null;
 }
 
-/** Confirm dialog lives here because a Radix dialog nested in the drawer is dismissed by its own overlay press; staying mounted keeps the pending list. */
+/** Here because a Radix dialog nested in the drawer is dismissed by its own overlay press. */
 export default function ShoppingListActionsOutlet({
   target,
 }: IShoppingListActionsOutletProps) {

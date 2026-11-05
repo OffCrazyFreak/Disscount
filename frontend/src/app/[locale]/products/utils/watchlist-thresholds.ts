@@ -19,7 +19,7 @@ function findItem(items: WatchlistItemDto[], watchType: WatchType) {
   return items.find((item) => item.watchType === watchType);
 }
 
-/** The whole string or nothing, because Number.parseFloat reads "10abc" as 10, which would count a real edit as unchanged. */
+/** Whole string or nothing, because parseFloat reads "10abc" as 10, hiding a real edit. */
 export function parseThreshold(value: string): number {
   const trimmed = value.trim();
   if (!trimmed) return Number.NaN;
@@ -38,16 +38,16 @@ export function isSameThreshold(value: string, baseline: string): boolean {
     : value === baseline;
 }
 
-/** These are the form's defaults, so "changed" means "differs from one of these", which the reset button and unsaved marker read. */
+/** These are the form's defaults, which the reset button and unsaved marker compare against. */
 export function thresholdBaselines(
   items: WatchlistItemDto[],
   avgPrice: number,
 ): IThresholdBaselines {
-  // A tenth off the average sits near a real discount; with no price data, 1€ keeps the field filled and the form savable.
+  // A tenth off sits near a real discount; with no price data, 1€ keeps the form savable.
   const tenth =
     avgPrice > 0 ? Math.round(avgPrice * 0.1 * 100) / 100 : PRICE_FALLBACK;
 
-  // Clamped because a tenth off anything under 1€ lands below the 0.1€ minimum, which would open the modal invalid with no message.
+  // Clamped because a tenth off under 1€ falls below the 0.1€ minimum, opening the modal invalid.
   const { min, max } = watchlistLimits(WatchType.absolute);
   const suggested = Math.min(max, Math.max(min, tenth));
 

@@ -63,7 +63,7 @@ export function registerOfflineMutationDefaults(
     mutationKey: QueryKey,
     mutationFn: (variables: TVariables) => Promise<TData>,
     invalidatedKeys: (variables: TVariables) => QueryKey[],
-    // A reload loses the onError passed at mutate() time; pass this only when call sites do not handle errors, or the toast shows twice.
+    // A reload loses mutate()'s onError; pass this only if call sites do not handle errors, or toasts double.
     onError?: (error: Error) => void,
     // Persisted with the mutation; mutations sharing a scope replay one at a time.
     scope?: MutationScope,
@@ -131,11 +131,11 @@ export function registerOfflineMutationDefaults(
     ({ listId, itemId }: { listId: string; itemId: string }) =>
       deleteShoppingListItem(listId, itemId),
     ({ listId }) => listAndItemsKeys(listId),
-    // Own handler because a replayed delete for a gone item answers 404, the desired end, and the shared handler would blame lost access.
+    // Own handler because a 404 on a gone item is the desired end, not lost access.
     (error) => deleteWriteFailed(error, t),
   );
 
-  // Tombstones: a queued write under a retired key hydrates with no mutationFn and throws on resume; it carries a token no endpoint accepts, so it resolves.
+  // Tombstones: a retired key's queued write hydrates with no mutationFn and would throw on resume.
   for (const retiredKey of [
     ["sharedShoppingList", "items", "update"],
     ["sharedShoppingList", "items", "delete"],

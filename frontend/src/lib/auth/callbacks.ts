@@ -79,7 +79,7 @@ export async function dispatchVerificationEmail(
   }
 }
 
-// Links sent on sign-in carry the default "/" callback, because a callbackURL on signIn.email would redirect every sign-in too.
+// A callbackURL on signIn.email would redirect every sign-in, so these links carry the default "/".
 function withEmailVerifiedLanding(url: string, locale: AppLocale) {
   const link = new URL(url);
   if (link.searchParams.get("callbackURL") !== "/") return url;
@@ -91,7 +91,7 @@ function withEmailVerifiedLanding(url: string, locale: AppLocale) {
   return link.toString();
 }
 
-// A completed reset proves the inbox, so it drops every social link, which may be a squatter's; never throws, because better-auth revokes sessions after this.
+// A reset proves the inbox, so it drops social links; never throws, as sessions are revoked after this.
 export async function claimUnverifiedAccountOnReset(resetUser: {
   id: string;
   emailVerified: boolean;

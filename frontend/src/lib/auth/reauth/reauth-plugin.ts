@@ -25,7 +25,7 @@ const codeSchema = z.object({
   code: z.string().regex(new RegExp(`^\\d{${REAUTH_CODE_LENGTH}}$`)),
 });
 
-/** Under the auth base path so the database rate limiter covers them; a proof rotates the session so the 15 minute rule passes. */
+/** Under the auth base path so the rate limiter covers them; a proof rotates the session. */
 export function reauth() {
   return {
     id: "reauth",

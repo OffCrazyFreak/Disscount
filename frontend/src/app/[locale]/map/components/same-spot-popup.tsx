@@ -33,7 +33,7 @@ export default function SameSpotPopup({
 
   const rows = spot ? stores.filter((row) => spot.keys.includes(row.key)) : [];
 
-  // A filter hiding every store here closes the list for good, rather than it reappearing over an old spot when the filter clears.
+  // A filter hiding every store closes the list for good, so it cannot reappear over an old spot.
   const isEmpty = spot != null && rows.length === 0;
   useEffect(() => {
     if (isEmpty) onClose();
@@ -66,7 +66,7 @@ export default function SameSpotPopup({
         onEscapeKeyDown={() => {
           closedByEscape.current = true;
         }}
-        // There is no trigger to return to: after Escape focus goes to the map, and after a click elsewhere it stays where the user put it.
+        // No trigger to return to: Escape goes to the map, and a click elsewhere keeps its focus.
         onCloseAutoFocus={(event) => {
           event.preventDefault();
           if (closedByEscape.current) map?.getCanvas().focus();

@@ -11,7 +11,7 @@ final class AfterCommit {
 
     private AfterCommit() {}
 
-    /** Object storage is not transactional, so deletes wait for commit; a failure only orphans an object, so it is logged. */
+    /** Object storage is not transactional, so deletes wait for commit; a failure only orphans an object. */
     static void run(Runnable action) {
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
             safely(action);

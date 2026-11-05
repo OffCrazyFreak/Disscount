@@ -22,7 +22,7 @@ export default function useBottomNavActivation(cells: IBottomNavCell[]) {
       return false;
     }
 
-    // Every other cell dismisses it too, covering what the sheet's pathname effect cannot: re-tapping the tab you are on.
+    // Other cells dismiss it too, covering a re-tap of the current tab, which the pathname effect misses.
     close();
 
     if (isLocked) return false;

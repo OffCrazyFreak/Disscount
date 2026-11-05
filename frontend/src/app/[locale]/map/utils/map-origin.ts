@@ -1,7 +1,7 @@
 import type { IGpsPosition } from "@/hooks/use-geolocation";
 import { ILatLon } from "@/utils/distance";
 
-// Android and iOS "approximate" grants are 2 km or coarser: that pins a town, so a kilometre figure would claim more than it knows.
+// "Approximate" grants are 2 km or coarser, so a kilometre figure would claim more than it knows.
 const PRECISE_WITHIN_M = 2_000;
 
 export interface IMapOrigin {
@@ -10,7 +10,7 @@ export interface IMapOrigin {
   showDistances: boolean;
 }
 
-/** A picked or saved town is the user's own choice, so it beats the IP guess; none of these is precise enough for a kilometre figure. */
+/** A picked or saved town is the user's choice, so it beats the IP guess; none is precise enough for km. */
 export function resolveMapOrigin(
   gps: IGpsPosition | null,
   tapGuess: ILatLon | null,

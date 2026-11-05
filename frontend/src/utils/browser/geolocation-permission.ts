@@ -1,4 +1,4 @@
-/** False when unsure: some Safari versions have no Permissions API, reject the name, or report "prompt" for a granted permission. */
+/** False when unsure: some Safari versions lack the API, reject the name, or report "prompt" when granted. */
 export async function isGeolocationGranted(): Promise<boolean> {
   try {
     const status = await navigator.permissions?.query({ name: "geolocation" });

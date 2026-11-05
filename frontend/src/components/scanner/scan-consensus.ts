@@ -54,7 +54,7 @@ function recordReject(state: IConsensusState, now: number): IConsensusState {
   };
 }
 
-// Products keep the scanner's value because price data may list a UPC-A under 12 digits; cards store one canonical form.
+// Products keep the scanner's value, as price data may list a UPC-A under 12 digits.
 function prepareCode(raw: IScannedCode, preset: ScanPreset): IScannedCode {
   return preset === "all"
     ? normalizeScannedCode(raw)

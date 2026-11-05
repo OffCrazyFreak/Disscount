@@ -35,13 +35,13 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
   const { deleteShoppingListMutation, confirmDelete, handleCopy } =
     useShoppingListMutations(shoppingList.id, shoppingList);
 
-  // Returns the promise so a caller that unmounts on completion can await the request instead of tearing the mutation down mid-flight.
+  // Returns the promise so a caller unmounting on completion does not tear the mutation down mid-flight.
   async function handleConfirmDelete() {
     setIsDeleteDialogOpen(false);
     await confirmDelete();
   }
 
-  // Takes options because closeModalUrl pops with an async history.back(), so closing first and pushing straight after would lose the push.
+  // Takes options because closeModalUrl's async history.back() would lose a push made straight after.
   function handleEdit(options?: IOpenModalOptions) {
     openModalUrl(
       {
@@ -55,7 +55,7 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
 
   const { canManageShare } = resolveShoppingListAccess(shoppingList.myAccess);
 
-  // No pending state, because shareOrCopy documents why a flag cleared on completion strands the button spinning; options as in handleEdit.
+  // No pending state, because shareOrCopy documents why a cleared flag strands the button spinning.
   async function handleShare(options?: IOpenModalOptions) {
     // Only the owner gets the settings panel; everyone else can still pass the list on, by link or plain text.
     if (canManageShare) {
@@ -71,7 +71,7 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
     }
 
     try {
-      // Whether the link opens for the recipient is the owner's call through the share modal, not something to withhold here.
+      // Whether the link opens is the owner's call through the share modal, not something to withhold here.
       const text = listShareText(shoppingList);
       const url = shareListUrl(shoppingList.id, locale);
       const outcome = await shareOrCopy({
@@ -83,12 +83,12 @@ export function useShoppingListActions(shoppingList: ShoppingList) {
       if (outcome === "copied") toast.success(t("toasts.linkCopied"));
       if (outcome === "failed") toast.error(t("toasts.shareFailed"));
     } catch {
-      // shareOrCopy resolves rather than throws, but appUrl() throws on a bad NEXT_PUBLIC_APP_URL, and onClick never awaits, so the failure would be invisible.
+      // appUrl() can throw on a bad NEXT_PUBLIC_APP_URL, and onClick never awaits, so the failure would be invisible.
       toast.error(t("toasts.shareFailed"));
     }
   }
 
-  // linkAccess is null for anyone but the owner, so a recipient stays on the plain share icon, which is what their button does.
+  // linkAccess is null for non-owners, so a recipient keeps the plain share icon, matching their button.
   const isShared =
     !!shoppingList.linkAccess && shoppingList.linkAccess !== "NONE";
 

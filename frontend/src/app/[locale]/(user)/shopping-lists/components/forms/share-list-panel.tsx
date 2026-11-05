@@ -27,12 +27,12 @@ export default function ShareListPanel({
   const t = useTranslations("shoppingLists");
   const hintId = useId();
 
-  // Gated on the save too, because the level updates optimistically and the button would hand out a link that does not open yet.
+  // Gated on the save, because an optimistic level would hand out a link that does not open yet.
   const canShareLink = isLevelShareable && !isSaving;
 
   return (
     <div className="space-y-6" aria-busy={isSaving}>
-      {/* Announces the in-flight state only, because the success toast has its own live region and would be announced twice. */}
+      {/* In-flight state only, because the success toast has its own live region. */}
       <p role="status" className="sr-only">
         {isSaving ? t("shareModal.saving") : ""}
       </p>

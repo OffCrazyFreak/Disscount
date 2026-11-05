@@ -1,4 +1,4 @@
-// List ids reach Sentry unscrubbed by decision in docs/SHARING.md, but a shared list's contents must not, so Replay blocks this subtree.
+// List ids reach Sentry by decision (docs/SHARING.md), but contents must not, so Replay blocks this subtree.
 export default function ShoppingListsLayout({
   children,
 }: LayoutProps<"/[locale]/shopping-lists">) {

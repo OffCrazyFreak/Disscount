@@ -20,12 +20,12 @@ export function useModalFocusRestore() {
     (e.currentTarget as HTMLElement | null)?.focus();
   }
 
-  // Radix's restore targets a trigger these modals lack and its body fallback jumps the scroll, so go back to the opener while it is still around.
+  // Radix's restore needs a trigger and its body fallback jumps the scroll, so use the opener if present.
   function onCloseAutoFocus(e: IFocusEvent) {
     e.preventDefault();
 
     const opener = openerRef.current;
-    // preventScroll because the scroll lock has just been released, so a bare focus() scrolls the opener into view and jumps the page.
+    // preventScroll because the scroll lock just released, so a bare focus() jumps the page.
     if (opener?.isConnected) opener.focus({ preventScroll: true });
   }
 

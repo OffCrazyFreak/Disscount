@@ -41,7 +41,7 @@ function groupPostcodesByCounty(stores: IPlaceStore[]) {
   return byName;
 }
 
-/** A value saved under an older key takes the place of its option; one naming nothing stays on offer, so it can be seen and removed. */
+/** A value under an older key takes its option's place; one naming nothing stays on offer, so it can be removed. */
 export function listPlaceOptions(
   names: string[],
   stores: IPlaceStore[],

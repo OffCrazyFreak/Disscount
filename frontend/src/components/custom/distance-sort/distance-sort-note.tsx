@@ -43,7 +43,7 @@ export default function DistanceSortNote({
 
   return (
     <div
-      // sr-only rather than hidden, because a region that leaves the accessibility tree is often not announced when it comes back.
+      // sr-only because a region leaving the accessibility tree is often not announced on return.
       className={
         state === "idle"
           ? "sr-only"

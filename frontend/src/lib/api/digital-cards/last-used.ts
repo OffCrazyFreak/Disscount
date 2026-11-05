@@ -50,7 +50,7 @@ async function flush(keepalive = false) {
   flushing = true;
   lastFlushAt = Date.now();
 
-  // Captured once, because a flush belongs to the account that queued the uses, even if the identity switches mid-request.
+  // Captured once, because a flush belongs to the account that queued it, even across a switch.
   const identity = getCacheIdentity();
 
   try {
@@ -136,7 +136,7 @@ export function recordCardUsed(id: string): void {
 
   void canWriteAfterPurges(generation)
     .then(async (canWrite) => {
-      // A use recorded just before a sign out would land after the purge and put the departed account's card history back on disk.
+      // A use just before sign out would land after the purge, restoring the departed account's history.
       if (!canWrite) return;
 
       await set(key, entry, queueStore());

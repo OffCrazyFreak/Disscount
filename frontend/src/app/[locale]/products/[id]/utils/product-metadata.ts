@@ -72,7 +72,7 @@ export function productMetadata({
   };
 }
 
-/** Translations repeat Croatian product data around translated boilerplate, which Google treats as thin duplicates, so only Croatian is indexed. */
+/** Translations around Croatian product data read as thin duplicates, so only Croatian is indexed. */
 export function translatedProductRobots(locale: AppLocale): Metadata {
   if (locale === DEFAULT_LOCALE) return {};
 

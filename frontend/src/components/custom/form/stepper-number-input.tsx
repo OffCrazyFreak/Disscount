@@ -20,7 +20,7 @@ interface IStepperNumberInputProps {
   max: number;
   integer?: boolean;
   placeholder?: string;
-  /** Only for a field with no visible label, because aria-label replaces the name, and speaking the visible label would then miss the field. */
+  /** Only with no visible label, because aria-label replaces the name, so speech would miss the field. */
   ariaLabel?: string;
   className?: string;
 }
@@ -60,7 +60,7 @@ export function StepperNumberInput({
         type="button"
         size="icon"
         variant={isSecondary ? "outline" : "primary"}
-        // A bare ".5" reads poorly aloud, so the label formats the amount through ICU instead of reusing the button text.
+        // A bare ".5" reads poorly aloud, so the label formats the amount through ICU.
         aria-label={
           sign > 0
             ? t("stepper.increase", { amount })

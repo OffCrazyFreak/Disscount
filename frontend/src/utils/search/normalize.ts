@@ -6,7 +6,7 @@ export interface IPreparedQuery {
   tokens: string[];
 }
 
-/** Several hundred city names per keypress repeat; eviction drops the oldest half, because a full clear mid-pass would miss every lookup in that pass. */
+/** City names repeat per keypress; eviction drops the oldest half, as a full clear would miss the whole pass. */
 const CACHE_LIMIT = 8192;
 const cache = new Map<string, string>();
 
@@ -37,7 +37,7 @@ export function prepareQuery(query: string): IPreparedQuery | null {
 
   const normalized = normalizeForSearch(query).trim();
 
-  // Frozen because every caller shares this object, so sorting or pushing to `tokens` would corrupt the query for whoever holds it next.
+  // Frozen because every caller shares this object, so changing `tokens` would corrupt the next holder's query.
   const prepared = normalized
     ? Object.freeze({
         normalized,

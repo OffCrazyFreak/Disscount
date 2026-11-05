@@ -8,8 +8,8 @@ import { isLocale } from "@/i18n/locales";
 import { useSession } from "@/lib/auth/client";
 import { queueAccountLocaleSave } from "@/components/custom/locale/account-locale-save";
 
-/** An account with no language takes the one it signed in on, and on sign-in the account's choice overwrites the device's, as Gitea and Rallly do. */
-// Module scope survives a language switch's remount, so its cookie write is not undone by a session that has not refetched yet.
+/** A language-less account takes its sign-in language; afterwards the account overwrites the device. */
+// Module scope survives a switch's remount, so a stale session cannot undo its cookie write.
 let syncedUserId: string | null = null;
 
 export default function LocaleSync() {

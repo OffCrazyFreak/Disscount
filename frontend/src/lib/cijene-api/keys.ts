@@ -37,7 +37,7 @@ function productKey(params: GetProductParams) {
   return ["cijene", "product", "ean", JSON.stringify(params)] as const;
 }
 
-/** The persisted cache stores these exact values, so changing one strands every user's offline copy; see lib/offline/cached-query-keys.ts. */
+/** The persisted cache stores these exact values, so changing one strands every offline copy. */
 export const CIJENE_QUERY_KEYS = {
   chains: ["cijene", "chains"] as const,
   chainStats: ["cijene", "chain-stats"] as const,

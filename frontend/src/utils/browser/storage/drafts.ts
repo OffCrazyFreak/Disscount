@@ -7,7 +7,7 @@ import type { IFormDraft } from "@/typings/local-storage";
 
 const DRAFT_TTL_MS = 24 * 60 * 60 * 1000;
 
-// A counter, because useSyncExternalStore needs a stable snapshot, and the blob is rebuilt on every write, so returning it would loop.
+// A counter, as useSyncExternalStore needs a stable snapshot and the blob is rebuilt per write, which would loop.
 const listeners = new Set<() => void>();
 let version = 0;
 
@@ -37,7 +37,7 @@ export function getFormDraft(key: string): IFormDraft | null {
   return draft;
 }
 
-/** Pure and safe while rendering; another account's draft reads as none, because drafts hold profile fields and the device is shared. */
+/** Pure while rendering; another account's draft reads as none, as drafts hold profile fields on shared devices. */
 export function peekFormDraft(key: string): IFormDraft | null {
   const draft = getAppStorage().formDrafts?.[key];
   if (!draft || draft.owner !== getCacheIdentity()) return null;
@@ -45,7 +45,7 @@ export function peekFormDraft(key: string): IFormDraft | null {
   return Date.now() - draft.savedAt > DRAFT_TTL_MS ? null : draft;
 }
 
-/** @param savedAt when carrying a timestamp forward, because removing one field must not restart the 24h clock on the others. */
+/** @param savedAt when carrying a timestamp, as removing one field must not restart the 24h clock. */
 export function setFormDraft(
   key: string,
   values: Record<string, unknown>,
@@ -91,7 +91,7 @@ export function removeFormDraftsFor(identity: string) {
   notify();
 }
 
-/** A first sign-in takes over what was typed signed out; re-tagged rather than shared, so a later switch purges them with this account. */
+/** A first sign-in takes over what was typed signed out; re-tagged so a later switch purges them too. */
 export function adoptGuestFormDrafts(identity: string) {
   const drafts = getAppStorage().formDrafts ?? {};
   if (!Object.values(drafts).some(({ owner }) => owner === ANONYMOUS_IDENTITY))

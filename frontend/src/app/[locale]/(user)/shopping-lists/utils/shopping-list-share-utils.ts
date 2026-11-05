@@ -10,7 +10,7 @@ type ShoppingListsTranslator = ReturnType<
 // Open-ended rules, so a long title never has to line up with a closing corner.
 const RULE = "═".repeat(18);
 
-/** None of these clients define an escape syntax for their markers, so a backslash renders literally; lookalikes read the same and cannot open a run. */
+/** These clients have no escape syntax, so a backslash renders literally; lookalikes cannot open a run. */
 function neutraliseMarkers(text: string): string {
   return text.replace(/\*/g, "\u2217").replace(/~/g, "\u2053");
 }

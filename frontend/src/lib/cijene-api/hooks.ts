@@ -76,7 +76,7 @@ import { priceHistoryQueries } from "@/lib/cijene-api/price-history-queries";
 
 export function usePriceHistory({ ean, days = 7 }: IUsePriceHistoryArgs) {
   "use no memo";
-  // The compiler caches `new Date()` as a constant, so a tab left open past Zagreb midnight would keep yesterday without the opt-out.
+  // The compiler caches `new Date()`, so a tab open past Zagreb midnight would keep yesterday without the opt-out.
   const today = zagrebClock(new Date()).date;
   const dates = useMemo(
     () => buildDateWindow(days, PRICE_ARCHIVE_START, today),

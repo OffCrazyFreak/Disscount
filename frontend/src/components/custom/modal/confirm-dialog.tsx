@@ -53,7 +53,7 @@ export function ConfirmDialog({
       preventClose={isLoading}
       title={title}
       description={description}
-      // Enter confirms only when reversible, because ModalShell focuses the container, so two Enter presses would delete an account or list.
+      // Enter confirms only when reversible, or two presses on the focused container would delete data.
       onSubmit={isDestructive ? undefined : onConfirm}
       submitLoading={isLoading}
       hero={<ConfirmDialogHero icon={Icon} isDestructive={isDestructive} />}

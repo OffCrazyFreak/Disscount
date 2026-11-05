@@ -6,7 +6,7 @@ export interface IOpenModalOptions {
   replace?: boolean;
 }
 
-// Plain functions so open-modal buttons need no useSearchParams; never pass history.state through, or Next treats it as its own navigation and skips the sync.
+// Never pass history.state through, or Next treats it as its own navigation and skips the sync.
 
 function hasModalMarker(): boolean {
   return !!window.history.state?.__disscountModal;

@@ -1,6 +1,6 @@
 import { normalizeForSearch } from "@/utils/strings";
 
-// cijene-api gives Stanić a code and city only, and diskont.hr has no codes, so this pairs them by hand until upstream publishes street addresses.
+// Upstream gives Stanić a code and city, diskont.hr has no codes, so these pair by hand until upstream has streets.
 const CODE_BY_STORE_NAME: Record<string, string> = {
   "Zagreb Žitnjak": "131",
   "Zagreb Veletržnica": "133",
@@ -21,7 +21,7 @@ const CODE_BY_STORE_NAME: Record<string, string> = {
   Medulin: "7302",
   Rovinj: "7307",
   Labin: "7308",
-  // "PULA" and "PULA 4" upstream; catalog.hr puts 734 at Bože Gumpca 34 and 739 at Rizzijeva 59, the addresses of diskont.hr's "Pula" and "Pula 2".
+  // "PULA" and "PULA 4" upstream; catalog.hr has 734 at Bože Gumpca 34, 739 at Rizzijeva 59 (diskont.hr Pula, Pula 2).
   Pula: "734",
   "Pula 2": "739",
   Poreč: "731",
@@ -65,7 +65,7 @@ function titleOf(row: unknown): string | undefined {
     : undefined;
 }
 
-/** Two rows under one title would make the code a guess, so neither keeps it, counted over every titled row so an unusable twin still counts. */
+/** Two rows under one title would make the code a guess, so neither keeps it, even if a twin is unusable. */
 export function stanicCodeReader(
   rows: unknown[],
 ): (storeTitle: string) => string | undefined {

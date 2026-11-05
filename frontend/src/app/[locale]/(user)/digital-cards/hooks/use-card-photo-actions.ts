@@ -107,7 +107,7 @@ export function useCardPhotoActions(cardId: string) {
     }
 
     mark(slot, outcome === "kept" ? "queued" : "error");
-    // The form has already closed on "saved", so a refusal is announced; a lost connection or unseen card waits quietly for the replay.
+    // The form already closed on "saved", so a refusal is announced; a lost connection waits quietly.
     const waitsQuietly = isNetworkFailure(error) || httpStatus(error) === 404;
     if (outcome === "dropped" || !waitsQuietly) {
       toast.error(problemMessage(error, t("saveFailed")));

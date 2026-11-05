@@ -14,7 +14,7 @@ function isNearPageEnd(): boolean {
   return scrollY + viewport >= fullHeight - 10000;
 }
 
-/** A background price refresh may change the items, but must not collapse batches the user already revealed for the same key. */
+/** A background price refresh must not collapse batches already revealed for the same key. */
 export default function useRevealedBatches(
   batchKey: string,
   batchCount: number,

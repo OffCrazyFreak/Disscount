@@ -65,7 +65,7 @@ export function watchServiceWorkerUpdate({
   serwist.addEventListener("waiting", handleWaiting);
   visibility.addEventListener("visibilitychange", checkForUpdate);
 
-  // A worker left waiting by an earlier visit can finish installing before this listener exists, missing its waiting event.
+  // A worker left waiting earlier can finish installing before this listener exists.
   void serviceWorker.getRegistration().then((registration) => {
     if (!isDisposed && registration?.waiting) handleWaiting();
   });

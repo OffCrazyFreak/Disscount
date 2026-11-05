@@ -17,7 +17,7 @@ export default function ForgotPasswordLink({
   return (
     <button
       type="button"
-      // aria-disabled because a disabled element cannot hold focus, which would drop focus to the body right after activating it.
+      // aria-disabled because a disabled element cannot hold focus, dropping it to the body.
       aria-disabled={sending}
       onClick={() => {
         if (sending) return;

@@ -23,11 +23,11 @@ interface IStoreListProps {
   onSelect: (key: string | null) => void;
 }
 
-// Long enough for the virtualizer to measure the opened row and the one that closed above it, short enough not to fight the user's scrolling.
+// Long enough to measure the opened and closed rows, short enough not to fight scrolling.
 const REVEAL_WINDOW_MS = 500;
 const ROW_HEIGHT = 64;
 
-/** Every matching store, map or no map, because this list is the accessible way in; virtualized since it can pass a thousand stores. */
+/** Every matching store, because this list is the accessible way in; virtualized for 1000+ stores. */
 export default function StoreList({
   rows,
   headings,
@@ -36,7 +36,7 @@ export default function StoreList({
   selectedKey,
   onSelect,
 }: IStoreListProps) {
-  // TanStack Virtual hands back functions the compiler cannot memoize safely, so the opt-out keeps rows from going stale.
+  // TanStack Virtual returns functions the compiler cannot memoize, so the opt-out keeps rows fresh.
   "use no memo";
 
   const t = useTranslations("map.layout");
@@ -73,10 +73,10 @@ export default function StoreList({
   const pickedInList = useRef(false);
   // The row just opened from the list, and until when to keep revealing it.
   const reveal = useRef<{ key: string; until: number } | null>(null);
-  // The store open when the list mounts is no pick: on phones the list mounts as the search opens, and focus belongs in the field.
+  // Not a pick: on phones the list mounts as the search opens, and focus belongs in the field.
   const focusedKey = useRef<string | null>(selectedKey);
 
-  // A row opened in the list scrolls least so it does not jump; other changes bring it to the top; focus moves only for a new pick.
+  // A list pick scrolls least so it does not jump; other changes go to the top; only picks move focus.
   useEffect(() => {
     const fromList = pickedInList.current;
     pickedInList.current = false;
@@ -108,7 +108,7 @@ export default function StoreList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedKey, selectedIndex]);
 
-  // The virtualizer measures both rows a moment after the click, so the reveal reruns briefly; later shifts must not pull back someone who scrolled away.
+  // Rows measure just after the click, so the reveal reruns briefly without pulling back a scroller.
   const openRow = virtualizer
     .getVirtualItems()
     .find((item) => item.index === selectedIndex);

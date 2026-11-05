@@ -28,7 +28,7 @@ export function notifyPasswordChanged(user: INotifiedUser) {
     .catch(logEmailFailure("password-changed notice"));
 }
 
-/** better-auth applies a confirmed email change on /verify-email, and that token still names the old address, where the notice goes. */
+/** A confirmed email change's token still names the old address, where the notice goes. */
 export function notifyEmailChanged(
   updatedUser: INotifiedUser,
   ctx: GenericEndpointContext | null | undefined,

@@ -9,7 +9,7 @@ interface IHoldProgressRingProps {
   className?: string;
 }
 
-/** A string progress carries no reduced-motion guard, because it is the only cue that a hold the user is performing is being registered. */
+/** String progress has no reduced-motion guard, as it is the only cue that a hold is registering. */
 export default function HoldProgressRing({
   progress,
   className,

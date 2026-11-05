@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Base64;
 
-/** The server rewrites what the client shrank, so a client skipping that step cannot store PNG, SVG or EXIF and GPS metadata. */
+/** Rewritten here so a client skipping its shrink step cannot store PNG, SVG or EXIF and GPS metadata. */
 @Component
 @RequiredArgsConstructor
 public class AvatarSanitizer {

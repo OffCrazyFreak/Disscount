@@ -33,7 +33,7 @@ export function useShoppingListMutations(
         old ? old.filter((l) => l.id !== listId) : [],
     );
 
-    // Awaited rather than per-call callbacks, which need a live observer, and the actions sheet unmounts as soon as this fires.
+    // Awaited because per-call callbacks need a live observer, and the actions sheet unmounts as this fires.
     try {
       await deleteShoppingListMutation.mutateAsync(listId);
 
@@ -49,7 +49,7 @@ export function useShoppingListMutations(
     }
   };
 
-  /** Opens the options modal because what a copy should carry is a real question, and guessing gave a wrong copy for shopping the same list next week. */
+  /** Opens the options modal because guessing what a copy carries was wrong for shopping a list again. */
   function handleCopy(options?: IOpenModalOptions) {
     if (!shoppingList) return;
 

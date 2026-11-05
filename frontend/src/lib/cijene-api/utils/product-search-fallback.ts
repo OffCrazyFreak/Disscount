@@ -8,7 +8,7 @@ import {
 import { UPSTREAM_DEFAULT_SEARCH_LIMIT } from "@/constants/products";
 import { buildQueryString } from "@/utils/generic";
 
-/** Fuzzy promotes short unrelated rows and loses to exact on well-spelled queries, so it only runs when exact returns little: https://github.com/senko/cijene-api/issues/65 */
+/** Fuzzy promotes short unrelated rows, so exact comes first: https://github.com/senko/cijene-api/issues/65 */
 const FUZZY_FALLBACK_THRESHOLD = 10;
 
 /** Upstream matches on trigrams, which shorter queries cannot produce. */
@@ -52,7 +52,7 @@ function mergeByEan(
   return merged.slice(0, limit);
 }
 
-/** Fuzzy only tops up a nearly empty exact pass, so a typo finds something without costing ranking quality on working queries. */
+/** Fuzzy only tops up a nearly empty pass, so typos find something without hurting ranking. */
 export async function searchProductsWithFuzzyFallback(
   params: SearchProductsParams,
 ): Promise<{ data: unknown }> {

@@ -24,7 +24,7 @@ interface IUseFormDraftOptions<T extends FieldValues> {
   restore?: boolean;
   // Fields that must never touch localStorage (passwords, base64 images).
   exclude?: Path<T>[];
-  // reset() clears errors and "onChange" validates only on edits, so a restored value breaking a rule would block submit with no message.
+  // reset() clears errors and validation runs on edits, so a bad restored value blocks submit silently.
   validateRestored?: Path<T>[];
 }
 
@@ -74,7 +74,7 @@ export function useFormDraft<T extends FieldValues>({
   // Taken on each open, not at mount: an always-mounted modal outlives sign-ins.
   const ownerIdentityRef = useRef<string | null>(null);
 
-  // A subscription, not form.formState, because the React Compiler caches reads off the form and RHF never refreshes an unread flag.
+  // A subscription, because the compiler caches form reads and RHF never refreshes an unread flag.
   const { defaultValues, isSubmitted, isSubmitting } = useFormState({
     control: form.control,
   });
@@ -123,7 +123,7 @@ export function useFormDraft<T extends FieldValues>({
   const flushDraft = useCallback(() => {
     // Writing now makes a queued save redundant, and a stale one would overwrite what follows.
     clearTimeout(saveTimerRef.current);
-    // An account switch moves the identity before this form unmounts, so its last flush would save these values as the next account's draft.
+    // A switch moves the identity before unmount, so the last flush would save as the next account.
     if (getCacheIdentity() !== ownerIdentityRef.current) return;
 
     const values = form.getValues() as Record<string, unknown>;

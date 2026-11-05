@@ -105,7 +105,7 @@ export default function WatchlistItemModal({
     draftKey,
     form,
     enabled: open && !isCheckingWatchlist,
-    // Never drafted because the mode comes from the button that opened the modal; numbers are drafted per mode, so neither is lost.
+    // Never drafted because the opening button sets the mode; numbers are drafted per mode.
     exclude: ["watchType"],
   });
 
@@ -139,7 +139,7 @@ export default function WatchlistItemModal({
       }
       cancelLabel={t("watchlistModal.cancel")}
       resetLabel={t("watchlistModal.reset")}
-      // Enabled while either mode's number differs from what is tracked, including the one off screen, because reset puts both back.
+      // Compares both modes, including the one off screen, because reset puts both back.
       resetDisabled={!isEditedInAnyMode}
       onReset={() => {
         clearDraft();

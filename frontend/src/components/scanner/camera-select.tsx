@@ -70,7 +70,7 @@ export default function CameraSelect({
 
       <Tooltip>
         <TooltipTrigger asChild>
-          {/* aria-disabled because disabled leaves the tab order and kills the pointer events the explaining tooltip needs. */}
+          {/* aria-disabled because disabled drops tab order and the pointer events the tooltip needs. */}
           <Button
             type="button"
             variant="outline"

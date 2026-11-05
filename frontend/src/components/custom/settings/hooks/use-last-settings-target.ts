@@ -14,7 +14,7 @@ export function useLastSettingsTarget(target: ModalTarget | null) {
     setLastTab(target.tab);
   }
 
-  // Falling back to "required" when the param is stripped would pop the close button a frame before a replay wizard fades.
+  // Falling back to "required" would pop the close button before a replay wizard fades.
   const [lastOnboardingMode, setLastOnboardingMode] =
     useState<OnboardingMode>("required");
   if (target?.name === "onboarding" && target.mode !== lastOnboardingMode) {

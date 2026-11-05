@@ -6,12 +6,12 @@ import org.springframework.security.web.util.matcher.IpAddressMatcher;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/** Traefik writes its peer as the last X-Forwarded-For hop, so only that is trusted, and CF-Connecting-IP counts only from a Cloudflare edge. */
+/** Traefik writes its peer as the last X-Forwarded-For hop, the one trusted; CF-Connecting-IP only from Cloudflare. */
 public final class ClientIp {
 
     private ClientIp() {}
 
-    // Cloudflare's published ranges (https://www.cloudflare.com/ips/); cloudflare-ip-ranges.ts and Traefik trustedIPs in docs/INFRASTRUCTURE.md carry the same list.
+    // https://www.cloudflare.com/ips/; cloudflare-ip-ranges.ts and Traefik trustedIPs carry the same list.
     private static final List<IpAddressMatcher> CLOUDFLARE = List.of(
             "173.245.48.0/20", "103.21.244.0/22", "103.22.200.0/22", "103.31.4.0/22",
             "141.101.64.0/18", "108.162.192.0/18", "190.93.240.0/20", "188.114.96.0/20",

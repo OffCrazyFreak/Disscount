@@ -47,7 +47,7 @@ export async function getStoreHours(): Promise<CompactStoreHoursResponse> {
   return value;
 }
 
-/** No cron: a request after the data is due starts it once the response is sent, and the lease keeps a second instance out. */
+/** No cron: a due request starts it after responding, and the lease keeps out a second instance. */
 async function startHoursJobIfDue(): Promise<void> {
   if (jobRunning) return;
 

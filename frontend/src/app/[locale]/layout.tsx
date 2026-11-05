@@ -139,7 +139,7 @@ export const viewport: Viewport = {
   ],
   // Without this every env(safe-area-inset-*) resolves to 0, so the bottom nav would sit under the iOS home indicator.
   viewportFit: "cover",
-  // Shrinks the layout viewport when the keyboard opens, so fixed bottom elements reposition instead of hiding behind it; iOS Safari ignores it.
+  // Fixed bottom elements reposition instead of hiding behind the keyboard; iOS Safari ignores it.
   interactiveWidget: "resizes-content",
 };
 
@@ -163,7 +163,7 @@ export default async function RootLayout({
       >
         <SkipLink />
 
-        {/* Chrome fires beforeinstallprompt before hydration and never again, so a React listener alone can lose it; React rejects a script directly in html. */}
+        {/* Chrome fires beforeinstallprompt before hydration and never again, so a React listener can lose it. */}
         <Script id="install-prompt-capture" strategy="beforeInteractive">
           {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__installPrompt=e;});`}
         </Script>
@@ -192,7 +192,7 @@ export default async function RootLayout({
               <ModalRouter />
             </Suspense>
 
-            {/* Here, not on <main>, because the footer renders after main with mt-auto and is the element the bar would cover. */}
+            {/* Here, not on <main>, because the footer after main is what the bar would cover. */}
             <div className="min-h-svh md:has-[[data-page-width=full]]:h-svh md:has-[[data-page-width=full]]:min-h-[40rem] flex flex-col w-full pb-[calc(var(--bottom-nav-total)+0.5rem)] md:pb-0">
               <div className="absolute inset-0 z-[-15] bg-[url('/+_pattern.png')] bg-repeat opacity-100" />
               <div className="absolute inset-0 -z-10 [background:radial-gradient(100%_100%_at_50%_50%,transparent_0%,#ffffff_60%)]" />
@@ -206,8 +206,8 @@ export default async function RootLayout({
                 </Suspense>
               </aside>
 
-              {/* Clip the x axis only, because clipping both cut the last child's bottom border and shadow, since main has no bottom padding. */}
-              {/* data-page-width="full" makes one screen-tall wrapper so inner heights resolve; only a screen under 40rem scrolls, so the map never shrinks to nothing. */}
+              {/* Clip x only, because clipping both cut the last child's bottom border and shadow. */}
+              {/* One screen-tall wrapper so inner heights resolve; under 40rem it scrolls, so the map stays. */}
               <main
                 id={MAIN_CONTENT_ID}
                 tabIndex={-1}

@@ -55,7 +55,7 @@ export default function ShareAccessRow({
               : "bg-muted text-muted-foreground",
           )}
         >
-          {/* size-6 matches the bottom nav glyph and the list card's visibility indicator, so the same icons read at one size. */}
+          {/* size-6 matches the bottom nav glyph and card indicator, so icons read at one size. */}
           <Icon className="size-6" aria-hidden="true" />
         </span>
 
@@ -83,7 +83,7 @@ export default function ShareAccessRow({
           aria-describedby={describedById}
           className="w-full bg-background sm:w-48 sm:shrink-0"
         >
-          {/* Grouped because the trigger is justify-between; size-5 is 1rem here because --spacing is 0.2rem, so the spinner swap moves the label by nothing. */}
+          {/* Grouped as the trigger is justify-between; size-5 is 1rem here, so the spinner swap moves nothing. */}
           <span className="flex min-w-0 items-center gap-2">
             {isSaving ? (
               <BlockLoadingSpinner size={16} className="px-0 text-primary" />

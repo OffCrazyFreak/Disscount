@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 // "auth.validation.emailInvalid": a namespace and key, never prose.
 const MESSAGE_KEY = /^[a-z][A-Za-z0-9]*(\.[A-Za-z0-9]+)+$/;
 
-/** Schemas carry message keys because they build at module load, outside any locale; anything else is shown as it is. */
+/** Schemas carry keys because they build at module load, outside any locale. */
 export function useValidationMessage() {
   const t = useTranslations();
 

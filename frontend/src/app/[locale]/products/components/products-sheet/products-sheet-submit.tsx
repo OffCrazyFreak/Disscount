@@ -13,7 +13,7 @@ interface IProductsSheetSubmitProps {
   form: string;
 }
 
-/** Its own component because a `useSearchParams` call in the root layout's `ProductsSheet` would drop every page out of the prerender. */
+/** Its own component because `useSearchParams` in the root layout would break prerendering for every page. */
 export default function ProductsSheetSubmit({
   searchRoute,
   form,

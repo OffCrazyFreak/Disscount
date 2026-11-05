@@ -33,7 +33,7 @@ export default function useBadgeOverflow(
     if (overflowElement != null) overflowElement.style.display = "none";
     itemElements.forEach((child) => child.style.removeProperty("display"));
 
-    // A single badge wider than the box still reports overflow while wrapping, so the loop would reveal a "+N" that contradicts the screen.
+    // A badge wider than the box still reports overflow, so the loop would show a false "+N".
     if (shouldWrap) {
       setOverflowAmount(0);
       return;
@@ -52,7 +52,7 @@ export default function useBadgeOverflow(
     setOverflowAmount(amount);
   }, [shouldWrap]);
 
-  // The overflow count needs real laid-out nodes, so setState runs in a layout effect, and before paint stops the "+N" flickering.
+  // The count needs laid-out nodes, so setState runs in a layout effect, which stops "+N" flickering.
   useLayoutEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     checkOverflow();
@@ -66,7 +66,7 @@ export default function useBadgeOverflow(
       const observer = new ResizeObserver(checkOverflow);
       observer.observe(node);
 
-      // A web font arriving after the first measurement widens the badges but not the row, so the observer never fires; jsdom has no FontFaceSet.
+      // A late web font widens the badges but not the row, so the observer never fires.
       document.fonts?.ready.then(() => {
         if (!isDetached) checkOverflow();
       });

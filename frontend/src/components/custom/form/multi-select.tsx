@@ -42,19 +42,19 @@ export function MultiSelect({
   );
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  // Below md the list drops into the page so a viewport shrinking for the keyboard has nothing to push it behind; the swap is never on screen at hydration.
+  // Below md the list stays in the page, so a keyboard-shrunk viewport cannot push it behind.
   const presentation: MultiSelectPresentation = useIsMobile()
     ? "inline"
     : "popover";
 
-  // Crossing the breakpoint remounts the list and refires autoFocus; adjusted during render so the wrong presentation never paints open for a frame.
+  // Crossing the breakpoint remounts the list; adjusted in render so nothing paints open for a frame.
   const [lastPresentation, setLastPresentation] = useState(presentation);
   if (presentation !== lastPresentation) {
     setLastPresentation(presentation);
     setOpen(false);
   }
 
-  // A controlled owner can change `values`, so the toggle reads them rather than the internal set, which is seeded only once.
+  // A controlled owner can change `values`, so the toggle reads them, not the once-seeded set.
   const currentValues = values ? new Set(values) : selectedValues;
 
   function toggleValue(value: string) {
@@ -102,7 +102,7 @@ export function MultiSelect({
     });
   }, []);
 
-  // Cleared on close, because a search left behind reopens the list filtered, which reads as the facet having no other options.
+  // Cleared on close, because a leftover search makes the facet look like it has no other options.
   function handleOpenChange(next: boolean) {
     setOpen(next);
     if (!next) setSearchValue("");
@@ -127,7 +127,7 @@ export function MultiSelect({
   return (
     <MultiSelectContext value={context}>
       {presentation === "inline" ? (
-        // Only this branch boxes the trigger, because Collapsible's root is a real div; with no zeroed minimum it would size to the badge row's min-content.
+        // Only this branch boxes the trigger, and with no zeroed minimum it sizes to the badge row.
         <Collapsible
           className="min-w-0"
           open={open}

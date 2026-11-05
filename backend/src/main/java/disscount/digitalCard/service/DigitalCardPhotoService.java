@@ -56,7 +56,7 @@ public class DigitalCardPhotoService {
     /** The bytes handed to a controller for streaming; {@code thumb} picks the small variant. */
     public record PhotoStream(StoredPhoto photo, String sha256, boolean thumb) {}
 
-    /** Not one transaction: only the row write is transactional, and if it fails the objects just stored are removed. */
+    /** Only the row write is transactional, and if it fails the objects just stored are removed. */
     public CardPhotoDto upload(UUID userId, UUID cardId, String slot, MultipartFile full, MultipartFile thumb) {
         if (!photoStore.enabled()) {
             throw new ServiceUnavailableException("error.cardPhoto.unavailable");
@@ -108,7 +108,7 @@ public class DigitalCardPhotoService {
         DigitalCardPhoto row = photoRepository.findByCardIdAndSlot(cardId, slot)
                 .orElseThrow(() -> new NotFoundException("error.cardPhoto.notFound"));
 
-        // The client caches photo bytes by version, so an old version must 404 instead of serving the new bytes under it.
+        // The client caches bytes by version, so an old version must 404 instead of serving new bytes under it.
         if (version != null && !version.equals(row.getSha256())) {
             throw new NotFoundException("error.cardPhoto.notFound");
         }

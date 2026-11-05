@@ -63,7 +63,7 @@ export default function ShoppingListDetailClient({
 
   return (
     <div className="space-y-8">
-      {/* Unconditional, because disabled item controls point at its id with aria-describedby, and gating it would leave that IDREF dangling. */}
+      {/* Unconditional, because disabled item controls point at its id with aria-describedby. */}
       <ShoppingListAccessBanner
         myAccess={shoppingList.myAccess}
         isSignedIn={isSignedIn}

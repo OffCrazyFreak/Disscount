@@ -16,7 +16,7 @@ const THRESHOLD_PX = 600;
 
 const LABEL = "Natrag na vrh";
 
-/** Explicit rem values because --spacing is 0.2rem; desktop only because on mobile the bottom nav's active tab does this. */
+/** Explicit rem because --spacing is 0.2rem; desktop only, as the mobile nav's active tab does this. */
 export default function BackToTopButton() {
   const isVisible = useScrolledPast(THRESHOLD_PX);
 

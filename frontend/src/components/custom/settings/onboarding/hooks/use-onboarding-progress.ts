@@ -6,7 +6,7 @@ import { userService } from "@/lib/api";
 import { ONBOARDING_COMPLETED } from "@/lib/api/schemas/auth-user";
 import { useUser } from "@/context/user-context";
 
-/** Its own mutation, because useSettingsSave's isPending would disable the pressed button; a lost ping costs one repeated step. */
+/** Its own mutation, because useSettingsSave's isPending would disable the pressed button. */
 export function useOnboardingProgress() {
   const { user, mergeUser } = useUser();
   const mutation = userService.useUpdateCurrentUser();
@@ -19,12 +19,12 @@ export function useOnboardingProgress() {
     const outcome = `skipped:${step}`;
     if (!user || user.onboardingOutcome === outcome) return;
 
-    // A ping must never downgrade a finished account, because skipped:<step> would trap them in an uncloseable required wizard.
+    // skipped:<step> over a finished account would trap it in an uncloseable required wizard.
     if (user.onboardingOutcome === ONBOARDING_COMPLETED) return;
 
     mutation
       .mutateAsync({ onboardingOutcome: outcome })
-      // Merged against the latest context value, so a slower progress write cannot roll back something resolved meanwhile, like the completion save.
+      // Merged against the latest value, so a slow write cannot roll back the completion save.
       .then((dto) => mergeUser({ onboardingOutcome: dto.onboardingOutcome }))
       .catch(() => {});
   }

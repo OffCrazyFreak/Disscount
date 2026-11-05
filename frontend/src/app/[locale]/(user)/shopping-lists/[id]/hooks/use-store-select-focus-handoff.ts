@@ -6,7 +6,7 @@ import {
   focusStoreSelect,
 } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/store-select-focus";
 
-/** Swapping in the live select unmounts the focused trigger, so the list-wide ref outlives the row and lets the live select take focus back. */
+/** The list-wide ref outlives the row, so the live select can take back focus from the unmounted trigger. */
 export function useStoreSelectFocusHandoff(
   itemId: string,
   priceState: ItemPriceState,

@@ -1,10 +1,10 @@
 import { createLucideIcon } from "lucide-react";
 
-/** Lifted verbatim from Lucide's file-pen and user-pen, so a badged icon carries the same nib as the rest of the set. */
+/** Verbatim from Lucide's file-pen and user-pen, so badged icons carry the set's own nib. */
 const PEN_PATH =
   "M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z";
 
-/** Shrunk into the top-left as one rule for any base; 0.7 is the largest scale at which every base below clears the pen by a stroke. */
+/** One rule for any base; 0.7 is the largest scale at which every base clears the pen by a stroke. */
 const BASE_TRANSFORM = "scale(0.7)";
 
 /** A transform scales strokes with it, so this pre-divides to land back on lucide's 2. */

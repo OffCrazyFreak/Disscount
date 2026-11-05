@@ -8,7 +8,7 @@ export function geoapifyQuery(address: string, city: string | null) {
 
   return {
     text: [address, city, "Hrvatska"].filter(Boolean).join(", "),
-    // "Ulica 1. svibnja bb" names a number in the street, so "bb" decides; either end of "75-77" may be the one returned.
+    // "Ulica 1. svibnja bb" has a number in the street, so "bb" decides; either end of "75-77" may return.
     houseNumbers:
       parsed.numberless || !parsed.number
         ? []
@@ -33,7 +33,7 @@ export type IGeoapifyResult = z.infer<typeof geoapifyResultSchema>;
 
 const BUILDING_TYPES = new Set(["building", "amenity"]);
 
-// Geoapify says a low score does not mean a wrong answer, but a wrong pin is worse than none, so doubtful results are dropped.
+// A wrong pin is worse than none, so doubtful results are dropped even though low can be right.
 const MIN_CONFIDENCE = 0.6;
 
 // Wrong "building" results scored lower on the building itself; 0 means only the street matched.

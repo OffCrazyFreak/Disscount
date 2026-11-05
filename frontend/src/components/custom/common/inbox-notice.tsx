@@ -10,7 +10,7 @@ interface IInboxNoticeProps {
   email?: string;
 }
 
-/** Worded to never reveal whether the address has an account; owns focus and a live region because every call site unmounts the pressed button. */
+/** Never reveals whether an account exists; owns focus and live region, as callers unmount the button. */
 export default function InboxNotice({
   title,
   description,
@@ -29,7 +29,7 @@ export default function InboxNotice({
       aria-live="polite"
       className="flex flex-col items-center gap-3 py-4 text-center"
     >
-      {/* Theme-aware pairing because bg-green-100 stayed light in dark mode, and against --primary it is about 2.1:1, under the 3:1 a graphic needs. */}
+      {/* Theme-aware because bg-green-100 stays light in dark mode, about 2.1:1 against --primary. */}
       <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
         <MailCheck aria-hidden="true" className="size-6" />
       </div>

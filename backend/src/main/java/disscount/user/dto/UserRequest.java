@@ -29,7 +29,7 @@ public class UserRequest {
     @Schema(nullable = true)
     private String image;
 
-    // Bounded because the column is varchar(255), and an unbounded digit run passes validation and dies as a 500; the wizard has five steps.
+    // The column is varchar(255), and an unbounded digit run would pass validation and die as a 500; five wizard steps.
     @Pattern(regexp = "completed|skipped:\\d{1,3}", message = "{validation.onboardingOutcome.invalid}")
     @Schema(nullable = true)
     private String onboardingOutcome;

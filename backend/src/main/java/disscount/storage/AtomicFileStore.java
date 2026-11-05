@@ -58,7 +58,7 @@ public final class AtomicFileStore {
         this.visibility = visibility;
     }
 
-    /** Never created here: a missing folder means the volume is unmounted, and files written anyway vanish on the next deploy. */
+    /** Never created here: a missing folder means an unmounted volume, and files written then vanish on deploy. */
     public boolean isAvailable() {
         return Files.isDirectory(folder) && Files.isWritable(folder);
     }
@@ -129,7 +129,7 @@ public final class AtomicFileStore {
                 try {
                     Files.deleteIfExists(visited);
                 } catch (DirectoryNotEmptyException uploadRacedTheDelete) {
-                    // That upload's own row write fails on the deleted card and discards the file; the walk must still finish.
+                    // That upload's row write fails on the deleted card, dropping the file; the walk must still finish.
                 }
                 return FileVisitResult.CONTINUE;
             }
@@ -171,7 +171,7 @@ public final class AtomicFileStore {
         }
     }
 
-    // A rename or new entry is durable only once its directory is synced; opening a directory this way works on Linux only.
+    // A rename or new entry is durable only once its directory is synced; opening a directory works on Linux only.
     private static void syncDirectory(Path directory) throws IOException {
         try (FileChannel channel = FileChannel.open(directory, StandardOpenOption.READ)) {
             channel.force(true);

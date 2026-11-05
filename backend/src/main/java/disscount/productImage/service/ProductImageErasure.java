@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** A photo someone else confirmed is product data and stays, without its author or private original; the rest is deleted (#486). */
+/** A photo someone else confirmed stays as product data, minus author and private original; the rest goes (#486). */
 @Service
 @RequiredArgsConstructor
 public class ProductImageErasure {

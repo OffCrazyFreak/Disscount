@@ -2,7 +2,7 @@ import type { QueryKey } from "@tanstack/react-query";
 
 import { DIGITAL_CARD_KEY_VERSION } from "@/lib/api/digital-cards/keys";
 
-// Keep in sync with the keys in lib/cijene-api and lib/api/*; gates query dehydration only, not the mutations persisted in persister.ts.
+// Keep in sync with keys in lib/cijene-api and lib/api/*; gates query dehydration only.
 const PERSISTED_QUERY_KEY_PREFIXES = [
   "cijene",
   "shoppingLists",

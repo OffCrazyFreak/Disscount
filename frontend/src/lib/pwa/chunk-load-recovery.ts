@@ -1,6 +1,6 @@
 const LAST_RELOAD_KEY = "disscount:chunk-reload-at";
 
-// Long enough that a chunk still failing on the fresh page shows the error; short enough that a later deploy recovers too.
+// Long enough for a failing chunk to show the error; short enough for a later deploy to recover.
 const RELOAD_COOLDOWN_MS = 60_000;
 
 // webpack names a failed script chunk ChunkLoadError; a failed CSS chunk only carries the message.
@@ -19,7 +19,7 @@ function readLastReload(storage: Storage): number | null {
   return Number.isFinite(value) && value > 0 ? value : null;
 }
 
-/** A tab from before a deploy asks for chunks the new build lacks; returns whether it reloaded so the caller reports what it did not recover. */
+/** Old tabs ask for chunks the new build lacks; returns whether it reloaded so the rest get reported. */
 export function reloadAfterChunkLoadError(
   error: unknown,
   reload: () => void = () => window.location.reload(),
@@ -27,7 +27,7 @@ export function reloadAfterChunkLoadError(
 ): boolean {
   if (!isChunkLoadError(error)) return false;
 
-  // Offline, a reload would only swap the page for the offline fallback; the boundary's retry button is the better offer.
+  // Offline a reload only shows the fallback, so the boundary's retry button is the better offer.
   if (navigator.onLine === false) return false;
 
   try {

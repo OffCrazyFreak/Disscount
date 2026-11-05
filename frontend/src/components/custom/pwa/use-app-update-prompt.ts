@@ -7,7 +7,7 @@ import { watchServiceWorkerUpdate } from "@/lib/pwa/service-worker-update";
 // One id, so a waiting event and the startup check never stack two toasts.
 const APP_UPDATE_TOAST_ID = "app-update";
 
-/** Never forces a reload, because the waiting worker keeps the old chunks cached; once a tab accepts, others fall back to the one-time chunk reload. */
+/** Never forces a reload, because the waiting worker keeps old chunks; other tabs get the chunk reload. */
 export function useAppUpdatePrompt() {
   const t = useTranslations("common");
 

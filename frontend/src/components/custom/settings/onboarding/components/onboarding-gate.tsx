@@ -18,7 +18,7 @@ export default function OnboardingGate() {
     if (user.onboardingOutcome === ONBOARDING_COMPLETED) return;
     if (target?.name === "onboarding" && target.mode === "required") return;
 
-    // Never pre-empt a linked modal, because replacing email-verified or reset-password stops the user finishing; the wizard returns after it closes.
+    // Never pre-empt a linked modal, or the user cannot finish; the wizard returns after it closes.
     if (target && isPublicModal(target.name)) return;
 
     openModalUrl({ name: "onboarding", mode: "required" }, { replace: true });

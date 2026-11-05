@@ -32,7 +32,7 @@ const channelSchema = z.object({
   businessHours: tommyHoursSchema,
 });
 
-// The exact path in React Query's dehydrated cache can shift between releases, so walk the tree for Channel collections.
+// React Query's dehydrated cache path can shift between releases, so walk the tree for Channel collections.
 function collectChannels(node: unknown, found: unknown[] = []): unknown[] {
   if (Array.isArray(node)) {
     for (const item of node) collectChannels(item, found);

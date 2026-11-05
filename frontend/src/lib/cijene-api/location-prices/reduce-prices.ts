@@ -3,7 +3,7 @@ import { parsePrice } from "@/utils/product-price-utils";
 
 export type CityPrices = Map<string, PriceRange>;
 
-/** Upstream matches `city` as a substring, so "Sesvete" also returns "Sesvete - Kraljevec" stores; only the exact name counts here. */
+/** Upstream matches `city` as a substring, so only the exact name counts here. */
 export function reduceByCity(
   rows: StorePrice[],
   onlyCities?: ReadonlySet<string>,

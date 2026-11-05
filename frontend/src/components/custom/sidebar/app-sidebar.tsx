@@ -37,7 +37,7 @@ export default function AppSidebar() {
   useEffect(() => {
     setOpen(false);
     setOpenMobile(false);
-    // The sidebar context rebuilds setOpen whenever it opens, so listing it here would close the sidebar the moment it opens.
+    // The context rebuilds setOpen as it opens, so listing it would close the sidebar at once.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 

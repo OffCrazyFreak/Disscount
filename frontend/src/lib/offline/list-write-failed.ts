@@ -10,7 +10,7 @@ export type OfflineToastTranslator = (
     | "offline.retiredWriteDropped",
 ) => string;
 
-/** Also call from a hook's own onError, because a hook-level onError replaces the default rather than running beside it. */
+/** Also call from a hook's own onError, which replaces this default rather than running beside it. */
 export function listWriteFailed(error: Error, t: OfflineToastTranslator) {
   const lostAccess = parseProblem(error)?.status === 403;
 

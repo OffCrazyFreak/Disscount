@@ -120,7 +120,7 @@ export default function ScanImageButton({
         {t("image.upload")}
       </Button>
 
-      {/* The visible button is the real control; sr-only would leave an unnamed focusable file input that opens a second picker. */}
+      {/* sr-only would leave an unnamed focusable file input that opens a second picker. */}
       <input
         ref={inputRef}
         type="file"

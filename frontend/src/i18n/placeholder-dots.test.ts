@@ -17,7 +17,7 @@ function leafEntries(value: unknown, path = ""): [string, string][] {
   );
 }
 
-// Facet search fields hold their placeholder under a key named "search", and the shopping list picker shows its prompt as empty-state text.
+// Facet fields use a key named "search", and the list picker shows its prompt as empty-state text.
 function isPlaceholderKey(path: string) {
   return (
     /placeholder/i.test(path) ||

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** The image compiles from its own copy of the module, so a build input left out of the Dockerfile passes CI and only breaks the deployed backend. */
+/** The image compiles its own module copy, so an input left out of the Dockerfile passes CI and breaks production. */
 class DockerImageBuildTest {
 
     @Test

@@ -19,7 +19,7 @@ declare global {
   }
 }
 
-// Beyond standalone, because the spec falls back to minimal-ui where unsupported, and a desktop install can report window-controls-overlay.
+// Beyond standalone: the spec falls back to minimal-ui, and desktop may report window-controls-overlay.
 const INSTALLED_DISPLAY_MODES = [
   "standalone",
   "minimal-ui",
@@ -38,7 +38,7 @@ function detectStandalone(): boolean {
   );
 }
 
-// Embedded browsers have no home screen or browser menu to reach, so advertising an install is a dead end on every platform.
+// Embedded browsers have no home screen or browser menu, so an install offer is a dead end.
 function detectInAppBrowser(): boolean {
   return /FBAN|FBAV|FB_IAB|Instagram|Line|Twitter|TikTok|Snapchat/i.test(
     window.navigator.userAgent,
@@ -61,7 +61,7 @@ function detectIOSInstallCapable(): boolean {
   return detectIOS() && !detectInAppBrowser();
 }
 
-// Desktop Safari installs through the menu bar, a different instruction; iPadOS reports the same UA, so detectIOS rules it out first.
+// Desktop Safari installs through the menu bar; iPadOS shares its UA, so detectIOS rules it out first.
 function detectMacSafari(): boolean {
   const ua = window.navigator.userAgent;
 
@@ -73,7 +73,7 @@ function detectMacSafari(): boolean {
   );
 }
 
-/** Four because a share sheet, a menu bar, a phone menu and an address-bar icon are different things to press, and naming the wrong one misleads. */
+/** Four because these are different things to press, and naming the wrong one misleads. */
 export type InstallPlatform = "ios" | "macSafari" | "android" | "desktop";
 
 function detectPlatform(): InstallPlatform {
@@ -94,7 +94,7 @@ function detectNoInstallRoute(): boolean {
   return isFirefoxDesktop || detectInAppBrowser();
 }
 
-// Module scope so both banners share one prompt; ready stays false until client detection, so first paint never flashes install UI.
+// Module scope so both banners share one prompt; ready stays false so first paint shows no install UI.
 interface IInstallState {
   deferredPrompt: IBeforeInstallPromptEvent | null;
   isStandalone: boolean;
@@ -123,7 +123,7 @@ function setState(patch: Partial<IInstallState>) {
   listeners.forEach((listener) => listener());
 }
 
-// The stash outlives the module under Fast Refresh, so leaving it lets init() re-adopt a spent event, and a second prompt() only throws.
+// The stash outlives the module under Fast Refresh, and re-adopting a spent event makes prompt() throw.
 function clearPrompt() {
   delete window.__installPrompt;
   setState({ deferredPrompt: null });
@@ -178,13 +178,13 @@ async function promptInstall() {
   const { deferredPrompt } = state;
   if (!deferredPrompt || prompting) return;
 
-  // A flag rather than clearing, because clearing first would flip the mounted surfaces to manual instructions mid-prompt.
+  // A flag, because clearing first flips mounted surfaces to manual instructions mid-prompt.
   prompting = true;
 
   try {
     await deferredPrompt.prompt();
 
-    // prompt() works once per event, so a dismissal spends it too; clearing here sends the next click to the manual instructions with no dead click.
+    // prompt() works once, so a dismissal spends it too; clearing here avoids a dead click.
     await deferredPrompt.userChoice;
   } catch {
     // An already-spent or invalid event rejects; same outcome either way.
@@ -207,7 +207,7 @@ export function useInstallPrompt() {
   const canInstall = deferredPrompt !== null;
   const notInstalled = ready && !isStandalone;
 
-  // Promotional surfaces ignore the prompt event, because beforeinstallprompt is Chromium-only and macOS Safari and Firefox on Android still install.
+  // Ignores the prompt event, because macOS Safari and Firefox on Android still install without it.
   const canShowInstallUI = notInstalled && (canInstall || isIOSInstallCapable);
   const canPromoteInstall = notInstalled && hasInstallRoute;
   const showUnsupportedNotice = notInstalled && !hasInstallRoute;

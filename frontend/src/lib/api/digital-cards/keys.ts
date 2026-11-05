@@ -1,4 +1,4 @@
-/** The version segment retires cached data of an old shape, which a new reader would crash on; bump it when the card DTO changes shape. */
+/** Retires cached data of an old shape, which a new reader would crash on; bump on a DTO shape change. */
 export const DIGITAL_CARD_KEY_VERSION = "v2";
 
 export const DIGITAL_CARD_QUERY_KEYS = {

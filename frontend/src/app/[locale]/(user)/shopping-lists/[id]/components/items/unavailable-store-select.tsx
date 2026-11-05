@@ -13,7 +13,7 @@ interface IUnavailableStoreSelectProps {
   ref?: Ref<HTMLButtonElement>;
 }
 
-/** Focusable so assistive tech reaches the reason, but with no options or handler, since typeahead on a closed Radix trigger still selects. */
+/** Focusable so assistive tech reaches the reason; no options, since typeahead on a closed trigger selects. */
 export default function UnavailableStoreSelect({
   label,
   describedById,

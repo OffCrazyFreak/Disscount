@@ -9,7 +9,7 @@ import { useCameraScanner } from "@/context/scanner-context";
 import useProductNavigation from "@/hooks/use-product-navigation";
 import { IScannedCode } from "@/typings/scanned-code";
 
-// The flag is dropped from the URL before the camera opens, so a refresh, back navigation or shared link does not reopen it.
+// Dropped before the camera opens, so a refresh, back or shared link does not reopen it.
 export default function ScanShortcut() {
   const params = useClientSearchParams();
   const pathname = usePathname();

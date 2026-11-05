@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type RefObject } from "react";
 
-/** An inline list is no Radix layer, so a dialog around it would take Escape; window capture runs before document, and only the list holding focus acts. */
+/** A dialog would take Escape from an inline list, so window capture gets it first, for the focused list only. */
 export default function useMultiSelectEscape(
   active: boolean,
   contentRef: RefObject<HTMLElement | null>,

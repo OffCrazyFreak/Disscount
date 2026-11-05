@@ -59,7 +59,7 @@ export async function resolveWithGeocoder(
     } catch (error) {
       if (signal.aborted) throw error;
 
-      // A rate limit or outage says nothing about the address, so it is retried next run instead of waiting out the 7-day backoff.
+      // A rate limit or outage says nothing about the address, so retry next run, not after the 7-day backoff.
       console.warn(
         `[store-locations] geocoding ${target.chain}:${target.code} failed`,
         error,

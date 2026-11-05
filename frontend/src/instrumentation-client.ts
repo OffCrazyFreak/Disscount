@@ -24,7 +24,7 @@ Sentry.init({
   environment: clientEnv.SENTRY_ENVIRONMENT,
 
   integrations: [
-    // Errors only from code outside our build are not ours to fix; production only, because dev bundles may lack the key and drop everything.
+    // Errors only from outside code are not ours; production only, as dev bundles may lack the key.
     ...(process.env.NODE_ENV === "production"
       ? [
           Sentry.thirdPartyErrorFilterIntegration({
@@ -33,12 +33,12 @@ Sentry.init({
           }),
         ]
       : []),
-    // Replay records the page URL with no hook to scrub it, so a reset token left in the URL keeps Replay off for this load.
+    // Replay records the URL with no scrub hook, so a token left in it keeps Replay off for this load.
     ...(isResetTokenInUrl
       ? []
       : [
           Sentry.replayIntegration({
-            // The shopping-lists layout blocks the list DOM; this hook only sees breadcrumb and span events, so it drops those on list pages.
+            // The layout blocks the list DOM; this hook drops breadcrumb and span events on list pages.
             beforeAddRecordingEvent: (event) =>
               isShoppingListPath(window.location.pathname)
                 ? null
@@ -57,7 +57,7 @@ Sentry.init({
 
   tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
 
-  // 1% of sessions keeps replay-derived detectors fed, because at 10% the plan's 50 replays ran out mid-period, dropping error replays too.
+  // 1% feeds replay-derived detectors; at 10% the plan's 50 replays ran out, dropping error replays too.
   replaysSessionSampleRate: 0.01,
   replaysOnErrorSampleRate: 1.0,
 

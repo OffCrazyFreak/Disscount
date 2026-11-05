@@ -17,7 +17,7 @@ export function useMapHours(openFilter: OpenFilter) {
   const hasHoursFailed =
     !query.data && (query.isError || query.fetchStatus === "paused");
 
-  // Until the hours load, the filter waits rather than emptying the list; off, it passes nothing, so the minute clock does not rebuild every pin.
+  // The filter waits for hours rather than emptying the list; off, the clock rebuilds no pins.
   const keep =
     hours && openFilter !== "off"
       ? (store: DirectoryStoreDto) =>

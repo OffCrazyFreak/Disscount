@@ -24,7 +24,7 @@ export function readVisibleArea(
   const height = clientHeight - coveredBottom;
   if (width <= 0 || height <= 0) return null;
 
-  // All four corners, because on a rotated map a north-aligned box reaches past the screen and would count hidden stores.
+  // All four corners, because a north-aligned box on a rotated map counts hidden stores.
   const corners = [
     map.unproject([0, 0]),
     map.unproject([width, 0]),

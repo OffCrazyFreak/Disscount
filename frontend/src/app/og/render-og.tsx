@@ -15,7 +15,7 @@ const INK = "#252525";
 const BRAND_IMAGE_CACHE_CONTROL =
   "public, max-age=86400, stale-while-revalidate=604800";
 
-// Satori cannot read woff2, so these are .ttf and .woff builds; file tracing follows this read into the standalone image the product card needs.
+// Satori cannot read woff2; file tracing follows this read into the standalone image.
 export async function loadFonts() {
   const dir = join(process.cwd(), "src", "app", "fonts");
 

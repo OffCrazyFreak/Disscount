@@ -40,7 +40,7 @@ const DIRECTIONS = [
   },
 ] as const;
 
-/** WCAG 2.5.7 asks for a single-pointer way to do anything that takes a drag; arrow keys already pan the focused map. */
+/** WCAG 2.5.7 asks for a single-pointer way to do anything that takes a drag. */
 export default function MapPanControls({ mapRef }: IMapPanControlsProps) {
   const t = useTranslations("map.pan");
 

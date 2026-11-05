@@ -52,7 +52,7 @@ async function claimMarker(
   };
 }
 
-// Using the link deletes the reset row, so a later request mails a new one; assumes plain verification.storeIdentifier for `reset-password:<token>`.
+// Using the link deletes the row; assumes plain verification.storeIdentifier for `reset-password:<token>`.
 export function claimResetEmail(userId: string, token: string) {
   return claimMarker(
     `reset-email:${userId}`,
@@ -74,7 +74,7 @@ export function claimResetEmail(userId: string, token: string) {
   );
 }
 
-// Stateless JWTs, so the marker holds purpose and expiry; change-email gets one per target inbox, because its link mails on every reload.
+// Stateless JWTs, so the marker holds purpose and expiry; per inbox, as change-email mails on reload.
 export async function claimVerificationEmail(userId: string, token: string) {
   const { email, exp, updateTo } = readVerificationToken(token);
   const [identifier, value] = updateTo

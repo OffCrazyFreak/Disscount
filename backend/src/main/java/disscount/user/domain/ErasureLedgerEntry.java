@@ -7,7 +7,7 @@ import org.hibernate.annotations.ColumnDefault;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/** Holds no personal data; the 410 check reads it, and the backup sidecar turns recent rows into markers a restore replays (docs/BACKUPS.md). */
+/** No personal data; the 410 check reads it, and the backup sidecar makes markers for restores (docs/BACKUPS.md). */
 @Entity
 @Table(name = "erasure_ledger")
 @Getter

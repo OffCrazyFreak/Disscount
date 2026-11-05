@@ -4,7 +4,7 @@ const clockTime = z.string().regex(/^(([01]\d|2[0-3]):[0-5]\d|24:00)$/);
 
 const isoDate = z.iso.date();
 
-/** Equal times are refused because feeds write a closed day as `00:00-00:00`; a `closes` at or before `opens` runs past midnight. */
+/** Equal times are refused because feeds write a closed day as `00:00-00:00`. */
 export const timeRangeDto = z
   .object({ opens: clockTime, closes: clockTime })
   .refine((range) => range.opens !== range.closes);
@@ -27,7 +27,7 @@ export const storeHoursDto = z.object({
   /** Monday first, as ISO 8601 counts. `null` means the source did not say. */
   weekly: z.array(dayRangesDto.nullable()).length(7),
   dated: z.array(datedHoursDto),
-  /** `dated`: open only when a dated entry says so, because the law lets each trader pick 16 working Sundays; `weekly`: the store is exempt. */
+  /** `dated`: open only by dated entry, as the law lets traders pick 16 Sundays; `weekly`: exempt store. */
   sundays: sundayRuleSchema,
   source: hoursSourceSchema,
   verifiedAt: z.iso.datetime(),
@@ -37,7 +37,7 @@ export const storeHoursDto = z.object({
 
 const tableIndex = z.number().int().nonnegative();
 
-/** Most stores of a chain share a week and dated days, so each store points into shared tables instead of repeating them. */
+/** Most stores of a chain share a week, so each points into shared tables. */
 export const compactStoreHoursResponse = z
   .object({
     weeklyTemplates: z.array(storeHoursDto.shape.weekly),

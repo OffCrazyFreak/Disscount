@@ -7,18 +7,18 @@ export const huninn = localFont({
   style: "normal",
   variable: "--font-huninn",
   display: "swap",
-  // The file declares an 18% descent but descenders reach 23%, and Chromium clips input text there at 125% scaling; 26% leaves rounding room.
+  // Descenders reach 23% against a declared 18%, and Chromium clips them at 125% scaling.
   declarations: [{ prop: "descent-override", value: "26%" }],
 });
 
-// Huninn draws U+2026 vertically centred and CJK wide; this one-glyph face is three periods, so an overflow ellipsis sits on the baseline.
+// Huninn draws U+2026 centred and CJK wide; this one-glyph face keeps an ellipsis on the baseline.
 export const baselineEllipsis = localFont({
   src: "./Ellipsis/baseline-ellipsis.woff2",
   weight: "400",
   style: "normal",
   variable: "--font-baseline-ellipsis",
   display: "swap",
-  // The generated fallback face has no unicode-range, so it would sit ahead of Huninn in the stack and take over every character.
+  // The fallback face has no unicode-range, so it would take over every character from Huninn.
   adjustFontFallback: false,
   declarations: [{ prop: "unicode-range", value: "U+2026" }],
 });

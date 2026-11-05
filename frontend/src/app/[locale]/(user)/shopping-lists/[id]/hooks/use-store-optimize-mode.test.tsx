@@ -31,7 +31,7 @@ vi.mock("@/context/user-context", () => ({
   useUser: () => ({ accountUser: user, isLoading }),
 }));
 
-// The browser APIs are a boundary the suite cannot run, so each test decides the permission answer and the position watch never answers.
+// The suite cannot run browser APIs, so each test decides the permission answer.
 function fakeBrowser(permissions?: Permissions) {
   const watchPosition = vi.fn(() => 1);
 

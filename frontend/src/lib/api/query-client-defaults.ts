@@ -46,7 +46,7 @@ export function isOffline() {
   );
 }
 
-/** Network failures stay retryable because React Query pauses retries offline; a parse failure would fail the same way again. */
+/** Network failures retry because React Query pauses offline; a parse failure would just repeat. */
 export function shouldRetryQuery(failureCount: number, error: unknown) {
   if (failureCount >= MAX_QUERY_RETRIES || error instanceof ZodError) {
     return false;

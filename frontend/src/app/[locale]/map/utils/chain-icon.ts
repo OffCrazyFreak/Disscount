@@ -63,7 +63,7 @@ function tile(
   roundedRect(context, inset, ICON_SIZE, ICON_SIZE, radius);
 }
 
-/** The dark rim keeps 3:1 contrast against any basemap colour (WCAG 1.4.11); a logo that fails to load leaves a plain tile, not a missing marker. */
+/** The dark rim keeps 3:1 contrast on any basemap (WCAG 1.4.11); a failed logo leaves a plain tile. */
 export async function renderChainIcon(chain: string): Promise<ImageData> {
   const context = createCanvas(ICON_SIZE);
 

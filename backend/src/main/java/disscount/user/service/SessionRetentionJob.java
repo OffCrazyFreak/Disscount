@@ -12,7 +12,7 @@ import disscount.util.Timestamps;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-/** better-auth deletes an expired session only when its token returns, and the privacy policy promises no session address older than 30 days. */
+/** better-auth deletes an expired session only when its token returns; the policy promises 30 days for addresses. */
 @Component
 @RequiredArgsConstructor
 public class SessionRetentionJob {
@@ -27,7 +27,7 @@ public class SessionRetentionJob {
 
     private final AuthIdentityDao authIdentityDao;
 
-    // A cron so redeploys cannot keep postponing it; the address goes first in its own transaction, so a failed delete cannot hold back the promise.
+    // A cron so redeploys cannot postpone it; the address goes first, so a failed delete cannot hold back the promise.
     @Scheduled(cron = "0 17 * * * *", zone = "UTC")
     public void sweep() {
         LocalDateTime now = Timestamps.nowUtc();

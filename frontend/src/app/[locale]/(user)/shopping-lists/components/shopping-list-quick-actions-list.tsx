@@ -16,7 +16,7 @@ interface IShoppingListQuickActionsListProps {
   onDelete: () => void;
 }
 
-/** Share and copy are open to anyone with the link, since copy creates a list on the viewer's account; edit and delete would only fail. */
+/** Share and copy suit anyone with the link, as copy lands on the viewer's account; the rest would fail. */
 export default function ShoppingListQuickActionsList({
   isOwner,
   isShared,

@@ -114,7 +114,7 @@ function groupTowns(stores: ITownStore[]): ITownGroup[] {
   });
 }
 
-/** Only towns with a pinned store, so every town on offer has a centre; names match what pinned places are saved under. */
+/** Only towns with a pinned store, so each has a centre; names match what pinned places are saved under. */
 export function listStoreTowns(stores: ITownStore[]): IStoreTown[] {
   return groupTowns(stores)
     .sort(

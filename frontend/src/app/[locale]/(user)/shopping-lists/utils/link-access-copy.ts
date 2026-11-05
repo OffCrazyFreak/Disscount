@@ -1,6 +1,6 @@
 import type { LinkAccess } from "@/lib/api/types";
 
-/** UI copy, not the API contract, so it lives here; the schema owns the enum these are keyed by, which stops a new level rendering blank. */
+/** UI copy, so it lives here; the schema's enum keys these, which stops a new level rendering blank. */
 
 /** Private is a level, not an off switch, so it sits in the same select as the rest. */
 export const LINK_ACCESS_LEVELS = ["NONE", "VIEW", "SHOP", "EDIT"] as const;
@@ -19,7 +19,7 @@ export const LINK_ACCESS_ROW_TITLE_KEYS = {
   EDIT: "linkAccess.rowTitle.shared",
 } as const satisfies Record<LinkAccess, string>;
 
-/** Third person singular for shared levels, agreeing with "svatko" (može, not mogu); NONE is second person, since an unshared list is about its owner. */
+/** Third person for shared levels, agreeing with "svatko"; NONE is second person, about the owner. */
 export const LINK_ACCESS_HINT_KEYS = {
   NONE: "linkAccess.hint.NONE",
   VIEW: "linkAccess.hint.VIEW",

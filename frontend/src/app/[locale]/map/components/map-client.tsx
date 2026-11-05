@@ -58,7 +58,7 @@ export default function MapClient({ ipLocation }: IMapClientProps) {
     );
   }
 
-  // The server renders this branch on phones too, so until hydration swaps layouts it holds the phone's frame and shows nothing inside.
+  // The server renders this on phones too, so until hydration it holds the phone's empty frame.
   return (
     <StoreHoursProvider hours={model.hours}>
       <div

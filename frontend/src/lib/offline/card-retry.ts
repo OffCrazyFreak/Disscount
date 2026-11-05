@@ -4,10 +4,10 @@ import { isNetworkFailure } from "@/lib/offline/is-network-failure";
 
 const MAX_DELAY_MS = 30_000;
 
-// Five attempts, about 15 seconds, then the failure surfaces: the form reopens with what was typed, or a replay toast names what failed.
+// Five attempts, about 15 seconds, then the form reopens or a replay toast names the failure.
 const MAX_HTTP_RETRIES = 4;
 
-/** Network failures retry while the page is open since writes persist; never after session_changed, which would save one account's write into the other. */
+/** Never after session_changed, which would save one account's write into the other. */
 export function shouldRetryCardWrite(failureCount: number, error: unknown) {
   if (isNetworkFailure(error)) return true;
 

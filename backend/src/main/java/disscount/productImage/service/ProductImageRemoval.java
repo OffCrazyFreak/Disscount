@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-/** Deleting a photo removes its files but keeps the row, whose fingerprint and Open Food Facts key keep it from coming back. */
+/** Removes a photo's files but keeps the row, whose fingerprint and Open Food Facts key stop it returning. */
 @Component
 @RequiredArgsConstructor
 class ProductImageRemoval {
@@ -70,7 +70,7 @@ class ProductImageRemoval {
         if (original != null) afterCommit(() -> deleteOriginal(original));
     }
 
-    /** Fails the erasure if it cannot, because a logged failure after commit would leave the most personal file behind. */
+    /** Fails the erasure if it cannot, as a logged failure after commit would leave the most personal file behind. */
     void eraseOriginal(String key) {
         if (key == null) return;
         if (!originals.enabled()) throw new ServiceUnavailableException("error.productImage.unavailable");

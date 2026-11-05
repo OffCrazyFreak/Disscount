@@ -1,4 +1,4 @@
-/** URLs are scrubbed by structure, never by message text; the server SDK attaches raw bodies, so sensitive fields are filtered there too. */
+/** Scrubbed by structure, not message text; the server SDK attaches raw bodies, filtered too. */
 const FILTERED = "[Filtered]";
 
 // better-auth's reset email links to this route with the token as a path segment.

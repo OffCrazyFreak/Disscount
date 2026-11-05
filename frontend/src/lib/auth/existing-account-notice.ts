@@ -20,7 +20,7 @@ import {
 
 const BETTER_AUTH_URL = serverEnv.BETTER_AUTH_URL;
 
-// An unverified owner gets a set-password link, because the password on file may be a squatter's and the link proves the inbox.
+// An unverified owner gets a set-password link, as the password on file may be a squatter's.
 export async function notifyExistingAccount(user: User) {
   const noticeId = randomUUID();
   const release = await claimSignUpNotice(user.id, noticeId);
@@ -63,7 +63,7 @@ async function sendCompleteSignUp(
   const token = randomBytes(32).toString("base64url");
   const identifier = `reset-password:${token}`;
 
-  // Same shape as requestPasswordReset so /reset-password consumes it; before the claim, so a concurrent request sees this link as live.
+  // Same shape as requestPasswordReset; before the claim, so a concurrent request sees this link live.
   await db.insert(verification).values({
     identifier,
     value: userId,

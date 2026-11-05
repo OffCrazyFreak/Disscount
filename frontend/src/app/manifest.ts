@@ -77,7 +77,7 @@ export default function manifest(): WebAppManifest {
       method: "GET",
       params: { title: "title", text: "text", url: "url" },
     },
-    // Reuses an open window but still goes to the shortcut's url; focus-existing would hand the url to launchQueue, which nothing consumes.
+    // Keeps the shortcut's url in an open window; focus-existing relies on launchQueue, which nothing reads.
     launch_handler: { client_mode: "navigate-existing" },
   };
 }

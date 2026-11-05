@@ -25,7 +25,7 @@ export default function StoreDetails({ row }: IStoreDetailsProps) {
         </p>
       )}
 
-      {/* Keyed so the phone sheet, which stays mounted across stores, announces only a status change and not every newly picked store. */}
+      {/* Keyed so the always-mounted phone sheet announces only a status change, not each new store. */}
       <StoreHoursSource
         key={row.key}
         storeKey={row.key}

@@ -10,7 +10,7 @@ function detectWakeLock() {
   return "wakeLock" in navigator;
 }
 
-/** Browsers drop the lock when the tab is hidden, so it is requested again on return; refusals are swallowed so the caller decides whether to hint. */
+/** Browsers drop the lock on a hidden tab, so re-request on return; the caller decides whether to hint. */
 export function useWakeLock(enabled: boolean): {
   supported: boolean;
   active: boolean;

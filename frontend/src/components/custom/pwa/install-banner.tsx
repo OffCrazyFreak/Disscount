@@ -25,7 +25,7 @@ export default function InstallBanner() {
   const [instructionsOpen, setInstructionsOpen] = useState(false);
 
   useEffect(() => {
-    // Read on the client because it compares a stored timestamp to Date.now(); starts dismissed so the banner cannot flash.
+    // On the client because it compares against Date.now(); starts dismissed so it cannot flash.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDismissed(isInstallBannerSnoozed());
   }, []);

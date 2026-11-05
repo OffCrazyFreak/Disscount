@@ -90,7 +90,7 @@ describe("session country", () => {
   });
 });
 
-// The catch-all route exposes these endpoints, so the policy sits in hooks.before; a call past the hook would fail on the unreachable test database.
+// The catch-all exposes these endpoints, so the policy sits in hooks.before.
 describe("new password policy", () => {
   const BREACHED = "password1234";
 

@@ -20,7 +20,7 @@ interface IUseBottomNavPointerOptions {
   routeKey: string;
 }
 
-/** Activates on pointerup because capturing the pointer retargets click away from the button; cells still handle keyboard clicks, which carry no pointer. */
+/** On pointerup because pointer capture retargets click; cells still handle keyboard clicks. */
 export default function useBottomNavPointer({
   onActivate,
   holdFor,
@@ -46,7 +46,7 @@ export default function useBottomNavPointer({
         event.clientX < BAR_EDGE_EXCLUSION_PX ||
         window.innerWidth - event.clientX < BAR_EDGE_EXCLUSION_PX;
 
-      // isPrimary identifies the primary pointer, not the pressed button, so a right-click would otherwise start and commit a gesture.
+      // isPrimary ignores the button pressed, so a right-click would otherwise commit a gesture.
       const isMainButton = event.pointerType !== "mouse" || event.button === 0;
 
       if (!event.isPrimary || !isMainButton || nearEdge) return;
@@ -97,10 +97,10 @@ export default function useBottomNavPointer({
     [hold],
   );
 
-  /** Capture is released explicitly, because one that outlived its gesture retargeted the next and read as one tab activating another. */
+  /** Released explicitly, because a capture outliving its gesture retargets the next one to the list. */
   const finish = useCallback(
     (event: ReactPointerEvent<HTMLUListElement>, activates: boolean) => {
-      // A second finger is its own pointer that capture does not bind, so its release would commit the cell under it and cancel the real gesture.
+      // A second finger is an unbound pointer, whose release would cancel the real gesture.
       if (event.pointerId !== pointerId.current) return;
 
       if (event.currentTarget.hasPointerCapture(event.pointerId))
@@ -144,7 +144,7 @@ export default function useBottomNavPointer({
         finish(event, true),
       onPointerCancel: (event: ReactPointerEvent<HTMLUListElement>) =>
         finish(event, false),
-      // Capture can be revoked with neither pointerup nor pointercancel, which would strand the scrub highlight and a half-filled ring.
+      // Capture can be revoked with no pointerup or pointercancel, stranding the highlight and ring.
       onLostPointerCapture: (event: ReactPointerEvent<HTMLUListElement>) =>
         finish(event, false),
     },

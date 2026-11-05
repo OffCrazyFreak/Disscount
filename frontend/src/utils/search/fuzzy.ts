@@ -1,10 +1,10 @@
 /** Anything that is not a letter or digit starts a new word, post-normalization. */
 const WORD_BOUNDARY = /[^a-z0-9]/;
 
-/** Without a floor, the letters of "kupovina" appear in order in any Croatian paragraph, so every long text matched every query. */
+/** Without a floor, the letters of "kupovina" appear in order in any Croatian paragraph, matching every query. */
 const MIN_DENSITY = 0.15;
 
-/** Lets "vgorica" find "Velika Gorica"; not cmdk's `command-score`, because a server component imports this and React must stay out of that graph. */
+/** Lets "vgorica" find "Velika Gorica"; not `command-score`, as a server component imports this without React. */
 export function subsequenceScore(haystack: string, query: string): number {
   if (!query) return 1;
   if (query.length > haystack.length) return 0;

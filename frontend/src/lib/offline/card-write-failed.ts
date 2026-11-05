@@ -9,12 +9,12 @@ export type CardToastTranslator = (
     "offline.cardLimit" | "offline.cardSaveFailed" | "offline.cardDeleteFailed",
 ) => string;
 
-// The write failed only because the tab is switching accounts, and the proxy's refusal carries the translated explanation.
+// Failed only because the tab is switching accounts; the proxy's refusal carries the translation.
 function failureText(error: Error, message: string): string {
   return isSessionChanged(error) ? problemMessage(error, message) : message;
 }
 
-/** Also call from a hook's own onError, because a hook-level onError replaces the default rather than running beside it. */
+/** Also call from a hook's own onError, which replaces this default rather than running beside it. */
 export function cardWriteFailed(error: Error, t: CardToastTranslator) {
   const key = cardWriteMessage(error);
   if (key) toast.error(failureText(error, t(key)));

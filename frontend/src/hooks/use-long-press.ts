@@ -25,7 +25,7 @@ export default function useLongPress({ onLongPress }: IUseLongPressOptions) {
 
   const start = useCallback(
     (event: ReactPointerEvent<HTMLElement>) => {
-      // Touch and pen only, because a mouse hold is no long press and the callout suppression would take the desktop context menu.
+      // Touch and pen only, or the callout suppression would take the desktop context menu.
       if (event.pointerType === "mouse" || !event.isPrimary) return;
 
       origin.current = { x: event.clientX, y: event.clientY };
@@ -53,7 +53,7 @@ export default function useLongPress({ onLongPress }: IUseLongPressOptions) {
     onPointerUp: timer.cancel,
     onPointerCancel: timer.cancel,
     onPointerLeave: timer.cancel,
-    // For the whole gesture, because the hold fires at 450ms and Chrome on Android raises its link menu at about 500, over the opened sheet.
+    // The whole gesture, as the hold fires at 450ms and Chrome's link menu at about 500, over the sheet.
     onContextMenu: (event: ReactMouseEvent<HTMLElement>) => {
       if (timer.isPending() || timer.hasFired()) event.preventDefault();
     },

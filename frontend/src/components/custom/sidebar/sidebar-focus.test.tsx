@@ -49,7 +49,7 @@ function ClosingLink() {
   );
 }
 
-// The extra button opens it from elsewhere so the drawer's focus restore cannot hide a missing handoff; a vanishing opener models a swapped header.
+// Opened from elsewhere so focus restore cannot hide a missing handoff; a vanishing opener swaps the header.
 function DrawerControls({ vanishes }: { vanishes: boolean }) {
   const { setOpenMobile } = useSidebar();
   const [isGone, setIsGone] = useState(false);

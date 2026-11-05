@@ -23,7 +23,7 @@ interface IProductThumbnailProps {
   className?: string;
 }
 
-/** Keeps a fixed square so nothing shifts when the photo arrives; decorative unless it opens the viewer, because every row names the product. */
+/** A fixed square so nothing shifts; decorative unless it opens the viewer, as rows name the product. */
 export default function ProductThumbnail({
   ean,
   productName,

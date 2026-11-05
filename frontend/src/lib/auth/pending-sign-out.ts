@@ -18,7 +18,7 @@ const RETRYABLE_STATUSES = new Set([408, 429]);
 
 let finishing: Promise<void> | null = null;
 
-/** Offline the request never arrives and the httpOnly cookie survives; matched by session id, so a later sign-in is never undone. */
+/** Offline the httpOnly cookie survives; matched by session id, so a later sign-in is never undone. */
 export function signOutOrDefer(): Promise<void> {
   // Offline the session is unknown, so the account leaving is the one the cache names.
   const fallbackUserId = persistedCacheIdentity();

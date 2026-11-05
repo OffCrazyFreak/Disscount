@@ -72,7 +72,7 @@ export function useDigitalCardFormSubmit({
         data: toCardRequest(data),
       });
 
-      // A paused save waits for the network and the tab may be gone by then, so offline uploads land in the outbox, which survives a reload.
+      // A paused save may outlive the tab, so offline uploads land in the outbox, which survives a reload.
       if (offline) void startUploads();
 
       await saving;
@@ -97,7 +97,7 @@ export function useDigitalCardFormSubmit({
     toast.success(t("saved"));
     onSaved();
 
-    // The card exists server-side only now, so photos can follow; upload and remove report and queue their own failures.
+    // The card exists server-side only now, so photos can follow; failures report and queue themselves.
     await startUploads();
   }
 

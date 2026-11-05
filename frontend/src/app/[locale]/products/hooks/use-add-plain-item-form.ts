@@ -124,7 +124,7 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
       data.shoppingListId !== "new" &&
       mergesIntoExisting(existingList?.items, { name: itemName });
 
-    // Optimistic close because an offline add pauses until reconnect; drafted first so a failure reopens with the same list and amount.
+    // Optimistic close because an offline add pauses; drafted first so a failure reopens intact.
     saveDraftFor(itemName);
     closeModalUrl();
 

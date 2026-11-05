@@ -56,7 +56,7 @@ export function readPlacedAddress(
   };
 }
 
-/** A street without numbers matches only when upstream says "0" or "bb", since a merely missing number could be any building on the street. */
+/** A numberless street matches only on upstream "0" or "bb", as a missing number could be any building. */
 export function placedAddressesAgree(
   target: IPlacedAddress,
   record: IPlacedAddress,
@@ -102,7 +102,7 @@ export function placesAgree(
   );
 }
 
-// A village without streets numbers houses on its name ("Bebrina 83"), so that street names the town; exact only, as "Zagrebačka" never means Zagreb.
+// A village numbers houses on its name ("Bebrina 83"), so it names the town; exact, as "Zagrebačka" is not Zagreb.
 function namesTown(address: IPlacedAddress, towns: string[]): boolean {
   const name = address.tokens.join(" ");
 

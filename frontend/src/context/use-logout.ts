@@ -29,10 +29,10 @@ export function useLogout(
     Sentry.setUser(null);
     setUser(null);
     await purgeOfflineCache(queryClient, leavingIdentity);
-    // Cleared with the data, because a device still marked as the account reads as unverified offline, showing empty pages instead of login.
+    // Cleared with the data, or the device reads as unverified offline and shows empty pages.
     setCacheIdentity(null);
     cacheIdentityRef.current = null;
-    // Again after the purge, because a form unmounted by sign-out flushes its draft during the purge, and the delete misses it.
+    // Again after the purge, because a form unmounted by sign-out flushes its draft during it.
     removeFormDraftsFor(leavingIdentity);
     // Staying on a protected route signed out would just show a login gate.
     if (isProtectedRoute(pathname)) router.push("/");

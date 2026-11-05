@@ -14,12 +14,12 @@ function currentKey(): string {
   return `${window.location.pathname}${window.location.search}`;
 }
 
-/** Next does not scroll to the URL you are on, so this moves the window; window, because useSearchParams would drop pages from the prerender. */
+/** Next does not scroll to the current URL; window, as useSearchParams would break the prerender. */
 export default function useTabReentry() {
   const [saved, setSaved] = useState<ISavedPosition | null>(null);
   const pathname = usePathname();
 
-  // A position saved on one route means nothing on the next; adjusting during render would only add a second piece of state.
+  // A saved position means nothing on the next route; adjusting in render only adds state.
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setSaved(null), [pathname]);
 

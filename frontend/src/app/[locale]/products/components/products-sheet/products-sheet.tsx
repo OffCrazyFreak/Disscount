@@ -53,7 +53,7 @@ export default function ProductsSheet() {
       title={t("productsSheet.title")}
       srOnlyTitle
       description={t("productsSheet.description")}
-      // Non-modal because picking a facet re-filters the list behind it live, so it must neither cover the page nor lock it.
+      // Non-modal because a facet pick re-filters the list behind it live.
       modal={false}
       // Opened for the filters, focusing the field would raise the keyboard over the facets you asked to see.
       initialFocusRef={areFiltersOpen ? undefined : inputRef}
@@ -82,7 +82,7 @@ export default function ProductsSheet() {
       <SearchNavButton
         item={discountsNavItem}
         isLocked={isNavItemLocked(discountsNavItem, user?.accountType)}
-        // A query-string change never trips the pathname effect above, so this closes the sheet itself or it covers where it just sent you.
+        // A query-string change never trips the pathname effect, so this closes the sheet itself.
         onNavigate={close}
       />
 

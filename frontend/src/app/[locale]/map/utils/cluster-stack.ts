@@ -1,6 +1,6 @@
 import type { ExpressionSpecification } from "maplibre-gl";
 
-// The style spec types expressions as fixed tuples, which a per-chain list cannot satisfy; MapLibre validates the result when the layer loads.
+// Style types are fixed tuples a per-chain list cannot satisfy; MapLibre validates at layer load.
 function expression(value: unknown): ExpressionSpecification {
   return value as ExpressionSpecification;
 }
@@ -46,7 +46,7 @@ function chainsAbove(chains: string[], index: number): ExpressionSpecification {
   ]);
 }
 
-/** Expressions cannot sort, so rank counts chains above; no `let`, because MapLibre re-evaluates a bound expression at every `var`, which stalled the worker. */
+/** Expressions cannot sort; no `let`, because re-evaluating bound expressions stalled the worker. */
 export function rankedChain(
   chains: string[],
   rank: number,

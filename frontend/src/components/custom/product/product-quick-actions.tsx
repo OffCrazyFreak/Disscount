@@ -17,7 +17,7 @@ interface IProductQuickActionsProps {
   onOpenChange: (open: boolean) => void;
 }
 
-/** Every action also has a tappable button on the product's page, so the gesture is a shortcut, which keeps it keyboard accessible. */
+/** Every action also has a button on the product's page, which keeps the gesture keyboard accessible. */
 export default function ProductQuickActions({
   product,
   summary,

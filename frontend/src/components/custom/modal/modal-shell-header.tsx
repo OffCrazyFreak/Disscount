@@ -63,7 +63,7 @@ export default function ModalShellHeader({
     <DialogHeader
       className={cn(
         "gap-1.5 px-6 pt-6",
-        // With a body it is the only flexible track; without one the header scrolls, or overflow-hidden would clip the buttons with nothing to scroll.
+        // Without a body the header scrolls, or overflow-hidden would clip the buttons.
         hasBody ? "shrink-0" : "min-h-0 flex-1 overflow-y-auto",
         centered ? "items-center text-center sm:text-center" : "text-left",
       )}

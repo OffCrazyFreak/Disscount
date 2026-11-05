@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** Pins DigitalCardDto, CardPhotoDto and the config against the frontend's digital-card schemas, which parse every response. */
+/** Pins DigitalCardDto, CardPhotoDto and the config against the digital-card schemas parsing every response. */
 class DigitalCardWireFormatTest extends FullStackTest {
 
 

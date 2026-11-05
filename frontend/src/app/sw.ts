@@ -67,7 +67,7 @@ const runtimeCaching: RuntimeCaching[] = [
       sameOrigin && url.pathname.startsWith("/api/"),
     handler: new NetworkOnly(),
   },
-  // Above defaultCache, which matches in order; own bucket, because two ExpirationPlugins on one cache disagree; NetworkFirst, because NetworkOnly made the offline queue unreachable.
+  // Above defaultCache, which matches in order; own bucket, as two ExpirationPlugins on one cache disagree.
   {
     matcher: ({ url, sameOrigin }) =>
       sameOrigin && SHOPPING_LIST_PATH.test(url.pathname),
@@ -80,7 +80,7 @@ const runtimeCaching: RuntimeCaching[] = [
       ],
     }),
   },
-  // The precache answers the bare wallet URL; ?q= and modal variants stay out of the page bucket, where an old copy points at deleted chunks.
+  // ?q= and modal variants stay out of the page bucket, where an old copy points at deleted chunks.
   {
     matcher: ({ url, request, sameOrigin }) =>
       sameOrigin &&
@@ -117,7 +117,7 @@ const serwist = new Serwist({
   navigationPreload: true,
   runtimeCaching,
   fallbacks: {
-    // First match wins: a wallet document gets this build's wallet in its language, any other document the offline page.
+    // First match wins: wallet documents get this build's wallet, others the offline page.
     entries: [
       ...PAGE_PREFIXES.map((prefix) => ({
         url: `${prefix}${WALLET_PAGE_PATH}`,

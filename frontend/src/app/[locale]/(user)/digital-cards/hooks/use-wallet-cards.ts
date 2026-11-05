@@ -15,13 +15,13 @@ export function useWalletCards() {
     isLoading,
     isSuccess,
   } = digitalCardService.useGetMyDigitalCards({ enabled: isAuthenticated });
-  // Offline the failed session check lands before IndexedDB is read back, and an empty wallet would also spend the single-card auto-open.
+  // The failed session check lands before IndexedDB is read, and an empty wallet would spend the auto-open.
   const isRestoring = useIsRestoring();
   const isNotSavedOffline = useIsNotSavedOffline(isSuccess);
 
   return {
     cards,
-    // Offline the session check fails, yet the cards saved on this device are what the till needs; a disabled query still returns them.
+    // Offline the session check fails, yet the till needs these cards; a disabled query still returns them.
     canShowCards: canShowAccountData,
     isNotSavedOffline,
     isAuthLoading: userLoading,

@@ -24,7 +24,7 @@ import java.util.UUID;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
-/** One cached context so tests never list the services a slice would import; each test makes its own users, so leftovers never change an answer. */
+/** One cached context, so tests never list a slice's services; each test makes its own users, so leftovers are safe. */
 @SpringBootTest
 @AutoConfigureMockMvc
 public abstract class FullStackTest {

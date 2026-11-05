@@ -7,7 +7,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 
-/** Keyed by upstream identity so a store keeps its row across syncs; null coordinates record a failed attempt so slow geocoders are not retried. */
+/** Upstream identity keeps a store's row across syncs; null coordinates stop slow geocoder retries. */
 export const storeLocation = pgTable(
   "store_location",
   {
@@ -21,7 +21,7 @@ export const storeLocation = pgTable(
     address: text("address"),
     attempts: integer("attempts").default(0).notNull(),
     lastAttemptAt: timestamp("last_attempt_at", { withTimezone: true }),
-    // Apart from lastAttemptAt, because Nominatim runs on only a few stores, so a Geoapify miss must not hold a store back from it.
+    // Apart from lastAttemptAt, so a Geoapify miss cannot hold a store back from Nominatim.
     geoapifyMissedAt: timestamp("geoapify_missed_at", { withTimezone: true }),
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .defaultNow()

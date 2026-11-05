@@ -19,7 +19,7 @@ interface IShoppingListActionsSheetProps {
   onRequestDelete: (shoppingList: ShoppingListDto) => void;
 }
 
-/** Copy and share need the whole list with items, so the sheet resolves the DTO, seeding from the collection cache meanwhile. */
+/** Copy and share need the items, so the sheet resolves the DTO, seeded from the collection cache. */
 export default function ShoppingListActionsSheet({
   open,
   id,
@@ -63,7 +63,7 @@ interface ISheetActionsProps {
   onRequestDelete: (shoppingList: ShoppingListDto) => void;
 }
 
-/** Split out because useShoppingListActions needs a list, and the sheet must render pending and missing states before one exists. */
+/** Split out because useShoppingListActions needs a list, and pending states render before one exists. */
 function SheetActions({ shoppingList, onRequestDelete }: ISheetActionsProps) {
   const { canManageShare, isShared, handleShare, handleCopy, handleEdit } =
     useShoppingListActions(shoppingList);
@@ -72,7 +72,7 @@ function SheetActions({ shoppingList, onRequestDelete }: ISheetActionsProps) {
     <ShoppingListQuickActionsList
       isOwner={canManageShare}
       isShared={isShared}
-      // The owner's share modal replaces this one for the history reason below; others get the OS share sheet, which reads better over the page.
+      // The owner's modal replaces this one, for the history reason below; others get the OS share sheet.
       onShare={() => {
         if (canManageShare) {
           void handleShare({ replace: true });
@@ -82,7 +82,7 @@ function SheetActions({ shoppingList, onRequestDelete }: ISheetActionsProps) {
         closeModalUrl();
         void handleShare();
       }}
-      // Left open: a successful copy routes to the new list, dropping the modal param, and a failed one keeps its error in view.
+      // Left open: a successful copy routes away, dropping the modal param, and a failure keeps its error.
       onCopy={() => handleCopy({ replace: true })}
       // Replaces rather than closing first, for the history reason above.
       onEdit={() => handleEdit({ replace: true })}

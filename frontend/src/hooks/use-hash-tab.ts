@@ -24,7 +24,7 @@ function subscribe(onChange: () => void) {
   };
 }
 
-/** In the URL hash so a shared or reloaded link opens it; the server has no hash, so it and hydration show the first tab. */
+/** In the hash so a shared link opens it; the server has no hash, so hydration shows the first tab. */
 export function useHashTab(ids: string[]) {
   const hash = useSyncExternalStore(subscribe, readHash, () => "");
   const activeId = ids.includes(hash) ? hash : ids[0];
@@ -33,7 +33,7 @@ export function useHashTab(ids: string[]) {
     // Replaced, not pushed: Back should leave the page, not step through its tabs.
     const url = new URL(window.location.href);
     url.hash = id;
-    // Never pass history.state through, because Next would skip its router sync and drop the hash; see lib/modal/modal-navigation.ts.
+    // Never pass history.state, or Next skips its sync and drops the hash; see lib/modal/modal-navigation.ts.
     window.history.replaceState({}, "", url);
     window.dispatchEvent(new Event(HASH_TAB_CHANGE_EVENT));
   }, []);

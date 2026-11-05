@@ -7,7 +7,7 @@ import {
 
 export const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
 
-/** Pass -1 for every day since `earliest`; dates are Croatian calendar days, so the device's zone must not pick the last day; a mounted caller passes `today`. */
+/** -1 means every day since `earliest`; days are Croatian, so the device's zone must not pick the last one. */
 export function buildDateWindow(
   daysToShow: number,
   earliest: string,
@@ -26,7 +26,7 @@ export function buildDateWindow(
 const ZONELESS_DATE_TIME =
   /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2})?(\.\d+)?$/;
 
-/** Spring serialises LocalDateTime without a zone, stamped in UTC, but JS reads that as local, shifting every server timestamp by the reader's offset. */
+/** LocalDateTime is stamped in UTC with no zone, but JS reads it as local, shifting by the reader's offset. */
 export function parseServerDate(value: string | number | Date): Date {
   if (typeof value !== "string") return new Date(value);
 

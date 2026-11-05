@@ -8,7 +8,7 @@ interface IToasterProviderProps {
   children: ReactNode;
 }
 
-// sonner's variables are read off the toaster element, so pointing them at theme tokens makes every toast follow the brand.
+// sonner reads its variables off the toaster element, so theme tokens here restyle every toast.
 const TOASTER_THEME_STYLE = {
   "--normal-bg": "var(--popover)",
   "--normal-text": "var(--foreground)",
@@ -35,7 +35,7 @@ export default function ToasterProvider({ children }: IToasterProviderProps) {
     <>
       {children}
 
-      {/* Both offsets because sonner only applies mobileOffset under 600px while the bar runs to 768px; the token is 0 above md. */}
+      {/* Both offsets because mobileOffset stops at 600px while the bar runs to 768px. */}
       <Toaster
         richColors
         containerAriaLabel={t("toaster.label")}

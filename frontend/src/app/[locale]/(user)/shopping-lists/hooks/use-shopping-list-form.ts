@@ -27,14 +27,14 @@ export function useShoppingListForm({
   const form = useForm<ShoppingListRequest>({
     resolver: zodResolver(shoppingListRequestSchema),
     mode: "onChange",
-    // No linkAccess: the backend treats an absent one on PUT as "leave it alone", so renaming cannot silently unshare the list.
+    // No linkAccess: PUT treats its absence as "leave it alone", so renaming cannot unshare the list.
     defaultValues: { title: "" },
   });
 
-  // Destructured, never read inline: formState is a Proxy that subscribes on first read, and a || could short-circuit it, leaving the button a keystroke late.
+  // Destructured because formState subscribes on first read, and a || could skip it, leaving the button late.
   const { isDirty, isValid, errors } = form.formState;
 
-  // Draft wins over the loaded list so an in-progress edit survives; an Effect Event so the first keystroke never reruns the seed.
+  // Draft wins so an in-progress edit survives; an Effect Event so a keystroke never reruns the seed.
   const seedForm = useEffectEvent((loaded: ShoppingListDto, key: string) => {
     if (isDirty) return;
 

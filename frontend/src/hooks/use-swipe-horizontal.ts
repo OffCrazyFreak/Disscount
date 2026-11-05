@@ -11,7 +11,7 @@ interface IUseSwipeHorizontalOptions {
   enabled?: boolean;
 }
 
-/** Touch and pen so a mouse drag can select text; resolved on pointer up so a swipe never competes with vertical scroll. */
+/** Touch and pen so a mouse can select text; on pointer up so it never competes with scrolling. */
 export default function useSwipeHorizontal({
   onSwipeLeft,
   onSwipeRight,

@@ -1,4 +1,4 @@
-// A real chain closes a handful of stores a week; losing over a third at once means the page changed or the parser broke.
+// Chains close a handful of stores a week; losing a third means the page changed or the parser broke.
 const MAX_DROP = 0.3;
 
 export type RunStatus = "accepted" | "rejected" | "failed" | "disabled";

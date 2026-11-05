@@ -28,7 +28,7 @@ function avgPrice(chain: RankedChain): number {
   return parseFloat(chain.avg_price);
 }
 
-// A few hundred metres rarely decide a trip with a whole list, so stores in the same band compete on how much of the list they carry.
+// A few hundred metres rarely decide a trip, so stores in one band compete on list coverage.
 const DISTANCE_BAND_KM = 0.5;
 
 interface IRankContext {

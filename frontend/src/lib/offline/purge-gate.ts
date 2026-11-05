@@ -18,7 +18,7 @@ export function currentPurgeGeneration(): number {
   return generation;
 }
 
-/** A purge fired on identity change is not awaited, so a fast re-login's first writes would be deleted without this wait. */
+/** A purge on identity change is not awaited, so this stops it deleting a fast re-login's writes. */
 export async function canWriteAfterPurges(captured: number): Promise<boolean> {
   while (pending.size > 0) await Promise.all([...pending]);
   return generation === captured;

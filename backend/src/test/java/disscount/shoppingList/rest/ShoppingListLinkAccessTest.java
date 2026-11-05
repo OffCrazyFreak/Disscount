@@ -116,7 +116,7 @@ class ShoppingListLinkAccessTest extends FullStackTest {
                 .andExpect(status().isNoContent());
     }
 
-    // Adding items and deleting the list are owner rights at every link level; copying is open to any signed-in visitor.
+    // Adding items and deleting the list are owner rights at every level; any signed-in visitor can copy.
     @org.junit.jupiter.params.ParameterizedTest
     @org.junit.jupiter.params.provider.ValueSource(strings = {"VIEW", "SHOP"})
     void lowerLinksNeverGrantOwnerRightsButMayCopy(String level) throws Exception {

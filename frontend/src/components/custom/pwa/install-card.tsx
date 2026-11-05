@@ -20,7 +20,7 @@ interface IInstallCardProps {
   permanent?: boolean;
 }
 
-/** No unsupported state, because beforeinstallprompt is Chromium-only and macOS Safari and Firefox on Android install through their menus. */
+/** No unsupported state, because macOS Safari and Firefox on Android install through their menus. */
 export default function InstallCard({ permanent = false }: IInstallCardProps) {
   const t = useTranslations("common");
   const {
@@ -33,7 +33,7 @@ export default function InstallCard({ permanent = false }: IInstallCardProps) {
   } = useInstallPrompt();
   const [instructionsOpen, setInstructionsOpen] = useState(false);
 
-  // The landing page promises the app is installable, so it owes an explanation where it is not; the sidebar just stays quiet.
+  // The landing page promises installation, so it owes an explanation where it is not possible.
   if (permanent && showUnsupportedNotice) {
     return (
       <Banner

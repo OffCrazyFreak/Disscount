@@ -6,7 +6,7 @@ export function isWellFormedProductId(id: string): boolean {
   return PRODUCT_ID.test(id);
 }
 
-/** Next hands the page [id] encoded but generateMetadata decoded, so both decode here to share one lookup; a bare "%" stays. */
+/** Next hands the page [id] encoded but generateMetadata decoded, so both decode here; a bare "%" stays. */
 export function decodeProductId(segment: string): string {
   try {
     return decodeURIComponent(segment);

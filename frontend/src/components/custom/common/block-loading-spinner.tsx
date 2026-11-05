@@ -12,8 +12,8 @@ export default function BlockLoadingSpinner({
 }: IBlockLoadingSpinnerProps) {
   return (
     <div className={cn("px-1 inline-block text-primary", className)}>
-      {/* Inline because width and height are only attributes, and a button variant sizing descendant svgs would stretch a spinner that asked for a size. */}
-      {/* text-inherit opts out of ui/select's descendant svg colour rule, which outranks the wrapper's colour and would render this muted. */}
+      {/* Inline because a button variant sizing descendant svgs would otherwise stretch this spinner. */}
+      {/* text-inherit opts out of ui/select's svg colour rule, which would render this muted. */}
       <svg
         width={size}
         height={size}

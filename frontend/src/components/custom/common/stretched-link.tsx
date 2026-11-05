@@ -13,7 +13,7 @@ interface IStretchedLinkProps {
   children: ReactNode;
 }
 
-/** Children stay selectable through `relative z-10` and controls through `relative z-20`; the root needs `relative isolate` or those layers paint over the header. */
+/** Selectable children need `relative z-10`, controls `z-20`; the root needs `relative isolate`. */
 export default function StretchedLink({
   href,
   onNavigate,

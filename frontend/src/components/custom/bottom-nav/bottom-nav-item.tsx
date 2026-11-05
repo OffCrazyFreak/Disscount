@@ -28,7 +28,7 @@ interface IBottomNavItemProps extends IBottomNavItemRingsProps {
   onKeyboardActivate: () => void;
 }
 
-/** A button, not a link, because iOS shows a preview popover on a long-pressed anchor; crawlable links ship in the header and sidebar. */
+/** A button, because iOS shows a preview popover on a long-pressed anchor; other nav has crawlable links. */
 export default function BottomNavItem({
   entry,
   isActive,
@@ -50,7 +50,7 @@ export default function BottomNavItem({
     <li className={CELL_ITEM_CLASS} data-nav-cell>
       <button
         type="button"
-        // aria-disabled, because browsers suppress pointer events on a disabled control, so you could not scrub off a locked cell onto a usable one.
+        // aria-disabled, because a disabled control gets no pointer events, blocking a scrub off this cell.
         aria-disabled={isLocked || undefined}
         tabIndex={isLocked ? -1 : undefined}
         aria-current={isActive ? "page" : undefined}

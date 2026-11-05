@@ -109,7 +109,7 @@ export function useWatchlistSuggestions({
       brand: item.product?.brand || "",
     }));
 
-    // Relevance leads so searching here ranks like everywhere else; scores tie readily, so occurrence and discount still decide most of the order.
+    // Relevance leads so this ranks like every other search; other terms settle its frequent ties.
     const ranked = rankByFields(searchableItems, query, [
       "productName",
       "brand",

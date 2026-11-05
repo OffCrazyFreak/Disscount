@@ -17,7 +17,7 @@ expect.extend({
   },
 });
 
-// The 1 s default is too tight for jsdom on a loaded machine; a passing query returns at once, so this only delays a test about to fail.
+// 1 s is too tight for jsdom on a loaded machine; a passing query returns at once, so only failures slow down.
 configure({ asyncUtilTimeout: 10_000 });
 
 // Testing Library only unmounts by itself when afterEach is global, and the suite imports it from vitest.
@@ -33,7 +33,7 @@ afterEach(() => {
   serverSession.userId = null;
 });
 
-// jsdom logs "not implemented" on every canvas call; null is what it returns anyway, and callers treat it as "cannot measure text".
+// jsdom logs "not implemented" per canvas call; null is its answer anyway, and means "cannot measure text".
 HTMLCanvasElement.prototype.getContext = () => null;
 
 // jsdom has neither API; a test needing real answers overrides these with vi.stubGlobal, which restores this default.

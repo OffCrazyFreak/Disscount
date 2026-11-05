@@ -32,7 +32,7 @@ export function useSecurityActions() {
     return true;
   }
 
-  // The server checks the proof, then erases backend data and only then the identity, so a refusal leaves the account whole and retryable.
+  // The server erases backend data before the identity, so a refusal leaves the account whole.
   async function deleteAccount(
     proof: ReauthProof,
   ): Promise<IProofFailure | null> {

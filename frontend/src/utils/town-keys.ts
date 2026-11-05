@@ -30,7 +30,7 @@ function readQualifierCounties(qualifier: string | undefined): County[] {
   return /^\d{2}$/.test(qualifier) ? readAreaCounties(qualifier) : [];
 }
 
-/** A key that no longer matches resolves by folded name within its county or postal area, then to the namesake with the lowest postcode. */
+/** A stale key resolves by folded name within its county or postal area, then the lowest-postcode namesake. */
 export function findTownByKey<T extends IKeyedTown>(
   towns: T[],
   key: string,

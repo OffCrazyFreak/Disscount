@@ -37,7 +37,7 @@ export function countPriceDrops(
   ).length;
 }
 
-/** A product whose price did not load keeps its old baseline, because no data is not a new price; unwatched ones drop so re-watching starts fresh. */
+/** Without a loaded price a product keeps its baseline; unwatched ones drop so re-watching starts fresh. */
 export function nextPriceSnapshot(
   currentPrices: WatchlistPriceSnapshot,
   snapshot: IWatchlistPriceSnapshot | null,

@@ -50,10 +50,10 @@ export function useSearchBarQuery({
   useEffect(() => {
     if (!autoSearch || disabled) return;
 
-    // An empty input over an empty URL has nothing to mirror; this also stops a bar off its own route from redirecting there.
+    // Nothing to mirror; this also stops a bar off its own route from redirecting there.
     if (!queryValue && !routeQuery) return;
 
-    // A route change just replaced the draft, so queryValue is stale, and sending it would push over the entry Back just reached.
+    // A route change just replaced the draft, so this stale value would overwrite the entry Back reached.
     if (queryValue !== (draft.getTyped() ?? routeQuery)) return;
     if (queryValue === routeQuery) return;
 

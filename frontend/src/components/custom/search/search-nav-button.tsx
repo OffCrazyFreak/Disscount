@@ -6,7 +6,7 @@ import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
 import { cn } from "@/lib/utils";
 import type { INavigationItem } from "@/constants/navigation";
 
-/** Pinned over the button because a disabled button is half-transparent and would fade the badge; pointer-events-none keeps clicks for the link. */
+/** Pinned over because a disabled button would fade the badge; pointer-events-none keeps link clicks. */
 const BADGE_CLASS =
   "pointer-events-none absolute top-1/2 right-3 -translate-y-1/2";
 
@@ -18,7 +18,7 @@ interface ISearchNavButtonProps {
   onNavigate?: () => void;
 }
 
-/** A locked item stays a focusable aria-disabled link, because a disabled control leaves the tab order and a keyboard user never hears why. */
+/** A focusable aria-disabled link, because a disabled control hides why from keyboard users. */
 export default function SearchNavButton({
   item,
   isLocked = false,

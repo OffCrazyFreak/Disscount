@@ -1,4 +1,4 @@
-/** Shown, never saved, because viewing a list must not write to it and a default keeps following today's cheapest; a ticked item never borrows one. */
+/** Shown, never saved: viewing must not write, and a default follows today's cheapest. */
 export function suggestedChain(
   savedChain: string | null | undefined,
   isChecked: boolean,

@@ -1,4 +1,4 @@
-// A failed optimistic save needs the card id, number and photos for the retry, and neither the number nor File objects may enter the localStorage draft.
+// The retry needs id, number and photos, and neither the number nor File objects may enter the draft.
 import type { CardPhotoChanges } from "@/app/[locale]/(user)/digital-cards/components/forms/digital-card-form-types";
 
 const TTL_MS = 5 * 60_000;

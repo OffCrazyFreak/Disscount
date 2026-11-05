@@ -10,7 +10,7 @@ const bannerVariants = cva(
     variants: {
       variant: {
         primary: "border-transparent bg-primary text-primary-foreground",
-        // Soft variants tint what they sit on, so they take the header's backdrop-blur; alpha fills work in both themes, while text contrast is per theme.
+        // Soft variants tint what they sit on, so they take the header's blur; alpha works in both themes.
         primarySoft:
           "border-primary/40 bg-primary/10 text-primary backdrop-blur-xs",
         destructive:
@@ -82,7 +82,7 @@ function Banner({
       <div className="min-w-0 space-y-0.5">
         {title && <h4 className="font-bold">{title}</h4>}
         {text && (
-          // No size of its own, because the size variant sets one on the container and a hardcoded size here would override it.
+          // No size here, because the variant sets one on the container, which this would override.
           <p className={cn(BANNER_TEXT_COLORS[variant ?? "primary"])}>{text}</p>
         )}
         {children}

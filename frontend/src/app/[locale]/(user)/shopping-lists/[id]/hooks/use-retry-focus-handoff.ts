@@ -5,7 +5,7 @@ interface IUnresolvedRetry {
   itemIds: readonly string[];
 }
 
-/** A retry can end with nothing failed yet not every price loaded, and the button leaves with the banner, so the retried rows take focus. */
+/** A retry can end with prices missing and the button gone with the banner, so the retried rows take focus. */
 export function useRetryFocusHandoff(
   failedCount: number,
   failureGeneration: number,

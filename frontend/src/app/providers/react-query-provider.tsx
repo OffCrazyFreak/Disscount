@@ -44,7 +44,7 @@ export default function ReactQueryProviderWrapper({
 
   const [queryClient] = useState(() => {
     const client = new QueryClient(createQueryClientConfig());
-    // Cards never leave memory, and so the snapshot, however long the app stays open without visiting the wallet; applies to restored entries too.
+    // Cards and the snapshot stay however long the app runs without visiting the wallet, restored ones too.
     client.setQueryDefaults(DIGITAL_CARD_QUERY_KEYS.all, { gcTime: Infinity });
 
     registerOfflineMutationDefaults(client, t, tCards);
@@ -76,7 +76,7 @@ export default function ReactQueryProviderWrapper({
     >
       {children}
 
-      {/* Its floating button sits over the mobile bottom nav, so it is opt-in via NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS=true. */}
+      {/* Its button sits over the mobile bottom nav, so it is opt-in. */}
       {clientEnv.NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS && (
         <ReactQueryDevtools />
       )}

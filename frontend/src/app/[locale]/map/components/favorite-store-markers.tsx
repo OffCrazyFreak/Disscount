@@ -13,7 +13,7 @@ interface IFavoriteStoreMarkersProps {
   stores: IListedStore[];
 }
 
-/** Decorative, because the list names favourites in its own group; a favourite inside a stack gets none, since the stack is drawn elsewhere. */
+/** Decorative, because the list names favourites; a stacked favourite is drawn elsewhere. */
 export default function FavoriteStoreMarkers({
   stores,
 }: IFavoriteStoreMarkersProps) {

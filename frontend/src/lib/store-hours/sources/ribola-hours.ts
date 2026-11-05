@@ -20,7 +20,7 @@ function rangesOf(value: string[] | string | undefined): TimeRangeDto[] | null {
   return ranges.every((day) => day !== null) ? ranges.flat() : null;
 }
 
-/** "0" is closed; Sunday hours apply on working Sundays only, as the label says, which the default Sunday rule already assumes. */
+/** "0" is closed; Sunday hours apply on working Sundays only, as the default rule assumes. */
 export function parseRibolaHours(openHours: string): IParsedHours | undefined {
   let raw: unknown;
 

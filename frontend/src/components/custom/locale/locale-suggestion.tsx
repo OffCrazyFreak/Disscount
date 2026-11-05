@@ -14,7 +14,7 @@ import { useSession } from "@/lib/auth/client";
 
 const DISMISSED_KEY = "disscount-locale-suggestion-dismissed";
 
-/** Offers the switch instead of redirecting, so every URL keeps meaning one language for crawlers and whoever shared it. */
+/** Offers rather than redirects, so every URL keeps meaning one language for crawlers and sharers. */
 export default function LocaleSuggestion() {
   const t = useTranslations("locale");
   const locale = useLocale();
@@ -25,7 +25,7 @@ export default function LocaleSuggestion() {
   const accountLocale = session?.user?.locale;
 
   useEffect(() => {
-    // Browser-only storage, so it cannot derive during render; the cookie first because the account value lags until the session refetches.
+    // Browser-only storage cannot derive in render; the cookie first because the account value lags.
     const saved =
       readLocaleCookie() ??
       (isLocale(accountLocale) ? accountLocale : null) ??
@@ -40,7 +40,7 @@ export default function LocaleSuggestion() {
     setPreferred(null);
   }
 
-  // The live region stays mounted so the offer is announced; its own row, because floating covers each page's first control.
+  // Stays mounted so the offer is announced; its own row, because floating covers a page's first control.
   return (
     <div role="status" className="relative z-[var(--z-locale-suggestion)]">
       {preferred && (

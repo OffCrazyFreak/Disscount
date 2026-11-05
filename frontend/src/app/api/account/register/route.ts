@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   const parsed = await parseAccountBody(request, registerSchema);
   if (parsed.response) return parsed.response;
 
-  // Answered before sign-up, so the verdict depends on the password alone and cannot reveal whether the address is registered.
+  // Before sign-up, so the verdict cannot reveal whether the address is registered.
   const rejection = await rejectUnacceptablePassword(parsed.data.password);
   if (rejection) return rejection;
 

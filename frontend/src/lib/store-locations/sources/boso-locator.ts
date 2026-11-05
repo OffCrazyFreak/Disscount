@@ -11,7 +11,7 @@ import type {
 
 const PAGE_URL = "https://www.boso.hr/poslovnice/";
 
-// The page builds its Google map from inline script: the position, then an info template with "Adresa: street, zip, city".
+// Inline script builds the map: the position, then a template with "Adresa: street, zip, city".
 const MARKER_PATTERN =
   /position:\s*\{lat:\s*(-?[\d.]+),\s*lng:\s*(-?[\d.]+)\}[\s\S]*?<h5>(.*?)<\/h5>[\s\S]*?Adresa:\s*(.*?)<\/small>/g;
 

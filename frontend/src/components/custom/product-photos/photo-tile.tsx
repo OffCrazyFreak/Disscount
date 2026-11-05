@@ -12,7 +12,7 @@ interface IPhotoTileProps {
   children?: ReactNode;
 }
 
-/** This box is the loading fallback; color-scheme stops Chrome's auto dark mode, and forced-color-adjust stops Windows high contrast repainting the white. */
+/** color-scheme stops Chrome's auto dark mode; forced-color-adjust stops high contrast repainting white. */
 export default function PhotoTile({
   src,
   alt,
@@ -30,7 +30,7 @@ export default function PhotoTile({
       )}
     >
       {src && (
-        // A plain img, never a CSS background, which dark mode extensions hide or invert; absolute so the file's pixel size never stretches a tile.
+        // A plain img, as dark mode extensions invert CSS backgrounds; absolute so pixel size never stretches it.
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={src}

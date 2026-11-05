@@ -14,7 +14,7 @@ interface IProductInfoProps {
   onNavigate?: (viaKeyboard: boolean) => boolean | void;
 }
 
-/** The name is the link so it stays drag selectable; neither this root nor the heading may be positioned, or the stretch resolves against them. */
+/** The name is the link so it stays selectable; a positioned root or heading would catch the stretch. */
 const ProductInfo = memo(function ProductInfo({
   name,
   brand,

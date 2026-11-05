@@ -57,7 +57,7 @@ public class SecurityConfig {
         return decoder;
     }
 
-    /** Turns off servlet auto-registration, so each filter runs only in its security chain instead of decoding the token twice. */
+    /** Turns off servlet auto-registration, so each filter runs only in its chain and decodes the token once. */
     @Bean
     public FilterRegistrationBean<UserProvisioningFilter> userProvisioningFilterRegistration(
             UserProvisioningFilter filter
@@ -76,7 +76,7 @@ public class SecurityConfig {
         return registration;
     }
 
-    /** A token failing to decode degrades to anonymous; nothing here authorizes, so ShoppingListService's checks are the authentication boundary. */
+    /** A failed decode degrades to anonymous; nothing here authorizes, so ShoppingListService is the boundary. */
     @Bean
     @Order(1)
     public SecurityFilterChain optionalAuthShoppingListChain(
@@ -88,7 +88,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz.anyRequest().permitAll())
-            // Anchored on the bearer slot so provisioning lands strictly after it, because AnonymousAuthenticationFilter ties with it.
+            // Anchored on the bearer slot so provisioning lands after it, as AnonymousAuthenticationFilter ties there.
             .addFilterAfter(optionalBearerAuthenticationFilter, BearerTokenAuthenticationFilter.class)
             .addFilterAfter(userProvisioningFilter, OptionalBearerAuthenticationFilter.class);
 
@@ -155,7 +155,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(HttpMethod.POST, "/api/contact").access(SecurityConfig::isNotPurposeScoped)
-                // Only better-auth's deleteUser hook mints this token, so an ordinary session token cannot erase the profile and keep its login.
+                // Only the deleteUser hook mints this, so a session token cannot erase the profile and keep its login.
                 .requestMatchers(HttpMethod.DELETE, "/api/users/me").access(SecurityConfig::isAccountErasureToken)
                 // Product photos are public like the prices; uploads and reports still need a login.
                 .requestMatchers(HttpMethod.GET, "/api/products/*/images", "/api/products/images/thumbnails",

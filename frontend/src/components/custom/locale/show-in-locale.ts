@@ -5,7 +5,7 @@ import it from "@/i18n/messages/it/locale.json";
 import sl from "@/i18n/messages/sl/locale.json";
 import de from "@/i18n/messages/de/locale.json";
 
-// Speaks the language it offers, since the reader may not understand the page they are on, and only the current catalog is loaded.
+// Speaks the language it offers, since the reader may not understand this page.
 export const SHOW_IN_LOCALE: Record<AppLocale, string> = {
   hr: hr.showInThisLanguage,
   en: en.showInThisLanguage,

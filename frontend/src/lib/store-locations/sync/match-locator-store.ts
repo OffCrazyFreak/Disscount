@@ -25,7 +25,7 @@ export function matchLocatorStore<T extends ILocatorStore>(
   const byAddress = matchByAddress(target, records);
   if (byAddress) return byAddress;
 
-  // The looser rules trust the point more, so shared or street-level points are excluded; an approximate record only makes a match ambiguous.
+  // The looser rules trust the point more, so shared or street-level points are out; approximate only adds ambiguity.
   const usable = withoutSharedPoints(records);
   const match =
     matchByCodeSuffix(target, usable, chainCodes) ??
@@ -53,7 +53,7 @@ function matchByAddress<T extends ILocatorStore>(
   });
   if (exact) return exact;
 
-  // "Zagreb" against "Zagreb - Dubrava" is the same town written two ways, but only one candidate is safe: two would be a guess.
+  // "Zagreb" and "Zagreb - Dubrava" are one town written two ways, but only a single candidate is safe.
   const partial = sameAddress.filter((record) =>
     townContains(city, normalizeCity(record.city)),
   );
@@ -61,7 +61,7 @@ function matchByAddress<T extends ILocatorStore>(
   return partial.length === 1 ? partial[0] : null;
 }
 
-/** A store number is weaker than a code, so the address or town must also agree and no other code may end in the same number. */
+/** A store number is weaker than a code: address or town must agree, and no other code may end the same. */
 function matchByCodeSuffix<T extends ILocatorStore>(
   target: ISyncTarget,
   records: T[],
@@ -79,7 +79,7 @@ function matchByCodeSuffix<T extends ILocatorStore>(
     : null;
 }
 
-/** Sources write the village into the address while upstream's town is the municipality, so only a single candidate is trusted. */
+/** Sources write the village where upstream has the municipality, so only a single candidate is trusted. */
 function matchByPlace<T extends ILocatorStore>(
   target: ISyncTarget,
   records: T[],

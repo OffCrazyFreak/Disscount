@@ -44,7 +44,7 @@ export function useSecuritySettings(active: boolean) {
     },
   });
 
-  // reset, since resetField skips a field the closed tab has not registered; keepDirtyValues here, not in resetOptions, so the footer's Reset still discards edits.
+  // reset, as resetField skips unregistered fields; keepDirtyValues here so footer Reset still discards.
   useEffect(() => {
     form.reset(
       { email: currentEmail, newPassword: "", currentPassword: "" },

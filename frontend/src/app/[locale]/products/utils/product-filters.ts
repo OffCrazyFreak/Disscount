@@ -1,7 +1,7 @@
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { normalizeForSearch } from "@/utils/strings";
 
-/** Chain codes are machine identifiers, so this does not strip diacritics like `normalizeForSearch`, which could collide two distinct codes. */
+/** No diacritic stripping as in `normalizeForSearch`, which could collide two distinct codes. */
 export function normalizeChainCode(code: string): string {
   return code.trim().toLowerCase();
 }
@@ -107,7 +107,7 @@ interface ISelectedFilters {
   isPriceDataPartial: boolean;
 }
 
-/** An empty page should mean those places price none of them, so this checks whether dropping the location filter alone would show products. */
+/** An empty page should mean those places price none, so this tests dropping only the location filter. */
 export function hasMatchOutsideLocations(
   products: ProductResponse[],
   {

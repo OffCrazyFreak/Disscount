@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Purely visual because the table carries aria-busy; motion-reduce because Tailwind's animate-pulse has no reduced-motion guard. */
+/** Purely visual because the table has aria-busy; motion-reduce because animate-pulse has no guard. */
 export default function ShoppingListPriceRangeSkeleton() {
   return (
     <div

@@ -15,7 +15,7 @@ import {
   usableOverride,
 } from "@/lib/store-locations/pin-overrides";
 
-/** A hand-placed pin wins over everything; otherwise upstream wins when usable, since it is the source the prices come from. */
+/** A hand-placed pin wins; otherwise upstream, when usable, since the prices come from it. */
 export function buildDirectory(
   upstream: StoreResponse[],
   locations: StoreLocationRow[],
@@ -67,7 +67,7 @@ function handPlaced(
   return override ? { point: override, source: "manual" } : null;
 }
 
-// A pin found from an address upstream has since changed would send people to the old building, so it waits for the next sync.
+// A pin from an address upstream has since changed would send people to the old building.
 function savedPin(
   row: StoreLocationRow | undefined,
   upstreamAddress: string | null,

@@ -6,7 +6,7 @@ interface ISessionUser {
   email?: string | null;
 }
 
-/** Another tab signed in a different account: the session is real, but the profile here is the last account's until the new one loads. */
+/** Another tab signed in elsewhere: this profile is the last account's until the new one loads. */
 export function isProfileOfAnotherAccount(
   user: UserDto | null,
   sessionUser: ISessionUser | undefined,

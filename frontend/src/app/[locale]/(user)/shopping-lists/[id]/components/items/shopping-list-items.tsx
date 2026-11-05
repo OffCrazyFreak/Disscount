@@ -60,7 +60,7 @@ export default function ShoppingListItems({
     .filter((item) => priceStates[item.id] === "failed")
     .map((item) => item.id);
 
-  // A row without prices explains the retry's outcome; with none left, the tab panel or the lone section takes focus as the nearest place.
+  // A row without prices explains the retry; with none left, the tab panel or lone section takes focus.
   function focusRetriedItem(retriedItemIds: readonly string[]) {
     const unpriced = retriedItemIds.filter((id) => priceStates[id] !== "ready");
     if (!focusStoreSelect(unpriced.length > 0 ? unpriced : retriedItemIds)) {

@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.util.Optional;
 
-/** Spring's default provider reads the JVM's zone, so this explicit one puts audited rows on the one clock Timestamps defines. */
+/** Spring's default provider reads the JVM's zone, so this one keeps audited rows on the Timestamps clock. */
 @Configuration
 @EnableJpaAuditing(dateTimeProviderRef = "utcDateTimeProvider")
 public class JpaConfig {

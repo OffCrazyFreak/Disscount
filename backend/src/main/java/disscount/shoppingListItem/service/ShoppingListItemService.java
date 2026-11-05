@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/** Each method resolves the caller's access; findVisible answers not-found, so item endpoints cannot probe for list ids. */
+/** Each method resolves access; findVisible answers not-found, so item endpoints cannot probe for list ids. */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -35,7 +35,7 @@ public class ShoppingListItemService {
     private final ShoppingListService shoppingListService;
     private final ShoppingListMapper shoppingListMapper;
 
-    /** Owner only: an unbounded right to add to someone else's list waits for per-person revocation, version 2's job. */
+    /** Owner only: an unbounded right to add to someone's list waits for per-person revocation in version 2. */
     public ShoppingListItemDto addItemToShoppingList(UUID shoppingListId, UUID userId, ShoppingListItemRequest request) {
         ShoppingList shoppingList = shoppingListService.findVisible(shoppingListId, userId);
         User actor = shoppingListService.requireWriteUser(userId);
@@ -138,7 +138,7 @@ public class ShoppingListItemService {
         return access;
     }
 
-    /** Structural fields stay as the server has them, so a SHOP caller cannot rename or resize by sending a fuller payload. */
+    /** Structural fields stay as stored, so a SHOP caller cannot rename or resize with a fuller payload. */
     private void applyItemUpdate(ShoppingListItem item, ShoppingListItemRequest request, ListAccess access) {
         item.setIsChecked(request.getIsChecked() != null ? request.getIsChecked() : false);
         item.setChainCode(request.getChainCode());

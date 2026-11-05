@@ -7,7 +7,7 @@ import { ANONYMOUS_IDENTITY } from "@/lib/offline/cache-identity";
 
 const SAFE_METHODS = new Set(["GET", "HEAD"]);
 
-/** The cookie rides on any request to our origin, and SameSite=Lax lets sibling subdomains through; the header is required on GET too, so navigation cannot run as the account. */
+/** SameSite=Lax admits sibling subdomains; the header is required on GET so navigation cannot act as the account. */
 export function isCsrfSafe(request: Request, appOrigin: string): boolean {
   const { headers } = request;
   if (headers.get(CLIENT_HEADER) !== CLIENT_HEADER_VALUE) return false;
@@ -22,7 +22,7 @@ export function isCsrfSafe(request: Request, appOrigin: string): boolean {
 export type IdentityDecision =
   { action: "forward"; asUser: string | null } | { action: "refuse" };
 
-/** Only a request running as a different account is refused; a pin for an ended session goes on anonymously, so public routes keep loading. */
+/** Only a different account is refused; an ended session's pin goes on anonymously, so public routes load. */
 export function decideIdentity(
   pin: string | null,
   sessionUserId: string | null,

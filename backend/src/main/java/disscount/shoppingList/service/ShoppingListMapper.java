@@ -26,7 +26,7 @@ public class ShoppingListMapper {
 
         return ShoppingListDto.builder()
                 .id(list.getId())
-                // Owner only, because ids are stable and a share link can travel, so a recipient could correlate two links as one person.
+                // Owner only: ids are stable and links travel, so a recipient could correlate two links as one person.
                 .ownerId(isOwner ? list.getOwner().getId() : null)
                 .title(list.getTitle())
                 .linkAccess(isOwner ? list.resolvedLinkAccess() : null)
@@ -53,7 +53,7 @@ public class ShoppingListMapper {
                 .storePrice(item.getStorePrice())
                 .createdAt(item.getCreatedAt())
                 .updatedAt(item.getUpdatedAt())
-                // Same reason as ownerId: on SHOP or EDIT lists this would hand a visitor the account id of everyone shopping it.
+                // As with ownerId: on SHOP or EDIT lists this would hand visitors everyone's account id.
                 .updatedByUserId(updatedByUserId(item, access))
                 .build();
     }

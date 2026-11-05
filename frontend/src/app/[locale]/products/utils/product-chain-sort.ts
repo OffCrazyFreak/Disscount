@@ -16,7 +16,7 @@ const minPrice: PriceReader = (chain) => parseFloat(chain.min_price);
 const avgPrice: PriceReader = (chain) => parseFloat(chain.avg_price);
 const maxPrice: PriceReader = (chain) => parseFloat(chain.max_price);
 
-/** "stores" follows preferences, "price" leads with the single cheapest store, the one worth a detour, and "distance" with the nearest store. */
+/** "stores" follows preferences; "price" leads with the store worth a detour; "distance" the nearest. */
 export function compareProductChains(
   a: ChainProductResponse,
   b: ChainProductResponse,

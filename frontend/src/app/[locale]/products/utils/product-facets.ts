@@ -22,7 +22,7 @@ export type {
   IProductFacets,
 } from "@/app/[locale]/products/utils/facets/facet-types";
 
-/** Each facet is counted against products matching all other active facets, so a facet never narrows its own dropdown. */
+/** Counted against all other active facets, so a facet never narrows its own dropdown. */
 export function computeProductFacets(
   products: ProductResponse[],
   locations: IStoreLocation[],

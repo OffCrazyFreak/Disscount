@@ -21,7 +21,7 @@ export interface ISheetShellHeaderProps {
   showCloseButton?: boolean;
 }
 
-/** `sr-only` takes the title out of flow, so unconditional padding keeps the gap under the handle; 1rem because `pt-4` is 12.8px at this spacing scale. */
+/** Padding keeps the gap as `sr-only` removes the title; 1rem because `pt-4` is only 12.8px here. */
 export default function SheetShellHeader({
   title,
   description,

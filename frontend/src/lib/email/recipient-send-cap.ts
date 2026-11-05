@@ -1,4 +1,4 @@
-// Caps mail to one address however many IPs or accounts ask, so auth flows cannot flood a stranger's inbox or burn the quota.
+// Caps mail per address, so auth flows cannot flood a stranger's inbox or burn the quota.
 export const RECIPIENT_SENDS_PER_HOUR = 3;
 export const RECIPIENT_SENDS_PER_DAY = 10;
 

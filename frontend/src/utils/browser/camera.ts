@@ -13,7 +13,7 @@ function scoreCamera(label: string, index: number): number {
 
 // Labels exist only after permission is granted, so this can return null.
 export function pickBackCamera(devices: MediaDeviceInfo[]): string | null {
-  // Counted before filtering, because some browsers label only the granted device, and counting labels hands an Android phone its front lens.
+  // Counted before filtering: some browsers label only the granted device, handing Android its front lens.
   if (devices.length < 2) return null;
 
   const labeledDevices = devices.filter((device) => device.label);
@@ -28,7 +28,7 @@ export function pickBackCamera(devices: MediaDeviceInfo[]): string | null {
     }))
     .sort((a, b) => b.score - a.score);
 
-  // A negative score means the best visible label is a front or specialty lens, so null falls back to facingMode rather than pin it.
+  // A negative score means the best label is a front or specialty lens, so null falls back to facingMode.
   const best = scored[0];
 
   return best && best.score >= 0 ? best.deviceId : null;

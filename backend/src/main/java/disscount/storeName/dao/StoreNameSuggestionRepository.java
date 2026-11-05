@@ -29,7 +29,7 @@ public interface StoreNameSuggestionRepository extends JpaRepository<StoreNameSu
             + "(SELECT u.suggestion.id FROM StoreNameUsage u WHERE u.userId = :userId)")
     int decrementForUser(UUID userId);
 
-    // A name is public only from its second use, so one person's custom store never leaks on a single save, and use_count counts distinct users.
+    // Public only from its second use, so a custom store never leaks on one save; use_count counts distinct users.
     @Query("SELECT s FROM StoreNameSuggestion s WHERE s.hidden = false AND s.useCount >= 2 ORDER BY s.useCount DESC, s.name ASC")
     List<StoreNameSuggestion> findTopVisible(Pageable pageable);
 

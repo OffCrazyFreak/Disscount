@@ -7,7 +7,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import java.util.regex.Pattern;
 
-/** An allowlist on both axes, so a new literal route stays private; dashed form only, because bare hex would buy an anonymous logged 500. */
+/** An allowlist on both axes, so a new literal route stays private; dashed only, as bare hex buys a logged 500. */
 final class UuidScopedRequestMatcher implements RequestMatcher {
 
     private static final Pattern UUID_SHAPE = Pattern.compile(

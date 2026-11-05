@@ -16,7 +16,7 @@ import {
   isGpuError,
 } from "@/app/[locale]/map/utils/webgl-support";
 
-// Under webpack, import.meta.url is the only way to hand MapLibre its worker; without it the map mounts but never loads a tile.
+// Under webpack, import.meta.url is the only way to hand MapLibre its worker, or no tile loads.
 maplibregl.setWorkerUrl(
   new URL(
     "maplibre-gl/dist/maplibre-gl-worker.mjs",
@@ -31,7 +31,7 @@ type IStoreMapProps = Omit<
 
 export default function StoreMap(props: IStoreMapProps) {
   const t = useTranslations("map.unavailable");
-  // Checked before mounting, because react-map-gl catches MapLibre's constructor error itself and a boundary never sees it.
+  // Checked before mounting, because react-map-gl swallows the constructor error from any boundary.
   const [failure, setFailure] = useState<"noGpu" | "contextLost" | null>(() =>
     canUseWebGL2() ? null : "noGpu",
   );
@@ -73,7 +73,7 @@ export default function StoreMap(props: IStoreMapProps) {
       onContextLost={() => setFailure("contextLost")}
       onMapError={(event) => {
         if (isGpuError(event.error)) setFailure("noGpu");
-        // Passing onError replaces react-map-gl's own logging of tile, style and image errors, so they are logged here instead.
+        // Passing onError replaces react-map-gl's own logging of tile, style and image errors.
         else console.error(event.error);
       }}
     />

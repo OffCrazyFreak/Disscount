@@ -11,7 +11,7 @@ import { useListShareText } from "@/app/[locale]/(user)/shopping-lists/hooks/use
 import { shareListUrl } from "@/utils/shopping-list-links";
 import { useOnlineStatus } from "@/hooks/use-online-status";
 
-/** Saves on change because there is nothing to confirm: the URL exists either way, and the modal only asks what holding it grants. */
+/** Saves on change because there is nothing to confirm: the URL exists either way. */
 export function useShareListModal(id: string) {
   const t = useTranslations("shoppingLists");
   const locale = useLocale();
@@ -29,10 +29,10 @@ export function useShareListModal(id: string) {
   // No local mirror: useUpdateShoppingList writes optimistically in onMutate, so the cache is already correct here.
   const linkAccess: LinkAccess = shoppingList?.linkAccess ?? "NONE";
 
-  // Not built during render, because appUrl() throws on a bad NEXT_PUBLIC_APP_URL and would take the whole modal down, not one button.
+  // Not built during render, because appUrl() can throw and would take the whole modal down.
   const canShareLink = linkAccess !== "NONE";
 
-  // isSaving, not isPending: offline the mutation pauses, so isPending stays true and the controls would sit disabled with no explanation.
+  // isSaving, because a paused offline mutation keeps isPending true and the controls stuck disabled.
   const isSaving = updateMutation.isPending && isOnline;
 
   function setLinkAccess(next: LinkAccess) {
@@ -42,7 +42,7 @@ export function useShareListModal(id: string) {
     updateMutation.mutate(
       { id, data: { title: shoppingList.title, linkAccess: next } },
       {
-        // The toast has its own live region, so the modal does not announce success too and make a screen reader say it twice.
+        // The toast has its own live region, so the modal does not announce success twice.
         onSuccess: () => toast.success(t("shareModal.settingsUpdatedToast")),
         onError: () => toast.error(t("shareModal.settingsFailedToast")),
       },
@@ -70,7 +70,7 @@ export function useShareListModal(id: string) {
     if (!shoppingList) return;
 
     try {
-      // Text only, because a url would flip shareOrCopy's clipboard fallback to copy a bare link instead of the list it promises.
+      // Text only, because a url would make shareOrCopy's clipboard fallback copy a bare link.
       const outcome = await shareOrCopy({
         title: shoppingList.title,
         text: listShareText(shoppingList),
@@ -79,7 +79,7 @@ export function useShareListModal(id: string) {
       if (outcome === "copied") toast.success(t("shareModal.textCopiedToast"));
       if (outcome === "failed") toast.error(t("shareModal.failedToast"));
     } catch {
-      // shareOrCopy resolves rather than throws, but appUrl() throws on a bad NEXT_PUBLIC_APP_URL, and onClick never awaits, so the failure would be invisible.
+      // appUrl() can throw on a bad NEXT_PUBLIC_APP_URL, and onClick never awaits, so the failure would be invisible.
       toast.error(t("shareModal.failedToast"));
     }
   }

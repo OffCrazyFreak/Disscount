@@ -1,6 +1,6 @@
 import "server-only";
 
-// Chains and OSM services ask scrapers to identify themselves; a stock library User-Agent is what gets an IP banned first.
+// Chains and OSM ask scrapers to identify themselves; a stock User-Agent gets an IP banned first.
 const USER_AGENT = "Disscount/1.0 (+https://disscount.me)";
 
 const TIMEOUT_MS = 30_000;

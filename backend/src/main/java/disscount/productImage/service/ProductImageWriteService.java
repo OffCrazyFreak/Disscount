@@ -49,7 +49,7 @@ public class ProductImageWriteService {
     private final ProductImageViews views;
     private final UserService userService;
 
-    /** It confirms another user's unconfirmed photo of the same product, since two people photographed what one barcode page showed. */
+    /** Confirms another user's unconfirmed photo of the product, as two people photographed what one page showed. */
     @Transactional
     public ProductImagesDto upload(UUID userId, String ean, MultipartFile file) {
         ProductImageQueryService.requireEan(ean);

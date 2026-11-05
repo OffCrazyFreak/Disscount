@@ -6,7 +6,7 @@ import type {
 } from "@/lib/api/schemas/shopping-list";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 
-/** Without this a save reads new, old, new, because `invalidateQueries` only starts a refetch, and a component-state mirror cannot fix it. */
+/** Without this a save reads new, old, new, because `invalidateQueries` only starts a refetch. */
 export interface IListRollback {
   byId?: ShoppingListDto;
   all?: ShoppingListDto[];

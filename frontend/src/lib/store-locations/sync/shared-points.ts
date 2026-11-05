@@ -11,7 +11,7 @@ interface IPointRecord {
   lon: number;
 }
 
-/** Records sharing a point at different addresses are dropped, because the source geocoded at least one wrongly and nothing says which. */
+/** Records sharing a point at different addresses drop, as the source misplaced at least one, unknown which. */
 export function withoutSharedPoints<T extends IPointRecord>(records: T[]): T[] {
   const groups = new Map<string, T[]>();
 

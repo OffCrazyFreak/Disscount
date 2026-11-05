@@ -3,7 +3,7 @@ package disscount.shoppingList.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-/** Booleans rather than a level enum, because a copy can take the products without progress, or sharing without products. */
+/** Booleans, not a level enum, as a copy can take products without progress, or sharing without products. */
 @Data
 public class ShoppingListCopyRequest {
 
@@ -13,7 +13,7 @@ public class ShoppingListCopyRequest {
     /** Without this the copy is just the title, which is a legitimate thing to want. */
     private boolean includeItems;
 
-    /** One flag for all four, because a tick without its price reads as a bargain nobody recorded; ignored without includeItems. */
+    /** One flag for all four, as a tick without its price reads as an unrecorded bargain; needs includeItems. */
     private boolean includeProgress;
 
     /** Owner-only, enforced server side, or a recipient could hand out a link at a level the owner never chose. */

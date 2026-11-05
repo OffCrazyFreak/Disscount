@@ -170,7 +170,7 @@ function AutocompleteItem({
         "text-foreground data-highlighted:text-foreground data-highlighted:before:bg-accent gap-1.5",
         "rounded-md",
         "data-highlighted:before:rounded-md",
-        /* Icon sizing mirrors the shadcn Select item, and the row radius follows shadcn's Select and Dropdown Menu items, xl in rhea. */
+        /* Icon sizing and row radius follow shadcn's Select and Dropdown Menu items, xl in rhea. */
         "px-1.5 py-1 text-sm [&_svg:not([class*='size-'])]:size-4 relative flex cursor-default items-center outline-hidden transition-colors select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:relative data-highlighted:z-0 data-highlighted:before:absolute data-highlighted:before:inset-x-0 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([role=img]):not([class*=text-])]:opacity-60",
         className,
       )}
@@ -188,7 +188,7 @@ export interface AutocompleteContentProps extends React.ComponentProps<
   side?: AutocompletePrimitive.Positioner.Props["side"];
   anchor?: AutocompletePrimitive.Positioner.Props["anchor"];
   showBackdrop?: boolean;
-  // Inside a Radix dialog the popup must portal into the content, or its scroll lock and outside-press handling swallow clicks.
+  // In a Radix dialog the popup must portal inside, or its handlers swallow clicks.
   container?: AutocompletePrimitive.Portal.Props["container"];
 }
 

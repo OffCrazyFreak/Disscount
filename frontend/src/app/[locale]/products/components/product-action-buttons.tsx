@@ -30,7 +30,7 @@ export default function ProductActionButtons({
   className,
 }: IProductActionButtonsProps) {
   const t = useTranslations("products");
-  // Guarded on a session because /products is public, and an unguarded read is a 401 plus retries for every signed-out visitor.
+  // Guarded on a session because /products is public, and a read would 401 for signed-out visitors.
   const { user } = useUser();
   const { data: currentUserWatchlist = [] } =
     watchlistService.useGetCurrentUserWatchlist({ enabled: !!user });

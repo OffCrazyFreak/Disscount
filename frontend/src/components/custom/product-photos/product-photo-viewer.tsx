@@ -21,7 +21,7 @@ interface IProductPhotoViewerProps {
   index: number;
   onIndexChange: (index: number) => void;
   onClose: () => void;
-  /** Opens the upload; the caller closes the viewer first so the dialog is not stacked under it. List rows leave it out. */
+  /** The caller closes the viewer first, so the upload dialog is not stacked under it. */
   onAdd?: () => void;
   /** Set for admins only. */
   onManage?: () => void;
@@ -65,7 +65,7 @@ export default function ProductPhotoViewer({
       on={{ view: ({ index: viewed }) => onIndexChange(viewed) }}
       carousel={{ finite: true, padding: "16px" }}
       controller={{ closeOnPullDown: true, closeOnBackdropClick: true }}
-      // The default limit is one CSS pixel per file pixel; the old 2 stretched each file pixel over 4 device pixels at 2x.
+      // The default limit is one CSS pixel per file pixel, which stays sharp at 2x.
       zoom={{ scrollToZoom: true }}
       thumbnails={{
         width: 64,

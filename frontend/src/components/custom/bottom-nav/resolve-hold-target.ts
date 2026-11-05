@@ -8,7 +8,7 @@ interface IHoldContext {
   openScanner: () => void;
 }
 
-/** One answer to both "what does this hold do" and "does this cell hold", so the firing path and enablement check cannot drift apart. */
+/** One answer for firing and enablement, so the two cannot drift apart. */
 export default function resolveHoldTarget(
   entry: IBottomNavItem,
   { productEan, isLocked, openScanner }: IHoldContext,

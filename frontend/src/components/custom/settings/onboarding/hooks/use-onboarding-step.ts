@@ -19,7 +19,7 @@ export function useOnboardingStep(open: boolean) {
   const [step, setStep] = useState(resumeStep);
   const [direction, setDirection] = useState<1 | -1>(1);
 
-  // Resumes once per opening, once the user is known, because the wizard can mount open from a refreshed URL before the profile loads.
+  // Once per opening with the user known, because a refreshed URL can mount before the profile.
   const [prevOpen, setPrevOpen] = useState(open);
   const [hasResumed, setHasResumed] = useState(open && !!user);
 

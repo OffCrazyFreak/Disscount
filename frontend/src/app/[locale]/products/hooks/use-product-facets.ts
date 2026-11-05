@@ -61,7 +61,7 @@ function toFacetSelect(
   };
 }
 
-/** With a query, options come from faceting the unfiltered results; without one they fall back to the full chain and location lists. */
+/** With a query, options facet the unfiltered results; without one, the full lists apply. */
 export default function useProductFacets(
   query: string,
   filters: IUseProductFiltersResult,

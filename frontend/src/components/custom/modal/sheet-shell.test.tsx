@@ -140,7 +140,7 @@ describe("SheetShell", () => {
     expect(await axeDialog(document.body)).toHaveNoViolations();
   });
 
-  // Product quick actions open a Radix dialog from inside the sheet, so the two focus managers must not fight over focus.
+  // Quick actions open a Radix dialog from the sheet, so the two focus managers must not fight.
   it("lets a Radix dialog opened from the sheet keep the focus", async () => {
     const user = userEvent.setup();
     renderWithProviders(<Harness withDialog />);
@@ -187,7 +187,7 @@ describe("SheetShell", () => {
     expect(dialog).toContainElement(document.activeElement as HTMLElement);
   });
 
-  // A modal Radix menu sets pointer-events: none on the body, which the scrim inherits, so the closing press lands on <html>.
+  // A modal Radix menu sets pointer-events: none on the body, so the closing press lands on <html>.
   it("closes only a Radix menu when its outside press lands on the scrim", async () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderWithProviders(<Harness withMenu />);

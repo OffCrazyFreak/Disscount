@@ -18,7 +18,7 @@ const responseSchema = z.object({
   results: z.array(geoapifyResultSchema).default([]),
 });
 
-// A wrong pin is worse than none, so only the building with the right house number is accepted, never a street or near miss.
+// A wrong pin is worse than none, so only the building with the right house number is accepted.
 export async function geocodeWithGeoapify(
   address: string,
   city: string | null,

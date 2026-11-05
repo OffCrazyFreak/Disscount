@@ -23,7 +23,7 @@ export default function MapLocateButton({
 }: IMapLocateButtonProps) {
   const t = useTranslations("map.nearMe");
   const isLocating = status === "locating";
-  // Counted rather than flagged: a browser without geolocation answers every tap with the same status, which alone would not rerun the effect.
+  // Counted, because a browser without geolocation repeats one status, which would not rerun the effect.
   const [taps, setTaps] = useState(0);
   const answered = useRef(0);
 

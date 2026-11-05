@@ -11,7 +11,7 @@ interface IMapChainSelectProps {
   onChange: (chains: string[] | typeof ALL_CHAINS) => void;
 }
 
-/** Nothing picked means every chain, as in the product filters, so the field starts empty instead of holding a badge per chain. */
+/** Nothing picked means every chain, so the field starts empty instead of holding a badge per chain. */
 export default function MapChainSelect({
   chains,
   selected,

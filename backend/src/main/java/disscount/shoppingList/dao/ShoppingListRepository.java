@@ -14,13 +14,13 @@ import java.util.UUID;
 @Repository
 public interface ShoppingListRepository extends JpaRepository<ShoppingList, UUID> {
 
-    /** Fetch-joined because convertToDto walks lazy items, safe only while unpaginated; tests assert the id tiebreak's stability, as Postgres and H2 order uuids differently. */
+    /** Fetch-joined as convertToDto walks lazy items, so never paginate; id tiebreak as uuid order is per database. */
     @Query("SELECT sl FROM ShoppingList sl LEFT JOIN FETCH sl.items "
             + "WHERE sl.owner = :owner AND sl.deletedAt IS NULL "
             + "ORDER BY sl.updatedAt DESC, sl.createdAt DESC, sl.id DESC")
     List<ShoppingList> findActiveByOwner(User owner);
 
-    /** No AndOwner variant on purpose: authorization belongs to ShoppingListService.findVisible, this method's one caller. */
+    /** No AndOwner variant: authorization belongs to ShoppingListService.findVisible, this method's one caller. */
     @Query("SELECT sl FROM ShoppingList sl WHERE sl.id = :id AND sl.deletedAt IS NULL")
     Optional<ShoppingList> findActiveById(UUID id);
 }

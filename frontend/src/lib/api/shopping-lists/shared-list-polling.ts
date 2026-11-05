@@ -4,7 +4,7 @@ import type { ShoppingListDto } from "@/lib/api/types";
 
 const ACTIVE_POLL_MS = 5_000;
 const IDLE_POLL_MS = 30_000;
-// Polling fast only while the list recently changed keeps idle viewers cheap, because one left open on a counter does not change.
+// Fast only while recently changed, which keeps idle viewers cheap.
 const ACTIVE_WINDOW_MS = 2 * 60_000;
 
 /** Someone else can change it: a list the owner shares by link, or anyone's reached by one. */
@@ -37,7 +37,7 @@ export function sharedListRefetchInterval(
   // A poll landing mid-write would replace the optimistic cache with the pre-write list.
   if (isWritingLists) return false;
 
-  // Anything but a 404 is likely dropped shop wifi, and a phone left on the list may never fire the focus refetch to restart polling.
+  // Likely dropped shop wifi, and a phone left here may never fire the focus refetch to restart polling.
   if (query.state.status === "error") return IDLE_POLL_MS;
 
   const now = Date.now();

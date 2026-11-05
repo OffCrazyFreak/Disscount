@@ -7,7 +7,7 @@ import { saveResolvedLocation } from "@/lib/store-locations/location-repository"
 import { storeKey } from "@/lib/store-locations/upstream-stores";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 
-/** The register is one 84 MB download per run, so it is skipped with nothing to place; a failed download defers targets to the geocoders. */
+/** Skipped with nothing to place, as it is an 84 MB download; a failed download defers targets to the geocoders. */
 export async function resolveWithDgu(
   targets: ISyncTarget[],
   signal: AbortSignal,

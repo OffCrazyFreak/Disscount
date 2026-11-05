@@ -40,7 +40,7 @@ export default function SectionTabs({ label, tabs }: ISectionTabsProps) {
     ? { duration: 0 }
     : LAYOUT_TRANSITION;
 
-  // The tree stays the same with one section, so content does not remount (losing focus and drafts) when a second appears.
+  // The tree stays the same with one section, so a second one does not remount content.
   const hasTabs = tabs.length > 1;
 
   function handleChange(id: string) {
@@ -102,7 +102,7 @@ export default function SectionTabs({ label, tabs }: ISectionTabsProps) {
                     className={cn(
                       "h-full min-w-0 font-normal transition-[color,background-color,box-shadow] data-[state=active]:font-semibold",
                       isStuck
-                        ? // Shrinks on narrow phones instead of overflowing; a three tab list is wider than the screen there.
+                        ? // Shrinks on narrow phones, where a three tab list would overflow.
                           "min-w-0 flex-initial rounded-lg px-2.5 text-[1.0625rem] sm:px-4 forced-color-adjust-none forced-colors:data-[state=active]:bg-[Highlight] forced-colors:data-[state=active]:text-[HighlightText]"
                         : "rounded-none px-3 text-[1.0625rem] data-[state=active]:bg-linear-to-t data-[state=active]:bg-origin-border data-[state=active]:from-primary/10 data-[state=active]:to-transparent data-[state=active]:to-75% group-data-[orientation=horizontal]/tabs:after:-bottom-px group-data-[orientation=horizontal]/tabs:after:h-0.75 after:rounded-full after:bg-primary after:forced-color-adjust-none forced-colors:after:bg-[Highlight]",
                     )}
@@ -139,7 +139,7 @@ export default function SectionTabs({ label, tabs }: ISectionTabsProps) {
                               isActive &&
                                 !isStuck &&
                                 "bg-primary/10 text-green-700",
-                              // On the stuck pill the open tab is filled green, so its badge takes the on-green foreground.
+                              // The open tab is filled green when stuck, so its badge takes the on-green foreground.
                               isActive &&
                                 isStuck &&
                                 "bg-primary-foreground text-green-700",

@@ -12,12 +12,12 @@ import {
 const PHOTO_TIMEOUT_MS = 3_000;
 const TILE_SIDE = 490;
 const YEAR_IN_SECONDS = 31_536_000;
-// 4:4:4 because 4:2:0 washes out the green wordmark; no mozjpeg, because it forces progressive and baseline is safe for link crawlers.
+// 4:4:4 because 4:2:0 washes out the wordmark; no mozjpeg, because crawlers are safest on baseline.
 const JPEG_OPTIONS = { quality: 85, chromaSubsampling: "4:4:4" } as const;
 
 type Sharp = (typeof import("sharp"))["default"];
 
-// Fetched here so a slow bucket hits our timeout; re-encoded as JPEG because photos are WebP, which Satori's docs never list.
+// Fetched here so a slow bucket hits our timeout; JPEG because Satori's docs never list WebP.
 async function photoDataUri(photoUrl: string, sharp: Sharp): Promise<string> {
   const response = await fetch(photoUrl, {
     cache: "no-store",
@@ -34,7 +34,7 @@ async function photoDataUri(photoUrl: string, sharp: Sharp): Promise<string> {
 
 /** The photo sits in the middle because chat apps may crop a card to its centre square. */
 export default async function renderProductOg(photoUrl: string) {
-  // Loaded here so a missing native binary rejects this call, which the route turns into the brand image, instead of failing the module.
+  // Loaded here so a missing binary rejects this call, not the route module, giving the brand image.
   const { default: sharp } = await import("sharp");
 
   const [photo, fonts] = await Promise.all([
@@ -109,7 +109,7 @@ export default async function renderProductOg(photoUrl: string) {
     { ...size, fonts },
   );
 
-  // ImageResponse renders lazily in its stream, so a failed render would be a 200 cached for a year and the fallback would never run.
+  // ImageResponse renders lazily, so a failed render would be a 200 cached for a year.
   const png = Buffer.from(await card.arrayBuffer());
 
   // next/og only writes PNG, which reached 563 KB against WhatsApp's 600 KB preview limit.

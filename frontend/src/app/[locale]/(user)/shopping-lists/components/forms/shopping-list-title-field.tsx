@@ -19,7 +19,7 @@ interface IShoppingListTitleFieldProps {
   autoFocus?: boolean;
 }
 
-/** Shared by the create, edit and copy modals so label, placeholder and validation message read the same in all three. */
+/** Shared so label, placeholder and validation message read the same in all three modals. */
 export default function ShoppingListTitleField({
   control,
   autoFocus = true,

@@ -1,7 +1,7 @@
 // Sentry posts through the same-origin /monitoring tunnel, and Google and Facebook sign-in are redirects.
 const SCRIPT_ORIGINS = ["https://cloud.umami.is"];
 
-/** No nonces, because a nonce CSP forces every page dynamic, so Next's inline bootstrap scripts still need 'unsafe-inline'. */
+/** No nonces, as a nonce CSP forces every page dynamic, so Next's inline scripts need 'unsafe-inline'. */
 export function buildContentSecurityPolicy(isDevelopment: boolean): string {
   const scriptSources = [
     "'self'",

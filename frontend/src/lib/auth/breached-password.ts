@@ -18,7 +18,7 @@ const NEW_PASSWORD_TIMEOUT_MS = 3000;
 // Every sign-in waits on this, so it gets the tighter budget.
 export const SIGN_IN_TIMEOUT_MS = 1500;
 
-// k-anonymity: only the first 5 hex chars of the SHA-1 leave the server, padded so response size cannot hint at the match.
+// k-anonymity: only 5 hex chars of the SHA-1 leave the server, padded so size cannot hint at a match.
 export async function checkBreached(
   password: string,
   timeoutMs: number,

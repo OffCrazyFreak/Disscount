@@ -13,7 +13,7 @@ interface IResetPasswordModalProps {
   open: boolean;
 }
 
-// The token is removed from the URL via replaceState so it cannot leak via history or Referer; success goes to login, never auto-login.
+// Removed from the URL so it cannot leak via history or Referer; success never auto-logs in.
 export default function ResetPasswordModal({ open }: IResetPasswordModalProps) {
   const t = useTranslations("auth");
   const { hint } = usePasswordPolicy();

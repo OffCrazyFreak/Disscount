@@ -11,7 +11,7 @@ public enum ImageStatus {
     VERIFIED,
     HIDDEN;
 
-    // Hibernate 7 still adds a CHECK (product_image_status_check) despite the converter, and ddl-auto=update never refreshes it, so update it by hand.
+    // Hibernate 7 adds product_image_status_check despite the converter, and ddl-auto=update never refreshes it.
     @Converter
     public static class Column implements AttributeConverter<ImageStatus, String> {
         @Override

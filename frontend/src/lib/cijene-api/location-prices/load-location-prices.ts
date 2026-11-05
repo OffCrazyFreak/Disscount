@@ -9,7 +9,7 @@ import {
   reduceByCity,
 } from "@/lib/cijene-api/location-prices/reduce-prices";
 
-/** Above this many uncached cities one country-wide request is cheaper, because every visitor shares one upstream token's daily quota. */
+/** Above this one country-wide request is cheaper, as visitors share one token's daily quota. */
 export const MAX_CITY_REQUESTS = 3;
 
 export type FetchStorePrices = (city?: string) => Promise<StorePrice[]>;

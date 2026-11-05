@@ -17,7 +17,7 @@ import { storeKey } from "@/lib/store-locations/upstream-stores";
 type StoreHoursRow = typeof storeHours.$inferSelect;
 type OverlayRow = typeof storeHoursOverlay.$inferSelect;
 
-// Days the status function can reach, with room for a response cached for days; anything outside only weighs down the payload.
+// Days the status function can reach, plus cache room; anything more only weighs down the payload.
 const DAYS_BEFORE = 2;
 const DAYS_AFTER = 45;
 
@@ -56,7 +56,7 @@ function groupOverlays(overlays: OverlayRow[], from: string, to: string) {
   return byStore;
 }
 
-// Exceptions and announcements often cover one date from one feed, so the latest wins; on a tie the more specific layer, listed first, does.
+// One date can come from two feeds, so the latest wins; on a tie the more specific layer does.
 function mergeDated(...layers: DatedHoursDto[][]): DatedHoursDto[] {
   const byDate = new Map<string, DatedHoursDto>();
 

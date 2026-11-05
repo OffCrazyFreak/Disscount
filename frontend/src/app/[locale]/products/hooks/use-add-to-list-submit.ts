@@ -73,12 +73,12 @@ export function useAddToListSubmit({
 
     const title = data.customListTitle.trim();
 
-    // A legacy draft can restore "new" with no title, and falling through would file the product somewhere the user never chose, so refuse.
+    // A legacy draft can restore "new" with no title; refuse rather than file it on an unchosen list.
     if (!title) return null;
 
     const created = await createShoppingListMutation.mutateAsync({ title });
 
-    // Recorded before the item is added, so a failed add reopens without "new" selected and a retry cannot create another empty list.
+    // Recorded before the add, so a retry after failure cannot create another empty list.
     onListCreated(created.id);
 
     return { id: created.id, name: title, isQuantityIncrease: false };

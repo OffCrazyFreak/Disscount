@@ -58,7 +58,7 @@ export default function LabeledSelect<TValue extends string>({
         <SelectTrigger
           aria-labelledby={labelId}
           aria-describedby={describedById}
-          // bg-background because the trigger sits on the surface it is placed on, and hardcoded white stayed white in dark mode.
+          // bg-background because hardcoded white stays white in dark mode.
           className="w-full bg-background sm:w-60"
         >
           <SelectValue />

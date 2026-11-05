@@ -83,7 +83,7 @@ export function ModalShell({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         className={cn(
-          // dvh, because vh is the large viewport, so with a mobile URL bar showing the footer goes past the visible area.
+          // dvh, because vh is the large viewport, pushing the footer past a mobile URL bar.
           "flex max-h-[90dvh] flex-col gap-0 overflow-hidden p-0",
           // Overshoot easing on open only; the close keeps the default ease.
           "data-[state=open]:duration-300 data-[state=open]:ease-[cubic-bezier(0.34,1.5,0.64,1)]",
@@ -106,12 +106,12 @@ export function ModalShell({
             wrapperClassName="flex-1"
             fadeClassName="h-12"
           >
-            {/* The body cascades in on every open because Radix remounts the content, so modals do not animate themselves. */}
+            {/* Radix remounts the content, so the body cascades on every open and modals need no animation. */}
             <StaggerChildren>{children}</StaggerChildren>
           </ScrollFadeArea>
         )}
 
-        {/* Wraps the slot so custom footers share the contract, only when there is content; no safe-area padding, which pushes a centred dialog's edge toward the home indicator. */}
+        {/* No safe-area padding, which would push a centred dialog's edge toward the home indicator. */}
         {footerNode && <div className="shrink-0">{footerNode}</div>}
       </DialogContent>
     </Dialog>

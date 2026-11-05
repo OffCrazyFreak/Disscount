@@ -1,8 +1,8 @@
-/** @serwist/next injects the entry point, so no call site can catch these; message and frame are matched together, as either alone is too generic. */
+/** @serwist/next injects the entry, so no call site can catch these; message and frame must both match. */
 const NOISE_MESSAGES = [
   // Anchored, because as a substring "Rejected" would also match things like a WAF's "Request Rejected".
   /^Rejected$/,
-  // Matched on identifiers because the wording is engine specific; requiring a registration frame alongside keeps this narrow.
+  // Identifiers, because the wording is engine specific; the frame requirement keeps this narrow.
   /_registration|reading 'waiting'/,
 ];
 

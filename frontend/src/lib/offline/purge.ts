@@ -11,7 +11,7 @@ import { setWatchlistPriceSnapshot } from "@/utils/browser/storage/watchlist";
 // Public data is identical logged in or out, so it survives logout.
 const PUBLIC_QUERY_ROOT = "cijene";
 
-// Each leaks by its key set; "others" is where serwist puts navigations, since its "pages" rule matches a Content-Type header browsers omit.
+// Each leaks by its key set; serwist puts navigations in "others", as browsers omit a Content-Type.
 const SCOPED_CACHE_NAMES = ["shopping-list-pages", "cijene-api", "others"];
 
 function isUserSpecific(query: Query): boolean {
@@ -26,13 +26,13 @@ async function purgeServiceWorkerCaches() {
 
   await Promise.all(
     names
-      // Exact match, because a substring test on "pages" would also take out serwist's "pages-rsc" and every RSC payload.
+      // Exact, because a substring on "pages" would also delete "pages-rsc" and every RSC payload.
       .filter((name) => SCOPED_CACHE_NAMES.includes(name))
       .map((name) => caches.delete(name)),
   );
 }
 
-/** @param identity Named, not resolved, because the caller switches identity once this fires and the later delete would clear the wrong account. */
+/** @param identity Named, because the caller switches identity before the delete runs. */
 export function purgeOfflineCache(
   queryClient: QueryClient,
   identity: string,

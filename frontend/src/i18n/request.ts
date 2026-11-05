@@ -7,7 +7,7 @@ import { TIME_ZONE } from "@/i18n/formatting";
 import { loadMessages } from "@/i18n/load-messages";
 
 export default getRequestConfig(async ({ locale }) => {
-  // Route handlers and server actions pass the locale explicitly, because root params are only readable while rendering.
+  // Passed explicitly, because root params are only readable while rendering.
   if (!locale) {
     const paramValue = await rootParams.locale();
     if (!hasLocale(routing.locales, paramValue)) notFound();

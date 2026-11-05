@@ -32,10 +32,10 @@ export interface ICenterRequest extends ILatLon {
 // Counted from when location is allowed, so running out means the device itself could not find a position.
 const GIVE_UP_MS = 15_000;
 
-// The spec excludes permission prompt time from `timeout`, so an ignored prompt would spin forever without our own timer.
+// `timeout` excludes prompt time, so an ignored prompt would spin forever without our timer.
 const PROMPT_GIVE_UP_MS = 60_000;
 
-// Chrome on Android with location off never answers, so a permitted tap shows the IP guess this soon and keeps listening.
+// Chrome on Android with location off never answers, so show the IP guess and keep listening.
 const GUESS_AFTER_MS = 1_500;
 
 // Home connections usually land within this; mobile data can land a city off.
@@ -247,7 +247,7 @@ export function useGeolocation(
     getWatch().restart();
   }
 
-  // Watching without a tap is fine only when no prompt can appear; Safari may report "prompt" for a granted permission, which just waits for a tap.
+  // Only when no prompt can appear; Safari may report "prompt" when granted, which just waits for a tap.
   useEffect(() => {
     let cancelled = false;
     let status: PermissionStatus | null = null;

@@ -20,7 +20,7 @@ export interface ICopyListOptions {
   sharing: boolean;
 }
 
-/** Products on because a copy without them is just a title; the rest off because "same shop, next week" makes old ticks and prices wrong. */
+/** Products on, or a copy is just a title; the rest off, as old ticks and prices would be wrong. */
 const DEFAULT_OPTIONS: ICopyListOptions = {
   items: true,
   progress: false,
@@ -30,7 +30,7 @@ const DEFAULT_OPTIONS: ICopyListOptions = {
 // Read off the schema so raising the limit cannot leave the prefill producing titles the schema rejects.
 const TITLE_MAX_LENGTH = shoppingListRequestSchema.shape.title.maxLength ?? 100;
 
-/** Shortened so a prefill never opens on a validation error; cut by code point to keep emoji whole, budgeted in the UTF-16 units zod's max() counts. */
+/** Shortened so a prefill never opens invalid; cut by code point but budgeted in zod's UTF-16 units. */
 function suggestCopyTitle(title: string, suffix: string) {
   const room = TITLE_MAX_LENGTH - suffix.length;
 
@@ -60,7 +60,7 @@ export function useCopyListModal(id: string) {
     shoppingList?.myAccess,
   ).canManageShare;
 
-  // No draft persistence: the default comes from server data the user has not asked to keep, so a stale draft would fight the prefill.
+  // No draft: the default is server data the user did not ask to keep, and a draft would fight it.
   const form = useForm<ShoppingListRequest>({
     resolver: zodResolver(shoppingListRequestSchema),
     mode: "onChange",
@@ -68,10 +68,10 @@ export function useCopyListModal(id: string) {
   });
 
   const { isDirty } = form.formState;
-  // useWatch, because watch() is a function the React Compiler cannot memoize, which would opt the whole hook out of compilation.
+  // useWatch, because watch() cannot be memoized and would opt the whole hook out of compilation.
   const title = useWatch({ control: form.control, name: "title" });
 
-  // Parsed rather than formState.isValid, which the seeding reset does not refresh, so a valid prefill would leave Kopiraj dead until typing.
+  // Parsed, because the seeding reset does not refresh formState.isValid, which would leave Kopiraj dead.
   const isValid = shoppingListRequestSchema.safeParse({ title }).success;
 
   // Seeds once and never after the first keystroke, so a late refetch cannot overwrite what the user typed.

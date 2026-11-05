@@ -53,13 +53,13 @@ export default function OnboardingWizard({
     enabled: !busy,
   });
 
-  // Strip the modal param first, because the host unmounts with the session and ?modal=onboarding would reopen as the auth gate.
+  // Strip first, because the host unmounts with the session and the param would open the auth gate.
   async function handleLogout() {
     closeModalUrl();
     try {
       await logout();
     } catch {
-      // The wizard is gone, so there is nowhere to surface this, and the caller's void handleLogout() would make it an unhandled rejection.
+      // The wizard is gone, and the caller's void handleLogout() would make this an unhandled rejection.
       toast.error(t("onboarding.logoutFailed"));
     }
   }

@@ -4,7 +4,7 @@ import { usePathname } from "@/i18n/navigation";
 import { useGetShoppingListById } from "@/lib/api/shopping-lists/hooks";
 import { shoppingListIdFromPath } from "@/utils/routes";
 
-/** Undefined off a list's page and for an empty list, so the ring stays off rather than reading as a broken bar at zero. */
+/** Undefined off a list's page or when empty, so the ring never reads as a broken bar at zero. */
 export default function useActiveListProgress(): number | undefined {
   const pathname = usePathname();
 

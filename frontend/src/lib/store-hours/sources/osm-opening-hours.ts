@@ -56,7 +56,7 @@ function parseRule(rule: string): Rule | null {
   return days && ranges && rest.length === 0 ? { days, ranges } : null;
 }
 
-/** Anything richer returns null rather than a guess, since one evaluator decides; holiday rules are skipped because the law closes shops then. */
+/** Anything richer returns null, not a guess; holiday rules skip, because the law closes shops then. */
 export function parseOsmOpeningHours(value: string): Weekly | null {
   const trimmed = value.trim();
 

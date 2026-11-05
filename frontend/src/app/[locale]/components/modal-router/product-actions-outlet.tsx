@@ -17,7 +17,7 @@ interface IProductActionsOutletProps {
   target: ModalTarget | null;
 }
 
-/** Mounted outside the signed-in branch, since a shared link must open for anyone; the two gated actions raise the auth gate. */
+/** Outside the signed-in branch, since a shared link must open for anyone; gated actions raise the gate. */
 export default function ProductActionsOutlet({
   target,
 }: IProductActionsOutletProps) {

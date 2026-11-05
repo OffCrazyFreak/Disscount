@@ -14,7 +14,7 @@ interface IShoppingListVisibilityIndicatorProps {
   className?: string;
 }
 
-// One glyph per level, the same map the share modal and shared-list banner use, so a list shows the same picture everywhere.
+// The same glyph map as the share modal and banner, so a list shows one picture everywhere.
 const SHARED_LABEL_KEYS = {
   NONE: "visibility.NONE",
   VIEW: "visibility.VIEW",

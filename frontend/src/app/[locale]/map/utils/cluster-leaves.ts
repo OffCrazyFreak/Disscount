@@ -6,7 +6,7 @@ export interface IClusterLeaf {
   lat: number;
 }
 
-// About 20 m: geocoded addresses in one mall land this close or on the same point, and no zoom level separates them on screen.
+// About 20 m: addresses in one mall land this close, and no zoom level separates them.
 const SAME_SPOT_DEGREES = 0.0002;
 
 export function isSameSpot(leaves: IClusterLeaf[]): boolean {
@@ -29,7 +29,7 @@ export function leafBounds(leaves: IClusterLeaf[]): LngLatBoundsLike {
   ];
 }
 
-/** MapLibre refuses to move when the padding outgrows the canvas, as on a landscape phone, so the margin shrinks to fit. */
+/** MapLibre refuses to move when padding outgrows the canvas, so the margin shrinks to fit. */
 export function fitPadding(
   width: number,
   height: number,

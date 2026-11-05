@@ -10,7 +10,7 @@ import {
   swapModalUrl,
 } from "@/lib/modal/modal-navigation";
 
-/** Uses useSearchParams, so callers must sit under <Suspense>; components that only open modals should import openModalUrl directly. */
+/** Callers must sit under <Suspense>; components only opening modals should import openModalUrl. */
 export function useModalUrl() {
   const searchParams = useSearchParams();
 

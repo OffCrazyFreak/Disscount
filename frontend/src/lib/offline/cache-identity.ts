@@ -1,4 +1,4 @@
-/** Keyed by identity because shared lists put someone else's data here; mirrored in localStorage because the persister picks a key before the session resolves. */
+/** Per identity because shared lists hold others' data; in localStorage as the key is picked at boot. */
 const IDENTITY_STORAGE_KEY = "disscount-cache-identity";
 export const ANONYMOUS_IDENTITY = "anon";
 
@@ -53,7 +53,7 @@ export function setCacheIdentity(userId: string | null): void {
   }
 }
 
-/** `identity` is explicit for the purge, which must clear the account that is leaving rather than whichever is current after it awaits. */
+/** Explicit for the purge, which must clear the leaving account, whichever is current after it awaits. */
 export function scopedCacheKey(baseKey: string, identity?: string): string {
   return `${baseKey}:${identity ?? getCacheIdentity()}`;
 }

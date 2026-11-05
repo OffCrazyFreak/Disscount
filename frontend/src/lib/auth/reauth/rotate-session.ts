@@ -10,7 +10,7 @@ interface ISignedInContext extends GenericEndpointContext {
   };
 }
 
-/** better-auth counts freshness from session.createdAt only, so this restarts the clock, and OWASP asks for a new id after re-authentication. */
+/** Freshness counts from session.createdAt only, so this restarts the clock; OWASP asks for a new id too. */
 export async function rotateSession(ctx: ISignedInContext): Promise<void> {
   const { session, user } = ctx.context.session;
   const dontRememberMe = Boolean(

@@ -18,7 +18,7 @@ interface IGroupInput {
   storePrices: Record<string, Record<string, number>>;
 }
 
-/** Items follow the chain their store select shows, its saved chain or else the suggested cheapest, so groups match what each row displays. */
+/** Items follow the chain their store select shows, so groups match what each row displays. */
 export function groupItemsByStore({
   items,
   cheapestStores,

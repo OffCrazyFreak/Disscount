@@ -27,7 +27,7 @@ export function resolveAllowedChains(
     );
   }
 
-  // Both branches emit canonical codes, because callers join this array into cache keys and a raw spelling would give two keys for one filter.
+  // Canonical codes, because callers join this into cache keys, and raw spelling gives two keys.
   return selectedChains.length > 0
     ? selectedChains
         .map(normalizeChainCode)

@@ -3,7 +3,7 @@ package disscount.util;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-/** The columns are zone-less, and nothing pins TZ for the image, so a bare LocalDateTime.now() could jumble updatedAt order; the frontend reads these as UTC. */
+/** Zone-less columns and no pinned TZ, so a bare LocalDateTime.now() could jumble updatedAt; the frontend reads UTC. */
 public final class Timestamps {
 
     private Timestamps() {}

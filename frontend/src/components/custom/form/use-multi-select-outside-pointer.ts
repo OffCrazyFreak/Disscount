@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type RefObject } from "react";
 
-/** An inline list is no dismissable layer; on `document` in bubble, without stopPropagation, because a modal drawer closes from the same press. */
+/** On `document` in bubble without stopPropagation, because a modal drawer closes from the same press. */
 export default function useMultiSelectOutsidePointer(
   active: boolean,
   contentRef: RefObject<HTMLElement | null>,

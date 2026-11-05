@@ -29,7 +29,7 @@ export default function MapSearchBar({
   const transition = useMorphTransition(isOpen);
   const { slot, frame } = useHeaderSlot();
 
-  // Set when a keyboard closes the search so focus returns to the field; on touch that would raise the keyboard again, so it blurs.
+  // Keyboard close returns focus to the field; on touch that would raise the keyboard, so it blurs.
   const keepFocus = useRef(false);
 
   useEffect(() => {
@@ -71,7 +71,7 @@ export default function MapSearchBar({
               transition={transition}
             />
 
-            {/* The same field throughout because iOS raises the keyboard only for an input focused within the tap; opened on press so an open sheet has let go of focus. */}
+            {/* One field because iOS raises the keyboard only for an input focused within the tap. */}
             <div
               className="min-w-0 flex-1"
               onPointerDown={(event) => {

@@ -1,7 +1,7 @@
 import { getAppStorage, setAppStorage } from "@/utils/browser/storage/core";
 import type { IWatchlistPriceSnapshot } from "@/typings/local-storage";
 
-// useSyncExternalStore needs the same object until a change, and localStorage parses a new one per read, so reads go through this cache.
+// useSyncExternalStore needs one object until a change, and localStorage parses anew per read, so this caches.
 const cachedSnapshots = new Map<string, IWatchlistPriceSnapshot | null>();
 const listeners = new Set<() => void>();
 

@@ -17,7 +17,7 @@ import { shouldPersistMutation } from "@/lib/offline/offline-mutation-keys";
 
 const IDB_CACHE_KEY = "disscount-react-query-cache";
 
-// Bumping discards queued writes under every key on mismatch, so prefer tombstone defaults in offline-mutations.ts; see docs/PWA.md.
+// Bumping discards queued writes under every key, so prefer tombstones in offline-mutations.ts.
 const CACHE_BUSTER = "3";
 
 // Key resolved per call, so an identity change takes effect without rebuilding this.
@@ -47,7 +47,7 @@ const throttledPersister = createAsyncStoragePersister({
   serialize: serializeUnlessPurged,
 });
 
-/** Only paused mutations resume on restore, and a pending one left unpaused would block every later card write in its scope forever. */
+/** Only paused mutations resume, and an unpaused pending one blocks later card writes in its scope. */
 function withInFlightWritesPaused(client: PersistedClient): PersistedClient {
   const mutations = client.clientState.mutations.map((mutation) =>
     mutation.state.status === "pending" && !mutation.state.isPaused
@@ -67,14 +67,14 @@ const offlinePersister: Persister = {
   },
 };
 
-/** `offlinePersister.removeClient()` resolves the key when it runs, after the identity moved on, deleting the arriving account's cache. */
+/** `offlinePersister.removeClient()` resolves its key late, deleting the arriving account's cache. */
 export function removePersistedCacheFor(identity: string): Promise<void> {
   return del(scopedCacheKey(IDB_CACHE_KEY, identity));
 }
 
 export const persistOptions: Omit<PersistQueryClientOptions, "queryClient"> = {
   persister: offlinePersister,
-  // Never expires, so a wallet last opened months ago still opens at the till; labels show staleness and an identity change purges.
+  // Never expires, so an old wallet still opens at the till; an identity change purges.
   maxAge: Infinity,
   buster: CACHE_BUSTER,
   dehydrateOptions: {

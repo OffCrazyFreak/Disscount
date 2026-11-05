@@ -29,7 +29,7 @@ export async function deleteCardPhoto(
   await apiClient.delete(`/api/digital-cards/${cardId}/photos/${slot}`);
 }
 
-/** apiClient because an <img src> cannot carry the bearer token; bypasses the URL-keyed HTTP cache, because the blob store is scoped to the account. */
+/** An <img src> cannot carry the bearer token; skips the URL-keyed HTTP cache, as blobs are per account. */
 export async function fetchCardPhotoBlob(
   cardId: string,
   slot: CardPhotoSlot,

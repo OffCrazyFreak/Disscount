@@ -32,7 +32,7 @@ export default function ProductQuickActionsList({
   const { openAddToList, openWatchlist } = useProductModals(product);
   const share = useProductShare(product);
 
-  // The same reads as the row's buttons so they never disagree; guarded on a session because /products is public and would 401 for signed-out visitors.
+  // Same reads as the row's buttons so they agree; a session guard stops 401s for signed-out visitors.
   const { data: currentUserWatchlist = [] } =
     watchlistService.useGetCurrentUserWatchlist({ enabled: !!user });
   const isInWatchlist = currentUserWatchlist.some(
@@ -40,7 +40,7 @@ export default function ProductQuickActionsList({
   );
   const isOnList = useIsOnPreselectedShoppingList(product.ean);
 
-  // Replaces this sheet's history entry because closeModalUrl pops with an async history.back(), which would throw away a push right after it.
+  // Replaces its history entry, because closeModalUrl's async back() would discard a following push.
   function swapToModal(open: (options: IOpenModalOptions) => void) {
     open({ replace: true });
   }

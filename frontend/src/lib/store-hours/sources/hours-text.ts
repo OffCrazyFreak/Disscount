@@ -103,7 +103,7 @@ export function comingSunday(today: string): string {
   return addDays(today, (SUNDAY - isoWeekday(today) + 7) % 7);
 }
 
-/** A later pair overrides an earlier one for the same day, as the chains' own pages read; an unreadable pair leaves that day unknown. */
+/** A later pair overrides an earlier one, as chains' pages read; an unreadable pair leaves a day unknown. */
 export function weekFromLabelled(pairs: [string, string][]): Weekly {
   const weekly = emptyWeek();
 

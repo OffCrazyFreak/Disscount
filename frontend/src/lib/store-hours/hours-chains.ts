@@ -1,6 +1,6 @@
 import type { HoursSource } from "@/lib/api/schemas";
 
-/** Turning a chain off stops reading its site and hides its hours, which honours a chain's request to stop within one deploy. */
+/** Turning a chain off stops reading its site and hides its hours, honouring a request to stop. */
 export const HOURS_CHAINS: Record<
   string,
   { enabled: boolean; finderUrl: string }

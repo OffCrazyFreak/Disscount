@@ -8,7 +8,7 @@ import disscount.user.domain.User;
 
 import java.util.UUID;
 
-/** Serializes a user's card writes so the cap, a replayed PUT and a racing delete see committed results; call first in the transaction. */
+/** Serializes card writes so cap, replayed PUT and racing delete see commits; call first in the transaction. */
 @Component
 @RequiredArgsConstructor
 public class CardUserLock {

@@ -1,7 +1,7 @@
 import { normalizeForSearch } from "@/utils/strings";
 
-/** A pinned name ("Konzum Vukovarska") and a chain code ("konzum") never match exactly and either can be longer, so containment runs both ways. */
-/** Below this containment means nothing: a store pinned as "K plus" yields "k", which is inside konzum, kaufland and ktc alike. */
+/** A pinned name ("Konzum Vukovarska") and chain code ("konzum"): either may be longer, so match both ways. */
+/** Below this containment means nothing: a store "K plus" yields "k", inside konzum, kaufland and ktc. */
 const MIN_CONTAINMENT_LENGTH = 3;
 
 function chainMatchesPinnedStore(

@@ -13,7 +13,7 @@ function describeFrame(data: unknown, protocol: string) {
   return protocol;
 }
 
-// Recording fails the test, because the client and React Query catch network errors; here not beforeAll, because better-auth keeps the fetch it saw at import.
+// Recording fails the test, as the client swallows network errors; not beforeAll, as better-auth keeps its fetch.
 server.listen({
   onUnhandledFrame({ frame, defaults }) {
     undeclared.push(describeFrame(frame.data, frame.protocol));

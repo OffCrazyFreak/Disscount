@@ -1,6 +1,6 @@
 import { storeKey } from "@/lib/store-locations/upstream-stores";
 
-/** The sync never revisits a saved pin, so the map shows these; each applies only while upstream keeps the address it was checked for. */
+/** The sync never revisits a saved pin, so these show, only while upstream keeps the checked address. */
 export const PIN_CORRECTIONS = new Map<
   string,
   { address: string; lat: number; lon: number }

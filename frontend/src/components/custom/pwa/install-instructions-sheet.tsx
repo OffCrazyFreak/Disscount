@@ -26,7 +26,7 @@ interface IInstallInstructionsSheetProps {
 
 const ICON_CLASS = "inline size-5 text-primary";
 
-// iOS 26 put Podijeli behind the ... beside the address bar, so both layouts are named to match whichever iPhone is reading.
+// iOS 26 moved Podijeli behind the ... beside the address bar, so both layouts are named.
 const IOS_STEPS = [
   "install.steps.iosMenu",
   "install.steps.iosAdd",

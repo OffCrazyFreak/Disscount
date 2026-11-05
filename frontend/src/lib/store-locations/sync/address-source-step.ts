@@ -14,7 +14,7 @@ const ADDRESS_SOURCES: Record<
   stridon: fetchStridonAddresses,
 };
 
-/** After the DGU step, because DGU's stem matching pinned "Ljudevita Posavskog" on Posavska ulica in another village, while Geoapify found the building. */
+/** After DGU, whose stem matching pinned "Ljudevita Posavskog" on another village's Posavska; Geoapify found it. */
 export async function withChainAddresses(
   targets: ISyncTarget[],
   signal: AbortSignal,
@@ -61,7 +61,7 @@ function attachLookups(
   });
 }
 
-// A code the chain renumbered or reused would send the geocoder to another shop, so the address must name upstream's town, street and number.
+// A renumbered or reused code would send the geocoder to another shop, so the address must name upstream's place.
 function sameStore(target: ISyncTarget, lookup: ILookupAddress): boolean {
   const ours = readPlacedAddress(target.address);
   const theirs = readPlacedAddress(lookup.address);
@@ -77,7 +77,7 @@ function sameStore(target: ISyncTarget, lookup: ILookupAddress): boolean {
   );
 }
 
-// "V.gorica" is Velika Gorica: a word written with a dot counts as the word it starts, but "Split" never stands for "Splitska".
+// "V.gorica" is Velika Gorica: a dotted word counts as the word it starts, but "Split" never means "Splitska".
 function sameTown(ours: string | null, theirs: string): boolean {
   const a = townWords(ours ?? "");
   const b = townWords(theirs);

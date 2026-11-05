@@ -68,7 +68,7 @@ export default function BreachedPasswordNotice({
         type="button"
         variant="outline"
         className="w-full aria-disabled:cursor-not-allowed aria-disabled:opacity-60"
-        // Not the native attribute or Button's loading state, because both disable the element and drop focus to the body after the press.
+        // Neither native disabled nor loading, because both drop focus to the body after the press.
         aria-disabled={resendBlocked}
         onClick={resend}
       >

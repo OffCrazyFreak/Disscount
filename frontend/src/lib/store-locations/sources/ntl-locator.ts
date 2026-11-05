@@ -56,7 +56,7 @@ function codeSuffixOf(title: string | undefined): string | undefined {
   return /\bbr\.?\s*(\d{3,4})\s*$/i.exec(title ?? "")?.[1].padStart(4, "0");
 }
 
-// ntl.hr pins these in the wrong place, checked 2026-10-24: CRET near Krapina, TERA in Osijek, two Piškorevci stores in Đakovo; a corrected point stops matching.
+// ntl.hr misplaced these, checked 2026-10-24: CRET, TERA, two Piškorevci stores; a corrected point stops matching.
 const WRONG_POINTS = [
   { title: "NTL CRET", lat: 46.0978, lon: 15.838 },
   { title: "NTL TERA", lat: 45.5593, lon: 18.6784 },
@@ -109,7 +109,7 @@ export const ntlLocator: IStoreLocator = {
         approximate: isNumberless(parsed.data.street),
         address: parsed.data.street,
         ...splitPlace(parsed.data.place),
-        // The page sits in a week-long LiteSpeed cache, so its "open this Sunday" flag may describe a past Sunday and is not used.
+        // A week-long LiteSpeed cache means its "open this Sunday" flag may be stale, so it is not used.
         hours: parsed.data.working_hours.length
           ? {
               weekly: weekFromLabelled(

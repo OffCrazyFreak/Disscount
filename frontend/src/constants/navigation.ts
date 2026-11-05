@@ -231,7 +231,7 @@ export type NavItemId =
       { children: readonly INavigationItem[] }
     >["children"][number]["id"];
 
-/** Throws because the table is hardcoded, so a bad id is a bug to surface at import rather than render as an empty cell. */
+/** Throws because a bad id in this hardcoded table is a bug to surface at import. */
 export function findNavItem(id: NavItemId): INavigationItem {
   const items: readonly INavigationItem[] = ALL_NAV_ITEMS;
   const found =

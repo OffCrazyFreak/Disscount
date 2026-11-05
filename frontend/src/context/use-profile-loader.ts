@@ -35,7 +35,7 @@ export function useProfileLoader() {
       setUser(null);
       // This load is no React Query query, so the query cache's report never sees a drift.
       if (error instanceof ZodError) Sentry.captureException(error);
-      // Spring erased this account but the login survived a failed deletion; ending the session clears the tab like any sign-out.
+      // Spring erased this account but the login survived, so ending the session clears the tab.
       const erasedUserId = erasedAccountId(error);
       if (erasedUserId) await finishErasedAccountDeletion(erasedUserId);
     } finally {

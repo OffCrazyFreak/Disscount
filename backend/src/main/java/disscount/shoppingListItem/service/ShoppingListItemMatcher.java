@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import disscount.shoppingListItem.domain.ShoppingListItem;
 
-/** Catalog products match by EAN because names can repeat; in Java, not SQL, so Croatian letters fold alike on Postgres and H2. */
+/** Catalog products match by EAN as names repeat; in Java, so Croatian letters fold alike on Postgres and H2. */
 final class ShoppingListItemMatcher {
 
     private ShoppingListItemMatcher() {

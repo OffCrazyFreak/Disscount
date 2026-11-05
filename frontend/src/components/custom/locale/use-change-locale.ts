@@ -21,13 +21,13 @@ export function useChangeLocale() {
     writeLocaleCookie(next);
 
     if (session?.user) {
-      // Always saved, because the session lags behind a quick second switch, and sign-in copies the account value back over the cookie.
+      // Always saved, because the session lags a quick second switch and sign-in copies the account back.
       queueAccountLocaleSave(session.user.id, next, () =>
         toast.error(t("saveFailed")),
       );
     }
 
-    // Read at click time, because useSearchParams would opt every static page out of prerendering, since the switcher is in the header and footer.
+    // At click time, because useSearchParams in the header and footer would break static prerendering.
     const query = window.location.search;
     startTransition(() => {
       router.replace(`${pathname}${query}`, {

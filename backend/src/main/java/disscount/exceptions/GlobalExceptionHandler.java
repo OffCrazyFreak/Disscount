@@ -126,7 +126,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return respond(ex, detail, headers, status, request);
     }
 
-    /** Hibernate reports a unique violation as DataIntegrityViolationException, so both are caught; nothing from the driver is logged, as it holds the value. */
+    /** Hibernate also reports a unique violation as DataIntegrityViolationException; driver text holds the value. */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ProblemDetail handleDuplicateKey(DataIntegrityViolationException ex) {
         // Rethrowing would bypass this advice and surface a container 500, so the non-conflict case is answered here.
@@ -182,7 +182,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return respond(ex, validationProblem(fieldErrors), headers, status, request);
     }
 
-    /** Covers @Validated params and Hibernate entity constraints, which Spring wraps in TransactionSystemException on commit. */
+    /** Covers @Validated params and Hibernate entity constraints, wrapped in TransactionSystemException on commit. */
     @ExceptionHandler({jakarta.validation.ConstraintViolationException.class, TransactionSystemException.class})
     public ProblemDetail handleEntityValidation(Exception ex) {
         jakarta.validation.ConstraintViolationException violations = entityViolationsOf(ex);
@@ -213,7 +213,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .findFirst().orElse(null);
     }
 
-    /** Hibernate's own validator factory does not read our bundles, so its "{validation.x}" template is looked up here. */
+    /** Hibernate's validator factory does not read our bundles, so its "{validation.x}" template resolves here. */
     private String violationMessage(ConstraintViolation<?> violation) {
         String template = violation.getMessageTemplate();
         boolean unresolved = template.equals(violation.getMessage());

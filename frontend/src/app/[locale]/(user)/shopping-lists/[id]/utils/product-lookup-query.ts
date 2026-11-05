@@ -8,7 +8,7 @@ function isNotKnownMissing(query: { state: { error: unknown } }) {
   return !isProductNotFound(query.state.error);
 }
 
-/** Both observers on this page share these options, since TanStack refetches through whichever allows it; useShoppingListData covers the watchlist's refetches. */
+/** Both observers share these options, since TanStack refetches through whichever allows it. */
 export function productLookupQuery(ean: string) {
   return queryOptions({
     queryKey: CIJENE_QUERY_KEYS.productByEan(ean),

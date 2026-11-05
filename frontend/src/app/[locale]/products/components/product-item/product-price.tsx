@@ -48,7 +48,7 @@ export default function ProductUnitPriceDetails({
           )}
 
           {minPrice != null && maxPrice != null ? (
-            // Groups the figures with their info button, so the icon cannot drop to its own line where the tier stacks on a narrow card.
+            // Grouped so the icon cannot drop to its own line where the tier stacks.
             <span className="flex items-center gap-2">
               {/* Tighter than the group's gap, since the dash already spaces the two figures. */}
               <span className="flex items-center gap-1 font-bold">
@@ -59,7 +59,7 @@ export default function ProductUnitPriceDetails({
                 />
               </span>
 
-              {/* A single figure is not a range, so there is no scope to explain; one store always reports the same min and max. */}
+              {/* One figure is not a range, so there is no scope to explain. */}
               {price && minPrice !== maxPrice && (
                 <ProductPriceScopeInfo scope={price.scope} />
               )}

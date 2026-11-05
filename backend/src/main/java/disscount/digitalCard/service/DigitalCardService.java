@@ -79,7 +79,7 @@ public class DigitalCardService {
         return photoStore.enabled();
     }
 
-    /** Outcomes are explicit so a replayed create after delete never resurrects and another user's id looks unused; the lock makes the cap atomic. */
+    /** A replayed create never resurrects, another user's id looks unused; the lock makes the cap atomic. */
     public DigitalCardDto upsert(UUID userId, UUID id, DigitalCardRequest request) {
         User user = userLock.acquire(userId);
         DigitalCard card = cardRepository.findById(id).orElse(null);
@@ -149,7 +149,7 @@ public class DigitalCardService {
             if (entry == null || entry.getId() == null || entry.getUsedAt() == null) {
                 throw new BadRequestException("error.card.usedEntryIncomplete");
             }
-            // Clamped both ways so a skewed device clock cannot pin a card to the future or the distant past of every sort.
+            // Clamped both ways so a skewed device clock cannot pin a card to the top or bottom of every sort.
             LocalDateTime usedAt = toUtc(entry.getUsedAt());
             if (usedAt.isAfter(now)) usedAt = now;
             if (usedAt.isBefore(oldest)) usedAt = oldest;

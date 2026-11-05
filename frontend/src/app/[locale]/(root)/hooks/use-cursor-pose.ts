@@ -27,7 +27,7 @@ export function useCursorPose(
   const [engaged, setEngaged] = useState(false);
 
   useEffect(() => {
-    // `engaged` is not reset here: this returns before the pointermove subscription exists, so there is no state to mirror.
+    // `engaged` is not reset: this returns before the pointermove subscription exists.
     if (!enabled) {
       facing.set(1);
       aim.set(0);

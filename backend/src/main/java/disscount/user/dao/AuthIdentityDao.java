@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/** Native queries because no entity maps these better-auth tables, which share this database and are never mirrored into app_user. */
+/** Native queries as no entity maps these better-auth tables, which are never mirrored into app_user. */
 @Repository
 @Slf4j
 public class AuthIdentityDao {
@@ -81,10 +81,10 @@ public class AuthIdentityDao {
                 .executeUpdate();
     }
 
-    // Native aggregates differ per driver and zone-less ones are UTC; an unmapped type is logged, because a silent null blanks the column for every user.
+    // Native aggregates differ per driver; an unmapped type is logged, as a silent null blanks the column for everyone.
     private Instant toInstant(Object value) {
         if (value == null) return null;
-        // toLocalDateTime() first, because the driver reads a zone-less Timestamp in the JVM zone, so toInstant() would re-apply that offset.
+        // toLocalDateTime() first: the driver reads a zone-less Timestamp in the JVM zone, and toInstant() re-applies.
         if (value instanceof Timestamp timestamp) return timestamp.toLocalDateTime().toInstant(ZoneOffset.UTC);
         if (value instanceof Instant instant) return instant;
         if (value instanceof OffsetDateTime offsetDateTime) return offsetDateTime.toInstant();

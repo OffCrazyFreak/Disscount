@@ -111,7 +111,7 @@ function isDigraphInitial(a: string, b: string): boolean {
   return /^(lj|nj|dz)$/.test(initial) && word.startsWith(initial);
 }
 
-// Croatian declines street names, so a five-letter stem counts as the same word; sources also abbreviate, so a short prefix counts.
+// Croatian declines street names, so a five-letter stem matches; sources abbreviate, so a prefix does too.
 function isPrefixPair(a: string, b: string): boolean {
   if (startsOther(a, b)) return true;
 

@@ -43,7 +43,7 @@ export const recipientSendLog: IRecipientSendGate = {
       return true;
     });
 
-    // Outside the per-recipient lock so sends to different addresses never queue on stale rows; a failed prune only leaves rows counts skip.
+    // Outside the per-recipient lock so other addresses never queue; a failed prune is harmless.
     await db
       .delete(emailSend)
       .where(lt(emailSend.sentAt, dayAgo))

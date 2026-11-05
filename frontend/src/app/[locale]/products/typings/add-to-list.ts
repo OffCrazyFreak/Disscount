@@ -21,7 +21,7 @@ export const addToListFormSchema = z
     isChecked: z.boolean(),
     chainCode: z.string().nullable().optional(),
   })
-  // The inline create branch posts to the same endpoint as the dedicated form, so it states the same rules, or a long title returns a 500.
+  // Posts to the same endpoint as the dedicated form, so it states the same rules, or a long title 500s.
   .superRefine((values, context) => {
     if (values.shoppingListId !== "new") return;
 

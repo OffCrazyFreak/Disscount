@@ -28,7 +28,7 @@ export default function ItemAmountControls({
   }
 
   return (
-    // The wrapper takes pointer events because Button's disabled:pointer-events-none wins on specificity, and a press would fall through to the row's link.
+    // The wrapper takes pointer events because Button's disabled:pointer-events-none lets presses reach the row link.
     <div className="relative z-20 flex items-center gap-2">
       <Button
         size="icon"

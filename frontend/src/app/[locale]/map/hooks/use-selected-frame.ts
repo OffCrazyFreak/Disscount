@@ -43,7 +43,7 @@ export function useSelectedFrame({
     let cancelled = false;
     let latestRun = 0;
 
-    // "idle" fires once tiles and clusters are drawn, which moveend can beat; an unchanged frame keeps its object so the overlay does not refire idle.
+    // "idle" fires after tiles and clusters draw, unlike moveend; a same frame keeps its object.
     async function locate() {
       const run = ++latestRun;
       let next: ISelectedFrame | null;

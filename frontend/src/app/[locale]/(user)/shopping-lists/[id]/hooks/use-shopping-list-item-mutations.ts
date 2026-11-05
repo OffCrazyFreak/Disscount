@@ -32,7 +32,7 @@ export function useShoppingListItemMutations(
     const item = shoppingList?.items?.find((i) => i.id === itemId);
     if (!item || updatedItem.amount < 1) return;
 
-    // Prices are captured at the moment of ticking, so they are resolved here where the component's price maps live, not inside the mutation.
+    // Captured at the moment of ticking, so resolved here where the price maps live.
     const data = { ...item, ...updatedItem };
 
     if (updatedItem.isChecked) {
@@ -43,12 +43,12 @@ export function useShoppingListItemMutations(
         updatedItem.chainCode && storePrices[item.id]?.[updatedItem.chainCode];
       if (storePrice) data.storePrice = storePrice;
     } else {
-      // data starts as a copy of the cached item, so an earlier capture would survive the uncheck and keep the first shop's price.
+      // data copies the cached item, so an earlier capture would survive the uncheck.
       data.avgPrice = null;
       data.storePrice = null;
     }
 
-    // No per-call onError: the offline default carries the message, and it is the only handler that survives a replay after a reload.
+    // No per-call onError: the offline default is the only handler that survives a replay after reload.
     updateItemMutation.mutate({ listId, itemId, data });
   };
 

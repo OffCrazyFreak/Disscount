@@ -154,7 +154,7 @@ async function replayOnce(queryClient: QueryClient, t: PhotoToastTranslator) {
   );
 
   for (const key of queuedKeys) {
-    // The account may have changed during earlier uploads and the listing can be stale, so re-read rather than send a dequeued entry.
+    // The account or listing may have changed, so re-read rather than send a dequeued entry.
     if (getCacheIdentity() !== identity) return;
 
     const peeked = await get<IOutboxEntry>(key, outboxStore());
@@ -179,7 +179,7 @@ async function replayOnce(queryClient: QueryClient, t: PhotoToastTranslator) {
   }
 }
 
-// An earlier send may have handled the newest choice, so a later caller still learns it; dropped once none waits, since an error holds both blobs.
+// A later caller still learns an earlier send's result; dropped when unwaited, as errors hold blobs.
 const lastHandled = new Map<string, ISendResult>();
 const waiting = new Map<string, number>();
 
@@ -190,7 +190,7 @@ export interface ISendResult {
   error?: unknown;
 }
 
-/** Written to the outbox first so a reload loses nothing; sends are serialized so an older one cannot land after a newer; a 404 can stay queued. */
+/** Outbox first so a reload loses nothing; serialized so an older send cannot land after a newer. */
 export function sendQueuedCardPhoto(
   queryClient: QueryClient,
   cardId: string,
@@ -262,7 +262,7 @@ async function sendEntry(
   }
 }
 
-/** Call after paused card saves resume, or an upload for a card the server has not seen answers 404; a refusal for good drops the entry. */
+/** Call after paused card saves resume, or an upload for an unseen card answers 404. */
 export async function replayCardPhotoOutbox(
   queryClient: QueryClient,
   t: PhotoToastTranslator,

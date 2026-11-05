@@ -1,7 +1,7 @@
 /** Past this, a press has left the bar, so releasing commits nothing */
 const BAR_VERTICAL_SLOP_PX = 24;
 
-/** By marker rather than bar.children, so an index means the cell index even if anything else renders inside the list. */
+/** By marker, so an index means the cell index whatever else renders in the list. */
 export function navCells(bar: HTMLElement): HTMLElement[] {
   return [...bar.querySelectorAll<HTMLElement>("[data-nav-cell]")];
 }

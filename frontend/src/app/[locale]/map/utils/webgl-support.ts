@@ -1,4 +1,4 @@
-/** Chromium refuses a context for the session after repeated GPU crashes, so a browser that showed the map yesterday can fail today. */
+/** Chromium refuses a context after repeated GPU crashes, so yesterday's working browser can fail. */
 export function canUseWebGL2(): boolean {
   try {
     const context = document.createElement("canvas").getContext("webgl2");

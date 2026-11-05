@@ -95,7 +95,7 @@ export default function SidebarFilterMenu({
                     asChild
                     isActive={selected.includes(option.value)}
                   >
-                    {/* The primitive's fixed h-7 clips a name that wraps, and its truncate rule squeezes the count to "(…". */}
+                    {/* The primitive's h-7 clips a wrapped name, and truncate squeezes the count. */}
                     <Link
                       href={buildHref(option.value)}
                       className="h-auto min-h-7 justify-between py-1"

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { createLongPressTimer, type ILongPressTimer } from "@/utils/long-press";
 
-/** Progress is written to the captured element, not state, so the ring re-renders nothing and a drain outlives its gesture. */
+/** Written to the captured element, not state, so nothing re-renders and a drain outlives its gesture. */
 export default function useLongPressTimer() {
   const timer = useRef<ILongPressTimer | null>(null);
   const element = useRef<HTMLElement | null>(null);
@@ -25,7 +25,7 @@ export default function useLongPressTimer() {
 
   const start = useCallback(
     (target: HTMLElement | null, onFire: () => void) => {
-      // A drain still running on the previous element is about to be cleared, so zero it or it keeps a half-filled ring.
+      // Zero the previous element's running drain, or it keeps a half-filled ring.
       element.current?.style.setProperty("--press-progress", "0");
 
       element.current = target;

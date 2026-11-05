@@ -34,7 +34,7 @@ function dedupeTrimmed(values: string[]): string[] {
   return [...new Set(values.map((entry) => entry.trim()).filter(Boolean))];
 }
 
-/** `legacyCsv` also splits a comma-joined value for old links; pass it only for a vocabulary where a value can never contain a comma. */
+/** `legacyCsv` also splits comma-joined old links; pass it only where a value can never contain a comma. */
 export function readListParam(
   params: IReadableParams,
   key: string,
@@ -76,7 +76,7 @@ export function rankByFields<T extends Record<string, unknown>>(
     .filter((rated) => rated.score > 0);
 }
 
-/** The sort is stable with coarse scores, so the caller's order survives among equal matches; sort the input and relevance layers on top. */
+/** A stable sort with coarse scores, so the caller's order survives among equal matches. */
 export function filterByFields<T extends Record<string, unknown>>(
   items: T[],
   query: string | null,

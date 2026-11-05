@@ -4,7 +4,7 @@ type ShareData =
   | { title: string; text: string; url?: string }
   | { title: string; text?: string; url: string };
 
-/** AbortError is a closed sheet; InvalidStateError is a second share while one is open, and the clipboard would then copy behind the user's back. */
+/** AbortError is a closed sheet; InvalidStateError a second share, where the clipboard would copy unasked. */
 function isDismissal(error: unknown): boolean {
   return (
     error instanceof DOMException &&
@@ -12,7 +12,7 @@ function isDismissal(error: unknown): boolean {
   );
 }
 
-/** Never add a pending state: navigator.share does not reliably settle on dismissal on mobile, so a flag strands the control spinning. */
+/** Never add a pending state: navigator.share may not settle on mobile dismissal, leaving a spinner. */
 export async function shareOrCopy(data: ShareData): Promise<ShareOutcome> {
   if (typeof navigator === "undefined") return "failed";
 
@@ -21,7 +21,7 @@ export async function shareOrCopy(data: ShareData): Promise<ShareOutcome> {
       await navigator.share(data);
       return "shared";
     } catch (error) {
-      // Dismissing is a choice, not a failure to fall back from; anything else is real, so the clipboard below still runs.
+      // Dismissing is a choice, not a failure; anything else is real, so the clipboard below still runs.
       if (isDismissal(error)) return "dismissed";
     }
   }

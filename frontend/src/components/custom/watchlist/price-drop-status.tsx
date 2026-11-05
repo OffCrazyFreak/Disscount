@@ -10,7 +10,7 @@ interface ISettledCount {
   count: number;
 }
 
-/** Mounted once in the layout because a changed aria-label is never announced, and a region per nav surface would announce twice. */
+/** Once in the layout, because aria-label changes go unannounced and per-surface regions double up. */
 export default function PriceDropStatus() {
   const t = useTranslations("shell");
   const { user } = useUser();

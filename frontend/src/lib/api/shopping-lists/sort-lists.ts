@@ -1,7 +1,7 @@
 import type { ShoppingListDto } from "@/lib/api/types";
 import { parseServerDate } from "@/utils/date";
 
-/** NaN from an unparseable timestamp would skip the tiebreaks below if compared loosely, and the spec coerces it to 0. */
+/** NaN from a bad timestamp would skip the tiebreaks below, as the spec coerces it to 0. */
 export function sortShoppingListsByRecency(
   lists: ShoppingListDto[],
 ): ShoppingListDto[] {

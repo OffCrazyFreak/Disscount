@@ -49,7 +49,7 @@ async function buildStoreDirectory(): Promise<StoreDirectoryResponse> {
   return value;
 }
 
-/** No cron: the first request of the day starts it after the response, and the lease keeps a second instance from running it twice. */
+/** No cron: the day's first request starts it after responding; the lease stops a second instance. */
 async function startSyncIfDue(): Promise<void> {
   if (syncRunning || !(await isSyncDue())) return;
 

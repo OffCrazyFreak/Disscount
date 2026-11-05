@@ -12,7 +12,7 @@ interface IShoppingListUpdateStatusProps {
   fetchedAt: number;
 }
 
-/** A poll rewrites the list with no action of theirs to explain the new content, so tell screen reader users someone else changed it. */
+/** A poll rewrites the list with no action of theirs, so tell screen reader users someone changed it. */
 export default function ShoppingListUpdateStatus({
   shoppingList,
   fetchedAt,
@@ -35,7 +35,7 @@ export default function ShoppingListUpdateStatus({
     const lastVersion = lastVersionRef.current;
     const writes = { mutationKey: SHOPPING_LIST_QUERY_KEYS.all };
 
-    // Recorded even for the same version, so a settled write stops counting; fetch time, so a cached list does not misattribute a write made elsewhere.
+    // Recorded even for the same version, so a settled write stops counting; fetch time avoids misattribution.
     lastVersionRef.current = {
       id,
       updatedAt,

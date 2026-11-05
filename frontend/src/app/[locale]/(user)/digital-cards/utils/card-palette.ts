@@ -1,4 +1,4 @@
-// Near-twins were left out so no two cells read alike; Amethyst is darkened from #9E69AF, which reached only 4.3:1 with either text colour.
+// Near-twins left out so no two cells read alike; Amethyst darkened because #9E69AF reached only 4.3:1.
 
 export type PaletteColorId =
   | "graphite"

@@ -36,7 +36,7 @@ export const sparLocator: IStoreLocator = {
       city: row.city?.trim() || undefined,
       zipcode: row.zipCode?.trim() || undefined,
       hours: parseSparHours(row, today),
-      // Spar's pages answer scripts with a Cloudflare challenge but open in a browser, so the link checker reports them unverified.
+      // Spar's pages show scripts a Cloudflare challenge, so the link checker reports them unverified.
       pageUrl: row.pageUrl?.startsWith("/lokacije/")
         ? `https://www.spar.hr${row.pageUrl}`
         : undefined,

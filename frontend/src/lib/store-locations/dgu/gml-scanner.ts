@@ -1,6 +1,6 @@
 const MEMBER_END = "</wfs:member>";
 
-// Real members are a few kilobytes; anything this long means the feed changed shape, and buffering would pull 2.6 GB into memory.
+// Members are a few kilobytes; this long means a changed feed, and buffering would pull 2.6 GB.
 const MAX_MEMBER_CHARS = 1_000_000;
 
 export interface IMemberScanner {

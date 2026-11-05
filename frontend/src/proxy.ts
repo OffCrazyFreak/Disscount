@@ -15,7 +15,7 @@ const PRODUCT_PATH = new RegExp(
   `^(?:/(${LOCALES.join("|")}))?/products/([^/]+)/?$`,
 );
 
-// Next advertises share images with the locale prefix even for Croatian, and preview bots may drop an image behind the redirect to the bare URL.
+// Next advertises share images with the locale prefix, and preview bots may drop one behind a redirect.
 const PREFIXED_SHARE_IMAGE_PATH = new RegExp(
   `^/(?:${LOCALES.join("|")})/(?:opengraph-image|twitter-image)(?:/|$)`,
 );
@@ -67,7 +67,7 @@ export default function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Skips API and auth routes, Next internals, the Sentry tunnel, handlers outside [locale] and files with an extension.
+  // Skips API and auth routes, Next internals, the Sentry tunnel, handlers outside [locale] and files.
   matcher: [
     "/((?!api|_next|_vercel|monitoring|health|share-target|.*\\..*).*)",
   ],

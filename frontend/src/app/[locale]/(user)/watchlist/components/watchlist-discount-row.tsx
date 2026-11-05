@@ -46,7 +46,7 @@ export default function WatchlistDiscountRow({
         >
           <Icon className="size-6" aria-hidden="true" />
           <span>{text}</span>
-          {/* The price is the visible label, so it leads the accessible name, for screen readers and voice control; infoLabel tells the two rows apart. */}
+          {/* The price is the visible label, so it leads the name for screen readers and voice control. */}
           <span className="sr-only">
             {t("discountRow.srSuffix", { infoLabel })}
           </span>

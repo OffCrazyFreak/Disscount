@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** The catch-all turns this into a 500 because ResponseEntityExceptionHandler does not know it; the method security PR must map it to 403 and flip this. */
+/** The catch-all makes this a 500, as ResponseEntityExceptionHandler lacks it; method security must flip it to 403. */
 class AuthorizationDeniedCharacterizationTest {
 
     @RestController

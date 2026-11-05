@@ -3,7 +3,7 @@ import { fold, weekFromLabelled } from "@/lib/store-hours/sources/hours-text";
 
 const CLOSED_WEEK = Array.from({ length: 7 }, () => []);
 
-/** `WorkHoures` is the feed's spelling; shops print no Sunday because they never open on one, so a week with Saturday and no Sunday closes it. */
+/** `WorkHoures` is the feed's spelling; no Sunday printed means closed, as these shops never open then. */
 export function parseKtcHours(text: string): IParsedHours | undefined {
   if (fold(text).includes("trajno zatvoreno")) {
     return { weekly: CLOSED_WEEK, dated: [] };

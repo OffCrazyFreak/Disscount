@@ -3,7 +3,7 @@ import { useIsRestoring } from "@tanstack/react-query";
 import { useUser } from "@/context/user-context";
 import { isOffline } from "@/lib/api/query-client-defaults";
 
-/** Offline with nothing saved: an empty state would claim the account has no data when this device simply never loaded it. */
+/** Offline with nothing saved, an empty state would falsely claim the account has no data. */
 export function useIsNotSavedOffline(hasSavedData: boolean) {
   const { hasUnverifiedAccount } = useUser();
   const isRestoring = useIsRestoring();

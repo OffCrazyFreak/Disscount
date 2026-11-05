@@ -1,4 +1,4 @@
-// Gated on Meta Business Verification; flip to false once verified and Live to re-enable Facebook in login and linked accounts.
+// Gated on Meta Business Verification; flip to false once verified to re-enable Facebook.
 export const FACEBOOK_COMING_SOON = true;
 
 // Reset and set-password links; the emails quote this, so it lives in one place.

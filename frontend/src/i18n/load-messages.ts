@@ -23,7 +23,7 @@ function mergeOver(
   return result;
 }
 
-/** Falls back to Croatian rather than the raw key; scripts/check-i18n.mjs keeps catalogs in step, so this only matters mid-translation. */
+/** Croatian rather than the raw key; check-i18n keeps catalogs in step, so this is mid-translation only. */
 export async function loadMessages(
   locale: AppLocale,
 ): Promise<AbstractIntlMessages> {

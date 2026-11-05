@@ -28,7 +28,7 @@ export default function ShoppingListPriceStatus({
   const successRef = useRef<HTMLParagraphElement>(null);
   const failedCount = failedItemIds.length;
 
-  // A retry only counts for the generation it was pressed in, so a failure arriving mid-retry, then removed, cannot surface a stale success.
+  // A retry counts only for its generation, so a failure arriving mid-retry cannot surface a stale success.
   const [failureGeneration, setFailureGeneration] = useState(0);
   const [previousFailedCount, setPreviousFailedCount] = useState(failedCount);
   if (failedCount !== previousFailedCount) {
@@ -50,7 +50,7 @@ export default function ShoppingListPriceStatus({
   const isRecovered =
     recoveredGeneration === failureGeneration && failedCount === 0;
 
-  // The retry button unmounts once every price loads, so hand focus to the outcome, but never pull it away from anything else.
+  // The retry button unmounts once prices load, so focus goes to the outcome, if it held focus.
   useEffect(() => {
     if (isRecovered && document.activeElement === document.body) {
       successRef.current?.focus();

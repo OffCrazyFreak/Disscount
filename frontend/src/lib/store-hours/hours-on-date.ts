@@ -11,7 +11,7 @@ function isFresh(verifiedAt: string, at: Date): boolean {
   return at.getTime() - Date.parse(verifiedAt) <= STALE_AFTER_MS;
 }
 
-/** A dated entry wins, then the law, then the template: shops close on holidays and all but 16 Sundays (NN 33/2023), so a Sunday is never open from the template. */
+/** Dated entry, then law, then template: shops close on all but 16 Sundays (NN 33/2023), never open by template. */
 export function hoursOnDate(
   hours: StoreHoursDto,
   date: string,

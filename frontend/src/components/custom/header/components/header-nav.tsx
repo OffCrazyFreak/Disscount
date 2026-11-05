@@ -16,7 +16,7 @@ export default function HeaderNav() {
   const pathname = usePathname();
   const { count: priceDropCount } = useWatchlistPriceDropCount();
 
-  // Admins take the dashboard branch, so the user items render only for non-admins; the lock still comes from the shared rule.
+  // Admins take the dashboard branch, so these items are non-admin; the lock still uses the shared rule.
   const showDashboard = canAccessDashboard(user?.accountType);
 
   return (

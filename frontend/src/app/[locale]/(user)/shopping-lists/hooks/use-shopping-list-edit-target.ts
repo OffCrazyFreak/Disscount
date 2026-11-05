@@ -22,7 +22,7 @@ export function useShoppingListEditTarget(isEdit: boolean, id?: string) {
   const loading = isMissing && byIdQuery.isLoading;
   const loadError = isMissing && byIdQuery.isError;
 
-  // Stricter than the API, which lets an EDIT recipient rename: no rename control goes to a non-owner, a product decision in docs/SHARING.md.
+  // Stricter than the API: renaming is withheld from non-owners, a product decision in docs/SHARING.md.
   const notOwner =
     !!shoppingList && !resolveShoppingListAccess(shoppingList.myAccess).isOwner;
   const notFound =

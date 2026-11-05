@@ -38,7 +38,7 @@ export default function MultiSelectContent({
 
   useMultiSelectEscape(isInline && open, contentRef, triggerRef, close);
 
-  // Reduced motion fires no animationend, so scrolling on open is what keeps the list clear of the keyboard for those users.
+  // Reduced motion fires no animationend, so scrolling on open keeps the list clear of the keyboard.
   useEffect(() => {
     if (!isInline || !open) return;
 
@@ -66,9 +66,9 @@ export default function MultiSelectContent({
       {isInline ? (
         <CollapsibleContent
           ref={contentRef}
-          // The global class animates the height so the scroller grows rather than jumps; `my-0` drops the primitive's margin.
+          // The global class animates height so the scroller grows; `my-0` drops the primitive's margin.
           className="CollapsibleContent my-0"
-          // Guarded because animationend bubbles from children, and the close animation would scroll to a box collapsing to nothing.
+          // Guarded because animationend bubbles, and closing would scroll to a collapsing box.
           onAnimationEnd={(event) => {
             if (event.target !== event.currentTarget) return;
             if (event.currentTarget.dataset.state !== "open") return;

@@ -17,7 +17,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import disscount.Application;
 
-/** ddl-auto=update alters tables PostgreSQL reads back differently (#397), which H2 cannot show, so a second start on real PostgreSQL must change nothing. */
+/** ddl-auto=update alters tables PostgreSQL reads back differently (#397), unseen on H2, so a second start must not. */
 @Testcontainers
 class DoubleBootSchemaTest {
 

@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 
-/** Its own bean because REQUIRES_NEW only works through the proxy, and a failed insert must leave the caller's transaction usable (docs/AUTH.md). */
+/** Its own bean as REQUIRES_NEW needs the proxy, and a failed insert must leave the caller usable (docs/AUTH.md). */
 @Service
 @RequiredArgsConstructor
 public class UserProfileCreator {

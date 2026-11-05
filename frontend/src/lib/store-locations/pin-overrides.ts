@@ -1,9 +1,9 @@
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { storeKey } from "@/lib/store-locations/upstream-stores";
 
-/** Only OSM points or person-confirmed places belong here, never Google Maps; replace rather than delete, which brings back the wrong point. */
+/** Only OSM or person-confirmed places, never Google Maps; replace rather than delete an entry. */
 export const PIN_OVERRIDES = new Map<string, { lat: number; lon: number }>([
-  // Stanić Biograd: diskont.hr's point is 194 m off, on empty ground; OSM node 2432262893 (shop "Stanić"), 12 m from the store, checked 2026-10-24.
+  // Stanić Biograd: diskont.hr is 194 m off; OSM node 2432262893 "Stanić", 12 m off, checked 2026-10-24.
   [storeKey("stanic", "935"), { lat: 43.942276, lon: 15.4545024 }],
   // Gavranović Duga Resa: Geoapify 132 m off; OSM node 2175649707 "market Gavranović".
   [storeKey("gavranovic", "332"), { lat: 45.4477819, lon: 15.5015569 }],
@@ -13,13 +13,13 @@ export const PIN_OVERRIDES = new Map<string, { lat: number; lon: number }>([
   [storeKey("ntl", "20324"), { lat: 45.5452705, lon: 18.2868595 }],
   // NTL Arslanovci: ntl.hr's point is 54 m off; OSM node 9001375947 (NTL, Njemačka ulica 1).
   [storeKey("ntl", "20345"), { lat: 45.3336712, lon: 17.6834783 }],
-  // Gavranović Hrvatska Kostajnica: the register has G. Lederera 27 in far-apart places; OSM node 12724057283 "Gavranović".
+  // Gavranović Hrvatska Kostajnica: G. Lederera 27 is far apart in the register; OSM node 12724057283.
   [storeKey("gavranovic", "311"), { lat: 45.2289262, lon: 16.5361268 }],
   // Gavranović Netretić: the register has Netretić 4 in far-apart places; OSM node 9676940071 "Gavranović Maret".
   [storeKey("gavranovic", "519"), { lat: 45.5079844, lon: 15.4146165 }],
   // Gavranović Krnjak: the register's point is a bakery 69 m east; OSM node 1434059889 "Market Gavranović".
   [storeKey("gavranovic", "402"), { lat: 45.3377235, lon: 15.6089138 }],
-  // Gavranović Gažanski trg, Karlovac: centre of OSM way 83376926, which Google agrees with; its fixme asks whether the shop is at 14 or 8.
+  // Gavranović Gažanski trg, Karlovac: OSM way 83376926, as Google agrees; its fixme says 14 or 8.
   [storeKey("gavranovic", "457"), { lat: 45.4966094, lon: 15.5575964 }],
   // NTL Bužanova 36, Zagreb: ntl.hr's point is 157 m off; OSM node 5576855520 "NTL".
   [storeKey("ntl", "10108"), { lat: 45.8122334, lon: 16.00583 }],

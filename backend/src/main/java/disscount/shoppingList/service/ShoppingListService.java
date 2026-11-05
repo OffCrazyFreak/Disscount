@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/** The by-id methods run where a bearer token is optional, so userId may be null and authorization is this class's job (docs/SHARING.md §4). */
+/** By-id methods run with an optional bearer token, so userId may be null; authorization is here (docs/SHARING.md). */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -46,7 +46,7 @@ public class ShoppingListService {
         return shoppingListMapper.toDto(shoppingList, ListAccess.OWNER);
     }
 
-    // Read-only, or the class-level @Transactional would keep a dirty-checking flush at commit for a query that never writes.
+    // Read-only, or the class-level @Transactional would keep a dirty-checking flush for a query that never writes.
     @Transactional(readOnly = true)
     public List<ShoppingListDto> getUserShoppingLists(UUID ownerId) {
         User owner = requireUser(ownerId);

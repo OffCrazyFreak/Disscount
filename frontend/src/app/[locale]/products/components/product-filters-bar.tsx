@@ -12,7 +12,7 @@ interface IProductFiltersBarProps {
   query: string;
 }
 
-/** Below `md` a button opens the products sheet expanded, so a query and the facets narrowing it are never split across two layers. */
+/** Below `md` the products sheet opens expanded, so a query and its facets share one layer. */
 export default function ProductFiltersBar({
   filters,
   query,

@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { shoppingListItemDtoSchema } from "@/lib/api/schemas/shopping-list-item";
 
-// OWNER is only ever a resolved answer, never a level the owner can pick, so it is absent here and present in listAccessSchema.
+// OWNER is only a resolved answer, never a level to pick, so it appears only in listAccessSchema.
 const linkAccessSchema = z.enum(["NONE", "VIEW", "SHOP", "EDIT"]);
 const listAccessSchema = z.enum(["NONE", "VIEW", "SHOP", "EDIT", "OWNER"]);
 
 export const shoppingListRequestSchema = z.object({
-  // Trimmed before the length checks, so three spaces cannot pass min(3) and reach the backend as a blank title its @NotBlank rejects.
+  // Trimmed first, so three spaces cannot pass min(3) and become a title @NotBlank rejects.
   title: z
     .string()
     .trim()
@@ -15,7 +15,7 @@ export const shoppingListRequestSchema = z.object({
   linkAccess: linkAccessSchema.optional(),
 });
 
-// Its own object, because the request's title rules are form validation the backend does not enforce, and a valid response must parse.
+// Its own object, because the request's title rules are form validation the backend does not enforce.
 export const shoppingListDtoSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -32,7 +32,7 @@ export const shoppingListDtoSchema = z.object({
 
 /** Independent flags, so a copy can take the products without the shopping progress. */
 export const shoppingListCopyRequestSchema = z.object({
-  // Trimmed before the length checks, so three spaces cannot pass min(3) and reach the backend as a blank title its @NotBlank rejects.
+  // Trimmed first, so three spaces cannot pass min(3) and become a title @NotBlank rejects.
   title: z
     .string()
     .trim()

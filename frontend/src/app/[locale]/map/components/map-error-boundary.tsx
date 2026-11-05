@@ -13,7 +13,7 @@ interface IMapErrorBoundaryState {
   failed: boolean;
 }
 
-/** MapLibre 6 throws from its constructor without WebGL2, and the list beside it holds every store; a class because only a class can catch. */
+/** MapLibre 6 throws from its constructor without WebGL2; a class because only a class can catch. */
 export default class MapErrorBoundary extends Component<
   IMapErrorBoundaryProps,
   IMapErrorBoundaryState

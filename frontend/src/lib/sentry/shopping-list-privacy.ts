@@ -8,7 +8,7 @@ export function isShoppingListPath(pathname: string): boolean {
   return SHOPPING_LIST_PATH.test(pathname);
 }
 
-/** Breadcrumbs quote the target's aria-label and list controls name their item, so on list pages they would carry a shared list's contents. */
+/** Breadcrumbs quote aria-labels, and list controls name their item, leaking a shared list's contents. */
 export function scrubBreadcrumbOnPage(
   breadcrumb: Breadcrumb,
   pathname: string,

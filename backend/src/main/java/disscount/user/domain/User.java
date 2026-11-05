@@ -27,11 +27,11 @@ public class User {
     @Id
     private UUID id;
 
-    // Nullable because deleteAccount nulls it to free the name, and Postgres lets a unique index hold many nulls; the settings form requires one.
+    // Nullable as deleteAccount nulls it to free the name, and a unique index holds many nulls; the form requires one.
     @Column(nullable = true, unique = true)
     private String username;
 
-    // Timestamps, not booleans: null is off, and non-null also records when it was switched on, a light usage stat with no event log.
+    // Timestamps, not booleans: non-null also records when it was switched on, with no event log.
     @Column(name = "notifications_push_enabled_at")
     private LocalDateTime notificationsPushEnabledAt;
 

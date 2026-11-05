@@ -32,7 +32,7 @@ function firstDate(days: z.infer<typeof daySchema>[], today: string) {
   return dayIndex(days[0]?.name ?? "") === isoWeekday(today) ? today : null;
 }
 
-/** Konzum publishes only the next ten dated days; the template takes each weekday's open instance, since a holiday shows as closed. */
+/** Konzum publishes only ten dated days; the template takes each weekday's open one, as holidays close. */
 export function parseKonzumHours(
   workHours: string,
   today: string,

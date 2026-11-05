@@ -48,7 +48,7 @@ interface IUserContext {
   accountUser: UserDto | null;
   refreshUser: () => Promise<UserDto | undefined>;
   setUser: (user: UserDto | null) => void;
-  /** Folds rather than replaces, because the backend's convertToUserDto omits pinnedStores and pinnedPlaces, which a setUser would drop until a hard reload. */
+  /** Folds because convertToUserDto omits pinnedStores and pinnedPlaces, which setUser would drop. */
   mergeUser: (patch: Partial<UserDto>) => void;
   logout: () => Promise<void>;
   updatePinnedStores: (stores: PinnedStoreDto[]) => void;
@@ -65,7 +65,7 @@ interface IUserProviderProps {
 export function UserProvider({ children }: IUserProviderProps) {
   const { user, setUser, isLoading, hasResolvedAuth, refreshUser, clearUser } =
     useProfileLoader();
-  // Seeded from the persisted value so a reload as the same account is not read as a change of identity, which would purge the restored cache.
+  // Seeded so a reload as the same account is no identity change, which would purge the restored cache.
   const cacheIdentityRef = useRef<string | null>(persistedCacheIdentity());
 
   const queryClient = useQueryClient();
@@ -93,7 +93,7 @@ export function UserProvider({ children }: IUserProviderProps) {
     } else {
       clearUser();
     }
-    // Keyed on the user id because better-auth returns a new session object on every poll, which would refetch on a cadence, not on sign-in.
+    // Keyed on the id because better-auth returns a new session object on every poll.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     session?.user?.id,
@@ -107,7 +107,7 @@ export function UserProvider({ children }: IUserProviderProps) {
   const handleLogout = useLogout(cacheIdentityRef, setUser);
 
   const handleUserLogin = useCallback(async () => {
-    // The proxy refuses a call pinned to another account than the cookie's, and useSession may lag the sign-in, so the pin moves first.
+    // The proxy refuses a pin differing from the cookie, and useSession may lag, so the pin moves first.
     const { data, error } = await authClient.getSession();
     syncCacheIdentity(
       queryClient,

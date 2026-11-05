@@ -44,7 +44,7 @@ export default function ProfileTab() {
               <FormControl>
                 <Input {...field} value={field.value || ""} />
               </FormControl>
-              {/* Says it is taken up front, so a rejection on save is no surprise; the server answers 409, which lands here through problem-details. */}
+              {/* Says it is taken up front; the server's 409 lands here through problem-details. */}
               <FormDescription>
                 {t("profile.username.description")}
               </FormDescription>

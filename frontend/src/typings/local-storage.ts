@@ -59,6 +59,6 @@ export interface IAppData {
   preferredCameraId?: string; // Manually chosen scanner camera; absent means auto-pick
   formDrafts?: Record<string, IFormDraft>;
   mapRecentSearches?: string[];
-  watchlistPriceSnapshots?: Record<string, IWatchlistPriceSnapshot>; // User id -> prices at the last watchlist visit, the price-drop badge baseline
+  watchlistPriceSnapshots?: Record<string, IWatchlistPriceSnapshot>; // User id -> prices at the last watchlist visit
   [key: string]: unknown;
 }

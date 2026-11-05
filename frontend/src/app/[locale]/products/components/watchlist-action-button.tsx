@@ -42,7 +42,7 @@ export default function WatchlistActionButton({
           className={cn("shrink-0", className)}
           onClick={() => openWatchlist()}
         >
-          {/* A pen, not an eye-off: the button opens the tracking settings and never stops tracking, which a slashed eye promises. */}
+          {/* A pen, because the button opens tracking settings and never stops tracking, as an eye-off implies. */}
           {isInWatchlist ? <EyePen /> : <Eye />}
         </Button>
       </TooltipTrigger>

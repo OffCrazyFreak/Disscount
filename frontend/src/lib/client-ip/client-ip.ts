@@ -21,7 +21,7 @@ function isCloudflare(ip: string) {
   return cloudflare.check(ip, isIP(ip) === 6 ? "ipv6" : "ipv4");
 }
 
-/** Traefik writes its peer as the last x-forwarded-for hop, so only that is trustworthy, and cf-connecting-ip counts only from a Cloudflare edge. */
+/** Traefik writes its peer as the last hop, so only that is trusted; cf-connecting-ip only from Cloudflare. */
 export function resolveClientIp(headers: Headers): string | null {
   const peer = headers.get("x-forwarded-for")?.split(",").at(-1)?.trim();
   if (!peer || !isIP(peer)) return null;
@@ -59,7 +59,7 @@ export function withTrustedClientIp(request: Request): Request {
   // Same trust rule as the address: only a Cloudflare edge may set the country.
   if (!isCloudflarePeer(headers)) headers.delete(CLIENT_COUNTRY_HEADER);
 
-  // Next passes a Proxy around the request and Node 24's undici rejects it, so copy by parts; duplex is required for a streamed body.
+  // Next passes a Proxy and Node 24's undici rejects it, so copy by parts; streamed bodies need duplex.
   const init: RequestInit & { duplex: "half" } = {
     method: request.method,
     headers,

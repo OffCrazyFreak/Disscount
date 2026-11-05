@@ -18,7 +18,7 @@ const ACCESS_TEXT_KEYS = {
   EDIT: "access.edit",
 } as const satisfies Partial<Record<ListAccess, string>>;
 
-/** Always renders, because disabled controls point at its id with aria-describedby and a cached DTO with no myAccess would leave that dangling. */
+/** Always renders, because disabled controls point at its id with aria-describedby. */
 export default function ShoppingListAccessBanner({
   myAccess,
   isSignedIn,

@@ -9,7 +9,7 @@ interface IMediaRowProps {
   className?: string;
 }
 
-/** Only a grid can size a square to its row, because a flex row never revisits the column width; absolute so file size never counts. */
+/** Only a grid sizes a square to its row, as flex never revisits the column; absolute ignores file size. */
 export default function MediaRow({
   media,
   children,

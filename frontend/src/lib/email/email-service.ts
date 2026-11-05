@@ -52,7 +52,7 @@ export class EmailService {
     private readonly recipientGate: IRecipientSendGate,
   ) {}
 
-  // The provider returns { error } instead of throwing, so surface it for .catch(logEmailFailure); a spent cap throws too, keeping callers enumeration-safe.
+  // The provider returns { error } rather than throwing, so surface it; a spent cap throws too.
   private async send(message: IEmailMessage): Promise<void> {
     if (!(await this.recipientGate.tryReserve(message.to)))
       throw new RecipientCapReachedError();

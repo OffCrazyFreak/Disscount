@@ -12,7 +12,7 @@ import { STORE_NAME_QUERY_KEYS } from "@/lib/api/store-names/keys";
 import { WATCHLIST_QUERY_KEYS } from "@/lib/api/watchlist/keys";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 
-// The persisted cache is keyed by these values, so a change strands every offline copy unless CACHE_BUSTER is bumped, which discards queued writes.
+// A change strands every offline copy unless CACHE_BUSTER is bumped, which discards queued writes.
 describe("query key factories", () => {
   it("keep the public price data keys", () => {
     expect(CIJENE_QUERY_KEYS.chains).toStrictEqual(["cijene", "chains"]);

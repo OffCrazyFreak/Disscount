@@ -20,7 +20,7 @@ interface IMapStoreSourceProps {
   onStackClick: (stack: IMapFeatureRef) => void;
 }
 
-/** Clustering runs to the deepest zoom, because stores sharing an address never split apart, so they stay one stack that opens as a list. */
+/** Deepest zoom, because stores sharing an address never split, so they stay one stack. */
 export default function MapStoreSource({
   chains,
   data,

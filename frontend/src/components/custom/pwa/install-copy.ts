@@ -1,6 +1,6 @@
 import type { InstallPlatform } from "@/components/custom/pwa/use-install-prompt";
 
-/** A desktop has no home screen, so the phone wording reads as a mistake; shared so the banner, card and sheet agree. */
+/** A desktop has no home screen; shared so the banner, card and sheet agree. */
 export function isDesktopPlatform(platform: InstallPlatform): boolean {
   return platform === "desktop" || platform === "macSafari";
 }

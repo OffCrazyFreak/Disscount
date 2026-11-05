@@ -3,7 +3,7 @@ import type { QueryClient, QueryKey } from "@tanstack/react-query";
 import type { ShoppingListDto } from "@/lib/api/schemas/shopping-list";
 import type { ShoppingListItemDto } from "@/lib/api/schemas/shopping-list-item";
 
-/** Scoped to one item, because two quick writes overlap and restoring a whole-list snapshot undoes a write the server accepted. */
+/** Per item, because restoring a whole-list snapshot undoes an overlapping write the server accepted. */
 export interface IItemRollback {
   item: ShoppingListItemDto;
   index: number;

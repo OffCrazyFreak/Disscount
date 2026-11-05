@@ -7,7 +7,7 @@ export function shoppingListPath(id: string): string {
   return `/shopping-lists/${encodeURIComponent(id)}`;
 }
 
-/** No separate share token: the id is the capability while shared and grants nothing once not, so re-sharing hands back the same URL. */
+/** No separate share token: the id is the capability while shared, so re-sharing hands back the same URL. */
 export function shareListUrl(id: string, locale: AppLocale): string {
   return `${appUrl()}${localePath(locale, shoppingListPath(id))}`;
 }

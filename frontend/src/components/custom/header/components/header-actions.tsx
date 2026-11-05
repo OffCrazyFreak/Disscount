@@ -35,7 +35,7 @@ export default function HeaderActions({
         />
       ) : canShowAccountData ? (
         <div className="flex items-center gap-4">
-          {/* The page header stays mounted, hidden, behind the compact bar, and only one bell may answer open requests. */}
+          {/* The page header stays mounted behind the compact bar, and only one bell may answer open requests. */}
           <NotificationsDropdown openViaContext={!compact} />
           <UserMenu />
         </div>

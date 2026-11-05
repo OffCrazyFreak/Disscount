@@ -56,7 +56,7 @@ export default function UserAvatar({
       {...props}
     >
       {showImage ? (
-        /* next/image is out because next.config.ts declares no images.remotePatterns, and Radix's Avatar never fires load for data-URI images. */
+        /* No next/image, as there are no images.remotePatterns; Radix's Avatar never loads data URIs. */
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={user.image ?? undefined}

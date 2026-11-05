@@ -17,7 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/** The standard filter rejects a stale token with 401 before authorization, so a share link needs this to continue anonymously; dropping the resource server would demote signed-in recipients to VIEW. */
+/** The standard filter 401s a stale token before authorization, so a share link needs this to go on anonymously. */
 @Component
 @RequiredArgsConstructor
 public class OptionalBearerAuthenticationFilter extends OncePerRequestFilter {
@@ -35,7 +35,7 @@ public class OptionalBearerAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        // RFC 7235 makes the scheme case-insensitive, so a recipient should not be demoted to anonymous over capitalisation.
+        // RFC 7235 makes the scheme case-insensitive, so capitalisation must not demote a recipient to anonymous.
         if (header != null
                 && header.regionMatches(true, 0, BEARER_PREFIX, 0, BEARER_PREFIX.length())) {
             try {
@@ -44,7 +44,7 @@ public class OptionalBearerAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(converter.convert(jwt));
                 }
             } catch (JwtException ignored) {
-                // Expired, malformed or issued elsewhere: the caller keeps what the link grants anonymously, capped at VIEW.
+                // Expired, malformed or foreign: the caller keeps what the link grants anonymously, capped at VIEW.
             }
         }
 

@@ -10,7 +10,7 @@ interface INotifyMeButtonProps {
   label?: string;
 }
 
-/** Uses the existing notification preferences rather than a separate waitlist; the modal router gates signed-out visitors into login. */
+/** Uses notification preferences instead of a waitlist; the modal router gates signed-out visitors. */
 export default function NotifyMeButton({ label }: INotifyMeButtonProps) {
   const t = useTranslations("common.comingSoon");
 
