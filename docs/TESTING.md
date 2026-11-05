@@ -129,3 +129,5 @@ It sets account, list, item, watchlist (three with a past price alert), card, co
 - [Testing Library query priority](https://testing-library.com/docs/queries/about/#priority) and [user-event setup](https://testing-library.com/docs/user-event/setup)
 - [Kent C. Dodds: Write tests. Not too many. Mostly integration.](https://kentcdodds.com/blog/write-tests)
 - [Formbricks' Vitest config](https://github.com/formbricks/formbricks/blob/main/apps/web/vite.config.mts), the model for the two-project split
+
+Proof change.
