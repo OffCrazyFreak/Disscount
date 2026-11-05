@@ -6,8 +6,9 @@ resolves the workspace through it and offers to purge the MAIN tree's copy. It
 aborts on a missing TTY today, so with CI=true set it would delete the real one.
 A worktree with its own install is safe, and pnpm runs there as usual.
 It also blocks `--no-verify`, pushes to `main` or `dev` (rules in guard_git.py),
-and `pkill -f` or `pgrep -f` patterns that match their own command line
-(guard_process.py).
+`pkill -f` or `pgrep -f` patterns that match their own command line
+(guard_process.py), and merging a pull request whose required checks are not
+green (guard_merge.py).
 The permission rules in settings.json are prefix matches, so this parses each
 command instead of matching a prefix.
 
@@ -29,6 +30,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from guard_git import git_refusal  # noqa: E402
+from guard_merge import merge_refusal  # noqa: E402
 from guard_process import process_match_refusal  # noqa: E402
 
 WRAPPERS = {"sudo", "timeout", "env", "nice", "nohup", "command", "time", "xargs"}
@@ -342,6 +344,12 @@ def check(command, cwd, depth=0, root=None):
             if message:
                 return message
             continue
+
+        if name == "gh" or (wrapped and "gh" in names):
+            hidden = bool(SUBSTITUTION.search(command)) or "xargs" in map(basename, raw_tokens)
+            message = merge_refusal(tokens[names.index("gh") + 1 :], effective_cwd, hidden)
+            if message:
+                return message
 
         message = process_match_refusal(tokens, wrapped, root)
         if message:
