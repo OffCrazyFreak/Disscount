@@ -220,6 +220,22 @@ describe("openingStatusAt", () => {
     },
   );
 
+  it("names an opening at 00:00 after a closed day by its own day", () => {
+    const allDay = [{ opens: "00:00", closes: "24:00" }];
+    const status = openingStatusAt(
+      hours({
+        weekly: [allDay, allDay, allDay, allDay, allDay, allDay, []],
+        sundays: "weekly",
+      }),
+      noHolidays,
+      at("2026-11-08T10:00:00"),
+    );
+
+    expect(status).toMatchObject({
+      opensAt: { date: "2026-11-09", time: "00:00" },
+    });
+  });
+
   it("joins a day that closes at 24:00 to one that opens at 00:00", () => {
     const status = openingStatusAt(
       hours({
