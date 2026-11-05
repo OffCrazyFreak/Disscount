@@ -1,7 +1,7 @@
 {
   "ipAddresses": {
     "heading": "IP-Adressen",
-    "body": "Bei der Anmeldung speichern wir die IP-Adresse deines Geräts zusammen mit der Sitzung, damit wir verdächtige Anmeldungen bei deinem Konto prüfen können. Die Adresse löschen wir spätestens 30 Tage nach der Anmeldung, eine abgelaufene Sitzung löschen wir vollständig. Zum Schutz vor Missbrauch nutzen wir die IP-Adresse außerdem kurz, um wiederholte Versuche zu begrenzen: bis zu 15 Minuten in unserer Datenbank bei der Anmeldung und ähnlichen Aktionen und bis zu 24 Stunden beim Kontaktformular, nur im Arbeitsspeicher des Servers. Wenn eine sichere Verbindung zu unserem Server fehlschlägt, vermerkt das Fehlerprotokoll des Servers die Adresse dieser Verbindung. Diese Einträge nutzen wir nur, um Störungen zu beheben. Datenbank-Backups können diese Daten noch bis zu 60 Tage enthalten. Rechtsgrundlage ist das berechtigte Interesse (Art. 6 Abs. 1 lit. f DSGVO)."
+    "body": "Bei der Anmeldung speichern wir die IP-Adresse deines Geräts zusammen mit der Sitzung, damit wir verdächtige Anmeldungen bei deinem Konto prüfen können. Die Adresse löschen wir spätestens 30 Tage nach der Anmeldung, eine abgelaufene Sitzung löschen wir vollständig. Zum Schutz vor Missbrauch nutzen wir die IP-Adresse außerdem kurz, um wiederholte Versuche zu begrenzen: bis zu 15 Minuten in unserer Datenbank bei der Anmeldung und ähnlichen Aktionen und bis zu 24 Stunden beim Kontaktformular, nur im Arbeitsspeicher des Servers. Wenn eine sichere Verbindung zu unserem Server fehlschlägt, vermerkt das Fehlerprotokoll des Servers die Adresse dieser Verbindung. Diese Einträge nutzen wir nur, um Störungen zu beheben. Datenbank-Backups können diese Daten noch bis zu 30 Tage enthalten. Rechtsgrundlage ist das berechtigte Interesse (Art. 6 Abs. 1 lit. f DSGVO)."
   },
   "errorTracking": {
     "heading": "Fehlerüberwachung",
@@ -11,5 +11,9 @@
   "securityNotices": {
     "heading": "Sicherheitshinweise",
     "body": "Wenn sich das Passwort deines Kontos ändert, schicken wir dir eine E-Mail mit einem Hinweis. Wenn du deine E-Mail-Adresse änderst, geht der Hinweis an die alte Adresse und nennt die neue. So bemerkst du eine Änderung, von der du nichts weißt, und kannst sofort reagieren. Diese Hinweise gehören zum Schutz deines Kontos, deshalb kannst du sie nicht abschalten. Rechtsgrundlage ist das berechtigte Interesse (Art. 6 Abs. 1 lit. f DSGVO)."
+  },
+  "backups": {
+    "heading": "Sicherungskopien",
+    "body": "Wir kopieren die Datenbank und die Fotos regelmäßig, damit ein Fehler sie nicht verliert. Die Kopien bewahren wir in der Europäischen Union auf, auf unserem Server und bei Cloudflare, unserem Auftragsverarbeiter, höchstens 30 Tage lang; danach löschen sie sich von selbst. Wenn du dein Konto löschst, verschwinden deine Daten aus den Kopien, sobald diese ablaufen. Müssen wir die Datenbank je aus einer Kopie wiederherstellen, löschen wir vor dem erneuten Öffnen der App alle in der Zwischenzeit entfernten Konten noch einmal. Rechtsgrundlage ist das berechtigte Interesse (Art. 6 Abs. 1 lit. f DSGVO)."
   }
 }
