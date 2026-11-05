@@ -102,6 +102,7 @@ Conventions:
 - Edit `components/ui/` (shadcn output) only where the primitive is the natural home; ours live in `components/custom/`.
 - Put API and domain types as zod `*Dto` / `*Response` in `lib/api/schemas/*`, and price API types in `lib/cijene-api/schemas.ts`.
 - Put query hooks beside their service in `lib/api/<domain>/`.
+- Keep shared code free of feature imports.
 - Read the `frontend-design` skill before generating or redesigning UI.
 
 Copy and i18n (`docs/I18N.md`):
@@ -117,6 +118,7 @@ Copy and i18n (`docs/I18N.md`):
 ## Backend
 
 - The app is a resource server validating better-auth's ES256 JWTs via JWKS.
+- Split backend packages by domain, with thin controllers.
 - Keep anything Postgres-specific portable or profile-guarded, because tests run on H2 with `src/test` properties and only `DoubleBootSchemaTest` boots main's on Postgres.
 - When changing an enum column to String, expect a stale CHECK constraint: `ddl-auto=update` keeps it, writes 500, boot tests miss it.
 - Keep springdoc's major on the Spring Boot major.
