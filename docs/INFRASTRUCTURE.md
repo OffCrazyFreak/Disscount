@@ -196,6 +196,8 @@ The photo buckets from before the move are retired: `disscount-card-photos`, `di
 
 **Visitor location headers** (Rules, Settings, Managed Transforms, "Add visitor location headers") must be on for the stores map to open near the visitor without GPS. Cloudflare then adds `cf-iplatitude`, `cf-iplongitude` and `cf-ipcity` to requests that reach the origin. It works on this zone; with it off, the map simply opens on all of Croatia. Details in [MAP.md](MAP.md).
 
+**Service worker cache rule** (Caching, Cache Rules): `http.request.uri.path eq "/sw.js"` is set to bypass cache, on the whole zone. It is the zone's only cache rule, and it exists only in Cloudflare. Without it the zone's 4 hour Browser Cache TTL overwrites the file's `Cache-Control`, and Cloudflare stores a copy. Why this matters is in [PWA.md](PWA.md).
+
 **Retired waitlist subdomains:** `get` / `waitlist` / `zelim` / `želim` (the last is an IDN stored as an `xn--…` name) pointed at the retired Netlify waitlist site. They are now proxied `AAAA 100::` records (Cloudflare's placeholder for a hostname with no origin), and they **301-redirect to `https://disscount.me/`** via a Cloudflare **Redirect Rule** (Rules, Redirect Rules) whose expression is:
 
 ```

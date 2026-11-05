@@ -69,7 +69,7 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Content-Security-Policy", value: csp }],
       },
       {
-        // Cloudflare's Browser Cache TTL would raise the default max-age=0 to 4 hours.
+        // Reaches browsers only through the Cloudflare cache rule in docs/INFRASTRUCTURE.md.
         source: "/sw.js",
         headers: [{ key: "Cache-Control", value: "no-cache" }],
       },
