@@ -43,7 +43,7 @@ A lock blocks every deletion until it ends, lifecycle rules included, so each pr
 - `backup/bin/backup-entrypoint`: reads the secrets under `/run/secrets`, refuses to start if a required setting is missing, and configures rclone from environment variables (an S3 remote `r2` and a crypt remote `photos` on top of it).
 - `backup/bin/backup-job`: one job per call. Each job takes a lock (a second run while one is going is skipped), pings healthchecks.io at start, success and failure, writes to a temp folder, and uploads only finished files; database dumps must also be non-empty and readable. Each successful `erasure-markers` run (every minute) touches `/tmp/backup-heartbeat`, and the container's healthcheck turns unhealthy when it has not succeeded for 5 minutes. The other jobs report through healthchecks.io. The ping body carries only the job's own summary lines (file names, sizes, counts), never tool output, which can quote database rows; full output is in the container log.
 - `docker-compose.images.yml`: the `backup` service, the `photos-private` and `photos-public` volumes, and the secrets.
-- `.github/workflows/ci.yml` and `.github/actions/dokploy-deploy/action.yml`: build and tag the image.
+- `.github/workflows/ci.yml` and `.github/actions/dokploy-deploy/deploy.sh`: build and tag the image.
 
 ## Configuration
 

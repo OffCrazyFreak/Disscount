@@ -1,5 +1,5 @@
 name: Dokploy deploy
-description: Points an environment's moving tag at one commit's images, redeploys the Dokploy compose service and waits until /health reports that commit.
+description: Points an environment's moving tag at one commit's images, redeploys the Dokploy compose service and waits until /health reports that commit. On dev, puts the previous release back if it never does.
 
 inputs:
   release-id:
@@ -33,83 +33,13 @@ runs:
         username: ${{ github.actor }}
         password: ${{ inputs.registry-token }}
 
-    # The app tags move together, and only once every image exists, so the server never
-    # pulls a frontend from one commit and a backend or migrator from another.
-    - name: Point the moving tag at this commit
+    - name: Deploy this commit
       shell: bash
       env:
         RELEASE_ID: ${{ inputs.release-id }}
         ENVIRONMENT_TAG: ${{ inputs.environment-tag }}
-      run: |
-        if ! [[ "$RELEASE_ID" =~ ^[0-9a-f]{40}$ ]]; then
-          echo "::error::release-id must be a full 40 character commit SHA."
-          exit 1
-        fi
-        # A frontend bundle carries its environment's public values, so prod has its own commit tags
-        # and a Rollback can never put a dev build on production.
-        commit_tag="sha-$RELEASE_ID"
-        if [ "$ENVIRONMENT_TAG" = prod ]; then
-          commit_tag="prod-sha-$RELEASE_ID"
-        fi
-        images="frontend migrator backend"
-        for image in $images; do
-          docker buildx imagetools inspect "ghcr.io/offcrazyfreak/disscount-$image:$commit_tag" >/dev/null
-        done
-        # Commits from before the backup image have none, so a Rollback to one leaves the backup tag where it is.
-        if inspect_error="$(docker buildx imagetools inspect "ghcr.io/offcrazyfreak/disscount-backup:$commit_tag" 2>&1 >/dev/null)"; then
-          images="$images backup"
-        elif grep -qi "not found" <<<"$inspect_error"; then
-          echo "::warning::No backup image for $RELEASE_ID; the backup tag stays on its current commit."
-        else
-          echo "::error::Could not check the backup image: $inspect_error"
-          exit 1
-        fi
-        for image in $images; do
-          docker buildx imagetools create \
-            --tag "ghcr.io/offcrazyfreak/disscount-$image:$ENVIRONMENT_TAG" \
-            "ghcr.io/offcrazyfreak/disscount-$image:$commit_tag" || {
-            echo "::error::Moving $ENVIRONMENT_TAG failed at $image, so the tags may mix commits; re-run this job if this commit is still the branch tip, otherwise run Rollback (or, before Rollback is on main, push a revert) before any Redeploy."
-            exit 1
-          }
-        done
-
-    # Only the status code is printed, because Dokploy's response bodies can echo service
-    # settings into a public log.
-    - name: Trigger the deploy
-      shell: bash
-      env:
+        APP_URL: ${{ inputs.app-url }}
         DOKPLOY_URL: ${{ inputs.dokploy-url }}
-        RELEASE_ID: ${{ inputs.release-id }}
-        ENVIRONMENT_TAG: ${{ inputs.environment-tag }}
         DOKPLOY_API_KEY: ${{ inputs.api-key }}
         COMPOSE_ID: ${{ inputs.compose-id }}
-      run: |
-        status=$(curl --silent --max-time 30 --output /dev/null --write-out '%{http_code}' \
-          --request POST "$DOKPLOY_URL/api/compose.deploy" \
-          --header "x-api-key: $DOKPLOY_API_KEY" \
-          --header "Content-Type: application/json" \
-          --data "{\"composeId\":\"$COMPOSE_ID\"}" || true)
-        if [[ "$status" != 2* ]]; then
-          echo "::error::Dokploy did not accept the deploy (HTTP $status). The $ENVIRONMENT_TAG tag already points at $RELEASE_ID; run Rollback with the last good commit (or, before Rollback is on main, push a revert) before any Redeploy."
-          exit 1
-        fi
-
-    # compose.deploy only queues the job, so success means the site reporting the new commit.
-    - name: Wait for the new release
-      shell: bash
-      env:
-        APP_URL: ${{ inputs.app-url }}
-        RELEASE_ID: ${{ inputs.release-id }}
-        ENVIRONMENT_TAG: ${{ inputs.environment-tag }}
-      run: |
-        deadline=$((SECONDS + 15 * 60))
-        while [ "$SECONDS" -lt "$deadline" ]; do
-          live=$(curl --silent --max-time 10 "$APP_URL/health" | jq -r '.releaseId // empty' || true)
-          if [ "$live" = "$RELEASE_ID" ]; then
-            echo "Live on $RELEASE_ID."
-            exit 0
-          fi
-          sleep 15
-        done
-        echo "::error::$APP_URL did not report $RELEASE_ID within 15 minutes. The $ENVIRONMENT_TAG tag already points at it; run Rollback with the last good commit (or, before Rollback is on main, push a revert) before any Redeploy."
-        exit 1
+      run: bash "$GITHUB_ACTION_PATH/deploy.sh"
