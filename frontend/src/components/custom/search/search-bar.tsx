@@ -9,7 +9,7 @@ import SearchActionButton from "@/components/custom/search/search-action-button"
 import {
   dismissTouchKeyboard,
   isTouchPointer,
-} from "@/components/custom/search/dismiss-touch-keyboard";
+} from "@/utils/browser/touch-keyboard";
 import { useSearchBarQuery } from "@/components/custom/search/use-search-bar-query";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useSidebar } from "@/components/ui/sidebar";

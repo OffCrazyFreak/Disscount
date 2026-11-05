@@ -20,6 +20,7 @@ import OfflineIndicator from "@/components/custom/offline/offline-indicator";
 import Providers from "@/app/providers/providers";
 import LocaleSync from "@/components/custom/locale/locale-sync";
 import ZodLocale from "@/components/custom/locale/zod-locale";
+import TouchKeyboardDismissal from "@/components/custom/common/touch-keyboard-dismissal";
 import LocaleSuggestion from "@/components/custom/locale/locale-suggestion";
 import { ReactNode, Suspense } from "react";
 import { isIndexableOrigin } from "@/utils/indexing";
@@ -188,6 +189,7 @@ export default async function RootLayout({
           <Providers>
             <LocaleSync />
             <ZodLocale />
+            <TouchKeyboardDismissal />
             <OfflineIndicator />
             <InstallBanner />
 
