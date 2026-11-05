@@ -39,7 +39,8 @@ export default function CandidateTile({
       )}
     >
       <PhotoTile
-        src={image.previewUrl}
+        // The 256 px small file is soft on a 245 px tile at 2x, so a copied photo shows its full file.
+        src={image.fullUrl ?? image.previewUrl}
         alt={t("photo.altNumbered", { name: productName, index: index + 1 })}
         className={cn(image.main && "ring-2 ring-primary")}
       >

@@ -101,6 +101,8 @@ export default async function renderProductOg(photoUrl: string) {
           alt=""
           width={TILE_SIDE - 30}
           height={TILE_SIDE - 30}
+          // The full file keeps the photo's shape, and Satori stretches an img to its box by default.
+          style={{ objectFit: "contain" }}
         />
       </div>
     </div>,

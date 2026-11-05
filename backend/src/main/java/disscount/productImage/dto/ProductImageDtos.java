@@ -13,8 +13,10 @@ public final class ProductImageDtos {
 
     private ProductImageDtos() {}
 
-    /** smallUrl is the 256 px file, or the thumb for a photo rendered before that size existed. */
-    public record ProductImageDto(UUID id, String fullUrl, String thumbUrl, String smallUrl, String source, String status) {}
+    /** The full file keeps the photo's shape, and its size is null on a photo still waiting for its re-render. */
+    public record ProductImageDto(UUID id, String fullUrl, @Schema(nullable = true) Integer fullWidth,
+                                  @Schema(nullable = true) Integer fullHeight, String smallUrl, String source,
+                                  String status) {}
 
     public record ProductImagesDto(String ean, List<ProductImageDto> images) {}
 

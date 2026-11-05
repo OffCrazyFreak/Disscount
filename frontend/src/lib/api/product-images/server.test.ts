@@ -14,7 +14,8 @@ function photo(id: string, status: string) {
     status,
     source: "USER",
     fullUrl: `https://images.test/${id}.jpg`,
-    thumbUrl: `https://images.test/${id}-thumb.jpg`,
+    fullWidth: 1600,
+    fullHeight: 1200,
     smallUrl: `https://images.test/${id}-small.webp`,
   };
 }

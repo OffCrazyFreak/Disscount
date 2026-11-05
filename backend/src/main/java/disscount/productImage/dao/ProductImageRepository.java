@@ -55,7 +55,7 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, UUID
 
     @Query("""
             select i from ProductImage i, ProductImageSet s
-            where s.ean in :eans and i.id = s.mainImageId and i.thumbKey is not null
+            where s.ean in :eans and i.id = s.mainImageId and i.fullKey is not null
               and i.status in :visible
             """)
     List<ProductImage> findShownMainImages(@Param("eans") Collection<String> eans,
@@ -70,15 +70,15 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, UUID
     List<ProductImage> findUnrenderedMains(@Param("candidate") ImageStatus candidate, @Param("now") LocalDateTime now,
                                            Pageable page);
 
-    /** Shown photos rendered before the WebP files and the small list file existed, most widely sold first. */
+    /** Shown photos rendered before the 1600 pixel full file existed, most widely sold first. */
     @Query("""
             select i from ProductImage i, ProductImageSet s
-            where s.ean = i.ean and i.fullKey is not null and i.smallKey is null and i.status in :visible
+            where s.ean = i.ean and i.fullKey is not null and i.fullWidth is null and i.status in :visible
               and (i.renderAttempts is null or i.renderAttempts < :maxAttempts)
               and (i.renderRetryAt is null or i.renderRetryAt <= :now)
             order by s.storeListings desc
             """)
-    List<ProductImage> findRenderedWithoutSmallFile(@Param("visible") Collection<ImageStatus> visible,
+    List<ProductImage> findRenderedBeforeCurrentFiles(@Param("visible") Collection<ImageStatus> visible,
                                                     @Param("maxAttempts") int maxAttempts,
                                                     @Param("now") LocalDateTime now, Pageable page);
 }

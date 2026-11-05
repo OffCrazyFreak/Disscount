@@ -189,7 +189,7 @@ class ProductImageJobsRenderTest {
     }
 
     @Test
-    void anOlderJpegPhotoIsRenderedAgainAsWebpOnceNoNewPhotoWaits() {
+    void anOlderPhotoIsRenderedAgainAtTheCurrentSizesOnceNoNewPhotoWaits() {
         ProductImage older = renderedJpegMain(WIDELY_SOLD);
         when(off.download(anyString())).thenReturn(TestImages.jpeg(600, 400));
 
@@ -198,7 +198,11 @@ class ProductImageJobsRenderTest {
         ProductImage after = images.findById(older.getId()).orElseThrow();
         assertThat(after.getFullKey()).endsWith(".webp");
         assertThat(after.getSmallKey()).endsWith("-small.webp");
-        assertThat(publicStore.objects).doesNotContainKeys(older.getFullKey(), older.getThumbKey()).hasSize(3);
+        // The 400 pixel file is gone, and the full one keeps the 600 x 400 source's shape.
+        assertThat(after.getThumbKey()).isNull();
+        assertThat(after.getFullWidth()).isEqualTo(600);
+        assertThat(after.getFullHeight()).isEqualTo(400);
+        assertThat(publicStore.objects).doesNotContainKeys(older.getFullKey(), older.getThumbKey()).hasSize(2);
     }
 
     @Test

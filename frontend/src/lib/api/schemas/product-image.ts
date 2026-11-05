@@ -15,7 +15,9 @@ export const productImageStatusSchema = z.enum([
 export const productImageSchema = z.object({
   id: z.string(),
   fullUrl: z.string(),
-  thumbUrl: z.string(),
+  // Null while a photo waits for its re-render; those files are 1080 px squares.
+  fullWidth: z.number().int().nullable(),
+  fullHeight: z.number().int().nullable(),
   smallUrl: z.string(),
   source: productImageSourceSchema,
   status: productImageStatusSchema,

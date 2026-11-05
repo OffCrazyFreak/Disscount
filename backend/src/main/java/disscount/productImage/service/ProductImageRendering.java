@@ -54,7 +54,6 @@ public class ProductImageRendering {
                 .orElse(null);
         if (current == null) {
             deleteIfUnused(copy.fullKey(), null);
-            deleteIfUnused(copy.thumbKey(), null);
             deleteIfUnused(copy.smallKey(), null);
             return;
         }
@@ -71,7 +70,6 @@ public class ProductImageRendering {
                 .orElse(null);
         if (current == null) {
             deleteIfUnused(copy.fullKey(), null);
-            deleteIfUnused(copy.thumbKey(), null);
             deleteIfUnused(copy.smallKey(), null);
             return;
         }
@@ -100,15 +98,14 @@ public class ProductImageRendering {
                 : null;
         Rendered rendered = ProductImageRenderer.render(source(image), image.getRotation(), crop);
         if (rendered.overCeiling()) {
-            log.info("Product photo {} for {} stays over its size ceiling at the lowest quality: full {}, thumb {}, small {} bytes",
-                    image.getId(), image.getEan(), rendered.full().length, rendered.thumb().length, rendered.small().length);
+            log.info("Product photo {} for {} stays over its size ceiling at the lowest quality: full {}, small {} bytes",
+                    image.getId(), image.getEan(), rendered.full().length, rendered.small().length);
         }
 
         String base = PhotoStoreConfig.PRODUCTS_FOLDER + "/" + image.getEan() + "/" + rendered.sha256().substring(0, 20);
-        Copy copy = new Copy(base + ".webp", base + "-thumb.webp", base + "-small.webp",
+        Copy copy = new Copy(base + ".webp", base + "-small.webp", rendered.fullWidth(), rendered.fullHeight(),
                 rendered.sourceWidth(), rendered.sourceHeight());
         store.put(copy.fullKey(), rendered.full(), WEBP);
-        store.put(copy.thumbKey(), rendered.thumb(), WEBP);
         store.put(copy.smallKey(), rendered.small(), WEBP);
         return copy;
     }
@@ -118,8 +115,10 @@ public class ProductImageRendering {
         String oldThumb = image.getThumbKey();
         String oldSmall = image.getSmallKey();
         image.setFullKey(copy.fullKey());
-        image.setThumbKey(copy.thumbKey());
+        image.setThumbKey(null);
         image.setSmallKey(copy.smallKey());
+        image.setFullWidth(copy.fullWidth());
+        image.setFullHeight(copy.fullHeight());
         image.setRenderedAt(Timestamps.nowUtc());
         image.setOriginalWidth(copy.width());
         image.setOriginalHeight(copy.height());
@@ -129,7 +128,7 @@ public class ProductImageRendering {
         images.save(image);
 
         deleteIfUnused(oldFull, copy.fullKey());
-        deleteIfUnused(oldThumb, copy.thumbKey());
+        deleteIfUnused(oldThumb, null);
         deleteIfUnused(oldSmall, copy.smallKey());
     }
 
@@ -198,6 +197,7 @@ public class ProductImageRendering {
         }
     }
 
-    private record Copy(String fullKey, String thumbKey, String smallKey, int width, int height) {
+    /** width and height are the source photo's, kept on the row as original_width and original_height. */
+    private record Copy(String fullKey, String smallKey, int fullWidth, int fullHeight, int width, int height) {
     }
 }

@@ -636,8 +636,16 @@
     },
     "ProductImageDto" : {
       "properties" : {
+        "fullHeight" : {
+          "format" : "int32",
+          "type" : [ "integer", "null" ]
+        },
         "fullUrl" : {
           "type" : "string"
+        },
+        "fullWidth" : {
+          "format" : "int32",
+          "type" : [ "integer", "null" ]
         },
         "id" : {
           "format" : "uuid",
@@ -650,9 +658,6 @@
           "type" : "string"
         },
         "status" : {
-          "type" : "string"
-        },
-        "thumbUrl" : {
           "type" : "string"
         }
       },
