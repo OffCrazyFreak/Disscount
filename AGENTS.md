@@ -24,11 +24,9 @@ Put these to me instead of working around them: I say yes far more often than no
 
 ## Done means
 
-- Run `pnpm check` in `frontend/` until it passes.
-- Run `mvn -B verify` in `backend/` until it passes; it needs Docker.
+- Run `pnpm check` in `frontend/` until only generated-type, dependency or unrelated errors remain; report each unrelated one with its command, as pre-existing.
+- Run `mvn -B verify` in `backend/` the same way; it needs Docker.
 - When you touch code `docs/TESTING.md` lists as mostly untested, say so.
-- Fix type errors in `frontend/src/` and compile and test failures in `backend/src/`; ignore errors from generated types and dependencies.
-- When a failure is unrelated to your change, report the command and the error, say it looks pre-existing, and leave it.
 - Report a check I interrupted as not run, without re-running it.
 - After editing `.claude/hooks/`, run `python3 .claude/hooks/guard-commands.test.py`.
 - Put docs in the same PR as their own `docs:` commit before the PR opens, and again if behaviour changes.
@@ -51,8 +49,9 @@ Put these to me instead of working around them: I say yes far more often than no
 - Give every PR one Sonnet `reviewer`; CodeRabbit runs on its own, and only a release waits for it.
 - For 5000+ changed lines, 50+ files, or auth, security, personal data or migrations, also run Greptile once: `@greptileai review` or its CLI.
 - For a release into `main`, run one `reviewer` per app area plus CodeRabbit and Greptile (automatic or CLI), and wait for all of them.
-- Land release review findings as their own `fix:` PR, and keep the notes in `~/Documents/Disscount`.
-- Before any merge, settle every PR comment and `pulls/N/reviews` body, bots included, with the smallest fix, the same mistake elsewhere in the PR included, or a reply giving the reason.
+- Land release review findings as their own `fix:` PR, and keep the notes in `~/Documents/Disscount/research`.
+- Before any merge, settle every PR comment and `pulls/N/reviews` body, bots included.
+- Settle each with the smallest fix for its cause and the same mistake elsewhere, or a reply with the reason, and resolve it.
 - Merge once CI is green and review is settled, as the orchestrating session; a delegate reports instead of merging.
 
 ## Board and issues
@@ -68,7 +67,8 @@ Put these to me instead of working around them: I say yes far more often than no
 ## Releases and production
 
 - Land work on `dev`, and release through a `dev` into `main` PR.
-- Append anything a release needs (data step, migration, env step, post-deploy check) to the release PR body now, saying what is left and by whom.
+- Append anything a release needs (data step, migration, env step, post-deploy check) to the release PR body now.
+- Say there what is left and by whom.
 - Leave existing release notes as written; only append.
 - Use Dokploy, Cloudflare, Sentry, `gh` and `ssh disscount` on dev and production without asking, verifying each step against official docs.
 - Report every production change.
@@ -130,11 +130,13 @@ Copy and i18n (`docs/I18N.md`):
 - Write issue, commit and PR titles and bodies in plain words a newcomer can follow.
 - Explain in plain words, and define any jargon in one phrase.
 - Write Markdown with one physical line per paragraph and bullet.
-- Write numeric dates as `03.11.2026.` in Croatian text and ISO `2026-11-03` in English, with straight quotes (`docs/I18N.md`).
+- In prose, write numeric dates as `03.11.2026.` in Croatian and ISO `2026-11-03` in English (`docs/I18N.md`).
+- Use straight quotes.
+- Write a comment only for a why the code cannot show, in one line; `pnpm lint` rejects longer ones and history words. When code needs a what-comment, rename it instead.
 
 ## Commits
 
-Write the message from the staged diff in this template, without repeating it in chat. `frontend/.husky/commit-msg` rejects an unknown type, a subject over 72 characters, trailers and dashes.
+Write the message from the staged diff in this template, without repeating it in chat.
 
 ```text
 type(scope): Imperative summary
@@ -147,6 +149,7 @@ Changes:
 Notes: A tradeoff.
 ```
 
+- Expect `frontend/.husky/commit-msg` to reject an unknown type, a subject over 72 characters, trailers and em or en dashes.
 - Use type `fix`, `feat`, `docs`, `refactor`, `chore`, `style`, `perf`, `ci` or `test`.
 - Leave the scope out or reuse one from `git log`.
 - Write the why paragraph in every commit: the problem and the reason, never repeating the subject.
