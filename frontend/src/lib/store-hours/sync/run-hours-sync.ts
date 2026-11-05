@@ -21,7 +21,7 @@ import {
 } from "@/lib/store-hours/zagreb-clock";
 
 // Weekly: templates rarely change, and two missed weeks mark data stale.
-const TEMPLATE_LEASE: ISyncLease = {
+export const TEMPLATE_LEASE: ISyncLease = {
   id: "store-hours-template",
   every: "7 days",
 };
