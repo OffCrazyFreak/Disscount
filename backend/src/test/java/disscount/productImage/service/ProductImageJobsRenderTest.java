@@ -237,7 +237,6 @@ class ProductImageJobsRenderTest {
         assertThat(publicStore.objects).containsKeys(older.getFullKey(), older.getThumbKey());
     }
 
-    /** A main photo copied before WebP: JPEG keys and no small list file. */
     // A renderer fault repeats on the same bytes, so it must cost that photo a try, not stop the queue at it.
     @Test
     void aPhotoTheRendererFailsOnWaitsWhileTheRestOfTheQueueIsCopied() {
@@ -258,6 +257,26 @@ class ProductImageJobsRenderTest {
             assertThat(i.getRenderRetryAt()).isNotNull();
         });
         assertThat(images.findById(next.getId())).get().extracting(ProductImage::isRendered).isEqualTo(true);
+    }
+
+    // A broken encoder fails every photo, and charging each one a try would end with every main photo hidden.
+    @Test
+    void aRendererThatFailsTwiceInARowPausesTheQueueWithoutChargingAnyPhoto() {
+        ProductImage first = mainCandidate(WIDELY_SOLD, 900);
+        ProductImage second = mainCandidate(LESS_SOLD, 40);
+        when(off.download(anyString())).thenReturn(TestImages.jpeg(600, 400));
+
+        try (MockedStatic<ProductImageRenderer> renderer = mockStatic(ProductImageRenderer.class, CALLS_REAL_METHODS)) {
+            renderer.when(() -> ProductImageRenderer.render(any(), anyInt(), any()))
+                    .thenThrow(new IllegalStateException("No WebP writer"));
+            jobs.renderMainPhotos();
+        }
+
+        assertThat(images.findAllById(List.of(first.getId(), second.getId()))).allSatisfy(i -> {
+            assertThat(i.getStatus()).isEqualTo(ImageStatus.CANDIDATE);
+            assertThat(i.getRenderAttempts()).isNull();
+            assertThat(i.getRenderRetryAt()).isNull();
+        });
     }
 
     @Test
@@ -285,6 +304,7 @@ class ProductImageJobsRenderTest {
         assertThat(images.findById(next.getId())).get().extracting(ProductImage::getFullWidth).isEqualTo(600);
     }
 
+    /** A main photo copied before WebP: JPEG keys and no small list file. */
     private ProductImage renderedJpegMain(String ean) {
         String base = "products/" + ean + "/0123456789abcdef0123";
         ProductImage image = images.save(ProductImage.builder().ean(ean).source(ImageSource.OPEN_FOOD_FACTS)

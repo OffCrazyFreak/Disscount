@@ -143,7 +143,7 @@ public class ProductImageRendering {
         } catch (BadRequestException e) {
             throw e;
         } catch (RuntimeException e) {
-            log.error("Product photo {} for {} could not be rendered", image.getId(), image.getEan(), e);
+            log.warn("Product photo {} for {} could not be rendered", image.getId(), image.getEan(), e);
             throw new PhotoRenderFailedException(e);
         }
     }

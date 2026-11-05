@@ -114,9 +114,18 @@ public class ProductImageJobs {
         try {
             List<ProductImage> batch = images.findUnrenderedMains(ImageStatus.CANDIDATE, Timestamps.nowUtc(),
                     PageRequest.of(0, RENDER_BATCH));
+            Held held = null;
             for (ProductImage image : batch) {
                 try {
                     rendering.renderCandidate(image);
+                    if (held != null) postpone(held.image(), held.cause());
+                    held = null;
+                } catch (PhotoRenderFailedException e) {
+                    if (held != null) {
+                        log.warn("Product photo rendering paused: the renderer failed on two photos in a row: {}", e.getMessage());
+                        return;
+                    }
+                    held = new Held(image, e);
                 } catch (BadRequestException | OffImageGoneException | IllegalArgumentException e) {
                     // IllegalArgumentException: a stored key that cannot form a valid image URL.
                     skip(image, e);
@@ -127,14 +136,13 @@ public class ProductImageJobs {
                     }
                     // A 403 or 500 for one file says nothing about the next one, so only this photo waits.
                     postpone(image, e);
-                } catch (PhotoRenderFailedException e) {
-                    postpone(image, e);
                 } catch (RuntimeException e) {
                     // Network or disk trouble: stop here and try the same photos at the next tick.
                     log.warn("Product photo rendering paused: {}", e.getMessage());
                     return;
                 }
             }
+            if (held != null) postpone(held.image(), held.cause());
             if (batch.isEmpty()) rerenderOlderPhotos();
         } finally {
             renderingNow.set(false);
@@ -148,24 +156,40 @@ public class ProductImageJobs {
     private void rerenderOlderPhotos() {
         List<ProductImage> older = images.findRenderedBeforeCurrentFiles(List.of(ImageStatus.VERIFIED, ImageStatus.PENDING),
                 MAX_RENDER_ATTEMPTS, Timestamps.nowUtc(), PageRequest.of(0, RENDER_BATCH));
+        Held held = null;
         for (ProductImage image : older) {
             try {
                 rendering.rerender(image);
+                if (held != null) retryOlderLater(held.image(), held.cause());
+                held = null;
+            } catch (PhotoRenderFailedException e) {
+                if (held != null) {
+                    log.warn("Re-rendering older product photos paused: the renderer failed on two photos in a row: {}",
+                            e.getMessage());
+                    return;
+                }
+                held = new Held(image, e);
             } catch (OffImageUnavailableException e) {
                 if (!e.concernsThisImageOnly()) {
                     log.warn("Re-rendering older product photos paused: {}", e.getMessage());
                     return;
                 }
                 retryOlderLater(image, e);
-            } catch (BadRequestException | OffImageGoneException | IllegalArgumentException | NotFoundException
-                     | PhotoRenderFailedException e) {
+            } catch (BadRequestException | OffImageGoneException | IllegalArgumentException | NotFoundException e) {
                 retryOlderLater(image, e);
             } catch (RuntimeException e) {
                 log.warn("Re-rendering older product photos paused: {}", e.getMessage());
                 return;
             }
         }
+        if (held != null) retryOlderLater(held.image(), held.cause());
     }
+
+    /**
+     * A renderer failure waits for the next photo before it is charged to its own: a fault of one photo is
+     * followed by a success, a broken encoder fails the next one too and must not cost every photo a try.
+     */
+    private record Held(ProductImage image, RuntimeException cause) {}
 
     /** The photo keeps showing its earlier files; after the last attempt it simply keeps them. */
     private void retryOlderLater(ProductImage loaded, RuntimeException cause) {
