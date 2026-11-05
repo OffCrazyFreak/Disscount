@@ -4,19 +4,18 @@
     "closed": "Zatvoreno",
     "unconfirmed": "Radno vrijeme nije potvrđeno"
   },
-  "when": "{day, select, today {u {time}} tomorrow {sutra u {time}} mon {u ponedjeljak u {time}} tue {u utorak u {time}} wed {u srijedu u {time}} thu {u četvrtak u {time}} fri {u petak u {time}} sat {u subotu u {time}} other {u nedjelju u {time}}}",
-  "midnight": "ponoć",
+  "when": "{day, select, today {{time, select, midnight {u ponoć} other {u {time}}}} tomorrow {sutra {time, select, midnight {u ponoć} other {u {time}}}} mon {u ponedjeljak {time, select, midnight {u ponoć} other {u {time}}}} tue {u utorak {time, select, midnight {u ponoć} other {u {time}}}} wed {u srijedu {time, select, midnight {u ponoć} other {u {time}}}} thu {u četvrtak {time, select, midnight {u ponoć} other {u {time}}}} fri {u petak {time, select, midnight {u ponoć} other {u {time}}}} sat {u subotu {time, select, midnight {u ponoć} other {u {time}}}} other {u nedjelju {time, select, midnight {u ponoć} other {u {time}}}}}",
   "detail": {
     "open": "Zatvara {when}",
-    "closingSoon": "Zatvara uskoro u {time}",
+    "closingSoon": "Zatvara uskoro {time, select, midnight {u ponoć} other {u {time}}}",
     "closed": "Otvara {when}",
-    "openingSoon": "Otvara uskoro u {time}"
+    "openingSoon": "Otvara uskoro {time, select, midnight {u ponoć} other {u {time}}}"
   },
   "name": {
     "open": "Otvoreno, zatvara {when}",
-    "closingSoon": "Otvoreno, zatvara uskoro u {time}",
+    "closingSoon": "Otvoreno, zatvara uskoro {time, select, midnight {u ponoć} other {u {time}}}",
     "closed": "Zatvoreno, otvara {when}",
-    "openingSoon": "Zatvoreno, otvara uskoro u {time}"
+    "openingSoon": "Zatvoreno, otvara uskoro {time, select, midnight {u ponoć} other {u {time}}}"
   },
   "source": {
     "chain": "Izvor: {chain}",

@@ -4,19 +4,18 @@
     "closed": "Closed",
     "unconfirmed": "Hours not confirmed"
   },
-  "when": "{day, select, today {at {time}} tomorrow {tomorrow at {time}} mon {Monday at {time}} tue {Tuesday at {time}} wed {Wednesday at {time}} thu {Thursday at {time}} fri {Friday at {time}} sat {Saturday at {time}} other {Sunday at {time}}}",
-  "midnight": "midnight",
+  "when": "{day, select, today {{time, select, midnight {at midnight} other {at {time}}}} tomorrow {tomorrow {time, select, midnight {at midnight} other {at {time}}}} mon {Monday {time, select, midnight {at midnight} other {at {time}}}} tue {Tuesday {time, select, midnight {at midnight} other {at {time}}}} wed {Wednesday {time, select, midnight {at midnight} other {at {time}}}} thu {Thursday {time, select, midnight {at midnight} other {at {time}}}} fri {Friday {time, select, midnight {at midnight} other {at {time}}}} sat {Saturday {time, select, midnight {at midnight} other {at {time}}}} other {Sunday {time, select, midnight {at midnight} other {at {time}}}}}",
   "detail": {
     "open": "Closes {when}",
-    "closingSoon": "Closes soon, at {time}",
+    "closingSoon": "Closes soon, {time, select, midnight {at midnight} other {at {time}}}",
     "closed": "Opens {when}",
-    "openingSoon": "Opens soon, at {time}"
+    "openingSoon": "Opens soon, {time, select, midnight {at midnight} other {at {time}}}"
   },
   "name": {
     "open": "Open, closes {when}",
-    "closingSoon": "Open, closes soon at {time}",
+    "closingSoon": "Open, closes soon {time, select, midnight {at midnight} other {at {time}}}",
     "closed": "Closed, opens {when}",
-    "openingSoon": "Closed, opens soon at {time}"
+    "openingSoon": "Closed, opens soon {time, select, midnight {at midnight} other {at {time}}}"
   },
   "source": {
     "chain": "Source: {chain}",
