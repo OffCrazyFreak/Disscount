@@ -64,6 +64,7 @@ export interface IAppData {
   preferredCameraId?: string; // Manually chosen scanner camera; absent means auto-pick
   formDrafts?: Record<string, IFormDraft>; // Unsaved modal-form drafts keyed per modal
   mapRecentSearches?: string[]; // Last few store-map searches, newest first
+  productRecentSearches?: string[]; // Last few product searches, newest first; cleared when a session ends
   watchlistPriceSnapshots?: Record<string, IWatchlistPriceSnapshot>; // User id -> prices at the last watchlist visit, the price-drop badge baseline
   [key: string]: unknown;
 }
