@@ -16,10 +16,159 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  frontend:
-    name: Frontend checks
-    # Job level, so a required check on a draft reports as skipped instead of pending forever.
-    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+  # Picks the jobs a pull request needs, at job level: a workflow-level `paths` would never start, which
+  # leaves a required check pending forever, while a job skipped by its `if` reports as passed. Pushes run
+  # everything, because strict mode is off and they build the images. So do release pull requests into
+  # main, whose file list can pass the 3000 files GitHub returns. A draft answers false here for the
+  # jobs that wait for ready_for_review; the image smoke test has no draft skip. When this job fails,
+  # the jobs below run anyway, so a broken filter can never pass a required check unseen.
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      frontend: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && (github.base_ref == 'main' || steps.filter.outputs.frontend)) }}
+      markdown: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && (github.base_ref == 'main' || steps.filter.outputs.markdown)) }}
+      backend: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && (github.base_ref == 'main' || steps.filter.outputs.backend)) }}
+      backup: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && (github.base_ref == 'main' || steps.filter.outputs.backup)) }}
+      smoke: ${{ github.event_name != 'pull_request' || github.base_ref == 'main' || steps.filter.outputs.smoke }}
+    steps:
+      - id: filter
+        if: github.event_name == 'pull_request' && github.base_ref != 'main'
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        with:
+          filters: |
+            workflow: &workflow
+              - .github/workflows/ci.yml
+            setup: &setup
+              - .github/actions/setup-frontend/**
+            frontend:
+              - *workflow
+              - *setup
+              - frontend/**
+              - contracts/**
+            markdown:
+              - *workflow
+              - *setup
+              - "**/*.md"
+              - .prettierrc
+              - .prettierignore
+              - frontend/package.json
+              - frontend/pnpm-lock.yaml
+            backend:
+              - *workflow
+              - backend/**
+              - contracts/**
+            backup:
+              - *workflow
+              - backup/**
+            # What the boot test builds: the backend image, the migrator stage and the compose files.
+            smoke:
+              - *workflow
+              - backend/**
+              - backup/**
+              - docker-compose*.yml
+              - .env.example
+              - frontend/Dockerfile
+              - frontend/.dockerignore
+              - frontend/drizzle/**
+              - frontend/scripts/migrate.mjs
+              - frontend/package.json
+              - frontend/pnpm-lock.yaml
+              - frontend/pnpm-workspace.yaml
+
+  frontend-build:
+    name: Frontend build
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result == 'failure' || needs.changes.outputs.frontend == 'true') }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-frontend
+
+      - id: next-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: frontend/.next/cache
+          key: next-build-${{ runner.os }}-${{ hashFiles('frontend/pnpm-lock.yaml') }}-${{ hashFiles('frontend/src/**') }}
+          restore-keys: next-build-${{ runner.os }}-${{ hashFiles('frontend/pnpm-lock.yaml') }}-
+
+      - name: Production build
+        run: pnpm build
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          BETTER_AUTH_URL: http://localhost:3000
+          BETTER_AUTH_SECRET: ci-dummy-secret-not-used-at-runtime
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+          NEXT_PUBLIC_API_URL: http://localhost:8080
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ci-dummy
+          GOOGLE_CLIENT_SECRET: ci-dummy
+          FACEBOOK_CLIENT_ID: ci-dummy
+          FACEBOOK_CLIENT_SECRET: ci-dummy
+          RESEND_API_KEY: re_ci_dummy
+          EMAIL_FROM: ci@example.com
+          CIJENE_API_URL: http://localhost:9999
+          CIJENE_API_TOKEN: ci-dummy
+
+      # A push is what seeds the cache: a pull request reads its base branch's copy but cannot write one
+      # that anything else reads. This is why the build also runs on dev pushes.
+      - if: github.event_name == 'push' && steps.next-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: frontend/.next/cache
+          key: ${{ steps.next-cache.outputs.cache-primary-key }}
+
+  # Each source change saves a new copy, and only the newest is ever read, so the older ones would fill
+  # the repository's cache limit and evict what the next run needs. Separate, so the job that runs
+  # project code never holds a token that can write to Actions.
+  frontend-build-cache-prune:
+    name: Prune old build caches
+    needs: frontend-build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Keep the newest copy on this branch
+        run: |
+          stale=$(gh cache list --ref "$GITHUB_REF" --key next-build- --sort created_at --order desc --json id --jq '.[1:][].id')
+          for id in $stale; do
+            # A run for a newer push may have deleted it first.
+            gh cache delete "$id" || echo "::notice::Cache $id is already gone."
+          done
+
+  frontend-test:
+    name: Frontend tests
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result == 'failure' || needs.changes.outputs.frontend == 'true') }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-frontend
+
+      - name: Unit tests
+        run: pnpm test
+
+  frontend-static:
+    name: Frontend static checks
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result == 'failure' || needs.changes.outputs.frontend == 'true') }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -32,26 +181,15 @@ jobs:
           # checkout does not have.
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: ./.github/actions/setup-frontend
         with:
-          version: 11.9.0
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: 24
-          cache: pnpm
-          cache-dependency-path: frontend/pnpm-lock.yaml
-
-      - run: pnpm install --frozen-lockfile
+          save-cache: "true"
 
       - name: Generate route types
         run: pnpm exec next typegen
 
       - name: Typecheck
         run: pnpm exec tsc --noEmit
-
-      - name: Unit tests
-        run: pnpm test
 
       - name: Lint
         run: pnpm lint
@@ -81,31 +219,62 @@ jobs:
       - name: Format check
         run: pnpm exec prettier --check src
 
+  # On its own because a docs-only pull request needs this and nothing else from the frontend.
+  markdown:
+    name: Markdown format
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result == 'failure' || needs.changes.outputs.markdown == 'true') }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-frontend
+
       - name: Format check (docs & root markdown)
         run: pnpm exec prettier --check --ignore-path ../.prettierignore "../README.md" "../AGENTS.md" "../CLAUDE.md" "../docs/**/*.md" "../.github/**/*.md" "../.agents/**/*.md"
 
-      # On a dev push the image build compiles the same code with the real values.
-      - name: Production build
-        if: github.event_name != 'push' || github.ref != 'refs/heads/dev'
-        run: pnpm build
+  # The required check. A job may be skipped only when the filter turned it off, because a job that a
+  # failed dependency skipped would otherwise count as passed. A new frontend job belongs in `needs` and
+  # in the checks below, or its failure stays invisible here.
+  frontend:
+    name: Frontend checks
+    needs: [changes, frontend-build, frontend-test, frontend-static, markdown]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Require every expected job to have passed
         env:
-          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
-          BETTER_AUTH_URL: http://localhost:3000
-          BETTER_AUTH_SECRET: ci-dummy-secret-not-used-at-runtime
-          NEXT_PUBLIC_APP_URL: http://localhost:3000
-          NEXT_PUBLIC_API_URL: http://localhost:8080
-          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ci-dummy
-          GOOGLE_CLIENT_SECRET: ci-dummy
-          FACEBOOK_CLIENT_ID: ci-dummy
-          FACEBOOK_CLIENT_SECRET: ci-dummy
-          RESEND_API_KEY: re_ci_dummy
-          EMAIL_FROM: ci@example.com
-          CIJENE_API_URL: http://localhost:9999
-          CIJENE_API_TOKEN: ci-dummy
+          FRONTEND_EXPECTED: ${{ needs.changes.result != 'success' || needs.changes.outputs.frontend == 'true' }}
+          MARKDOWN_EXPECTED: ${{ needs.changes.result != 'success' || needs.changes.outputs.markdown == 'true' }}
+          BUILD: ${{ needs.frontend-build.result }}
+          TEST: ${{ needs.frontend-test.result }}
+          STATIC: ${{ needs.frontend-static.result }}
+          MARKDOWN: ${{ needs.markdown.result }}
+        run: |
+          status=0
+          check() {
+            if [ "$2" = success ] || { [ "$2" = skipped ] && [ "$3" = false ]; }; then
+              return
+            fi
+            echo "::error::$1 finished as $2."
+            status=1
+          }
+          check "Frontend build" "$BUILD" "$FRONTEND_EXPECTED"
+          check "Frontend tests" "$TEST" "$FRONTEND_EXPECTED"
+          check "Frontend static checks" "$STATIC" "$FRONTEND_EXPECTED"
+          check "Markdown format" "$MARKDOWN" "$MARKDOWN_EXPECTED"
+          exit "$status"
 
   backend:
     name: Backend checks
-    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result == 'failure' || needs.changes.outputs.backend == 'true') }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -119,15 +288,29 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-          cache: maven
+
+      - id: maven-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('backend/pom.xml') }}
 
       - run: mvn -B verify
+
+      # Pull requests only read: their caches are private to their merge ref, so nothing else could use them.
+      - if: github.event_name == 'push' && steps.maven-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: ${{ steps.maven-cache.outputs.cache-primary-key }}
 
   # Boots the backend and migrator images the way Dokploy runs them. Only a boot catches a Dockerfile
   # that builds but leaves the app unable to start (a file the build stage never copied). No draft
   # skip, so a broken image shows up as soon as it is pushed.
   image-smoke:
     name: Image smoke test
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result == 'failure' || needs.changes.outputs.smoke == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -201,7 +384,8 @@ jobs:
   # The other images are proven by the frontend and backend checks; this one is only built on push otherwise.
   backup-image:
     name: Backup image
-    if: github.event_name == 'pull_request' && !github.event.pull_request.draft
+    needs: changes
+    if: ${{ !cancelled() && github.event_name == 'pull_request' && (needs.changes.result == 'failure' || needs.changes.outputs.backup == 'true') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -213,9 +397,25 @@ jobs:
           docker build -t backup-check backup
           docker run --rm --entrypoint sh backup-check -c 'rclone version && age --version && supercronic -version && pg_dump --version && bash -n /usr/local/bin/backup-job'
 
-  # Chooses where a push deploys: main goes to prod, dev to dev. Production builds on the server until
-  # its Dokploy cutover (docs/INFRASTRUCTURE.md, section 4), so while prod lacks its settings this
-  # job answers not ready and the image and deploy jobs skip.
+      # The entrypoint is what fails first on a bad production setting, so run it the way Compose does.
+      - name: Entrypoint accepts complete settings and refuses missing ones
+        run: |
+          # Secrets as files under /run/secrets, named the way docker-compose.images.yml maps them.
+          mkdir secrets
+          for name in $(grep -oE '^  backup_[a-z0-9_]+:|^  postgres_password:' docker-compose.images.yml | tr -d ' :'); do
+            echo "$name-value" > "secrets/$name"
+          done
+          echo -starts-with-a-dash > secrets/backup_crypt_password
+          settings=(-v "$PWD/secrets:/run/secrets:ro" -e BACKUP_R2_ENDPOINT=https://example.invalid -e BACKUP_R2_BUCKET=b
+            -e BACKUP_R2_ACCESS_KEY_ID=k -e BACKUP_AGE_RECIPIENT=age1example -e POSTGRES_DB=d -e POSTGRES_USER=u)
+          docker run --rm "${settings[@]}" backup-check true
+          if docker run --rm "${settings[@]}" -e BACKUP_AGE_RECIPIENT= backup-check true 2>missing.log; then
+            echo "::error::The entrypoint started without BACKUP_AGE_RECIPIENT." && exit 1
+          fi
+          grep -q 'missing settings: BACKUP_AGE_RECIPIENT' missing.log
+
+  # Chooses where a push deploys: main goes to prod, dev to dev. A missing setting fails the run on
+  # both, because a green run that deploys nothing would look like a shipped release.
   target:
     name: Deploy target
     if: github.event_name == 'push'
@@ -225,7 +425,6 @@ jobs:
       deployment: false
     outputs:
       environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
-      ready: ${{ steps.settings.outputs.ready }}
     steps:
       - id: settings
         env:
@@ -246,20 +445,14 @@ jobs:
               missing="$missing $name"
             fi
           done
-          if [ -z "$missing" ]; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          elif [ "$GITHUB_REF_NAME" = main ]; then
-            echo "::notice::The prod environment lacks$missing, so CI builds and deploys nothing for this push."
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "::error::The dev environment lacks$missing."
+          if [ -n "$missing" ]; then
+            echo "::error::The ${{ github.ref_name == 'main' && 'prod' || 'dev' }} environment lacks$missing."
             exit 1
           fi
 
   images:
     name: Image (${{ matrix.image }})
     needs: [target, frontend, backend, image-smoke]
-    if: needs.target.outputs.ready == 'true'
     runs-on: ubuntu-latest
     # Reads the environment's values without recording a deployment; the deploy job records it.
     environment:
