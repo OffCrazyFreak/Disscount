@@ -5,6 +5,9 @@
 set -uo pipefail
 
 POLL_SECONDS=15
+# The CI key allows 10 requests, and its count only resets after 60 s without one. A denied request
+# is a 401 even for the trigger, so reads stay further apart than that and the count never fills.
+DOKPLOY_GAP_SECONDS=65
 # Dev: the ceiling for a deploy Dokploy never reports as failed. Healthy deploys took 54 to 74 s,
 # and compose gives up on the slowest healthcheck chain at 300 s.
 # Only dev has proved the backstop, so prod keeps its long wait and its manual Rollback.
@@ -56,12 +59,20 @@ move_tag() {
 # Only the status code is printed, because Dokploy's response bodies can echo service
 # settings into a public log.
 trigger_deploy() {
-  local status
-  status=$(curl --silent --max-time 30 --output /dev/null --write-out '%{http_code}' \
-    --request POST "$DOKPLOY_URL/api/compose.deploy" \
-    --header "x-api-key: $DOKPLOY_API_KEY" \
-    --header "Content-Type: application/json" \
-    --data "{\"composeId\":\"$COMPOSE_ID\"}" || true)
+  local status attempt
+  for attempt in 1 2; do
+    status=$(curl --silent --max-time 30 --output /dev/null --write-out '%{http_code}' \
+      --request POST "$DOKPLOY_URL/api/compose.deploy" \
+      --header "x-api-key: $DOKPLOY_API_KEY" \
+      --header "Content-Type: application/json" \
+      --data "{\"composeId\":\"$COMPOSE_ID\"}" || true)
+    # A job right behind another can find the key's count full; the window clears it.
+    if [ "$status" != 401 ] || [ "$attempt" = 2 ]; then
+      break
+    fi
+    echo "Dokploy answered 401, possibly the rate limit; trying once more in $DOKPLOY_GAP_SECONDS s."
+    sleep "$DOKPLOY_GAP_SECONDS"
+  done
   if [[ "$status" != 2* ]]; then
     echo "::error::Dokploy did not accept the deploy (HTTP $status). The $ENVIRONMENT_TAG tag already points at $1; run Rollback with the last good commit (or, before Rollback is on main, push a revert) before any Redeploy."
     return 1
@@ -73,12 +84,14 @@ trigger_deploy() {
 # failed record says nothing about this deploy.
 wait_for_release() {
   local release="$1" before_deploy="$2" deadline=$((SECONDS + WAIT_MINUTES * 60)) id status
+  local next_read=$((SECONDS + DOKPLOY_GAP_SECONDS))
   while [ "$SECONDS" -lt "$deadline" ]; do
     if [ "$(live_release)" = "$release" ]; then
       echo "Live on $release."
       return 0
     fi
-    if [ -n "$before_deploy" ]; then
+    if [ -n "$before_deploy" ] && [ "$SECONDS" -ge "$next_read" ]; then
+      next_read=$((SECONDS + DOKPLOY_GAP_SECONDS))
       read -r id status <<<"$(newest_deployment)"
       if [ -n "$id" ] && [ "$id" != "$before_deploy" ] && { [ "$status" = "error" ] || [ "$status" = "cancelled" ]; }; then
         echo "Dokploy reports this deploy as $status after $SECONDS s."
@@ -109,11 +122,11 @@ wait_for_restore() {
     return 1
   fi
   while [ "$SECONDS" -lt "$deadline" ]; do
+    sleep "$DOKPLOY_GAP_SECONDS"
     read -r id status <<<"$(newest_deployment)"
     if [ "$id" != "$before_restore" ] && [ "$status" = "done" ] && [ "$(live_release)" = "$release" ]; then
       return 0
     fi
-    sleep "$POLL_SECONDS"
   done
   return 1
 }
