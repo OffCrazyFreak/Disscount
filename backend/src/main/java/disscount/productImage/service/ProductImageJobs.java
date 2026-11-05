@@ -178,10 +178,7 @@ public class ProductImageJobs {
         if (held != null) retryOlderLater(held.image(), held.cause());
     }
 
-    /**
-     * A renderer failure waits for the next photo before it is charged to its own: a fault of one photo is
-     * followed by a success, a broken encoder fails the next one too and must not cost every photo a try.
-     */
+    /** Charged only once the next photo renders: one bad photo is followed by a success, a broken encoder is not. */
     private record Held(ProductImage image, RuntimeException cause) {}
 
     /** The photo keeps showing its earlier files; after the last attempt it simply keeps them. */

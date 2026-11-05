@@ -133,7 +133,7 @@ public class ProductImageRendering {
         deleteIfUnused(oldSmall, copy.smallKey());
     }
 
-    /** The renderer only reads the bytes it is given, so an unexpected failure there belongs to this photo, not to an outage. */
+    /** The renderer only reads the bytes it is given, so an unexpected failure is this photo's, not an outage. */
     private static Rendered render(byte[] source, int rotation, Crop crop, ProductImage image) {
         try {
             return ProductImageRenderer.render(source, rotation, crop);
