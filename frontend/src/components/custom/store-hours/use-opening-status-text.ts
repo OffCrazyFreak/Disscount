@@ -59,7 +59,7 @@ export function useOpeningStatusText() {
 
     if (!moment) return { label, detail: null, name: label };
 
-    const time = clockOf(moment.time);
+    const time = moment.time === "24:00" ? t("midnight") : clockOf(moment.time);
     const when = t("when", {
       day: dayOf(moment.date, zagrebClock(now).date),
       time,

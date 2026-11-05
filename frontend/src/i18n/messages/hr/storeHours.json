@@ -5,6 +5,7 @@
     "unconfirmed": "Radno vrijeme nije potvrđeno"
   },
   "when": "{day, select, today {u {time}} tomorrow {sutra u {time}} mon {u ponedjeljak u {time}} tue {u utorak u {time}} wed {u srijedu u {time}} thu {u četvrtak u {time}} fri {u petak u {time}} sat {u subotu u {time}} other {u nedjelju u {time}}}",
+  "midnight": "ponoć",
   "detail": {
     "open": "Zatvara {when}",
     "closingSoon": "Zatvara uskoro u {time}",

@@ -5,6 +5,7 @@
     "unconfirmed": "Öffnungszeiten nicht bestätigt"
   },
   "when": "{day, select, today {um {time}} tomorrow {morgen um {time}} mon {Montag um {time}} tue {Dienstag um {time}} wed {Mittwoch um {time}} thu {Donnerstag um {time}} fri {Freitag um {time}} sat {Samstag um {time}} other {Sonntag um {time}}}",
+  "midnight": "Mitternacht",
   "detail": {
     "open": "Schließt {when}",
     "closingSoon": "Schließt bald, um {time}",

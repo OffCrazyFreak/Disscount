@@ -5,6 +5,7 @@
     "unconfirmed": "Hours not confirmed"
   },
   "when": "{day, select, today {at {time}} tomorrow {tomorrow at {time}} mon {Monday at {time}} tue {Tuesday at {time}} wed {Wednesday at {time}} thu {Thursday at {time}} fri {Friday at {time}} sat {Saturday at {time}} other {Sunday at {time}}}",
+  "midnight": "midnight",
   "detail": {
     "open": "Closes {when}",
     "closingSoon": "Closes soon, at {time}",

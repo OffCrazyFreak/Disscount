@@ -4,18 +4,19 @@
     "closed": "Chiuso",
     "unconfirmed": "Orari non confermati"
   },
-  "when": "{day, select, today {alle {time}} tomorrow {domani alle {time}} mon {lunedì alle {time}} tue {martedì alle {time}} wed {mercoledì alle {time}} thu {giovedì alle {time}} fri {venerdì alle {time}} sat {sabato alle {time}} other {domenica alle {time}}}",
+  "when": "{day, select, today {{time, select, mezzanotte {a mezzanotte} other {alle {time}}}} tomorrow {domani {time, select, mezzanotte {a mezzanotte} other {alle {time}}}} mon {lunedì {time, select, mezzanotte {a mezzanotte} other {alle {time}}}} tue {martedì {time, select, mezzanotte {a mezzanotte} other {alle {time}}}} wed {mercoledì {time, select, mezzanotte {a mezzanotte} other {alle {time}}}} thu {giovedì {time, select, mezzanotte {a mezzanotte} other {alle {time}}}} fri {venerdì {time, select, mezzanotte {a mezzanotte} other {alle {time}}}} sat {sabato {time, select, mezzanotte {a mezzanotte} other {alle {time}}}} other {domenica {time, select, mezzanotte {a mezzanotte} other {alle {time}}}}}",
+  "midnight": "mezzanotte",
   "detail": {
     "open": "Chiude {when}",
-    "closingSoon": "Chiude a breve, alle {time}",
+    "closingSoon": "Chiude a breve, {time, select, mezzanotte {a mezzanotte} other {alle {time}}}",
     "closed": "Apre {when}",
-    "openingSoon": "Apre a breve, alle {time}"
+    "openingSoon": "Apre a breve, {time, select, mezzanotte {a mezzanotte} other {alle {time}}}"
   },
   "name": {
     "open": "Aperto, chiude {when}",
-    "closingSoon": "Aperto, chiude a breve alle {time}",
+    "closingSoon": "Aperto, chiude a breve {time, select, mezzanotte {a mezzanotte} other {alle {time}}}",
     "closed": "Chiuso, apre {when}",
-    "openingSoon": "Chiuso, apre a breve alle {time}"
+    "openingSoon": "Chiuso, apre a breve {time, select, mezzanotte {a mezzanotte} other {alle {time}}}"
   },
   "source": {
     "chain": "Fonte: {chain}",

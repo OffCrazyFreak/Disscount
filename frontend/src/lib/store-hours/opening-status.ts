@@ -73,6 +73,12 @@ function spansAround(
 
 function momentAt(today: string, minutes: number): IClockMoment {
   const days = Math.floor(minutes / DAY);
+
+  // A closing on a day boundary ends that day, so it reads "at midnight", not "tomorrow at 0:00".
+  if (minutes > 0 && minutes % DAY === 0) {
+    return { date: addDays(today, days - 1), time: "24:00" };
+  }
+
   const rest = minutes - days * DAY;
   const time = `${String(Math.floor(rest / 60)).padStart(2, "0")}:${String(rest % 60).padStart(2, "0")}`;
 
