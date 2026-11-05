@@ -14,7 +14,7 @@ Put these to me instead of working around them: I say yes far more often than no
 - Ask before changing how the app looks (size, spacing, colour, layout), accessibility fixes and side effects included, with before and after screenshots.
 - Ask before adding anything that can bill; services, plans and CI stay free or hard-capped, even with 100k users.
 - Hand back interactive installers and `init` wizards, except `pnpm dlx shadcn@latest add <component>`, which you may run.
-- Change legal copy as you judge right without asking, and log what changed, why and the sources on #217.
+- Change legal copy as you judge right without asking, and log what changed, why and the sources on #217 (legal changes log).
 
 ## Never commit
 
