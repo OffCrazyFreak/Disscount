@@ -190,8 +190,18 @@ services:
     networks: [internal, dokploy-network]
     # Lets a running dump or upload finish when a deploy replaces the container.
     stop_grace_period: 10m
+    # erasure-markers touches the heartbeat on every successful run, once a minute.
+    healthcheck:
+      test: ["CMD-SHELL", "find /tmp/backup-heartbeat -mmin -5 | grep -q ."]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 3m
     depends_on:
       db:
+        condition: service_healthy
+      # The backend creates erasure_ledger on its first boot; until then erasure-markers would fail every minute.
+      backend:
         condition: service_healthy
 
 networks:

@@ -397,9 +397,25 @@ jobs:
           docker build -t backup-check backup
           docker run --rm --entrypoint sh backup-check -c 'rclone version && age --version && supercronic -version && pg_dump --version && bash -n /usr/local/bin/backup-job'
 
-  # Chooses where a push deploys: main goes to prod, dev to dev. Production builds on the server until
-  # its Dokploy cutover (docs/INFRASTRUCTURE.md, section 4), so while prod lacks its settings this
-  # job answers not ready and the image and deploy jobs skip.
+      # The entrypoint is what fails first on a bad production setting, so run it the way Compose does.
+      - name: Entrypoint accepts complete settings and refuses missing ones
+        run: |
+          # Secrets as files under /run/secrets, named the way docker-compose.images.yml maps them.
+          mkdir secrets
+          for name in $(grep -oE '^  backup_[a-z0-9_]+:|^  postgres_password:' docker-compose.images.yml | tr -d ' :'); do
+            echo "$name-value" > "secrets/$name"
+          done
+          echo -starts-with-a-dash > secrets/backup_crypt_password
+          settings=(-v "$PWD/secrets:/run/secrets:ro" -e BACKUP_R2_ENDPOINT=https://example.invalid -e BACKUP_R2_BUCKET=b
+            -e BACKUP_R2_ACCESS_KEY_ID=k -e BACKUP_AGE_RECIPIENT=age1example -e POSTGRES_DB=d -e POSTGRES_USER=u)
+          docker run --rm "${settings[@]}" backup-check true
+          if docker run --rm "${settings[@]}" -e BACKUP_AGE_RECIPIENT= backup-check true 2>missing.log; then
+            echo "::error::The entrypoint started without BACKUP_AGE_RECIPIENT." && exit 1
+          fi
+          grep -q 'missing settings: BACKUP_AGE_RECIPIENT' missing.log
+
+  # Chooses where a push deploys: main goes to prod, dev to dev. A missing setting fails the run on
+  # both, because a green run that deploys nothing would look like a shipped release.
   target:
     name: Deploy target
     if: github.event_name == 'push'
@@ -409,7 +425,6 @@ jobs:
       deployment: false
     outputs:
       environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
-      ready: ${{ steps.settings.outputs.ready }}
     steps:
       - id: settings
         env:
@@ -430,20 +445,14 @@ jobs:
               missing="$missing $name"
             fi
           done
-          if [ -z "$missing" ]; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          elif [ "$GITHUB_REF_NAME" = main ]; then
-            echo "::notice::The prod environment lacks$missing, so CI builds and deploys nothing for this push."
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "::error::The dev environment lacks$missing."
+          if [ -n "$missing" ]; then
+            echo "::error::The ${{ github.ref_name == 'main' && 'prod' || 'dev' }} environment lacks$missing."
             exit 1
           fi
 
   images:
     name: Image (${{ matrix.image }})
     needs: [target, frontend, backend, image-smoke]
-    if: needs.target.outputs.ready == 'true'
     runs-on: ubuntu-latest
     # Reads the environment's values without recording a deployment; the deploy job records it.
     environment:
