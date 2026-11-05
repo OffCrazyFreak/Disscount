@@ -100,7 +100,7 @@ public class UserService {
             try {
                 profileCreator.create(profile.username(username).build());
             } catch (DataIntegrityViolationException collision) {
-                // A concurrent first login or shared username seed; the insert ran apart, so this can retry.
+                // A concurrent first login or two accounts seeding a name; the insert has its own transaction: retry.
                 if (userRepository.existsById(id)) return;
 
                 // Nameless rather than fail: the settings form asks for one immediately.

@@ -13,7 +13,7 @@ public class ShoppingListCopyRequest {
     /** Without this the copy is just the title, which is a legitimate thing to want. */
     private boolean includeItems;
 
-    /** One flag for all four, as a tick without its price reads as an unrecorded bargain; needs includeItems. */
+    /** One flag for all four, as a tick without its price reads as a bargain; ignored without includeItems. */
     private boolean includeProgress;
 
     /** Owner-only, enforced server side, or a recipient could hand out a link at a level the owner never chose. */
