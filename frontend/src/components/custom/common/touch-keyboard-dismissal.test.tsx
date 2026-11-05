@@ -146,18 +146,9 @@ describe("TouchKeyboardDismissal", () => {
     expect(field).toHaveFocus();
   });
 
-  it("leaves focus alone on the first render", async () => {
-    const user = userEvent.setup();
-    const { rerender } = render(<TouchKeyboardDismissal />);
-    rerender(
-      <>
-        <TouchKeyboardDismissal />
-        <input aria-label="field" />
-      </>,
-    );
-    const field = screen.getByLabelText("field");
-    await user.click(field);
+  it("leaves focus alone on the first render", () => {
+    renderWithField(<input aria-label="field" autoFocus />);
 
-    expect(field).toHaveFocus();
+    expect(screen.getByLabelText("field")).toHaveFocus();
   });
 });

@@ -232,7 +232,11 @@ describe("product search suggestions", () => {
 
 describe("recording product searches", () => {
   afterEach(() => {
-    act(() => productRecentSearches.clear());
+    act(() => {
+      productSearchDraft.followRoute("");
+      productSearchDraft.clear();
+      productRecentSearches.clear();
+    });
     markProductSearchSubmitted("");
   });
 
@@ -240,6 +244,15 @@ describe("recording product searches", () => {
     return JSON.parse(localStorage.getItem("Disscount_app") ?? "{}")
       .productRecentSearches;
   }
+
+  it("records what a product bar submitted", async () => {
+    const user = userEvent.setup();
+
+    await user.type(renderBar(), "kruh{Enter}");
+    renderHook(() => useRecordProductSearch("kruh", true));
+
+    expect(stored()).toEqual(["kruh"]);
+  });
 
   it("records a submitted search once it has results", () => {
     markProductSearchSubmitted("kruh");

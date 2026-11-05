@@ -22,8 +22,14 @@ export function createRecentSearchStore(field: RecentSearchField) {
   }
 
   function subscribe(listener: () => void) {
+    // Another tab writing or clearing this list fires this one's storage event.
+    if (!listeners.size) window.addEventListener("storage", refresh);
     listeners.add(listener);
-    return () => listeners.delete(listener);
+
+    return () => {
+      listeners.delete(listener);
+      if (!listeners.size) window.removeEventListener("storage", refresh);
+    };
   }
 
   function getSnapshot(): string[] {

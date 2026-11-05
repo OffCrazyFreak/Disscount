@@ -52,11 +52,15 @@ export function useCredentialsSubmit({
       };
       if (body.error === REAUTH_REQUIRED) return "needs-proof";
 
-      form.setError("newPassword", {
-        message: isPasswordPolicyCode(body.error)
-          ? messageForCode(body.error)
-          : "settings.security.submit.setPasswordFailed",
-      });
+      form.setError(
+        "newPassword",
+        {
+          message: isPasswordPolicyCode(body.error)
+            ? messageForCode(body.error)
+            : "settings.security.submit.setPasswordFailed",
+        },
+        { shouldFocus: true },
+      );
       return "done";
     }
 
@@ -95,7 +99,7 @@ export function useCredentialsSubmit({
     if (!error) return true;
 
     const { field, message } = changePasswordError(error, messageForCode);
-    form.setError(field, { message });
+    form.setError(field, { message }, { shouldFocus: true });
     return false;
   }
 
@@ -108,9 +112,13 @@ export function useCredentialsSubmit({
     if (!afterPasswordChange) {
       const failure = await prove({ password: data.currentPassword });
       if (failure) {
-        form.setError("currentPassword", {
-          message: currentPasswordError(failure),
-        });
+        form.setError(
+          "currentPassword",
+          {
+            message: currentPasswordError(failure),
+          },
+          { shouldFocus: true },
+        );
         return false;
       }
     }
@@ -128,7 +136,7 @@ export function useCredentialsSubmit({
       error?: string;
     };
     const { field, message } = changeEmailError(body.error);
-    form.setError(field, { message });
+    form.setError(field, { message }, { shouldFocus: true });
 
     // Password already committed above; confirm it and clear its fields so a retry only re-does email.
     if (afterPasswordChange) {

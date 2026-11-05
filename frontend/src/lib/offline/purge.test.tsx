@@ -1,7 +1,11 @@
-import { act, screen } from "@testing-library/react";
-import { QueryClient, useQuery } from "@tanstack/react-query";
+import { act, renderHook, screen } from "@testing-library/react";
+import { QueryClient, QueryObserver, useQuery } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 
+import {
+  markProductSearchSubmitted,
+  useRecordProductSearch,
+} from "@/components/custom/search/use-record-product-search";
 import { purgeOfflineCache } from "@/lib/offline/purge";
 import {
   ANONYMOUS_IDENTITY,
@@ -49,6 +53,34 @@ describe("purgeOfflineCache", () => {
         .getAll()
         .map(({ queryKey }) => queryKey),
     ).toEqual([["cijene", "chains"]]);
+  });
+
+  it("forgets a lookup still on screen once its page lets go", async () => {
+    const key = ["cijene", "products", "search", "{}"];
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(key, { products: [] });
+    const observer = new QueryObserver(queryClient, {
+      queryKey: key,
+      queryFn: () => ({ products: [] }),
+      staleTime: Infinity,
+    });
+    const unsubscribe = observer.subscribe(() => {});
+
+    await purgeOfflineCache(queryClient, "leaving");
+    expect(queryClient.getQueryData(key)).toBeDefined();
+
+    unsubscribe();
+
+    expect(queryClient.getQueryData(key)).toBeUndefined();
+  });
+
+  it("does not record a search that lands after the session ended", async () => {
+    markProductSearchSubmitted("kruh");
+
+    await purgeOfflineCache(new QueryClient(), "leaving");
+    renderHook(() => useRecordProductSearch("kruh", true));
+
+    expect(localStorage.getItem("Disscount_app")).not.toContain("kruh");
   });
 
   it("keeps a guest's searches when they sign in", async () => {

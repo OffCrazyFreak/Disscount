@@ -2,6 +2,7 @@ import type { Query, QueryClient } from "@tanstack/react-query";
 
 import { deleteUsedQueueForIdentity } from "@/lib/api/digital-cards/last-used";
 import { ANONYMOUS_IDENTITY } from "@/lib/offline/cache-identity";
+import { forgetSubmittedProductSearch } from "@/components/custom/search/use-record-product-search";
 import { trackPurge } from "@/lib/offline/purge-gate";
 import { deleteForIdentity } from "@/lib/offline/card-photo-store";
 import { deleteOutboxForIdentity } from "@/lib/offline/card-photo-outbox";
@@ -24,13 +25,30 @@ function isUserSpecific(query: Query): boolean {
   return query.queryKey[0] !== PUBLIC_QUERY_ROOT;
 }
 
-// Public data, but its keys say what this person searched for and which products they
-// opened, and search suggestions read them back.
+// Public data, but its keys say what this person searched for, opened and priced, and
+// search suggestions read the names back.
 function isProductLookup(query: Query): boolean {
   const [root, kind] = query.queryKey;
   return (
-    root === PUBLIC_QUERY_ROOT && (kind === "products" || kind === "product")
+    root === PUBLIC_QUERY_ROOT &&
+    (kind === "products" || kind === "product" || kind === "prices")
   );
+}
+
+/** A lookup still on screen stays until its page lets go, then goes like the rest. */
+function removeOnceUnobserved(queryClient: QueryClient, lookups: Query[]) {
+  if (!lookups.length) return;
+
+  const cache = queryClient.getQueryCache();
+  const waiting = new Set(lookups);
+  const unsubscribe = cache.subscribe((event) => {
+    if (event.type !== "observerRemoved" || !waiting.has(event.query)) return;
+    if (event.query.isActive()) return;
+
+    waiting.delete(event.query);
+    cache.remove(event.query);
+    if (!waiting.size) unsubscribe();
+  });
 }
 
 /** Cache Storage is not identity-scoped and nothing else here ever deletes from it. */
@@ -80,6 +98,14 @@ async function runPurge(queryClient: QueryClient, identity: string) {
       (isUserSpecific(query) || (wasSignedIn && isProductLookup(query))) &&
       !query.isActive(),
   });
+  if (wasSignedIn) {
+    removeOnceUnobserved(
+      queryClient,
+      queryClient.getQueryCache().findAll({
+        predicate: (query) => isProductLookup(query) && query.isActive(),
+      }),
+    );
+  }
   queryClient.getMutationCache().clear();
 
   // Wipe the snapshot so no authed data lingers; public data re-persists on next save.
@@ -95,7 +121,9 @@ async function runPurge(queryClient: QueryClient, identity: string) {
     Promise.resolve().then(() => setWatchlistPriceSnapshot(identity, null)),
     Promise.resolve().then(() => removeFormDraftsFor(identity)),
     Promise.resolve().then(() => {
-      if (wasSignedIn) productRecentSearches.clear();
+      if (!wasSignedIn) return;
+      productRecentSearches.clear();
+      forgetSubmittedProductSearch();
     }),
   ]);
 

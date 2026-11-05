@@ -9,6 +9,10 @@ export function markProductSearchSubmitted(query: string) {
   submittedQuery = query;
 }
 
+export function forgetSubmittedProductSearch() {
+  submittedQuery = null;
+}
+
 /**
  * Remembers a search once it has found something. Only one a field submitted:
  * a shared link or Back also lands on `q`, and neither is this person's search.
