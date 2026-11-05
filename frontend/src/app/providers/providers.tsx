@@ -12,6 +12,7 @@ import { ProductsSheetProvider } from "@/context/products-sheet-context";
 import RequestPersistentStorage from "@/components/custom/pwa/request-persistent-storage";
 import ScanShortcut from "@/components/custom/pwa/scan-shortcut";
 import AppUpdatePrompt from "@/components/custom/pwa/app-update-prompt";
+import ComponentStackBoundary from "@/components/custom/common/component-stack-boundary";
 
 interface IProvidersProps {
   children: ReactNode;
@@ -19,37 +20,42 @@ interface IProvidersProps {
 
 export default function Providers({ children }: IProvidersProps) {
   return (
-    <SerwistProvider
-      swUrl="/sw.js"
-      // In dev the service worker would fight Turbopack's hot reload, and a browser with no
-      // Cache Storage rejects registration in a way nothing here can catch.
-      disable={
-        process.env.NODE_ENV === "development" || typeof caches === "undefined"
-      }
-      cacheOnNavigation={false}
-      reloadOnOnline
-      // Serwist defaults to a module worker, but sw.js is one bundled file and classic runs everywhere.
-      options={{ type: "classic" }}
-    >
-      <ReactQueryProviderWrapper>
-        <UserProvider>
-          <NotificationsProvider>
-            <SidebarProvider>
-              <CameraScannerProvider>
-                <ProductsSheetProvider>
-                  <ToasterProvider>
-                    <RequestPersistentStorage />
-                    <ScanShortcut />
-                    <AppUpdatePrompt />
+    // Outermost, so an error from any provider or layout component that reaches
+    // global-error.tsx carries its component stack. Page errors stop at error.tsx first.
+    <ComponentStackBoundary>
+      <SerwistProvider
+        swUrl="/sw.js"
+        // In dev the service worker would fight Turbopack's hot reload, and a browser with no
+        // Cache Storage rejects registration in a way nothing here can catch.
+        disable={
+          process.env.NODE_ENV === "development" ||
+          typeof caches === "undefined"
+        }
+        cacheOnNavigation={false}
+        reloadOnOnline
+        // Serwist defaults to a module worker, but sw.js is one bundled file and classic runs everywhere.
+        options={{ type: "classic" }}
+      >
+        <ReactQueryProviderWrapper>
+          <UserProvider>
+            <NotificationsProvider>
+              <SidebarProvider>
+                <CameraScannerProvider>
+                  <ProductsSheetProvider>
+                    <ToasterProvider>
+                      <RequestPersistentStorage />
+                      <ScanShortcut />
+                      <AppUpdatePrompt />
 
-                    {children}
-                  </ToasterProvider>
-                </ProductsSheetProvider>
-              </CameraScannerProvider>
-            </SidebarProvider>
-          </NotificationsProvider>
-        </UserProvider>
-      </ReactQueryProviderWrapper>
-    </SerwistProvider>
+                      {children}
+                    </ToasterProvider>
+                  </ProductsSheetProvider>
+                </CameraScannerProvider>
+              </SidebarProvider>
+            </NotificationsProvider>
+          </UserProvider>
+        </ReactQueryProviderWrapper>
+      </SerwistProvider>
+    </ComponentStackBoundary>
   );
 }

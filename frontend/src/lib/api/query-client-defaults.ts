@@ -11,6 +11,7 @@ import {
 import { isCancel } from "axios";
 import { ZodError } from "zod";
 
+import { isReportedByProxy } from "@/lib/api/problem-details";
 import { httpStatus } from "@/lib/offline/failure-policy";
 import { isNetworkFailure } from "@/lib/offline/is-network-failure";
 
@@ -75,7 +76,7 @@ export function isUnexpectedFailure(error: unknown) {
 }
 
 function reportUnexpectedFailure(error: unknown, key: QueryKey | undefined) {
-  if (!isUnexpectedFailure(error)) return false;
+  if (!isUnexpectedFailure(error) || isReportedByProxy(error)) return false;
 
   // Only the root: deeper key parts can hold search terms, list ids and EANs.
   const root = key?.[0];
