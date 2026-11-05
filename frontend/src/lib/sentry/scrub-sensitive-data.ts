@@ -44,19 +44,21 @@ const SENSITIVE_FIELDS = new Set(
   SENSITIVE_FIELD_NAMES.map((name) => name.toLowerCase()),
 );
 
-// Only in raw JSON bodies: as an object key, `code` usually names an error code worth keeping.
-const JSON_ONLY_SECRET_FIELDS = ["code"];
-
 const SENSITIVE_JSON_FIELD = new RegExp(
-  `("(?:${[...SENSITIVE_FIELD_NAMES, ...JSON_ONLY_SECRET_FIELDS].join("|")})"\\s*:\\s*)"(?:[^"\\\\]|\\\\.)*"`,
+  `("(?:${SENSITIVE_FIELD_NAMES.join("|")})"\\s*:\\s*)"(?:[^"\\\\]|\\\\.)*"`,
   "gi",
 );
+
+// A one-time code in a raw JSON body. An UPPER_SNAKE value is an error code, worth keeping.
+const ONE_TIME_CODE_JSON_FIELD =
+  /("code"\s*:\s*)"(?![A-Z][A-Z0-9_]*")(?:[^"\\]|\\.)*"/g;
 
 export function scrubString(text: string): string {
   return text
     .replace(SENSITIVE_QUERY_PARAM, `$1$2=${FILTERED}`)
     .replace(RESET_PASSWORD_PATH_TOKEN, `$1${FILTERED}`)
     .replace(SENSITIVE_JSON_FIELD, `$1"${FILTERED}"`)
+    .replace(ONE_TIME_CODE_JSON_FIELD, `$1"${FILTERED}"`)
     .replace(BETTER_AUTH_COOKIE, `$1${FILTERED}`)
     .replace(BEARER_TOKEN, `$1${FILTERED}`);
 }

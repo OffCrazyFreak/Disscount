@@ -21,8 +21,11 @@ export default function Providers({ children }: IProvidersProps) {
   return (
     <SerwistProvider
       swUrl="/sw.js"
-      // In dev the service worker would fight Turbopack's hot reload.
-      disable={process.env.NODE_ENV === "development"}
+      // In dev the service worker would fight Turbopack's hot reload, and a browser with no
+      // Cache Storage rejects registration in a way nothing here can catch.
+      disable={
+        process.env.NODE_ENV === "development" || typeof caches === "undefined"
+      }
       cacheOnNavigation={false}
       reloadOnOnline
       // Serwist defaults to a module worker, but sw.js is one bundled file and classic runs everywhere.

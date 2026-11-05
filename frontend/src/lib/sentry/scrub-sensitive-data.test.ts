@@ -281,6 +281,12 @@ describe("scrubSensitiveData on streamed spans", () => {
 });
 
 describe("scrubSensitiveData on a code that is not a secret", () => {
+  it("keeps an error code inside a JSON string", () => {
+    expect(scrubString('{"code":"INVALID_PASSWORD"}')).toBe(
+      '{"code":"INVALID_PASSWORD"}',
+    );
+  });
+
   it("keeps an error code held as an object key", () => {
     expect(scrubSensitiveData({ code: "NOT_FOUND" })).toEqual({
       code: "NOT_FOUND",

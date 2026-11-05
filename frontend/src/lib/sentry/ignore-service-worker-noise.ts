@@ -3,7 +3,7 @@
  * cannot have a service worker at all.
  *
  * `SerwistProvider` registers it inside the library (`window.serwist = new Serwist(...)` then
- * `void window.serwist.register()`, which reaches `navigator.serviceWorker.register()` inside
+ * `window.serwist.register()`, which reaches `navigator.serviceWorker.register()` inside
  * Serwist), so there is no call site of ours to catch these on. Registration legitimately
  * fails for Google's renderer (which stubs `register`) and in storage-restricted browsers,
  * and the failure is harmless: the app runs without offline caching.
