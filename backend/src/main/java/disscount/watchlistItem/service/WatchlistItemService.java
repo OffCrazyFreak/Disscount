@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import disscount.exceptions.BadRequestException;
+import disscount.exceptions.NotFoundException;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.watchlistItem.dao.WatchlistItemRepository;
@@ -27,22 +27,18 @@ public class WatchlistItemService {
     private final UserRepository userRepository;
 
     public WatchlistItemDto addOrUpdateWatchlist(UUID userId, WatchlistItemRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+        User user = userRepository.requireActive(userId);
 
-        // Check if product with the same watch type exists
         Optional<WatchlistItem> existing = watchlistItemRepository
                 .findByProductApiIdAndWatchType(request.getProductApiId(), request.getWatchType(), userId);
         
         if (existing.isPresent()) {
-            // Update existing threshold
             WatchlistItem watchlistItem = existing.get();
             watchlistItem.setThresholdValue(request.getThresholdValue());
             WatchlistItem saved = watchlistItemRepository.save(watchlistItem);
             return mapToDto(saved);
         }
 
-        // Create new watchlist item
         WatchlistItem watchlistItem = WatchlistItem.builder()
                 .user(user)
                 .productApiId(request.getProductApiId())
@@ -63,11 +59,13 @@ public class WatchlistItemService {
     }
 
     public void removeFromWatchlist(UUID id, UUID userId) {
-        WatchlistItem watchlistItem = watchlistItemRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("Watchlist item not found"));
+        WatchlistItem watchlistItem = watchlistItemRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new NotFoundException("error.watchlistItem.notFound"));
 
-        watchlistItem.setDeletedAt(Timestamps.nowUtc());
-        watchlistItemRepository.save(watchlistItem);
+        if (watchlistItem.getDeletedAt() == null) {
+            watchlistItem.setDeletedAt(Timestamps.nowUtc());
+            watchlistItemRepository.save(watchlistItem);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -80,14 +78,6 @@ public class WatchlistItemService {
                 .collect(Collectors.toList());
     }
 
-    public void updateLastNotifiedAt(UUID watchlistItemId) {
-        Optional<WatchlistItem> watchlistItem = watchlistItemRepository.findById(watchlistItemId);
-        if (watchlistItem.isPresent()) {
-            watchlistItem.get().setLastNotifiedAt(Timestamps.nowUtc());
-            watchlistItemRepository.save(watchlistItem.get());
-        }
-    }
-
     private WatchlistItemDto mapToDto(WatchlistItem watchlistItem) {
         return WatchlistItemDto.builder()
                 .id(watchlistItem.getId())
@@ -95,7 +85,6 @@ public class WatchlistItemService {
                 .productApiId(watchlistItem.getProductApiId())
                 .watchType(watchlistItem.getWatchType())
                 .thresholdValue(watchlistItem.getThresholdValue())
-                .lastNotifiedAt(watchlistItem.getLastNotifiedAt())
                 .createdAt(watchlistItem.getCreatedAt())
                 .updatedAt(watchlistItem.getUpdatedAt())
                 .build();

@@ -1,36 +1,23 @@
 import { z } from "zod";
 
-const PASSWORD_ERROR =
-  "Lozinka mora imati barem 12 znakova i treba sadržavati najmanje jedno veliko slovo, jedno malo slovo te broj (0-9).";
+import { passwordSchema } from "@/lib/auth/password-policy";
 
 /** The only outcome that satisfies the onboarding gate. */
 export const ONBOARDING_COMPLETED = "completed";
 
-// New passwords only: login must still accept any existing password.
-export const passwordSchema = z
-  .string()
-  .refine(
-    (value) =>
-      value.length >= 12 &&
-      /[A-Z]/.test(value) &&
-      /[a-z]/.test(value) &&
-      /[0-9]/.test(value),
-    { message: PASSWORD_ERROR },
-  );
-
 export const loginRequestSchema = z.object({
-  email: z.email("Unesi važeći email"),
-  password: z.string().min(1, "Unesi lozinku"),
+  email: z.email("auth.validation.emailInvalid"),
+  password: z.string().min(1, "auth.validation.passwordRequired"),
 });
 
 export const registerRequestSchema = z
   .object({
-    email: z.email("Unesi važeći email"),
+    email: z.email("auth.validation.emailInvalid"),
     password: passwordSchema,
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Lozinke se ne podudaraju",
+    message: "auth.validation.passwordsMismatch",
     path: ["confirmPassword"],
   });
 
@@ -50,74 +37,76 @@ export const acquisitionChannelSchema = z.enum([
   "OTHER",
 ]);
 
+export const usernameSchema = z
+  .string()
+  .min(2, "settings.validation.usernameMin")
+  .max(40, "settings.validation.usernameMax");
+
 export const userRequestSchema = z.object({
-  username: z
-    .string()
-    .min(2, "Korisničko ime mora imati najmanje 2 znakova")
-    .max(40, "Korisničko ime može imati najviše 40 znakova")
-    .nullable()
-    .optional(),
+  username: usernameSchema.nullable().optional(),
   notificationsPush: z.boolean().optional(),
   notificationsEmail: z.boolean().optional(),
   newsletter: z.boolean().optional(),
   feedbackContact: z.boolean().optional(),
   acquisitionChannel: acquisitionChannelSchema.nullable().optional(),
   image: z.string().nullable().optional(),
-  // "completed" or "skipped:<step>"; sent only when the onboarding wizard ends
+  // "completed" or "skipped:<step>"; sent only when the onboarding wizard ends.
+  // At most three digits, as UserRequest.onboardingOutcome allows on the server.
   onboardingOutcome: z
-    .union([z.literal(ONBOARDING_COMPLETED), z.string().regex(/^skipped:\d+$/)])
+    .union([
+      z.literal(ONBOARDING_COMPLETED),
+      z.string().regex(/^skipped:\d{1,3}$/),
+    ])
     .optional(),
 });
 
-export const userDtoSchema = userRequestSchema
-  .omit({
-    notificationsPush: true,
-    notificationsEmail: true,
-    newsletter: true,
-    feedbackContact: true,
-  })
-  .extend({
-    id: z.string(),
-    email: z.email().nullable().optional(),
-    name: z.string().nullable().optional(),
-    accountType: z.enum(["ADMIN", "CONSUMER", "ENTERPRISE", "PUBLIC_SECTOR"]),
-    // Enable-timestamps (ISO strings); null = off. Drives the profile switches AND stats dashboards.
-    notificationsPushEnabledAt: z.string().nullable().optional(),
-    notificationsEmailEnabledAt: z.string().nullable().optional(),
-    newsletterEnabledAt: z.string().nullable().optional(),
-    feedbackContactEnabledAt: z.string().nullable().optional(),
-    // Only a completed outcome satisfies the onboarding gate. Historical skipped
-    // outcomes remain incomplete even though they have a completion timestamp.
-    onboardingCompletedAt: z.string().nullable().optional(),
-    onboardingOutcome: z.string().nullable().optional(),
-    createdAt: z.string(),
-    // Admin list only; derived from the better-auth session rows.
-    lastLoginAt: z.string().nullable().optional(),
-    // Present on every UserDto, and what the active-user counters read.
-    lastActiveAt: z.string().nullable().optional(),
-    pinnedStores: z
-      .array(
-        z.object({
-          id: z.string(),
-          userId: z.string(),
-          storeApiId: z.string(),
-          storeName: z.string(),
-        }),
-      )
-      .nullable()
-      .optional(),
-    pinnedPlaces: z
-      .array(
-        z.object({
-          id: z.string(),
-          userId: z.string(),
-          placeApiId: z.string(),
-          placeName: z.string(),
-        }),
-      )
-      .nullable()
-      .optional(),
-  });
+// Its own object, so the form's username limits never reject an account the server holds.
+export const userDtoSchema = z.object({
+  id: z.string(),
+  username: z.string().nullable(),
+  acquisitionChannel: acquisitionChannelSchema.nullable(),
+  image: z.string().nullable(),
+  email: z.string().nullable(),
+  accountType: z.enum(["ADMIN", "CONSUMER", "ENTERPRISE", "PUBLIC_SECTOR"]),
+  // Enable-timestamps (ISO strings); null = off. Drives the profile switches AND stats dashboards.
+  notificationsPushEnabledAt: z.string().nullable(),
+  notificationsEmailEnabledAt: z.string().nullable(),
+  newsletterEnabledAt: z.string().nullable(),
+  feedbackContactEnabledAt: z.string().nullable(),
+  // Only a completed outcome satisfies the onboarding gate. Historical skipped
+  // outcomes remain incomplete even though they have a completion timestamp.
+  onboardingCompletedAt: z.string().nullable(),
+  onboardingOutcome: z.string().nullable(),
+  createdAt: z.string(),
+  // Admin list only; derived from the better-auth session rows.
+  lastLoginAt: z.string().nullable(),
+  // Present on every UserDto, and what the active-user counters read.
+  lastActiveAt: z.string().nullable(),
+  // Not on the wire: the client fills these from the session and the preferences endpoints.
+  name: z.string().nullable().optional(),
+  pinnedStores: z
+    .array(
+      z.object({
+        id: z.string(),
+        userId: z.string(),
+        storeApiId: z.string(),
+        storeName: z.string(),
+      }),
+    )
+    .nullable()
+    .optional(),
+  pinnedPlaces: z
+    .array(
+      z.object({
+        id: z.string(),
+        userId: z.string(),
+        placeApiId: z.string(),
+        placeName: z.string(),
+      }),
+    )
+    .nullable()
+    .optional(),
+});
 
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 export type RegisterRequest = z.infer<typeof registerRequestSchema>;
@@ -126,31 +115,13 @@ export type UserDto = z.infer<typeof userDtoSchema>;
 
 export type AccountType = UserDto["accountType"];
 
-export type AcquisitionChannel = z.infer<typeof acquisitionChannelSchema>;
-
-// Croatian display labels for account types
-export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
-  ADMIN: "Admin",
-  CONSUMER: "Korisnik",
-  ENTERPRISE: "Partner",
-  PUBLIC_SECTOR: "Javni sektor",
-};
-
-// Croatian display labels for the "Odakle znaš za Disscount?" dropdown
-export const ACQUISITION_CHANNEL_LABELS: Record<AcquisitionChannel, string> = {
-  GOOGLE_SEARCH: "Google pretraga",
-  INSTAGRAM: "Instagram",
-  FACEBOOK: "Facebook",
-  TIKTOK: "TikTok",
-  YOUTUBE: "YouTube",
-  FRIEND_OR_FAMILY: "Preporuka prijatelja ili obitelji",
-  ONLINE_AD: "Online oglas",
-  BLOG_OR_NEWS: "Blog, članak ili mediji",
-  APP_STORE: "App Store / Google Play",
-  POSTER_OR_FLYER: "Plakat ili letak",
-  EVENT: "Sajam ili događaj",
-  OTHER: "Ostalo",
-};
+// Message keys in the "auth" namespace; consumers translate them with t().
+export const ACCOUNT_TYPE_LABELS = {
+  ADMIN: "accountTypes.ADMIN",
+  CONSUMER: "accountTypes.CONSUMER",
+  ENTERPRISE: "accountTypes.ENTERPRISE",
+  PUBLIC_SECTOR: "accountTypes.PUBLIC_SECTOR",
+} as const satisfies Record<AccountType, string>;
 
 const DASHBOARD_ACCOUNT_TYPES: AccountType[] = [
   "ADMIN",

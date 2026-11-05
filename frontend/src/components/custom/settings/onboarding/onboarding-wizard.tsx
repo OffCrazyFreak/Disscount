@@ -2,6 +2,7 @@
 
 import { ArrowLeft, ArrowRight, Check, LogOut } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ export default function OnboardingWizard({
     direction,
     currentStep,
     title,
+    description,
     isLast,
     isFirst,
     next,
@@ -38,6 +40,7 @@ export default function OnboardingWizard({
     finish,
     rootError,
   } = useOnboarding({ open, save });
+  const t = useTranslations("settings");
   const { logout } = useUser();
 
   const StepComponent = currentStep.component;
@@ -60,7 +63,7 @@ export default function OnboardingWizard({
       // The wizard is already gone, so there is nowhere left to surface this.
       // Swallowed deliberately: the alternative is an unhandled rejection, since
       // the caller invokes this as void handleLogout().
-      toast.error("Odjava nije uspjela. Pokušaj ponovno.");
+      toast.error(t("onboarding.logoutFailed"));
     }
   }
 
@@ -71,11 +74,8 @@ export default function OnboardingWizard({
         if (!isOpen && !required) closeModalUrl();
       }}
       title={title}
-      description={
-        currentStep.description ??
-        "Kratko postavljanje računa, sve se kasnije može promijeniti."
-      }
-      srOnlyDescription={!currentStep.description}
+      description={description ?? t("onboarding.fallbackDescription")}
+      srOnlyDescription={!description}
       preventClose={required || busy}
       onSubmit={() => void (isLast ? finish() : next())}
       submitDisabled={busy}
@@ -99,7 +99,7 @@ export default function OnboardingWizard({
                 icon={LogOut}
                 iconPlacement="left"
               >
-                Odjava
+                {t("onboarding.logout")}
               </Button>
             )
           ) : (
@@ -111,7 +111,7 @@ export default function OnboardingWizard({
               icon={ArrowLeft}
               iconPlacement="left"
             >
-              Natrag
+              {t("onboarding.back")}
             </Button>
           )}
 
@@ -125,7 +125,7 @@ export default function OnboardingWizard({
                 icon={Check}
                 iconPlacement="left"
               >
-                Završi
+                {t("onboarding.finish")}
               </Button>
             ) : (
               <Button
@@ -135,7 +135,7 @@ export default function OnboardingWizard({
                 icon={ArrowRight}
                 iconPlacement="right"
               >
-                Dalje
+                {t("onboarding.next")}
               </Button>
             )}
           </div>

@@ -3,34 +3,30 @@ import { NextResponse } from "next/server";
 import { and, eq, ne } from "drizzle-orm";
 import { z } from "zod";
 
+import { APIError } from "better-auth/api";
+
 import { auth } from "@/lib/auth";
+import { parseAccountBody } from "@/lib/auth/parse-account-body";
+import { REAUTH_REQUIRED } from "@/lib/auth/security-policy";
 import { db } from "@/db";
 import { account } from "@/db/auth-schema";
+import { DEFAULT_LOCALE, isLocale } from "@/i18n/locales";
+import { localePath } from "@/i18n/locale-path";
 
-const bodySchema = z.object({ newEmail: z.email() });
+const bodySchema = z.object({
+  newEmail: z.email(),
+});
 
 // Enforces the single-email identity invariant: block the change while a social
 // account is linked, so provider login can't later carry a different email.
 export async function POST(request: Request) {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json(
-      { error: "Invalid request body" },
-      { status: 400 },
-    );
-  }
-
-  const parsed = bodySchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid email" }, { status: 400 });
-  }
+  const parsed = await parseAccountBody(request, bodySchema);
+  if (parsed.response) return parsed.response;
 
   const requestHeaders = await headers();
   const session = await auth.api.getSession({ headers: requestHeaders });
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   const linkedSocial = await db
@@ -53,15 +49,19 @@ export async function POST(request: Request) {
     await auth.api.changeEmail({
       body: {
         newEmail: parsed.data.newEmail.toLowerCase(),
-        callbackURL: "/?modal=email-changed",
+        callbackURL: localePath(
+          isLocale(session.user.locale) ? session.user.locale : DEFAULT_LOCALE,
+          "/?modal=email-changed",
+        ),
       },
       headers: requestHeaders,
     });
-  } catch {
-    return NextResponse.json(
-      { error: "Failed to change email" },
-      { status: 500 },
-    );
+  } catch (error) {
+    // The auth hook asks for a session the current password renewed in the last 15 minutes.
+    if (error instanceof APIError && error.body?.code === REAUTH_REQUIRED) {
+      return NextResponse.json({ error: REAUTH_REQUIRED }, { status: 403 });
+    }
+    return NextResponse.json({ error: "change_email_failed" }, { status: 500 });
   }
 
   return NextResponse.json({ status: true });

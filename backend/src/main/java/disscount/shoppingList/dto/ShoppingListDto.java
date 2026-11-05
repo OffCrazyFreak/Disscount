@@ -1,5 +1,6 @@
 package disscount.shoppingList.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,11 +16,13 @@ import disscount.shoppingListItem.dto.ShoppingListItemDto;
 public class ShoppingListDto {
 
     private UUID id;
+    @Schema(nullable = true)
     private UUID ownerId;
     private String title;
 
     // Owner-only: a link visitor who could read this would learn the list is shared more
     // widely than their own access shows, and the share control keys off it.
+    @Schema(nullable = true)
     private ListAccess linkAccess;
 
     /** The caller's resolved access, echoed back so the frontend never re-derives the rule. */

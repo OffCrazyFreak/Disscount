@@ -26,11 +26,11 @@ function findItem(
   return { item: list.items[index], index };
 }
 
-export async function patchItemOptimistically(
+async function editItemsOptimistically(
   queryClient: QueryClient,
   queryKey: QueryKey,
   itemId: string,
-  patch: Partial<ShoppingListItemDto>,
+  editItems: (items: ShoppingListItemDto[]) => ShoppingListItemDto[],
 ): Promise<IItemRollback | undefined> {
   await queryClient.cancelQueries({ queryKey });
 
@@ -41,39 +41,31 @@ export async function patchItemOptimistically(
   if (!previous) return undefined;
 
   queryClient.setQueryData<ShoppingListDto | undefined>(queryKey, (old) =>
-    old
-      ? {
-          ...old,
-          items: old.items.map((item) =>
-            item.id === itemId ? { ...item, ...patch } : item,
-          ),
-        }
-      : old,
+    old ? { ...old, items: editItems(old.items) } : old,
   );
 
   return previous;
 }
 
-export async function removeItemOptimistically(
+export function patchItemOptimistically(
+  queryClient: QueryClient,
+  queryKey: QueryKey,
+  itemId: string,
+  patch: Partial<ShoppingListItemDto>,
+): Promise<IItemRollback | undefined> {
+  return editItemsOptimistically(queryClient, queryKey, itemId, (items) =>
+    items.map((item) => (item.id === itemId ? { ...item, ...patch } : item)),
+  );
+}
+
+export function removeItemOptimistically(
   queryClient: QueryClient,
   queryKey: QueryKey,
   itemId: string,
 ): Promise<IItemRollback | undefined> {
-  await queryClient.cancelQueries({ queryKey });
-
-  const previous = findItem(
-    queryClient.getQueryData<ShoppingListDto>(queryKey),
-    itemId,
+  return editItemsOptimistically(queryClient, queryKey, itemId, (items) =>
+    items.filter((item) => item.id !== itemId),
   );
-  if (!previous) return undefined;
-
-  queryClient.setQueryData<ShoppingListDto | undefined>(queryKey, (old) =>
-    old
-      ? { ...old, items: old.items.filter((item) => item.id !== itemId) }
-      : old,
-  );
-
-  return previous;
 }
 
 /** Puts one item back where it was, leaving every other item as it now stands. */

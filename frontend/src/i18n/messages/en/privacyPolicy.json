@@ -1,0 +1,15 @@
+{
+  "ipAddresses": {
+    "heading": "IP addresses",
+    "body": "When you sign in, we store your device's IP address with the session so we can check suspicious sign-ins to your account. We remove the address no later than 30 days after sign-in, and we delete an expired session entirely. To prevent abuse we also use your IP address briefly to limit repeated attempts: up to 15 minutes in our database for sign-in and similar actions, and up to 24 hours for the contact form, kept only in the server's memory. When a secure connection to our server fails, the server's error log records the address of that connection. We use those entries only to fix faults. Database backups may hold this data for up to 60 more days. When an error happens, Sentry also receives your IP address and keeps it for at most 30 days. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
+  },
+  "errorTracking": {
+    "heading": "Error tracking",
+    "collected": "When something breaks in the app, we send technical details to Sentry, our processor, which stores them in the European Union: the error, your browser and device, the page address, your account's internal ID, your device's IP address, and the request's headers and cookies, without sign-in data. Sentry may work out an approximate location (country, sometimes city) from the IP address. We don't attach your name or email to events, but a request that fails may include what you typed, such as your name and email address when signing in or signing up.",
+    "replay": "For a small share of visits, and for visits with an error, we also record a session replay with all text and input hidden. Passwords, tokens and session cookies are removed before sending. We use this data only to fix errors. Sentry keeps it for at most 30 days. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
+  },
+  "securityNotices": {
+    "heading": "Security notices",
+    "body": "When your account's password changes, we email you a notice. When you change your email address, the notice goes to the old address and names the new one. That way you can spot a change you don't know about and act straight away. These notices are part of protecting your account, so you can't turn them off. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
+  }
+}

@@ -3,6 +3,7 @@
 import { ChangeEvent } from "react";
 import { Camera } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import UserAvatar from "@/components/custom/common/user-avatar";
 
 import {
@@ -10,16 +11,18 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import resizeImageToWebp from "@/utils/browser/image";
+import { prepareAvatar } from "@/utils/browser/avatar-image";
+import { fileToBase64 } from "@/utils/browser/file";
 import { useUser } from "@/context/user-context";
 import { useSettingsUi } from "@/components/custom/settings/settings-context";
 
-// Only guards decoding: the WebP re-encode below sets the stored size.
+// Only guards decoding: the re-encode below sets the stored size.
 const MAX_AVATAR_BYTES = 15 * 1024 * 1024;
 
 // Outside react-hook-form and drafts on purpose: base64 images would blow the
 // localStorage quota and don't belong in dirty tracking.
 export default function AvatarField() {
+  const t = useTranslations("settings");
   const { user } = useUser();
   const { avatarPreview, updateAvatar } = useSettingsUi();
 
@@ -28,14 +31,14 @@ export default function AvatarField() {
     if (!file) return;
 
     if (file.size > MAX_AVATAR_BYTES) {
-      toast.error("Slika je prevelika. Maksimalna veličina je 15 MB.");
+      toast.error(t("profile.avatar.tooLarge"));
       return;
     }
 
     try {
-      updateAvatar(await resizeImageToWebp(file));
+      updateAvatar(await fileToBase64(await prepareAvatar(file)));
     } catch {
-      toast.error("Sliku nije moguće učitati, probaj JPG ili PNG.");
+      toast.error(t("profile.avatar.loadFailed"));
     }
   }
 
@@ -53,7 +56,7 @@ export default function AvatarField() {
         <TooltipTrigger asChild>
           <label
             htmlFor="avatar-upload"
-            aria-label="Promijeni sliku"
+            aria-label={t("profile.avatar.change")}
             className="relative block size-24 cursor-pointer overflow-hidden rounded-full"
           >
             <UserAvatar
@@ -72,7 +75,7 @@ export default function AvatarField() {
           </label>
         </TooltipTrigger>
         <TooltipContent className="px-2 py-1 text-xs">
-          Promijeni sliku
+          {t("profile.avatar.change")}
         </TooltipContent>
       </Tooltip>
 
@@ -82,12 +85,12 @@ export default function AvatarField() {
           onClick={() => updateAvatar(null)}
           className="cursor-pointer text-xs text-muted-foreground underline underline-offset-2 hover:text-destructive"
         >
-          Ukloni sliku
+          {t("profile.avatar.remove")}
         </button>
       )}
 
       <p className="text-xs text-muted-foreground">
-        PNG, JPG, WebP ili GIF (sprema se kao WebP).
+        {t("profile.avatar.formats")}
       </p>
     </div>
   );

@@ -1,7 +1,7 @@
 import { z } from "zod";
+import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
 import { cijeneApiV1Client } from "@/lib/cijene-api/client";
 import { listStoresResponseSchema } from "@/lib/cijene-api/schemas";
-import { createApiError } from "@/lib/cijene-api/utils/response-utils";
 import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";
 
 const chainCodeParamSchema = z.object({
@@ -9,21 +9,21 @@ const chainCodeParamSchema = z.object({
 });
 
 export async function GET(
-  _request: Request,
+  request: Request,
   context: RouteContext<"/api/cijene/stores/[chainCode]">,
 ) {
   const parsed = chainCodeParamSchema.safeParse(await context.params);
 
   if (!parsed.success) {
-    return createApiError("Invalid parameters for chain stores", {
-      status: 400,
-      details: z.treeifyError(parsed.error),
-    });
+    return proxyProblem("bad_request", request);
   }
 
   const { chainCode } = parsed.data;
 
-  return withCijeneRoute("stores for chain", listStoresResponseSchema, () =>
-    cijeneApiV1Client.get(`/${encodeURIComponent(chainCode)}/stores/`),
+  return withCijeneRoute(
+    request,
+    "stores for chain",
+    listStoresResponseSchema,
+    () => cijeneApiV1Client.get(`/${encodeURIComponent(chainCode)}/stores/`),
   );
 }

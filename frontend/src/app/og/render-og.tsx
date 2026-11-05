@@ -3,19 +3,24 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { CART_VIEW_BOX } from "@/components/icons/cart-logo";
 
-// Shared by opengraph-image.tsx and twitter-image.tsx.
+// Shared by opengraph-image.tsx, twitter-image.tsx and the product share card.
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt =
-  "Disscount - usporedba cijena proizvoda u 25+ trgovačkih lanaca u Hrvatskoj.";
 
-const BRAND = "#2ec50d";
+export const BRAND = "#2ec50d";
+export const OG_BACKGROUND =
+  "linear-gradient(135deg, #e9fae4 0%, #ffffff 55%, #f1fbec 100%)";
 const INK = "#252525";
 
+// Not immutable: Next's ?hash covers only the thin route file, so design and copy changes keep this URL.
+const BRAND_IMAGE_CACHE_CONTROL =
+  "public, max-age=86400, stale-while-revalidate=604800";
+
 // Satori can't read woff2, so these are .ttf and .woff builds of the app fonts.
-// Reading them from src/ is safe because both OG routes are statically generated.
-async function loadFonts() {
+// Next's file tracing follows this read into the standalone image, which the product
+// card needs because it renders at request time.
+export async function loadFonts() {
   const dir = join(process.cwd(), "src", "app", "fonts");
 
   const [saira, huninn] = await Promise.all([
@@ -36,7 +41,7 @@ interface ISparkleProps {
   opacity: number;
 }
 
-function Sparkle(props: ISparkleProps) {
+export function Sparkle(props: ISparkleProps) {
   return (
     <svg
       width={props.size}
@@ -55,11 +60,16 @@ function Sparkle(props: ISparkleProps) {
   );
 }
 
-function Cart() {
+interface ICartProps {
+  width: number;
+  height: number;
+}
+
+export function Cart({ width, height }: ICartProps) {
   return (
     <svg
-      width={214}
-      height={159}
+      width={width}
+      height={height}
       viewBox={CART_VIEW_BOX}
       fill="none"
       stroke={BRAND}
@@ -95,7 +105,12 @@ function ArrowRight() {
   );
 }
 
-function OgImage() {
+interface IOgCopy {
+  headline: string;
+  cta: string;
+}
+
+function OgImage({ headline, cta }: IOgCopy) {
   return (
     <div
       style={{
@@ -106,8 +121,7 @@ function OgImage() {
         alignItems: "center",
         justifyContent: "center",
         position: "relative",
-        background:
-          "linear-gradient(135deg, #e9fae4 0%, #ffffff 55%, #f1fbec 100%)",
+        background: OG_BACKGROUND,
         fontFamily: "Huninn",
       }}
     >
@@ -117,7 +131,7 @@ function OgImage() {
       <Sparkle left={1038} top={484} size={52} opacity={0.85} />
 
       <div style={{ display: "flex", alignItems: "center", gap: 26 }}>
-        <Cart />
+        <Cart width={214} height={159} />
         <span
           style={{
             fontFamily: "Saira Stencil",
@@ -132,7 +146,7 @@ function OgImage() {
       </div>
 
       <div style={{ display: "flex", marginTop: 26, fontSize: 42, color: INK }}>
-        Pronađi najbolje cijene u Hrvatskoj
+        {headline}
       </div>
 
       <div
@@ -149,13 +163,17 @@ function OgImage() {
           boxShadow: "0 14px 32px rgba(46,197,13,0.35)",
         }}
       >
-        <span style={{ display: "flex" }}>Uštedi već danas</span>
+        <span style={{ display: "flex" }}>{cta}</span>
         <ArrowRight />
       </div>
     </div>
   );
 }
 
-export default async function renderBrandOg() {
-  return new ImageResponse(<OgImage />, { ...size, fonts: await loadFonts() });
+export default async function renderBrandOg(copy: IOgCopy) {
+  return new ImageResponse(<OgImage {...copy} />, {
+    ...size,
+    fonts: await loadFonts(),
+    headers: { "Cache-Control": BRAND_IMAGE_CACHE_CONTROL },
+  });
 }

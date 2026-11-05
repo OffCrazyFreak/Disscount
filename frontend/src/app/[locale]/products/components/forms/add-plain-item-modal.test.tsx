@@ -1,0 +1,335 @@
+import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { http, HttpResponse } from "msw/http";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import AddPlainItemModal from "@/app/[locale]/products/components/forms/add-plain-item-modal";
+import { server } from "@/test/msw-server";
+import { renderWithProviders } from "@/test/render";
+import { getFormDraft, setFormDraft } from "@/utils/browser/local-storage";
+
+const { openModalUrl, closeModalUrl } = vi.hoisted(() => ({
+  openModalUrl: vi.fn(),
+  closeModalUrl: vi.fn(),
+}));
+vi.mock("@/lib/modal/modal-navigation", () => ({
+  openModalUrl,
+  closeModalUrl,
+}));
+vi.mock("@/context/user-context", () => ({ useUser: () => ({ user: {} }) }));
+vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+
+function list(id: string, title: string, updatedAt: string) {
+  return {
+    id,
+    title,
+    ownerId: "user-1",
+    linkAccess: null,
+    myAccess: "OWNER",
+    updatedAt,
+    createdAt: updatedAt,
+    items: [],
+  };
+}
+
+// Closing the real modal turns the draft hook off, which cancels its pending debounced save. A mock
+// that leaves the modal open lets that save land after the failure's cleanup; unmounting stands in.
+function unmountOnClose(view: { unmount: () => void }) {
+  closeModalUrl.mockImplementation(() => view.unmount());
+}
+
+const newest = list("list-a", "Tjedna kupnja", "2026-11-02T10:00:00");
+const older = list("list-b", "Vikendica", "2026-10-01T10:00:00");
+
+describe("AddPlainItemModal", () => {
+  beforeEach(() => {
+    openModalUrl.mockClear();
+    closeModalUrl.mockReset();
+    localStorage.clear();
+    // jsdom has no scrollIntoView; cmdk calls it on the highlighted list option.
+    Element.prototype.scrollIntoView ??= vi.fn();
+  });
+
+  it("reopens a failed add with the list and amount the user chose", async () => {
+    const user = userEvent.setup();
+    const added: unknown[] = [];
+    server.use(
+      http.get("*/api/shopping-lists/me", () =>
+        HttpResponse.json([newest, older]),
+      ),
+      http.get("*/api/shopping-lists/:id", ({ params }) =>
+        HttpResponse.json(params.id === older.id ? older : newest),
+      ),
+      http.post("*/api/shopping-lists/:id/items", async ({ request }) => {
+        added.push(await request.json());
+        return HttpResponse.json(
+          { status: 500, detail: "Nešto je pošlo po zlu." },
+          { status: 500 },
+        );
+      }),
+    );
+
+    const first = renderWithProviders(
+      <AddPlainItemModal open itemName="Staklenke" />,
+    );
+    const trigger = await screen.findByRole("combobox", {
+      name: "Popis za kupnju",
+    });
+    await waitFor(() => expect(trigger).toHaveTextContent("Tjedna kupnja"));
+    await user.click(trigger);
+    await user.click(await screen.findByRole("option", { name: /Vikendica/ }));
+    await user.click(screen.getByRole("button", { name: "Povećaj za 1" }));
+    await user.click(screen.getByRole("button", { name: "Dodaj" }));
+
+    await waitFor(() =>
+      expect(openModalUrl).toHaveBeenCalledWith({
+        name: "add-plain-item",
+        itemName: "Staklenke",
+      }),
+    );
+    expect(closeModalUrl).toHaveBeenCalled();
+    expect(added).toEqual([{ name: "Staklenke", amount: 2, isChecked: false }]);
+    first.unmount();
+
+    renderWithProviders(<AddPlainItemModal open itemName="Staklenke" />);
+
+    const reopened = await screen.findByRole("combobox", {
+      name: "Popis za kupnju",
+    });
+    await waitFor(() => expect(reopened).toHaveTextContent("Vikendica"));
+    expect(screen.getByRole("spinbutton", { name: "Količina" })).toHaveValue(2);
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+  });
+  it("keeps a cancelled choice to its own item name", async () => {
+    const user = userEvent.setup();
+    server.use(
+      http.get("*/api/shopping-lists/me", () =>
+        HttpResponse.json([newest, older]),
+      ),
+      http.get("*/api/shopping-lists/:id", ({ params }) =>
+        HttpResponse.json(params.id === older.id ? older : newest),
+      ),
+    );
+
+    const first = renderWithProviders(
+      <AddPlainItemModal open itemName="Staklenke" />,
+    );
+    const trigger = await screen.findByRole("combobox", {
+      name: "Popis za kupnju",
+    });
+    await waitFor(() => expect(trigger).toHaveTextContent("Tjedna kupnja"));
+    await user.click(trigger);
+    await user.click(await screen.findByRole("option", { name: /Vikendica/ }));
+    await user.click(screen.getByRole("button", { name: "Povećaj za 1" }));
+    first.unmount();
+    expect(getFormDraft("add-plain-item.staklenke")).not.toBeNull();
+
+    renderWithProviders(<AddPlainItemModal open itemName="Mlijeko" />);
+
+    const other = await screen.findByRole("combobox", {
+      name: "Popis za kupnju",
+    });
+    await waitFor(() => expect(other).toHaveTextContent("Tjedna kupnja"));
+    expect(screen.getByRole("spinbutton", { name: "Količina" })).toHaveValue(1);
+  });
+
+  it("retries a failed add into the list it already created", async () => {
+    const user = userEvent.setup();
+    // Older than the others, so only the restored draft can select it on reopen.
+    const created = list("list-c", "Za vikend", "2026-09-01T10:00:00");
+    const createdLists: unknown[] = [];
+    const addedTo: string[] = [];
+    server.use(
+      http.get("*/api/shopping-lists/me", () =>
+        HttpResponse.json(
+          createdLists.length > 0 ? [created, newest, older] : [newest, older],
+        ),
+      ),
+      http.get("*/api/shopping-lists/:id", ({ params }) =>
+        HttpResponse.json(
+          [created, newest, older].find((entry) => entry.id === params.id),
+        ),
+      ),
+      http.post("*/api/shopping-lists", async ({ request }) => {
+        createdLists.push(await request.json());
+        return HttpResponse.json(created);
+      }),
+      http.post("*/api/shopping-lists/:id/items", ({ params }) => {
+        addedTo.push(String(params.id));
+        return HttpResponse.json({ status: 500 }, { status: 500 });
+      }),
+    );
+
+    const first = renderWithProviders(
+      <AddPlainItemModal open itemName="Staklenke" />,
+    );
+    const trigger = await screen.findByRole("combobox", {
+      name: "Popis za kupnju",
+    });
+    await waitFor(() => expect(trigger).toHaveTextContent("Tjedna kupnja"));
+    await user.click(trigger);
+    await user.type(
+      await screen.findByPlaceholderText(/Pretraži svoje popise/),
+      "Za vikend",
+    );
+    await user.click(await screen.findByRole("option", { name: /Za vikend/ }));
+    await user.click(screen.getByRole("button", { name: "Dodaj" }));
+    await waitFor(() => expect(openModalUrl).toHaveBeenCalled());
+    first.unmount();
+
+    renderWithProviders(<AddPlainItemModal open itemName="Staklenke" />);
+    const reopened = await screen.findByRole("combobox", {
+      name: "Popis za kupnju",
+    });
+    await waitFor(() => expect(reopened).toHaveTextContent("Za vikend"));
+    await user.click(screen.getByRole("button", { name: "Dodaj" }));
+
+    await waitFor(() => expect(addedTo).toEqual(["list-c", "list-c"]));
+    expect(createdLists).toHaveLength(1);
+  });
+  it("reopens an edited name with its own choices, not an older draft for it", async () => {
+    const user = userEvent.setup();
+    server.use(
+      http.get("*/api/shopping-lists/me", () =>
+        HttpResponse.json([newest, older]),
+      ),
+      http.get("*/api/shopping-lists/:id", ({ params }) =>
+        HttpResponse.json(params.id === older.id ? older : newest),
+      ),
+      http.post("*/api/shopping-lists/:id/items", () =>
+        HttpResponse.json({ status: 500 }, { status: 500 }),
+      ),
+    );
+
+    const cancelled = renderWithProviders(
+      <AddPlainItemModal open itemName="Kruh" />,
+    );
+    const trigger = await screen.findByRole("combobox", {
+      name: "Popis za kupnju",
+    });
+    await waitFor(() => expect(trigger).toHaveTextContent("Tjedna kupnja"));
+    await user.click(trigger);
+    await user.click(await screen.findByRole("option", { name: /Vikendica/ }));
+    cancelled.unmount();
+
+    const edited = renderWithProviders(
+      <AddPlainItemModal open itemName="Kruh integralni" />,
+    );
+    unmountOnClose(edited);
+    await waitFor(() =>
+      expect(
+        screen.getByRole("combobox", { name: "Popis za kupnju" }),
+      ).toHaveTextContent("Tjedna kupnja"),
+    );
+    const nameInput = screen.getByRole("textbox", { name: "Naziv" });
+    await user.clear(nameInput);
+    await user.type(nameInput, "Kruh");
+    await user.click(screen.getByRole("button", { name: "Dodaj" }));
+    await waitFor(() =>
+      expect(openModalUrl).toHaveBeenCalledWith({
+        name: "add-plain-item",
+        itemName: "Kruh",
+      }),
+    );
+
+    expect(getFormDraft("add-plain-item.kruh")).toBeNull();
+    expect(getFormDraft("add-plain-item.kruh integralni")).toBeNull();
+  });
+  it("moves an edited name's choices to the submitted name when the add fails", async () => {
+    const user = userEvent.setup();
+    server.use(
+      http.get("*/api/shopping-lists/me", () =>
+        HttpResponse.json([newest, older]),
+      ),
+      http.get("*/api/shopping-lists/:id", ({ params }) =>
+        HttpResponse.json(params.id === older.id ? older : newest),
+      ),
+      http.post("*/api/shopping-lists/:id/items", () =>
+        HttpResponse.json({ status: 500 }, { status: 500 }),
+      ),
+    );
+
+    const edited = renderWithProviders(
+      <AddPlainItemModal open itemName="Kruh integralni" />,
+    );
+    unmountOnClose(edited);
+    const trigger = await screen.findByRole("combobox", {
+      name: "Popis za kupnju",
+    });
+    await waitFor(() => expect(trigger).toHaveTextContent("Tjedna kupnja"));
+    await user.click(trigger);
+    await user.click(await screen.findByRole("option", { name: /Vikendica/ }));
+    const nameInput = screen.getByRole("textbox", { name: "Naziv" });
+    await user.clear(nameInput);
+    await user.type(nameInput, "Kruh");
+    await user.click(screen.getByRole("button", { name: "Dodaj" }));
+    await waitFor(() => expect(openModalUrl).toHaveBeenCalled());
+
+    expect(getFormDraft("add-plain-item.kruh")?.values.shoppingListId).toBe(
+      older.id,
+    );
+    expect(getFormDraft("add-plain-item.kruh integralni")).toBeNull();
+  });
+
+  it("explains why a too short new list title blocks the add", async () => {
+    const user = userEvent.setup();
+    server.use(
+      http.get("*/api/shopping-lists/me", () =>
+        HttpResponse.json([newest, older]),
+      ),
+      http.get("*/api/shopping-lists/:id", ({ params }) =>
+        HttpResponse.json(params.id === older.id ? older : newest),
+      ),
+    );
+
+    renderWithProviders(<AddPlainItemModal open itemName="Staklenke" />);
+    const trigger = await screen.findByRole("combobox", {
+      name: "Popis za kupnju",
+    });
+    await waitFor(() => expect(trigger).toHaveTextContent("Tjedna kupnja"));
+    await user.click(trigger);
+    await user.type(
+      await screen.findByPlaceholderText(/Pretraži svoje popise/),
+      "ab",
+    );
+    await user.click(await screen.findByRole("option", { name: /ab/ }));
+
+    expect(
+      await screen.findByText("Upiši naziv s najmanje 3 znaka"),
+    ).toBeVisible();
+    expect(screen.getByRole("button", { name: "Dodaj" })).toBeDisabled();
+
+    await user.click(trigger);
+    // Reopening prefills the search with the new title, which hides the lists.
+    await user.clear(
+      await screen.findByPlaceholderText(/Pretraži svoje popise/),
+    );
+    await user.click(await screen.findByRole("option", { name: /Vikendica/ }));
+
+    await waitFor(() =>
+      expect(
+        screen.queryByText("Upiši naziv s najmanje 3 znaka"),
+      ).not.toBeInTheDocument(),
+    );
+  });
+
+  it("explains a too short title restored from a draft", async () => {
+    server.use(
+      http.get("*/api/shopping-lists/me", () =>
+        HttpResponse.json([newest, older]),
+      ),
+      http.get("*/api/shopping-lists/:id", () => HttpResponse.json(newest)),
+    );
+    setFormDraft("add-plain-item.staklenke", {
+      shoppingListId: "new",
+      customListTitle: "ab",
+    });
+
+    renderWithProviders(<AddPlainItemModal open itemName="Staklenke" />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Upiši naziv s najmanje 3 znaka",
+    );
+    expect(screen.getByRole("button", { name: "Dodaj" })).toBeDisabled();
+  });
+});

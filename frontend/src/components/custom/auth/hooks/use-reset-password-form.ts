@@ -1,32 +1,49 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslations } from "next-intl";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { passwordSchema } from "@/lib/api/schemas/auth-user";
+import {
+  isPasswordPolicyCode,
+  passwordSchema,
+} from "@/lib/auth/password-policy";
+import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
 import { authClient } from "@/lib/auth/client";
+import {
+  clearStoredResetToken,
+  readStoredResetToken,
+  removeResetTokenFromUrl,
+  storeResetToken,
+} from "@/lib/auth/reset-token-storage";
 import { swapModalUrl } from "@/lib/modal/modal-navigation";
 
 const resetPasswordSchema = z
   .object({ password: passwordSchema, confirmPassword: z.string() })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Lozinke se ne podudaraju",
+    message: "auth.validation.passwordsMismatch",
     path: ["confirmPassword"],
   });
 
 export type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
+function readToken(): string | null {
+  const fromUrl = new URLSearchParams(window.location.search).get("token");
+  if (fromUrl) storeResetToken(fromUrl);
+  return fromUrl ?? readStoredResetToken();
+}
+
 export function useResetPasswordForm(open: boolean) {
+  const t = useTranslations("auth");
+  const { messageForCode } = usePasswordPolicy();
   // Adjust-during-render, so capture still works when `open` flips true.
   const [captured, setCaptured] = useState<{ token: string | null } | null>(
     null,
   );
 
   if (open && !captured && typeof window !== "undefined") {
-    setCaptured({
-      token: new URLSearchParams(window.location.search).get("token"),
-    });
+    setCaptured({ token: readToken() });
   }
   if (!open && captured) setCaptured(null);
 
@@ -39,15 +56,13 @@ export function useResetPasswordForm(open: boolean) {
   });
 
   useEffect(() => {
-    if (!open || typeof window === "undefined") return;
+    if (typeof window === "undefined") return;
+    if (!open) {
+      clearStoredResetToken();
+      return;
+    }
 
-    const params = new URLSearchParams(window.location.search);
-    if (!params.has("token")) return;
-
-    params.delete("token");
-    const query = params.toString().replace(/%2F/g, "/");
-    const url = window.location.pathname + (query ? `?${query}` : "");
-    window.history.replaceState(window.history.state, "", url);
+    removeResetTokenFromUrl();
   }, [open]);
 
   async function onSubmit(data: ResetPasswordForm) {
@@ -59,11 +74,22 @@ export function useResetPasswordForm(open: boolean) {
     });
 
     if (error) {
-      toast.error("Poveznica je nevažeća ili je istekla. Zatraži novu.");
+      // Refused before the token is consumed, so the same link still works for a retry.
+      if (isPasswordPolicyCode(error.code)) {
+        form.setError(
+          "password",
+          { type: "server", message: messageForCode(error.code) },
+          { shouldFocus: true },
+        );
+        return;
+      }
+
+      toast.error(t("resetPassword.invalidLink"));
       return;
     }
 
-    toast.success("Lozinka je postavljena. Sada se možeš prijaviti.");
+    clearStoredResetToken();
+    toast.success(t("resetPassword.success"));
     swapModalUrl({ name: "login" });
   }
 

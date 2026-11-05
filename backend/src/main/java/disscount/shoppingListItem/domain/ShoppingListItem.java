@@ -30,14 +30,14 @@ public class ShoppingListItem {
     @JoinColumn(name = "shopping_list_id", nullable = false)
     private ShoppingList shoppingList;
 
-    @NotBlank(message = "EAN is required")
-    @Column(name = "ean", nullable = false)
+    // Null for a plain item typed by the user that no store in the catalog sells.
+    @Column(name = "ean")
     private String ean;
 
     @Column(name = "brand")
     private String brand;
 
-    @NotBlank(message = "Product name is required")
+    @NotBlank(message = "{validation.productName.required}")
     @Column(name = "name", nullable = false)
     private String name;
 

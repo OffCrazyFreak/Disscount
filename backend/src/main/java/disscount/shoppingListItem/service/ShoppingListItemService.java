@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import disscount.exceptions.ForbiddenException;
 import disscount.exceptions.NotFoundException;
-import disscount.exceptions.UnauthorizedException;
 import disscount.shoppingList.dao.ShoppingListRepository;
 import disscount.shoppingList.domain.ListAccess;
 import disscount.shoppingList.domain.ShoppingList;
@@ -17,14 +16,12 @@ import disscount.shoppingListItem.dao.ShoppingListItemRepository;
 import disscount.shoppingListItem.domain.ShoppingListItem;
 import disscount.shoppingListItem.dto.ShoppingListItemDto;
 import disscount.shoppingListItem.dto.ShoppingListItemRequest;
-import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.util.Timestamps;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Items on a list, for owners and link visitors alike.
@@ -41,7 +38,6 @@ public class ShoppingListItemService {
 
     private final ShoppingListItemRepository shoppingListItemRepository;
     private final ShoppingListRepository shoppingListRepository;
-    private final UserRepository userRepository;
     private final ShoppingListAccessService accessService;
     private final ShoppingListService shoppingListService;
     private final ShoppingListMapper shoppingListMapper;
@@ -55,11 +51,13 @@ public class ShoppingListItemService {
         User actor = shoppingListService.requireWriteUser(userId);
 
         if (!accessService.resolve(shoppingList, userId).isOwner()) {
-            throw new ForbiddenException("Only the owner can add items to this shopping list");
+            throw new ForbiddenException("error.shoppingList.ownerOnlyAddItems");
         }
 
-        Optional<ShoppingListItem> existingItem = shoppingListItemRepository
-                .findActiveByShoppingListAndName(shoppingList, request.getName());
+        String ean = ShoppingListItemMatcher.blankToNull(request.getEan());
+        String name = request.getName().strip();
+        Optional<ShoppingListItem> existingItem = ShoppingListItemMatcher.findMergeTarget(
+                shoppingListItemRepository.findActiveByShoppingList(shoppingList), ean, name);
 
         ShoppingListItem item;
         if (existingItem.isPresent()) {
@@ -69,7 +67,10 @@ public class ShoppingListItemService {
             int newAmount = Math.min(item.getAmount() + requestedAmount, 999);
             item.setAmount(newAmount);
 
-            if (request.getEan() != null) item.setEan(request.getEan());
+            if (ean != null) {
+                item.setEan(ean);
+                item.setName(name);
+            }
             if (request.getBrand() != null) item.setBrand(request.getBrand());
             if (request.getQuantity() != null) item.setQuantity(request.getQuantity());
             if (request.getUnit() != null) item.setUnit(request.getUnit());
@@ -82,9 +83,9 @@ public class ShoppingListItemService {
         } else {
             item = ShoppingListItem.builder()
                     .shoppingList(shoppingList)
-                    .ean(request.getEan())
+                    .ean(ean)
                     .brand(request.getBrand())
-                    .name(request.getName())
+                    .name(name)
                     .quantity(request.getQuantity())
                     .unit(request.getUnit())
                     .amount(request.getAmount() != null ? request.getAmount() : 1)
@@ -133,26 +134,16 @@ public class ShoppingListItemService {
         touchList(list);
     }
 
-    public List<ShoppingListItemDto> getUserShoppingListItems(UUID ownerId) {
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
-
-        return shoppingListItemRepository.findAllActiveItemsByUser(owner)
-                .stream()
-                .map(item -> shoppingListMapper.toItemDto(item, ListAccess.OWNER))
-                .collect(Collectors.toList());
-    }
-
     private ShoppingListItem findItem(ShoppingList list, UUID itemId) {
         return shoppingListItemRepository.findActiveByIdAndShoppingList(itemId, list)
-                .orElseThrow(() -> new NotFoundException("Shopping list item not found"));
+                .orElseThrow(() -> new NotFoundException("error.shoppingListItem.notFound"));
     }
 
     private ListAccess requireAccess(
             ShoppingList list, UUID userId, java.util.function.Predicate<ListAccess> allowed) {
         ListAccess access = accessService.resolve(list, userId);
         if (!allowed.test(access)) {
-            throw new ForbiddenException("Insufficient access to this shopping list");
+            throw new ForbiddenException("error.shoppingList.insufficientAccess");
         }
         return access;
     }
@@ -172,9 +163,11 @@ public class ShoppingListItemService {
             return;
         }
 
-        item.setEan(request.getEan());
+        // A plain item has no EAN to send back, and a missing one must never unlink a product.
+        String ean = ShoppingListItemMatcher.blankToNull(request.getEan());
+        if (ean != null) item.setEan(ean);
         item.setBrand(request.getBrand());
-        item.setName(request.getName());
+        item.setName(request.getName().strip());
         item.setQuantity(request.getQuantity());
         item.setUnit(request.getUnit());
         item.setAmount(request.getAmount() != null ? request.getAmount() : 1);

@@ -1,0 +1,12 @@
+# Rejects attribution trailers. AGENTS.md says no trailers, and agent harnesses
+# keep adding them; a prose rule is advisory, this check is not.
+if grep -Ei '^[^[:alnum:]]*(co-authored-by:|signed-off-by:|assisted-by:|generated[- ](with|by) \[?(claude|codex|gemini|copilot|cursor|opencode|aider|chatgpt|openai|windsurf|an? ai\b))' "$1" >/dev/null; then
+  echo "commit-msg: attribution trailer found. AGENTS.md forbids trailers; remove the line and commit again." >&2
+  exit 1
+fi
+
+# Byte patterns rather than \x{2014}, which needs GNU grep and a UTF-8 locale.
+if grep -F -e "$(printf '\342\200\224')" -e "$(printf '\342\200\223')" "$1" >/dev/null; then
+  echo "commit-msg: em or en dash found. AGENTS.md forbids them; use a comma, a colon, parentheses, or rewrite." >&2
+  exit 1
+fi

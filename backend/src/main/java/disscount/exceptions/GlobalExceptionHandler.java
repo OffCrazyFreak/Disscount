@@ -1,58 +1,141 @@
 package disscount.exceptions;
 
+import jakarta.validation.ConstraintViolation;
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.ErrorResponse;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import disscount.digitalCard.photo.PhotoValidator;
 
 import java.net.URI;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * All errors are returned as RFC 9457 Problem Details (application/problem+json).
  * Validation failures additionally carry a "fieldErrors" map (field -> message)
  * that the frontend maps onto react-hook-form field errors.
+ *
+ * <p>Titles and details are message codes resolved against messages*.properties in the
+ * request's Accept-Language. An exception message that is not a known code is shown as
+ * written, so a code missing from the bundle degrades to its own text, not to a blank.
+ *
+ * <p>Spring MVC's own exceptions (415, a missing parameter and the rest) are answered by
+ * {@link ResponseEntityExceptionHandler} and reshaped in {@link #handleExceptionInternal}; their
+ * details come from the problemDetail.&lt;exception class&gt; codes in the same bundles.
  */
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    private final MessageSource messageSource;
+
+    public GlobalExceptionHandler(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
+
     @ExceptionHandler(BadRequestException.class)
     public ProblemDetail handleBadRequestException(BadRequestException ex) {
-        return problem(HttpStatus.BAD_REQUEST, "bad-request", "Neispravan zahtjev", ex.getMessage());
+        return problem(HttpStatus.BAD_REQUEST, "bad-request", message(ex.getMessage(), ex.getArgs()));
     }
 
     @ExceptionHandler(UnauthorizedException.class)
     public ProblemDetail handleUnauthorizedException(UnauthorizedException ex) {
-        return problem(HttpStatus.UNAUTHORIZED, "unauthorized", "Neautorizirano", ex.getMessage());
+        return problem(HttpStatus.UNAUTHORIZED, "unauthorized", message(ex.getMessage()));
     }
 
     @ExceptionHandler(ForbiddenException.class)
     public ProblemDetail handleForbiddenException(ForbiddenException ex) {
-        return problem(HttpStatus.FORBIDDEN, "forbidden", "Zabranjeno", ex.getMessage());
+        return problem(HttpStatus.FORBIDDEN, "forbidden", message(ex.getMessage()));
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ProblemDetail handleNotFoundException(NotFoundException ex) {
-        return problem(HttpStatus.NOT_FOUND, "not-found", "Nije pronađeno", ex.getMessage());
+        return problem(HttpStatus.NOT_FOUND, "not-found", message(ex.getMessage()));
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleNoResourceFoundException(
+            NoResourceFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        return respond(ex, problem(HttpStatus.NOT_FOUND, "not-found", message("problem.title.not-found")),
+                headers, status, request);
+    }
+
+    /** The headers Spring passes in carry the Allow list RFC 9110 requires on a 405. */
+    @Override
+    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ProblemDetail detail = problem(HttpStatus.METHOD_NOT_ALLOWED, "method-not-allowed",
+                message("problem.detail.method-not-allowed", ex.getMethod()));
+        return respond(ex, detail, headers, status, request);
     }
 
     @ExceptionHandler(ConflictException.class)
     public ProblemDetail handleConflictException(ConflictException ex) {
-        return problem(HttpStatus.CONFLICT, "conflict", "Sukob", ex.getMessage());
+        ProblemDetail detail = problem(HttpStatus.CONFLICT, "conflict", message(ex.getMessage()));
+        // The detail is translated, so clients that branch on a conflict read the code instead.
+        detail.setProperty("code", ex.getMessage());
+        return detail;
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ProblemDetail handleServiceUnavailable(ServiceUnavailableException ex) {
+        ProblemDetail detail = problem(HttpStatus.SERVICE_UNAVAILABLE, "unavailable", message(ex.getMessage()));
+        // Clients tell a switched off feature from a passing outage by the code, since the detail is translated.
+        detail.setProperty("code", ex.getMessage());
+        return detail;
+    }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<ProblemDetail> handleTooManyRequests(TooManyRequestsException ex) {
+        ProblemDetail detail = problem(HttpStatus.TOO_MANY_REQUESTS, "too-many-requests", message(ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(HttpHeaders.RETRY_AFTER, String.valueOf(ex.getRetryAfterSeconds()))
+                .body(detail);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMaxUploadSizeExceededException(
+            MaxUploadSizeExceededException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ProblemDetail detail = problem(HttpStatus.CONTENT_TOO_LARGE, "payload-too-large",
+                message("error.cardPhoto.tooLarge", String.valueOf(PhotoValidator.MAX_BYTES / 1024)));
+        return respond(ex, detail, headers, status, request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMissingServletRequestPart(
+            MissingServletRequestPartException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ProblemDetail detail = problem(HttpStatus.BAD_REQUEST, "bad-request",
+                message("problem.detail.missing-part", ex.getRequestPartName()));
+        return respond(ex, detail, headers, status, request);
     }
 
     /**
@@ -74,11 +157,11 @@ public class GlobalExceptionHandler {
 
         boolean isUsername = constraint.toLowerCase().contains("username");
 
-        ProblemDetail detail = problem(HttpStatus.CONFLICT, "conflict", "Sukob",
-                isUsername ? "Korisničko ime je već zauzeto." : "Vrijednost je već zauzeta.");
+        String text = message(isUsername ? "error.user.usernameTaken" : "problem.detail.duplicate-value");
+        ProblemDetail detail = problem(HttpStatus.CONFLICT, "conflict", text);
 
         if (isUsername) {
-            detail.setProperty("fieldErrors", Map.of("username", "Korisničko ime je već zauzeto."));
+            detail.setProperty("fieldErrors", Map.of("username", text));
         }
 
         return detail;
@@ -86,15 +169,11 @@ public class GlobalExceptionHandler {
 
     /** SQLState 23505 is unique_violation in both PostgreSQL and the H2 the tests run on. */
     private static boolean isUniqueViolation(Throwable ex) {
-        for (Throwable cause = ex; cause != null; cause = cause.getCause()) {
-            if (cause instanceof SQLException sql && "23505".equals(sql.getSQLState())) {
-                return true;
-            }
-            if (cause.getCause() == cause) {
-                break;
-            }
-        }
-        return false;
+        return causeChain(ex).anyMatch(cause -> cause instanceof SQLException sql && "23505".equals(sql.getSQLState()));
+    }
+
+    private static Stream<Throwable> causeChain(Throwable ex) {
+        return Stream.iterate(ex, Objects::nonNull, cause -> cause.getCause() == cause ? null : cause.getCause());
     }
 
     /** The constraint name only; the message around it carries the colliding value. */
@@ -107,8 +186,9 @@ public class GlobalExceptionHandler {
         return ex.getClass().getSimpleName();
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException ex) {
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         Map<String, String> fieldErrors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
             String key = (error instanceof FieldError fieldError)
@@ -117,36 +197,131 @@ public class GlobalExceptionHandler {
             fieldErrors.put(key, error.getDefaultMessage());
         });
 
+        return respond(ex, validationProblem(fieldErrors), headers, status, request);
+    }
+
+    /**
+     * Raised by @Validated on a controller for constraints outside a request body, such as a
+     * list parameter, and by Hibernate for entity constraints at flush, which Spring wraps in
+     * a TransactionSystemException when they fire on commit.
+     */
+    @ExceptionHandler({jakarta.validation.ConstraintViolationException.class, TransactionSystemException.class})
+    public ProblemDetail handleEntityValidation(Exception ex) {
+        jakarta.validation.ConstraintViolationException violations = entityViolationsOf(ex);
+        if (violations == null) {
+            return handleGenericException(ex);
+        }
+
+        Map<String, String> fieldErrors = new HashMap<>();
+        for (ConstraintViolation<?> violation : violations.getConstraintViolations()) {
+            fieldErrors.put(violation.getPropertyPath().toString(), violationMessage(violation));
+        }
+        log.warn("Entity validation failed on fields: {}", fieldErrors.keySet());
+
+        return validationProblem(fieldErrors);
+    }
+
+    private ProblemDetail validationProblem(Map<String, String> fieldErrors) {
         ProblemDetail problemDetail =
-                problem(HttpStatus.BAD_REQUEST, "validation", "Neispravni podaci", "Invalid input data");
+                problem(HttpStatus.BAD_REQUEST, "validation", message("problem.detail.validation"));
         problemDetail.setProperty("fieldErrors", fieldErrors);
         return problemDetail;
+    }
+
+    private static jakarta.validation.ConstraintViolationException entityViolationsOf(Throwable ex) {
+        return causeChain(ex)
+                .filter(jakarta.validation.ConstraintViolationException.class::isInstance)
+                .map(jakarta.validation.ConstraintViolationException.class::cast)
+                .findFirst().orElse(null);
+    }
+
+    /**
+     * Spring's validator has already filled a controller violation from our bundles,
+     * including arguments such as {min} and {max}. Hibernate validates entities with its
+     * own factory, which does not read them, so its "{validation.x}" template comes back
+     * unresolved and is looked up here instead.
+     */
+    private String violationMessage(ConstraintViolation<?> violation) {
+        String template = violation.getMessageTemplate();
+        boolean unresolved = template.equals(violation.getMessage());
+        if (unresolved && template.startsWith("{validation.") && template.endsWith("}")) {
+            String code = template.substring(1, template.length() - 1);
+            return messageSource.getMessage(
+                    code, null, violation.getMessage(), LocaleContextHolder.getLocale());
+        }
+        return violation.getMessage();
     }
 
     /** Without this a malformed UUID is a logged 500, free for anyone to trigger. */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ProblemDetail handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        return problem(HttpStatus.BAD_REQUEST, "bad-request", "Neispravan zahtjev",
-                "Neispravan format parametra: " + ex.getName());
+        return problem(HttpStatus.BAD_REQUEST, "bad-request",
+                message("problem.detail.type-mismatch", ex.getName()));
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ProblemDetail handleNotReadable(HttpMessageNotReadableException ex) {
-        return problem(HttpStatus.BAD_REQUEST, "malformed-request", "Neispravan zahtjev",
-                "Malformed request body");
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ProblemDetail detail = problem(HttpStatus.BAD_REQUEST, "malformed-request",
+                message("problem.detail.malformed-request"));
+        return respond(ex, detail, headers, status, request);
+    }
+
+    /**
+     * Every Spring MVC exception not overridden above lands here; Spring's detail, localised from
+     * the problemDetail.* codes, is kept, and the type and title are set to ours.
+     */
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(
+            Exception ex, Object body, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        if (status.is5xxServerError()) {
+            log.error("Unhandled exception caught", ex);
+        }
+        // A server-side detail may describe internals, so a 5xx always gets the generic text.
+        String springDetail = !status.is5xxServerError() && ex instanceof ErrorResponse errorResponse
+                ? errorResponse.updateAndGetBody(messageSource, LocaleContextHolder.getLocale()).getDetail()
+                : null;
+        String detailText = springDetail != null ? springDetail : message("problem.detail.internal-error");
+        String type = typeFor(status);
+        ProblemDetail detail = problem(status, type, detailText);
+        return respond(ex, detail, headers, status, request);
+    }
+
+    private static String typeFor(HttpStatusCode status) {
+        return switch (status.value()) {
+            case 401 -> "unauthorized";
+            case 403 -> "forbidden";
+            case 404 -> "not-found";
+            case 405 -> "method-not-allowed";
+            case 409 -> "conflict";
+            case 413 -> "payload-too-large";
+            case 415 -> "unsupported-media-type";
+            case 429 -> "too-many-requests";
+            case 503 -> "unavailable";
+            default -> status.is5xxServerError() ? "internal-error" : "bad-request";
+        };
+    }
+
+    private ResponseEntity<Object> respond(
+            Exception ex, ProblemDetail body, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        return super.handleExceptionInternal(ex, body, headers, status, request);
     }
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGenericException(Exception ex) {
         log.error("Unhandled exception caught", ex);
         return problem(HttpStatus.INTERNAL_SERVER_ERROR, "internal-error",
-                "Greška na poslužitelju", "An unexpected error occurred");
+                message("problem.detail.internal-error"));
     }
 
-    private ProblemDetail problem(HttpStatus status, String type, String title, String detail) {
+    private String message(String codeOrText, Object... args) {
+        return messageSource.getMessage(codeOrText, args, codeOrText, LocaleContextHolder.getLocale());
+    }
+
+    private ProblemDetail problem(HttpStatusCode status, String type, String detail) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
         problemDetail.setType(URI.create("urn:disscount:" + type));
-        problemDetail.setTitle(title);
+        problemDetail.setTitle(message("problem.title." + type));
         problemDetail.setProperty("timestamp", Instant.now());
         return problemDetail;
     }

@@ -1,9 +1,10 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { useNotifications } from "@/context/notifications-context";
+import { useTranslations } from "next-intl";
+import { usePathname } from "@/i18n/navigation";
 import { useCameraScanner } from "@/context/scanner-context";
 import useProductNavigation from "@/hooks/use-product-navigation";
+import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-drop-count";
 import { productEanFromPath } from "@/utils/routes";
 import BottomNavCenterItem from "@/components/custom/bottom-nav/bottom-nav-center-item";
 import BottomNavItem from "@/components/custom/bottom-nav/bottom-nav-item";
@@ -25,7 +26,7 @@ import { BOTTOM_NAV_SEARCH_INDEX } from "@/components/custom/bottom-nav/bottom-n
  * globals.css, since it is what the scroll animates.
  */
 const SURFACE_CLASS =
-  "flex items-stretch justify-between h-[var(--bottom-nav-h)] touch-none mx-[0.5rem] px-[0.4rem] mb-[max(var(--bottom-nav-gap),var(--bottom-nav-safe))] rounded-full border backdrop-blur-sm";
+  "flex items-stretch justify-between h-[var(--bottom-nav-h)] touch-none mx-[0.5rem] px-[0.4rem] mb-[max(var(--bottom-nav-gap),var(--bottom-nav-safe))] rounded-full border backdrop-blur-xs";
 
 /**
  * The mobile primary navigation. Hidden from `md` up through CSS rather than a
@@ -33,8 +34,9 @@ const SURFACE_CLASS =
  * never shifts on hydration.
  */
 export default function BottomNav() {
+  const t = useTranslations("shell");
   const pathname = usePathname();
-  const { notifications, hasNotifications } = useNotifications();
+  const { count: priceDropCount } = useWatchlistPriceDropCount();
   const { openScanner } = useCameraScanner();
   const navigateToProduct = useProductNavigation();
   const listProgress = useActiveListProgress();
@@ -73,7 +75,7 @@ export default function BottomNav() {
 
   return (
     <nav
-      aria-label="Glavna navigacija"
+      aria-label={t("bottomNav.label")}
       // The products sheet is non-modal, and globals.css hands the whole page back
       // for those, so the bar needs no opt-in of its own. It stays inert under
       // real modals, whose overlay covers it anyway.
@@ -87,7 +89,7 @@ export default function BottomNav() {
           entry.isSearch ? (
             <BottomNavCenterItem
               key={entry.item.id}
-              label={entry.item.shortLabel ?? entry.item.label}
+              label={t(entry.item.shortLabelKey ?? entry.item.labelKey)}
               isActive={isActive}
               isScrubbed={scrubIndex === index}
               showsDisc={discIndex === index}
@@ -105,13 +107,15 @@ export default function BottomNav() {
               showsDisc={discIndex === index}
               hasHold={holdFor(index) !== null}
               indicatorOpacity={indicatorOpacity}
-              // TODO: swap for a count of watched products whose price dropped
-              // since the last visit, cleared on visit and capped at 9+.
               badgeCount={
-                entry.item.badge && hasNotifications
-                  ? notifications.length
+                entry.item.badge && priceDropCount > 0
+                  ? priceDropCount
                   : undefined
               }
+              badgeLabel={t("nav.watchlistPriceDrops", {
+                label: t(entry.item.shortLabelKey ?? entry.item.labelKey),
+                count: priceDropCount,
+              })}
               listProgress={
                 entry.item.id === "shopping-lists" ? listProgress : undefined
               }

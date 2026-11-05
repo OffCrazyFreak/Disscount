@@ -4,10 +4,84 @@ on:
   push:
     branches: [main, dev]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+# A new push to a pull request replaces its older run. Pushes to dev and main group by commit and
+# never cancel, because each one builds and deploys its own images.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  frontend:
-    name: Frontend checks
+  # Picks the jobs a pull request needs, at job level: a workflow-level `paths` would never start, which
+  # leaves a required check pending forever, while a job skipped by its `if` reports as passed. Pushes run
+  # everything, because strict mode is off and they build the images. So do release pull requests into
+  # main, whose file list can pass the 3000 files GitHub returns. A draft answers false here for the
+  # jobs that wait for ready_for_review; the image smoke test has no draft skip. When this job fails,
+  # the jobs below run anyway, so a broken filter can never pass a required check unseen.
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      frontend: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && (github.base_ref == 'main' || steps.filter.outputs.frontend)) }}
+      markdown: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && (github.base_ref == 'main' || steps.filter.outputs.markdown)) }}
+      backend: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && (github.base_ref == 'main' || steps.filter.outputs.backend)) }}
+      backup: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && (github.base_ref == 'main' || steps.filter.outputs.backup)) }}
+      smoke: ${{ github.event_name != 'pull_request' || github.base_ref == 'main' || steps.filter.outputs.smoke }}
+    steps:
+      - id: filter
+        if: github.event_name == 'pull_request' && github.base_ref != 'main'
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        with:
+          filters: |
+            workflow: &workflow
+              - .github/workflows/ci.yml
+            setup: &setup
+              - .github/actions/setup-frontend/**
+            frontend:
+              - *workflow
+              - *setup
+              - frontend/**
+              - contracts/**
+            markdown:
+              - *workflow
+              - *setup
+              - "**/*.md"
+              - .prettierrc
+              - .prettierignore
+              - frontend/package.json
+              - frontend/pnpm-lock.yaml
+            backend:
+              - *workflow
+              - backend/**
+              - contracts/**
+            backup:
+              - *workflow
+              - backup/**
+            # What the boot test builds: the backend image, the migrator stage and the compose files.
+            smoke:
+              - *workflow
+              - backend/**
+              - backup/**
+              - docker-compose*.yml
+              - .env.example
+              - frontend/Dockerfile
+              - frontend/.dockerignore
+              - frontend/drizzle/**
+              - frontend/scripts/migrate.mjs
+              - frontend/package.json
+              - frontend/pnpm-lock.yaml
+              - frontend/pnpm-workspace.yaml
+
+  frontend-build:
+    name: Frontend build
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result == 'failure' || needs.changes.outputs.frontend == 'true') }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -17,32 +91,14 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: ./.github/actions/setup-frontend
+
+      - id: next-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          version: 11.9.0
-
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: 24
-          cache: pnpm
-          cache-dependency-path: frontend/pnpm-lock.yaml
-
-      - run: pnpm install --frozen-lockfile
-
-      - name: Generate route types
-        run: pnpm exec next typegen
-
-      - name: Typecheck
-        run: pnpm exec tsc --noEmit
-
-      - name: Lint
-        run: pnpm exec eslint src
-
-      - name: Format check
-        run: pnpm exec prettier --check src
-
-      - name: Format check (docs & root markdown)
-        run: pnpm exec prettier --check --ignore-path ../.prettierignore "../README.md" "../AGENTS.md" "../CLAUDE.md" "../docs/**/*.md" "../.github/**/*.md" "../.claude/**/*.md"
+          path: frontend/.next/cache
+          key: next-build-${{ runner.os }}-${{ hashFiles('frontend/pnpm-lock.yaml') }}-${{ hashFiles('frontend/src/**') }}
+          restore-keys: next-build-${{ runner.os }}-${{ hashFiles('frontend/pnpm-lock.yaml') }}-
 
       - name: Production build
         run: pnpm build
@@ -61,8 +117,172 @@ jobs:
           CIJENE_API_URL: http://localhost:9999
           CIJENE_API_TOKEN: ci-dummy
 
+      # A missing or empty service worker does not fail the build, and the PWA would die silently.
+      # The offline page is matched as a manifest entry, because sw.ts holds its path as a string too.
+      - name: Check the service worker has a precache list
+        run: |
+          test -s public/sw.js
+          test "$(grep -o '/_next/static/[^"'"'"'` ]*' public/sw.js | sort -u | wc -l)" -ge 10
+          grep -q 'url:"/offline"' public/sw.js
+
+      # A push is what seeds the cache: a pull request reads its base branch's copy but cannot write one
+      # that anything else reads. This is why the build also runs on dev pushes.
+      - if: github.event_name == 'push' && steps.next-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: frontend/.next/cache
+          key: ${{ steps.next-cache.outputs.cache-primary-key }}
+
+  # Each source change saves a new copy, and only the newest is ever read, so the older ones would fill
+  # the repository's cache limit and evict what the next run needs. Separate, so the job that runs
+  # project code never holds a token that can write to Actions.
+  frontend-build-cache-prune:
+    name: Prune old build caches
+    needs: frontend-build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Keep the newest copy on this branch
+        run: |
+          stale=$(gh cache list --ref "$GITHUB_REF" --key next-build- --sort created_at --order desc --json id --jq '.[1:][].id')
+          for id in $stale; do
+            # A run for a newer push may have deleted it first.
+            gh cache delete "$id" || echo "::notice::Cache $id is already gone."
+          done
+
+  frontend-test:
+    name: Frontend tests
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result == 'failure' || needs.changes.outputs.frontend == 'true') }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-frontend
+
+      - name: Unit tests
+        run: pnpm test
+
+  frontend-static:
+    name: Frontend static checks
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result == 'failure' || needs.changes.outputs.frontend == 'true') }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # The Fallow audit diffs against the base branch, which a shallow
+          # checkout does not have.
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-frontend
+        with:
+          save-cache: "true"
+
+      - name: Generate route types
+        run: pnpm exec next typegen
+
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+
+      - name: Lint
+        run: pnpm lint
+
+      # Dead code, duplication, complexity, import cycles and folder boundaries,
+      # configured in frontend/.fallowrc.json. It fails only on findings this
+      # change introduces, so the older backlog does not block anyone.
+      - name: Fallow audit
+        env:
+          # A checkout has no upstream, so the base is named: the target branch
+          # on a pull request, the previous tip on a push, or the parent when a
+          # push creates the branch and `before` is all zeros.
+          FALLOW_AUDIT_BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || (github.event.before != '0000000000000000000000000000000000000000' && github.event.before) || 'HEAD~1' }}
+        run: |
+          pnpm exec fallow audit --quiet
+          # Fallow exits 1 only on a "fail" verdict; new duplication alone is a
+          # "warn", so the verdict itself is the gate.
+          verdict=$(pnpm exec fallow audit --quiet --format json | jq -r .verdict)
+          if [ "$verdict" != "pass" ]; then
+            echo "::error::Fallow audit verdict is $verdict; see the report above."
+            exit 1
+          fi
+
+      - name: Translation catalogs
+        run: pnpm i18n:check
+
+      - name: Format check
+        run: pnpm exec prettier --check src
+
+  # On its own because a docs-only pull request needs this and nothing else from the frontend.
+  markdown:
+    name: Markdown format
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result == 'failure' || needs.changes.outputs.markdown == 'true') }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-frontend
+
+      - name: Format check (docs & root markdown)
+        run: pnpm exec prettier --check --ignore-path ../.prettierignore "../README.md" "../AGENTS.md" "../CLAUDE.md" "../docs/**/*.md" "../.github/**/*.md" "../.agents/**/*.md"
+
+  # The required check. A job may be skipped only when the filter turned it off, because a job that a
+  # failed dependency skipped would otherwise count as passed. A new frontend job belongs in `needs` and
+  # in the checks below, or its failure stays invisible here.
+  frontend:
+    name: Frontend checks
+    needs: [changes, frontend-build, frontend-test, frontend-static, markdown]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Require every expected job to have passed
+        env:
+          FRONTEND_EXPECTED: ${{ needs.changes.result != 'success' || needs.changes.outputs.frontend == 'true' }}
+          MARKDOWN_EXPECTED: ${{ needs.changes.result != 'success' || needs.changes.outputs.markdown == 'true' }}
+          BUILD: ${{ needs.frontend-build.result }}
+          TEST: ${{ needs.frontend-test.result }}
+          STATIC: ${{ needs.frontend-static.result }}
+          MARKDOWN: ${{ needs.markdown.result }}
+        run: |
+          status=0
+          check() {
+            if [ "$2" = success ] || { [ "$2" = skipped ] && [ "$3" = false ]; }; then
+              return
+            fi
+            echo "::error::$1 finished as $2."
+            status=1
+          }
+          check "Frontend build" "$BUILD" "$FRONTEND_EXPECTED"
+          check "Frontend tests" "$TEST" "$FRONTEND_EXPECTED"
+          check "Frontend static checks" "$STATIC" "$FRONTEND_EXPECTED"
+          check "Markdown format" "$MARKDOWN" "$MARKDOWN_EXPECTED"
+          exit "$status"
+
   backend:
     name: Backend checks
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result == 'failure' || needs.changes.outputs.backend == 'true') }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -72,10 +292,300 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "21"
-          cache: maven
+
+      - id: maven-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('backend/pom.xml') }}
 
       - run: mvn -B verify
+
+      # Pull requests only read: their caches are private to their merge ref, so nothing else could use them.
+      - if: github.event_name == 'push' && steps.maven-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: ${{ steps.maven-cache.outputs.cache-primary-key }}
+
+  # Boots the backend and migrator images the way Dokploy runs them. Only a boot catches a Dockerfile
+  # that builds but leaves the app unable to start (a file the build stage never copied). No draft
+  # skip, so a broken image shows up as soon as it is pushed.
+  image-smoke:
+    name: Image smoke test
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result == 'failure' || needs.changes.outputs.smoke == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      IMAGE_TAG: smoke
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # .env.example holds a complete set of placeholder values, so no CI-only env file exists to drift.
+      - name: Check the compose files
+        run: |
+          for file in docker-compose.yml docker-compose.prod.yml docker-compose.images.yml; do
+            docker compose --env-file .env.example -f "$file" config -q
+          done
+
+      - name: Lint the Dockerfiles
+        run: |
+          docker build --check backend
+          docker build --check --target migrator frontend
+          docker build --check frontend
+          docker build --check backup
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      # Reads the cache the images job writes; the packages are public, so forks need no login.
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: backend
+          target: runtime
+          load: true
+          tags: ghcr.io/offcrazyfreak/disscount-backend:smoke
+          cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-backend:buildcache
+
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: frontend
+          target: migrator
+          load: true
+          tags: ghcr.io/offcrazyfreak/disscount-migrator:smoke
+          cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-migrator:buildcache
+
+      # --pull missing: the app images exist only locally, while Postgres and Alpine still come from the registry.
+      - name: Boot the stack and wait for healthy
+        run: |
+          docker network create dokploy-network
+          docker compose --env-file .env.example -f docker-compose.images.yml up --detach --wait --wait-timeout 180 --pull missing backend
+
+      - name: Show container logs
+        if: failure()
+        run: docker compose --env-file .env.example -f docker-compose.images.yml logs --no-color --tail 200
+
+      - name: Tear down
+        if: always()
+        run: docker compose --env-file .env.example -f docker-compose.images.yml down --volumes
+
+  # Workflow files fail only when they run, often on the release or deploy path, so check them up front.
+  actionlint:
+    name: Workflow lint
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: docker://rhysd/actionlint:1.7.12
+        with:
+          args: -color
+
+  # The other images are proven by the frontend and backend checks; this one is only built on push otherwise.
+  backup-image:
+    name: Backup image
+    needs: changes
+    if: ${{ !cancelled() && github.event_name == 'pull_request' && (needs.changes.result == 'failure' || needs.changes.outputs.backup == 'true') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build and smoke test
+        run: |
+          docker build -t backup-check backup
+          docker run --rm --entrypoint sh backup-check -c 'rclone version && age --version && supercronic -version && pg_dump --version && bash -n /usr/local/bin/backup-job'
+
+      # The entrypoint is what fails first on a bad production setting, so run it the way Compose does.
+      - name: Entrypoint accepts complete settings and refuses missing ones
+        run: |
+          # Secrets as files under /run/secrets, named the way docker-compose.images.yml maps them.
+          mkdir secrets
+          for name in $(grep -oE '^  backup_[a-z0-9_]+:|^  postgres_password:' docker-compose.images.yml | tr -d ' :'); do
+            echo "$name-value" > "secrets/$name"
+          done
+          echo -starts-with-a-dash > secrets/backup_crypt_password
+          settings=(-v "$PWD/secrets:/run/secrets:ro" -e BACKUP_R2_ENDPOINT=https://example.invalid -e BACKUP_R2_BUCKET=b
+            -e BACKUP_R2_ACCESS_KEY_ID=k -e BACKUP_AGE_RECIPIENT=age1example -e POSTGRES_DB=d -e POSTGRES_USER=u)
+          docker run --rm "${settings[@]}" backup-check true
+          if docker run --rm "${settings[@]}" -e BACKUP_AGE_RECIPIENT= backup-check true 2>missing.log; then
+            echo "::error::The entrypoint started without BACKUP_AGE_RECIPIENT." && exit 1
+          fi
+          grep -q 'missing settings: BACKUP_AGE_RECIPIENT' missing.log
+
+  # Chooses where a push deploys: main goes to prod, dev to dev. A missing setting fails the run on
+  # both, because a green run that deploys nothing would look like a shipped release.
+  target:
+    name: Deploy target
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+      deployment: false
+    outputs:
+      environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+    steps:
+      - id: settings
+        env:
+          DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          DOKPLOY_COMPOSE_ID: ${{ secrets.DOKPLOY_COMPOSE_ID }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL }}
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+          NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${{ vars.NEXT_PUBLIC_UMAMI_WEBSITE_ID }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+          SENTRY_ENVIRONMENT: ${{ vars.SENTRY_ENVIRONMENT }}
+        run: |
+          missing=""
+          for name in DOKPLOY_URL DOKPLOY_API_KEY DOKPLOY_COMPOSE_ID SENTRY_AUTH_TOKEN NEXT_PUBLIC_API_URL NEXT_PUBLIC_APP_URL NEXT_PUBLIC_GOOGLE_CLIENT_ID NEXT_PUBLIC_UMAMI_WEBSITE_ID NEXT_PUBLIC_SENTRY_DSN SENTRY_ENVIRONMENT; do
+            if [ -z "${!name}" ]; then
+              missing="$missing $name"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::The ${{ github.ref_name == 'main' && 'prod' || 'dev' }} environment lacks$missing."
+            exit 1
+          fi
+
+  images:
+    name: Image (${{ matrix.image }})
+    needs: [target, frontend, backend, image-smoke]
+    runs-on: ubuntu-latest
+    # Reads the environment's values without recording a deployment; the deploy job records it.
+    environment:
+      name: ${{ needs.target.outputs.environment }}
+      deployment: false
+    permissions:
+      contents: read
+      packages: write
+    # No cancelling: a later push's run could finish its checks first, and an older run starting
+    # its builds afterwards would cancel the newer images. Each commit builds its own sha- tags.
+    strategy:
+      matrix:
+        # The dokploy-deploy action moves the environment's tag for exactly these images.
+        include:
+          - image: frontend
+            context: frontend
+            target: runner
+          - image: migrator
+            context: frontend
+            target: migrator
+          - image: backend
+            context: backend
+            target: runtime
+          - image: backup
+            context: backup
+            target: ""
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ghcr.io/offcrazyfreak/disscount-${{ matrix.image }}
+          # The moving tag is set by the deploy job, once every image exists. Prod has its own commit
+          # tags because the frontend bundle carries each environment's public values.
+          tags: type=sha,format=long,prefix=${{ needs.target.outputs.environment == 'prod' && 'prod-sha-' || 'sha-' }}
+
+      # Only the frontend stages read these; the other images ignore them.
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: ${{ matrix.context }}
+          target: ${{ matrix.target }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-${{ matrix.image }}:buildcache
+          cache-to: type=registry,ref=ghcr.io/offcrazyfreak/disscount-${{ matrix.image }}:buildcache,mode=max
+          build-args: |
+            GIT_SHA=${{ github.sha }}
+            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_APP_URL=${{ vars.NEXT_PUBLIC_APP_URL }}
+            NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ vars.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+            NEXT_PUBLIC_UMAMI_WEBSITE_ID=${{ vars.NEXT_PUBLIC_UMAMI_WEBSITE_ID }}
+            NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+            SENTRY_ENVIRONMENT=${{ vars.SENTRY_ENVIRONMENT }}
+          secrets: |
+            sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}
+
+  # Runs before the deploy job queues, because a stale deploy waiting in the group would replace
+  # the newer pending one and then have nothing to do.
+  freshness:
+    name: Still the branch tip
+    needs: images
+    runs-on: ubuntu-latest
+    outputs:
+      is-tip: ${{ steps.tip.outputs.is-tip }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/actions
+
+      - id: tip
+        uses: ./.github/actions/branch-tip
+        with:
+          release-id: ${{ github.sha }}
+          branch: ${{ github.ref_name }}
+          token: ${{ github.token }}
+
+  deploy:
+    name: Deploy (${{ needs.target.outputs.environment }})
+    needs: [target, images, freshness]
+    if: needs.freshness.outputs.is-tip == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ needs.target.outputs.environment }}
+      url: ${{ vars.NEXT_PUBLIC_APP_URL }}
+    permissions:
+      contents: read
+      packages: write
+    # A deploy in flight always finishes; a newer one waits behind it.
+    concurrency:
+      group: deploy-${{ needs.target.outputs.environment }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/actions
+
+      # Checked again inside the lock: re-running this job reuses the freshness job's old answer.
+      - id: tip
+        uses: ./.github/actions/branch-tip
+        with:
+          release-id: ${{ github.sha }}
+          branch: ${{ github.ref_name }}
+          token: ${{ github.token }}
+
+      - if: steps.tip.outputs.is-tip == 'true'
+        uses: ./.github/actions/dokploy-deploy
+        with:
+          release-id: ${{ github.sha }}
+          environment-tag: ${{ needs.target.outputs.environment }}
+          registry-token: ${{ secrets.GITHUB_TOKEN }}
+          dokploy-url: ${{ secrets.DOKPLOY_URL }}
+          api-key: ${{ secrets.DOKPLOY_API_KEY }}
+          compose-id: ${{ secrets.DOKPLOY_COMPOSE_ID }}
+          app-url: ${{ vars.NEXT_PUBLIC_APP_URL }}

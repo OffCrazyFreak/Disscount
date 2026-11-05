@@ -1,6 +1,7 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useFormState, useWatch } from "react-hook-form";
+import { useTranslations } from "next-intl";
 import {
   UserRound,
   Bell,
@@ -24,12 +25,16 @@ import NotificationsTab from "@/components/custom/settings/tabs/notifications-ta
 import PreferencesTab from "@/components/custom/settings/tabs/preferences-tab";
 import SecurityTab from "@/components/custom/settings/tabs/security-tab";
 
-const TAB_CONFIG: { value: SettingsTab; label: string; icon: LucideIcon }[] = [
-  { value: "profil", label: "Profil", icon: UserRound },
-  { value: "obavijesti", label: "Obavijesti", icon: Bell },
-  { value: "preference", label: "Preference", icon: Settings2 },
-  { value: "sigurnost", label: "Sigurnost", icon: ShieldCheck },
-];
+const TAB_CONFIG = [
+  { value: "profil", labelKey: "tabs.profile", icon: UserRound },
+  { value: "obavijesti", labelKey: "tabs.notifications", icon: Bell },
+  { value: "preference", labelKey: "tabs.preferences", icon: Settings2 },
+  { value: "sigurnost", labelKey: "tabs.security", icon: ShieldCheck },
+] as const satisfies readonly {
+  value: SettingsTab;
+  labelKey: string;
+  icon: LucideIcon;
+}[];
 
 interface ISettingsModalProps {
   open: boolean;
@@ -37,14 +42,21 @@ interface ISettingsModalProps {
 }
 
 export default function SettingsModal({ open, tab }: ISettingsModalProps) {
+  const t = useTranslations("settings");
   const form = useFormContext<SettingsFormValues>();
   const { isReady, saving, avatarTouched, save, resetToDefaults } =
     useSettingsUi();
   const security = useSecurity();
 
-  const values = form.watch();
-  const defaults = (form.formState.defaultValues ??
-    {}) as Partial<SettingsFormValues>;
+  const values = useWatch({ control: form.control });
+  const { defaultValues, errors } = useFormState({ control: form.control });
+  const defaults = (defaultValues ?? {}) as Partial<SettingsFormValues>;
+  // Destructured so every flag is read each render: RHF only computes the ones read.
+  const {
+    isDirty: securityDirty,
+    isValid: securityValid,
+    isSubmitting: securitySubmitting,
+  } = useFormState({ control: security.form.control });
   const dirty = dirtySections(values, defaults, avatarTouched);
   const anyDirty = dirty.size > 0;
 
@@ -64,24 +76,23 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
 
   // The security tab drives its own credentials form through the shared footer.
   const securityFooter = {
-    dirty: security.form.formState.isDirty,
+    dirty: securityDirty,
     formId: CREDENTIALS_FORM_ID,
-    submitLabel: "Spremi",
-    submitLoading: security.form.formState.isSubmitting,
-    submitDisabled:
-      !security.form.formState.isDirty || !security.form.formState.isValid,
-    resetLabel: "Resetiraj",
-    resetDisabled: !security.form.formState.isDirty,
+    submitLabel: t("modal.save"),
+    submitLoading: securitySubmitting,
+    submitDisabled: !securityDirty || !securityValid,
+    resetLabel: t("modal.reset"),
+    resetDisabled: !securityDirty,
     onReset: () => security.form.reset(),
   };
 
   const settingsFooter = {
     dirty: anyDirty,
     formId: "settings-form",
-    submitLabel: "Spremi",
+    submitLabel: t("modal.save"),
     submitLoading: saving,
     submitDisabled: !anyDirty || !isReady,
-    resetLabel: "Resetiraj",
+    resetLabel: t("modal.reset"),
     resetDisabled: !anyDirty,
     onReset: resetToDefaults,
   };
@@ -90,24 +101,24 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
     <ModalShell
       open={open}
       onOpenChange={(isOpen) => !isOpen && closeModalUrl()}
-      title="Postavke"
-      description="Upravljaj profilom, obavijestima, preferencama i sigurnošću."
+      title={t("modal.title")}
+      description={t("modal.description")}
       srOnlyDescription
-      cancelLabel="Odustani"
+      cancelLabel={t("modal.cancel")}
       caption={
         <button
           type="button"
           onClick={() => swapModalUrl({ name: "onboarding", mode: "replay" })}
           className="cursor-pointer underline hover:text-primary"
         >
-          Pokreni vodič ponovno
+          {t("modal.replayGuide")}
         </button>
       }
       {...(isSecurityTab ? securityFooter : settingsFooter)}
     >
-      {form.formState.errors.root && (
+      {errors.root && (
         <div className="mb-4 rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
-          {form.formState.errors.root.message}
+          {errors.root.message}
         </div>
       )}
 
@@ -119,13 +130,13 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
         {...swipe}
       >
         <TabsList className="w-full mb-4">
-          {TAB_CONFIG.map(({ value, label, icon: Icon }) => (
+          {TAB_CONFIG.map(({ value, labelKey, icon: Icon }) => (
             <TabsTrigger key={value} value={value} className="relative gap-1.5">
               <Icon className="size-5" />
-              <span className="hidden sm:inline">{label}</span>
+              <span className="hidden sm:inline">{t(labelKey)}</span>
               {value !== "sigurnost" && dirty.has(value) && (
                 <span
-                  aria-label="Nespremljene izmjene"
+                  aria-label={t("modal.unsavedChanges")}
                   className="absolute top-1 right-1 size-1.5 rounded-full bg-primary"
                 />
               )}
@@ -146,7 +157,7 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
             <NotificationsTab />
           </TabsContent>
           <TabsContent value="preference">
-            <PreferencesTab />
+            <PreferencesTab showLanguage />
           </TabsContent>
         </form>
 

@@ -1,9 +1,10 @@
 "use client";
 
+import { Link, usePathname } from "@/i18n/navigation";
 import { useRef, useEffect, Suspense } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+
 import CartLogo from "@/components/icons/cart-logo";
-import { usePathname } from "next/navigation";
 
 import {
   Sidebar,
@@ -12,19 +13,23 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import InstallCard from "@/components/custom/pwa/install-card";
+import LanguageSwitcher from "@/components/custom/locale/language-switcher";
 import SidebarUser from "@/components/custom/sidebar/sidebar-user";
 import SidebarMainNav from "@/components/custom/sidebar/sidebar-main-nav";
 import SidebarProductNav from "@/components/custom/sidebar/sidebar-product-nav";
 import SidebarSupportNav from "@/components/custom/sidebar/sidebar-support-nav";
 import ScrollFade from "@/components/custom/common/scroll-fade";
-import SearchBar from "@/components/custom/search/search-bar";
+import ProductSearchBar from "@/components/custom/search/product-search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 
 export default function AppSidebar() {
+  const t = useTranslations("shell");
   const contentRef = useRef<HTMLDivElement>(null);
   const { setOpen, setOpenMobile } = useSidebar();
   const pathname = usePathname();
@@ -61,10 +66,8 @@ export default function AppSidebar() {
             <Suspense
               fallback={<SearchBarSkeleton submitButtonLocation="block" />}
             >
-              <SearchBar
-                placeholder="Pretraži proizvode..."
-                searchRoute="/products"
-                clearable={true}
+              <ProductSearchBar
+                placeholder={t("search.productsPlaceholder")}
                 allowScanning={true}
                 submitButtonLocation="block"
               />
@@ -97,6 +100,12 @@ export default function AppSidebar() {
       </div>
 
       <SidebarFooter>
+        <SidebarMenu className="md:hidden">
+          <SidebarMenuItem>
+            <LanguageSwitcher variant="sidebar" />
+          </SidebarMenuItem>
+        </SidebarMenu>
+
         <InstallCard />
 
         <SidebarUser />

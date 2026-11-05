@@ -43,7 +43,7 @@ public class ShoppingListCopyService {
         // never chose. Everything else about the copy is the caller's own, so it needs no
         // further check: they are the new list's owner by construction.
         if (request.isIncludeSharing() && !accessService.resolve(source, userId).isOwner()) {
-            throw new ForbiddenException("Only the owner can copy the sharing settings");
+            throw new ForbiddenException("error.shoppingList.ownerOnlyCopySharing");
         }
 
         ShoppingList copy = ShoppingList.builder()

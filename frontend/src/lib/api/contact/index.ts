@@ -1,5 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import apiClient from "@/lib/api/api-base";
+import { CONTACT_QUERY_KEYS } from "@/lib/api/contact/keys";
 import {
   ContactMessageRequest,
   ContactMessageDto,
@@ -9,42 +15,29 @@ import {
 
 const ADMIN_BASE_PATH = "/api/admin/contact";
 
-const CONTACT_QUERY_KEYS = {
-  all: ["admin", "contact"] as const,
-  list: (includeDeleted: boolean) =>
-    ["admin", "contact", { includeDeleted }] as const,
-  detail: (id: string) => ["admin", "contact", "detail", id] as const,
-};
-
 // Public: submit a contact message (no auth header sent when logged out).
-export async function createContactMessage(
+async function createContactMessage(
   data: ContactMessageRequest,
-): Promise<ContactMessageDto> {
+): Promise<ContactMessageDto | null> {
   const validated = contactMessageRequestSchema.parse(data);
   const response = await apiClient.post<ContactMessageDto>(
     "/api/contact",
     validated,
   );
+
+  // The backend drops a honeypot-filled submission and answers 204 with no body, so a bot cannot tell it was caught.
+  if (response.status === 204) return null;
+
   return contactMessageDtoSchema.parse(response.data);
 }
 
-// Admin reads
-export async function getContactMessages(
+async function getContactMessages(
   includeDeleted = false,
 ): Promise<ContactMessageDto[]> {
   const response = await apiClient.get<ContactMessageDto[]>(ADMIN_BASE_PATH, {
     params: { includeDeleted },
   });
   return response.data.map((item) => contactMessageDtoSchema.parse(item));
-}
-
-export async function getContactMessage(
-  id: string,
-): Promise<ContactMessageDto> {
-  const response = await apiClient.get<ContactMessageDto>(
-    `${ADMIN_BASE_PATH}/${id}`,
-  );
-  return contactMessageDtoSchema.parse(response.data);
 }
 
 // Admin state changes: read/unread, archive/unarchive, restore share the patch shape.
@@ -58,7 +51,7 @@ async function patchContactAction(
   return contactMessageDtoSchema.parse(response.data);
 }
 
-export async function softDeleteContactMessage(
+async function softDeleteContactMessage(
   id: string,
 ): Promise<ContactMessageDto> {
   const response = await apiClient.delete<ContactMessageDto>(
@@ -67,30 +60,24 @@ export async function softDeleteContactMessage(
   return contactMessageDtoSchema.parse(response.data);
 }
 
-// React Query hooks
-export function useCreateContactMessage() {
-  return useMutation<ContactMessageDto, Error, ContactMessageRequest>({
+function useCreateContactMessage() {
+  return useMutation<ContactMessageDto | null, Error, ContactMessageRequest>({
     mutationFn: createContactMessage,
   });
 }
 
-export function useGetContactMessages(
-  includeDeleted = false,
-  { enabled = true } = {},
-) {
-  return useQuery<ContactMessageDto[], Error>({
+function contactMessagesQueryOptions(includeDeleted: boolean) {
+  return queryOptions({
     queryKey: CONTACT_QUERY_KEYS.list(includeDeleted),
     queryFn: () => getContactMessages(includeDeleted),
-    enabled,
   });
 }
 
-export function useGetContactMessage(id: string, { enabled = true } = {}) {
-  return useQuery<ContactMessageDto, Error>({
-    queryKey: CONTACT_QUERY_KEYS.detail(id),
-    queryFn: () => getContactMessage(id),
-    enabled,
-  });
+function useGetContactMessages(
+  includeDeleted = false,
+  { enabled = true } = {},
+) {
+  return useQuery({ ...contactMessagesQueryOptions(includeDeleted), enabled });
 }
 
 function useContactAction(action: (id: string) => Promise<ContactMessageDto>) {
@@ -103,29 +90,25 @@ function useContactAction(action: (id: string) => Promise<ContactMessageDto>) {
   });
 }
 
-export function useMarkRead() {
+function useMarkRead() {
   return useContactAction((id) => patchContactAction(id, "read"));
 }
 
-export function useMarkUnread() {
+function useMarkUnread() {
   return useContactAction((id) => patchContactAction(id, "unread"));
 }
 
-export function useSoftDelete() {
+function useSoftDelete() {
   return useContactAction(softDeleteContactMessage);
 }
 
-export function useRestore() {
+function useRestore() {
   return useContactAction((id) => patchContactAction(id, "restore"));
 }
 
 const contactService = {
-  createContactMessage,
-  getContactMessages,
-  getContactMessage,
   useCreateContactMessage,
   useGetContactMessages,
-  useGetContactMessage,
   useMarkRead,
   useMarkUnread,
   useSoftDelete,

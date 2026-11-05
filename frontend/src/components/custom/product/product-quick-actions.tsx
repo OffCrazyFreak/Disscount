@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 import QuickActionsSheet from "@/components/custom/common/quick-actions-sheet";
 import ProductQuickActionsList from "@/components/custom/product/product-quick-actions-list";
@@ -29,16 +30,18 @@ export default function ProductQuickActions({
   open,
   onOpenChange,
 }: IProductQuickActionsProps) {
+  const t = useTranslations("products");
+
   return (
     <QuickActionsSheet
       open={open}
       onOpenChange={onOpenChange}
-      title={product?.name ?? product?.ean ?? "Radnje za proizvod"}
-      description="Radnje za odabrani proizvod."
+      title={product?.name ?? product?.ean ?? t("quickActions.titleFallback")}
+      description={t("quickActions.description")}
       summary={summary}
       hasEntity={!!product}
       isLoading={isLoading}
-      emptyMessage="Nismo našli taj proizvod. Možda više nije u ponudi."
+      emptyMessage={t("quickActions.notFound")}
     >
       {product && (
         <ProductQuickActionsList

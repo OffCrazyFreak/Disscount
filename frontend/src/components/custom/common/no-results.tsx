@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 interface INoResultsProps {
   icon?: ReactNode;
@@ -11,17 +12,21 @@ interface INoResultsProps {
 
 export default function NoResults({
   icon,
-  title = "Nema rezultata",
-  description = "Probaj s drugim pojmom za pretraživanje",
+  title,
+  description,
   className = "",
 }: INoResultsProps) {
+  const t = useTranslations("common");
+
   return (
     <div className={`text-center py-12 ${className}`}>
       {icon}
       <h3 className="text-lg font-semibold text-foreground mb-2 text-pretty">
-        {title}
+        {title ?? t("noResults.title")}
       </h3>
-      <p className="text-gray-600">{description}</p>
+      <p className="text-gray-600">
+        {description ?? t("noResults.description")}
+      </p>
     </div>
   );
 }

@@ -16,9 +16,9 @@ import { useUser } from "@/context/user-context";
  * header shows on desktop, where its trigger isn't reachable from the sheet.
  */
 export default function SidebarUser() {
-  const { user, isAuthenticated } = useUser();
+  const { accountUser: user, canShowAccountData } = useUser();
 
-  if (!isAuthenticated || !user) return null;
+  if (!canShowAccountData || !user) return null;
 
   const avatarUser = {
     name: user.username || "",

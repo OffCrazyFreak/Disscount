@@ -1,4 +1,6 @@
 import { appUrl } from "@/lib/env";
+import { localePath } from "@/i18n/locale-path";
+import type { AppLocale } from "@/i18n/locales";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { formatQuantity } from "@/utils/strings";
 
@@ -19,6 +21,7 @@ export function productPath(ean: string): string {
   return `/products/${encodeURIComponent(ean)}`;
 }
 
-export function productPageUrl(ean: string): string {
-  return `${appUrl()}${productPath(ean)}`;
+// Shared links keep the sender's language: the URL alone decides what a page shows.
+export function productPageUrl(ean: string, locale: AppLocale): string {
+  return `${appUrl()}${localePath(locale, productPath(ean))}`;
 }

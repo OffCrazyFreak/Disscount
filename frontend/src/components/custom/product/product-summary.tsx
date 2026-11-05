@@ -1,32 +1,24 @@
 "use client";
 
-import { type ComponentProps, type ReactNode } from "react";
-import Image from "next/image";
+import { useTranslations } from "next-intl";
 
+import MediaRow from "@/components/custom/common/media-row";
+import ProductThumbnail from "@/components/custom/product-photos/product-thumbnail";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductInfo from "@/components/custom/product/product-info";
+import ProductSummaryAside, {
+  type IProductSummaryAsideProps,
+} from "@/components/custom/product/product-summary-aside";
 import { cn } from "@/lib/utils";
 
-interface IProductSummaryProps {
+interface IProductSummaryProps extends IProductSummaryAsideProps {
   name: string | null;
   brand?: string | null;
   category: string | null;
   quantity?: string | null;
-  imageUrl?: string | null;
+  /** When set, the row shows the product's photo, or the placeholder without one. */
+  ean?: string;
   isLoading?: boolean;
-  /** Passive details, such as prices, shown opposite the product identity */
-  trailing?: ReactNode;
-  actions?: ReactNode;
-  /**
-   * Applied to the actions wrapper, so a surface that hides its actions hides
-   * the element the row's gap is measured against too.
-   */
-  actionsClassName?: string;
-  /** Keeps a press on actions from reaching a card-level gesture */
-  actionProps?: Pick<
-    ComponentProps<"div">,
-    "onClick" | "onPointerDown" | "onPointerUp"
-  >;
   /** When set, the product name carries the card's link. */
   href?: string;
   onNavigate?: (viaKeyboard: boolean) => boolean | void;
@@ -43,37 +35,35 @@ export default function ProductSummary({
   brand,
   category,
   quantity,
-  imageUrl,
+  ean,
   isLoading = false,
-  trailing,
-  actions,
-  actionsClassName,
-  actionProps,
   href,
   onNavigate,
   className,
+  ...aside
 }: IProductSummaryProps) {
+  const t = useTranslations("products");
   const displayName = name && quantity ? `${name} (${quantity})` : name;
 
   return (
     <div className="@container">
-      <div
-        className={cn(
-          "flex flex-col justify-between gap-3 px-3 py-2 @min-[300px]:flex-row @min-[300px]:items-center @md:gap-4 @md:px-4 @md:py-3",
-          className,
-        )}
-      >
-        <div className="flex min-w-0 flex-1 items-center gap-4">
-          {imageUrl && (
-            <Image
-              src={imageUrl}
-              alt={name ?? ""}
-              width={80}
-              height={80}
-              className="hidden @md:block size-16 shrink-0 rounded-lg object-contain"
+      <MediaRow
+        // Even padding, so the photo sits as far from the card's edges as from its top and bottom.
+        className={cn("p-3 @md:p-4", className)}
+        media={
+          ean !== undefined && (
+            <ProductThumbnail
+              ean={ean}
+              // Only a row that links to its product opens the viewer: inside a modal sheet the
+              // lightbox would sit outside the dialog's focus trap and pointer lock.
+              productName={
+                href ? name || t("productInfo.unknownProduct") : undefined
+              }
             />
-          )}
-
+          )
+        }
+      >
+        <div className="flex min-w-0 flex-col justify-between gap-3 @min-[300px]:flex-row @min-[300px]:items-center @md:gap-4">
           {isLoading ? (
             <div className="min-w-0 flex-1 space-y-2">
               <Skeleton className="h-3.5 w-24" />
@@ -81,34 +71,20 @@ export default function ProductSummary({
               <Skeleton className="h-3.5 w-32" />
             </div>
           ) : (
-            <ProductInfo
-              name={displayName}
-              brand={brand}
-              category={category}
-              href={href}
-              onNavigate={onNavigate}
-            />
+            <div className="flex min-w-0 flex-1 items-center">
+              <ProductInfo
+                name={displayName}
+                brand={brand}
+                category={category}
+                href={href}
+                onNavigate={onNavigate}
+              />
+            </div>
           )}
+
+          <ProductSummaryAside {...aside} />
         </div>
-
-        {(trailing || actions) && (
-          <div className="flex shrink-0 items-center justify-between gap-4">
-            {/* Raised above the name link's stretched pseudo-element so prices
-                stay selectable; actions go a layer higher again so they keep
-                receiving pointer events without opting in class by class. */}
-            {trailing && <div className="relative z-10">{trailing}</div>}
-
-            {actions && (
-              <div
-                className={cn("relative z-20", actionsClassName)}
-                {...actionProps}
-              >
-                {actions}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      </MediaRow>
     </div>
   );
 }

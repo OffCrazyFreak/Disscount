@@ -3,10 +3,12 @@ import { ProductResponse } from "@/lib/cijene-api/schemas";
 import {
   calculateDiscountInfo,
   getScopedDiscountedStores,
-  IGroupedWatchlistItems,
+} from "@/lib/watchlist/watchlist-discount-utils";
+import {
   isDiscountValueAboveThreshold,
   isWatchThresholdReached,
-} from "@/app/(user)/watchlist/utils/watchlist-utils";
+} from "@/lib/watchlist/watchlist-threshold-utils";
+import type { IGroupedWatchlistItems } from "@/lib/watchlist/watchlist-types";
 import { getChainLabel } from "@/utils/labels";
 import {
   INotificationsSummary,

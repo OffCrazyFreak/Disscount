@@ -1,0 +1,234 @@
+{
+  "meta": {
+    "title": "Izdelki",
+    "description": "Poišči izdelke in primerjaj cene v trgovinah po vsej Hrvaški."
+  },
+  "clearFilters": {
+    "label": "Počisti filtre"
+  },
+  "addToList": {
+    "title": "Dodaj na nakupovalni seznam",
+    "description": "Izberi seznam, količino in trgovino.",
+    "submit": "Dodaj",
+    "cancel": "Prekliči",
+    "reset": "Ponastavi",
+    "productNotFound": "Izdelka ni mogoče najti.",
+    "removeFromList": "Odstrani s tega seznama",
+    "duplicateTitle": "Že na seznamu",
+    "duplicateText": "Izdelek je že na tem seznamu. Če ga dodaš, bo količina {next} namesto {current}.",
+    "toast": {
+      "pickList": "Izberi ali ustvari nakupovalni seznam.",
+      "quantityIncreased": "Količina je povečana na seznamu »{name}«",
+      "added": "Dodano na seznam »{name}«",
+      "open": "Odpri",
+      "fallbackListName": "seznam",
+      "removed": "Izdelek je odstranjen s seznama.",
+      "removeFailed": "Izdelka ni bilo mogoče odstraniti. Poskusi znova."
+    }
+  },
+  "createListOption": {
+    "label": "Ustvari »<name>{title}</name>«"
+  },
+  "markAsChecked": {
+    "label": "Izdelek vnaprej označi kot kupljen",
+    "description": "To lahko pozneje spremeniš na seznamu."
+  },
+  "actionsSheet": {
+    "pricesUnavailableTitle": "Cene niso na voljo",
+    "pricesUnavailableText": "Vsa dejanja še vedno delujejo. Za cenovni razpon poskusi znova.",
+    "partialPricesTitle": "Nekatere cene niso na voljo",
+    "partialPricesText": "Razpon vključuje lokacije, katerih cene smo uspeli pridobiti."
+  },
+  "quantity": {
+    "label": "Količina"
+  },
+  "listSelector": {
+    "label": "Nakupovalni seznam",
+    "searchPlaceholder": "Poišči med svojimi seznami ali ustvari novega",
+    "empty": "Vpiši ime in tu ustvari prvi seznam.",
+    "existingLists": "Obstoječi seznami",
+    "newList": "Nov nakupovalni seznam",
+    "updatedAt": "({date})",
+    "progress": "{checked}/{total}"
+  },
+  "listTrigger": {
+    "loading": "Nalaganje...",
+    "createNamed": "Ustvari nov seznam »{title}«",
+    "choose": "Izberi seznam",
+    "createFirst": "Ustvari prvi seznam"
+  },
+  "storeChainField": {
+    "label": "Trgovina"
+  },
+  "watchlistModal": {
+    "title": "Spremljaj izdelek",
+    "description": "Nastavi najmanjši popust in javimo ti, ko ga izdelek doseže.",
+    "save": "Shrani",
+    "track": "Spremljaj",
+    "cancel": "Prekliči",
+    "reset": "Ponastavi",
+    "productNotFound": "Izdelka ni mogoče najti.",
+    "removeFromWatchlist": "Prenehaj spremljati",
+    "existingTitle": "Ta izdelek že spremljaš",
+    "existingBoth": "Spremljaš ga z najmanjšim popustom {percentage} % in {amount, number, ::currency/EUR}.",
+    "existingPercentage": "Spremljaš ga z najmanjšim popustom {percentage} %.",
+    "existingAbsolute": "Spremljaš ga z najmanjšim popustom {amount, number, ::currency/EUR}.",
+    "toast": {
+      "updated": "Najmanjši popust je spremenjen iz {from} v {to}",
+      "added": "Izdelek zdaj spremljaš",
+      "removedPercentage": "Popusta v odstotkih ne spremljaš več",
+      "removedAbsolute": "Padca cene v evrih ne spremljaš več",
+      "removeFailed": "Odstranitev ni uspela. Poskusi znova."
+    }
+  },
+  "threshold": {
+    "labelAbsolute": "Najmanjši popust (€):",
+    "labelPercentage": "Najmanjši popust (%):",
+    "loading": "Nalaganje najmanjšega popusta",
+    "placeholderAbsolute": "Npr. 12",
+    "placeholderPercentage": "Npr. 15",
+    "willUpdate": "Najmanjši popust se spremeni iz {from} v {to}."
+  },
+  "typePicker": {
+    "label": "Obvesti me, ko",
+    "absolute": {
+      "label": "Cena pade za €",
+      "description": "Javimo ti, ko cena pade za tvoj znesek"
+    },
+    "percentage": {
+      "label": "Popust je vsaj %",
+      "description": "Javimo ti, ko popust doseže tvoj odstotek"
+    }
+  },
+  "actions": {
+    "addToList": "Dodaj na nakupovalni seznam",
+    "editListEntry": "Uredi vnos na nakupovalnem seznamu",
+    "watch": "Spremljaj izdelek",
+    "editWatch": "Uredi spremljanje",
+    "share": "Deli izdelek",
+    "searchImage": "Poišči sliko izdelka",
+    "group": "Dejanja za izdelek"
+  },
+  "facets": {
+    "stores": {
+      "label": "Trgovine",
+      "placeholder": "Izberi trgovine",
+      "search": "Išči trgovine",
+      "empty": "Ni trgovin"
+    },
+    "locations": {
+      "label": "Lokacije",
+      "placeholder": "Izberi lokacije",
+      "search": "Išči lokacije",
+      "empty": "Ni lokacij"
+    },
+    "categories": {
+      "label": "Kategorije",
+      "placeholder": "Izberi kategorije",
+      "search": "Išči kategorije",
+      "empty": "Ni kategorij"
+    },
+    "brands": {
+      "label": "Znamka",
+      "placeholder": "Izberi znamko",
+      "search": "Išči znamke",
+      "empty": "Ni znamk"
+    },
+    "count": "({count})"
+  },
+  "filtersTrigger": {
+    "label": "Filtri"
+  },
+  "productInfo": {
+    "back": "Nazaj",
+    "unknown": "Neznano",
+    "brand": "Znamka:",
+    "barcode": "Črtna koda:",
+    "quantity": "Količina:",
+    "prices": "Cene:",
+    "unitPrices": "Cene na enoto:",
+    "priceRange": "<low>{lowPrice}</low><mid> | {averagePrice} | </mid><high>{highPrice}</high>",
+    "perUnit": "{price}/{unit}",
+    "unknownProduct": "Neznan izdelek"
+  },
+  "priceScope": {
+    "label": "Informacije o cenovnem razponu",
+    "all": "Razpon objavljenih cen v vseh trgovinah.",
+    "chains": "Razpon objavljenih cen v filtriranih trgovinah.",
+    "locations": "Razpon objavljenih cen, ki ustrezajo izbranim filtrom."
+  },
+  "validation": {
+    "listRequired": "Izberi nakupovalni seznam",
+    "amountRange": "Vpiši količino od 1 do 999",
+    "listTitleMin": "Ime mora imeti vsaj 3 znake",
+    "listTitleMax": "Ime sme imeti največ 100 znakov",
+    "thresholdInvalid": "Vpiši število, npr. 15",
+    "percentageRange": "Vpiši odstotek od 1 do 99",
+    "absoluteRange": "Vpiši znesek od 0,10 € do 999 €"
+  },
+  "list": {
+    "searchPlaceholder": "Išči izdelke",
+    "resultsTitle": "Rezultati iskanja za »{query}«",
+    "resultsTitleWithCount": "Rezultati iskanja za »{query}« ({count}{suffix})",
+    "resultsStatus": "{count, plural, =0 {Ni rezultatov} one {# rezultat} two {# rezultata} few {# rezultati} other {# rezultatov}}{truncated, select, yes { ali več} other {}}",
+    "partialPricesTitle": "Nekatere cene niso na voljo",
+    "partialPricesText": "Za nekatere izbrane lokacije trenutno nimamo cen, zato prikazujemo ostale.",
+    "errorTitle": "Iskanje ni uspelo",
+    "errorText": "Izdelkov ni bilo mogoče naložiti. Poskusi znova.",
+    "noResultsForFilters": "Ni rezultatov za izbrane filtre",
+    "noPriceInLocationsTitle": "{count, plural, one {V izbranem kraju ni cen} two {V izbranih krajih ni cen} few {V izbranih krajih ni cen} other {V izbranih krajih ni cen}}",
+    "noPriceInLocationsText": "{count, plural, one {Našli smo izdelke, vendar nobena trgovina v kraju {locations} zanje nima objavljene cene.} two {Našli smo izdelke, vendar nobena trgovina v krajih {locations} zanje nima objavljene cene.} few {Našli smo izdelke, vendar nobena trgovina v krajih {locations} zanje nima objavljene cene.} other {Našli smo izdelke, vendar nobena trgovina v krajih {locations} zanje nima objavljene cene.}}",
+    "showAllLocations": "Prikaži cene po vsej Hrvaški",
+    "clearFilters": "Počisti filtre",
+    "enterQueryTitle": "Vpiši iskalni izraz",
+    "enterQueryText": "Filtri so pripravljeni. Vpiši, kaj iščeš, in prikažemo rezultate.",
+    "startTitle": "Išči izdelke",
+    "startText": "Vpiši, kaj iščeš",
+    "noResultsAddPlain": "Nismo našli izdelka s tem imenom. Še vedno ga lahko dodaš na seznam.",
+    "addPlainItem": "Dodaj »{query}« na seznam"
+  },
+  "viewSwitcher": {
+    "label": "Način prikaza",
+    "grid": "Prikaz v mreži",
+    "list": "Prikaz v seznamu"
+  },
+  "storePrice": {
+    "empty": "Ni popustov",
+    "line": "<chainName>{chain}</chainName> ~ {price} (-{discount}, {percentage} %)"
+  },
+  "quickActions": {
+    "titleFallback": "Dejanja za izdelek",
+    "description": "Dejanja za izbrani izdelek.",
+    "notFound": "Tega izdelka ne najdemo. Morda ni več v ponudbi."
+  },
+  "productsSheet": {
+    "submit": "Išči",
+    "title": "Iskanje izdelkov",
+    "description": "Vpiši ime izdelka ali skeniraj črtno kodo."
+  },
+  "price": {
+    "increase": "+{amount}",
+    "percentage": "({percentage} %)"
+  },
+  "productPrice": {
+    "unknown": "Neznana cena"
+  },
+  "historyPeriod": {
+    "week": "1T",
+    "month": "1M",
+    "year": "1L",
+    "all": "Vse"
+  },
+  "storeChainSelect": {
+    "multiPlaceholder": "Izberi trgovce"
+  },
+  "addPlainItem": {
+    "title": "Dodaj postavko na seznam",
+    "description": "Postavka nima cene, a ostane na seznamu, da je ne pozabiš.",
+    "nameLabel": "Ime",
+    "toast": {
+      "added": "Postavka je dodana na seznam »{name}«",
+      "quantityIncreased": "Količina postavke je povečana na seznamu »{name}«"
+    }
+  }
+}

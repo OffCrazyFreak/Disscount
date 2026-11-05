@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+// The raw path, locale prefix included: it goes straight into history.replaceState.
 import { usePathname } from "next/navigation";
 
 import { useClientSearchParams } from "@/hooks/use-client-search-params";

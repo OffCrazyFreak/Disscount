@@ -4,11 +4,6 @@ import { createContext, useContext, ReactNode } from "react";
 import { useWatchlistNotifications } from "@/context/use-watchlist-notifications";
 import { INotificationsContext } from "@/context/notifications-types";
 
-export type {
-  INotificationStore,
-  IWatchlistNotification,
-} from "@/context/notifications-types";
-
 const NotificationsContext = createContext<INotificationsContext | undefined>(
   undefined,
 );

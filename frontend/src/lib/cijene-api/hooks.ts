@@ -53,7 +53,6 @@ export function useAllLocations() {
       cityData.sourceCities.add(city);
     });
 
-    // Convert to array and sort
     return Array.from(cityMap.entries())
       .map(([standardizedLocationName, data]) => ({
         name: standardizedLocationName,
@@ -72,11 +71,12 @@ export function useAllLocations() {
 }
 
 import { useQueries } from "@tanstack/react-query";
-import { formatDate } from "@/utils/strings";
-import { HistoryDataPoint } from "@/app/products/[id]/typings/history-data-point";
+import { HistoryDataPoint } from "@/lib/cijene-api/history-data-point";
 import type { IUsePriceHistoryArgs } from "@/lib/cijene-api/hooks-types";
 import { buildDateWindow } from "@/utils/date";
+import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 import { PRICE_ARCHIVE_START } from "@/constants/price-history";
+import { priceHistoryQueries } from "@/lib/cijene-api/price-history-queries";
 
 /**
  * Fetch product price snapshots for the last N days in parallel
@@ -87,25 +87,22 @@ import { PRICE_ARCHIVE_START } from "@/constants/price-history";
  */
 
 export function usePriceHistory({ ean, days = 7 }: IUsePriceHistoryArgs) {
+  "use no memo";
+  // The compiler caches `new Date()` as a constant, so a tab left open past Zagreb midnight
+  // would keep yesterday as its last day; reading the clock each render needs the opt-out.
+  const today = zagrebClock(new Date()).date;
   const dates = useMemo(
-    () => buildDateWindow(days, PRICE_ARCHIVE_START),
-    [days],
+    () => buildDateWindow(days, PRICE_ARCHIVE_START, today),
+    [days, today],
   );
 
   const queries = useQueries({
-    queries: dates.map((date, index) => ({
-      queryKey: ["cijene", "product", "history", ean, date],
-      queryFn: () => cijeneService.getProductByEan({ ean, date }),
-      enabled: !!ean,
-      staleTime:
-        index === 0 || index === dates.length - 1
-          ? 60 * 1000
-          : 6 * 60 * 60 * 1000,
-    })),
+    queries: priceHistoryQueries(ean, dates),
   });
 
   const isLoading = queries.some((q) => q.isLoading);
-  const isError = queries.some((q) => q.isError);
+  // Only a day with nothing cached is missing; a failed refetch keeps its last answer.
+  const isError = queries.some((q) => q.isError && q.data === undefined);
 
   const { data, chains } = useMemo(() => {
     // collect all chain codes seen across all days
@@ -120,7 +117,7 @@ export function usePriceHistory({ ean, days = 7 }: IUsePriceHistoryArgs) {
         });
       }
 
-      return product ? [{ date: formatDate(date), product }] : [];
+      return product ? [{ date, product }] : [];
     });
 
     return { data: rows, chains: Array.from(chainSet) };

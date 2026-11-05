@@ -10,19 +10,22 @@
  * before the session has resolved.
  */
 const IDENTITY_STORAGE_KEY = "disscount-cache-identity";
-const ANONYMOUS = "anon";
+export const ANONYMOUS_IDENTITY = "anon";
 
 let currentIdentity: string | null = null;
+const listeners = new Set<() => void>();
 
 function readStoredIdentity(): string {
-  if (typeof window === "undefined") return ANONYMOUS;
+  if (typeof window === "undefined") return ANONYMOUS_IDENTITY;
 
   try {
-    return window.localStorage.getItem(IDENTITY_STORAGE_KEY) ?? ANONYMOUS;
+    return (
+      window.localStorage.getItem(IDENTITY_STORAGE_KEY) ?? ANONYMOUS_IDENTITY
+    );
   } catch {
     // Private mode or blocked storage. Everyone shares the anonymous bucket, which is
     // the pre-existing behaviour rather than a regression.
-    return ANONYMOUS;
+    return ANONYMOUS_IDENTITY;
   }
 }
 
@@ -31,13 +34,27 @@ export function getCacheIdentity(): string {
   return currentIdentity;
 }
 
+/** The account this device's cache belongs to, or null when it is anonymous. */
+export function persistedCacheIdentity(): string | null {
+  return getCacheIdentity() === ANONYMOUS_IDENTITY ? null : getCacheIdentity();
+}
+
 /** The stored form of an account id, so callers can name an identity that is not current. */
 export function toCacheIdentity(userId: string | null): string {
-  return userId ?? ANONYMOUS;
+  return userId ?? ANONYMOUS_IDENTITY;
+}
+
+/** For useSyncExternalStore, so screens reading the identity follow a sign-out. */
+export function subscribeToCacheIdentity(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
 }
 
 export function setCacheIdentity(userId: string | null): void {
-  currentIdentity = userId ?? ANONYMOUS;
+  currentIdentity = userId ?? ANONYMOUS_IDENTITY;
+  for (const listener of listeners) listener();
 
   if (typeof window === "undefined") return;
 

@@ -4,10 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import disscount.digitalCard.service.DigitalCardService;
+import disscount.favoriteStore.service.FavoriteStoreService;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.ConflictException;
+import disscount.productImage.service.ProductImageErasure;
+import disscount.user.avatar.AvatarSanitizer;
 import disscount.user.dao.AuthIdentityDao;
+import disscount.user.dao.ErasureLedgerRepository;
 import disscount.user.dao.UserRepository;
+import disscount.user.domain.ErasureLedgerEntry;
 import disscount.user.domain.User;
 import disscount.user.domain.enums.AccountType;
 import disscount.user.dto.AuthIdentity;
@@ -15,7 +21,6 @@ import disscount.user.dto.UserDto;
 import disscount.user.dto.UserRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import disscount.exceptions.ForbiddenException;
 import disscount.util.Timestamps;
 
 import java.time.Duration;
@@ -41,46 +46,49 @@ public class UserService {
     private final UserRepository userRepository;
     private final AuthIdentityDao authIdentityDao;
     private final UserProfileCreator profileCreator;
-
-    // Compared against better-auth's UTC session timestamps, so the JVM zone must not leak in.
-    private static LocalDateTime nowUtc() {
-        return Timestamps.nowUtc();
-    }
+    private final DigitalCardService digitalCardService;
+    private final FavoriteStoreService favoriteStoreService;
+    private final ProductImageErasure productImageErasure;
+    private final ErasureLedgerRepository erasureLedger;
+    private final AvatarSanitizer avatarSanitizer;
 
     // Read-only: the class-level @Transactional would otherwise keep a dirty-checking
     // flush at commit for a query that never writes.
     @Transactional(readOnly = true)
     public Optional<UserDto> findById(UUID id) {
-        return userRepository.findById(id)
-                .filter(user -> user.getDeletedAt() == null)
+        return userRepository.findByIdAndDeletedAtIsNull(id)
                 .map(this::convertToUserDto);
     }
 
     /**
      * Idempotent upsert called on every authenticated request via UserProvisioningFilter.
-     * Creates the profile row on first login, or revives a soft-deleted one.
+     * Creates the profile row on first login. A deleted account is never revived: the login
+     * outlived a failed deletion, so the caller is told and the browser can finish it.
+     *
+     * @throws AccountErasedException when the profile is soft-deleted or the id has a tombstone
      */
     public void ensureActiveProfile(UUID id, String email, String name, String image) {
         if (email == null) return;
 
         Optional<User> existing = userRepository.findById(id);
+        // Profiles deleted before the ledger existed have no tombstone, so the row itself is the proof.
+        // The ledger is checked only off the hot path: an active profile cannot have been erased.
+        boolean isErased = existing
+                .map(user -> user.getDeletedAt() != null)
+                .orElseGet(() -> erasureLedger.existsById(id));
+        if (isErased) {
+            throw new AccountErasedException();
+        }
+
         if (existing.isPresent()) {
             User user = existing.get();
-            boolean changed = false;
 
-            if (user.getDeletedAt() != null) {
-                user.setDeletedAt(null);
-                changed = true;
-            }
-            if (isActivityStampStale(user.getLastActiveAt())) {
-                user.setLastActiveAt(nowUtc());
-                changed = true;
-            }
             // Email is no longer mirrored here: it lives authoritatively in the better-auth `user`
             // table, and the backend reads it from there (admin list) or the session (current user).
             // image is intentionally not synced here: the avatar is user-owned after creation,
             // so a cleared avatar must not be repopulated from the provider on the next request
-            if (changed) {
+            if (isActivityStampStale(user.getLastActiveAt())) {
+                user.setLastActiveAt(Timestamps.nowUtc());
                 userRepository.save(user);
             }
         } else {
@@ -90,15 +98,15 @@ public class UserService {
                     ? AccountType.ADMIN
                     : AccountType.CONSUMER;
             String username = seedUsername(name, email);
-            // Every switch starts ON; the stamped timestamp is what the settings form reads back.
-            LocalDateTime now = nowUtc();
+            // Newsletter stays null: marketing email needs prior opt-in consent, and a pre-set
+            // switch is not consent (GDPR Recital 32, ZEK Art. 50). The other three start ON.
+            LocalDateTime now = Timestamps.nowUtc();
             User.UserBuilder profile = User.builder()
                     .id(id)
                     .image(image)
                     .accountType(accountType)
                     .notificationsPushEnabledAt(now)
                     .notificationsEmailEnabledAt(now)
-                    .newsletterEnabledAt(now)
                     .feedbackContactEnabledAt(now)
                     .lastActiveAt(now);
 
@@ -117,7 +125,7 @@ public class UserService {
 
     private boolean isActivityStampStale(LocalDateTime lastActiveAt) {
         return lastActiveAt == null
-                || lastActiveAt.isBefore(nowUtc().minus(ACTIVITY_STAMP_INTERVAL));
+                || lastActiveAt.isBefore(Timestamps.nowUtc().minus(ACTIVITY_STAMP_INTERVAL));
     }
 
     /**
@@ -152,16 +160,14 @@ public class UserService {
     }
 
     public UserDto updateProfile(UUID userId, UserRequest request) {
-        User user = userRepository.findById(userId)
-                .filter(u -> u.getDeletedAt() == null)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+        User user = userRepository.requireActive(userId);
 
         String username = request.getUsername();
         if (username != null && !username.equals(user.getUsername())) {
             // Checked here so the answer carries fieldErrors; the unique index catches the
             // race and renders the same 409.
             if (userRepository.existsByUsername(username)) {
-                throw new ConflictException("Korisničko ime je već zauzeto.");
+                throw new ConflictException("error.user.usernameTaken");
             }
             user.setUsername(username);
         }
@@ -178,7 +184,7 @@ public class UserService {
         // null = leave unchanged, "" = clear the avatar, otherwise store the new base64 image
         String image = request.getImage();
         if (image != null) {
-            user.setImage(image.isEmpty() ? null : image);
+            user.setImage(image.isEmpty() ? null : avatarSanitizer.sanitize(image));
         }
 
         // Outcome may be overwritten by re-running the wizard, but the completion
@@ -199,7 +205,7 @@ public class UserService {
             user.setOnboardingOutcome(outcome);
             if (ONBOARDING_COMPLETED.equals(outcome)
                     && user.getOnboardingCompletedAt() == null) {
-                user.setOnboardingCompletedAt(nowUtc());
+                user.setOnboardingCompletedAt(Timestamps.nowUtc());
             }
         }
 
@@ -217,38 +223,51 @@ public class UserService {
             return current;
         }
         if (desired) {
-            return current != null ? current : nowUtc();
+            return current != null ? current : Timestamps.nowUtc();
         }
         return null;
     }
 
     /**
      * Anonymizes the profile: nulls PII fields and soft-deletes.
-     * The row is kept so business data (watchlists, shopping lists, etc.) remains intact.
-     * better-auth identity must be deleted separately via authClient.deleteUser() on the frontend.
+     * The row is kept so business data (watchlists, shopping lists, etc.) remains intact,
+     * except digital cards, which are hard deleted together with their photos.
+     * Records a tombstone in the same transaction. Idempotent, and succeeds for an identity
+     * that never got a profile, because better-auth's beforeDelete hook calls it and only
+     * deletes the identity once this has committed, so any refusal here blocks the deletion.
      */
     public void deleteAccount(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+        // Locked so a card write racing the deletion waits and then finds a deleted user.
+        userRepository.findByIdForUpdate(userId).ifPresent(user -> {
+            user.setUsername(null);
+            user.setImage(null);
+            user.setDeletedAt(Timestamps.nowUtc());
+            // Flushed now because the card purge below clears the persistence context, dropping any unsaved change.
+            userRepository.saveAndFlush(user);
+        });
 
-        user.setUsername(null);
-        user.setImage(null);
-        user.setDeletedAt(nowUtc());
-        userRepository.save(user);
+        // Cards hold card numbers and photos, which must not outlive the account.
+        digitalCardService.deleteAllForUser(userId);
+        // Favourite stores show where the person shops.
+        favoriteStoreService.deleteAllForUser(userId);
+        // Unconfirmed photos and private originals may show the person or their home.
+        productImageErasure.eraseContributor(userId);
+
+        if (!erasureLedger.existsById(userId)) {
+            // Flushed so a concurrent deletion's tombstone collides here, where AccountErasureService can catch it.
+            erasureLedger.saveAndFlush(new ErasureLedgerEntry(userId, Timestamps.nowUtc()));
+        }
     }
 
-    /**
-     * Throws unless the given user is an active ADMIN. Used to gate admin-only endpoints.
-     */
-    public void requireAdmin(UUID userId) {
-        boolean isAdmin = userRepository.findById(userId)
-                .filter(u -> u.getDeletedAt() == null)
+    /** Locks the caller's profile until commit, so a write racing the account deletion either lands first or is refused. */
+    public void lockActive(UUID userId) {
+        userRepository.requireActiveForUpdate(userId);
+    }
+
+    public boolean isActiveAdmin(UUID userId) {
+        return userRepository.findByIdAndDeletedAtIsNull(userId)
                 .map(u -> u.getAccountType() == AccountType.ADMIN)
                 .orElse(false);
-
-        if (!isAdmin) {
-            throw new ForbiddenException("Admin access required");
-        }
     }
 
     @Transactional(readOnly = true)
@@ -291,7 +310,12 @@ public class UserService {
      */
     public void deleteUserAsAdmin(UUID targetUserId, UUID adminUserId) {
         if (targetUserId.equals(adminUserId)) {
-            throw new BadRequestException("You cannot delete your own account from the admin panel");
+            throw new BadRequestException("error.user.cannotDeleteSelf");
+        }
+
+        // deleteAccount tolerates a missing profile for the deleteUser hook; an admin names a listed user.
+        if (!userRepository.existsById(targetUserId)) {
+            throw new BadRequestException("error.user.notFound");
         }
 
         authIdentityDao.deleteById(targetUserId);
@@ -300,13 +324,9 @@ public class UserService {
     }
 
     public UserDto updateAccountType(UUID userId, AccountType accountType) {
-        if (accountType == null) {
-            throw new BadRequestException("Account type is required");
-        }
-
-        User user = userRepository.findById(userId)
-                .filter(u -> u.getDeletedAt() == null)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+        // The target of an admin action, not the caller: the admin's own session is fine, so no 401 here.
+        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         user.setAccountType(accountType);
         user = userRepository.save(user);
@@ -333,7 +353,7 @@ public class UserService {
                 .build();
     }
 
-    // The column is zone-less but written by nowUtc(), so UTC is the offset it was stamped with.
+    // The column is zone-less but written by Timestamps.nowUtc(), so UTC is the offset it was stamped with.
     private Instant toUtcInstant(LocalDateTime value) {
         return value == null ? null : value.toInstant(ZoneOffset.UTC);
     }

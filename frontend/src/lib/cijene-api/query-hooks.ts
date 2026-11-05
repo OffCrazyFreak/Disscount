@@ -1,12 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
 import {
-  ListChainsResponse,
-  ListStoresResponse,
-  ProductResponse,
-  ProductSearchResponse,
-  StorePricesResponse,
-  ChainStatsResponse,
-  HealthCheckResponse,
+  keepPreviousData,
+  queryOptions,
+  useQuery,
+} from "@tanstack/react-query";
+import {
   GetProductParams,
   SearchProductsParams,
   SearchStoresParams,
@@ -22,32 +19,31 @@ import {
   getChainStats,
   healthCheck,
 } from "@/lib/cijene-api/queries";
+import {
+  CIJENE_QUERY_KEYS,
+  canonicalizeStorePricesParams,
+} from "@/lib/cijene-api/keys";
 
-export function useListChains() {
-  return useQuery<ListChainsResponse, Error>({
-    queryKey: ["cijene", "chains"],
+function chainsQueryOptions() {
+  return queryOptions({
+    queryKey: CIJENE_QUERY_KEYS.chains,
     queryFn: listChains,
     staleTime: 60 * 60 * 1000, // 1 hour - chains don't change often
   });
 }
 
-export function useListStoresByChain(chainCode: string) {
-  return useQuery<ListStoresResponse, Error>({
-    queryKey: ["cijene", "stores", "chain", chainCode],
+function storesByChainQueryOptions(chainCode: string) {
+  return queryOptions({
+    queryKey: CIJENE_QUERY_KEYS.storesByChain(chainCode),
     queryFn: () => listStoresByChain(chainCode),
     enabled: Boolean(chainCode),
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
 }
 
-/**
- * Single hook that does both "search" and "list all":
- *  • useStores()        → list all
- *  • useStores(filters) → apply filters
- */
-export function useSearchStores(params?: SearchStoresParams) {
-  return useQuery<ListStoresResponse, Error>({
-    queryKey: ["cijene", "stores", params ? JSON.stringify(params) : "all"],
+function storeSearchQueryOptions(params?: SearchStoresParams) {
+  return queryOptions({
+    queryKey: CIJENE_QUERY_KEYS.storeSearch(params),
     queryFn: () => searchStores(params),
     // enable when no params or when any non-empty filter provided
     enabled:
@@ -58,92 +54,89 @@ export function useSearchStores(params?: SearchStoresParams) {
   });
 }
 
-/**
- * Cache key for a single product by EAN. Shared so callers that already hold a
- * product (e.g. product cards) can seed the cache under the exact same key that
- * useGetProductByEan reads, making a URL-driven modal open instantly.
- */
-export function productByEanQueryKey(ean: string) {
-  return ["cijene", "product", "ean", JSON.stringify({ ean })];
-}
-
-export function useGetProductByEan(params: GetProductParams) {
-  return useQuery<ProductResponse, Error>({
-    queryKey: ["cijene", "product", "ean", JSON.stringify(params)],
+export function productByEanQueryOptions(params: GetProductParams) {
+  return queryOptions({
+    queryKey: CIJENE_QUERY_KEYS.product(params),
     queryFn: () => getProductByEan(params),
     enabled: Boolean(params.ean),
     staleTime: 6 * 60 * 60 * 1000, // 6 hours
   });
 }
 
-export function useGetProductByName(params: SearchProductsParams) {
-  return useQuery<ProductSearchResponse, Error>({
-    queryKey: ["cijene", "products", "search", JSON.stringify(params)],
-    queryFn: () => getProductByName(params),
-    enabled: Boolean(params.q),
+function productSearchQueryOptions(searchParams: SearchProductsParams) {
+  const hasQuery = searchParams.q.length > 0;
+
+  return queryOptions({
+    queryKey: CIJENE_QUERY_KEYS.productSearch(searchParams),
+    queryFn: () => getProductByName(searchParams),
+    enabled: hasQuery,
+    // Old results stay on screen while the next search loads; none show while the search is cleared.
+    placeholderData: hasQuery ? keepPreviousData : undefined,
     staleTime: 6 * 60 * 60 * 1000, // 6 hours
   });
 }
 
-function canonicalizeCsv(value: string | undefined): string | undefined {
-  if (value === undefined) return undefined;
-
-  return [
-    ...new Set(
-      value
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean),
-    ),
-  ]
-    .sort()
-    .join(",");
-}
-
-export function canonicalizeStorePricesParams(
-  params: GetPricesParams,
-): GetPricesParams {
-  return {
-    ...params,
-    eans: canonicalizeCsv(params.eans) ?? "",
-    chains: canonicalizeCsv(params.chains),
-    city: params.city?.trim(),
-    address: params.address?.trim(),
-  };
-}
-
-export function storePricesQueryKey(params: GetPricesParams) {
-  return ["cijene", "prices", "search", canonicalizeStorePricesParams(params)];
-}
-
-function productStorePricesQueryKey(params: GetPricesParams) {
-  return ["cijene", "prices", "product", canonicalizeStorePricesParams(params)];
-}
-
-export function useGetPrices(params: GetPricesParams) {
+function storePricesQueryOptions(params: GetPricesParams) {
   const canonicalParams = canonicalizeStorePricesParams(params);
 
-  return useQuery<StorePricesResponse, Error>({
-    queryKey: productStorePricesQueryKey(canonicalParams),
+  return queryOptions({
+    queryKey: CIJENE_QUERY_KEYS.productStorePrices(canonicalParams),
     queryFn: () => getPrices(canonicalParams),
     enabled: Boolean(canonicalParams.eans),
     staleTime: 6 * 60 * 60 * 1000, // 6 hours
   });
 }
 
-export function useGetChainStats() {
-  return useQuery<ChainStatsResponse, Error>({
-    queryKey: ["cijene", "chain-stats"],
+function chainStatsQueryOptions() {
+  return queryOptions({
+    queryKey: CIJENE_QUERY_KEYS.chainStats,
     queryFn: getChainStats,
     staleTime: 6 * 60 * 60 * 1000, // 6 hours
   });
 }
 
-export function useHealthCheck() {
-  return useQuery<HealthCheckResponse, Error>({
-    queryKey: ["cijene", "health"],
+function healthCheckQueryOptions() {
+  return queryOptions({
+    queryKey: CIJENE_QUERY_KEYS.health,
     queryFn: healthCheck,
     staleTime: 30 * 1000, // 30 seconds
     retry: 1, // Only retry once for health checks
   });
+}
+
+export function useListChains() {
+  return useQuery(chainsQueryOptions());
+}
+
+export function useListStoresByChain(chainCode: string) {
+  return useQuery(storesByChainQueryOptions(chainCode));
+}
+
+/**
+ * Single hook that does both "search" and "list all":
+ *  • useStores()        → list all
+ *  • useStores(filters) → apply filters
+ */
+export function useSearchStores(params?: SearchStoresParams) {
+  return useQuery(storeSearchQueryOptions(params));
+}
+
+export function useGetProductByEan(params: GetProductParams) {
+  return useQuery(productByEanQueryOptions(params));
+}
+
+export function useGetProductByName(params: SearchProductsParams) {
+  return useQuery(productSearchQueryOptions({ ...params, q: params.q.trim() }));
+}
+
+export function useGetPrices(params: GetPricesParams) {
+  return useQuery(storePricesQueryOptions(params));
+}
+
+export function useGetChainStats() {
+  return useQuery(chainStatsQueryOptions());
+}
+
+export function useHealthCheck() {
+  return useQuery(healthCheckQueryOptions());
 }

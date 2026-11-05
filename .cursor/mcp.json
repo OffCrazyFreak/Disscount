@@ -1,22 +1,28 @@
 {
   "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": ["@playwright/mcp@latest"]
-    },
     "context7": {
       "command": "npx",
-      "args": ["@upstash/context7-mcp@1.0.31"]
-    },
-    "supabase": {
-      "url": "https://mcp.supabase.com/mcp"
+      "args": ["@upstash/context7-mcp@1.0.31"],
+      "env": { "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}" }
     },
     "chrome-devtools": {
       "command": "npx",
-      "args": ["--registry", "https://registry.npmjs.org", "chrome-devtools-mcp@1.4.0"]
+      "args": [
+        "--registry",
+        "https://registry.npmjs.org",
+        "chrome-devtools-mcp@1.4.0"
+      ]
+    },
+    "dokploy": {
+      "command": "npx",
+      "args": ["-y", "@dokploy/mcp@0.30.7"],
+      "env": {
+        "DOKPLOY_URL": "https://dokploy.disscount.me",
+        "DOKPLOY_API_KEY": "${DOKPLOY_API_KEY}"
+      }
     },
     "sentry": {
-      "url": "https://mcp.sentry.dev/mcp/disscount/disscount-frontend"
+      "url": "https://mcp.sentry.dev/mcp/disscount"
     }
   }
 }

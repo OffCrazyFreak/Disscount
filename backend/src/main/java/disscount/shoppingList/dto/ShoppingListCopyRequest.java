@@ -14,7 +14,7 @@ import lombok.Data;
 @Data
 public class ShoppingListCopyRequest {
 
-    @NotBlank(message = "Title is required")
+    @NotBlank(message = "{validation.title.required}")
     private String title;
 
     /** Without this the copy is just the title, which is a legitimate thing to want. */

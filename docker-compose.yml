@@ -11,8 +11,8 @@ x-frontend-build: &frontend-build
     NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
     NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-    NEXT_PUBLIC_ENABLE_REACT_SCAN: ${NEXT_PUBLIC_ENABLE_REACT_SCAN}
     NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
+    SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-local}
 
 services:
   db:
@@ -25,13 +25,15 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5433:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
-    # No host port published - reach it via the compose network (db:5432) or
-    # `docker compose exec db psql`. Add `ports: ["5433:5432"]` if you want host access.
+    # Loopback-only access lets local database tools connect without exposing Postgres
+    # to the network. Containers still reach it through the compose network at db:5432.
 
   # One-shot: apply better-auth/drizzle migrations, then exit. Uses the frontend `build`
   # stage (it has drizzle-kit + the drizzle/ folder). Hibernate creates the backend tables.
@@ -63,15 +65,23 @@ services:
       SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT}
       # Verbose SDK init/transport logging for debugging; leave unset normally
       SENTRY_DEBUG: ${SENTRY_DEBUG:-false}
+      # Photo folders inside the container and the hostname serving the public ones; blank switches photos off.
+      # Setting them locally also needs the folders mounted, or the stores stay off.
+      PHOTO_DIR: ${PHOTO_DIR:-}
+      PUBLIC_PHOTO_DIR: ${PUBLIC_PHOTO_DIR:-}
+      R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12
       start_period: 40s
+    # The backend reads better-auth columns natively, so it must not start before their migration.
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
   frontend:
     build:
@@ -93,14 +103,14 @@ services:
       EMAIL_FROM: ${EMAIL_FROM}
       CIJENE_API_URL: ${CIJENE_API_URL}
       CIJENE_API_TOKEN: ${CIJENE_API_TOKEN}
+      GEOAPIFY_API_KEY: ${GEOAPIFY_API_KEY:-}
       # Server-side reads of NEXT_PUBLIC_* at runtime. NEXT_PUBLIC_GOOGLE_CLIENT_ID is read
-      # dynamically (requireEnv) so Next can't inline it - it MUST be present at runtime.
+      # dynamically (serverEnv in src/lib/server-env.ts) so Next can't inline it - it MUST be present at runtime.
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
       NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
       NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-      NEXT_PUBLIC_ENABLE_REACT_SCAN: ${NEXT_PUBLIC_ENABLE_REACT_SCAN}
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 10s

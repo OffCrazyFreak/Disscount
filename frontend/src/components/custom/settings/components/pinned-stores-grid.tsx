@@ -1,6 +1,7 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
+import { useTranslations } from "next-intl";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
@@ -11,10 +12,11 @@ import { SettingsFormValues } from "@/components/custom/settings/settings-schema
 import { compareHr } from "@/utils/strings";
 
 export default function PinnedStoresGrid() {
+  const t = useTranslations("settings");
   const form = useFormContext<SettingsFormValues>();
   const { data: chainStats, isLoading } = cijeneService.useGetChainStats();
 
-  const selected = form.watch("pinnedStores");
+  const selected = useWatch({ control: form.control, name: "pinnedStores" });
 
   function toggleStore(chainCode: string) {
     const updated = selected.includes(chainCode)
@@ -65,7 +67,12 @@ export default function PinnedStoresGrid() {
                   </div>
                   {isSelected && (
                     <div className="absolute top-1 right-1 size-4 bg-secondary rounded-full flex items-center justify-center">
-                      <span className="text-white text-[10px]">✓</span>
+                      <span
+                        aria-hidden="true"
+                        className="text-white text-[10px]"
+                      >
+                        {t("preferences.selectedMark")}
+                      </span>
                     </div>
                   )}
                 </button>

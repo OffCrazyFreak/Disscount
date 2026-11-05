@@ -9,12 +9,12 @@ import disscount.pinnedPlace.dao.PinnedPlaceRepository;
 import disscount.pinnedPlace.domain.PinnedPlace;
 import disscount.pinnedPlace.dto.BulkPinnedPlaceRequest;
 import disscount.pinnedPlace.dto.PinnedPlaceDto;
+import disscount.pinnedPlace.dto.PinnedPlaceRequest;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,45 +25,33 @@ public class PinnedPlaceService {
     private final UserRepository userRepository;
 
     public List<PinnedPlaceDto> updatePinnedPlaces(UUID userId, BulkPinnedPlaceRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+        User user = userRepository.requireActiveForUpdate(userId);
 
-        // First, delete all existing pinned places for this user
-        List<PinnedPlace> existingPlaces = pinnedPlaceRepository.findByUserId(userId);
-        pinnedPlaceRepository.deleteAll(existingPlaces);
-        pinnedPlaceRepository.flush(); // Force the delete operation to complete before insert
+        long distinctIds = request.getPlaces().stream().map(PinnedPlaceRequest::getPlaceApiId).distinct().count();
 
-        // Check for duplicate place IDs in the request
-        long uniquePlaceIds = request.getPlaces().stream()
-                .map(placeRequest -> placeRequest.getPlaceApiId())
-                .distinct()
-                .count();
-        
-        if (uniquePlaceIds < request.getPlaces().size()) {
-            throw new BadRequestException("Duplicate place IDs found in request");
+        if (distinctIds < request.getPlaces().size()) {
+            throw new BadRequestException("error.pinnedPlace.duplicate");
         }
 
-        // Then create new pinned places
-        List<PinnedPlace> newPinnedPlaces = request.getPlaces().stream()
-                .map(placeRequest -> PinnedPlace.builder()
-                        .user(user)
-                        .placeApiId(placeRequest.getPlaceApiId())
-                        .placeName(placeRequest.getPlaceName())
-                        .build())
-                .collect(Collectors.toList());
+        pinnedPlaceRepository.deleteAllByUserId(userId);
+        pinnedPlaceRepository.flush();
 
-        List<PinnedPlace> saved = pinnedPlaceRepository.saveAll(newPinnedPlaces);
-        return saved.stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
+        List<PinnedPlace> saved = pinnedPlaceRepository.saveAll(request.getPlaces().stream()
+                .map(place -> PinnedPlace.builder()
+                        .user(user)
+                        .placeApiId(place.getPlaceApiId())
+                        .placeName(place.getPlaceName())
+                        .build())
+                .toList());
+
+        return saved.stream().map(this::mapToDto).toList();
     }
 
     @Transactional(readOnly = true)
     public List<PinnedPlaceDto> getUserPinnedPlaces(UUID userId) {
-        return pinnedPlaceRepository.findByUserId(userId)
-                .stream()
+        return pinnedPlaceRepository.findByUserId(userId).stream()
                 .map(this::mapToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private PinnedPlaceDto mapToDto(PinnedPlace pinnedPlace) {

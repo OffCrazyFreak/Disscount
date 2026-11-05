@@ -1,14 +1,17 @@
 import { z } from "zod";
 
 // Pinned Store schemas
-export const pinnedStoreRequestSchema = z.object({
-  storeApiId: z.string().min(1, "Store API ID je obavezan"),
-  storeName: z.string().min(1, "Naziv trgovine je obavezan"),
+const pinnedStoreRequestSchema = z.object({
+  storeApiId: z.string().min(1),
+  storeName: z.string().min(1),
 });
 
-export const pinnedStoreDtoSchema = pinnedStoreRequestSchema.extend({
+// Own objects, not request extensions, so form rules never reject what the server stored.
+export const pinnedStoreDtoSchema = z.object({
   id: z.string(),
   userId: z.string(),
+  storeApiId: z.string(),
+  storeName: z.string(),
 });
 
 export const bulkPinnedStoreRequestSchema = z.object({
@@ -16,37 +19,28 @@ export const bulkPinnedStoreRequestSchema = z.object({
 });
 
 // Pinned Place schemas
-export const pinnedPlaceRequestSchema = z.object({
-  placeApiId: z.string().min(1, "Place API ID je obavezan"),
-  placeName: z.string().min(1, "Naziv mjesta je obavezan"),
+const pinnedPlaceRequestSchema = z.object({
+  placeApiId: z.string().min(1),
+  placeName: z.string().min(1),
 });
 
-export const pinnedPlaceDtoSchema = pinnedPlaceRequestSchema.extend({
+export const pinnedPlaceDtoSchema = z.object({
   id: z.string(),
   userId: z.string(),
+  placeApiId: z.string(),
+  placeName: z.string(),
 });
 
 export const bulkPinnedPlaceRequestSchema = z.object({
   places: z.array(pinnedPlaceRequestSchema),
 });
 
-// Type exports
-export type PinnedStoreRequest = z.infer<typeof pinnedStoreRequestSchema>;
 export type PinnedStoreDto = z.infer<typeof pinnedStoreDtoSchema>;
 export type BulkPinnedStoreRequest = z.infer<
   typeof bulkPinnedStoreRequestSchema
 >;
 
-export type PinnedPlaceRequest = z.infer<typeof pinnedPlaceRequestSchema>;
 export type PinnedPlaceDto = z.infer<typeof pinnedPlaceDtoSchema>;
 export type BulkPinnedPlaceRequest = z.infer<
   typeof bulkPinnedPlaceRequestSchema
 >;
-
-// Combined user preferences form schema (UI-facing)
-export const userPreferencesSchema = z.object({
-  pinnedStores: z.array(z.string()),
-  pinnedPlaces: z.array(z.string()),
-});
-
-export type UserPreferencesFormType = z.infer<typeof userPreferencesSchema>;

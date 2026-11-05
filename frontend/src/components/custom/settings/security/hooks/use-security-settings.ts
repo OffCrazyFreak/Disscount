@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 
-import { authClient } from "@/lib/auth/client";
 import { useUser } from "@/context/user-context";
 import {
   buildCredentialsSchema,
@@ -13,11 +12,8 @@ import {
 } from "@/components/custom/settings/security/credentials-schema";
 import { useCredentialsSubmit } from "@/components/custom/settings/security/hooks/use-credentials-submit";
 import { usePasswordRecovery } from "@/components/custom/settings/security/hooks/use-password-recovery";
-
-interface ILinkedAccount {
-  providerId: string;
-  accountId: string;
-}
+import { useReauth } from "@/components/custom/settings/security/hooks/use-reauth";
+import { listLinkedAccounts } from "@/components/custom/settings/security/list-linked-accounts";
 
 // Lifted here so the parent's shared footer can drive submit, reset and dirty.
 export function useSecuritySettings(active: boolean) {
@@ -27,14 +23,7 @@ export function useSecuritySettings(active: boolean) {
   const query = useQuery({
     queryKey: ["linked-accounts"],
     enabled: active,
-    queryFn: async (): Promise<ILinkedAccount[]> => {
-      const { data, error } = await authClient.listAccounts();
-      if (error || !data) throw new Error("Failed to load accounts");
-      return data.map((a) => ({
-        providerId: a.providerId,
-        accountId: a.accountId,
-      }));
-    },
+    queryFn: listLinkedAccounts,
   });
 
   const accounts = query.data ?? [];
@@ -56,17 +45,22 @@ export function useSecuritySettings(active: boolean) {
     },
   });
 
-  // Keep the email field in sync with the loaded account unless mid-edit.
+  // reset, since resetField skips a field the closed tab has not registered; keepDirtyValues here, not in resetOptions, so the footer's Reset still discards edits.
   useEffect(() => {
-    if (!form.formState.dirtyFields.email) {
-      form.resetField("email", { defaultValue: currentEmail });
-    }
+    form.reset(
+      { email: currentEmail, newPassword: "", currentPassword: "" },
+      { keepDirtyValues: true, keepDirty: true },
+    );
   }, [currentEmail, form]);
+
+  // A password is the proof when the account has one; otherwise a code mailed to it.
+  const reauth = useReauth(hasPassword ? "password" : "code");
 
   const { submit } = useCredentialsSubmit({
     hasPassword,
     currentEmail,
     form,
+    reauth,
     onChanged: query.refetch,
   });
 
@@ -76,6 +70,7 @@ export function useSecuritySettings(active: boolean) {
   return {
     status: query.status,
     recovery,
+    reauth,
     accounts,
     hasPassword,
     hasLinkedSocial,

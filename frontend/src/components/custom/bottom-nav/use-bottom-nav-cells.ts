@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { useUser } from "@/context/user-context";
 import { isRouteActive } from "@/utils/routes";
 import { isNavItemLocked } from "@/constants/navigation";

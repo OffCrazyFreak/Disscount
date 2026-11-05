@@ -1,0 +1,234 @@
+{
+  "meta": {
+    "title": "Products",
+    "description": "Search products and compare prices across stores all over Croatia."
+  },
+  "clearFilters": {
+    "label": "Clear filters"
+  },
+  "addToList": {
+    "title": "Add to shopping list",
+    "description": "Choose a list, a quantity and a store.",
+    "submit": "Add",
+    "cancel": "Cancel",
+    "reset": "Reset",
+    "productNotFound": "Product not found.",
+    "removeFromList": "Remove from this list",
+    "duplicateTitle": "Already on this list",
+    "duplicateText": "This product is already on this list. Add it and the quantity goes from {current} to {next}.",
+    "toast": {
+      "pickList": "Choose or create a shopping list.",
+      "quantityIncreased": "Quantity increased on “{name}”",
+      "added": "Added to “{name}”",
+      "open": "Open",
+      "fallbackListName": "list",
+      "removed": "Product removed from the list.",
+      "removeFailed": "Couldn't remove the product. Try again."
+    }
+  },
+  "createListOption": {
+    "label": "Create “<name>{title}</name>”"
+  },
+  "markAsChecked": {
+    "label": "Mark product as bought",
+    "description": "You can change this later on the list."
+  },
+  "actionsSheet": {
+    "pricesUnavailableTitle": "Prices unavailable",
+    "pricesUnavailableText": "All actions still work. Try again for the price range.",
+    "partialPricesTitle": "Some prices unavailable",
+    "partialPricesText": "The range includes the locations whose prices we could fetch."
+  },
+  "quantity": {
+    "label": "Quantity"
+  },
+  "listSelector": {
+    "label": "Shopping list",
+    "searchPlaceholder": "Search your lists or create a new one",
+    "empty": "Type a name to create your first list here.",
+    "existingLists": "Your lists",
+    "newList": "New shopping list",
+    "updatedAt": "({date})",
+    "progress": "{checked}/{total}"
+  },
+  "listTrigger": {
+    "loading": "Loading...",
+    "createNamed": "Create new list “{title}”",
+    "choose": "Choose a list",
+    "createFirst": "Create your first list"
+  },
+  "storeChainField": {
+    "label": "Store"
+  },
+  "watchlistModal": {
+    "title": "Add to Watchlist",
+    "description": "Set a minimum discount and we'll let you know when the product reaches it.",
+    "save": "Save",
+    "track": "Add",
+    "cancel": "Cancel",
+    "reset": "Reset",
+    "productNotFound": "Product not found.",
+    "removeFromWatchlist": "Remove from Watchlist",
+    "existingTitle": "Already on your watchlist",
+    "existingBoth": "You're watching it with a minimum discount of {percentage}% and {amount, number, ::currency/EUR}.",
+    "existingPercentage": "You're watching it with a minimum discount of {percentage}%.",
+    "existingAbsolute": "You're watching it with a minimum discount of {amount, number, ::currency/EUR}.",
+    "toast": {
+      "updated": "Minimum discount changed from {from} to {to}",
+      "added": "Added to your watchlist",
+      "removedPercentage": "Percentage price alert removed",
+      "removedAbsolute": "Euro price alert removed",
+      "removeFailed": "Couldn't remove the price alert. Try again."
+    }
+  },
+  "threshold": {
+    "labelAbsolute": "Minimum discount (€):",
+    "labelPercentage": "Minimum discount (%):",
+    "loading": "Loading minimum discount",
+    "placeholderAbsolute": "E.g. 12",
+    "placeholderPercentage": "E.g. 15",
+    "willUpdate": "The minimum discount changes from {from} to {to}."
+  },
+  "typePicker": {
+    "label": "Alert me when",
+    "absolute": {
+      "label": "Price drops by €",
+      "description": "We'll tell you when the price drops by your amount"
+    },
+    "percentage": {
+      "label": "Discount is at least %",
+      "description": "We'll tell you when the discount reaches your percentage"
+    }
+  },
+  "actions": {
+    "addToList": "Add to shopping list",
+    "editListEntry": "Edit shopping list entry",
+    "watch": "Add to Watchlist",
+    "editWatch": "Edit price alert",
+    "share": "Share product",
+    "searchImage": "Search product image",
+    "group": "Product actions"
+  },
+  "facets": {
+    "stores": {
+      "label": "Stores",
+      "placeholder": "Choose stores",
+      "search": "Search stores",
+      "empty": "No stores"
+    },
+    "locations": {
+      "label": "Locations",
+      "placeholder": "Choose locations",
+      "search": "Search locations",
+      "empty": "No locations"
+    },
+    "categories": {
+      "label": "Categories",
+      "placeholder": "Choose categories",
+      "search": "Search categories",
+      "empty": "No categories"
+    },
+    "brands": {
+      "label": "Brand",
+      "placeholder": "Choose brands",
+      "search": "Search brands",
+      "empty": "No brands"
+    },
+    "count": "({count})"
+  },
+  "filtersTrigger": {
+    "label": "Filters"
+  },
+  "productInfo": {
+    "back": "Back",
+    "unknown": "Unknown",
+    "brand": "Brand:",
+    "barcode": "Barcode:",
+    "quantity": "Quantity:",
+    "prices": "Prices:",
+    "unitPrices": "Unit prices:",
+    "priceRange": "<low>{lowPrice}</low><mid> | {averagePrice} | </mid><high>{highPrice}</high>",
+    "perUnit": "{price}/{unit}",
+    "unknownProduct": "Unknown product"
+  },
+  "priceScope": {
+    "label": "About the price range",
+    "all": "Range of published prices across all stores.",
+    "chains": "Range of published prices in the filtered stores.",
+    "locations": "Range of published prices matching the selected filters."
+  },
+  "validation": {
+    "listRequired": "Choose a shopping list",
+    "amountRange": "Enter a quantity from 1 to 999",
+    "listTitleMin": "Enter a name with at least 3 characters",
+    "listTitleMax": "Enter a name of up to 100 characters",
+    "thresholdInvalid": "Enter a number, e.g. 15",
+    "percentageRange": "Enter a percentage from 1 to 99",
+    "absoluteRange": "Enter an amount from €0.10 to €999"
+  },
+  "list": {
+    "searchPlaceholder": "Search products",
+    "resultsTitle": "Search results for “{query}”",
+    "resultsTitleWithCount": "Search results for “{query}” ({count}{suffix})",
+    "resultsStatus": "{count, plural, =0 {No results} one {# result} other {# results}}{truncated, select, yes { or more} other {}}",
+    "partialPricesTitle": "Some prices unavailable",
+    "partialPricesText": "We don't have prices for some of your locations right now, so we're showing the rest.",
+    "errorTitle": "Search failed",
+    "errorText": "We couldn't load the products. Try again.",
+    "noResultsForFilters": "No results for the selected filters",
+    "noPriceInLocationsTitle": "{count, plural, one {No prices in the place you picked} other {No prices in the places you picked}}",
+    "noPriceInLocationsText": "{count, plural, other {We found products, but no store in {locations} has a published price for them.}}",
+    "showAllLocations": "Show prices across Croatia",
+    "clearFilters": "Clear filters",
+    "enterQueryTitle": "Enter a search term",
+    "enterQueryText": "Your filters are ready. Type a search term to see results.",
+    "startTitle": "Search products",
+    "startText": "Type what you're looking for",
+    "noResultsAddPlain": "We found no product by that name. You can still add it to a list.",
+    "addPlainItem": "Add “{query}” to a list"
+  },
+  "viewSwitcher": {
+    "label": "View",
+    "grid": "Grid view",
+    "list": "List view"
+  },
+  "storePrice": {
+    "empty": "No price drops",
+    "line": "<chainName>{chain}</chainName> ~ {price} (-{discount}, {percentage}%)"
+  },
+  "quickActions": {
+    "titleFallback": "Product actions",
+    "description": "Actions for the selected product.",
+    "notFound": "We couldn't find that product. It may no longer be stocked."
+  },
+  "productsSheet": {
+    "submit": "Search",
+    "title": "Find products",
+    "description": "Type a product name or scan a barcode."
+  },
+  "price": {
+    "increase": "+{amount}",
+    "percentage": "({percentage}%)"
+  },
+  "productPrice": {
+    "unknown": "Price unknown"
+  },
+  "historyPeriod": {
+    "week": "1W",
+    "month": "1M",
+    "year": "1Y",
+    "all": "All"
+  },
+  "storeChainSelect": {
+    "multiPlaceholder": "Choose stores"
+  },
+  "addPlainItem": {
+    "title": "Add an item to a list",
+    "description": "It has no price, but stays on the list so you don't forget it.",
+    "nameLabel": "Name",
+    "toast": {
+      "added": "Item added to “{name}”",
+      "quantityIncreased": "Item amount increased in “{name}”"
+    }
+  }
+}

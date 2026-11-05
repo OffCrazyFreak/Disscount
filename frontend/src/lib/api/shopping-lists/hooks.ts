@@ -1,6 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useIsMutating,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
+import { sharedListRefetchInterval } from "@/lib/api/shopping-lists/shared-list-polling";
 import {
   deleteWriteFailed,
   listWriteFailed,
@@ -36,6 +43,7 @@ import {
   deleteShoppingListItem,
   getAllUserShoppingListItems,
 } from "@/lib/api/shopping-lists/queries";
+import { useTranslations } from "next-intl";
 
 export function useCreateShoppingList() {
   const queryClient = useQueryClient();
@@ -49,31 +57,53 @@ export function useCreateShoppingList() {
   });
 }
 
+function currentUserShoppingListsQueryOptions() {
+  return queryOptions({
+    queryKey: SHOPPING_LIST_QUERY_KEYS.me,
+    queryFn: getCurrentUserShoppingLists,
+  });
+}
+
+// Shorter than the rest of the app wants, because this route serves link visitors as
+// well as the owner and two people can be shopping off one list. A shared list also
+// polls so their ticks show up live; a private one only refetches on focus, a remount
+// or an invalidation. Ticks skip a hidden tab, since refetchIntervalInBackground is off.
+function shoppingListByIdQueryOptions(id: string) {
+  return queryOptions({
+    queryKey: SHOPPING_LIST_QUERY_KEYS.byId(id),
+    queryFn: () => getShoppingListById(id),
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+  });
+}
+
+function allUserShoppingListItemsQueryOptions() {
+  return queryOptions({
+    queryKey: SHOPPING_LIST_QUERY_KEYS.myItems,
+    queryFn: getAllUserShoppingListItems,
+  });
+}
+
 export function useGetCurrentUserShoppingLists({
   enabled = true,
 }: { enabled?: boolean } = {}) {
-  return useQuery<ShoppingListDto[], Error>({
-    queryKey: SHOPPING_LIST_QUERY_KEYS.me,
-    queryFn: getCurrentUserShoppingLists,
-    enabled,
-  });
+  return useQuery({ ...currentUserShoppingListsQueryOptions(), enabled });
 }
 
 // enabled is explicit so a caller that does not want this query can say so, rather than
 // passing an empty id and minting a ["shoppingLists", ""] entry shaped like a real one.
 export function useGetShoppingListById(id: string, { enabled = true } = {}) {
-  return useQuery<ShoppingListDto, Error>({
-    queryKey: SHOPPING_LIST_QUERY_KEYS.byId(id),
-    queryFn: () => getShoppingListById(id),
+  // Subscribed rather than read with queryClient.isMutating inside refetchInterval: the
+  // interval is only recomputed on a render or a query update, and a write that fails
+  // without invalidating the list triggers neither once it settles, so polling would stay off.
+  const isWritingLists =
+    useIsMutating({ mutationKey: SHOPPING_LIST_QUERY_KEYS.all }) > 0;
+
+  return useQuery({
+    ...shoppingListByIdQueryOptions(id),
     enabled: enabled && !!id && id !== "new",
-    // Shorter than the rest of the app wants, because this route serves link visitors as
-    // well as the owner and two people can be shopping off one list. It is not live: with
-    // both tabs focused and untouched nothing refetches, since staleTime only marks the
-    // data stale and the refetch needs focus, a remount or an invalidation. Making it live
-    // needs refetchInterval or a push channel, and neither is worth the battery until
-    // somebody asks.
-    staleTime: 30_000,
-    refetchOnWindowFocus: true,
+    refetchInterval: (query) =>
+      sharedListRefetchInterval(query, isWritingLists),
   });
 }
 
@@ -149,6 +179,7 @@ export function useAddItemToShoppingList() {
 }
 
 export function useUpdateShoppingListItem() {
+  const tUi = useTranslations("ui");
   const queryClient = useQueryClient();
   const invalidate = useInvalidateListsAndItems();
 
@@ -179,7 +210,7 @@ export function useUpdateShoppingListItem() {
     // ever explained itself.
     onError: (error, { listId }, rollback) => {
       restoreItem(queryClient, SHOPPING_LIST_QUERY_KEYS.byId(listId), rollback);
-      listWriteFailed(error);
+      listWriteFailed(error, tUi);
     },
     // onSettled, not onSuccess: a rolled-back cache has to reconcile with the server too.
     onSettled: invalidate,
@@ -187,6 +218,7 @@ export function useUpdateShoppingListItem() {
 }
 
 export function useDeleteShoppingListItem() {
+  const tUi = useTranslations("ui");
   const queryClient = useQueryClient();
   const invalidate = useInvalidateListsAndItems();
 
@@ -206,16 +238,12 @@ export function useDeleteShoppingListItem() {
       ),
     onError: (error, { listId }, rollback) => {
       restoreItem(queryClient, SHOPPING_LIST_QUERY_KEYS.byId(listId), rollback);
-      deleteWriteFailed(error);
+      deleteWriteFailed(error, tUi);
     },
     onSettled: invalidate,
   });
 }
 
 export function useGetAllUserShoppingListItems({ enabled = true } = {}) {
-  return useQuery<ShoppingListItemDto[], Error>({
-    queryKey: SHOPPING_LIST_QUERY_KEYS.myItems,
-    queryFn: getAllUserShoppingListItems,
-    enabled,
-  });
+  return useQuery({ ...allUserShoppingListItemsQueryOptions(), enabled });
 }

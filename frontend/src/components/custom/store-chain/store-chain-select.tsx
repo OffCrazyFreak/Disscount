@@ -7,9 +7,11 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { getChainLabel } from "@/utils/labels";
-import { compareHr } from "@/utils/strings";
-import { useEffect, useRef, useState } from "react";
+import { formatPrice } from "@/utils/price";
+import { availableChainCodes } from "@/components/custom/store-chain/store-chain-codes";
+import { suggestedChain } from "@/components/custom/store-chain/suggested-chain";
 import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 
 interface IStoreChainSelectProps {
   value: string | null | undefined;
@@ -35,6 +37,12 @@ function computePriceDifference(storePrice: number, averagePrice: number) {
   };
 }
 
+function diffColorClass(difference: number) {
+  if (difference > 0) return "text-red-700";
+  if (difference < 0) return "text-green-700";
+  return "text-gray-500";
+}
+
 export default function StoreChainSelect({
   value,
   onChange,
@@ -47,36 +55,11 @@ export default function StoreChainSelect({
   describedById,
   className,
 }: IStoreChainSelectProps) {
-  const [displayValue, setDisplayValue] = useState<string>(value || "");
-  const autoSelectedForRef = useRef<string | null>(null);
+  const t = useTranslations("products");
+  const locale = useLocale();
+  // Shown as the placeholder, outside `value`, so picking that same chain counts as a change.
+  const suggested = suggestedChain(value, isChecked, defaultValue);
 
-  // The effect is here for onChange, which is a real side effect and cannot move
-  // into render. The ref guard is what stops a mutation rollback, where `value`
-  // reverts to empty, from re-firing it in a toast storm.
-  //
-  // The two setDisplayValue branches below are just `value || ""` and could be
-  // derived. They are kept so the select shows the auto-selected chain in the same
-  // commit as the onChange, rather than blank until the parent echoes the value
-  // back. That is the only behavioural difference, and it is worth one directive.
-  useEffect(() => {
-    if (
-      !value &&
-      defaultValue &&
-      !disabled &&
-      autoSelectedForRef.current !== defaultValue
-    ) {
-      autoSelectedForRef.current = defaultValue;
-      setDisplayValue(defaultValue);
-      onChange(defaultValue);
-    } else if (value) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setDisplayValue(value);
-    } else {
-      setDisplayValue("");
-    }
-  }, [value, defaultValue, onChange, disabled]);
-
-  // Calculate price difference for a store
   const getPriceDifference = (chainCode: string) => {
     // When item is checked, use database prices
     if (isChecked) {
@@ -92,68 +75,68 @@ export default function StoreChainSelect({
     return computePriceDifference(storePrices[chainCode], averagePrice);
   };
 
-  // Built from live price data, so even chains we have not mapped stay selectable.
-  // When checked, only the chosen store is offered; otherwise all priced stores plus the current selection.
-  const availableChainCodes = (
-    isChecked
-      ? value
-        ? [value]
-        : []
-      : Array.from(
-          new Set([...Object.keys(storePrices), ...(value ? [value] : [])]),
-        )
-  ).sort((a, b) => compareHr(getChainLabel(a), getChainLabel(b)));
+  const chainCodes = availableChainCodes(isChecked, value, storePrices);
 
   return (
-    <Select value={displayValue} onValueChange={onChange} disabled={disabled}>
+    <Select value={value || ""} onValueChange={onChange} disabled={disabled}>
       <SelectTrigger
         aria-describedby={describedById}
         className={cn("min-w-0 text-xs sm:text-sm", className)}
       >
-        <SelectValue placeholder="Trgovina" />
+        <SelectValue
+          placeholder={
+            suggested ? (
+              <span lang="hr">{getChainLabel(suggested)}</span>
+            ) : (
+              t("storeChainField.label")
+            )
+          }
+        />
       </SelectTrigger>
 
       <SelectContent>
-        {availableChainCodes.map((chainCode) => {
+        {chainCodes.map((chainCode) => {
           const priceDifference = getPriceDifference(chainCode);
 
-          // Determine color based on difference (positive = red, negative = green)
-          const diffColorClass = priceDifference
-            ? parseFloat(priceDifference.difference) > 0
-              ? "text-red-700"
-              : parseFloat(priceDifference.difference) < 0
-                ? "text-green-700"
-                : "text-gray-500"
-            : "text-gray-500";
+          // Positive = red, negative = green
+          const differenceValue = priceDifference
+            ? parseFloat(priceDifference.difference)
+            : 0;
+          const colorClass = diffColorClass(differenceValue);
+          const differenceLabel =
+            differenceValue > 0
+              ? t("price.increase", {
+                  amount: formatPrice(differenceValue, locale),
+                })
+              : formatPrice(differenceValue, locale);
 
           return (
             <SelectItem key={chainCode} value={chainCode}>
               <div className="flex items-center gap-2 w-full">
-                <span>{getChainLabel(chainCode)}</span>
+                <span lang="hr">{getChainLabel(chainCode)}</span>
 
                 {priceDifference && (
                   <span
                     className={cn(
                       "text-xs flex items-center gap-1",
-                      diffColorClass,
+                      colorClass,
                     )}
                   >
+                    <span>{differenceLabel}</span>
+
                     <span>
-                      {parseFloat(priceDifference.difference) > 0 && "+"}
-                      {priceDifference.difference}€
+                      {t("price.percentage", {
+                        percentage: priceDifference.percentage,
+                      })}
                     </span>
 
-                    <span>({priceDifference.percentage}%)</span>
-
-                    {parseFloat(priceDifference.difference) !== 0 &&
-                      (parseFloat(priceDifference.difference) < 0 ? (
+                    {differenceValue !== 0 &&
+                      (differenceValue < 0 ? (
                         <ArrowBigDownDash
-                          className={cn("size-4", diffColorClass)}
+                          className={cn("size-4", colorClass)}
                         />
                       ) : (
-                        <ArrowBigUpDash
-                          className={cn("size-4", diffColorClass)}
-                        />
+                        <ArrowBigUpDash className={cn("size-4", colorClass)} />
                       ))}
                   </span>
                 )}

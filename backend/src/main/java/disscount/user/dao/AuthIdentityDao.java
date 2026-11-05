@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import disscount.user.dto.AuthIdentity;
 
@@ -29,15 +30,16 @@ public class AuthIdentityDao {
     @PersistenceContext
     private EntityManager entityManager;
 
+    // last_login_at outlives deleted sessions; GREATEST skips NULLs, covering unstamped users and a failed stamp.
     @SuppressWarnings("unchecked")
     public Map<UUID, AuthIdentity> findByUserIds(List<UUID> ids) {
         List<Object[]> rows = entityManager
                 .createNativeQuery("""
-                        SELECT u.id, u.email, MAX(s.created_at), MAX(s.updated_at)
+                        SELECT u.id, u.email, GREATEST(u.last_login_at, MAX(s.created_at)), MAX(s.updated_at)
                         FROM "user" u
                         LEFT JOIN "session" s ON s.user_id = u.id
                         WHERE u.id IN (:ids)
-                        GROUP BY u.id, u.email
+                        GROUP BY u.id, u.email, u.last_login_at
                         """)
                 .setParameter("ids", ids)
                 .getResultList();
@@ -52,10 +54,34 @@ public class AuthIdentityDao {
         return identitiesById;
     }
 
+    @SuppressWarnings("unchecked")
+    public List<UUID> findAllIds() {
+        return entityManager.createNativeQuery("SELECT id FROM \"user\"").getResultList();
+    }
+
     /** Removes the identity, which cascades its sessions and accounts. */
+    @Transactional
     public void deleteById(UUID userId) {
         entityManager.createNativeQuery("DELETE FROM \"user\" WHERE id = :id")
                 .setParameter("id", userId)
+                .executeUpdate();
+    }
+
+    @Transactional
+    public int deleteSessionsExpiredBefore(LocalDateTime cutoff) {
+        return entityManager.createNativeQuery("DELETE FROM \"session\" WHERE expires_at < :cutoff")
+                .setParameter("cutoff", cutoff)
+                .executeUpdate();
+    }
+
+    // better-auth writes the address once at sign-in, so a sliding session would otherwise keep it for good.
+    @Transactional
+    public int clearSessionIpAddressesCreatedBefore(LocalDateTime cutoff) {
+        return entityManager.createNativeQuery("""
+                        UPDATE "session" SET ip_address = NULL
+                        WHERE created_at < :cutoff AND ip_address IS NOT NULL
+                        """)
+                .setParameter("cutoff", cutoff)
                 .executeUpdate();
     }
 

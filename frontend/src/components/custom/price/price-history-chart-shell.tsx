@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactElement, ReactNode } from "react";
+import { useLocale } from "next-intl";
 import { CartesianGrid, LineChart, XAxis, YAxis } from "recharts";
 import {
   ChartConfig,
@@ -9,6 +10,8 @@ import {
 } from "@/components/ui/chart";
 import { ChartDataPoint } from "@/typings/chart-data";
 import { useTouchTooltipDismiss } from "@/hooks/use-touch-tooltip-dismiss";
+import { formatPrice } from "@/utils/price";
+import { formatDate, formatDayMonth } from "@/utils/strings";
 
 interface IPriceHistoryChartShellProps {
   chartData: ChartDataPoint[];
@@ -26,6 +29,7 @@ export default function PriceHistoryChartShell({
   tooltipContent,
   children,
 }: IPriceHistoryChartShellProps) {
+  const locale = useLocale();
   const { tooltipActive, touchHandlers } = useTouchTooltipDismiss();
 
   return (
@@ -38,16 +42,14 @@ export default function PriceHistoryChartShell({
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          tickFormatter={(value) =>
-            typeof value === "string" ? value.slice(0, -5) : String(value)
-          }
+          tickFormatter={(value) => formatDayMonth(String(value), locale)}
         />
 
         <YAxis
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          tickFormatter={(value) => `${value.toFixed(2)} €`}
+          tickFormatter={(value) => formatPrice(Number(value), locale)}
           domain={([dataMin, dataMax]) => {
             const padding = 0.05;
             return [dataMin * (1 - padding), dataMax * (1 + padding)];
@@ -58,6 +60,7 @@ export default function PriceHistoryChartShell({
         <ChartTooltip
           active={tooltipActive}
           cursor={true}
+          labelFormatter={(value) => formatDate(String(value), locale)}
           content={tooltipContent}
         />
 

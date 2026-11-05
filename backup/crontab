@@ -1,0 +1,15 @@
+# Times are UTC. Minutes are staggered so jobs never share the database or the uplink.
+CRON_TZ=UTC
+
+# Database: hourly dumps (R2 keeps them 2 days) and a nightly dump with globals and a scratch restore (30 days).
+17 * * * * backup-job db-hourly
+47 1 * * * backup-job db-nightly
+
+# Photos: hourly copy of new files into the current 14-day generation; the first run of a generation copies everything.
+37 * * * * backup-job photos
+
+# Dokploy: its own database and /etc/dokploy, nightly (30 days).
+27 2 * * * backup-job dokploy
+
+# Erasure markers: every minute, so an account deleted after the last dump is still erased again after a restore (30 days).
+* * * * * backup-job erasure-markers

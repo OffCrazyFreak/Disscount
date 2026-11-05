@@ -1,7 +1,7 @@
 "use client";
 
+import { usePathname } from "@/i18n/navigation";
 import { Suspense, useState } from "react";
-import { usePathname } from "next/navigation";
 import { SidebarMenuItem, SidebarMenuSub } from "@/components/ui/sidebar";
 import SidebarProductNavShell from "@/components/custom/sidebar/sidebar-product-nav-shell";
 import SidebarNavItem from "@/components/custom/sidebar/sidebar-nav-item";

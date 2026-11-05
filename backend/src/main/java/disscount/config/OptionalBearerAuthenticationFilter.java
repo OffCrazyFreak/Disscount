@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -59,7 +59,9 @@ public class OptionalBearerAuthenticationFilter extends OncePerRequestFilter {
                 && header.regionMatches(true, 0, BEARER_PREFIX, 0, BEARER_PREFIX.length())) {
             try {
                 Jwt jwt = jwtDecoder.decode(header.substring(BEARER_PREFIX.length()));
-                SecurityContextHolder.getContext().setAuthentication(converter.convert(jwt));
+                if (!TokenPurpose.isPurposeScoped(jwt)) {
+                    SecurityContextHolder.getContext().setAuthentication(converter.convert(jwt));
+                }
             } catch (JwtException ignored) {
                 // Expired, malformed or issued elsewhere. The caller keeps whatever the link
                 // grants an anonymous visitor, which the access resolver caps at VIEW.

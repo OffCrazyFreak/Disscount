@@ -1,0 +1,49 @@
+name: Rollback
+
+# GitHub only offers this manual trigger once the file is on the default branch (main).
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to roll back
+        required: true
+        type: choice
+        options: [dev, prod]
+        default: dev
+      sha:
+        description: Full commit SHA of an earlier build from that environment's branch
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  rollback:
+    name: Roll back ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ vars.NEXT_PUBLIC_APP_URL }}
+    # Shares the deploy group, so tags never move while a deploy is running.
+    concurrency:
+      group: deploy-${{ inputs.environment }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/actions
+
+      - uses: ./.github/actions/dokploy-deploy
+        with:
+          release-id: ${{ inputs.sha }}
+          environment-tag: ${{ inputs.environment }}
+          registry-token: ${{ secrets.GITHUB_TOKEN }}
+          dokploy-url: ${{ secrets.DOKPLOY_URL }}
+          api-key: ${{ secrets.DOKPLOY_API_KEY }}
+          compose-id: ${{ secrets.DOKPLOY_COMPOSE_ID }}
+          app-url: ${{ vars.NEXT_PUBLIC_APP_URL }}

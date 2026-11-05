@@ -1,5 +1,6 @@
 package disscount.shoppingListItem.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 
 import jakarta.validation.constraints.Max;
@@ -11,28 +12,36 @@ import lombok.Data;
 @Data
 public class ShoppingListItemRequest {
 
-    @NotBlank(message = "EAN is required")
+    @Schema(nullable = true)
     private String ean;
 
+    @Schema(nullable = true)
     private String brand;
 
-    @NotBlank(message = "Product name is required")
+    @NotBlank(message = "{validation.productName.required}")
     private String name;
 
+    @Schema(nullable = true)
     private String quantity;
 
+    @Schema(nullable = true)
     private String unit;
 
-    @Min(value = 1, message = "Amount must be at least 1")
-    @Max(value = 999, message = "Amount must not exceed 999")
+    @Min(value = 1, message = "{validation.amount.min}")
+    @Max(value = 999, message = "{validation.amount.max}")
+    @Schema(nullable = true)
     private Integer amount = 1;
 
+    @Schema(nullable = true)
     private Boolean isChecked = false;
 
     // Free-form cijene chain slug (e.g. "konzum", "trgovina-krk"); validate only
     // the format, never against a fixed list, so new upstream chains never break.
-    @Pattern(regexp = "^[a-z0-9_-]+$", message = "Invalid chain code")
+    @Pattern(regexp = "^[a-z0-9_-]+$", message = "{validation.chainCode.invalid}")
+    @Schema(nullable = true)
     private String chainCode;
+    @Schema(nullable = true)
     private BigDecimal avgPrice;
+    @Schema(nullable = true)
     private BigDecimal storePrice;
 }

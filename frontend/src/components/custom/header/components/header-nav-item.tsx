@@ -1,15 +1,19 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
+import { formatBadgeCount } from "@/utils/badge-count";
 import { isRouteActive } from "@/utils/routes";
 import type { INavigationItem } from "@/constants/navigation";
 
 interface IHeaderNavItemProps {
   item: INavigationItem;
   pathname: string;
-  hasNotifications: boolean;
-  notificationCount: number;
+  badgeCount?: number;
+  /** The link's accessible name while it shows a count, so the number is not visual only */
+  badgeLabel?: string;
   /** A coming-soon item nobody but an admin may open */
   isLocked?: boolean;
 }
@@ -17,13 +21,14 @@ interface IHeaderNavItemProps {
 export default function HeaderNavItem({
   item,
   pathname,
-  hasNotifications,
-  notificationCount,
+  badgeCount,
+  badgeLabel,
   isLocked = false,
 }: IHeaderNavItemProps) {
+  const t = useTranslations("shell");
   const Icon = item.icon;
   const isActive = isRouteActive(pathname, item.href);
-  const label = item.shortLabel ?? item.label;
+  const label = t(item.shortLabelKey ?? item.labelKey);
 
   const comingSoonBadge = item.comingSoon && (
     <ComingSoonBadge className="absolute -top-4.5 -right-7 rotate-6" />
@@ -51,6 +56,7 @@ export default function HeaderNavItem({
         href={item.href}
         // The bold primary colour says "current" to a sighted user only.
         aria-current={isActive ? "page" : undefined}
+        aria-label={badgeCount !== undefined ? badgeLabel : undefined}
         className={cn(
           "flex items-center space-x-2 text-muted-foreground hover:text-accent-foreground duration-150 group hover:scale-110 relative",
           isActive && "font-bold text-primary",
@@ -73,9 +79,13 @@ export default function HeaderNavItem({
 
           {comingSoonBadge}
 
-          {item.badge && hasNotifications && (
-            <Badge size="count" className="absolute -top-2 -right-4">
-              {notificationCount}
+          {badgeCount !== undefined && (
+            <Badge
+              size="count"
+              aria-hidden="true"
+              className="absolute -top-2 -right-4"
+            >
+              {formatBadgeCount(badgeCount)}
             </Badge>
           )}
         </span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useProductsSheet } from "@/context/products-sheet-context";
 import useTabReentry from "@/hooks/use-tab-reentry";
 import type { IBottomNavCell } from "@/components/custom/bottom-nav/use-bottom-nav-cells";
@@ -17,8 +17,8 @@ export default function useBottomNavActivation(cells: IBottomNavCell[]) {
   function activate(index: number): boolean {
     const { entry, isActive, isLocked } = cells[index];
 
-    // The sheet is non-modal, which vaul takes to mean no press outside it may
-    // dismiss it, so the bar is the only thing that can close it again.
+    // The sheet is non-modal and ignores presses outside it, so the bar is the
+    // only thing on the page that can close it again.
     if (entry.isSearch) {
       if (isOpen) close();
       else open();

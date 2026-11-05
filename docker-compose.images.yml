@@ -1,0 +1,251 @@
+# Image-based stack for Dokploy: GitHub Actions builds and pushes the images to GHCR, so the
+# server only pulls them. Same services, networks and environment as docker-compose.prod.yml,
+# which the environments not yet moved to this file keep building on the server.
+# IMAGE_TAG is the moving tag per environment (dev or prod); /health reports the exact commit.
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # One-shot drizzle migration (better-auth tables); Hibernate creates the app tables.
+  migrate:
+    image: ghcr.io/offcrazyfreak/disscount-migrator:${IMAGE_TAG:?IMAGE_TAG must be set}
+    # The tag moves, so a cached copy would silently redeploy the previous build.
+    pull_policy: always
+    restart: "no"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    networks: [internal]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  backend:
+    image: ghcr.io/offcrazyfreak/disscount-backend:${IMAGE_TAG:?IMAGE_TAG must be set}
+    pull_policy: always
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      BETTER_AUTH_JWKS_URI: ${BETTER_AUTH_JWKS_URI}
+      BETTER_AUTH_ISSUER: ${BETTER_AUTH_ISSUER}
+      SENTRY_DSN: ${SENTRY_DSN}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT}
+      # Verbose SDK init/transport logging for debugging; leave unset normally
+      SENTRY_DEBUG: ${SENTRY_DEBUG:-false}
+      # The image hostname that serves public product photos; blank switches them off.
+      R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
+      # Photo folders on the two photo volumes; blank switches those photos off (docs/PRODUCT-IMAGES.md).
+      PHOTO_DIR: ${PHOTO_DIR:-}
+      PUBLIC_PHOTO_DIR: ${PUBLIC_PHOTO_DIR:-}
+    volumes:
+      - photos-private:/data/photos-private
+      - photos-public:/data/photos-public
+    networks: [internal]
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:8080/actuator/health || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    # The backend reads better-auth columns natively, so it must not start before their migration.
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      photo-folders:
+        condition: service_completed_successfully
+
+  # The backend never creates its top folders, so a forgotten volume leaves a store off instead of
+  # writing into the container layer. Created here, owned by the backend's uid 1001.
+  photo-folders:
+    image: alpine:3.22
+    restart: "no"
+    network_mode: none
+    volumes:
+      - photos-private:/data/photos-private
+      - photos-public:/data/photos-public
+    command:
+      - sh
+      - -c
+      - >-
+        mkdir -p /data/photos-private/cards /data/photos-private/product-originals /data/photos-public/products &&
+        chown 1001:999 /data/photos-private /data/photos-private/cards /data/photos-private/product-originals /data/photos-public /data/photos-public/products &&
+        chmod 700 /data/photos-private /data/photos-private/cards /data/photos-private/product-originals &&
+        chmod 755 /data/photos-public /data/photos-public/products
+
+  # Serves the public product photos on the image hostname (R2_PUBLIC_URL); read-only.
+  images:
+    image: nginx:1.28-alpine
+    restart: unless-stopped
+    volumes:
+      - photos-public:/data/photos-public:ro
+    configs:
+      - source: images_nginx
+        target: /etc/nginx/conf.d/default.conf
+    expose:
+      - "80"
+    networks: [dokploy-network]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    depends_on:
+      photo-folders:
+        condition: service_completed_successfully
+
+  frontend:
+    image: ghcr.io/offcrazyfreak/disscount-frontend:${IMAGE_TAG:?IMAGE_TAG must be set}
+    pull_policy: always
+    restart: unless-stopped
+    environment:
+      # Runtime secrets (server-only)
+      DATABASE_URL: ${DATABASE_URL}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      FACEBOOK_CLIENT_ID: ${FACEBOOK_CLIENT_ID}
+      FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_SECRET}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      EMAIL_FROM: ${EMAIL_FROM}
+      CIJENE_API_URL: ${CIJENE_API_URL}
+      CIJENE_API_TOKEN: ${CIJENE_API_TOKEN}
+      GEOAPIFY_API_KEY: ${GEOAPIFY_API_KEY:-}
+      # NEXT_PUBLIC_* also read server-side at runtime
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
+      NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+    expose:
+      - "3000"
+    networks: [internal, dokploy-network]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      backend:
+        condition: service_healthy
+
+  # Scheduled encrypted backups to R2 (docs/BACKUPS.md). Only runs where COMPOSE_PROFILES includes backup.
+  backup:
+    image: ghcr.io/offcrazyfreak/disscount-backup:${IMAGE_TAG:?IMAGE_TAG must be set}
+    pull_policy: always
+    restart: unless-stopped
+    profiles: [backup]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      BACKUP_R2_ENDPOINT: ${BACKUP_R2_ENDPOINT:-}
+      BACKUP_R2_BUCKET: ${BACKUP_R2_BUCKET:-}
+      BACKUP_R2_ACCESS_KEY_ID: ${BACKUP_R2_ACCESS_KEY_ID:-}
+      BACKUP_AGE_RECIPIENT: ${BACKUP_AGE_RECIPIENT:-}
+    # Files under /run/secrets, so these stay out of `docker inspect` and the container's environment.
+    secrets:
+      - postgres_password
+      - backup_r2_secret_access_key
+      - backup_crypt_password
+      - backup_crypt_salt
+      - backup_healthchecks_ping_key
+      - backup_dokploy_db_password
+      - backup_erasure_hmac_key
+    volumes:
+      - photos-private:/data/photos-private:ro
+      - photos-public:/data/photos-public:ro
+      - /etc/dokploy:/host/etc/dokploy:ro
+    # dokploy-network reaches Dokploy's own database for the nightly config backup.
+    networks: [internal, dokploy-network]
+    # Lets a running dump or upload finish when a deploy replaces the container.
+    stop_grace_period: 10m
+    # erasure-markers touches the heartbeat on every successful run, once a minute.
+    healthcheck:
+      test: ["CMD-SHELL", "find /tmp/backup-heartbeat -mmin -5 | grep -q ."]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 3m
+    depends_on:
+      db:
+        condition: service_healthy
+      # The backend creates erasure_ledger on its first boot; until then erasure-markers would fail every minute.
+      backend:
+        condition: service_healthy
+
+networks:
+  internal:
+  dokploy-network:
+    external: true
+
+volumes:
+  pgdata:
+  photos-private:
+  photos-public:
+
+configs:
+  # No $ variables in here: Compose would interpolate them.
+  images_nginx:
+    content: |
+      server {
+        listen 80;
+        server_tokens off;
+        root /data/photos-public;
+        autoindex off;
+        location = /healthz { access_log off; return 200; }
+        # Unfinished writes are .tmp-* files beside their target.
+        location ~ /\. { return 404; }
+        # Keys carry a hash of their bytes, so a cached copy can never go stale.
+        location /products/ {
+          add_header Cache-Control "public, max-age=31536000, immutable";
+          add_header X-Content-Type-Options nosniff;
+        }
+        location / { return 404; }
+      }
+
+secrets:
+  postgres_password:
+    environment: POSTGRES_PASSWORD
+  backup_r2_secret_access_key:
+    environment: BACKUP_R2_SECRET_ACCESS_KEY
+  backup_crypt_password:
+    environment: BACKUP_CRYPT_PASSWORD
+  backup_crypt_salt:
+    environment: BACKUP_CRYPT_SALT
+  backup_healthchecks_ping_key:
+    environment: BACKUP_HEALTHCHECKS_PING_KEY
+  backup_dokploy_db_password:
+    environment: BACKUP_DOKPLOY_DB_PASSWORD
+  backup_erasure_hmac_key:
+    environment: BACKUP_ERASURE_HMAC_KEY

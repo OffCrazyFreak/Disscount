@@ -1,0 +1,150 @@
+package disscount.shoppingListItem.service;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.context.annotation.Import;
+
+import disscount.shoppingList.dao.ShoppingListRepository;
+import disscount.shoppingList.domain.ShoppingList;
+import disscount.shoppingList.service.ShoppingListAccessService;
+import disscount.shoppingList.service.ShoppingListMapper;
+import disscount.shoppingList.service.ShoppingListService;
+import disscount.shoppingListItem.dao.ShoppingListItemRepository;
+import disscount.shoppingListItem.domain.ShoppingListItem;
+import disscount.shoppingListItem.dto.ShoppingListItemDto;
+import disscount.shoppingListItem.dto.ShoppingListItemRequest;
+import disscount.user.dao.UserRepository;
+import disscount.user.domain.User;
+import disscount.util.Timestamps;
+
+import java.util.List;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@DataJpaTest(showSql = false)
+@Import({
+        ShoppingListItemService.class,
+        ShoppingListService.class,
+        ShoppingListAccessService.class,
+        ShoppingListMapper.class,
+})
+class ShoppingListItemServiceAddTest {
+
+    @Autowired ShoppingListItemService service;
+    @Autowired ShoppingListItemRepository items;
+    @Autowired ShoppingListRepository lists;
+    @Autowired UserRepository users;
+
+    User owner;
+    ShoppingList list;
+
+    @BeforeEach
+    void setUp() {
+        owner = users.save(User.builder().id(UUID.randomUUID()).username("ana").build());
+        list = lists.save(ShoppingList.builder()
+                .owner(owner)
+                .title("Vikend")
+                .createdAt(Timestamps.nowUtc())
+                .updatedAt(Timestamps.nowUtc())
+                .build());
+    }
+
+    @Test
+    void aPlainItemIsSavedWithoutAnEan() {
+        ShoppingListItemDto added = add(null, "Staklenke", 2);
+
+        assertThat(added.getEan()).isNull();
+        assertThat(added.getAmount()).isEqualTo(2);
+    }
+
+    @Test
+    void aBlankEanIsStoredAsNull() {
+        add("  ", "Staklenke", 1);
+
+        assertThat(activeItems()).extracting(ShoppingListItem::getEan).containsExactly((String) null);
+    }
+
+    @Test
+    void plainItemsMergeIgnoringCaseAndOuterSpaces() {
+        add(null, "Čaše za vino", 1);
+        add(null, "  čaše ZA vino ", 2);
+
+        assertThat(activeItems()).singleElement().satisfies(item -> {
+            assertThat(item.getName()).isEqualTo("Čaše za vino");
+            assertThat(item.getAmount()).isEqualTo(3);
+        });
+    }
+
+    @Test
+    void twoProductsWithTheSameNameStayTwoRows() {
+        add("3850000000001", "Mlijeko 1L", 1);
+        add("3850000000002", "Mlijeko 1L", 1);
+
+        assertThat(activeItems()).extracting(ShoppingListItem::getEan)
+                .containsExactlyInAnyOrder("3850000000001", "3850000000002");
+    }
+
+    @Test
+    void theSameProductAddedTwiceBumpsTheAmount() {
+        add("3850000000001", "Mlijeko 1L", 1);
+        add("3850000000001", "Mlijeko 1L", 4);
+
+        assertThat(activeItems()).singleElement()
+                .extracting(ShoppingListItem::getAmount).isEqualTo(5);
+    }
+
+    @Test
+    void aProductTakesOverAPlainRowWithTheSameName() {
+        add(null, "mlijeko", 2);
+        add("3850000000001", "Mlijeko", 1);
+
+        assertThat(activeItems()).singleElement().satisfies(item -> {
+            assertThat(item.getEan()).isEqualTo("3850000000001");
+            assertThat(item.getName()).isEqualTo("Mlijeko");
+            assertThat(item.getAmount()).isEqualTo(3);
+        });
+    }
+
+    @Test
+    void aPlainItemMergesIntoAProductWithTheSameName() {
+        add("3850000000001", "Mlijeko", 1);
+        add(null, "mlijeko", 1);
+
+        assertThat(activeItems()).singleElement().satisfies(item -> {
+            assertThat(item.getEan()).isEqualTo("3850000000001");
+            assertThat(item.getAmount()).isEqualTo(2);
+        });
+    }
+
+    @Test
+    void anUpdateWithoutAnEanKeepsTheLinkedProduct() {
+        ShoppingListItemDto added = add("3850000000001", "Mlijeko", 1);
+
+        ShoppingListItemRequest update = request(null, "Mlijeko", 3);
+        service.updateShoppingListItem(list.getId(), added.getId(), owner.getId(), update);
+
+        assertThat(activeItems()).singleElement().satisfies(item -> {
+            assertThat(item.getEan()).isEqualTo("3850000000001");
+            assertThat(item.getAmount()).isEqualTo(3);
+        });
+    }
+
+    private ShoppingListItemDto add(String ean, String name, int amount) {
+        return service.addItemToShoppingList(list.getId(), owner.getId(), request(ean, name, amount));
+    }
+
+    private List<ShoppingListItem> activeItems() {
+        return items.findActiveByShoppingList(list);
+    }
+
+    private static ShoppingListItemRequest request(String ean, String name, int amount) {
+        ShoppingListItemRequest request = new ShoppingListItemRequest();
+        request.setEan(ean);
+        request.setName(name);
+        request.setAmount(amount);
+        return request;
+    }
+}

@@ -1,8 +1,5 @@
-import {
-  ModalTarget,
-  buildModalSearch,
-  stripModalSearch,
-} from "@/lib/modal/modal-registry";
+import type { ModalTarget } from "@/lib/modal/modal-registry";
+import { buildModalSearch, stripModalSearch } from "@/lib/modal/modal-search";
 
 export interface IOpenModalOptions {
   // For tab switches inside an open modal, so back still closes it.

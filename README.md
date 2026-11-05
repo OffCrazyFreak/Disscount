@@ -18,7 +18,7 @@ Under the hood it is a full production stack: a Next.js frontend that also acts 
 
 **Live:**
 
-- Product search across 29 Croatian retail chains (with barcode scanning)
+- Product search across 25+ Croatian retail chains (with barcode scanning)
 - Price comparison per store and price history charts ("is the discount real?")
 - Smart shopping lists with per-store basket totals
 - Shared shopping lists via a private link, with view, shop or edit access and a revocable token
@@ -35,14 +35,14 @@ Under the hood it is a full production stack: a Next.js frontend that also acts 
 
 ## Tech stack
 
-- **Frontend:** Next.js, React, TypeScript, Tailwind CSS, shadcn-style UI on Radix + lucide-react, TanStack Query (+ Virtual), React Hook Form + Zod, Axios, Motion, Recharts, Sonner, cmdk, Vaul
+- **Frontend:** Next.js, React, TypeScript, Tailwind CSS, shadcn-style UI on Radix + lucide-react, TanStack Query (+ Virtual), React Hook Form + Zod, Axios, Motion, Recharts, Sonner, cmdk, Base UI drawers
 - **Backend:** Spring Boot on Java, PostgreSQL, JPA / Hibernate, Spring Security + OAuth2 resource server, Bean Validation, Lombok, springdoc-openapi (Swagger UI), Actuator
 - **Auth:** better-auth (in Next.js) issues ES256 JWTs, validated by Spring as an OAuth2 resource server via JWKS. Drizzle owns the auth tables
 - **PWA & offline:** Serwist service worker, IndexedDB-backed React Query cache (idb-keyval), offline reads and queued writes, in-browser barcode scanning
 - **Email:** Resend + React Email
 - **Infra:** Docker Compose, Dokploy on a Hetzner VPS, Traefik, Cloudflare, Sentry, [UptimeRobot](https://stats.uptimerobot.com/ej4ROz2eMo), Umami
 
-Deeper references live in [docs/](docs/): [authentication](docs/AUTH.md), [PWA & offline](docs/PWA.md), [mobile navigation](docs/MOBILE-NAV.md), [state persistence](docs/STATE-PERSISTENCE.md), [the landing page](docs/LANDING.md), [brand assets](docs/BRAND.md), and [deployment](docs/DEPLOYMENT.md).
+Deeper references live in [docs/](docs/): [authentication](docs/AUTH.md), [PWA & offline](docs/PWA.md), [mobile navigation](docs/MOBILE-NAV.md), [state persistence](docs/STATE-PERSISTENCE.md), [list sharing](docs/SHARING.md), [search](docs/SEARCH.md), [the landing page](docs/LANDING.md), [brand assets](docs/BRAND.md), [the support flow](docs/SUPPORT.md), [products](docs/PRODUCTS.md), [product images](docs/PRODUCT-IMAGES.md), [infrastructure and deployment](docs/INFRASTRUCTURE.md), and [backups](docs/BACKUPS.md).
 
 ## Link
 
@@ -77,7 +77,7 @@ Landing page ([full-page screenshot](docs/screenshots/desktop/pages/landing.webp
 ### Features
 
 <p align="center">
-  <img width="45%" src="docs/screenshots/desktop/pages/search.webp" alt="Disscount - Product search across 29 chains"/>
+  <img width="45%" src="docs/screenshots/desktop/pages/search.webp" alt="Disscount - Product search across 25+ chains"/>
   <img width="45%" src="docs/screenshots/desktop/pages/product-detail.webp" alt="Disscount - Product details with price history"/>
 </p>
 
@@ -139,35 +139,29 @@ Commercial use is restricted unless covered by an Additional Use Grant or separa
 
 ## How to run
 
-The quickest way to run the full stack (frontend + backend + PostgreSQL) locally is with Docker Compose:
+Day to day, run Postgres in Docker and the frontend and backend natively, so both keep hot reload. The steps are below.
 
-```bash
-cp example.env .env   # then fill in the values
-docker compose up -d --build
-# frontend: http://localhost:3000
-```
-
-To run the services manually instead, follow the steps below.
+`docker compose up -d --build` with the root `docker-compose.yml` instead builds and runs the production images of the whole stack (copy `.env.example` to `.env` first). It has no hot reload, so use it only to try a production build locally.
 
 ### Prerequisites
 
 - Node.js 24 LTS+ and pnpm
 - Java 21 and Maven 3.9+
-- PostgreSQL 14+ (17 in production)
-- Docker + Docker Compose (only for the quick-run path above)
+- Docker + Docker Compose (Postgres 17, the same major as dev and production)
 
 ### Startup flow
 
-The backend and frontend share one PostgreSQL database: the backend owns the app tables (Hibernate `ddl-auto`), the frontend owns the better-auth tables (drizzle). Create the database, run the backend, then the frontend.
+The backend and frontend share one PostgreSQL database: the backend owns the app tables (Hibernate `ddl-auto`), the frontend owns the better-auth tables (drizzle). Start the database, run the backend, then the frontend.
 
 ### 1. Database (PostgreSQL)
 
-Create a database and user (example), and reuse these values in both env files below:
+Set `POSTGRES_DB`, `POSTGRES_USER` and `POSTGRES_PASSWORD` in the root `.env` (see `.env.example`), and reuse them in both env files below. Then start Postgres on `localhost:5432`, with its data in a Docker volume:
 
 ```bash
-sudo -u postgres psql -c "CREATE USER disscount WITH PASSWORD 'secret';"
-sudo -u postgres psql -c "CREATE DATABASE disscount OWNER disscount;"
+docker compose -f docker-compose.local-db.yml up -d --wait
 ```
+
+Port 5432 must be free, so stop a system Postgres first (`sudo systemctl disable --now postgresql` on Ubuntu). To keep its data, dump each database with `pg_dump -Fc` before stopping it, then load it with `docker exec -i disscount-local-db-1 pg_restore -U <user> -d <database> --no-owner --no-acl < <file>.dump`.
 
 ### 2. Backend (Spring Boot)
 
@@ -181,6 +175,7 @@ Set in `backend/.env`:
 - `SPRING_DATASOURCE_URL` (e.g. `jdbc:postgresql://localhost:5432/disscount`)
 - `SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD`
 - `BETTER_AUTH_JWKS_URI` (e.g. `http://localhost:3000/api/auth/jwks`)
+- Optional, to see dev's product photos: `PHOTO_DIR` and `PUBLIC_PHOTO_DIR` (local folders) and `R2_PUBLIC_URL=https://images-dev.disscount.me`, then `scripts/copy-dev-photo-rows.sh` ([docs/PRODUCT-IMAGES.md](docs/PRODUCT-IMAGES.md#local-development))
 
 Build and run with the `local` Spring profile (it supplies local better-auth defaults, the JWKS URL and issuer at `http://localhost:3000`, so the app starts without extra config):
 
@@ -218,25 +213,26 @@ The frontend runs on http://localhost:3000
 
 ### MCP servers (optional, for AI editors)
 
-The repo ships pre-configured MCP servers so an AI editor picks them up on clone, one file per tool (same servers): `.mcp.json` (Claude Code), `.cursor/mcp.json` (Cursor), `.vscode/mcp.json` (VS Code).
+The repo ships pre-configured MCP servers so an AI editor picks them up on clone, one file per tool: `.mcp.json` (Claude Code), `.cursor/mcp.json` (Cursor), `.vscode/mcp.json` (VS Code). Cursor and VS Code carry `context7`, `chrome-devtools`, `dokploy` and `sentry`; only `.mcp.json` adds `postgres` and `resend`.
 
-| Server            | Purpose                    |
-| ----------------- | -------------------------- |
-| `playwright`      | Browser automation / E2E   |
-| `context7`        | Up-to-date library docs    |
-| `supabase`        | Supabase project access    |
-| `chrome-devtools` | Chrome DevTools debugging  |
-| `sentry`          | Error tracking (Disscount) |
+| Server            | Purpose                                           |
+| ----------------- | ------------------------------------------------- |
+| `context7`        | Up-to-date library docs                           |
+| `postgres`        | Query a PostgreSQL database                       |
+| `chrome-devtools` | Chrome DevTools debugging                         |
+| `sentry`          | Error tracking (org scope)                        |
+| `dokploy`         | Deploys, logs and schedules on the Dokploy server |
+| `resend`          | Email sending, domains and logs                   |
 
-No secrets are committed: `supabase` and `sentry` authenticate via browser OAuth on first use, and `context7` runs keyless (set `CONTEXT7_API_KEY` in your environment to raise rate limits). Never put keys in these files - use env vars or your editor's secret store.
+`sentry` is scoped to the `disscount` org rather than one project, so it reaches both `disscount-frontend` and `disscount-backend`.
 
-`playwright` needs a browser at runtime: run `npx playwright install chromium` once per machine, or point it at an existing browser via `PLAYWRIGHT_MCP_EXECUTABLE_PATH` (e.g. `/opt/helium/chrome`). Both are machine-local, so keep the browser path out of the committed config.
+No secrets are committed: `sentry` and `resend` authenticate via browser OAuth on first use, and `context7` reads `CONTEXT7_API_KEY` from your environment (it still runs keyless if that is unset, at the lower anonymous rate limit), and `dokploy` reads `DOKPLOY_API_KEY` the same way. Export those keys from your shell profile rather than writing it into a config, and a clone works anywhere with no per-machine edit. Note that the VS Code file spells the references `${env:CONTEXT7_API_KEY}` and `${env:DOKPLOY_API_KEY}`, which is that editor's own syntax, while the other two take a bare `${CONTEXT7_API_KEY}`. Never put keys in these files - use env vars or your editor's secret store.
 
 ## Deployment
 
 Disscount is self-hosted on a Hetzner VPS using [Dokploy](https://dokploy.com) (Docker Compose), with Traefik for routing and automatic Let's Encrypt TLS, and Cloudflare in front for DNS, CDN, and proxying. Production deploys automatically from the `main` branch, and a staging environment deploys from the `dev` branch, on every push. Runtime errors go to Sentry, and UptimeRobot polls `/health` with a public [status page](https://stats.uptimerobot.com/ej4ROz2eMo).
 
-See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the full infrastructure reference: architecture, environment variables, DNS and SSL, security, backups and restore, monitoring, and how to add more apps to the server.
+See [docs/INFRASTRUCTURE.md](docs/INFRASTRUCTURE.md) for the full infrastructure reference: architecture, environment variables, DNS and SSL, security, backups and restore, monitoring, and how to add more apps to the server.
 
 ## How to contribute
 

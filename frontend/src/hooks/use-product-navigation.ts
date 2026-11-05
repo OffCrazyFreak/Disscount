@@ -1,9 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { productByEanQueryKey } from "@/lib/cijene-api";
+import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { productPath } from "@/utils/product-links";
 
@@ -12,7 +12,7 @@ export function usePrimeProductNavigation() {
 
   function primeProductNavigation(ean: string, product?: ProductResponse) {
     if (product) {
-      queryClient.setQueryData(productByEanQueryKey(ean), product);
+      queryClient.setQueryData(CIJENE_QUERY_KEYS.productByEan(ean), product);
     }
   }
 

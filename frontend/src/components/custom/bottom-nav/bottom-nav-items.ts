@@ -48,9 +48,7 @@ export const bottomNavItems: IBottomNavItem[] = [
   {
     item: findNavItem("digital-cards"),
     longPressTarget: { name: "digital-card", action: "new" },
-    // TODO: flip to true when digital cards ship. Wired now so the gesture
-    // plumbing never has to be revisited, but inert while the tab is a teaser.
-    longPressEnabled: false,
+    longPressEnabled: true,
   },
 ];
 

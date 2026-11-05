@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "title": "Detalji proizvoda",
+    "description": "Usporedba cijena proizvoda.",
+    "productTitle": "{name}: usporedi cijene",
+    "productDescription": "Usporedi cijene za {name} u {chains, plural, one {# trgovačkom lancu} few {# trgovačka lanca} other {# trgovačkih lanaca}}. Najniža cijena: {price}."
+  },
+  "notFound": {
+    "title": "Proizvod nije pronađen",
+    "description": "Ne možemo učitati ovaj proizvod. Probaj ga potražiti ponovno."
+  },
+  "sort": {
+    "label": "Sortiraj po:",
+    "stores": "Trgovinama",
+    "price": "Cijeni",
+    "distance": "Udaljenosti"
+  },
+  "chains": {
+    "refreshed": "Cijene osvježene {time}",
+    "loadError": "Cijene se nisu učitale. Pokušaj ponovno.",
+    "empty": "Nema dostupnih cijena za ovaj proizvod.",
+    "whereToBuy": "Gdje kupiti"
+  },
+  "priceHistory": {
+    "empty": "Još nema povijesti cijena.",
+    "average": "Prosjek",
+    "period": {
+      "week": "(posljednjih 7 dana)",
+      "month": "(posljednjih 30 dana)",
+      "year": "(posljednjih 365 dana)",
+      "all": "(od početka)"
+    }
+  },
+  "storeItem": {
+    "dataFrom": "Podaci od {date}",
+    "min": "Najniža: {price}",
+    "average": "Prosjek: {price}",
+    "max": "Najviša: {price}",
+    "pricesByLocation": "Cijene po lokacijama"
+  },
+  "pricesTable": {
+    "empty": "Nema dostupnih cijena za ovu trgovinu",
+    "location": "Lokacija",
+    "address": "Adresa",
+    "price": "Cijena",
+    "unknown": "Nepoznato",
+    "notAvailable": "Nema",
+    "showOnMap": ", prikaži na karti"
+  },
+  "sectionNav": {
+    "label": "Odjeljci proizvoda"
+  }
+}

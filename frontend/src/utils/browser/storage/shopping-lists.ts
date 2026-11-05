@@ -17,27 +17,6 @@ function setListPrefs(listId: string, partial: IShoppingListsPreferences) {
   });
 }
 
-/** Items section open state; defaults to open. */
-export function getShoppingListItemsOpen(listId: string): boolean {
-  return getListPrefs(listId).itemsOpen ?? true;
-}
-
-export function setShoppingListItemsOpen(listId: string, isOpen: boolean) {
-  setListPrefs(listId, { itemsOpen: isOpen });
-}
-
-/** Price history section open state; defaults to closed. */
-export function getShoppingListPriceHistoryOpen(listId: string): boolean {
-  return getListPrefs(listId).priceHistoryOpen ?? false;
-}
-
-export function setShoppingListPriceHistoryOpen(
-  listId: string,
-  isOpen: boolean,
-) {
-  setListPrefs(listId, { priceHistoryOpen: isOpen });
-}
-
 /** Price history chart period; defaults to one week. */
 export function getShoppingListPriceHistoryPeriod(
   listId: string,
@@ -66,13 +45,13 @@ export function setShoppingListPriceHistoryChains(
   setListPrefs(listId, { priceHistoryChains: chains });
 }
 
-/** Stores section open state; defaults to open. */
-export function getShoppingListStoresOpen(listId: string): boolean {
-  return getListPrefs(listId).storesOpen ?? true;
+/** Items grouped by store instead of A to Z; defaults to A to Z. */
+export function getShoppingListGroupByStore(listId: string): boolean {
+  return getListPrefs(listId).groupByStore ?? false;
 }
 
-export function setShoppingListStoresOpen(listId: string, isOpen: boolean) {
-  setListPrefs(listId, { storesOpen: isOpen });
+export function setShoppingListGroupByStore(listId: string, grouped: boolean) {
+  setListPrefs(listId, { groupByStore: grouped });
 }
 
 /**

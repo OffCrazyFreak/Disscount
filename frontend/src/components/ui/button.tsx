@@ -189,6 +189,9 @@ const Button = React.forwardRef<
 
     return (
       <Comp
+        data-slot="button"
+        data-variant={variant ?? "primary"}
+        data-size={size}
         className={cn(
           "relative",
           inertAsChild && "pointer-events-none opacity-50",

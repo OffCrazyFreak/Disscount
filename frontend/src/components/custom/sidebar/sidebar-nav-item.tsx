@@ -1,19 +1,16 @@
 "use client";
 
-import Link from "next/link";
-import type { MouseEvent } from "react";
+import { useTranslations } from "next-intl";
 import { SidebarMenuBadge, SidebarMenuButton } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { PLACEHOLDER_HREF, type INavigationItem } from "@/constants/navigation";
+import { formatBadgeCount } from "@/utils/badge-count";
+import SidebarNavLink from "@/components/custom/sidebar/sidebar-nav-link";
 import { SIDEBAR_ICON_CLASS } from "@/components/custom/sidebar/sidebar-styles";
 
 // Opts out of the peer rules that would recolour badge text on hover or active.
 const BADGE_CLASS =
   "bg-primary text-primary-foreground peer-hover/menu-button:text-primary-foreground peer-data-[active=true]/menu-button:text-primary-foreground";
-
-function preventNavigation(event: MouseEvent<HTMLAnchorElement>) {
-  event.preventDefault();
-}
 
 interface ISidebarNavItemProps {
   item: INavigationItem;
@@ -22,6 +19,8 @@ interface ISidebarNavItemProps {
   isLocked?: boolean;
   /** Shown as a badge when the item opts in through `badge` */
   badgeCount?: number;
+  /** The link's accessible name while it shows a count, so the number is not visual only */
+  badgeLabel?: string;
 }
 
 /** A sidebar link with its coming-soon or notification badge. */
@@ -30,7 +29,9 @@ export default function SidebarNavItem({
   isActive = false,
   isLocked = false,
   badgeCount,
+  badgeLabel,
 }: ISidebarNavItemProps) {
+  const t = useTranslations("shell");
   const Icon = item.icon;
 
   const showComingSoon = Boolean(item.comingSoon);
@@ -45,7 +46,7 @@ export default function SidebarNavItem({
   const label = (
     <>
       <Icon />
-      <span>{item.label}</span>
+      <span>{t(item.labelKey)}</span>
     </>
   );
 
@@ -60,31 +61,29 @@ export default function SidebarNavItem({
           {label}
         </SidebarMenuButton>
       ) : (
-        <SidebarMenuButton
-          asChild
-          isActive={!isLocked && isActive}
+        <SidebarNavLink
+          href={item.href}
+          isActive={isActive}
+          isLocked={isLocked}
+          ariaLabel={showCount ? badgeLabel : undefined}
           className={cn(labelSpace, SIDEBAR_ICON_CLASS)}
         >
-          <Link
-            href={item.href}
-            // data-active styles it, but says nothing to a screen reader.
-            aria-current={!isLocked && isActive ? "page" : undefined}
-            aria-disabled={isLocked ? true : undefined}
-            tabIndex={isLocked ? -1 : undefined}
-            onClick={isLocked ? preventNavigation : undefined}
-          >
-            {label}
-          </Link>
-        </SidebarMenuButton>
+          {label}
+        </SidebarNavLink>
       )}
 
       {showComingSoon && (
-        <SidebarMenuBadge className={BADGE_CLASS}>USKORO</SidebarMenuBadge>
+        <SidebarMenuBadge className={BADGE_CLASS}>
+          {t("sidebar.comingSoon")}
+        </SidebarMenuBadge>
       )}
 
       {showCount && (
-        <SidebarMenuBadge className={cn(BADGE_CLASS, "rounded-full")}>
-          {badgeCount}
+        <SidebarMenuBadge
+          aria-hidden="true"
+          className={cn(BADGE_CLASS, "rounded-full")}
+        >
+          {formatBadgeCount(badgeCount ?? 0)}
         </SidebarMenuBadge>
       )}
     </>

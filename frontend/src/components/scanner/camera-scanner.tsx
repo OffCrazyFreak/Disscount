@@ -1,29 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { ScanBarcode, TriangleAlert } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Banner } from "@/components/custom/common/banner";
-import {
-  clearPreferredCamera,
-  getPreferredCamera,
-  setPreferredCamera,
-} from "@/utils/browser/local-storage";
-import { describeScannerError, pickBackCamera } from "@/utils/browser/camera";
+import { useRef } from "react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { focusSidebarTrigger } from "@/components/ui/sidebar";
+import ScannerContent from "@/components/scanner/scanner-content";
 import { IScannedCode, ScanPreset } from "@/typings/scanned-code";
-import CameraView from "@/components/scanner/camera-view";
-import CameraSelect from "@/components/scanner/camera-select";
-import ScanImageButton from "@/components/scanner/scan-image";
-import useCameraDevices from "@/components/scanner/hooks/use-camera-devices";
 
 interface ICameraScannerProps {
   isOpen: boolean;
   preset: ScanPreset;
+  confirm: boolean;
+  opener: HTMLElement | null;
   onClose: () => void;
   onScan: (code: IScannedCode) => void;
 }
@@ -31,76 +18,60 @@ interface ICameraScannerProps {
 export default function CameraScanner({
   isOpen,
   preset,
+  confirm,
+  opener,
   onClose,
   onScan,
 }: ICameraScannerProps) {
-  const { devices, refreshDevices } = useCameraDevices();
-  const [manualDeviceId, setManualDeviceId] = useState<string | undefined>(() =>
-    getPreferredCamera(),
-  );
-  const [error, setError] = useState<string | null>(null);
-
-  const activeDeviceId = manualDeviceId ?? pickBackCamera(devices) ?? undefined;
-  const hasManualChoice = Boolean(manualDeviceId);
-
-  function handleSelect(deviceId: string) {
-    setManualDeviceId(deviceId);
-    setPreferredCamera(deviceId);
-    setError(null);
-  }
-
-  function handleReset() {
-    setManualDeviceId(undefined);
-    clearPreferredCamera();
-    setError(null);
-  }
-
-  function handleClose() {
-    setError(null);
-    onClose();
-  }
+  const openerRef = useRef<Element | null>(null);
+  const openedInSidebarRef = useRef(false);
+  const openerFieldRef = useRef<HTMLElement | null>(null);
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent>
-        <DialogHeader className="text-left">
-          <DialogTitle className="flex items-center gap-2">
-            <ScanBarcode aria-hidden="true" className="size-6" />
-            Skeniraj kod
-          </DialogTitle>
-        </DialogHeader>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      {/* Content unmounts on close, so every open starts at the camera step. */}
+      <DialogContent
+        onOpenAutoFocus={() => {
+          // Safari does not focus a button on click, so the clicked control wins over activeElement.
+          openerRef.current = opener ?? document.activeElement;
+          openedInSidebarRef.current = Boolean(
+            openerRef.current?.closest("[data-slot=sidebar]"),
+          );
+          openerFieldRef.current =
+            openerRef.current?.closest<HTMLElement>(
+              "[data-slot=search-field]",
+            ) ?? null;
+        }}
+        onCloseAutoFocus={(event) => {
+          // Radix only restores focus to a DialogTrigger, and the scanner has none.
+          event.preventDefault();
 
-        <div className="space-y-4">
-          {error ? (
-            <Banner
-              role="alert"
-              variant="warningSoft"
-              size="md"
-              icon={TriangleAlert}
-              className="mb-0"
-            >
-              {error}
-            </Banner>
-          ) : (
-            <CameraView
-              preset={preset}
-              deviceId={activeDeviceId}
-              onScan={onScan}
-              onError={(err) => setError(describeScannerError(err))}
-              onCameraReady={refreshDevices}
-            />
-          )}
+          // The scan button can be gone by now (the page re-rendered), but its field may remain.
+          const searchInput = openerFieldRef.current?.querySelector("input");
 
-          <CameraSelect
-            devices={devices}
-            value={activeDeviceId}
-            hasManualChoice={hasManualChoice}
-            onSelect={handleSelect}
-            onReset={handleReset}
-          />
+          // A scan closes the sidebar it started in: the desktop one turns inert and the mobile
+          // drawer unmounts, either way leaving focus nowhere to go back to.
+          const isOpenerInertOrGone =
+            openerRef.current?.closest("[inert]") ||
+            (openedInSidebarRef.current &&
+              !openerRef.current?.isConnected &&
+              !searchInput?.isConnected);
 
-          <ScanImageButton preset={preset} onScan={onScan} />
-        </div>
+          if (isOpenerInertOrGone) {
+            focusSidebarTrigger();
+            return;
+          }
+
+          for (const target of [openerRef.current, searchInput]) {
+            if (!(target instanceof HTMLElement) || !target.isConnected)
+              continue;
+
+            target.focus();
+            if (document.activeElement === target) return;
+          }
+        }}
+      >
+        <ScannerContent preset={preset} confirm={confirm} onScan={onScan} />
       </DialogContent>
     </Dialog>
   );

@@ -3,6 +3,8 @@
 How a shopping list is shared with someone else: the access model, the URL that
 carries it, and the privacy decisions that fall out of both.
 
+The list itself (items, merging, prices, offline writes, grouping and the chart) is documented in [SHOPPING-LISTS.md](SHOPPING-LISTS.md).
+
 ## Contents
 
 1. [What it is](#1-what-it-is)
@@ -88,7 +90,7 @@ A list the caller may not see is a **404, never a 403**, so the response cannot 
 
 `applyItemUpdate` splits the item fields by level: a `SHOP` caller can change `isChecked`, `chainCode` and the captured prices, and everything structural is left as the server has it, so a fuller payload cannot rename or resize an item.
 
-**Only these seven routes take an optional bearer token**, eight matcher entries counting the `HEAD` variant of the `GET`, which link unfurlers probe with and which `AntPathRequestMatcher` compares exactly. `SecurityConfig` matches them by method plus a UUID-shaped id, which is an allowlist on both axes: `/api/shopping-lists/me` and `/api/shopping-lists/items` stay authenticated because they are not UUIDs, not because they are named as exceptions, and a future literal route is excluded by the same property. The chain's own rule is `permitAll`, so the checks in `ShoppingListService` are an authentication boundary rather than a convenience.
+**Only these seven routes take an optional bearer token**, eight matcher entries counting the `HEAD` variant of the `GET`, which link unfurlers probe with and which `PathPatternRequestMatcher` compares exactly. `SecurityConfig` matches them by method plus a UUID-shaped id, which is an allowlist on both axes: `/api/shopping-lists/me` and `/api/shopping-lists/items` stay authenticated because they are not UUIDs, not because they are named as exceptions, and a future literal route is excluded by the same property. The chain's own rule is `permitAll`, so the checks in `ShoppingListService` are an authentication boundary rather than a convenience.
 
 ## 5. The route
 
@@ -96,7 +98,9 @@ A list the caller may not see is a **404, never a 403**, so the response cannot 
 
 It is therefore reachable signed out, and nothing on it may assume ownership. `shopping-list-detail-client.tsx` reads the session rather than hardcoding it, and the access banner renders unconditionally: it falls silent for an owner on its own, and the disabled item controls point at its id with `aria-describedby`, so gating it would leave that IDREF dangling for exactly the people who need the explanation. It emits an empty element carrying the id when it has nothing to say, because a DTO persisted before `myAccess` existed replays with it undefined.
 
-`next.config.ts` sends `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer` on `/shopping-lists/:path*`. The header is deliberate rather than a `robots.txt` disallow: a disallowed URL is never fetched, so a crawler would never read the directive, and a shared link only leaks by being pasted somewhere crawlable. `app/robots.ts` therefore stops deriving its disallow list from `PROTECTED_ROUTE_PREFIXES`, which still carries `/shopping-lists` for the logout redirect.
+**Shared lists update live.** `useGetShoppingListById` polls through the function form of `refetchInterval` (`lib/api/shopping-lists/shared-list-polling.ts`), but only for a list someone else can change: the owner's list with `linkAccess` other than `NONE`, or any list where `myAccess` is not `OWNER`. It polls every 5 seconds while the list's `updatedAt` changed in the last 2 minutes and every 30 seconds after that, and any new `updatedAt` (the backend bumps it on every item write through `touchList`) brings back the 5 second pace. The first version a cache entry sees counts as a change, since opening a shared list usually means someone is about to shop it; a list reopened while its cache entry survives keeps the clock it had, so it may start at 30 seconds. A private owner list does not poll and refetches only on focus, a remount or an invalidation. Polling pauses while the tab is hidden (`refetchIntervalInBackground` is off) and while any shopping list write is pending. It stops for good on a 404, which means the list was deleted or unshared; any other error (a dropped request on shop wifi, a 5xx) keeps polling every 30 seconds, since a phone left on the list may never fire the focus refetch, and the first successful fetch brings back the normal pace. A failed refetch keeps the cached list on screen, and only a 404 swaps it for the unavailable screen. Both rules share `isDeadListLink` (`lib/api/shopping-lists/is-dead-list-link.ts`), so one dropped poll does not take away the list someone is ticking. When a fetch brings a change that came from someone else, a visually hidden polite live region (`shopping-list-update-status.tsx`) announces "Netko je upravo promijenio popis.". A change counts as yours, and stays silent, when you submitted any shopping list write since the previous fetch, or one was still in flight when that fetch landed. Every fetch counts, even one bringing the same version, and its time is the query's `dataUpdatedAt`, so a cached list opened later does not announce your own write made elsewhere.
+
+`next.config.ts` sends `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer` on `/shopping-lists/:path*`. The header is deliberate rather than a `robots.txt` disallow: a disallowed URL is never fetched, so a crawler would never read the directive, and a shared link only leaks by being pasted somewhere crawlable. `app/robots.ts` therefore still derives its disallow list from `PROTECTED_ROUTE_PREFIXES` but filters `/shopping-lists` back out, since that constant also drives the logout redirect and the two questions stopped having the same answer.
 
 ## 6. Offline
 
@@ -110,8 +114,11 @@ mechanism was a destructive purge. See `docs/PWA.md` §5b for `cache-identity.ts
 The `/shopping-lists/` service worker rule is `NetworkFirst`, not `NetworkOnly`, so an offline reload
 boots the app instead of the `/offline` fallback. That is only acceptable because the
 purge now deletes the `shopping-list-pages`, `cijene-api` and `others` buckets on a change of
-identity. Those names are matched by exact equality, not by substring: a substring match on
-`pages` would also take out `pages-rsc` and `pages-rsc-prefetch`, every RSC payload in the app.
+identity (`SCOPED_CACHE_NAMES` in `lib/offline/purge.ts`). Those names are matched by exact
+equality, not by substring: a substring match on `pages` would also take out `pages-rsc` and
+`pages-rsc-prefetch`, every RSC payload in the app. `others` is on the list because that is
+where serwist actually files navigations, its `pages` rule keying off a Content-Type header
+browsers omit on one.
 
 ## 7. Privacy decisions
 
@@ -123,33 +130,22 @@ Worth knowing before changing any of this:
 - **`linkAccess` is owner-only**, so a recipient cannot read or change the level its owner
   granted. The share and edit modals additionally refuse to render for a non-owner, since
   the by-id read they sit on now succeeds for link visitors too.
-- **The list id is not scrubbed from telemetry, on purpose.** See [§3](#3-the-id-is-the-link-and-what-that-costs). Sentry attaches page URLs and records fetch breadcrumbs, so a shared list's id reaches it. Redacting the app's own identifier would blind every shopping-list trace, and the id is inert once the list is not shared.
+- **The list id is not scrubbed from telemetry, on purpose.** See [§3](#3-the-id-is-the-link-and-what-that-costs). Sentry attaches page URLs and records fetch breadcrumbs, so a shared list's id reaches it. The list's contents do not: `shopping-lists/layout.tsx` wraps every list page in `data-sentry-block`, so Replay records a blank box in its place, and `instrumentation-client.ts` drops Replay's breadcrumb and span records on list pages. Sheets and dialogs render in portals outside that wrapper, so for them only Replay's default text masking applies. Click and input breadcrumbs are dropped on list pages too (`lib/sentry/shopping-list-privacy.ts`), because they quote control labels that name the item. Redacting the app's own identifier would blind every shopping-list trace, and the id is inert once the list is not shared.
 - **Proxy access logs record the full path** for the same reason. A Traefik log-format
   change on the Dokploy side could drop it, and the same trade applies.
 
 ## 8. Key files
 
-| Area          | Path                                                                                     |
-| ------------- | ---------------------------------------------------------------------------------------- |
-| Access rule   | `backend/.../shoppingList/service/ShoppingListAccessService.java`                        |
-| Levels        | `backend/.../shoppingList/domain/ListAccess.java`, `LinkAccess.java`                     |
-| List API      | `backend/.../shoppingList/rest/ShoppingListController.java`                              |
-| List logic    | `backend/.../shoppingList/service/ShoppingListService.java`                              |
-| Redaction     | `backend/.../shoppingList/service/ShoppingListMapper.java`                               |
-| Optional auth | `backend/.../config/OptionalBearerAuthenticationFilter.java`                             |
-| Route matcher | `backend/.../config/UuidScopedRequestMatcher.java`                                       |
-| List page     | `frontend/src/app/(user)/shopping-lists/[id]/`                                           |
-| Access banner | `frontend/src/app/(user)/shopping-lists/[id]/components/shopping-list-access-banner.tsx` |
-| Share modal   | `frontend/src/app/(user)/shopping-lists/components/forms/share-list-modal.tsx`           |
-| Access row    | `frontend/src/app/(user)/shopping-lists/components/forms/share-access-row.tsx`           |
-| Modal state   | `frontend/src/app/(user)/shopping-lists/hooks/use-share-list-modal.ts`                   |
-| Level copy    | `frontend/src/app/(user)/shopping-lists/utils/link-access-copy.ts`                       |
-| Level icons   | `frontend/src/app/(user)/shopping-lists/utils/link-access-icons.ts`                      |
-| Copy modal    | `frontend/src/app/(user)/shopping-lists/components/forms/copy-list-modal.tsx`            |
-| Copy state    | `frontend/src/app/(user)/shopping-lists/hooks/use-copy-list-modal.ts`                    |
-| Title field   | `frontend/src/app/(user)/shopping-lists/components/forms/shopping-list-title-field.tsx`  |
-| Optimism      | `frontend/src/lib/api/shopping-lists/optimistic-list.ts`                                 |
-| Client access | `frontend/src/app/(user)/shopping-lists/utils/shopping-list-access.ts`                   |
+| Area          | Path                                                                            |
+| ------------- | ------------------------------------------------------------------------------- |
+| Access rule   | `backend/.../shoppingList/service/ShoppingListAccessService.java`               |
+| Redaction     | `backend/.../shoppingList/service/ShoppingListMapper.java`                      |
+| Optional auth | `backend/.../config/OptionalBearerAuthenticationFilter.java`                    |
+| Route matcher | `backend/.../config/UuidScopedRequestMatcher.java`                              |
+| Optimism      | `frontend/src/lib/api/shopping-lists/optimistic-list.ts`                        |
+| Live polling  | `frontend/src/lib/api/shopping-lists/shared-list-polling.ts`                    |
+| Cache purge   | `frontend/src/lib/offline/purge.ts`                                             |
+| Client access | `frontend/src/app/[locale]/(user)/shopping-lists/utils/shopping-list-access.ts` |
 
 ## 9. Gotchas
 
@@ -167,7 +163,11 @@ Worth knowing before changing any of this:
   the original so the suffix always fits inside the schema's 100-character ceiling, which
   it reads off the schema rather than restating. It takes whole code points so the cut
   cannot split an emoji, but budgets in UTF-16 units, because that is what zod's `max()`
-  counts. One endpoint rather than a
+  counts. Kopiraj is gated on `schema.safeParse(values).success`, not on
+  `formState.isValid`, because the prefilled name is valid the moment the modal opens and
+  `isValid` does not refresh until the resolver runs again, which would leave the button
+  dead until the user typed something (see
+  [STATE-PERSISTENCE.md](STATE-PERSISTENCE.md#11-gotchas--lessons-learned)). One endpoint rather than a
   create followed by an add per item, because
   those were separate transactions: a failure partway left a half-populated copy behind
   that no retry could tidy up, and pressing the button again made another one.
@@ -180,6 +180,7 @@ Worth knowing before changing any of this:
   region: there is no submit button whose disappearance would signal success, and why it
   renders no footer at all (omitting `cancelLabel` is what drops it, since
   `hasFooterContent` keys off labels rather than handlers).
+- **The write guard is a subscription, not a check inside `refetchInterval`.** TanStack Query recomputes the interval function only on a render or a query update. Reading the mutation count inside it would return `false` while a write was pending and then never be asked again after an add that fails, since only its success invalidates the list and nothing re-renders. `useIsMutating({ mutationKey: ["shoppingLists"] })` re-renders when the writes finish, and `setOptions` then reschedules the interval. Every list write key in `offline-mutation-keys.ts` starts with `shoppingLists`; a new one has to as well.
 - **Private is a level, not an off switch.** One select carries all four values, so turning
   sharing off is picking `Privatno` rather than flipping a control that then reveals a
   second one. The row beside it restates the current level in words, following the shape

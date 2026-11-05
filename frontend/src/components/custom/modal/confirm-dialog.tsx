@@ -8,11 +8,10 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import ConfirmDialogHero from "@/components/custom/modal/confirm-dialog-hero";
 
 interface IConfirmDialogProps {
   isOpen: boolean;
@@ -41,7 +40,6 @@ export function ConfirmDialog({
   onConfirm,
   isLoading = false,
 }: IConfirmDialogProps) {
-  const reduceMotion = useReducedMotion();
   const isDestructive = variant === "destructive";
   const Icon = icon ?? (isDestructive ? AlertTriangle : LogOut);
   const ConfirmIcon = confirmIcon ?? (isDestructive ? Trash2 : Check);
@@ -61,35 +59,7 @@ export function ConfirmDialog({
       // presses, one to open and one on the still-unfocused dialog, would run it.
       onSubmit={isDestructive ? undefined : onConfirm}
       submitLoading={isLoading}
-      hero={
-        <motion.div
-          initial={reduceMotion ? false : { scale: 0.6, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 320, damping: 20 }}
-          className="relative flex size-14 items-center justify-center"
-        >
-          {/* Concentric halo rings that ground the icon and set the tone. */}
-          <span
-            className={cn(
-              "absolute inset-0 rounded-full",
-              isDestructive ? "bg-destructive/10" : "bg-amber-500/10",
-            )}
-          />
-          <span
-            className={cn(
-              "absolute inset-1.5 rounded-full",
-              isDestructive ? "bg-destructive/15" : "bg-amber-500/15",
-            )}
-          />
-          <Icon
-            className={cn(
-              "relative size-6",
-              isDestructive ? "text-destructive" : "text-amber-600",
-            )}
-            strokeWidth={2.2}
-          />
-        </motion.div>
-      }
+      hero={<ConfirmDialogHero icon={Icon} isDestructive={isDestructive} />}
       footer={
         <div className="flex items-center justify-between gap-2 px-6 pb-6 pt-3">
           <Button

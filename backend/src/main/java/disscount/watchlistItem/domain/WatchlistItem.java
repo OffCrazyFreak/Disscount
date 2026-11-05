@@ -27,7 +27,7 @@ public class WatchlistItem {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @NotBlank(message = "Product API ID is required")
+    @NotBlank(message = "{validation.productApiId.required}")
     @Column(name = "product_api_id", nullable = false)
     private String productApiId;
 
@@ -37,9 +37,6 @@ public class WatchlistItem {
 
     @Column(name = "threshold_value", nullable = false)
     private Double thresholdValue;
-
-    @Column(name = "last_notified_at")
-    private LocalDateTime lastNotifiedAt;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

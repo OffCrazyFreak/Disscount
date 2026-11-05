@@ -16,30 +16,39 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # ---- build: produce the Next.js standalone output ----
 FROM base AS build
+# sentry-cli reads the system CA store, which the slim image lacks; Node ships its own.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Public build args — REAL values, inlined into the client bundle at build time.
+# Public build args: REAL values, inlined into the client bundle at build time.
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_APP_URL
 ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
 ARG NEXT_PUBLIC_UMAMI_WEBSITE_ID
-ARG NEXT_PUBLIC_ENABLE_REACT_SCAN
 ARG NEXT_PUBLIC_SENTRY_DSN
+ARG SENTRY_ENVIRONMENT
+# Commit SHA from CI; doubles as the Sentry release name the source maps attach to.
+ARG GIT_SHA
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
     NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL \
     NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID \
     NEXT_PUBLIC_UMAMI_WEBSITE_ID=$NEXT_PUBLIC_UMAMI_WEBSITE_ID \
-    NEXT_PUBLIC_ENABLE_REACT_SCAN=$NEXT_PUBLIC_ENABLE_REACT_SCAN \
-    NEXT_PUBLIC_SENTRY_DSN=$NEXT_PUBLIC_SENTRY_DSN
+    NEXT_PUBLIC_SENTRY_DSN=$NEXT_PUBLIC_SENTRY_DSN \
+    SENTRY_ENVIRONMENT=$SENTRY_ENVIRONMENT
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Placeholder SERVER env, scoped to the build command only (not persisted as image
-# metadata). They satisfy modules that requireEnv() at import time; none are NEXT_PUBLIC,
-# so nothing is baked into the output — real values come from the container at runtime.
-# (No SENTRY_AUTH_TOKEN is set, so source maps are not uploaded during the image build.)
-RUN BETTER_AUTH_URL=http://localhost:3000 \
+# metadata). They satisfy src/lib/server-env.ts, which modules read at import time; none
+# are NEXT_PUBLIC, so nothing is baked into the output, and real values come from the
+# container at runtime.
+# SENTRY_AUTH_TOKEN arrives as a BuildKit secret so it never lands in a layer of this public
+# image; when CI passes no secret, the build skips the source map upload.
+RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
+    BETTER_AUTH_URL=http://localhost:3000 \
     BETTER_AUTH_SECRET=build-time-placeholder \
     GOOGLE_CLIENT_SECRET=build-time-placeholder \
     FACEBOOK_CLIENT_ID=build-time-placeholder \
@@ -50,8 +59,27 @@ RUN BETTER_AUTH_URL=http://localhost:3000 \
     DATABASE_URL=postgresql://placeholder:placeholder@localhost:5432/placeholder \
     pnpm build
 
+# ---- migrator-bundle: the migrate script and its two dependencies as one file ----
+FROM base AS migrator-bundle
+COPY --from=deps /app/node_modules ./node_modules
+COPY scripts/migrate.mjs ./scripts/
+# pg still calls require(), which an ESM bundle only has through createRequire.
+RUN ./node_modules/.bin/esbuild scripts/migrate.mjs --bundle --platform=node --format=esm \
+    --minify --outfile=dist/migrate.mjs \
+    --banner:js="import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);"
+
+# ---- migrator: one-shot job that applies drizzle/ and exits, no app source ----
+FROM node:24-slim AS migrator
+WORKDIR /app
+COPY --from=migrator-bundle /app/dist/migrate.mjs ./
+COPY drizzle ./drizzle
+USER node
+CMD ["node", "migrate.mjs"]
+
 # ---- runner: minimal runtime image with the standalone server ----
 FROM base AS runner
+ARG GIT_SHA
+ENV GIT_SHA=$GIT_SHA
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \

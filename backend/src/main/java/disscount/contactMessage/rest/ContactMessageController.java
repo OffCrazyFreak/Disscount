@@ -3,8 +3,11 @@ package disscount.contactMessage.rest;
 import disscount.contactMessage.dto.ContactMessageDto;
 import disscount.contactMessage.dto.ContactMessageRequest;
 import disscount.contactMessage.service.ContactMessageService;
+import disscount.contactMessage.service.ContactRateLimiter;
+import disscount.util.ClientIp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +23,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class ContactMessageController {
 
     private final ContactMessageService contactMessageService;
+    private final ContactRateLimiter contactRateLimiter;
 
     @Operation(summary = "Submit a contact message (public)")
     @PostMapping
-    public ResponseEntity<ContactMessageDto> create(@Valid @RequestBody ContactMessageRequest request) {
-        return ResponseEntity.ok(contactMessageService.create(request));
+    public ResponseEntity<ContactMessageDto> create(@Valid @RequestBody ContactMessageRequest request,
+                                                    HttpServletRequest httpRequest) {
+        contactRateLimiter.check(ClientIp.resolve(httpRequest));
+        return contactMessageService.create(request)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build());
     }
 }

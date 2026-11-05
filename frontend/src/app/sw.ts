@@ -12,6 +12,13 @@ import {
   Serwist,
   StaleWhileRevalidate,
 } from "serwist";
+import { DEFAULT_LOCALE, LOCALES } from "@/i18n/locales";
+import {
+  DEPLOYMENT_PARAM_PATTERN,
+  ignoreDeploymentParam,
+} from "@/lib/pwa/deployment-param";
+import { OFFLINE_PAGE_PATH, WALLET_PAGE_PATH } from "@/lib/pwa/precached-pages";
+import { skipNoStore } from "@/lib/pwa/skip-no-store";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -20,6 +27,22 @@ declare global {
 }
 
 declare const self: ServiceWorkerGlobalScope;
+
+const LOCALE_PREFIXES: string[] = LOCALES.filter(
+  (locale) => locale !== DEFAULT_LOCALE,
+);
+const SHOPPING_LIST_PATH = new RegExp(
+  `^(/(${LOCALE_PREFIXES.join("|")}))?/shopping-lists/`,
+);
+
+const WALLET_PATH = new RegExp(
+  `^(/(${LOCALE_PREFIXES.join("|")}))?${WALLET_PAGE_PATH}/?$`,
+);
+
+function localePrefixOf(pathname: string): string {
+  const segment = pathname.split("/")[1];
+  return LOCALE_PREFIXES.includes(segment) ? `/${segment}` : "";
+}
 
 const runtimeCaching: RuntimeCaching[] = [
   // Public price/product data: serve fast from cache, refresh in the background.
@@ -32,6 +55,7 @@ const runtimeCaching: RuntimeCaching[] = [
       cacheName: "cijene-api",
       plugins: [
         new CacheableResponsePlugin({ statuses: [0, 200] }),
+        skipNoStore,
         new ExpirationPlugin({
           maxEntries: 200,
           maxAgeSeconds: 7 * 24 * 60 * 60,
@@ -56,7 +80,7 @@ const runtimeCaching: RuntimeCaching[] = [
   // there. Must stay above defaultCache, which is matched in order.
   {
     matcher: ({ url, sameOrigin }) =>
-      sameOrigin && url.pathname.startsWith("/shopping-lists/"),
+      sameOrigin && SHOPPING_LIST_PATH.test(url.pathname),
     handler: new NetworkFirst({
       cacheName: "shopping-list-pages",
       networkTimeoutSeconds: 5,
@@ -66,23 +90,65 @@ const runtimeCaching: RuntimeCaching[] = [
       ],
     }),
   },
-  ...defaultCache,
+  // The bare wallet URL never gets here: the precache answers it first. Its ?q= and
+  // modal variants stay out of defaultCache's 24 hour page bucket, where a copy from an
+  // older build would point at chunks the next deploy deleted; offline, the fallback
+  // below serves this build's precached wallet instead.
+  {
+    matcher: ({ url, request, sameOrigin }) =>
+      sameOrigin &&
+      request.destination === "document" &&
+      WALLET_PATH.test(url.pathname),
+    // Lie-fi at the till: give up on the network quickly and open the cards.
+    handler: new NetworkOnly({ networkTimeoutSeconds: 3 }),
+  },
+  ...ignoreDeploymentParam(defaultCache),
 ];
+
+const PAGE_PREFIXES = ["", ...LOCALE_PREFIXES.map((locale) => `/${locale}`)];
+
+function isDocumentIn(request: Request, prefix: string): boolean {
+  return (
+    request.destination === "document" &&
+    localePrefixOf(new URL(request.url).pathname) === prefix
+  );
+}
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
-  skipWaiting: true,
+  precacheOptions: {
+    // The precache keys carry no ?dpl=; the first two are Serwist's defaults.
+    ignoreURLParametersMatching: [
+      /^utm_/,
+      /^fbclid$/,
+      DEPLOYMENT_PARAM_PATTERN,
+    ],
+  },
+  // Off so a deploy waits for the reload the app offers; the old worker keeps
+  // serving the chunks open tabs still ask for until then.
+  skipWaiting: false,
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching,
   fallbacks: {
+    // First match wins: a wallet document gets this build's wallet in its own
+    // language, any other document the precached offline page.
     entries: [
-      {
-        url: "/offline",
-        matcher({ request }) {
-          return request.destination === "document";
+      ...PAGE_PREFIXES.map((prefix) => ({
+        url: `${prefix}${WALLET_PAGE_PATH}`,
+        matcher({ request }: { request: Request }) {
+          return (
+            isDocumentIn(request, prefix) &&
+            WALLET_PATH.test(new URL(request.url).pathname)
+          );
         },
-      },
+      })),
+      ...PAGE_PREFIXES.map((prefix) => ({
+        url: `${prefix}${OFFLINE_PAGE_PATH}`,
+        matcher({ request }: { request: Request }) {
+          return isDocumentIn(request, prefix);
+        },
+      })),
     ],
   },
 });

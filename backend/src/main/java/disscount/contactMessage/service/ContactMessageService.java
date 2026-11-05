@@ -5,10 +5,9 @@ import disscount.contactMessage.dao.ContactMessageRepository;
 import disscount.contactMessage.domain.ContactMessage;
 import disscount.contactMessage.dto.ContactMessageDto;
 import disscount.contactMessage.dto.ContactMessageRequest;
-import disscount.exceptions.BadRequestException;
+import disscount.exceptions.NotFoundException;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
-import disscount.user.service.UserService;
 import disscount.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -28,19 +28,19 @@ public class ContactMessageService {
 
     private final ContactMessageRepository contactMessageRepository;
     private final UserRepository userRepository;
-    private final UserService userService;
 
     // Bounds the admin list query; a full paginated UI is a possible follow-up.
     private static final int MAX_ADMIN_MESSAGES = 500;
 
     /** Public: create a message. Silently drops honeypot-filled bot submissions. */
-    public ContactMessageDto create(ContactMessageRequest request) {
-        if (StringUtils.hasText(request.getHoneypot())) {
-            return null;
+    public Optional<ContactMessageDto> create(ContactMessageRequest request) {
+        // Browsers send the hidden field empty; any character a bot puts there, whitespace included, is a hit.
+        if (StringUtils.hasLength(request.getHoneypot())) {
+            return Optional.empty();
         }
 
         User sender = SecurityUtils.getCurrentUserIdOptional()
-                .flatMap(userRepository::findById)
+                .flatMap(userRepository::findByIdAndDeletedAtIsNull)
                 .orElse(null);
 
         ContactMessage message = ContactMessage.builder()
@@ -52,11 +52,10 @@ public class ContactMessageService {
                 .sourcePath(request.getSourcePath())
                 .build();
 
-        return convertToDto(contactMessageRepository.save(message));
+        return Optional.of(convertToDto(contactMessageRepository.save(message)));
     }
 
     public List<ContactMessageDto> list(boolean includeDeleted) {
-        requireAdmin();
         Pageable pageable = PageRequest.of(0, MAX_ADMIN_MESSAGES);
         List<ContactMessage> messages = includeDeleted
                 ? contactMessageRepository.findAllByOrderByCreatedAtDesc(pageable)
@@ -65,7 +64,6 @@ public class ContactMessageService {
     }
 
     public ContactMessageDto getById(UUID id) {
-        requireAdmin();
         return convertToDto(loadOrThrow(id));
     }
 
@@ -86,7 +84,6 @@ public class ContactMessageService {
     }
 
     private ContactMessageDto mutate(UUID id, Consumer<ContactMessage> change) {
-        requireAdmin();
         ContactMessage message = loadOrThrow(id);
         change.accept(message);
         return convertToDto(contactMessageRepository.save(message));
@@ -94,11 +91,7 @@ public class ContactMessageService {
 
     private ContactMessage loadOrThrow(UUID id) {
         return contactMessageRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("Contact message not found"));
-    }
-
-    private void requireAdmin() {
-        userService.requireAdmin(SecurityUtils.getCurrentUserId());
+                .orElseThrow(() -> new NotFoundException("error.contactMessage.notFound"));
     }
 
     private ContactMessageDto convertToDto(ContactMessage message) {

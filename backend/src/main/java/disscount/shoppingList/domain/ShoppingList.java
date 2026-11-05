@@ -30,7 +30,7 @@ public class ShoppingList {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    @NotBlank(message = "Title is required")
+    @NotBlank(message = "{validation.title.required}")
     @Column(nullable = false)
     private String title;
 

@@ -14,7 +14,6 @@ interface IProductCardProps {
   brand?: string | null;
   category: string | null;
   quantity?: string | null;
-  imageUrl?: string | null;
   /** Returning false cancels navigation, for example after a long press */
   onNavigate?: (viaKeyboard: boolean) => boolean | void;
   isLoading?: boolean;
@@ -51,7 +50,6 @@ export default function ProductCard({
   brand,
   category,
   quantity,
-  imageUrl,
   onNavigate,
   isLoading = false,
   trailing,
@@ -65,7 +63,7 @@ export default function ProductCard({
     <Card
       {...pressProps}
       className={cn(
-        "relative shadow-sm hover:shadow-lg transition-shadow",
+        "relative isolate shadow-sm hover:shadow-lg transition-shadow",
         // Suppresses the iOS selection callout a long press would raise on touch.
         pressProps &&
           "[@media(hover:none)]:select-none [-webkit-touch-callout:none]",
@@ -77,7 +75,7 @@ export default function ProductCard({
         brand={brand}
         category={category}
         quantity={quantity}
-        imageUrl={imageUrl}
+        ean={ean}
         isLoading={isLoading}
         trailing={trailing}
         actions={actions}

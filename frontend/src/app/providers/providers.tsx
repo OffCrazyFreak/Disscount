@@ -1,17 +1,18 @@
 "use client";
 
 import { type ReactNode } from "react";
+import { SerwistProvider } from "@serwist/next/react";
 import ReactQueryProviderWrapper from "@/app/providers/react-query-provider";
 import SidebarProvider from "@/app/providers/sidebar-provider";
 import ToasterProvider from "@/app/providers/toaster-provider";
-import UserContextProvider from "@/app/providers/user-provider";
-import ReactScan from "@/app/providers/react-scan";
+import { UserProvider } from "@/context/user-context";
 import { CameraScannerProvider } from "@/context/scanner-context";
 import { NotificationsProvider } from "@/context/notifications-context";
 import { ProductsSheetProvider } from "@/context/products-sheet-context";
 import RequestPersistentStorage from "@/components/custom/pwa/request-persistent-storage";
-import AppleSplashScreens from "@/components/custom/pwa/apple-splash-screens";
 import ScanShortcut from "@/components/custom/pwa/scan-shortcut";
+import AppUpdatePrompt from "@/components/custom/pwa/app-update-prompt";
+import ComponentStackBoundary from "@/components/custom/common/component-stack-boundary";
 
 interface IProvidersProps {
   children: ReactNode;
@@ -19,25 +20,42 @@ interface IProvidersProps {
 
 export default function Providers({ children }: IProvidersProps) {
   return (
-    <ReactQueryProviderWrapper>
-      <UserContextProvider>
-        <NotificationsProvider>
-          <SidebarProvider>
-            <CameraScannerProvider>
-              <ProductsSheetProvider>
-                <ToasterProvider>
-                  <ReactScan />
-                  <RequestPersistentStorage />
-                  <AppleSplashScreens />
-                  <ScanShortcut />
+    // Outermost, so an error from any provider or layout component that reaches
+    // global-error.tsx carries its component stack. Page errors stop at error.tsx first.
+    <ComponentStackBoundary>
+      <SerwistProvider
+        swUrl="/sw.js"
+        // In dev the service worker would fight Turbopack's hot reload, and a browser with no
+        // Cache Storage rejects registration in a way nothing here can catch.
+        disable={
+          process.env.NODE_ENV === "development" ||
+          typeof caches === "undefined"
+        }
+        cacheOnNavigation={false}
+        reloadOnOnline
+        // Serwist defaults to a module worker, but sw.js is one bundled file and classic runs everywhere.
+        options={{ type: "classic" }}
+      >
+        <ReactQueryProviderWrapper>
+          <UserProvider>
+            <NotificationsProvider>
+              <SidebarProvider>
+                <CameraScannerProvider>
+                  <ProductsSheetProvider>
+                    <ToasterProvider>
+                      <RequestPersistentStorage />
+                      <ScanShortcut />
+                      <AppUpdatePrompt />
 
-                  {children}
-                </ToasterProvider>
-              </ProductsSheetProvider>
-            </CameraScannerProvider>
-          </SidebarProvider>
-        </NotificationsProvider>
-      </UserContextProvider>
-    </ReactQueryProviderWrapper>
+                      {children}
+                    </ToasterProvider>
+                  </ProductsSheetProvider>
+                </CameraScannerProvider>
+              </SidebarProvider>
+            </NotificationsProvider>
+          </UserProvider>
+        </ReactQueryProviderWrapper>
+      </SerwistProvider>
+    </ComponentStackBoundary>
   );
 }

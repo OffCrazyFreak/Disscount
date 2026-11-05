@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { MailCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface IInboxNoticeProps {
   title: string;
@@ -21,6 +22,7 @@ export default function InboxNotice({
   description,
   email,
 }: IInboxNoticeProps) {
+  const t = useTranslations("common");
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -49,7 +51,7 @@ export default function InboxNotice({
       {email && <p className="text-sm font-medium">{email}</p>}
 
       <p className="text-xs text-muted-foreground">
-        Ne zaboravi provjeriti i spam / neželjenu poštu.
+        {t("inboxNotice.spamHint")}
       </p>
     </div>
   );

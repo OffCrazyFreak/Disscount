@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { CircleAlert } from "lucide-react";
 
@@ -14,17 +15,17 @@ import type { SocialProvider } from "@/components/custom/auth/components/social/
 
 export type AuthMode = "login" | "signup" | "forgot";
 
-const TITLES: Record<AuthMode, string> = {
-  login: "Prijava",
-  signup: "Registracija",
-  forgot: "Zaboravljena lozinka",
-};
+const TITLE_KEYS = {
+  login: "modal.title.login",
+  signup: "modal.title.signup",
+  forgot: "modal.title.forgot",
+} as const satisfies Record<AuthMode, string>;
 
-const DESCRIPTIONS: Record<AuthMode, string> = {
-  login: "Prijavi se u svoj Disscount račun.",
-  signup: "Stvori novi Disscount račun.",
-  forgot: "Poslat ćemo ti poveznicu za ponovno postavljanje lozinke.",
-};
+const DESCRIPTION_KEYS = {
+  login: "modal.description.login",
+  signup: "modal.description.signup",
+  forgot: "modal.description.forgot",
+} as const satisfies Record<AuthMode, string>;
 
 interface IAuthModalProps {
   open: boolean;
@@ -44,6 +45,7 @@ export default function AuthModal({
   onModeChange,
   onSuccess,
 }: IAuthModalProps) {
+  const t = useTranslations("auth");
   const [socialPending, setSocialPending] = useState<SocialProvider | null>(
     null,
   );
@@ -56,8 +58,8 @@ export default function AuthModal({
     <ModalShell
       open={open}
       onOpenChange={onOpenChange}
-      title={TITLES[mode]}
-      description={DESCRIPTIONS[mode]}
+      title={t(TITLE_KEYS[mode])}
+      description={t(DESCRIPTION_KEYS[mode])}
       srOnlyDescription
       caption={<AuthModeSwitch mode={mode} onModeChange={onModeChange} />}
     >

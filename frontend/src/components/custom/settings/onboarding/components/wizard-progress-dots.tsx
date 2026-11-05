@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
@@ -13,6 +14,7 @@ export default function WizardProgressDots({
   count,
   current,
 }: IWizardProgressDotsProps) {
+  const t = useTranslations("settings");
   const reduceMotion = useReducedMotion();
 
   return (
@@ -22,7 +24,10 @@ export default function WizardProgressDots({
       aria-valuemin={1}
       aria-valuemax={count}
       aria-valuenow={current + 1}
-      aria-label={`Korak ${current + 1} od ${count}`}
+      aria-label={t("onboarding.progress", {
+        current: current + 1,
+        total: count,
+      })}
     >
       {Array.from({ length: count }).map((_, index) => {
         const isActive = index === current;

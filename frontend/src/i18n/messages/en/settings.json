@@ -1,0 +1,241 @@
+{
+  "modal": {
+    "title": "Settings",
+    "description": "Manage your profile, notifications, preferences and security.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "reset": "Reset",
+    "replayGuide": "Replay the guide",
+    "unsavedChanges": "Unsaved changes"
+  },
+  "tabs": {
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "preferences": "Preferences",
+    "security": "Security"
+  },
+  "profile": {
+    "avatar": {
+      "change": "Change photo",
+      "remove": "Remove photo",
+      "formats": "PNG, JPG, WebP or GIF.",
+      "tooLarge": "That image is too big, 15 MB max.",
+      "loadFailed": "Couldn't load that image. Try a JPG or PNG."
+    },
+    "username": {
+      "label": "Username",
+      "description": "What should we call you? The name has to be yours alone."
+    },
+    "acquisition": {
+      "label": "How did you hear about Disscount?",
+      "placeholder": "Choose a source",
+      "description": "It shows us where people find us."
+    },
+    "channels": {
+      "GOOGLE_SEARCH": "Google search",
+      "INSTAGRAM": "Instagram",
+      "FACEBOOK": "Facebook",
+      "TIKTOK": "TikTok",
+      "YOUTUBE": "YouTube",
+      "FRIEND_OR_FAMILY": "Friend or family",
+      "ONLINE_AD": "Online ad",
+      "BLOG_OR_NEWS": "Blog, article or media",
+      "APP_STORE": "App Store / Google Play",
+      "POSTER_OR_FLYER": "Poster or flyer",
+      "EVENT": "Fair or event",
+      "OTHER": "Other"
+    }
+  },
+  "notifications": {
+    "hint": "Choose how, about what and when you want to hear about discounts and news.",
+    "push": {
+      "label": "Allow app notifications",
+      "description": "We only tell you about discounts on products you watch. No spam."
+    },
+    "email": {
+      "label": "Allow email notifications",
+      "description": "We email you only about discounts on products you watch. No spam."
+    },
+    "newsletter": {
+      "label": "News and updates",
+      "description": "Occasional Disscount news by email. No spam."
+    },
+    "feedback": {
+      "label": "Feedback contact",
+      "description": "We may sometimes ask what you think of the app."
+    }
+  },
+  "preferences": {
+    "stores": {
+      "label": "Stores",
+      "hint": "Choose the stores near you."
+    },
+    "places": {
+      "label": "Locations",
+      "hint": "Choose the locations near you.",
+      "placeholder": "Choose locations"
+    },
+    "selectedMark": "✓",
+    "language": {
+      "label": "Language",
+      "hint": "The language of the app and the emails we send you.",
+      "locked": "Save or reset your changes first, then switch language."
+    }
+  },
+  "save": {
+    "offline": "You're offline. We'll save your changes as soon as you're back online.",
+    "onboardingDone": "You're all set!",
+    "settingsSaved": "Settings saved!",
+    "errors": {
+      "user": "Couldn't save your profile. Try again.",
+      "stores": "Couldn't save your stores. Try again.",
+      "places": "Couldn't save your locations. Try again."
+    }
+  },
+  "validation": {
+    "usernameMin": "Enter at least 2 characters",
+    "usernameMax": "Enter at most 40 characters",
+    "currentPasswordRequired": "Enter your current password"
+  },
+  "onboarding": {
+    "fallbackDescription": "A quick account setup. You can change everything later.",
+    "progress": "Step {current} of {total}",
+    "logout": "Sign out",
+    "logoutFailed": "Couldn't sign out. Try again.",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "steps": {
+      "welcome": {
+        "title": "Great to have you here!",
+        "titleNamed": "{username}, great to have you here!"
+      },
+      "profile": {
+        "title": "Your profile",
+        "description": "Introduce yourself. You can change everything later in settings."
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Choose how, about what and when you want to hear about discounts and news."
+      },
+      "preferences": {
+        "title": "Your stores and locations",
+        "description": "Pick the stores and places near you for more accurate price comparisons."
+      },
+      "done": {
+        "title": "You're all set!"
+      }
+    },
+    "welcome": {
+      "intro": "A few quick steps will set Disscount up for you. You can change everything later in settings.",
+      "profile": {
+        "title": "Make your profile yours",
+        "text": "Add your name and an avatar to make the app your own."
+      },
+      "stores": {
+        "title": "Your stores",
+        "text": "Pick the stores and locations near you so price comparisons fit your budget."
+      },
+      "notifications": {
+        "title": "Notifications without spam",
+        "text": "Choose how, about what and when you want to hear about discounts and news."
+      }
+    },
+    "done": {
+      "title": "Disscount is ready for you.",
+      "text": "When you select Finish, we save your choices. You can change everything later in settings."
+    }
+  },
+  "security": {
+    "credentials": {
+      "label": "Sign-in and password",
+      "hintWithPassword": "Confirm your current password to change your email or password.",
+      "hintWithoutPassword": "Set a password so you can also sign in with your email, not only with a social account.",
+      "email": "Email",
+      "emailLockedSocial": "To change your email, first unlink your connected social accounts.",
+      "emailLockedNoPassword": "You'll be able to change your email once you've set a password.",
+      "newPassword": "New password",
+      "password": "Password",
+      "newPasswordPlaceholder": "Leave blank to keep your current one",
+      "currentPassword": "Current password",
+      "currentPasswordDescription": "Needed to confirm an email or password change."
+    },
+    "submit": {
+      "setPasswordFailed": "Couldn't set your password. Try again.",
+      "passwordSet": "Password set! You can now also sign in with your email.",
+      "noChanges": "No changes to save.",
+      "currentPasswordWrong": "Your current password isn't correct.",
+      "changePasswordFailed": "Couldn't change your password. Try again.",
+      "socialLinked": "To change your email, first unlink your connected accounts (Google, Facebook).",
+      "changeEmailFailed": "Couldn't change your email. Try again.",
+      "passwordChanged": "Password changed.",
+      "passwordChangedConfirmEmail": "Password changed. To change your email, confirm the link we sent to your current address.",
+      "emailConfirmationSent": "We sent a link to your current address. We'll change your email once you confirm it.",
+      "generic": "Something went wrong. Try again.",
+      "tooManyAttempts": "Too many wrong attempts. Try again in 15 minutes."
+    },
+    "recovery": {
+      "title": "Check your email",
+      "description": "We sent you a link to change your password. After you change it, we'll sign you out on all devices.",
+      "sendFailed": "Couldn't send the link. Try again."
+    },
+    "linked": {
+      "label": "Linked accounts",
+      "hint": "Link social accounts to sign in faster.",
+      "link": "Link",
+      "unlink": "Unlink",
+      "linkFailed": "Couldn't link the account. Try again.",
+      "unlinkFailed": "Couldn't unlink the account. Try again.",
+      "unlinked": "Account unlinked."
+    },
+    "actions": {
+      "revokeLabel": "Sign out of other devices",
+      "revokeDescription": "Sign out on every device except this one.",
+      "revokeButton": "Sign out",
+      "deleteLabel": "Delete account",
+      "deleteDescription": "Permanently deletes your account and all related data.",
+      "deleteButton": "Delete",
+      "revokeDialogTitle": "Sign out of other devices?",
+      "revokeDialogDescription": "We'll sign you out on every device except this one.",
+      "deleteDialogTitle": "Delete account?",
+      "deleteDialogDescription": "We'll permanently delete your account and all your data. You can't undo this.",
+      "revokeFailed": "Couldn't sign out your other devices. Try again.",
+      "revoked": "Your other devices are signed out.",
+      "deleted": "Your account has been deleted."
+    },
+    "reauth": {
+      "cancel": "Cancel",
+      "passwordHint": "Enter your password to confirm it's you.",
+      "codeSending": "Sending you a code by email...",
+      "codeSent": "We sent a code to <strong>{email}</strong>.",
+      "codeSendFailed": "We couldn't send the code. Try again.",
+      "codeEmailLimit": "We've sent too many emails to your address. Try again in an hour.",
+      "codeLabel": "Code from the email",
+      "codeMissing": "Didn't get it?",
+      "resend": "Send again",
+      "resendIn": "Send again in {wait}",
+      "wrongCode": "That code isn't right. Try again.",
+      "wrongCodeAttempts": "That code isn't right. {attemptsLeft, plural, one {You have # try left.} other {You have # tries left.}}",
+      "codeExpired": "The code expired or was already used. Ask for a new one.",
+      "unlinkTitle": "Unlink {provider}?",
+      "unlinkDescription": "Confirm it's you, then we'll unlink {provider} from your account.",
+      "setPasswordTitle": "Set a password",
+      "setPasswordDescription": "Confirm it's you, then we'll save your new password.",
+      "setPasswordConfirm": "Save password"
+    },
+    "sessions": {
+      "label": "Active sign-ins",
+      "hint": "Devices where your account is signed in right now.",
+      "thisDevice": "This device",
+      "unknownDevice": "Unknown device",
+      "device": "{browser} · {os}",
+      "lastActive": "Last active: {when}",
+      "signOut": "Sign out",
+      "signOutDevice": "Sign out {device}",
+      "signedOut": "Device signed out.",
+      "signOutFailed": "Couldn't sign the device out. Try again.",
+      "loadFailed": "We couldn't load your sign-ins.",
+      "tokenNote": "A signed-out device keeps access to your data for up to {minutes, plural, one {# minute} other {# minutes}}."
+    }
+  }
+}

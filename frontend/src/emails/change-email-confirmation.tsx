@@ -1,34 +1,14 @@
-import ActionEmail from "@/emails/components/action-email";
+import ActionEmail, {
+  type IActionEmailProps,
+} from "@/emails/components/action-email";
+import { previewProps } from "@/emails/_preview/preview-props";
 
-interface IChangeEmailConfirmationProps {
-  confirmUrl: string;
-  newEmail: string;
+// Preview-only entry: the send path renders the shared component itself, so the
+// catalogs loaded here never reach production.
+export default function ChangeEmailConfirmationPreview(
+  props: IActionEmailProps,
+) {
+  return <ActionEmail {...props} />;
 }
 
-// Goes to the CURRENT address, so a hijacked session can't move the account.
-export default function ChangeEmailConfirmation({
-  confirmUrl,
-  newEmail,
-}: IChangeEmailConfirmationProps) {
-  return (
-    <ActionEmail
-      preview="Potvrdi promjenu email adrese"
-      heading="Potvrdi promjenu email adrese"
-      intro={
-        <>
-          Zatražena je promjena email adrese tvog Disscount računa na{" "}
-          <span className="font-semibold text-gray-800">{newEmail}</span>.
-          Klikni na gumb ispod za potvrdu promjene.
-        </>
-      }
-      buttonLabel="Potvrdi promjenu"
-      buttonUrl={confirmUrl}
-      footnote="Ako ova promjena ne dolazi od tebe, odmah promijeni lozinku i javi nam se - tvoja adresa ostaje nepromijenjena dok ne potvrdiš."
-    />
-  );
-}
-
-ChangeEmailConfirmation.PreviewProps = {
-  confirmUrl: "https://disscount.me/api/auth/verify-email?token=preview",
-  newEmail: "nova@email.com",
-} satisfies IChangeEmailConfirmationProps;
+ChangeEmailConfirmationPreview.PreviewProps = previewProps("changeEmail");

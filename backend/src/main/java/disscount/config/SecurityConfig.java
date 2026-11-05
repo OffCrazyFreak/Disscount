@@ -1,5 +1,7 @@
 package disscount.config;
 
+import disscount.user.service.UserService;
+import disscount.util.SecurityUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,18 +10,26 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.security.oauth2.jwt.JwtAudienceValidator;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+
+import java.util.function.Supplier;
 
 @Configuration
 @EnableWebSecurity
@@ -27,6 +37,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 public class SecurityConfig {
 
     private final UserProvisioningFilter userProvisioningFilter;
+    private final UserService userService;
 
     @Bean
     public JwtDecoder jwtDecoder(
@@ -38,7 +49,10 @@ public class SecurityConfig {
                 .jwsAlgorithm(SignatureAlgorithm.ES256)
                 .build();
 
-        decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer));
+        // better-auth sets aud to the same base URL as iss, so no separate setting is needed (RFC 8725, 3.9).
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
+                JwtValidators.createDefaultWithIssuer(issuer),
+                new JwtAudienceValidator(issuer)));
 
         return decoder;
     }
@@ -102,6 +116,44 @@ public class SecurityConfig {
         return http.build();
     }
 
+    private static AuthorizationDecision isAccountErasureToken(
+            Supplier<? extends Authentication> authentication,
+            RequestAuthorizationContext context
+    ) {
+        boolean isErasureToken = authentication.get() instanceof JwtAuthenticationToken jwt
+                && TokenPurpose.isAccountErasure(jwt.getToken());
+        return new AuthorizationDecision(isErasureToken);
+    }
+
+    private static AuthorizationDecision isOrdinarySessionToken(
+            Supplier<? extends Authentication> authentication,
+            RequestAuthorizationContext context
+    ) {
+        boolean isOrdinary = authentication.get() instanceof JwtAuthenticationToken jwt
+                && !TokenPurpose.isPurposeScoped(jwt.getToken());
+        return new AuthorizationDecision(isOrdinary);
+    }
+
+    /** Looked up per request rather than read from the token, so a demotion or deletion applies at once. */
+    private AuthorizationDecision isActiveAdmin(
+            Supplier<? extends Authentication> authentication,
+            RequestAuthorizationContext context
+    ) {
+        boolean isAdmin = isOrdinarySessionToken(authentication, context).isGranted()
+                && SecurityUtils.getCurrentUserIdOptional().filter(userService::isActiveAdmin).isPresent();
+        return new AuthorizationDecision(isAdmin);
+    }
+
+    /** The public routes' rule: anyone, signed in or not, except a purpose scoped token. */
+    private static AuthorizationDecision isNotPurposeScoped(
+            Supplier<? extends Authentication> authentication,
+            RequestAuthorizationContext context
+    ) {
+        boolean isPurposeScoped = authentication.get() instanceof JwtAuthenticationToken jwt
+                && TokenPurpose.isPurposeScoped(jwt.getToken());
+        return new AuthorizationDecision(!isPurposeScoped);
+    }
+
     /** Unlisted methods fall through to the authenticated chain, so the default is deny. */
     private static RequestMatcher shoppingListByIdMatcher() {
         return new OrRequestMatcher(
@@ -123,7 +175,13 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/contact").access(SecurityConfig::isNotPurposeScoped)
+                // Only better-auth's deleteUser hook mints this token, after its own checks,
+                // so an ordinary session token cannot erase the profile and keep its login.
+                .requestMatchers(HttpMethod.DELETE, "/api/users/me").access(SecurityConfig::isAccountErasureToken)
+                // Product photos are public like the prices; uploads and reports still need a login.
+                .requestMatchers(HttpMethod.GET, "/api/products/*/images", "/api/products/images/thumbnails",
+                        "/api/products/catalog/eans").access(SecurityConfig::isNotPurposeScoped)
                 .requestMatchers(
                     "/actuator/health",
                     "/v3/api-docs/**",
@@ -131,7 +189,8 @@ public class SecurityConfig {
                     "/swagger-ui/**",
                     "/swagger-ui.html"
                 ).permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers("/api/admin/**").access(this::isActiveAdmin)
+                .anyRequest().access(SecurityConfig::isOrdinarySessionToken)
             )
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint((req, res, authEx) ->

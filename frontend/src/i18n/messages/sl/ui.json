@@ -1,0 +1,22 @@
+{
+  "dialog": { "close": "Zapri" },
+  "command": {
+    "title": "Paleta ukazov",
+    "description": "Poišči ukaz za zagon..."
+  },
+  "sidebar": {
+    "mobileTitle": "Stranska vrstica",
+    "mobileDescription": "Prikaže stransko vrstico na telefonu.",
+    "toggle": "Prikaži ali skrij stransko vrstico"
+  },
+  "share": {
+    "copied": "Povezava je kopirana",
+    "failed": "Deljenje ni uspelo"
+  },
+  "toaster": { "label": "Sporočila" },
+  "offline": {
+    "writeFailed": "Spremembe ni bilo mogoče shraniti. Poskusi znova.",
+    "writeFailedLostAccess": "Spremembe ni bilo mogoče shraniti. Morda nimaš več dostopa do tega seznama.",
+    "retiredWriteDropped": "Spremembe iz starejše različice aplikacije ni bilo mogoče shraniti. Odpri seznam in preveri."
+  }
+}

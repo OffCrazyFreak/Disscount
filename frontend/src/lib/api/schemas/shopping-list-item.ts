@@ -1,37 +1,46 @@
 import { z } from "zod";
 import { MAX_SHOPPING_LIST_ITEM_AMOUNT } from "@/constants/shopping-list";
 
-export const shoppingListItemRequestSchema = z.object({
-  ean: z.string().min(1, "EAN kod je obavezan"),
-  name: z.string().min(1, "Naziv proizvoda je obavezan"),
-  brand: z.string().nullable().optional(),
-  quantity: z.string().nullable().optional(),
-  unit: z.string().nullable().optional(),
-  amount: z
-    .number()
-    .int()
-    .min(1, "Količina mora biti veća od 0")
-    .max(
-      MAX_SHOPPING_LIST_ITEM_AMOUNT,
-      `Količina ne može biti veća od ${MAX_SHOPPING_LIST_ITEM_AMOUNT}`,
-    )
-    .default(1),
-  isChecked: z.boolean().default(false),
-  chainCode: z.string().nullable().optional(),
-  avgPrice: z.number().nullable().optional(),
-  storePrice: z.number().nullable().optional(),
+// The fields that carry no form rule, so the request and the response can share them.
+const shoppingListItemFieldsSchema = z.object({
+  // Null for a plain item, typed by the user, that no store in the catalog sells.
+  ean: z.string().nullable(),
+  brand: z.string().nullable(),
+  quantity: z.string().nullable(),
+  unit: z.string().nullable(),
+  chainCode: z.string().nullable(),
+  avgPrice: z.number().nullable(),
+  storePrice: z.number().nullable(),
 });
 
-// DTO schemas extend request schemas
-export const shoppingListItemDtoSchema = shoppingListItemRequestSchema.extend({
+// Partial because a request may leave any of them out; the response always sends every key.
+export const shoppingListItemRequestSchema = shoppingListItemFieldsSchema
+  .partial()
+  .extend({
+    name: z.string().min(1, "shoppingLists.validation.nameRequired"),
+    amount: z
+      .number()
+      .int()
+      .min(1, "shoppingLists.validation.amountMin")
+      // The message text states the limit as a literal: keys cannot take parameters.
+      .max(MAX_SHOPPING_LIST_ITEM_AMOUNT, "shoppingLists.validation.amountMax")
+      .default(1),
+    isChecked: z.boolean().default(false),
+  });
+
+// Not an extension of the request schema: its limits are form rules, and a row the server
+// holds (saved before a limit existed, or imported) must still parse.
+export const shoppingListItemDtoSchema = shoppingListItemFieldsSchema.extend({
   id: z.string(),
   shoppingListId: z.string(),
+  name: z.string(),
+  amount: z.number().int(),
+  isChecked: z.boolean(),
   createdAt: z.string(),
-  updatedAt: z.string().nullable().optional(),
-  updatedByUserId: z.string().nullable().optional(),
+  updatedAt: z.string(),
+  updatedByUserId: z.string().nullable(),
 });
 
-// Type exports
 export type ShoppingListItemRequest = z.infer<
   typeof shoppingListItemRequestSchema
 >;

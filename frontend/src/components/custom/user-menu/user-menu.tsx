@@ -1,4 +1,5 @@
 import { type ReactElement } from "react";
+import { useTranslations } from "next-intl";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +19,8 @@ interface IUserMenuProps {
 }
 
 export default function UserMenu({ trigger, side }: IUserMenuProps = {}) {
-  const { user, logout } = useUser();
+  const t = useTranslations("shell");
+  const { accountUser: user, logout } = useUser();
 
   const avatarUser = {
     name: user?.username || "",
@@ -32,7 +34,7 @@ export default function UserMenu({ trigger, side }: IUserMenuProps = {}) {
         {trigger ?? (
           <button
             type="button"
-            aria-label="Korisnički izbornik"
+            aria-label={t("userMenu.trigger")}
             className="cursor-pointer rounded-full"
           >
             <UserAvatar
