@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
+import disscount.exceptions.BadRequestException;
 import disscount.exceptions.NotFoundException;
 import disscount.exceptions.ServiceUnavailableException;
 import disscount.productImage.dao.ProductImageRepository;
@@ -96,7 +97,7 @@ public class ProductImageRendering {
         Crop crop = image.hasCrop()
                 ? new Crop(image.getCropX(), image.getCropY(), image.getCropWidth(), image.getCropHeight())
                 : null;
-        Rendered rendered = ProductImageRenderer.render(source(image), image.getRotation(), crop);
+        Rendered rendered = render(source(image), image.getRotation(), crop, image);
         if (rendered.overCeiling()) {
             log.info("Product photo {} for {} stays over its size ceiling at the lowest quality: full {}, small {} bytes",
                     image.getId(), image.getEan(), rendered.full().length, rendered.small().length);
@@ -130,6 +131,18 @@ public class ProductImageRendering {
         deleteIfUnused(oldFull, copy.fullKey());
         deleteIfUnused(oldThumb, null);
         deleteIfUnused(oldSmall, copy.smallKey());
+    }
+
+    /** The renderer only reads the bytes it is given, so an unexpected failure there belongs to this photo, not to an outage. */
+    private static Rendered render(byte[] source, int rotation, Crop crop, ProductImage image) {
+        try {
+            return ProductImageRenderer.render(source, rotation, crop);
+        } catch (BadRequestException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            log.warn("Product photo {} for {} could not be rendered", image.getId(), image.getEan(), e);
+            throw new PhotoRenderFailedException(e);
+        }
     }
 
     public String originalUrl(ProductImage image) {
