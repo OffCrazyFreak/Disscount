@@ -15,7 +15,7 @@ Target: $ARGUMENTS
 3. One PR for one area, with many commits. `/batch` opens many PRs, so it does not fit here.
 4. Every commit passes the checks and reverts on its own. Structure and behaviour go in separate commits.
 5. Each structure step names the command or test that proves behaviour unchanged, and it passes before and after the step. When none exists, the first commit adds tests that pin today's behaviour.
-6. The proposal sets a size budget of net lines and files. When the build passes about 1.5 times either, stop and return to a question card.
+6. The proposal sets a size budget: estimated churn (lines added plus lines removed) and files, counting planned temporary growth such as a strangler's side-by-side path and the guard. At the end of each step, compare churn so far (`git diff --numstat <base>`) to the estimate; past about 1.5 times churn or files, stop and return to a question card.
 7. Opus at medium effort writes the code (`coder`). Sonnet at high effort audits and researches (`researcher`) and reviews (`reviewer`).
 8. Anything outside the approved plan goes in the list at the end. A plan that turns out wrong returns to a question card.
 
@@ -31,7 +31,7 @@ Target: $ARGUMENTS
    - What is wrong, with the evidence
    - The target, with sources
    - Alternatives rejected and why
-   - Size budget: estimated net lines and files
+   - Size budget: estimated churn and files, with temporary growth and the guard counted, and the expected net lines
    - Ordered reversible steps, each with the command or test that proves behaviour unchanged
    - Risks, data or config steps, and what stays untouched
 
@@ -45,4 +45,4 @@ Target: $ARGUMENTS
 
 8. Review. One `reviewer` pass over the whole diff, given the diff and the proposal, not your conclusions. A second pass only after large fixes.
 
-9. Hand back. The PR body carries the why, my decisions in my words, the research, the commits in review order, what was tested and not run, and the risks. Report net lines and files against the budget, the guard added, and the out-of-plan list with file:line and one sentence each.
+9. Hand back. The PR body carries the why, my decisions in my words, the research, the commits in review order, what was tested and not run, and the risks. Report churn and files against the budget, net lines, the guard added, and the out-of-plan list with file:line and one sentence each.
