@@ -19,8 +19,8 @@ interface IOpeningStatusDetailProps {
   id?: string;
   /** The full status, such as "Otvoreno, zatvara uskoro u 21:00". */
   name: string;
-  /** The tooltip line, such as "Zatvara u 21:00". */
-  detail: string;
+  /** The tooltip, such as "Zatvara u 21:00". */
+  detail: ReactNode;
   children: ReactNode;
 }
 

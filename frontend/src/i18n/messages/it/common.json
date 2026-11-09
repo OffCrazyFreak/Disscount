@@ -173,7 +173,7 @@
     "unavailable": "La tua posizione non è disponibile al momento, quindi resta l'ordine predefinito. Scegli di nuovo la distanza per riprovare.",
     "timeout": "Non riusciamo a determinare la tua posizione, quindi resta l'ordine predefinito. Controlla che la localizzazione sia attiva sul dispositivo e scegli di nuovo la distanza.",
     "noStores": "Le posizioni dei negozi non sono disponibili al momento, quindi resta l'ordine predefinito.",
-    "nearest": "Negozio più vicino: {distance}",
+    "nearestName": "Negozio più vicino, {distance}: {store}",
     "pickTown": "Scegli una località",
     "changeTown": "Cambia",
     "changeTownLabel": "Cambia località",

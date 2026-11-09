@@ -173,7 +173,7 @@
     "unavailable": "Your location isn't available right now, so the default order stays. Choose distance again to retry.",
     "timeout": "We can't find your location, so the default order stays. Check that location is on for your device and choose distance again.",
     "noStores": "Store locations aren't available right now, so the default order stays.",
-    "nearest": "Nearest store: {distance}",
+    "nearestName": "Nearest store, {distance}: {store}",
     "pickTown": "Pick a town",
     "changeTown": "Change",
     "changeTownLabel": "Change town",

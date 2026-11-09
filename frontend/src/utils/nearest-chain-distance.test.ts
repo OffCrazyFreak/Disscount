@@ -13,14 +13,43 @@ const ZAGREB = { lat: 45.813, lon: 15.977 };
 describe("nearestStoreByChain", () => {
   it("keeps each chain's closest located store", () => {
     const nearest = nearestStoreByChain(ZAGREB, [
-      { chain: "konzum", code: "far", lat: 45.55, lon: 18.69 },
-      { chain: "konzum", code: "near", lat: 45.813, lon: 15.987 },
-      { chain: "lidl", code: "1", lat: 45.33, lon: 14.44 },
-      { chain: "spar", code: "1", lat: null, lon: null },
+      {
+        chain: "konzum",
+        code: "far",
+        address: null,
+        city: null,
+        lat: 45.55,
+        lon: 18.69,
+      },
+      {
+        chain: "konzum",
+        code: "near",
+        address: "Ilica 1",
+        city: "Zagreb",
+        lat: 45.813,
+        lon: 15.987,
+      },
+      {
+        chain: "lidl",
+        code: "1",
+        address: null,
+        city: null,
+        lat: 45.33,
+        lon: 14.44,
+      },
+      {
+        chain: "spar",
+        code: "1",
+        address: null,
+        city: null,
+        lat: null,
+        lon: null,
+      },
     ]);
 
     expect(nearest.get("konzum")?.key).toBe("konzum:near");
     expect(nearest.get("konzum")?.km).toBeCloseTo(0.78, 1);
+    expect(nearest.get("konzum")?.address).toBe("Ilica 1");
     expect(nearest.get("lidl")?.km).toBeGreaterThan(100);
     expect(nearest.has("spar")).toBe(false);
   });
@@ -73,14 +102,37 @@ describe("locatePricedStores", () => {
         [listed("konzum", "1", 30), listed("lidl", "2", 40)],
       ),
     ).toEqual([
-      { chain: "konzum", code: "1", lat: 30, lon: 30 },
-      { chain: "konzum", code: "2", lat: 20, lon: 20 },
+      {
+        chain: "konzum",
+        code: "1",
+        address: null,
+        city: null,
+        lat: 30,
+        lon: 30,
+      },
+      {
+        chain: "konzum",
+        code: "2",
+        address: null,
+        city: null,
+        lat: 20,
+        lon: 20,
+      },
     ]);
   });
 
   it("trusts a directory miss over upstream's pin", () => {
     expect(
       locatePricedStores([price("spar", "1", 10)], [listed("spar", "1", null)]),
-    ).toEqual([{ chain: "spar", code: "1", lat: null, lon: null }]);
+    ).toEqual([
+      {
+        chain: "spar",
+        code: "1",
+        address: null,
+        city: null,
+        lat: null,
+        lon: null,
+      },
+    ]);
   });
 });

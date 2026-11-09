@@ -57,21 +57,16 @@ const StoreItem = memo(
       false;
 
     const isDataFromToday = isPriceDateToday(store.price_date);
-    const describedBy = [
-      `${id}-warning`,
-      `${id}-prices`,
-      nearest && `${id}-nearest`,
-      `${id}-action`,
-    ]
-      .filter(Boolean)
-      .join(" ");
+    const describedBy = `${id}-warning ${id}-prices ${id}-action`;
 
     return (
       <Collapsible open={isExpanded} onOpenChange={onToggle}>
         <Card className="shadow-sm hover:shadow-md transition-shadow">
-          {/* The toggle stretches over the row instead of wrapping it, so the opening badge can be its own button. */}
+          {/* The toggle stretches over the row instead of wrapping it, so the distance can be its own button. */}
           <MediaRow
             className="relative isolate p-3 sm:p-4"
+            // The height of the name and price lines, so a wrapped heading never grows the logo.
+            mediaClassName="h-18 self-center sm:h-13"
             media={
               <div aria-hidden="true">
                 <StoreChainLogo
@@ -95,6 +90,8 @@ const StoreItem = memo(
                     </StretchedCollapsibleTrigger>
                   </h3>
 
+                  {nearest && <NearestStoreDistance nearest={nearest} />}
+
                   <div id={`${id}-warning`} className="flex items-center gap-3">
                     {!isDataFromToday && (
                       <Badge variant="warningSoft">
@@ -110,15 +107,9 @@ const StoreItem = memo(
                 <div id={`${id}-prices`} className="mt-2">
                   <StorePriceSummary store={store} product={product} />
                 </div>
-
-                {nearest && (
-                  <div id={`${id}-nearest`} className="mt-1">
-                    <NearestStoreDistance nearest={nearest} />
-                  </div>
-                )}
               </div>
 
-              <div className="flex-1 flex items-center justify-end gap-4">
+              <div className="flex items-center justify-end gap-4">
                 <p
                   id={`${id}-action`}
                   className="hidden sm:inline text-gray-700 text-sm text-pretty text-right"

@@ -33,9 +33,14 @@ const hours: IStoreHoursNow = {
   now: new Date("2026-11-04T10:00:00+01:00"),
 };
 
-const NEAREST: INearestStore = { key: "konzum:1", km: 1.2 };
+const NEAREST: INearestStore = {
+  key: "konzum:1",
+  km: 1.2,
+  address: "Ilica 1",
+  city: "Zagreb",
+};
 
-const BADGE_NAME = "Otvoreno, zatvara u 21:00";
+const DISTANCE_NAME = "Najbliža trgovina, 1,2 km: Ilica 1, Zagreb, Otvoreno";
 
 /** Shared by both chain cards, so `card` must show a chain called Konzum and `DETAILS` once expanded. */
 export function describeChainCard(
@@ -55,8 +60,8 @@ export function describeChainCard(
     );
   }
 
-  function badge() {
-    return screen.getByRole("button", { name: BADGE_NAME });
+  function distance() {
+    return screen.getByRole("button", { name: DISTANCE_NAME });
   }
 
   describe(`${label} chain card`, () => {
@@ -76,34 +81,61 @@ export function describeChainCard(
       expect(toggle()).toHaveAttribute("aria-expanded", "false");
     });
 
-    it("opens the badge's time on keyboard focus, right after the toggle", async () => {
+    it("shows the distance in brackets beside the chain name", () => {
+      renderCard();
+
+      expect(distance()).toHaveTextContent("(1,2 km)");
+    });
+
+    it("opens the nearest store on keyboard focus, right after the toggle", async () => {
       const user = userEvent.setup();
       renderCard();
 
       await user.tab();
       await user.tab();
 
-      expect(badge()).toHaveFocus();
-      expect(await screen.findByText("Zatvara u 21:00")).toBeInTheDocument();
+      expect(distance()).toHaveFocus();
+      expect(await screen.findByText("Ilica 1, Zagreb")).toBeInTheDocument();
     });
 
-    it("opens the badge's time on tap without toggling the card", async () => {
+    it("opens the nearest store on hover with its state and no times", async () => {
+      const user = userEvent.setup();
+      renderCard();
+
+      await user.hover(distance());
+
+      expect(await screen.findByText("Ilica 1, Zagreb")).toBeInTheDocument();
+      expect(screen.getByText("Otvoreno")).toBeInTheDocument();
+      expect(screen.queryByText(/21:00/)).not.toBeInTheDocument();
+    });
+
+    it("opens the nearest store on tap without toggling the card", async () => {
       const user = userEvent.setup({ pointerEventsCheck: 0 });
       renderCard();
 
       await user.pointer([
-        { keys: "[TouchA>]", target: badge() },
+        { keys: "[TouchA>]", target: distance() },
         { keys: "[/TouchA]" },
       ]);
 
-      expect(await screen.findByText("Zatvara u 21:00")).toBeInTheDocument();
+      expect(await screen.findByText("Ilica 1, Zagreb")).toBeInTheDocument();
       expect(toggle()).toHaveAttribute("aria-expanded", "false");
+    });
+
+    it("names only the address when the store's hours are unconfirmed", () => {
+      renderCard({ ...NEAREST, key: "konzum:2" });
+
+      expect(
+        screen.getByRole("button", {
+          name: "Najbliža trgovina, 1,2 km: Ilica 1, Zagreb",
+        }),
+      ).toBeInTheDocument();
     });
 
     it("never nests one interactive element in another", () => {
       const { container } = renderCard();
 
-      expect(badge()).toBeInTheDocument();
+      expect(distance()).toBeInTheDocument();
       expect(
         container.querySelectorAll(
           "button button, button a, a button, a a, [role='button'] button",
@@ -111,24 +143,21 @@ export function describeChainCard(
       ).toHaveLength(0);
     });
 
-    it("keeps a short name and describes the card's prices and nearest store", () => {
+    it("keeps a short name and describes the card's prices", () => {
       renderCard();
 
-      expect(toggle()).toHaveAccessibleDescription(
-        expect.stringContaining("Najbliža trgovina: 1,2 km"),
-      );
       expect(toggle()).toHaveAccessibleDescription(
         expect.stringContaining("Najniža: 1,00"),
       );
     });
 
-    it("has no badge and no dangling description without a nearest store", () => {
+    it("has no distance and no dangling description without a nearest store", () => {
       const { container } = renderWithProviders(
         <StoreHoursProvider hours={hours}>{card()}</StoreHoursProvider>,
       );
 
       expect(
-        screen.queryByRole("button", { name: BADGE_NAME }),
+        screen.queryByRole("button", { name: /Najbliža trgovina/ }),
       ).not.toBeInTheDocument();
 
       const ids = toggle().getAttribute("aria-describedby")?.split(" ") ?? [];

@@ -173,7 +173,7 @@
     "unavailable": "Lokacija trenutno nije dostupna, pa ostaje zadani poredak. Ponovno odaberi udaljenost za novi pokušaj.",
     "timeout": "Ne možemo pronaći tvoju lokaciju pa ostaje zadani poredak. Provjeri je li uključena na uređaju i ponovno odaberi udaljenost.",
     "noStores": "Lokacije trgovina trenutno nisu dostupne, pa ostaje zadani poredak.",
-    "nearest": "Najbliža trgovina: {distance}",
+    "nearestName": "Najbliža trgovina, {distance}: {store}",
     "pickTown": "Odaberi mjesto",
     "changeTown": "Promijeni",
     "changeTownLabel": "Promijeni mjesto",
