@@ -97,7 +97,7 @@
 ### Replies
 
 - Write the finished reply first (what changed and why, what is left, what waits on me - I am still learning, so the explanation is the point.) Then end the turn in a card for anything that needs me.
-- Reply in plain terms in at most 25 lines, explaining jargon in one phrase.
+- Reply in plain terms in at most 25 lines unless I ask for the full version, explaining jargon in one phrase.
 - Answer a question in a few sentences, never a bare verdict.
 - Leave out pasted command output and, in chat, alternatives I do not need to choose between.
 - Write every PR or issue reference as number plus short name, in chat, lists, tables, board cards, comments and bodies, even when repeated.
@@ -302,5 +302,5 @@ Notes:
 
 ## Privacy
 
-- Treat everything you write as publishable: no personal emails, no secret values, server IPs or SSH users.
+- Treat everything you write to a repository or public site as publishable: no personal emails, no secret values, server IPs or SSH users.
 - Never name my other repositories or anything from them in a repository's files, commits, PRs or issues; reading them for reference is fine.
