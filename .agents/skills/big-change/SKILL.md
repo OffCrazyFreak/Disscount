@@ -32,7 +32,7 @@ Target: $ARGUMENTS
    - The target, with sources
    - Alternatives rejected and why
    - Size budget: estimated churn and files, with temporary growth and the guard counted, and the expected net lines
-   - Ordered reversible steps, each with the command or test that proves behaviour unchanged
+   - Ordered reversible steps: each structure step with the command or test that proves behaviour unchanged, each behaviour step with its expected result
    - Risks, data or config steps, and what stays untouched
 
    Then ask in a card with the main points and your recommendation. Stop until I answer.
@@ -43,6 +43,6 @@ Target: $ARGUMENTS
 
 7. Clean up. Delete what the change made obsolete: the old path, adapters, flags and shims. The PR is not done while the old path has callers. Add a guard against the old pattern growing back (a lint rule, fallow config or test) where one fits, or say why none does.
 
-8. Review. One `reviewer` pass over the whole diff, given the diff and the proposal, not your conclusions. A second pass only after large fixes.
+8. Review. One `reviewer` pass over the whole diff, given the diff, the proposal and its tracking issue, not your conclusions. A second pass only after large fixes.
 
 9. Hand back. The PR body carries the why, my decisions in my words, the research, the commits in review order, what was tested and not run, and the risks. Report churn and files against the budget, net lines, the guard added, and the out-of-plan list with file:line and one sentence each.
