@@ -61,8 +61,7 @@ interface IAuthStatusModalProps {
   linkError?: string;
 }
 
-// Reached via ?modal=email-verified|email-changed after the redirect; on success Better
-// Auth already signed them in on the way back, so this only confirms.
+// On success Better Auth already signed them in on the way back, so this only confirms.
 export default function AuthStatusModal({
   open,
   kind,
@@ -72,7 +71,6 @@ export default function AuthStatusModal({
   const { refreshUser, isAuthenticated, isLoading } = useUser();
 
   function handleContinue() {
-    // Pull the freshly verified/updated identity before closing.
     void refreshUser();
     closeModalUrl();
   }

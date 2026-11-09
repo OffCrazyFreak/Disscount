@@ -25,8 +25,7 @@ public class UserDto {
     // null for /me (sourced from the better-auth session on the frontend); backfilled for the admin list.
     @Schema(nullable = true)
     private String email;
-    // Preference toggles exposed as their actual enable-timestamps (null = off): the frontend renders
-    // the switches via `!= null` and can also show "enabled since …" on a stats dashboard.
+    // Exposed as enable-timestamps so the frontend renders switches via `!= null` and can show "enabled since".
     @Schema(nullable = true)
     private LocalDateTime notificationsPushEnabledAt;
     @Schema(nullable = true)
@@ -45,8 +44,7 @@ public class UserDto {
     private String onboardingOutcome;
     private AccountType accountType;
     private LocalDateTime createdAt;
-    // Instant, not LocalDateTime: the dashboard does date maths and needs the offset.
-    // Sign-in time from the better-auth `session` table; null for /me and once sessions expire.
+    // Instant, because the dashboard does date maths and needs the offset; null for /me and once sessions expire.
     @Schema(nullable = true)
     private Instant lastLoginAt;
     // Last seen, and what the dashboard's active-user counters are built on.

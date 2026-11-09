@@ -35,7 +35,6 @@ export function summaryLabelIds(row: IListedStore, id: string): string {
     .join(" ");
 }
 
-/** A store's logo, name, address and distance, as a list row and the phone sheet show it. */
 export default function StoreSummary({ row, isOpen, id }: IStoreSummaryProps) {
   const t = useTranslations("map.list");
   const locale = useLocale();

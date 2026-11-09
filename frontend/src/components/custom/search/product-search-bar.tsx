@@ -11,10 +11,7 @@ type IProductSearchBarProps = Omit<
   "searchRoute" | "draftStore" | "autoSearch" | "shallow" | "suggestions"
 >;
 
-/**
- * A product search field. Several can share a screen, each with its own submit
- * button, so they mirror one draft and any of them searches what was typed.
- */
+/** Several can share a screen, each with its own submit button, so they mirror one draft. */
 export default function ProductSearchBar({
   onSubmitted,
   ...props

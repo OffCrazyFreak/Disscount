@@ -3,8 +3,7 @@ import { templatePosts } from "@/app/[locale]/updates/posts";
 import { languageAlternates, localizedUrl } from "@/i18n/alternates";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
 
-// Every entry is the Croatian URL plus its hreflang set, so each language version
-// is discoverable without listing it five times.
+// Each entry is the Croatian URL plus its hreflang set, so each language is discoverable without listing it five times.
 function entry(
   href: string,
   fields: Omit<MetadataRoute.Sitemap[number], "url" | "alternates">,

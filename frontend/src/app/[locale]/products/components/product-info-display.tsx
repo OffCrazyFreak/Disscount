@@ -39,9 +39,7 @@ export default function ProductInfoDisplay({
 
   return (
     <div className="space-y-4">
-      {/* Header Row */}
       <div className="flex items-center justify-between gap-4">
-        {/* Left side - Image and product info */}
         <div className="flex-1 flex items-center gap-4">
           {/* Back button only on the standalone product page, not inside modals */}
           {enableActionButtons && (
@@ -63,7 +61,6 @@ export default function ProductInfoDisplay({
             />
           )}
 
-          {/* Product Name and Category */}
           <div className="text-pretty">
             <h3 lang={product.name ? "hr" : undefined} className="font-bold">
               {product.name || t("productInfo.unknown")}
@@ -76,7 +73,6 @@ export default function ProductInfoDisplay({
           </div>
         </div>
 
-        {/* Right side - action buttons on the product page, or a modal action */}
         {enableActionButtons ? (
           <ProductActionButtons product={product} />
         ) : (

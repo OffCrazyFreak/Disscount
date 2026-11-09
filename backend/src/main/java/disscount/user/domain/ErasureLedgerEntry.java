@@ -7,11 +7,7 @@ import org.hibernate.annotations.ColumnDefault;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Tombstone of an erased account: the only record kept once its data is gone. Holds no personal
- * data. The 410 check reads it, and the backup sidecar turns recent rows into the erasure markers
- * a restore replays (docs/BACKUPS.md).
- */
+/** No personal data; the 410 check reads it, and the backup sidecar makes markers for restores (docs/BACKUPS.md). */
 @Entity
 @Table(name = "erasure_ledger")
 @Getter

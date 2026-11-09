@@ -16,8 +16,7 @@ import {
   isGpuError,
 } from "@/app/[locale]/map/utils/webgl-support";
 
-// The bundler only emits the worker file when it sees this URL; without it the map
-// mounts but never loads a tile.
+// The bundler only emits the worker file when it sees this URL; without it the map never loads a tile.
 maplibregl.setWorkerUrl(
   new URL(
     "maplibre-gl/dist/maplibre-gl-worker.mjs",
@@ -30,11 +29,9 @@ type IStoreMapProps = Omit<
   "mapStyle" | "onContextLost" | "onMapError"
 >;
 
-/** The map once its style loads, or a placeholder or an error instead. */
 export default function StoreMap(props: IStoreMapProps) {
   const t = useTranslations("map.unavailable");
-  // Checked before mounting: react-map-gl catches MapLibre's constructor
-  // error itself, so an error boundary never sees it.
+  // Checked before mounting, because react-map-gl swallows the constructor error from any boundary.
   const [failure, setFailure] = useState<"noGpu" | "contextLost" | null>(() =>
     canUseWebGL2() ? null : "noGpu",
   );
@@ -76,8 +73,7 @@ export default function StoreMap(props: IStoreMapProps) {
       onContextLost={() => setFailure("contextLost")}
       onMapError={(event) => {
         if (isGpuError(event.error)) setFailure("noGpu");
-        // Passing onError replaces react-map-gl's own logging of tile, style
-        // and image errors, so they are logged here instead.
+        // Passing onError replaces react-map-gl's own logging of tile, style and image errors.
         else console.error(event.error);
       }}
     />

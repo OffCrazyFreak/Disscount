@@ -1,8 +1,4 @@
-/**
- * The chain shown, never saved, for an item with none chosen: viewing a list must not
- * write to it, and an unsaved default keeps following whichever chain is cheapest today.
- * A ticked item records where it was bought, so it never borrows a default.
- */
+/** Shown, never saved: viewing must not write, and a default follows today's cheapest. */
 export function suggestedChain(
   savedChain: string | null | undefined,
   isChecked: boolean,

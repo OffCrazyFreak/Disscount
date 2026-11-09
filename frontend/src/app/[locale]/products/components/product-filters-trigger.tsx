@@ -13,10 +13,7 @@ interface IProductFiltersTriggerProps extends ButtonProps {
   expanded?: boolean;
 }
 
-/**
- * Opens the filters, wherever they live. Spreads the rest of its props so
- * `CollapsibleTrigger asChild` can drive it as well as a plain click handler.
- */
+/** Spreads its props so `CollapsibleTrigger asChild` can drive it as well as a plain click handler. */
 export default function ProductFiltersTrigger({
   count,
   expanded,

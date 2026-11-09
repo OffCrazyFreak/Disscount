@@ -20,7 +20,6 @@ const MODE_TO_TARGET_NAME = {
   forgot: "forgot-password",
 } as const;
 
-// Shown in the login modal when a logged-out user tries to open a gated modal.
 type GateKey =
   `modalRouter.gate.${"addToList" | "watchlist" | "manageLists" | "manageCards" | "settings" | "onboarding"}`;
 
@@ -39,7 +38,6 @@ function isAuthModalName(name: string): boolean {
   return (AUTH_MODAL_NAMES as readonly string[]).includes(name);
 }
 
-/** Decides whether the auth modal shows, in which mode, and with which gate message. */
 export default function useAuthGate(
   target: ModalTarget | null,
   isAuthenticated: boolean,

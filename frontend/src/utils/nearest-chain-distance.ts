@@ -16,7 +16,6 @@ export interface INearestStore {
   km: number;
 }
 
-/** Each chain's nearest store with coordinates, and how far it is from the origin. */
 export function nearestStoreByChain(
   origin: ILatLon,
   stores: Iterable<ILocatedStore>,
@@ -40,11 +39,7 @@ export function nearestStoreByChain(
   return nearest;
 }
 
-/**
- * The stores that priced a product, placed where the store directory puts
- * them: it corrects pins upstream lacks or gets wrong, so upstream's own
- * coordinates only stand in for a store the directory does not list.
- */
+/** The directory corrects upstream's pins, so upstream's coordinates only stand in for a store it lacks. */
 export function locatePricedStores(
   prices: StorePrice[],
   directory: DirectoryStoreDto[],

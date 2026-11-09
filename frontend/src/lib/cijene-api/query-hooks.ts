@@ -28,7 +28,7 @@ function chainsQueryOptions() {
   return queryOptions({
     queryKey: CIJENE_QUERY_KEYS.chains,
     queryFn: listChains,
-    staleTime: 60 * 60 * 1000, // 1 hour - chains don't change often
+    staleTime: 60 * 60 * 1000,
   });
 }
 
@@ -37,7 +37,7 @@ function storesByChainQueryOptions(chainCode: string) {
     queryKey: CIJENE_QUERY_KEYS.storesByChain(chainCode),
     queryFn: () => listStoresByChain(chainCode),
     enabled: Boolean(chainCode),
-    staleTime: 30 * 60 * 1000, // 30 minutes
+    staleTime: 30 * 60 * 1000,
   });
 }
 
@@ -45,7 +45,6 @@ function storeSearchQueryOptions(params?: SearchStoresParams) {
   return queryOptions({
     queryKey: CIJENE_QUERY_KEYS.storeSearch(params),
     queryFn: () => searchStores(params),
-    // enable when no params or when any non-empty filter provided
     enabled:
       params === undefined ||
       Object.keys(params).length === 0 ||
@@ -59,7 +58,7 @@ export function productByEanQueryOptions(params: GetProductParams) {
     queryKey: CIJENE_QUERY_KEYS.product(params),
     queryFn: () => getProductByEan(params),
     enabled: Boolean(params.ean),
-    staleTime: 6 * 60 * 60 * 1000, // 6 hours
+    staleTime: 6 * 60 * 60 * 1000,
   });
 }
 
@@ -72,7 +71,7 @@ function productSearchQueryOptions(searchParams: SearchProductsParams) {
     enabled: hasQuery,
     // Old results stay on screen while the next search loads; none show while the search is cleared.
     placeholderData: hasQuery ? keepPreviousData : undefined,
-    staleTime: 6 * 60 * 60 * 1000, // 6 hours
+    staleTime: 6 * 60 * 60 * 1000,
   });
 }
 
@@ -83,7 +82,7 @@ function storePricesQueryOptions(params: GetPricesParams) {
     queryKey: CIJENE_QUERY_KEYS.productStorePrices(canonicalParams),
     queryFn: () => getPrices(canonicalParams),
     enabled: Boolean(canonicalParams.eans),
-    staleTime: 6 * 60 * 60 * 1000, // 6 hours
+    staleTime: 6 * 60 * 60 * 1000,
   });
 }
 
@@ -91,7 +90,7 @@ function chainStatsQueryOptions() {
   return queryOptions({
     queryKey: CIJENE_QUERY_KEYS.chainStats,
     queryFn: getChainStats,
-    staleTime: 6 * 60 * 60 * 1000, // 6 hours
+    staleTime: 6 * 60 * 60 * 1000,
   });
 }
 
@@ -99,8 +98,8 @@ function healthCheckQueryOptions() {
   return queryOptions({
     queryKey: CIJENE_QUERY_KEYS.health,
     queryFn: healthCheck,
-    staleTime: 30 * 1000, // 30 seconds
-    retry: 1, // Only retry once for health checks
+    staleTime: 30 * 1000,
+    retry: 1,
   });
 }
 
@@ -112,11 +111,6 @@ export function useListStoresByChain(chainCode: string) {
   return useQuery(storesByChainQueryOptions(chainCode));
 }
 
-/**
- * Single hook that does both "search" and "list all":
- *  • useStores()        → list all
- *  • useStores(filters) → apply filters
- */
 export function useSearchStores(params?: SearchStoresParams) {
   return useQuery(storeSearchQueryOptions(params));
 }

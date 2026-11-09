@@ -12,7 +12,6 @@ export const productImageStatusSchema = z.enum([
   "HIDDEN",
 ]);
 
-/** A photo as everyone sees it; the first of a product's list is its main photo. */
 export const productImageSchema = z.object({
   id: z.string(),
   fullUrl: z.string(),
@@ -60,7 +59,6 @@ export const adminProductImageSchema = z.object({
   createdAt: z.string(),
 });
 
-// What the admin sees about a product in the queue and in the editor.
 const adminProductFactsSchema = z.object({
   ean: z.string(),
   name: z.string().nullable(),

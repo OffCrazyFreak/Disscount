@@ -15,11 +15,7 @@ export interface IMatchedHours {
   record: IHoursRecord;
 }
 
-/**
- * Pairs every upstream store of a chain with the chain's record for it, by
- * the location sync's rules (code, then address and town, then the looser
- * passes), so hours land on the same store a locator pin would.
- */
+/** By the location sync's rules, so hours land on the same store a locator pin would. */
 export function matchHours(
   chain: string,
   records: IHoursRecord[],

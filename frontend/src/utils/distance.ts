@@ -11,7 +11,6 @@ function toRadians(degrees: number): number {
   return (degrees * Math.PI) / 180;
 }
 
-/** Great-circle distance in kilometres. */
 export function distanceKm(a: ILatLon, b: ILatLon): number {
   const dLat = toRadians(b.lat - a.lat);
   const dLon = toRadians(b.lon - a.lon);
@@ -25,7 +24,6 @@ export function distanceKm(a: ILatLon, b: ILatLon): number {
   return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(h));
 }
 
-/** "350 m" under a kilometre, "4,2 km" under ten, "37 km" beyond. */
 export function formatDistance(km: number, locale: string): string {
   const format = (value: number, unit: "meter" | "kilometer", digits = 0) =>
     new Intl.NumberFormat(formatLocale(locale), {

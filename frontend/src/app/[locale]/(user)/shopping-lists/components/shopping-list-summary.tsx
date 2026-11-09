@@ -11,10 +11,7 @@ interface IShoppingListSummaryProps {
   shoppingList: ShoppingListDto;
 }
 
-/**
- * How a shopping list reads inside its actions sheet: the same title, date and
- * progress the card shows, so the sheet is obviously about what was pressed.
- */
+/** Same title, date and progress as the card, so the sheet is obviously about what was pressed. */
 export default function ShoppingListSummary({
   shoppingList,
 }: IShoppingListSummaryProps) {

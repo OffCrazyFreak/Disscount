@@ -76,15 +76,12 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
 
   switch (rendered.name) {
     case "shopping-list":
-      // Sharing is its own modal: it saves on change rather than behind a submit button,
-      // since there is nothing to confirm once the URL is the list's own.
+      // Its own modal because it saves on change, with nothing to confirm once the URL is the list's own.
       if (rendered.action === "share") {
         return <ShareListModal open={open} id={rendered.id} />;
       }
       if (rendered.action === "copy") {
-        // Keyed like the modals below: this outlet lingers 200ms after close, and the
-        // copy form now holds a typed name, which a reused instance would carry over to
-        // the next list instead of re-seeding from it.
+        // Keyed because this outlet lingers 200ms, and a reused instance would carry a typed name over.
         return <CopyListModal key={rendered.id} open={open} id={rendered.id} />;
       }
       return (
@@ -96,8 +93,7 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
       );
     case "digital-card":
       if (rendered.action === "view") {
-        // Keyed like the other per-entity modals: the view holds a temporary code type
-        // and rotation that must not carry over to the next card.
+        // Keyed because the view holds a temporary code type and rotation that must not carry over to the next card.
         return (
           <DigitalCardViewModal
             key={rendered.id}
@@ -114,9 +110,7 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
         />
       );
     case "add-to-list":
-      // Keyed so a second product gets its own instance. The form restores its
-      // saved draft once, at mount, and this outlet stays mounted between
-      // openings, so a reused instance handed product B product A's draft.
+      // Keyed because the form restores its draft once at mount, or product B gets product A's draft.
       return (
         <AddToShoppingListModal
           key={`${rendered.ean}.${rendered.listId}`}
@@ -135,15 +129,7 @@ export default function EntityModalOutlet({ target }: IEntityModalOutletProps) {
         />
       );
     case "watchlist":
-      // Keyed for the same reason as add-to-list, and because its seeding keeps
-      // dirty values so a refetch cannot overwrite a number mid-edit: a reused
-      // instance would carry product A's edited threshold into product B. Keyed on
-      // the ean only, so switching watch mode reuses the instance and keeps both
-      // numbers, which is what the mode toggle does anyway.
-      //
-      // Reuse happens when the target swaps straight to another product, or on a
-      // reopen inside useLingeringTarget's exit window. An ordinary close unmounts
-      // the outlet, so this is not guarding every reopen.
+      // Keyed on the ean, so a threshold never crosses products while switching mode keeps both numbers.
       return (
         <WatchlistItemModal
           key={rendered.ean}

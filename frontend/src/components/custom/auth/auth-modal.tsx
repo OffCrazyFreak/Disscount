@@ -30,7 +30,6 @@ const DESCRIPTION_KEYS = {
 interface IAuthModalProps {
   open: boolean;
   mode: AuthMode;
-  // Contextual reason shown when an auth gate opened the modal.
   message?: string;
   onOpenChange: (open: boolean) => void;
   onModeChange: (mode: AuthMode) => void;

@@ -16,10 +16,7 @@ interface IStoreHoursSourceProps {
   storeLabel: string;
 }
 
-/**
- * Where the hours come from, how fresh they are, and the "Provjeri" link to
- * the page a shopper can check them on, since a scraped table can be wrong.
- */
+/** The "Provjeri" link exists because a scraped table can be wrong. */
 export default function StoreHoursSource({
   storeKey,
   chain,

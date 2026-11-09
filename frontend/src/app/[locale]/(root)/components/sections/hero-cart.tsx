@@ -20,7 +20,6 @@ const IDLE_SPIN = {
   repeatDelay: IDLE_SPIN_EVERY_S,
 } as const;
 
-// A client island whose SVG still server-renders inside it.
 export default function HeroCart() {
   const anchorRef = useRef<HTMLDivElement>(null);
 

@@ -13,11 +13,7 @@ interface IUnavailableStoreSelectProps {
   ref?: Ref<HTMLButtonElement>;
 }
 
-/**
- * The store select of an item with no prices to compare. It stays focusable, so a
- * keyboard or screen reader user still reaches the reason, but it never opens and has
- * no options or change handler, since typeahead on a closed Radix trigger still selects.
- */
+/** Focusable so assistive tech reaches the reason; no options, since typeahead on a closed trigger selects. */
 export default function UnavailableStoreSelect({
   label,
   describedById,

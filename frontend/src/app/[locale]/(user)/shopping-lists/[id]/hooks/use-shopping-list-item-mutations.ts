@@ -6,7 +6,6 @@ import { shoppingListService } from "@/lib/api";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 
-/** One write path, whether the caller owns the list or reached it by link. */
 export function useShoppingListItemMutations(
   listId: string,
   averagePrices: Record<string, number>,
@@ -33,9 +32,7 @@ export function useShoppingListItemMutations(
     const item = shoppingList?.items?.find((i) => i.id === itemId);
     if (!item || updatedItem.amount < 1) return;
 
-    // Prices are captured at the moment of ticking, so they have to be resolved here
-    // where the component's price maps live, not inside the mutation. They travel in the
-    // request, which is also what the optimistic patch applies.
+    // Captured at the moment of ticking, so resolved here where the price maps live.
     const data = { ...item, ...updatedItem };
 
     if (updatedItem.isChecked) {
@@ -46,15 +43,12 @@ export function useShoppingListItemMutations(
         updatedItem.chainCode && storePrices[item.id]?.[updatedItem.chainCode];
       if (storePrice) data.storePrice = storePrice;
     } else {
-      // data starts as a copy of the cached item, so without this an earlier capture
-      // survives the uncheck and gets re-sent. An item unchecked and re-checked at a
-      // different shop would keep the first shop's price until a new one overwrote it.
+      // data copies the cached item, so an earlier capture would survive the uncheck.
       data.avgPrice = null;
       data.storePrice = null;
     }
 
-    // No per-call onError: the offline default carries the message, and it is the only
-    // handler that survives a replay after a reload.
+    // No per-call onError: the offline default is the only handler that survives a replay after reload.
     updateItemMutation.mutate({ listId, itemId, data });
   };
 

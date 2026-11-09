@@ -2,10 +2,7 @@ package disscount.config;
 
 import org.springframework.security.oauth2.jwt.Jwt;
 
-/**
- * Purpose-scoped tokens share the session tokens' signing keys, so each one must be accepted
- * only where its purpose is the point and refused everywhere else (RFC 8725, section 3.12).
- */
+/** These share the session tokens' signing keys, so each is accepted only for its purpose (RFC 8725, 3.12). */
 final class TokenPurpose {
 
     // Shared with frontend/src/lib/auth/erase-backend-account.ts, which signs the token.

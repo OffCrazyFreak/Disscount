@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-/** Deleting a photo removes its files but keeps the row, whose fingerprint and Open Food Facts key keep it from coming back. */
+/** Removes a photo's files but keeps the row, whose fingerprint and Open Food Facts key stop it returning. */
 @Component
 @RequiredArgsConstructor
 class ProductImageRemoval {
@@ -70,21 +70,14 @@ class ProductImageRemoval {
         if (original != null) afterCommit(() -> deleteOriginal(original));
     }
 
-    /**
-     * Deletes an erased user's original now and fails the erasure if it cannot, because a logged failure after
-     * the commit would leave the most personal file behind with nothing pointing at it. A rollback costs only
-     * the re-crop of a photo the erasure was removing anyway, and the user's retry finishes the rest.
-     */
+    /** Fails the erasure if it cannot, as a logged failure after commit would leave the most personal file behind. */
     void eraseOriginal(String key) {
         if (key == null) return;
         if (!originals.enabled()) throw new ServiceUnavailableException("error.productImage.unavailable");
         originals.delete(key);
     }
 
-    /**
-     * Refuses a photo an admin deleted, on any product. The hash is of the cleaned copy the validator
-     * writes, which is also what the originals folder holds, so metadata changes do not get a copy through.
-     */
+    /** The hash is of the cleaned copy, so metadata changes do not get a copy through. */
     void requireNotDeleted(byte[] cleaned) {
         if (images.existsByContentSha256AndDeletedAtIsNotNull(ProductImageRenderer.sha256(cleaned))) {
             throw new BadRequestException("error.productImage.deleted");

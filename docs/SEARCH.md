@@ -131,7 +131,7 @@ So every other "search" outside products is the browser filtering an array it al
 
 When server-side search is built, two things are already known:
 
-- **JPQL `LOWER(x) LIKE LOWER(:q)` is portable to H2**, so it needs no profile guard. `ILIKE` and `tsvector` are Postgres-only and would need one, plus an H2 fallback, per the testing constraint in `AGENTS.md`.
+- **JPQL `LOWER(x) LIKE LOWER(:q)` is portable to H2**, so it needs no profile guard. `ILIKE` and `tsvector` are Postgres-only and would need one, plus an H2 fallback, because the backend tests run on H2.
 - **Diacritic folding does not come for free on the server.** `LOWER(...) LIKE` on Postgres is accent-sensitive and `unaccent` is an extension. Preserving what the client does today means a normalized shadow column, which is portable.
 
 Also note **email is not on the JPA `User` entity**; it lives in better-auth's own table and is read through a native query. Searching users by email crosses that boundary.
@@ -188,6 +188,6 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 - **Server-side search and pagination.** Nothing exists beyond the store-name lookup. See [§9](#9-the-backend-searches-only-store-names) for the portability notes. This becomes urgent the moment the admin panel grows past its two current tabs.
 - **`GET /api/admin/users` is unbounded** and WAU/MAU is counted client-side over every user row, which structurally prevents ever paginating that endpoint. Recorded here rather than fixed.
 - **The admin contact inbox silently truncates at 500.** The cap is server-side, `MAX_ADMIN_MESSAGES` in `ContactMessageService`, so rows past it never reach the browser and are unreachable and unsearchable, with no indication in the UI.
-- **`components/ui/chart.tsx` sorts labels with a locale-less `localeCompare`**, so Croatian diacritics collate wrongly in chart tooltips. It is shadcn output, but `AGENTS.md` allows editing that folder where the primitive is the natural home for the change, and a comparator the whole app needs in Croatian qualifies. Swapping it for `compareHr` is a one-line fix nobody has taken.
+- **`components/ui/chart.tsx` sorts labels with a locale-less `localeCompare`**, so Croatian diacritics collate wrongly in chart tooltips. It is shadcn output, but editing that folder is fine where the primitive is the natural home for the change, and a comparator the whole app needs in Croatian qualifies. Swapping it for `compareHr` is a one-line fix nobody has taken.
 - **One surface has a search box that matches nothing.** `sidebar-filter-menu.tsx` lists several hundred options with no filter box at all, an obvious consumer for this system. The map search is wired up: it filters the store list and the map by chain, city and address through `filterByFields` (`use-visible-stores.ts`).
 - **Consider a library only if a surface really holds 10k+ rows client-side.** None does today. If one ever does, `MiniSearch` (7kB, zero dependencies, a `processTerm` hook that takes `normalizeForSearch` directly) is the closest fit; `uFuzzy` is faster and smaller but has a much smaller user base.

@@ -19,12 +19,6 @@ interface IMapClientProps {
   ipLocation: IIpLocation | null;
 }
 
-/**
- * Desktop: list panel beside the map, filling the space between the header
- * and the footer so the page itself never scrolls.
- * Phone: full-screen map under a floating search bar that opens into the
- * list, with the selected store in a sheet above the bottom nav.
- */
 export default function MapClient({ ipLocation }: IMapClientProps) {
   const t = useTranslations("map.layout");
   const model = useMapViewModel(ipLocation);
@@ -64,9 +58,7 @@ export default function MapClient({ ipLocation }: IMapClientProps) {
     );
   }
 
-  // On desktop the map lines up with the footer box rather than the screen edge.
-  // The server renders this branch on phones too, so until hydration swaps in
-  // the phone layout it holds the phone's frame and shows nothing inside it.
+  // The server renders this on phones too, so until hydration it holds the phone's empty frame.
   return (
     <StoreHoursProvider hours={model.hours}>
       <div

@@ -9,12 +9,7 @@ type Geocode = (
   signal: AbortSignal,
 ) => Promise<IResolvedLocation | null>;
 
-/**
- * Geoapify for one sync run, shared by the DGU anchor and the geocoder step:
- * an address asked twice costs one request, and the run's limit counts both.
- * Past the limit it throws, so the store is retried next run rather than
- * recorded as a miss.
- */
+/** Past the limit it throws, so the store is retried next run rather than recorded as a miss. */
 export function createGeoapifyBudget(
   limit: number,
   geocode: Geocode = geocodeWithGeoapify,

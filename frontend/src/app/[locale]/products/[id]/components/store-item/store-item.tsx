@@ -32,7 +32,6 @@ import type { INearestStore } from "@/utils/nearest-chain-distance";
 interface IStoreItemProps {
   store: ChainProductResponse;
   storePrices: StorePrice[];
-  /** Status of the per-store prices request, which may still be loading */
   pricesStatus: StorePricesStatus;
   product: ProductResponse;
   isExpanded?: boolean;
@@ -83,7 +82,6 @@ const StoreItem = memo(
               >
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    {/* Chain Name and Badge */}
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-semibold text-foreground">
                         {getChainLabel(store.chain)}
@@ -101,7 +99,6 @@ const StoreItem = memo(
                       </div>
                     </div>
 
-                    {/* Price Information */}
                     <div className="mt-2">
                       <StorePriceSummary store={store} product={product} />
                     </div>

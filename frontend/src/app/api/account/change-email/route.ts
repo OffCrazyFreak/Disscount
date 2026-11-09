@@ -17,8 +17,7 @@ const bodySchema = z.object({
   newEmail: z.email(),
 });
 
-// Enforces the single-email identity invariant: block the change while a social
-// account is linked, so provider login can't later carry a different email.
+// Blocks the change while a social account is linked, so provider login cannot later carry a different email.
 export async function POST(request: Request) {
   const parsed = await parseAccountBody(request, bodySchema);
   if (parsed.response) return parsed.response;

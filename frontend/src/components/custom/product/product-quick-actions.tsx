@@ -17,12 +17,7 @@ interface IProductQuickActionsProps {
   onOpenChange: (open: boolean) => void;
 }
 
-/**
- * What a long press on a product card opens, and what a shared link restores.
- * Every action here also has a tappable button on the product's own page, so the
- * gesture is a shortcut rather than the only way in, which is what keeps it
- * keyboard and screen-reader accessible.
- */
+/** Every action also has a button on the product's page, which keeps the gesture keyboard accessible. */
 export default function ProductQuickActions({
   product,
   summary,

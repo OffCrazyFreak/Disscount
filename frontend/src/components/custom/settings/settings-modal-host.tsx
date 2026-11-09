@@ -27,11 +27,7 @@ interface IAvatarState {
   touched: boolean;
 }
 
-/**
- * Permanently mounted (for authenticated users) so the one settings form
- * outlives the closed dialog: optimistic-close saves keep running, and a
- * failed section can reopen the modal with its state and errors intact.
- */
+/** Always mounted so optimistic saves keep running and a failed section reopens with its state. */
 export default function SettingsModalHost() {
   const { target } = useModalUrl();
   const { user } = useUser();

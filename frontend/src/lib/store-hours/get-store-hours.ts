@@ -18,8 +18,7 @@ import {
 } from "@/lib/store-hours/sync/run-hours-sync";
 import { hasSyncSucceeded } from "@/lib/store-locations/sync/sync-lease";
 
-// Per process, like the store directory: hours change weekly at most, and
-// the Sunday poll lands within the hour.
+// Per process: hours change weekly at most, and the Sunday poll lands within the hour.
 const MEMO_MS = 10 * 60 * 1000;
 
 // Under the lease's two hours, so a stuck run is cut before another may start.
@@ -28,11 +27,7 @@ const JOB_TIMEOUT_MS = 90 * 60 * 1000;
 let memo: { value: CompactStoreHoursResponse; at: number } | null = null;
 let jobRunning = false;
 
-/**
- * Every store's hours with the holidays the status function needs. Until a
- * template run has succeeded the set is empty or partial, so it says
- * `complete: false` and nobody may cache it for long.
- */
+// Until a template run succeeds the set is partial, so it says `complete: false` and nobody may cache it long.
 export async function getStoreHours(): Promise<CompactStoreHoursResponse> {
   after(startHoursJobIfDue);
 
@@ -61,11 +56,7 @@ export async function getStoreHours(): Promise<CompactStoreHoursResponse> {
   return value;
 }
 
-/**
- * Like the location sync, the refresh has no cron: a request after the
- * data is due starts it once the response is sent, and the lease keeps a
- * second instance out.
- */
+/** No cron: a due request starts it after responding, and the lease keeps out a second instance. */
 async function startHoursJobIfDue(): Promise<void> {
   if (jobRunning) return;
 

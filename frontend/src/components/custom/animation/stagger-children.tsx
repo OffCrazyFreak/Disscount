@@ -11,9 +11,7 @@ import RevealFallback from "@/components/custom/animation/reveal-fallback";
 interface IStaggerChildrenProps {
   children: ReactNode;
   className?: string;
-  // Vertical travel of each item as it fades in.
   distance?: number;
-  // Delay between consecutive items.
   stagger?: number;
   duration?: number;
   as?: RevealContainerTag;

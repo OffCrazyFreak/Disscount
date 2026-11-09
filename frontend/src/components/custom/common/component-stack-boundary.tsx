@@ -24,14 +24,7 @@ function isNextControlFlow(error: unknown) {
   }
 }
 
-/**
- * Reports a render or effect error with its component stack, then rethrows it so
- * Next's own boundary still shows the error page. Next keeps React's root error
- * callbacks to itself and its boundaries drop the stack, so only a
- * componentDidCatch can see it. The rethrow happens there because React skips
- * that callback when render throws. The later capture from global-error.tsx is
- * a no-op, because Sentry marks an error object once it is captured.
- */
+/** Next's boundaries drop the component stack, so only componentDidCatch sees it; rethrow keeps Next's page. */
 export default class ComponentStackBoundary extends Component<
   IComponentStackBoundaryProps,
   IComponentStackBoundaryState

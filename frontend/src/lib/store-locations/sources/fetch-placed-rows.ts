@@ -7,7 +7,6 @@ import { fetchJson } from "@/lib/store-locations/http";
 
 type Coordinate = number | null | undefined;
 
-/** Reads a JSON store feed and keeps the rows whose coordinates land in Croatia. */
 export async function fetchPlacedRows<T>(
   url: string,
   schema: z.ZodType<T>,

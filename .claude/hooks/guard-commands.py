@@ -5,10 +5,10 @@ It blocks pnpm in a git worktree whose frontend/node_modules is a symlink: pnpm
 resolves the workspace through it and offers to purge the MAIN tree's copy. It
 aborts on a missing TTY today, so with CI=true set it would delete the real one.
 A worktree with its own install is safe, and pnpm runs there as usual.
-It also blocks `--no-verify`, pushes to `main` or `dev`, branches that would
-track origin/dev (rules in guard_git.py), `pkill -f` or `pgrep -f` patterns that
-match their own command line (guard_process.py), and merging a pull request whose
-required checks are not green (guard_merge.py).
+It also blocks `--no-verify`, pushes to `main` or `dev` (rules in guard_git.py),
+`pkill -f` or `pgrep -f` patterns that match their own command line
+(guard_process.py), and merging a pull request whose required checks are not
+green (guard_merge.py).
 The permission rules in settings.json are prefix matches, so this parses each
 command instead of matching a prefix.
 

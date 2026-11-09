@@ -16,7 +16,6 @@ interface IStoreGroupHeaderProps {
   group: IStoreGroup;
 }
 
-/** The chain, its item count and subtotal, and the way to that store on the map. */
 export default function StoreGroupHeader({ group }: IStoreGroupHeaderProps) {
   const t = useTranslations("shoppingListDetail.groups");
   const locale = useLocale();
@@ -24,9 +23,7 @@ export default function StoreGroupHeader({ group }: IStoreGroupHeaderProps) {
   const favorites = useFavoriteStoresQuery({ enabled: isAuthenticated });
   const { chain } = group;
 
-  // A favourite store of this chain is where the user shops; otherwise the
-  // map shows every store of the chain. The chain always goes along, so the
-  // user's pinned chains cannot filter the linked store out.
+  // The chain always goes along, so the user's pinned chains cannot filter the linked store out.
   const favoriteKey = chain
     ? favorites.data?.find((f) => f.storeKey.startsWith(`${chain}:`))?.storeKey
     : undefined;

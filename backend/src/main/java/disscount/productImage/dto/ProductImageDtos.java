@@ -13,10 +13,7 @@ public final class ProductImageDtos {
 
     private ProductImageDtos() {}
 
-    /**
-     * A photo as everyone sees it; the first in a list is the main one. The full file keeps the photo's shape,
-     * and its size is null on a photo still waiting for its re-render. smallUrl is the 256 px square file.
-     */
+    /** The full file keeps the photo's shape, and its size is null on a photo still waiting for its re-render. */
     public record ProductImageDto(UUID id, String fullUrl, @Schema(nullable = true) Integer fullWidth,
                                   @Schema(nullable = true) Integer fullHeight, String smallUrl, String source,
                                   String status) {}

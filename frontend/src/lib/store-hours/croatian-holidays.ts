@@ -4,11 +4,7 @@ import Holidays from "date-holidays";
 
 const calendar = new Holidays("HR");
 
-/**
- * Croatia's public holidays between two ISO dates. Only the `public` ones are
- * days off by law; the library also lists observances and optional
- * religious days that shops keep.
- */
+/** Only `public` ones are days off by law; the library's other kinds are days shops keep. */
 export function croatianHolidaysBetween(from: string, to: string): string[] {
   const years = new Set([Number(from.slice(0, 4)), Number(to.slice(0, 4))]);
 

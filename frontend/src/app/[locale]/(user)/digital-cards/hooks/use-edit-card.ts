@@ -16,7 +16,6 @@ const READY: IEditCardLoadState = {
   notFound: false,
 };
 
-/** Finds the card being edited in the user's list and reports why it is missing. */
 export function useEditCard(isEdit: boolean, id: string | undefined) {
   // Cards have no by-id read in the UI; the user's list covers cold deep links too.
   const cardsQuery = digitalCardService.useGetMyDigitalCards({
@@ -28,8 +27,7 @@ export function useEditCard(isEdit: boolean, id: string | undefined) {
 
   if (!isEdit || card) return { card, loadState: READY };
 
-  // isPending, not isLoading: a paused offline fetch is pending but not loading, and
-  // would otherwise read as "not found" on a cold deep link.
+  // isPending, not isLoading: a paused offline fetch is pending but not loading, and would otherwise read as not found.
   const offlineWaiting =
     cardsQuery.isPending && cardsQuery.fetchStatus === "paused";
   const loadError = cardsQuery.isError || offlineWaiting;

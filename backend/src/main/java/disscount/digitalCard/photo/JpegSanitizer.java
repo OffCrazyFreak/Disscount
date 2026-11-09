@@ -46,7 +46,6 @@ final class JpegSanitizer {
         }
     }
 
-    /** The first step no bigger than the upload, or the smallest step when none is. */
     private static byte[] smallestUpTo(BufferedImage image, int uploadedBytes) throws IOException {
         byte[] smallest = null;
         for (float quality : QUALITY_STEPS) {

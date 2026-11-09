@@ -22,8 +22,7 @@ export default function ItemName({ item, isFirst, isLast }: IItemNameProps) {
         {item.ean ? (
           <StretchedLink
             href={productPath(item.ean)}
-            // The row is padded by its container, so the hit area bleeds past
-            // it to cover the whole strip, rounding off at the list's ends.
+            // The row is padded by its container, so the hit area bleeds past it to cover the whole strip.
             className={cn(
               "after:-left-4 after:-right-4",
               isFirst ? "after:-top-4 after:rounded-t-xl" : "after:top-0",

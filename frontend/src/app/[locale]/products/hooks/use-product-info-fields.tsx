@@ -28,7 +28,6 @@ interface IProductInfoFields {
   unitPrices: IProductInfoField | null;
 }
 
-/** The label and value of every product fact, shared by the product page and the modal table. */
 export function useProductInfoFields(
   product: ProductResponse,
 ): IProductInfoFields {

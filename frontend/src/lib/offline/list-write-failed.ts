@@ -2,8 +2,7 @@ import { toast } from "sonner";
 
 import { parseProblem } from "@/lib/api/problem-details";
 
-// Only the keys these toasts use, so a caller can hand in a stable wrapper that
-// always reads the current language.
+// So a caller can hand in a stable wrapper that always reads the current language.
 export type OfflineToastTranslator = (
   key:
     | "offline.writeFailed"
@@ -11,10 +10,7 @@ export type OfflineToastTranslator = (
     | "offline.retiredWriteDropped",
 ) => string;
 
-/**
- * Must be called from a hook's own onError as well as registered as a replay default: a
- * hook-level onError replaces the default rather than running beside it.
- */
+/** Also call from a hook's own onError, which replaces this default rather than running beside it. */
 export function listWriteFailed(error: Error, t: OfflineToastTranslator) {
   const lostAccess = parseProblem(error)?.status === 403;
 

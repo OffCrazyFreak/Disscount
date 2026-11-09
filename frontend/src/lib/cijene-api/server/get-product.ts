@@ -12,10 +12,7 @@ export type ServerProductResult =
   | { status: "missing" }
   | { status: "unavailable" };
 
-/**
- * One upstream call per request, shared by generateMetadata and the page. An outage is
- * kept apart from a 404, so a blip never turns a real product into a not-found page.
- */
+/** An outage is kept apart from a 404, so a blip never turns a real product into a not-found page. */
 export const getServerProduct = cache(
   async (ean: string): Promise<ServerProductResult> => {
     try {

@@ -23,7 +23,6 @@ export interface IOpeningStatusText {
   label: string;
   /** The tooltip line, such as "Zatvara u 21:00"; null when there is no time to name. */
   detail: string | null;
-  /** The word and the detail together, for screen readers and live regions. */
   name: string;
 }
 
@@ -39,7 +38,6 @@ function clockOf(time: string): string {
   return time.replace(/^0(?=\d)/, "");
 }
 
-/** The badge word, its tooltip line and its full accessible name for a status. */
 export function useOpeningStatusText() {
   const t = useTranslations("storeHours");
 

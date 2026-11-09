@@ -17,9 +17,7 @@ export default function ShoppingListDeleteAction({
   const t = useTranslations("shoppingListDetail");
   const tShell = useTranslations("shell");
 
-  // Icon-only, so the spinner is the whole visual and the accessible name carries the
-  // pending state. The tooltip has to say the same thing or the two contradict each
-  // other. Neither share nor copy has one: both only open something.
+  // Icon-only, so the accessible name and tooltip both carry the pending state, or the two contradict each other.
   const deleteLabel = isDeleting
     ? tShell(LOADING_LABELS.deleting)
     : t("actions.delete");

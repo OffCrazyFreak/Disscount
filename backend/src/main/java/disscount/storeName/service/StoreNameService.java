@@ -26,10 +26,7 @@ public class StoreNameService {
     private final StoreNameUsageRepository usageRepository;
     private final StoreNameUpsert upsert;
 
-    /**
-     * Runs in its own transaction so a duplicate-key race cannot roll back the card save that
-     * triggered it. The loser of the race retries once, when the winner's row is visible.
-     */
+    /** Its own transaction so a duplicate-key race cannot roll back the card save; the loser retries once. */
     public void record(UUID userId, String name) {
         String cleaned = StoreNameNormalizer.clean(name);
         String normalized = StoreNameNormalizer.normalize(name);

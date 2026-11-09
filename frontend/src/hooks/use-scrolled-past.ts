@@ -8,12 +8,7 @@ function subscribe(onStoreChange: () => void): () => void {
   return () => window.removeEventListener("scroll", onStoreChange);
 }
 
-/**
- * Whether the window is scrolled past `threshold` pixels.
- *
- * Reads the scroll position as the external value it is, rather than mirroring
- * it into state from an effect, so there is no render with a stale answer.
- */
+/** Reads the scroll position as external, not mirrored from an effect, so no render has a stale answer. */
 export function useScrolledPast(threshold: number): boolean {
   const getSnapshot = useCallback(
     () => window.scrollY > threshold,

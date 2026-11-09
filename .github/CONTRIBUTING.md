@@ -38,7 +38,8 @@ come back here for the contribution workflow.
 3. **Verify locally before opening the PR:**
    - Frontend: `cd frontend && pnpm install && pnpm check`.
      `pnpm install` also sets up git hooks that format staged files and
-     reject AI attribution trailers in commit messages.
+     reject commit messages with AI attribution trailers, an unknown type or
+     a subject over 72 characters.
    - Backend: `cd backend && mvn clean install`, with Docker running for the
      PostgreSQL schema test.
 4. **Write clear commits** in imperative mood and reference related issue

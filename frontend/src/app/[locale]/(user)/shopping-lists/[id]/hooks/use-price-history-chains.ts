@@ -23,8 +23,7 @@ export function usePriceHistoryChains(
         availableChains.includes(chain),
       );
       if (validSavedChains.length > 0) {
-        // Reads localStorage and depends on chains that arrive asynchronously, so
-        // there is no render-time value to derive this from.
+        // Reads localStorage and depends on async chains, so no render-time value can be derived.
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setSelectedChains(validSavedChains);
         return;

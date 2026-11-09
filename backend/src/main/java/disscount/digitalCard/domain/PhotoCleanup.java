@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import disscount.util.Timestamps;
 
-/** A pending object storage delete, written in the same transaction as the row delete it belongs to. */
+/** Written in the same transaction as the row delete it belongs to. */
 @Entity
 @Table(name = "photo_cleanup")
 @Getter

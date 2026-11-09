@@ -1,20 +1,12 @@
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { normalizeForSearch } from "@/utils/strings";
 
-/**
- * Chain codes are machine identifiers, so this deliberately does NOT strip
- * diacritics the way `normalizeForSearch` does: folding them could collide two
- * distinct codes. Use this for chains and `normalizeForSearch` for the
- * human-readable facets, and always normalize both sides of a comparison.
- */
+/** No diacritic stripping as in `normalizeForSearch`, which could collide two distinct codes. */
 export function normalizeChainCode(code: string): string {
   return code.trim().toLowerCase();
 }
 
-/**
- * Map selected values (possibly from a hand-edited URL: wrong casing,
- * stray spaces) onto their canonical option value when one matches.
- */
+/** Selected values may come from a hand-edited URL, with wrong casing or stray spaces. */
 export function canonicalizeSelection(
   selected: string[],
   options: string[],
@@ -45,10 +37,6 @@ function addNormalized(map: Map<string, string>, value: string | null) {
   if (!map.has(key)) map.set(key, trimmed);
 }
 
-/**
- * Distinct category values across a product's chain entries
- * (case/diacritic-insensitive dedupe, first-seen casing kept).
- */
 export function getProductCategories(product: ProductResponse): string[] {
   const categories = new Map<string, string>();
 
@@ -59,10 +47,6 @@ export function getProductCategories(product: ProductResponse): string[] {
   return [...categories.values()];
 }
 
-/**
- * Distinct brand values for a product: the product-level brand,
- * with chain-entry brands as fallback data.
- */
 export function getProductBrands(product: ProductResponse): string[] {
   const brands = new Map<string, string>();
 
@@ -74,12 +58,7 @@ export function getProductBrands(product: ProductResponse): string[] {
   return [...brands.values()];
 }
 
-/**
- * Client-side visibility predicate for the active filters. `allowedChains`
- * is the resolved chain+location filter (null = unfiltered, empty = no
- * overlap); empty category/brand selections pass, otherwise the product
- * must match ANY selected value.
- */
+/** `allowedChains`: null means unfiltered and empty means no overlap. */
 export function productMatchesFilters(
   product: ProductResponse,
   allowedChains: string[] | null,
@@ -128,10 +107,7 @@ interface ISelectedFilters {
   isPriceDataPartial: boolean;
 }
 
-/**
- * Whether a location filter is set and dropping it alone would show products,
- * so an empty page means those places price none of them.
- */
+/** An empty page should mean those places price none, so this tests dropping only the location filter. */
 export function hasMatchOutsideLocations(
   products: ProductResponse[],
   {

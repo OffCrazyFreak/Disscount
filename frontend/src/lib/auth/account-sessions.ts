@@ -26,7 +26,6 @@ function describeDevice(userAgent: string | null) {
   };
 }
 
-/** The user's live sessions, this device first, without tokens or addresses. */
 export async function listAccountSessions(
   userId: string,
   currentSessionId: string,
@@ -58,7 +57,6 @@ export async function listAccountSessions(
   return sessions.sort((a, b) => Number(b.isCurrent) - Number(a.isCurrent));
 }
 
-/** Ends one of the user's own sessions; false when it is not theirs or already gone. */
 export async function revokeAccountSession(
   userId: string,
   sessionId: string,

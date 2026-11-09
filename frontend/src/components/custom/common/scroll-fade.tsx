@@ -13,10 +13,7 @@ interface IScrollFadeProps {
   className?: string;
 }
 
-/**
- * Gradient overlay hinting at content past an edge. Place it as a child of a
- * `relative` wrapper around a scrollable element.
- */
+/** Place it as a child of a `relative` wrapper around a scrollable element. */
 export default function ScrollFade({
   targetRef,
   side = "bottom",
@@ -55,8 +52,7 @@ export default function ScrollFade({
 
     observeChildren();
 
-    // Conditional content swaps the children themselves (a spinner for the
-    // rows), and a node mounted later would otherwise never be measured.
+    // Conditional content swaps the children, and a node mounted later would otherwise never be measured.
     const mutations = new MutationObserver(() => {
       observeChildren();
       update();

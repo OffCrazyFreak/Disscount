@@ -32,7 +32,6 @@ interface ISearchBarFieldProps extends ISearchBarFieldOptions {
   onPickSuggestion?: (query: string) => void;
 }
 
-/** The search input with its icon and the clear and scan buttons. */
 export default function SearchBarField({
   placeholder,
   shortPlaceholder,

@@ -14,14 +14,7 @@ interface IProductInfoProps {
   onNavigate?: (viaKeyboard: boolean) => boolean | void;
 }
 
-/**
- * The name is the link rather than an anchor laid over the card, so it stays
- * drag selectable: text inside an anchor selects natively while a click still
- * navigates. Category and brand sit outside that anchor, so they need to be
- * raised above its stretched pseudo-element to stay selectable too. Neither this
- * root nor the heading may be positioned, or the stretch would resolve against
- * them instead of the card.
- */
+/** The name is the link so it stays selectable; a positioned root or heading would catch the stretch. */
 const ProductInfo = memo(function ProductInfo({
   name,
   brand,

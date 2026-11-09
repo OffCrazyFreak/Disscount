@@ -1,16 +1,12 @@
 import { z } from "zod";
 import { shoppingListItemDtoSchema } from "@/lib/api/schemas/shopping-list-item";
 
-// What a share link grants. OWNER is only ever a resolved answer, never a level the
-// owner can pick, so it is absent here and present in listAccessSchema below.
+// OWNER is only a resolved answer, never a level to pick, so it appears only in listAccessSchema.
 const linkAccessSchema = z.enum(["NONE", "VIEW", "SHOP", "EDIT"]);
 const listAccessSchema = z.enum(["NONE", "VIEW", "SHOP", "EDIT", "OWNER"]);
 
-// Shopping List schemas
 export const shoppingListRequestSchema = z.object({
-  // Trimmed before the length checks, so three spaces cannot pass min(3) and reach the
-  // backend as the blank title its @NotBlank rejects. zodResolver hands the trimmed
-  // value to the submit handler, so the form validates exactly what it sends.
+  // Trimmed first, so three spaces cannot pass min(3) and become a title @NotBlank rejects.
   title: z
     .string()
     .trim()
@@ -19,17 +15,13 @@ export const shoppingListRequestSchema = z.object({
   linkAccess: linkAccessSchema.optional(),
 });
 
-// Its own object rather than an extension of the request schema. The request's title
-// rules are form validation, which the backend does not enforce, so inheriting them here
-// would make a response the server considers valid fail to parse.
+// Its own object, because the request's title rules are form validation the backend does not enforce.
 export const shoppingListDtoSchema = z.object({
   id: z.string(),
   title: z.string(),
-  // Owner-only, like the two below: an account id is a stable identifier and a share
-  // link can travel anywhere.
+  // Owner-only, like the two below, because an account id is stable and a share link can travel anywhere.
   ownerId: z.string().nullable(),
-  // The server sends null to anyone who arrived through a link, so they cannot reshare
-  // the list at a level its owner never granted.
+  // The server sends null to link visitors, so they cannot reshare the list at a level its owner never granted.
   linkAccess: linkAccessSchema.nullable(),
   // The caller's resolved access, so the client never re-derives the backend rule.
   myAccess: listAccessSchema,
@@ -40,9 +32,7 @@ export const shoppingListDtoSchema = z.object({
 
 /** Independent flags, so a copy can take the products without the shopping progress. */
 export const shoppingListCopyRequestSchema = z.object({
-  // Trimmed before the length checks, so three spaces cannot pass min(3) and reach the
-  // backend as the blank title its @NotBlank rejects. zodResolver hands the trimmed
-  // value to the submit handler, so the form validates exactly what it sends.
+  // Trimmed first, so three spaces cannot pass min(3) and become a title @NotBlank rejects.
   title: z
     .string()
     .trim()

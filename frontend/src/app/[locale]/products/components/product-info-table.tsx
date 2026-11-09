@@ -18,7 +18,6 @@ function renderField(field: IProductInfoField) {
   );
 }
 
-/** The product's facts as a plain table, where no photo sits beside them (the modals). */
 export default function ProductInfoTable({ product }: IProductInfoTableProps) {
   const { brand, barcode, quantity, prices, unitPrices } =
     useProductInfoFields(product);

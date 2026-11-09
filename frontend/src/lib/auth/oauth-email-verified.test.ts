@@ -35,8 +35,7 @@ function base64Url(value: object) {
   return Buffer.from(JSON.stringify(value)).toString("base64url");
 }
 
-// better-auth decodes the callback's id token without checking its signature,
-// since it came straight from Google's token endpoint.
+// better-auth decodes this id token unchecked, since it came from Google's token endpoint.
 function googleIdToken(emailVerified: boolean) {
   const claims = {
     iss: "https://accounts.google.com",

@@ -15,15 +15,7 @@ import disscount.user.domain.User;
 
 import java.util.UUID;
 
-/**
- * Copying a list into a new one the caller owns.
- *
- * <p>Its own service because it is the one write that reads a list belonging to somebody
- * else, and because it has to be a single transaction. It used to be a create followed by
- * one add per item from the client, which are separate transactions: a failure partway
- * left a half-populated copy behind that no retry could tidy up, and pressing the button
- * again simply made another one.
- */
+/** Its own service: it reads someone else's list in one transaction, so a failure leaves no half-filled copy. */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -38,10 +30,7 @@ public class ShoppingListCopyService {
         ShoppingList source = shoppingListService.findVisible(listId, userId);
         User owner = shoppingListService.requireWriteUser(userId);
 
-        // Only an owner may carry sharing across. A recipient could otherwise copy a list
-        // they were merely shown and hand the owner's people a link at a level the owner
-        // never chose. Everything else about the copy is the caller's own, so it needs no
-        // further check: they are the new list's owner by construction.
+        // Only an owner may carry sharing across, or a recipient could hand out a link the owner never chose.
         if (request.isIncludeSharing() && !accessService.resolve(source, userId).isOwner()) {
             throw new ForbiddenException("error.shoppingList.ownerOnlyCopySharing");
         }
@@ -73,9 +62,7 @@ public class ShoppingListCopyService {
                 .quantity(source.getQuantity())
                 .unit(source.getUnit())
                 .amount(source.getAmount())
-                // All four move together or none do. Progress is what was ticked, where,
-                // and for how much, and a tick without its price is a claim with no
-                // evidence behind it.
+                // All four move together, because a tick without its price is a claim with no evidence.
                 .isChecked(includeProgress ? source.getIsChecked() : false)
                 .chainCode(includeProgress ? source.getChainCode() : null)
                 .avgPrice(includeProgress ? source.getAvgPrice() : null)

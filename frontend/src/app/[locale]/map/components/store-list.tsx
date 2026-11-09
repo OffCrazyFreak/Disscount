@@ -23,18 +23,11 @@ interface IStoreListProps {
   onSelect: (key: string | null) => void;
 }
 
-// A closed row; open rows are measured.
-
-// Long enough for the virtualizer to measure an opened row and the one that
-// closed above it, short enough not to fight the user's own scrolling.
+// Long enough to measure the opened and closed rows, short enough not to fight scrolling.
 const REVEAL_WINDOW_MS = 500;
 const ROW_HEIGHT = 64;
 
-/**
- * Every matching store, map or no map: this list is the accessible way in, so
- * keyboard and screen reader users never need the canvas. Virtualized, since
- * an unfiltered list is well over a thousand stores.
- */
+/** Every matching store, because this list is the accessible way in; virtualized for 1000+ stores. */
 export default function StoreList({
   rows,
   headings,
@@ -43,8 +36,7 @@ export default function StoreList({
   selectedKey,
   onSelect,
 }: IStoreListProps) {
-  // TanStack Virtual hands back functions the compiler cannot memoize safely;
-  // opting out explicitly keeps the virtualized rows from going stale.
+  // TanStack Virtual returns functions the compiler cannot memoize, so the opt-out keeps rows fresh.
   "use no memo";
 
   const t = useTranslations("map.layout");
@@ -72,8 +64,7 @@ export default function StoreList({
         : [...indexes, selectedIndex].sort((a, b) => a - b);
     },
     overscan: 8,
-    // On phones the list runs under the bottom nav; this lets the last row,
-    // and any row scrolled to, clear it.
+    // On phones the list runs under the bottom nav, and this lets the last row, and any row scrolled to, clear it.
     paddingEnd: navClearance,
     scrollPaddingEnd: navClearance,
   });
@@ -82,14 +73,10 @@ export default function StoreList({
   const pickedInList = useRef(false);
   // The row just opened from the list, and until when to keep revealing it.
   const reveal = useRef<{ key: string; until: number } | null>(null);
-  // The store open when the list mounts is no pick: on phones the list mounts
-  // as the search opens, and focus belongs in the field then.
+  // Not a pick: on phones the list mounts as the search opens, and focus belongs in the field.
   const focusedKey = useRef<string | null>(selectedKey);
 
-  // A row opened in the list is revealed with the least scrolling (below), so
-  // one already in view does not jump. Any other change, such as a pick from
-  // the map or a filter that moves the open store, brings it to the top.
-  // Focus moves only for a new pick, never while someone filters.
+  // A list pick scrolls least so it does not jump; other changes go to the top; only picks move focus.
   useEffect(() => {
     const fromList = pickedInList.current;
     pickedInList.current = false;
@@ -121,9 +108,7 @@ export default function StoreList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedKey, selectedIndex]);
 
-  // Opening a row collapses the one above it, and the virtualizer measures
-  // both a moment after the click, so the reveal reruns while they settle.
-  // Only briefly: later shifts must not pull back someone who scrolled away.
+  // Rows measure just after the click, so the reveal reruns briefly without pulling back a scroller.
   const openRow = virtualizer
     .getVirtualItems()
     .find((item) => item.index === selectedIndex);
@@ -144,8 +129,7 @@ export default function StoreList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openRow?.start, openRow?.end, viewHeight]);
 
-  // A new view puts its stores on top, so show the top, unless a store is open
-  // and the effects above already keep that row in view.
+  // A new view puts its stores on top, so show the top, unless an open store's row is already being kept in view above.
   useEffect(() => {
     if (selectedIndex < 0) virtualizer.scrollToOffset(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -164,8 +148,7 @@ export default function StoreList({
 
     if (selectedIndex < 0) virtualizer.scrollToIndex(0);
 
-    // The row mounts once the virtualizer reacts to the scroll, which can take
-    // a frame or two; the list is already in place, so focusing must not scroll.
+    // The row mounts a frame or two after the scroll, and the list is already in place, so focusing must not scroll.
     let frames = 0;
     function focusTarget() {
       const row = scrollRef.current?.querySelector<HTMLElement>(selector);

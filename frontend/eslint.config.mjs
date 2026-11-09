@@ -41,6 +41,66 @@ const DATE_SELECTORS = [
   },
 ];
 
+const COMMENT_DIRECTIVE = /^\s*(eslint[- ]|@ts-|\/ *<(reference|amd))/;
+const COMMENT_HISTORY = /\b(used to|previously|originally)\b/i;
+const COMMENT_MAX_LINE_LENGTH = 120;
+
+const commentRulesPlugin = {
+  rules: {
+    "one-line-why": {
+      meta: {
+        schema: [],
+        messages: {
+          multiline:
+            "Keep a comment to one line, stating only a why the code cannot show.",
+          history:
+            "Keep history in the commit, not in a comment (used to, previously, originally).",
+          tooLong: "Keep a comment line to 120 characters.",
+        },
+      },
+      create(context) {
+        const { sourceCode } = context;
+        const standsAlone = (comment) =>
+          comment.type === "Line" &&
+          sourceCode.lines[comment.loc.start.line - 1]
+            .trimStart()
+            .startsWith("//");
+
+        return {
+          Program() {
+            let previous = null;
+            for (const comment of sourceCode.getAllComments()) {
+              if (COMMENT_DIRECTIVE.test(comment.value)) {
+                previous = null;
+                continue;
+              }
+              // Adjacent // lines count as one comment, or the limit is one newline away from meaningless.
+              const continuesPrevious =
+                previous &&
+                standsAlone(comment) &&
+                standsAlone(previous) &&
+                comment.loc.start.line === previous.loc.start.line + 1;
+              if (
+                comment.loc.start.line !== comment.loc.end.line ||
+                continuesPrevious
+              ) {
+                context.report({ loc: comment.loc, messageId: "multiline" });
+              }
+              if (COMMENT_HISTORY.test(comment.value)) {
+                context.report({ loc: comment.loc, messageId: "history" });
+              }
+              if (comment.loc.end.column > COMMENT_MAX_LINE_LENGTH) {
+                context.report({ loc: comment.loc, messageId: "tooLong" });
+              }
+              previous = comment;
+            }
+          },
+        };
+      },
+    },
+  },
+};
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTypescript,
@@ -165,6 +225,12 @@ const eslintConfig = defineConfig([
   {
     files: ["src/**/*.test.tsx", "src/test/**"],
     rules: { "i18next/no-literal-string": "off" },
+  },
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/components/ui/**"],
+    plugins: { comments: commentRulesPlugin },
+    rules: { "comments/one-line-why": "error" },
   },
   // shadcn primitives under components/ui are vendored/generated - don't lint
   // them for the React Compiler rules.

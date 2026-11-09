@@ -20,8 +20,7 @@ public class ShoppingListDto {
     private UUID ownerId;
     private String title;
 
-    // Owner-only: a link visitor who could read this would learn the list is shared more
-    // widely than their own access shows, and the share control keys off it.
+    // Owner-only: a link visitor would learn the list is shared more widely than their access shows.
     @Schema(nullable = true)
     private ListAccess linkAccess;
 

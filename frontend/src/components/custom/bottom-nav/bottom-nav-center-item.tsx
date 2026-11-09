@@ -30,15 +30,7 @@ interface IBottomNavCenterItemProps {
   onKeyboardActivate: () => void;
 }
 
-/**
- * The search cell: raised and filled, so it reads as primary while keeping its
- * fixed place in the row.
- *
- * Tap opens the products sheet rather than navigating, and taps again to close it,
- * which is what the glyph animates to say: the chevrons point the way the sheet
- * leaves, matching the swipe that also closes it. Holding it opens the scanner,
- * since typing a name and scanning a barcode answer the same question.
- */
+/** The glyph points the way the sheet leaves; a hold scans, as typing and scanning answer one question. */
 export default function BottomNavCenterItem({
   label,
   isActive,
@@ -56,8 +48,7 @@ export default function BottomNavCenterItem({
       <button
         ref={triggerRef}
         type="button"
-        // The visible word stays in the name in both states, so speech control
-        // can still address the cell while the sheet is open (WCAG 2.5.3).
+        // The visible word stays in the name, so speech control can address the cell (WCAG 2.5.3).
         aria-label={
           isSearchOpen
             ? t("bottomNav.searchClose", { label })
@@ -78,8 +69,7 @@ export default function BottomNavCenterItem({
             isScrubbed && "scale-105",
           )}
         >
-          {/* On the face: outside the raised circle it would cross the pill's edge.
-              Always present, since holding this cell always opens the scanner. */}
+          {/* On the face, because outside the raised circle it would cross the pill's edge. */}
           <HoldProgressRing
             progress="var(--press-progress, 0)"
             className="stroke-primary-foreground absolute top-[0.2rem] left-[0.2rem] size-[2.4rem]"

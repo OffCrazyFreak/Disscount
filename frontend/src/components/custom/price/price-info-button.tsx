@@ -6,9 +6,7 @@ import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-// Plain button props rather than Button's own: its icon props are a union that
-// collapses once they are spread through a wrapper, and this trigger never
-// takes a leading icon anyway.
+// Plain button props because Button's icon props are a union that collapses once spread through a wrapper.
 interface IPriceInfoButtonProps extends Omit<
   ComponentProps<"button">,
   "children"
@@ -16,20 +14,7 @@ interface IPriceInfoButtonProps extends Omit<
   label: string;
 }
 
-/**
- * The info affordance that sits beside a price, on a product card and on a
- * watchlist card alike. Sized here rather than per caller because it is the
- * tallest thing in either row, so a caller picking its own size silently
- * changes how tall that card is.
- *
- * The box hugs the glyph, which leaves it at 24px square: the WCAG 2.5.8 AA
- * floor exactly, with nothing to spare. Do not shrink it further. The size goes
- * on the icon rather than through a [&_svg] variant, because the button's own
- * icon rule guards on :not([class*='size-']) and would otherwise outrank it.
- *
- * Both callers hand this to a Radix trigger as a child, so it has to forward a ref.
- * React is 19 here, where ref is an ordinary prop, so no forwardRef wrapper is needed.
- */
+/** It sets the row's height, and 24px is the WCAG 2.5.8 floor; on the icon so [&_svg] cannot outrank it. */
 export default function PriceInfoButton({
   label,
   className,

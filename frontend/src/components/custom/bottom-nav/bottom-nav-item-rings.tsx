@@ -16,7 +16,6 @@ export interface IBottomNavItemRingsProps {
   hasHold: boolean;
 }
 
-/** The disc and both rings, which enclose a cell's icon and label together. */
 export default function BottomNavItemRings({
   showsDisc,
   indicatorOpacity,

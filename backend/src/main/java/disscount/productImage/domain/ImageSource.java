@@ -8,7 +8,7 @@ public enum ImageSource {
     USER,
     ADMIN;
 
-    // A fresh database gets product_image_source_check, so as with ImageStatus a new value needs it updated by hand until Flyway lands.
+    // A fresh database gets product_image_source_check, so a new value needs it updated by hand until Flyway lands.
     @Converter
     public static class Column implements AttributeConverter<ImageSource, String> {
         @Override

@@ -8,10 +8,7 @@ function settle(store: IDBObjectStore): Promise<void> {
   });
 }
 
-/**
- * Deletes `key` only when its current value passes `matches`, in one transaction. A plain
- * get-then-del would delete a newer value written between the two.
- */
+/** In one transaction, because a plain get-then-del would delete a newer value written between the two. */
 export function deleteIf<T>(
   key: IDBValidKey,
   customStore: UseStore,
@@ -27,10 +24,7 @@ export function deleteIf<T>(
   });
 }
 
-/**
- * Rewrites `key` only if it still exists. idb-keyval's update() writes `undefined` back
- * for a missing key, which resurrects an entry that was deleted meanwhile.
- */
+/** idb-keyval's update() writes `undefined` back for a missing key, which resurrects an entry deleted meanwhile. */
 export function updateIfPresent<T>(
   key: IDBValidKey,
   customStore: UseStore,

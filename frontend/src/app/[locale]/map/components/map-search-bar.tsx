@@ -19,11 +19,7 @@ interface IMapSearchBarProps {
   children: ReactNode;
 }
 
-/**
- * The phone map's search, shown inside the shared header, growing into the
- * full-screen search when the field is pressed and shrinking back on the
- * back arrow. Events from the portalled row still bubble to this tree.
- */
+/** Events from the portalled row still bubble to this tree. */
 export default function MapSearchBar({
   isOpen,
   onOpenChange,
@@ -33,8 +29,7 @@ export default function MapSearchBar({
   const transition = useMorphTransition(isOpen);
   const { slot, frame } = useHeaderSlot();
 
-  // Set when a keyboard closes the search, so focus returns to the field;
-  // on a touch screen that would raise the keyboard again, so it blurs.
+  // Keyboard close returns focus to the field; on touch that would raise the keyboard, so it blurs.
   const keepFocus = useRef(false);
 
   useEffect(() => {
@@ -76,9 +71,7 @@ export default function MapSearchBar({
               transition={transition}
             />
 
-            {/* The same field throughout: iOS raises the keyboard only for an input
-                focused within the tap. Opened on press as well as focus, so an open
-                store sheet has already let go of the focus when the field takes it. */}
+            {/* One field because iOS raises the keyboard only for an input focused within the tap. */}
             <div
               className="min-w-0 flex-1"
               onPointerDown={(event) => {
@@ -106,9 +99,7 @@ export default function MapSearchBar({
               <MapSearch inputRef={inputRef} />
             </div>
 
-            {/* Its width shrinks rather than it unmounting, so the field widens
-                with it instead of jumping. The gap rides inside it, so the
-                field reaches the row's end once it has shrunk. */}
+            {/* Its width shrinks rather than it unmounting, so the field widens with it instead of jumping. */}
             <motion.div
               inert={isOpen}
               className="-ml-2 flex shrink-0 justify-end overflow-hidden"

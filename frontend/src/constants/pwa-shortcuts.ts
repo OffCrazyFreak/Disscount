@@ -8,9 +8,7 @@ import {
 
 type Shortcut = NonNullable<MetadataRoute.Manifest["shortcuts"]>[number];
 
-// Chrome takes PNG only here. The tiles come from
-// scripts/generate-shortcut-icons.mjs; why each shortcut needs two of them is in
-// docs/PWA.md#app-shortcuts.
+// Chrome takes PNG only; docs/PWA.md#app-shortcuts says why each shortcut needs two tiles.
 function shortcutIcons(id: string): NonNullable<Shortcut["icons"]> {
   return [
     {
@@ -28,8 +26,7 @@ function shortcutIcons(id: string): NonNullable<Shortcut["icons"]> {
   ];
 }
 
-// The manifest is static and declares lang "hr", so shortcuts read the Croatian
-// messages directly instead of going through a request locale.
+// The manifest is static with lang "hr", so shortcuts read the Croatian messages directly instead of a request locale.
 function hr(key: NavKey): string {
   return shell.nav[key.slice("nav.".length) as keyof typeof shell.nav];
 }
@@ -42,9 +39,7 @@ const scanShortcut: Shortcut = {
   icons: shortcutIcons("scan"),
 };
 
-// Owner's order from #127. Android shows only the first 3 (Chrome keeps a
-// fourth slot for its own "Site settings"), and loyalty cards are needed fast at
-// the till, so they rank above the watchlist. Scanning leads.
+// Owner's order from #127: Android shows only the first 3, and loyalty cards are needed fast at the till.
 export const shortcutNavIds = [
   "shopping-lists",
   "digital-cards",

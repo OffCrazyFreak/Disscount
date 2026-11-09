@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { serverEnv } from "@/lib/server-env";
 
-// Liveness only, so no backend or DB call, and serverEnv parses just the optional GIT_SHA: a backend blip or unrelated env var can't flap this container.
+// Liveness only, so a backend blip or unrelated env var cannot flap this container.
 export const dynamic = "force-dynamic";
 
 export function GET() {

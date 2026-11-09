@@ -20,13 +20,11 @@ interface IProvidersProps {
 
 export default function Providers({ children }: IProvidersProps) {
   return (
-    // Outermost, so an error from any provider or layout component that reaches
-    // global-error.tsx carries its component stack. Page errors stop at error.tsx first.
+    // Outermost, so a provider or layout error reaching global-error.tsx carries its component stack.
     <ComponentStackBoundary>
       <SerwistProvider
         swUrl="/sw.js"
-        // In dev the service worker would fight Turbopack's hot reload, and a browser with no
-        // Cache Storage rejects registration in a way nothing here can catch.
+        // Dev would fight Turbopack's hot reload; no Cache Storage rejects registration uncatchably.
         disable={
           process.env.NODE_ENV === "development" ||
           typeof caches === "undefined"

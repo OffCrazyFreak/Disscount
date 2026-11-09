@@ -52,8 +52,7 @@ export default function ShoppingListSelector({
     control: formField.control,
     name: "customListTitle",
   });
-  // Local to the popover: only choosing "create" turns it into the form's title,
-  // so a search that ends without a choice never reaches the saved draft.
+  // Local to the popover, so a search that ends without choosing "create" never reaches the saved draft.
   const [search, setSearch] = useState("");
 
   function handleOpenChange(isOpen: boolean) {
@@ -109,8 +108,7 @@ export default function ShoppingListSelector({
                             list={list}
                             isSelected={selectedList?.id === list.id}
                             onSelect={() => {
-                              // The list goes first: the title rule only applies to "new",
-                              // so validating the cleared title before it would flag it.
+                              // The list goes first, or the title rule would flag the cleared title.
                               onSelectList(list.id);
                               formField.setValue("customListTitle", "", {
                                 shouldDirty: true,
@@ -157,13 +155,13 @@ export default function ShoppingListSelector({
           </Popover>
           <FormMessage />
 
-          {/* The title has no input of its own (it comes from the create row), so its error shows here; `contents` adds no gap while empty. */}
+          {/* The title has no input of its own, so its error shows here; `contents` adds no gap while empty. */}
           <FormField
             control={formField.control}
             name="customListTitle"
             render={() => (
               <FormItem className="contents">
-                {/* An alert, because the trigger's aria-describedby points at the list field's message, not this one. */}
+                {/* An alert, because the trigger's aria-describedby points at the list field's message. */}
                 <FormMessage role="alert" />
               </FormItem>
             )}

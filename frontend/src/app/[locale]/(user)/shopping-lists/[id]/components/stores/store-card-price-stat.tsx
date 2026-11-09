@@ -27,7 +27,6 @@ function extremeLabelKey(
       : null;
 }
 
-/** One labelled price in a store card's Min / Prosjek / Max row. */
 export default function StoreCardPriceStat({
   label,
   price,

@@ -38,11 +38,7 @@ interface IUseProductFiltersOptions {
   seedPreferred?: boolean;
 }
 
-/**
- * URL-backed filter state for the products page: shareable and
- * back/forward-safe. Product identity and category/brand facets use the full
- * search response; store-level prices resolve the exact chain/location scope.
- */
+/** URL-backed so filters stay shareable and back/forward-safe. */
 export default function useProductFilters({
   seedPreferred = true,
 }: IUseProductFiltersOptions = {}): IUseProductFiltersResult {

@@ -1,9 +1,4 @@
-/**
- * Groups a Croatian number the way Croatians write it nationally: 091 234 5678,
- * 01 2345 678, 021 123 456, 0800 400 000. Groupings follow libphonenumber's
- * Croatian metadata, which the numbering plan leaves open. Anything that is
- * not a +385 number comes back unchanged.
- */
+/** Groupings follow libphonenumber's Croatian metadata, which the numbering plan leaves open. */
 export function formatCroatianPhone(phone: string): string {
   const digits = phone.replace(/[^\d+]/g, "");
   // "+385 (0)1 ..." keeps the trunk zero after the country code; it is dropped.

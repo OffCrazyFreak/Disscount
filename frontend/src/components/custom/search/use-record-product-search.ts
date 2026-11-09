@@ -13,10 +13,7 @@ export function forgetSubmittedProductSearch() {
   submittedQuery = null;
 }
 
-/**
- * Remembers a search once it has found something. Only one a field submitted:
- * a shared link or Back also lands on `q`, and neither is this person's search.
- */
+/** Only a submitted search counts: a shared link or Back also lands on `q`, and neither is this person's. */
 export function useRecordProductSearch(query: string, hasResults: boolean) {
   useEffect(() => {
     if (!hasResults || query !== submittedQuery) return;

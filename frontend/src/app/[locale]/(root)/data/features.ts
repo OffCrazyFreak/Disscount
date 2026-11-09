@@ -32,7 +32,6 @@ export interface IFeatureItem {
   comingSoon?: boolean;
   /** Link target; leave commented on coming-soon items until their page ships */
   href?: string;
-  /** Client action instead of a link */
   action?: "scanner" | "notifications";
 }
 

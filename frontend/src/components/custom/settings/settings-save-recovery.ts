@@ -26,7 +26,6 @@ const JOB_ERRORS: Record<SaveJobKey, JobErrorKey> = {
   places: "save.errors.places",
 };
 
-// Re-baselines the sections that saved, so only the failed ones stay dirty.
 export function rebaselineSavedSections(
   form: UseFormReturn<SettingsFormValues>,
   jobs: ISaveJob[],

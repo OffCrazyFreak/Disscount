@@ -10,7 +10,6 @@ export async function getFavoriteStores(): Promise<FavoriteStoreDto[]> {
   return response.data.map((item) => favoriteStoreDtoSchema.parse(item));
 }
 
-/** Replaces the whole list, like pinned places. */
 export async function updateFavoriteStores(
   data: BulkFavoriteStoreRequest,
 ): Promise<FavoriteStoreDto[]> {

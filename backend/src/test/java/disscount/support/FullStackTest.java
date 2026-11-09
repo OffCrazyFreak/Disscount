@@ -24,11 +24,7 @@ import java.util.UUID;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
-/**
- * The whole application on H2 behind MockMvc, shared by the behaviour pinning tests so they
- * run in one cached context and never list the services a slice would have to import. Every
- * test makes its own users, so leftovers from other tests never change an answer.
- */
+/** One cached context, so tests never list a slice's services; each test makes its own users, so leftovers are safe. */
 @SpringBootTest
 @AutoConfigureMockMvc
 public abstract class FullStackTest {

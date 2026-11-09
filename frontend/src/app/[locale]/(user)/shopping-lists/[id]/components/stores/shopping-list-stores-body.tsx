@@ -25,7 +25,6 @@ function storesMessageKey(
   return null;
 }
 
-/** Shows why there is nothing to compare yet, in priority order, or the stores. */
 export default function ShoppingListStoresBody({
   isLoading,
   hasItems,

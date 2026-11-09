@@ -39,11 +39,7 @@ interface IProductCardProps {
   >;
 }
 
-/**
- * A product as a tappable row in a list. The row's own contents live in
- * ProductSummary, so a surface that wants the product without the card, such as
- * the quick-actions sheet, takes that instead of restyling this.
- */
+/** Contents live in ProductSummary, so a surface without the card need not restyle this. */
 export default function ProductCard({
   ean,
   name,
@@ -85,9 +81,7 @@ export default function ProductCard({
         onNavigate={onNavigate}
       />
 
-      {/* Draws nothing until a hold starts, so it can stay mounted. This is the
-          only cue that holding the card does anything, since the row shows no
-          inline actions on touch. */}
+      {/* The only cue that holding does anything, since the row shows no inline actions on touch. */}
       {pressProps && (
         <HoldProgressRing
           progress="var(--press-progress, 0)"

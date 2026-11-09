@@ -14,8 +14,7 @@ interface IOpeningStatusBadgeProps {
   isInsideButton?: boolean;
 }
 
-// Orange marks "soon" either way, as the owner decided: an open store about
-// to close and a closed store about to open.
+// Orange marks "soon" either way, as the owner decided: an open store about to close and a closed store about to open.
 const VARIANTS = {
   open: "primarySoft",
   "closing-soon": "warningSoft",
@@ -24,7 +23,6 @@ const VARIANTS = {
   unconfirmed: "outline",
 } as const;
 
-/** "Otvoreno" or "Zatvoreno", with the time it changes in a tooltip and in its accessible name. */
 export default function OpeningStatusBadge({
   status,
   now,

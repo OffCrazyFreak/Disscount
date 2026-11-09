@@ -1,5 +1,4 @@
-// Cloudflare's published edge ranges (https://www.cloudflare.com/ips/). The backend's
-// ClientIp.java and the Traefik trustedIPs in docs/INFRASTRUCTURE.md carry the same list.
+// https://www.cloudflare.com/ips/; ClientIp.java and Traefik trustedIPs carry the same list.
 export const CLOUDFLARE_IP_RANGES = [
   "173.245.48.0/20",
   "103.21.244.0/22",

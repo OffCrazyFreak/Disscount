@@ -30,14 +30,14 @@ export const PLACEHOLDER_HREF = "#";
 export interface INavigationItem {
   id: string;
   href: string;
-  labelKey: NavKey; // Full name, shown in the sidebar
-  shortLabelKey?: NavKey; // Shorter name shown in the cramped desktop header navbar
+  labelKey: NavKey;
+  shortLabelKey?: NavKey;
   icon: LucideIcon;
-  badge?: boolean; // For items that can show badge counts
-  comingSoon?: boolean; // Show an "USKORO" badge for not-yet-available features
-  shortcutDescriptionKey?: NavKey; // Read out by assistive tech; its presence opts the item into a PWA shortcut
-  showInHeader: boolean; // Show in desktop header navigation
-  children?: readonly INavigationItem[]; // Nested items shown indented under this one
+  badge?: boolean;
+  comingSoon?: boolean; // Read out by assistive tech; its presence opts the item into a PWA shortcut
+  shortcutDescriptionKey?: NavKey;
+  showInHeader: boolean;
+  children?: readonly INavigationItem[];
 }
 
 export const homeNavItem = {
@@ -69,7 +69,6 @@ export const productsNavItem = {
   showInHeader: false,
 } as const satisfies INavigationItem;
 
-// Primary navigation items (shown in header on desktop, top of sidebar on mobile)
 const userNavTable = [
   {
     id: "shopping-lists",
@@ -175,7 +174,6 @@ const productNavTable = [
 ] as const satisfies readonly INavigationItem[];
 export const productNavItems: readonly INavigationItem[] = productNavTable;
 
-// Support entry points, shared with the footer; coming-soon until their pages/modals ship.
 const supportNavTable = [
   {
     id: "suggestions",
@@ -233,11 +231,7 @@ export type NavItemId =
       { children: readonly INavigationItem[] }
     >["children"][number]["id"];
 
-/**
- * Every group and their children, so an id cannot resolve on one surface and
- * throw on another. The throw is deliberate fail-fast: the table is hardcoded, so
- * a bad id is a bug to surface at import rather than render as an empty cell.
- */
+/** Throws because a bad id in this hardcoded table is a bug to surface at import. */
 export function findNavItem(id: NavItemId): INavigationItem {
   const items: readonly INavigationItem[] = ALL_NAV_ITEMS;
   const found =
@@ -250,10 +244,7 @@ export function findNavItem(id: NavItemId): INavigationItem {
   return found;
 }
 
-/**
- * One home for the coming-soon rule, which six navigation surfaces were each
- * deriving for themselves. Admins get to open what is not shipped yet.
- */
+/** One home for the coming-soon rule, which admins bypass to open what is not shipped yet. */
 export function isNavItemLocked(
   item: INavigationItem,
   accountType?: AccountType | null,

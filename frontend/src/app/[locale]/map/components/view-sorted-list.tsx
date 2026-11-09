@@ -19,7 +19,6 @@ interface IViewSortedListProps {
   onSelect: (key: string | null) => void;
 }
 
-/** The store list with the stores on the visible map grouped on top. */
 export default function ViewSortedList({
   pinned,
   listed,
@@ -50,8 +49,7 @@ export default function ViewSortedList({
     },
   });
 
-  // The chip unmounts once pressed, so the list takes focus instead of it
-  // dropping to the page.
+  // The chip unmounts once pressed, so the list takes focus instead of it dropping to the page.
   function applyView() {
     view.apply();
     setFocusRequest((count) => count + 1);

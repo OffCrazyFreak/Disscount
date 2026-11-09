@@ -4,8 +4,7 @@ import { z } from "zod";
 export const PASSWORD_MIN_LENGTH = 12;
 export const PASSWORD_MAX_LENGTH = 128;
 
-// Schema messages are keys without arguments, so auth.validation.passwordTooShort and
-// passwordTooLong repeat these two limits as literals: change them together.
+// Message keys take no arguments, so passwordTooShort and passwordTooLong repeat these: change together.
 const PASSWORD_TOO_SHORT = "auth.validation.passwordTooShort";
 const PASSWORD_TOO_LONG = "auth.validation.passwordTooLong";
 

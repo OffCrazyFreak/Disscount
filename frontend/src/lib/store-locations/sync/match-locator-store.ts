@@ -13,11 +13,7 @@ import {
 import { withoutSharedPoints } from "@/lib/store-locations/sync/shared-points";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 
-/**
- * Finds the locator record for an upstream store: by store code when the chain
- * shares it, otherwise by address. The town has to agree too, because the same
- * street and number exist in many towns ("Zagrebačka 10").
- */
+/** The town has to agree too, because the same street and number exist in many towns ("Zagrebačka 10"). */
 export function matchLocatorStore<T extends ILocatorStore>(
   target: ISyncTarget,
   records: T[],
@@ -29,10 +25,7 @@ export function matchLocatorStore<T extends ILocatorStore>(
   const byAddress = matchByAddress(target, records);
   if (byAddress) return byAddress;
 
-  // The looser rules below trust the record's point more, so a point the
-  // source gave two different addresses, or only a street, is not used by
-  // them. An approximate record still counts as a rival, so it can only make
-  // a match ambiguous, never decide one.
+  // The looser rules trust the point more, so shared or street-level points are out; approximate only adds ambiguity.
   const usable = withoutSharedPoints(records);
   const match =
     matchByCodeSuffix(target, usable, chainCodes) ??
@@ -60,8 +53,7 @@ function matchByAddress<T extends ILocatorStore>(
   });
   if (exact) return exact;
 
-  // "Zagreb" against "Zagreb - Dubrava" is the same town written two ways,
-  // but only one such candidate is safe: two would be a guess.
+  // "Zagreb" and "Zagreb - Dubrava" are one town written two ways, but only a single candidate is safe.
   const partial = sameAddress.filter((record) =>
     townContains(city, normalizeCity(record.city)),
   );
@@ -69,11 +61,7 @@ function matchByAddress<T extends ILocatorStore>(
   return partial.length === 1 ? partial[0] : null;
 }
 
-/**
- * A store number is a weaker key than a code, so the one record carrying it
- * also needs the address or the town to agree, and no other upstream code of
- * the chain may end in the same number.
- */
+/** A store number is weaker than a code: address or town must agree, and no other code may end the same. */
 function matchByCodeSuffix<T extends ILocatorStore>(
   target: ISyncTarget,
   records: T[],
@@ -91,11 +79,7 @@ function matchByCodeSuffix<T extends ILocatorStore>(
     : null;
 }
 
-/**
- * Sources write the village into the address ("B. Radića 9, Ladimirevci")
- * while upstream's town is the municipality, and both write "0" or "bb" for
- * a street without numbers. Only a single candidate is trusted.
- */
+/** Sources write the village where upstream has the municipality, so only a single candidate is trusted. */
 function matchByPlace<T extends ILocatorStore>(
   target: ISyncTarget,
   records: T[],

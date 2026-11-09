@@ -107,8 +107,7 @@ export function useCredentialsSubmit({
     data: CredentialsFormValues,
     afterPasswordChange: boolean,
   ) {
-    // The password change above already renewed the session; otherwise the current
-    // password proves it now, which the server needs within the last 15 minutes.
+    // A password change already renewed the session; else the current password proves it within 15 minutes.
     if (!afterPasswordChange) {
       const failure = await prove({ password: data.currentPassword });
       if (failure) {
@@ -165,8 +164,7 @@ export function useCredentialsSubmit({
       return;
     }
 
-    // The confirmation goes to the CURRENT address and the new email applies only
-    // once its link is clicked, so revert the field instead of showing it as active.
+    // The new email applies only once its link is clicked, so revert the field instead of showing it as active.
     form.resetField("email", { defaultValue: currentEmail });
     toast.success(
       wantPasswordChange

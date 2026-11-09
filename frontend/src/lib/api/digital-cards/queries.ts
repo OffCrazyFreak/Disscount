@@ -52,10 +52,7 @@ export async function setDigitalCardArchived(
   await apiClient.put(`${CARDS_PATH}/${id}/archive`, { archived });
 }
 
-/**
- * `keepalive` lets the request outlive a tab that is going to the background. axios cannot
- * set it, and a beacon cannot carry the proxy's headers, so it is a bare fetch.
- */
+/** `keepalive` outlives a backgrounded tab; axios cannot set it and a beacon lacks the proxy's headers. */
 export async function postCardsUsed(
   entries: { id: string; usedAt: string }[],
   { keepalive = false }: { keepalive?: boolean } = {},

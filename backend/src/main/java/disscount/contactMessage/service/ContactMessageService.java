@@ -32,7 +32,6 @@ public class ContactMessageService {
     // Bounds the admin list query; a full paginated UI is a possible follow-up.
     private static final int MAX_ADMIN_MESSAGES = 500;
 
-    /** Public: create a message. Silently drops honeypot-filled bot submissions. */
     public Optional<ContactMessageDto> create(ContactMessageRequest request) {
         // Browsers send the hidden field empty; any character a bot puts there, whitespace included, is a hit.
         if (StringUtils.hasLength(request.getHoneypot())) {

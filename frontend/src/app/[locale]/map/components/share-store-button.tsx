@@ -14,10 +14,7 @@ interface IShareStoreButtonProps {
   store: DirectoryStoreDto;
 }
 
-/**
- * Sits in the open row's address line, above the toggle that covers the row, so
- * it lifts itself over that toggle and widens its tap area past its small size.
- */
+/** Sits above the row's covering toggle, so it lifts itself over and widens its tap area past its small size. */
 export default function ShareStoreButton({ store }: IShareStoreButtonProps) {
   const t = useTranslations("map.actions");
 

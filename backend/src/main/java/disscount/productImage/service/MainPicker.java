@@ -10,7 +10,6 @@ import disscount.productImage.domain.ImageStatus;
 import disscount.productImage.domain.ProductImage;
 import disscount.productImage.off.OffProductPhotos;
 
-/** Rules for the photo shown when the admin has not chosen one. */
 final class MainPicker {
 
     private MainPicker() {}

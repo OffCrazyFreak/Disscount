@@ -2,22 +2,7 @@
 
 import { useEffect, useRef, type RefObject } from "react";
 
-/**
- * Closes an inline list when a press lands outside it.
- *
- * The popover gets this from Radix. An inline list is not a dismissable layer,
- * so without it every facet a user opens stays open, which on a phone is the
- * whole filter sheet expanded at once with no way to collapse any of it except
- * finding each trigger again.
- *
- * Deliberately on `document` in the bubble phase and deliberately without
- * `stopPropagation`, unlike the Escape hook next door. A modal drawer dismisses
- * itself from an outside press, and swallowing that event would stop it
- * closing.
- *
- * The trigger counts as inside, or its own toggle would fight this and the list
- * would reopen on the same press that closed it.
- */
+/** On `document` in bubble without stopPropagation, because a modal drawer closes from the same press. */
 export default function useMultiSelectOutsidePointer(
   active: boolean,
   contentRef: RefObject<HTMLElement | null>,

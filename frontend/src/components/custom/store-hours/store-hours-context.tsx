@@ -32,7 +32,6 @@ export interface IStoreOpening {
   hours: StoreHoursDto | null;
 }
 
-/** One store's status, or null until the hours load and the page has mounted. */
 export function useStoreOpening(key: string): IStoreOpening | null {
   const hours = useContext(StoreHoursContext);
 

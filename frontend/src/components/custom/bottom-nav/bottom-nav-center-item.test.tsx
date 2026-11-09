@@ -6,8 +6,7 @@ import { ProductsSheetProvider } from "@/context/products-sheet-context";
 import { renderWithProviders } from "@/test/render";
 
 describe("BottomNavCenterItem", () => {
-  // The raise is a transform, so it moves no layout: a ring outside the raised
-  // circle stays centred on the unraised button.
+  // The raise is a transform, so a ring outside the raised circle stays centred on the unraised button.
   it("draws the hold ring on the raised green circle", () => {
     renderWithProviders(
       <ProductsSheetProvider>

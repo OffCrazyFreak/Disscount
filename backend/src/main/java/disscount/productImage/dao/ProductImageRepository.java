@@ -36,7 +36,6 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, UUID
 
     List<ProductImage> findByConfirmedById(UUID confirmedById);
 
-    /** Photos each user uploaded and how many of those an admin deleted. */
     @Query("""
             select i.contributorId as userId, count(i) as uploaded,
                    sum(case when i.deletedAt is not null then 1 else 0 end) as deleted
@@ -62,7 +61,6 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, UUID
     List<ProductImage> findShownMainImages(@Param("eans") Collection<String> eans,
                                            @Param("visible") Collection<ImageStatus> visible);
 
-    /** Main photos still waiting to be copied from Open Food Facts, most widely sold first. */
     @Query("""
             select i from ProductImage i, ProductImageSet s
             where i.id = s.mainImageId and i.fullKey is null and i.status = :candidate

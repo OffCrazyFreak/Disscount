@@ -98,11 +98,7 @@ function closingOf(open: ISpan[], from: ISpan): number {
   return end;
 }
 
-/**
- * Whether a store is open at an instant, and until or from when. The one
- * place that answers it, so the map badge, the list and the "open now"
- * filter never disagree.
- */
+/** The one place that answers this, so the map badge, list and "open now" filter never disagree. */
 export function openingStatusAt(
   hours: StoreHoursDto,
   holidays: ReadonlySet<string>,

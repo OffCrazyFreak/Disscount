@@ -10,3 +10,22 @@ if grep -F -e "$(printf '\342\200\224')" -e "$(printf '\342\200\223')" "$1" >/de
   echo "commit-msg: em or en dash found. AGENTS.md forbids them; use a comma, a colon, parentheses, or rewrite." >&2
   exit 1
 fi
+
+# The first real line, because an editor commit can open with blanks and # comments.
+subject=$(sed -e '/^#/d' -e '/^[[:space:]]*$/d' "$1" | head -n 1)
+
+case "$subject" in
+  "Merge "* | "Revert "* | "fixup! "* | "squash! "* | "amend! "*) exit 0 ;;
+esac
+
+if ! printf '%s\n' "$subject" | grep -Eq '^(fix|feat|docs|refactor|chore|style|perf|ci|test)(\([a-z0-9-]+\))?: '; then
+  echo "commit-msg: subject must start with type(scope): where type is fix, feat, docs, refactor, chore, style, perf, ci or test, and the scope is optional." >&2
+  exit 1
+fi
+
+# Drops UTF-8 continuation bytes to count characters, because wc -m depends on the locale.
+length=$(printf '%s' "$subject" | LC_ALL=C tr -d '\200-\277' | wc -c)
+if [ "$length" -gt 72 ]; then
+  echo "commit-msg: subject is $length characters; AGENTS.md allows 72." >&2
+  exit 1
+fi

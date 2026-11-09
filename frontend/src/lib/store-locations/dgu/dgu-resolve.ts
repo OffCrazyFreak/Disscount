@@ -6,8 +6,7 @@ import type {
   IDguTarget,
 } from "@/lib/store-locations/dgu/dgu-types";
 
-// The same street and number can exist in several villages of one town's
-// area; farther apart than this, picking one would be a guess.
+// The same street and number can exist in several villages, so farther apart than this, picking one would be a guess.
 const MAX_SPREAD_M = 300;
 
 type Point = { lat: number; lon: number };
@@ -18,7 +17,6 @@ export interface IDguResult {
   ambiguous: Map<string, Point[]>;
 }
 
-/** Picks each target's address among the register's candidates, if one is safe. */
 export function resolveCandidates(
   targets: IDguTarget[],
   candidates: IDguCandidate[],

@@ -66,10 +66,7 @@ public class ProductImageJobs {
         this.runs = runs;
     }
 
-    /**
-     * Checked every few hours but runs weekly; the last run is stored so restarts do not repeat it.
-     * The catalogue also feeds the product sitemap, so it runs without the photo store; only the photo seed needs it.
-     */
+    /** Weekly, with the last run stored so restarts do not repeat it; it feeds the sitemap, so needs no photo store. */
     @Scheduled(fixedDelay = 6 * 3_600_000L, initialDelay = 10 * 60_000L)
     public void weeklyImport() {
         if (!enabled || !importing.compareAndSet(false, true)) return;
@@ -87,8 +84,7 @@ public class ProductImageJobs {
             }
             // An interrupt during the download can surface as an IOException, so it is checked again here.
             if (Thread.currentThread().isInterrupted()) return;
-            // Tracked apart, so turning the photo store on mid-week seeds at the next check instead of up to a
-            // week later; a fresh import seeds its new EANs straight away.
+            // Tracked apart, so turning the photo store on mid-week seeds at the next check, not up to a week later.
             if (store.enabled() && (imported || isDue(PHOTO_SEED))) {
                 seed.seed();
                 runs.save(new ProductImageImportRun(PHOTO_SEED, Timestamps.nowUtc()));
@@ -149,10 +145,7 @@ public class ProductImageJobs {
         }
     }
 
-    /**
-     * Brings photos rendered before the 1600 pixel full file up to date, only while no new photo waits, and at the
-     * same one-at-a-time pace, because the Open Food Facts ones are downloaded again.
-     */
+    /** Only while no new photo waits and one at a time, because the Open Food Facts ones are downloaded again. */
     private void rerenderOlderPhotos() {
         List<ProductImage> older = images.findRenderedBeforeCurrentFiles(List.of(ImageStatus.VERIFIED, ImageStatus.PENDING),
                 MAX_RENDER_ATTEMPTS, Timestamps.nowUtc(), PageRequest.of(0, RENDER_BATCH));
@@ -185,10 +178,7 @@ public class ProductImageJobs {
         if (held != null) retryOlderLater(held.image(), held.cause());
     }
 
-    /**
-     * A renderer failure waits for the next photo before it is charged to its own: a fault of one photo is
-     * followed by a success, a broken encoder fails the next one too and must not cost every photo a try.
-     */
+    /** Charged only once the next photo renders: one bad photo is followed by a success, a broken encoder is not. */
     private record Held(ProductImage image, RuntimeException cause) {}
 
     /** The photo keeps showing its earlier files; after the last attempt it simply keeps them. */

@@ -116,7 +116,7 @@ It sets account, list, item, watchlist (three with a past price alert), card, co
 - Brackets and parentheses in a config glob are pattern syntax, so `include` or `exclude` patterns that name `[locale]` or `(user)` need escaping. A path passed on the command line is matched as plain text and needs nothing.
 - `vi.mock` inside a `describe` or a function throws in Vitest 5. Keep it at the top of the file.
 - jsdom 30 needs Node `^22.22.2`, `^24.15.0` or `>=26.0.0`, so Node 25 and early 24 releases cannot run the DOM tests. CI uses Node 24.
-- A `.tsx` test that renders a component with `useForm` reads the same compiled code as production, so the `useWatch` and `useFormState` rules in `AGENTS.md` matter in tests too.
+- A `.tsx` test that renders a component with `useForm` reads the same compiled code as production, so reading form state with `useWatch` and `useFormState` matters in tests too.
 - `vitest.config.mts` sets an empty inline PostCSS config. Without it, a component that imports a library stylesheet (`react-image-crop/dist/ReactCrop.css`) makes Vite load the app's Tailwind PostCSS config, which fails under Vitest.
 
 ## Sources

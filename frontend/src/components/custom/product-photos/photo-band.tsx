@@ -8,7 +8,6 @@ interface IPhotoBandProps {
   className?: string;
 }
 
-/** The dark strip along a photo's bottom edge that says it can be tapped, styled like the avatar's. */
 export default function PhotoBand({ action, className }: IPhotoBandProps) {
   const Icon = action === "open" ? Expand : Camera;
 

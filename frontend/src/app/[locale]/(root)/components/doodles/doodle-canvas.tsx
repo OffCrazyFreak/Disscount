@@ -37,9 +37,7 @@ interface IDoodleCanvasProps {
   children: ReactNode;
 }
 
-// Children are motion elements inheriting this svg's hidden/visible variants.
-// This one-time draw ignores reduced motion; globals.css only disables the
-// continuous CSS doodle animations.
+// This one-time draw ignores reduced motion; globals.css only disables the continuous doodle animations.
 export default function DoodleCanvas({
   viewBox,
   className,

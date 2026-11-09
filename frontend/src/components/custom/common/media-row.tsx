@@ -9,11 +9,7 @@ interface IMediaRowProps {
   className?: string;
 }
 
-/**
- * A square picture beside a row's content, always exactly as tall as that content. Only a grid
- * can do this: it sizes the rows first and then widens the column to the square's new width,
- * which a flex row never revisits. The picture sits absolutely, so its own file size never counts.
- */
+/** Only a grid sizes a square to its row, as flex never revisits the column; absolute ignores file size. */
 export default function MediaRow({
   media,
   children,

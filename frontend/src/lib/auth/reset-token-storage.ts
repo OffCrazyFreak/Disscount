@@ -1,6 +1,4 @@
-// The reset token leaves the URL once read: Sentry Replay records the page URL of every
-// snapshot with no hook to scrub it, and a language switch remounts the modal under the
-// new [locale]. Session-scoped, cleared when the modal closes.
+// Leaves the URL because Replay records it unscrubbed, and a language switch remounts the modal.
 const TOKEN_KEY = "disscount-reset-token";
 
 // Storage can be full or blocked; the URL token must still work from memory then.
@@ -39,10 +37,7 @@ export function removeResetTokenFromUrl() {
   window.history.replaceState(window.history.state, "", url);
 }
 
-/**
- * Runs before Sentry.init, so Replay's first snapshot already has a clean URL. Returns
- * whether a reset token is still in the URL, in which case Replay must stay off.
- */
+/** Before Sentry.init so Replay's first snapshot is clean; a token still in the URL keeps Replay off. */
 export function moveResetTokenOutOfUrl(): boolean {
   const params = new URLSearchParams(window.location.search);
   const token = params.get("token");

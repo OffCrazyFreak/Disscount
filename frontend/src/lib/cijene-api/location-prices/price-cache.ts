@@ -11,10 +11,7 @@ interface IPriceCacheOptions {
   now?: () => number;
 }
 
-/**
- * In-memory, per server process. Holds promises, so concurrent searches for
- * the same city share one upstream request instead of each spending quota.
- */
+/** Holds promises, so concurrent searches for one city share a single upstream request. */
 export function createPriceCache({
   ttlMs,
   maxEntries,

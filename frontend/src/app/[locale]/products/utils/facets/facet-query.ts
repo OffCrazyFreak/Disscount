@@ -52,7 +52,6 @@ function resolveLocationChains(
   );
 }
 
-/** Normalizes products and selections once, up front, for the counters to use */
 export function buildFacetQuery(
   products: ProductResponse[],
   locations: IStoreLocation[],

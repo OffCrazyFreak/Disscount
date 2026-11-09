@@ -90,10 +90,7 @@ function closedDays(
   return days;
 }
 
-/**
- * Weekly `shopHours`, dated `specialShopHours` (every Sunday and holiday
- * about two months ahead) and a refit closure, which wins over both.
- */
+/** A refit closure wins over both weekly and special hours. */
 export function parseSparHours(
   store: SparHours,
   today: string,

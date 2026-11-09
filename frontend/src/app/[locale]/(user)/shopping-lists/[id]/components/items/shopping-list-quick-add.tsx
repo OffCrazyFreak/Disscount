@@ -21,10 +21,6 @@ interface IShoppingListQuickAddProps {
   listId: string;
 }
 
-/**
- * Enter or the button adds the typed text as a plain item; a highlighted or clicked
- * suggestion opens the regular add-to-list modal for that product instead.
- */
 export default function ShoppingListQuickAdd({
   listId,
 }: IShoppingListQuickAddProps) {

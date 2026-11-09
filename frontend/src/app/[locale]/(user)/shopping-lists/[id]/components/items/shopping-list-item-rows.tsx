@@ -21,7 +21,6 @@ export interface IShoppingListItemRowsProps {
   lostFocusItemIdRef: RefObject<string | null>;
 }
 
-/** One run of items, shared by the A to Z list and each store's section. */
 export default function ShoppingListItemRows({
   items,
   cheapestStores,

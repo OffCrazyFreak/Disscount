@@ -12,7 +12,6 @@ export interface ISearchDraftStore {
   followRoute: (routeQuery: string) => void;
 }
 
-/** The text in progress in a search field or a group of them, apart from the URL's `q`. */
 export function createSearchDraftStore(): ISearchDraftStore {
   const listeners = new Set<() => void>();
   let typed: string | null = null;

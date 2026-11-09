@@ -9,11 +9,9 @@ interface ILocationReportCopy {
   message: (store: string, id: string) => string;
 }
 
-// The contact modal's own draft key: it restores a saved draft when it opens,
-// which is how the report arrives prefilled without a new endpoint.
+// The contact modal restores a saved draft on open, which is how the report arrives prefilled without a new endpoint.
 const CONTACT_DRAFT_KEY = "contact";
 
-/** Opens the contact form with the store already named in the message. */
 export function openLocationReport(
   store: DirectoryStoreDto,
   copy: ILocationReportCopy,

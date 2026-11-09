@@ -19,10 +19,6 @@ interface IMapMobileLayoutProps {
   onCoverChange: (share: number) => void;
 }
 
-/**
- * The phone map: full screen under a floating bar whose search opens into the
- * list. Picking a store closes the list and shows it in a sheet.
- */
 export default function MapMobileLayout({
   model,
   viewArea,
@@ -51,8 +47,7 @@ export default function MapMobileLayout({
       data-page-width="full"
       className="fixed inset-x-0 top-0 bottom-[var(--bottom-nav-total)] z-[1] overflow-hidden"
     >
-      {/* First in the DOM so the search comes before the map's controls in
-          the tab order, the way the list did before it. */}
+      {/* First in the DOM so the search comes before the map's controls in the tab order. */}
       <MapSearchBar isOpen={isSearchOpen} onOpenChange={setSearchOpen}>
         <section
           id="map-store-list"

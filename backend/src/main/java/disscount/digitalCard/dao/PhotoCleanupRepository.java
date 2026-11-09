@@ -24,7 +24,7 @@ public interface PhotoCleanupRepository extends JpaRepository<PhotoCleanup, UUID
     @Query("DELETE FROM PhotoCleanup p WHERE p.prefix = false AND p.keyOrPrefix IN :keys")
     void removePendingKeys(Collection<String> keys);
 
-    // REQUIRES_NEW because this runs from an afterCommit callback, where joining the finished transaction would never commit.
+    // REQUIRES_NEW because an afterCommit callback joining the finished transaction would never commit.
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Modifying
     @Query("DELETE FROM PhotoCleanup p WHERE p.id = :id")

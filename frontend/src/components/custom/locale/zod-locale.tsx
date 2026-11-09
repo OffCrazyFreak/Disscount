@@ -14,11 +14,7 @@ const ZOD_LOCALES: Record<AppLocale, () => Parameters<typeof z.config>[0]> = {
   de: z.locales.de,
 };
 
-/**
- * Zod's built-in messages ("Too small: expected...") follow the page language.
- * z.config is process-global, so this only ever runs in the browser, never on a
- * server handling several languages at once.
- */
+/** z.config is process-global, so this only runs in the browser, never on a server handling several languages. */
 export default function ZodLocale() {
   const locale = useLocale();
 

@@ -71,8 +71,7 @@ export default function AddToShoppingListForm({
       dirty={isDirty}
       formId="add-to-list-form"
       submitLabel={t("addToList.submit")}
-      // The product is already on the chosen list, so submitting edits that entry
-      // rather than adding a second one.
+      // The product is already on the chosen list, so submitting edits that entry rather than adding a second one.
       submitIcon={duplicateItem ? ListPen : ListPlus}
       submitLoading={isSubmitting}
       submitDisabled={

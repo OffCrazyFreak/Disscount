@@ -24,7 +24,6 @@ function actionAriaKey(
   return hasSaved ? "removeAria" : null;
 }
 
-/** Remove, restore or discard, depending on what is staged for the slot. */
 export default function CardPhotoSlotAction({
   label,
   saved,

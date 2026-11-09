@@ -1,4 +1,3 @@
-// The wording lives in the digitalCards catalog under chainNotes.<code>.
 const NOTE_LINKS = {
   lidl: "https://www.lidl.hr/c/lidl-plus-kako-koristiti-lidl-plus/s10027648",
   kaufland: "https://www.kaufland.hr/kauflandcard.html",

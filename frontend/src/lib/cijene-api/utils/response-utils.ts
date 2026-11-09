@@ -1,9 +1,5 @@
 import { NextResponse } from "next/server";
 
-/**
- * Creates a JSON response with common caching headers
- * Security headers are automatically added by middleware
- */
 export function createApiResponse<T>(
   data: T,
   options: {
@@ -20,10 +16,8 @@ export function createApiResponse<T>(
 
   const response = NextResponse.json(data, { status });
 
-  // Set cache control (security headers via next.config.ts headers())
   response.headers.set("Cache-Control", cacheControl);
 
-  // Add any additional headers (but do not allow overriding security headers)
   const immutableHeaders = new Set([
     "x-content-type-options",
     "x-frame-options",

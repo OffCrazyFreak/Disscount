@@ -12,7 +12,6 @@ export async function readStoreLocations(): Promise<StoreLocationRow[]> {
   return db.select().from(storeLocation);
 }
 
-/** Saves a resolved location, unless a human already pinned the store. */
 export async function saveResolvedLocation(
   store: { chain: string; code: string; address: string | null },
   location: IResolvedLocation,
@@ -47,8 +46,7 @@ export async function recordFailedAttempt(
     .values({ chainCode, storeCode, attempts: 1, lastAttemptAt: now })
     .onConflictDoUpdate({
       target: [storeLocation.chainCode, storeLocation.storeCode],
-      // Only unplaced stores and stale pins are targets, and a stale pin that
-      // no source finds again must not keep pointing at the old building.
+      // A stale pin that no source finds again must not keep pointing at the old building.
       set: {
         lat: null,
         lon: null,

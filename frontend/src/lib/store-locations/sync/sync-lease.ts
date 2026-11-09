@@ -4,7 +4,6 @@ import { sql } from "drizzle-orm";
 
 import { db } from "@/db";
 
-/** A job's row in `store_location_sync` and how long it rests after a run. */
 export interface ISyncLease {
   id: string;
   every: string;
@@ -12,12 +11,7 @@ export interface ISyncLease {
 
 const LOCATION_LEASE: ISyncLease = { id: "store-locations", every: "24 hours" };
 
-/**
- * Takes the sync lease when the last run finished over a day ago (or the
- * lease's own interval), or when a run started over two hours ago and never
- * finished (its process died). One conditional upsert, so two app instances
- * cannot both win.
- */
+/** Taken once the last run is due or a run over 2 hours old died; one upsert, so only one instance can win. */
 export async function acquireSyncLease({
   id,
   every,
@@ -49,10 +43,7 @@ export async function releaseSyncLease(
   `);
 }
 
-/**
- * Whether the job's last finished run succeeded, so its data is a full set.
- * A rerun in progress keeps the previous answer, because acquiring changes only `started_at`.
- */
+// A rerun in progress keeps the previous answer, because acquiring changes only `started_at`.
 export async function hasSyncSucceeded({ id }: ISyncLease): Promise<boolean> {
   const result = await db.execute(sql`
     select 1 from store_location_sync
@@ -62,7 +53,6 @@ export async function hasSyncSucceeded({ id }: ISyncLease): Promise<boolean> {
   return result.rows.length > 0;
 }
 
-/** Cheap read used to decide whether a request should start a sync at all. */
 export async function isSyncDue({
   id,
   every,

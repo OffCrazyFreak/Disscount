@@ -64,10 +64,7 @@ function currentUserShoppingListsQueryOptions() {
   });
 }
 
-// Shorter than the rest of the app wants, because this route serves link visitors as
-// well as the owner and two people can be shopping off one list. A shared list also
-// polls so their ticks show up live; a private one only refetches on focus, a remount
-// or an invalidation. Ticks skip a hidden tab, since refetchIntervalInBackground is off.
+// Shorter because several people can shop one list; a shared list polls so ticks show live.
 function shoppingListByIdQueryOptions(id: string) {
   return queryOptions({
     queryKey: SHOPPING_LIST_QUERY_KEYS.byId(id),
@@ -90,12 +87,9 @@ export function useGetCurrentUserShoppingLists({
   return useQuery({ ...currentUserShoppingListsQueryOptions(), enabled });
 }
 
-// enabled is explicit so a caller that does not want this query can say so, rather than
-// passing an empty id and minting a ["shoppingLists", ""] entry shaped like a real one.
+// Explicit so opting out need not mint a ["shoppingLists", ""] entry shaped like a real one.
 export function useGetShoppingListById(id: string, { enabled = true } = {}) {
-  // Subscribed rather than read with queryClient.isMutating inside refetchInterval: the
-  // interval is only recomputed on a render or a query update, and a write that fails
-  // without invalidating the list triggers neither once it settles, so polling would stay off.
+  // Subscribed, because refetchInterval recomputes on render or update, and a failed write triggers neither.
   const isWritingLists =
     useIsMutating({ mutationKey: SHOPPING_LIST_QUERY_KEYS.all }) > 0;
 
@@ -117,10 +111,7 @@ export function useUpdateShoppingList() {
   >({
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListUpdate,
     mutationFn: ({ id, data }) => updateShoppingList(id, data),
-    // The cache is the single source of truth, written before the request leaves. Callers
-    // used to mirror the new value in component state and clear it once the mutation
-    // settled, which lands while the refetch invalidateQueries started is still in flight,
-    // so the control fell back to the pre-save value and visibly flickered.
+    // Written before the request leaves, because a component-state mirror clears early and flickers.
     onMutate: ({ id, data }) => patchListOptimistically(queryClient, id, data),
     onError: (_error, { id }, rollback) =>
       restoreList(queryClient, id, rollback),
@@ -192,11 +183,7 @@ export function useUpdateShoppingListItem() {
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListItemUpdate,
     mutationFn: ({ listId, itemId, data }) =>
       updateShoppingListItem(listId, itemId, data),
-    // In onMutate rather than at the call site so React Query owns the optimism and its
-    // rollback. Note it does NOT re-run on replay: query-core skips onMutate for a
-    // mutation restored as already pending. What survives a reload is the query snapshot
-    // that onMutate wrote, which is why the shopping-list roots have to stay in
-    // cached-query-keys.ts.
+    // In onMutate for owned rollback; replays skip it, so the roots must stay in cached-query-keys.ts.
     onMutate: ({ listId, itemId, data }) =>
       patchItemOptimistically(
         queryClient,
@@ -204,10 +191,7 @@ export function useUpdateShoppingListItem() {
         itemId,
         data,
       ),
-    // Reports as well as rolls back. A hook-level onError replaces the mutation
-    // default's rather than running alongside it, so without calling the shared handler
-    // here a live failure reverted the tick in silence and only a replay after a reload
-    // ever explained itself.
+    // Reports too, because a hook-level onError replaces the default, or the tick reverts silently.
     onError: (error, { listId }, rollback) => {
       restoreItem(queryClient, SHOPPING_LIST_QUERY_KEYS.byId(listId), rollback);
       listWriteFailed(error, tUi);

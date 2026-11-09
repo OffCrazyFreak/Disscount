@@ -8,11 +8,7 @@ export interface ISearchSuggestion {
 
 export const MAX_SEARCH_SUGGESTIONS = 8;
 
-/**
- * Recent searches and product names that match what is typed, best first.
- * A recent search wins a tie, and over a product name that reads the same.
- * Text the field already holds is left out, since picking it would add nothing.
- */
+/** A recent search wins a tie; text the field already holds is left out, since picking it adds nothing. */
 export function rankSearchSuggestions(
   query: string,
   recent: string[],

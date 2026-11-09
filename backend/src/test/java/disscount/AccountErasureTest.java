@@ -40,10 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * The whole erasure across features, end to end. It lives in the root package because the
- * pieces it checks will sit in packages a single feature's test cannot see.
- */
+/** In the root package because the pieces it checks sit in packages a single feature's test cannot see. */
 class AccountErasureTest extends FullStackTest {
 
     @Autowired DigitalCardRepository cards;

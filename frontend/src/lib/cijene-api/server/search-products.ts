@@ -8,10 +8,7 @@ function canBeBarcodeLookup({ q, fuzzy, date, chains }: SearchProductsParams) {
   return fuzzy === undefined && !date && !chains && isWellFormedProductId(q);
 }
 
-/**
- * Upstream's search matches names and brands only, so a typed barcode goes through the
- * same lookup a scan does. A number no product carries is still searched as text.
- */
+/** Upstream's search skips barcodes, so a typed one takes the scan lookup first. */
 export async function searchProducts(
   params: SearchProductsParams,
 ): Promise<{ data: unknown }> {

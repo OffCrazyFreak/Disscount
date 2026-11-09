@@ -185,8 +185,7 @@ describe("useShoppingListData price states", () => {
     const requests: string[] = [];
     answerProducts(requests);
 
-    // The store summary watches the same lookups on this page, and TanStack refetches
-    // through whichever observer allows it.
+    // The store summary watches the same lookups, and TanStack refetches through whichever observer allows it.
     const { result } = renderHookWithProviders(
       () => {
         useStoreChainAnalysis({

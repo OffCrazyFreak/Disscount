@@ -17,8 +17,7 @@ export const recipientSendLog: IRecipientSendGate = {
     const dayAgo = sql`now() - interval '1 day'`;
 
     const reserved = await db.transaction(async (tx) => {
-      // Serialises concurrent sends to one address, so two requests cannot both
-      // read the last free slot.
+      // Serialises concurrent sends to one address, so two requests cannot both read the last free slot.
       await tx.execute(
         sql`select pg_advisory_xact_lock(hashtext(${recipientHash}))`,
       );
@@ -44,8 +43,7 @@ export const recipientSendLog: IRecipientSendGate = {
       return true;
     });
 
-    // Outside the per-recipient lock, so sends to different addresses never queue on
-    // each other's stale rows; a failed prune only leaves rows the counts already skip.
+    // Outside the per-recipient lock so other addresses never queue; a failed prune is harmless.
     await db
       .delete(emailSend)
       .where(lt(emailSend.sentAt, dayAgo))

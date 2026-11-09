@@ -21,12 +21,7 @@ function isCloudflare(ip: string) {
   return cloudflare.check(ip, isIP(ip) === 6 ? "ipv6" : "ipv4");
 }
 
-/**
- * Traefik always writes the peer it accepted the connection from as the last
- * x-forwarded-for hop, so only that hop is trustworthy. cf-connecting-ip counts
- * only when that peer is a Cloudflare edge; a caller reaching the origin directly
- * is keyed on its own address instead of whatever it put in the header.
- */
+/** Traefik writes its peer as the last hop, so only that is trusted; cf-connecting-ip only from Cloudflare. */
 export function resolveClientIp(headers: Headers): string | null {
   const peer = headers.get("x-forwarded-for")?.split(",").at(-1)?.trim();
   if (!peer || !isIP(peer)) return null;
@@ -54,8 +49,7 @@ function isCloudflarePeer(headers: Headers) {
 }
 
 export function withTrustedClientIp(request: Request): Request {
-  // Copied entry by entry: in the Vitest environment, new Headers(request.headers)
-  // drops every header but content-type.
+  // Copied entry by entry, because in Vitest new Headers(request.headers) drops every header but content-type.
   const headers = new Headers([...request.headers]);
   const clientIp = resolveClientIp(headers);
 
@@ -65,9 +59,7 @@ export function withTrustedClientIp(request: Request): Request {
   // Same trust rule as the address: only a Cloudflare edge may set the country.
   if (!isCloudflarePeer(headers)) headers.delete(CLIENT_COUNTRY_HEADER);
 
-  // Next passes route handlers a Proxy around the request, and Node 24's undici
-  // rejects new Request(proxy) on its private-field check, so copy it by parts.
-  // Node requires duplex for a streamed body; TypeScript's RequestInit lacks it.
+  // Next passes a Proxy and Node 24's undici rejects it, so copy by parts; streamed bodies need duplex.
   const init: RequestInit & { duplex: "half" } = {
     method: request.method,
     headers,

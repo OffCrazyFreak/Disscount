@@ -7,11 +7,7 @@ import { matchLocatorStore } from "@/lib/store-locations/sync/match-locator-stor
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 import type { ILocatorStore } from "@/lib/store-locations/store-location-types";
 
-/**
- * Places targets from their chain's own store locator. One chain failing (a
- * redesigned site, a block) only skips that chain; its stores fall through to
- * the next source.
- */
+/** One chain failing only skips that chain; its stores fall through to the next source. */
 export async function resolveWithLocators(
   targets: ISyncTarget[],
   upstream: StoreResponse[],
@@ -37,8 +33,7 @@ export async function resolveWithLocators(
     }
 
     const placed = new Set<ISyncTarget>();
-    // Every upstream code, placed stores included, so a store number two
-    // codes end in stays ambiguous.
+    // Every upstream code, placed stores included, so a store number two codes end in stays ambiguous.
     const chainCodes = upstream
       .filter((store) => store.chain_code === chain)
       .map((store) => store.code);
@@ -64,8 +59,7 @@ export async function resolveWithLocators(
       console.warn(`[store-locations] ${chain} locator failed`, error);
     }
 
-    // Stores saved before a failure keep their locator pin; only the rest
-    // fall through to the next source.
+    // Stores saved before a failure keep their locator pin; only the rest fall through.
     remaining.push(...chainTargets.filter((target) => !placed.has(target)));
   }
 

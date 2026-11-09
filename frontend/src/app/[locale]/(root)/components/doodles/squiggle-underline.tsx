@@ -5,7 +5,6 @@ interface ISquiggleUnderlineProps {
   className?: string;
 }
 
-// Hand-drawn wavy underline that draws itself in via the dis-draw keyframe.
 export default function SquiggleUnderline({
   className,
 }: ISquiggleUnderlineProps) {

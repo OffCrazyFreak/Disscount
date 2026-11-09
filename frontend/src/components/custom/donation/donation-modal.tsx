@@ -13,7 +13,6 @@ interface IDonationModalProps {
   open: boolean;
 }
 
-/** Public support prompt, reachable from the sidebar and footer. */
 export default function DonationModal({ open }: IDonationModalProps) {
   const t = useTranslations("common");
   const triggerRef = useRef<HTMLElement | null>(null);

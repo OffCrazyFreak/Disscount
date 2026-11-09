@@ -44,8 +44,7 @@ function call(
   );
 }
 
-// Regression for #445: better-auth 1.6 pruned stored counters older than 60 seconds,
-// whatever a custom rule's window, so a 15 minute lockout reset after a minute.
+// Stored counters must outlive 60 seconds with a longer window, or a 15 minute lockout resets early.
 describe("rate limit counters with a window longer than a minute", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -65,8 +64,7 @@ describe("rate limit counters with a window longer than a minute", () => {
     }
     expect((await call(auth, LONG_RULE_PATH, attacker)).status).toBe(429);
 
-    // A second address hitting a 10 second path again once its row is stale takes the
-    // reset branch, which is what runs the table-wide sweep.
+    // A second address on a 10 second path with a stale row takes the reset branch, running the sweep.
     await vi.advanceTimersByTimeAsync(61_000);
     await call(auth, "/get-session", bystander);
     await vi.advanceTimersByTimeAsync(11_000);
