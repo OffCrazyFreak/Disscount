@@ -59,7 +59,8 @@ come back here for the contribution workflow.
 
 - **CI runs on every PR** (`.github/workflows/ci.yml`): frontend typecheck, unit
   tests, lint, a Fallow audit (new dead code, duplication, complexity and import
-  cycles), Prettier, and a production build, plus a backend build and a lint of the
+  cycles), a Fallow dead-code check (no unused exports, types or files anywhere),
+  Prettier, and a production build, plus a backend build and a lint of the
   workflow files. Jobs that your changed files cannot affect are skipped, and draft
   PRs skip these until they are ready for review. Please make sure it is green
   before requesting review.
