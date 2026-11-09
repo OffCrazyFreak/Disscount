@@ -1,7 +1,7 @@
 {
   "ipAddresses": {
     "heading": "IP addresses",
-    "body": "When you sign in, we store your device's IP address with the session so we can check suspicious sign-ins to your account. We remove the address no later than 30 days after sign-in, and we delete an expired session entirely. To prevent abuse we also use your IP address briefly to limit repeated attempts: up to 15 minutes in our database for sign-in and similar actions, and up to 24 hours for the contact form, kept only in the server's memory. When a secure connection to our server fails, the server's error log records the address of that connection. We use those entries only to fix faults. Database backups may hold this data for up to 60 more days. When an error happens, Sentry also receives your IP address and keeps it for at most 30 days. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
+    "body": "When you sign in, we store your device's IP address with the session so we can check suspicious sign-ins to your account. We remove the address no later than 30 days after sign-in, and we delete an expired session entirely. To prevent abuse we also use your IP address briefly to limit repeated attempts: up to 15 minutes in our database for sign-in and similar actions, and up to 24 hours for the contact form, kept only in the server's memory. When a secure connection to our server fails, the server's error log records the address of that connection. We use those entries only to fix faults. Database backups may hold this data for up to 31 more days. When an error happens, Sentry also receives your IP address and keeps it for at most 30 days. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
   },
   "errorTracking": {
     "heading": "Error tracking",
@@ -11,5 +11,9 @@
   "securityNotices": {
     "heading": "Security notices",
     "body": "When your account's password changes, we email you a notice. When you change your email address, the notice goes to the old address and names the new one. That way you can spot a change you don't know about and act straight away. These notices are part of protecting your account, so you can't turn them off. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
+  },
+  "backups": {
+    "heading": "Backups",
+    "body": "We regularly copy the database and photos so a failure doesn't destroy them. We keep the copies encrypted in the European Union, with Cloudflare, our data processor, and they delete themselves no later than 31 days after they're made. When you delete your account, your data leaves the copies as they expire. Until then we also keep a deletion record with a pseudonymised ID of your account, which reveals neither your name nor your email. If we ever have to restore the database from a copy, we delete again, before the app reopens, the accounts deleted after that copy was made. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
   }
 }

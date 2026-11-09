@@ -1,7 +1,7 @@
 {
   "ipAddresses": {
     "heading": "IP adrese",
-    "body": "Pri prijavi uz sesiju spremamo IP adresu uređaja kako bismo mogli provjeriti sumnjive prijave u tvoj račun. Adresu brišemo najkasnije 30 dana nakon prijave, a isteklu sesiju brišemo cijelu. Za zaštitu od zlouporabe IP adresu kratko koristimo i za ograničenje broja pokušaja: kod prijave i sličnih radnji do 15 minuta u bazi, a kod obrasca za kontakt do 24 sata samo u memoriji poslužitelja. Kad sigurna veza s našim poslužiteljem ne uspije, zapis grešaka poslužitelja bilježi adresu te veze. Te zapise koristimo samo za otklanjanje kvarova. Sigurnosne kopije baze te podatke mogu sadržavati još do 60 dana. Kad se dogodi greška, IP adresu dobiva i Sentry, koji je čuva najviše 30 dana. Pravna osnova je legitimni interes (članak 6. stavak 1. točka (f) GDPR-a)."
+    "body": "Pri prijavi uz sesiju spremamo IP adresu uređaja kako bismo mogli provjeriti sumnjive prijave u tvoj račun. Adresu brišemo najkasnije 30 dana nakon prijave, a isteklu sesiju brišemo cijelu. Za zaštitu od zlouporabe IP adresu kratko koristimo i za ograničenje broja pokušaja: kod prijave i sličnih radnji do 15 minuta u bazi, a kod obrasca za kontakt do 24 sata samo u memoriji poslužitelja. Kad sigurna veza s našim poslužiteljem ne uspije, zapis grešaka poslužitelja bilježi adresu te veze. Te zapise koristimo samo za otklanjanje kvarova. Sigurnosne kopije baze te podatke mogu sadržavati još do 31 dan. Kad se dogodi greška, IP adresu dobiva i Sentry, koji je čuva najviše 30 dana. Pravna osnova je legitimni interes (članak 6. stavak 1. točka (f) GDPR-a)."
   },
   "errorTracking": {
     "heading": "Praćenje grešaka",
@@ -11,5 +11,9 @@
   "securityNotices": {
     "heading": "Sigurnosne obavijesti",
     "body": "Kad se promijeni lozinka tvog računa, šaljemo ti email s obaviješću. Kad promijeniš email adresu, obavijest šaljemo na staru adresu i u njoj navodimo novu. Tako možeš uočiti promjenu za koju ne znaš i odmah reagirati. Te obavijesti dio su zaštite računa pa ih ne možeš isključiti. Pravna osnova je legitimni interes (članak 6. stavak 1. točka (f) GDPR-a)."
+  },
+  "backups": {
+    "heading": "Sigurnosne kopije",
+    "body": "Bazu podataka i slike redovito kopiramo kako ih ne bismo izgubili zbog kvara. Kopije čuvamo šifrirane u Europskoj uniji, kod Cloudflarea, našeg izvršitelja obrade, a zatim se same brišu, najkasnije 31 dan nakon izrade. Kad obrišeš račun, tvoji podaci nestaju iz kopija kako kopije istječu. Do tada čuvamo i zapis o brisanju s pseudonimiziranim identifikatorom tvog računa, iz kojeg se ne mogu pročitati ni ime ni email. Ako bazu ikad moramo vratiti iz kopije, prije ponovnog otvaranja aplikacije opet brišemo račune obrisane nakon izrade te kopije. Pravna osnova je legitimni interes (članak 6. stavak 1. točka (f) GDPR-a)."
   }
 }
