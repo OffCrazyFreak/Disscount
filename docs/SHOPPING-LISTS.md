@@ -8,31 +8,6 @@ Sharing a list (link access levels, the one route that serves owners and link vi
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [How a list flows](#2-how-a-list-flows)
-3. [Data model](#3-data-model)
-4. [API](#4-api)
-5. [Adding items and merging duplicates](#5-adding-items-and-merging-duplicates)
-6. [Ticking items off and captured prices](#6-ticking-items-off-and-captured-prices)
-7. [Optimistic updates and the offline queue](#7-optimistic-updates-and-the-offline-queue)
-8. [Prices on the list page](#8-prices-on-the-list-page)
-9. [Grouping by store and the map link](#9-grouping-by-store-and-the-map-link)
-10. [The stores tab](#10-the-stores-tab)
-11. [The price history chart](#11-the-price-history-chart)
-12. [Copying, deleting and sharing](#12-copying-deleting-and-sharing)
-13. [Screens and modals](#13-screens-and-modals)
-14. [Key files](#14-key-files)
-15. [Config and env vars](#15-config-and-env-vars)
-16. [Libraries](#16-libraries)
-17. [What is automatic vs manual](#17-whats-automatic-vs-manual)
-18. [Tests](#18-tests)
-19. [Gotchas and lessons learned](#19-gotchas--lessons-learned)
-20. [Future improvements and TODOs](#20-future-improvements--todos)
-
----
-
 ## 1. Quick reference
 
 | Thing            | Value                                                                                                                                                                                                                    |
@@ -320,9 +295,9 @@ The price range bar compares only chains that carry every item (`store-chain-com
 
 "Povijest cijena" (`shopping-list-price-history.tsx`, hook `use-shopping-list-price-history.ts`) charts each catalogue item's price over a chosen period, one line per product, using recharts through the shadcn chart wrapper.
 
-1. `getPriceHistoryDates` builds the list of days for the period, never before `PRICE_ARCHIVE_START` (2025-05-16), the first day the upstream archive has.
+1. `getPriceHistoryDates` builds the list of days for the period, never before `PRICE_ARCHIVE_START` (2025-05-16), the first day the upstream archive has. The hook reads today's Zagreb date on every render and opts out of the React Compiler (`"use no memo"`), so a tab left open past midnight rebuilds the window for the new day on its next render, as `usePriceHistory` does ([PRODUCTS.md](PRODUCTS.md), price history).
 2. For every EAN and every day it runs one product lookup at that date, built by `priceHistoryQueries` (`lib/cijene-api/price-history-queries.ts`). The product page's chart uses the same builder, so the two share cache entries; the key and `staleTime` must stay identical.
-3. `buildChartData` (`[id]/utils/price-history-chart-data.ts`) averages, per product and day, the average prices of the selected chains, rounded to cents. Results stay aligned with their dates by position, which is why missing days are kept as holes rather than filtered out.
+3. `buildChartData` (`[id]/utils/price-history-chart-data.ts`) averages, per product and day, the average prices of the selected chains, rounded to cents. Results stay aligned with their dates by position, which is why missing days are kept as holes rather than filtered out. Each row keeps the raw `YYYY-MM-DD` date; the shared chart shell formats it for the axis and the tooltip ([PRODUCTS.md](PRODUCTS.md), price history).
 4. `calculateTotalPriceChange` compares the first and the last day, counting only products priced on both, so a product priced on one side only cannot show a price change no price made.
 
 The period and the selected chains are remembered per list in local storage (`priceHistoryPeriod`, `priceHistoryChains`). The first time, the chain selection is the user's pinned chains that appear in the data, else every chain; it waits until every lookup has settled, so a half loaded list cannot save a wrong default.
@@ -363,40 +338,16 @@ The whole `/shopping-lists` subtree is wrapped in `data-sentry-block` (`shopping
 
 Frontend paths are under `frontend/src/`, and `shopping-lists/` means `app/[locale]/(user)/shopping-lists/`. Backend paths are under `backend/src/main/java/disscount/`.
 
-| Path                                                                   | Role                                                                              |
-| ---------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `shoppingList/domain/ShoppingList.java`                                | List entity                                                                       |
-| `shoppingListItem/domain/ShoppingListItem.java`                        | Item entity                                                                       |
-| `shoppingList/rest/ShoppingListController.java`                        | List routes                                                                       |
-| `shoppingListItem/rest/ShoppingListItemController.java`                | Item routes                                                                       |
-| `shoppingList/service/ShoppingListService.java`                        | Create, read, rename, delete, `findVisible`, `requireWriteUser`                   |
-| `shoppingList/service/ShoppingListCopyService.java`                    | The transactional copy                                                            |
-| `shoppingList/service/ShoppingListMapper.java`                         | The one place lists and items become DTOs, with the owner only redaction          |
-| `shoppingListItem/service/ShoppingListItemService.java`                | Add with merge, update by level, delete, `touchList`                              |
-| `shoppingListItem/service/ShoppingListItemMatcher.java`                | The merge rule                                                                    |
-| `shoppingListItem/dto/ShoppingListItemRequest.java`                    | Item request validation (amount, chain code format)                               |
-| `lib/api/schemas/shopping-list.ts`, `shopping-list-item.ts`            | zod request and response schemas                                                  |
-| `lib/api/shopping-lists/queries.ts`                                    | Fetchers, each parsing its response                                               |
-| `lib/api/shopping-lists/hooks.ts`                                      | React Query hooks; attaches the mutation keys and the optimism                    |
-| `lib/api/shopping-lists/keys.ts`                                       | Query keys                                                                        |
-| `lib/api/shopping-lists/optimistic-items.ts`, `optimistic-list.ts`     | Single item and list field optimism with rollback                                 |
-| `lib/offline/offline-mutation-keys.ts`, `offline-mutations.ts`         | The offline write allowlist and its replay functions                              |
-| `lib/offline/list-write-failed.ts`                                     | The failure toasts                                                                |
-| `constants/shopping-list.ts`                                           | `MAX_SHOPPING_LIST_ITEM_AMOUNT` (999), `MAX_SHOPPING_LIST_ITEM_NAME_LENGTH` (255) |
-| `utils/browser/storage/shopping-lists.ts`                              | Per list preferences and the store sort mode in local storage                     |
-| `shopping-lists/[id]/hooks/use-shopping-list-data.ts`                  | The list read, product lookups and per item prices                                |
-| `shopping-lists/[id]/hooks/use-shopping-list-item-mutations.ts`        | Tick, store and amount writes with price capture; remove                          |
-| `shopping-lists/[id]/hooks/use-quick-add-item.ts`                      | Quick add                                                                         |
-| `shopping-lists/[id]/utils/group-items-by-store.ts`                    | Grouping and subtotals                                                            |
-| `shopping-lists/[id]/components/items/store-group-header.tsx`          | Group header and the "Na karti" link                                              |
-| `shopping-lists/[id]/utils/item-price-state.ts`                        | Price states                                                                      |
-| `shopping-lists/[id]/hooks/use-shopping-list-price-history.ts`         | The chart's data                                                                  |
-| `shopping-lists/utils/item-merge.ts`                                   | Frontend mirror of the merge rule, for the toast                                  |
-| `shopping-lists/utils/shopping-list-stats-utils.ts`                    | Info table totals                                                                 |
-| `shopping-lists/utils/store-sorting-utils.ts`                          | Store tab sort modes                                                              |
-| `shopping-lists/utils/shopping-list-access.ts`                         | Client mirror of `ListAccess`                                                     |
-| `utils/shopping-list-links.ts`                                         | `shoppingListPath`, `shareListUrl`                                                |
-| `i18n/messages/<locale>/shoppingLists.json`, `shoppingListDetail.json` | Copy, in all five languages                                                       |
+| Path                                                               | Role                                                                              |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| `shoppingList/service/ShoppingListMapper.java`                     | The one place lists and items become DTOs, with the owner only redaction          |
+| `shoppingListItem/service/ShoppingListItemMatcher.java`            | The merge rule                                                                    |
+| `lib/api/shopping-lists/hooks.ts`                                  | React Query hooks; attaches the mutation keys and the optimism                    |
+| `lib/api/shopping-lists/optimistic-items.ts`, `optimistic-list.ts` | Single item and list field optimism with rollback                                 |
+| `lib/offline/offline-mutation-keys.ts`, `offline-mutations.ts`     | The offline write allowlist and its replay functions                              |
+| `constants/shopping-list.ts`                                       | `MAX_SHOPPING_LIST_ITEM_AMOUNT` (999), `MAX_SHOPPING_LIST_ITEM_NAME_LENGTH` (255) |
+| `shopping-lists/utils/item-merge.ts`                               | Frontend mirror of the merge rule, for the toast                                  |
+| `shopping-lists/utils/shopping-list-access.ts`                     | Client mirror of `ListAccess`                                                     |
 
 ---
 
@@ -420,19 +371,12 @@ Fixed settings worth knowing, all in code:
 
 ## 16. Libraries
 
-Versions are the ranges in `frontend/package.json` and the parent in `backend/pom.xml`; the lockfile has the exact resolution.
+Versions are in `frontend/package.json` and `backend/pom.xml`. The ones whose role is not obvious from the name:
 
-| Library                                                                           | Version    | Used for                                                        |
-| --------------------------------------------------------------------------------- | ---------- | --------------------------------------------------------------- |
-| `@tanstack/react-query`                                                           | `^5.90.12` | Reads, mutations, optimism, polling                             |
-| `@tanstack/react-query-persist-client`, `@tanstack/query-async-storage-persister` | `^5.101.1` | Persisting the cache and paused writes                          |
-| `idb-keyval`                                                                      | `^6.2.5`   | The IndexedDB store under the persister                         |
-| `zod`                                                                             | `^4.1.13`  | Request and response schemas                                    |
-| `recharts`                                                                        | `^3.10.0`  | The price history chart                                         |
-| `@base-ui/react`                                                                  | `^1.9.0`   | The quick add autocomplete (`components/reui/autocomplete.tsx`) |
-| `sonner`                                                                          | `^2.0.7`   | Toasts                                                          |
-| `next-intl`                                                                       | `^4.14.9`  | Copy and plurals                                                |
-| `spring-boot-starter-parent`                                                      | `4.1.2`    | Backend (web, data JPA, validation, security)                   |
+- `@tanstack/react-query-persist-client`, `@tanstack/query-async-storage-persister`: persisting the cache and paused writes.
+- `idb-keyval`: the IndexedDB store under the persister.
+- `recharts`: the price history chart.
+- `@base-ui/react`: the quick add autocomplete (`components/reui/autocomplete.tsx`).
 
 ---
 
@@ -453,12 +397,7 @@ Versions are the ranges in `frontend/package.json` and the parent in `backend/po
 
 ## 18. Tests
 
-| Side              | What is covered                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend (Vitest) | Item schema rules, response parsing (`queries.test.tsx`), hooks and optimism (`hooks.test.tsx`), shared list access, dead link detection, the offline replay, the Sentry list privacy filter, the detail client, items, quick add, the store group header, the update status announcement, list data and price states, the store sort mode, grouping, the chart data, store cards, the merge mirror, totals, the store sort, the plain item modal, and the share text's suggested stores (`use-list-share-text.test.tsx`) |
-| Backend (H2)      | `ShoppingListItemServiceAddTest` (plain items, blank EAN, merging by name and EAN, takeovers, an update without an EAN), `ShoppingListItemRequestTest`, `ShoppingListOwnershipTest`, `ShoppingListLinkAccessTest`, `ShoppingListWireFormatTest`, and the list half of `AccountErasureTest`                                                                                                                                                                                                                                |
-
-Not covered by an automated test: the info table maths against real prices, the stores tab ranking against live data, and the price history chart rendering. Those are checked in the browser.
+Not covered by an automated test: the info table maths against real prices, the stores tab ranking against live data, and the price history chart's lines. Those are checked in the browser.
 
 ---
 

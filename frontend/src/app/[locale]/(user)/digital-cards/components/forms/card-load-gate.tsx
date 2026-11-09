@@ -11,7 +11,6 @@ interface ICardLoadGateProps {
   children: ReactNode;
 }
 
-/** Holds the form back until the card being edited has loaded. */
 export default function CardLoadGate({
   loadState,
   children,

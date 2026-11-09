@@ -1,10 +1,9 @@
 package disscount.support;
 
-import disscount.digitalCard.service.FakePhotoStore;
-import disscount.digitalCard.storage.PhotoStore;
-import disscount.productImage.FakeProductImageStore;
 import disscount.productImage.off.OpenFoodFactsClient;
-import disscount.productImage.storage.ProductImageStore;
+import disscount.storage.FakePhotoStore;
+import disscount.storage.PhotoStore;
+import disscount.storage.PhotoStoreConfig;
 import disscount.user.dao.AuthIdentityDao;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
@@ -25,11 +24,7 @@ import java.util.UUID;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
-/**
- * The whole application on H2 behind MockMvc, shared by the behaviour pinning tests so they
- * run in one cached context and never list the services a slice would have to import. Every
- * test makes its own users, so leftovers from other tests never change an answer.
- */
+/** One cached context, so tests never list a slice's services; each test makes its own users, so leftovers are safe. */
 @SpringBootTest
 @AutoConfigureMockMvc
 public abstract class FullStackTest {
@@ -43,17 +38,23 @@ public abstract class FullStackTest {
     // Never reach the network from a test.
     @MockitoBean protected OpenFoodFactsClient openFoodFacts;
 
-    @TestBean(methodName = "disscount.support.FullStackTest#fakePhotoStore")
+    @TestBean(name = PhotoStoreConfig.CARD_PHOTOS, methodName = "disscount.support.FullStackTest#fakePhotoStore")
     protected PhotoStore photoStore;
-    @TestBean(methodName = "disscount.support.FullStackTest#fakeProductImageStore")
-    protected ProductImageStore productImageStore;
+    @TestBean(name = PhotoStoreConfig.PRODUCT_PHOTOS, methodName = "disscount.support.FullStackTest#fakeProductImageStore")
+    protected PhotoStore productImageStore;
+    @TestBean(name = PhotoStoreConfig.PRODUCT_ORIGINALS, methodName = "disscount.support.FullStackTest#fakeProductOriginalStore")
+    protected PhotoStore productOriginalStore;
 
     static PhotoStore fakePhotoStore() {
         return new FakePhotoStore();
     }
 
-    static ProductImageStore fakeProductImageStore() {
-        return new FakeProductImageStore();
+    static PhotoStore fakeProductImageStore() {
+        return new FakePhotoStore();
+    }
+
+    static PhotoStore fakeProductOriginalStore() {
+        return new FakePhotoStore();
     }
 
     protected User newUser(String name) {

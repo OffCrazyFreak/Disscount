@@ -12,10 +12,20 @@ const week = [{ opens: "07:00", closes: "21:00" }];
 
 const late = [{ opens: "07:00", closes: "02:00" }];
 
+const toMidnight = [{ opens: "07:00", closes: "24:00" }];
+
 const data: StoreHoursResponse = {
   stores: {
     "konzum:late": {
       weekly: [late, late, late, late, late, late, []],
+      dated: [],
+      sundays: "dated",
+      source: "chain",
+      verifiedAt: "2026-11-02T06:00:00.000Z",
+      checkUrl: null,
+    },
+    "konzum:midnight": {
+      weekly: Array(6).fill(toMidnight).concat([[]]),
       dated: [],
       sundays: "dated",
       source: "chain",
@@ -56,6 +66,14 @@ describe("StoreOpeningBadge", () => {
 
     expect(
       screen.getByRole("button", { name: "Otvoreno, zatvara u 21:00" }),
+    ).toHaveTextContent("Otvoreno");
+  });
+
+  it("says a store that closes at 24:00 closes at midnight today", () => {
+    renderAt("2026-11-04T20:00:00", "konzum:midnight");
+
+    expect(
+      screen.getByRole("button", { name: "Otvoreno, zatvara u ponoć" }),
     ).toHaveTextContent("Otvoreno");
   });
 

@@ -23,7 +23,6 @@ export function useShoppingListMutations(
     shoppingListService.useDeleteShoppingList();
 
   const confirmDelete = async () => {
-    // Prepare optimistic update: remove item from cache immediately
     await queryClient.cancelQueries({ queryKey: SHOPPING_LIST_QUERY_KEYS.me });
     const previous = queryClient.getQueryData<ShoppingList[]>(
       SHOPPING_LIST_QUERY_KEYS.me,
@@ -34,17 +33,13 @@ export function useShoppingListMutations(
         old ? old.filter((l) => l.id !== listId) : [],
     );
 
-    // Awaited rather than handed per-call callbacks: those are gated behind the
-    // observer still having listeners, and the caller in the actions sheet
-    // unmounts as soon as it fires. The rollback and both toasts were dropped
-    // silently, leaving a failed delete looking like a successful one.
+    // Awaited because per-call callbacks need a live observer, and the actions sheet unmounts as this fires.
     try {
       await deleteShoppingListMutation.mutateAsync(listId);
 
       toast.success(t("toasts.listDeleted"));
       router.push("/shopping-lists");
     } catch (error) {
-      // Rollback cache so UI reflects server state
       if (previous) {
         queryClient.setQueryData(SHOPPING_LIST_QUERY_KEYS.me, previous);
       }
@@ -54,12 +49,7 @@ export function useShoppingListMutations(
     }
   };
 
-  /**
-   * Opens the options modal rather than copying on the spot. What a copy should carry is
-   * a real question (products, what was already ticked, the sharing settings) and guessing
-   * it produced a copy that was wrong on arrival for the common case of shopping the same
-   * list again next week.
-   */
+  /** Opens the options modal because guessing what a copy carries was wrong for shopping a list again. */
   function handleCopy(options?: IOpenModalOptions) {
     if (!shoppingList) return;
 

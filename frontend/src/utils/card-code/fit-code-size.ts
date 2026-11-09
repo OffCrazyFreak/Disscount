@@ -12,11 +12,7 @@ export interface ICodeSize {
   height: number;
 }
 
-/**
- * Largest size, in CSS px, that gives every module a whole number of device pixels, so
- * each bar edge lands on a pixel boundary. Null when even one device pixel per module
- * does not fit: the caller then scales to the box, which blurs but never overflows.
- */
+/** Whole device pixels per module keep bar edges sharp; null when none fit, so the caller scales without overflow. */
 export function fitCodeSize({
   modulesWide,
   modulesHigh,

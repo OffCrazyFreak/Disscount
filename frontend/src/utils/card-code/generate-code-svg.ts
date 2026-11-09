@@ -29,8 +29,7 @@ type Encoder = (
 
 interface IEncoderSpec {
   encode: Encoder;
-  // Digits only, with the exact length the symbology prints; bwip would otherwise pad a
-  // check digit on, and the drawn code would no longer match the stored number.
+  // Digits only at the printed length, as bwip would pad a check digit and no longer match the stored number.
   accepts?: RegExp;
   // Output units bwip spends per module at scale 1: its matrix codes use 2.
   unit: number;

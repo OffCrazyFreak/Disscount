@@ -22,7 +22,6 @@ interface IReauthDialogProps {
   isSendingRecovery: boolean;
 }
 
-// The warning and the proof in one dialog: typing the password or code is the confirmation.
 export default function ReauthDialog({
   reauth,
   email,
@@ -85,8 +84,7 @@ export default function ReauthDialog({
       <form
         id={FORM_ID}
         onSubmit={form.handleSubmit}
-        // Enter in the field never runs a destructive action; the red button is the one
-        // deliberate step. Buttons keep Enter, or the resend link would stop working.
+        // Enter never runs a destructive action; buttons keep Enter or the resend link breaks.
         onKeyDown={(event) => {
           if (
             isDestructive &&

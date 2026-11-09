@@ -6,24 +6,12 @@ import {
   compareStoreChains,
   type StoreOptimizeMode,
 } from "@/app/[locale]/(user)/shopping-lists/utils/store-sorting-utils";
+import { chain as priceChain } from "@/test/price-fixtures";
 
 type Chain = ChainProductResponse & { itemCount: number };
 
 function chain(name: string, itemCount: number, avgPrice: string): Chain {
-  return {
-    chain: name,
-    code: "",
-    name: "",
-    brand: null,
-    category: null,
-    unit: null,
-    quantity: null,
-    min_price: avgPrice,
-    max_price: avgPrice,
-    avg_price: avgPrice,
-    price_date: "2026-01-01",
-    itemCount,
-  };
+  return { ...priceChain(name, avgPrice), itemCount };
 }
 
 const chains = [

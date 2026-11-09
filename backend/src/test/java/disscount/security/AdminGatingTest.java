@@ -31,11 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * Every /api/admin route answers 401 without a token, 403 to a signed-in consumer and 2xx to
- * an admin. Today the check is inline per handler, and for the contact routes inside
- * ContactMessageService only; this must stay green when a URL rule replaces them.
- */
+/** Through the URL rule in SecurityConfig: 401 without a token, 403 to a consumer, 2xx to an admin. */
 class AdminGatingTest extends FullStackTest {
 
     enum Route {
@@ -55,7 +51,9 @@ class AdminGatingTest extends FullStackTest {
         MARK_REVIEWED("POST", "/api/admin/product-images/{ean}/reviewed", null),
         SET_PHOTO_STATUS("PUT", "/api/admin/product-images/images/{image}/status", "{\"status\":\"VERIFIED\"}"),
         CROP_PHOTO("PUT", "/api/admin/product-images/images/{image}/crop", "{\"rotation\":90,\"crop\":null}"),
-        PHOTO_ORIGINAL("GET", "/api/admin/product-images/images/{image}/original", null);
+        PHOTO_ORIGINAL("GET", "/api/admin/product-images/images/{image}/original", null),
+        DELETE_PHOTO("DELETE", "/api/admin/product-images/images/{image}", null),
+        PHOTO_CONTRIBUTORS("GET", "/api/admin/product-images/contributors", null);
 
         final String method;
         final String path;
@@ -88,7 +86,7 @@ class AdminGatingTest extends FullStackTest {
 
         ean = String.valueOf(ThreadLocalRandom.current().nextLong(1_000_000_000_000L, 9_999_999_999_999L));
         String originalKey = "originals/" + ean + ".jpg";
-        photoStore.put(originalKey, TestImages.jpeg(64, 48), "image/jpeg");
+        productOriginalStore.put(originalKey, TestImages.jpeg(64, 48), "image/jpeg");
         imageId = productImages.save(ProductImage.builder()
                 .ean(ean).source(ImageSource.USER).status(ImageStatus.VERIFIED).originalKey(originalKey)
                 .fullKey("products/" + ean + "/full.jpg").thumbKey("products/" + ean + "/thumb.jpg").build()).getId();

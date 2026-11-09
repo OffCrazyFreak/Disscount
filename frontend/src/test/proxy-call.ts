@@ -36,7 +36,6 @@ interface ICallOptions {
   signal?: AbortSignal;
 }
 
-/** One browser call through the proxy route, with the headers the app's client sends. */
 export function call(path: string, options: ICallOptions = {}) {
   const { method = "GET", pin = "anon", session, signal, body } = options;
   const headers = new Headers({
@@ -59,7 +58,6 @@ export function call(path: string, options: ICallOptions = {}) {
   return proxyToBackend(request, segments);
 }
 
-/** Spring, recording the requests that reached it. */
 export function backend(answer: () => Response = () => HttpResponse.json({})) {
   const received: Request[] = [];
   server.use(

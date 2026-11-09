@@ -5,7 +5,8 @@
   },
   "heading": "Zemljevid trgovin",
   "search": {
-    "placeholder": "Trgovec, kraj ali naslov..."
+    "placeholder": "Trgovec, kraj ali naslov",
+    "placeholderShort": "Trgovec"
   },
   "layout": {
     "storeList": "Seznam trgovin",

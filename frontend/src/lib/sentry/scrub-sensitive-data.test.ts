@@ -262,3 +262,34 @@ describe("scrubSensitiveData on Replay network events", () => {
     );
   });
 });
+
+describe("scrubSensitiveData on streamed spans", () => {
+  it("filters secrets in a request body attribute and keeps the other attributes", () => {
+    const span = {
+      name: "POST /api/auth/reauth/verify-code",
+      attributes: {
+        "http.request.body.data": '{"code":"123456"}',
+        "http.response.status_code": 200,
+      },
+    };
+
+    expect(scrubSensitiveData(span).attributes).toEqual({
+      "http.request.body.data": '{"code":"[Filtered]"}',
+      "http.response.status_code": 200,
+    });
+  });
+});
+
+describe("scrubSensitiveData on a code that is not a secret", () => {
+  it("keeps an error code inside a JSON string", () => {
+    expect(scrubString('{"code":"INVALID_PASSWORD"}')).toBe(
+      '{"code":"INVALID_PASSWORD"}',
+    );
+  });
+
+  it("keeps an error code held as an object key", () => {
+    expect(scrubSensitiveData({ code: "NOT_FOUND" })).toEqual({
+      code: "NOT_FOUND",
+    });
+  });
+});

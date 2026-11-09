@@ -73,7 +73,7 @@
     "places": {
       "label": "Località",
       "hint": "Scegli le località vicino a te.",
-      "placeholder": "Scegli le località..."
+      "placeholder": "Scegli le località"
     },
     "selectedMark": "✓",
     "language": {
@@ -95,7 +95,6 @@
   "validation": {
     "usernameMin": "Inserisci almeno 2 caratteri",
     "usernameMax": "Inserisci al massimo 40 caratteri",
-    "emailInvalid": "Inserisci un indirizzo email valido",
     "currentPasswordRequired": "Inserisci la password attuale"
   },
   "onboarding": {

@@ -2,7 +2,6 @@
 import * as Sentry from "@sentry/nextjs";
 
 import { clientEnv } from "@/lib/env";
-import { sentryDataCollection } from "@/lib/sentry/data-collection";
 import { sentryScrubbingOptions } from "@/lib/sentry/scrub-sensitive-data";
 
 Sentry.init({
@@ -11,8 +10,6 @@ Sentry.init({
   environment: clientEnv.SENTRY_ENVIRONMENT,
 
   tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
-
-  dataCollection: sentryDataCollection,
 
   ...sentryScrubbingOptions,
 });

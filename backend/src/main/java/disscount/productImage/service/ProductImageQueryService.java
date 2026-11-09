@@ -17,8 +17,10 @@ import disscount.productImage.domain.ProductImageSet;
 import disscount.productImage.dto.ProductImageDtos.ListedEansDto;
 import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
 import disscount.productImage.dto.ProductImageDtos.ProductThumbnailsDto;
-import disscount.productImage.storage.ProductImageStore;
+import disscount.storage.PhotoStore;
+import disscount.storage.PhotoStoreConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +32,8 @@ public class ProductImageQueryService {
 
     private final ProductImageRepository images;
     private final ProductImageSetRepository sets;
-    private final ProductImageStore store;
+    @Qualifier(PhotoStoreConfig.PRODUCT_PHOTOS)
+    private final PhotoStore store;
     private final ProductImageViews views;
 
     @Transactional(readOnly = true)
@@ -42,7 +45,6 @@ public class ProductImageQueryService {
         return views.publicView(ean, mainId, images.findByEanOrderByCreatedAtAsc(ean));
     }
 
-    /** Thumbnail of the main photo per EAN, for search results and lists; malformed EANs and EANs without one are left out. */
     @Transactional(readOnly = true)
     public ProductThumbnailsDto thumbnails(List<String> eans) {
         Set<String> unique = new LinkedHashSet<>(eans);
@@ -55,12 +57,11 @@ public class ProductImageQueryService {
 
         Map<String, String> result = new HashMap<>();
         for (ProductImage image : images.findShownMainImages(unique, List.of(ImageStatus.VERIFIED, ImageStatus.PENDING))) {
-            result.put(image.getEan(), store.publicUrl(image.getThumbKey()));
+            result.put(image.getEan(), store.publicUrl(image.listKey()));
         }
         return new ProductThumbnailsDto(result);
     }
 
-    /** Products currently on sale somewhere, for the public product sitemap. */
     @Transactional(readOnly = true)
     public ListedEansDto listedEans() {
         return new ListedEansDto(sets.findListedEans());

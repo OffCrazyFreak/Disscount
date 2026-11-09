@@ -11,12 +11,7 @@ interface IListHeadingsInput {
   };
 }
 
-/**
- * Where each group of the store list starts, keyed by row index. Favourites
- * get their own group; the rest split into on-map and elsewhere only when the
- * map shows some stores but not all, and otherwise share one heading once a
- * favourites group sits above them.
- */
+/** The rest split into on-map and elsewhere only when the map shows some stores but not all. */
 export function listHeadings({
   pinned,
   favorite,

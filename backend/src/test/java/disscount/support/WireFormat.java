@@ -1,9 +1,6 @@
 package disscount.support;
 
-/**
- * The value shapes the frontend's zod schemas and parseServerDate accept. Zone-less
- * timestamps carry no offset and are read as UTC; instants end in Z.
- */
+/** Zone-less timestamps carry no offset and are read as UTC; instants end in Z. */
 public final class WireFormat {
 
     public static final String UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";

@@ -6,7 +6,7 @@
   "client": {
     "loginTitle": "Watchlist",
     "loginDescription": "Watch the products you buy and get notified as soon as the price drops.",
-    "searchPlaceholder": "Search your watchlist..."
+    "searchPlaceholder": "Search your watchlist"
   },
   "header": {
     "searchResultsTitle": "Search results for “{query}” ({count})",

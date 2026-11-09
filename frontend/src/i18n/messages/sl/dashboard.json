@@ -37,6 +37,8 @@
     "colEmail": "E-naslov",
     "colLastLogin": "Zadnja prijava",
     "colAccountType": "Vrsta računa",
+    "colPhotos": "Fotografije",
+    "photoCount": "{uploaded} · {deleted, plural, one {# izbrisana} two {# izbrisani} few {# izbrisane} other {# izbrisanih}}",
     "deleteTitle": "Brisanje računa",
     "deleteDescription": "Želiš res izbrisati račun {name}? Tega ni mogoče razveljaviti.",
     "deleteConfirm": "Izbriši račun"
@@ -49,7 +51,7 @@
     "viewAll": "Vsa",
     "viewUnread": "Neprebrana",
     "loadError": "Napaka pri nalaganju sporočil.",
-    "searchPlaceholder": "Išči sporočila...",
+    "searchPlaceholder": "Išči sporočila",
     "showDeleted": "Pokaži izbrisana",
     "colMessage": "Sporočilo",
     "colSender": "Pošiljatelj",

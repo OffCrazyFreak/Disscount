@@ -21,7 +21,6 @@ import { canAccessDashboard } from "@/lib/api/schemas/auth-user";
 import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-drop-count";
 import { isRouteActive } from "@/utils/routes";
 
-/** The homepage, mobile dashboard link and signed-in user's own pages. */
 export default function SidebarMainNav() {
   const t = useTranslations("shell");
   const pathname = usePathname();

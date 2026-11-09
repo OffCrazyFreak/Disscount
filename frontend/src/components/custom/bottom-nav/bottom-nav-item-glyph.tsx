@@ -13,10 +13,7 @@ interface IBottomNavItemGlyphProps {
   showsReturn?: boolean;
 }
 
-/**
- * The icon and its two overlays, which hang off the icon's own box rather than
- * the cell's, so neither moves when the label collapses on scroll.
- */
+/** The overlays hang off the icon's own box, so neither moves when the label collapses on scroll. */
 export default function BottomNavItemGlyph({
   icon: Icon,
   isPressed,

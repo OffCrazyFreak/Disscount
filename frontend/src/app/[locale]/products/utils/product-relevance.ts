@@ -43,11 +43,7 @@ function rate(
   };
 }
 
-/**
- * Tie-breaking in priority order, the way a search engine ranks: text relevance
- * first, then how widely stocked the product is, then the shorter name, which is
- * usually the plain product rather than a bundle.
- */
+/** Ranked the way a search engine does; the shorter name is usually the plain product rather than a bundle. */
 const compareRelevance: Comparator<IProductRelevance> = chainComparators(
   byDesc((rated) => rated.matchedTokens),
   byAsc((rated) => rated.tier),
@@ -56,7 +52,6 @@ const compareRelevance: Comparator<IProductRelevance> = chainComparators(
   byAsc((rated) => rated.nameLength),
 );
 
-/** Orders search hits by relevance to the query, leaving them untouched without one. */
 export default function sortProductsByRelevance(
   products: ProductResponse[],
   query: string,

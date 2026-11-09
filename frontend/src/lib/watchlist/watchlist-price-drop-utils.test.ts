@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import type {
-  ChainProductResponse,
-  ProductResponse,
-} from "@/lib/cijene-api/schemas";
 import {
   countPriceDrops,
   getPriceScope,
@@ -11,33 +7,7 @@ import {
   isSameSnapshot,
   nextPriceSnapshot,
 } from "@/lib/watchlist/watchlist-price-drop-utils";
-
-function chain(name: string, min: string): ChainProductResponse {
-  return {
-    chain: name,
-    code: "1",
-    name: "Mlijeko",
-    brand: null,
-    category: null,
-    unit: null,
-    quantity: null,
-    min_price: min,
-    max_price: min,
-    avg_price: min,
-    price_date: "2026-10-13",
-  };
-}
-
-function product(chains: ChainProductResponse[]): ProductResponse {
-  return {
-    ean: "1",
-    brand: null,
-    name: null,
-    quantity: null,
-    unit: null,
-    chains,
-  };
-}
+import { chain, product } from "@/test/price-fixtures";
 
 describe("getScopedBestPriceCents", () => {
   const milk = product([chain("konzum", "1.29"), chain("lidl", "0.99")]);

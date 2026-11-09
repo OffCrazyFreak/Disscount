@@ -2,8 +2,10 @@ import apiClient from "@/lib/api/api-base";
 import {
   adminPhotoQueuePageSchema,
   adminProductPhotosSchema,
+  contributorPhotoCountsSchema,
   type AdminPhotoQueuePage,
   type AdminProductPhotos,
+  type ContributorPhotoCount,
   type PhotoQueueFilter,
   type ProductImageCrop,
 } from "@/lib/api/types";
@@ -54,6 +56,20 @@ export async function setPhotoStatus(
     { status },
   );
   return adminProductPhotosSchema.parse(response.data);
+}
+
+export async function deletePhoto(
+  imageId: string,
+): Promise<AdminProductPhotos> {
+  const response = await apiClient.delete<unknown>(`${BASE}/images/${imageId}`);
+  return adminProductPhotosSchema.parse(response.data);
+}
+
+export async function getContributorPhotoCounts(): Promise<
+  ContributorPhotoCount[]
+> {
+  const response = await apiClient.get<unknown>(`${BASE}/contributors`);
+  return contributorPhotoCountsSchema.parse(response.data);
 }
 
 export async function cropPhoto(

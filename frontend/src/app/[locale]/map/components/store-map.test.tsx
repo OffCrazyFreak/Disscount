@@ -15,8 +15,7 @@ vi.mock("@/app/[locale]/map/utils/webgl-support", async (importOriginal) => ({
   ...(await importOriginal<object>()),
   canUseWebGL2: () => probe.webgl2,
 }));
-// Stands in for react-map-gl, which reports a constructor failure through
-// onError instead of throwing.
+// Stands in for react-map-gl, which reports a constructor failure through onError instead of throwing.
 vi.mock("@/app/[locale]/map/components/store-map-view", () => ({
   default: function FakeView({
     onMapError,

@@ -1,5 +1,7 @@
 package disscount.config;
 
+import disscount.user.service.UserService;
+import disscount.util.SecurityUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +37,7 @@ import java.util.function.Supplier;
 public class SecurityConfig {
 
     private final UserProvisioningFilter userProvisioningFilter;
+    private final UserService userService;
 
     @Bean
     public JwtDecoder jwtDecoder(
@@ -54,16 +57,7 @@ public class SecurityConfig {
         return decoder;
     }
 
-    /**
-     * Spring Boot auto-registers every {@code Filter} bean into the servlet chain, so a
-     * {@code @Component} filter meant only for a security chain runs twice: once where it was
-     * placed and once for every request that never reaches that chain. Both of these extend
-     * {@code OncePerRequestFilter}, whose already-filtered attribute makes the second run a
-     * no-op only when the first one happened, so on any path outside the optional-auth chain
-     * the optional bearer filter would decode the token again after the real chain had
-     * finished with it. These beans turn the servlet registration off and leave the security
-     * chains as the only place either filter runs.
-     */
+    /** Turns off servlet auto-registration, so each filter runs only in its chain and decodes the token once. */
     @Bean
     public FilterRegistrationBean<UserProvisioningFilter> userProvisioningFilterRegistration(
             UserProvisioningFilter filter
@@ -82,17 +76,7 @@ public class SecurityConfig {
         return registration;
     }
 
-    /**
-     * The by-id shopping list routes, which are the one place a bearer token is optional.
-     * A list is shared by its own id, so the caller may legitimately be anonymous and a token
-     * that fails to decode must degrade to anonymous rather than 401. permitAll on the main
-     * chain cannot express that: its bearer filter rejects a stale token before authorization
-     * is ever consulted.
-     *
-     * <p><b>Nothing here authorizes anything.</b> The rule is {@code permitAll}, so the
-     * access checks in {@link disscount.shoppingList.service.ShoppingListService} are an
-     * authentication boundary: relaxing one removes authentication, not a convenience.
-     */
+    /** A failed decode degrades to anonymous; nothing here authorizes, so ShoppingListService is the boundary. */
     @Bean
     @Order(1)
     public SecurityFilterChain optionalAuthShoppingListChain(
@@ -104,9 +88,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz.anyRequest().permitAll())
-            // Anchored on the bearer slot so provisioning lands strictly after it. Anchoring
-            // on AnonymousAuthenticationFilter ties with it, since before is -1 and the
-            // following after adds the 1 straight back.
+            // Anchored on the bearer slot so provisioning lands after it, as AnonymousAuthenticationFilter ties there.
             .addFilterAfter(optionalBearerAuthenticationFilter, BearerTokenAuthenticationFilter.class)
             .addFilterAfter(userProvisioningFilter, OptionalBearerAuthenticationFilter.class);
 
@@ -129,6 +111,16 @@ public class SecurityConfig {
         boolean isOrdinary = authentication.get() instanceof JwtAuthenticationToken jwt
                 && !TokenPurpose.isPurposeScoped(jwt.getToken());
         return new AuthorizationDecision(isOrdinary);
+    }
+
+    /** Looked up per request rather than read from the token, so a demotion or deletion applies at once. */
+    private AuthorizationDecision isActiveAdmin(
+            Supplier<? extends Authentication> authentication,
+            RequestAuthorizationContext context
+    ) {
+        boolean isAdmin = isOrdinarySessionToken(authentication, context).isGranted()
+                && SecurityUtils.getCurrentUserIdOptional().filter(userService::isActiveAdmin).isPresent();
+        return new AuthorizationDecision(isAdmin);
     }
 
     /** The public routes' rule: anyone, signed in or not, except a purpose scoped token. */
@@ -163,8 +155,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(HttpMethod.POST, "/api/contact").access(SecurityConfig::isNotPurposeScoped)
-                // Only better-auth's deleteUser hook mints this token, after its own checks,
-                // so an ordinary session token cannot erase the profile and keep its login.
+                // Only the deleteUser hook mints this, so a session token cannot erase the profile and keep its login.
                 .requestMatchers(HttpMethod.DELETE, "/api/users/me").access(SecurityConfig::isAccountErasureToken)
                 // Product photos are public like the prices; uploads and reports still need a login.
                 .requestMatchers(HttpMethod.GET, "/api/products/*/images", "/api/products/images/thumbnails",
@@ -176,6 +167,7 @@ public class SecurityConfig {
                     "/swagger-ui/**",
                     "/swagger-ui.html"
                 ).permitAll()
+                .requestMatchers("/api/admin/**").access(this::isActiveAdmin)
                 .anyRequest().access(SecurityConfig::isOrdinarySessionToken)
             )
             .exceptionHandling(ex -> ex

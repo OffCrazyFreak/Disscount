@@ -29,8 +29,7 @@ export default function ShareListModal({ open, id }: IShareListModalProps) {
     handleTextShare,
   } = useShareListModal(id);
 
-  // The list route serves link visitors as well as its owner, so a signed-in recipient can
-  // reach this modal by URL. Only the owner may see or change who else has access.
+  // A signed-in link recipient can reach this modal by URL, and only the owner may see or change who else has access.
   const canManageShare = resolveShoppingListAccess(
     shoppingList?.myAccess,
   ).canManageShare;

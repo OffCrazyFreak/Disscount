@@ -7,7 +7,6 @@ const PARAM_OF: Record<Exclude<OpenFilter, "off">, string> = {
   "with-unconfirmed": "now-or-unconfirmed",
 };
 
-/** The `open` URL parameter's value for a filter; null removes it. */
 export function openParamOf(filter: OpenFilter): string | null {
   return filter === "off" ? null : PARAM_OF[filter];
 }
@@ -19,7 +18,6 @@ export function openFilterOf(param: string | null): OpenFilter {
   return "off";
 }
 
-/** What "open now" keeps: open stores, and with the second switch the unknown ones too. */
 export function passesOpenFilter(
   status: OpeningStatus,
   filter: OpenFilter,

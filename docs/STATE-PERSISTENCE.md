@@ -8,23 +8,6 @@ _Last audited end-to-end on 2026-07-22: every user-facing input and form account
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [Architecture](#2-architecture)
-3. [Layer 1: URL state](#3-layer-1-url-state)
-4. [Layer 2: localStorage (`Disscount_app`)](#4-layer-2-localstorage-disscount_app)
-5. [Layer 3: IndexedDB offline cache](#5-layer-3-indexeddb-offline-cache)
-6. [Deliberately ephemeral state](#6-deliberately-ephemeral-state)
-7. [Coverage matrix (every input and form)](#7-coverage-matrix-every-input-and-form)
-8. [What's automatic vs manual](#8-whats-automatic-vs-manual)
-9. [Key files](#9-key-files)
-10. [Config, flags, and libraries](#10-config-flags-and-libraries)
-11. [Gotchas & lessons learned](#11-gotchas--lessons-learned)
-12. [Future improvements & TODOs](#12-future-improvements--todos)
-
----
-
 ## 1. Quick reference
 
 | Thing              | Value                                                                                        |
@@ -80,8 +63,9 @@ flowchart TD
 
 Shareable and back/forward-safe. Everything here can be pasted into a new tab and lands the user in the same place. This is the right home for anything a user might bookmark or send to a friend.
 
-- **Search query (`?q=`).** The global `SearchBar` writes `q` through `useSearchNavigation`. Every search-backed page (`/products`, `/watchlist`, `/shopping-lists`, `/digital-cards`) reads `q` on the server (`readSearchParam`) and hydrates the input from it, so a reload or a shared link keeps the query. Searching from the route itself preserves other params (active filters); searching from elsewhere starts clean. `/map` passes `shallow`, which writes `q` through the History API instead of the router, so typing causes no server render and the `#map=` view survives.
+- **Search query (`?q=`).** The global `SearchBar` writes `q` through `useSearchNavigation`. Every search-backed page (`/products`, `/watchlist`, `/shopping-lists`, `/digital-cards`) reads `q` on the server (`readSearchParam`) and hydrates the input from it, so a reload or a shared link keeps the query. Searching from the route itself preserves other params (active filters); searching from elsewhere starts clean. `/map` passes `shallow`, which writes `q` through the History API instead of the router, so typing causes no server render and the `#map=` view survives. Text typed but not yet submitted in a product search box lives in memory only (`productSearchDraft`, [SEARCH.md §10](SEARCH.md#10-gotchas--lessons-learned)), so a reload drops it.
 
+- **Recent product searches.** localStorage (`productRecentSearches`, newest first, five at most), written once a submitted search finds something and cleared when a signed-in session ends. See [SEARCH.md](SEARCH.md).
 - **Stores map.** `/map` keeps the selected store in `?store=<chain>:<code>` (pushed, so Back closes it), the chain filter in `?chain=` (replaced; empty or `all` means every chain), the search in `q`, and the map view in `#map=zoom/lat/lon`. They are written through the History API, so no server round trip happens. Recent map searches live in localStorage (`mapRecentSearches`, newest first, five at most). See [MAP.md](MAP.md).
 - **Product filters.** Chain, location, category, and brand are stored as repeated query params by `useFilterParams` / `useProductFilters`. They are written with `router.replace` (so they do not spam browser history) and read back on load. Selecting every location that has results stores no location filter, which gives the same results and keeps the URL short. Product search first fetches the upstream result set for `q`, narrows chain candidates, and when a location is selected asks `/api/cijene/location-prices` for the price range per product across the selected source cities, in one request. That route asks upstream city by city for up to three uncached cities and makes one country-wide request above that, since upstream takes one city per request and every visitor shares one daily request quota; it caches each city's reduced prices in memory for an hour. Category and brand filtering then applies client-side without repeating the location-price request. A location filter keeps only products with a published price in the selected source cities and resolved chain intersection, and derives each card's range from those exact store rows. Without a location filter, card ranges come from the matching chain summaries in the search response. The URL-driven quick-actions sheet resolves the same filters, so its range still matches the card after a reload or direct link. When only some cities load, the route marks the answer partial and the page labels it; a complete store or price lookup failure remains an error rather than silently widening the scope. The upstream search cap still bounds the candidate set, and products with no published price in the exact location and chain scope are deliberately omitted rather than shown with a Croatia-wide range. When that omission empties a search that would show products without the location filter and every selected city answered, the page says the selected places have no price and offers a button that drops only the location filter.
 
@@ -97,7 +81,7 @@ All localStorage lives under a **single key**, `Disscount_app`, a JSON object th
 
 ### 4a. Form drafts (`useFormDraft`, 24h TTL)
 
-Modal forms auto-save their **changed** values to `formDrafts[key]` on a 500ms debounce and restore them the next time the modal opens, so a user can close a modal and come back later. "Changed" is computed by diffing the current values against the form's default values (not React Hook Form's `dirtyFields`, whose proxy can read empty inside a callback). Submitting clears the draft, and drafts older than 24h are dropped on read. Passwords and base64 images are never written (the `exclude` option).
+Modal forms auto-save their **changed** values to `formDrafts[key]` on a 500ms debounce and restore them the next time the modal opens, so a user can close a modal and come back later. "Changed" is computed by diffing the current values against the form's default values (not React Hook Form's `dirtyFields`, whose proxy can read empty inside a callback). Submitting clears the draft, and drafts older than 24h are dropped on read. Passwords and base64 images are never written (the `exclude` option). A form whose rules a restored value can break passes `validateRestored`, the fields to validate right after the restore, because the restore resets the form and clears its errors.
 
 **Drafts belong to one account.** Each draft stores the cache identity that wrote it (`owner`, the same `getCacheIdentity()` value that scopes the IndexedDB cache), and a read under any other identity sees no draft and evicts it, so a username typed into onboarding by one account is never restored into the next account's form on a shared device. Drafts written before the field existed have no owner and read as none. The purge deletes the departing account's drafts and every ownerless one (`removeFormDraftsFor`), and `useLogout` deletes that account's drafts once more after it resets the identity, because a form the sign-out unmounts flushes while the purge is still awaiting IndexedDB; a guest's drafts, such as an unsent contact message, are the exception: the first sign-in after them re-tags them to that account (`adoptGuestFormDrafts`, called from `syncCacheIdentity` before the purge), the start of the planned guest mode that imports on login. They are re-tagged, not shared, so a later switch to another account purges them with the account that adopted them. `useFormDraft` takes the owner each time the form opens and skips its flush when the identity moved while the form was open, because on a direct account switch (another tab signs in) the old form unmounts only after the identity already names the new account. `ModalRouter` also keys the signed-in modals (onboarding gate, settings host, list actions) by user id, and `PublicModalsOutlet` keys the contact modal the same way, so a form that seeds its values once per mount starts over for the new account.
 
@@ -229,21 +213,8 @@ Not everything should be remembered. These are intentionally **not** persisted, 
 | -------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | `frontend/src/hooks/use-form-draft.ts`                                     | modal-form draft save/restore engine (24h TTL, diff-vs-defaults)       |
 | `frontend/src/utils/browser/storage/core.ts`                               | single-key `Disscount_app` localStorage read/merge/write               |
-| `frontend/src/utils/browser/storage/drafts.ts`                             | draft read/write/expiry helpers                                        |
-| `frontend/src/utils/browser/local-storage.ts`                              | barrel re-exporting the storage helpers                                |
-| `frontend/src/typings/local-storage.ts`                                    | `AppData` shape (drafts + all preferences)                             |
-| `frontend/src/utils/browser/storage/products.ts`                           | per-EAN price-history preferences                                      |
 | `frontend/src/app/[locale]/products/[id]/hooks/use-product-preferences.ts` | reads and merges one product's panel preferences, hydration safe       |
 | `frontend/src/utils/browser/storage/storage-subscription.ts`               | same-tab and cross-tab change notifications for `useSyncExternalStore` |
-| `frontend/src/utils/browser/storage/shopping-lists.ts`                     | per-list section + sort preferences                                    |
-| `frontend/src/utils/browser/storage/view-mode.ts`                          | grid/list toggle preference                                            |
-| `frontend/src/utils/browser/storage/scanner.ts`                            | preferred scanner camera                                               |
-| `frontend/src/utils/browser/storage/pwa.ts`                                | install-banner snooze                                                  |
-| `frontend/src/utils/browser/storage/auth.ts`                               | last-used sign-in method, last session, pending sign-out               |
-| `frontend/src/hooks/use-search-navigation.ts`                              | reads/writes the `?q=` search param                                    |
-| `frontend/src/app/[locale]/products/hooks/use-filter-params.ts`            | writes product filters to the query string                             |
-| `frontend/src/app/[locale]/products/hooks/use-product-filters.ts`          | reads filters back and resolves them                                   |
-| `frontend/src/lib/modal/use-modal-url.ts`                                  | reads the `?modal=` target                                             |
 | `frontend/src/lib/cijene-api/keys.ts`, `frontend/src/lib/api/*/keys.ts`    | query key factories; their values are the persisted cache's addresses  |
 | `frontend/src/lib/offline/query-key-values.test.ts`                        | pins every factory key to its persisted value                          |
 
@@ -261,9 +232,9 @@ Libraries (versions read from `frontend/package.json`):
 | Library                 | Version    | Role here                                                          |
 | ----------------------- | ---------- | ------------------------------------------------------------------ |
 | `react-hook-form`       | `^7.90.0`  | owns every form's values, dirty state, and the `watch` drafts hook |
-| `@hookform/resolvers`   | `^5.2.2`   | bridges Zod schemas into the forms                                 |
+| `@hookform/resolvers`   | `^7.0.1`   | bridges Zod schemas into the forms                                 |
 | `zod`                   | `^4.1.13`  | validates form values                                              |
-| `next`                  | `16.4.0`   | `useSearchParams` / `useRouter` power all URL state                |
+| `next`                  | `16.4.5`   | `useSearchParams` / `useRouter` power all URL state                |
 | `@tanstack/react-query` | `^5.90.12` | the offline data cache (layer 3, see PWA.md)                       |
 | `idb-keyval`            | `^6.2.5`   | IndexedDB backing store for the persisted cache (layer 3)          |
 
@@ -290,6 +261,8 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
 - **Closing mid-debounce still saves, but a finished submit never re-persists.** The watch effect's cleanup flushes the last keystrokes on unmount unless a submit has finished (`isSubmitted` without `isSubmitting`), since that submit already cleared or reset the draft. It still flushes while a submit is in flight, for the optimistic-close pattern: add-to-list, add plain item and the watchlist close the modal before the request starts, the outlet unmounts it, and a failed request reopens a fresh modal that reads only the draft. Both flags come from `useFormState` in render and reach the cleanup through a ref, because `form.formState` read in an effect is the last render's snapshot and react-hook-form never refreshes a flag no render has read.
 
+- **`clearDraft` and `flushDraft` cancel the queued save.** The 500ms timer lives in a ref shared with both, so an edit made just before a failed add's `clearDraft` cannot fire afterwards and write the removed draft back, and a flush that wrote the values leaves no second write behind.
+
 - **Filters use repeated params, not a comma-joined string.** A category or brand can itself contain a comma, so joining would read back as two filters. Chain and location still accept a legacy comma-joined value so links shared before this change keep working.
 
 - **Filter writes use `router.replace`, not `push`.** Otherwise every filter tweak would pile up a browser-history entry and make the back button useless.
@@ -308,10 +281,4 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
 - **Automated product-filter regression coverage.** The scoped price summarizers and filter contract are verified by TypeScript, the production build, and manual API requests. The frontend now has Vitest (see [TESTING.md](TESTING.md)), and the basic product price helpers have tests, but the filters and scoped summarizers still do not. [Issue #153](https://github.com/OffCrazyFreak/Disscount/issues/153), which recorded the cases to cover, was closed as not planned on 2026-08-05, so the gap is real but untracked. Tests were deliberately excluded from [PR #151](https://github.com/OffCrazyFreak/Disscount/pull/151).
 
-- **Draft indicator UX.** When a draft is restored, the modal shows it as unsaved and offers a "Resetiraj" button, but there is no explicit "restored a draft" banner. A small notice could make it clearer why fields are prefilled.
-
 - **Cross-device drafts.** Drafts are per-device by design. If users ever expect an unsaved message or list to follow them across devices, that would mean moving drafts server-side, which is a much bigger change and probably not worth it for short-lived modal input.
-
-- **Quota awareness.** The single `Disscount_app` object is small today (preferences plus short-lived text drafts), but if future drafts grow, add a guard around `setAppStorage` that catches a `QuotaExceededError` and prunes the oldest drafts rather than failing the write.
-
-- **Persist admin dashboard filters in the URL.** Currently session-only. Making the contact inbox view and search shareable via the URL would be a nice-to-have for the admin tools, not a user-facing gap.

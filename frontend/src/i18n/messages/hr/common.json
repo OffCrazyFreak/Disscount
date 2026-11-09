@@ -79,7 +79,7 @@
       "subject": "Naslov",
       "subjectPlaceholder": "Npr. Pitanje o Disscountu",
       "message": "Poruka",
-      "messagePlaceholder": "Napiši nam kako ti možemo pomoći...",
+      "messagePlaceholder": "Napiši nam kako ti možemo pomoći",
       "charactersLeft": "{count, plural, one {# znak preostao} few {# znaka preostala} other {# znakova preostalo}}"
     },
     "modal": {
@@ -155,11 +155,9 @@
   },
   "appUpdate": {
     "message": "Dostupna je nova verzija Disscounta.",
-    "reload": "Osvježi",
-    "later": "Kasnije"
+    "reload": "Osvježi"
   },
   "validation": {
-    "emailInvalid": "Upiši ispravan email",
     "fullNameMax": "Ime može imati najviše 255 znakova",
     "subjectRequired": "Upiši naslov",
     "subjectMax": "Naslov može imati najviše 255 znakova",

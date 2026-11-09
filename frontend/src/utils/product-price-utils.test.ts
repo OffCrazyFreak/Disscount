@@ -1,48 +1,36 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   getAveragePrice,
   getCheapestChainByMinPrice,
   getMaxPrice,
   getMinPrice,
+  isPriceDateToday,
   parsePrice,
 } from "@/utils/product-price-utils";
-import type {
-  ChainProductResponse,
-  ProductResponse,
-} from "@/lib/cijene-api/schemas";
+import { chain, product } from "@/test/price-fixtures";
 
-function chain(
-  name: string,
-  min: string,
-  max = min,
-  avg = min,
-): ChainProductResponse {
-  return {
-    chain: name,
-    code: "1",
-    name: "Mlijeko",
-    brand: null,
-    category: null,
-    unit: null,
-    quantity: null,
-    min_price: min,
-    max_price: max,
-    avg_price: avg,
-    price_date: "2026-10-13",
-  };
-}
+describe("isPriceDateToday", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
-function product(chains: ChainProductResponse[]): ProductResponse {
-  return {
-    ean: "1",
-    brand: null,
-    name: null,
-    quantity: null,
-    unit: null,
-    chains,
-  };
-}
+  it("follows the Zagreb date while UTC is still on the day before", () => {
+    // 00:30 in Zagreb on 4 November, UTC+1.
+    vi.useFakeTimers({ now: new Date("2026-11-03T23:30:00Z") });
+
+    expect(isPriceDateToday("2026-11-04")).toBe(true);
+    expect(isPriceDateToday("2026-11-03")).toBe(false);
+  });
+
+  it("follows the Zagreb date in summer time too", () => {
+    // 00:30 in Zagreb on 15 July, UTC+2.
+    vi.useFakeTimers({ now: new Date("2026-07-14T22:30:00Z") });
+
+    expect(isPriceDateToday("2026-07-15")).toBe(true);
+    expect(isPriceDateToday("2026-07-14")).toBe(false);
+  });
+});
 
 describe("parsePrice", () => {
   it("parses the API's decimal strings and rejects junk", () => {

@@ -23,7 +23,6 @@ export default async function StatisticsPage() {
     <div className="space-y-6">
       <div className="text-center mb-8 space-y-4">
         <div className="flex items-center justify-center space-x-4">
-          {/* App logo */}
           <CartLogo className="size-20 text-primary" />
           <h1 className="text-3xl font-bold">
             <span className="text-primary">Disscount</span> {t("page.title")}

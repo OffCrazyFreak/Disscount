@@ -19,7 +19,8 @@ import java.util.Iterator;
 /** Re-encoding is what drops EXIF, GPS and embedded thumbnails; the size check runs before any decode. */
 final class JpegSanitizer {
 
-    private static final float QUALITY = 0.85f;
+    // A phone JPEG is often already below 0.85, so the first step alone would store a bigger file than it received.
+    private static final float[] QUALITY_STEPS = {0.85f, 0.80f, 0.75f, 0.70f, 0.60f, 0.50f};
 
     private JpegSanitizer() {}
 
@@ -36,7 +37,7 @@ final class JpegSanitizer {
             PhotoValidator.requireDimensions(width, height, maxSide);
 
             BufferedImage image = reader.read(0);
-            return new ValidatedPhoto(encode(image), "image/jpeg", "jpg", width, height);
+            return new ValidatedPhoto(smallestUpTo(image, data.length), "image/jpeg", "jpg", width, height);
         } catch (IOException | RuntimeException e) {
             if (e instanceof BadRequestException bad) throw bad;
             throw invalid();
@@ -45,12 +46,22 @@ final class JpegSanitizer {
         }
     }
 
-    private static byte[] encode(BufferedImage image) throws IOException {
+    private static byte[] smallestUpTo(BufferedImage image, int uploadedBytes) throws IOException {
+        byte[] smallest = null;
+        for (float quality : QUALITY_STEPS) {
+            byte[] encoded = encode(image, quality);
+            if (encoded.length <= uploadedBytes) return encoded;
+            if (smallest == null || encoded.length < smallest.length) smallest = encoded;
+        }
+        return smallest;
+    }
+
+    private static byte[] encode(BufferedImage image, float quality) throws IOException {
         ImageWriter writer = ImageIO.getImageWritersByFormatName("jpeg").next();
         try {
             ImageWriteParam param = writer.getDefaultWriteParam();
             param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-            param.setCompressionQuality(QUALITY);
+            param.setCompressionQuality(quality);
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             try (MemoryCacheImageOutputStream output = new MemoryCacheImageOutputStream(out)) {

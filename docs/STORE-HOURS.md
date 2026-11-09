@@ -4,20 +4,6 @@ How Disscount knows whether a store is open, where the hours come from, and why 
 
 > **Mental model in one sentence:** each store has a weekly template plus dated entries (its own exceptions and the chain's Sunday and holiday announcements), and one pure function, `openingStatusAt`, turns that into "open until 21:00", "closing soon", "closed, opens at 07:00", "opening soon" or "hours not confirmed" for any instant, in Zagreb time, on the server and in the browser alike.
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [The model](#2-the-model)
-3. [Deciding open or closed](#3-deciding-open-or-closed)
-4. [Serving the hours](#4-serving-the-hours)
-5. [Refreshing the hours](#5-refreshing-the-hours)
-6. [Sources per chain](#6-sources-per-chain)
-7. [Automatic vs manual](#7-automatic-vs-manual)
-8. [Key files](#8-key-files)
-9. [Config and libraries](#9-config-and-libraries)
-10. [Gotchas](#10-gotchas)
-11. [Future improvements and TODOs](#11-future-improvements-and-todos)
-
 ## 1. Quick reference
 
 | Question                         | Answer                                                                                                              |
@@ -28,7 +14,7 @@ How Disscount knows whether a store is open, where the hours come from, and why 
 | Can a Sunday be open by default? | No. Without a dated entry a Sunday is "not confirmed", unless the store is marked exempt (`sundays: "weekly"`)      |
 | Public holidays?                 | Closed by law unless a dated entry says otherwise; the dates come from `date-holidays`                              |
 | When does data go stale?         | Each layer 14 days after its own `verifiedAt` (two missed weekly refreshes); a stale layer counts as unknown        |
-| API                              | `GET /api/cijene/store-hours`, cached an hour, stale-while-revalidate a day                                         |
+| API                              | `GET /api/cijene/store-hours`, cached an hour, stale-while-revalidate a day; not cached until an import succeeds    |
 
 ## 2. The model
 
@@ -42,7 +28,7 @@ Each store has three layers, each with its source and when it was verified:
 | Store exceptions           | `store_hours.exceptions` | weekly, with the template | Kaufland's `2026-11-01 closed`                                                          |
 | Sunday and holiday overlay | `store_hours_overlay`    | Thursday to Saturday      | Konzum's `open_this_sunday` for one store; an empty `store_code` covers the whole chain |
 
-The wire format (`frontend/src/lib/api/schemas/store-hours.ts`):
+One store as the status function reads it (`StoreHoursResponse` in `frontend/src/lib/api/schemas/store-hours.ts`; [§4](#4-serving-the-hours) covers the compact form it travels in):
 
 - `weekly`: seven entries, Monday first as ISO 8601 counts. Each is a list of `{ opens, closes }` intervals (split shifts are two), an empty list for closed, or `null` when the source did not say.
 - `dated`: `{ date, ranges, verifiedAt }` for single days, already merged on the server: per date the latest observation wins, because the weekly refresh and the Thursday to Saturday poll often read the same date from the same feed; on a tie the store's exception beats the chain's word on that store, which beats a chain-wide one.
@@ -95,17 +81,41 @@ The function is pure and runs in the browser: the server sends the holidays as p
 `getStoreHours` (`lib/store-hours/get-store-hours.ts`) reads both tables, keeps each process's result for 10 minutes like the store directory, and `buildStoreHours` turns the rows into the response:
 
 - Rows and announcements read from a chain whose switch is off are dropped; OpenStreetMap rows have their own switch (see [§9](#9-config-and-libraries)).
-- Each store is validated against the wire schema on its own, so one malformed row (a bad time, a link that is not http or https) drops that store, not the whole response.
+- Each store is validated against `storeHoursDto` on its own, so one malformed row (a bad time, a link that is not http or https) drops that store, not the whole response.
 - Dated entries outside two days back to 45 days ahead are dropped, which keeps the payload small and still covers a response the service worker serves days later.
 - `checkUrl` is the store's own page unless the link checker found it gone (404 or 410); then, or when a store has no page, the chain's store finder from `hours-chains.ts`.
 
 The response is keyed `chain:code`, the same key as the store directory, under the `cijene` path so the service worker caches it for offline use.
 
+### The compact payload
+
+Most stores of a chain share a week and a list of dated days, so `encodeStoreHours` (`lib/store-hours/compact-store-hours.ts`) sends each distinct value once and each store as positions into those tables, the way GTFS trips share one [`service_id`](https://gtfs.org/documentation/schedule/reference/):
+
+- `weeklyTemplates`: the distinct weeks.
+- `datedLists`: the distinct dated lists, each entry `[days from baseDate, ranges, index into verifiedTimes]`. `baseDate` is Zagreb's date when the response was generated, so an offset can be negative.
+- `verifiedTimes`, `checkUrls`: the distinct timestamps and links.
+- `stores`: `chain:code` to `[weekly template, dated list, verified time, check URL or null, source, sundays]`.
+
+The schema (`compactStoreHoursResponse`) refuses a position past the end of its table, and the time range rules are the same as on `storeHoursDto`.
+
+The browser keeps this form in the React Query cache and decodes it in `select` (`decodeStoreHours`), for two reasons: the offline persister rewrites its whole snapshot with `JSON.stringify` on every save, and a module-level `select` runs only when the data changes, once per observer. The minute clock therefore never decodes, while the map, with two observers in `useMapHours`, decodes twice per new response. Stores decoded by one observer share their template and dated list objects, so nothing may mutate them.
+
+Measured on 2026-11-04 with the 1,317 stores on dev (compressed sizes are gzip level 6 from Node; timings are one desktop run, in Vitest):
+
+|                               | Before    | After     |
+| ----------------------------- | --------- | --------- |
+| Uncompressed                  | 826,925 B | 146,810 B |
+| Gzip                          | 23,066 B  | 16,826 B  |
+| First parse, validate, decode | 70 ms     | 34 ms     |
+| `JSON.stringify` per save     | 7 ms      | 2 ms      |
+
+Edge compression already existed before this format: Cloudflare sends brotli or gzip. Neither Traefik nor the Next.js process compressed the response when asked directly on the server, so what crosses from the origin to Cloudflare is uncompressed. Cloudflare also does not cache JSON by default (`cf-cache-status: DYNAMIC`), so every request reaches Next.js and its 10 minute memo. Fetching only the stores a page needs would save little over a download this small, and would break the map's open now filter and the offline copy, which both need every store.
+
 ### Showing the hours
 
 The map, the product page and the shopping list read the hours through one `StoreHoursProvider` (`components/custom/store-hours/store-hours-context.tsx`): the page calls `useStoreHoursNow` once, which holds the React Query result (one request, cached an hour and persisted for offline use) and the current minute from `useCurrentMinute`. That clock ticks on each minute boundary while the tab is visible and catches up when it returns, and is null until mount, so the server never renders a badge from its own clock. Each row calls `useStoreOpening(key)`, which runs `openingStatusAt`; nothing else decides whether a store is open.
 
-- **Badge** (`opening-status-badge.tsx`): only "Otvoreno" (green), "Zatvoreno" (red) or "Radno vrijeme nije potvrđeno" (outline). Orange marks "soon" either way: "Otvoreno" when the store closes within the hour, "Zatvoreno" when it opens within the hour, the owner's choice. The badge text uses amber-700, since the shared amber-600 on amber-50 is about 3:1.
+- **Badge** (`opening-status-badge.tsx`): only "Otvoreno" (green), "Zatvoreno" (red) or "Radno vrijeme nije potvrđeno" (outline). Orange marks "soon" either way: "Otvoreno" when the store closes within the hour, "Zatvoreno" when it opens within the hour, the owner's choice.
 - **Detail** (`opening-status-detail.tsx`): the time ("Zatvara u 21:00", "Zatvara uskoro u 21:00", "Otvara sutra u 7:00") is not shown beside the badge but in a popover that opens on mouse hover, keyboard focus and tap. It is one controlled Radix popover rather than a tooltip, because Radix tooltips ignore taps and a touch laptop reports a fine pointer. The badge is a button named with the full state and time ("Otvoreno, zatvara uskoro u 21:00"), so screen readers get what the colour says. The chain cards get the same popover: their toggle is a button inside the chain name's heading, stretched over the header by a pseudo-element (`stretched-collapsible-trigger.tsx`), so the badge is its own button beside it, raised above the stretch, and never nests in the toggle.
 - **Map**: every list row and the phone sheet show the badge under the address, and it is part of the row's accessible name. The open row adds the source and its date ("Izvor: Kaufland (03.11.2026.)", through `formatDate`), the "Provjeri" link (a store no source covers links to its chain's finder), and a screen reader announcement when the open store's status changes. The "Otvoreno sada" switch keeps only confirmed open stores; a second switch also keeps unconfirmed ones. Until the hours load the filter keeps every store rather than emptying the list. If the request fails, or is paused offline with nothing cached, a line under the switch says the filter cannot work and offers a retry (`hooks/use-map-hours.ts`).
 - **Product page**: each row of a chain's per store price table shows that store's badge. The hours are fetched only once a table is open or a nearest store is named.
@@ -168,24 +178,14 @@ dm is not covered: upstream lists dm as a single chain-wide store, so there is n
 
 ## 8. Key files
 
-| Path (under `frontend/`)                                   | Role                                                        |
-| ---------------------------------------------------------- | ----------------------------------------------------------- |
-| `src/db/store-hours-schema.ts`                             | Drizzle tables                                              |
-| `drizzle/0010_store_hours.sql`                             | The migration                                               |
-| `src/lib/api/schemas/store-hours.ts`                       | Zod wire schema and types                                   |
-| `src/lib/store-hours/zagreb-clock.ts`                      | Zagreb wall clock, ISO date arithmetic, ISO weekday         |
-| `src/lib/store-hours/hours-on-date.ts`                     | One day's hours: dated entry, law, template                 |
-| `src/lib/store-hours/opening-status.ts`                    | `openingStatusAt`, the four states                          |
-| `src/lib/store-hours/croatian-holidays.ts`                 | Public holidays between two dates (server only)             |
-| `src/lib/store-hours/hours-chains.ts`                      | Per-chain switch and store finder URL                       |
-| `src/lib/store-hours/build-store-hours.ts`                 | Rows to response: switches, layering, window, link fallback |
-| `src/lib/store-hours/get-store-hours.ts`                   | Database read and memo                                      |
-| `src/app/api/cijene/store-hours/route.ts`                  | The public route                                            |
-| `src/lib/store-hours/sync/link-check.ts`, `link-status.ts` | The weekly link check and its verdict rule                  |
-| `src/lib/store-hours/store-opening.ts`                     | One store's status from the response and the minute         |
-| `src/components/custom/store-hours/`                       | Provider, badge, the source and "Provjeri" line             |
-| `src/hooks/use-current-minute.ts`                          | The minute clock behind every badge                         |
-| `src/app/[locale]/map/utils/open-filter.ts`                | The "open now" filter and its `?open=` value                |
+| Path (under `frontend/`)                    | Role                                                        |
+| ------------------------------------------- | ----------------------------------------------------------- |
+| `src/lib/store-hours/hours-on-date.ts`      | One day's hours: dated entry, law, template                 |
+| `src/lib/store-hours/croatian-holidays.ts`  | Public holidays between two dates (server only)             |
+| `src/lib/store-hours/build-store-hours.ts`  | Rows to response: switches, layering, window, link fallback |
+| `src/lib/store-hours/store-opening.ts`      | One store's status from the response and the minute         |
+| `src/hooks/use-current-minute.ts`           | The minute clock behind every badge                         |
+| `src/app/[locale]/map/utils/open-filter.ts` | The "open now" filter and its `?open=` value                |
 
 ## 9. Config and libraries
 
@@ -201,6 +201,9 @@ dm is not covered: upstream lists dm as a single chain-wide store, so there is n
 - **Spar counts months from 0.** `{month: 10}` is November.
 - **Trgocentar's sheet lags.** On 2026-11-03 it still showed October; past dates are dropped, so the Sundays simply stay unconfirmed until the new month is up.
 - **Studenac's list page shows only today.** Its hours text depends on the time of day, so the weekly table is read from each store's page.
+- **Changing the payload shape strands cached copies.** The browser's HTTP cache (an hour), the service worker's `cijene-api` cache (7 days) and the persisted React Query cache all hold the previous shape under the same URL and key. The schema refuses a cached response, and a restored persisted entry skips the schema and fails in `select` instead, so either way the hours show as failed until a fresh response lands. A shape change on a live release needs a new URL and a new query key; bumping `CACHE_BUSTER` also discards queued offline writes.
+- **The first import starts on the first request.** Until a template run has succeeded (`finished_at` set and no `last_error`) or while no rows exist, the response says `complete: false` and goes out as `private, no-store`. The service worker skips caching it (`skipNoStore`), and `useStoreHours` treats it as stale at once. The server memo still holds it, because the job clears the memo when it ends. Without that a fresh deploy would cache "every store unconfirmed" for an hour. A failed run turns the answer incomplete until a run succeeds, retries included, because taking the lease leaves `last_error` as the last run wrote it. An answer without the flag counts as incomplete too.
+- **A closing at 24:00 is the end of that day.** `closingAt` returns it as that day's `24:00` (openings keep the next day's `00:00`), not the next day's `00:00`, and the status line passes `time: "midnight"`, which every catalog turns into its own phrase through a select ("u ponoć", "a mezzanotte" rather than "alle"). Owner decision 05.11.2026: "zatvara u ponoć".
 - **`00:00-00:00` is not 24 hours.** Feeds write a closed day that way, so the schema refuses equal `opens` and `closes`; a parser writes a closed day as `[]` and an all-day opening as `00:00` to `24:00`.
 
 ## 11. Future improvements and TODOs

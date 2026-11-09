@@ -4,10 +4,12 @@ import disscount.digitalCard.dao.DigitalCardPhotoRepository;
 import disscount.digitalCard.dao.DigitalCardRepository;
 import disscount.digitalCard.dao.PhotoCleanupRepository;
 import disscount.digitalCard.photo.TestImages;
-import disscount.digitalCard.service.FakePhotoStore;
 import disscount.favoriteStore.dao.FavoriteStoreRepository;
 import disscount.pinnedStore.dao.PinnedStoreRepository;
 import disscount.shoppingList.dao.ShoppingListRepository;
+import disscount.productImage.dao.ProductImageRepository;
+import disscount.productImage.domain.ImageSource;
+import disscount.storage.FakePhotoStore;
 import disscount.storeName.dao.StoreNameSuggestionRepository;
 import disscount.storeName.dao.StoreNameUsageRepository;
 import disscount.support.FullStackTest;
@@ -22,6 +24,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,16 +33,14 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * The whole erasure across features, end to end. It lives in the root package because the
- * pieces it checks will sit in packages a single feature's test cannot see.
- */
+/** In the root package because the pieces it checks sit in packages a single feature's test cannot see. */
 class AccountErasureTest extends FullStackTest {
 
     @Autowired DigitalCardRepository cards;
@@ -49,6 +50,7 @@ class AccountErasureTest extends FullStackTest {
     @Autowired StoreNameUsageRepository storeNameUsages;
     @Autowired StoreNameSuggestionRepository storeNames;
     @Autowired ErasureLedgerRepository erasureLedger;
+    @Autowired ProductImageRepository productImages;
     @Autowired ShoppingListRepository shoppingLists;
     @Autowired WatchlistItemRepository watchlist;
     @Autowired PinnedStoreRepository pinnedStores;
@@ -68,6 +70,9 @@ class AccountErasureTest extends FullStackTest {
                 """.formatted(customStore)).with(as(user))).andExpect(status().isOk());
         mvc.perform(multipart(HttpMethod.PUT, "/api/digital-cards/{id}/photos/{slot}", cardId, "icon")
                 .file(new MockMultipartFile("full", "icon.webp", "image/webp", TestImages.webp(32, 32)))
+                .with(as(user))).andExpect(status().isOk());
+        mvc.perform(multipart("/api/products/{ean}/images", "3850123456789")
+                .file(new MockMultipartFile("photo", "p.jpg", "image/jpeg", TestImages.jpeg(400, 300)))
                 .with(as(user))).andExpect(status().isOk());
         mvc.perform(withJson(put("/api/favorite-stores/bulk"), "{\"stores\":[{\"storeKey\":\"konzum:1\"}]}").with(as(user)))
                 .andExpect(status().isOk());
@@ -96,6 +101,14 @@ class AccountErasureTest extends FullStackTest {
         assertThat(((FakePhotoStore) photoStore).objects.keySet()).noneMatch(key -> key.contains(id.toString()));
         assertThat(photoCleanup.findAll()).noneMatch(row -> row.getKeyOrPrefix().contains(id.toString()));
         assertThat(favoriteStores.findByUserId(id)).isEmpty();
+        // Product photos lose every link to the person, and a kept photo loses its private original.
+        assertThat(productImages.findByContributorId(id)).isEmpty();
+        assertThat(productImages.findByConfirmedById(id)).isEmpty();
+        assertThat(productImages.findAll())
+                .filteredOn(image -> image.getContributorId() == null && image.getSource() != ImageSource.OPEN_FOOD_FACTS)
+                .allMatch(image -> image.getOriginalKey() == null);
+        assertThat(((FakePhotoStore) productOriginalStore).objects.keySet()).allMatch(key ->
+                productImages.findAll().stream().anyMatch(image -> key.equals(image.getOriginalKey())));
         assertThat(storeNameUsages.findAll()).noneMatch(usage -> usage.getUserId().equals(id));
 
         // Business data stays, attached to the anonymised profile.
@@ -169,6 +182,38 @@ class AccountErasureTest extends FullStackTest {
 
         verify(authIdentityDao).deleteById(leaving.getId());
         assertErased(leaving);
+    }
+
+    // A minted token outlives its account by minutes, so each write refuses the deleted caller itself.
+    @Test
+    void everyWriteByADeletedAccountIs401() throws Exception {
+        User gone = newUser("gone");
+        gone.setDeletedAt(java.time.LocalDateTime.now());
+        users.save(gone);
+
+        for (MockHttpServletRequestBuilder write : List.of(
+                withJson(put("/api/pinned-stores/bulk"), "{\"stores\":[]}"),
+                withJson(put("/api/pinned-places/bulk"), "{\"places\":[]}"),
+                withJson(put("/api/favorite-stores/bulk"), "{\"stores\":[]}"),
+                withJson(post("/api/watchlist"), "{\"productApiId\":\"1\",\"watchType\":\"PERCENTAGE\",\"thresholdValue\":10}"),
+                withJson(patch("/api/users/me"), "{}"),
+                withJson(post("/api/shopping-lists"), "{\"title\":\"Popis\"}"),
+                withJson(put("/api/digital-cards/{id}", UUID.randomUUID()), """
+                        {"cardName":"Moja","cardType":"loyalty","storeName":"Konzum","codeValue":"123","codeType":"ean_13","cardColor":"#D50000"}
+                        """))) {
+            mvc.perform(write.with(as(gone))).andExpect(status().isUnauthorized());
+        }
+    }
+
+    // The 401 speaks about the caller; an admin naming a missing account is still signed in.
+    @Test
+    void anAdminNamingAnUnknownUserIs400() throws Exception {
+        User admin = newAdmin();
+        UUID unknown = UUID.randomUUID();
+
+        mvc.perform(withJson(patch("/api/admin/users/{id}", unknown), "{\"accountType\":\"ENTERPRISE\"}").with(as(admin)))
+                .andExpect(status().isBadRequest());
+        mvc.perform(delete("/api/admin/users/{id}", unknown).with(as(admin))).andExpect(status().isBadRequest());
     }
 
     @Test

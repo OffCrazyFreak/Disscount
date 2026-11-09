@@ -12,7 +12,6 @@ x-frontend-build: &frontend-build
     NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
     NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-    NEXT_PUBLIC_ENABLE_REACT_SCAN: ${NEXT_PUBLIC_ENABLE_REACT_SCAN}
     NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
     SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-local}
 
@@ -61,15 +60,14 @@ services:
       SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT}
       # Verbose SDK init/transport logging for debugging; leave unset normally
       SENTRY_DEBUG: ${SENTRY_DEBUG:-false}
-      # Card photos in a private R2 bucket; blank disables photos.
-      R2_ENDPOINT: ${R2_ENDPOINT:-}
-      R2_BUCKET: ${R2_BUCKET:-}
-      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
-      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
-      R2_PUBLIC_BUCKET: ${R2_PUBLIC_BUCKET:-}
-      R2_PUBLIC_ACCESS_KEY_ID: ${R2_PUBLIC_ACCESS_KEY_ID:-}
-      R2_PUBLIC_SECRET_ACCESS_KEY: ${R2_PUBLIC_SECRET_ACCESS_KEY:-}
+      # The image hostname that serves public product photos; blank switches them off.
       R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
+      # Photo folders on the two photo volumes; blank switches those photos off (docs/PRODUCT-IMAGES.md).
+      PHOTO_DIR: ${PHOTO_DIR:-}
+      PUBLIC_PHOTO_DIR: ${PUBLIC_PHOTO_DIR:-}
+    volumes:
+      - photos-private:/data/photos-private
+      - photos-public:/data/photos-public
     networks: [internal]
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health || exit 1"]
@@ -82,6 +80,47 @@ services:
       db:
         condition: service_healthy
       migrate:
+        condition: service_completed_successfully
+      photo-folders:
+        condition: service_completed_successfully
+
+  # The backend never creates its top folders, so a forgotten volume leaves a store off instead of
+  # writing into the container layer. Created here, owned by the backend's uid 1001.
+  photo-folders:
+    image: alpine:3.22
+    restart: "no"
+    network_mode: none
+    volumes:
+      - photos-private:/data/photos-private
+      - photos-public:/data/photos-public
+    command:
+      - sh
+      - -c
+      - >-
+        mkdir -p /data/photos-private/cards /data/photos-private/product-originals /data/photos-public/products &&
+        chown 1001:999 /data/photos-private /data/photos-private/cards /data/photos-private/product-originals /data/photos-public /data/photos-public/products &&
+        chmod 700 /data/photos-private /data/photos-private/cards /data/photos-private/product-originals &&
+        chmod 755 /data/photos-public /data/photos-public/products
+
+  # Serves the public product photos on the image hostname (R2_PUBLIC_URL); read-only.
+  images:
+    image: nginx:1.28-alpine
+    restart: unless-stopped
+    volumes:
+      - photos-public:/data/photos-public:ro
+    configs:
+      - source: images_nginx
+        target: /etc/nginx/conf.d/default.conf
+    expose:
+      - "80"
+    networks: [dokploy-network]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    depends_on:
+      photo-folders:
         condition: service_completed_successfully
 
   frontend:
@@ -108,7 +147,6 @@ services:
       NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
       NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-      NEXT_PUBLIC_ENABLE_REACT_SCAN: ${NEXT_PUBLIC_ENABLE_REACT_SCAN}
     expose:
       - "3000"
     networks: [internal, dokploy-network]
@@ -133,3 +171,25 @@ networks:
 
 volumes:
   pgdata:
+  photos-private:
+  photos-public:
+
+configs:
+  # No $ variables in here: Compose would interpolate them.
+  images_nginx:
+    content: |
+      server {
+        listen 80;
+        server_tokens off;
+        root /data/photos-public;
+        autoindex off;
+        location = /healthz { access_log off; return 200; }
+        # Unfinished writes are .tmp-* files beside their target.
+        location ~ /\. { return 404; }
+        # Keys carry a hash of their bytes, so a cached copy can never go stale.
+        location /products/ {
+          add_header Cache-Control "public, max-age=31536000, immutable";
+          add_header X-Content-Type-Options nosniff;
+        }
+        location / { return 404; }
+      }

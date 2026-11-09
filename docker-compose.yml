@@ -11,7 +11,6 @@ x-frontend-build: &frontend-build
     NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
     NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-    NEXT_PUBLIC_ENABLE_REACT_SCAN: ${NEXT_PUBLIC_ENABLE_REACT_SCAN}
     NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
     SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-local}
 
@@ -66,14 +65,10 @@ services:
       SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT}
       # Verbose SDK init/transport logging for debugging; leave unset normally
       SENTRY_DEBUG: ${SENTRY_DEBUG:-false}
-      # Card photos in a private R2 bucket; blank disables photos.
-      R2_ENDPOINT: ${R2_ENDPOINT:-}
-      R2_BUCKET: ${R2_BUCKET:-}
-      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
-      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
-      R2_PUBLIC_BUCKET: ${R2_PUBLIC_BUCKET:-}
-      R2_PUBLIC_ACCESS_KEY_ID: ${R2_PUBLIC_ACCESS_KEY_ID:-}
-      R2_PUBLIC_SECRET_ACCESS_KEY: ${R2_PUBLIC_SECRET_ACCESS_KEY:-}
+      # Photo folders inside the container and the hostname serving the public ones; blank switches photos off.
+      # Setting them locally also needs the folders mounted, or the stores stay off.
+      PHOTO_DIR: ${PHOTO_DIR:-}
+      PUBLIC_PHOTO_DIR: ${PUBLIC_PHOTO_DIR:-}
       R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health || exit 1"]
@@ -116,7 +111,6 @@ services:
       NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
       NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-      NEXT_PUBLIC_ENABLE_REACT_SCAN: ${NEXT_PUBLIC_ENABLE_REACT_SCAN}
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 10s

@@ -7,16 +7,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import java.util.regex.Pattern;
 
-/**
- * Matches one method and path only when the {@code id} segment is UUID-shaped.
- *
- * <p>An allowlist on both axes. A wildcard minus the authenticated routes would be a
- * denylist inside an allowlist, silently exposing the next literal route somebody adds;
- * requiring a UUID excludes {@code /me}, {@code /items} and any future literal for free.
- *
- * <p>Canonical dashed form only. Bare 32-hex is excluded because Spring's
- * StringToUUIDConverter rejects it, so it would only buy an anonymous caller a logged 500.
- */
+/** An allowlist on both axes, so a new literal route stays private; dashed only, as bare hex buys a logged 500. */
 final class UuidScopedRequestMatcher implements RequestMatcher {
 
     private static final Pattern UUID_SHAPE = Pattern.compile(

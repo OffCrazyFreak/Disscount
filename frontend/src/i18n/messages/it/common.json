@@ -79,7 +79,7 @@
       "subject": "Oggetto",
       "subjectPlaceholder": "Es. Una domanda su Disscount",
       "message": "Messaggio",
-      "messagePlaceholder": "Scrivici come possiamo aiutarti...",
+      "messagePlaceholder": "Scrivici come possiamo aiutarti",
       "charactersLeft": "{count, plural, one {# carattere rimasto} other {# caratteri rimasti}}"
     },
     "modal": {
@@ -155,11 +155,9 @@
   },
   "appUpdate": {
     "message": "È pronta una nuova versione di Disscount.",
-    "reload": "Ricarica",
-    "later": "Più tardi"
+    "reload": "Ricarica"
   },
   "validation": {
-    "emailInvalid": "Inserisci un indirizzo email valido",
     "fullNameMax": "Il nome può avere al massimo 255 caratteri",
     "subjectRequired": "Scrivi l'oggetto",
     "subjectMax": "L'oggetto può avere al massimo 255 caratteri",

@@ -42,7 +42,7 @@ Under the hood it is a full production stack: a Next.js frontend that also acts 
 - **Email:** Resend + React Email
 - **Infra:** Docker Compose, Dokploy on a Hetzner VPS, Traefik, Cloudflare, Sentry, [UptimeRobot](https://stats.uptimerobot.com/ej4ROz2eMo), Umami
 
-Deeper references live in [docs/](docs/): [authentication](docs/AUTH.md), [PWA & offline](docs/PWA.md), [mobile navigation](docs/MOBILE-NAV.md), [state persistence](docs/STATE-PERSISTENCE.md), [list sharing](docs/SHARING.md), [search](docs/SEARCH.md), [the landing page](docs/LANDING.md), [brand assets](docs/BRAND.md), [the support flow](docs/SUPPORT.md), [products](docs/PRODUCTS.md), [product images](docs/PRODUCT-IMAGES.md), and [infrastructure and deployment](docs/INFRASTRUCTURE.md).
+Deeper references live in [docs/](docs/): [authentication](docs/AUTH.md), [PWA & offline](docs/PWA.md), [mobile navigation](docs/MOBILE-NAV.md), [state persistence](docs/STATE-PERSISTENCE.md), [list sharing](docs/SHARING.md), [search](docs/SEARCH.md), [the landing page](docs/LANDING.md), [brand assets](docs/BRAND.md), [the support flow](docs/SUPPORT.md), [products](docs/PRODUCTS.md), [product images](docs/PRODUCT-IMAGES.md), [infrastructure and deployment](docs/INFRASTRUCTURE.md), and [backups](docs/BACKUPS.md).
 
 ## Link
 
@@ -139,35 +139,29 @@ Commercial use is restricted unless covered by an Additional Use Grant or separa
 
 ## How to run
 
-The quickest way to run the full stack (frontend + backend + PostgreSQL) locally is with Docker Compose:
+Day to day, run Postgres in Docker and the frontend and backend natively, so both keep hot reload. The steps are below.
 
-```bash
-cp .env.example .env   # then fill in the values
-docker compose up -d --build
-# frontend: http://localhost:3000
-```
-
-To run the services manually instead, follow the steps below.
+`docker compose up -d --build` with the root `docker-compose.yml` instead builds and runs the production images of the whole stack (copy `.env.example` to `.env` first). It has no hot reload, so use it only to try a production build locally.
 
 ### Prerequisites
 
 - Node.js 24 LTS+ and pnpm
 - Java 21 and Maven 3.9+
-- PostgreSQL 14+ (17 in production)
-- Docker + Docker Compose (only for the quick-run path above)
+- Docker + Docker Compose (Postgres 17, the same major as dev and production)
 
 ### Startup flow
 
-The backend and frontend share one PostgreSQL database: the backend owns the app tables (Hibernate `ddl-auto`), the frontend owns the better-auth tables (drizzle). Create the database, run the backend, then the frontend.
+The backend and frontend share one PostgreSQL database: the backend owns the app tables (Hibernate `ddl-auto`), the frontend owns the better-auth tables (drizzle). Start the database, run the backend, then the frontend.
 
 ### 1. Database (PostgreSQL)
 
-Create a database and user (example), and reuse these values in both env files below:
+Set `POSTGRES_DB`, `POSTGRES_USER` and `POSTGRES_PASSWORD` in the root `.env` (see `.env.example`), and reuse them in both env files below. Then start Postgres on `localhost:5432`, with its data in a Docker volume:
 
 ```bash
-sudo -u postgres psql -c "CREATE USER disscount WITH PASSWORD 'secret';"
-sudo -u postgres psql -c "CREATE DATABASE disscount OWNER disscount;"
+docker compose -f docker-compose.local-db.yml up -d --wait
 ```
+
+Port 5432 must be free, so stop a system Postgres first (`sudo systemctl disable --now postgresql` on Ubuntu). To keep its data, dump each database with `pg_dump -Fc` before stopping it, then load it with `docker exec -i disscount-local-db-1 pg_restore -U <user> -d <database> --no-owner --no-acl < <file>.dump`.
 
 ### 2. Backend (Spring Boot)
 
@@ -181,6 +175,7 @@ Set in `backend/.env`:
 - `SPRING_DATASOURCE_URL` (e.g. `jdbc:postgresql://localhost:5432/disscount`)
 - `SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD`
 - `BETTER_AUTH_JWKS_URI` (e.g. `http://localhost:3000/api/auth/jwks`)
+- Optional, to see dev's product photos: `PHOTO_DIR` and `PUBLIC_PHOTO_DIR` (local folders) and `R2_PUBLIC_URL=https://images-dev.disscount.me`, then `scripts/copy-dev-photo-rows.sh` ([docs/PRODUCT-IMAGES.md](docs/PRODUCT-IMAGES.md#local-development))
 
 Build and run with the `local` Spring profile (it supplies local better-auth defaults, the JWKS URL and issuer at `http://localhost:3000`, so the app starts without extra config):
 
@@ -218,19 +213,20 @@ The frontend runs on http://localhost:3000
 
 ### MCP servers (optional, for AI editors)
 
-The repo ships pre-configured MCP servers so an AI editor picks them up on clone, one file per tool (same servers): `.mcp.json` (Claude Code), `.cursor/mcp.json` (Cursor), `.vscode/mcp.json` (VS Code).
+The repo ships pre-configured MCP servers so an AI editor picks them up on clone, one file per tool: `.mcp.json` (Claude Code), `.cursor/mcp.json` (Cursor), `.vscode/mcp.json` (VS Code). Cursor and VS Code carry `context7`, `chrome-devtools`, `dokploy` and `sentry`; only `.mcp.json` adds `postgres` and `resend`.
 
 | Server            | Purpose                                           |
 | ----------------- | ------------------------------------------------- |
 | `context7`        | Up-to-date library docs                           |
-| `supabase`        | Supabase project access                           |
+| `postgres`        | Query a PostgreSQL database                       |
 | `chrome-devtools` | Chrome DevTools debugging                         |
 | `sentry`          | Error tracking (org scope)                        |
 | `dokploy`         | Deploys, logs and schedules on the Dokploy server |
+| `resend`          | Email sending, domains and logs                   |
 
 `sentry` is scoped to the `disscount` org rather than one project, so it reaches both `disscount-frontend` and `disscount-backend`.
 
-No secrets are committed: `supabase` and `sentry` authenticate via browser OAuth on first use, and `context7` reads `CONTEXT7_API_KEY` from your environment (it still runs keyless if that is unset, at the lower anonymous rate limit), and `dokploy` reads `DOKPLOY_API_KEY` the same way. Export those keys from your shell profile rather than writing it into a config, and a clone works anywhere with no per-machine edit. Note that the VS Code file spells the references `${env:CONTEXT7_API_KEY}` and `${env:DOKPLOY_API_KEY}`, which is that editor's own syntax, while the other two take a bare `${CONTEXT7_API_KEY}`. Never put keys in these files - use env vars or your editor's secret store.
+No secrets are committed: `sentry` and `resend` authenticate via browser OAuth on first use, and `context7` reads `CONTEXT7_API_KEY` from your environment (it still runs keyless if that is unset, at the lower anonymous rate limit), and `dokploy` reads `DOKPLOY_API_KEY` the same way. Export those keys from your shell profile rather than writing it into a config, and a clone works anywhere with no per-machine edit. Note that the VS Code file spells the references `${env:CONTEXT7_API_KEY}` and `${env:DOKPLOY_API_KEY}`, which is that editor's own syntax, while the other two take a bare `${CONTEXT7_API_KEY}`. Never put keys in these files - use env vars or your editor's secret store.
 
 ## Deployment
 

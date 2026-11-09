@@ -7,17 +7,11 @@ import { watchServiceWorkerUpdate } from "@/lib/pwa/service-worker-update";
 // One id, so a waiting event and the startup check never stack two toasts.
 const APP_UPDATE_TOAST_ID = "app-update";
 
-/**
- * Offers a reload once a new deploy's service worker is waiting, never forcing
- * one: the waiting worker keeps the old build's chunks cached meanwhile. Once
- * any tab accepts, the others lose those chunks, and a lazy load there falls
- * back to the one-time chunk reload.
- */
+/** Never forces a reload, because the waiting worker keeps old chunks; other tabs get the chunk reload. */
 export function useAppUpdatePrompt() {
   const t = useTranslations("common");
 
-  // An effect event, so a locale change does not resubscribe and bring back a
-  // toast the user dismissed.
+  // An effect event, so a locale change does not resubscribe and bring back a toast the user dismissed.
   const showUpdateToast = useEffectEvent((applyUpdate: () => Promise<void>) => {
     toast(t("appUpdate.message"), {
       id: APP_UPDATE_TOAST_ID,
@@ -26,7 +20,6 @@ export function useAppUpdatePrompt() {
         label: t("appUpdate.reload"),
         onClick: () => void applyUpdate(),
       },
-      cancel: { label: t("appUpdate.later"), onClick: () => {} },
     });
   });
 

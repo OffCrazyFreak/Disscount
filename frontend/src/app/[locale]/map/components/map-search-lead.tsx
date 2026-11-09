@@ -14,7 +14,6 @@ interface IMapSearchLeadProps {
   transition: Transition;
 }
 
-/** The bar's first button: the menu, or the way back once the search is open. */
 export default function MapSearchLead({
   isOpen,
   onBack,

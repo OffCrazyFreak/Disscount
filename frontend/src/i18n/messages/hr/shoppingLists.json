@@ -6,7 +6,7 @@
   "client": {
     "loginTitle": "Popisi za kupnju",
     "loginDescription": "Složi popis i na jednom mjestu usporedi cijene po trgovinama.",
-    "searchPlaceholder": "Pretraži popise za kupnju...",
+    "searchPlaceholder": "Pretraži popise za kupnju",
     "searchResults": "Rezultati pretrage za \"{query}\" ({count})",
     "myLists": "Moji popisi za kupnju",
     "myListsWithCount": "Moji popisi za kupnju ({count})",

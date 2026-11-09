@@ -11,22 +11,7 @@ import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
-
-function chain(code: string, avgPrice: string) {
-  return {
-    chain: code,
-    code: "1",
-    name: "Šećer 1 kg",
-    brand: "Viro",
-    category: "Šećer",
-    unit: "kg",
-    quantity: "1",
-    min_price: avgPrice,
-    max_price: avgPrice,
-    avg_price: avgPrice,
-    price_date: "2026-11-01",
-  };
-}
+import { chain } from "@/test/price-fixtures";
 
 const sugar: ProductResponse = {
   ean: "3850104004421",

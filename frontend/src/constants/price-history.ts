@@ -1,6 +1,5 @@
 import { PeriodOption } from "@/typings/history-period-options";
 
-// Earliest day the price archive has data for.
 export const PRICE_ARCHIVE_START = "2025-05-16";
 
 export const periodOptions: Record<

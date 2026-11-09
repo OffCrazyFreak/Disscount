@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import disscount.config.UploadLimitConfig;
 import disscount.digitalCard.photo.PhotoValidator;
 import disscount.digitalCard.photo.TestImages;
-import disscount.digitalCard.service.FakePhotoStore;
 import disscount.exceptions.BadRequestException;
-import disscount.productImage.FakeProductImageStore;
+import disscount.exceptions.ServiceUnavailableException;
 import disscount.productImage.dao.ProductImageReportRepository;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
@@ -17,23 +17,27 @@ import disscount.productImage.domain.ImageSource;
 import disscount.productImage.domain.ImageStatus;
 import disscount.productImage.domain.ProductImage;
 import disscount.productImage.domain.ProductImageSet;
+import disscount.productImage.dto.ProductImageDtos.AdminImageDto;
 import disscount.productImage.dto.ProductImageDtos.AdminProductDto;
 import disscount.productImage.dto.ProductImageDtos.AdminQueuePageDto;
 import disscount.productImage.dto.ProductImageDtos.CropDto;
 import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
 import disscount.productImage.off.OffProductPhotos;
 import disscount.productImage.off.OpenFoodFactsClient;
+import disscount.storage.FakePhotoStore;
+import disscount.storage.PhotoStoreConfig;
 import disscount.user.service.UserService;
 import disscount.util.Timestamps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +51,7 @@ import static org.mockito.Mockito.when;
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @Import({ProductImageQueryService.class, ProductImageWriteService.class, ProductImageAdminService.class,
-        ProductImageViews.class, ProductImageRendering.class, OffCandidateWriter.class, ProductPhotoUploadLimiter.class,
+        ProductImageViews.class, ProductImageRendering.class, ProductImageRemoval.class, OffCandidateWriter.class, UploadLimitConfig.class,
         PhotoValidator.class, ProductImageServiceTest.StoreConfig.class})
 class ProductImageServiceTest {
 
@@ -55,14 +59,20 @@ class ProductImageServiceTest {
 
     @TestConfiguration
     static class StoreConfig {
+        // The card store sits in the same context so the tests can prove product photos never reach it.
         @Bean
         FakePhotoStore photoStore() {
             return new FakePhotoStore();
         }
 
         @Bean
-        FakeProductImageStore productImageStore() {
-            return new FakeProductImageStore();
+        FakePhotoStore productOriginalStore() {
+            return new FakePhotoStore();
+        }
+
+        @Bean
+        FakePhotoStore productImageStore() {
+            return new FakePhotoStore();
         }
     }
 
@@ -72,8 +82,9 @@ class ProductImageServiceTest {
     @Autowired ProductImageRepository images;
     @Autowired ProductImageSetRepository sets;
     @Autowired ProductImageReportRepository reports;
-    @Autowired FakePhotoStore originals;
-    @Autowired FakeProductImageStore publicStore;
+    @Autowired @Qualifier(PhotoStoreConfig.PRODUCT_ORIGINALS) FakePhotoStore originals;
+    @Autowired @Qualifier(PhotoStoreConfig.CARD_PHOTOS) FakePhotoStore cardPhotos;
+    @Autowired @Qualifier(PhotoStoreConfig.PRODUCT_PHOTOS) FakePhotoStore publicStore;
     @Autowired OffCandidateWriter candidates;
     @Autowired PlatformTransactionManager transactions;
     @MockitoBean UserService userService;
@@ -89,6 +100,9 @@ class ProductImageServiceTest {
         images.deleteAll();
         sets.deleteAll();
         originals.objects.clear();
+        originals.enabled = true;
+        cardPhotos.objects.clear();
+        cardPhotos.enabled = true;
         publicStore.objects.clear();
         when(userService.isActiveAdmin(adminId)).thenReturn(true);
     }
@@ -102,14 +116,75 @@ class ProductImageServiceTest {
         assertThat(stored.getSource()).isEqualTo(ImageSource.USER);
         assertThat(shown.images()).singleElement().satisfies(i -> {
             assertThat(i.status()).isEqualTo("PENDING");
-            assertThat(i.thumbUrl()).startsWith("https://images.test/products/" + EAN + "/");
+            assertThat(i.smallUrl()).startsWith("https://images.test/products/" + EAN + "/");
         });
         assertThat(sets.findById(EAN)).get().satisfies(s -> {
             assertThat(s.getMainImageId()).isEqualTo(stored.getId());
             assertThat(s.isNeedsReview()).isTrue();
         });
         assertThat(originals.objects.keySet()).singleElement().asString().startsWith("product-originals/" + EAN + "/");
+        assertThat(cardPhotos.objects).isEmpty();
+        // The full file and the small list file.
         assertThat(publicStore.objects).hasSize(2);
+    }
+
+    @Test
+    void withoutTheOriginalsFolderUploadsAreUnavailableWhileOpenFoodFactsPhotosAndReadsKeepWorking() {
+        ProductImage candidate = candidate("front_hr", "3570", "hr");
+        when(off.download(anyString())).thenReturn(TestImages.jpeg(300, 200));
+        originals.enabled = false;
+
+        assertThatThrownBy(() -> writes.upload(ana, EAN, jpeg()))
+                .isInstanceOf(ServiceUnavailableException.class)
+                .hasMessage("error.productImage.unavailable");
+
+        admin.setMain(adminId, EAN, candidate.getId());
+        assertThat(images.findById(candidate.getId())).get().extracting(ProductImage::isRendered).isEqualTo(true);
+        assertThat(queries.forProduct(EAN).images()).singleElement()
+                .satisfies(i -> assertThat(i.source()).isEqualTo("OPEN_FOOD_FACTS"));
+        assertThat(originals.objects).isEmpty();
+    }
+
+    @Test
+    void withoutTheOriginalsFolderAUserPhotoStaysShownButCannotBeCroppedOrOpened() {
+        writes.upload(ana, EAN, jpeg());
+        ProductImage photo = images.findByEanOrderByCreatedAtAsc(EAN).get(0);
+        originals.enabled = false;
+
+        assertThatThrownBy(() -> admin.crop(adminId, photo.getId(), 0, new CropDto(10, 10, 100, 80)))
+                .isInstanceOf(ServiceUnavailableException.class)
+                .hasMessage("error.productImage.unavailable");
+        assertThatThrownBy(() -> admin.original(photo.getId()))
+                .isInstanceOf(ServiceUnavailableException.class)
+                .hasMessage("error.productImage.unavailable");
+        assertThat(queries.forProduct(EAN).images()).singleElement()
+                .satisfies(i -> assertThat(i.fullUrl()).endsWith(photo.getFullKey()));
+    }
+
+    @Test
+    void aPhotoRenderedBeforeTheSmallFileServesItsThumbAsTheSmallOne() {
+        writes.upload(ana, EAN, jpeg());
+        ProductImage photo = images.findByEanOrderByCreatedAtAsc(EAN).get(0);
+        assertThat(queries.forProduct(EAN).images()).singleElement().satisfies(i -> {
+            assertThat(i.smallUrl()).endsWith(photo.getSmallKey());
+            assertThat(i.fullWidth()).isEqualTo(photo.getFullWidth());
+        });
+
+        photo.setSmallKey(null);
+        photo.setThumbKey("products/" + EAN + "/older-thumb.jpg");
+        images.save(photo);
+        assertThat(queries.forProduct(EAN).images()).singleElement()
+                .satisfies(i -> assertThat(i.smallUrl()).endsWith(photo.getThumbKey()));
+    }
+
+    @Test
+    void uploadsDoNotDependOnTheCardPhotoStore() {
+        cardPhotos.enabled = false;
+
+        writes.upload(ana, EAN, jpeg());
+
+        assertThat(originals.objects).hasSize(1);
+        assertThat(cardPhotos.objects).isEmpty();
     }
 
     @Test
@@ -198,7 +273,7 @@ class ProductImageServiceTest {
         assertThat(copied.getStatus()).isEqualTo(ImageStatus.VERIFIED);
         assertThat(copied.isRendered()).isTrue();
         assertThat(product.pinned()).isTrue();
-        assertThat(product.mainImageId()).isEqualTo(candidate.getId());
+        assertThat(product.images()).filteredOn(AdminImageDto::main).extracting(AdminImageDto::id).containsExactly(candidate.getId());
         assertThat(queries.forProduct(EAN).images()).singleElement()
                 .satisfies(i -> assertThat(i.source()).isEqualTo("OPEN_FOOD_FACTS"));
     }
@@ -215,10 +290,10 @@ class ProductImageServiceTest {
 
         assertThat(product.images()).hasSize(3);
         ProductImage hr = images.findByEanAndSourceAndExternalKey(EAN, ImageSource.OPEN_FOOD_FACTS, "front_hr").orElseThrow();
-        assertThat(product.mainImageId()).isEqualTo(hr.getId());
+        assertThat(product.images()).filteredOn(AdminImageDto::main).extracting(AdminImageDto::id).containsExactly(hr.getId());
         assertThat(images.findByEanAndSourceAndExternalKey(EAN, ImageSource.OPEN_FOOD_FACTS, "front_en"))
                 .get().extracting(ProductImage::getExternalRev).isEqualTo("3900");
-        assertThat(product.offDetailsFetchedAt()).isNotNull();
+        assertThat(sets.findById(EAN)).get().extracting(ProductImageSet::getOffDetailsFetchedAt).isNotNull();
         // Nothing is copied yet, so users still see no photo.
         assertThat(queries.forProduct(EAN).images()).isEmpty();
     }
@@ -234,7 +309,7 @@ class ProductImageServiceTest {
         AdminProductDto product = admin.setStatus(adminId, markos, "HIDDEN");
 
         assertThat(product.pinned()).isFalse();
-        assertThat(product.mainImageId()).isEqualTo(anas);
+        assertThat(product.images()).filteredOn(AdminImageDto::main).extracting(AdminImageDto::id).containsExactly(anas);
         assertThat(queries.forProduct(EAN).images()).extracting(i -> i.id()).containsExactly(anas);
     }
 
@@ -274,6 +349,19 @@ class ProductImageServiceTest {
         candidate("front_en", "1129", "en");
 
         assertThat(queries.thumbnails(List.of(EAN, "5449000000996")).thumbnails()).containsOnlyKeys(EAN);
+    }
+
+    @Test
+    void thumbnailsPointAtTheSmallListFileAndFallBackToTheThumbForOlderPhotos() {
+        writes.upload(ana, EAN, jpeg());
+        assertThat(queries.thumbnails(List.of(EAN)).thumbnails().get(EAN)).endsWith("-small.webp");
+
+        ProductImage older = images.findByEanOrderByCreatedAtAsc(EAN).getFirst();
+        older.setSmallKey(null);
+        older.setThumbKey("products/" + EAN + "/older-thumb.jpg");
+        images.save(older);
+
+        assertThat(queries.thumbnails(List.of(EAN)).thumbnails().get(EAN)).endsWith("older-thumb.jpg");
     }
 
     @Test
@@ -355,7 +443,7 @@ class ProductImageServiceTest {
         });
 
         assertThat(images.findById(photo.getId())).get().extracting(ProductImage::getFullKey).isEqualTo(photo.getFullKey());
-        assertThat(publicStore.objects).containsKeys(photo.getFullKey(), photo.getThumbKey());
+        assertThat(publicStore.objects).containsKeys(photo.getFullKey(), photo.getSmallKey());
     }
 
     @Test

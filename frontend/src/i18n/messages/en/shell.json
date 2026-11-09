@@ -35,12 +35,16 @@
     "toggle": "Show or hide filters"
   },
   "search": {
-    "productsPlaceholder": "Search products...",
-    "placeholder": "Search...",
+    "productsPlaceholder": "Search products",
+    "placeholder": "Search",
     "submit": "Search",
     "clear": "Clear search",
     "scanBarcode": "Scan barcode",
-    "backToTop": "Back to top"
+    "backToTop": "Back to top",
+    "suggestions": "Search suggestions",
+    "recentSearches": "Recent searches",
+    "removeRecent": "Remove from recent searches: {query}",
+    "suggestionCount": "{count, plural, one {# suggestion} other {# suggestions}}"
   },
   "header": {
     "login": "Sign in"

@@ -12,7 +12,6 @@ export const clientEnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: httpUrl.optional(),
   NEXT_PUBLIC_UMAMI_WEBSITE_ID: z.string().optional(),
   NEXT_PUBLIC_SENTRY_DSN: httpUrl.optional(),
-  NEXT_PUBLIC_ENABLE_REACT_SCAN: optionalFlag,
   NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS: optionalFlag,
   // Not NEXT_PUBLIC, but next.config.ts inlines it through `env` for the browser Sentry init.
   SENTRY_ENVIRONMENT: z.string().optional(),
@@ -20,15 +19,13 @@ export const clientEnvSchema = z.object({
 
 type ClientEnv = z.infer<typeof clientEnvSchema>;
 
-// Next inlines only literal `process.env.NEXT_PUBLIC_X` reads into the client bundle, so each
-// key is spelled out; getters read at access time, as the raw reads they replace did.
+// Next inlines only literal `process.env.NEXT_PUBLIC_X` reads, so each key is spelled out; getters read at access time.
 function readClientEnv(): Record<keyof ClientEnv, string | undefined> {
   return {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
-    NEXT_PUBLIC_ENABLE_REACT_SCAN: process.env.NEXT_PUBLIC_ENABLE_REACT_SCAN,
     NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS:
       process.env.NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS,
     SENTRY_ENVIRONMENT: process.env.SENTRY_ENVIRONMENT,

@@ -6,7 +6,7 @@
   "client": {
     "loginTitle": "Merkliste",
     "loginDescription": "Behalte die Produkte, die du kaufst, im Blick und erfahre sofort, wenn der Preis sinkt.",
-    "searchPlaceholder": "Merkliste durchsuchen..."
+    "searchPlaceholder": "Merkliste durchsuchen"
   },
   "header": {
     "searchResultsTitle": "Suchergebnisse für „{query}“ ({count})",

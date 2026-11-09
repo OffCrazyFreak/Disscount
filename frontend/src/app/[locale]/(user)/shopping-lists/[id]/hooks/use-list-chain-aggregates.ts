@@ -11,7 +11,6 @@ import { buildChainAggregates } from "@/app/[locale]/(user)/shopping-lists/[id]/
 import { ShoppingListDto } from "@/lib/api/types";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 
-/** Every chain carrying an item still to buy, from the cached product lookups. */
 export function useListChainAggregates(shoppingList: ShoppingListDto) {
   const activeItems = useMemo(
     () => itemsToCompare(shoppingList.items),

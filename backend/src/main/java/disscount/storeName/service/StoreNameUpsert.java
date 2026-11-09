@@ -23,7 +23,7 @@ public class StoreNameUpsert {
     private final StoreNameUsageRepository usages;
     private final UserRepository users;
 
-    /** A duplicate usage insert (same user racing itself) throws and rolls back; the caller retries and finds the row. */
+    /** A duplicate usage insert (a user racing itself) throws and rolls back; the caller retries and finds the row. */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void upsert(UUID userId, String name, String normalized) {
         // Runs after the card commit, so account deletion may have won the race: take its lock and re-check.

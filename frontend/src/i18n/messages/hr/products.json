@@ -44,7 +44,7 @@
   },
   "listSelector": {
     "label": "Popis za kupnju",
-    "searchPlaceholder": "Pretraži svoje popise ili stvori novi...",
+    "searchPlaceholder": "Pretraži svoje popise ili stvori novi",
     "empty": "Upiši naziv i stvori prvi popis ovdje.",
     "existingLists": "Postojeći popisi",
     "newList": "Novi popis za kupnju",
@@ -54,8 +54,8 @@
   "listTrigger": {
     "loading": "Učitavanje...",
     "createNamed": "Stvori novi popis \"{title}\"",
-    "choose": "Odaberi popis...",
-    "createFirst": "Stvori prvi popis..."
+    "choose": "Odaberi popis",
+    "createFirst": "Stvori prvi popis"
   },
   "storeChainField": {
     "label": "Trgovina"
@@ -112,26 +112,26 @@
   "facets": {
     "stores": {
       "label": "Trgovine",
-      "placeholder": "Odaberi trgovine...",
-      "search": "Pretraži trgovine...",
+      "placeholder": "Odaberi trgovine",
+      "search": "Pretraži trgovine",
       "empty": "Nema trgovina"
     },
     "locations": {
       "label": "Lokacije",
-      "placeholder": "Odaberi lokacije...",
-      "search": "Pretraži lokacije...",
+      "placeholder": "Odaberi lokacije",
+      "search": "Pretraži lokacije",
       "empty": "Nema lokacija"
     },
     "categories": {
       "label": "Kategorije",
-      "placeholder": "Odaberi kategorije...",
-      "search": "Pretraži kategorije...",
+      "placeholder": "Odaberi kategorije",
+      "search": "Pretraži kategorije",
       "empty": "Nema kategorija"
     },
     "brands": {
       "label": "Marka",
-      "placeholder": "Odaberi marku...",
-      "search": "Pretraži marke...",
+      "placeholder": "Odaberi marku",
+      "search": "Pretraži marke",
       "empty": "Nema marki"
     },
     "count": "({count})"
@@ -167,7 +167,7 @@
     "absoluteRange": "Upiši iznos od 0,10 € do 999 €"
   },
   "list": {
-    "searchPlaceholder": "Pretraži proizvode...",
+    "searchPlaceholder": "Pretraži proizvode",
     "resultsTitle": "Rezultati pretrage za \"{query}\"",
     "resultsTitleWithCount": "Rezultati pretrage za \"{query}\" ({count}{suffix})",
     "resultsStatus": "{count, plural, =0 {Nema rezultata} one {# rezultat} few {# rezultata} other {# rezultata}}{truncated, select, yes { ili više} other {}}",
@@ -220,7 +220,7 @@
     "all": "Sve"
   },
   "storeChainSelect": {
-    "multiPlaceholder": "Odaberi trgovine..."
+    "multiPlaceholder": "Odaberi trgovine"
   },
   "addPlainItem": {
     "title": "Dodaj stavku na popis",

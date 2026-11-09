@@ -37,6 +37,8 @@
     "colEmail": "E-Mail",
     "colLastLogin": "Letzte Anmeldung",
     "colAccountType": "Kontotyp",
+    "colPhotos": "Fotos",
+    "photoCount": "{uploaded} · {deleted} gelöscht",
     "deleteTitle": "Konto löschen",
     "deleteDescription": "Möchtest du das Konto {name} wirklich löschen? Das kann nicht rückgängig gemacht werden.",
     "deleteConfirm": "Konto löschen"
@@ -49,7 +51,7 @@
     "viewAll": "Alle",
     "viewUnread": "Ungelesen",
     "loadError": "Die Nachrichten konnten nicht geladen werden.",
-    "searchPlaceholder": "Nachrichten suchen...",
+    "searchPlaceholder": "Nachrichten suchen",
     "showDeleted": "Gelöschte anzeigen",
     "colMessage": "Nachricht",
     "colSender": "Absender",

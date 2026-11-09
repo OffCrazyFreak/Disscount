@@ -14,10 +14,7 @@ const ERASURE_TIMEOUT_MS = 15_000;
 
 export type SignJwt = (payload: Record<string, unknown>) => Promise<string>;
 
-/**
- * Erases the user's backend data, as better-auth's beforeDelete hook: throwing here aborts
- * the deletion before the identity is touched, so a failure leaves the account whole.
- */
+/** As beforeDelete, throwing aborts before the identity is touched, leaving the account whole. */
 export async function eraseBackendAccount(
   userId: string,
   signJwt: SignJwt,

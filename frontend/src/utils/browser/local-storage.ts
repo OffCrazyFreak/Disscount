@@ -1,4 +1,3 @@
-// Import from here rather than ./storage directly, to stay path-stable.
 export * from "@/utils/browser/storage/core";
 export * from "@/utils/browser/storage/view-mode";
 export * from "@/utils/browser/storage/products";

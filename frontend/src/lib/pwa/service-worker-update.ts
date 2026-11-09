@@ -17,11 +17,6 @@ interface IServiceWorkerUpdateOptions {
 // The message Serwist's worker listens for when skipWaiting is off.
 const SKIP_WAITING_MESSAGE = { type: "SKIP_WAITING" } as const;
 
-/**
- * Calls onUpdateReady whenever a newer service worker is installed and waiting,
- * and hands it the function that activates that worker and reloads the page.
- * Returns a cleanup function.
- */
 export function watchServiceWorkerUpdate({
   serwist,
   serviceWorker,
@@ -51,8 +46,7 @@ export function watchServiceWorkerUpdate({
     }
   }
 
-  // Client navigations fetch no document, so the browser never looks for a new
-  // worker on its own while the tab stays open.
+  // Client navigations fetch no document, so the browser never looks for a new worker while the tab stays open.
   function checkForUpdate() {
     if (visibility.visibilityState !== "visible") return;
 
@@ -71,8 +65,7 @@ export function watchServiceWorkerUpdate({
   serwist.addEventListener("waiting", handleWaiting);
   visibility.addEventListener("visibilitychange", checkForUpdate);
 
-  // A worker left waiting by an earlier visit can finish installing before this
-  // listener exists, so its waiting event would be missed.
+  // A worker left waiting earlier can finish installing before this listener exists.
   void serviceWorker.getRegistration().then((registration) => {
     if (!isDisposed && registration?.waiting) handleWaiting();
   });

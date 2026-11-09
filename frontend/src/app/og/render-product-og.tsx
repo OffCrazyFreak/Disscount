@@ -1,8 +1,8 @@
 import { ImageResponse } from "next/og";
+import { PRODUCT_CARD_CONTENT_TYPE } from "@/app/og/product-share-image";
 import {
   BRAND,
   Cart,
-  contentType,
   loadFonts,
   OG_BACKGROUND,
   size,
@@ -12,9 +12,13 @@ import {
 const PHOTO_TIMEOUT_MS = 3_000;
 const TILE_SIDE = 490;
 const YEAR_IN_SECONDS = 31_536_000;
+// 4:4:4 because 4:2:0 washes out the wordmark; no mozjpeg, because crawlers are safest on baseline.
+const JPEG_OPTIONS = { quality: 85, chromaSubsampling: "4:4:4" } as const;
 
-// Fetched here, not by Satori, so a slow or failing bucket hits our timeout and our error path.
-async function photoDataUri(photoUrl: string): Promise<string> {
+type Sharp = (typeof import("sharp"))["default"];
+
+// Fetched here so a slow bucket hits our timeout; JPEG because Satori's docs never list WebP.
+async function photoDataUri(photoUrl: string, sharp: Sharp): Promise<string> {
   const response = await fetch(photoUrl, {
     cache: "no-store",
     signal: AbortSignal.timeout(PHOTO_TIMEOUT_MS),
@@ -24,13 +28,17 @@ async function photoDataUri(photoUrl: string): Promise<string> {
   }
 
   const bytes = Buffer.from(await response.arrayBuffer());
-  return `data:image/jpeg;base64,${bytes.toString("base64")}`;
+  const jpeg = await sharp(bytes).jpeg(JPEG_OPTIONS).toBuffer();
+  return `data:image/jpeg;base64,${jpeg.toString("base64")}`;
 }
 
 /** The photo sits in the middle because chat apps may crop a card to its centre square. */
 export default async function renderProductOg(photoUrl: string) {
+  // Loaded here so a missing binary rejects this call, not the route module, giving the brand image.
+  const { default: sharp } = await import("sharp");
+
   const [photo, fonts] = await Promise.all([
-    photoDataUri(photoUrl),
+    photoDataUri(photoUrl, sharp),
     loadFonts(),
   ]);
 
@@ -93,19 +101,23 @@ export default async function renderProductOg(photoUrl: string) {
           alt=""
           width={TILE_SIDE - 30}
           height={TILE_SIDE - 30}
+          // The full file keeps the photo's shape, and Satori stretches an img to its box by default.
+          style={{ objectFit: "contain" }}
         />
       </div>
     </div>,
     { ...size, fonts },
   );
 
-  // ImageResponse renders lazily inside its stream, so without this a failed render would
-  // be a 200 that Cloudflare caches for a year, and the caller's fallback would never run.
-  const png = await card.arrayBuffer();
+  // ImageResponse renders lazily, so a failed render would be a 200 cached for a year.
+  const png = Buffer.from(await card.arrayBuffer());
 
-  return new Response(png, {
+  // next/og only writes PNG, which reached 563 KB against WhatsApp's 600 KB preview limit.
+  const jpeg = await sharp(png).jpeg(JPEG_OPTIONS).toBuffer();
+
+  return new Response(new Uint8Array(jpeg), {
     headers: {
-      "Content-Type": contentType,
+      "Content-Type": PRODUCT_CARD_CONTENT_TYPE,
       "Cache-Control": `public, max-age=${YEAR_IN_SECONDS}, immutable`,
     },
   });

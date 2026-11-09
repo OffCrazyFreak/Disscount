@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import disscount.exceptions.ForbiddenException;
 import disscount.exceptions.NotFoundException;
-import disscount.exceptions.UnauthorizedException;
 import disscount.shoppingList.dao.ShoppingListRepository;
 import disscount.shoppingList.domain.ListAccess;
 import disscount.shoppingList.domain.ShoppingList;
@@ -17,23 +16,14 @@ import disscount.shoppingListItem.dao.ShoppingListItemRepository;
 import disscount.shoppingListItem.domain.ShoppingListItem;
 import disscount.shoppingListItem.dto.ShoppingListItemDto;
 import disscount.shoppingListItem.dto.ShoppingListItemRequest;
-import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 import disscount.util.Timestamps;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-/**
- * Items on a list, for owners and link visitors alike.
- *
- * <p>Like {@link ShoppingListService}, these run where a bearer token is optional, so each
- * method resolves the caller's access rather than assuming an owner. The list is loaded
- * through {@code findVisible}, which answers not-found for anything the caller may not see,
- * so an item endpoint cannot be used to probe for list ids either.
- */
+/** Each method resolves access; findVisible answers not-found, so item endpoints cannot probe for list ids. */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -41,15 +31,11 @@ public class ShoppingListItemService {
 
     private final ShoppingListItemRepository shoppingListItemRepository;
     private final ShoppingListRepository shoppingListRepository;
-    private final UserRepository userRepository;
     private final ShoppingListAccessService accessService;
     private final ShoppingListService shoppingListService;
     private final ShoppingListMapper shoppingListMapper;
 
-    /**
-     * Owner only. No link level grants item creation: an unbounded right to add to someone
-     * else's list waits for per-person revocation, which is version 2's job.
-     */
+    /** Owner only: an unbounded right to add to someone's list waits for per-person revocation in version 2. */
     public ShoppingListItemDto addItemToShoppingList(UUID shoppingListId, UUID userId, ShoppingListItemRequest request) {
         ShoppingList shoppingList = shoppingListService.findVisible(shoppingListId, userId);
         User actor = shoppingListService.requireWriteUser(userId);
@@ -138,16 +124,6 @@ public class ShoppingListItemService {
         touchList(list);
     }
 
-    public List<ShoppingListItemDto> getUserShoppingListItems(UUID ownerId) {
-        User owner = userRepository.findByIdAndDeletedAtIsNull(ownerId)
-                .orElseThrow(() -> new UnauthorizedException("error.user.notFound"));
-
-        return shoppingListItemRepository.findAllActiveItemsByUser(owner)
-                .stream()
-                .map(item -> shoppingListMapper.toItemDto(item, ListAccess.OWNER))
-                .collect(Collectors.toList());
-    }
-
     private ShoppingListItem findItem(ShoppingList list, UUID itemId) {
         return shoppingListItemRepository.findActiveByIdAndShoppingList(itemId, list)
                 .orElseThrow(() -> new NotFoundException("error.shoppingListItem.notFound"));
@@ -162,11 +138,7 @@ public class ShoppingListItemService {
         return access;
     }
 
-    /**
-     * SHOP is the in-the-shop level: what got ticked, which store it is coming from, and the
-     * prices captured at that moment. Everything structural is left as the server has it, so a
-     * SHOP-level caller cannot rename or resize an item by sending a fuller payload.
-     */
+    /** Structural fields stay as stored, so a SHOP caller cannot rename or resize with a fuller payload. */
     private void applyItemUpdate(ShoppingListItem item, ShoppingListItemRequest request, ListAccess access) {
         item.setIsChecked(request.getIsChecked() != null ? request.getIsChecked() : false);
         item.setChainCode(request.getChainCode());

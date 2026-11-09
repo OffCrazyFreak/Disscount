@@ -21,7 +21,6 @@ interface IOpeningStatusDetailProps {
   name: string;
   /** The tooltip line, such as "Zatvara u 21:00". */
   detail: string;
-  /** The badge. */
   children: ReactNode;
 }
 
@@ -29,11 +28,7 @@ function keepFocus(event: Event) {
   event.preventDefault();
 }
 
-/**
- * Makes the badge a button that shows when the store opens or closes: on
- * hover, on keyboard focus and on tap. One popover serves every pointer,
- * since Radix tooltips ignore taps and a touch laptop reports a fine pointer.
- */
+/** One popover serves every pointer, since Radix tooltips ignore taps and a touch laptop reports a fine pointer. */
 export default function OpeningStatusDetail({
   id,
   name,

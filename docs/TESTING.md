@@ -1,6 +1,10 @@
 # Testing
 
-The frontend uses Vitest with Testing Library, jsdom and MSW. The backend has its own JUnit suite on H2, covered in `AGENTS.md`. This file covers the frontend.
+The frontend uses Vitest with Testing Library, jsdom and MSW. The backend has its own JUnit suite on H2, plus `DoubleBootSchemaTest`, which starts the app twice on real `postgres:17-alpine` with main's `application.properties` and fails if the second start changes the schema, so `mvn -B verify` needs Docker. The rest of this file covers the frontend.
+
+## What the backend suite covers
+
+`mvn -B verify` covers digital cards, store names, account deletion, security chains, JWT decoding, JSON dates, problem responses, per-feature ownership, admin gating and the fields the frontend reads. Pricing, merging and jobs are mostly untested, so a change there needs its own check and a line in the PR saying so.
 
 ## Commands
 
@@ -11,7 +15,7 @@ Run from `frontend/`:
 - `pnpm test:coverage` writes a V8 coverage report to `frontend/coverage/`.
 - `pnpm exec vitest run --project unit` or `--project dom` runs one half; a path argument (`pnpm test src/utils`) narrows it further.
 
-Inside a git worktree, call `./node_modules/.bin/vitest run` instead, since the guard hook blocks `pnpm` there.
+`pnpm check` runs every frontend done-check in one go: route types, `tsc`, both Prettier runs, the translation catalogs, ESLint, the Fallow verdict and Vitest.
 
 ## Two projects
 
@@ -23,6 +27,13 @@ Inside a git worktree, call `./node_modules/.bin/vitest run` instead, since the 
 A hook test is a `.tsx` file even when it renders no JSX of its own, because it needs the providers.
 
 Both projects share `src/test/setup.ts`, which starts the MSW server. The `dom` project adds `src/test/setup-dom.ts`, which loads the jest-dom matchers and, after every test, unmounts what was rendered, clears cookies and web storage, and resets the API client's cached auth token and the session user it is checked against.
+
+The `dom` project raises two limits, because jsdom tests that take a few hundred milliseconds idle can blow past the defaults on a loaded machine (a busy laptop, a shared CI runner):
+
+- `testTimeout` is 30 s in `vitest.config.mts` (Vitest's default is 5 s).
+- Testing Library's `asyncUtilTimeout`, which bounds `findBy*` and Testing Library's `waitFor`, is 10 s in `setup-dom.ts` (the default is 1 s).
+
+A query that finds its element returns at once, so a larger limit only delays a test that was going to fail anyway. Do not lower them, and do not add per-file `configure` calls or `{ timeout }` options to fit a slow test: they are margins for a starved worker, not waits a test relies on. `vi.waitFor` is Vitest's own helper and keeps its 1 s default, so pass it `{ timeout }` or use Testing Library's `waitFor`. The `unit` project keeps Vitest's defaults, since Node tests have no such spread. The limits do not cure a `waitFor` hang under fake timers (see "Control time" below).
 
 The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Croatia, and a zone with an offset catches UTC-versus-local mistakes that a UTC machine would hide.
 
@@ -36,22 +47,31 @@ The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Cr
 ## Shared helpers
 
 - **`render.tsx`**: `renderWithProviders(ui, { locale, queryClient })` and `renderHookWithProviders(hook, options)` wrap the real `NextIntlClientProvider`, with the real catalogs and the Zagreb time zone, and a fresh `QueryClient` with retries off. Croatian is the default. They also set `<html lang>`, which the API client sends as `Accept-Language`.
+- **`price-fixtures.ts`**: `chain(code, min, max, avg)` and `product(chains, overrides)` build the cijene-api price responses, so a change to their shape edits one file.
+- **`http-error.ts`**: `httpError(status, data)` builds a failed Axios request.
 - **`msw-server.ts`**: the MSW server, with no handlers. Each test declares the endpoints it expects with `server.use(...)`. Any request nobody declared fails the test that made it, even when the code under test catches the network error, so a forgotten call cannot pass silently.
-- **Navigation** has no shared mock yet. `@/i18n/navigation` hooks need a mounted App Router, so a component that uses them mocks the module in its test file: `vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => "/" }))`. Move it into `src/test/` once a second test needs the same mock.
+- **`search-bar-harness.tsx`** and **`user-context-mocks.ts`**: the module mocks and state the search bar and `UserProvider` tests share. A `vi.mock` in an imported helper only applies from when the helper loads, so import these first in the test file. A test's own `vi.mock` of the same module loses to the helper's.
+- **Navigation** has no general shared mock. `@/i18n/navigation` hooks need a mounted App Router, so a component that uses them mocks the module in its test file: `vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => "/" }))`.
 
 ## Writing a test
 
+- **Every test asserts something.** `expect.requireAssertions` is on, so a test that reaches its end without one fails.
 - **Test behaviour, not structure.** Query the way a person finds things: `getByRole` with the accessible name first, then `getByLabelText`, and `getByTestId` only as a last resort. A role query that cannot find a button is usually an accessibility bug.
 - **Use real translations.** Render with the catalogs instead of mocking `useTranslations`, the way next-intl's testing guide does. Assert on the Croatian text the user sees, or pass `locale` to check another language.
 - **Click with `userEvent.setup()`**, created before the action, and `await` every interaction.
-- **Wait for async results** with `findBy*` or `waitFor`. Never wrap `render` in `act` yourself.
+- **Wait for async results** with `findBy*` or `waitFor`. Never wrap `render` in `act` yourself. A toast that sonner dismisses is removed on a 200 ms timer, so wait for it to disappear before the test ends, or the timer fires against a torn-down jsdom.
 - **Mock the network with MSW,** not axios or the service module, so the real interceptors, headers and zod parsing run. The API client sends no token, so a test needs no session handler; to assert which account Spring would act as, call `actingAs(request)` from `test/backend-identity.ts` in the handler (it applies the backend proxy's identity rules against `serverSession`, see [BACKEND-PROXY.md](BACKEND-PROXY.md#10-testing)).
-- **Mock modules only at a boundary** you cannot run: the better-auth session hook, the router, a hook that writes cookies and navigates. `vi.mock` must sit at the top of the file, and any variable its factory uses comes from `vi.hoisted`.
+- **Mock modules only at a boundary** you cannot run: the better-auth session hook, the router, a hook that writes cookies and navigates. `vi.mock` must sit at the top of the file, or of a helper the test imports first, and any variable its factory uses comes from `vi.hoisted`.
 - **Control time** with `vi.useFakeTimers({ now })` and switch back in `afterEach`. Testing Library's `waitFor` only detects Jest's fake timers and hangs under Vitest's, so flush with `act(() => vi.advanceTimersByTimeAsync(0))` instead (see `shopping-lists/hooks.test.tsx`). If user-event clicks under fake timers, pass `advanceTimers: vi.advanceTimersByTime` to `userEvent.setup`, or the click waits for a timer that never fires.
 - **Fake IndexedDB per module.** The offline tests replace `idb-keyval` with a `Map` (see `card-photo-outbox.test.ts`). That keeps unit tests fast and needs no extra dependency.
-- jsdom has no `matchMedia`, `ResizeObserver`, `IntersectionObserver`, canvas or camera. Stub what a test needs with `vi.stubGlobal`; the config restores stubs after each test.
+- **Run axe on dialogs.** `expect(await axeDialog(document.body)).toHaveNoViolations()` with `axeDialog` from `test/axe-dialog.ts` catches an untitled dialog or an unnamed button in under 100 ms. It turns off colour contrast, which jsdom cannot paint, and the page landmark rule, so pass real children rather than a stub. See `modal-shell.test.tsx`.
+- jsdom has no `matchMedia`, `ResizeObserver`, `IntersectionObserver`, canvas or camera. `setup-dom.ts` gives every `dom` test a no-op `ResizeObserver` and a `matchMedia` that answers false. For a real answer, or anything else, stub with `vi.stubGlobal`; the config restores stubs after each test.
 
 The config sets `restoreMocks`, `unstubEnvs` and `unstubGlobals`, and Vitest 5 clears mock calls before every test by default, so tests do not need their own cleanup for spies, stubs or env vars.
+
+## Backend contract
+
+`src/lib/api/schemas/backend-contract.test.ts` compares every zod schema that mirrors a backend DTO or enum with `contracts/backend-api.json`. That covers fields, types, nullability and enum values. A failure means the two sides disagree; [API-CONTRACT.md](API-CONTRACT.md) has the steps to fix it.
 
 ## What unit tests do not cover
 
@@ -96,7 +116,7 @@ It sets account, list, item, watchlist (three with a past price alert), card, co
 - Brackets and parentheses in a config glob are pattern syntax, so `include` or `exclude` patterns that name `[locale]` or `(user)` need escaping. A path passed on the command line is matched as plain text and needs nothing.
 - `vi.mock` inside a `describe` or a function throws in Vitest 5. Keep it at the top of the file.
 - jsdom 30 needs Node `^22.22.2`, `^24.15.0` or `>=26.0.0`, so Node 25 and early 24 releases cannot run the DOM tests. CI uses Node 24.
-- A `.tsx` test that renders a component with `useForm` reads the same compiled code as production, so the `useWatch` and `useFormState` rules in `AGENTS.md` matter in tests too.
+- A `.tsx` test that renders a component with `useForm` reads the same compiled code as production, so reading form state with `useWatch` and `useFormState` matters in tests too.
 - `vitest.config.mts` sets an empty inline PostCSS config. Without it, a component that imports a library stylesheet (`react-image-crop/dist/ReactCrop.css`) makes Vite load the app's Tailwind PostCSS config, which fails under Vitest.
 
 ## Sources

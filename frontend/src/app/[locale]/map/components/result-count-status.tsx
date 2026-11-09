@@ -5,10 +5,7 @@ interface IResultCountStatusProps {
   unplaced: number;
 }
 
-/**
- * Announces the result count, and how many the map cannot pin, to screen
- * readers only: the count still changes with every search or filter.
- */
+/** Screen readers only, because the count still changes with every search or filter. */
 export default function ResultCountStatus({
   shown,
   unplaced,

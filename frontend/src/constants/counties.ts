@@ -1,4 +1,3 @@
-/** Each county by its GeoNames code, the one `postcode-counties.json` stores. */
 export const COUNTY_BY_GEONAMES_CODE = {
   "01": "bjelovarBilogora",
   "02": "brodPosavina",

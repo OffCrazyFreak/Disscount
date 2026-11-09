@@ -11,8 +11,7 @@ import type {
 
 const URL = "https://www.branka.hr/prodajna-mjesta";
 
-// Each shop block holds a "street, ZIP city" text node followed by a Google
-// Maps embed, whose "!2d<lon>!3d<lat>" segment is the pin.
+// Each shop block's Google Maps embed holds the pin in its "!2d<lon>!3d<lat>" segment.
 const ADDRESS = />\s*([^<>,]+?)\s*,\s*(\d{5})\s+([^<>\s]+)\s*</g;
 const EMBED = /google\.com\/maps\/embed\?pb=[^"']*?!2d(-?[\d.]+)!3d(-?[\d.]+)/g;
 

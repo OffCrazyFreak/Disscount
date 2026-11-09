@@ -15,7 +15,6 @@ export interface IActionEmailProps {
   footer: ReactNode;
 }
 
-// Shared by every single-call-to-action transactional email.
 export default function ActionEmail({
   locale,
   preview,

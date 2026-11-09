@@ -22,10 +22,7 @@ interface IProductQuickActionsListProps {
   onClose: () => void;
 }
 
-/**
- * The four actions themselves, split from the sheet so the shell can render a
- * pending or missing-product state without this needing a product to exist.
- */
+/** Split from the sheet so the shell can render a pending or missing-product state without a product. */
 export default function ProductQuickActionsList({
   product,
   onClose,
@@ -35,10 +32,7 @@ export default function ProductQuickActionsList({
   const { openAddToList, openWatchlist } = useProductModals(product);
   const share = useProductShare(product);
 
-  // The same two reads the product row's buttons make, so the sheet and the buttons
-  // behind it never disagree about whether this product is already tracked or listed.
-  // Both are guarded on a session: /products is public and holding a card opens this
-  // sheet, so an unguarded read is a 401 plus retries for every signed-out visitor.
+  // Same reads as the row's buttons so they agree; a session guard stops 401s for signed-out visitors.
   const { data: currentUserWatchlist = [] } =
     watchlistService.useGetCurrentUserWatchlist({ enabled: !!user });
   const isInWatchlist = currentUserWatchlist.some(
@@ -46,9 +40,7 @@ export default function ProductQuickActionsList({
   );
   const isOnList = useIsOnPreselectedShoppingList(product.ean);
 
-  // The two modal actions replace this sheet's history entry rather than closing
-  // first: closeModalUrl pops with history.back(), which is async, so a push
-  // straight after it would land first and then be thrown away by the pop.
+  // Replaces its history entry, because closeModalUrl's async back() would discard a following push.
   function swapToModal(open: (options: IOpenModalOptions) => void) {
     open({ replace: true });
   }

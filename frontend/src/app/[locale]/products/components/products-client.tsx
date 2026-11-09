@@ -11,7 +11,8 @@ import ProductsResults from "@/app/[locale]/products/components/products-results
 import ProductsResultsStatus from "@/app/[locale]/products/components/products-results-status";
 import ProductsResultsTitle from "@/app/[locale]/products/components/products-results-title";
 import { Suspense } from "react";
-import SearchBar from "@/components/custom/search/search-bar";
+import ProductSearchBar from "@/components/custom/search/product-search-bar";
+import { useRecordProductSearch } from "@/components/custom/search/use-record-product-search";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import { Banner } from "@/components/custom/common/banner";
 
@@ -22,8 +23,7 @@ interface IProductsClientProps {
 export default function ProductsClient({ query }: IProductsClientProps) {
   const t = useTranslations("products");
   const pathname = usePathname();
-  // TODO(#61): take the setter here once ViewSwitcher is unparked below; until then
-  // the mode is read-only and always the default.
+  // TODO(#61): take the setter once ViewSwitcher is unparked below; the mode is read-only until then.
   const [viewMode] = useViewMode(pathname);
 
   const filters = useProductFilters();
@@ -64,16 +64,15 @@ export default function ProductsClient({ query }: IProductsClientProps) {
   const isPending = isLoading || waitingForLocations;
   const isSettled = !isPending && !isRefreshing;
   const pageError = error || locationsError;
+  useRecordProductSearch(query, isSettled && !pageError && total > 0);
   const showPartialPricesBanner =
     hasPartialPriceData && !isPending && !pageError;
 
   return (
     <div className="space-y-4">
       <Suspense fallback={<SearchBarSkeleton />}>
-        <SearchBar
+        <ProductSearchBar
           placeholder={t("list.searchPlaceholder")}
-          searchRoute={pathname}
-          clearable={true}
           allowScanning={true}
         />
       </Suspense>

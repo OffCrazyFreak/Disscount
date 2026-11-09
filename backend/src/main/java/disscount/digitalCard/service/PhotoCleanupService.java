@@ -1,5 +1,7 @@
 package disscount.digitalCard.service;
 
+import disscount.storage.PhotoStoreConfig;
+import org.springframework.beans.factory.annotation.Qualifier;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +15,7 @@ import java.util.Objects;
 import disscount.digitalCard.dao.DigitalCardPhotoRepository;
 import disscount.digitalCard.dao.PhotoCleanupRepository;
 import disscount.digitalCard.domain.PhotoCleanup;
-import disscount.digitalCard.storage.PhotoStore;
+import disscount.storage.PhotoStore;
 
 @Service
 @RequiredArgsConstructor
@@ -25,21 +27,15 @@ public class PhotoCleanupService {
 
     private final PhotoCleanupRepository repository;
     private final DigitalCardPhotoRepository photoRepository;
+    @Qualifier(PhotoStoreConfig.CARD_PHOTOS)
     private final PhotoStore photoStore;
 
-    /**
-     * Joins the caller's transaction, so the queue row commits or rolls back with the row delete.
-     * Callers pass only keys of objects that were stored, so these always queue.
-     */
+    /** Joins the caller's transaction, so the queue row commits or rolls back with the row delete. */
     public void enqueueKey(String key) {
         enqueue(key, false);
     }
 
-    /**
-     * Call before deleting the photo rows under the prefix, so a store that is off can still see them.
-     * With storage off nothing new is stored, so a prefix with no photo row left holds nothing and
-     * its row would only wait forever.
-     */
+    /** Call before deleting the photo rows under the prefix, so a store that is off can still see them. */
     public void enqueuePrefix(String prefix) {
         if (!photoStore.enabled() && !photoRepository.anyKeyStartsWith(prefix)) return;
         enqueue(prefix, true);
@@ -56,7 +52,7 @@ public class PhotoCleanupService {
         repository.findOldest(PageRequest.of(0, BATCH)).forEach(this::attempt);
     }
 
-    /** Defence in depth: PhotoKeys gives every upload fresh keys, but a queued delete of a just stored key must never fire. */
+    /** PhotoKeys gives every upload fresh keys, but a queued delete of a just stored key must never fire. */
     public void cancelKeys(Collection<String> keys) {
         List<String> real = keys.stream().filter(Objects::nonNull).toList();
         if (!real.isEmpty()) repository.removePendingKeys(real);

@@ -8,12 +8,7 @@ function msToNextMinute(now: number) {
   return 60_000 - (now % 60_000);
 }
 
-/**
- * The current time, refreshed on each minute boundary while the tab is in the
- * foreground and at once when it comes back, so an "open" badge never lags a
- * closing time. Null until mounted, because the server's clock and a
- * visitor's would render different badges.
- */
+/** Null until mounted, because the server's clock and a visitor's would render different badges. */
 export function useCurrentMinute({
   enabled = true,
 }: { enabled?: boolean } = {}): Date | null {

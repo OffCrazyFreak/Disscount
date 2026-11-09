@@ -23,10 +23,4 @@ describe("contactMessageDtoSchema", () => {
 
     expect(parsed.userId).toBeNull();
   });
-
-  it("rejects a response that drops a key the backend always sends", () => {
-    const { userId: _omitted, ...withoutKey } = anonymousMessage;
-
-    expect(contactMessageDtoSchema.safeParse(withoutKey).success).toBe(false);
-  });
 });

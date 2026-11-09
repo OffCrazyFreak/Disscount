@@ -16,10 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * A sender can only write as themselves: the sender comes from the token, never the body.
- * Reading messages back is admin only and is pinned in AdminGatingTest.
- */
+/** The sender comes from the token, never the body; reading back is admin only and pinned in AdminGatingTest. */
 class ContactMessageOwnershipTest extends FullStackTest {
 
     @Autowired ContactMessageRepository messages;

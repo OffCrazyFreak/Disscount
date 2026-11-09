@@ -25,7 +25,7 @@ flowchart TD
   Page --> Faq[FaqSection]
   Page --> Cta[FinalCtaSection]
 
-  Hero -.client island.-> HeroActions["HeroActions + SearchBar + scanner"]
+  Hero -.client island.-> HeroActions["HeroActions + ProductSearchBar + scanner"]
   Hero -.client island.-> HeroCart["HeroCart (cursor pose + CartChaser)"]
   Feat -.client island.-> FCA["FeatureCardAction (scanner / notifications)"]
   Stores -.client island.-> Marquee["StoreChainLogo (CSS marquee)"]
@@ -159,16 +159,19 @@ The page is also fully static: neither `page.tsx` nor `app/[locale]/layout.tsx` 
 
 ## Fonts
 
-Two fonts are loaded through `next/font/local` in `app/fonts/index.ts`.
+Three fonts are loaded through `next/font/local` in `app/fonts/index.ts`.
 
-| Font                   | Variable               | Role                                                   | Note                                                                                                                                       |
-| ---------------------- | ---------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Huninn                 | `--font-huninn`        | Body font (`--font-sans`)                              | Self-hosted 28 KB latin + latin-ext subset; the full Google TTF is a 4.5 MB CJK font and `next/font/google` has no fallback metrics for it |
-| Saira Stencil SemiBold | `--font-saira-stencil` | The "disscount" wordmark, stat numbers, big CTA titles | Applied via the `.font-saira-stencil-semibold` utility in `globals.css`                                                                    |
+| Font                   | Variable                   | Role                                                   | Note                                                                                                                                       |
+| ---------------------- | -------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Huninn                 | `--font-huninn`            | Body font (`--font-sans`)                              | Self-hosted 28 KB latin + latin-ext subset; the full Google TTF is a 4.5 MB CJK font and `next/font/google` has no fallback metrics for it |
+| Baseline ellipsis      | `--font-baseline-ellipsis` | U+2026 only, ahead of Huninn in `--font-sans`          | 588 byte face with one glyph, limited by `unicode-range`; see below                                                                        |
+| Saira Stencil SemiBold | `--font-saira-stencil`     | The "disscount" wordmark, stat numbers, big CTA titles | Applied via the `.font-saira-stencil-semibold` utility in `globals.css`                                                                    |
 
 The latin-ext subset is what makes Croatian diacritics (č, ć, đ, š, ž) render; a plain latin subset would show tofu.
 
 Huninn carries a `descent-override: 26%` declaration. The file, Google's original included, declares an 18% descent while its descenders reach 23%, so at fractional display scaling (125% is the common case) Chromium cut the bottom pixel row off `g`, `j`, `p` and `y` inside inputs. Keep the override if the subset is ever regenerated.
+
+Huninn draws U+2026 vertically centred and one em wide, so every CSS `text-overflow: ellipsis` showed floating dots. `app/fonts/Ellipsis/baseline-ellipsis.woff2` holds only a U+2026 glyph built from three of Huninn's own period outlines, with Huninn's metrics, so it looks like three typed periods and cannot grow a line box. A string value such as `text-overflow: "..."` is not an alternative: Chromium does not support it. Its `adjustFontFallback: false` is required: the fallback face `next/font` generates has no `unicode-range`, so it would sit ahead of Huninn and take over every character. The glyph is derived from Huninn under the SIL OFL 1.1 (`app/fonts/Ellipsis/OFL.txt`) and named "Disscount Ellipsis". Rebuild it with fontTools and the FontBuilder API if Huninn ever changes; nothing in the repository depends on the tool.
 
 ## Styling and animation
 
@@ -199,45 +202,26 @@ Every CSS animation is disabled under `@media (prefers-reduced-motion: reduce)`,
 
 | Path                                                                                    | Role                                                      |
 | --------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| `app/[locale]/(root)/page.tsx`                                                          | Composes the sections, page metadata, JSON-LD             |
-| `app/[locale]/(root)/components/sections/*`                                             | One file per section                                      |
-| `app/[locale]/(root)/components/sections/section-heading.tsx`                           | Shared heading + `TextGlow`                               |
 | `app/[locale]/(root)/components/sections/feature-card.tsx`                              | Server card; chooses `<Link>` / action / div              |
 | `app/[locale]/(root)/components/sections/feature-card-action.tsx`                       | Client action island (scanner / notifications)            |
 | `app/[locale]/(root)/components/sections/hero-cart.tsx`                                 | Client island: cursor-aware hero cart + mounts the chaser |
-| `app/[locale]/(root)/components/doodles/cart-chaser.tsx`                                | Mini cart that trails the cursor after scroll             |
-| `app/[locale]/(root)/hooks/{use-cursor-pose,use-cursor-follow}.ts`                      | Pose (flip/tilt) and lazy-follow motion values            |
 | `app/[locale]/(root)/utils/cursor.ts`, `hooks/use-fine-pointer.ts`                      | Mirror-safe tilt math; desktop-pointer matchMedia hook    |
-| `app/[locale]/(root)/data/*`                                                            | Ids and keys: landing, features, faq                      |
-| `app/[locale]/(root)/components/doodles/*`                                              | Hand-drawn animated SVGs + `DoodleCanvas`, `SparkleField` |
-| `app/[locale]/(root)/components/json-ld.tsx`                                            | Structured data `@graph`                                  |
 | `components/custom/common/{edge-fade,scroll-fade,window-scroll-fade,text-glow}.tsx`     | Shared fade/glow primitives                               |
 | `components/custom/animation/{scroll-reveal,stagger-children}.tsx`                      | Scroll-in reveal and mount stagger wrappers               |
-| `app/{sitemap,robots}.ts`, `app/{opengraph,twitter}-image.tsx`                          | SEO plumbing                                              |
-| `app/fonts/index.ts`                                                                    | Huninn + Saira Stencil                                    |
 | `context/{notifications-context,notifications-types,use-watchlist-notifications}.ts(x)` | Lifted notifications open state                           |
 
 ## Config, env, and feature flags
 
-| Name                            | Where                                    | Effect                                                       |
-| ------------------------------- | ---------------------------------------- | ------------------------------------------------------------ |
-| `NEXT_PUBLIC_APP_URL`           | JSON-LD, sitemap, robots, `metadataBase` | Absolute URLs for SEO; falls back to `http://localhost:3000` |
-| `NEXT_PUBLIC_UMAMI_WEBSITE_ID`  | `app/[locale]/layout.tsx`                | Injects the privacy-friendly analytics script when set       |
-| `NEXT_PUBLIC_ENABLE_REACT_SCAN` | `app/providers/react-scan.tsx`           | Turns on the render-profiling overlay; off by default        |
+| Name                           | Where                                    | Effect                                                       |
+| ------------------------------ | ---------------------------------------- | ------------------------------------------------------------ |
+| `NEXT_PUBLIC_APP_URL`          | JSON-LD, sitemap, robots, `metadataBase` | Absolute URLs for SEO; falls back to `http://localhost:3000` |
+| `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | `app/[locale]/layout.tsx`                | Injects the privacy-friendly analytics script when set       |
 
 There are no landing-specific secrets. All copy comes from the `landing` message namespace in every supported language.
 
 ## Libraries
 
-Versions come from `frontend/package.json`.
-
-| Library           | Version     | Use on the landing                                              |
-| ----------------- | ----------- | --------------------------------------------------------------- |
-| next              | `16.4.0`    | App Router, RSC, metadata, `next/font`, `next/og`, `next/image` |
-| react / react-dom | `19.2.8`    | Server + client components                                      |
-| motion            | `^12.23.26` | Scroll reveals, doodle path-draws, tagline cross-fade           |
-| lucide-react      | `^1.26.0`   | Feature and perk icons                                          |
-| tailwindcss       | `^4`        | Styling, CSS-first theme, keyframes                             |
+`motion` drives the scroll reveals, doodle path-draws and tagline cross-fade. The rest is the app's usual stack; versions are in `frontend/package.json`.
 
 ## Gotchas
 
@@ -245,7 +229,7 @@ The RSC boundary is the big one. Passing a non-serializable value (a Lucide icon
 
 The Tailwind spacing scale is rescaled. `globals.css` sets `--spacing: 0.2rem` (Tailwind's default is `0.25rem`), so every spacing/size utility is 0.8x: `w-64` is `205px`, not `256px`; `p-2.5` is `8px`. Any pixel math for positioning (the PWA screenshot overlap, marquee tile sizes) has to account for this. `max-w-*` uses a separate rem scale and is not affected.
 
-`useReducedMotion` from `motion` reads `matchMedia` during render, not in an effect, and can cause a server/client markup mismatch. Verified against framer-motion 12.42.2: it calls `initPrefersReducedMotion()` in the render body, which returns early when there is no `window`, so the hook returns `null` on the server and the visitor's real preference on the very first client render. Use `useReducedMotionSafe` (returns `false` until mounted) for anything that branches markup on reduced motion. Motion does not document this either way, so recheck the source on a `motion` major before assuming the wrapper can go.
+`useReducedMotion` from `motion` reads `matchMedia` during render, not in an effect, and can cause a server/client markup mismatch. Verified against framer-motion 14.9.1: it calls `initPrefersReducedMotion()` in the render body, which returns early when there is no `window`, so the hook returns `null` on the server and the visitor's real preference on the very first client render. Use `useReducedMotionSafe` (returns `false` until mounted) for anything that branches markup on reduced motion. Motion does not document this either way, so recheck the source on a `motion` major before assuming the wrapper can go.
 
 A `drop-shadow` filter on the same element as a `clip-path` gets clipped away, because the browser applies `filter` before `clip-path`. The pricing receipt's torn (zigzag) bottom needs its shadow on the outer wrapper, not on the clipped element, or the tear is invisible on the white card.
 
@@ -270,6 +254,4 @@ The exact chain count is never hardcoded. The number of covered retail chains gr
 ## Future improvements and TODOs
 
 - Wire the remaining coming-soon feature cards (Analiza potrošnje, Kartice vjernosti, Karta trgovina) once their pages ship, by uncommenting the `href` in `features.ts` and dropping `comingSoon`.
-- Consider an FAQ-driven long-tail SEO expansion and a real testimonials/social-proof section once there is content for it.
-- Revisit the notifications-from-guest flow: today it opens the login modal, but a dedicated "sign in to get price alerts" nudge could convert better.
 - If the filled-vs-outline button box-model fix is wanted app-wide, bake a transparent border into the filled button variants in `components/ui/button.tsx` instead of per-usage.

@@ -35,12 +35,16 @@
     "toggle": "Prikaži ili sakrij filtre"
   },
   "search": {
-    "productsPlaceholder": "Pretraži proizvode...",
-    "placeholder": "Pretraži...",
+    "productsPlaceholder": "Pretraži proizvode",
+    "placeholder": "Pretraži",
     "submit": "Pretraži",
     "clear": "Očisti pretragu",
     "scanBarcode": "Skeniraj barkod",
-    "backToTop": "Natrag na vrh"
+    "backToTop": "Natrag na vrh",
+    "suggestions": "Prijedlozi pretrage",
+    "recentSearches": "Nedavne pretrage",
+    "removeRecent": "Ukloni iz nedavnih pretraga: {query}",
+    "suggestionCount": "{count, plural, one {# prijedlog} few {# prijedloga} other {# prijedloga}}"
   },
   "header": {
     "login": "Prijava"

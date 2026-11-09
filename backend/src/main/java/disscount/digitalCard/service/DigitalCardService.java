@@ -1,5 +1,7 @@
 package disscount.digitalCard.service;
 
+import disscount.storage.PhotoStoreConfig;
+import org.springframework.beans.factory.annotation.Qualifier;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +15,7 @@ import disscount.digitalCard.domain.DigitalCardPhoto;
 import disscount.digitalCard.dto.CardUsedEntry;
 import disscount.digitalCard.dto.DigitalCardDto;
 import disscount.digitalCard.dto.DigitalCardRequest;
-import disscount.digitalCard.storage.PhotoStore;
+import disscount.storage.PhotoStore;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.ConflictException;
 import disscount.exceptions.NotFoundException;
@@ -48,6 +50,7 @@ public class DigitalCardService {
     private final CardUserLock userLock;
     private final StoreNameService storeNameService;
     private final PhotoCleanupService cleanup;
+    @Qualifier(PhotoStoreConfig.CARD_PHOTOS)
     private final PhotoStore photoStore;
     private final DigitalCardMapper mapper;
 
@@ -76,12 +79,7 @@ public class DigitalCardService {
         return photoStore.enabled();
     }
 
-    /**
-     * Idempotent create-or-update. The three outcomes are explicit rather than left to save():
-     * a replayed create after a delete must never resurrect the card, and another user's id
-     * must look exactly like an unused one. The user lock makes the cap check and the insert
-     * atomic and turns a concurrent replay of the same id into a plain update.
-     */
+    /** A replayed create never resurrects, another user's id looks unused; the lock makes the cap atomic. */
     public DigitalCardDto upsert(UUID userId, UUID id, DigitalCardRequest request) {
         User user = userLock.acquire(userId);
         DigitalCard card = cardRepository.findById(id).orElse(null);
@@ -151,7 +149,7 @@ public class DigitalCardService {
             if (entry == null || entry.getId() == null || entry.getUsedAt() == null) {
                 throw new BadRequestException("error.card.usedEntryIncomplete");
             }
-            // Clamped both ways so a skewed device clock cannot pin a card to the future or the distant past of every sort.
+            // Clamped both ways so a skewed device clock cannot pin a card to the top or bottom of every sort.
             LocalDateTime usedAt = toUtc(entry.getUsedAt());
             if (usedAt.isAfter(now)) usedAt = now;
             if (usedAt.isBefore(oldest)) usedAt = oldest;
@@ -167,7 +165,6 @@ public class DigitalCardService {
         storeNameService.forgetUser(userId);
     }
 
-    /** Hard deletes cards soft deleted before the cutoff; returns how many went. */
     public int purgeDeletedBefore(LocalDateTime cutoff) {
         List<DigitalCard> stale = cardRepository.findDeletedBefore(cutoff);
         for (DigitalCard card : stale) {

@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { formatDate, formatDateTime, formatDayMonth } from "@/utils/strings";
+import {
+  decodeEntities,
+  formatDate,
+  formatDateTime,
+  formatDayMonth,
+} from "@/utils/strings";
 
 const MORNING = "2026-11-03T06:05:00Z";
 
@@ -23,11 +28,6 @@ describe("Croatian numeric dates", () => {
 
   it("treats an unknown locale as Croatian, like formatLocale does", () => {
     expect(formatDate(MORNING, "xx")).toBe("03.11.2026.");
-  });
-
-  // price-history-chart-shell.tsx cuts the axis tick out of this string.
-  it("leaves a clean day and month when the chart axis cuts the year", () => {
-    expect(formatDate(MORNING, "hr").slice(0, -5)).toBe("03.11.");
   });
 });
 
@@ -52,5 +52,17 @@ describe("input that is not a date", () => {
 
   it("falls back to the original text", () => {
     expect(formatDate("not a date", "hr")).toBe("not a date");
+  });
+});
+
+describe("decoding entities", () => {
+  it("decodes named and numeric references once", () => {
+    expect(decodeEntities("A&amp;B &#8211; &#x27;c&#39; &amp;lt;")).toBe(
+      "A&B \u2013 'c' &lt;",
+    );
+  });
+
+  it("leaves a reference past the last code point as it is", () => {
+    expect(decodeEntities("a &#99999999; b")).toBe("a &#99999999; b");
   });
 });

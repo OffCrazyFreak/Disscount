@@ -16,7 +16,6 @@ interface IUseMapClicksOptions {
   coveredBottom: () => number;
 }
 
-/** Store and stack taps, and the list a same-spot stack opens. */
 export function useMapClicks({
   mapRef,
   onSelect,

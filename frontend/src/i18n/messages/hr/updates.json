@@ -6,7 +6,7 @@
   },
   "author": "Disscount tim",
   "separator": "·",
-  "searchPlaceholder": "Pretraži novosti...",
+  "searchPlaceholder": "Pretraži novosti",
   "heading": "Novosti ({count})",
   "searchHeading": "Rezultati pretrage za \"{query}\" ({count})",
   "newPost": "Nova objava",

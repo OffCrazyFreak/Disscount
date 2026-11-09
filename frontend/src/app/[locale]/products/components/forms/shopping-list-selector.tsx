@@ -52,6 +52,16 @@ export default function ShoppingListSelector({
     control: formField.control,
     name: "customListTitle",
   });
+  // Local to the popover, so a search that ends without choosing "create" never reaches the saved draft.
+  const [search, setSearch] = useState("");
+
+  function handleOpenChange(isOpen: boolean) {
+    if (isOpen)
+      setSearch(
+        formField.getValues("shoppingListId") === "new" ? customListTitle : "",
+      );
+    setOpen(isOpen);
+  }
 
   return (
     <FormField
@@ -61,7 +71,7 @@ export default function ShoppingListSelector({
         <FormItem className="flex flex-col">
           <FormLabel>{t("listSelector.label")}</FormLabel>
 
-          <Popover open={open} onOpenChange={setOpen} modal={true}>
+          <Popover open={open} onOpenChange={handleOpenChange} modal={true}>
             <PopoverTrigger asChild>
               <FormControl>
                 <ShoppingListTrigger
@@ -80,12 +90,8 @@ export default function ShoppingListSelector({
               <Command filter={commandFilter}>
                 <CommandInput
                   placeholder={t("listSelector.searchPlaceholder")}
-                  value={customListTitle}
-                  onValueChange={(title) =>
-                    formField.setValue("customListTitle", title, {
-                      shouldDirty: true,
-                    })
-                  }
+                  value={search}
+                  onValueChange={setSearch}
                 />
                 {/* List only, so the top fade stays below the search box */}
                 <div className="relative flex min-h-0 flex-col">
@@ -102,7 +108,12 @@ export default function ShoppingListSelector({
                             list={list}
                             isSelected={selectedList?.id === list.id}
                             onSelect={() => {
+                              // The list goes first, or the title rule would flag the cleared title.
                               onSelectList(list.id);
+                              formField.setValue("customListTitle", "", {
+                                shouldDirty: true,
+                                shouldValidate: true,
+                              });
                               setOpen(false);
                             }}
                           />
@@ -110,12 +121,17 @@ export default function ShoppingListSelector({
                       </CommandGroup>
                     )}
 
-                    {customListTitle.trim() && (
+                    {search.trim() && (
                       <CommandGroup heading={t("listSelector.newList")}>
                         <CreateListOption
-                          customListTitle={customListTitle}
+                          customListTitle={search}
                           onSelect={() => {
+                            // "new" goes first so the title is validated as a new list's.
                             onSelectList("new");
+                            formField.setValue("customListTitle", search, {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            });
                             setOpen(false);
                           }}
                         />
@@ -138,6 +154,18 @@ export default function ShoppingListSelector({
             </PopoverContent>
           </Popover>
           <FormMessage />
+
+          {/* The title has no input of its own, so its error shows here; `contents` adds no gap while empty. */}
+          <FormField
+            control={formField.control}
+            name="customListTitle"
+            render={() => (
+              <FormItem className="contents">
+                {/* An alert, because the trigger's aria-describedby points at the list field's message. */}
+                <FormMessage role="alert" />
+              </FormItem>
+            )}
+          />
         </FormItem>
       )}
     />

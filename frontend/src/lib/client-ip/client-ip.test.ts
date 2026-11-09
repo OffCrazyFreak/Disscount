@@ -71,8 +71,7 @@ describe("resolveClientIp", () => {
   });
 });
 
-// Mirrors proxyNextRequest in Next's app route module: reads go to the target
-// and methods are bound to it. Only Node 24's undici throws on new Request(proxy).
+// Mirrors proxyNextRequest in Next's app route module; only Node 24's undici throws on new Request(proxy).
 function nextProxy(request: Request): Request {
   return new Proxy(request, {
     get(target, prop) {

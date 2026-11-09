@@ -22,7 +22,8 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "product_image",
-        indexes = @Index(name = "idx_product_image_ean", columnList = "ean"),
+        indexes = {@Index(name = "idx_product_image_ean", columnList = "ean"),
+                @Index(name = "idx_product_image_sha256", columnList = "content_sha256")},
         uniqueConstraints = @UniqueConstraint(name = "uq_product_image_external",
                 columnNames = {"ean", "source", "external_key"}))
 @Getter
@@ -62,7 +63,7 @@ public class ProductImage {
     @Column(length = 8)
     private String lang;
 
-    /** Sanitized upload in the private bucket; Open Food Facts photos are fetched again instead. */
+    /** Sanitized upload in the private photo folder; Open Food Facts photos are fetched again instead. */
     @Column(name = "original_key", length = 255)
     private String originalKey;
 
@@ -91,8 +92,20 @@ public class ProductImage {
     @Column(name = "full_key", length = 255)
     private String fullKey;
 
+    /** The 400 pixel file of photos rendered before the 1600 pixel full one; the re-render clears it. */
     @Column(name = "thumb_key", length = 255)
     private String thumbKey;
+
+    /** The 256 pixel square list file; null on photos rendered before it existed. */
+    @Column(name = "small_key", length = 255)
+    private String smallKey;
+
+    /** Size of the full file, which keeps the photo's shape; null on photos rendered as a 1080 pixel square. */
+    @Column(name = "full_width")
+    private Integer fullWidth;
+
+    @Column(name = "full_height")
+    private Integer fullHeight;
 
     @Column(name = "rendered_at")
     private LocalDateTime renderedAt;
@@ -118,6 +131,17 @@ public class ProductImage {
     @Column(name = "flagged_at")
     private LocalDateTime flaggedAt;
 
+    /** SHA-256 of the cleaned original; blocks re-uploads of a deleted photo. Filled at deletion for older photos. */
+    @Column(name = "content_sha256", length = 64)
+    private String contentSha256;
+
+    /** Set on admin deletion; the row stays as a tombstone, so neither upload nor import brings the photo back. */
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @Column(name = "deleted_by_id")
+    private UUID deletedById;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -127,7 +151,16 @@ public class ProductImage {
     }
 
     public boolean isRendered() {
-        return fullKey != null && thumbKey != null;
+        return fullKey != null;
+    }
+
+    /** The square file lists and tiles show, until the re-render gives an older photo its small file. */
+    public String listKey() {
+        return smallKey != null ? smallKey : thumbKey;
+    }
+
+    public boolean isDeleted() {
+        return deletedAt != null;
     }
 
     public boolean hasCrop() {

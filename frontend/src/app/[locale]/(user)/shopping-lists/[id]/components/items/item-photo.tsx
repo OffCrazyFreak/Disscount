@@ -10,7 +10,6 @@ export default function ItemPhoto({ item }: IItemPhotoProps) {
   return (
     <ProductThumbnail
       ean={item.ean}
-      // Fades with the struck through name, so bought items recede together.
       className={cn("size-10 sm:size-12", item.isChecked && "opacity-50")}
     />
   );

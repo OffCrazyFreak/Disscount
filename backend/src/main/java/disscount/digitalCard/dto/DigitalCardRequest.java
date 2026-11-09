@@ -1,5 +1,6 @@
 package disscount.digitalCard.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -10,9 +11,12 @@ import java.time.LocalDate;
 @ValidDateRange
 public class DigitalCardRequest {
 
+    // PostgreSQL cannot store a NUL in text, so it would surface as a 500 instead of a form error.
+    private static final String NO_NUL = "[^\\x00]*";
+
     @NotBlank(message = "{validation.card.name.required}")
     @TrimmedLength(min = 2, max = 60, message = "{validation.card.name.length}")
-    @NoNul
+    @Pattern(regexp = NO_NUL, message = "{validation.text.invalidCharacter}")
     private String cardName;
 
     @NotNull(message = "{validation.card.type.invalid}")
@@ -21,20 +25,22 @@ public class DigitalCardRequest {
 
     @NotBlank(message = "{validation.card.store.required}")
     @TrimmedLength(min = 2, max = 60, message = "{validation.card.store.length}")
-    @NoNul
+    @Pattern(regexp = NO_NUL, message = "{validation.text.invalidCharacter}")
     private String storeName;
 
     @Size(max = 40, message = "{validation.card.chainCode.tooLong}")
     @Pattern(regexp = "^[a-z0-9_-]+$", message = "{validation.card.chainCode.invalid}")
+    @Schema(nullable = true)
     private String chainCode;
 
     @NotBlank(message = "{validation.card.code.required}")
     @Size(max = 4096, message = "{validation.card.code.tooLong}")
-    @NoNul
+    @Pattern(regexp = NO_NUL, message = "{validation.text.invalidCharacter}")
     private String codeValue;
 
     @Size(max = 4096, message = "{validation.card.barcode.tooLong}")
-    @NoNul
+    @Pattern(regexp = NO_NUL, message = "{validation.text.invalidCharacter}")
+    @Schema(nullable = true)
     private String barcodeValue;
 
     @NotNull(message = "{validation.card.codeType.invalid}")
@@ -47,18 +53,23 @@ public class DigitalCardRequest {
     private String cardColor;
 
     @Size(max = 500, message = "{validation.card.note.tooLong}")
-    @NoNul
+    @Pattern(regexp = NO_NUL, message = "{validation.text.invalidCharacter}")
+    @Schema(nullable = true)
     private String note;
 
+    @Schema(nullable = true)
     private LocalDate validFrom;
 
+    @Schema(nullable = true)
     private LocalDate expiresOn;
 
     @DecimalMin(value = "0", message = "{validation.card.balance.negative}")
     @DecimalMax(value = "1000000", message = "{validation.card.balance.tooLarge}")
     @Digits(integer = 7, fraction = 2, message = "{validation.card.balance.decimals}")
+    @Schema(nullable = true)
     private BigDecimal balance;
 
     @Pattern(regexp = "^[A-Z]{3}$", message = "{validation.card.currency.invalid}")
+    @Schema(nullable = true)
     private String balanceUnit;
 }

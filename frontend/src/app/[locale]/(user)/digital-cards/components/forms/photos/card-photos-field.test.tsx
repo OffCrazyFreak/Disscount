@@ -1,7 +1,7 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { delay } from "msw";
 import { http, HttpResponse } from "msw/http";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import CardPhotosField from "@/app/[locale]/(user)/digital-cards/components/forms/photos/card-photos-field";
 import { server } from "@/test/msw-server";
@@ -56,7 +56,7 @@ describe("CardPhotosField", () => {
 
     const { container } = renderField();
 
-    await vi.waitFor(() => expect(answered).toBe(true));
+    await waitFor(() => expect(answered).toBe(true));
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -71,7 +71,7 @@ describe("CardPhotosField", () => {
 
     const { container } = renderField();
 
-    await vi.waitFor(() => expect(answered).toBe(true));
+    await waitFor(() => expect(answered).toBe(true));
     expect(container).toBeEmptyDOMElement();
   });
 });

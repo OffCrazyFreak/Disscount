@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import AdminUserRow from "@/app/[locale]/dashboard/components/admin-user-row";
 import { adminService } from "@/lib/api";
+import { useContributorPhotoCounts } from "@/lib/api/product-images/admin-hooks";
 import { AccountType, UserDto } from "@/lib/api/schemas/auth-user";
 import { useUser } from "@/context/user-context";
 
@@ -24,6 +25,15 @@ export default function AdminUsersTable() {
   const { data: users, isLoading, isError } = adminService.useGetAllUsers();
   const updateAccountType = adminService.useUpdateUserAccountType();
   const deleteUser = adminService.useDeleteUser();
+  const { data: photoCounts } = useContributorPhotoCounts();
+  const photosByUser = new Map(
+    photoCounts?.map((count) => [count.userId, count]),
+  );
+  // Undefined until the counts load, so the row shows a dash rather than a false zero.
+  function photosOf(userId: string) {
+    if (!photoCounts) return undefined;
+    return photosByUser.get(userId) ?? { userId, uploaded: 0, deleted: 0 };
+  }
 
   const [updatingIds, setUpdatingIds] = useState<ReadonlySet<string>>(
     new Set(),
@@ -33,7 +43,7 @@ export default function AdminUsersTable() {
   function handleChange(userId: string, accountType: AccountType) {
     setUpdatingIds((ids) => new Set(ids).add(userId));
 
-    // mutateAsync, not mutate options: those fire only for the latest call, so a row saved earlier would roll back without a toast.
+    // mutateAsync, because mutate options fire only for the latest call, losing an earlier row's toast.
     updateAccountType
       .mutateAsync({ userId, accountType })
       .then(
@@ -83,6 +93,7 @@ export default function AdminUsersTable() {
               <TableHead>{t("users.colUsername")}</TableHead>
               <TableHead>{t("users.colEmail")}</TableHead>
               <TableHead>{t("users.colLastLogin")}</TableHead>
+              <TableHead>{t("users.colPhotos")}</TableHead>
               <TableHead className="w-48">
                 {t("users.colAccountType")}
               </TableHead>
@@ -97,6 +108,7 @@ export default function AdminUsersTable() {
                 user={user}
                 isSelf={user.id === currentUser?.id}
                 isUpdating={updatingIds.has(user.id)}
+                photos={photosOf(user.id)}
                 onAccountTypeChange={handleChange}
                 onDelete={setDeleteTarget}
               />

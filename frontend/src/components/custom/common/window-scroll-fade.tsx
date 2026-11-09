@@ -11,11 +11,7 @@ interface IWindowScrollFadeProps {
   className?: string;
 }
 
-/**
- * Fixed EdgeFade for full-page (window-scrolled) layouts: the window
- * counterpart to ScrollFade. Hides once the document is scrolled to that edge,
- * so the bottom fade disappears when you reach the end of the page.
- */
+/** Hides once the document is scrolled to that edge, so the bottom fade disappears at the end of the page. */
 export default function WindowScrollFade({
   side = "bottom",
   className,

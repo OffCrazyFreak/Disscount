@@ -3,10 +3,7 @@ package disscount.digitalCard.photo;
 import disscount.exceptions.BadRequestException;
 import org.springframework.stereotype.Component;
 
-/**
- * Accepts only WebP and JPEG, decided by magic bytes and never by the client's Content-Type or
- * file name, and returns freshly written bytes with all metadata removed.
- */
+/** Decided by magic bytes, never by the client's Content-Type or file name. */
 @Component
 public class PhotoValidator {
 
@@ -21,13 +18,19 @@ public class PhotoValidator {
             throw new BadRequestException("error.cardPhoto.tooLarge", String.valueOf(MAX_BYTES / 1024));
         }
 
+        ValidatedPhoto photo;
         if (isJpeg(data)) {
-            return JpegSanitizer.sanitize(data, MAX_SIDE);
+            photo = JpegSanitizer.sanitize(data, MAX_SIDE);
+        } else if (isRiff(data)) {
+            photo = WebpSanitizer.sanitize(data, MAX_SIDE);
+        } else {
+            throw new BadRequestException("error.cardPhoto.unsupportedFormat");
         }
-        if (isRiff(data)) {
-            return WebpSanitizer.sanitize(data, MAX_SIDE);
+        // The limit is on what we store, so a re-encode that grew the file is held to it too.
+        if (photo.bytes().length > MAX_BYTES) {
+            throw new BadRequestException("error.cardPhoto.tooLarge", String.valueOf(MAX_BYTES / 1024));
         }
-        throw new BadRequestException("error.cardPhoto.unsupportedFormat");
+        return photo;
     }
 
     static void requireDimensions(int width, int height, int maxSide) {

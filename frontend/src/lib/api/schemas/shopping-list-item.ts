@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { MAX_SHOPPING_LIST_ITEM_AMOUNT } from "@/constants/shopping-list";
 
-// The fields that carry no form rule, so the request and the response can share them.
 const shoppingListItemFieldsSchema = z.object({
   // Null for a plain item, typed by the user, that no store in the catalog sells.
   ean: z.string().nullable(),
@@ -28,8 +27,7 @@ export const shoppingListItemRequestSchema = shoppingListItemFieldsSchema
     isChecked: z.boolean().default(false),
   });
 
-// Not an extension of the request schema: its limits are form rules, and a row the server
-// holds (saved before a limit existed, or imported) must still parse.
+// Not the request schema, because a row saved before a limit, or imported, must still parse.
 export const shoppingListItemDtoSchema = shoppingListItemFieldsSchema.extend({
   id: z.string(),
   shoppingListId: z.string(),
@@ -37,7 +35,7 @@ export const shoppingListItemDtoSchema = shoppingListItemFieldsSchema.extend({
   amount: z.number().int(),
   isChecked: z.boolean(),
   createdAt: z.string(),
-  updatedAt: z.string().nullable(),
+  updatedAt: z.string(),
   updatedByUserId: z.string().nullable(),
 });
 

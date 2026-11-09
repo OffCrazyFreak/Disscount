@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 
 import disscount.shoppingList.domain.ShoppingList;
 import disscount.shoppingListItem.domain.ShoppingListItem;
-import disscount.user.domain.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +19,4 @@ public interface ShoppingListItemRepository extends JpaRepository<ShoppingListIt
 
     @Query("SELECT sli FROM ShoppingListItem sli WHERE sli.id = :id AND sli.shoppingList = :shoppingList AND sli.deletedAt IS NULL")
     Optional<ShoppingListItem> findActiveByIdAndShoppingList(UUID id, ShoppingList shoppingList);
-
-    @Query("SELECT sli FROM ShoppingListItem sli WHERE sli.shoppingList.owner = :user AND sli.shoppingList.deletedAt IS NULL AND sli.deletedAt IS NULL ORDER BY sli.shoppingList.updatedAt DESC, sli.createdAt ASC")
-    List<ShoppingListItem> findAllActiveItemsByUser(User user);
 }

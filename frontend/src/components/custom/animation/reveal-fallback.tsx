@@ -12,7 +12,6 @@ interface IRevealFallbackProps {
   items: ReactNode[];
 }
 
-/** The same structure as a reveal, without the motion, for reduced-motion users. */
 export default function RevealFallback({
   as: Fallback,
   itemAs: FallbackItem,

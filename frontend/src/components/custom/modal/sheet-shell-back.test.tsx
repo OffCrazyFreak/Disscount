@@ -12,8 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { renderWithProviders } from "@/test/render";
 
-// Base UI reads the platform once, at import, and registers its close watcher
-// only on Android, so both have to be in place before the drawer module loads.
+// Base UI reads the platform once at import, so both must exist before the drawer loads.
 const watchers = vi.hoisted(() => {
   // Mirrors the browser: a vetoable cancel, then destroy, then close.
   class FakeCloseWatcher extends EventTarget {
@@ -52,7 +51,6 @@ const watchers = vi.hoisted(() => {
   return FakeCloseWatcher;
 });
 
-/** The Android back gesture, delivered to the newest live watcher */
 function pressBack(cancelable = true) {
   const live = watchers.instances.filter((watcher) => !watcher.isDestroyed);
 
@@ -91,19 +89,9 @@ function Harness() {
 describe("SheetShell on Android back", () => {
   beforeEach(() => {
     watchers.instances.length = 0;
-    // jsdom has no ResizeObserver; the body's scroll fades are all it drives.
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
   });
 
-  // Radix dialogs register no close watcher, so the sheet's older one used to
-  // take the gesture and close the layer underneath.
+  // Radix dialogs register no close watcher, so the sheet's would close the layer underneath.
   it("closes a Radix dialog over a non-modal sheet before the sheet", async () => {
     const user = userEvent.setup();
     renderWithProviders(<Harness />);
@@ -139,8 +127,7 @@ describe("SheetShell on Android back", () => {
     );
   });
 
-  // Past one veto per user activation the browser closes regardless, like a
-  // native dialog, so the sheet goes and the dialog is left for the next back.
+  // Past one veto per user activation the browser closes regardless, so the sheet goes first.
   it("closes the sheet when the browser will not let the close be vetoed", async () => {
     const user = userEvent.setup();
     renderWithProviders(<Harness />);

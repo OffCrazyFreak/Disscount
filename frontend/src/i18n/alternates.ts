@@ -6,10 +6,7 @@ export function localizedUrl(href: string, locale: AppLocale): string {
   return `${appUrl()}${getPathname({ href, locale })}`;
 }
 
-/**
- * hreflang set for one page: every language plus x-default pointing at Croatian.
- * Google ignores the set unless each version lists itself and all the others.
- */
+/** Google ignores the set unless each version lists itself and all the others. */
 export function languageAlternates(href: string): Record<string, string> {
   const languages: Record<string, string> = Object.fromEntries(
     LOCALES.map((locale) => [locale, localizedUrl(href, locale)]),

@@ -1,5 +1,6 @@
 package disscount.digitalCard.service;
 
+import disscount.config.UploadLimitConfig;
 import disscount.digitalCard.dao.DigitalCardPhotoRepository;
 import disscount.digitalCard.dao.DigitalCardRepository;
 import disscount.digitalCard.dao.PhotoCleanupRepository;
@@ -9,10 +10,11 @@ import disscount.digitalCard.dto.DigitalCardDto;
 import disscount.digitalCard.dto.DigitalCardRequest;
 import disscount.digitalCard.photo.PhotoValidator;
 import disscount.digitalCard.photo.TestImages;
-import disscount.digitalCard.storage.PhotoStore;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.ConflictException;
 import disscount.exceptions.NotFoundException;
+import disscount.storage.FakePhotoStore;
+import disscount.storage.PhotoStore;
 import disscount.storeName.dao.StoreNameSuggestionRepository;
 import disscount.storeName.dao.StoreNameUsageRepository;
 import disscount.storeName.service.StoreNameService;
@@ -47,11 +49,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-// Not transactional on purpose: R2 cleanup runs after commit, so the service has to really commit.
+// Not transactional on purpose: photo cleanup runs after commit, so the service has to really commit.
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @Import({DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
-        StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, PhotoUploadRateLimiter.class,
+        StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, UploadLimitConfig.class,
         CardPhotoWriter.class, CardUserLock.class, PhotoCleanupService.class,
         DigitalCardServiceTest.StoreConfig.class})
 class DigitalCardServiceTest {

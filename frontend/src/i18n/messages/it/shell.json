@@ -35,12 +35,16 @@
     "toggle": "Mostra o nascondi i filtri"
   },
   "search": {
-    "productsPlaceholder": "Cerca prodotti...",
-    "placeholder": "Cerca...",
+    "productsPlaceholder": "Cerca prodotti",
+    "placeholder": "Cerca",
     "submit": "Cerca",
     "clear": "Cancella ricerca",
     "scanBarcode": "Scansiona codice a barre",
-    "backToTop": "Torna su"
+    "backToTop": "Torna su",
+    "suggestions": "Suggerimenti di ricerca",
+    "recentSearches": "Ricerche recenti",
+    "removeRecent": "Rimuovi dalle ricerche recenti: {query}",
+    "suggestionCount": "{count, plural, one {# suggerimento} other {# suggerimenti}}"
   },
   "header": {
     "login": "Accedi"

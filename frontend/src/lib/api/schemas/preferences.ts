@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// Pinned Store schemas
 const pinnedStoreRequestSchema = z.object({
   storeApiId: z.string().min(1),
   storeName: z.string().min(1),
@@ -18,7 +17,6 @@ export const bulkPinnedStoreRequestSchema = z.object({
   stores: z.array(pinnedStoreRequestSchema),
 });
 
-// Pinned Place schemas
 const pinnedPlaceRequestSchema = z.object({
   placeApiId: z.string().min(1),
   placeName: z.string().min(1),

@@ -1,5 +1,6 @@
 package disscount.watchlistItem.rest;
 
+import disscount.support.ApiContract;
 import disscount.support.FullStackTest;
 import disscount.user.domain.User;
 import org.junit.jupiter.api.Test;
@@ -25,14 +26,11 @@ class WatchlistWireFormatTest extends FullStackTest {
         JsonNode listed = body(mvc.perform(get("/api/watchlist/me").with(as(user))).andExpect(status().isOk())).get(0);
 
         for (JsonNode item : new JsonNode[]{created, listed}) {
-            assertThat(fieldNames(item)).containsExactlyInAnyOrder(
-                    "id", "userId", "productApiId", "watchType", "thresholdValue", "lastNotifiedAt", "createdAt", "updatedAt");
+            ApiContract.assertMatches("WatchlistItemDto", item);
             assertThat(item.get("userId").asString()).isEqualTo(user.getId().toString());
             assertThat(item.get("watchType").asString()).isEqualTo("PERCENTAGE");
             assertThat(item.get("thresholdValue").isNumber()).isTrue();
             assertThat(item.get("createdAt").asString()).matches(LOCAL_DATE_TIME);
-            // watchlistItemDtoSchema types this as a nullable string, so the key must stay present.
-            assertThat(item.get("lastNotifiedAt").isNull()).isTrue();
         }
     }
 }

@@ -301,7 +301,8 @@ for (const locale of LOCALES) {
     const tagNames = analyse(messages[key]).tags;
     for (const tag of tagNames) values[tag] = (chunks) => chunks;
     try {
-      tagNames.size ? t.rich(key, values) : t(key, values);
+      if (tagNames.size) t.rich(key, values);
+      else t(key, values);
     } catch (error) {
       translatorErrors.push(error);
     }

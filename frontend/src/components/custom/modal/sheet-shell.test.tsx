@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import SheetShell from "@/components/custom/modal/sheet-shell";
 import {
@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { axeDialog } from "@/test/axe-dialog";
 import { renderWithProviders } from "@/test/render";
 
 interface IHarnessProps {
@@ -87,20 +88,7 @@ function Harness({
 }
 
 describe("SheetShell", () => {
-  // jsdom has no ResizeObserver; the body's scroll fades are all it drives.
-  beforeEach(() => {
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
-  });
-
-  // #134: vaul never told Radix the sheet was non-modal, so the page behind was
-  // aria-hidden and Tab was trapped inside the sheet.
+  // Base UI must tell Radix the sheet is non-modal, or the page behind turns aria-hidden and Tab is trapped inside.
   it("leaves the page reachable while a non-modal sheet is open", async () => {
     const user = userEvent.setup();
     renderWithProviders(<Harness modal={false} />);
@@ -139,8 +127,20 @@ describe("SheetShell", () => {
     expect(opener).toHaveFocus();
   });
 
-  // Product quick actions open a Radix dialog from inside the sheet, so the two
-  // focus managers must not fight over the focus.
+  it("has no axe violations with the sheet and a dialog open", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<Harness withDialog modal={false} />);
+
+    await user.click(screen.getByRole("button", { name: "open sheet" }));
+    await screen.findByRole("textbox", { name: "sheet field" });
+    expect(await axeDialog(document.body)).toHaveNoViolations();
+
+    await user.click(screen.getByRole("button", { name: "open dialog" }));
+    await screen.findByRole("textbox", { name: "dialog field" });
+    expect(await axeDialog(document.body)).toHaveNoViolations();
+  });
+
+  // Quick actions open a Radix dialog from the sheet, so the two focus managers must not fight.
   it("lets a Radix dialog opened from the sheet keep the focus", async () => {
     const user = userEvent.setup();
     renderWithProviders(<Harness withDialog />);
@@ -187,8 +187,7 @@ describe("SheetShell", () => {
     expect(dialog).toContainElement(document.activeElement as HTMLElement);
   });
 
-  // A modal Radix menu sets pointer-events: none on the body, which the scrim
-  // inherits, so the press meant to close the menu lands on <html>.
+  // A modal Radix menu sets pointer-events: none on the body, so the closing press lands on <html>.
   it("closes only a Radix menu when its outside press lands on the scrim", async () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderWithProviders(<Harness withMenu />);

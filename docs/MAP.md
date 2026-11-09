@@ -2,19 +2,6 @@
 
 How `/map` finds, places and shows every store, where the coordinates come from, and what is deliberately left for later.
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [Architecture](#2-architecture)
-3. [Store locations: the sync](#3-store-locations-the-sync)
-4. [The page](#4-the-page)
-5. [Accessibility](#5-accessibility)
-6. [Key files](#6-key-files)
-7. [Config and env](#7-config-and-env)
-8. [Gotchas](#8-gotchas)
-9. [Decisions and why](#9-decisions-and-why)
-10. [Future work](#10-future-work)
-
 ## 1. Quick reference
 
 | Question                   | Answer                                                                                                                                                                |
@@ -104,16 +91,12 @@ A store every source misses is recorded as a failed attempt and retried after 7 
 
 ## 6. Key files
 
-| Area                | Files                                                                                                                                                                               |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Page and layout     | `frontend/src/app/[locale]/map/page.tsx`, `components/map-client.tsx`, `components/map-mobile-layout.tsx`, `components/map-search-bar.tsx`, `components/map-store-sheet.tsx`        |
-| List                | `components/view-sorted-list.tsx`, `components/store-list.tsx`, `components/store-list-item.tsx`, `components/store-details.tsx`                                                    |
-| Map                 | `components/store-map.tsx`, `components/store-map-view.tsx`, `components/map-store-source.tsx`, `utils/store-layers.ts`, `utils/cluster-stack.ts`, `components/same-spot-popup.tsx` |
-| View model          | `hooks/use-map-view-model.ts`, `hooks/use-visible-stores.ts`, `hooks/use-map-url-state.ts`                                                                                          |
-| Directory and route | `frontend/src/lib/store-locations/get-store-directory.ts`, `app/api/cijene/store-directory/`                                                                                        |
-| Sync                | `frontend/src/lib/store-locations/sync/`, `sources/`, `dgu/`, `geocoders/`                                                                                                          |
-| Table               | `frontend/src/db/store-location-schema.ts`, `frontend/drizzle/0003_store_locations.sql`, `0004_store_location_address.sql`                                                          |
-| Pin overrides       | `frontend/src/lib/store-locations/pin-overrides.ts`, `pin-corrections.ts`, `pin-holds.ts`                                                                                           |
+| Area                | Files                                                                                                                      |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Directory and route | `frontend/src/lib/store-locations/get-store-directory.ts`, `app/api/cijene/store-directory/`                               |
+| Sync                | `frontend/src/lib/store-locations/sync/`, `sources/`, `dgu/`, `geocoders/`                                                 |
+| Table               | `frontend/src/db/store-location-schema.ts`, `frontend/drizzle/0003_store_locations.sql`, `0004_store_location_address.sql` |
+| Pin overrides       | `frontend/src/lib/store-locations/pin-overrides.ts`, `pin-corrections.ts`, `pin-holds.ts`                                  |
 
 ## 7. Config and env
 
@@ -126,8 +109,8 @@ The migration runs through the existing `migrate` service. The map needs no CSP 
 ## 8. Gotchas
 
 - **MapLibre 6 needs WebGL2.** The constructor throws `GPUInitializationError`, but react-map-gl 8 creates the map in an effect and catches that error itself, so an error boundary never sees it. `store-map.tsx` therefore probes for a WebGL2 context before mounting the map and also listens to `onError`. Either way it shows a message with a Reload button, and the list keeps working. Chromium refuses WebGL for the rest of a session after its GPU process crashes a few times (common on some Linux driver setups), so the message says a browser restart usually helps.
-- **Blank map after context loss** (maplibre-gl-js#8690, open in 6.14): the map listens for `webglcontextlost` and offers a reload.
-- **Worker under webpack:** `setWorkerUrl(new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url))` at module scope. The 6.14 worker is one self-contained file.
+- **Blank map after context loss** (maplibre-gl-js#8690, open in 6.16): the map listens for `webglcontextlost` and offers a reload.
+- **Worker:** `setWorkerUrl(new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url))` at module scope. The 6.16 worker is one self-contained file.
 - **`after()` and the memo are per process.** A redeploy clears the memo; the lease lives in the database.
 - **A favourites save replaces the whole list.** A save built before the saved list loads, or two saves arriving out of order, erases favourites; the hook refuses clicks until the list has loaded and runs saves in one TanStack Query mutation scope, so they reach the server in click order.
 - **A ticked shopping list item may have no stored price.** An item added without choosing a chain saves no price when ticked, so the store groups fall back to today's price at the group's chain.
@@ -169,14 +152,15 @@ The owner's choices for this page and the reasons given for them, so nobody "fix
 
 The phone layout follows the owner's own spec: a floating bar (menu, store search, bell, avatar) "like Google maps"; tapping the search grows the bar into a full-screen list with history and filters, and back or close shrinks it again, animated ("morph into full page, and morph back into floating header"); a store picked on the map or in the list opens a bottom sheet with only that store's details; "Swiping the sheet down out of screen deselect the store". Use "shadcn components wherever possible".
 
-| Decision                                                                                   | Why                                                                  |
-| ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
-| The search sits in the header on the map page on phones only                               | Other pages keep the normal header                                   |
-| A round near-me button on the map, not only inside the search screen                       | Locating should not need opening the search first                    |
-| Logged out, the bar shows an icon-only login                                               | The wide "Prijava" pill left the search too narrow on a 360 px phone |
-| The store sheet fits its content and has a close X                                         | Closing must not depend on a drag                                    |
-| The back arrow is named "Natrag na kartu" for screen readers                               | Chosen wording                                                       |
-| Long text in inputs ends in "…" (`text-ellipsis` on the shared `Input` and `CommandInput`) | The search placeholder was being cut mid-word ("Trgovina, gra")      |
+| Decision                                                                                                                                                                                           | Why                                                                                                                                                                       |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The search sits in the header on the map page on phones only                                                                                                                                       | Other pages keep the normal header                                                                                                                                        |
+| A round near-me button on the map, not only inside the search screen                                                                                                                               | Locating should not need opening the search first                                                                                                                         |
+| Logged out, the bar shows an icon-only login                                                                                                                                                       | The wide "Prijava" pill left the search too narrow on a 360 px phone                                                                                                      |
+| The store sheet fits its content and has a close X                                                                                                                                                 | Closing must not depend on a drag                                                                                                                                         |
+| The back arrow is named "Natrag na kartu" for screen readers                                                                                                                                       | Chosen wording                                                                                                                                                            |
+| Long text in inputs ends in "…" (`text-ellipsis` on the shared `Input`, `CommandInput` and `AutocompleteInput`)                                                                                    | The search placeholder was being cut mid-word ("Trgovina, gra")                                                                                                           |
+| The bar shows `search.placeholder` ("Trgovina, grad ili adresa") whenever it fits the input, `search.placeholderShort` ("Trgovina") only when it does not; the accessible name stays the full text | The signed-in phone bar is too narrow for the full text, but the opened search and wider screens are not, and the fit differs per language (`useFittingText` measures it) |
 
 ### Favourite stores and store groups
 
@@ -197,5 +181,4 @@ These came out of research the owner chose to act on at once ("in progress, do i
 - Favourites whose store left the directory still take one of the 10 slots and cannot be removed from the map; drop unknown keys before counting.
 - In the grouped shopping list, changing an item's chain moves it to another section and loses keyboard focus.
 - Prices on the map and cheapest basket near me.
-- Store photos, a store type filter, an offline map.
 - An admin way to set manual pins (the table already honours them); until then, verified corrections go in the pin override list.

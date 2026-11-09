@@ -29,6 +29,14 @@ function serveUsers(users: () => UserDto[]) {
   return http.get("*/api/admin/users", () => HttpResponse.json(users()));
 }
 
+function servePhotoCounts(
+  counts: { userId: string; uploaded: number; deleted: number }[] = [],
+) {
+  return http.get("*/api/admin/product-images/contributors", () =>
+    HttpResponse.json(counts),
+  );
+}
+
 function accountTypeOf(username: string) {
   const row = screen.getByText(username).closest("tr")!;
   return within(row).getByRole("combobox");
@@ -42,21 +50,14 @@ async function chooseAdmin(username: string) {
 }
 
 describe("AdminUsersTable account type", () => {
-  // jsdom lacks the observer, pointer capture and scrolling APIs the table and Radix Select call.
+  // jsdom lacks the pointer capture and scrolling APIs the table and Radix Select call.
   beforeEach(() => {
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
     Element.prototype.hasPointerCapture ??= () => false;
     Element.prototype.releasePointerCapture ??= () => {};
     Element.prototype.scrollIntoView ??= () => {};
     vi.mocked(toast.error).mockClear();
     vi.mocked(toast.success).mockClear();
+    server.use(servePhotoCounts());
   });
 
   it("shows the chosen type while saving and keeps it once the server agrees", async () => {
@@ -143,5 +144,38 @@ describe("AdminUsersTable account type", () => {
     expect(reads).toBe(2);
     expect(accountTypeOf("ana")).toHaveTextContent("Korisnik");
     expect(accountTypeOf("ivo")).toHaveTextContent("Admin");
+  });
+});
+
+describe("AdminUsersTable photo counts", () => {
+  it("shows each user's uploaded and deleted photos, and zero for users without any", async () => {
+    server.use(
+      serveUsers(() => [ANA, IVO]),
+      servePhotoCounts([{ userId: "ana", uploaded: 5, deleted: 2 }]),
+    );
+
+    renderWithProviders(<AdminUsersTable />);
+
+    const anaRow = (await screen.findByText("ana")).closest("tr")!;
+    await waitFor(() =>
+      expect(within(anaRow).getByText("5 · 2 obrisane")).toBeInTheDocument(),
+    );
+    const ivoRow = screen.getByText("ivo").closest("tr")!;
+    expect(within(ivoRow).getByText("0 · 0 obrisanih")).toBeInTheDocument();
+  });
+
+  it("shows a dash instead of zero when the counts fail to load", async () => {
+    server.use(
+      serveUsers(() => [ANA]),
+      http.get("*/api/admin/product-images/contributors", () =>
+        HttpResponse.json({ status: 500 }, { status: 500 }),
+      ),
+    );
+
+    renderWithProviders(<AdminUsersTable />);
+
+    const anaRow = (await screen.findByText("ana")).closest("tr")!;
+    expect(within(anaRow).queryByText(/obrisan/)).toBeNull();
+    expect(within(anaRow).getAllByText("-").length).toBeGreaterThan(0);
   });
 });

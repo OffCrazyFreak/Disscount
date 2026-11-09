@@ -15,11 +15,6 @@ import useAuthGate from "@/app/[locale]/components/modal-router/use-auth-gate";
 import { useModalUrl } from "@/lib/modal/use-modal-url";
 import { useUser } from "@/context/user-context";
 
-/**
- * The single global mount point for URL-driven modals (?modal=...). Rendered
- * once in the root layout under Suspense; every modal it owns exists exactly
- * once app-wide.
- */
 export default function ModalRouter() {
   const { target } = useModalUrl();
   const {
@@ -54,10 +49,9 @@ export default function ModalRouter() {
         <EntityModalOutlet target={isEntityTarget(target) ? target : null} />
       )}
 
-      {isAuthenticated && (
-        // Keyed by account: an account switch without a sign-out in between (another
-        // tab, a session_changed refusal) must not keep the last account's form values.
-        <Fragment key={user?.id}>
+      {user && (
+        // Keyed by account, because a switch without a sign-out must not keep the last account's form values.
+        <Fragment key={user.id}>
           <OnboardingGate />
           <SettingsModalHost />
           <ShoppingListActionsOutlet target={target} />

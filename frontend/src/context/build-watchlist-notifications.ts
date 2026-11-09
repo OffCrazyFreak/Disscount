@@ -103,10 +103,9 @@ export function buildWatchlistNotifications(
       bestDiscountPercentage: bestStore.discountPercentage,
       bestCurrentPrice: bestStore.currentPrice,
       matchedThresholdCount: matchedThresholds.length,
-      isNew: true, // All frontend notifications are "new"
+      isNew: true,
     });
 
-    // Summary is based on best store per product.
     totalSavings += bestStore.discountAmount;
     totalOriginalPrice += discountInfo.avgPrice;
   });

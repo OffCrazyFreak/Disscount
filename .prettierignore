@@ -11,11 +11,6 @@
 # and fails locally on files that are not in the repo, so local and CI disagree.
 .claude/worktrees/
 
-# Skills vendored verbatim from upstream; reformatting them would turn every re-vendor
-# into a whitespace diff. The .claude/skills entries are symlinks Prettier does not follow.
-.agents/skills/brag*/
-.agents/skills/hyperframes*/
-
 # Lockfiles
 **/pnpm-lock.yaml
 
@@ -25,8 +20,14 @@
 **/*.gif
 **/*.ico
 
-# Private, secret-containing docs (also gitignored) and generated HTML
-docs/disscount_*
+# Vendored and user-level skills are replaced wholesale on update, so formatting
+# them here would only drift from their source. Skills this repo owns stay checked.
+.agents/skills/*
+!.agents/skills/document-subsystem
+!.agents/skills/worktree-checks
+!.agents/skills/ui-handover
+
+# Generated HTML
 docs/*.html
 
 # Email HTML is pasted into an ESP verbatim; Prettier rewrites quoted font names

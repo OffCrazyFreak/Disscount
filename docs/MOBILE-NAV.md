@@ -8,31 +8,6 @@ _Last verified end-to-end on 2026-07-26 against `feat/mobile-bottom-nav`, measur
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [Why this exists](#2-why-this-exists)
-3. [Anatomy of the bar](#3-anatomy-of-the-bar)
-4. [How a touch becomes an action](#4-how-a-touch-becomes-an-action)
-5. [The surface](#5-the-surface)
-6. [The products sheet](#6-the-products-sheet), and [its filters panel](#61-the-filters-panel)
-7. [SheetShell, the shared bottom sheet](#7-sheetshell-the-shared-bottom-sheet)
-8. [Long-press gestures](#8-long-press-gestures)
-9. [Live state on the bar](#9-live-state-on-the-bar)
-10. [Layout, safe areas and CSS tokens](#10-layout-safe-areas-and-css-tokens)
-11. [What the bar replaced](#11-what-the-bar-replaced)
-12. [Design decisions and the roads not taken](#12-design-decisions-and-the-roads-not-taken)
-13. [Key files](#13-key-files)
-14. [Config, env vars and flags](#14-config-env-vars-and-flags)
-15. [Libraries](#15-libraries)
-16. [Accessibility](#16-accessibility)
-17. [What's automatic vs manual](#17-whats-automatic-vs-manual)
-18. [Gotchas & lessons learned](#18-gotchas--lessons-learned)
-19. [Future improvements & TODOs](#19-future-improvements--todos)
-20. [Regression checklist](#20-regression-checklist)
-
----
-
 ## 1. Quick reference
 
 | Thing                 | Value                                                                                                                                                                                                                                         |
@@ -271,7 +246,7 @@ Five deliberate choices:
 
 Its bottom `--sheet-bottom-clearance` is the shell's, 92px at 360x740, so whatever the sheet's height its last control ends 8px above the `<nav>`.
 
-The sheet reuses `SearchBar` rather than adding a second search field. `SearchBar` gained `inputRef` for the focus, `formId` so the footer button can own its form, and `onQueryChange` so that button can tell a real search from a no-op.
+The sheet reuses `SearchBar`, through `ProductSearchBar`, rather than adding a second search field. `SearchBar` gained `inputRef` for the focus and `formId` so the footer button can own its form. That button reads the shared product draft to tell a real search from a no-op, and the field and the page's own search box mirror the same text ([SEARCH.md §10](SEARCH.md#10-gotchas--lessons-learned)).
 
 ### The `/products` exception
 
@@ -400,9 +375,8 @@ The whole ladder lives in `globals.css` as `--z-*` tokens, in descending order, 
 | 39  | `--z-bottom-nav-covered` | what `--z-bottom-nav` becomes while a modal sheet is open   |
 | 30  | `--z-fab`                | back-to-top FAB                                             |
 | 20  | `--z-header`             | header                                                      |
-| 10  | `--z-sidebar`            | desktop sidebar                                             |
 
-`--z-sidebar` is declared but not yet consumed, and `--z-overlay` only by a nested sheet: dialogs and the desktop sidebar still carry shadcn's own `z-50` and `z-10`.
+`--z-overlay` is consumed only by a nested sheet: dialogs and the desktop sidebar still carry shadcn's own `z-50` and `z-10`.
 
 Two moves made room for the bar: the FAB dropped from `z-50` (it is desktop-only and belongs under every layer) and the PWA banner from `z-50` to the install-banner token, since it opens the install sheet and must not float over it.
 
@@ -627,46 +601,6 @@ That 92px is close to the floor. 84px of it is the bar itself plus the gap it fl
 
 ---
 
-## 11. What the bar replaced
-
-The mobile `FabMenu` used to sit at `bottom-4 right-4 z-50`, exactly where the bar goes. But both of its jobs moved into the bar, so it was **redundant with it, not merely colliding**:
-
-| Old FAB job                | Where it went now                                                   |
-| -------------------------- | ------------------------------------------------------------------- |
-| Per-page create action     | a long press, plus the inline button which is now visible on mobile |
-| Back-to-top on `/products` | re-tapping the active tab                                           |
-
-| File                         | Fate                                       |
-| ---------------------------- | ------------------------------------------ |
-| `fab/fab-menu.tsx`           | deleted                                    |
-| `fab/page-fab.tsx`           | deleted                                    |
-| `fab/fab-action.ts`          | deleted                                    |
-| `fab/back-to-top-button.tsx` | kept, `BackToTopButton` still builds on it |
-| `fab/back-to-top-button.tsx` | kept, now `hidden md:block`                |
-
-Two consequences worth remembering:
-
-- The inline create buttons **had** to lose `hidden sm:inline-flex`. With the FAB gone they were the only remaining tappable path, and a long press alone would fail WCAG 2.1.1.
-- Being visible at 360px, they also had to get shorter wording there. `ResponsiveLabel` (`components/custom/common/responsive-label.tsx`) renders both strings and swaps them with `sm:hidden` / `hidden sm:inline`, so the choice is CSS and the label never changes on hydration. The control keeps the full wording in its own `aria-label`, which wins over either string as the accessible name, so nothing is lost to a screen reader.
-
-  | Button         | From `sm` up                        | Below `sm`       |
-  | -------------- | ----------------------------------- | ---------------- |
-  | Shopping lists | Stvori popis za kupnju              | Stvori popis     |
-  | Watchlist      | Stvori popis sniženih proizvoda (N) | Stvori popis (N) |
-  | Digital cards  | Dodaj karticu                       | Dodaj            |
-
-- `BackToTopButton` moved from `sm` to `md`, or widths between 640px and 768px would have shown the bar and the FAB at once.
-
-Three other bottom-anchored elements needed offsetting:
-
-| Element                          | Change                                                                                                    |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `pwa/install-banner.tsx`         | `bottom-[var(--bottom-nav-total)]` below `md`; it was directly on top of the bar at `z-50`                |
-| `providers/toaster-provider.tsx` | `mobileOffset` from `--bottom-nav-total`, or every toast landed on the bar                                |
-| dev overlays                     | Next's indicator and the React Query button both sat on the bar; see [§14](#14-config-env-vars-and-flags) |
-
----
-
 ## 12. Design decisions and the roads not taken
 
 Recorded so the next person does not re-litigate them. Each of these was an explicit choice against a real alternative.
@@ -713,57 +647,51 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 - **Adaptive tabs that change per section.** Directly against the HIG rule that a tab set stays stable.
 - **Double-tap as a distinct action.** Would force a ~250ms wait on every tap to disambiguate, making all taps feel broken. Even Spotify removed theirs.
 
+### Rules left by removing the mobile FAB
+
+The mobile FAB's jobs moved into the bar: the per-page create action became a long press plus the inline button, and back-to-top on `/products` became re-tapping the active tab.
+
+- The inline create buttons must stay visible below `sm`. They are the only tappable path, and a long press alone would fail WCAG 2.1.1.
+- Below `sm` those buttons use shorter wording through `ResponsiveLabel` (`components/custom/common/responsive-label.tsx`), which swaps two strings with CSS so the label never changes on hydration. The control's `aria-label` keeps the full wording.
+- `BackToTopButton` stays `hidden md:block`, or widths between 640px and 768px would show the bar and the button at once.
+- Anything anchored to the bottom offsets from `--bottom-nav-total`: the install banner and the toaster's `mobileOffset` do, or they land on the bar.
+
+### Accepted as they are
+
+- **The install banner and the desktop FAB share the bottom-right corner.** The layer stack decides which wins.
+- **"Obavijesti me" opens a settings tab whose toggles are all `comingSoon`.** A product decision, not a defect.
+- **Multi-line explanatory comments** stay in this subsystem: they record browser and library behaviour that no rename or split can encode.
+
 ---
 
 ## 13. Key files
 
 ### The bar
 
-| File                                                        | Role                                                                |
-| ----------------------------------------------------------- | ------------------------------------------------------------------- |
-| `components/custom/bottom-nav/bottom-nav.tsx`               | The `md:hidden` shell, composing the cells and owning the disc rule |
-| `components/custom/bottom-nav/bottom-nav-item.tsx`          | One plain cell: icon, label, badge, rings, USKORO chip              |
-| `components/custom/bottom-nav/bottom-nav-center-item.tsx`   | The raised filled search cell with its `Proizvodi` label            |
-| `components/custom/bottom-nav/bottom-nav-item-glyph.tsx`    | The icon with its badge and return chevron                          |
-| `lib/watchlist/use-watchlist-price-drop-count.ts`           | The Praćenje badge count, shared with the sidebar and header        |
-| `components/custom/bottom-nav/bottom-nav-indicator.tsx`     | The `layoutId` active disc                                          |
-| `components/custom/common/hold-progress-ring.tsx`           | One ring, shared by long-press feedback and list completion         |
-| `components/custom/bottom-nav/bottom-nav-classes.ts`        | The class strings both cell components share                        |
-| `components/custom/bottom-nav/bottom-nav-items.ts`          | The five-cell order and the long-press mapping                      |
-| `components/custom/bottom-nav/use-bottom-nav-cells.ts`      | Route and lock state per cell                                       |
-| `components/custom/bottom-nav/use-bottom-nav-activation.ts` | What a press commits to                                             |
-| `components/custom/bottom-nav/use-bottom-nav-pointer.ts`    | One pointer stream for tap, scrub and long press                    |
-| `components/custom/bottom-nav/bar-hit-test.ts`              | A point to a cell index, or none if it left the bar                 |
-| `hooks/use-long-press-timer.ts`                             | Hold timing, and the ring progress written to the pressed cell      |
-| `components/custom/bottom-nav/resolve-hold-target.ts`       | What a hold does, or null if the cell has none                      |
-| `components/custom/bottom-nav/use-active-list-progress.ts`  | Completion of the list on screen                                    |
-| `components/custom/bottom-nav/use-indicator-opacity.ts`     | The disc's fade pair, tracking the route it is coming from          |
+| File                                                     | Role                                                           |
+| -------------------------------------------------------- | -------------------------------------------------------------- |
+| `lib/watchlist/use-watchlist-price-drop-count.ts`        | The Praćenje badge count, shared with the sidebar and header   |
+| `components/custom/common/hold-progress-ring.tsx`        | One ring, shared by long-press feedback and list completion    |
+| `components/custom/bottom-nav/bottom-nav-items.ts`       | The five-cell order and the long-press mapping                 |
+| `components/custom/bottom-nav/use-bottom-nav-pointer.ts` | One pointer stream for tap, scrub and long press               |
+| `hooks/use-long-press-timer.ts`                          | Hold timing, and the ring progress written to the pressed cell |
+| `components/custom/bottom-nav/resolve-hold-target.ts`    | What a hold does, or null if the cell has none                 |
 
 ### Shared primitives
 
-| File                                              | Role                                                         |
-| ------------------------------------------------- | ------------------------------------------------------------ |
-| `constants/gestures.ts`                           | Every gesture timing and threshold, in one place             |
-| `utils/routes.ts`                                 | Route id parsing, and active-route matching on a boundary    |
-| `utils/events.ts`                                 | `isKeyboardClick`, for cells the captured pointer bypasses   |
-| `utils/long-press.ts`                             | Framework-free press timer with progress, drain and cancel   |
-| `hooks/use-long-press.ts`                         | Element-scoped Pointer Events wrapper, used by product cards |
-| `hooks/use-tab-reentry.ts`                        | Scroll to top, then return to the saved position             |
-| `hooks/use-product-modals.ts`                     | Opens the product modals, seeding the by-ean cache first     |
-| `utils/scroll.ts`                                 | `scrollWindowTo`, which honours `prefers-reduced-motion`     |
-| `utils/browser/share.ts`                          | OS share sheet, falling back to copying the link             |
-| `components/custom/modal/sheet-shell.tsx`         | The shared bottom sheet, owning layer, height and clearance  |
-| `components/custom/modal/sheet-shell-header.tsx`  | Its header band, which holds the handle's gap open           |
-| `context/products-sheet-context.tsx`              | Holds the sheet open, and whether it opens with filters      |
-| `components/custom/common/remove-icon-button.tsx` | Tooltip plus icon button, red to delete or outlined to reset |
-| `components/custom/common/notify-me-button.tsx`   | The "Obavijesti me" CTA on a teaser page                     |
+| File                                      | Role                                                         |
+| ----------------------------------------- | ------------------------------------------------------------ |
+| `constants/gestures.ts`                   | Every gesture timing and threshold, in one place             |
+| `utils/long-press.ts`                     | Framework-free press timer with progress, drain and cancel   |
+| `hooks/use-long-press.ts`                 | Element-scoped Pointer Events wrapper, used by product cards |
+| `hooks/use-product-modals.ts`             | Opens the product modals, seeding the by-ean cache first     |
+| `components/custom/modal/sheet-shell.tsx` | The shared bottom sheet, owning layer, height and clearance  |
+| `context/products-sheet-context.tsx`      | Holds the sheet open, and whether it opens with filters      |
 
 ### The products sheet's own parts
 
 | File                                                                        | Role                                                            |
 | --------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `app/[locale]/products/components/products-sheet/products-sheet.tsx`        | The sheet: field, Popusti, filters, footer                      |
-| `components/custom/search/search-nav-button.tsx`                            | A nav item as an outlined button, with its USKORO badge         |
 | `components/custom/search/search-action-button.tsx`                         | The Pretraži button itself, shared with the inline bars         |
 | `app/[locale]/products/components/products-sheet/products-sheet-submit.tsx` | Wraps it with the URL comparison, so no hook runs in the layout |
 
@@ -771,27 +699,15 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 
 | File                                                           | Role                                                             |
 | -------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `app/[locale]/products/components/product-search-filters.tsx`  | The collapsible panel in the sheet, and the hooks it owns        |
 | `app/[locale]/products/components/product-filters-bar.tsx`     | Picks the layout: inline above `md`, a button to the sheet below |
-| `app/[locale]/products/components/product-filters-row.tsx`     | The inline row of every facet, for the widths with room          |
 | `app/[locale]/products/components/product-filters-trigger.tsx` | The Filteri button, shared by the page and the sheet             |
-| `app/[locale]/products/components/clear-filters-button.tsx`    | "Očisti filtere", labelled inline and icon-only in the sheet     |
 
 ### Touched elsewhere
 
-| File                                         | Change                                                                                      |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `app/[locale]/layout.tsx`                    | Viewport flags, `min-h-svh`, wrapper padding, mounts bar and sheet                          |
-| `app/globals.css`                            | The custom properties and the compaction keyframes                                          |
-| `app/providers/providers.tsx`                | Adds `ProductsSheetProvider`                                                                |
-| `constants/navigation.ts`                    | Added `productsNavItem` and the shared `findNavItem()` lookup                               |
-| `components/custom/search/search-bar.tsx`    | Added `inputRef`, `formId`, `onQueryChange` and `onSubmitted`, plus search input attributes |
-| `hooks/use-search-navigation.ts`             | Added `isUnchanged()`, so every submit button shares one rule                               |
-| `components/custom/product/product-card.tsx` | Accepts `pressProps`                                                                        |
-| `components/custom/product/product-item/…`   | Wires the long press and the quick-actions sheet                                            |
-| `components/custom/common/coming-soon.tsx`   | Accepts an `action` slot                                                                    |
-| `app/[locale]/(user)/spending/page.tsx`      | A value prop plus the notify CTA, from when it was a bar cell                               |
-| `components/custom/header/components/…`      | `HeaderNavItem` locks on an `isLocked` prop, not on `comingSoon`                            |
+| File                      | Change                                                             |
+| ------------------------- | ------------------------------------------------------------------ |
+| `app/[locale]/layout.tsx` | Viewport flags, `min-h-svh`, wrapper padding, mounts bar and sheet |
+| `app/globals.css`         | The custom properties and the compaction keyframes                 |
 
 ---
 
@@ -806,7 +722,7 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 | `longPressEnabled` on the Kartice entry   | `bottom-nav-items.ts`                       | Gates the Kartice gesture (now `true`); the flag stays for any future teaser                                                    |
 | `Disscount_app` in `localStorage`         | `utils/browser/storage/*`                   | Unrelated to the bar now; its `bottomNavVariant` key was removed with the variants                                              |
 
-Both dev-overlay switches are read at compile time, so they need a **dev-server restart**, not just a reload. The flag follows the existing `NEXT_PUBLIC_ENABLE_REACT_SCAN` naming.
+Both dev-overlay switches are read at compile time, so they need a **dev-server restart**, not just a reload.
 
 There are no production env vars for this feature, and nothing to configure in Dokploy.
 
@@ -814,23 +730,11 @@ There are no production env vars for this feature, and nothing to configure in D
 
 ## 15. Libraries
 
-Versions read from `frontend/package.json`. **Nothing new was installed** for this feature.
+Nothing was installed for this feature; versions are in `frontend/package.json`. The ones whose role is not obvious from the name:
 
-| Library                          | Version   | Used for                                                         |
-| -------------------------------- | --------- | ---------------------------------------------------------------- |
-| `next`                           | 16.4.3    | `usePathname`, `useRouter`, the `Viewport` export                |
-| `react`                          | 19.2.8    | Pointer event types, context, refs                               |
-| `motion`                         | ^12.23.26 | The `layoutId` active disc and `useReducedMotion`                |
-| `@base-ui/react`                 | ^1.9.0    | The drawer under `SheetShell` and the mobile sidebar, with swipe |
-| `radix-ui`                       | ^1.4.3    | Dialogs, menus and tooltips opened over or inside the sheets     |
-| `lucide-react`                   | ^1.26.0   | Every icon on the bar                                            |
-| `tailwindcss`                    | ^4        | All styling, including the pill's translucent blurred surface    |
-| `sonner`                         | ^2.0.7    | Toasts, offset above the bar                                     |
-| `@tanstack/react-query`          | ^5.90.12  | The list-completion query                                        |
-| `@tanstack/react-query-devtools` | ^5.91.1   | Now behind the env flag above                                    |
-| `react-hook-form`                | ^7.90.0   | Inside `SearchBar`                                               |
-| `@yudiel/react-qr-scanner`       | ^2.6.0    | The scanner the centre long press opens                          |
-| `barcode-detector`               | ^3.2.1    | Barcode decoding for that scanner                                |
+- `@base-ui/react`: the drawer under `SheetShell` and the mobile sidebar, with swipe.
+- `radix-ui`: dialogs, menus and tooltips opened over or inside the sheets.
+- `@yudiel/react-qr-scanner` and `barcode-detector`: the scanner the centre long press opens, and its barcode decoding.
 
 There is **no shadcn bottom-navigation component** and no suitable Radix primitive, so the bar is hand-built. Radix `Tabs` would be the wrong semantics, see [§16](#16-accessibility).
 
@@ -887,6 +791,8 @@ There is **no shadcn bottom-navigation component** and no suitable Radix primiti
 ---
 
 ## 18. Gotchas & lessons learned
+
+**The on-screen keyboard closes in one place.** Next leaves focus alone on navigation and a client-side submit unmounts nothing, so a field that outlives either keeps the keyboard up. `TouchKeyboardDismissal`, mounted once in the layout, blurs the focused field on a pathname change and a frame after any form's `submit`, on `(pointer: coarse)` only. The frame is there because react-hook-form always calls `preventDefault` and validates asynchronously, so only a rendered `aria-invalid` shows a failed submit, and that field keeps the keyboard for its correction. A page change leaves a field inside a dialog alone, because a modal the navigation opened has just focused it. Shopping list quick add is not a form and keeps the keyboard on purpose, for adding several items in a row.
 
 **Cells must be `<button>`, never `<a href>`.** iOS shows a link-preview popover, a callout and a drag affordance on a long-pressed anchor, and `-webkit-touch-callout: none` is unreliable (an open Apple report against iOS 26.1). A button has none of those. SEO is unaffected because the prerendered header and sidebar already carry the crawlable links for these routes, which commit `c0c050cec155668199f7752787c7e8ece423d953` specifically preserved.
 
@@ -977,7 +883,7 @@ Together those are the general rule: a measured-overflow container can only meas
 
 **The iOS keyboard will not always open by itself.** iOS raises it only when `.focus()` runs inside the same task as the gesture, and a sheet that mounts on open, a router transition and Next's history sync are all async. The cursor lands in the field, but on iOS the user may need one tap. Android and desktop open it directly. Avoiding this needs an always-mounted field or a decoy-input hack, both traded away for one consistent sheet shell.
 
-**The keyboard does not close by itself after a search either.** react-hook-form's `handleSubmit` prevents the native submit and `router.push` never unmounts the field in the persistent header or sidebar, so nothing moved focus and the keyboard covered the results. `SearchBar` now calls `dismissTouchKeyboard()` (`components/custom/search/dismiss-touch-keyboard.ts`) on a submit by Enter or the button and on a scan result, which blurs the focused input only under `(pointer: coarse)`; a mouse or hardware keyboard keeps focus in the field. Live typing on `autoSearch` surfaces never blurs. Enter over an unchanged or empty query is the exception to the submit path on a bar with a search button: the button is disabled then, which blocks Enter's implicit submit, or once scrolled it is back to top, which leaves the form with no submit button so Enter would search again. On a touch pointer `SearchBar`'s `onKeyDown` prevents that Enter and blurs the field itself, without running the search. Because focus no longer follows the search, the products page reads the settled count out through `ProductsResultsStatus`, a polite `role="status"` region that stays mounted and empties while a search loads. A search React Query answers from cache never loads, so if its announcement matches the previous one word for word, nothing is read out.
+**The keyboard does not close by itself after a search either.** react-hook-form's `handleSubmit` prevents the native submit and `router.push` never unmounts the field in the persistent header or sidebar, so nothing moved focus and the keyboard covered the results. `SearchBar` now calls `dismissTouchKeyboard()` (`utils/browser/touch-keyboard.ts`) on a submit by Enter or the button and on a scan result, which blurs the focused input only under `(pointer: coarse)`; a mouse or hardware keyboard keeps focus in the field. Live typing on `autoSearch` surfaces never blurs. Enter over an unchanged or empty query is the exception to the submit path on a bar with a search button: the button is disabled then, which blocks Enter's implicit submit, or once scrolled it is back to top, which leaves the form with no submit button so Enter would search again. On a touch pointer `SearchBar`'s `onKeyDown` prevents that Enter and blurs the field itself, without running the search. Because focus no longer follows the search, the products page reads the settled count out through `ProductsResultsStatus`, a polite `role="status"` region that stays mounted and empties while a search loads. A search React Query answers from cache never loads, so if its announcement matches the previous one word for word, nothing is read out.
 
 **`scrollToTop` never honoured reduced motion.** Its comment claimed it did, but browsers apply `prefers-reduced-motion` to the CSS `scroll-behavior` property and never to the JS `behavior` option. `scrollWindowTo` now chooses explicitly.
 
@@ -1007,15 +913,6 @@ Together those are the general rule: a measured-overflow container can only meas
 
 ## 19. Future improvements & TODOs
 
-### On the Disscount Roadmap board, in Backlog
-
-| Item                                                    | Domain         | Notes                                                                                                                                                      |
-| ------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Price-drop pulse on the Praćenje icon                   | Watchlist      | One 300ms scale pulse when a watched price drops while the app is open, at most once a minute, off under reduced motion. Uses `useWatchlistPriceDropCount` |
-| Selection mode: the bar becomes a contextual action bar | Shopping Lists | On `/shopping-lists/[id]`, long-press an item to get "N odabrano" plus move, delete, mark bought, and "nađi najjeftiniji lanac za ovih N"                  |
-
-Selection mode is the one with real product upside: costing a subset of a list across chains is something no competing Croatian price app does. It is also its own feature, needing selection state and back-button semantics, so it is a separate PR rather than a line item.
-
 ### Deferred pending a look on real hardware
 
 - **Strip the mobile header** to brand plus account. `HeaderNav` is already hidden below `md` and `HeaderSearch` below `lg`, so this is mostly about not having two nav landmarks competing at 360px.
@@ -1030,44 +927,11 @@ Selection mode is the one with real product upside: costing a subset of a list a
 
 - **An accessory strip above the bar**, the iOS 26 `tabViewBottomAccessory` pattern: the active list's name, its ticked count and a running total, which expands into the list. The highest-value idea from the research, and nothing in this category has it. It needs a product answer for what makes a list "active", which is why the completion ring shipped instead.
 - **Let `ModalShell` present as a sheet below `md`.** Its `TODO(responsive-drawer)` predates `SheetShell`, and now that the shell owns its geometry the remaining gap is the prop shapes: `ModalShell` composes a footer from flat slot props (`submitLabel`, `onSubmit`, ...) while `SheetShell` takes only a `footer` node, and it also has `size`, `preventClose`, `hero`, `dirty` and a staggered body reveal that the sheet has no equivalent for.
-- **Instrument the bar in Umami**: per-cell taps plus the sidebar open rate, before and after. If sidebar opens do not drop, the bar is not actually absorbing navigation and the extra chrome is not paying for itself.
-- **A peek menu for the long press**, a capsule rising above the tab that you slide onto to commit. More discoverable than the current fire-on-timer, and it gives cancellation for free.
-- **Decide whether Pretraži should be the apply gate for the filters.** Today every pick applies itself, so the button only ever answers for the query. Batching the picks would make the sheet a form you fill and submit, at the cost of the live filtering behind it. A product call, not a technical one.
-- **Close the double-submit window.** Typing a new query on `/products?q=...` leaves Pretraži live until the navigation lands, so it can be pressed twice. Harmless today because the second press is idempotent, but a shared pending-navigation flag would tidy it.
-- **View transitions between tabs.** Two board items already exist for `<ViewTransition>` and `<Activity>` boundaries under Design System & Shell; a tab bar is a natural place to use them.
-- **Finish the layer scale.** `--z-overlay` and `--z-sidebar` are declared but unconsumed: dialogs, popovers and the desktop sidebar still carry shadcn's own `z-50` and `z-10`. Either migrate them or drop the two tokens, because a declared rung nothing stands on is worse than no rung.
-- **Clamp the active disc.** It is a hardcoded 3.6rem. That clears the pill by 7.5px at 320px, so there is headroom today, but a longer label in a future locale would need a `min()` against the cell width rather than a fixed size.
+- **Finish the layer scale.** `--z-overlay` is consumed only by a nested sheet: dialogs, popovers and the desktop sidebar still carry shadcn's own `z-50` and `z-10`. Either migrate them or drop the token, because a declared rung nothing stands on is worse than no rung.
 - **Finish the off-route filters guard.** A facet pick from the sheet is routed to `/products` (`product-search-filters.tsx`), but `clearFilters` in `use-filter-params.ts` still does a `router.replace(pathname)` on whatever route the sheet is open over, and the displayed selections and the active count read that route's own search params. No shipped route carries `chain`, `location`, `category` or `brand`, so nothing misbehaves today, but the guard is one-sided and the next route that takes any of those params would expose it.
 - **Consider deriving the products sheet's close rule** instead of running it in an effect on `pathname`. Today the sheet paints one frame on the new route before closing, which is cosmetic. The obvious derived alternative reopens the sheet on a Back navigation, so it needs the open flag cleared as well as derived, not simply swapped.
 
-### Settled in the 2026-07 multi-tool review
-
-A four-reviewer sweep (Claude Opus 5 subagents, Codex `gpt-5.6-sol`, CodeRabbit CLI, plus CodeRabbit's passes on PR #125) produced 71 findings against this branch. What it changed, and what it deliberately did not:
-
-**Fixed, and worth knowing about**
-
-| Was                                                          | Now                                                                                                                               |
-| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| `decodeURIComponent` unguarded in root-layout chrome         | Guarded. `/products/50%` used to throw `URIError` during every page's render and white-screen the whole app shell                 |
-| The two gated quick actions closed the sheet, then pushed    | They replace the history entry. `closeModalUrl` pops with an async `history.back()`, so the push landed first and was thrown away |
-| A cold `?modal=product-actions` link rendered nothing        | The shell always renders: skeleton while pending, a message plus a close button when the product never resolves                   |
-| The bar's gesture accepted any pointer                       | Bound to the initiating `pointerId`. A second finger's release used to commit the cell under IT and cancel the real gesture       |
-| The hold ring was derived separately from the hold itself    | `resolveHoldTarget` answers once and the bar passes `hasHold` down                                                                |
-| Locked cells used the `disabled` attribute                   | `aria-disabled` plus `tabIndex={-1}`, because a disabled control swallows pointer events and a scrub could not start on one       |
-| The FAB sat below `--z-scroll-fade`                          | Raised to `--z-fab` (42). It was painting under an always-mounted 89.6px gradient exactly when visible                            |
-| The FAB was 44.8px with a 19.2px inset                       | Material's 56px / 24px / 24px, in explicit rem, because `--spacing: 0.2rem` made the utilities lie                                |
-| Every `navigator.share` rejection read as a dismissal        | Only `AbortError` and `InvalidStateError` do; the rest fall through to the clipboard                                              |
-| Six surfaces each derived the coming-soon rule               | One `isNavItemLocked`                                                                                                             |
-| Seven places built a `/products/<ean>` path, three unencoded | One `productPath`                                                                                                                 |
-
-**Deliberately not fixed**
-
-- **Resolved: poppers inside a sheet.** A facet select used to be collision-positioned low in the products sheet and could land under the pill, trapped in a `z-44` stacking context its own `z-50` could not escape. Facet selects below `md` now expand in flow instead of opening a popper, so nothing is positioned inside the sheet at all. Any future popper inside a sheet would still hit the same stacking limit.
-- **The install banner and the desktop FAB share the bottom-right corner.** The ladder decides which wins now, rather than paint order. Accepted as-is.
-- **"Obavijesti me" opens a settings tab whose toggles are all `comingSoon`.** A product decision, not a defect, and out of scope for a review pass.
-- **Multi-line explanatory comments.** AGENTS.md discourages them and this subsystem is full of them. Kept deliberately: they record browser and library behaviour that no rename or split can encode, and this document exists for the rest.
-
-**Still open**
+### Still open
 
 - **Relevance ranking only ever sorts one page.** `sortProductsByRelevance` can reorder only what the capped request returned, so a better match beyond the limit cannot surface. Blocked on the price API: raised upstream on [senko/cijene-api#65](https://github.com/senko/cijene-api/issues/65#issuecomment-5083698321), asking for relevance-ordered results before the limit, plus `offset` and `total` so a client can rank across the whole set.
 - **`viewportFit: "cover"` beyond the bottom inset.** The bar now consumes the horizontal insets, which are 0 except on a notched device in landscape, but the fixed header and side controls have not been checked on real hardware.
@@ -1076,82 +940,15 @@ A four-reviewer sweep (Claude Opus 5 subagents, Codex `gpt-5.6-sol`, CodeRabbit 
 
 ## 20. Regression checklist
 
-Run these after changing the bar, a gesture or the shared sheet. Do it at **360x740** signed in, and repeat the geometry checks at **320px**. Verify in a browser: static analysis says nothing about a gesture.
+Run these on a real phone after changing the bar, a gesture or the shared sheet, signed in at **360x740**, and repeat the geometry checks at **320px**. Tests and [the gotchas](#18-gotchas--lessons-learned) carry the rest; static analysis says nothing about a gesture.
 
-Carried over from the build spec this feature was written against, which is why it reads as requirements rather than as description.
-
-### The bar
-
-- [ ] Present under 768px, absent at 768px and above, in the prerendered HTML with no shift on hydration
 - [ ] 72px of content plus the safe-area inset, with the page's last content and the footer both fully reachable
-- [ ] Five cells, correct order, correct labels, all labels visible
-- [ ] Each cell at least 48px in both axes
-- [ ] The active disc never touches the pill's inner edge on the first or last cell
-- [ ] Scrolling eases the surface alpha without changing the bar's outer height, and the labels stay fully visible throughout
-- [ ] Scrolling does **not** dim the icons, the badge or the disc
-- [ ] The bar never hides
-
-### Navigation and gestures
-
-- [ ] Tapping a cell navigates, and the disc slides rather than reappearing
-- [ ] The centre cell lights up on the products list and carries `aria-current` there
-- [ ] Re-tapping the active tab scrolls to top, a second tap returns, and a chevron shows in between
-- [ ] Scrubbing across the bar **moves the disc** and commits the cell released on
-- [ ] Pressing a cell, dragging off the bar and releasing commits nothing, and the disc returns to the route's cell
+- [ ] Each cell at least 48px in both axes, and the active disc never touches the pill's inner edge on the first or last cell
+- [ ] Scrubbing across the bar moves the disc and commits the cell released on; dragging off the bar commits nothing
 - [ ] A press starting within 16px of either screen edge does nothing
-- [ ] An ordinary tap draws **no** ring at all
-- [ ] A hold shows the ring begin to fill and fires at roughly 450ms
-- [ ] Moving more than 10px during a hold **drains** the ring, retracting rather than vanishing, and fires nothing
-- [ ] Every hold opens its target, and each target is also reachable by a visible control
-- [ ] Holding Praćenje does nothing off a product page; holding Popisi opens the new-list modal there and the add-to-list modal on a product page
-- [ ] Teaser cells take no tap, no focus, no scrub tint and no hold as a non-admin, and do as an admin
-- [ ] Signed out, the protected cells still navigate and the pages explain themselves
-
-### The products sheet
-
-- [ ] Opens above the bar with the field focused and the filters collapsed
-- [ ] The page behind it scrolls and takes clicks while it is open
-- [ ] The centre cell closes it, and its glyph and accessible name change while open
-- [ ] Swiping the handle down closes it, including a press starting on the sheet's own padding
-- [ ] Escape closes it
-- [ ] Pretraži sits at the bottom whatever the sheet's height, and Enter in the field submits
-- [ ] Pretraži is disabled when the field is empty and when it matches the current query, with no flash after clearing
-- [ ] Submitting from another route lands on the products list and closes the sheet
-- [ ] Scanning a barcode closes it
-- [ ] Popusti is present, disabled, badged, and enabled for an admin
-
-### The filters
-
-- [ ] Filteri expands in place and the sheet grows upward; past 85% of the viewport the body scrolls
-- [ ] Dragging the sheet up 40px expands it mid-drag; a 20px nudge does nothing
-- [ ] The products page's Filteri button opens the sheet already expanded, with the field unfocused
-- [ ] Picking a facet on the products list updates the URL and the list behind it, live, without closing the sheet
-- [ ] Picking a facet from another route navigates to the products list carrying both the facet and whatever was typed
-- [ ] Clearing the filters and then picking one option does not resurrect the cleared ones
-- [ ] Očisti filtere is present but disabled with no filters set, and its label remains visible below `md`
+- [ ] A hold fires at roughly 450ms; moving more than 10px during a hold drains the ring and fires nothing
+- [ ] Swiping the products sheet's handle down closes it, including a press starting on the sheet's own padding
 - [ ] A facet expands its list in place, scrolls by touch, and stays clear of the keyboard once you type
-- [ ] Typing `baska` into a facet offers `Baška`, and reopening a facet does not leave it still filtered
-
-### Sheets and layers
-
-- [ ] All five sheets end the same distance above the bar, and none covers it
-- [ ] Each sheet caps at 85% of the **dynamic** viewport, not 80% of the static one
-- [ ] The gap below the grab handle is 16px in all five, including those with a hidden title
-- [ ] A modal sheet's scrim covers the bar, leaving it inert underneath
-- [ ] With the products or map store sheet open, Tab and a screen reader reach the page and the bar, and nothing behind the sheet is `aria-hidden`
-- [ ] Escape in a dialog or menu opened over a sheet or the sidebar closes only that layer
+- [ ] All five sheets end the same distance above the bar and cap at 85% of the dynamic viewport
 - [ ] On Android Chrome, with the products sheet open, open a dialog from the list behind it: back closes the dialog first, then the sheet
-- [ ] The install instructions sheet shows its description, closes on an outside press, and has a visible close control
-- [ ] No sheet's own code sets a layer, a bottom padding or a safe-area value
-
-### Elsewhere on the page
-
-- [ ] Toasts, the install banner and any dev overlay all clear the bar
-- [ ] The create buttons are visible below `sm`, show their icon on a touch device, and use their short wording
 - [ ] Under `prefers-reduced-motion` the disc, the compaction, the glyph swap and the scrub swell are all instant
-
-### Housekeeping
-
-- [ ] Formatted, type-clean and lint-clean per `AGENTS.md`, with no new lint warnings
-- [ ] No file grew past the size `AGENTS.md` asks for
-- [ ] No multi-line explanatory comment survived where a rename or a split would remove the need for it

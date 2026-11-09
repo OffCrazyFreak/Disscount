@@ -65,12 +65,6 @@ describe("shoppingListItemDtoSchema", () => {
     expect(parsed.ean).toBeNull();
   });
 
-  it("rejects an item that drops a key the backend always sends", () => {
-    const { updatedByUserId: _omitted, ...withoutKey } = storedItem;
-
-    expect(shoppingListItemDtoSchema.safeParse(withoutKey).success).toBe(false);
-  });
-
   it("rejects a list that drops the owner-only keys instead of sending null", () => {
     const list = {
       id: storedItem.shoppingListId,

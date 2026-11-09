@@ -5,7 +5,7 @@ import {
   onlineManager,
   QueryClient,
 } from "@tanstack/react-query";
-import { AxiosError, CanceledError, type AxiosResponse } from "axios";
+import { AxiosError, CanceledError } from "axios";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
@@ -14,15 +14,9 @@ import {
   isUnexpectedFailure,
   shouldRetryQuery,
 } from "@/lib/api/query-client-defaults";
+import { httpError } from "@/test/http-error";
 
 vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
-
-function httpError(status: number) {
-  return new AxiosError("x", "ERR", undefined, undefined, {
-    status,
-    data: {},
-  } as AxiosResponse);
-}
 
 const networkFailure = () => new AxiosError("Network Error", "ERR_NETWORK");
 const parseFailure = () => z.object({ id: z.number() }).safeParse({}).error;
@@ -130,6 +124,44 @@ describe("createQueryClientConfig", () => {
 
     await client.fetchQuery({ queryKey, queryFn: () => "ok", staleTime: 0 });
     await fail();
+    expect(Sentry.captureException).toHaveBeenCalledTimes(2);
+  });
+
+  it.each([
+    [502, "backend_unavailable"],
+    [504, "backend_timeout"],
+    [503, "auth_unavailable"],
+  ])(
+    "leaves a %i the proxy reported itself (%s) to the server event",
+    async (status, code) => {
+      const client = new QueryClient(createQueryClientConfig());
+
+      await client
+        .fetchQuery({
+          queryKey: ["shoppingLists"],
+          queryFn: () => Promise.reject(httpError(status, { status, code })),
+          retry: false,
+        })
+        .catch(() => undefined);
+
+      expect(Sentry.captureException).not.toHaveBeenCalled();
+    },
+  );
+
+  it("still reports a 502 from Spring or the Cijene proxy", async () => {
+    const client = new QueryClient(createQueryClientConfig());
+    const fail = (data: { code?: string }) =>
+      client
+        .fetchQuery({
+          queryKey: ["products", data.code ?? "spring"],
+          queryFn: () => Promise.reject(httpError(502, data)),
+          retry: false,
+        })
+        .catch(() => undefined);
+
+    await fail({});
+    await fail({ code: "upstream_unavailable" });
+
     expect(Sentry.captureException).toHaveBeenCalledTimes(2);
   });
 

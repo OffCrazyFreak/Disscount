@@ -23,7 +23,6 @@ export interface IOpeningStatusText {
   label: string;
   /** The tooltip line, such as "Zatvara u 21:00"; null when there is no time to name. */
   detail: string | null;
-  /** The word and the detail together, for screen readers and live regions. */
   name: string;
 }
 
@@ -39,7 +38,6 @@ function clockOf(time: string): string {
   return time.replace(/^0(?=\d)/, "");
 }
 
-/** The badge word, its tooltip line and its full accessible name for a status. */
 export function useOpeningStatusText() {
   const t = useTranslations("storeHours");
 
@@ -59,7 +57,8 @@ export function useOpeningStatusText() {
 
     if (!moment) return { label, detail: null, name: label };
 
-    const time = clockOf(moment.time);
+    // The catalogs turn "midnight" into each language's own phrase, such as "u ponoć".
+    const time = moment.time === "24:00" ? "midnight" : clockOf(moment.time);
     const when = t("when", {
       day: dayOf(moment.date, zagrebClock(now).date),
       time,

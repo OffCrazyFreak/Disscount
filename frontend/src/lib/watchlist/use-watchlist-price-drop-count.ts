@@ -28,11 +28,7 @@ interface IWatchlistPriceDrops {
   isSettled: boolean;
 }
 
-/**
- * Watched products whose best price fell since the user last opened /watchlist on this
- * device. Opening the page clears it. A stand-in until the server-side inbox (#222) can
- * answer with an unseen count shared across devices.
- */
+/** A stand-in until the server-side inbox (#222) can answer with an unseen count shared across devices. */
 export function useWatchlistPriceDropCount(): IWatchlistPriceDrops {
   const { user, accountUser, isAuthenticated } = useUser();
   const pathname = usePathname();
@@ -51,8 +47,7 @@ export function useWatchlistPriceDropCount(): IWatchlistPriceDrops {
   const isPageVisible = usePageVisible();
   const isVisit = isOnWatchlist && isPageVisible;
 
-  // A failed preferences fetch leaves pinnedStores unset, which would read as "every
-  // chain" and rebase away drops the user has not seen yet.
+  // A failed preferences fetch leaves pinnedStores unset, reading as "every chain" and rebasing unseen drops.
   const isScopeKnown = Array.isArray(accountUser?.pinnedStores);
 
   const snapshot = useSyncExternalStore(
@@ -71,8 +66,7 @@ export function useWatchlistPriceDropCount(): IWatchlistPriceDrops {
     if (price !== null) currentPrices[item.productApiId] = price;
   });
 
-  // Primitive keys, so the write runs only when this tab's own data changes. Re-running
-  // on another tab's write would let two tabs that disagree overwrite each other forever.
+  // Primitive keys so only this tab's data writes; otherwise two disagreeing tabs overwrite each other forever.
   const pricesKey = JSON.stringify(currentPrices);
   const eansKey = groupedWatchlistItems
     .map((item) => item.productApiId)
@@ -80,8 +74,7 @@ export function useWatchlistPriceDropCount(): IWatchlistPriceDrops {
   const canWrite = Boolean(userId) && isWatchlistLoaded && isScopeKnown;
 
   useEffect(() => {
-    // The identity switches before the profile does, so this stops a write for the
-    // account that is leaving from recreating the snapshot the purge just deleted.
+    // The identity switches before the profile, so a write for the leaving account cannot restore the purged snapshot.
     if (!userId || !canWrite || getCacheIdentity() !== userId) return;
 
     // Merged against a fresh read, not the cached one, so another tab's visit survives.

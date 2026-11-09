@@ -10,8 +10,7 @@ const ERROR_CODES = {
   TIMEOUT: 3,
 };
 
-// The browser API is a boundary the suite cannot run: each test decides when
-// the watch answers and how.
+// The browser API is a boundary the suite cannot run, so each test decides when the watch answers and how.
 function fakeGeolocation(permission: PermissionState = "prompt") {
   let success: PositionCallback = () => {};
   let failure: PositionErrorCallback = () => {};

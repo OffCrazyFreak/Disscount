@@ -9,7 +9,7 @@ interface IStoreOpeningBadgeProps {
   id?: string;
 }
 
-/** A physical store's badge; nothing until the hours load, so no badge flashes a wrong state. */
+/** Nothing until the hours load, so no badge flashes a wrong state. */
 export default function StoreOpeningBadge({
   storeKey,
   id,

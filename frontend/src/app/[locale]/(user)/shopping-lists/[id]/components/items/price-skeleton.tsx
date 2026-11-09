@@ -1,6 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Stands in for a row's approximate or per unit price while its lookup loads. */
 export default function PriceSkeleton() {
   return (
     <Skeleton

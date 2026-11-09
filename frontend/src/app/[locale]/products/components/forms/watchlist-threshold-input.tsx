@@ -33,8 +33,7 @@ function thresholdSteps(watchType: WatchType, minPrice: number) {
 interface IWatchlistThresholdInputProps {
   minPrice: number;
   existingItemForType?: WatchlistItemDto;
-  // The tracked threshold is still being fetched, so any number shown now would be
-  // a guess that changes under the user a moment later.
+  // A number shown during the fetch would be a guess that changes under the user a moment later.
   loading?: boolean;
 }
 
@@ -66,10 +65,7 @@ export default function WatchlistThresholdInput({
               : t("threshold.labelPercentage")}
           </FormLabel>
 
-          {/* The skeleton sits outside FormControl on purpose. FormControl is a Slot
-              that injects the field id, aria-describedby and aria-invalid onto its
-              child, so wrapping a plain div made the label point at a non-labelable
-              element for the length of the fetch. */}
+          {/* Outside FormControl, or its Slot would point the label at a non-labelable div. */}
           {loading ? (
             <div role="status" aria-live="polite" className="my-2">
               <Skeleton aria-hidden="true" className="h-14 w-full" />

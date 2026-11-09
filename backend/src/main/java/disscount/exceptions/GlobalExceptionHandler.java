@@ -35,20 +35,10 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
 
-/**
- * All errors are returned as RFC 9457 Problem Details (application/problem+json).
- * Validation failures additionally carry a "fieldErrors" map (field -> message)
- * that the frontend maps onto react-hook-form field errors.
- *
- * <p>Titles and details are message codes resolved against messages*.properties in the
- * request's Accept-Language. An exception message that is not a known code is shown as
- * written, so a code missing from the bundle degrades to its own text, not to a blank.
- *
- * <p>Spring MVC's own exceptions (415, a missing parameter and the rest) are answered by
- * {@link ResponseEntityExceptionHandler} and reshaped in {@link #handleExceptionInternal}; their
- * details come from the problemDetail.&lt;exception class&gt; codes in the same bundles.
- */
+/** Codes not in the bundle are shown as written, so a missing code degrades to its own text, not a blank. */
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -136,16 +126,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return respond(ex, detail, headers, status, request);
     }
 
-    /**
-     * Hibernate reports a unique-index violation as DataIntegrityViolationException, not
-     * DuplicateKeyException, so both are caught and narrowed here. Not-null, check and
-     * foreign-key violations are bugs rather than conflicts and rethrow to the 500.
-     * Nothing from the driver message is logged: PostgreSQL puts the colliding value in it.
-     */
+    /** A unique violation also comes as DataIntegrityViolationException; never log driver text, it holds the value. */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ProblemDetail handleDuplicateKey(DataIntegrityViolationException ex) {
-        // Rethrowing would bypass this advice entirely and surface a container 500, so the
-        // non-conflict case is answered here instead.
+        // Rethrowing would bypass this advice and surface a container 500, so the non-conflict case is answered here.
         if (!(ex instanceof DuplicateKeyException) && !isUniqueViolation(ex)) {
             return handleGenericException(ex);
         }
@@ -167,15 +151,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /** SQLState 23505 is unique_violation in both PostgreSQL and the H2 the tests run on. */
     private static boolean isUniqueViolation(Throwable ex) {
-        for (Throwable cause = ex; cause != null; cause = cause.getCause()) {
-            if (cause instanceof SQLException sql && "23505".equals(sql.getSQLState())) {
-                return true;
-            }
-            if (cause.getCause() == cause) {
-                break;
-            }
-        }
-        return false;
+        return causeChain(ex).anyMatch(cause -> cause instanceof SQLException sql && "23505".equals(sql.getSQLState()));
+    }
+
+    private static Stream<Throwable> causeChain(Throwable ex) {
+        return Stream.iterate(ex, Objects::nonNull, cause -> cause.getCause() == cause ? null : cause.getCause());
     }
 
     /** The constraint name only; the message around it carries the colliding value. */
@@ -199,17 +179,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             fieldErrors.put(key, error.getDefaultMessage());
         });
 
-        ProblemDetail problemDetail =
-                problem(HttpStatus.BAD_REQUEST, "validation", message("problem.detail.validation"));
-        problemDetail.setProperty("fieldErrors", fieldErrors);
-        return respond(ex, problemDetail, headers, status, request);
+        return respond(ex, validationProblem(fieldErrors), headers, status, request);
     }
 
-    /**
-     * Raised by @Validated on a controller for constraints outside a request body, such as a
-     * list parameter, and by Hibernate for entity constraints at flush, which Spring wraps in
-     * a TransactionSystemException when they fire on commit.
-     */
+    /** Covers @Validated params and Hibernate entity constraints, wrapped in TransactionSystemException on commit. */
     @ExceptionHandler({jakarta.validation.ConstraintViolationException.class, TransactionSystemException.class})
     public ProblemDetail handleEntityValidation(Exception ex) {
         jakarta.validation.ConstraintViolationException violations = entityViolationsOf(ex);
@@ -223,6 +196,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         }
         log.warn("Entity validation failed on fields: {}", fieldErrors.keySet());
 
+        return validationProblem(fieldErrors);
+    }
+
+    private ProblemDetail validationProblem(Map<String, String> fieldErrors) {
         ProblemDetail problemDetail =
                 problem(HttpStatus.BAD_REQUEST, "validation", message("problem.detail.validation"));
         problemDetail.setProperty("fieldErrors", fieldErrors);
@@ -230,23 +207,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     private static jakarta.validation.ConstraintViolationException entityViolationsOf(Throwable ex) {
-        for (Throwable cause = ex; cause != null; cause = cause.getCause()) {
-            if (cause instanceof jakarta.validation.ConstraintViolationException violations) {
-                return violations;
-            }
-            if (cause.getCause() == cause) {
-                break;
-            }
-        }
-        return null;
+        return causeChain(ex)
+                .filter(jakarta.validation.ConstraintViolationException.class::isInstance)
+                .map(jakarta.validation.ConstraintViolationException.class::cast)
+                .findFirst().orElse(null);
     }
 
-    /**
-     * Spring's validator has already filled a controller violation from our bundles,
-     * including arguments such as {min} and {max}. Hibernate validates entities with its
-     * own factory, which does not read them, so its "{validation.x}" template comes back
-     * unresolved and is looked up here instead.
-     */
+    /** Hibernate's validator factory does not read our bundles, so its "{validation.x}" template resolves here. */
     private String violationMessage(ConstraintViolation<?> violation) {
         String template = violation.getMessageTemplate();
         boolean unresolved = template.equals(violation.getMessage());
@@ -273,10 +240,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return respond(ex, detail, headers, status, request);
     }
 
-    /**
-     * Every Spring MVC exception not overridden above lands here; Spring's detail, localised from
-     * the problemDetail.* codes, is kept, and the type and title are set to ours.
-     */
+    /** Spring's localised detail is kept; only type and title are set to ours. */
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
             Exception ex, Object body, HttpHeaders headers, HttpStatusCode status, WebRequest request) {

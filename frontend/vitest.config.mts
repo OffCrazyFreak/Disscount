@@ -19,6 +19,8 @@ export default defineConfig({
     restoreMocks: true,
     unstubEnvs: true,
     unstubGlobals: true,
+    // A test that reaches its end without one assertion proves nothing and still passes.
+    expect: { requireAssertions: true },
     setupFiles: ["./src/test/setup.ts"],
     // next-intl imports next/navigation and next/server without a file extension, which
     // only resolves once Vite transforms it instead of Node loading it directly.
@@ -62,6 +64,9 @@ export default defineConfig({
           environment: "jsdom",
           include: ["src/**/*.test.tsx"],
           setupFiles: ["./src/test/setup-dom.ts"],
+          // jsdom tests take a few hundred ms idle but outgrow the 5 s default on a loaded machine;
+          // the limit is a margin for a starved worker, not a wait any test relies on.
+          testTimeout: 30_000,
         },
       },
     ],

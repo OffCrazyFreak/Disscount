@@ -1,9 +1,6 @@
 import { AxiosError, AxiosHeaders, type AxiosResponse } from "axios";
 
-/**
- * An AxiosError for a request sent without apiClient, so the retry and error reporting
- * rules read its status exactly as they read one from apiClient.
- */
+/** So the retry and error reporting rules read its status exactly as they read one from apiClient. */
 export function httpStatusError(message: string, status: number): AxiosError {
   const config = { headers: new AxiosHeaders() };
   const response: AxiosResponse = {

@@ -18,7 +18,6 @@ import { BACKEND_TOKEN_TTL_MINUTES } from "@/constants/auth";
 import { useSecurityActions } from "@/components/custom/settings/security/security-actions";
 import ActiveSessionRow from "@/components/custom/settings/security/sessions/active-session-row";
 
-// "Aktivne prijave": every device signed in to this account, this one first.
 export default function ActiveSessions() {
   const t = useTranslations("settings");
   const { data: current } = useSession();

@@ -11,10 +11,7 @@ import UserMenu from "@/components/custom/user-menu/user-menu";
 import NotificationsDropdown from "@/components/custom/notifications/notifications-dropdown";
 import { useUser } from "@/context/user-context";
 
-/**
- * Mobile-only sidebar footer row: the same user menu and notifications the
- * header shows on desktop, where its trigger isn't reachable from the sheet.
- */
+/** Mobile-only, because the header's menu trigger is not reachable from the sheet. */
 export default function SidebarUser() {
   const { accountUser: user, canShowAccountData } = useUser();
 

@@ -11,8 +11,7 @@ import {
   pixelBasedPreset,
 } from "react-email";
 
-// Darker than --primary (oklch ~141 hue) so white-on-brand clears WCAG AA at 5.0:1;
-// hex because email clients cannot parse oklch.
+// Darker than --primary so white-on-brand clears WCAG AA at 5.0:1; hex because email clients cannot parse oklch.
 const BRAND = "#15803d";
 
 interface IEmailLayoutProps {
@@ -53,7 +52,7 @@ export default function EmailLayout({
             <Text className="m-0 text-xs text-gray-500">{footer}</Text>
 
             <Text className="m-0 mt-2 text-xs text-gray-400">
-              {`© ${new Date().getFullYear()} Disscount`}
+              {`© ${new Date().getUTCFullYear()} Disscount`}
             </Text>
           </Container>
         </Body>

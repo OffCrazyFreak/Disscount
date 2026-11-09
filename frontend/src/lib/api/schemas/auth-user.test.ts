@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { userDtoSchema } from "@/lib/api/schemas/auth-user";
+import { userDtoSchema, userRequestSchema } from "@/lib/api/schemas/auth-user";
 import { storedUser } from "@/test/stored-user";
 
 describe("userDtoSchema", () => {
@@ -18,10 +18,24 @@ describe("userDtoSchema", () => {
 
     expect(parsed.email).toBe("ana@localhost");
   });
+});
 
-  it("rejects a response that drops a key the backend always sends", () => {
-    const { lastLoginAt: _omitted, ...withoutKey } = storedUser;
+describe("userRequestSchema onboardingOutcome", () => {
+  it.each(["completed", "skipped:0", "skipped:4", "skipped:999"])(
+    "accepts %s",
+    (onboardingOutcome) => {
+      expect(userRequestSchema.safeParse({ onboardingOutcome }).success).toBe(
+        true,
+      );
+    },
+  );
 
-    expect(userDtoSchema.safeParse(withoutKey).success).toBe(false);
-  });
+  it.each(["skipped:1000", "skipped:", "skipped:x", "pending"])(
+    "rejects %s, which the backend answers with a 400",
+    (onboardingOutcome) => {
+      expect(userRequestSchema.safeParse({ onboardingOutcome }).success).toBe(
+        false,
+      );
+    },
+  );
 });

@@ -10,7 +10,7 @@ interface IShoppingListActionButtonsProps {
   showEditButton?: boolean;
   showDeleteButton?: boolean;
   showShareButton?: boolean;
-  /** Off, the row hides below `sm` and the surface has to carry the actions itself, the way the card does with its long press. */
+  /** Off, the row hides below `sm` and the surface carries the actions, as the card does by long press. */
   showOnMobile?: boolean;
   className?: string;
 }

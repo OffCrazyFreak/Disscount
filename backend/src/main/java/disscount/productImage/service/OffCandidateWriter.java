@@ -25,7 +25,7 @@ class OffCandidateWriter {
             boolean skippedByJob = image.getStatus() == ImageStatus.HIDDEN
                     && image.getHiddenReason() == HiddenReason.JOB_SKIPPED;
             if (image.getStatus() == ImageStatus.CANDIDATE || skippedByJob) {
-                // A new revision is a different file, so one the job could not copy gets a fresh chance; an admin's rejection stays.
+                // A new revision is a different file, so one the job could not copy gets a new try; a rejection stays.
                 image.setExternalRev(rev);
                 image.setStatus(ImageStatus.CANDIDATE);
                 image.setHiddenReason(null);

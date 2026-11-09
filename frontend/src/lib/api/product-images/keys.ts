@@ -7,6 +7,7 @@ export const PRODUCT_IMAGE_KEYS = {
   admin: ["admin", "product-images"] as const,
   adminProduct: (ean: string) =>
     ["admin", "product-images", "product", ean] as const,
+  contributors: ["admin", "product-images", "contributors"] as const,
   queueAll: ["admin", "product-images", "queue"] as const,
   queue: (filter: PhotoQueueFilter, page: number) =>
     ["admin", "product-images", "queue", filter, page] as const,

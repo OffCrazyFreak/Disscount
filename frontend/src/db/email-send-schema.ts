@@ -1,8 +1,7 @@
 import { sql } from "drizzle-orm";
 import { index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
-// One row per email handed to the provider, kept for a day to cap sends per
-// recipient. The address is stored as a SHA-256 hash, never in clear.
+// Kept for a day to cap sends per recipient; the address is stored as a SHA-256 hash, never in clear.
 export const emailSend = pgTable(
   "email_send",
   {

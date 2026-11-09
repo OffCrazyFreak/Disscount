@@ -19,12 +19,6 @@ interface ICursorFollowValues {
   rotate: MotionValue<number>;
 }
 
-/**
- * Viewport-center coordinates that lazily trail the cursor with a soft spring
- * while `active`, plus the orientation (horizontal facing and up/down tilt)
- * that keeps the cart aimed at the cursor. The chase starts from the anchor's
- * current position and always stops STOP_DISTANCE_PX short of the pointer.
- */
 export function useCursorFollow(
   anchorRef: RefObject<HTMLElement | null>,
   active: boolean,

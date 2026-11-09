@@ -1,3 +1,3 @@
 {
-  "*.md": "frontend/node_modules/.bin/prettier --write --ignore-path .prettierignore"
+  "*.md": "prettier --write --ignore-path .prettierignore"
 }

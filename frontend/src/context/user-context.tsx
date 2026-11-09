@@ -4,7 +4,6 @@ import {
   createContext,
   useContext,
   useEffect,
-  useState,
   useCallback,
   useRef,
   useSyncExternalStore,
@@ -22,45 +21,34 @@ import {
 } from "@/lib/offline/cache-identity";
 import { sessionIdentity } from "@/lib/auth/pending-sign-out";
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
-import { loadUserProfile } from "@/context/load-user-profile";
 import {
-  erasedAccountId,
-  finishErasedAccountDeletion,
-} from "@/lib/auth/finish-erased-account";
-import { mergeSessionUser } from "@/context/merge-session-user";
+  isProfileOfAnotherAccount,
+  mergeSessionUser,
+} from "@/context/merge-session-user";
 import {
   isUnverifiedAccount,
   syncCacheIdentity,
 } from "@/context/sync-cache-identity";
 import { useAccountUser } from "@/context/use-account-user";
 import { useLogout } from "@/context/use-logout";
+import { useProfileLoader } from "@/context/use-profile-loader";
 import { useUserUpdaters } from "@/context/use-user-updaters";
 
 interface IUserContext {
   user: UserDto | null;
   isLoading: boolean;
-  /** True only until auth first resolves; stays false through later refreshes */
+  /** Stays false through refreshes of the same account. */
   isInitializing: boolean;
   isAuthenticated: boolean;
-  /**
-   * The session could not be checked (offline) while this device's offline cache still
-   * belongs to an account, so screens may show that saved data until the check passes.
-   */
+  /** Offline, with the cache still belonging to an account, screens may show that saved data until the check passes. */
   hasUnverifiedAccount: boolean;
   /** Signed in, or an unverified account: the account's saved data may be shown. */
   canShowAccountData: boolean;
-  /**
-   * The signed-in user, or for an unverified account the profile this device saved. For
-   * showing the account and its preferences (pinned stores) only, never for acting on it.
-   */
+  /** For showing the account and its preferences only, never for acting on it. */
   accountUser: UserDto | null;
   refreshUser: () => Promise<UserDto | undefined>;
   setUser: (user: UserDto | null) => void;
-  /**
-   * Folds a profile response into the current user instead of replacing it.
-   * The backend's convertToUserDto omits pinnedStores and pinnedPlaces, so a
-   * wholesale setUser after any profile PATCH drops them until a hard reload.
-   */
+  /** Folds because convertToUserDto omits pinnedStores and pinnedPlaces, which setUser would drop. */
   mergeUser: (patch: Partial<UserDto>) => void;
   logout: () => Promise<void>;
   updatePinnedStores: (stores: PinnedStoreDto[]) => void;
@@ -75,11 +63,9 @@ interface IUserProviderProps {
 }
 
 export function UserProvider({ children }: IUserProviderProps) {
-  const [user, setUser] = useState<UserDto | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasResolvedAuth, setHasResolvedAuth] = useState(false);
-  // Seeded from the persisted value so a reload as the same account is not read as a
-  // change of identity, which would purge the cache it just restored.
+  const { user, setUser, isLoading, hasResolvedAuth, refreshUser, clearUser } =
+    useProfileLoader();
+  // Seeded so a reload as the same account is no identity change, which would purge the restored cache.
   const cacheIdentityRef = useRef<string | null>(persistedCacheIdentity());
 
   const queryClient = useQueryClient();
@@ -88,26 +74,6 @@ export function UserProvider({ children }: IUserProviderProps) {
     isPending: sessionPending,
     error: sessionError,
   } = useSession();
-
-  const refreshUser = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const userData = await loadUserProfile();
-
-      setUser(userData);
-      return userData;
-    } catch (error) {
-      console.error("Failed to fetch user profile:", error);
-      setUser(null);
-      // Spring erased this account but the login survived a failed deletion; ending the session
-      // lets the session effect clear the tab like any sign-out.
-      const erasedUserId = erasedAccountId(error);
-      if (erasedUserId) await finishErasedAccountDeletion(erasedUserId);
-    } finally {
-      setIsLoading(false);
-      setHasResolvedAuth(true);
-    }
-  }, []);
 
   useEffect(() => {
     if (sessionPending) return;
@@ -121,36 +87,27 @@ export function UserProvider({ children }: IUserProviderProps) {
       Sentry.setUser(identity ? { id: identity } : null);
     }
 
-    // The directive covers this whole effect, not just the line under it: the else
-    // branch clears user state synchronously too. Both sides react to an auth result
-    // that only exists after the session resolves, so neither is derivable.
+    // Both sides react to an auth result that only exists after the session resolves, so neither is derivable.
     if (identity) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       refreshUser();
     } else {
-      setUser(null);
-      setIsLoading(false);
-      setHasResolvedAuth(true);
+      clearUser();
     }
-    // Keyed on the user id, not the user object the lint asks for: better-auth hands
-    // back a new session object on every poll, so depending on it would refetch the
-    // profile on a cadence rather than on a real sign-in or sign-out. The purge itself
-    // is guarded by the identity check above, so it would not re-fire either way.
+    // Keyed on the id because better-auth returns a new session object on every poll.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     session?.user?.id,
     sessionPending,
     sessionError,
     refreshUser,
+    clearUser,
     queryClient,
   ]);
 
   const handleLogout = useLogout(cacheIdentityRef, setUser);
 
-  // Called by login/signup forms after signIn/signUp succeeds to eagerly load the profile
   const handleUserLogin = useCallback(async () => {
-    // The backend proxy refuses a call pinned to another account than the cookie's, and
-    // useSession may not have seen the sign-in yet, so the pin moves to the new account first.
+    // The proxy refuses a pin differing from the cookie, and useSession may lag, so the pin moves first.
     const { data, error } = await authClient.getSession();
     syncCacheIdentity(
       queryClient,
@@ -169,7 +126,11 @@ export function UserProvider({ children }: IUserProviderProps) {
     getCacheIdentity,
     () => ANONYMOUS_IDENTITY,
   );
-  const mergedUser = mergeSessionUser(user, session?.user);
+  // Withheld, with the flags reading as loading and never as signed out.
+  const isSwitchingAccount = isProfileOfAnotherAccount(user, session?.user);
+  const mergedUser = isSwitchingAccount
+    ? null
+    : mergeSessionUser(user, session?.user);
   const hasUnverifiedAccount = isUnverifiedAccount(
     !!mergedUser,
     sessionPending,
@@ -180,11 +141,12 @@ export function UserProvider({ children }: IUserProviderProps) {
 
   const value: IUserContext = {
     user: mergedUser,
-    isLoading: isLoading || sessionPending,
-    isInitializing: !hasResolvedAuth,
-    isAuthenticated: !!mergedUser,
+    isLoading: isLoading || sessionPending || isSwitchingAccount,
+    isInitializing: !hasResolvedAuth || isSwitchingAccount,
+    isAuthenticated: !!mergedUser || isSwitchingAccount,
     hasUnverifiedAccount,
-    canShowAccountData: !!mergedUser || hasUnverifiedAccount,
+    canShowAccountData:
+      !!mergedUser || hasUnverifiedAccount || isSwitchingAccount,
     accountUser,
     refreshUser,
     setUser,

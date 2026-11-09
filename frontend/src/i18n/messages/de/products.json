@@ -44,7 +44,7 @@
   },
   "listSelector": {
     "label": "Einkaufsliste",
-    "searchPlaceholder": "Deine Listen durchsuchen oder neue erstellen...",
+    "searchPlaceholder": "Deine Listen durchsuchen oder neue erstellen",
     "empty": "Gib einen Namen ein und erstelle hier deine erste Liste.",
     "existingLists": "Vorhandene Listen",
     "newList": "Neue Einkaufsliste",
@@ -54,8 +54,8 @@
   "listTrigger": {
     "loading": "Wird geladen...",
     "createNamed": "Neue Liste „{title}“ erstellen",
-    "choose": "Liste auswählen...",
-    "createFirst": "Erste Liste erstellen..."
+    "choose": "Liste auswählen",
+    "createFirst": "Erste Liste erstellen"
   },
   "storeChainField": {
     "label": "Händler"
@@ -112,26 +112,26 @@
   "facets": {
     "stores": {
       "label": "Händler",
-      "placeholder": "Händler auswählen...",
-      "search": "Händler suchen...",
+      "placeholder": "Händler auswählen",
+      "search": "Händler suchen",
       "empty": "Keine Händler"
     },
     "locations": {
       "label": "Standorte",
-      "placeholder": "Standorte auswählen...",
-      "search": "Standorte suchen...",
+      "placeholder": "Standorte auswählen",
+      "search": "Standorte suchen",
       "empty": "Keine Standorte"
     },
     "categories": {
       "label": "Kategorien",
-      "placeholder": "Kategorien auswählen...",
-      "search": "Kategorien suchen...",
+      "placeholder": "Kategorien auswählen",
+      "search": "Kategorien suchen",
       "empty": "Keine Kategorien"
     },
     "brands": {
       "label": "Marke",
-      "placeholder": "Marke auswählen...",
-      "search": "Marken suchen...",
+      "placeholder": "Marke auswählen",
+      "search": "Marken suchen",
       "empty": "Keine Marken"
     },
     "count": "({count})"
@@ -167,7 +167,7 @@
     "absoluteRange": "Gib einen Betrag von 0,10 € bis 999 € ein"
   },
   "list": {
-    "searchPlaceholder": "Produkte suchen...",
+    "searchPlaceholder": "Produkte suchen",
     "resultsTitle": "Suchergebnisse für „{query}“",
     "resultsTitleWithCount": "Suchergebnisse für „{query}“ ({count}{suffix})",
     "resultsStatus": "{count, plural, =0 {Keine Ergebnisse} one {# Ergebnis} other {# Ergebnisse}}{truncated, select, yes { oder mehr} other {}}",
@@ -220,7 +220,7 @@
     "all": "Alle"
   },
   "storeChainSelect": {
-    "multiPlaceholder": "Händler auswählen..."
+    "multiPlaceholder": "Händler auswählen"
   },
   "addPlainItem": {
     "title": "Artikel zu einer Liste hinzufügen",

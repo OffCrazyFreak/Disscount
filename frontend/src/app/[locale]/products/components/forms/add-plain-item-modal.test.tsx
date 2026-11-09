@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import AddPlainItemModal from "@/app/[locale]/products/components/forms/add-plain-item-modal";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { getFormDraft } from "@/utils/browser/local-storage";
+import { getFormDraft, setFormDraft } from "@/utils/browser/local-storage";
 
 const { openModalUrl, closeModalUrl } = vi.hoisted(() => ({
   openModalUrl: vi.fn(),
@@ -32,24 +32,21 @@ function list(id: string, title: string, updatedAt: string) {
   };
 }
 
+// A mock leaving the modal open lets its debounced save land after cleanup, so unmounting stands in.
+function unmountOnClose(view: { unmount: () => void }) {
+  closeModalUrl.mockImplementation(() => view.unmount());
+}
+
 const newest = list("list-a", "Tjedna kupnja", "2026-11-02T10:00:00");
 const older = list("list-b", "Vikendica", "2026-10-01T10:00:00");
 
 describe("AddPlainItemModal", () => {
   beforeEach(() => {
     openModalUrl.mockClear();
-    closeModalUrl.mockClear();
+    closeModalUrl.mockReset();
     localStorage.clear();
     // jsdom has no scrollIntoView; cmdk calls it on the highlighted list option.
     Element.prototype.scrollIntoView ??= vi.fn();
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
   });
 
   it("reopens a failed add with the list and amount the user chose", async () => {
@@ -217,6 +214,7 @@ describe("AddPlainItemModal", () => {
     const edited = renderWithProviders(
       <AddPlainItemModal open itemName="Kruh integralni" />,
     );
+    unmountOnClose(edited);
     await waitFor(() =>
       expect(
         screen.getByRole("combobox", { name: "Popis za kupnju" }),
@@ -232,7 +230,6 @@ describe("AddPlainItemModal", () => {
         itemName: "Kruh",
       }),
     );
-    edited.unmount();
 
     expect(getFormDraft("add-plain-item.kruh")).toBeNull();
     expect(getFormDraft("add-plain-item.kruh integralni")).toBeNull();
@@ -254,6 +251,7 @@ describe("AddPlainItemModal", () => {
     const edited = renderWithProviders(
       <AddPlainItemModal open itemName="Kruh integralni" />,
     );
+    unmountOnClose(edited);
     const trigger = await screen.findByRole("combobox", {
       name: "Popis za kupnju",
     });
@@ -265,11 +263,72 @@ describe("AddPlainItemModal", () => {
     await user.type(nameInput, "Kruh");
     await user.click(screen.getByRole("button", { name: "Dodaj" }));
     await waitFor(() => expect(openModalUrl).toHaveBeenCalled());
-    edited.unmount();
 
     expect(getFormDraft("add-plain-item.kruh")?.values.shoppingListId).toBe(
       older.id,
     );
     expect(getFormDraft("add-plain-item.kruh integralni")).toBeNull();
+  });
+
+  it("explains why a too short new list title blocks the add", async () => {
+    const user = userEvent.setup();
+    server.use(
+      http.get("*/api/shopping-lists/me", () =>
+        HttpResponse.json([newest, older]),
+      ),
+      http.get("*/api/shopping-lists/:id", ({ params }) =>
+        HttpResponse.json(params.id === older.id ? older : newest),
+      ),
+    );
+
+    renderWithProviders(<AddPlainItemModal open itemName="Staklenke" />);
+    const trigger = await screen.findByRole("combobox", {
+      name: "Popis za kupnju",
+    });
+    await waitFor(() => expect(trigger).toHaveTextContent("Tjedna kupnja"));
+    await user.click(trigger);
+    await user.type(
+      await screen.findByPlaceholderText(/Pretraži svoje popise/),
+      "ab",
+    );
+    await user.click(await screen.findByRole("option", { name: /ab/ }));
+
+    expect(
+      await screen.findByText("Upiši naziv s najmanje 3 znaka"),
+    ).toBeVisible();
+    expect(screen.getByRole("button", { name: "Dodaj" })).toBeDisabled();
+
+    await user.click(trigger);
+    // Reopening prefills the search with the new title, which hides the lists.
+    await user.clear(
+      await screen.findByPlaceholderText(/Pretraži svoje popise/),
+    );
+    await user.click(await screen.findByRole("option", { name: /Vikendica/ }));
+
+    await waitFor(() =>
+      expect(
+        screen.queryByText("Upiši naziv s najmanje 3 znaka"),
+      ).not.toBeInTheDocument(),
+    );
+  });
+
+  it("explains a too short title restored from a draft", async () => {
+    server.use(
+      http.get("*/api/shopping-lists/me", () =>
+        HttpResponse.json([newest, older]),
+      ),
+      http.get("*/api/shopping-lists/:id", () => HttpResponse.json(newest)),
+    );
+    setFormDraft("add-plain-item.staklenke", {
+      shoppingListId: "new",
+      customListTitle: "ab",
+    });
+
+    renderWithProviders(<AddPlainItemModal open itemName="Staklenke" />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Upiši naziv s najmanje 3 znaka",
+    );
+    expect(screen.getByRole("button", { name: "Dodaj" })).toBeDisabled();
   });
 });

@@ -11,11 +11,7 @@ import { useListShareText } from "@/app/[locale]/(user)/shopping-lists/hooks/use
 import { shareListUrl } from "@/utils/shopping-list-links";
 import { useOnlineStatus } from "@/hooks/use-online-status";
 
-/**
- * Share settings save on change rather than behind a submit button. There is nothing to
- * confirm: the URL is the list's own and exists either way, so the only question the
- * modal asks is what holding it grants.
- */
+/** Saves on change because there is nothing to confirm: the URL exists either way. */
 export function useShareListModal(id: string) {
   const t = useTranslations("shoppingLists");
   const locale = useLocale();
@@ -30,38 +26,30 @@ export function useShareListModal(id: string) {
     ? null
     : (listQuery.data ?? null);
 
-  // Read straight from the cache, with no local mirror. useUpdateShoppingList writes the
-  // new value optimistically in onMutate, so the cache is already correct here and there
-  // is no second source to fall back to mid-save.
+  // No local mirror: useUpdateShoppingList writes optimistically in onMutate, so the cache is already correct here.
   const linkAccess: LinkAccess = shoppingList?.linkAccess ?? "NONE";
 
-  // Not built during render. shareListUrl calls appUrl(), which throws on a misconfigured
-  // NEXT_PUBLIC_APP_URL, and a throw here would take the whole modal down rather than the
-  // one button that needs an origin. The handlers below build it inside their try/catch.
+  // Not built during render, because appUrl() can throw and would take the whole modal down.
   const canShareLink = linkAccess !== "NONE";
 
-  // isSaving, not isPending: offline the mutation pauses rather than settles, so isPending
-  // stays true forever and the controls would sit disabled with nothing explaining why.
+  // isSaving, because a paused offline mutation keeps isPending true and the controls stuck disabled.
   const isSaving = updateMutation.isPending && isOnline;
 
   function setLinkAccess(next: LinkAccess) {
     if (!shoppingList || next === linkAccess || isSaving) return;
 
-    // PUT carries the whole request, so the current title has to ride along or the
-    // server would reject it as blank.
+    // PUT carries the whole request, so the current title rides along or the server would reject it as blank.
     updateMutation.mutate(
       { id, data: { title: shoppingList.title, linkAccess: next } },
       {
-        // The toast is the confirmation. It carries its own live region, so the modal does
-        // not also announce success and make a screen reader say it twice.
+        // The toast has its own live region, so the modal does not announce success twice.
         onSuccess: () => toast.success(t("shareModal.settingsUpdatedToast")),
         onError: () => toast.error(t("shareModal.settingsFailedToast")),
       },
     );
   }
 
-  // No pending state on either handler. Nothing here is fetched, and shareOrCopy
-  // documents why a flag cleared on completion strands the button spinning.
+  // No pending state, because shareOrCopy documents why a flag cleared on completion strands the button spinning.
   async function handleLinkShare() {
     if (!canShareLink || !shoppingList) return;
 
@@ -82,9 +70,7 @@ export function useShareListModal(id: string) {
     if (!shoppingList) return;
 
     try {
-      // Text only, deliberately. Adding a url would flip shareOrCopy's clipboard fallback,
-      // which prefers url over text, so the button would copy a bare link instead of the
-      // list it promises.
+      // Text only, because a url would make shareOrCopy's clipboard fallback copy a bare link.
       const outcome = await shareOrCopy({
         title: shoppingList.title,
         text: listShareText(shoppingList),
@@ -93,9 +79,7 @@ export function useShareListModal(id: string) {
       if (outcome === "copied") toast.success(t("shareModal.textCopiedToast"));
       if (outcome === "failed") toast.error(t("shareModal.failedToast"));
     } catch {
-      // shareOrCopy resolves an outcome rather than throwing, but appUrl() throws on a
-      // misconfigured NEXT_PUBLIC_APP_URL. Wired to onClick and never awaited, so
-      // without this the failure is invisible.
+      // appUrl() can throw on a bad NEXT_PUBLIC_APP_URL, and onClick never awaits, so the failure would be invisible.
       toast.error(t("shareModal.failedToast"));
     }
   }

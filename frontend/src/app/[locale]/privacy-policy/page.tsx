@@ -14,8 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PrivacyPolicyPage() {
-  // The rest of the page is Croatian in every locale, so this section matches it; the
-  // other locales' strings are ready for the rewrite.
+  // The rest of the page is Croatian in every locale, so this section matches it until the rewrite.
   const t = await getTranslations({
     locale: DEFAULT_LOCALE,
     namespace: "privacyPolicy.errorTracking",
@@ -33,7 +32,7 @@ export default async function PrivacyPolicyPage() {
     <LegalPage
       title="Pravila privatnosti"
       intro="Ova pravila objašnjavaju koje podatke Disscount prikuplja i kako ih koristi."
-      lastUpdated="3. studenoga 2026."
+      lastUpdated="4. studenoga 2026."
     >
       <LegalSection heading="Koje podatke prikupljamo">
         <p>
@@ -79,10 +78,13 @@ export default async function PrivacyPolicyPage() {
         <p>
           Kad dodaš sliku proizvoda, spremamo je bez metapodataka poput mjesta
           snimanja i povezujemo je s tvojim računom kako bismo spriječili
-          zlouporabu. Slika je javno vidljiva, bez tvog imena. Slike čuvamo kod
-          Cloudflarea (R2) u Europskoj uniji. Ako obrišeš račun, slike ostaju
-          kao dio podataka o proizvodu, ali više nisu povezane s tvojim imenom.
-          Ako želiš da uklonimo neku tvoju sliku, javi nam se.
+          zlouporabu. Slika je javno vidljiva, bez tvog imena. Slike čuvamo na
+          našem poslužitelju kod Hetznera u Finskoj, u Europskoj uniji. Ako
+          obrišeš račun, brišemo tvoje slike koje još nitko nije potvrdio ili su
+          skrivene te izvorne datoteke svih tvojih slika. Slike koje je potvrdio
+          drugi korisnik ili administrator ostaju kao dio podataka o proizvodu,
+          bez ikakve veze s tvojim računom. Ako želiš da uklonimo neku tvoju
+          sliku, javi nam se.
         </p>
       </LegalSection>
 

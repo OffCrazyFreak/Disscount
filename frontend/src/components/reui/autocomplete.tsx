@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { XIcon, ChevronsUpDownIcon } from "lucide-react";
 
 const inputVariants = cva(
-  "outline-none flex w-full text-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 [[readonly]]:bg-muted/80 [[readonly]]:cursor-not-allowed border border-input focus-visible:border-ring aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-lg bg-transparent dark:bg-input/30 text-sm transition-colors focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-3",
+  "outline-none flex w-full text-ellipsis text-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 [[readonly]]:bg-muted/80 [[readonly]]:cursor-not-allowed border border-input focus-visible:border-ring aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-lg bg-transparent dark:bg-input/30 text-sm transition-colors focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-3",
   {
     variants: {
       size: {
@@ -170,9 +170,7 @@ function AutocompleteItem({
         "text-foreground data-highlighted:text-foreground data-highlighted:before:bg-accent gap-1.5",
         "rounded-md",
         "data-highlighted:before:rounded-md",
-        /* Icon sizing mirrors the shadcn Select item. Rhea tracks nova, as its
-           shadcn Input metrics match nova's; the row radius above follows the
-           shadcn Select and Dropdown Menu items, xl in rhea. */
+        /* Icon sizing and row radius follow shadcn's Select and Dropdown Menu items, xl in rhea. */
         "px-1.5 py-1 text-sm [&_svg:not([class*='size-'])]:size-4 relative flex cursor-default items-center outline-hidden transition-colors select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:relative data-highlighted:z-0 data-highlighted:before:absolute data-highlighted:before:inset-x-0 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([role=img]):not([class*=text-])]:opacity-60",
         className,
       )}
@@ -190,8 +188,7 @@ export interface AutocompleteContentProps extends React.ComponentProps<
   side?: AutocompletePrimitive.Positioner.Props["side"];
   anchor?: AutocompletePrimitive.Positioner.Props["anchor"];
   showBackdrop?: boolean;
-  // Inside a Radix dialog the popup must portal into the dialog content, or the dialog's
-  // scroll lock and outside-press handling treat it as outside and swallow its clicks.
+  // In a Radix dialog the popup must portal inside, or its handlers swallow clicks.
   container?: AutocompletePrimitive.Portal.Props["container"];
 }
 

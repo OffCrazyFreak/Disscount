@@ -4,10 +4,7 @@ import { z } from "zod";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchJson } from "@/lib/store-locations/http";
-import type {
-  IResolvedLocation,
-  LocationPrecision,
-} from "@/lib/store-locations/store-location-types";
+import type { IResolvedLocation } from "@/lib/store-locations/store-location-types";
 import {
   houseNumberMatches,
   requestedHouseNumber,
@@ -15,15 +12,8 @@ import {
 
 const ENDPOINT = "https://nominatim.openstreetmap.org/search";
 
-// Usage policy (https://operations.osmfoundation.org/policies/nominatim/):
-// scripts running regularly are limited to 4 requests per minute. The caller
-// paces calls with this; geocodeWithNominatim itself makes exactly one request.
+// Nominatim's usage policy limits regular scripts to 4 requests per minute; the caller paces calls with this.
 export const NOMINATIM_MIN_INTERVAL_MS = 15_000;
-
-export interface INominatimOptions {
-  /** Accept street or town level results when the address has no house number. */
-  allowSettlement?: boolean;
-}
 
 const BUILDING_TYPES = new Set([
   "building",
@@ -31,14 +21,6 @@ const BUILDING_TYPES = new Set([
   "shop",
   "amenity",
   "office",
-]);
-const SETTLEMENT_TYPES = new Set([
-  "city",
-  "town",
-  "village",
-  "suburb",
-  "hamlet",
-  "municipality",
 ]);
 
 const resultSchema = z.object({
@@ -59,21 +41,10 @@ function isBuildingLike(result: z.infer<typeof resultSchema>): boolean {
   );
 }
 
-function toPrecision(
-  result: z.infer<typeof resultSchema>,
-): LocationPrecision | null {
-  if (result.category === "highway") return "street";
-  if (result.addresstype && SETTLEMENT_TYPES.has(result.addresstype))
-    return "settlement";
-
-  return null;
-}
-
 export async function geocodeWithNominatim(
   address: string,
   city: string | null,
   signal: AbortSignal,
-  options: INominatimOptions = {},
 ): Promise<IResolvedLocation | null> {
   const params = new URLSearchParams({
     street: address,
@@ -102,19 +73,13 @@ export async function geocodeWithNominatim(
 
   const wanted = requestedHouseNumber(address);
 
-  if (wanted) {
-    const exact =
-      isBuildingLike(result) &&
-      houseNumberMatches(wanted, result.address?.house_number);
+  if (!wanted) return null;
 
-    return exact
-      ? { ...coordinates, source: "nominatim", precision: "building" }
-      : null;
-  }
+  const exact =
+    isBuildingLike(result) &&
+    houseNumberMatches(wanted, result.address?.house_number);
 
-  if (!options.allowSettlement) return null;
-
-  const precision = toPrecision(result);
-
-  return precision ? { ...coordinates, source: "nominatim", precision } : null;
+  return exact
+    ? { ...coordinates, source: "nominatim", precision: "building" }
+    : null;
 }

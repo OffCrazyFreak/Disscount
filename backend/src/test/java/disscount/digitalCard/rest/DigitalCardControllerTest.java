@@ -1,26 +1,26 @@
 package disscount.digitalCard.rest;
 
-import tools.jackson.databind.ObjectMapper;
 import disscount.config.SecurityConfig;
 import disscount.digitalCard.dto.DigitalCardDto;
 import disscount.digitalCard.dto.DigitalCardRequest;
 import disscount.digitalCard.service.DigitalCardPhotoService;
 import disscount.digitalCard.service.DigitalCardService;
-import disscount.digitalCard.storage.StoredPhoto;
 import disscount.exceptions.ConflictException;
 import disscount.exceptions.NotFoundException;
 import disscount.exceptions.ServiceUnavailableException;
 import disscount.exceptions.TooManyRequestsException;
+import disscount.storage.StoredPhoto;
 import disscount.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -253,6 +253,18 @@ class DigitalCardControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors.storeName").value("Naziv trgovine mora imati od 2 do 60 znakova"));
         verifyNoInteractions(cardService);
+    }
+
+    @Test
+    void aMultiLineNoteIsNotMistakenForANul() throws Exception {
+        when(cardService.upsert(eq(userId), eq(cardId), any(DigitalCardRequest.class)))
+                .thenReturn(DigitalCardDto.builder().id(cardId).photos(List.of()).build());
+        String body = validBody().replace("\"cardColor\"", "\"note\":\"prvi red\\ndrugi red\",\"cardColor\"")
+                .replaceFirst("\"note\":null,", "");
+
+        mvc.perform(put("/api/digital-cards/{id}", cardId).with(auth())
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk());
     }
 
     @Test

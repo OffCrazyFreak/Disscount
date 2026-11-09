@@ -2,13 +2,10 @@
 
 # dependencies
 /node_modules
+# husky's generated hooks, linked from the main checkout inside a worktree
+/.husky/_
 /.pnp
 .pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
 
 # testing
 /coverage
@@ -31,15 +28,10 @@ public/swe-worker*
 
 # debug
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
 .env*
-
-# vercel
-.vercel
 
 # typescript
 *.tsbuildinfo

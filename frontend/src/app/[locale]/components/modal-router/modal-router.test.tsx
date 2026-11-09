@@ -1,11 +1,11 @@
 import { act, render, screen } from "@testing-library/react";
 import { useState } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import ModalRouter from "@/app/[locale]/components/modal-router/modal-router";
 
 const { session } = vi.hoisted(() => ({
-  session: { user: { id: "account-a" } },
+  session: { user: { id: "account-a" } as { id: string } | null },
 }));
 
 vi.mock("@/context/user-context", () => ({
@@ -45,12 +45,16 @@ vi.mock(
 // Stands in for the settings form: state seeded once on mount, like useForm's defaults.
 vi.mock("@/components/custom/settings/settings-modal-host", () => ({
   default: function SeededOnMount() {
-    const [seededFor] = useState(session.user.id);
+    const [seededFor] = useState(session.user?.id ?? "seeded with no profile");
     return <p>{seededFor}</p>;
   },
 }));
 
 describe("ModalRouter", () => {
+  beforeEach(() => {
+    session.user = { id: "account-a" };
+  });
+
   it("starts the settings form over when another account signs in", () => {
     const { rerender } = render(<ModalRouter />);
     expect(screen.getByText("account-a")).toBeInTheDocument();
@@ -61,5 +65,13 @@ describe("ModalRouter", () => {
     rerender(<ModalRouter />);
 
     expect(screen.getByText("account-b")).toBeInTheDocument();
+  });
+
+  it("does not seed the settings form while the new account's profile loads", () => {
+    session.user = null;
+
+    render(<ModalRouter />);
+
+    expect(screen.queryByText("seeded with no profile")).toBeNull();
   });
 });

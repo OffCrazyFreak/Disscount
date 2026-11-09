@@ -17,7 +17,6 @@ interface IQuickActionItemProps {
   loading?: boolean;
 }
 
-/** One row in a quick-actions sheet, so every sheet's rows read identically. */
 export default function QuickActionItem({
   icon: Icon,
   label,

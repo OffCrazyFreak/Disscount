@@ -3,9 +3,9 @@ package disscount.productImage.service;
 import java.io.IOException;
 import java.util.UUID;
 
+import disscount.config.UploadLimitConfig;
 import disscount.digitalCard.photo.PhotoValidator;
 import disscount.digitalCard.photo.ValidatedPhoto;
-import disscount.digitalCard.storage.PhotoStore;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.NotFoundException;
 import disscount.exceptions.ServiceUnavailableException;
@@ -18,10 +18,14 @@ import disscount.productImage.domain.ProductImage;
 import disscount.productImage.domain.ProductImageReport;
 import disscount.productImage.domain.ProductImageSet;
 import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
-import disscount.productImage.storage.ProductImageStore;
+import disscount.productImage.render.ProductImageRenderer;
+import disscount.storage.PhotoStore;
+import disscount.storage.PhotoStoreConfig;
 import disscount.user.service.UserService;
+import disscount.util.FixedWindowLimiter;
 import disscount.util.Timestamps;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,23 +37,24 @@ public class ProductImageWriteService {
     private final ProductImageRepository images;
     private final ProductImageSetRepository sets;
     private final ProductImageReportRepository reports;
-    private final ProductImageStore store;
+    @Qualifier(PhotoStoreConfig.PRODUCT_PHOTOS)
+    private final PhotoStore store;
+    @Qualifier(PhotoStoreConfig.PRODUCT_ORIGINALS)
     private final PhotoStore originals;
     private final PhotoValidator validator;
-    private final ProductPhotoUploadLimiter limiter;
+    @Qualifier(UploadLimitConfig.PRODUCT_PHOTOS)
+    private final FixedWindowLimiter limiter;
     private final ProductImageRendering rendering;
+    private final ProductImageRemoval removal;
     private final ProductImageViews views;
     private final UserService userService;
 
-    /**
-     * A user's photo starts unconfirmed; it confirms any other user's unconfirmed photo of the same
-     * product, since two people photographed what the same barcode page showed them. An admin's
-     * photo is verified and shown right away.
-     */
+    /** Confirms another user's unconfirmed photo of the product, as two people photographed what one page showed. */
     @Transactional
     public ProductImagesDto upload(UUID userId, String ean, MultipartFile file) {
         ProductImageQueryService.requireEan(ean);
         requireStorage();
+        userService.lockActive(userId);
 
         boolean admin = userService.isActiveAdmin(userId);
         if (!admin) limiter.check(userId);
@@ -59,10 +64,11 @@ public class ProductImageWriteService {
         if (!"image/jpeg".equals(photo.contentType())) {
             throw new BadRequestException("error.productImage.jpegOnly");
         }
+        removal.requireNotDeleted(photo.bytes());
 
         ProductImageSet set = sets.findById(ean).orElseGet(() -> sets.save(ProductImageSet.builder().ean(ean).build()));
 
-        String originalKey = "product-originals/" + ean + "/" + UUID.randomUUID() + ".jpg";
+        String originalKey = PhotoStoreConfig.ORIGINALS_FOLDER + "/" + ean + "/" + UUID.randomUUID() + ".jpg";
         originals.put(originalKey, photo.bytes(), photo.contentType());
 
         ProductImage image = images.save(ProductImage.builder()
@@ -73,6 +79,7 @@ public class ProductImageWriteService {
                 .originalWidth(photo.width())
                 .originalHeight(photo.height())
                 .contributorId(userId)
+                .contentSha256(ProductImageRenderer.sha256(photo.bytes()))
                 .build());
         rendering.render(image);
 
@@ -99,6 +106,7 @@ public class ProductImageWriteService {
     /** One report per user and photo; repeating it is not an error. */
     @Transactional
     public void report(UUID userId, UUID imageId) {
+        userService.lockActive(userId);
         ProductImage image = images.findById(imageId)
                 .filter(i -> i.getStatus() != ImageStatus.HIDDEN && i.getStatus() != ImageStatus.CANDIDATE)
                 .orElseThrow(() -> new NotFoundException("error.productImage.notFound"));

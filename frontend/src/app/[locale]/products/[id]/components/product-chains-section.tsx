@@ -19,7 +19,6 @@ interface IProductChainsSectionProps {
   detail: ReturnType<typeof useProductDetail>;
 }
 
-/** Every chain carrying this product, ordered by the reader's chosen sort. */
 export default function ProductChainsSection({
   product,
   detail,

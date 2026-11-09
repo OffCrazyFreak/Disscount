@@ -3,9 +3,9 @@ import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 
 import ProductInfoDisplay from "@/app/[locale]/products/components/product-info-display";
-import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
+import { product } from "@/test/price-fixtures";
 
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ back: vi.fn(), push: vi.fn() }),
@@ -14,17 +14,6 @@ vi.mock("@/i18n/navigation", () => ({
 const PASTA = "8076800195057";
 const CHIPS = "3856021300547";
 const PASTA_URL = "https://images.test/pasta-thumb.jpg";
-
-function product(ean: string): ProductResponse {
-  return {
-    ean,
-    brand: null,
-    name: "Barilla Spaghetti Nº5",
-    quantity: null,
-    unit: null,
-    chains: [],
-  };
-}
 
 function photoBox(container: HTMLElement) {
   return container.querySelector(
@@ -42,7 +31,7 @@ describe("ProductInfoDisplay inside a modal", () => {
 
     const { container } = renderWithProviders(
       <ProductInfoDisplay
-        product={product(CHIPS)}
+        product={product([], { ean: CHIPS, name: "Barilla Spaghetti Nº5" })}
         enableActionButtons={false}
       />,
     );
@@ -66,7 +55,7 @@ describe("ProductInfoDisplay inside a modal", () => {
 
     const { container } = renderWithProviders(
       <ProductInfoDisplay
-        product={product(PASTA)}
+        product={product([], { ean: PASTA, name: "Barilla Spaghetti Nº5" })}
         enableActionButtons={false}
       />,
     );

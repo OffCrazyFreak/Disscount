@@ -12,7 +12,6 @@ interface IFavoriteStoreButtonProps {
   storeKey: string;
 }
 
-/** Beside the share pill, and lifted over the row's toggle the same way. */
 export default function FavoriteStoreButton({
   storeKey,
 }: IFavoriteStoreButtonProps) {
@@ -21,8 +20,7 @@ export default function FavoriteStoreButton({
   const isOn = isFavorite(storeKey);
   const ref = useRef<HTMLButtonElement>(null);
 
-  // Unstarring moves the row to a lower group, and moving the focused button
-  // in the page drops focus to the body.
+  // Unstarring moves the row to a lower group, and moving the focused button in the page drops focus to the body.
   function onClick() {
     toggle(storeKey);
     requestAnimationFrame(() => ref.current?.focus({ preventScroll: true }));

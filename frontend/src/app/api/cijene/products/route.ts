@@ -4,7 +4,7 @@ import {
   productSearchResponseSchema,
   searchProductsParamsSchema,
 } from "@/lib/cijene-api/schemas";
-import { searchProductsWithFuzzyFallback } from "@/lib/cijene-api/utils/product-search-fallback";
+import { searchProducts } from "@/lib/cijene-api/server/search-products";
 import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";
 
 function parseBooleanParam(value: string | null): boolean | undefined {
@@ -31,6 +31,6 @@ export async function GET(request: NextRequest) {
   }
 
   return withCijeneRoute(request, "products", productSearchResponseSchema, () =>
-    searchProductsWithFuzzyFallback(parsed.data),
+    searchProducts(parsed.data),
   );
 }

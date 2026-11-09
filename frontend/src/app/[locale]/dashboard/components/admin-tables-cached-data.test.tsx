@@ -59,14 +59,10 @@ async function refetchFailed(queryClient: QueryClient, queryKey: QueryKey) {
 
 describe("admin tables over cached data", () => {
   beforeEach(() => {
-    // jsdom has no ResizeObserver; the table and Radix Select call it.
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
+    server.use(
+      http.get("*/api/admin/product-images/contributors", () =>
+        HttpResponse.json([]),
+      ),
     );
   });
 

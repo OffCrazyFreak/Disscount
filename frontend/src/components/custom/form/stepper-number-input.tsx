@@ -20,12 +20,7 @@ interface IStepperNumberInputProps {
   max: number;
   integer?: boolean;
   placeholder?: string;
-  /**
-   * Only for a field with no visible label. aria-label replaces the accessible name
-   * rather than adding to it, so passing one alongside a FormLabel gives the control a
-   * name that shares no words with the text beside it, and speaking the visible label
-   * then fails to reach the field.
-   */
+  /** Only with no visible label, because aria-label replaces the name, so speech would miss the field. */
   ariaLabel?: string;
   className?: string;
 }
@@ -36,8 +31,7 @@ function formatStepAmount(amount: number) {
   return value.startsWith("0.") ? value.slice(1) : value;
 }
 
-// Buttons clamp to min/max; typing may be empty or out of range, and the owning
-// form's zod schema ranges it and blocks an invalid submission.
+// Buttons clamp to min/max; typing may go out of range, and the owning form's zod schema blocks an invalid submission.
 export function StepperNumberInput({
   value,
   onChange,
@@ -66,8 +60,7 @@ export function StepperNumberInput({
         type="button"
         size="icon"
         variant={isSecondary ? "outline" : "primary"}
-        // A bare ".5" reads poorly aloud, so the label formats the amount through
-        // ICU in the active locale instead of reusing the button text.
+        // A bare ".5" reads poorly aloud, so the label formats the amount through ICU.
         aria-label={
           sign > 0
             ? t("stepper.increase", { amount })

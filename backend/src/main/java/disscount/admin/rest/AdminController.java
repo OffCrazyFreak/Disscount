@@ -2,6 +2,7 @@ package disscount.admin.rest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,6 @@ public class AdminController {
     @Operation(summary = "List all active users (admin only)")
     @GetMapping("/users")
     public ResponseEntity<List<UserDto>> getAllUsers() {
-        userService.requireAdmin(SecurityUtils.getCurrentUserId());
         return ResponseEntity.ok(userService.findAllActive());
     }
 
@@ -34,18 +34,15 @@ public class AdminController {
     @PatchMapping("/users/{userId}")
     public ResponseEntity<UserDto> updateAccountType(
             @PathVariable UUID userId,
-            @RequestBody UpdateAccountTypeRequest request
+            @Valid @RequestBody UpdateAccountTypeRequest request
     ) {
-        userService.requireAdmin(SecurityUtils.getCurrentUserId());
         return ResponseEntity.ok(userService.updateAccountType(userId, request.getAccountType()));
     }
 
     @Operation(summary = "Delete a user (admin only)")
     @DeleteMapping("/users/{userId}")
     public ResponseEntity<Map<String, String>> deleteUser(@PathVariable UUID userId) {
-        UUID adminUserId = SecurityUtils.getCurrentUserId();
-        userService.requireAdmin(adminUserId);
-        userService.deleteUserAsAdmin(userId, adminUserId);
+        userService.deleteUserAsAdmin(userId, SecurityUtils.getCurrentUserId());
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
     }
 }

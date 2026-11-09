@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "@/i18n/navigation";
-import { useCallback, type ReactNode } from "react";
+import { useCallback, type MouseEvent, type ReactNode } from "react";
 import { useCameraScanner } from "@/context/scanner-context";
 import { useNotifications } from "@/context/notifications-context";
 import { useUser } from "@/context/user-context";
@@ -36,8 +36,7 @@ export default function FeatureCardAction({
 
   // Guests have no notifications dropdown mounted, so send them to login first
   function openNotifications() {
-    // Ignored until auth resolves: isAuthenticated is false in that window, so
-    // acting on it showed the login modal to someone already signed in.
+    // isAuthenticated is false until auth resolves, which would show login to someone signed in.
     if (isInitializing) return;
 
     if (isAuthenticated) requestOpenMenu();
@@ -46,7 +45,8 @@ export default function FeatureCardAction({
 
   const onClick =
     action === "scanner"
-      ? () => openScanner({ onScan: handleScan })
+      ? (event: MouseEvent<HTMLButtonElement>) =>
+          openScanner({ onScan: handleScan, opener: event.currentTarget })
       : openNotifications;
 
   return (

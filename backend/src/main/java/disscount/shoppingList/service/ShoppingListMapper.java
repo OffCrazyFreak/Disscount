@@ -12,10 +12,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * One place items and lists become DTOs, so the owner view and the shared view cannot
- * drift apart in what they expose.
- */
+/** One place, so the owner view and shared view cannot drift apart in what they expose. */
 @Component
 public class ShoppingListMapper {
 
@@ -29,9 +26,7 @@ public class ShoppingListMapper {
 
         return ShoppingListDto.builder()
                 .id(list.getId())
-                // Account ids are for the owner only. They are stable cross-request
-                // identifiers, and a share link can travel anywhere, so a recipient
-                // would otherwise be able to correlate two links as the same person.
+                // Owner only: ids are stable and links travel, so a recipient could correlate two links as one person.
                 .ownerId(isOwner ? list.getOwner().getId() : null)
                 .title(list.getTitle())
                 .linkAccess(isOwner ? list.resolvedLinkAccess() : null)
@@ -58,10 +53,7 @@ public class ShoppingListMapper {
                 .storePrice(item.getStorePrice())
                 .createdAt(item.getCreatedAt())
                 .updatedAt(item.getUpdatedAt())
-                // Same reason as ownerId. On a SHOP or EDIT list several accounts touch
-                // items, so this would hand a link visitor the account id of everyone
-                // shopping it. Nothing renders attribution yet; version 2 adds it as a
-                // name, not an id.
+                // As with ownerId: on SHOP or EDIT lists this would hand visitors everyone's account id.
                 .updatedByUserId(updatedByUserId(item, access))
                 .build();
     }

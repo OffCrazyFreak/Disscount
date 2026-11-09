@@ -5,12 +5,7 @@ import type { ComponentProps } from "react";
 import { CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 
-/**
- * A disclosure toggle that sits inside a heading and stretches over its
- * positioned ancestor through a pseudo-element, so a whole card header toggles
- * while other controls in it stay real siblings, raised above with `relative
- * z-10`. The ancestor must be `relative isolate`, as for `StretchedLink`.
- */
+/** Stretches over a `relative isolate` ancestor, so other controls there stay sibling buttons with `relative z-10`. */
 export default function StretchedCollapsibleTrigger({
   className,
   ...props

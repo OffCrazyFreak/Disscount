@@ -37,10 +37,7 @@ const NEAREST: INearestStore = { key: "konzum:1", km: 1.2 };
 
 const BADGE_NAME = "Otvoreno, zatvara u 21:00";
 
-/**
- * What both chain cards owe the user, whichever page shows them. `card` must
- * show a chain called Konzum, and `DETAILS` once it is expanded.
- */
+/** Shared by both chain cards, so `card` must show a chain called Konzum and `DETAILS` once expanded. */
 export function describeChainCard(
   label: string,
   card: (nearest?: INearestStore) => ReactElement,

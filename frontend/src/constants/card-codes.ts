@@ -1,5 +1,4 @@
-// Code types use the BarcodeDetector format names, so a scan needs no translation on the
-// way in, plus "unknown" for a membership number that has no barcode at all.
+// BarcodeDetector format names so a scan needs no translation, plus "unknown" for a membership number with no barcode.
 export const CODE_TYPES = [
   "ean_13",
   "ean_8",

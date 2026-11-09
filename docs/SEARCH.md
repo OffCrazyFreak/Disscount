@@ -4,20 +4,6 @@ How every "type something and see it filter" surface in the app works, why they 
 
 This is a frontend document. The backend's only search is the store-name suggestion lookup, see [§9](#9-the-backend-searches-only-store-names). Where product results come from (the upstream API, the exact then fuzzy proxy search) is in [PRODUCTS.md](PRODUCTS.md#4-product-search-and-the-product-list).
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [The problem this replaced](#2-the-problem-this-replaced)
-3. [Architecture](#3-architecture)
-4. [How a query is matched](#4-how-a-query-is-matched)
-5. [How results are ranked](#5-how-results-are-ranked)
-6. [Collation: sorting Croatian](#6-collation-sorting-croatian)
-7. [Every surface that consumes it](#7-every-surface-that-consumes-it)
-8. [Key files](#8-key-files)
-9. [The backend searches only store names](#9-the-backend-searches-only-store-names)
-10. [Gotchas & lessons learned](#10-gotchas--lessons-learned)
-11. [Future improvements & TODOs](#11-future-improvements--todos)
-
 ## 1. Quick reference
 
 | Question                         | Answer                                                     |
@@ -33,17 +19,7 @@ This is a frontend document. The backend's only search is the store-name suggest
 
 ## 2. The problem this replaced
 
-The app used to have **three matchers giving three different answers to the same gesture**.
-
-| Engine                                       | Semantics                          | Callers |
-| -------------------------------------------- | ---------------------------------- | ------- |
-| `scoreOption`                                | tokenized, ranked, diacritic-blind | 1       |
-| `filterByFields`                             | whole-string substring, unranked   | 7       |
-| an inline filter in the shopping-list picker | substring, unranked, keywords only | 1       |
-
-Typing `kruh crni` ranked correctly in a products dropdown, found nothing in the watchlist, and nothing in the shopping-list picker. The most capable matcher had one caller and the least capable had seven.
-
-The third one had forked for a real reason: its item values are UUIDs, and because cmdk scores an item's `value` as well as its keywords, a short hex query matched unrelated lists. That is the same class of bug as a chain-code list where typing `trgovina` surfaces a row labelled **Jadranka**, because the invisible value is `jadranka_trgovina`.
+The app once had three matchers that answered the same gesture differently: `kruh crni` ranked correctly in a products dropdown and found nothing in the watchlist or the shopping-list picker. The reason the picker had forked still binds: cmdk scores an item's `value` as well as its keywords, so a UUID value lets a short hex query match unrelated lists, and a chain-code value surfaces **Jadranka** for `trgovina` because the invisible value is `jadranka_trgovina`.
 
 ## 3. Architecture
 
@@ -135,18 +111,13 @@ The seven `filterByFields` callers gained tokenized, ranked, abbreviation-tolera
 
 ## 8. Key files
 
-| Path                                               | Role                                                                  |
-| -------------------------------------------------- | --------------------------------------------------------------------- |
-| `utils/search/normalize.ts`                        | `normalizeCached` (memoized fold) and `prepareQuery` (one-entry memo) |
-| `utils/search/fuzzy.ts`                            | `subsequenceScore`, the abbreviation matcher                          |
-| `utils/search/match.ts`                            | `MATCH_TIER`, `findWholeQuery`, `scoreFields`                         |
-| `utils/search/rank.ts`                             | `chainComparators`, `byAsc`, `byDesc`                                 |
-| `utils/search/command-filter.ts`                   | `commandFilter`, the cmdk adapter                                     |
-| `utils/strings.ts`                                 | `normalizeForSearch` (the fold) and `compareHr` (the sort)            |
-| `utils/generic.ts`                                 | `filterByFields`, now a thin wrapper over `scoreFields`               |
-| `utils/pinned-stores.ts`                           | `chainMatchesPinnedStore`, `isPinnedChain`                            |
-| `app/[locale]/products/utils/product-relevance.ts` | product ranking, composed from `rank.ts`                              |
-| `app/[locale]/products/utils/product-filters.ts`   | `normalizeChainCode`, the code-only normalizer                        |
+| Path                                             | Role                                                              |
+| ------------------------------------------------ | ----------------------------------------------------------------- |
+| `utils/search/command-filter.ts`                 | `commandFilter`, the cmdk adapter                                 |
+| `utils/strings.ts`                               | `normalizeForSearch` (the fold) and `compareHr` (the sort)        |
+| `utils/generic.ts`                               | `filterByFields`, now a thin wrapper over `scoreFields`           |
+| `app/[locale]/products/utils/product-filters.ts` | `normalizeChainCode`, the code-only normalizer                    |
+| `components/custom/search/search-draft-store.ts` | Typed text apart from the URL, shared by the product search boxes |
 
 **Libraries: none.** Matching is entirely in-repo. cmdk `^1.1.1` supplies the combobox, but its own `command-score` filter is replaced by `commandFilter`.
 
@@ -160,7 +131,7 @@ So every other "search" outside products is the browser filtering an array it al
 
 When server-side search is built, two things are already known:
 
-- **JPQL `LOWER(x) LIKE LOWER(:q)` is portable to H2**, so it needs no profile guard. `ILIKE` and `tsvector` are Postgres-only and would need one, plus an H2 fallback, per the testing constraint in `AGENTS.md`.
+- **JPQL `LOWER(x) LIKE LOWER(:q)` is portable to H2**, so it needs no profile guard. `ILIKE` and `tsvector` are Postgres-only and would need one, plus an H2 fallback, because the backend tests run on H2.
 - **Diacritic folding does not come for free on the server.** `LOWER(...) LIKE` on Postgres is accent-sensitive and `unaccent` is an extension. Preserving what the client does today means a normalized shadow column, which is portable.
 
 Also note **email is not on the JPA `User` entity**; it lives in better-auth's own table and is read through a native query. Searching users by email crosses that boundary.
@@ -189,6 +160,26 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 
 **Client ranking cannot fix a truncated server response.** Products come back capped at 100 rows chosen by the upstream API's own opaque ranking, so `sortProductsByRelevance` only reorders what already arrived. A better match beyond the cap cannot surface.
 
+**Never `reset()` a search field's form.** `SearchBar` uses `register`, and `reset` also resets react-hook-form's field references. The input only registers again if `register("query")` runs again, which the React Compiler's memoization prevents, so the old text stays and typing is ignored until a reload. `use-search-bar-query.ts` pushes the draft into the form with `setValue` instead.
+
+**Product search boxes mirror one draft; the URL stays the submitted query.** The header, sidebar, home hero, `/products` page and phone sheet all render `ProductSearchBar`, because each has its own submit button and each used to submit only its own field, so a button did nothing or searched old text when the words were typed in another box. A field shows what was typed (`productSearchDraft`), else the URL's `q`. Typing writes only to the draft, so results change on submit alone (the decision on #162, search while typing). A change of `q` from elsewhere (Back, a link) drops the draft, a clear empties it everywhere, and a box that mounts later (the opened sheet) picks it up. A draft survives moving between pages while `q` does not change, and a full reload drops it. Local filters (watchlist, lists, cards, map, updates, suggestions) use `SearchBar` directly, which gives each its own private draft, so they cannot mirror.
+
+**A navigation the field started never overwrites newer text.** The URL follows a submit, a clear or a live filter keystroke in a transition, so more can be typed before it lands. `search-draft-store.ts` lists the queries its fields sent the URL to. When one lands, the draft stays if it now says something else, and is dropped if it matches. A `q` not on that list came from elsewhere and always wins. The live filter's sync also compares its render's text with the store before sending: a route change replaces the draft earlier in the same effect pass, and sending the old text would push a new history entry over the one Back just reached.
+
+**A closing sidebar hands focus to its trigger.** The closed sidebar is `inert`, so focus left inside it would fall to the top of the page. `setOpen` in `components/ui/sidebar.tsx` moves focus to the trigger on screen before closing, when focus is inside the sidebar; a search from a field outside it keeps its focus. The mobile drawer does the same in the `finalFocus` of its `DrawerContent` (Base UI's own return goes to whatever opened it, which a link can unmount: the map swaps the header trigger for its own, and Safari never focuses a tapped button): it refocuses the opener recorded in `initialFocus`, or else the trigger on screen. A scan has focus in the scanner dialog at that moment, so `camera-scanner.tsx` makes the same move when the dialog closes and its opener has gone inert; in the drawer the scan button is still mounted for its roughly 450 ms exit transition, so the scanner returns focus there and the drawer's `finalFocus` has the last word. Otherwise it returns focus to the opener (the scan button), or to its field when the button is gone, because Radix restores focus only to a `DialogTrigger`.
+
+**A clear or a blank submit never leaves the page.** A bar off its search route has no `q` to drop, so clearing it only empties the field, and a live filter's own sync drops its query. Enter on only spaces searches nothing and at most closes a touch keyboard; Enter on a field emptied by hand drops `q` only where the search route is the current page.
+
+**Product bars suggest searches from the device, and never fetch.** Every `ProductSearchBar` wraps its field in Base UI's `Autocomplete` (`search-suggestions.tsx`), so it is an APG grid combobox: focus stays in the input, arrows highlight a cell, Enter or a press on a row runs that search through the same path as a submit, and Enter with nothing highlighted submits the typed text. Each recent search has a second cell, an x that removes that one and leaves the list open, which is why this is a grid: a button inside a listbox option is not reachable by keyboard. An empty field lists the recent product searches; a typed one ranks recent searches and names of already loaded products through `scoreFields` (`rankSearchSuggestions`, at most eight). The names come from `getCachedProductNames`, read once per opening and capped at 1000 so a keystroke never walks the cache or churns `normalizeCached`. A new visitor has only what they search. A row never opens a product page, because a suggestion says what to search, not which result to take (the decision on #406).
+
+**A search is remembered only when a field submitted it and it found something.** `markProductSearchSubmitted` notes the query, and `useRecordProductSearch` in `ProductsClient` stores it once results settle, so a shared link or Back records nothing. The list is `productRecentSearches`, five at most, cleared when a signed-in session ends and removable one by one. A guest signing in keeps theirs.
+
+**A list shows only under the focused field.** The bars mirror one draft, so one left open would rise under typing in another; blur closes it.
+
+**The field is `type="text"`, not `search`, once it suggests.** ARIA in HTML does not allow a combobox role on `type="search"`. `inputMode` and `enterKeyHint` keep the phone's search key.
+
+**Base UI's hidden input stops Enter submitting a form with no button.** A browser submits implicitly only when the form has a single field or a default button. The header bar has neither once the hidden input is there, so `SearchBar` calls `requestSubmit` itself.
+
 **Placeholder results are not settled results.** `useGetProductByName` keeps the previous search's products as placeholder data while the next query loads, so the list does not blank on every search. While that is on screen React Query reports `isLoading` false, so `useInfiniteProducts` exposes `isRefreshing` (`isPlaceholderData`), and the products page holds the count in the title and the screen reader status back until it clears; the grid is dimmed and `aria-busy` meanwhile. When the carried over results filter down to nothing (the previous search found none, or the active filters hide them all), `useInfiniteProducts` reports loading instead, because an empty state there would read as the answer to the new query. React Query hands the placeholder the last search that had data, so a search typed after clearing the field shows the results from before the clear, dimmed, until it loads.
 
 ## 11. Future improvements & TODOs
@@ -197,6 +188,6 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 - **Server-side search and pagination.** Nothing exists beyond the store-name lookup. See [§9](#9-the-backend-searches-only-store-names) for the portability notes. This becomes urgent the moment the admin panel grows past its two current tabs.
 - **`GET /api/admin/users` is unbounded** and WAU/MAU is counted client-side over every user row, which structurally prevents ever paginating that endpoint. Recorded here rather than fixed.
 - **The admin contact inbox silently truncates at 500.** The cap is server-side, `MAX_ADMIN_MESSAGES` in `ContactMessageService`, so rows past it never reach the browser and are unreachable and unsearchable, with no indication in the UI.
-- **`components/ui/chart.tsx` sorts labels with a locale-less `localeCompare`**, so Croatian diacritics collate wrongly in chart tooltips. It is shadcn output, but `AGENTS.md` allows editing that folder where the primitive is the natural home for the change, and a comparator the whole app needs in Croatian qualifies. Swapping it for `compareHr` is a one-line fix nobody has taken.
-- **Two surfaces have a search box that matches nothing.** The map page renders one as a stub, and `sidebar-filter-menu.tsx` lists several hundred options with no filter box at all. Both are obvious consumers for this system.
+- **`components/ui/chart.tsx` sorts labels with a locale-less `localeCompare`**, so Croatian diacritics collate wrongly in chart tooltips. It is shadcn output, but editing that folder is fine where the primitive is the natural home for the change, and a comparator the whole app needs in Croatian qualifies. Swapping it for `compareHr` is a one-line fix nobody has taken.
+- **One surface has a search box that matches nothing.** `sidebar-filter-menu.tsx` lists several hundred options with no filter box at all, an obvious consumer for this system. The map search is wired up: it filters the store list and the map by chain, city and address through `filterByFields` (`use-visible-stores.ts`).
 - **Consider a library only if a surface really holds 10k+ rows client-side.** None does today. If one ever does, `MiniSearch` (7kB, zero dependencies, a `processTerm` hook that takes `normalizeForSearch` directly) is the closest fit; `uFuzzy` is faster and smaller but has a much smaller user base.

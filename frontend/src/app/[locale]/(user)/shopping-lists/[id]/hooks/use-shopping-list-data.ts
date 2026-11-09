@@ -17,10 +17,7 @@ import {
 } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/item-price-state";
 import { productLookupQuery } from "@/app/[locale]/(user)/shopping-lists/[id]/utils/product-lookup-query";
 
-/**
- * One read for owners and link visitors alike. The endpoint resolves the caller's access
- * from the id, so there is no second path and nothing to choose between here.
- */
+/** The endpoint resolves the caller's access from the id, so owners and link visitors share this one read. */
 export function useShoppingListData(listId: string) {
   const { accountUser } = useUser();
 
@@ -68,9 +65,7 @@ export function useShoppingListData(listId: string) {
       );
 
       return {
-        // Paired with the requested EAN, not the one echoed back. useQueries keeps
-        // results index-aligned with `eans`, and upstream is free to normalise the
-        // value it returns, which would silently miss the lookup below.
+        // Paired with the requested EAN, because upstream may normalise the one it returns.
         productsData: results
           .map((result, index) => [eans[index], result.data] as const)
           .filter((entry): entry is readonly [string, ProductResponse] => {

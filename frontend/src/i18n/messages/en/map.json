@@ -5,7 +5,8 @@
   },
   "heading": "Store map",
   "search": {
-    "placeholder": "Store, town or address..."
+    "placeholder": "Store, town or address",
+    "placeholderShort": "Store"
   },
   "layout": {
     "storeList": "Store list",

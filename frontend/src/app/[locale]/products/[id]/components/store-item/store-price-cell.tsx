@@ -7,7 +7,6 @@ import {
 } from "@/app/[locale]/products/utils/product-utils";
 import { formatPrice } from "@/utils/price";
 
-// Prefer the special price over the regular one
 function getDisplayPrice(price: StorePrice): number | null {
   if (price.special_price) return parseFloat(price.special_price);
   if (price.regular_price) return parseFloat(price.regular_price);
@@ -50,9 +49,6 @@ export default function StorePriceCell({
   return (
     <span className={cn(priceClass(priceExtreme, isLocationPreferred))}>
       {formatPrice(displayPrice, locale)}
-      {/* {price.special_price && (
-        <span className="ml-2">(akcija)</span>
-      )} */}
     </span>
   );
 }

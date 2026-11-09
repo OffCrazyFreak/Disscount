@@ -3,9 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildDateWindow,
   formatRelativeTime,
-  fromLocalDateString,
   parseServerDate,
-  toLocalDateString,
 } from "@/utils/date";
 
 afterEach(() => {
@@ -34,14 +32,6 @@ describe("parseServerDate", () => {
   });
 });
 
-describe("local date strings", () => {
-  it("round-trips without drifting a day", () => {
-    const date = fromLocalDateString("2026-03-29");
-
-    expect(toLocalDateString(date)).toBe("2026-03-29");
-  });
-});
-
 describe("buildDateWindow", () => {
   it("ends today and never reaches before the earliest day", () => {
     vi.useFakeTimers({ now: new Date(2026, 9, 13, 12) });
@@ -62,6 +52,44 @@ describe("buildDateWindow", () => {
     vi.useFakeTimers({ now: new Date(2026, 9, 13, 12) });
 
     expect(buildDateWindow(7, "2026-10-20")).toEqual([]);
+  });
+});
+
+describe("buildDateWindow on a device outside Croatia", () => {
+  // 00:30 on 14 October in Zagreb, still the afternoon of 13 October in Los Angeles.
+  const justAfterZagrebMidnight = new Date("2026-10-13T22:30:00Z");
+
+  it("ends on Zagreb's today, not the device's", () => {
+    vi.stubEnv("TZ", "America/Los_Angeles");
+    vi.useFakeTimers({ now: justAfterZagrebMidnight });
+
+    expect(new Date().getDate()).toBe(13);
+    expect(buildDateWindow(3, "2026-10-01")).toEqual([
+      "2026-10-12",
+      "2026-10-13",
+      "2026-10-14",
+    ]);
+  });
+
+  it("counts available days from Zagreb's today too", () => {
+    vi.stubEnv("TZ", "Pacific/Kiritimati");
+    vi.useFakeTimers({ now: new Date("2026-10-13T12:00:00Z") });
+
+    expect(buildDateWindow(30, "2026-10-13")).toEqual(["2026-10-13"]);
+    expect(buildDateWindow(-1, "2026-10-12")).toEqual([
+      "2026-10-12",
+      "2026-10-13",
+    ]);
+  });
+
+  it("steps over the autumn clock change without skipping a day", () => {
+    vi.useFakeTimers({ now: new Date("2026-10-26T12:00:00Z") });
+
+    expect(buildDateWindow(3, "2026-10-01")).toEqual([
+      "2026-10-24",
+      "2026-10-25",
+      "2026-10-26",
+    ]);
   });
 });
 

@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import disscount.config.SecurityConfig;
-import disscount.exceptions.ForbiddenException;
 import disscount.productImage.dto.ProductImageDtos.ListedEansDto;
 import disscount.productImage.dto.ProductImageDtos.ProductImageDto;
 import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
@@ -24,7 +23,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -55,7 +53,7 @@ class ProductImageControllerTest {
     void photosAndThumbnailsAreReadableWithoutLogin() throws Exception {
         UUID id = UUID.randomUUID();
         when(queries.forProduct("8076800195057")).thenReturn(new ProductImagesDto("8076800195057",
-                List.of(new ProductImageDto(id, "https://i/full.jpg", "https://i/thumb.jpg", "OPEN_FOOD_FACTS", "VERIFIED"))));
+                List.of(new ProductImageDto(id, "https://i/full.jpg", 1600, 900, "https://i/small.jpg", "OPEN_FOOD_FACTS", "VERIFIED"))));
         when(queries.thumbnails(List.of("8076800195057", "5449000000996")))
                 .thenReturn(new ProductThumbnailsDto(Map.of("8076800195057", "https://i/thumb.jpg")));
 
@@ -89,8 +87,6 @@ class ProductImageControllerTest {
 
     @Test
     void adminEndpointsRejectRegularUsers() throws Exception {
-        doThrow(new ForbiddenException("error.user.adminRequired")).when(userService).requireAdmin(userId);
-
         mvc.perform(get("/api/admin/product-images/queue").with(auth())).andExpect(status().isForbidden());
         mvc.perform(post("/api/admin/product-images/8076800195057/refresh").with(auth())).andExpect(status().isForbidden());
         verifyNoInteractions(admin);

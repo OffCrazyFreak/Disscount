@@ -1,4 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
+import { waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { syncCacheIdentity } from "@/context/sync-cache-identity";
@@ -26,7 +27,7 @@ async function switchTo(
 ) {
   syncCacheIdentity(queryClient, ref, identity, null);
   // The purge it fires settles on its own; let it run before asserting.
-  await vi.waitFor(() => expect(ref.current).toBe(identity));
+  await waitFor(() => expect(ref.current).toBe(identity));
   await new Promise((resolve) => setTimeout(resolve, 0));
 }
 

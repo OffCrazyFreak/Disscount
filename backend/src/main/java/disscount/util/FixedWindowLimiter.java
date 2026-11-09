@@ -5,8 +5,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import disscount.exceptions.TooManyRequestsException;
+import org.springframework.scheduling.annotation.Scheduled;
 
-/** Per-user fixed window kept in memory, for the few writes expensive enough to need a cap. */
 public class FixedWindowLimiter {
 
     private record Window(long startedAt, int count) {}
@@ -45,6 +45,8 @@ public class FixedWindowLimiter {
         }
     }
 
+    // Expired windows would otherwise stay in memory for every user who ever uploaded.
+    @Scheduled(fixedDelay = 300_000)
     public void sweep() {
         long now = clock.millis();
         windows.entrySet().removeIf(e -> now - e.getValue().startedAt() >= windowMillis);

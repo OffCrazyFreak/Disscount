@@ -6,7 +6,7 @@
   },
   "author": "Ekipa Disscount",
   "separator": "·",
-  "searchPlaceholder": "Išči novice...",
+  "searchPlaceholder": "Išči novice",
   "heading": "Novice ({count})",
   "searchHeading": "Rezultati iskanja za »{query}« ({count})",
   "newPost": "Nova objava",

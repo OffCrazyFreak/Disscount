@@ -82,8 +82,7 @@ export function useSettingsSave({
     clearDraft();
     form.reset(values);
     onSaved();
-    // Onboarding always runs a job to stamp its outcome, so only a settings save
-    // can reach here with nothing written, and claiming otherwise would be a lie.
+    // Onboarding always runs a job to stamp its outcome, so only a settings save can reach here with nothing written.
     if (mode === "onboarding") {
       toast.success(t("save.onboardingDone"));
       closeModalUrl();

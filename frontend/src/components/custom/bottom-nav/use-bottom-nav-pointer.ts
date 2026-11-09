@@ -20,16 +20,7 @@ interface IUseBottomNavPointerOptions {
   routeKey: string;
 }
 
-/**
- * One pointer stream for the whole bar, because a tap is just a zero-distance
- * scrub. Pressing captures the pointer, the active disc follows the thumb across
- * cells, and release commits whichever cell it ended over. Straying off the bar
- * resolves to no cell, so that release commits nothing.
- *
- * Activation happens on pointerup rather than through each cell's click, since
- * capturing the pointer on the list retargets the click away from the button.
- * Cells still handle keyboard-driven clicks, which carry no pointer.
- */
+/** On pointerup because pointer capture retargets click; cells still handle keyboard clicks. */
 export default function useBottomNavPointer({
   onActivate,
   holdFor,
@@ -55,8 +46,7 @@ export default function useBottomNavPointer({
         event.clientX < BAR_EDGE_EXCLUSION_PX ||
         window.innerWidth - event.clientX < BAR_EDGE_EXCLUSION_PX;
 
-      // isPrimary identifies the primary pointer, not the pressed button, so a
-      // right-click would otherwise start and commit a gesture.
+      // isPrimary ignores the button pressed, so a right-click would otherwise commit a gesture.
       const isMainButton = event.pointerType !== "mouse" || event.button === 0;
 
       if (!event.isPrimary || !isMainButton || nearEdge) return;
@@ -68,12 +58,20 @@ export default function useBottomNavPointer({
       );
       if (index === null) return;
 
+      // Capture first: a gone or synthetic pointer throws NotFoundError, and nothing undoes earlier state.
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "NotFoundError")
+          return;
+        throw error;
+      }
+
       pointerId.current = event.pointerId;
       pressedIndex.current = index;
       origin.current = { x: event.clientX, y: event.clientY };
       consumed.current = false;
       setScrubIndex(index);
-      event.currentTarget.setPointerCapture(event.pointerId);
 
       const action = latest.current.holdFor(index);
       if (!action) return;
@@ -107,16 +105,10 @@ export default function useBottomNavPointer({
     [hold],
   );
 
-  /**
-   * Capture is released explicitly. A capture that outlived its gesture
-   * retargeted the next one to the list, which read as one tab activating
-   * another.
-   */
+  /** Released explicitly, because a capture outliving its gesture retargets the next one to the list. */
   const finish = useCallback(
     (event: ReactPointerEvent<HTMLUListElement>, activates: boolean) => {
-      // A second finger lands on the bar as its own pointer, and capture only
-      // binds the first, so without this its release would commit the cell under
-      // IT and cancel the real gesture.
+      // A second finger is an unbound pointer, whose release would cancel the real gesture.
       if (event.pointerId !== pointerId.current) return;
 
       if (event.currentTarget.hasPointerCapture(event.pointerId))
@@ -160,8 +152,7 @@ export default function useBottomNavPointer({
         finish(event, true),
       onPointerCancel: (event: ReactPointerEvent<HTMLUListElement>) =>
         finish(event, false),
-      // Capture can be revoked with neither pointerup nor pointercancel, which
-      // would strand the scrub highlight and a half-filled ring.
+      // Capture can be revoked with no pointerup or pointercancel, stranding the highlight and ring.
       onLostPointerCapture: (event: ReactPointerEvent<HTMLUListElement>) =>
         finish(event, false),
     },

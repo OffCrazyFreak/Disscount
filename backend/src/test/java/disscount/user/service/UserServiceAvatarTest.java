@@ -5,6 +5,7 @@ import disscount.digitalCard.service.DigitalCardService;
 import disscount.exceptions.BadRequestException;
 import disscount.favoriteStore.service.FavoriteStoreService;
 import disscount.user.avatar.AvatarSanitizer;
+import disscount.productImage.service.ProductImageErasure;
 import disscount.user.dao.AuthIdentityDao;
 import disscount.user.dao.ErasureLedgerRepository;
 import disscount.user.dao.UserRepository;
@@ -13,7 +14,6 @@ import disscount.user.dto.UserRequest;
 import org.junit.jupiter.api.Test;
 
 import java.util.Base64;
-import java.util.Optional;
 import java.util.UUID;
 
 import static disscount.digitalCard.photo.TestImages.contains;
@@ -30,13 +30,13 @@ class UserServiceAvatarTest {
 
     private final UserRepository userRepository = mock(UserRepository.class);
     private final UserService userService = new UserService(userRepository, mock(AuthIdentityDao.class),
-            mock(UserProfileCreator.class), mock(DigitalCardService.class), mock(FavoriteStoreService.class),
+            mock(UserProfileCreator.class), mock(DigitalCardService.class), mock(FavoriteStoreService.class), mock(ProductImageErasure.class),
             mock(ErasureLedgerRepository.class), new AvatarSanitizer(new PhotoValidator()));
 
     private final User user = User.builder().id(UUID.randomUUID()).username("ana").image("data:image/webp;base64,old").build();
 
     private UserRequest withImage(String image) {
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.requireActive(user.getId())).thenReturn(user);
         when(userRepository.save(any(User.class))).thenAnswer(call -> call.getArgument(0));
         UserRequest request = new UserRequest();
         request.setImage(image);

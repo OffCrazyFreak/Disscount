@@ -48,9 +48,7 @@ export default function ShoppingListsClient({
 
   const isUserLoading = userLoading || isLoading || isRestoring;
 
-  // Most recently touched first. The API returns these in no defined order, so
-  // without this the list can silently reshuffle between fetches. filterByFields
-  // sorts stably on coarse scores, so this order survives among equal matches.
+  // The API has no defined order, so without this the list reshuffles between fetches.
   const matchingShoppingLists = filterByFields(
     sortShoppingListsByRecency(shoppingLists),
     query,
@@ -77,7 +75,6 @@ export default function ShoppingListsClient({
           <SearchBar
             placeholder={t("client.searchPlaceholder")}
             searchRoute={pathname}
-            clearable={true}
             submitButtonLocation="none"
             autoSearch={true}
             disabled={!isUserLoading && shoppingLists.length === 0}

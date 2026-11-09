@@ -17,8 +17,7 @@ export interface IDistanceOrigin extends ILatLon {
   county: County | null;
 }
 
-// Module memory, not storage: a picked town lasts until the tab reloads and
-// is never saved or sent, as with the position itself.
+// Module memory, not storage: a picked town lasts until reload and is never saved or sent, as with the position itself.
 let pickedTown: string | null = null;
 const listeners = new Set<() => void>();
 
@@ -57,11 +56,7 @@ function locateTown(
     : null;
 }
 
-/**
- * Where distances start from, shared by the map and distance sorting: a GPS
- * fix, else a town picked this session, else the first saved place. Towns
- * become points from the store directory alone, so nothing is geocoded.
- */
+/** Towns become points from the store directory alone, so nothing is geocoded. */
 export function useDistanceOrigin(
   stores: DirectoryStoreDto[] | undefined,
   gps: ILatLon | null,

@@ -15,7 +15,7 @@ import { GITHUB_REPO_URL, LINKEDIN_URL } from "@/constants/contact";
 
 export default function FooterSection() {
   const t = useTranslations("common");
-  const currentYear = new Date().getFullYear();
+  const currentYear = new Date().getUTCFullYear();
 
   return (
     <footer className="mt-auto">
@@ -26,7 +26,6 @@ export default function FooterSection() {
             className="text-muted-foreground text-xs sm:text-sm flex items-center justify-center sm:justify-start gap-2"
           >
             <Link href="/" className="flex items-center space-x-2">
-              {/* App logo */}
               <CartLogo className="size-8 sm:size-10 text-primary" />
 
               <span className="font-saira-stencil-semibold text-primary">

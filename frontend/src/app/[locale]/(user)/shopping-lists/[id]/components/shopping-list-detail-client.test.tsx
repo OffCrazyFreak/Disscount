@@ -1,12 +1,12 @@
 import { IsRestoringProvider } from "@tanstack/react-query";
 import { screen, within } from "@testing-library/react";
-import { AxiosError, AxiosHeaders } from "axios";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import ShoppingListDetailClient from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-detail-client";
 import type { ShoppingListDto } from "@/lib/api/types";
 import { renderWithProviders } from "@/test/render";
 import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
+import { httpError } from "@/test/http-error";
 
 const account = vi.hoisted(() => ({ canShowAccountData: false }));
 
@@ -109,16 +109,6 @@ const LIST_WITH_ITEM = {
     },
   ],
 } satisfies ShoppingListDto;
-
-function httpError(status: number) {
-  return new AxiosError("Request failed", undefined, undefined, undefined, {
-    status,
-    statusText: "",
-    headers: {},
-    config: { headers: new AxiosHeaders() },
-    data: { status },
-  });
-}
 
 describe("ShoppingListDetailClient", () => {
   afterEach(() => {

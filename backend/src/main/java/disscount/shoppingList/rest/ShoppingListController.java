@@ -44,9 +44,7 @@ public class ShoppingListController {
         return ResponseEntity.ok(lists);
     }
 
-    // The three by-id endpoints run on the chain where a bearer token is optional, so the
-    // caller may be anonymous and currentUserId() may be null. Authorization is entirely
-    // ShoppingListService's job; nothing here may assume an owner.
+    // Runs on the optional-token chain, so currentUserId() may be null; authorization is ShoppingListService's job.
 
     @Operation(summary = "Get shopping list by ID, for its owner or anyone holding a share link")
     @GetMapping("/{id}")
@@ -79,7 +77,6 @@ public class ShoppingListController {
         return ResponseEntity.noContent().build();
     }
     
-    // reccomendations for watchlist
     @Operation(summary = "Get all items from user's active shopping lists")
     @GetMapping("/items")
     public ResponseEntity<List<ShoppingListItemDto>> getAllUserShoppingListItems() {

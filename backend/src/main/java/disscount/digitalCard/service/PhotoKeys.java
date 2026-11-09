@@ -2,12 +2,14 @@ package disscount.digitalCard.service;
 
 import java.util.UUID;
 
+import disscount.storage.PhotoStoreConfig;
+
 final class PhotoKeys {
 
     private PhotoKeys() {}
 
     static String userPrefix(UUID userId) {
-        return "cards/" + userId + "/";
+        return PhotoStoreConfig.CARD_FOLDER + "/" + userId + "/";
     }
 
     static String cardPrefix(UUID userId, UUID cardId) {

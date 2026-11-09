@@ -73,7 +73,7 @@
     "places": {
       "label": "Lokacije",
       "hint": "Odaberi lokacije u svojoj blizini.",
-      "placeholder": "Odaberi lokacije..."
+      "placeholder": "Odaberi lokacije"
     },
     "selectedMark": "✓",
     "language": {
@@ -95,7 +95,6 @@
   "validation": {
     "usernameMin": "Upiši barem 2 znaka",
     "usernameMax": "Upiši najviše 40 znakova",
-    "emailInvalid": "Upiši ispravan email",
     "currentPasswordRequired": "Unesi trenutnu lozinku"
   },
   "onboarding": {

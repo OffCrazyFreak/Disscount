@@ -16,11 +16,7 @@ type Point = { lat: number; lon: number };
 // Geoapify's free plan allows 5 requests a second.
 const GEOAPIFY_INTERVAL_MS = 250;
 
-/**
- * An independent point for a store, to settle a DGU address that exists in
- * several places of one town: the chain's own record for this store number,
- * held to the locator step's rules, or else a building Geoapify is sure of.
- */
+/** Settles a DGU address that exists in several places of one town, held to the locator step's rules. */
 export function createDguAnchor(
   records: Map<string, ILocatorStore[]>,
   upstream: StoreResponse[],

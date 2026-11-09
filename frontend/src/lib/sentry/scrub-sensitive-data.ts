@@ -1,12 +1,4 @@
-/**
- * Keeps one-time auth secrets out of everything the Sentry SDK sends. The password reset
- * link lands on a page as `?token=`, and verify-email and OAuth callbacks carry `token`,
- * `code` and `state` in request URLs, so URLs are scrubbed by their structure (query key,
- * reset path segment), never by matching message text. The server SDK attaches request
- * bodies as raw JSON or form-encoded strings, so sensitive fields are filtered there as
- * well as as keys. Cookies and the Authorization header carry the session, so they go too,
- * as keys and also as values wherever they turn up in text.
- */
+/** Scrubbed by structure, not message text; the server SDK attaches raw bodies, filtered too. */
 const FILTERED = "[Filtered]";
 
 // better-auth's reset email links to this route with the token as a path segment.
@@ -24,8 +16,7 @@ const SENSITIVE_FIELD_NAMES = [
   "authorization",
 ];
 
-// Every better-auth cookie (session_token, session_data, dont_remember, ...), including the
-// __Secure- and __Host- forms it uses over HTTPS. The value ends where a cookie header's does.
+// Every better-auth cookie, including __Secure- and __Host- forms; the value ends where a cookie header's does.
 const BETTER_AUTH_COOKIE =
   /((?:__Secure-|__Host-)?better-auth\.[\w.-]+=)(?:"[^"]*"|[^;,\s"'\\]*)/gi;
 
@@ -49,11 +40,16 @@ const SENSITIVE_JSON_FIELD = new RegExp(
   "gi",
 );
 
+// A one-time code in a raw JSON body. An UPPER_SNAKE value is an error code, worth keeping.
+const ONE_TIME_CODE_JSON_FIELD =
+  /("code"\s*:\s*)"(?![A-Z][A-Z0-9_]*")(?:[^"\\]|\\.)*"/g;
+
 export function scrubString(text: string): string {
   return text
     .replace(SENSITIVE_QUERY_PARAM, `$1$2=${FILTERED}`)
     .replace(RESET_PASSWORD_PATH_TOKEN, `$1${FILTERED}`)
     .replace(SENSITIVE_JSON_FIELD, `$1"${FILTERED}"`)
+    .replace(ONE_TIME_CODE_JSON_FIELD, `$1"${FILTERED}"`)
     .replace(BETTER_AUTH_COOKIE, `$1${FILTERED}`)
     .replace(BEARER_TOKEN, `$1${FILTERED}`);
 }
@@ -102,6 +98,5 @@ export function scrubSensitiveData<T>(data: T): T {
 export const sentryScrubbingOptions = {
   beforeBreadcrumb: scrubSensitiveData,
   beforeSend: scrubSensitiveData,
-  beforeSendTransaction: scrubSensitiveData,
   beforeSendSpan: scrubSensitiveData,
 };

@@ -1,13 +1,11 @@
 import "server-only";
 
-// Chains and OSM services ask scrapers to identify themselves; a stock
-// library User-Agent is what gets an IP banned first.
+// Chains and OSM ask scrapers to identify themselves; a stock User-Agent gets an IP banned first.
 const USER_AGENT = "Disscount/1.0 (+https://disscount.me)";
 
 const TIMEOUT_MS = 30_000;
 
-// The timeout covers reading the body too, and the DGU register is an 84 MB
-// zip parsed while it streams.
+// The timeout covers reading the body too, and the DGU register is an 84 MB zip parsed while it streams.
 const STREAM_TIMEOUT_MS = 10 * 60 * 1000;
 
 async function request(
@@ -58,10 +56,7 @@ export async function fetchStream(
   return response.body;
 }
 
-/**
- * The HTTP status a page answers with, or null when it cannot be reached.
- * HEAD first to spare the body; servers that refuse HEAD get a GET.
- */
+/** HEAD first to spare the body; servers that refuse HEAD get a GET. */
 export async function fetchStatus(
   url: string,
   signal: AbortSignal,
@@ -90,7 +85,6 @@ export async function fetchStatus(
   }
 }
 
-/** Pauses between requests so a sync never hammers one host. */
 export function delay(ms: number, signal: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
     if (signal.aborted) return reject(signal.reason);

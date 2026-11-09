@@ -15,6 +15,7 @@ import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
 import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
+import { chain, product } from "@/test/price-fixtures";
 
 vi.mock("@/context/user-context", () => ({
   useUser: () => ({ user: null }),
@@ -51,31 +52,6 @@ const list: ShoppingListDto = {
   ],
 };
 
-function product(ean: string) {
-  return {
-    ean,
-    brand: null,
-    name: "Mlijeko",
-    quantity: null,
-    unit: null,
-    chains: [
-      {
-        chain: "konzum",
-        code: "1",
-        name: "Mlijeko",
-        brand: null,
-        category: null,
-        unit: null,
-        quantity: null,
-        min_price: "1.00",
-        max_price: "1.20",
-        avg_price: "1.10",
-        price_date: "2026-10-27",
-      },
-    ],
-  };
-}
-
 // The app's own retry policy, with no backoff, so a retry shows up as a second request.
 function appLikeQueryClient() {
   const client = new QueryClient({
@@ -83,6 +59,13 @@ function appLikeQueryClient() {
   });
   client.setQueryData(SHOPPING_LIST_QUERY_KEYS.byId(LIST_ID), list);
   return client;
+}
+
+function milk(ean: string) {
+  return product([chain("konzum", "1.00", "1.20", "1.10")], {
+    ean,
+    name: "Mlijeko",
+  });
 }
 
 function answerProducts(requests: string[], brokenStatus = 502) {
@@ -96,7 +79,7 @@ function answerProducts(requests: string[], brokenStatus = 502) {
       if (ean === "333") {
         return HttpResponse.json({ error: "x" }, { status: 404 });
       }
-      return HttpResponse.json(product(ean));
+      return HttpResponse.json(milk(ean));
     }),
   );
 }
@@ -172,7 +155,7 @@ describe("useShoppingListData price states", () => {
       http.get("*/api/cijene/products/:ean", async ({ params }) => {
         retried.push(String(params.ean));
         await new Promise<void>((resolve) => (answerRetry = resolve));
-        return HttpResponse.json(product(String(params.ean)));
+        return HttpResponse.json(milk(String(params.ean)));
       }),
     );
 
@@ -202,8 +185,7 @@ describe("useShoppingListData price states", () => {
     const requests: string[] = [];
     answerProducts(requests);
 
-    // The store summary watches the same lookups on this page, and TanStack refetches
-    // through whichever observer allows it.
+    // The store summary watches the same lookups, and TanStack refetches through whichever observer allows it.
     const { result } = renderHookWithProviders(
       () => {
         useStoreChainAnalysis({

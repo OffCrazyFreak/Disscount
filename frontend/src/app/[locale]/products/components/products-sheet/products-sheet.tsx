@@ -1,9 +1,9 @@
 "use client";
 
 import { usePathname } from "@/i18n/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslations } from "next-intl";
-import SearchBar from "@/components/custom/search/search-bar";
+import ProductSearchBar from "@/components/custom/search/product-search-bar";
 import SearchNavButton from "@/components/custom/search/search-nav-button";
 import ProductsSheetSubmit from "@/app/[locale]/products/components/products-sheet/products-sheet-submit";
 import SheetShell from "@/components/custom/modal/sheet-shell";
@@ -21,13 +21,7 @@ const PRODUCTS_FORM_ID = "products-sheet-form";
 
 const discountsNavItem = findNavItem("discounted");
 
-/**
- * Mobile search, opened by the bottom nav's centre tab and by the products page's
- * Filteri button, which lands on it already expanded.
- *
- * Runs behind the bar with no scrim, so the nav stays visible and the sheet reads
- * as an extension of it rather than a layer over the app.
- */
+/** No scrim, so the nav stays visible and the sheet reads as an extension of it rather than a layer over the app. */
 export default function ProductsSheet() {
   const {
     isOpen,
@@ -38,20 +32,9 @@ export default function ProductsSheet() {
     close,
   } = useProductsSheet();
   const t = useTranslations("products");
-  const [typedQuery, setTypedQuery] = useState("");
-  const [wasOpen, setWasOpen] = useState(false);
   const pathname = usePathname();
   const isMobile = useIsMobile();
   const { user } = useUser();
-
-  // Adjust-during-render rather than an effect, the same pattern as
-  // useLingeringTarget: the field unmounts with the sheet and remounts from the
-  // URL, so a value typed before a close would light the submit button against an
-  // empty input on reopen.
-  if (wasOpen !== isOpen) {
-    setWasOpen(isOpen);
-    if (!isOpen) setTypedQuery("");
-  }
 
   // Any navigation closes it, so a search never leaves its own results covered.
   useEffect(() => {
@@ -70,43 +53,36 @@ export default function ProductsSheet() {
       title={t("productsSheet.title")}
       srOnlyTitle
       description={t("productsSheet.description")}
-      // Non-modal: picking a facet re-filters the list behind it live, so it
-      // must neither cover the page nor lock it.
+      // Non-modal because a facet pick re-filters the list behind it live.
       modal={false}
-      // Opened for the filters, the field is not what you came for, and focusing
-      // it would raise the keyboard over the facets you asked to see.
+      // Opened for the filters, focusing the field would raise the keyboard over the facets you asked to see.
       initialFocusRef={areFiltersOpen ? undefined : inputRef}
       // The bar's centre cell opened it, so closing puts focus back on it.
       returnFocusRef={triggerRef}
       // Dragging up asks for the whole surface, which is search plus its filters.
       onDragUp={() => setAreFiltersOpen(true)}
-      // Last in the sheet and outside the scroll, so expanding the filters cannot
-      // push the one action that acts on them out of reach.
+      // Outside the scroll, so expanding the filters cannot push the one action that acts on them out of reach.
       footer={
         <ProductsSheetSubmit
           searchRoute={FILTERED_ROUTE}
-          query={typedQuery}
           form={PRODUCTS_FORM_ID}
         />
       }
       className="md:hidden"
     >
-      <SearchBar
-        searchRoute={FILTERED_ROUTE}
+      <ProductSearchBar
         placeholder={t("list.searchPlaceholder")}
         allowScanning
         submitButtonLocation="none"
         formId={PRODUCTS_FORM_ID}
         inputRef={inputRef}
-        onQueryChange={setTypedQuery}
         onSubmitted={close}
       />
 
       <SearchNavButton
         item={discountsNavItem}
         isLocked={isNavItemLocked(discountsNavItem, user?.accountType)}
-        // A query-string change never trips the pathname effect above, so this
-        // has to close the sheet itself or it covers where it just sent you.
+        // A query-string change never trips the pathname effect, so this closes the sheet itself.
         onNavigate={close}
       />
 

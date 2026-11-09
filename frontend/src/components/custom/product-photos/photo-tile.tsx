@@ -12,11 +12,7 @@ interface IPhotoTileProps {
   children?: ReactNode;
 }
 
-/**
- * The white square every product photo sits on. The files already carry white padding; this box
- * is the fallback while loading. color-scheme keeps Chrome's auto dark mode off the image, and
- * forced-color-adjust keeps Windows high contrast from repainting the white.
- */
+/** color-scheme stops Chrome's auto dark mode; forced-color-adjust stops high contrast repainting white. */
 export default function PhotoTile({
   src,
   alt,
@@ -34,7 +30,7 @@ export default function PhotoTile({
       )}
     >
       {src && (
-        // A plain img, never a CSS background: dark mode extensions hide or invert large light backgrounds.
+        // A plain img, as dark mode extensions invert CSS backgrounds; absolute so pixel size never stretches it.
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={src}
@@ -43,7 +39,10 @@ export default function PhotoTile({
           decoding="async"
           draggable={false}
           onError={onError}
-          className={cn("size-full object-contain", imgClassName)}
+          className={cn(
+            "absolute inset-0 size-full object-contain",
+            imgClassName,
+          )}
         />
       )}
       {children}

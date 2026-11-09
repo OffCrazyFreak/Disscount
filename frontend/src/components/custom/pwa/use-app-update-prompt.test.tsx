@@ -1,4 +1,4 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { Toaster } from "sonner";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -44,12 +44,15 @@ describe("AppUpdatePrompt", () => {
     expect(
       await screen.findByText("Dostupna je nova verzija Disscounta."),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Kasnije" })).toBeInTheDocument();
+    // Only the reload is offered; the toast stays until reloaded or swiped away.
+    expect(
+      screen.queryByRole("button", { name: "Kasnije" }),
+    ).not.toBeInTheDocument();
 
     // A plain click: sonner's pointerdown swipe handler needs setPointerCapture, which jsdom lacks.
     fireEvent.click(screen.getByRole("button", { name: "Osvježi" }));
 
-    await vi.waitFor(() =>
+    await waitFor(() =>
       expect(waitingWorker.postMessage).toHaveBeenCalledWith({
         type: "SKIP_WAITING",
       }),
@@ -58,6 +61,13 @@ describe("AppUpdatePrompt", () => {
       "controllerchange",
       expect.any(Function),
       { once: true },
+    );
+
+    // Sonner removes a dismissed toast on a 200 ms timer, which would fire against a torn-down jsdom under load.
+    await waitFor(() =>
+      expect(
+        screen.queryByText("Dostupna je nova verzija Disscounta."),
+      ).not.toBeInTheDocument(),
     );
   });
 
@@ -71,7 +81,7 @@ describe("AppUpdatePrompt", () => {
       </>,
     );
 
-    await vi.waitFor(() =>
+    await waitFor(() =>
       expect(serviceWorker.getRegistration).toHaveBeenCalled(),
     );
     await Promise.resolve();

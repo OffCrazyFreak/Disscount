@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+import disscount.productImage.domain.ImageSource;
 import disscount.productImage.domain.ProductImage;
 import disscount.productImage.domain.ProductImageSet;
 import disscount.productImage.dto.ProductImageDtos.AdminImageDto;
@@ -13,9 +14,10 @@ import disscount.productImage.dto.ProductImageDtos.CropDto;
 import disscount.productImage.dto.ProductImageDtos.ProductImageDto;
 import disscount.productImage.dto.ProductImageDtos.ProductImagesDto;
 import disscount.productImage.off.OffImageUrls;
-import disscount.productImage.domain.ImageSource;
-import disscount.productImage.storage.ProductImageStore;
+import disscount.storage.PhotoStore;
+import disscount.storage.PhotoStoreConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,7 +26,8 @@ class ProductImageViews {
 
     static final String ORIGINAL_PATH = "/api/admin/product-images/images/%s/original";
 
-    private final ProductImageStore store;
+    @Qualifier(PhotoStoreConfig.PRODUCT_PHOTOS)
+    private final PhotoStore store;
     private final ProductImageRendering rendering;
 
     ProductImagesDto publicView(String ean, UUID mainId, List<ProductImage> all) {
@@ -35,20 +38,20 @@ class ProductImageViews {
     }
 
     ProductImageDto toPublic(ProductImage image) {
-        return new ProductImageDto(image.getId(), store.publicUrl(image.getFullKey()), store.publicUrl(image.getThumbKey()),
-                image.getSource().name(), image.getStatus().name());
+        return new ProductImageDto(image.getId(), store.publicUrl(image.getFullKey()), image.getFullWidth(),
+                image.getFullHeight(), store.publicUrl(image.listKey()), image.getSource().name(), image.getStatus().name());
     }
 
     AdminProductDto adminView(ProductImageSet set, List<ProductImage> all) {
         List<AdminImageDto> images = all.stream()
+                .filter(i -> !i.isDeleted())
                 .sorted(Comparator.comparing((ProductImage i) -> !i.getId().equals(set.getMainImageId()))
                         .thenComparing(ProductImageViews::adminRank)
                         .thenComparing(ProductImage::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder())))
                 .map(i -> toAdmin(i, set.getMainImageId()))
                 .toList();
         return new AdminProductDto(set.getEan(), set.getName(), set.getBrand(), set.getStoreListings(), set.getChainCount(),
-                set.getMainImageId(), set.isPinned(), set.isNeedsReview(), set.getReviewedAt(), set.getOffDetailsFetchedAt(),
-                images);
+                set.isPinned(), set.getReviewedAt(), images);
     }
 
     /** Shown photos first, then what awaits a decision, then raw Open Food Facts shots, hidden last. */
@@ -62,7 +65,7 @@ class ProductImageViews {
     }
 
     String previewUrl(ProductImage image) {
-        if (image.isRendered()) return store.publicUrl(image.getThumbKey());
+        if (image.isRendered()) return store.publicUrl(image.listKey());
         if (image.getSource() == ImageSource.OPEN_FOOD_FACTS) {
             return OffImageUrls.preview(image.getEan(), image.getExternalKey(), image.getExternalRev());
         }
@@ -88,8 +91,6 @@ class ProductImageViews {
                 image.getId().equals(mainId),
                 image.getRotation(),
                 crop,
-                image.getOriginalWidth(),
-                image.getOriginalHeight(),
                 image.getReportCount(),
                 image.getCreatedAt());
     }

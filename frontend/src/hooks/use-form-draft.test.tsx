@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { useForm } from "react-hook-form";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { setCacheIdentity } from "@/lib/offline/cache-identity";
@@ -108,5 +108,54 @@ describe("useFormDraft", () => {
     rerender({ enabled: false });
 
     expect(getFormDraft(DRAFT_KEY)?.values).toEqual({ name: "Mlijeko" });
+  });
+
+  describe("with a save queued by a recent edit", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("does not write a cleared draft back when the queued save fires", () => {
+      const { result } = renderDraftHook();
+
+      act(() => result.current.form.setValue("name", "Mlijeko"));
+      act(() => result.current.clearDraft());
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+
+      expect(getFormDraft(DRAFT_KEY)).toBeNull();
+    });
+
+    it("does not overwrite a removed draft after a flush wrote the values", () => {
+      const { result } = renderDraftHook();
+
+      act(() => result.current.form.setValue("name", "Mlijeko"));
+      act(() => result.current.flushDraft());
+      expect(getFormDraft(DRAFT_KEY)?.values).toEqual({ name: "Mlijeko" });
+
+      act(() => result.current.clearDraft());
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+
+      expect(getFormDraft(DRAFT_KEY)).toBeNull();
+    });
+
+    it("saves after the debounce when nothing clears or flushes first", () => {
+      const { result } = renderDraftHook();
+
+      act(() => result.current.form.setValue("name", "Mlijeko"));
+      expect(getFormDraft(DRAFT_KEY)).toBeNull();
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(getFormDraft(DRAFT_KEY)?.values).toEqual({ name: "Mlijeko" });
+    });
   });
 });

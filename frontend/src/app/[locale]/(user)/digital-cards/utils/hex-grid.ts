@@ -18,7 +18,6 @@ const DIRECTIONS = [
   { q: 1, r: -1 },
 ];
 
-/** Axial coordinates of a cell on a hexagonal ring, where multiples of 60 degrees are corners. */
 function axialFor(ring: number, angle: number) {
   if (ring === 0) return { q: 0, r: 0 };
 
@@ -95,7 +94,6 @@ function verticalIndex(
   return nearestInRow(cells, target, x + (down ? 22 : -22), down);
 }
 
-/** Index of the cell that should receive focus after `key`, or the current one for other keys. */
 export function nextCellIndex(
   cells: readonly IHexCell[],
   currentIndex: number,

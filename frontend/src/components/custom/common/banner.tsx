@@ -3,18 +3,14 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-// Variants track badgeVariants; size scales padding/text/icon and sets the intended
-// content: lg = icon+title+text, md = icon+title, sm = text only.
+// size sets the intended content: lg = icon+title+text, md = icon+title, sm = text only.
 const bannerVariants = cva(
   "flex items-center rounded-lg border [&>svg]:shrink-0 mb-4",
   {
     variants: {
       variant: {
         primary: "border-transparent bg-primary text-primary-foreground",
-        // The soft variants tint whatever they sit on rather than covering it, so they take
-        // the header's backdrop-blur treatment. Alpha fills also mean one value works in
-        // both themes, which is why they no longer carry dark: background overrides; only
-        // the text keeps one, since contrast has to be chosen per theme.
+        // Soft variants tint what they sit on, so they take the header's blur; alpha works in both themes.
         primarySoft:
           "border-primary/40 bg-primary/10 text-primary backdrop-blur-xs",
         destructive:
@@ -86,9 +82,7 @@ function Banner({
       <div className="min-w-0 space-y-0.5">
         {title && <h4 className="font-bold">{title}</h4>}
         {text && (
-          // No size of its own: the size variant already sets one on the container, and a
-          // hardcoded text-xs here quietly overrode it, so every banner rendered its body
-          // at the smallest size no matter which size was asked for.
+          // No size here, because the variant sets one on the container, which this would override.
           <p className={cn(BANNER_TEXT_COLORS[variant ?? "primary"])}>{text}</p>
         )}
         {children}

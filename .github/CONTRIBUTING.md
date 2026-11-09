@@ -36,10 +36,12 @@ come back here for the contribution workflow.
      errors (`pnpm exec prettier --write .`, then `pnpm exec tsc --noEmit`).
    - Backend: Java 21, existing package structure and formatting.
 3. **Verify locally before opening the PR:**
-   - Frontend: `cd frontend && pnpm install && pnpm lint && pnpm exec fallow audit --base origin/dev`.
+   - Frontend: `cd frontend && pnpm install && pnpm check`.
      `pnpm install` also sets up git hooks that format staged files and
-     reject AI attribution trailers in commit messages.
-   - Backend: `cd backend && mvn clean install`
+     reject commit messages with AI attribution trailers, an unknown type or
+     a subject over 72 characters.
+   - Backend: `cd backend && mvn clean install`, with Docker running for the
+     PostgreSQL schema test.
 4. **Write clear commits** in imperative mood and reference related issue
    numbers.
 5. **Open a PR against `dev`** and include:
@@ -57,8 +59,10 @@ come back here for the contribution workflow.
 
 - **CI runs on every PR** (`.github/workflows/ci.yml`): frontend typecheck, unit
   tests, lint, a Fallow audit (new dead code, duplication, complexity and import
-  cycles), Prettier, and a production build, plus a backend build. Please make sure it
-  is green before requesting review.
+  cycles), Prettier, and a production build, plus a backend build and a lint of the
+  workflow files. Jobs that your changed files cannot affect are skipped, and draft
+  PRs skip these until they are ready for review. Please make sure it is green
+  before requesting review.
 - Maintainers review PRs, may request changes, and merge when ready.
 - [CodeRabbit](https://coderabbit.ai) runs automated review on every PR. Please
   address its suggestions before requesting final review, or explain in the PR

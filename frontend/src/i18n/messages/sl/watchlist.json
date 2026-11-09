@@ -6,7 +6,7 @@
   "client": {
     "loginTitle": "Spremljani izdelki",
     "loginDescription": "Spremljaj izdelke, ki jih kupuješ, in prejmi obvestilo, takoj ko jim cena pade.",
-    "searchPlaceholder": "Išči med spremljanimi izdelki..."
+    "searchPlaceholder": "Išči med spremljanimi izdelki"
   },
   "header": {
     "searchResultsTitle": "Rezultati iskanja za »{query}« ({count})",

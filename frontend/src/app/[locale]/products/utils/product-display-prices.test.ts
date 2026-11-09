@@ -1,26 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { getDisplayPrices } from "@/app/[locale]/products/utils/product-display-prices";
-import type {
-  ChainProductResponse,
-  ProductResponse,
-} from "@/lib/cijene-api/schemas";
-
-function chain(min: string, max: string): ChainProductResponse {
-  return {
-    chain: "konzum",
-    code: "1",
-    name: "Mlijeko",
-    brand: null,
-    category: null,
-    unit: null,
-    quantity: null,
-    min_price: min,
-    max_price: max,
-    avg_price: min,
-    price_date: "2026-10-13",
-  };
-}
+import type { ProductResponse } from "@/lib/cijene-api/schemas";
+import { chain } from "@/test/price-fixtures";
 
 const product: ProductResponse = {
   ean: "1",
@@ -28,7 +10,7 @@ const product: ProductResponse = {
   name: null,
   quantity: "2",
   unit: "l",
-  chains: [chain("1.00", "3.00")],
+  chains: [chain("konzum", "1.00", "3.00")],
 };
 
 describe("getDisplayPrices", () => {

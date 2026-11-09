@@ -34,10 +34,7 @@ export { DGU_ATTRIBUTION } from "@/lib/store-locations/dgu/dgu-attribution";
 const DGU_ZIP_URL =
   "https://geoportal.dgu.hr/services/atom/INSPIRE_Addresses_(AD).zip";
 
-/**
- * Looks targets up in the national address register (about 84 MB zip, 2.6 GB
- * of GML) in one streaming pass. Result keys are target ids.
- */
+/** One streaming pass, because the register is about 84 MB zipped and 2.6 GB of GML. */
 export async function lookupDguAddresses(
   targets: IDguTarget[],
   signal: AbortSignal,

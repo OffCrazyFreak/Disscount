@@ -2,10 +2,7 @@ import { Unzip, UnzipInflate } from "fflate";
 
 import { createMemberScanner } from "@/lib/store-locations/dgu/gml-scanner";
 
-/**
- * Streams a zip and hands each entry's GML members to the handler registered
- * under the entry's file name. Entries without a handler are skipped unread.
- */
+/** Entries without a handler are skipped unread. */
 export async function scanZipMembers(
   body: ReadableStream<Uint8Array>,
   handlers: Record<string, (member: string) => void>,

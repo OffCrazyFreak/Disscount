@@ -1,12 +1,16 @@
 package disscount.digitalCard.service;
 
+import disscount.storage.PhotoStoreConfig;
+import org.springframework.beans.factory.annotation.Qualifier;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import disscount.config.UploadLimitConfig;
 import disscount.digitalCard.dao.DigitalCardPhotoRepository;
 import disscount.digitalCard.dao.DigitalCardRepository;
 import disscount.digitalCard.domain.DigitalCard;
@@ -14,11 +18,12 @@ import disscount.digitalCard.domain.DigitalCardPhoto;
 import disscount.digitalCard.dto.CardPhotoDto;
 import disscount.digitalCard.photo.PhotoValidator;
 import disscount.digitalCard.photo.ValidatedPhoto;
-import disscount.digitalCard.storage.PhotoStore;
-import disscount.digitalCard.storage.StoredPhoto;
+import disscount.storage.PhotoStore;
+import disscount.storage.StoredPhoto;
 import disscount.exceptions.BadRequestException;
 import disscount.exceptions.NotFoundException;
 import disscount.exceptions.ServiceUnavailableException;
+import disscount.util.FixedWindowLimiter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -37,22 +42,21 @@ public class DigitalCardPhotoService {
     public static final String SLOT_FRONT = "front";
     public static final String SLOT_BACK = "back";
     public static final String SLOT_ICON = "icon";
-    private static final Set<String> SLOTS = Set.of(SLOT_FRONT, SLOT_BACK, SLOT_ICON);
+    public static final Set<String> SLOTS = Set.of(SLOT_FRONT, SLOT_BACK, SLOT_ICON);
 
     private final DigitalCardRepository cardRepository;
     private final DigitalCardPhotoRepository photoRepository;
     private final CardPhotoWriter writer;
+    @Qualifier(PhotoStoreConfig.CARD_PHOTOS)
     private final PhotoStore photoStore;
     private final PhotoValidator validator;
-    private final PhotoUploadRateLimiter rateLimiter;
+    @Qualifier(UploadLimitConfig.CARD_PHOTOS)
+    private final FixedWindowLimiter rateLimiter;
 
     /** The bytes handed to a controller for streaming; {@code thumb} picks the small variant. */
     public record PhotoStream(StoredPhoto photo, String sha256, boolean thumb) {}
 
-    /**
-     * Deliberately not one transaction: the image is validated and stored first, and only the
-     * row write is transactional. If that write fails, the objects just stored are removed.
-     */
+    /** Only the row write is transactional, and if it fails the objects just stored are removed. */
     public CardPhotoDto upload(UUID userId, UUID cardId, String slot, MultipartFile full, MultipartFile thumb) {
         if (!photoStore.enabled()) {
             throw new ServiceUnavailableException("error.cardPhoto.unavailable");
@@ -104,13 +108,16 @@ public class DigitalCardPhotoService {
         DigitalCardPhoto row = photoRepository.findByCardIdAndSlot(cardId, slot)
                 .orElseThrow(() -> new NotFoundException("error.cardPhoto.notFound"));
 
-        // The client caches photo bytes by version, so an old version must 404 instead of serving the new bytes under it.
+        // The client caches bytes by version, so an old version must 404 instead of serving new bytes under it.
         if (version != null && !version.equals(row.getSha256())) {
             throw new NotFoundException("error.cardPhoto.notFound");
         }
 
         String key = thumb ? row.getThumbKey() : row.getFullKey();
         if (key == null) throw new NotFoundException("error.cardPhoto.notFound");
+
+        // The row exists but storage is off, which is an outage: a 404 would tell the client the photo is gone.
+        if (!photoStore.enabled()) throw new ServiceUnavailableException("error.cardPhoto.unavailable");
 
         StoredPhoto stored = photoStore.get(key)
                 .orElseThrow(() -> new NotFoundException("error.cardPhoto.notFound"));

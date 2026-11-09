@@ -18,11 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Reads and deletes rows in the better-auth `user` / `session` tables, which share this
- * database but are owned by the frontend's auth library rather than by JPA. Native queries
- * because there are no entities mapping that schema, and it is never mirrored into app_user.
- */
+/** Native queries as no entity maps these better-auth tables, which are never mirrored into app_user. */
 @Repository
 @Slf4j
 public class AuthIdentityDao {
@@ -54,7 +50,13 @@ public class AuthIdentityDao {
         return identitiesById;
     }
 
+    @SuppressWarnings("unchecked")
+    public List<UUID> findAllIds() {
+        return entityManager.createNativeQuery("SELECT id FROM \"user\"").getResultList();
+    }
+
     /** Removes the identity, which cascades its sessions and accounts. */
+    @Transactional
     public void deleteById(UUID userId) {
         entityManager.createNativeQuery("DELETE FROM \"user\" WHERE id = :id")
                 .setParameter("id", userId)
@@ -79,13 +81,10 @@ public class AuthIdentityDao {
                 .executeUpdate();
     }
 
-    // Native aggregates come back as a different scalar per driver, and the zone-less ones are
-    // UTC because that is what better-auth writes. An unmapped type is logged rather than
-    // silently nulled, which would blank the whole column for every user.
+    // Native aggregates differ per driver; an unmapped type is logged, as a silent null blanks the column for everyone.
     private Instant toInstant(Object value) {
         if (value == null) return null;
-        // toLocalDateTime() first, deliberately: the driver builds a Timestamp for a zone-less
-        // column by reading it in the JVM zone, so toInstant() would re-apply that offset.
+        // toLocalDateTime() first: the driver reads a zone-less Timestamp in the JVM zone, so toInstant() shifts it.
         if (value instanceof Timestamp timestamp) return timestamp.toLocalDateTime().toInstant(ZoneOffset.UTC);
         if (value instanceof Instant instant) return instant;
         if (value instanceof OffsetDateTime offsetDateTime) return offsetDateTime.toInstant();

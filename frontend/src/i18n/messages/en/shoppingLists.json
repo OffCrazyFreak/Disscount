@@ -6,7 +6,7 @@
   "client": {
     "loginTitle": "Shopping lists",
     "loginDescription": "Build a list and compare store prices in one place.",
-    "searchPlaceholder": "Search shopping lists...",
+    "searchPlaceholder": "Search shopping lists",
     "searchResults": "Search results for “{query}” ({count})",
     "myLists": "My shopping lists",
     "myListsWithCount": "My shopping lists ({count})",

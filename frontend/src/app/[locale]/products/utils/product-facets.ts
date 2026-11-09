@@ -22,13 +22,7 @@ export type {
   IProductFacets,
 } from "@/app/[locale]/products/utils/facets/facet-types";
 
-/**
- * Disjunctive faceting over the current search results: each facet is counted
- * against the products matching all OTHER active facets, so a facet never
- * narrows its own dropdown. Options come from a stable universe (every chain,
- * every location, every value seen for this query) and unavailable ones stay
- * visible at zero instead of disappearing.
- */
+/** Counted against all other active facets, so a facet never narrows its own dropdown. */
 export function computeProductFacets(
   products: ProductResponse[],
   locations: IStoreLocation[],

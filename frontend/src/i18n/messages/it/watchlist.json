@@ -6,7 +6,7 @@
   "client": {
     "loginTitle": "Prodotti seguiti",
     "loginDescription": "Segui i prodotti che compri e ricevi una notifica appena il prezzo scende.",
-    "searchPlaceholder": "Cerca tra i prodotti seguiti..."
+    "searchPlaceholder": "Cerca tra i prodotti seguiti"
   },
   "header": {
     "searchResultsTitle": "Risultati per «{query}» ({count})",

@@ -3,8 +3,6 @@ package disscount.productImage.service;
 import java.util.List;
 
 import disscount.digitalCard.photo.TestImages;
-import disscount.digitalCard.service.FakePhotoStore;
-import disscount.productImage.FakeProductImageStore;
 import disscount.productImage.catalog.CatalogImportService;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
@@ -16,21 +14,30 @@ import disscount.productImage.domain.ProductImageSet;
 import disscount.productImage.off.OffImageGoneException;
 import disscount.productImage.off.OffImageUnavailableException;
 import disscount.productImage.off.OpenFoodFactsClient;
+import disscount.productImage.render.ProductImageRenderer;
+import disscount.storage.FakePhotoStore;
+import disscount.storage.PhotoStoreConfig;
 import disscount.util.Timestamps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -47,24 +54,23 @@ class ProductImageJobsRenderTest {
     @TestConfiguration
     static class StoreConfig {
         @Bean
-        FakePhotoStore photoStore() {
+        FakePhotoStore productOriginalStore() {
             return new FakePhotoStore();
         }
 
         @Bean
-        FakeProductImageStore productImageStore() {
-            return new FakeProductImageStore();
+        FakePhotoStore productImageStore() {
+            return new FakePhotoStore();
         }
     }
 
     @Autowired ProductImageJobs jobs;
     @Autowired ProductImageRepository images;
     @Autowired ProductImageSetRepository sets;
-    @Autowired FakeProductImageStore publicStore;
+    @Autowired @Qualifier(PhotoStoreConfig.PRODUCT_PHOTOS) FakePhotoStore publicStore;
     @MockitoBean OpenFoodFactsClient off;
     @MockitoBean CatalogImportService catalog;
     @MockitoBean OffSeedService seed;
-    @MockitoBean ProductPhotoUploadLimiter limiter;
 
     @BeforeEach
     void setUp() {
@@ -186,6 +192,128 @@ class ProductImageJobsRenderTest {
         }
 
         verify(off, never()).download(anyString());
+    }
+
+    @Test
+    void anOlderPhotoIsRenderedAgainAtTheCurrentSizesOnceNoNewPhotoWaits() {
+        ProductImage older = renderedJpegMain(WIDELY_SOLD);
+        when(off.download(anyString())).thenReturn(TestImages.jpeg(600, 400));
+
+        jobs.renderMainPhotos();
+
+        ProductImage after = images.findById(older.getId()).orElseThrow();
+        assertThat(after.getFullKey()).endsWith(".webp");
+        assertThat(after.getSmallKey()).endsWith("-small.webp");
+        // The 400 pixel file is gone, and the full one keeps the 600 x 400 source's shape.
+        assertThat(after.getThumbKey()).isNull();
+        assertThat(after.getFullWidth()).isEqualTo(600);
+        assertThat(after.getFullHeight()).isEqualTo(400);
+        assertThat(publicStore.objects).doesNotContainKeys(older.getFullKey(), older.getThumbKey()).hasSize(2);
+    }
+
+    @Test
+    void olderPhotosWaitWhileANewPhotoIsStillToBeCopied() {
+        ProductImage older = renderedJpegMain(WIDELY_SOLD);
+        mainCandidate(LESS_SOLD, 40);
+        when(off.download(anyString())).thenReturn(TestImages.jpeg(600, 400));
+
+        jobs.renderMainPhotos();
+
+        assertThat(images.findById(older.getId()).orElseThrow().getSmallKey()).isNull();
+    }
+
+    @Test
+    void anOlderPhotoWhoseSourceIsGoneKeepsItsFilesAndIsTriedAgainLater() {
+        ProductImage older = renderedJpegMain(WIDELY_SOLD);
+        when(off.download(anyString())).thenThrow(new OffImageGoneException("url", 404));
+
+        jobs.renderMainPhotos();
+
+        ProductImage after = images.findById(older.getId()).orElseThrow();
+        assertThat(after.getFullKey()).isEqualTo(older.getFullKey());
+        assertThat(after.getStatus()).isEqualTo(ImageStatus.VERIFIED);
+        assertThat(after.getRenderAttempts()).isEqualTo(1);
+        assertThat(after.getRenderRetryAt()).isAfter(Timestamps.nowUtc());
+        assertThat(publicStore.objects).containsKeys(older.getFullKey(), older.getThumbKey());
+    }
+
+    // A renderer fault repeats on the same bytes, so it must cost that photo a try, not stop the queue at it.
+    @Test
+    void aPhotoTheRendererFailsOnWaitsWhileTheRestOfTheQueueIsCopied() {
+        ProductImage failing = mainCandidate(WIDELY_SOLD, 900);
+        ProductImage next = mainCandidate(LESS_SOLD, 40);
+        when(off.download(anyString())).thenReturn(TestImages.jpeg(600, 400));
+
+        try (MockedStatic<ProductImageRenderer> renderer = mockStatic(ProductImageRenderer.class, CALLS_REAL_METHODS)) {
+            renderer.when(() -> ProductImageRenderer.render(any(), anyInt(), any()))
+                    .thenThrow(new IllegalStateException("WebP encoding failed"))
+                    .thenCallRealMethod();
+            jobs.renderMainPhotos();
+        }
+
+        assertThat(images.findById(failing.getId())).get().satisfies(i -> {
+            assertThat(i.getStatus()).isEqualTo(ImageStatus.CANDIDATE);
+            assertThat(i.getRenderAttempts()).isEqualTo(1);
+            assertThat(i.getRenderRetryAt()).isNotNull();
+        });
+        assertThat(images.findById(next.getId())).get().extracting(ProductImage::isRendered).isEqualTo(true);
+    }
+
+    // A broken encoder fails every photo, and charging each one a try would end with every main photo hidden.
+    @Test
+    void aRendererThatFailsTwiceInARowPausesTheQueueWithoutChargingAnyPhoto() {
+        ProductImage first = mainCandidate(WIDELY_SOLD, 900);
+        ProductImage second = mainCandidate(LESS_SOLD, 40);
+        when(off.download(anyString())).thenReturn(TestImages.jpeg(600, 400));
+
+        try (MockedStatic<ProductImageRenderer> renderer = mockStatic(ProductImageRenderer.class, CALLS_REAL_METHODS)) {
+            renderer.when(() -> ProductImageRenderer.render(any(), anyInt(), any()))
+                    .thenThrow(new IllegalStateException("No WebP writer"));
+            jobs.renderMainPhotos();
+        }
+
+        assertThat(images.findAllById(List.of(first.getId(), second.getId()))).allSatisfy(i -> {
+            assertThat(i.getStatus()).isEqualTo(ImageStatus.CANDIDATE);
+            assertThat(i.getRenderAttempts()).isNull();
+            assertThat(i.getRenderRetryAt()).isNull();
+        });
+    }
+
+    @Test
+    void anOlderPhotoTheRendererFailsOnKeepsItsFilesWhileTheNextOneIsRenderedAgain() {
+        ProductImage failing = renderedJpegMain(WIDELY_SOLD);
+        ProductImage next = renderedJpegMain(LESS_SOLD);
+        sets.findById(LESS_SOLD).ifPresent(set -> {
+            set.setStoreListings(40);
+            sets.save(set);
+        });
+        when(off.download(anyString())).thenReturn(TestImages.jpeg(600, 400));
+
+        try (MockedStatic<ProductImageRenderer> renderer = mockStatic(ProductImageRenderer.class, CALLS_REAL_METHODS)) {
+            renderer.when(() -> ProductImageRenderer.render(any(), anyInt(), any()))
+                    .thenThrow(new IllegalStateException("WebP encoding failed"))
+                    .thenCallRealMethod();
+            jobs.renderMainPhotos();
+        }
+
+        assertThat(images.findById(failing.getId())).get().satisfies(i -> {
+            assertThat(i.getFullKey()).isEqualTo(failing.getFullKey());
+            assertThat(i.getRenderAttempts()).isEqualTo(1);
+            assertThat(i.getRenderRetryAt()).isNotNull();
+        });
+        assertThat(images.findById(next.getId())).get().extracting(ProductImage::getFullWidth).isEqualTo(600);
+    }
+
+    /** A main photo copied before WebP: JPEG keys and no small list file. */
+    private ProductImage renderedJpegMain(String ean) {
+        String base = "products/" + ean + "/0123456789abcdef0123";
+        ProductImage image = images.save(ProductImage.builder().ean(ean).source(ImageSource.OPEN_FOOD_FACTS)
+                .status(ImageStatus.VERIFIED).externalKey("front_hr").externalRev("4").lang("hr")
+                .fullKey(base + ".jpg").thumbKey(base + "-thumb.jpg").renderedAt(Timestamps.nowUtc()).build());
+        sets.save(ProductImageSet.builder().ean(ean).storeListings(500).mainImageId(image.getId()).build());
+        publicStore.objects.put(image.getFullKey(), new byte[] {1});
+        publicStore.objects.put(image.getThumbKey(), new byte[] {1});
+        return image;
     }
 
     private ProductImage mainCandidate(String ean, int storeListings) {

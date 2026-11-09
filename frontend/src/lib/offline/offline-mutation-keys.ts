@@ -1,20 +1,15 @@
 import type { Mutation, MutationKey } from "@tanstack/react-query";
 
-// Write-side counterpart to cached-query-keys.ts. Each key must also be attached to
-// its mutation hook and registered with a replay function in offline-mutations.ts.
+// Each key must also be attached to its mutation hook and registered with a replay function in offline-mutations.ts.
 export const OFFLINE_MUTATION_KEYS = {
   shoppingListCreate: ["shoppingLists", "create"],
   shoppingListUpdate: ["shoppingLists", "update"],
   shoppingListDelete: ["shoppingLists", "delete"],
   shoppingListItemAdd: ["shoppingLists", "items", "add"],
-  // Ticking items off is the offline case that matters most: it happens in a shop, on a
-  // phone, with bad signal. These carry a list someone shared with you as well as your
-  // own, since both are reached by the list's id.
+  // Ticking off matters most offline: in a shop, with bad signal; shared lists are reached by id too.
   shoppingListItemUpdate: ["shoppingLists", "items", "update"],
   shoppingListItemDelete: ["shoppingLists", "items", "delete"],
-  // Card ids are minted client-side, so there are no temp ids to rewrite. Replay order
-  // comes from DIGITAL_CARD_MUTATION_SCOPE: mutations sharing a scope run one at a time,
-  // while unscoped paused mutations all resume in parallel.
+  // Client-minted ids need no rewriting; DIGITAL_CARD_MUTATION_SCOPE runs these one at a time.
   digitalCardSave: ["digitalCards", "save"],
   digitalCardDelete: ["digitalCards", "delete"],
   digitalCardPin: ["digitalCards", "pin"],
@@ -35,11 +30,7 @@ export function isOfflineMutationKey(mutationKey: MutationKey | undefined) {
     : false;
 }
 
-/**
- * A card write still in flight, not only a paused one. Every card write is a PUT or
- * DELETE by a client-minted id, so sending one again after a reload is harmless; a list
- * item add is a POST and would be duplicated, so list writes persist only once paused.
- */
+/** Card writes resend harmlessly by client-minted id; a list add is a POST, so lists persist once paused. */
 export function isInFlightCardWrite(mutation: Mutation) {
   return (
     mutation.state.status === "pending" &&
@@ -47,7 +38,7 @@ export function isInFlightCardWrite(mutation: Mutation) {
   );
 }
 
-// Off-allowlist writes just fail offline, as before.
+// Off-allowlist writes just fail offline.
 export function shouldPersistMutation(mutation: Mutation) {
   return (
     isOfflineMutationKey(mutation.options.mutationKey) &&

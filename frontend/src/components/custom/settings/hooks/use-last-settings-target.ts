@@ -14,9 +14,7 @@ export function useLastSettingsTarget(target: ModalTarget | null) {
     setLastTab(target.tab);
   }
 
-  // Same reason: falling back to "required" the moment the param is stripped
-  // made the close button pop out of the header a frame before a replay wizard
-  // finished fading, since ModalShell drives showCloseButton off preventClose.
+  // Falling back to "required" would pop the close button before a replay wizard fades.
   const [lastOnboardingMode, setLastOnboardingMode] =
     useState<OnboardingMode>("required");
   if (target?.name === "onboarding" && target.mode !== lastOnboardingMode) {

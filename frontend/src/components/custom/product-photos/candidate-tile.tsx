@@ -17,7 +17,6 @@ interface ICandidateTileProps extends ICandidateHandlers {
   busy: boolean;
 }
 
-/** One frame of the contact sheet: the photo, where it came from, and what the admin can do with it. */
 export default function CandidateTile({
   image,
   index,
@@ -40,7 +39,8 @@ export default function CandidateTile({
       )}
     >
       <PhotoTile
-        src={image.previewUrl}
+        // The 256 px small file is soft on a 245 px tile at 2x, so a copied photo shows its full file.
+        src={image.fullUrl ?? image.previewUrl}
         alt={t("photo.altNumbered", { name: productName, index: index + 1 })}
         className={cn(image.main && "ring-2 ring-primary")}
       >

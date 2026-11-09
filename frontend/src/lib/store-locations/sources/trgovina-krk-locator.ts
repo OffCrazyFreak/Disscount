@@ -9,9 +9,7 @@ import type {
   IStoreLocator,
 } from "@/lib/store-locations/store-location-types";
 
-// The site runs the Agile Store Locator WordPress plugin, whose public AJAX
-// action returns every premises, petrol stations and workshops included.
-// Unmatched extras are harmless: stores are matched by address, not listed.
+// The plugin's public AJAX action returns every premises, but extras are harmless because stores match by address.
 const URL =
   "https://trgovina-krk.hr/wp-admin/admin-ajax.php?action=asl_load_stores&load_all=1&layout=1";
 

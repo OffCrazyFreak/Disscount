@@ -7,12 +7,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 
-/**
- * Coordinates for cijene-api stores that upstream does not locate, or locates
- * wrongly. Keyed by the upstream identity so a store keeps its row across syncs.
- * A row with null coordinates records a failed attempt, so the slow geocoders
- * are not retried on every run.
- */
+/** Upstream identity keeps a store's row across syncs; null coordinates stop slow geocoder retries. */
 export const storeLocation = pgTable(
   "store_location",
   {
@@ -22,14 +17,11 @@ export const storeLocation = pgTable(
     lon: doublePrecision("lon"),
     source: text("source"),
     precision: text("precision"),
-    // The upstream address an automatic pin was found from: once upstream
-    // changes it, the pin belongs to the old building and is looked up again.
+    // Once upstream changes this, the pin belongs to the old building and is looked up again.
     address: text("address"),
     attempts: integer("attempts").default(0).notNull(),
     lastAttemptAt: timestamp("last_attempt_at", { withTimezone: true }),
-    // Kept apart from lastAttemptAt: Geoapify is tried on every pending store,
-    // Nominatim only on a few a run, so a Geoapify miss must not also hold a
-    // store back from Nominatim.
+    // Apart from lastAttemptAt, so a Geoapify miss cannot hold a store back from Nominatim.
     geoapifyMissedAt: timestamp("geoapify_missed_at", { withTimezone: true }),
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .defaultNow()

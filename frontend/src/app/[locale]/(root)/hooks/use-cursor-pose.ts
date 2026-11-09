@@ -15,13 +15,7 @@ interface ICursorPoseValues {
   engaged: boolean;
 }
 
-/**
- * Orientation of the hero cart toward the cursor as smooth motion values:
- * `scaleX` flips it toward the cursor's half of the viewport, `rotate` tilts
- * it up or down at it. Neutral (with `engaged` false) while the cursor is over
- * the hero copy column - the copy block's vertical band, narrowed horizontally
- * to its h1 - so the cart does not fidget while the visitor reads.
- */
+/** Neutral while the cursor is over the hero copy column, so the cart does not fidget while the visitor reads. */
 export function useCursorPose(
   anchorRef: RefObject<HTMLElement | null>,
   enabled: boolean,
@@ -33,9 +27,7 @@ export function useCursorPose(
   const [engaged, setEngaged] = useState(false);
 
   useEffect(() => {
-    // Motion values only. `engaged` is not reset here: this branch returns before
-    // the pointermove subscription exists, so there is no external state to mirror
-    // and the disabled case is derived from `enabled` at the return instead.
+    // `engaged` is not reset: this returns before the pointermove subscription exists.
     if (!enabled) {
       facing.set(1);
       aim.set(0);

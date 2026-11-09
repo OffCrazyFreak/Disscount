@@ -61,7 +61,7 @@ public class DigitalCardPhotoController {
                 .contentType(MediaType.parseMediaType(stream.photo().contentType()))
                 .contentLength(stream.photo().contentLength())
                 .eTag(etag(stream.sha256(), thumb))
-                // The browser HTTP cache is keyed by URL, not account, so a stored photo would outlive sign-out on a shared device.
+                // The browser HTTP cache is keyed by URL, not account, so a stored photo would outlive sign-out.
                 .cacheControl(CacheControl.noStore().cachePrivate())
                 .header("X-Content-Type-Options", "nosniff")
                 .body(new InputStreamResource(stream.photo().stream()));

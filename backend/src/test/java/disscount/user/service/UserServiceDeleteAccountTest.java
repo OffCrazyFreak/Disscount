@@ -1,5 +1,6 @@
 package disscount.user.service;
 
+import disscount.config.UploadLimitConfig;
 import disscount.digitalCard.dao.DigitalCardPhotoRepository;
 import disscount.digitalCard.dao.DigitalCardRepository;
 import disscount.digitalCard.dao.PhotoCleanupRepository;
@@ -10,16 +11,16 @@ import disscount.digitalCard.service.CardUserLock;
 import disscount.digitalCard.service.DigitalCardMapper;
 import disscount.digitalCard.service.DigitalCardPhotoService;
 import disscount.digitalCard.service.DigitalCardService;
-import disscount.digitalCard.service.FakePhotoStore;
+import disscount.storage.FakePhotoStore;
 import disscount.digitalCard.service.PhotoCleanupService;
-import disscount.digitalCard.service.PhotoUploadRateLimiter;
-import disscount.digitalCard.storage.PhotoStore;
+import disscount.storage.PhotoStore;
 import disscount.storeName.dao.StoreNameSuggestionRepository;
 import disscount.storeName.dao.StoreNameUsageRepository;
 import disscount.storeName.service.StoreNameService;
 import disscount.storeName.service.StoreNameUpsert;
 import disscount.exceptions.BadRequestException;
 import disscount.user.avatar.AvatarSanitizer;
+import disscount.productImage.service.ProductImageErasure;
 import disscount.user.dao.AuthIdentityDao;
 import disscount.user.dao.ErasureLedgerRepository;
 import disscount.user.dao.UserRepository;
@@ -68,7 +69,7 @@ import static org.mockito.Mockito.verify;
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @Import({UserService.class, AccountErasureService.class, DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
-        StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, PhotoUploadRateLimiter.class,
+        StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, UploadLimitConfig.class,
         CardPhotoWriter.class, CardUserLock.class, PhotoCleanupService.class, FavoriteStoreService.class,
         AvatarSanitizer.class, UserServiceDeleteAccountTest.StoreConfig.class})
 class UserServiceDeleteAccountTest {
@@ -83,6 +84,7 @@ class UserServiceDeleteAccountTest {
 
     @MockitoBean AuthIdentityDao authIdentityDao;
     @MockitoBean UserProfileCreator profileCreator;
+    @MockitoBean ProductImageErasure productImageErasure;
 
     @Autowired UserService userService;
     @Autowired AccountErasureService accountErasureService;
@@ -132,6 +134,15 @@ class UserServiceDeleteAccountTest {
         assertThat(photos.findAll()).isEmpty();
         assertThat(((FakePhotoStore) store).objects).isEmpty();
         assertThat(cleanup.findAll()).isEmpty();
+    }
+
+    @Test
+    void deleteAccountErasesTheUsersProductPhotos() {
+        User user = users.save(User.builder().id(UUID.randomUUID()).username("marko").build());
+
+        userService.deleteAccount(user.getId());
+
+        verify(productImageErasure).eraseContributor(user.getId());
     }
 
     @Test

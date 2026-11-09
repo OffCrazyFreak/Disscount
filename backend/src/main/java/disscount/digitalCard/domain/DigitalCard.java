@@ -11,10 +11,7 @@ import java.util.UUID;
 import disscount.user.domain.User;
 import disscount.util.Timestamps;
 
-/**
- * Table is {@code wallet_card}, not the old {@code digital_card}: ddl-auto=update never drops,
- * so reusing the name would merge the new shape into the stale table. The old one is dropped by hand.
- */
+/** Not `digital_card`: ddl-auto=update never drops, so reusing the name would merge this shape into the stale table. */
 @Entity
 @Table(name = "wallet_card", indexes = @Index(name = "idx_wallet_card_user", columnList = "user_id"))
 @Getter

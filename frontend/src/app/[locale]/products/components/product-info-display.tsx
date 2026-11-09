@@ -6,7 +6,7 @@ import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { getMostFrequentCategory } from "@/app/[locale]/products/utils/product-utils";
 import ProductActionButtons from "@/app/[locale]/products/components/product-action-buttons";
 import ProductInfoTable from "@/app/[locale]/products/components/product-info-table";
-import ProductPhotoGallery from "@/app/[locale]/products/components/product-photos/product-photo-gallery";
+import ProductOverview from "@/app/[locale]/products/components/product-overview";
 import ProductThumbnail from "@/components/custom/product-photos/product-thumbnail";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
@@ -39,9 +39,7 @@ export default function ProductInfoDisplay({
 
   return (
     <div className="space-y-4">
-      {/* Header Row */}
       <div className="flex items-center justify-between gap-4">
-        {/* Left side - Image and product info */}
         <div className="flex-1 flex items-center gap-4">
           {/* Back button only on the standalone product page, not inside modals */}
           {enableActionButtons && (
@@ -63,7 +61,6 @@ export default function ProductInfoDisplay({
             />
           )}
 
-          {/* Product Name and Category */}
           <div className="text-pretty">
             <h3 lang={product.name ? "hr" : undefined} className="font-bold">
               {product.name || t("productInfo.unknown")}
@@ -76,24 +73,15 @@ export default function ProductInfoDisplay({
           </div>
         </div>
 
-        {/* Right side - action buttons on the product page, or a modal action */}
         {enableActionButtons ? (
-          <ProductActionButtons
-            product={product}
-            showSearchImage={true}
-            showAddToList={true}
-            showAddToWatchlist={true}
-          />
+          <ProductActionButtons product={product} />
         ) : (
           action
         )}
       </div>
 
       {enableActionButtons ? (
-        <div className="grid gap-6 md:grid-cols-[minmax(0,17rem)_1fr] md:items-start">
-          <ProductPhotoGallery ean={product.ean} productName={displayName} />
-          <ProductInfoTable product={product} />
-        </div>
+        <ProductOverview product={product} displayName={displayName} />
       ) : (
         <ProductInfoTable product={product} />
       )}

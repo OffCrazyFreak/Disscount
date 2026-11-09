@@ -10,6 +10,7 @@ import "yet-another-react-lightbox/plugins/counter.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 
 import ViewerActions from "@/components/custom/product-photos/viewer-actions";
+import ViewerFooter from "@/components/custom/product-photos/viewer-footer";
 import { useBackCloses } from "@/components/custom/product-photos/use-back-closes";
 import type { ProductImage } from "@/lib/api/types";
 
@@ -20,13 +21,16 @@ interface IProductPhotoViewerProps {
   index: number;
   onIndexChange: (index: number) => void;
   onClose: () => void;
+  /** The caller closes the viewer first, so the upload dialog is not stacked under it. */
+  onAdd?: () => void;
+  /** Set for admins only. */
+  onManage?: () => void;
   canReport: boolean;
   isAdmin: boolean;
 }
 
-// Rendered squares are at most this size; a smaller source simply stays smaller.
-const FULL_SIDE = 1080;
-const THUMB_SIDE = 400;
+// A photo rendered before the full file kept its shape is a square of at most this size.
+const OLDER_FULL_SIDE = 1080;
 
 export default function ProductPhotoViewer({
   ean,
@@ -35,6 +39,8 @@ export default function ProductPhotoViewer({
   index,
   onIndexChange,
   onClose,
+  onAdd,
+  onManage,
   canReport,
   isAdmin,
 }: IProductPhotoViewerProps) {
@@ -44,25 +50,23 @@ export default function ProductPhotoViewer({
   const slides = images.map((image, i) => ({
     src: image.fullUrl,
     alt: t("photo.altNumbered", { name: productName, index: i + 1 }),
-    width: FULL_SIDE,
-    height: FULL_SIDE,
-    srcSet: [
-      { src: image.thumbUrl, width: THUMB_SIDE, height: THUMB_SIDE },
-      { src: image.fullUrl, width: FULL_SIDE, height: FULL_SIDE },
-    ],
+    width: image.fullWidth ?? OLDER_FULL_SIDE,
+    height: image.fullHeight ?? OLDER_FULL_SIDE,
+    thumbnail: image.smallUrl,
   }));
 
   return (
     <Lightbox
       open
-      close={requestClose}
+      close={() => requestClose()}
       index={index}
       slides={slides}
       plugins={[Zoom, Thumbnails, Counter]}
       on={{ view: ({ index: viewed }) => onIndexChange(viewed) }}
       carousel={{ finite: true, padding: "16px" }}
       controller={{ closeOnPullDown: true, closeOnBackdropClick: true }}
-      zoom={{ maxZoomPixelRatio: 2, scrollToZoom: true }}
+      // Default zoom limit is one CSS pixel per file pixel; a limit of 2 over-stretches each file pixel at 2x.
+      zoom={{ scrollToZoom: true }}
       thumbnails={{
         width: 64,
         height: 64,
@@ -75,6 +79,13 @@ export default function ProductPhotoViewer({
         // One photo needs neither arrows nor a strip of one thumbnail.
         buttonPrev: images.length > 1 ? undefined : () => null,
         buttonNext: images.length > 1 ? undefined : () => null,
+        controls: () =>
+          onAdd ? (
+            <ViewerFooter
+              onAdd={() => requestClose(onAdd)}
+              onManage={onManage && (() => requestClose(onManage))}
+            />
+          ) : null,
       }}
       toolbar={{
         buttons: [

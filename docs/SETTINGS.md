@@ -2,28 +2,9 @@
 
 A reference for the settings modal ("Postavke"): its four tabs, how one form saves to three backends, what each tab stores, and the account actions on Sigurnost (sessions, deleting the account). Written for someone still learning the codebase.
 
-> **Mental model in one sentence:** Postavke is a URL modal (`?modal=settings&tab=...`) backed by one react-hook-form instance that stays mounted for the whole signed-in session; Profil, Obavijesti and Preference share that form and save in up to three parallel requests, while Sigurnost runs its own immediate actions through better-auth.
+> **Mental model in one sentence:** Postavke is a URL modal (`?modal=settings/<tab>`) backed by one react-hook-form instance that stays mounted for the whole signed-in session; Profil, Obavijesti and Preference share that form and save in up to three parallel requests, while Sigurnost runs its own immediate actions through better-auth.
 
 Most of the security machinery already has a home in [AUTH.md](AUTH.md): re-authentication, active sign-ins and security emails in [section 8.4](AUTH.md#84-re-authentication-active-sign-ins-and-security-emails), mandatory onboarding in [section 8.2](AUTH.md#82-mandatory-onboarding-after-sign-in), and the account deletion flow in [section 13](AUTH.md#13-gotchas-and-lessons). This doc covers the settings surface and links there for the details.
-
----
-
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [How the modal works](#2-how-the-modal-works)
-3. [Profil](#3-profil)
-4. [Obavijesti](#4-obavijesti)
-5. [Preference: pinned stores, places and language](#5-preference-pinned-stores-places-and-language)
-6. [Saving](#6-saving)
-7. [Sigurnost](#7-sigurnost)
-8. [Deleting the account](#8-deleting-the-account)
-9. [What is automatic vs manual](#9-what-is-automatic-vs-manual)
-10. [Key files](#10-key-files)
-11. [Config, env vars and libraries](#11-config-env-vars-and-libraries)
-12. [Tests](#12-tests)
-13. [Gotchas and lessons learned](#13-gotchas-and-lessons-learned)
-14. [Future improvements and TODOs](#14-future-improvements-and-todos)
 
 ---
 
@@ -31,7 +12,7 @@ Most of the security machinery already has a home in [AUTH.md](AUTH.md): re-auth
 
 | Thing            | Value                                                                                                                                                                                                       |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| URL              | `?modal=settings&tab=profil\|obavijesti\|preference\|sigurnost` (tab ids are Croatian in every locale)                                                                                                      |
+| URL              | `?modal=settings/profil\|obavijesti\|preference\|sigurnost` (tab ids are Croatian in every locale; a missing or unknown tab opens `profil`)                                                                 |
 | Opened from      | The user menu (`openModalUrl({ name: "settings", tab })`), a long press on a bottom nav item (Preference, see [MOBILE-NAV.md](MOBILE-NAV.md)), and the "notify me" button on coming-soon pages (Obavijesti) |
 | Host             | `SettingsModalHost`, mounted for signed-in users, also hosts the onboarding wizard                                                                                                                          |
 | Profile API      | `GET` and `PATCH /api/users/me` (Spring)                                                                                                                                                                    |
@@ -170,17 +151,18 @@ sequenceDiagram
 
 **What is erased and what stays** (`UserService.deleteAccount`):
 
-| Data                                                      | What happens                                                                            |
-| --------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| better-auth identity, sessions, linked accounts           | Deleted by better-auth after Spring commits                                             |
-| `app_user` username and avatar                            | Nulled; the row is soft deleted                                                         |
-| Digital cards and their photos                            | Hard deleted, photos queued for R2 deletion ([DIGITAL-CARDS.md](DIGITAL-CARDS.md))      |
-| Favourite stores                                          | Deleted                                                                                 |
-| Custom store names typed on cards                         | Their usage rows are deleted and the shared counts drop (`StoreNameService.forgetUser`) |
-| `erasure_ledger`                                          | A tombstone with the user id and time                                                   |
-| Shopping lists, watchlist rules, pinned stores and places | Kept, attached to the anonymised row                                                    |
-| Notification switch timestamps, acquisition channel       | Kept on the anonymised row                                                              |
-| Contact messages                                          | Kept, including the email and name typed into the form                                  |
+| Data                                                      | What happens                                                                                                                                                                                                                    |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| better-auth identity, sessions, linked accounts           | Deleted by better-auth after Spring commits                                                                                                                                                                                     |
+| `app_user` username and avatar                            | Nulled; the row is soft deleted                                                                                                                                                                                                 |
+| Digital cards and their photos                            | Hard deleted, photos queued for deletion ([DIGITAL-CARDS.md](DIGITAL-CARDS.md))                                                                                                                                                 |
+| Favourite stores                                          | Deleted                                                                                                                                                                                                                         |
+| Product photos (`ProductImageErasure`)                    | Unconfirmed ones and ones an admin hid deleted with their files; confirmed ones kept without `contributor_id` or their private original; the user's confirmations and reports unlinked ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)) |
+| Custom store names typed on cards                         | Their usage rows are deleted and the shared counts drop (`StoreNameService.forgetUser`)                                                                                                                                         |
+| `erasure_ledger`                                          | A tombstone with the user id, time and scope `account`; the backup sidecar turns it into a marker, so a restore erases the account again ([BACKUPS.md](BACKUPS.md#erasure-replay))                                              |
+| Shopping lists, watchlist rules, pinned stores and places | Kept, attached to the anonymised row                                                                                                                                                                                            |
+| Notification switch timestamps, acquisition channel       | Kept on the anonymised row                                                                                                                                                                                                      |
+| Contact messages                                          | Kept, including the email and name typed into the form                                                                                                                                                                          |
 
 The failure modes (Spring committed but the identity delete failed, the 410 `account_erased` answer, finishing a half-done deletion) are in [AUTH.md section 13](AUTH.md#13-gotchas-and-lessons). An admin deleting someone runs the same `deleteAccount` ([ADMIN.md](ADMIN.md#4-users-tab)).
 
@@ -204,19 +186,10 @@ The failure modes (Spring committed but the identity delete failed, the 410 `acc
 | Path                                                                                                                        | Role                                                                             |
 | --------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
 | `frontend/src/components/custom/settings/settings-modal-host.tsx`                                                           | The long-lived form, avatar state, draft, onboarding host                        |
-| `frontend/src/components/custom/settings/settings-modal.tsx`                                                                | Tabs, swipe, shared footer, dirty dots                                           |
-| `frontend/src/components/custom/settings/settings-schema.ts`                                                                | Form schema and fields per section                                               |
 | `frontend/src/components/custom/settings/settings-save-jobs.ts`, `settings-save-recovery.ts`, `hooks/use-settings-save*.ts` | Building, running and recovering saves                                           |
-| `frontend/src/components/custom/settings/tabs/`                                                                             | The four tabs                                                                    |
-| `frontend/src/components/custom/settings/components/`                                                                       | Avatar, language, switches, pinned stores and places                             |
-| `frontend/src/components/custom/settings/security/`                                                                         | Sigurnost: credentials, linked accounts, sessions, reauth, deletion              |
 | `frontend/src/components/custom/settings/onboarding/`                                                                       | The onboarding wizard ([AUTH.md](AUTH.md#82-mandatory-onboarding-after-sign-in)) |
 | `frontend/src/lib/modal/modal-registry.ts`                                                                                  | The settings tab ids                                                             |
-| `frontend/src/lib/api/users/`, `lib/api/preferences/`, `lib/api/account-sessions/`                                          | API clients                                                                      |
-| `frontend/src/app/api/account/`                                                                                             | Next.js account routes: sessions, set password, change email, register           |
 | `frontend/src/lib/auth/erase-backend-account.ts`, `finish-erased-account.ts`                                                | Server side of deletion and its recovery                                         |
-| `backend/src/main/java/disscount/user/`                                                                                     | Profile entity, `UserController` (`/api/users/me`), `UserService`, erasure       |
-| `backend/src/main/java/disscount/pinnedStore/`, `pinnedPlace/`                                                              | Pinned stores and places                                                         |
 
 ---
 
@@ -227,7 +200,7 @@ No settings-specific environment variables. The auth variables the security tab 
 | Library                      | Version                 | Used for                                         |
 | ---------------------------- | ----------------------- | ------------------------------------------------ |
 | `react-hook-form`            | `^7.90.0` (lock 7.91.0) | The settings and credentials forms               |
-| `zod`, `@hookform/resolvers` | `^4.1.13`, `^5.2.2`     | Form validation                                  |
+| `zod`, `@hookform/resolvers` | `^4.1.13`, `^7.0.1`     | Form validation                                  |
 | `better-auth`                | `1.7.15` (exact pin)    | Credentials, linked accounts, sessions, deletion |
 | `bowser`                     | `2.15.0`                | Device names in the sign-ins list                |
 | `@tanstack/react-query`      | `^5.90.12`              | Profile and preference queries and mutations     |
@@ -235,11 +208,6 @@ No settings-specific environment variables. The auth variables the security tab 
 ---
 
 ## 12. Tests
-
-| Side     | Tests                                                                                                                                                                                                                                                                                                                     |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend | `security-actions.test.tsx`, `use-security-settings.test.tsx`, `use-reauth.test.tsx`, `sign-in-methods.test.ts`, `list-linked-accounts.test.tsx`, `lib/api/account-sessions/queries.test.tsx`, `lib/auth/account-sessions.test.ts`, `lib/auth/erase-backend-account.test.ts`, the `app/api/account/*/route.test.ts` files |
-| Backend  | `AccountErasureTest` (what is erased and kept, repeat erasure, admin delete), `SoftDeletedUserLookupTest`, the `FullStackTest` suites                                                                                                                                                                                     |
 
 The save job building and recovery (`settings-save-jobs.ts`, `settings-save-recovery.ts`) have no test of their own (checked by file name only).
 
@@ -250,11 +218,11 @@ The save job building and recovery (`settings-save-jobs.ts`, `settings-save-reco
 | Gotcha                                                            | Why it bites                                                                                                                                                                                                           | What to do                                                       |
 | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
 | **Push and email default to on, and their switches are disabled** | A new profile gets `notifications_push_enabled_at` and `notifications_email_enabled_at` set, while the UI shows both as "USKORO" and cannot turn them off. Nothing sends yet, but the stored value is not real consent | Fix before any alert is sent; #216 tracks it                     |
-| **Read form state with `useWatch` and `useFormState`**            | The React Compiler caches reads off the stable `form` object                                                                                                                                                           | Follow the AGENTS.md rule; the modal already does                |
+| **Read form state with `useWatch` and `useFormState`**            | The React Compiler caches reads off the stable `form` object                                                                                                                                                           | Keep using them; the modal already does                          |
 | **Merge, never replace, the user after a profile save**           | The PATCH response has no pins, and the pin jobs run in parallel                                                                                                                                                       | Keep `mergeUser` in `use-settings-save-runners.ts`               |
 | **Onboarding must PATCH once**                                    | A second user PATCH could land after the pin jobs and undo them                                                                                                                                                        | Keep the outcome in the same patch                               |
 | **The server refuses to un-finish onboarding**                    | A late `skipped:<step>` ping could otherwise lock a user back into the required flow                                                                                                                                   | `UserService.updateProfile` ignores a downgrade from `completed` |
-| **Tab ids are Croatian everywhere**                               | `?tab=security` does not exist                                                                                                                                                                                         | Use `profil`, `obavijesti`, `preference`, `sigurnost`            |
+| **Tab ids are Croatian everywhere**                               | `?modal=settings/security` opens Profil, not Sigurnost                                                                                                                                                                 | Use `profil`, `obavijesti`, `preference`, `sigurnost`            |
 | **Pinned stores are chain codes**                                 | Loading names and saving codes once made every save look dirty                                                                                                                                                         | `useSettingsDefaults` maps to `storeApiId`                       |
 
 ---

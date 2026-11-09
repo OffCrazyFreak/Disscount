@@ -1,7 +1,8 @@
-// Every store is in Croatia, so hours are read on Zagreb's wall clock whatever
-// zone the device or the server runs in.
+import { TIME_ZONE } from "@/i18n/formatting";
+
+// Every store is in Croatia, so hours read Zagreb's wall clock whatever zone the device or server runs in.
 const zagrebParts = new Intl.DateTimeFormat("en-CA", {
-  timeZone: "Europe/Zagreb",
+  timeZone: TIME_ZONE,
   year: "numeric",
   month: "2-digit",
   day: "2-digit",
@@ -10,7 +11,6 @@ const zagrebParts = new Intl.DateTimeFormat("en-CA", {
   hourCycle: "h23",
 });
 
-/** The Zagreb calendar date and minutes since its midnight at an instant. */
 export function zagrebClock(at: Date): { date: string; minutes: number } {
   const part = Object.fromEntries(
     zagrebParts.formatToParts(at).map(({ type, value }) => [type, value]),
@@ -29,6 +29,11 @@ export function addDays(date: string, days: number): string {
   return new Date(Date.UTC(year, month - 1, day + days))
     .toISOString()
     .slice(0, 10);
+}
+
+/** Whole days from one ISO date to another; `Date.parse` reads both as UTC. */
+export function daysBetween(from: string, to: string): number {
+  return (Date.parse(to) - Date.parse(from)) / (24 * 60 * 60 * 1000);
 }
 
 /** 0 for Monday through 6 for Sunday, as ISO 8601 counts. */

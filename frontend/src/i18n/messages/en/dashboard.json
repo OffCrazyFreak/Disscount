@@ -37,6 +37,8 @@
     "colEmail": "Email",
     "colLastLogin": "Last sign-in",
     "colAccountType": "Account type",
+    "colPhotos": "Photos",
+    "photoCount": "{uploaded} · {deleted} deleted",
     "deleteTitle": "Delete account",
     "deleteDescription": "Delete the account {name}? This can't be undone.",
     "deleteConfirm": "Delete account"
@@ -49,7 +51,7 @@
     "viewAll": "All",
     "viewUnread": "Unread",
     "loadError": "Couldn't load messages. Try again.",
-    "searchPlaceholder": "Search messages...",
+    "searchPlaceholder": "Search messages",
     "showDeleted": "Show deleted",
     "colMessage": "Message",
     "colSender": "Sender",

@@ -37,22 +37,25 @@ export const acquisitionChannelSchema = z.enum([
   "OTHER",
 ]);
 
+export const usernameSchema = z
+  .string()
+  .min(2, "settings.validation.usernameMin")
+  .max(40, "settings.validation.usernameMax");
+
 export const userRequestSchema = z.object({
-  username: z
-    .string()
-    .min(2, "auth.validation.usernameMin")
-    .max(40, "auth.validation.usernameMax")
-    .nullable()
-    .optional(),
+  username: usernameSchema.nullable().optional(),
   notificationsPush: z.boolean().optional(),
   notificationsEmail: z.boolean().optional(),
   newsletter: z.boolean().optional(),
   feedbackContact: z.boolean().optional(),
   acquisitionChannel: acquisitionChannelSchema.nullable().optional(),
   image: z.string().nullable().optional(),
-  // "completed" or "skipped:<step>"; sent only when the onboarding wizard ends
+  // At most three digits, as UserRequest.onboardingOutcome allows on the server.
   onboardingOutcome: z
-    .union([z.literal(ONBOARDING_COMPLETED), z.string().regex(/^skipped:\d+$/)])
+    .union([
+      z.literal(ONBOARDING_COMPLETED),
+      z.string().regex(/^skipped:\d{1,3}$/),
+    ])
     .optional(),
 });
 
@@ -69,8 +72,7 @@ export const userDtoSchema = z.object({
   notificationsEmailEnabledAt: z.string().nullable(),
   newsletterEnabledAt: z.string().nullable(),
   feedbackContactEnabledAt: z.string().nullable(),
-  // Only a completed outcome satisfies the onboarding gate. Historical skipped
-  // outcomes remain incomplete even though they have a completion timestamp.
+  // Skipped outcomes stay incomplete even though they have a completion timestamp.
   onboardingCompletedAt: z.string().nullable(),
   onboardingOutcome: z.string().nullable(),
   createdAt: z.string(),

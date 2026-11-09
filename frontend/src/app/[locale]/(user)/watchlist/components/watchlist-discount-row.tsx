@@ -31,8 +31,7 @@ export default function WatchlistDiscountRow({
   const t = useTranslations("watchlist");
   const color = priceDeltaColorClass(difference);
 
-  // No row wrapper of its own: PriceStack lays the tier out, so the row cannot
-  // drift from the product card's spacing.
+  // No row wrapper: PriceStack lays the tier out, so the row cannot drift from the product card's spacing.
   return (
     <>
       <StorePriceTooltip stores={stores} side={tooltipSide}>
@@ -47,10 +46,7 @@ export default function WatchlistDiscountRow({
         >
           <Icon className="size-6" aria-hidden="true" />
           <span>{text}</span>
-          {/* The price is the visible label, so it has to lead the accessible
-              name: an aria-label replaced it outright, which hid the figure from
-              screen readers and left voice control unable to say it. infoLabel
-              also tells the two rows on a card apart. */}
+          {/* The price is the visible label, so it leads the name for screen readers and voice control. */}
           <span className="sr-only">
             {t("discountRow.srSuffix", { infoLabel })}
           </span>

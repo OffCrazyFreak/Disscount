@@ -8,10 +8,7 @@ interface INearestStoreDistanceProps {
   nearest: INearestStore;
 }
 
-/**
- * How far the chain's nearest store is, and whether that one store is open:
- * hours belong to a physical store, so a chain is never "open" as a whole.
- */
+/** Hours belong to a physical store, so a chain is never "open" as a whole. */
 export default function NearestStoreDistance({
   nearest,
 }: INearestStoreDistanceProps) {

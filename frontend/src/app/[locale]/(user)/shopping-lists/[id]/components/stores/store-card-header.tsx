@@ -59,8 +59,7 @@ export default function StoreCardHeader({
     .join(" ");
 
   return (
-    // The toggle stretches over the header instead of wrapping it, so the
-    // opening badge can be its own button beside it.
+    // The toggle stretches over the header instead of wrapping it, so the opening badge can be its own button.
     <CardHeader className="relative isolate flex items-center justify-between gap-4 py-4">
       <div className="flex items-center gap-4">
         <div

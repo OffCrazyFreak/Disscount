@@ -31,8 +31,7 @@ function Harness() {
   );
 }
 
-// jsdom has no layout: the row is as wide as its shown children, and the web
-// font makes every badge wider than the fallback font did.
+// jsdom has no layout: the row is as wide as its shown children, and the web font makes every badge wider.
 function stubLayout() {
   const isShown = (element: Element) =>
     (element as HTMLElement).style.display !== "none";
@@ -54,13 +53,6 @@ function stubLayout() {
 beforeEach(() => {
   isWebFontLoaded = false;
   stubLayout();
-  vi.stubGlobal(
-    "ResizeObserver",
-    class {
-      observe() {}
-      disconnect() {}
-    },
-  );
 
   const ready = new Promise<void>((resolve) => {
     resolveFontsReady = resolve;

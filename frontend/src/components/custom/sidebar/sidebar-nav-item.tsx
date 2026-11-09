@@ -23,7 +23,6 @@ interface ISidebarNavItemProps {
   badgeLabel?: string;
 }
 
-/** A sidebar link with its coming-soon or notification badge. */
 export default function SidebarNavItem({
   item,
   isActive = false,

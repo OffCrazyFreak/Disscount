@@ -9,12 +9,12 @@ import disscount.pinnedStore.dao.PinnedStoreRepository;
 import disscount.pinnedStore.domain.PinnedStore;
 import disscount.pinnedStore.dto.BulkPinnedStoreRequest;
 import disscount.pinnedStore.dto.PinnedStoreDto;
+import disscount.pinnedStore.dto.PinnedStoreRequest;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,45 +25,33 @@ public class PinnedStoreService {
     private final UserRepository userRepository;
 
     public List<PinnedStoreDto> updatePinnedStores(UUID userId, BulkPinnedStoreRequest request) {
-        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
-                .orElseThrow(() -> new BadRequestException("error.user.notFound"));
+        User user = userRepository.requireActiveForUpdate(userId);
 
-        // First, delete all existing pinned stores for this user
-        List<PinnedStore> existingStores = pinnedStoreRepository.findByUserId(userId);
-        pinnedStoreRepository.deleteAll(existingStores);
-        pinnedStoreRepository.flush(); // Force the delete operation to complete before insert
+        long distinctIds = request.getStores().stream().map(PinnedStoreRequest::getStoreApiId).distinct().count();
 
-        // Check for duplicate store IDs in the request
-        long uniqueStoreIds = request.getStores().stream()
-                .map(storeRequest -> storeRequest.getStoreApiId())
-                .distinct()
-                .count();
-
-        if (uniqueStoreIds < request.getStores().size()) {
+        if (distinctIds < request.getStores().size()) {
             throw new BadRequestException("error.pinnedStore.duplicate");
         }
 
-        // Then create new pinned stores
-        List<PinnedStore> newPinnedStores = request.getStores().stream()
-                .map(storeRequest -> PinnedStore.builder()
-                        .user(user)
-                        .storeApiId(storeRequest.getStoreApiId())
-                        .storeName(storeRequest.getStoreName())
-                        .build())
-                .collect(Collectors.toList());
+        pinnedStoreRepository.deleteAllByUserId(userId);
+        pinnedStoreRepository.flush();
 
-        List<PinnedStore> saved = pinnedStoreRepository.saveAll(newPinnedStores);
-        return saved.stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
+        List<PinnedStore> saved = pinnedStoreRepository.saveAll(request.getStores().stream()
+                .map(store -> PinnedStore.builder()
+                        .user(user)
+                        .storeApiId(store.getStoreApiId())
+                        .storeName(store.getStoreName())
+                        .build())
+                .toList());
+
+        return saved.stream().map(this::mapToDto).toList();
     }
 
     @Transactional(readOnly = true)
     public List<PinnedStoreDto> getUserPinnedStores(UUID userId) {
-        return pinnedStoreRepository.findByUserId(userId)
-                .stream()
+        return pinnedStoreRepository.findByUserId(userId).stream()
                 .map(this::mapToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private PinnedStoreDto mapToDto(PinnedStore pinnedStore) {

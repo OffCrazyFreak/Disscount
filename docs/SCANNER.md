@@ -8,24 +8,6 @@ Card-specific hardening (consensus counts, check digits, normalization, the conf
 
 ---
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [How it works end to end](#2-how-it-works-end-to-end)
-3. [Who opens the scanner](#3-who-opens-the-scanner)
-4. [Presets: products vs cards](#4-presets-products-vs-cards)
-5. [The camera](#5-the-camera)
-6. [Scanning a photo instead](#6-scanning-a-photo-instead)
-7. [Errors, feedback and accessibility](#7-errors-feedback-and-accessibility)
-8. [What is automatic vs manual](#8-what-is-automatic-vs-manual)
-9. [Key files](#9-key-files)
-10. [Config, security headers and libraries](#10-config-security-headers-and-libraries)
-11. [Tests](#11-tests)
-12. [Gotchas and lessons learned](#12-gotchas-and-lessons-learned)
-13. [Future improvements and TODOs](#13-future-improvements-and-todos)
-
----
-
 ## 1. Quick reference
 
 | Thing               | Value                                                                                                     |
@@ -47,7 +29,7 @@ Card-specific hardening (consensus counts, check digits, normalization, the conf
 
 ```mermaid
 flowchart TD
-  O["openScanner({ onScan, preset, confirm })"] --> D[Scanner dialog]
+  O["openScanner({ onScan, preset, confirm, opener })"] --> D[Scanner dialog]
   D --> C[CameraView: back camera stream]
   C -->|every decoded frame| K[useScanConsensus]
   K -->|same code read enough times| B[Beep and vibrate]
@@ -59,7 +41,7 @@ flowchart TD
   I --> Q
 ```
 
-1. A caller passes an `onScan` callback, a `preset` (`"product"` by default) and whether to `confirm`. The context stores the callback in a ref and opens the dialog.
+1. A caller passes an `onScan` callback, a `preset` (`"product"` by default), whether to `confirm`, and the `opener`: the button it was clicked from (`event.currentTarget`). The context stores the callback in a ref and opens the dialog.
 2. `ScannerContent` runs a small step machine: `camera`, `manual` and `confirm`. It moves focus to the step title when the step changes, because the previous step's controls unmount and take focus with them.
 3. `CameraView` renders the library's `Scanner` with `allowMultiple` and `scanDelay={0}`, so every decoded frame reaches the consensus hook, which counts repeated reads ([DIGITAL-CARDS.md](DIGITAL-CARDS.md#7-scanner-hardening) has the counts and windows).
 4. When a code is stable, `ScannerCamera` plays a beep, `ScannerContent` vibrates once, and either calls `onScan` (no confirm) or shows the confirm step.
@@ -132,7 +114,7 @@ The image never leaves the device ([IMAGE-UPLOADS.md](IMAGE-UPLOADS.md) lists th
 - **Errors.** `describeScannerError` maps the library's error `kind` to a `scanner.errors.*` key: permission denied, no camera, camera in use, overconstrained, insecure context (camera access needs HTTPS or localhost), or generic. The error replaces the video with a warning banner; picking another camera clears it.
 - **Beep.** `scan-beep.ts` creates a Web Audio context while the opening tap is still a fresh user gesture, then plays a 120 ms, 1 kHz tone per stable code. It exists because iOS Safari ignores the library's sound option for muted video, so the library's own sound is off.
 - **Vibration.** One `navigator.vibrate(80)` per stable code in `ScannerContent`; see the DIGITAL-CARDS gotcha about not adding it back to the context.
-- **Screen readers.** A polite status region announces the found code, several codes, or a typed code. The step title takes focus on every step change. The dialog itself comes from the shadcn `Dialog`, which moves focus in and restores it on close.
+- **Screen readers.** A polite status region announces the found code, several codes, or a typed code. The step title takes focus on every step change. The dialog itself comes from the shadcn `Dialog`, which moves focus in. It has no `DialogTrigger`, so Radix has nothing to restore focus to on close. `camera-scanner.tsx` records the `opener` when the dialog opens (Safari does not focus a button on click, so `document.activeElement` would be the page body; it is only the fallback for callers with no click on a button to read, such as the app shortcut and the bottom nav long press) and returns focus to it on close, or to that button's search field (`data-slot=search-field`) when the button is gone. After a scan from the sidebar the opener is inert (desktop), so focus goes to the sidebar trigger instead; the mobile drawer outlives the scanner by its exit transition, so there the drawer's own `finalFocus` decides ([SEARCH.md §10](SEARCH.md#10-gotchas--lessons-learned)).
 
 ---
 
@@ -151,23 +133,14 @@ The image never leaves the device ([IMAGE-UPLOADS.md](IMAGE-UPLOADS.md) lists th
 
 ## 9. Key files
 
-| Path                                                                                           | Role                                                               |
-| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `frontend/src/context/scanner-context.tsx`                                                     | `CameraScannerProvider` and `useCameraScanner`                     |
-| `frontend/src/components/scanner/camera-scanner.tsx`                                           | The dialog                                                         |
-| `frontend/src/components/scanner/scanner-content.tsx`                                          | Step machine, focus, announcements, vibration                      |
-| `frontend/src/components/scanner/scanner-camera.tsx`                                           | Camera step: error banner, hint, camera select, photo button, beep |
-| `frontend/src/components/scanner/camera-view.tsx`                                              | The library `Scanner`, constraints, torch and track cleanup        |
-| `frontend/src/components/scanner/scan-consensus.ts`, `hooks/use-scan-consensus.ts`             | Repeated-read consensus                                            |
-| `frontend/src/components/scanner/scan-confirm.tsx`, `code-preview.tsx`, `code-choice-list.tsx` | The confirm step                                                   |
-| `frontend/src/components/scanner/scan-manual-entry.tsx`, `manual-entry-error.ts`               | Typing a code                                                      |
-| `frontend/src/components/scanner/scan-image.tsx`                                               | Photo decoding                                                     |
-| `frontend/src/components/scanner/scan-beep.ts`                                                 | Web Audio beep                                                     |
-| `frontend/src/components/scanner/camera-select.tsx`, `hooks/use-camera-devices.ts`             | Camera list and choice                                             |
-| `frontend/src/utils/browser/camera.ts`                                                         | Back camera scoring, camera naming, error mapping                  |
-| `frontend/src/utils/barcode/`                                                                  | Check digits and normalization, shared with cards                  |
-| `frontend/src/constants/scanner.ts`                                                            | Formats per preset                                                 |
-| `frontend/src/components/custom/pwa/scan-shortcut.tsx`                                         | The `/?scan=1` PWA shortcut                                        |
+| Path                                                                               | Role                                                        |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `frontend/src/components/scanner/scanner-content.tsx`                              | Step machine, focus, announcements, vibration               |
+| `frontend/src/components/scanner/camera-view.tsx`                                  | The library `Scanner`, constraints, torch and track cleanup |
+| `frontend/src/components/scanner/scan-consensus.ts`, `hooks/use-scan-consensus.ts` | Repeated-read consensus                                     |
+| `frontend/src/utils/browser/camera.ts`                                             | Back camera scoring, camera naming, error mapping           |
+| `frontend/src/utils/barcode/`                                                      | Check digits and normalization, shared with cards           |
+| `frontend/src/components/custom/pwa/scan-shortcut.tsx`                             | The `/?scan=1` PWA shortcut                                 |
 
 `frontend/src/lib/store-locations/dgu/gml-scanner.ts` has "scanner" in its name but is an XML stream reader for the store map ([MAP.md](MAP.md)), unrelated to barcodes.
 
@@ -191,7 +164,7 @@ No environment variables or feature flags.
 
 ## 11. Tests
 
-`components/scanner/scan-consensus.test.ts` covers the consensus rules. The check digit and normalization helpers under `utils/barcode/` have their own tests ([DIGITAL-CARDS.md](DIGITAL-CARDS.md)). The camera, the photo path and the dialog are browser-only and have no automated test; [TESTING.md](TESTING.md) explains what is left to a real browser.
+The camera, the photo path and the dialog are browser-only and have no automated test; [TESTING.md](TESTING.md) explains what is left to a real browser.
 
 ---
 
@@ -213,5 +186,3 @@ No environment variables or feature flags.
 ## 13. Future improvements and TODOs
 
 - [ ] Verify where zxing's `.wasm` is loaded from and whether photo scanning works offline; if it is a CDN, consider self-hosting it so the CSP and privacy story stay first party.
-- [ ] Offer a typed EAN fallback inside the dialog for product scans too, or document the search bar as the fallback in the copy.
-- [ ] Browser coverage: there is no automated test of the camera path; a manual checklist per platform (Android Chrome, iOS Safari, desktop) would catch regressions in camera picking.

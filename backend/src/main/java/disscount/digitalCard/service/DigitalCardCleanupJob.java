@@ -17,18 +17,12 @@ public class DigitalCardCleanupJob {
     private static final Logger log = LoggerFactory.getLogger(DigitalCardCleanupJob.class);
 
     private final DigitalCardService cardService;
-    private final PhotoUploadRateLimiter rateLimiter;
     private final PhotoCleanupService photoCleanup;
 
     @Scheduled(cron = "0 30 3 * * *", zone = "UTC")
     public void purgeDeletedCards() {
         int purged = cardService.purgeDeletedBefore(Timestamps.nowUtc().minusDays(RETENTION_DAYS));
         log.info("Purged {} soft-deleted digital cards", purged);
-    }
-
-    @Scheduled(fixedDelay = 300_000)
-    public void sweepRateLimiter() {
-        rateLimiter.sweep();
     }
 
     @Scheduled(fixedDelay = 900_000, initialDelay = 60_000)

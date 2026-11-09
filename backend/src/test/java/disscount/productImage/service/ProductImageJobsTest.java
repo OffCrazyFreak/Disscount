@@ -1,13 +1,13 @@
 package disscount.productImage.service;
 
-import disscount.productImage.FakeProductImageStore;
+import java.util.Optional;
 import disscount.productImage.catalog.CatalogImportService;
 import disscount.productImage.dao.ProductImageImportRunRepository;
 import disscount.productImage.dao.ProductImageRepository;
 import disscount.productImage.dao.ProductImageSetRepository;
 import disscount.productImage.domain.ProductImageImportRun;
+import disscount.storage.FakePhotoStore;
 import disscount.util.Timestamps;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -27,12 +27,11 @@ class ProductImageJobsTest {
     final CatalogImportService catalog = mock(CatalogImportService.class);
     final OffSeedService seed = mock(OffSeedService.class);
     final ProductImageImportRunRepository runs = mock(ProductImageImportRunRepository.class);
-    final FakeProductImageStore store = new FakeProductImageStore();
+    final FakePhotoStore store = new FakePhotoStore();
 
     ProductImageJobs jobs() {
         return new ProductImageJobs(true, store, catalog, seed, mock(ProductImageRendering.class),
-                mock(ProductImageRepository.class), mock(ProductImageSetRepository.class), runs,
-                mock(ProductPhotoUploadLimiter.class));
+                mock(ProductImageRepository.class), mock(ProductImageSetRepository.class), runs);
     }
 
     @Test

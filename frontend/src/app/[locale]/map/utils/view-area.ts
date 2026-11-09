@@ -2,7 +2,6 @@ import type { Map as MapLibreMap } from "maplibre-gl";
 
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 
-/** The visible map as four [lon, lat] corners, in order around the edge. */
 export interface IViewArea {
   corners: [number, number][];
 }
@@ -25,8 +24,7 @@ export function readVisibleArea(
   const height = clientHeight - coveredBottom;
   if (width <= 0 || height <= 0) return null;
 
-  // All four corners, not a north-aligned box around them: on a rotated
-  // map that box reaches past the screen and would count hidden stores.
+  // All four corners, because a north-aligned box on a rotated map counts hidden stores.
   const corners = [
     map.unproject([0, 0]),
     map.unproject([width, 0]),
@@ -56,7 +54,6 @@ function isInView({ store }: IListedStore, { corners }: IViewArea) {
   return true;
 }
 
-/** Stores on the visible map, then the rest, each keeping the list's order. */
 export function splitByView(rows: IListedStore[], view: IViewArea | null) {
   if (!view) return { onMap: [], elsewhere: rows };
 

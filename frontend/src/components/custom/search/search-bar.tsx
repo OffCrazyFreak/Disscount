@@ -9,13 +9,14 @@ import SearchActionButton from "@/components/custom/search/search-action-button"
 import {
   dismissTouchKeyboard,
   isTouchPointer,
-} from "@/components/custom/search/dismiss-touch-keyboard";
+} from "@/utils/browser/touch-keyboard";
 import { useSearchBarQuery } from "@/components/custom/search/use-search-bar-query";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useSidebar } from "@/components/ui/sidebar";
+import type { ISearchDraftStore } from "@/components/custom/search/search-draft-store";
 import { IScannedCode } from "@/typings/scanned-code";
 
-interface ISearchBarProps extends ISearchBarFieldOptions {
+export interface ISearchBarProps extends ISearchBarFieldOptions {
   searchRoute: string;
   autoSearch?: boolean;
   disabled?: boolean;
@@ -23,10 +24,12 @@ interface ISearchBarProps extends ISearchBarFieldOptions {
   submitLabel?: string;
   /** Names the form, so an owner can put the submit button outside it */
   formId?: string;
-  /** Mirrors what is typed, for an owner rendering the submit button itself */
-  onQueryChange?: (query: string) => void;
+  /** The draft this field mirrors with others; left out, it keeps its own */
+  draftStore?: ISearchDraftStore;
   /** Updates `q` in place, without a server render, keeping the hash */
   shallow?: boolean;
+  /** Offers searches to run under the field, from what is on this device */
+  suggestions?: boolean;
   /** Fires once a search or a scan has navigated away */
   onSubmitted?: (query: string) => void;
 }
@@ -38,7 +41,8 @@ export default function SearchBar({
   disabled = false,
   submitLabel: submitLabelProp,
   formId,
-  onQueryChange,
+  draftStore,
+  suggestions = false,
   onSubmitted,
   shallow = false,
   ...field
@@ -48,21 +52,28 @@ export default function SearchBar({
   const { routeQuery, isUnchanged, search, syncQuery, openResult } =
     useSearchNavigation(searchRoute, { shallow });
   const { setOpen } = useSidebar();
-  const { register, handleSubmit, reset, queryValue } = useSearchBarQuery({
-    routeQuery,
-    autoSearch,
-    disabled,
-    syncQuery,
-    onQueryChange,
-  });
+  const { registration, handleSubmit, clearQuery, markSubmitted, queryValue } =
+    useSearchBarQuery({
+      routeQuery,
+      autoSearch,
+      disabled,
+      syncQuery,
+      draftStore,
+    });
 
   function submit(data: { query: string }) {
     if (disabled) return;
 
-    const query = data.query?.trim() ?? "";
+    const typed = data.query ?? "";
+    const query = typed.trim();
 
     dismissTouchKeyboard();
+
+    // Only a field emptied over a searched page has anything to do: it drops the query.
+    if (!query && (typed || !routeQuery)) return;
+
     setOpen(false);
+    markSubmitted(query);
     search(query);
     onSubmitted?.(query);
   }
@@ -70,14 +81,20 @@ export default function SearchBar({
   // formId means the owner renders the search button outside the form.
   const hasSearchButton = submitButtonLocation !== "none" || Boolean(formId);
 
-  // The button never searches an unchanged query (it is disabled, or back to top
-  // once scrolled), so Enter on a touch keyboard only closes it rather than
-  // doing nothing or, with no submit button left in the form, searching again.
+  // An unchanged query never searches, so touch Enter only closes the keyboard.
   function handleKeyDown(event: KeyboardEvent<HTMLFormElement>) {
     if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
     // Enter on the clear or scan button is that button's own click.
     if (!(event.target instanceof HTMLInputElement)) return;
-    if (!hasSearchButton || !isUnchanged(queryValue ?? "")) return;
+
+    // Implicit submit needs a single field, and the suggestion list adds a hidden one.
+    if (suggestions && !hasSearchButton) {
+      event.preventDefault();
+      event.currentTarget.requestSubmit();
+      return;
+    }
+
+    if (!hasSearchButton || !isUnchanged(queryValue)) return;
     if (!isTouchPointer()) return;
 
     event.preventDefault();
@@ -85,8 +102,10 @@ export default function SearchBar({
   }
 
   function handleClear() {
-    reset({ query: "" });
-    search("");
+    clearQuery();
+
+    // A live filter's own sync drops the query, and a field off its route has none to drop.
+    if (!autoSearch && routeQuery) search("");
   }
 
   const handleScan = useCallback(
@@ -109,18 +128,21 @@ export default function SearchBar({
       >
         <SearchBarField
           {...field}
-          registration={register("query")}
+          registration={registration}
           queryValue={queryValue}
           disabled={disabled}
           onClear={handleClear}
           onScanned={handleScan}
+          onPickSuggestion={
+            suggestions ? (query) => submit({ query }) : undefined
+          }
         />
 
         {submitButtonLocation !== "none" && (
           <SearchActionButton
             label={submitLabel}
             block={submitButtonLocation === "block"}
-            isUnchanged={isUnchanged(queryValue ?? "")}
+            isUnchanged={isUnchanged(queryValue)}
             disabled={disabled}
           />
         )}

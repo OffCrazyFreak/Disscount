@@ -141,7 +141,7 @@
   "list": {
     "loginTitle": "Loyalty cards",
     "loginDescription": "All your loyalty cards in one place, always handy.",
-    "searchPlaceholder": "Search loyalty cards...",
+    "searchPlaceholder": "Search loyalty cards",
     "searchResults": "Search results for “{query}” ({count})",
     "myCards": "My loyalty cards",
     "myCardsWithCount": "My loyalty cards ({count})",

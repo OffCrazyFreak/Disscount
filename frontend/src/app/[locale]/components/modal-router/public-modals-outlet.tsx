@@ -13,7 +13,6 @@ interface IPublicModalsOutletProps {
   target: ModalTarget | null;
 }
 
-/** Modals opened from email links or the footer, reachable without an account. */
 export default function PublicModalsOutlet({
   target,
 }: IPublicModalsOutletProps) {

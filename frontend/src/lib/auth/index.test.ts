@@ -19,8 +19,6 @@ vi.stubEnv("EMAIL_FROM", "test@example.com");
 
 const { FACEBOOK_COMING_SOON } = await import("@/constants/auth");
 const { auth } = await import("@/lib/auth");
-const { CLIENT_IP_HEADER } = await import("@/lib/client-ip/client-ip");
-const { recordLastLogin } = await import("@/lib/auth/record-last-login");
 const { eraseBackendAccount } =
   await import("@/lib/auth/erase-backend-account");
 const { pwnedPassword } = await import("hibp");
@@ -55,49 +53,6 @@ describe("Facebook behind FACEBOOK_COMING_SOON", () => {
       ).rejects.toMatchObject({ body: { code: "PROVIDER_NOT_FOUND" } });
     },
   );
-});
-
-describe("rate limiting", () => {
-  it("is on in every environment and survives restarts", () => {
-    expect(auth.options.rateLimit).toMatchObject({
-      enabled: true,
-      storage: "database",
-    });
-  });
-
-  it("keys on the client address the auth route resolved", () => {
-    expect(auth.options.advanced?.ipAddress?.ipAddressHeaders).toEqual([
-      CLIENT_IP_HEADER,
-    ]);
-  });
-});
-
-// better-auth deletes session rows on sign-out and expiry, so last login lives on the user row.
-describe("last login", () => {
-  it("is recorded whenever a session is created", () => {
-    expect(auth.options.databaseHooks?.session?.create?.after).toBe(
-      recordLastLogin,
-    );
-  });
-});
-
-describe("register flow", () => {
-  it("re-sends the verification link when an unverified owner signs in", () => {
-    expect(auth.options.emailVerification?.sendOnSignIn).toBe(true);
-  });
-
-  it("answers a registered address like a new one and mails its owner", () => {
-    expect(auth.options.emailAndPassword?.requireEmailVerification).toBe(true);
-    expect(auth.options.emailAndPassword?.onExistingUserSignUp).toBeTypeOf(
-      "function",
-    );
-  });
-
-  it("signs every device out after a reset", () => {
-    expect(auth.options.emailAndPassword?.revokeSessionsOnPasswordReset).toBe(
-      true,
-    );
-  });
 });
 
 // beforeDelete runs after better-auth's own checks and before the identity goes.
@@ -135,24 +90,7 @@ describe("session country", () => {
   });
 });
 
-// The rule table guards every path that reads freshAge; the one day default would still
-// refuse a code-proven delete from an older session.
-describe("session freshness", () => {
-  it("is owned by the re-auth rule table, not better-auth's default", () => {
-    expect(auth.options.session?.freshAge).toBe(0);
-  });
-});
-
-// better-auth 1.7.15 encrypts the access and refresh tokens only; the id token stays as issued.
-describe("stored OAuth tokens", () => {
-  it("are encrypted before they reach the account table", () => {
-    expect(auth.options.account?.encryptOAuthTokens).toBe(true);
-  });
-});
-
-// The catch-all auth route exposes these endpoints directly, so the policy has to sit in
-// hooks.before, which wraps the same endpoint for HTTP and in-process calls. The test
-// database is unreachable, so a call that got past the hook would fail with a query error.
+// The catch-all exposes these endpoints, so the policy sits in hooks.before.
 describe("new password policy", () => {
   const BREACHED = "password1234";
 

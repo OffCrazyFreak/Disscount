@@ -18,6 +18,7 @@ import {
   ignoreDeploymentParam,
 } from "@/lib/pwa/deployment-param";
 import { OFFLINE_PAGE_PATH, WALLET_PAGE_PATH } from "@/lib/pwa/precached-pages";
+import { skipNoStore } from "@/lib/pwa/skip-no-store";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -54,6 +55,7 @@ const runtimeCaching: RuntimeCaching[] = [
       cacheName: "cijene-api",
       plugins: [
         new CacheableResponsePlugin({ statuses: [0, 200] }),
+        skipNoStore,
         new ExpirationPlugin({
           maxEntries: 200,
           maxAgeSeconds: 7 * 24 * 60 * 60,
@@ -67,15 +69,7 @@ const runtimeCaching: RuntimeCaching[] = [
       sameOrigin && url.pathname.startsWith("/api/"),
     handler: new NetworkOnly(),
   },
-  // The cached set of list URLs reveals which lists this device opened, including
-  // someone else's reached by link, so it is not public data. The documents themselves
-  // carry no list content: the page renders a client component from the id alone. NetworkOnly kept it off disk
-  // but sent every offline reload to the /offline fallback, which made the offline write
-  // queue unreachable in exactly the shop-with-no-signal case it exists for. NetworkFirst
-  // with a short life plus purgeOfflineCache deleting this bucket on a change of identity
-  // is the trade. Its own bucket, not defaultCache's: two ExpirationPlugins over one
-  // cache each trim it to their own maxEntries and then disagree about what is still
-  // there. Must stay above defaultCache, which is matched in order.
+  // Above defaultCache (first match wins); own bucket for expiry; NetworkFirst, as NetworkOnly cuts off the queue.
   {
     matcher: ({ url, sameOrigin }) =>
       sameOrigin && SHOPPING_LIST_PATH.test(url.pathname),
@@ -88,10 +82,7 @@ const runtimeCaching: RuntimeCaching[] = [
       ],
     }),
   },
-  // The bare wallet URL never gets here: the precache answers it first. Its ?q= and
-  // modal variants stay out of defaultCache's 24 hour page bucket, where a copy from an
-  // older build would point at chunks the next deploy deleted; offline, the fallback
-  // below serves this build's precached wallet instead.
+  // ?q= and modal variants stay out of the page bucket, where an old copy points at deleted chunks.
   {
     matcher: ({ url, request, sameOrigin }) =>
       sameOrigin &&
@@ -122,15 +113,13 @@ const serwist = new Serwist({
       DEPLOYMENT_PARAM_PATTERN,
     ],
   },
-  // Off so a deploy waits for the reload the app offers; the old worker keeps
-  // serving the chunks open tabs still ask for until then.
+  // Off so a deploy waits for the reload the app offers, and the old worker keeps serving the chunks open tabs ask for.
   skipWaiting: false,
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching,
   fallbacks: {
-    // First match wins: a wallet document gets this build's wallet in its own
-    // language, any other document the precached offline page.
+    // First match wins: wallet documents get this build's wallet, others the offline page.
     entries: [
       ...PAGE_PREFIXES.map((prefix) => ({
         url: `${prefix}${WALLET_PAGE_PATH}`,

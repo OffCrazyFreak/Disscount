@@ -11,7 +11,7 @@ export default function PasswordRecovery() {
 
   if (!recovery.sentTo) return null;
 
-  // InboxNotice owns the live region now, so every call site is announced.
+  // InboxNotice owns the live region, so every call site is announced.
   return (
     <InboxNotice
       title={t("security.recovery.title")}

@@ -1,10 +1,28 @@
 import { parseServerDate } from "@/utils/date";
 import { formatLocale, TIME_ZONE } from "@/i18n/formatting";
 
-/**
- * Normalize strings for search: remove diacritics and apply language-specific replacements.
- * Works well for Croatian and German diacritics.
- */
+const ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+};
+
+export function decodeEntities(text: string): string {
+  return text.replace(/&(#x[0-9a-f]+|#\d+|\w+);/gi, (whole, body: string) => {
+    if (body[0] !== "#") return ENTITIES[body] ?? whole;
+
+    const code =
+      body[1] === "x" || body[1] === "X"
+        ? parseInt(body.slice(2), 16)
+        : parseInt(body.slice(1), 10);
+
+    // fromCodePoint throws past Unicode's last code point, which would fail a whole feed.
+    return code <= 0x10ffff ? String.fromCodePoint(code) : whole;
+  });
+}
+
 export function normalizeForSearch(s: string) {
   if (!s) return "";
   return (
@@ -30,8 +48,7 @@ function dateFormatter(locale: string, shape: DateShape) {
   let formatter = dateFormatters.get(key);
 
   if (!formatter) {
-    // 12/10/2026 means two different days to British and American readers, so
-    // English spells the month out (12 Oct 2026); the others read numerals one way.
+    // 12/10/2026 means two different days to British and American readers, so English spells the month out.
     const spelledMonth = locale === "en";
     formatter = new Intl.DateTimeFormat(formatLocale(locale), {
       day: spelledMonth ? "numeric" : "2-digit",
@@ -77,10 +94,7 @@ function formatServerDate(
     : formatter.format(d);
 }
 
-/**
- * Format an ISO date string (or any parsable date) as a date in the locale's style,
- * in Croatian time. Falls back to the original input when the date is invalid.
- */
+/** Falls back to the original input when the date is invalid. */
 export function formatDate(
   dateString: string | null | undefined,
   locale: string,
@@ -88,7 +102,6 @@ export function formatDate(
   return formatServerDate(dateString, locale, "date");
 }
 
-/** Same as formatDate, with hours and minutes. */
 export function formatDateTime(
   dateString: string | null | undefined,
   locale: string,
@@ -96,7 +109,6 @@ export function formatDateTime(
   return formatServerDate(dateString, locale, "dateTime");
 }
 
-/** Same as formatDate, without the year. */
 export function formatDayMonth(
   dateString: string | null | undefined,
   locale: string,
@@ -104,9 +116,6 @@ export function formatDayMonth(
   return formatServerDate(dateString, locale, "dayMonth");
 }
 
-/**
- * Trim trailing zeros from decimal quantities: "1.000" -> "1", "1.200" -> "1.2"
- */
 export function formatQuantity(q?: string | null): string | null {
   if (q == null) return null;
   if (q.includes(".")) {
@@ -117,11 +126,7 @@ export function formatQuantity(q?: string | null): string | null {
   return q;
 }
 
-/**
- * Compare two strings for display order in Croatian, where Č, Ć, Đ, Š and Ž
- * have their own places in the alphabet rather than collating next to C, D,
- * S and Z. Use this for every user-facing sort so lists agree with each other.
- */
+/** Č, Ć, Đ, Š and Ž have their own alphabet places; use this for every user-facing sort so lists agree. */
 export function compareHr(a: string, b: string): number {
   return a.localeCompare(b, "hr", { sensitivity: "base" });
 }

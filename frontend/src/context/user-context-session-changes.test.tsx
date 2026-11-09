@@ -1,3 +1,4 @@
+import { tab } from "@/test/user-context-mocks";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw/http";
@@ -14,32 +15,9 @@ import { purgeOfflineCache } from "@/lib/offline/purge";
 import { ANONYMOUS, actingAs, serverSession } from "@/test/backend-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
+import { storedUser } from "@/test/stored-user";
 
-// What this tab's useSession reports. The account the session cookie names on the server
-// differs from it only between a change on the server and the tab's next poll.
-const { tab } = vi.hoisted(() => ({
-  tab: { userId: null as string | null },
-}));
 const cookie = serverSession;
-
-vi.mock("@/lib/auth/client", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/auth/client")>();
-  return {
-    authClient: actual.authClient,
-    useSession: () => ({
-      data: tab.userId ? { user: { id: tab.userId } } : null,
-      isPending: false,
-      error: null,
-    }),
-  };
-});
-
-vi.mock("@/i18n/navigation", () => ({
-  usePathname: () => "/",
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
-}));
-
-vi.mock("@/lib/offline/purge", () => ({ purgeOfflineCache: vi.fn() }));
 
 /** A backend that answers as whoever the request proves, and records who that was. */
 function serveBackend() {
@@ -60,6 +38,7 @@ function serveBackend() {
       if (account === ANONYMOUS)
         return HttpResponse.json(null, { status: 401 });
       return HttpResponse.json({
+        ...storedUser,
         id: account,
         pinnedStores: [],
         pinnedPlaces: [],
@@ -109,7 +88,6 @@ function renderAccount() {
 }
 
 beforeEach(() => {
-  tab.userId = null;
   cookie.userId = null;
   // The in-memory identity outlives the localStorage the DOM setup clears.
   setCacheIdentity(null);

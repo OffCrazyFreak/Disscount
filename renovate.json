@@ -46,11 +46,6 @@
       "groupName": "pnpm"
     },
     {
-      "description": "react-scan stays at 0.5.3: every later release depends on react-grab at latest, and 0.5.7 adds react-doctor, which pulls in playwright-core",
-      "matchPackageNames": ["react-scan"],
-      "enabled": false
-    },
-    {
       "description": "springdoc's major tracks the Spring Boot major: 2.x for Boot 3, 3.x for Boot 4. Raise this cap in the PR that moves Boot to the next major",
       "matchPackageNames": [
         "org.springdoc:springdoc-openapi-starter-webmvc-ui"

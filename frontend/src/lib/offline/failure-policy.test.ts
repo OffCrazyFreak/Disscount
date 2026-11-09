@@ -1,4 +1,4 @@
-import { AxiosError, type AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -6,13 +6,7 @@ import {
   cardWriteMessage,
   failureAction,
 } from "@/lib/offline/failure-policy";
-
-function httpError(status: number, data: unknown = {}) {
-  return new AxiosError("x", "ERR", undefined, undefined, {
-    status,
-    data,
-  } as AxiosResponse);
-}
+import { httpError } from "@/test/http-error";
 
 describe("failureAction", () => {
   it("keeps the entry on network failures", () => {

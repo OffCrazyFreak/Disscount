@@ -37,6 +37,8 @@
     "colEmail": "Email",
     "colLastLogin": "Zadnja prijava",
     "colAccountType": "Vrsta računa",
+    "colPhotos": "Slike",
+    "photoCount": "{uploaded} · {deleted, plural, one {# obrisana} few {# obrisane} other {# obrisanih}}",
     "deleteTitle": "Brisanje računa",
     "deleteDescription": "Sigurno želiš obrisati račun {name}? Ovo se ne može poništiti.",
     "deleteConfirm": "Obriši račun"
@@ -49,7 +51,7 @@
     "viewAll": "Sve",
     "viewUnread": "Nepročitane",
     "loadError": "Greška pri dohvaćanju poruka.",
-    "searchPlaceholder": "Pretraži poruke...",
+    "searchPlaceholder": "Pretraži poruke",
     "showDeleted": "Prikaži obrisane",
     "colMessage": "Poruka",
     "colSender": "Pošiljatelj",

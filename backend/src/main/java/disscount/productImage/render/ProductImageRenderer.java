@@ -21,16 +21,18 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 
+import com.luciad.imageio.webp.CompressionType;
+import com.luciad.imageio.webp.WebPWriteParam;
+
 import disscount.exceptions.BadRequestException;
 
-/**
- * Turns any source photo into the two square files we serve. The white background is painted into
- * the pixels on purpose: dark mode extensions recolour CSS backgrounds but leave image pixels alone.
- */
+/** White is painted into the pixels because dark mode extensions recolour CSS backgrounds but not image pixels. */
 public final class ProductImageRenderer {
 
-    public static final int FULL_SIDE = 1080;
-    public static final int THUMB_SIDE = 400;
+    /** Long edge of the full file: sharp on 2x laptop and 3x phone screens without zoom. */
+    public static final int FULL_MAX_SIDE = 1600;
+    /** For photos drawn small (list rows, the product tile up to about 128 CSS pixels), sharp on 2x screens. */
+    public static final int SMALL_SIDE = 256;
     public static final int MIN_CROP_SIDE = 16;
 
     // Decoded as 4 bytes a pixel, so this caps one render at roughly 100 MB of heap.
@@ -38,11 +40,21 @@ public final class ProductImageRenderer {
     static final int MAX_SOURCE_SIDE = 10_000;
 
     private static final double MARGIN = 0.04;
-    private static final float QUALITY = 0.86f;
+    // WebP quality 80 measured about half the bytes of the earlier JPEG at 86 on our photos.
+    private static final float[] QUALITY_STEPS = {0.80f, 0.70f, 0.60f, 0.50f};
+    // Noisy photos can blow past the usual size; each step down trades a little detail to stay under these.
+    public static final int FULL_MAX_BYTES = 350_000;
+    public static final int SMALL_MAX_BYTES = 30_000;
 
     public record Crop(int x, int y, int width, int height) {}
 
-    public record Rendered(byte[] full, byte[] thumb, String sha256, int sourceWidth, int sourceHeight) {}
+    public record Rendered(byte[] full, int fullWidth, int fullHeight, byte[] small, String sha256,
+                           int sourceWidth, int sourceHeight) {
+
+        public boolean overCeiling() {
+            return full.length > FULL_MAX_BYTES || small.length > SMALL_MAX_BYTES;
+        }
+    }
 
     private ProductImageRenderer() {}
 
@@ -55,11 +67,12 @@ public final class ProductImageRenderer {
         BufferedImage rotated = rotate(onWhite(decoded), normalizeRotation(rotation));
         BufferedImage content = crop == null ? rotated : cropped(rotated, crop);
 
-        BufferedImage full = squareOnWhite(content, FULL_SIDE);
-        BufferedImage thumb = scaled(full, Math.min(THUMB_SIDE, full.getWidth()));
+        BufferedImage full = fitWithin(content, FULL_MAX_SIDE);
+        BufferedImage small = squareOnWhite(content, SMALL_SIDE);
 
-        byte[] fullBytes = encode(full);
-        return new Rendered(fullBytes, encode(thumb), sha256(fullBytes), sourceWidth, sourceHeight);
+        byte[] fullBytes = encode(full, FULL_MAX_BYTES);
+        return new Rendered(fullBytes, full.getWidth(), full.getHeight(), encode(small, SMALL_MAX_BYTES),
+                sha256(fullBytes), sourceWidth, sourceHeight);
     }
 
     public static int normalizeRotation(int rotation) {
@@ -70,7 +83,6 @@ public final class ProductImageRenderer {
         return normalized;
     }
 
-    /** Width and height of the source once rotated, the frame a crop is measured against. */
     public static int[] rotatedSize(int width, int height, int rotation) {
         int normalized = normalizeRotation(rotation);
         return normalized == 90 || normalized == 270 ? new int[] {height, width} : new int[] {width, height};
@@ -169,8 +181,17 @@ public final class ProductImageRenderer {
         return canvas;
     }
 
-    private static BufferedImage scaled(BufferedImage square, int side) {
-        return resize(square, side, side);
+    /** Keeps the photo's shape, so a wide or tall product fills the file instead of white padding. */
+    private static BufferedImage fitWithin(BufferedImage content, int maxSide) {
+        int longEdge = Math.max(content.getWidth(), content.getHeight());
+        // Never upscale, but always copy: a crop is a view into the rotated photo, and the WebP writer ignores offsets.
+        if (longEdge <= maxSide) {
+            return draw(content, content.getWidth(), content.getHeight(), RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        }
+        double scale = (double) maxSide / longEdge;
+        int width = Math.max(1, (int) Math.round(content.getWidth() * scale));
+        int height = Math.max(1, (int) Math.round(content.getHeight() * scale));
+        return resize(content, width, height);
     }
 
     /** Halves first: a single bicubic step from a much larger image skips pixels and looks jagged. */
@@ -196,12 +217,22 @@ public final class ProductImageRenderer {
         return out;
     }
 
-    private static byte[] encode(BufferedImage image) {
-        ImageWriter writer = ImageIO.getImageWritersByFormatName("jpeg").next();
+    static byte[] encode(BufferedImage image, int maxBytes) {
+        byte[] encoded = null;
+        for (float quality : QUALITY_STEPS) {
+            encoded = webp(image, quality);
+            if (encoded.length <= maxBytes) return encoded;
+        }
+        return encoded;
+    }
+
+    private static byte[] webp(BufferedImage image, float quality) {
+        ImageWriter writer = ImageIO.getImageWritersByMIMEType("image/webp").next();
         try {
-            ImageWriteParam param = writer.getDefaultWriteParam();
+            WebPWriteParam param = (WebPWriteParam) writer.getDefaultWriteParam();
             param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-            param.setCompressionQuality(QUALITY);
+            param.setCompressionType(CompressionType.Lossy);
+            param.setCompressionQuality(quality);
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             try (MemoryCacheImageOutputStream output = new MemoryCacheImageOutputStream(out)) {
@@ -210,13 +241,13 @@ public final class ProductImageRenderer {
             }
             return out.toByteArray();
         } catch (IOException e) {
-            throw new IllegalStateException("JPEG encoding failed", e);
+            throw new IllegalStateException("WebP encoding failed", e);
         } finally {
             writer.dispose();
         }
     }
 
-    private static String sha256(byte[] bytes) {
+    public static String sha256(byte[] bytes) {
         try {
             return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
         } catch (NoSuchAlgorithmException e) {

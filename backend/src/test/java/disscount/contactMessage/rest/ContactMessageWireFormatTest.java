@@ -1,14 +1,15 @@
 package disscount.contactMessage.rest;
 
+import java.util.Set;
 import disscount.contactMessage.dao.ContactMessageRepository;
 import disscount.contactMessage.domain.ContactMessage;
+import disscount.support.ApiContract;
 import disscount.support.FullStackTest;
 import disscount.user.domain.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.JsonNode;
 
-import java.util.Set;
 
 import static disscount.support.WireFormat.LOCAL_DATE_TIME;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,9 +20,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /** Pins ContactMessageDto against contactMessageDtoSchema, which the admin inbox parses on every read. */
 class ContactMessageWireFormatTest extends FullStackTest {
 
-    static final Set<String> MESSAGE_FIELDS = Set.of(
-            "id", "userId", "email", "fullName", "subject", "message", "sourcePath",
-            "readAt", "createdAt", "updatedAt", "deletedAt");
 
     @Autowired ContactMessageRepository messages;
 
@@ -33,7 +31,7 @@ class ContactMessageWireFormatTest extends FullStackTest {
         JsonNode message = body(mvc.perform(get("/api/admin/contact/{id}", saved.getId()).with(as(admin)))
                 .andExpect(status().isOk()));
 
-        assertThat(fieldNames(message)).containsExactlyInAnyOrderElementsOf(MESSAGE_FIELDS);
+        ApiContract.assertMatches("ContactMessageDto", message);
         for (String field : Set.of("userId", "email", "fullName", "sourcePath", "readAt", "deletedAt")) {
             assertThat(message.get(field).isNull()).as(field).isTrue();
         }
@@ -48,11 +46,11 @@ class ContactMessageWireFormatTest extends FullStackTest {
 
         JsonNode read = body(mvc.perform(patch("/api/admin/contact/{id}/read", saved.getId()).with(as(admin)))
                 .andExpect(status().isOk()));
-        assertThat(fieldNames(read)).containsExactlyInAnyOrderElementsOf(MESSAGE_FIELDS);
+        ApiContract.assertMatches("ContactMessageDto", read);
         assertThat(read.get("readAt").asString()).matches(LOCAL_DATE_TIME);
 
         JsonNode all = body(mvc.perform(get("/api/admin/contact").with(as(admin))).andExpect(status().isOk()));
         assertThat(all.isArray()).isTrue();
-        assertThat(fieldNames(all.get(0))).containsExactlyInAnyOrderElementsOf(MESSAGE_FIELDS);
+        ApiContract.assertMatches("ContactMessageDto", all.get(0));
     }
 }

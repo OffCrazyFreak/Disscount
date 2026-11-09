@@ -4,20 +4,6 @@ Disscount is free to use. The support flow gives people a voluntary way to help 
 
 Ko-fi is the only live payment destination today. GitHub Sponsors and public recognition are intentionally future work, because there is not yet an approved Sponsors profile or anyone to list.
 
-## Table of contents
-
-1. [Quick reference](#1-quick-reference)
-2. [How the support flow works](#2-how-the-support-flow-works)
-3. [Entry points](#3-entry-points)
-4. [Automatic and manual work](#4-automatic-and-manual-work)
-5. [Key files](#5-key-files)
-6. [Payment platform and fees](#6-payment-platform-and-fees)
-7. [GitHub repository funding](#7-github-repository-funding)
-8. [Accessibility and external-link safety](#8-accessibility-and-external-link-safety)
-9. [Verification checklist](#9-verification-checklist)
-10. [Gotchas](#10-gotchas)
-11. [Future improvements and TODOs](#11-future-improvements-and-todos)
-
 ## 1. Quick reference
 
 | Thing                 | Current value                                      |
@@ -78,17 +64,12 @@ The modal is public by design. `PUBLIC_MODAL_NAMES` prevents the authentication 
 
 ## 5. Key files
 
-| File                                                                 | Role                                                                            |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `frontend/src/constants/donation.ts`                                 | Holds the live Ko-fi URL and the GitHub Sponsors follow-up TODO.                |
-| `frontend/src/constants/navigation.ts`                               | Declares the `donate` support-navigation item and the landing recognition TODO. |
-| `frontend/src/lib/modal/modal-registry.ts`, `modal-param-parser.ts`  | Define, parse, and publicly expose the `donate` modal target.                   |
-| `frontend/src/components/custom/donation/donation-modal.tsx`         | Renders the support copy, the Ko-fi link, and focus restoration.                |
-| `frontend/src/app/[locale]/components/modal-router/modal-router.tsx` | Mounts the modal once for the whole app.                                        |
-| `frontend/src/components/custom/sidebar/sidebar-support-nav.tsx`     | Renders the sidebar support group from shared navigation data.                  |
-| `frontend/src/components/custom/common/footer-support-icons.tsx`     | Renders compact footer controls from the same navigation data.                  |
-| `.github/FUNDING.yml`                                                | Configures the repository funding destination shown by GitHub.                  |
-| `README.md`                                                          | Gives repository visitors the public Ko-fi support link.                        |
+| File                                   | Role                                                                            |
+| -------------------------------------- | ------------------------------------------------------------------------------- |
+| `frontend/src/constants/donation.ts`   | Holds the live Ko-fi URL and the GitHub Sponsors follow-up TODO.                |
+| `frontend/src/constants/navigation.ts` | Declares the `donate` support-navigation item and the landing recognition TODO. |
+| `.github/FUNDING.yml`                  | Configures the repository funding destination shown by GitHub.                  |
+| `README.md`                            | Gives repository visitors the public Ko-fi support link.                        |
 
 ## 6. Payment platform and fees
 

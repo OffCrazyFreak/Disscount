@@ -48,7 +48,6 @@ function watching(minPrice: string) {
           productApiId: EAN,
           watchType: "PERCENTAGE",
           thresholdValue: 10,
-          lastNotifiedAt: null,
           createdAt: "2026-10-01T00:00:00",
           updatedAt: null,
         },
@@ -81,8 +80,7 @@ function watching(minPrice: string) {
   );
 }
 
-// Observes the cached product without fetching it, so a zero is asserted only after the
-// hook has seen the price rather than before it arrived.
+// Observes without fetching, so a zero is asserted only after the hook has seen the price.
 function useCountAndProduct() {
   return {
     ...useWatchlistPriceDropCount(),

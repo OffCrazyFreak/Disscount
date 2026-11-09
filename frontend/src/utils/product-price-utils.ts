@@ -2,6 +2,7 @@ import {
   ChainProductResponse,
   ProductResponse,
 } from "@/lib/cijene-api/schemas";
+import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 
 const minPriceCache = new WeakMap<ProductResponse, number | null>();
 const maxPriceCache = new WeakMap<ProductResponse, number | null>();
@@ -15,6 +16,11 @@ export function parsePrice(value: string): number | null {
   }
 
   return parsed;
+}
+
+/** `price_date` is a Croatian calendar date, whatever zone the device runs in. */
+export function isPriceDateToday(priceDate: string): boolean {
+  return priceDate === zagrebClock(new Date()).date;
 }
 
 export function getMinPrice(product: ProductResponse): number | null {
@@ -62,7 +68,6 @@ export function getAveragePrice(product: ProductResponse): number | null {
   return avg;
 }
 
-/** Spread of the per-chain average prices, which is what the extreme markers compare against. */
 export function getChainAvgPriceRange(
   product: ProductResponse | undefined,
 ): { min: number; max: number } | null {

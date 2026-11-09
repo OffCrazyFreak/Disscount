@@ -33,10 +33,10 @@ describe("clientEnv", () => {
   });
 
   it("turns opt-in flags into booleans", () => {
-    vi.stubEnv("NEXT_PUBLIC_ENABLE_REACT_SCAN", "true");
-    vi.stubEnv("NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS", "false");
+    vi.stubEnv("NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS", "true");
+    expect(clientEnv.NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS).toBe(true);
 
-    expect(clientEnv.NEXT_PUBLIC_ENABLE_REACT_SCAN).toBe(true);
+    vi.stubEnv("NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS", "false");
     expect(clientEnv.NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS).toBe(false);
   });
 });

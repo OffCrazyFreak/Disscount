@@ -15,8 +15,7 @@ export function calculateTotalPriceChange(
   const first = chartData[0];
   const last = chartData[chartData.length - 1];
 
-  // Only products priced on both dates count; one priced on just one side would show
-  // up as a price change that no price actually made.
+  // Only products priced on both dates count; one priced on just one side would show a change no price actually made.
   const comparable = eans.filter(
     (ean) =>
       finitePrice(first, ean) !== null && finitePrice(last, ean) !== null,

@@ -6,7 +6,6 @@ import { useIsMutating } from "@tanstack/react-query";
 import { useOnlineStatus } from "@/hooks/use-online-status";
 import { isOfflineMutationKey } from "@/lib/offline/offline-mutation-keys";
 
-// Tells the user the data is cached and how many writes are queued to sync.
 export default function OfflineIndicator() {
   const t = useTranslations("common");
   const isOnline = useOnlineStatus();

@@ -17,8 +17,7 @@ export default function ItemAmountControls({
 }: IItemAmountControlsProps) {
   const t = useTranslations("shoppingListDetail");
 
-  // The amount is information, not just a control, so a read-only visitor still sees it.
-  // Only the buttons go away, rather than sitting there permanently disabled.
+  // A read-only visitor still needs the amount, so only the buttons go away rather than sitting permanently disabled.
   if (!canEdit) {
     return (
       <span className="relative z-20 text-center min-w-8">
@@ -29,10 +28,7 @@ export default function ItemAmountControls({
   }
 
   return (
-    // The wrapper itself takes pointer events. Leaving it inert and re-enabling
-    // only its buttons lost to Button's own disabled:pointer-events-none, which
-    // is the higher specificity, so a press on a greyed-out control fell through
-    // to the row's link and navigated to the product instead of doing nothing.
+    // The wrapper takes pointer events because Button's disabled:pointer-events-none lets presses reach the row link.
     <div className="relative z-20 flex items-center gap-2">
       <Button
         size="icon"

@@ -1,7 +1,6 @@
 package disscount.user.domain.enums;
 
-// How a user first heard about Disscount. Kept granular (per social platform)
-// so marketing spend can be attributed to the specific channel that converts.
+// Granular per social platform, so marketing spend can be attributed to the channel that converts.
 public enum AcquisitionChannel {
     GOOGLE_SEARCH,
     INSTAGRAM,

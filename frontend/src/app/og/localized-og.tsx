@@ -5,8 +5,7 @@ import { isLocale, DEFAULT_LOCALE } from "@/i18n/locales";
 
 export const BRAND_OG_IMAGE_ID = "brand";
 
-// Image routes are route handlers, where root params are unreadable, so the locale
-// comes from the route's own params.
+// Image routes are route handlers, where root params are unreadable, so the locale comes from the route's own params.
 async function metadataTranslator(params: Promise<{ locale: string }>) {
   const { locale } = await params;
   return getTranslations({

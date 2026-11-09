@@ -26,17 +26,10 @@ import { serverEnv } from "@/lib/server-env";
 // Geoapify's free plan allows 3,000 requests a day at 5 a second.
 const GEOAPIFY = { limit: 1_000, intervalMs: 250 };
 
-// Public Nominatim is the last resort, so a run spends only a few minutes on
-// it; whatever is left waits for the next day.
+// Public Nominatim is the last resort, so a run spends only a few minutes on it; the rest waits for the next day.
 const NOMINATIM_LIMIT = 20;
 
-/**
- * Places every store upstream cannot, each source a backup for the one
- * before: chain locators, the DGU address register, Geoapify, Nominatim.
- * Geocoders search with a chain's own address where it publishes one.
- * Stores that all of them miss are retried a week later, and a manual pin
- * is never overwritten.
- */
+/** Each source backs up the one before; stores all miss retry a week later, and a manual pin is never overwritten. */
 export async function runStoreLocationSync(signal: AbortSignal): Promise<void> {
   if (!(await acquireSyncLease())) return;
 

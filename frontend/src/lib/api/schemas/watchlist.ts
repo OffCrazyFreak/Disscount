@@ -1,12 +1,10 @@
 import { z } from "zod";
 
-// WatchType enum matching backend
 export enum WatchType {
   percentage = "PERCENTAGE",
   absolute = "ABSOLUTE",
 }
 
-// Watchlist schemas
 export const watchlistItemRequestSchema = z.object({
   productApiId: z.string().min(1, "watchlist.validation.productRequired"),
   watchType: z.enum(WatchType, {
@@ -22,8 +20,6 @@ export const watchlistItemDtoSchema = z.object({
   productApiId: z.string(),
   watchType: z.enum(WatchType),
   thresholdValue: z.number(),
-  // Spring always sends both keys; lastNotifiedAt is null until the first alert and updated_at is a nullable column.
-  lastNotifiedAt: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string().nullable(),
 });
