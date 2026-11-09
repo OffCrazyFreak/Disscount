@@ -1,12 +1,10 @@
 import { z } from "zod";
 
-// WatchType enum matching backend
 export enum WatchType {
   percentage = "PERCENTAGE",
   absolute = "ABSOLUTE",
 }
 
-// Watchlist schemas
 export const watchlistItemRequestSchema = z.object({
   productApiId: z.string().min(1, "watchlist.validation.productRequired"),
   watchType: z.enum(WatchType, {

@@ -83,7 +83,6 @@ public class ProductImageAdminService {
         return views.adminView(set, images.findByEanOrderByCreatedAtAsc(ean));
     }
 
-    /** Adds every front and recent raw photo Open Food Facts has, so the admin can choose among them. */
     @Transactional
     public AdminProductDto refreshFromOpenFoodFacts(String ean) {
         ProductImageQueryService.requireEan(ean);

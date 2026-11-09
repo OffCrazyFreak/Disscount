@@ -26,11 +26,7 @@ function contentBox(element: HTMLElement) {
   };
 }
 
-/**
- * Content box of the ref'd element in CSS px, with the pixel ratio it was measured at.
- * Height is opt-in because an element sized by its own content would feed back into it:
- * `self` suits a box with a fixed height, `parent` a box that fills a fixed-size parent.
- */
+/** Height is opt-in because an element sized by its own content would feed back into it. */
 export function useDevicePixelWidth<T extends HTMLElement>(
   heightSource: HeightSource = "none",
 ) {

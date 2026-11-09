@@ -9,7 +9,6 @@ interface IRecentSearchesProps {
   onClear: () => void;
 }
 
-/** Last searches on this device, offered while the search field is empty. */
 export default function RecentSearches({
   searches,
   onPick,

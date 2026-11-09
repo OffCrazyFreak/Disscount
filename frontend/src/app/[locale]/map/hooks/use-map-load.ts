@@ -12,7 +12,6 @@ interface IUseMapLoadOptions {
   onContextLost: () => void;
 }
 
-/** One-time setup once the map loads: listeners, credits and store icons. */
 export function useMapLoad({
   mapRef,
   chains,
@@ -28,8 +27,7 @@ export function useMapLoad({
     // A store picked before the map loaded (a shared link) still gets centred.
     setMapReady(true);
 
-    // Known MapLibre bug (#8690): a context lost early leaves a blank map, so
-    // offer a reload rather than a grey rectangle.
+    // MapLibre bug #8690: a context lost early leaves a blank map, so offer a reload.
     map.getCanvas().addEventListener("webglcontextlost", onContextLost);
 
     foldAttributionLater(map);

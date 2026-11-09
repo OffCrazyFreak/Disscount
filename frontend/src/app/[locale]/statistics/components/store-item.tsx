@@ -35,7 +35,6 @@ interface IStoreItemProps {
   isLast: boolean;
 }
 
-// Memoized component for individual chain items to prevent unnecessary re-renders
 const StoreItem = memo(
   ({ stat, isExpanded, onToggle, isLast }: IStoreItemProps) => {
     const t = useTranslations("statistics");

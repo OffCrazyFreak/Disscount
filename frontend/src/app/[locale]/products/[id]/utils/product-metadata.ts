@@ -24,7 +24,6 @@ interface IProductMetadataInput {
   parent: Pick<ResolvedMetadata, "openGraph" | "twitter">;
 }
 
-/** Metadata for a product that exists; openGraph and twitter replace the layout's whole objects. */
 export function productMetadata({
   ean,
   locale,
@@ -50,8 +49,7 @@ export function productMetadata({
     // The layout template would prepend "Disscount - " to a product name.
     title: { absolute: title },
     description,
-    // No hreflang: only the Croatian page is indexed, and Google ignores a set
-    // whose other members are noindex.
+    // No hreflang: only the Croatian page is indexed, and Google ignores a set whose other members are noindex.
     alternates: { canonical: url },
     openGraph: {
       type: "website",
@@ -74,10 +72,7 @@ export function productMetadata({
   };
 }
 
-/**
- * Translations repeat the Croatian product data around translated boilerplate, which
- * Google treats as thin duplicates, so only Croatian is indexed.
- */
+/** Translations around Croatian product data read as thin duplicates, so only Croatian is indexed. */
 export function translatedProductRobots(locale: AppLocale): Metadata {
   if (locale === DEFAULT_LOCALE) return {};
 

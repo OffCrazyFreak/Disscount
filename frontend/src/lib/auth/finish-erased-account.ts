@@ -11,7 +11,6 @@ const accountErasedSchema = z.object({
   userId: z.string(),
 });
 
-/** The erased account's id when Spring answered account_erased, else null. */
 export function erasedAccountId(error: unknown): string | null {
   if (!isAxiosError(error) || error.response?.status !== GONE_STATUS) {
     return null;

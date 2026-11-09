@@ -32,7 +32,6 @@ function fromLocator(locator: IStoreLocator): IHoursSource {
   };
 }
 
-/** One hours source per chain: its own where it has one, else its locator. */
 export const hoursSources: IHoursSource[] = [
   ...OWN_SOURCES,
   ...storeLocators

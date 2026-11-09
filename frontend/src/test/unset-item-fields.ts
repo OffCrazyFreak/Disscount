@@ -1,6 +1,6 @@
 import type { ShoppingListItemDto } from "@/lib/api/types";
 
-/** Spring sends every ShoppingListItemDto key, so a plain item carries its empty ones as null rather than leaving them out. */
+/** Spring sends every ShoppingListItemDto key, so a plain item carries empty ones as null, not left out. */
 export const UNSET_ITEM_FIELDS = {
   ean: null,
   brand: null,

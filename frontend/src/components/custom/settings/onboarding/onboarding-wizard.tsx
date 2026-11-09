@@ -53,16 +53,13 @@ export default function OnboardingWizard({
     enabled: !busy,
   });
 
-  // Strip the modal param first: the host unmounts with the session, and a
-  // lingering ?modal=onboarding would reopen as the "prijavi se" auth gate.
+  // Strip first, because the host unmounts with the session and the param would open the auth gate.
   async function handleLogout() {
     closeModalUrl();
     try {
       await logout();
     } catch {
-      // The wizard is already gone, so there is nowhere left to surface this.
-      // Swallowed deliberately: the alternative is an unhandled rejection, since
-      // the caller invokes this as void handleLogout().
+      // The wizard is gone, and the caller's void handleLogout() would make this an unhandled rejection.
       toast.error(t("onboarding.logoutFailed"));
     }
   }
@@ -87,8 +84,7 @@ export default function OnboardingWizard({
       footer={
         // Same left/right split as ModalShellFooter.
         <div className="flex items-center gap-2 px-6 pb-6 pt-4">
-          {/* One slot: Natrag from step 1 on, and on step 0, where it would be
-              empty, the only way out of a wizard that cannot be closed. */}
+          {/* One slot: Natrag from step 1 on, and on step 0 the only way out of a wizard that cannot be closed. */}
           {isFirst ? (
             required && (
               <Button

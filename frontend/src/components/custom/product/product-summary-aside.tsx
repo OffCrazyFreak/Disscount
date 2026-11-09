@@ -8,10 +8,7 @@ export interface IProductSummaryAsideProps {
   /** Passive details, such as prices, shown opposite the product identity */
   trailing?: ReactNode;
   actions?: ReactNode;
-  /**
-   * Applied to the actions wrapper, so a surface that hides its actions hides
-   * the element the row's gap is measured against too.
-   */
+  /** So a surface that hides its actions hides the element the row's gap is measured against too. */
   actionsClassName?: string;
   /** Keeps a press on actions from reaching a card-level gesture */
   actionProps?: Pick<
@@ -20,7 +17,6 @@ export interface IProductSummaryAsideProps {
   >;
 }
 
-/** The right-hand side of a product summary: prices, then actions. */
 export default function ProductSummaryAside({
   trailing,
   actions,
@@ -31,9 +27,7 @@ export default function ProductSummaryAside({
 
   return (
     <div className="flex shrink-0 items-center justify-between gap-4">
-      {/* Raised above the name link's stretched pseudo-element so prices
-          stay selectable; actions go a layer higher again so they keep
-          receiving pointer events without opting in class by class. */}
+      {/* Above the name's stretched pseudo-element so prices stay selectable; actions go higher. */}
       {trailing && <div className="relative z-10">{trailing}</div>}
 
       {actions && (

@@ -10,10 +10,7 @@ interface IProductsResultsStatusProps {
   noPriceLocations: string[];
 }
 
-/**
- * Announces the result count to screen readers only. The region stays mounted
- * and empties while loading, so every settled search is read out again.
- */
+/** The region stays mounted and empties while loading, so every settled search is read out again. */
 export default function ProductsResultsStatus({
   query,
   isPending,

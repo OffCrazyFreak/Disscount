@@ -7,12 +7,7 @@ interface IEdgeFadeProps {
   className?: string;
 }
 
-/**
- * Presentational gradient overlay that fades content against a horizontal edge.
- * Give it a positioning context via className (`absolute` inside a `relative`
- * wrapper, or `fixed` to the viewport) and override `from-*` to match the
- * surface it fades into.
- */
+/** Give it a positioning context via className and override `from-*` to match the surface it fades into. */
 export default function EdgeFade({
   side = "bottom",
   className,

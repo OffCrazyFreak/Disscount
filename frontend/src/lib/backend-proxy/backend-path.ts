@@ -1,5 +1,4 @@
-// Every first path segment Spring serves under /api. Anything else is refused before a fetch,
-// so the proxy can never be pointed at another service.
+// Anything else is refused before a fetch, so the proxy can never be pointed at another service.
 export const BACKEND_ROOTS = new Set([
   "admin",
   "contact",
@@ -25,7 +24,6 @@ function isSafeSegment(segment: string) {
   );
 }
 
-/** The Spring URL for a proxied path, or null when the path is not one of Spring's. */
 export function backendUrl(
   segments: string[],
   search: string,

@@ -21,7 +21,6 @@ function readServerEntry(): string | null {
   return null;
 }
 
-/** One product's saved chart preferences; empty on the server and during hydration. */
 export function useProductPreferences(ean: string): IProductChartPreferences {
   const entry = useSyncExternalStore(
     subscribe,

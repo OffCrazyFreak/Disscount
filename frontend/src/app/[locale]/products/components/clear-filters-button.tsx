@@ -14,13 +14,7 @@ interface IClearFiltersButtonProps {
   className?: string;
 }
 
-/**
- * Drops every active filter. Shared by the products page's two layouts and the
- * products sheet's panel, so they cannot label or gate it differently.
- *
- * Always mounted and merely disabled when there is nothing to clear, so no filter
- * surface reflows as filters come and go.
- */
+/** Always mounted and merely disabled with nothing to clear, so no filter surface reflows as filters come and go. */
 export default function ClearFiltersButton({
   filters,
   showLabel = false,

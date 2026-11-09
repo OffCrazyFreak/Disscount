@@ -1,12 +1,20 @@
-import { act, screen } from "@testing-library/react";
-import { QueryClient, useQuery } from "@tanstack/react-query";
+import { act, renderHook, screen } from "@testing-library/react";
+import { QueryClient, QueryObserver, useQuery } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 
+import {
+  markProductSearchSubmitted,
+  useRecordProductSearch,
+} from "@/components/custom/search/use-record-product-search";
 import { purgeOfflineCache } from "@/lib/offline/purge";
-import { setCacheIdentity } from "@/lib/offline/cache-identity";
+import {
+  ANONYMOUS_IDENTITY,
+  setCacheIdentity,
+} from "@/lib/offline/cache-identity";
 import { removePersistedCacheFor } from "@/lib/offline/persister";
 import { renderWithProviders } from "@/test/render";
 import { peekFormDraft, setFormDraft } from "@/utils/browser/storage/drafts";
+import { productRecentSearches } from "@/utils/browser/storage/recent-searches";
 import {
   getWatchlistPriceSnapshot,
   setWatchlistPriceSnapshot,
@@ -27,6 +35,68 @@ vi.mock("@/lib/api/digital-cards/last-used", () => ({
 }));
 
 describe("purgeOfflineCache", () => {
+  it("forgets what the departing person searched for and opened", async () => {
+    productRecentSearches.add("trudnički test");
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(["cijene", "products", "search", "{}"], {
+      products: [],
+    });
+    queryClient.setQueryData(["cijene", "product", "ean", "{}"], {});
+    queryClient.setQueryData(["cijene", "chains"], []);
+
+    await purgeOfflineCache(queryClient, "leaving");
+
+    expect(localStorage.getItem("Disscount_app")).not.toContain("trudnički");
+    expect(
+      queryClient
+        .getQueryCache()
+        .getAll()
+        .map(({ queryKey }) => queryKey),
+    ).toEqual([["cijene", "chains"]]);
+  });
+
+  it("forgets a lookup still on screen once its page lets go", async () => {
+    const key = ["cijene", "products", "search", "{}"];
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(key, { products: [] });
+    const observer = new QueryObserver(queryClient, {
+      queryKey: key,
+      queryFn: () => ({ products: [] }),
+      staleTime: Infinity,
+    });
+    const unsubscribe = observer.subscribe(() => {});
+
+    await purgeOfflineCache(queryClient, "leaving");
+    expect(queryClient.getQueryData(key)).toBeDefined();
+
+    unsubscribe();
+
+    expect(queryClient.getQueryData(key)).toBeUndefined();
+  });
+
+  it("does not record a search that lands after the session ended", async () => {
+    markProductSearchSubmitted("kruh");
+
+    await purgeOfflineCache(new QueryClient(), "leaving");
+    renderHook(() => useRecordProductSearch("kruh", true));
+
+    expect(localStorage.getItem("Disscount_app")).not.toContain("kruh");
+  });
+
+  it("keeps a guest's searches when they sign in", async () => {
+    productRecentSearches.add("kruh");
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(["cijene", "products", "search", "{}"], {
+      products: [],
+    });
+
+    await purgeOfflineCache(queryClient, ANONYMOUS_IDENTITY);
+
+    expect(localStorage.getItem("Disscount_app")).toContain("kruh");
+    expect(queryClient.getQueryCache().getAll()).toHaveLength(1);
+    productRecentSearches.clear();
+  });
+
   it("deletes the departing account's watched-price baseline", async () => {
     const snapshot = { scope: "", prices: { "385": 99 } };
     setWatchlistPriceSnapshot("leaving", snapshot);

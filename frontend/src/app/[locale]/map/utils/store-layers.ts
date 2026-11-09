@@ -15,8 +15,7 @@ function stackLayerId(rank: number): string {
 /** Every stack draws a tile at rank 0, so this layer holds one feature per stack. */
 export const TOP_STACK_LAYER_ID = stackLayerId(0);
 
-// Back to front: the third chain peeks out on the right, the second on the
-// left, and the most common sits in front.
+// Back to front: the third chain peeks out on the right, the second on the left, and the most common sits in front.
 const STACK: { rank: number; offset: [number, number]; rotate: number }[] = [
   { rank: 2, offset: [10, 2], rotate: 10 },
   { rank: 1, offset: [-10, 2], rotate: -10 },
@@ -29,8 +28,7 @@ export const INTERACTIVE_LAYER_IDS = [
   ...STACK.map(({ rank }) => stackLayerId(rank)),
 ];
 
-// Pins never hide each other: a store that silently vanished in a dense town
-// would read as missing data. Clustering keeps the overlap in check instead.
+// Pins never hide each other, because a store that silently vanished in a dense town would read as missing data.
 const ALWAYS_VISIBLE = {
   "icon-allow-overlap": true,
   "icon-ignore-placement": true,
@@ -42,7 +40,6 @@ function chainIcon(chain: ExpressionSpecification): ExpressionSpecification {
   return ["concat", chainIconId(""), chain];
 }
 
-/** A lone store: its chain's logo tile. */
 export function pointLayer(): LayerProps {
   return {
     id: POINT_LAYER_ID,
@@ -52,7 +49,6 @@ export function pointLayer(): LayerProps {
   };
 }
 
-/** Nearby stores of any chain: the three most common logos, fanned. */
 export function stackLayers(chains: string[]): LayerProps[] {
   return STACK.map(({ rank, offset, rotate }) => ({
     id: stackLayerId(rank),

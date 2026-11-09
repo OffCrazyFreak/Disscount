@@ -6,11 +6,7 @@ import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { productPageUrl } from "@/utils/product-links";
 import { shareOrCopy } from "@/utils/browser/share";
 
-/**
- * The OS share sheet where there is one, the clipboard where there is not, with
- * the same wording either way. Shared so the product page and the quick-actions
- * sheet cannot drift on what "shared" means.
- */
+/** Shared so the product page and quick-actions sheet cannot drift on what "shared" means. */
 export default function useProductShare(product: ProductResponse) {
   const t = useTranslations("ui");
   const locale = useLocale();

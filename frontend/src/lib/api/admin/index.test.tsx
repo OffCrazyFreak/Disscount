@@ -10,7 +10,6 @@ import { storedUser } from "@/test/stored-user";
 
 const { lastActiveAt: _omitted, ...driftedUser } = storedUser;
 
-// The fetchers are module private, so they are reached through the hooks that own them.
 describe("admin user fetchers", () => {
   it("rejects the whole user list when one user drifted", async () => {
     server.use(

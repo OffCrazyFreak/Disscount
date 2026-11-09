@@ -20,11 +20,7 @@ interface IClusterCountBadgesProps {
   onStackClick: (stack: IMapFeatureRef) => void;
 }
 
-/**
- * The store count on each stack, drawn as the app's own count badge over the
- * canvas (MapLibre's "HTML clusters" pattern), so it matches every other badge.
- * Pointer only, like the canvas tiles: the store list is the keyboard path.
- */
+/** So it matches every other badge; pointer only, because the store list is the keyboard path. */
 export default function ClusterCountBadges({
   onStackClick,
 }: IClusterCountBadgesProps) {
@@ -77,8 +73,7 @@ export default function ClusterCountBadges({
   ));
 }
 
-// Read from the source rather than a stack layer, so a stack of chains with no
-// logo yet still gets its count.
+// Read from the source rather than a stack layer, so a stack of chains with no logo yet still gets its count.
 function readClusters(
   features: GeoJSONFeature[],
   map: MapLibreMap,

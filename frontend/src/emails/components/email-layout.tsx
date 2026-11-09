@@ -11,8 +11,7 @@ import {
   pixelBasedPreset,
 } from "react-email";
 
-// Darker than --primary (oklch ~141 hue) so white-on-brand clears WCAG AA at 5.0:1;
-// hex because email clients cannot parse oklch.
+// Darker than --primary so white-on-brand clears WCAG AA at 5.0:1; hex because email clients cannot parse oklch.
 const BRAND = "#15803d";
 
 interface IEmailLayoutProps {

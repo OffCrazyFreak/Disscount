@@ -123,6 +123,7 @@
   --popover: oklch(0.9911 0 0);
   --popover-foreground: oklch(0.4386 0 0);
   --primary: oklch(0.7183 0.2344 141.297);
+  /* Owner accepted white on brand green (about 2.3:1, below AA); do not change. */
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.7671 0.1872 140.1916);
   --secondary-foreground: oklch(0.3211 0 0);
@@ -285,8 +286,7 @@
   animation: dis-collapse-up 200ms ease-out;
 }
 
-/* Radix's Presence reads the computed animation-name, so `none` makes it unmount
-   straight away rather than waiting for an animationend that never fires. */
+/* Radix's Presence reads the computed animation-name, so `none` makes it unmount straight away rather than waiting for an animationend that never fires. */
 @media (prefers-reduced-motion: reduce) {
   .CollapsibleContent[data-state="open"],
   .CollapsibleContent[data-state="closed"] {
@@ -312,9 +312,7 @@
   }
 }
 
-/* Brief ease-in-out rotational shake (around the button center) at the start of
-   each 5s cycle, repeated forever, to draw the eye to an enabled Save button
-   without being distracting. */
+/* Repeats every 5s to draw the eye to an enabled Save button without being distracting. */
 @keyframes submit-nudge {
   0% {
     transform: rotate(0deg);
@@ -392,8 +390,6 @@
   }
 }
 
-/* Landing doodle animations: draw-on strokes, twinkling accents, logo marquee
-   and a barcode scanline. All disabled under prefers-reduced-motion. */
 @keyframes dis-draw {
   to {
     stroke-dashoffset: 0;
@@ -454,9 +450,7 @@
   animation: dis-scanline 2.8s ease-in-out infinite;
 }
 
-/* Cart logo self-draw: body draws on, wheels pop, eyes arch last. Class-based
-   so every inline instance replays on mount (svg-in-img shares one timeline
-   per URL, which is why only the first instance would animate). */
+/* Class-based so every inline instance replays on mount, because svg-in-img shares one timeline per URL and only the first would animate. */
 .dis-cart-body {
   stroke-dasharray: 140;
   stroke-dashoffset: 140;
@@ -492,8 +486,7 @@
   }
 }
 
-/* FAQ accordion: animates native <details> open/close via the modern
-   ::details-content pseudo-element; browsers without support just toggle. */
+/* Browsers without ::details-content support just toggle. */
 :root {
   interpolate-size: allow-keywords;
 }
@@ -644,9 +637,7 @@ html {
   font-weight: 600;
 }
 
-/* The stacking contract, in descending order; read it top to bottom. Kept as
-   tokens because the ladder is only reviewable when its rungs sit together, and
-   a magic z-[44] in one file says nothing about what it must stay under. */
+/* Kept as tokens because the ladder is only reviewable when its rungs sit together, and a magic z-[44] says nothing about what it must stay under. */
 :root {
   /* Only while focused; nothing may cover the first stop of the tab order */
   --z-skip-link: 70;
@@ -664,37 +655,27 @@ html {
   --z-header: 20;
   /* A page's sticky section tabs: page chrome under the header, over the filter sidebar */
   --z-section-nav: 12;
-  /* The language offer row: above the phone map's fixed layer (z 1), below its
-     search takeover (z 3), so it never covers the store list */
+  /* The language offer row: above the phone map's fixed layer (z 1), below its search takeover (z 3), so it never covers the store list */
   --z-locale-suggestion: 2;
 }
 
-/* Sticky section tabs below the floating header.
-   The header writes its measured bottom edge over this fallback on mount,
-   because it wraps and resizes with the viewport and its scrolled state. */
+/* The header writes its measured bottom edge over this fallback on mount, because it wraps and resizes with the viewport and its scrolled state. */
 :root {
   --header-bottom: 5rem;
 }
 
-/* A modal sheet's scrim should cover the bar. Left on top it stays fully visible
-   while the drawer's modal state makes it inert, which reads as a frozen UI. The
-   non-modal sheets are the deliberate exception and keep the bar above. */
+/* Left on top the bar stays visible while the drawer's modal state makes it inert, which reads as a frozen UI; non-modal sheets keep it above. */
 body:has([data-slot="drawer-viewport"][data-modal="true"][data-open]) {
   --z-bottom-nav: var(--z-bottom-nav-covered);
 }
 
-/* Mobile bottom navigation.
-   Dimensions live here rather than on Tailwind's spacing scale because this
-   project sets --spacing to 0.2rem, so h-16 would render 51px, not 64px.
-   Keeping them in one place also stops the bar's height and the page's bottom
-   clearance from drifting apart. */
+/* Here, not on Tailwind's spacing scale, because --spacing is 0.2rem, and one place stops the bar's height and page clearance drifting apart. */
 :root {
   /* 72px, which leaves the 57.6px active disc clear of the pill's edges */
   --bottom-nav-h: 4.5rem;
   --bottom-nav-gap: 0.75rem;
   --bottom-nav-safe: env(safe-area-inset-bottom, 0px);
-  /* max(), not a sum: the bar's own margin is max(gap, safe), so adding both
-     over-reserved 12px on a notched phone and floated everything keyed off this. */
+  /* max(), not a sum: the bar's own margin is max(gap, safe), so adding both over-reserves 12px on a notched phone. */
   --bottom-nav-total: calc(
     var(--bottom-nav-h) + max(var(--bottom-nav-gap), var(--bottom-nav-safe))
   );
@@ -703,9 +684,7 @@ body:has([data-slot="drawer-viewport"][data-modal="true"][data-open]) {
   --sheet-bottom-clearance: calc(var(--bottom-nav-total) + 0.5rem);
 }
 
-/* No bar above md, so its footprint is genuinely zero and the sheets fall back to
-   a plain comfortable inset. Zeroing the token is what lets consumers that cannot
-   express a breakpoint, such as sonner's offset prop, still come out right. */
+/* Zeroing the token lets consumers that cannot express a breakpoint, such as sonner's offset prop, still come out right. */
 @media (width >= 48rem) {
   :root {
     --bottom-nav-total: 0px;
@@ -713,9 +692,7 @@ body:has([data-slot="drawer-viewport"][data-modal="true"][data-open]) {
   }
 }
 
-/* The surface's own alpha, not the bar's opacity. Fading the element dimmed the
-   icons, the labels, the badge and the active disc along with the surface, and
-   gave the pill a stacking context it has no use for. */
+/* The surface's own alpha, not the bar's opacity, which would dim the icons, labels, badge and disc and add a useless stacking context. */
 @property --bottom-nav-surface-alpha {
   syntax: "<percentage>";
   inherits: true;
@@ -728,8 +705,7 @@ body:has([data-slot="drawer-viewport"][data-modal="true"][data-open]) {
   }
 }
 
-/* viewportFit is "cover", so a notch or a rounded corner can eat into the bar in
-   landscape. These resolve to 0 in portrait and on every device without insets. */
+/* viewportFit is "cover", so a notch or rounded corner can eat into the bar in landscape; these resolve to 0 in portrait and without insets. */
 .bottom-nav-compacts {
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
@@ -743,11 +719,7 @@ body:has([data-slot="drawer-viewport"][data-modal="true"][data-open]) {
   );
 }
 
-/* Softens the surface once the page is scrolled, using the same range as the
-   header without a listener, layout shift or hydration behaviour. Icons and
-   labels stay fully visible throughout.
-   Browsers without scroll-driven animations keep the full-size bar, which is
-   the correct fallback: navigation must never become unreachable. */
+/* No listener, layout shift or hydration work; browsers without scroll-driven animations keep the full-size bar, so navigation stays reachable. */
 @supports (animation-timeline: scroll()) {
   @media (prefers-reduced-motion: no-preference) {
     .bottom-nav-compacts {
@@ -758,10 +730,7 @@ body:has([data-slot="drawer-viewport"][data-modal="true"][data-open]) {
   }
 }
 
-/* The map credits share the bottom line with the controls on the right: the zoom
-   buttons, and on desktop the pan arrows beside them (map-pan-controls.tsx).
-   The credits wrap before reaching them. Their text cannot shrink: the Open
-   Licence requires DGU's sentence verbatim. */
+/* The credits wrap before reaching the controls; their text cannot shrink, because the Open Licence requires DGU's sentence verbatim. */
 .maplibregl-ctrl-bottom-left {
   right: 3rem;
 }

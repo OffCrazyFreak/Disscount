@@ -13,20 +13,7 @@ interface IStretchedLinkProps {
   children: ReactNode;
 }
 
-/**
- * Wraps a card's title and stretches its hit area over the whole card through a
- * pseudo-element, so the card navigates without an anchor sitting on top of the
- * content.
- *
- * The children matter: text inside an anchor is both clickable and drag
- * selectable, which a full-card overlay link is not. Anything outside this link
- * that should stay selectable needs `relative z-10` to sit above the ::after,
- * and interactive controls need `relative z-20` to sit above both.
- *
- * The nearest positioned ancestor owns the stretch, so the card root must be
- * `relative`, and `isolate` too: without its own stacking context, those z-10
- * and z-20 layers compete with fixed page chrome and paint over the header.
- */
+/** Selectable children need `relative z-10`, controls `z-20`; the root needs `relative isolate`. */
 export default function StretchedLink({
   href,
   onNavigate,

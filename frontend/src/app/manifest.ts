@@ -11,7 +11,6 @@ type WebAppManifest = MetadataRoute.Manifest & {
   };
 };
 
-// Next injects <link rel="manifest"> automatically when this file exists.
 export default function manifest(): WebAppManifest {
   return {
     name: "Disscount - Pronađi najbolje cijene u Hrvatskoj",
@@ -55,7 +54,6 @@ export default function manifest(): WebAppManifest {
         purpose: "maskable",
       },
     ],
-    // Shown in the browser's richer (app-store-like) install dialog.
     screenshots: [
       {
         src: "/screenshots/screenshot-narrow.png",
@@ -79,9 +77,7 @@ export default function manifest(): WebAppManifest {
       method: "GET",
       params: { title: "title", text: "text", url: "url" },
     },
-    // Reuse an open window rather than spawning one per launch, but still go to
-    // the shortcut's url. focus-existing would only focus the window and hand
-    // the url to launchQueue, which nothing here consumes.
+    // Keeps the shortcut's url in an open window; focus-existing relies on launchQueue, which nothing reads.
     launch_handler: { client_mode: "navigate-existing" },
   };
 }

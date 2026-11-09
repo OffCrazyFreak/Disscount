@@ -9,8 +9,7 @@ import { runStoreLocationSync } from "@/lib/store-locations/sync/run-sync";
 import { isSyncDue } from "@/lib/store-locations/sync/sync-lease";
 import { fetchUpstreamStores } from "@/lib/store-locations/upstream-stores";
 
-// Per process. Short enough that newly placed stores show up the same hour,
-// long enough that upstream sees one request per instance, not one per visit.
+// Short enough that newly placed stores show up the same hour, long enough that upstream sees one request per instance.
 const MEMO_MS = 10 * 60 * 1000;
 
 // A run is mostly paced geocoder calls; anything past this is stuck.
@@ -20,7 +19,6 @@ let memo: { value: StoreDirectoryResponse; at: number } | null = null;
 let pending: Promise<StoreDirectoryResponse> | null = null;
 let syncRunning = false;
 
-/** Every store with the best coordinates we have, for the map and its list. */
 export async function getStoreDirectory(): Promise<StoreDirectoryResponse> {
   if (memo && Date.now() - memo.at < MEMO_MS) return memo.value;
 
@@ -51,11 +49,7 @@ async function buildStoreDirectory(): Promise<StoreDirectoryResponse> {
   return value;
 }
 
-/**
- * Runs the location sync after the response is sent, so no visitor waits for
- * it. There is no cron: the first request of the day starts it, and the lease
- * keeps a second instance from running it twice.
- */
+/** No cron: the day's first request starts it after responding; the lease stops a second instance. */
 async function startSyncIfDue(): Promise<void> {
   if (syncRunning || !(await isSyncDue())) return;
 

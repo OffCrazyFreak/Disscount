@@ -12,7 +12,6 @@ interface ISidebarProductNavShellProps {
   children: ReactNode;
 }
 
-/** Group chrome shared by the product nav and the skeletons standing in for it. */
 export default function SidebarProductNavShell({
   children,
 }: ISidebarProductNavShellProps) {

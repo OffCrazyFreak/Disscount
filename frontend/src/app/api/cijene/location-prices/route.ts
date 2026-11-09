@@ -23,10 +23,7 @@ const paramsSchema = z.object({
   cities: z.array(z.string()).min(1).max(1000),
 });
 
-/**
- * Price range per product across many cities, in one response. Upstream takes
- * one city per request, so this route decides how to spend requests on it.
- */
+/** Upstream takes one city per request, so this route decides how to spend requests on it. */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
 

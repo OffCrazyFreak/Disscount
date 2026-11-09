@@ -1,10 +1,7 @@
 import { withSentryConfig } from "@sentry/nextjs/config";
-import withSerwistInit from "@serwist/next";
-import { randomUUID } from "node:crypto";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { DEFAULT_LOCALE, LOCALES } from "./src/i18n/locales";
-import { PRECACHED_PAGE_PATHS } from "./src/lib/pwa/precached-pages";
 import { SENTRY_APPLICATION_KEY } from "./src/lib/sentry/application-key";
 import { clientEnv, validateClientEnv } from "./src/lib/env";
 import { buildContentSecurityPolicy } from "./src/utils/content-security-policy";
@@ -18,28 +15,18 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 // Croatian is unprefixed; every other locale lives under its own path segment.
 const LOCALE_PREFIXES = LOCALES.filter((locale) => locale !== DEFAULT_LOCALE);
 
-const withSerwist = withSerwistInit({
-  swSrc: "src/app/sw.ts",
-  swDest: "public/sw.js",
-  // Service worker only runs in production builds; in dev it would fight
-  // Turbopack/HMR. The React Query persistence layer still works in dev.
-  disable: process.env.NODE_ENV === "development",
-  // A fresh revision per build keeps each page in step with the chunks it loads.
-  additionalPrecacheEntries: [
-    "",
-    ...LOCALE_PREFIXES.map((l) => `/${l}`),
-  ].flatMap((prefix) =>
-    PRECACHED_PAGE_PATHS.map((path) => ({
-      url: `${prefix}${path}`,
-      revision: randomUUID(),
-    })),
-  ),
-  reloadOnOnline: true,
-});
-
 const nextConfig: NextConfig = {
   // Emit a minimal self-contained server build (.next/standalone) for a lean Docker image.
   output: "standalone",
+
+  // Sentry loads this hook by URL at startup, so the standalone file tracer never finds it.
+  // Without it, its diagnostics-channel integrations silently stop recording spans.
+  outputFileTracingIncludes: {
+    "/*": [
+      "./node_modules/.pnpm/@sentry+server-runtime-injection@*/**",
+      "./node_modules/.pnpm/@sentry+conventions@*/**",
+    ],
+  },
 
   // Version skew protection: a tab from an older deploy gets a full page load
   // instead of a client navigation. A build without GIT_SHA skips it.
@@ -82,6 +69,11 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Content-Security-Policy", value: csp }],
       },
       {
+        // Reaches browsers only through the Cloudflare cache rule in docs/INFRASTRUCTURE.md.
+        source: "/sw.js",
+        headers: [{ key: "Cache-Control", value: "no-cache" }],
+      },
+      {
         // Lists are unlisted, not public. Deliberately a header and not a robots.txt
         // rule: a disallow stops the crawler fetching the page at all, so it would never
         // see the directive. A shared link only leaks by being pasted somewhere
@@ -109,49 +101,43 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSerwist(
-  withSentryConfig(withNextIntl(nextConfig), {
-    // For all available options, see:
-    // https://www.npmjs.com/package/@sentry/webpack-plugin#options
+export default withSentryConfig(withNextIntl(nextConfig), {
+  // For all available options, see:
+  // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
-    org: "disscount",
+  org: "disscount",
 
-    project: "disscount-frontend",
+  project: "disscount-frontend",
 
-    applicationKey: SENTRY_APPLICATION_KEY,
+  applicationKey: SENTRY_APPLICATION_KEY,
 
-    // Both are empty outside CI image builds, which skips the upload and auto-detects the release.
-    authToken: process.env.SENTRY_AUTH_TOKEN,
+  // Both are empty outside CI image builds, which skips the upload and auto-detects the release.
+  authToken: process.env.SENTRY_AUTH_TOKEN,
 
-    release: {
-      name: process.env.GIT_SHA,
-      // Marks which environment each release went to; skipped when the build has none.
-      deploy: process.env.SENTRY_ENVIRONMENT
-        ? { env: process.env.SENTRY_ENVIRONMENT }
-        : undefined,
-    },
+  release: {
+    name: process.env.GIT_SHA,
+    // Marks which environment each release went to; skipped when the build has none.
+    deploy: process.env.SENTRY_ENVIRONMENT
+      ? { env: process.env.SENTRY_ENVIRONMENT }
+      : undefined,
+  },
 
-    // Image builds run inside BuildKit without CI set, so the token is what marks an upload.
-    silent: !process.env.SENTRY_AUTH_TOKEN,
+  // Image builds run inside BuildKit without CI set, so the token is what marks an upload.
+  silent: !process.env.SENTRY_AUTH_TOKEN,
 
-    // For all available options, see:
-    // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
+  // For all available options, see:
+  // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
-    // Upload a larger set of source maps for prettier stack traces (increases build time)
-    widenClientFileUpload: true,
+  // Upload a larger set of source maps for prettier stack traces (increases build time)
+  widenClientFileUpload: true,
 
-    // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-    // This can increase your server load as well as your hosting bill.
-    // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
-    // side errors will fail.
-    tunnelRoute: "/monitoring",
+  // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
+  // This can increase your server load as well as your hosting bill.
+  // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
+  // side errors will fail.
+  tunnelRoute: "/monitoring",
 
-    webpack: {
-      // Tree-shaking options for reducing bundle size
-      treeshake: {
-        // Automatically tree-shake Sentry logger statements to reduce bundle size
-        removeDebugLogging: true,
-      },
-    },
-  }),
-);
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
+  },
+});

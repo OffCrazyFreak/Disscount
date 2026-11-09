@@ -85,8 +85,7 @@ const directory = {
   generatedAt: "2026-01-01T00:00:00.000Z",
 };
 
-// The browser API is a boundary the suite cannot run: each test decides how
-// the watch answers.
+// The browser API is a boundary the suite cannot run, so each test decides how the watch answers.
 function fakeGeolocation() {
   let success: PositionCallback = () => {};
   let failure: PositionErrorCallback = () => {};

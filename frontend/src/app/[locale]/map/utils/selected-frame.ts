@@ -18,11 +18,7 @@ function chainCount(properties: Record<string, unknown>): number {
   ).length;
 }
 
-/**
- * Where the selected store shows right now: its own tile, or the stack it
- * merged into once the map zoomed out. Null while neither is on screen, so
- * the frame never circles empty map.
- */
+/** Null while neither its tile nor stack is on screen, so the frame never circles empty map. */
 export async function findSelectedFrame(
   map: MapLibreMap,
   key: string,

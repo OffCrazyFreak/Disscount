@@ -2,9 +2,11 @@ import { isAxiosError } from "axios";
 import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
-import { SESSION_CHANGED } from "@/lib/backend-proxy/proxy-contract";
+import {
+  SERVER_REPORTED_PROBLEMS,
+  SESSION_CHANGED,
+} from "@/lib/backend-proxy/proxy-contract";
 
-// RFC 9457 Problem Details as emitted by the backend GlobalExceptionHandler.
 const problemDetailsSchema = z.object({
   type: z.string().optional(),
   title: z.string().optional(),
@@ -33,17 +35,18 @@ export function isSessionChanged(error: unknown): boolean {
   );
 }
 
+/** The proxy answered with a failure it already reported to Sentry, with better tags than the browser has. */
+export function isReportedByProxy(error: unknown): boolean {
+  const code = parseProblem(error)?.code;
+  return SERVER_REPORTED_PROBLEMS.some((reported) => reported === code);
+}
+
 export function problemMessage(error: unknown, fallback: string): string {
   const problem = parseProblem(error);
   return problem?.detail || problem?.title || fallback;
 }
 
-/**
- * Maps a Problem Details error onto react-hook-form: a fieldError lands on its field
- * only when that field is registered (or renamed via fieldMap); anything unknown, and
- * the case of no field match at all, becomes a root error so it stays visible. Returns
- * true when at least one field-level error was applied.
- */
+/** Unknown fields become a root error so nothing stays invisible. */
 export function applyProblemToForm<T extends FieldValues>(
   error: unknown,
   form: UseFormReturn<T>,

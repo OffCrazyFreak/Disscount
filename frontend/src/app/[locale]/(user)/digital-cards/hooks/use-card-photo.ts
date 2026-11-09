@@ -49,7 +49,6 @@ interface IPhotoUrl {
   url: string;
 }
 
-/** Object URL of the cached or freshly fetched photo; undefined while loading or unavailable. */
 export function useCardPhoto(
   cardId: string,
   photo: CardPhotoDto | undefined,

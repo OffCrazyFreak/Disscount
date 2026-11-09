@@ -26,7 +26,6 @@ interface ICijeneClientOptions {
   withAuth?: boolean;
 }
 
-/** Builds a client that logs both directions and always fails with a CijeneApiError. */
 function createCijeneClient({
   label,
   baseUrl,

@@ -18,9 +18,7 @@ const responseSchema = z.object({
   results: z.array(geoapifyResultSchema).default([]),
 });
 
-// Same rule as Nominatim: a wrong pin is worse than none, so only the
-// building with the right house number is accepted, never a street, a town
-// centre or a near miss.
+// A wrong pin is worse than none, so only the building with the right house number is accepted.
 export async function geocodeWithGeoapify(
   address: string,
   city: string | null,

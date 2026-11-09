@@ -2,7 +2,6 @@ import type { QueryObserverResult } from "@tanstack/react-query";
 
 import { httpStatus } from "@/lib/offline/failure-policy";
 
-/** Where one list item's live prices stand, so its row can say why it has no store choice. */
 export type ItemPriceState =
   "loading" | "ready" | "failed" | "offline" | "noPrices";
 
@@ -18,7 +17,6 @@ export function isProductNotFound(error: unknown): boolean {
 
 export const PRICE_STATUS_BANNER_ID = "shopping-list-price-status";
 
-/** The `shoppingListDetail` key a row shows in place of a store choice it cannot offer. */
 export const UNAVAILABLE_PRICE_KEYS = {
   loading: undefined,
   ready: undefined,
@@ -27,21 +25,16 @@ export const UNAVAILABLE_PRICE_KEYS = {
   noPrices: "prices.noPrices",
 } as const satisfies Record<ItemPriceState, string | undefined>;
 
-/** Whether a state is a lookup's answer worth remembering through its next refetch. */
 export function isSettledLookupError(state: ItemPriceState): boolean {
   return state === "failed" || state === "noPrices";
 }
 
-/**
- * The state of a product lookup that has no data to show yet. `lastError` is the answer it
- * settled on before, since a refetch from any observer clears the error until it answers.
- */
+/** `lastError` is the settled answer, since a refetch from any observer clears the error until it answers. */
 export function lookupPriceState(
   lookup: ProductLookup,
   lastError: ItemPriceState | undefined,
 ): ItemPriceState {
-  // The row, the banner and its button stay put until the refetch actually answers, even
-  // when it pauses offline, so a retry pressed without a connection keeps focus where it was.
+  // The row and banner wait for the refetch's answer, so a retry without a connection keeps focus.
   if (lookup.errorUpdatedAt > 0 && lookup.fetchStatus !== "idle") {
     return lastError ?? "failed";
   }
@@ -54,10 +47,7 @@ export function lookupPriceState(
   return "loading";
 }
 
-/**
- * An item's state from its own lookup. `storePrices` is undefined until the product loads,
- * and a bought item keeps the prices saved with it, so its live lookup no longer matters.
- */
+/** A bought item keeps the prices saved with it, so its live lookup no longer matters. */
 export function itemPriceState(
   isChecked: boolean,
   lookupState: ItemPriceState | undefined,

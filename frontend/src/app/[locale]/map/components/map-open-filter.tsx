@@ -15,10 +15,6 @@ interface IMapOpenFilterProps {
   onRetry: () => void;
 }
 
-/**
- * "Open now" keeps stores whose hours confirm they are open; the second
- * switch, offered only then, also keeps those nobody has confirmed.
- */
 export default function MapOpenFilter({
   filter,
   onChange,

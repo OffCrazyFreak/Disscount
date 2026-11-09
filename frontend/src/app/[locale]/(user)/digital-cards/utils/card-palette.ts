@@ -1,8 +1,4 @@
-// Google Calendar's colours, laid out as a 19-cell colour wheel: red at the top running
-// clockwise, lighter tones on the inner ring. Near-twins (Citron, Pumpkin, Cobalt) were
-// left out so no two cells read as the same colour. Amethyst is darkened from #9E69AF,
-// which reached only 4.3:1 with either text colour. card-palette.test.ts holds every
-// colour to 4.5:1 against its text colour.
+// Near-twins left out so no two cells read alike; Amethyst darkened because #9E69AF reached only 4.3:1.
 
 export type PaletteColorId =
   | "graphite"

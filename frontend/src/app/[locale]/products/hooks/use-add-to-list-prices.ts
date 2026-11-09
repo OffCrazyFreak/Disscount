@@ -12,10 +12,6 @@ import {
   findCheapestStoreFromProduct,
 } from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
 
-/**
- * Derives average/store prices and the cheapest chain from the product the
- * modal already holds, and pre-selects the cheapest chain if none is chosen.
- */
 export function useAddToListPrices(
   product: ProductResponse | null | undefined,
   pinnedStores: PinnedStoreDto[] | undefined,

@@ -10,7 +10,6 @@ interface IMapLoadStateProps {
   onRetry: () => void;
 }
 
-/** Shown in the panel while the store list loads, or when it failed. */
 export default function MapLoadState({ status, onRetry }: IMapLoadStateProps) {
   const t = useTranslations("map.load");
 

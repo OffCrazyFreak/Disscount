@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
-/** Gives every catalogue product its Open Food Facts front photo as a candidate, without copying files yet. */
 @Service
 @RequiredArgsConstructor
 public class OffSeedService {

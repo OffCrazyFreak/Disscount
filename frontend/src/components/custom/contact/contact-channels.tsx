@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import CopyButton from "@/components/custom/common/copy-button";
 import { CONTACT_EMAIL, LINKEDIN_URL } from "@/constants/contact";
 
-/** Intro line plus links to the dedicated idea and bug flows. */
 export default function ContactChannels() {
   const t = useTranslations("common");
 

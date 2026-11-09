@@ -12,10 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * The three "replace my list" preferences take no resource id, so ownership means one
- * caller's bulk write and read never reach another caller's rows.
- */
+/** These take no resource id, so ownership means one caller's bulk write and read never reach another caller's rows. */
 class PreferencesOwnershipTest extends FullStackTest {
 
     enum Preference {

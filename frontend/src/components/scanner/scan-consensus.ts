@@ -54,8 +54,7 @@ function recordReject(state: IConsensusState, now: number): IConsensusState {
   };
 }
 
-// Products keep the scanner's own value: price data may list a UPC-A item under its
-// 12 digits, and a leading 0 would miss it. Cards store one canonical form instead.
+// Products keep the scanner's value, as price data may list a UPC-A under 12 digits.
 function prepareCode(raw: IScannedCode, preset: ScanPreset): IScannedCode {
   return preset === "all"
     ? normalizeScannedCode(raw)

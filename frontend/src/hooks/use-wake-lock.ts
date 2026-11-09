@@ -10,12 +10,7 @@ function detectWakeLock() {
   return "wakeLock" in navigator;
 }
 
-/**
- * Keeps the screen awake while `enabled`. Browsers drop the lock whenever the tab is
- * hidden, so it is requested again on return. Refusals (low battery, unsupported
- * browser) are swallowed: the caller reads `supported` and `failed` and decides whether
- * to hint. `failed` stays false while the first request is still in flight.
- */
+/** Browsers drop the lock on a hidden tab, so re-request on return; the caller decides whether to hint. */
 export function useWakeLock(enabled: boolean): {
   supported: boolean;
   active: boolean;

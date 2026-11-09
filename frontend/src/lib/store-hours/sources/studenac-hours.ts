@@ -6,11 +6,7 @@ import {
 } from "@/lib/store-hours/sources/hours-text";
 import { addDays } from "@/lib/store-hours/zagreb-clock";
 
-/**
- * A store page's "Radno vrijeme <small>02.11 - 08.11.2026.</small>" table is
- * this week's real schedule, Monday to Sunday, so each row is a dated entry
- * as well as the template; split shifts come as two ranges split by `<br>`.
- */
+/** This table is the week's real schedule, so each row is a dated entry as well as the template. */
 export function parseStudenacPage(html: string): IParsedHours | undefined {
   const start = html.indexOf('class="marketsingle__workhours"');
   const block = start === -1 ? null : html.slice(start, start + 4_000);
@@ -52,7 +48,6 @@ export interface IStudenacCard {
   pageUrl: string;
 }
 
-/** The list page's cards: store number, "street, town" and the store page link. */
 export function parseStudenacList(html: string): IStudenacCard[] {
   return html
     .split('<li class="marketlisting__item"')

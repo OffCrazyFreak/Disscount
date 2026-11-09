@@ -8,12 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import disscount.user.dao.UserRepository;
 import disscount.user.domain.User;
 
-/**
- * The one insert that provisions a profile, in a transaction of its own.
- *
- * <p>Its own bean because REQUIRES_NEW only takes effect through the proxy, and because a
- * failed insert has to leave the caller's transaction usable. Reasoning in `docs/AUTH.md`.
- */
+/** Its own bean as REQUIRES_NEW needs the proxy, and a failed insert must leave the caller usable (docs/AUTH.md). */
 @Service
 @RequiredArgsConstructor
 public class UserProfileCreator {

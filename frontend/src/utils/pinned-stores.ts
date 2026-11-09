@@ -1,21 +1,7 @@
 import { normalizeForSearch } from "@/utils/strings";
 
-/**
- * Does a product's chain belong to one of the user's pinned stores?
- *
- * The two sides never match exactly. A pinned store is saved by its display
- * name ("Konzum Vukovarska") while a product carries a chain code ("konzum"),
- * and depending on the source either one can be the longer string. So this is a
- * containment test in both directions, on the normalized forms.
- *
- * One function rather than the three that used to disagree: one folded
- * diacritics and tested one direction, one uppercased and tested both without
- * folding at all, so the same pinned store matched on one screen and not another.
- */
-/**
- * Below this, a containment test stops meaning anything: a store pinned as
- * "K plus" yields the key "k", which is inside konzum, kaufland and ktc alike.
- */
+/** A pinned name ("Konzum Vukovarska") and chain code ("konzum"): either may be longer, so match both ways. */
+/** Below this containment means nothing: a store "K plus" yields "k", inside konzum, kaufland and ktc. */
 const MIN_CONTAINMENT_LENGTH = 3;
 
 function chainMatchesPinnedStore(
@@ -38,7 +24,6 @@ function chainMatchesPinnedStore(
   return chainKey.includes(pinnedKey) || pinnedKey.includes(chainKey);
 }
 
-/** True when the chain matches any of the pinned names or codes given. */
 export function isPinnedChain(
   chain: string,
   pinnedStoreNames: string[],

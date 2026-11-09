@@ -20,8 +20,7 @@ function clean(value: string | undefined) {
   return value?.replace(/\s+/g, " ").trim() ?? "";
 }
 
-// The page lists every store twice: a card (address, zip, city) and a map
-// marker (coordinates). Both link to /supermarketi/<id>/, which joins them.
+// The page lists every store twice, card and map marker; both link to /supermarketi/<id>/, which joins them.
 function readCoordinates(html: string) {
   const byId = new Map<string, { lat: number; lng: number }>();
 

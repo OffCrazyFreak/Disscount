@@ -7,7 +7,6 @@ export function isCatalogItem(item: ShoppingListItemDto): item is CatalogItem {
   return Boolean(item.ean);
 }
 
-/** Unique EANs of the catalog items, the only ones there is price data for. */
 export function catalogEans(
   items: ShoppingListItemDto[] | undefined,
 ): string[] {

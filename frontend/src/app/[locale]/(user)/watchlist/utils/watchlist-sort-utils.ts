@@ -6,11 +6,7 @@ import {
   isAnyWatchThresholdReached,
 } from "@/lib/watchlist/watchlist-threshold-utils";
 
-/**
- * Items that hit the threshold the user set come first, then the biggest saving.
- * Every term reads the preferred-store scope, falling back to all stores when
- * nothing is pinned.
- */
+/** Every term reads the preferred-store scope, falling back to all stores when nothing is pinned. */
 export function sortWatchlistItemsByDiscount<
   T extends IWatchlistItemWithProduct,
 >(items: T[], hasPinnedStores: boolean): T[] {

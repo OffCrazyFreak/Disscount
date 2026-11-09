@@ -22,7 +22,6 @@ interface IAdminActivityCardProps {
   isError: boolean;
 }
 
-/** One active-user counter over a trailing window the admin picks. */
 export default function AdminActivityCard({
   title,
   abbreviation,

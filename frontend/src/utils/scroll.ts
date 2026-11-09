@@ -1,8 +1,4 @@
-/**
- * Scrolls the window, animating unless the user opted out. Browsers honour
- * prefers-reduced-motion for the CSS `scroll-behavior` property but not for this
- * option, so the choice has to be made explicitly.
- */
+/** Browsers honour prefers-reduced-motion for CSS `scroll-behavior` but not this option, so choose here. */
 /** Far enough down that offering a way back answers a real problem */
 export const BACK_TO_TOP_THRESHOLD_PX = 600;
 
@@ -12,7 +8,6 @@ export function scrollWindowTo(top: number): void {
   window.scrollTo({ top, behavior: reduce ? "auto" : "smooth" });
 }
 
-/** Returns the window to the top, animating unless the user opted out */
 export function scrollToTop(): void {
   scrollWindowTo(0);
 }

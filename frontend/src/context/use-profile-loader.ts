@@ -9,7 +9,6 @@ import {
   finishErasedAccountDeletion,
 } from "@/lib/auth/finish-erased-account";
 
-/** The app profile held in state, and the only way a loaded one reaches it. */
 export function useProfileLoader() {
   const [user, setUser] = useState<UserDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,8 +35,7 @@ export function useProfileLoader() {
       setUser(null);
       // This load is no React Query query, so the query cache's report never sees a drift.
       if (error instanceof ZodError) Sentry.captureException(error);
-      // Spring erased this account but the login survived a failed deletion; ending the session
-      // lets the session effect clear the tab like any sign-out.
+      // Spring erased this account but the login survived, so ending the session clears the tab.
       const erasedUserId = erasedAccountId(error);
       if (erasedUserId) await finishErasedAccountDeletion(erasedUserId);
     } finally {

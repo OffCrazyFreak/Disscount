@@ -8,13 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.util.Optional;
 
-/**
- * Enables JPA auditing so @CreatedDate / @LastModifiedDate on BaseEntity get populated.
- *
- * <p>Spring's default provider reads the JVM's zone, which would stamp audited rows in a
- * different zone from every hand-stamped column. The explicit provider puts all of them
- * on the one clock {@link Timestamps} defines.
- */
+/** Spring's default provider reads the JVM's zone, so this one keeps audited rows on the Timestamps clock. */
 @Configuration
 @EnableJpaAuditing(dateTimeProviderRef = "utcDateTimeProvider")
 public class JpaConfig {

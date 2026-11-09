@@ -21,7 +21,7 @@ import {
 } from "@/lib/store-hours/zagreb-clock";
 
 // Weekly: templates rarely change, and two missed weeks mark data stale.
-const TEMPLATE_LEASE: ISyncLease = {
+export const TEMPLATE_LEASE: ISyncLease = {
   id: "store-hours-template",
   every: "7 days",
 };
@@ -43,7 +43,6 @@ function sundayOrHoliday(today: string) {
   return (date: string) => isoWeekday(date) === SUNDAY || holidays.has(date);
 }
 
-/** The weekly refresh: every chain's template and dated days, then OpenStreetMap for the rest. */
 async function runTemplateSync(signal: AbortSignal): Promise<void> {
   if (!(await acquireSyncLease(TEMPLATE_LEASE))) return;
 
@@ -111,7 +110,6 @@ async function runLinkSync(signal: AbortSignal): Promise<void> {
 
 type HoursJobName = "template" | "overlay" | "links";
 
-/** Which job, if any, a request should start now. */
 export async function dueHoursJob(): Promise<HoursJobName | null> {
   if (await isSyncDue(TEMPLATE_LEASE)) return "template";
 

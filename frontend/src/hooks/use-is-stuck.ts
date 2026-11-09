@@ -16,11 +16,7 @@ function subscribe(onStoreChange: () => void): () => void {
   };
 }
 
-/**
- * Whether a sticky bar is stuck: its container has scrolled above the bar's
- * sticky `top`. Read from the container, whose position the bar's own size
- * changes cannot move, so restyling a stuck bar never unsticks it.
- */
+/** Read from the container, which the bar's size cannot move, so restyling a stuck bar never unsticks it. */
 export function useIsStuck(
   containerRef: RefObject<HTMLElement | null>,
   barRef: RefObject<HTMLElement | null>,

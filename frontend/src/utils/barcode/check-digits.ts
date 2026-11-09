@@ -16,8 +16,7 @@ function hasValidGs1CheckDigit(value: string): boolean {
   return gs1CheckDigit(value.slice(0, -1)) === Number(value.slice(-1));
 }
 
-// Eight digit input is number system + six digits + check; the six digit body is
-// zero-suppressed according to its last digit.
+// The six digit body is zero-suppressed according to its last digit.
 export function expandUpcE(value: string): string {
   const numberSystem = value[0];
   const [d1, d2, d3, d4, d5, d6] = value.slice(1, 7);

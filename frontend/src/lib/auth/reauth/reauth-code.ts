@@ -58,7 +58,6 @@ function parseStored(value: string): IStoredCode | null {
   return null;
 }
 
-/** Stores a new code for the user, replacing any earlier one, and returns it in clear. */
 export async function issueReauthCode(
   adapter: InternalAdapter,
   secret: string,
@@ -103,10 +102,7 @@ export async function discardReauthCode(
   await adapter.deleteVerificationByIdentifier(identifierFor(userId));
 }
 
-/**
- * Spends the user's code: resolves on a match, otherwise throws with the tries left.
- * The row is consumed atomically first, so two parallel guesses can never both count as one try.
- */
+/** The row is consumed atomically first, so two parallel guesses can never both count as one try. */
 export async function consumeReauthCode(
   adapter: InternalAdapter,
   secret: string,

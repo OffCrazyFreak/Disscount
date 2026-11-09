@@ -4,18 +4,18 @@
     "closed": "Zaprto",
     "unconfirmed": "Delovni čas ni potrjen"
   },
-  "when": "{day, select, today {ob {time}} tomorrow {jutri ob {time}} mon {v ponedeljek ob {time}} tue {v torek ob {time}} wed {v sredo ob {time}} thu {v četrtek ob {time}} fri {v petek ob {time}} sat {v soboto ob {time}} other {v nedeljo ob {time}}}",
+  "when": "{day, select, today {{time, select, midnight {ob polnoči} other {ob {time}}}} tomorrow {jutri {time, select, midnight {ob polnoči} other {ob {time}}}} mon {v ponedeljek {time, select, midnight {ob polnoči} other {ob {time}}}} tue {v torek {time, select, midnight {ob polnoči} other {ob {time}}}} wed {v sredo {time, select, midnight {ob polnoči} other {ob {time}}}} thu {v četrtek {time, select, midnight {ob polnoči} other {ob {time}}}} fri {v petek {time, select, midnight {ob polnoči} other {ob {time}}}} sat {v soboto {time, select, midnight {ob polnoči} other {ob {time}}}} other {v nedeljo {time, select, midnight {ob polnoči} other {ob {time}}}}}",
   "detail": {
     "open": "Zapre {when}",
-    "closingSoon": "Kmalu zapre, ob {time}",
+    "closingSoon": "Kmalu zapre, {time, select, midnight {ob polnoči} other {ob {time}}}",
     "closed": "Odpre {when}",
-    "openingSoon": "Kmalu odpre, ob {time}"
+    "openingSoon": "Kmalu odpre, {time, select, midnight {ob polnoči} other {ob {time}}}"
   },
   "name": {
     "open": "Odprto, zapre {when}",
-    "closingSoon": "Odprto, kmalu zapre ob {time}",
+    "closingSoon": "Odprto, kmalu zapre {time, select, midnight {ob polnoči} other {ob {time}}}",
     "closed": "Zaprto, odpre {when}",
-    "openingSoon": "Zaprto, kmalu odpre ob {time}"
+    "openingSoon": "Zaprto, kmalu odpre {time, select, midnight {ob polnoči} other {ob {time}}}"
   },
   "source": {
     "chain": "Vir: {chain}",

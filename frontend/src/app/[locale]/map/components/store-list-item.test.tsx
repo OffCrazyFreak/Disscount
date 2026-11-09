@@ -124,7 +124,6 @@ describe("StoreListItem", () => {
 
     expect(name()).not.toHaveClass("truncate");
     expect(address()).not.toHaveClass("truncate");
-    // The open panel no longer repeats what the row already says.
     expect(screen.getAllByText("Ilica 1, 10000 Zagreb")).toHaveLength(1);
   });
 

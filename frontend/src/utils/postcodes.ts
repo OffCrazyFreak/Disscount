@@ -7,10 +7,7 @@ import {
 
 const countyCodeByPostcode: Record<string, string> = POSTCODE_COUNTIES;
 
-/**
- * The county of a postcode on the GeoNames list; null for any other, so a
- * typo such as Umag's 51470 counts as no postcode at all.
- */
+/** Null for any postcode off the GeoNames list, so a typo such as Umag's 51470 counts as no postcode. */
 export function readCounty(zipcode: string | null): County | null {
   const code = countyCodeByPostcode[zipcode?.trim() ?? ""];
 

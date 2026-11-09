@@ -10,11 +10,7 @@ import {
 } from "@/lib/offline/offline-mutation-keys";
 import { isQueuedWriteExpired } from "@/lib/offline/queued-write-expiry";
 
-/**
- * Removes queued writes older than the retention window before they replay, with one toast
- * per message rather than one per write. No refetch is needed: data that old is already stale,
- * so it refetches as soon as it is shown online.
- */
+/** No refetch, because data that old refetches as soon as it is shown online. */
 export function dropExpiredWrites(
   queryClient: QueryClient,
   t: OfflineToastTranslator,

@@ -21,7 +21,6 @@ const bars: Array<{ x: number; height: number; width: number }> = [
   { x: 54, height: 28, width: 3 },
 ];
 
-// Barcode: bars draw in staggered, then a red scanline sweeps up and down.
 export default function BarcodeDoodle({ className }: IBarcodeDoodleProps) {
   return (
     <DoodleCanvas viewBox="0 0 64 40" className={className}>

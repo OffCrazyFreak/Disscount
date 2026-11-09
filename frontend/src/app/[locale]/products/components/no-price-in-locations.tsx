@@ -10,7 +10,6 @@ interface INoPriceInLocationsProps {
   onShowAllLocations: () => void;
 }
 
-/** The search found products, but no store in the selected places prices them. */
 export default function NoPriceInLocations({
   locations,
   onShowAllLocations,

@@ -48,10 +48,7 @@ function clock(hours: string, minutes = "00"): string | null {
   return `${String(value).padStart(2, "0")}:${minutes}`;
 }
 
-/**
- * Reads "07:00 - 21:00", "07:00-21:00", "7 – 12:30" or "09:00 - 00:00" (closes
- * at midnight). A range with equal ends is a feed's way of saying closed.
- */
+/** A range with equal ends is a feed's way of saying closed. */
 export function parseClockRange(text: string): TimeRangeDto | null {
   const match = CLOCK_RANGE.exec(text.trim());
 
@@ -76,7 +73,6 @@ export function parseDayText(text: string): TimeRangeDto[] | null {
   return ranges.every((range) => range !== null) ? ranges : null;
 }
 
-/** Day index for a Croatian or English day word or abbreviation. */
 export function dayIndex(word: string): number {
   const folded = fold(word).replace(/\.$/, "");
   const english = ENGLISH_DAYS.indexOf(folded);
@@ -88,7 +84,6 @@ export function dayIndex(word: string): number {
   );
 }
 
-/** Days a label covers: "Pon-Pet", "Pon - Sub", "Subota", "Pon.-sub.". */
 export function daysOfLabel(label: string): number[] {
   const [first, last] = label.split(/\s*[-–]\s*/);
   const from = dayIndex(first);
@@ -108,11 +103,7 @@ export function comingSunday(today: string): string {
   return addDays(today, (SUNDAY - isoWeekday(today) + 7) % 7);
 }
 
-/**
- * A week from "label: hours" pairs ("Pon-Pet", "07:00 - 21:00"). A later
- * pair overrides an earlier one for the same day, as the chains' own pages
- * read; a label or value it cannot read is skipped, leaving that day unknown.
- */
+/** A later pair overrides an earlier one, as chains' pages read; an unreadable pair leaves a day unknown. */
 export function weekFromLabelled(pairs: [string, string][]): Weekly {
   const weekly = emptyWeek();
 
@@ -127,7 +118,6 @@ export function weekFromLabelled(pairs: [string, string][]): Weekly {
   return weekly;
 }
 
-/** Strips tags and entities from a fragment of a store page. */
 export function plainText(html: string): string {
   return html
     .replace(/<[^>]*>/g, " ")
@@ -137,10 +127,7 @@ export function plainText(html: string): string {
     .trim();
 }
 
-/**
- * For a chain that lists every Sunday a store trades, each unlisted Sunday
- * from today up to the last date it lists is a closed one.
- */
+/** For a chain listing every Sunday a store trades, each unlisted Sunday up to its last listed date is closed. */
 export function settleSundays(
   dated: IDatedRanges[],
   today: string,

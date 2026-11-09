@@ -1,15 +1,10 @@
-// Wi-Fi and cell accuracy is light on the battery and keeps the provider
-// warm, so a tap finds a fix already waiting instead of a cold start.
+// Wi-Fi and cell accuracy is light on the battery and keeps the provider warm, so a tap finds a fix already waiting.
 const WATCH_OPTIONS: PositionOptions = {
   enableHighAccuracy: false,
   maximumAge: 60_000,
 };
 
-/**
- * One `watchPosition` the page can pause while hidden without forgetting it
- * was wanted. Its callbacks are fixed at creation, so they must read only
- * refs, state setters and values that never change.
- */
+/** Its callbacks are fixed at creation, so they must read only refs, state setters and values that never change. */
 export function createPositionWatch(
   onFix: PositionCallback,
   onError: PositionErrorCallback,

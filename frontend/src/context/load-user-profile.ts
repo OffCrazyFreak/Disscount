@@ -1,7 +1,6 @@
 import { userService, preferencesService } from "@/lib/api";
 import { UserDto } from "@/lib/api/types";
 
-/** The app profile, with pinned stores and places filled in when it lacks them. */
 export async function loadUserProfile(): Promise<UserDto> {
   const userData = await userService.getCurrentUser();
 

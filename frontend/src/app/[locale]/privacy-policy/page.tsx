@@ -14,8 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PrivacyPolicyPage() {
-  // The rest of the page is Croatian in every locale, so this section matches it; the
-  // other locales' strings are ready for the rewrite.
+  // The rest of the page is Croatian in every locale, so this section matches it until the rewrite.
   const t = await getTranslations({
     locale: DEFAULT_LOCALE,
     namespace: "privacyPolicy.errorTracking",

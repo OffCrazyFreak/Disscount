@@ -6,11 +6,7 @@ import {
 } from "@/lib/store-hours/sources/hours-text";
 import { SUNDAY } from "@/lib/store-hours/zagreb-clock";
 
-/**
- * A store card lists seven "Ponedjeljak : 07:00-21:00" rows. Its Sunday row
- * and `data-open-on-sunday` describe the coming Sunday (the page's filter
- * says "Otvoreno ove nedjelje"), so that row becomes a dated entry.
- */
+/** Its Sunday row and `data-open-on-sunday` describe the coming Sunday, so that row becomes a dated entry. */
 export function parsePlodineHours(
   card: string,
   today: string,

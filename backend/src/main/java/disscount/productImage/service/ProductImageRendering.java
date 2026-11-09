@@ -47,10 +47,7 @@ public class ProductImageRendering {
         apply(image, upload(image));
     }
 
-    /**
-     * The background copy downloads for seconds, so it writes onto the row as it is now and drops its copy
-     * when an admin or the weekly import changed the photo meanwhile.
-     */
+    /** Downloads take seconds, so it writes onto the current row and drops its copy if the photo changed meanwhile. */
     public void renderCandidate(ProductImage loaded) {
         Copy copy = upload(loaded);
         ProductImage current = images.findById(loaded.getId())
@@ -66,7 +63,7 @@ public class ProductImageRendering {
         apply(current, copy);
     }
 
-    /** Renders a shown photo again from its source, dropping the result when an admin reframed or replaced it meanwhile. */
+    /** Renders a shown photo again from its source, dropping the result if an admin reframed or replaced it. */
     public void rerender(ProductImage loaded) {
         Copy copy = upload(loaded);
         ProductImage current = images.findById(loaded.getId())
@@ -136,7 +133,7 @@ public class ProductImageRendering {
         deleteIfUnused(oldSmall, copy.smallKey());
     }
 
-    /** The renderer only reads the bytes it is given, so an unexpected failure there belongs to this photo, not to an outage. */
+    /** The renderer only reads the bytes it is given, so an unexpected failure is this photo's, not an outage. */
     private static Rendered render(byte[] source, int rotation, Crop crop, ProductImage image) {
         try {
             return ProductImageRenderer.render(source, rotation, crop);
@@ -195,10 +192,7 @@ public class ProductImageRendering {
         }
     }
 
-    /**
-     * The erasure's version of dropFiles: deletes now and lets a failure fail the erasure, since a file of an
-     * erased account must not stay public behind a log line. Call after deleting the row.
-     */
+    /** Fails the erasure on failure, so an erased account's file cannot stay public; call after deleting the row. */
     void eraseFiles(String fullKey, String thumbKey, String smallKey) {
         for (String key : new String[]{fullKey, thumbKey, smallKey}) {
             if (key == null) continue;

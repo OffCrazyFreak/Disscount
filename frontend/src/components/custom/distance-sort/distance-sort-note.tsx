@@ -24,11 +24,7 @@ function readMessageKey(
   return origin.source === "saved" ? "readyFromSavedPlace" : "readyFromTown";
 }
 
-/**
- * Why a "distance" sort is pending, done or abandoned. The live region stays
- * mounted, so a screen reader hears each change of state. Without a location,
- * a town can be picked instead; once sorted from a town, it can be changed.
- */
+/** The live region stays mounted, so a screen reader hears each change of state. */
 export default function DistanceSortNote({
   id,
   state,
@@ -47,8 +43,7 @@ export default function DistanceSortNote({
 
   return (
     <div
-      // sr-only rather than hidden: a region that leaves the accessibility
-      // tree is often not announced when it comes back.
+      // sr-only because a region leaving the accessibility tree is often not announced on return.
       className={
         state === "idle"
           ? "sr-only"

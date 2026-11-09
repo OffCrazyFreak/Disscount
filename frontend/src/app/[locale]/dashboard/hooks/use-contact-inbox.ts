@@ -9,7 +9,6 @@ import { ContactMessageDto } from "@/lib/api/types";
 
 type ContactMutation = UseMutationResult<ContactMessageDto, Error, string>;
 
-// Bundles the admin inbox mutations with their toasts into simple callbacks.
 export function useContactInbox() {
   const t = useTranslations("dashboard");
   const markRead = contactService.useMarkRead();

@@ -9,7 +9,6 @@ interface IScaleDoodleProps {
   className?: string;
 }
 
-// Matches the "Usporedba cijena" feature icon (lucide Scale).
 export default function ScaleDoodle({ className }: IScaleDoodleProps) {
   return (
     <DoodleCanvas viewBox="0 0 24 24" strokeWidth={2} className={className}>

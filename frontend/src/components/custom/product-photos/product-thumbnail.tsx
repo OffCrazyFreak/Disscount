@@ -23,10 +23,7 @@ interface IProductThumbnailProps {
   className?: string;
 }
 
-/**
- * The fixed square a product row keeps for its photo, so nothing shifts when the photo
- * arrives. Decorative unless it opens the viewer: every row that shows one names the product right beside it.
- */
+/** A fixed square so nothing shifts; decorative unless it opens the viewer, as rows name the product. */
 export default function ProductThumbnail({
   ean,
   productName,
@@ -37,8 +34,7 @@ export default function ProductThumbnail({
   const [viewing, setViewing] = useState<number | null>(null);
   const { data: url, isLoading } = useProductThumbnail(ean ?? undefined);
   const isOnline = useOnlineStatus();
-  // Offline or a vanished file: the placeholder instead of a broken image icon. A change in
-  // connection tries the file again, so a photo lost to a dropped signal comes back.
+  // A change in connection tries the file again, so a photo lost to a dropped signal comes back.
   const [failure, setFailure] = useState<{
     url: string;
     isOnline: boolean;

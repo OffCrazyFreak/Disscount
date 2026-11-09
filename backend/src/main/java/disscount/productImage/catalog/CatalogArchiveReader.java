@@ -13,11 +13,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-/**
- * Reads a cijene daily archive (one folder per chain with products.csv and prices.csv) into
- * barcode, a display name and how many store prices list it. Entry order inside the ZIP is not
- * guaranteed, so prices are counted per chain product id and joined to barcodes at the end.
- */
+/** ZIP entry order is not guaranteed, so prices count per chain product id and join to barcodes at the end. */
 public final class CatalogArchiveReader {
 
     public record Entry(String name, String brand, int storeListings, int chainCount) {}

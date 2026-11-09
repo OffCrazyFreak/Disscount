@@ -2,11 +2,7 @@
 
 import { RefObject, useEffect, useState } from "react";
 
-/**
- * The bottom nav's height in pixels, read off a probe sized by
- * `--bottom-nav-total`. A virtualizer clamps its scrolling to sizes it knows,
- * so CSS padding alone would leave the last rows under the nav.
- */
+/** A virtualizer clamps scrolling to sizes it knows, so CSS padding leaves the last rows under the nav. */
 export function useNavClearance(probeRef: RefObject<HTMLElement | null>) {
   const [height, setHeight] = useState(0);
 

@@ -131,7 +131,7 @@ So every other "search" outside products is the browser filtering an array it al
 
 When server-side search is built, two things are already known:
 
-- **JPQL `LOWER(x) LIKE LOWER(:q)` is portable to H2**, so it needs no profile guard. `ILIKE` and `tsvector` are Postgres-only and would need one, plus an H2 fallback, per the testing constraint in `AGENTS.md`.
+- **JPQL `LOWER(x) LIKE LOWER(:q)` is portable to H2**, so it needs no profile guard. `ILIKE` and `tsvector` are Postgres-only and would need one, plus an H2 fallback, because the backend tests run on H2.
 - **Diacritic folding does not come for free on the server.** `LOWER(...) LIKE` on Postgres is accent-sensitive and `unaccent` is an extension. Preserving what the client does today means a normalized shadow column, which is portable.
 
 Also note **email is not on the JPA `User` entity**; it lives in better-auth's own table and is read through a native query. Searching users by email crosses that boundary.
@@ -170,6 +170,16 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 
 **A clear or a blank submit never leaves the page.** A bar off its search route has no `q` to drop, so clearing it only empties the field, and a live filter's own sync drops its query. Enter on only spaces searches nothing and at most closes a touch keyboard; Enter on a field emptied by hand drops `q` only where the search route is the current page.
 
+**Product bars suggest searches from the device, and never fetch.** Every `ProductSearchBar` wraps its field in Base UI's `Autocomplete` (`search-suggestions.tsx`), so it is an APG grid combobox: focus stays in the input, arrows highlight a cell, Enter or a press on a row runs that search through the same path as a submit, and Enter with nothing highlighted submits the typed text. Each recent search has a second cell, an x that removes that one and leaves the list open, which is why this is a grid: a button inside a listbox option is not reachable by keyboard. An empty field lists the recent product searches; a typed one ranks recent searches and names of already loaded products through `scoreFields` (`rankSearchSuggestions`, at most eight). The names come from `getCachedProductNames`, read once per opening and capped at 1000 so a keystroke never walks the cache or churns `normalizeCached`. A new visitor has only what they search. A row never opens a product page, because a suggestion says what to search, not which result to take (the decision on #406).
+
+**A search is remembered only when a field submitted it and it found something.** `markProductSearchSubmitted` notes the query, and `useRecordProductSearch` in `ProductsClient` stores it once results settle, so a shared link or Back records nothing. The list is `productRecentSearches`, five at most, cleared when a signed-in session ends and removable one by one. A guest signing in keeps theirs.
+
+**A list shows only under the focused field.** The bars mirror one draft, so one left open would rise under typing in another; blur closes it.
+
+**The field is `type="text"`, not `search`, once it suggests.** ARIA in HTML does not allow a combobox role on `type="search"`. `inputMode` and `enterKeyHint` keep the phone's search key.
+
+**Base UI's hidden input stops Enter submitting a form with no button.** A browser submits implicitly only when the form has a single field or a default button. The header bar has neither once the hidden input is there, so `SearchBar` calls `requestSubmit` itself.
+
 **Placeholder results are not settled results.** `useGetProductByName` keeps the previous search's products as placeholder data while the next query loads, so the list does not blank on every search. While that is on screen React Query reports `isLoading` false, so `useInfiniteProducts` exposes `isRefreshing` (`isPlaceholderData`), and the products page holds the count in the title and the screen reader status back until it clears; the grid is dimmed and `aria-busy` meanwhile. When the carried over results filter down to nothing (the previous search found none, or the active filters hide them all), `useInfiniteProducts` reports loading instead, because an empty state there would read as the answer to the new query. React Query hands the placeholder the last search that had data, so a search typed after clearing the field shows the results from before the clear, dimmed, until it loads.
 
 ## 11. Future improvements & TODOs
@@ -178,6 +188,6 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 - **Server-side search and pagination.** Nothing exists beyond the store-name lookup. See [§9](#9-the-backend-searches-only-store-names) for the portability notes. This becomes urgent the moment the admin panel grows past its two current tabs.
 - **`GET /api/admin/users` is unbounded** and WAU/MAU is counted client-side over every user row, which structurally prevents ever paginating that endpoint. Recorded here rather than fixed.
 - **The admin contact inbox silently truncates at 500.** The cap is server-side, `MAX_ADMIN_MESSAGES` in `ContactMessageService`, so rows past it never reach the browser and are unreachable and unsearchable, with no indication in the UI.
-- **`components/ui/chart.tsx` sorts labels with a locale-less `localeCompare`**, so Croatian diacritics collate wrongly in chart tooltips. It is shadcn output, but `AGENTS.md` allows editing that folder where the primitive is the natural home for the change, and a comparator the whole app needs in Croatian qualifies. Swapping it for `compareHr` is a one-line fix nobody has taken.
+- **`components/ui/chart.tsx` sorts labels with a locale-less `localeCompare`**, so Croatian diacritics collate wrongly in chart tooltips. It is shadcn output, but editing that folder is fine where the primitive is the natural home for the change, and a comparator the whole app needs in Croatian qualifies. Swapping it for `compareHr` is a one-line fix nobody has taken.
 - **One surface has a search box that matches nothing.** `sidebar-filter-menu.tsx` lists several hundred options with no filter box at all, an obvious consumer for this system. The map search is wired up: it filters the store list and the map by chain, city and address through `filterByFields` (`use-visible-stores.ts`).
 - **Consider a library only if a surface really holds 10k+ rows client-side.** None does today. If one ever does, `MiniSearch` (7kB, zero dependencies, a `processTerm` hook that takes `normalizeForSearch` directly) is the closest fit; `uFuzzy` is faster and smaller but has a much smaller user base.

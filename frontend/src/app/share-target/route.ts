@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE } from "@/i18n/locales";
 
-// Turns anything shared into Disscount (see manifest.ts) into a product search.
 export function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
 
@@ -12,8 +11,7 @@ export function GET(request: NextRequest) {
     ""
   ).trim();
 
-  // The share sheet always posts to this one unprefixed URL, so the saved choice
-  // decides the language of the results page.
+  // The share sheet always posts to this unprefixed URL, so the saved choice decides the results page language.
   const saved = request.cookies.get(LOCALE_COOKIE)?.value;
   const prefix = isLocale(saved) && saved !== DEFAULT_LOCALE ? `/${saved}` : "";
 

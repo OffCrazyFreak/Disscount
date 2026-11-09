@@ -131,11 +131,11 @@ public class ProductImage {
     @Column(name = "flagged_at")
     private LocalDateTime flaggedAt;
 
-    /** SHA-256 of the stored original (the cleaned upload); blocks re-uploads of a deleted photo. Filled at deletion for older photos. */
+    /** SHA-256 of the cleaned original; blocks re-uploads of a deleted photo. Filled at deletion for older photos. */
     @Column(name = "content_sha256", length = 64)
     private String contentSha256;
 
-    /** Set when an admin deleted the files; the row stays as a tombstone so neither an upload nor the import brings the photo back. */
+    /** Set on admin deletion; the row stays as a tombstone, so neither upload nor import brings the photo back. */
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 

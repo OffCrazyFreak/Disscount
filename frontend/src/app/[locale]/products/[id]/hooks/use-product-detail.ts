@@ -13,7 +13,6 @@ import { useDistanceSort } from "@/hooks/use-distance-sort";
 // One array for every render, so the distance memo is not rebuilt each time.
 const NO_PRICES: StorePrice[] = [];
 
-/** One product, its prices grouped by chain, and the chain order to show them in */
 export function useProductDetail(ean: string) {
   const { accountUser } = useUser();
   const {

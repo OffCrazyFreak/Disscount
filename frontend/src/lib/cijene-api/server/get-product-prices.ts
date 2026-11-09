@@ -10,10 +10,7 @@ import { buildQueryString } from "@/utils/generic";
 
 const SERVER_PRICES_TIMEOUT_MS = 5000;
 
-/**
- * Every store's price for one product, once per request. Null on any failure, so the
- * page still renders and the browser fetches the prices itself.
- */
+/** Null on any failure, so the page still renders and the browser fetches the prices itself. */
 export const getServerProductPrices = cache(
   async (ean: string): Promise<StorePricesResponse | null> => {
     try {

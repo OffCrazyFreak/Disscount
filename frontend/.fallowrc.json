@@ -53,7 +53,7 @@
       "file": "src/lib/store-locations/dgu/dgu-{attribution,address-lookup}.ts",
       "exports": ["DGU_ATTRIBUTION"]
     },
-    // AGENTS.md routes every redirect through this module, so it stays exported even while no page uses it.
+    // Locale-aware redirects belong in this module, so it stays exported even while no page uses it.
     {
       "file": "src/i18n/navigation.ts",
       "exports": ["redirect"]

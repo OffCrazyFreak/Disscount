@@ -21,11 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * Pins which requests each security chain lets through, so a framework upgrade that changes
- * path matching or filter order fails here instead of in production. A 404 from the real
- * service means the request got past security; a 401 means it did not.
- */
+/** So an upgrade changing path matching or filter order fails here; a 404 means past security, a 401 means not. */
 @SpringBootTest
 @AutoConfigureMockMvc
 class SecurityChainCharacterizationTest {

@@ -7,7 +7,6 @@ export interface IStoreGroup {
   /** Null for items with no chain shown: none saved and none suggested. */
   chain: string | null;
   items: ShoppingListItemDto[];
-  /** What the group costs at that chain, from the prices known so far. */
   subtotal: number;
   /** True when some item has no price at that chain, so the subtotal is low. */
   isPartial: boolean;
@@ -19,11 +18,7 @@ interface IGroupInput {
   storePrices: Record<string, Record<string, number>>;
 }
 
-/**
- * Splits a list by the chain each item's store select shows: its saved chain,
- * else the suggested cheapest one. Chains run A to Z, items A to Z within
- * them, and items showing no chain come last.
- */
+/** Items follow the chain their store select shows, so groups match what each row displays. */
 export function groupItemsByStore({
   items,
   cheapestStores,

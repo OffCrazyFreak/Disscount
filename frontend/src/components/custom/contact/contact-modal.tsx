@@ -34,8 +34,7 @@ const EMPTY_VALUES: ContactMessageRequest = {
 
 const DRAFT_KEY = "contact";
 
-// Module level, so both the prefill effect and the reset handler share one source
-// without an object literal that changes identity on every render.
+// Module level, so prefill and reset share one source with a stable identity.
 function profileValues(
   user: { email?: string | null; name?: string | null } | null | undefined,
 ): ContactMessageRequest {
@@ -63,14 +62,10 @@ export default function ContactModal({ open }: IContactModalProps) {
     defaultValues: EMPTY_VALUES,
   });
 
-  // Waits for the profile: restoring the draft first would make the form dirty over
-  // empty defaults, and the late prefill must never overwrite a field the user edited.
+  // Waits for the profile, because restoring first dirties the form over empty defaults.
   const isReady = open && !isUserLoading;
 
-  // The profile becomes the defaults, so the draft engine diffs against it and its
-  // restore, which runs after this effect, lays the draft on top.
-  // Keyed on the strings: the session hands back a new user object on every poll, and
-  // each reset would clear the errors shown under the fields.
+  // Keyed on strings because each session poll returns a new user, and a reset clears shown errors.
   const profileEmail = user?.email;
   const profileName = user?.name;
   useEffect(() => {

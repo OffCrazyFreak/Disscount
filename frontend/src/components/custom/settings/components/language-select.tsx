@@ -33,8 +33,7 @@ export default function LanguageSelect() {
     control: security.form.control,
   });
 
-  // Switching language remounts the whole tree under the new [locale] segment, which
-  // would silently drop unsaved edits.
+  // Switching language remounts the tree under the new [locale] segment, which would silently drop unsaved edits.
   const locked =
     securityDirty ||
     dirtySections(

@@ -36,7 +36,6 @@ export type ModalTarget =
   | { name: "product-actions"; ean: string }
   | { name: "watchlist"; ean: string; watchType?: WatchTypeParam };
 
-// Login-style modals shown to logged-out users when a protected modal is opened.
 export const AUTH_MODAL_NAMES = ["login", "signup", "forgot-password"] as const;
 
 // Modals reachable by anyone (from email links, or a shared link); never auth-gated.

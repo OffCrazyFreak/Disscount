@@ -1,6 +1,6 @@
 <!--
 Why and Tested are required. Delete any other section that does not apply.
-Closing keywords fire only on a merge into main, so a PR into dev says "Part of #123" and the issue is closed by hand.
+Closing keywords fire only on a merge into main, so a PR into dev says "Part of #123" and the agent closes the issue when its card reaches For review or Done.
 -->
 
 ## Why

@@ -13,7 +13,6 @@ import {
   type ReauthProof,
 } from "@/components/custom/settings/security/reauth/reauth-requests";
 
-// The Sigurnost actions that sit outside the credentials form.
 export function useSecurityActions() {
   const t = useTranslations("settings");
   const router = useRouter();
@@ -33,8 +32,7 @@ export function useSecurityActions() {
     return true;
   }
 
-  // The proof travels in the delete request itself: the server checks it, erases the backend
-  // data and only then the identity, so a refusal leaves the account whole and retryable.
+  // The server checks the proof, then erases backend data, then the identity, so a refusal leaves the account whole.
   async function deleteAccount(
     proof: ReauthProof,
   ): Promise<IProofFailure | null> {

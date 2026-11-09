@@ -26,16 +26,12 @@ import com.luciad.imageio.webp.WebPWriteParam;
 
 import disscount.exceptions.BadRequestException;
 
-/**
- * Turns any source photo into the two WebP files we serve: the full one in the photo's own shape for the
- * viewer, and a small square for lists and tiles. The white background is painted into the pixels on
- * purpose: dark mode extensions recolour CSS backgrounds but leave image pixels alone.
- */
+/** White is painted into the pixels because dark mode extensions recolour CSS backgrounds but not image pixels. */
 public final class ProductImageRenderer {
 
     /** Long edge of the full file: sharp on 2x laptop and 3x phone screens without zoom. */
     public static final int FULL_MAX_SIDE = 1600;
-    /** Used wherever a photo is drawn small (list rows, the product page tile up to about 128 CSS pixels), sharp on 2x screens. */
+    /** For photos drawn small (list rows, the product tile up to about 128 CSS pixels), sharp on 2x screens. */
     public static final int SMALL_SIDE = 256;
     public static final int MIN_CROP_SIDE = 16;
 
@@ -55,7 +51,6 @@ public final class ProductImageRenderer {
     public record Rendered(byte[] full, int fullWidth, int fullHeight, byte[] small, String sha256,
                            int sourceWidth, int sourceHeight) {
 
-        /** True when even the lowest quality step left a file over its ceiling. */
         public boolean overCeiling() {
             return full.length > FULL_MAX_BYTES || small.length > SMALL_MAX_BYTES;
         }
@@ -88,7 +83,6 @@ public final class ProductImageRenderer {
         return normalized;
     }
 
-    /** Width and height of the source once rotated, the frame a crop is measured against. */
     public static int[] rotatedSize(int width, int height, int rotation) {
         int normalized = normalizeRotation(rotation);
         return normalized == 90 || normalized == 270 ? new int[] {height, width} : new int[] {width, height};
@@ -190,8 +184,7 @@ public final class ProductImageRenderer {
     /** Keeps the photo's shape, so a wide or tall product fills the file instead of white padding. */
     private static BufferedImage fitWithin(BufferedImage content, int maxSide) {
         int longEdge = Math.max(content.getWidth(), content.getHeight());
-        // Never upscale: a small source gains nothing but blur from more pixels. Copied all the same, because a
-        // crop is a view into the rotated photo and the WebP writer ignores a view's offset, writing garbage.
+        // Never upscale, but always copy: a crop is a view into the rotated photo, and the WebP writer ignores offsets.
         if (longEdge <= maxSide) {
             return draw(content, content.getWidth(), content.getHeight(), RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         }
@@ -224,7 +217,6 @@ public final class ProductImageRenderer {
         return out;
     }
 
-    /** Steps the quality down until the file fits its ceiling; the lowest step is kept even when it does not. */
     static byte[] encode(BufferedImage image, int maxBytes) {
         byte[] encoded = null;
         for (float quality : QUALITY_STEPS) {

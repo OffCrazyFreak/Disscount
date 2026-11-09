@@ -1,12 +1,6 @@
 import { storeKey } from "@/lib/store-locations/upstream-stores";
 
-/**
- * Saved address-register pins that failed verification, with the register's
- * right place that independent verification confirmed within about 30 m of
- * the store. The sync never revisits a saved pin, so the map shows these
- * instead. Each applies only while upstream keeps the address it was checked
- * for; a new address gets a fresh pin from the sync.
- */
+/** The sync never revisits a saved pin, so these show, only while upstream keeps the checked address. */
 export const PIN_CORRECTIONS = new Map<
   string,
   { address: string; lat: number; lon: number }

@@ -4,7 +4,6 @@ import { useQueueKeys } from "@/app/[locale]/dashboard/components/product-photos
 import { useMarkProductReviewed } from "@/lib/api/product-images/admin-hooks";
 import type { AdminPhotoQueueItem } from "@/lib/api/types";
 
-/** Which queue row the editor shows, falling back to the first, plus the keyboard moves. */
 export function useQueueSelection(items: AdminPhotoQueueItem[]) {
   const [picked, setPicked] = useState<string | null>(null);
   const found = items.findIndex((item) => item.ean === picked);

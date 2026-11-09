@@ -33,10 +33,7 @@ function toLeaf(feature: ILeafFeature): IClusterLeaf | null {
   return { key, lon, lat };
 }
 
-/**
- * A stack tap zooms to fit exactly its stores, which the list then shows
- * first; stores sharing one spot open as a list instead. A store tap selects it.
- */
+/** Stores sharing one spot open as a list, because zooming cannot separate them. */
 export async function handleMapFeatureClick(
   event: MapLayerMouseEvent,
   mapRef: MapRef | null,
@@ -46,7 +43,6 @@ export async function handleMapFeatureClick(
   if (feature) await handleMapFeature(feature, mapRef, actions);
 }
 
-/** What a stack or store tap reads off the feature it hit. */
 export type IMapFeatureRef = Pick<
   maplibregl.MapGeoJSONFeature,
   "properties"
@@ -54,7 +50,6 @@ export type IMapFeatureRef = Pick<
   source?: string;
 };
 
-/** The same as a tap, for a stack reached another way, such as its badge. */
 export async function handleMapFeature(
   feature: IMapFeatureRef,
   mapRef: MapRef | null,

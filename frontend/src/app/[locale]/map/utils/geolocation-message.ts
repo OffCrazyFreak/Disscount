@@ -7,7 +7,6 @@ const MESSAGE_KEYS = {
   timeout: "timeout",
 } as const;
 
-/** The map.nearMe key explaining a failed locate, or null when nothing failed. */
 export function geolocationMessageKey(status: GeolocationStatus) {
   return status in MESSAGE_KEYS
     ? MESSAGE_KEYS[status as keyof typeof MESSAGE_KEYS]

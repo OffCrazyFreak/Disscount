@@ -13,9 +13,6 @@ import {
   PinnedStoreDto,
 } from "@/lib/api/types";
 
-/**
- * Get current user's pinned stores
- */
 async function getPinnedStores(): Promise<PinnedStoreDto[]> {
   const response = await apiClient.get<PinnedStoreDto[]>(
     "/api/pinned-stores/me",
@@ -23,9 +20,6 @@ async function getPinnedStores(): Promise<PinnedStoreDto[]> {
   return response.data;
 }
 
-/**
- * Update user's pinned stores (bulk operation)
- */
 async function updatePinnedStores(
   data: BulkPinnedStoreRequest,
 ): Promise<PinnedStoreDto[]> {
@@ -36,9 +30,6 @@ async function updatePinnedStores(
   return response.data;
 }
 
-/**
- * Get current user's pinned places
- */
 async function getPinnedPlaces(): Promise<PinnedPlaceDto[]> {
   const response = await apiClient.get<PinnedPlaceDto[]>(
     "/api/pinned-places/me",
@@ -46,9 +37,6 @@ async function getPinnedPlaces(): Promise<PinnedPlaceDto[]> {
   return response.data;
 }
 
-/**
- * Update user's pinned places (bulk operation)
- */
 async function updatePinnedPlaces(
   data: BulkPinnedPlaceRequest,
 ): Promise<PinnedPlaceDto[]> {
@@ -75,7 +63,6 @@ function useUpdatePinnedStores() {
   return useMutation<PinnedStoreDto[], Error, BulkPinnedStoreRequest>({
     mutationFn: updatePinnedStores,
     onSuccess: () => {
-      // Invalidate the pinnedStores query to refetch when needed
       queryClient.invalidateQueries({
         queryKey: PREFERENCE_QUERY_KEYS.pinnedStores,
       });
@@ -99,7 +86,6 @@ function useUpdatePinnedPlaces() {
   return useMutation<PinnedPlaceDto[], Error, BulkPinnedPlaceRequest>({
     mutationFn: updatePinnedPlaces,
     onSuccess: () => {
-      // Invalidate the pinnedPlaces query to refetch when needed
       queryClient.invalidateQueries({
         queryKey: PREFERENCE_QUERY_KEYS.pinnedPlaces,
       });

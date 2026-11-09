@@ -17,9 +17,7 @@ import { tommyLocator } from "@/lib/store-locations/sources/tommy-locator";
 import { trgocentarLocator } from "@/lib/store-locations/sources/trgocentar-locator";
 import { trgovinaKrkLocator } from "@/lib/store-locations/sources/trgovina-krk-locator";
 
-// Studenac, dm, Žabac, Stridon, Gavranović and Metro publish no usable
-// coordinates (or no per-store upstream data to match), so the DGU register
-// and the geocoders place them instead.
+// These publish no usable coordinates, so the DGU register and geocoders place them.
 export const storeLocators: IStoreLocator[] = [
   bosoLocator,
   brankaLocator,

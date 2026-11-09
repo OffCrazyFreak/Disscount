@@ -36,8 +36,7 @@ export default function FeatureCardAction({
 
   // Guests have no notifications dropdown mounted, so send them to login first
   function openNotifications() {
-    // Ignored until auth resolves: isAuthenticated is false in that window, so
-    // acting on it showed the login modal to someone already signed in.
+    // isAuthenticated is false until auth resolves, which would show login to someone signed in.
     if (isInitializing) return;
 
     if (isAuthenticated) requestOpenMenu();

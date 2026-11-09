@@ -6,7 +6,6 @@ import { REAUTH_CODE_LENGTH } from "@/constants/auth";
 import type { Reauth } from "@/components/custom/settings/security/hooks/use-reauth";
 import type { IProofFailure } from "@/components/custom/settings/security/reauth/reauth-requests";
 
-// The field, error and pending state of the open request; a new request starts empty.
 export function useReauthForm(reauth: Reauth) {
   const { request, method } = reauth;
   const [value, setValue] = useState("");

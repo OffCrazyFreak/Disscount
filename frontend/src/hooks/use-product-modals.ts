@@ -8,11 +8,7 @@ import {
   type IOpenModalOptions,
 } from "@/lib/modal/modal-navigation";
 
-/**
- * Opens the URL-driven product modals, seeding the by-ean cache first: those
- * modals take only the EAN, so without the seed they refetch what the caller
- * already has and the modal opens empty.
- */
+/** Seeds the by-ean cache because those modals take only the EAN, and would otherwise refetch and open empty. */
 export default function useProductModals(product: ProductResponse) {
   const queryClient = useQueryClient();
 

@@ -9,8 +9,6 @@ import { localePath } from "@/i18n/locale-path";
 import { useUser } from "@/context/user-context";
 import { clientEnv } from "@/lib/env";
 
-// Sends the standard reset email to the signed-in user, so a forgotten current
-// password is not a dead end inside settings.
 export function usePasswordRecovery() {
   const locale = useLocale();
   const t = useTranslations("settings");
@@ -32,9 +30,7 @@ export function usePasswordRecovery() {
         redirectTo: `${appUrl}${localePath(locale, "/reset-password")}`,
       });
 
-      // The login modal leaves { error } uninspected so it can't confirm an
-      // account; here the caller is authenticated and owns the address, so
-      // there is nothing to leak and a real failure is worth reporting.
+      // The caller is authenticated and owns the address, so there is nothing to leak here.
       if (error) {
         toast.error(t("security.recovery.sendFailed"));
         return;

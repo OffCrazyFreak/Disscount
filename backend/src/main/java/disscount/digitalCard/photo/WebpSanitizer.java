@@ -5,10 +5,7 @@ import disscount.exceptions.BadRequestException;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
-/**
- * Header level WebP handling with no image library: the RIFF container is walked and rewritten
- * keeping only the chunks that carry pixels, which strips EXIF, XMP and ICC.
- */
+/** Walks the RIFF container with no image library and keeps only pixel chunks, which strips EXIF, XMP and ICC. */
 final class WebpSanitizer {
 
     private static final int FLAG_ALPHA = 0x10;

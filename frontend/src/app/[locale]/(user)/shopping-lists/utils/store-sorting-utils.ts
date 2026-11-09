@@ -6,10 +6,7 @@ import {
 import { getChainAvgPriceRange } from "@/app/[locale]/products/utils/product-utils";
 import { compareHr } from "@/utils/strings";
 
-/**
- * Modes for optimising the store list on a shopping list.
- * Kept as a const tuple so the type and localStorage validation share one source.
- */
+/** Kept as a const tuple so the type and localStorage validation share one source. */
 export const STORE_OPTIMIZE_MODES = [
   "products",
   "basket",
@@ -31,8 +28,7 @@ function avgPrice(chain: RankedChain): number {
   return parseFloat(chain.avg_price);
 }
 
-// A few hundred metres rarely decide a trip with a whole list, so stores in
-// the same band compete on how much of the list they carry.
+// A few hundred metres rarely decide a trip, so stores in one band compete on list coverage.
 const DISTANCE_BAND_KM = 0.5;
 
 interface IRankContext {
@@ -40,7 +36,6 @@ interface IRankContext {
   distanceByChain?: Map<string, number>;
 }
 
-/** Sort keys per mode, compared in order, smaller first. */
 const MODE_KEYS: Record<
   StoreOptimizeMode,
   (chain: RankedChain, context: IRankContext) => number[]
@@ -53,8 +48,6 @@ const MODE_KEYS: Record<
     -(cheapestCountByChain?.get(chain.chain) ?? 0),
     avgPrice(chain),
   ],
-  // Nearest band first, chains without a located store last, then
-  // completeness and price within a band.
   distance: (chain, { distanceByChain }) => [
     Math.floor(
       (distanceByChain?.get(chain.chain) ?? Infinity) / DISTANCE_BAND_KM,
@@ -78,20 +71,7 @@ function rankKeys(
   return [pinnedKey, ...modeKeys(chain, context)];
 }
 
-/**
- * Comparator function for sorting store chains by the selected optimisation mode.
- * Pinned stores come first (user preference) in every mode but "distance", then the
- * chosen metric, then the chain name (Croatian locale).
- * @param a First chain to compare
- * @param b Second chain to compare
- * @param pinnedStoreIds Array of pinned store IDs
- * @param mode The optimisation metric to rank by (defaults to product count)
- * @param cheapestCountByChain How many list products are cheapest at each chain
- *        (only used by the "total" mode)
- * @param distanceByChain Kilometres to each chain's nearest store (only used by the
- *        "distance" mode)
- * @returns Negative if a < b, positive if a > b, 0 if equal
- */
+/** Pinned stores lead as a user preference in every mode but "distance", which is about where the shopper stands. */
 export function compareStoreChains(
   a: RankedChain,
   b: RankedChain,
@@ -110,12 +90,7 @@ export function compareStoreChains(
   return compareHr(a.chain, b.chain);
 }
 
-/**
- * How much you save on an item by buying it at the given chain, as a percentage
- * below the highest price for that product across all chains (so a bigger number
- * means a bigger discount at this store). Returns -Infinity when the item is not
- * sold at this chain, so unavailable items sort last.
- */
+/** Returns -Infinity when the item is not sold at this chain, so unavailable items sort last. */
 function getItemSavingPercentAtChain(
   item: ShoppingListItemDto,
   productsData: ProductResponse[],
@@ -133,24 +108,17 @@ function getItemSavingPercentAtChain(
   return ((maxPrice - price) / maxPrice) * 100;
 }
 
-/**
- * Comparator for sorting a store's products: not-yet-bought items first, then by
- * biggest saving at this store (the most-discounted product on top), then name.
- */
 export function sortShoppingListItemsByPurchaseAndSaving(
   a: ShoppingListItemDto,
   b: ShoppingListItemDto,
   productsData: ProductResponse[],
   chain: ChainProductResponse,
 ): number {
-  // 1. Not-yet-bought items come first
   if (a.isChecked !== b.isChecked) return a.isChecked ? 1 : -1;
 
-  // 2. Bigger saving at this store first
   const savingA = getItemSavingPercentAtChain(a, productsData, chain.chain);
   const savingB = getItemSavingPercentAtChain(b, productsData, chain.chain);
   if (savingA !== savingB) return savingB - savingA;
 
-  // 3. Alphabetical (Croatian locale)
   return compareHr(a.name, b.name);
 }

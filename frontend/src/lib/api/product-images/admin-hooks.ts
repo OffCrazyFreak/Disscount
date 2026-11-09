@@ -96,7 +96,6 @@ export function useDeletePhoto(ean: string) {
   return usePhotoChange<string>(ean, deletePhoto);
 }
 
-/** Uploaded and deleted photo counts per user, for the admin users list. */
 export function useContributorPhotoCounts() {
   return useQuery({
     queryKey: PRODUCT_IMAGE_KEYS.contributors,

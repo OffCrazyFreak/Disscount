@@ -18,7 +18,6 @@ interface IMapPanelProps {
   withSearch?: boolean;
 }
 
-/** Search, filters and the list, with the selected store open. Same on every screen. */
 export default function MapPanel({
   model,
   viewArea,

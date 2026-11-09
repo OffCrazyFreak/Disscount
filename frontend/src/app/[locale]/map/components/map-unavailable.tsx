@@ -5,7 +5,6 @@ interface IMapUnavailableProps {
   action?: { label: string; onClick: () => void };
 }
 
-/** Stands in for the map; the store list keeps working beside it. */
 export default function MapUnavailable({
   message,
   action,

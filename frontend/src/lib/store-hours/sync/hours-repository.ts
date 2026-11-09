@@ -137,11 +137,7 @@ export async function readCheckUrls(): Promise<string[]> {
   return rows.flatMap((row) => (row.url ? [row.url] : []));
 }
 
-/**
- * Every store sharing the link gets its verdict; failures count up until a
- * check succeeds. An unverified check proves nothing, so a link already
- * found gone stays broken until it answers again.
- */
+/** An unverified check proves nothing, so a link already found gone stays broken until it answers again. */
 export async function saveLinkStatus(
   url: string,
   status: LinkStatus,

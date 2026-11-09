@@ -35,8 +35,7 @@ public class ShoppingListItemRequest {
     @Schema(nullable = true)
     private Boolean isChecked = false;
 
-    // Free-form cijene chain slug (e.g. "konzum", "trgovina-krk"); validate only
-    // the format, never against a fixed list, so new upstream chains never break.
+    // Validate only the format, never a fixed list, so new upstream chains never break.
     @Pattern(regexp = "^[a-z0-9_-]+$", message = "{validation.chainCode.invalid}")
     @Schema(nullable = true)
     private String chainCode;

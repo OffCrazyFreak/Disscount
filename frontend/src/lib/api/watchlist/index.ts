@@ -13,9 +13,6 @@ import {
   type WatchlistItemDto,
 } from "@/lib/api/types";
 
-/**
- * Add product to watchlist
- */
 export async function addToWatchlist(
   data: WatchlistItemRequest,
 ): Promise<WatchlistItemDto> {
@@ -23,18 +20,11 @@ export async function addToWatchlist(
   return watchlistItemDtoSchema.parse(response.data);
 }
 
-/**
- * Get current user's watchlist
- */
 async function getCurrentUserWatchlist(): Promise<WatchlistItemDto[]> {
   const response = await apiClient.get<unknown[]>("/api/watchlist/me");
   return response.data.map((item) => watchlistItemDtoSchema.parse(item));
 }
 
-/**
- * Get watchlist items by product API ID (EAN)
- * Returns all watchlist items for this product (can have multiple with different watch types)
- */
 async function getWatchlistItemsByProductApiId(
   productApiId: string,
 ): Promise<WatchlistItemDto[]> {
@@ -44,9 +34,6 @@ async function getWatchlistItemsByProductApiId(
   return response.data.map((item) => watchlistItemDtoSchema.parse(item));
 }
 
-/**
- * Remove product from watchlist
- */
 export async function removeFromWatchlist(id: string): Promise<void> {
   await apiClient.delete(`/api/watchlist/${id}`);
 }

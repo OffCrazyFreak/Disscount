@@ -111,8 +111,7 @@ describe("sensitive action guard", () => {
     ).rejects.not.toMatchObject({ body: { code: "REAUTH_REQUIRED" } });
   });
 
-  // The settings screen unlinks by the id listAccounts returns, which better-auth 1.7 matches
-  // against the account row, not the provider's own account id.
+  // better-auth 1.7 matches the id from listAccounts against the account row, not the provider's own account id.
   it("unlinks a social account by the id the account list returns", async () => {
     const { headers, userId } = await signUp("unlink@example.com");
     tables.account.push({

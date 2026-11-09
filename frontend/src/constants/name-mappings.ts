@@ -1,6 +1,3 @@
-/**
- * Map store codes to their display names.
- */
 export const storeNamesMap: Record<string, string> = {
   plodine: "Plodine",
   tommy: "Tommy",
@@ -33,9 +30,6 @@ export const storeNamesMap: Record<string, string> = {
   stridon: "Stridon",
 };
 
-/**
- * Map location codes to their display names.
- */
 export const locationNamesMap: Record<string, string> = {
   "6C KRK": "Krk",
   "A Cista Provo": "Cista Provo",

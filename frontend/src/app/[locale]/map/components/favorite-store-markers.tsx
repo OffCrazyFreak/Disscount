@@ -13,11 +13,7 @@ interface IFavoriteStoreMarkersProps {
   stores: IListedStore[];
 }
 
-/**
- * A star on the top-left corner of each favourite pin, opposite the count
- * badge. Decorative: the list names favourites in its own group. A favourite
- * inside a stack gets no star, since the stack is drawn somewhere else.
- */
+/** Decorative, because the list names favourites; a stacked favourite is drawn elsewhere. */
 export default function FavoriteStoreMarkers({
   stores,
 }: IFavoriteStoreMarkersProps) {
@@ -44,7 +40,6 @@ export default function FavoriteStoreMarkers({
     );
 }
 
-/** Keys of the stores drawn as their own pin, re-read as stacks change. */
 function useUnstackedKeys() {
   const { current: map } = useMap();
   const [keys, setKeys] = useState<string[]>([]);

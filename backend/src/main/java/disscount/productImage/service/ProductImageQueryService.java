@@ -45,7 +45,6 @@ public class ProductImageQueryService {
         return views.publicView(ean, mainId, images.findByEanOrderByCreatedAtAsc(ean));
     }
 
-    /** Thumbnail of the main photo per EAN, for search results and lists; malformed EANs and EANs without one are left out. */
     @Transactional(readOnly = true)
     public ProductThumbnailsDto thumbnails(List<String> eans) {
         Set<String> unique = new LinkedHashSet<>(eans);
@@ -63,7 +62,6 @@ public class ProductImageQueryService {
         return new ProductThumbnailsDto(result);
     }
 
-    /** Products currently on sale somewhere, for the public product sitemap. */
     @Transactional(readOnly = true)
     public ListedEansDto listedEans() {
         return new ListedEansDto(sets.findListedEans());

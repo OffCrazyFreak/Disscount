@@ -8,7 +8,6 @@ import {
   zagrebClock,
 } from "@/lib/store-hours/zagreb-clock";
 
-/** A growing list that hands back the position of each distinct value. */
 function createTable<T>() {
   const positions = new Map<string, number>();
   const items: T[] = [];

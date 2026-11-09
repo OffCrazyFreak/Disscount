@@ -13,10 +13,7 @@ function capturedSegment(pattern: RegExp, pathname: string): string | null {
   }
 }
 
-/**
- * Read from the path rather than route params, because the chrome that needs
- * these is mounted in the root layout, which has no dynamic segment of its own.
- */
+/** Read from the path because the chrome that needs these is in the root layout, which has no dynamic segment. */
 export function productEanFromPath(pathname: string): string | null {
   return capturedSegment(PRODUCT_PAGE, pathname);
 }

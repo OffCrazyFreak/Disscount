@@ -126,8 +126,8 @@ describe("a navigation landing after the field moved on", () => {
         </>
       );
       const { rerender } = renderWithProviders(searchBarShell(boxes()));
-      const header = screen.getByRole("searchbox", { name: "Header" });
-      const page = screen.getByRole("searchbox", { name: "Page" });
+      const header = screen.getByRole("combobox", { name: "Header" });
+      const page = screen.getByRole("combobox", { name: "Page" });
 
       await user.type(header, "sir{Enter}");
       await user.keyboard("a");

@@ -21,7 +21,6 @@ interface IPriceHistoryChartShellProps {
   children: ReactNode;
 }
 
-// Shared frame; callers supply their own lines, tooltip and Y-axis ticks.
 export default function PriceHistoryChartShell({
   chartData,
   chartConfig,

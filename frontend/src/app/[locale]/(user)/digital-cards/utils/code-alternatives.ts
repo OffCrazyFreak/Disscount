@@ -29,10 +29,7 @@ function validTypesFor(value: string): CodeType[] {
   return types;
 }
 
-/**
- * Other code types that can carry the value, in the order "Ne skenira se?" cycles them:
- * the full ordered list rotated to start just after `current`, with `current` left out.
- */
+/** The list rotates to start after `current`, so "Ne skenira se?" cycles through every other code type in turn. */
 export function codeTypeAlternatives(
   value: string,
   current: CodeType,

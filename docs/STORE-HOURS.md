@@ -14,7 +14,7 @@ How Disscount knows whether a store is open, where the hours come from, and why 
 | Can a Sunday be open by default? | No. Without a dated entry a Sunday is "not confirmed", unless the store is marked exempt (`sundays: "weekly"`)      |
 | Public holidays?                 | Closed by law unless a dated entry says otherwise; the dates come from `date-holidays`                              |
 | When does data go stale?         | Each layer 14 days after its own `verifiedAt` (two missed weekly refreshes); a stale layer counts as unknown        |
-| API                              | `GET /api/cijene/store-hours`, cached an hour, stale-while-revalidate a day                                         |
+| API                              | `GET /api/cijene/store-hours`, cached an hour, stale-while-revalidate a day; not cached until an import succeeds    |
 
 ## 2. The model
 
@@ -202,6 +202,8 @@ dm is not covered: upstream lists dm as a single chain-wide store, so there is n
 - **Trgocentar's sheet lags.** On 2026-11-03 it still showed October; past dates are dropped, so the Sundays simply stay unconfirmed until the new month is up.
 - **Studenac's list page shows only today.** Its hours text depends on the time of day, so the weekly table is read from each store's page.
 - **Changing the payload shape strands cached copies.** The browser's HTTP cache (an hour), the service worker's `cijene-api` cache (7 days) and the persisted React Query cache all hold the previous shape under the same URL and key. The schema refuses a cached response, and a restored persisted entry skips the schema and fails in `select` instead, so either way the hours show as failed until a fresh response lands. A shape change on a live release needs a new URL and a new query key; bumping `CACHE_BUSTER` also discards queued offline writes.
+- **The first import starts on the first request.** Until a template run has succeeded (`finished_at` set and no `last_error`) or while no rows exist, the response says `complete: false` and goes out as `private, no-store`. The service worker skips caching it (`skipNoStore`), and `useStoreHours` treats it as stale at once. The server memo still holds it, because the job clears the memo when it ends. Without that a fresh deploy would cache "every store unconfirmed" for an hour. A failed run turns the answer incomplete until a run succeeds, retries included, because taking the lease leaves `last_error` as the last run wrote it. An answer without the flag counts as incomplete too.
+- **A closing at 24:00 is the end of that day.** `closingAt` returns it as that day's `24:00` (openings keep the next day's `00:00`), not the next day's `00:00`, and the status line passes `time: "midnight"`, which every catalog turns into its own phrase through a select ("u ponoć", "a mezzanotte" rather than "alle"). Owner decision 05.11.2026: "zatvara u ponoć".
 - **`00:00-00:00` is not 24 hours.** Feeds write a closed day that way, so the schema refuses equal `opens` and `closes`; a parser writes a closed day as `[]` and an all-day opening as `00:00` to `24:00`.
 
 ## 11. Future improvements and TODOs

@@ -8,10 +8,8 @@ import {
   downstreamResponseHeaders,
   upstreamRequestHeaders,
 } from "@/lib/backend-proxy/forwarded-headers";
-import {
-  proxyProblem,
-  type ProxyProblemCode,
-} from "@/lib/backend-proxy/proxy-problem";
+import type { SERVER_REPORTED_PROBLEMS } from "@/lib/backend-proxy/proxy-contract";
+import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
 import {
   decideIdentity,
   identityPin,
@@ -20,13 +18,13 @@ import {
 import { mintSessionToken } from "@/lib/backend-proxy/session-token";
 import { appUrl } from "@/lib/env";
 
-// The cap the next.config.ts rewrite had, so a slow upload fails no sooner than before.
+// Generous so a slow upload does not fail early.
 const UPSTREAM_TIMEOUT_MS = 30_000;
 const BODYLESS_STATUSES = new Set([204, 304]);
 
 function reportFailure(
   request: Request,
-  code: ProxyProblemCode,
+  code: (typeof SERVER_REPORTED_PROBLEMS)[number],
   pathRoot: string,
   error: unknown,
 ) {
@@ -37,7 +35,6 @@ function reportFailure(
   return proxyProblem(code, request);
 }
 
-/** The token to forward with (null for an anonymous call), or the refusal to answer with. */
 async function authorize(
   request: Request,
   pathRoot: string,
@@ -58,7 +55,6 @@ async function authorize(
   return { token: session?.token ?? null };
 }
 
-/** Spring's answer, or the proxy's own when Spring gave none. */
 async function forward(
   request: Request,
   url: URL,
@@ -103,7 +99,6 @@ function relay(request: Request, upstream: Response, timing: string) {
   });
 }
 
-/** Forwards one browser call to Spring as the signed-in account, with a token minted here. */
 export async function proxyToBackend(
   request: Request,
   segments: string[],

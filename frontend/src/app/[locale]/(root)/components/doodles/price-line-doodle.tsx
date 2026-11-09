@@ -10,7 +10,6 @@ interface IPriceLineDoodleProps {
   className?: string;
 }
 
-// The line draws left to right, then the arrowhead and flag pop in.
 export default function PriceLineDoodle({ className }: IPriceLineDoodleProps) {
   return (
     <DoodleCanvas viewBox="0 0 120 72" className={className}>

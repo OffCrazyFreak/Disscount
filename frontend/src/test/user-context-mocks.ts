@@ -1,10 +1,6 @@
 import { beforeEach, vi } from "vitest";
 
-/**
- * What this tab's useSession reports; the session cookie on the server differs from it only
- * between a change there and the tab's next poll. Import this file before anything that reaches
- * the mocked modules, so its mocks win. A test file's own vi.mock of one of them would lose.
- */
+/** Import before anything reaching the mocked modules so its mocks win; a test file's own vi.mock of one would lose. */
 export const tab = {
   userId: null as string | null,
   sessionId: "session-1",

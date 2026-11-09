@@ -18,7 +18,6 @@ interface IProductThumbnailViewerProps {
   onClose: () => void;
 }
 
-/** The viewer opened from a list row; it asks for the product's photos only once someone taps one. */
 export default function ProductThumbnailViewer({
   ean,
   productName,
