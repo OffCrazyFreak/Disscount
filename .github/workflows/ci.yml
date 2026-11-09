@@ -221,6 +221,10 @@ jobs:
             exit 1
           fi
 
+      # The whole tree, not just this change, because unused exports, types and files stay at zero.
+      - name: Fallow dead code
+        run: pnpm exec fallow dead-code --unused-exports --unused-types --unused-files --quiet
+
       - name: Translation catalogs
         run: pnpm i18n:check
 
