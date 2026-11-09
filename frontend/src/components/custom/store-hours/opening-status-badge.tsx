@@ -10,8 +10,6 @@ interface IOpeningStatusBadgeProps {
   now: Date;
   /** Lets a row's accessible name include the status. */
   id?: string;
-  /** Inside a card's toggle button, where a second control would nest a button in a button. */
-  isInsideButton?: boolean;
 }
 
 // Orange marks "soon" either way, as the owner decided: an open store about to close and a closed store about to open.
@@ -27,14 +25,13 @@ export default function OpeningStatusBadge({
   status,
   now,
   id,
-  isInsideButton = false,
 }: IOpeningStatusBadgeProps) {
   const describe = useOpeningStatusText();
   const { label, detail, name } = describe(status, now);
   const variant = VARIANTS[status.state];
   const className = "shadow-none sm:shadow-none";
 
-  if (detail && !isInsideButton) {
+  if (detail) {
     return (
       <OpeningStatusDetail id={id} name={name} detail={detail}>
         <Badge variant={variant} className={className}>
@@ -44,20 +41,9 @@ export default function OpeningStatusBadge({
     );
   }
 
-  if (name === label) {
-    return (
-      <Badge id={id} variant={variant} className={className}>
-        {label}
-      </Badge>
-    );
-  }
-
   return (
-    <span id={id} className="inline-flex">
-      <Badge variant={variant} className={className}>
-        <span aria-hidden="true">{label}</span>
-      </Badge>
-      <span className="sr-only">{name}</span>
-    </span>
+    <Badge id={id} variant={variant} className={className}>
+      {label}
+    </Badge>
   );
 }

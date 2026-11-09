@@ -46,7 +46,7 @@ const data: StoreHoursResponse = {
 };
 
 // 2026-11-04 is a Wednesday; Zagreb is UTC+1 in November.
-function renderAt(local: string, storeKey: string, isInsideButton = false) {
+function renderAt(local: string, storeKey: string) {
   const hours: IStoreHoursNow = {
     data,
     holidays: new Set(),
@@ -55,7 +55,7 @@ function renderAt(local: string, storeKey: string, isInsideButton = false) {
 
   return renderWithProviders(
     <StoreHoursProvider hours={hours}>
-      <StoreOpeningBadge storeKey={storeKey} isInsideButton={isInsideButton} />
+      <StoreOpeningBadge storeKey={storeKey} />
     </StoreHoursProvider>,
   );
 }
@@ -123,13 +123,6 @@ describe("StoreOpeningBadge", () => {
         name: "Otvoreno, zatvara sutra u 2:00",
       }),
     ).toBeInTheDocument();
-  });
-
-  it("is plain text inside a card's toggle button", () => {
-    renderAt("2026-11-04T10:00:00", "konzum:1", true);
-
-    expect(screen.queryByRole("button")).not.toBeInTheDocument();
-    expect(screen.getByText("Otvoreno, zatvara u 21:00")).toBeInTheDocument();
   });
 
   it("calls a store with no hours unconfirmed", () => {
