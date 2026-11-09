@@ -9,6 +9,7 @@ import ShareStoreButton from "@/app/[locale]/map/components/share-store-button";
 import StoreOpeningBadge from "@/components/custom/store-hours/store-opening-badge";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { formatDistance } from "@/utils/distance";
+import { formatStoreAddress } from "@/utils/labels";
 import { cn } from "@/lib/utils";
 
 interface IStoreSummaryProps {
@@ -40,8 +41,11 @@ export default function StoreSummary({ row, isOpen, id }: IStoreSummaryProps) {
   const locale = useLocale();
   const { store, chainLabel, cityLabel, distanceKm } = row;
   const isPlaced = store.lat != null && store.lon != null;
-  const place = [store.zipcode, cityLabel].filter(Boolean).join(" ");
-  const address = [store.address, place].filter(Boolean).join(", ");
+  const address = formatStoreAddress({
+    address: store.address,
+    zipcode: store.zipcode,
+    cityLabel,
+  });
   const fit = isOpen ? "break-words" : "truncate";
 
   return (

@@ -5,7 +5,7 @@ import OpeningStatusDetail from "@/components/custom/store-hours/opening-status-
 import { useStoreOpening } from "@/components/custom/store-hours/store-hours-context";
 import { useOpeningStatusText } from "@/components/custom/store-hours/use-opening-status-text";
 import { formatDistance } from "@/utils/distance";
-import { getLocationLabel } from "@/utils/labels";
+import { formatStoreAddress, getLocationLabel } from "@/utils/labels";
 import type { INearestStore } from "@/utils/nearest-chain-distance";
 
 interface INearestStoreDistanceProps {
@@ -23,9 +23,11 @@ export default function NearestStoreDistance({
   const opening = useStoreOpening(nearest.key);
 
   const distance = formatDistance(nearest.km, locale);
-  const address = [nearest.address, getLocationLabel(nearest.city)]
-    .filter(Boolean)
-    .join(", ");
+  const address = formatStoreAddress({
+    address: nearest.address,
+    zipcode: nearest.zipcode,
+    cityLabel: getLocationLabel(nearest.city),
+  });
   // The owner wants only the word here; the times stay on the map and in the price table.
   const state =
     opening && opening.status.state !== "unconfirmed"

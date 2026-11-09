@@ -37,10 +37,12 @@ const NEAREST: INearestStore = {
   key: "konzum:1",
   km: 1.2,
   address: "Ilica 1",
+  zipcode: "10000",
   city: "Zagreb",
 };
 
-const DISTANCE_NAME = "Najbliža trgovina, 1,2 km: Ilica 1, Zagreb, Otvoreno";
+const DISTANCE_NAME =
+  "Najbliža trgovina, 1,2 km: Ilica 1, 10000 Zagreb, Otvoreno";
 
 /** Shared by both chain cards, so `card` must show a chain called Konzum and `DETAILS` once expanded. */
 export function describeChainCard(
@@ -95,7 +97,9 @@ export function describeChainCard(
       await user.tab();
 
       expect(distance()).toHaveFocus();
-      expect(await screen.findByText("Ilica 1, Zagreb")).toBeInTheDocument();
+      expect(
+        await screen.findByText("Ilica 1, 10000 Zagreb"),
+      ).toBeInTheDocument();
     });
 
     it("opens the nearest store on hover with its state and no times", async () => {
@@ -104,7 +108,9 @@ export function describeChainCard(
 
       await user.hover(distance());
 
-      expect(await screen.findByText("Ilica 1, Zagreb")).toBeInTheDocument();
+      expect(
+        await screen.findByText("Ilica 1, 10000 Zagreb"),
+      ).toBeInTheDocument();
       expect(screen.getByText("Otvoreno")).toBeInTheDocument();
       expect(screen.queryByText(/21:00/)).not.toBeInTheDocument();
     });
@@ -118,7 +124,9 @@ export function describeChainCard(
         { keys: "[/TouchA]" },
       ]);
 
-      expect(await screen.findByText("Ilica 1, Zagreb")).toBeInTheDocument();
+      expect(
+        await screen.findByText("Ilica 1, 10000 Zagreb"),
+      ).toBeInTheDocument();
       expect(toggle()).toHaveAttribute("aria-expanded", "false");
     });
 
@@ -127,7 +135,7 @@ export function describeChainCard(
 
       expect(
         screen.getByRole("button", {
-          name: "Najbliža trgovina, 1,2 km: Ilica 1, Zagreb",
+          name: "Najbliža trgovina, 1,2 km: Ilica 1, 10000 Zagreb",
         }),
       ).toBeInTheDocument();
     });

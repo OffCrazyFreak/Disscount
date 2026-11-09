@@ -7,6 +7,7 @@ interface ILocatedStore {
   chain: string;
   code: string;
   address: string | null;
+  zipcode: string | null;
   city: string | null;
   lat: number | null;
   lon: number | null;
@@ -17,6 +18,7 @@ export interface INearestStore {
   key: string;
   km: number;
   address: string | null;
+  zipcode: string | null;
   city: string | null;
 }
 
@@ -37,6 +39,7 @@ export function nearestStoreByChain(
         key: toStoreKey(store.chain, store.code),
         km,
         address: store.address,
+        zipcode: store.zipcode,
         city: store.city,
       });
     }
@@ -62,6 +65,7 @@ export function locatePricedStores(
       chain: price.chain,
       code: price.store.code,
       address: store.address,
+      zipcode: store.zipcode,
       city: store.city,
       lat: store.lat,
       lon: store.lon,

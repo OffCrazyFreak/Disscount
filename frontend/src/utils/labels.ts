@@ -14,3 +14,19 @@ export function getLocationLabel(
 
   return locationNamesMap[city] || city;
 }
+
+interface IStoreAddress {
+  address: string | null;
+  zipcode: string | null;
+  cityLabel: string;
+}
+
+export function formatStoreAddress({
+  address,
+  zipcode,
+  cityLabel,
+}: IStoreAddress): string {
+  const place = [zipcode, cityLabel].filter(Boolean).join(" ");
+
+  return [address, place].filter(Boolean).join(", ");
+}
