@@ -294,7 +294,7 @@ Notes:
 ## Files, scratch and compacting
 
 - Answer in chat; write a file only for findings a later session must reuse or that exceed 60 lines, because this run already holds them.
-- Save kept files as `~/Documents/<project>/research/YYYY-MM-DD-topic.md` or `/plans`, files several sessions share in `/scratch/<task>`, throwaway files in the harness scratchpad, and write nowhere else.
+- Save kept files as `~/Documents/<project>/research/YYYY-MM-DD-topic.md` or `/plans`, files several sessions share in `/scratch/<task>`, throwaway files in the harness scratchpad, and write nowhere else outside the repository.
 - Cleanup files at merge. When clearing T3 scratch, empty a thread's folder and keep the folder itself, because T3 cannot open a thread whose folder is missing.
 - When compacting, keep the open questions, the files changed and the commands that verify them.
 

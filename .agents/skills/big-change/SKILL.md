@@ -35,7 +35,7 @@ Target: $ARGUMENTS
 
    Then ask in a card with the main points and your recommendation. Stop until I answer.
 
-5. Record. Follow the repository's rule for tracking a plan. Keep a plan file in `~/Documents/<project>/plans/YYYY-MM-DD-topic.md` only when the work spans sessions.
+5. Record. Open a tracking issue with the why, my decisions, an ordered PR checklist and open questions. Keep a plan file in `~/Documents/<project>/plans/YYYY-MM-DD-topic.md` only when the work spans sessions.
 
 6. Build. Follow the repository's worktree and branch rules. Give each step to a `coder` with its brief, or write it yourself when the steps depend on each other. Run the step's check before the next one.
 
