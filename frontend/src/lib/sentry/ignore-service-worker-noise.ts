@@ -1,4 +1,4 @@
-/** @serwist/next injects the entry, so no call site can catch these; message and frame must both match. */
+/** SerwistProvider registers inside the library, so no call site of ours can catch these; match message and frame. */
 const NOISE_MESSAGES = [
   // Anchored, because as a substring "Rejected" would also match things like a WAF's "Request Rejected".
   /^Rejected$/,
