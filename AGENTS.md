@@ -79,7 +79,7 @@
 - Fetch and merge the latest `origin/dev` before resuming an open PR.
 - Never run `git checkout -B dev` in a worktree, because it moves the main checkout's branch; branch from `origin/dev` instead.
 - Check the port before starting a dev server in the main checkout; in a worktree, start one only to test your own change.
-- Branches are `<type>/<kebab-description>`; rename T3's `t3/<hex>` branch before the first push.
+- Branches are `<type>/<kebab-description>`.
 
 ## Board
 
