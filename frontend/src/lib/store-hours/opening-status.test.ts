@@ -203,6 +203,39 @@ describe("openingStatusAt", () => {
     expect(status).toMatchObject({ state: "open", closesAt: null });
   });
 
+  it.each(["24:00", "00:00"])(
+    "closes at the end of today when the day closes at %s",
+    (closes) => {
+      const toMidnight = [{ opens: "07:00", closes }];
+      const status = openingStatusAt(
+        hours({ weekly: [day, day, toMidnight, day, day, day, []] }),
+        noHolidays,
+        at("2026-11-04T20:00:00"),
+      );
+
+      expect(status).toMatchObject({
+        state: "open",
+        closesAt: { date: "2026-11-04", time: "24:00" },
+      });
+    },
+  );
+
+  it("names an opening at 00:00 after a closed day by its own day", () => {
+    const allDay = [{ opens: "00:00", closes: "24:00" }];
+    const status = openingStatusAt(
+      hours({
+        weekly: [allDay, allDay, allDay, allDay, allDay, allDay, []],
+        sundays: "weekly",
+      }),
+      noHolidays,
+      at("2026-11-08T10:00:00"),
+    );
+
+    expect(status).toMatchObject({
+      opensAt: { date: "2026-11-09", time: "00:00" },
+    });
+  });
+
   it("joins a day that closes at 24:00 to one that opens at 00:00", () => {
     const status = openingStatusAt(
       hours({

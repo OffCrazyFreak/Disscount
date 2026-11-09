@@ -57,7 +57,8 @@ export function useOpeningStatusText() {
 
     if (!moment) return { label, detail: null, name: label };
 
-    const time = clockOf(moment.time);
+    // The catalogs turn "midnight" into each language's own phrase, such as "u ponoć".
+    const time = moment.time === "24:00" ? "midnight" : clockOf(moment.time);
     const when = t("when", {
       day: dayOf(moment.date, zagrebClock(now).date),
       time,

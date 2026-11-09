@@ -1,0 +1,42 @@
+name: Set up the frontend
+description: Installs pnpm, Node and the frontend dependencies, reading the pnpm store from the Actions cache.
+
+inputs:
+  save-cache:
+    description: "'true' to save the pnpm store when a push misses the cache. One job passes it, so parallel jobs do not race for the same key."
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      with:
+        version: 11.9.0
+
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version: 24
+
+    - id: store
+      shell: bash
+      working-directory: frontend
+      run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+    # No restore-keys: chained partial restores make a store that is never pruned grow without bound.
+    - id: restore
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.store.outputs.path }}
+        key: pnpm-store-${{ runner.os }}-${{ hashFiles('frontend/pnpm-lock.yaml') }}
+
+    - shell: bash
+      working-directory: frontend
+      run: pnpm install --frozen-lockfile
+
+    # Pull requests only read: their caches are private to their merge ref, so nothing else could use them.
+    - if: inputs.save-cache == 'true' && github.event_name == 'push' && steps.restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.store.outputs.path }}
+        key: ${{ steps.restore.outputs.cache-primary-key }}

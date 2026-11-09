@@ -16,7 +16,7 @@ import {
   isGpuError,
 } from "@/app/[locale]/map/utils/webgl-support";
 
-// Under webpack, import.meta.url is the only way to hand MapLibre its worker, or no tile loads.
+// The bundler only emits the worker file when it sees this URL; without it the map never loads a tile.
 maplibregl.setWorkerUrl(
   new URL(
     "maplibre-gl/dist/maplibre-gl-worker.mjs",

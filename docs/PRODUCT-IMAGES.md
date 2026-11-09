@@ -269,6 +269,16 @@ Issue #486 moved photos from R2 to folders on the server, and the disk is now th
 - `R2_PUBLIC_URL` keeps its R2 era name on purpose; the backend reads it as `photos.public-url`.
 - Directory sync works on Linux only, so these stores do not run on Windows.
 
+### Local development
+
+Each environment keeps its own store and database, and none shares one: deletes check only their own database, so a shared store would let one environment delete files another still shows. Locally you can still see dev's product photos without copying the files:
+
+1. In `backend/.env`, set `PHOTO_DIR` and `PUBLIC_PHOTO_DIR` to local folders with `cards/`, `product-originals/` and `products/` inside, and `R2_PUBLIC_URL=https://images-dev.disscount.me`.
+2. Start the backend once on current `dev`, so the local `product_image` table has dev's columns.
+3. Run `scripts/copy-dev-photo-rows.sh`, again whenever dev has new photos. It adds dev's rendered Open Food Facts rows, copying only the columns both databases have, and sets a product's main photo (which search and list thumbnails read) only where local has none; it replaces no local row. Rows a user uploaded, confirmed or deleted never leave dev, nor do rows without the small list file, which the local re-render job would otherwise give local files. It prints how many rows it added.
+
+Photos you upload locally save to the local folder, so they do not display: their URL points at dev's host. The local jobs keep running, and a photo they render shows only when dev rendered the same file, because keys are content hashes.
+
 ---
 
 ## 15. Libraries

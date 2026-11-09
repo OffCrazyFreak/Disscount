@@ -14,7 +14,9 @@ import { croatianHolidaysBetween } from "@/lib/store-hours/croatian-holidays";
 import {
   dueHoursJob,
   runHoursJob,
+  TEMPLATE_LEASE,
 } from "@/lib/store-hours/sync/run-hours-sync";
+import { hasSyncSucceeded } from "@/lib/store-locations/sync/sync-lease";
 
 // Per process: hours change weekly at most, and the Sunday poll lands within the hour.
 const MEMO_MS = 10 * 60 * 1000;
@@ -25,6 +27,7 @@ const JOB_TIMEOUT_MS = 90 * 60 * 1000;
 let memo: { value: CompactStoreHoursResponse; at: number } | null = null;
 let jobRunning = false;
 
+// Until a template run succeeds the set is partial, so it says `complete: false` and nobody may cache it long.
 export async function getStoreHours(): Promise<CompactStoreHoursResponse> {
   after(startHoursJobIfDue);
 
@@ -32,16 +35,22 @@ export async function getStoreHours(): Promise<CompactStoreHoursResponse> {
 
   const now = new Date();
   const window = hoursWindow(now);
+  // Read before the rows, so a run that finishes in between cannot label older rows complete.
+  const succeeded = await hasSyncSucceeded(TEMPLATE_LEASE);
   const [rows, overlays] = await Promise.all([
     db.select().from(storeHours),
     db.select().from(storeHoursOverlay),
   ]);
-  const value = encodeStoreHours({
-    stores: buildStoreHours(rows, overlays, window),
-    holidays: croatianHolidaysBetween(window.from, window.to),
-    generatedAt: now.toISOString(),
-  });
+  const value = {
+    ...encodeStoreHours({
+      stores: buildStoreHours(rows, overlays, window),
+      holidays: croatianHolidaysBetween(window.from, window.to),
+      generatedAt: now.toISOString(),
+    }),
+    complete: succeeded && rows.length > 0,
+  };
 
+  // The job clears the memo when it ends, so an incomplete set is kept no longer than the run.
   memo = { value, at: Date.now() };
 
   return value;

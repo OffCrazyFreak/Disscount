@@ -64,6 +64,8 @@ export const compactStoreHoursResponse = z
     /** Croatian public holidays around today, ISO dates. */
     holidays: z.array(isoDate),
     generatedAt: z.iso.datetime(),
+    /** False until a template import has succeeded: empty or partial, not to be cached. */
+    complete: z.boolean().optional(),
   })
   .refine(
     ({ weeklyTemplates, datedLists, verifiedTimes, checkUrls, stores }) => {

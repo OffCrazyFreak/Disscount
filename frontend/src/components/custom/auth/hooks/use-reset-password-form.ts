@@ -76,10 +76,11 @@ export function useResetPasswordForm(open: boolean) {
     if (error) {
       // Refused before the token is consumed, so the same link still works for a retry.
       if (isPasswordPolicyCode(error.code)) {
-        form.setError("password", {
-          type: "server",
-          message: messageForCode(error.code),
-        });
+        form.setError(
+          "password",
+          { type: "server", message: messageForCode(error.code) },
+          { shouldFocus: true },
+        );
         return;
       }
 

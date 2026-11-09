@@ -8,8 +8,14 @@ function digestOf(error: unknown): string | undefined {
   return typeof error.digest === "string" ? error.digest : undefined;
 }
 
-/** The digest links a server-rendered error to its server-side event, so it goes in as a tag. */
-export function captureBoundaryError(error: unknown) {
+/** The digest links a server error to its event; only componentDidCatch sees the component stack. */
+export function captureBoundaryError(error: unknown, componentStack?: string) {
   const digest = digestOf(error);
-  Sentry.captureException(error, digest ? { tags: { digest } } : undefined);
+  const hint = digest ? { tags: { digest } } : undefined;
+
+  if (componentStack) {
+    Sentry.captureReactException(error, { componentStack }, hint);
+  } else {
+    Sentry.captureException(error, hint);
+  }
 }

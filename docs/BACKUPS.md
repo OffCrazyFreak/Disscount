@@ -2,7 +2,7 @@
 
 How production data is copied off the server: the database, user photos and Dokploy's own configuration, encrypted, to one Cloudflare R2 bucket, plus the erasure markers that keep a restore from bringing deleted accounts back. The plan and its decisions are tracked in [#486](https://github.com/OffCrazyFreak/Disscount/issues/486); the research behind where the jobs run is summarised under [Why a sidecar](#why-a-sidecar).
 
-> ⚠️ **Status:** the sidecar is built but not running anywhere yet. It starts on production once production deploys from `docker-compose.images.yml` (#74) and the owner steps below are done. Until then, the Dokploy backups described in [INFRASTRUCTURE.md](INFRASTRUCTURE.md) are the only ones.
+> ⚠️ **Status:** the sidecar is built but not running anywhere yet. It starts on production once production deploys from `docker-compose.images.yml` (#74) and the owner steps below are done. Until then, the only backup is the 7 day local dump schedule described in [INFRASTRUCTURE.md](INFRASTRUCTURE.md); the Dokploy R2 backups were removed on 05.11.2026.
 
 ## What it is
 
@@ -14,13 +14,13 @@ The jobs only ever add files to the bucket. Deleting old backups is left to R2 l
 
 Times are UTC.
 
-| Job               | When         | What                                                                                     | Kept in R2              |
-| ----------------- | ------------ | ---------------------------------------------------------------------------------------- | ----------------------- |
-| `db-hourly`       | minute 17    | `pg_dump` of the app database, age-encrypted                                             | 2 days (about 48 dumps) |
-| `db-nightly`      | 01:47        | the same dump plus role globals, then a scratch restore that checks the user count       | 30 days                 |
-| `photos`          | minute 37    | new card photos, product originals and public product photos, through rclone crypt       | 30 days per file        |
-| `dokploy`         | 02:27        | Dokploy's own database and `/etc/dokploy` (without cloned repositories and deploy logs)  | 30 days                 |
-| `erasure-markers` | every minute | one marker per account erased in the last 30 days, see [Erasure replay](#erasure-replay) | 30 days                 |
+| Job               | When         | What                                                                                                                                         | Kept in R2              |
+| ----------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| `db-hourly`       | minute 17    | `pg_dump` of the app database, age-encrypted                                                                                                 | 2 days (about 48 dumps) |
+| `db-nightly`      | 01:47        | the same dump plus role globals, uploaded only after a scratch restore checks the user count; a failed restore leaves that night without one | 30 days                 |
+| `photos`          | minute 37    | new card photos, product originals and public product photos, through rclone crypt                                                           | 30 days per file        |
+| `dokploy`         | 02:27        | Dokploy's own database and `/etc/dokploy` (without cloned repositories and deploy logs)                                                      | 30 days                 |
+| `erasure-markers` | every minute | one marker per account erased in the last 30 days, see [Erasure replay](#erasure-replay)                                                     | 30 days                 |
 
 **Photo generations.** Photos are copied into a folder `gen-<n>`, where `n` is the number of whole 14-day periods since 1 January 1970. The first run in a new generation copies every photo, later runs only new files. Each file is deleted 30 days after it was copied, so two or three generations exist (at least two complete) as long as the job keeps running, and an erased photo leaves the backup within about 31 days (R2 deletes expired objects within about a day).
 
@@ -41,9 +41,9 @@ A lock blocks every deletion until it ends, lifecycle rules included, so each pr
 - `backup/Dockerfile`: `postgres:17-alpine` pinned by digest (same major as the `db` service, so the dump and the scratch restore match it) plus `rclone`, `age`, `openssl` (the marker HMAC), `bash`, `curl`, `tar`, `flock` and supercronic, whose download is checked against its published SHA-1. The digest pins the Alpine release, so rclone and age only change through a reviewed digest bump.
 - `backup/crontab`: the schedule.
 - `backup/bin/backup-entrypoint`: reads the secrets under `/run/secrets`, refuses to start if a required setting is missing, and configures rclone from environment variables (an S3 remote `r2` and a crypt remote `photos` on top of it).
-- `backup/bin/backup-job`: one job per call. Each job takes a lock (a second run while one is going is skipped), pings healthchecks.io at start, success and failure, writes to a temp folder, and uploads only finished, non-empty files. The ping body carries only the job's own summary lines (file names, sizes, counts), never tool output, which can quote database rows; full output is in the container log.
+- `backup/bin/backup-job`: one job per call. Each job takes a lock (a second run while one is going is skipped), pings healthchecks.io at start, success and failure, writes to a temp folder, and uploads only finished files; database dumps must also be non-empty and readable. Each successful `erasure-markers` run (every minute) touches `/tmp/backup-heartbeat`, and the container's healthcheck turns unhealthy when it has not succeeded for 5 minutes. The other jobs report through healthchecks.io. The ping body carries only the job's own summary lines (file names, sizes, counts), never tool output, which can quote database rows; full output is in the container log.
 - `docker-compose.images.yml`: the `backup` service, the `photos-private` and `photos-public` volumes, and the secrets.
-- `.github/workflows/ci.yml` and `.github/actions/dokploy-deploy/action.yml`: build and tag the image.
+- `.github/workflows/ci.yml` and `.github/actions/dokploy-deploy/deploy.sh`: build and tag the image.
 
 ## Configuration
 
@@ -77,9 +77,8 @@ The app database settings (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`) 
 2. **Bucket Lock rules** per prefix, from the table above: `db/hourly/` 2 days; `db/nightly/`, `photos/`, `dokploy/` and `_erasures/` 28 days. Cloudflare docs: [bucket locks](https://developers.cloudflare.com/r2/buckets/bucket-locks/).
 3. **Lifecycle rules** per prefix: `db/hourly/` delete after 2 days; the other four after 30 days. Cloudflare docs: [object lifecycles](https://developers.cloudflare.com/r2/buckets/object-lifecycles/).
 4. **Keys:** generate an age key pair (`age-keygen`), two long random strings for the crypt password and salt, and the erasure marker key (`openssl rand -hex 32`); store all four offline.
-5. **healthchecks.io:** create a project and copy its ping key. The five checks (`disscount-db-hourly`, `disscount-db-nightly`, `disscount-photos`, `disscount-dokploy`, `disscount-erasure-markers`) create themselves on the first ping; then set each one's period to match the schedule (1 hour, 1 day, 1 hour, 1 day, 1 minute) with a grace time, and turn on email alerts. Docs: [HTTP API](https://healthchecks.io/docs/http_api/).
-6. **GHCR:** after CI first pushes `disscount-backup`, make the package public like the other three, so the server can pull it without credentials.
-7. **Dokploy:** set the variables above on the production compose service and redeploy.
+5. **healthchecks.io:** create a project and copy its ping key. Create the five checks by hand before the profile goes on (`disscount-db-hourly`, `disscount-db-nightly`, `disscount-photos`, `disscount-dokploy`, `disscount-erasure-markers`), because a container that never starts never pings, and a check that does not exist cannot go down. Set each one's period to match the schedule (1 hour, 1 day, 1 hour, 1 day, 1 minute) with a grace time, and turn on email alerts. Docs: [HTTP API](https://healthchecks.io/docs/http_api/).
+6. **Dokploy:** set the variables above on the production compose service and redeploy.
 
 ## Restore
 
@@ -126,14 +125,13 @@ Researched 4 November 2026 and decided by the owner. Dokploy schedules were reje
 
 - **Dev is not backed up** by decision; it never sets `COMPOSE_PROFILES=backup`, so the service does not exist there.
 - **Rollback:** commits from before the backup image have none, so the deploy action leaves the backup tag where it is when rolling back to one.
-- **A deploy replaces the container.** supercronic waits for a running job on shutdown, and `stop_grace_period` is 10 minutes; a job cut off anyway fails its ping and the next run starts clean.
+- **A deploy replaces the container.** supercronic waits for a running job on shutdown, and `stop_grace_period` is 10 minutes; a job Docker kills after that cannot ping or clean up, so healthchecks.io marks it down once its period and grace pass, and the next run starts clean.
 - **The container runs as root** to read `/etc/dokploy`, which holds root-only SSH keys. It mounts nothing writable from the host and has no Docker socket. The scratch restore runs as `postgres`.
 - **Photo volumes:** in `docker-compose.images.yml` the backend and the backup sidecar mount the same `photos-private` and `photos-public` volumes, so every photo the backend writes on disk is in the hourly copy. Before photos move to disk (`PHOTO_DIR` and `PUBLIC_PHOTO_DIR` blank) the volumes are empty; the job then copies nothing and still succeeds. A missing mount fails the job.
-- **Dokploy backups are older than the markers cover.** Until they retire, the Dokploy Backups tab keeps dumps for 60 days. Markers cover only the last 30, so restoring one of those older dumps also needs the `erasure_ledger` rows of the newest sidecar dump erased by hand. Prefer a sidecar dump.
+- **Run a job by hand through the entrypoint:** `docker exec <backup container> backup-entrypoint backup-job db-nightly`. A plain `docker exec ... backup-job` lacks the settings the entrypoint loads from `/run/secrets`.
 - **The first copy of a generation is the slow one.** Small files are bound by upload latency, so the job uploads 32 at a time. Measured from the dev server into a throwaway drill bucket on 04.11.2026: 11 files a second with rclone's default 4, 46 with 16 and 93 with 32, so dev's 61,000 photo files take about 11 minutes. Over about 330,000 files the first copy passes an hour, and a deploy can cut it off; the next run carries on where it stopped. While it runs, the hourly photo runs skip.
 - **Bucket Lock means no fixing mistakes by deleting:** a bad upload stays until its lock ends. Test changes on a separate bucket.
 
 ## Future work
 
-- Retire the Dokploy Backups tab job and the Web Server backup once this has run cleanly for a week (#486).
 - The dump before every production migration reuses this image (#74).

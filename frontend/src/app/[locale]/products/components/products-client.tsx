@@ -12,6 +12,7 @@ import ProductsResultsStatus from "@/app/[locale]/products/components/products-r
 import ProductsResultsTitle from "@/app/[locale]/products/components/products-results-title";
 import { Suspense } from "react";
 import ProductSearchBar from "@/components/custom/search/product-search-bar";
+import { useRecordProductSearch } from "@/components/custom/search/use-record-product-search";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import { Banner } from "@/components/custom/common/banner";
 
@@ -63,6 +64,7 @@ export default function ProductsClient({ query }: IProductsClientProps) {
   const isPending = isLoading || waitingForLocations;
   const isSettled = !isPending && !isRefreshing;
   const pageError = error || locationsError;
+  useRecordProductSearch(query, isSettled && !pageError && total > 0);
   const showPartialPricesBanner =
     hasPartialPriceData && !isPending && !pageError;
 

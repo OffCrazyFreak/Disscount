@@ -2,7 +2,7 @@ import type { StoreHoursDto } from "@/lib/api/schemas";
 import { hoursOnDate } from "@/lib/store-hours/hours-on-date";
 import { addDays, zagrebClock } from "@/lib/store-hours/zagreb-clock";
 
-/** A wall-clock moment in Zagreb. */
+/** A wall-clock moment in Zagreb; a closing at "24:00" means the end of `date`. */
 export interface IClockMoment {
   date: string;
   time: string;
@@ -73,10 +73,18 @@ function spansAround(
 
 function momentAt(today: string, minutes: number): IClockMoment {
   const days = Math.floor(minutes / DAY);
+
   const rest = minutes - days * DAY;
   const time = `${String(Math.floor(rest / 60)).padStart(2, "0")}:${String(rest % 60).padStart(2, "0")}`;
 
   return { date: addDays(today, days), time };
+}
+
+// A closing on a day boundary ends that day, so it reads "at midnight", not "tomorrow at 0:00".
+function closingAt(today: string, minutes: number): IClockMoment {
+  if (minutes % DAY !== 0) return momentAt(today, minutes);
+
+  return { date: addDays(today, minutes / DAY - 1), time: "24:00" };
 }
 
 // Back-to-back intervals (24:00 then 00:00) are one opening, not two.
@@ -108,7 +116,7 @@ export function openingStatusAt(
 
     return {
       state: end - now <= SOON_MINUTES ? "closing-soon" : "open",
-      closesAt: aroundTheClock ? null : momentAt(today, end),
+      closesAt: aroundTheClock ? null : closingAt(today, end),
       asOf: asOf ?? hours.verifiedAt,
     };
   }

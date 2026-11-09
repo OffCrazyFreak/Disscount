@@ -22,6 +22,7 @@ export function useStoreHours({ enabled = true }: { enabled?: boolean } = {}) {
     queryFn: getStoreHours,
     // The cache keeps the compact form because the persister rewrites the whole cache as JSON on every save.
     select: decodeStoreHours,
-    staleTime: 60 * 60 * 1000,
+    // Only a set the server marks complete is kept for the hour; anything else is asked again.
+    staleTime: ({ state }) => (state.data?.complete ? 60 * 60 * 1000 : 0),
   });
 }

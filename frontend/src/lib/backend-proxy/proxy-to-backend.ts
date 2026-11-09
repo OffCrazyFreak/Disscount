@@ -8,10 +8,8 @@ import {
   downstreamResponseHeaders,
   upstreamRequestHeaders,
 } from "@/lib/backend-proxy/forwarded-headers";
-import {
-  proxyProblem,
-  type ProxyProblemCode,
-} from "@/lib/backend-proxy/proxy-problem";
+import type { SERVER_REPORTED_PROBLEMS } from "@/lib/backend-proxy/proxy-contract";
+import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
 import {
   decideIdentity,
   identityPin,
@@ -26,7 +24,7 @@ const BODYLESS_STATUSES = new Set([204, 304]);
 
 function reportFailure(
   request: Request,
-  code: ProxyProblemCode,
+  code: (typeof SERVER_REPORTED_PROBLEMS)[number],
   pathRoot: string,
   error: unknown,
 ) {

@@ -9,7 +9,7 @@ import SearchActionButton from "@/components/custom/search/search-action-button"
 import {
   dismissTouchKeyboard,
   isTouchPointer,
-} from "@/components/custom/search/dismiss-touch-keyboard";
+} from "@/utils/browser/touch-keyboard";
 import { useSearchBarQuery } from "@/components/custom/search/use-search-bar-query";
 import { useSearchNavigation } from "@/hooks/use-search-navigation";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -28,6 +28,8 @@ export interface ISearchBarProps extends ISearchBarFieldOptions {
   draftStore?: ISearchDraftStore;
   /** Updates `q` in place, without a server render, keeping the hash */
   shallow?: boolean;
+  /** Offers searches to run under the field, from what is on this device */
+  suggestions?: boolean;
   /** Fires once a search or a scan has navigated away */
   onSubmitted?: (query: string) => void;
 }
@@ -40,6 +42,7 @@ export default function SearchBar({
   submitLabel: submitLabelProp,
   formId,
   draftStore,
+  suggestions = false,
   onSubmitted,
   shallow = false,
   ...field
@@ -83,6 +86,14 @@ export default function SearchBar({
     if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
     // Enter on the clear or scan button is that button's own click.
     if (!(event.target instanceof HTMLInputElement)) return;
+
+    // Implicit submit needs a single field, and the suggestion list adds a hidden one.
+    if (suggestions && !hasSearchButton) {
+      event.preventDefault();
+      event.currentTarget.requestSubmit();
+      return;
+    }
+
     if (!hasSearchButton || !isUnchanged(queryValue)) return;
     if (!isTouchPointer()) return;
 
@@ -122,6 +133,9 @@ export default function SearchBar({
           disabled={disabled}
           onClear={handleClear}
           onScanned={handleScan}
+          onPickSuggestion={
+            suggestions ? (query) => submit({ query }) : undefined
+          }
         />
 
         {submitButtonLocation !== "none" && (

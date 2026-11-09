@@ -36,7 +36,7 @@ describe("ProductsSheetSubmit", () => {
 
     expect(submit).toBeDisabled();
 
-    await user.type(screen.getByRole("searchbox", { name: "Page" }), "kruh");
+    await user.type(screen.getByRole("combobox", { name: "Page" }), "kruh");
 
     expect(submit).toBeEnabled();
   });

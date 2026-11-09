@@ -27,7 +27,11 @@ function ProductBoxes() {
 }
 
 function field(name: string) {
-  return screen.getByRole("searchbox", { name });
+  return screen.getByRole("combobox", { name });
+}
+
+function localField() {
+  return screen.getByRole("searchbox", { name: "Watchlist" });
 }
 
 function pageButton() {
@@ -210,7 +214,7 @@ describe("ProductSearchBar", () => {
 
       await user.type(field("Header"), "kruh");
 
-      expect(field("Watchlist")).toHaveValue("");
+      expect(localField()).toHaveValue("");
       expect(router.replace).not.toHaveBeenCalled();
     });
 
@@ -218,7 +222,7 @@ describe("ProductSearchBar", () => {
       const user = userEvent.setup();
       renderWithFilter();
 
-      await user.type(field("Watchlist"), "cok");
+      await user.type(localField(), "cok");
 
       expect(field("Header")).toHaveValue("");
       expect(router.replace).toHaveBeenLastCalledWith("/watchlist?q=cok");

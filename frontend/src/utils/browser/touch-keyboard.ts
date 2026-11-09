@@ -3,7 +3,12 @@ export function dismissTouchKeyboard(): void {
   if (!isTouchPointer()) return;
 
   const focused = document.activeElement;
-  if (focused instanceof HTMLInputElement) focused.blur();
+  if (
+    focused instanceof HTMLInputElement ||
+    focused instanceof HTMLTextAreaElement
+  ) {
+    focused.blur();
+  }
 }
 
 export function isTouchPointer(): boolean {

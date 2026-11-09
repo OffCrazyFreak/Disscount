@@ -9,3 +9,10 @@ export const USER_HEADER = "X-Disscount-User";
 
 /** The proxy's answer when the session cookie names a different account than the tab. */
 export const SESSION_CHANGED = "session_changed";
+
+/** The proxy's failures it reports to Sentry itself, so the browser does not report them again. */
+export const SERVER_REPORTED_PROBLEMS = [
+  "auth_unavailable",
+  "backend_unavailable",
+  "backend_timeout",
+] as const;

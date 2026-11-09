@@ -2,7 +2,10 @@ import { isAxiosError } from "axios";
 import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
-import { SESSION_CHANGED } from "@/lib/backend-proxy/proxy-contract";
+import {
+  SERVER_REPORTED_PROBLEMS,
+  SESSION_CHANGED,
+} from "@/lib/backend-proxy/proxy-contract";
 
 const problemDetailsSchema = z.object({
   type: z.string().optional(),
@@ -30,6 +33,12 @@ export function isSessionChanged(error: unknown): boolean {
     error.response?.status === 401 &&
     parseProblem(error)?.code === SESSION_CHANGED
   );
+}
+
+/** The proxy answered with a failure it already reported to Sentry, with better tags than the browser has. */
+export function isReportedByProxy(error: unknown): boolean {
+  const code = parseProblem(error)?.code;
+  return SERVER_REPORTED_PROBLEMS.some((reported) => reported === code);
 }
 
 export function problemMessage(error: unknown, fallback: string): string {

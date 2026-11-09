@@ -58,12 +58,20 @@ export default function useBottomNavPointer({
       );
       if (index === null) return;
 
+      // Capture first: a gone or synthetic pointer throws NotFoundError, and nothing undoes earlier state.
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "NotFoundError")
+          return;
+        throw error;
+      }
+
       pointerId.current = event.pointerId;
       pressedIndex.current = index;
       origin.current = { x: event.clientX, y: event.clientY };
       consumed.current = false;
       setScrubIndex(index);
-      event.currentTarget.setPointerCapture(event.pointerId);
 
       const action = latest.current.holdFor(index);
       if (!action) return;

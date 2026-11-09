@@ -104,6 +104,8 @@ The price data routes under `/api/cijene/` build every error with the same helpe
 
 Sentry events carry only the tags `flow: backend-proxy`, `proxyFailure` and `pathRoot` (the first segment). Deeper segments hold list and card ids, and headers carry the session, so neither goes in.
 
+The browser's query cache (`lib/api/query-client-defaults.ts`) reports every 5xx too, except the three codes marked "yes" above: `isReportedByProxy` skips them because the proxy already sent a better-tagged event for the same failure. The list lives once, as `SERVER_REPORTED_PROBLEMS` in `proxy-contract.ts`, and `reportFailure` accepts only those codes. A 502 from Spring itself or a Cijene `upstream_unavailable` still reports from the browser.
+
 `lib/offline/failure-policy.ts` treats 401 and every 5xx as "keep", so a queued offline write survives every proxy failure.
 
 ---
@@ -146,7 +148,7 @@ No environment variable of its own. The proxy reads `NEXT_PUBLIC_API_URL` throug
 | Backend token life    | `BACKEND_TOKEN_TTL_MINUTES` in `constants/auth.ts` | 10 minutes (P3 of #430 shortens it)                      |
 | `set-auth-jwt` header | `disableSettingJwtHeader` in `lib/auth/index.ts`   | off, so session polls no longer hand the browser a token |
 
-Libraries (from `frontend/package.json`): `next` 16.4.5 (route handlers), `better-auth` 1.7.15 (`auth.api.getToken`, the jwt plugin), `axios` ^1.13.2 (the client), `@sentry/nextjs` ^10.62.0, `@serwist/next` ^9.5.11 (the service worker). No new dependency.
+Libraries (from `frontend/package.json`): `next` 16.4.5 (route handlers), `better-auth` 1.7.15 (`auth.api.getToken`, the jwt plugin), `axios` ^1.13.2 (the client), `@sentry/nextjs` ^11.10.0, `@serwist/next` ^9.5.11 (the service worker). No new dependency.
 
 The service worker (`app/sw.ts`) needs no change: its `NetworkOnly` rule for every same-origin `/api/` path sits above Serwist's default cache, and Serwist ignores `Cache-Control`, so that rule, not the proxy's `no-store`, is what keeps account data out of Cache Storage. Only `/api/cijene/*` is cached, and `cijene` is not a backend root.
 
