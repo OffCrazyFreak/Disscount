@@ -1,7 +1,6 @@
 ---
 name: big-change
 description: Proposes a large research-backed restructure, then carries out only the approved plan in one PR of many reversible commits.
-disable-model-invocation: true
 argument-hint: "[what is wrong or what to restructure]"
 ---
 

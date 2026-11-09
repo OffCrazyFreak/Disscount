@@ -115,7 +115,7 @@
 - Vary sentence length and avoid stacked fragments ("Brže. Jednostavnije. Pametnije.").
 - Write prose; skip bold-lead bullets and emojis.
 - Cut trailing "..., highlighting ..." clauses.
-- Use no em or en dashes.
+- Use no em or en dashes anywhere: chat, code, comments, docs, commits and PRs.
 
 ### Markdown and dates
 
@@ -280,9 +280,7 @@ Notes:
 
 ### Waiting
 
-- While agents, CI or other background work run, keep working with me: plan the next work, ask its questions, or continue independent tasks.
-
-- When agents or CI run, end your turn and wake on the completion notice, with one long fallback and no recurring timer.
+- While agents or CI run, keep working with me (plan, ask, independent tasks); when nothing is left, end your turn and wake on the completion notice, with one long fallback and no recurring timer.
 
 ### As a delegate
 
