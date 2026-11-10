@@ -138,10 +138,10 @@ Worth knowing before changing any of this:
 
 | Area          | Path                                                                            |
 | ------------- | ------------------------------------------------------------------------------- |
-| Access rule   | `backend/.../shoppingList/service/ShoppingListAccessService.java`               |
-| Redaction     | `backend/.../shoppingList/service/ShoppingListMapper.java`                      |
-| Optional auth | `backend/.../config/OptionalBearerAuthenticationFilter.java`                    |
-| Route matcher | `backend/.../config/UuidScopedRequestMatcher.java`                              |
+| Access rule   | `backend/.../shoppinglist/ShoppingListAccessService.java`                       |
+| Redaction     | `backend/.../shoppinglist/ShoppingListMapper.java`                              |
+| Optional auth | `backend/.../security/OptionalBearerAuthenticationFilter.java`                  |
+| Route matcher | `backend/.../security/UuidScopedRequestMatcher.java`                            |
 | Optimism      | `frontend/src/lib/api/shopping-lists/optimistic-list.ts`                        |
 | Live polling  | `frontend/src/lib/api/shopping-lists/shared-list-polling.ts`                    |
 | Cache purge   | `frontend/src/lib/offline/purge.ts`                                             |

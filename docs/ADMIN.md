@@ -148,11 +148,11 @@ Swagger lists them all at `/api-docs`.
 
 ## 10. Key files
 
-| Path                                                            | Role                                                                       |
-| --------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| `frontend/src/lib/api/schemas/auth-user.ts`                     | `canAccessDashboard`, `isAdmin`                                            |
-| `backend/src/main/java/disscount/user/service/UserService.java` | `isActiveAdmin`, `findAllActive`, `updateAccountType`, `deleteUserAsAdmin` |
-| `backend/src/main/java/disscount/user/dao/AuthIdentityDao.java` | Reads and deletes better-auth rows from Spring                             |
+| Path                                                        | Role                                                                       |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `frontend/src/lib/api/schemas/auth-user.ts`                 | `canAccessDashboard`, `isAdmin`                                            |
+| `backend/src/main/java/disscount/user/UserService.java`     | `isActiveAdmin`, `findAllActive`, `updateAccountType`, `deleteUserAsAdmin` |
+| `backend/src/main/java/disscount/user/AuthIdentityDao.java` | Reads and deletes better-auth rows from Spring                             |
 
 ---
 

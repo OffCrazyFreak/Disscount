@@ -191,7 +191,7 @@ flowchart LR
 
 ## 10. Data model
 
-Entities in `backend/.../productImage/domain/`. Tables are created by Hibernate `ddl-auto=update`.
+Entities in `backend/.../productimage/`. Tables are created by Hibernate `ddl-auto=update`.
 
 | Table                      | Key columns                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -222,7 +222,7 @@ Not covered by tests: durability of the disk stores across a power cut (the sync
 
 | File                                                            | What                                                                                     |
 | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `backend/.../storage/AtomicFileStore.java`                      | Key validation and atomic writes shared by every disk store                              |
+| `backend/.../shared/AtomicFileStore.java`                       | Key validation and atomic writes shared by every disk store                              |
 | `frontend/src/app/[locale]/products/components/product-photos/` | The product page gallery and strip; `../product-overview.tsx` lays it out with the facts |
 | `frontend/src/app/og/products/[ean]/[file]/route.tsx`           | The share card route: fallbacks and redirects                                            |
 | `frontend/src/app/og/render-product-og.tsx`                     | The share card layout, JPEG encoding and cache header                                    |

@@ -47,7 +47,7 @@ Product data itself (the proxy, caching, the product page) is covered in [PRODUC
 
 ## 3. Storage and API
 
-The backend stores the rule and never a price. Entity `WatchlistItem` (`backend/src/main/java/disscount/watchlistItem/domain/WatchlistItem.java`), table `watchlist_item`:
+The backend stores the rule and never a price. Entity `WatchlistItem` (`backend/src/main/java/disscount/watchlist/WatchlistItem.java`), table `watchlist_item`:
 
 | Column                     | Meaning                                                              |
 | -------------------------- | -------------------------------------------------------------------- |
