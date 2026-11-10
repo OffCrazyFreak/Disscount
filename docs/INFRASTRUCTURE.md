@@ -265,6 +265,30 @@ The app check works on its own, but these owner steps finish the job. Steps 1 an
 
 > ⚠️ **Since step 1, new subdomains need DNS-01 certificates.** Let's Encrypt's HTTP-01 check connects from its own servers, which the firewall then refuses, so the grey-cloud trick in [§6](#6-domains-dns--https) stops working. Set up the Cloudflare DNS-01 challenge in Traefik (see [TODOs](#14-future-improvements--todos)) before adding a domain. Renewals for the proxied domains still reach the origin through Cloudflare, but watch the first one after the change.
 
+### Container privileges
+
+Every service in `docker-compose.images.yml` merges the `x-hardened` block at the top of the file: `cap_drop: [ALL]` removes every Linux capability (the root powers the kernel hands out one by one), and `no-new-privileges` stops a process from gaining more through a setuid binary such as `su`. A service then adds back only the capabilities its own startup or job uses, and `pids_limit` caps how many processes and threads it can start, so a runaway fork or thread leak stops at the container ([#365](https://github.com/OffCrazyFreak/Disscount/issues/365)). `docker-compose.prod.yml` stays unhardened until it is deleted.
+
+| Service          | Adds back                                             | Why                                                                                                                                                                  | `pids_limit`            |
+| ---------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| `backend`        | nothing                                               | Runs as uid 1001 from the start.                                                                                                                                     | 512                     |
+| `frontend`       | nothing                                               | Runs as a non-root user from the start.                                                                                                                              | 256                     |
+| `migrate`        | nothing                                               | Only talks to the database.                                                                                                                                          | 128                     |
+| `predeploy-dump` | nothing                                               | Its root process only reads its own secrets and writes to `/tmp`; tested with every capability dropped.                                                              | 128                     |
+| `db`             | `CHOWN`, `DAC_OVERRIDE`, `FOWNER`, `SETGID`, `SETUID` | Postgres starts as root, fixes the data folder's owner and mode, then switches to the `postgres` user.                                                               | 256                     |
+| `images`         | `CHOWN`, `SETUID`, `SETGID`                           | The nginx master starts as root, owns its cache folders and runs its workers as `nginx`. Port 80 needs no capability, because Docker lets containers bind low ports. | 128                     |
+| `photo-folders`  | `CHOWN`, `FOWNER`, `DAC_OVERRIDE`                     | Creates the photo folders, hands them to uid 1001 and sets their mode; on later runs it enters the 0700 folders it no longer owns.                                   | none, one shell command |
+| `backup`         | `CHOWN`, `FOWNER`, `DAC_OVERRIDE`, `SETUID`, `SETGID` | Root reads the 0700 photo folders and the 0600 files in `/etc/dokploy`; the nightly scratch restore hands its folder to `postgres` and runs as it through `gosu`.    | 512                     |
+
+To check a running container, run this on the server (container names come from `docker ps`):
+
+```bash
+docker inspect <container> --format '{{.HostConfig.CapDrop}} {{.HostConfig.CapAdd}} {{.HostConfig.SecurityOpt}} {{.HostConfig.PidsLimit}}'
+# [ALL] [CAP_CHOWN CAP_SETGID CAP_SETUID] [no-new-privileges:true] 128
+```
+
+A service that fails with `Operation not permitted` after an image change most likely needs one capability more. Add that one to its `cap_add`, never drop the anchor.
+
 ### Nightly updates and reboots
 
 Every night at **01:30 UTC** (plus a random delay of up to 10 minutes) unattended-upgrades installs security updates. If any update needs a reboot, a new kernel for example, it writes `/var/run/reboot-required` and the server reboots straight after the run. The sites drop for about a minute; the Dokploy panel takes a minute longer. The slot sits before the 02:00 to 04:00 backups in [§8](#8-backups--restore), so a reboot never cuts one off.
