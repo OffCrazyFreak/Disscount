@@ -19,8 +19,8 @@ interface IOpeningStatusDetailProps {
   id?: string;
   /** The full status, such as "Otvoreno, zatvara uskoro u 21:00". */
   name: string;
-  /** The tooltip line, such as "Zatvara u 21:00". */
-  detail: string;
+  /** The tooltip, such as "Zatvara u 21:00". */
+  detail: ReactNode;
   children: ReactNode;
 }
 
@@ -57,7 +57,7 @@ export default function OpeningStatusDetail({
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        {/* Above a row's full-size toggle, with a tap area larger than the badge. */}
+        {/* Above a row's full-size toggle; the tap area grows only upwards and down, clear of the name beside it. */}
         <button
           type="button"
           id={id}
@@ -68,7 +68,7 @@ export default function OpeningStatusDetail({
           onFocus={focus}
           onBlur={() => setIsOpen(false)}
           onClick={click}
-          className="relative z-10 inline-flex cursor-pointer rounded-full after:absolute after:-inset-x-2 after:-inset-y-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          className="relative z-10 inline-flex cursor-pointer rounded-full after:absolute after:inset-x-0 after:-inset-y-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           {children}
         </button>
@@ -78,7 +78,7 @@ export default function OpeningStatusDetail({
         side="top"
         onOpenAutoFocus={keepFocus}
         onCloseAutoFocus={keepFocus}
-        className="w-auto px-2 py-1 text-xs"
+        className="w-auto max-w-64 px-2 py-1 text-xs"
       >
         {detail}
       </PopoverContent>

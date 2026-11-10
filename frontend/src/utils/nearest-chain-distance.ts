@@ -6,6 +6,9 @@ import { toStoreKey } from "@/utils/store-key";
 interface ILocatedStore {
   chain: string;
   code: string;
+  address: string | null;
+  zipcode: string | null;
+  city: string | null;
   lat: number | null;
   lon: number | null;
 }
@@ -14,6 +17,9 @@ export interface INearestStore {
   /** `chain:code`, as `toStoreKey` builds it. */
   key: string;
   km: number;
+  address: string | null;
+  zipcode: string | null;
+  city: string | null;
 }
 
 export function nearestStoreByChain(
@@ -32,6 +38,9 @@ export function nearestStoreByChain(
       nearest.set(store.chain, {
         key: toStoreKey(store.chain, store.code),
         km,
+        address: store.address,
+        zipcode: store.zipcode,
+        city: store.city,
       });
     }
   }
@@ -50,12 +59,16 @@ export function locatePricedStores(
 
   return prices.map((price) => {
     const listed = byKey.get(toStoreKey(price.chain, price.store.code));
+    const store = listed ?? price.store;
 
     return {
       chain: price.chain,
       code: price.store.code,
-      lat: listed ? listed.lat : price.store.lat,
-      lon: listed ? listed.lon : price.store.lon,
+      address: store.address,
+      zipcode: store.zipcode,
+      city: store.city,
+      lat: store.lat,
+      lon: store.lon,
     };
   });
 }

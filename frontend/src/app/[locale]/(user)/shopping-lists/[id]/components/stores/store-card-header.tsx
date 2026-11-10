@@ -48,20 +48,12 @@ export default function StoreCardHeader({
     maxExtreme,
   } = metrics;
 
-  const describedBy = [
-    `${id}-extremes`,
-    `${id}-badges`,
-    `${id}-prices`,
-    nearest && `${id}-nearest`,
-    `${id}-action`,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const describedBy = `${id}-extremes ${id}-badges ${id}-prices ${id}-action`;
 
   return (
-    // The toggle stretches over the header instead of wrapping it, so the opening badge can be its own button.
+    // The toggle stretches over the header instead of wrapping it, so the distance can be its own button.
     <CardHeader className="relative isolate flex items-center justify-between gap-4 py-4">
-      <div className="flex items-center gap-4">
+      <div className="flex min-w-0 flex-1 items-center gap-4">
         <div
           className="flex-shrink-0 size-12 sm:size-16 rounded-sm overflow-hidden shadow-sm"
           aria-hidden="true"
@@ -77,7 +69,7 @@ export default function StoreCardHeader({
 
         <div className="flex-1 min-w-0">
           <div className="flex flex-col items-start gap-1 sm:flex-row sm:flex-wrap sm:items-center">
-            <div className="flex items-center gap-1">
+            <div className="flex flex-wrap items-center gap-1">
               <span id={`${id}-extremes`} className="contents">
                 {hasLowestPriceItem && (
                   <>
@@ -104,6 +96,8 @@ export default function StoreCardHeader({
                   {getChainLabel(chain.chain)}
                 </StretchedCollapsibleTrigger>
               </h3>
+
+              {nearest && <NearestStoreDistance nearest={nearest} />}
             </div>
 
             <div id={`${id}-badges`}>
@@ -127,16 +121,10 @@ export default function StoreCardHeader({
               maxExtreme={maxExtreme}
             />
           </div>
-
-          {nearest && (
-            <div id={`${id}-nearest`} className="mt-1">
-              <NearestStoreDistance nearest={nearest} />
-            </div>
-          )}
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-end gap-4">
+      <div className="flex items-center justify-end gap-4">
         <p
           id={`${id}-action`}
           className="hidden sm:inline text-gray-700 text-sm text-pretty text-right"

@@ -173,7 +173,7 @@
     "unavailable": "Tvoja lokacija trenutno ni na voljo, zato ostane privzeti vrstni red. Znova izberi razdaljo za nov poskus.",
     "timeout": "Tvoje lokacije ne moremo najti, zato ostane privzeti vrstni red. Preveri, ali je na napravi vklopljena, in znova izberi razdaljo.",
     "noStores": "Lokacije trgovin trenutno niso na voljo, zato ostane privzeti vrstni red.",
-    "nearest": "Najbližja trgovina: {distance}",
+    "nearestName": "Najbližja trgovina, {distance}: {store}",
     "pickTown": "Izberi kraj",
     "changeTown": "Zamenjaj",
     "changeTownLabel": "Zamenjaj kraj",

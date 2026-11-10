@@ -1,7 +1,11 @@
+"use client";
+
 import { useLocale, useTranslations } from "next-intl";
-import { MapPin } from "lucide-react";
-import StoreOpeningBadge from "@/components/custom/store-hours/store-opening-badge";
+import OpeningStatusDetail from "@/components/custom/store-hours/opening-status-detail";
+import { useStoreOpening } from "@/components/custom/store-hours/store-hours-context";
+import { useOpeningStatusText } from "@/components/custom/store-hours/use-opening-status-text";
 import { formatDistance } from "@/utils/distance";
+import { formatStoreAddress, getLocationLabel } from "@/utils/labels";
 import type { INearestStore } from "@/utils/nearest-chain-distance";
 
 interface INearestStoreDistanceProps {
@@ -13,16 +17,40 @@ export default function NearestStoreDistance({
   nearest,
 }: INearestStoreDistanceProps) {
   const t = useTranslations("common.distanceSort");
+  const tMap = useTranslations("map.list");
   const locale = useLocale();
+  const describe = useOpeningStatusText();
+  const opening = useStoreOpening(nearest.key);
+
+  const distance = formatDistance(nearest.km, locale);
+  const address = formatStoreAddress({
+    address: nearest.address,
+    zipcode: nearest.zipcode,
+    cityLabel: getLocationLabel(nearest.city),
+  });
+  // The owner wants only the word here; the times stay on the map and in the price table.
+  const state =
+    opening && opening.status.state !== "unconfirmed"
+      ? describe(opening.status, opening.now).label
+      : null;
+  const shownAddress = address || tMap("unknownAddress");
 
   return (
-    <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-      <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
-        <MapPin className="size-4 shrink-0" aria-hidden="true" />
-        {t("nearest", { distance: formatDistance(nearest.km, locale) })}
+    <OpeningStatusDetail
+      name={t("nearestName", {
+        distance,
+        store: [shownAddress, state].filter(Boolean).join(", "),
+      })}
+      detail={
+        <span className="flex flex-col">
+          <span lang={address ? "hr" : undefined}>{shownAddress}</span>
+          {state && <span className="font-medium">{state}</span>}
+        </span>
+      }
+    >
+      <span className="text-sm font-normal whitespace-nowrap text-muted-foreground">
+        ({distance})
       </span>
-
-      <StoreOpeningBadge storeKey={nearest.key} />
-    </span>
+    </OpeningStatusDetail>
   );
 }
