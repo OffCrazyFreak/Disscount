@@ -28,7 +28,7 @@ runs:
         RELEASE_ID: ${{ inputs.release-id }}
         BRANCH: ${{ inputs.branch }}
       run: |
-        tip=$(gh api "repos/$REPOSITORY/commits/$BRANCH" --jq .sha)
+        tip=$(gh api "repos/$REPOSITORY/branches/$BRANCH" --jq .commit.sha)
         if [ "$tip" = "$RELEASE_ID" ]; then
           echo "is-tip=true" >> "$GITHUB_OUTPUT"
         else

@@ -47,3 +47,14 @@ jobs:
           api-key: ${{ secrets.DOKPLOY_API_KEY }}
           compose-id: ${{ secrets.DOKPLOY_COMPOSE_ID }}
           app-url: ${{ vars.NEXT_PUBLIC_APP_URL }}
+
+      - name: Note that the next push replaces this
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          RELEASE_ID: ${{ inputs.sha }}
+        run: |
+          branch=dev
+          if [ "$ENVIRONMENT" = prod ]; then
+            branch=main
+          fi
+          echo "Rolled $ENVIRONMENT back to $RELEASE_ID. The next push to $branch deploys over this Rollback; push a revert to make it permanent." >> "$GITHUB_STEP_SUMMARY"
