@@ -32,7 +32,7 @@ Area: $ARGUMENTS (the whole repository if empty)
 
 ## Steps
 
-1. Baseline. Run the repository's checks and record the results and the baseline commit. Count files and lines per area from the commit, not the worktree, skipping binaries (`-I`), lockfiles and generated files: `git grep -Ic '' <commit> -- <area> ':!:*lock*' ':!:<generated paths>' | awk -F: '{n++; s+=$NF} END {print n, s}'`. A red baseline goes to me before anything else.
+1. Baseline. Run the repository's checks and record the results and the baseline commit. Count files and lines per area from the commit, not the worktree, skipping binaries (`-I`), lockfiles and generated files: `git grep -Ic '' <commit> -- <area> ':!:*.lock' ':!:*-lock.*' ':!:<generated paths>' | awk -F: '{n++; s+=$NF} END {print n, s}'`. A red baseline goes to me before anything else.
 
 2. Audit. Split the area by concern and send one `researcher` per part, in parallel, with the list above. Ask for file:line, the one-line proof, the evidence, net lines, confidence, and the risk if the evidence is wrong. Tell them to read `git log` for each candidate, since code added by a fix may look unused and still guard something.
 

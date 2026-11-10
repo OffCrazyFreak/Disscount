@@ -54,6 +54,7 @@ describe("nearestStoreByChain", () => {
     expect(nearest.get("konzum")?.key).toBe("konzum:near");
     expect(nearest.get("konzum")?.km).toBeCloseTo(0.78, 1);
     expect(nearest.get("konzum")?.address).toBe("Ilica 1");
+    expect(nearest.get("konzum")?.zipcode).toBe("10000");
     expect(nearest.get("lidl")?.km).toBeGreaterThan(100);
     expect(nearest.has("spar")).toBe(false);
   });
@@ -124,6 +125,40 @@ describe("locatePricedStores", () => {
         lat: 20,
         lon: 20,
       },
+    ]);
+  });
+
+  it("takes the address from the directory, and upstream's only for a store it lacks", () => {
+    const upstream: StorePrice = price("konzum", "1", 10);
+    upstream.store = {
+      ...upstream.store,
+      address: "Old 1",
+      zipcode: "10010",
+      city: "Zagreb",
+    };
+
+    const unlisted: StorePrice = price("konzum", "2", 20);
+    unlisted.store = {
+      ...unlisted.store,
+      address: "Upstream 2",
+      zipcode: "21000",
+      city: "Split",
+    };
+
+    const directory: DirectoryStoreDto = {
+      ...listed("konzum", "1", 30),
+      address: "Ilica 1",
+      zipcode: "10000",
+      city: "Zagreb",
+    };
+
+    const located = locatePricedStores([upstream, unlisted], [directory]);
+
+    expect(
+      located.map(({ address, zipcode, city }) => ({ address, zipcode, city })),
+    ).toEqual([
+      { address: "Ilica 1", zipcode: "10000", city: "Zagreb" },
+      { address: "Upstream 2", zipcode: "21000", city: "Split" },
     ]);
   });
 

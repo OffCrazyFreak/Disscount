@@ -42,7 +42,7 @@ export default function NearestStoreDistance({
         store: [shownAddress, state].filter(Boolean).join(", "),
       })}
       detail={
-        <span className="flex flex-col">
+        <span className="flex flex-col break-words">
           <span lang={address ? "hr" : undefined}>{shownAddress}</span>
           {state && <span className="font-medium">{state}</span>}
         </span>

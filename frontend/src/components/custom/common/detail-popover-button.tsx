@@ -57,7 +57,7 @@ export default function DetailPopoverButton({
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        {/* Above a row's full-size toggle; the tap area grows only upwards and down, clear of the name beside it. */}
+        {/* Above a row's full-size toggle; the tap area grows only up and down, clear of the name beside it. */}
         <button
           type="button"
           id={id}
