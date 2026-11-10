@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import OpeningStatusDetail from "@/components/custom/store-hours/opening-status-detail";
+import DetailPopoverButton from "@/components/custom/common/detail-popover-button";
 import { useOpeningStatusText } from "@/components/custom/store-hours/use-opening-status-text";
 import type { OpeningStatus } from "@/lib/store-hours/opening-status";
 
@@ -33,11 +33,11 @@ export default function OpeningStatusBadge({
 
   if (detail) {
     return (
-      <OpeningStatusDetail id={id} name={name} detail={detail}>
+      <DetailPopoverButton id={id} name={name} detail={detail}>
         <Badge variant={variant} className={className}>
           {label}
         </Badge>
-      </OpeningStatusDetail>
+      </DetailPopoverButton>
     );
   }
 
