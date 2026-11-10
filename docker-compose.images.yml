@@ -169,7 +169,7 @@ services:
     pull_policy: always
     restart: unless-stopped
     profiles: [backup]
-    environment: &backup-environment
+    environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       BACKUP_R2_ENDPOINT: ${BACKUP_R2_ENDPOINT:-}
@@ -177,7 +177,7 @@ services:
       BACKUP_R2_ACCESS_KEY_ID: ${BACKUP_R2_ACCESS_KEY_ID:-}
       BACKUP_AGE_RECIPIENT: ${BACKUP_AGE_RECIPIENT:-}
     # Files under /run/secrets, so these stay out of `docker inspect` and the container's environment.
-    secrets: &backup-secrets
+    secrets:
       - postgres_password
       - backup_r2_secret_access_key
       - backup_crypt_password
@@ -216,9 +216,19 @@ services:
     pull_policy: always
     restart: "no"
     environment:
-      <<: *backup-environment
       COMPOSE_PROFILES: ${COMPOSE_PROFILES:-}
-    secrets: *backup-secrets
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      BACKUP_R2_ENDPOINT: ${BACKUP_R2_ENDPOINT:-}
+      BACKUP_R2_BUCKET: ${BACKUP_R2_BUCKET:-}
+      BACKUP_R2_ACCESS_KEY_ID: ${BACKUP_R2_ACCESS_KEY_ID:-}
+      BACKUP_AGE_RECIPIENT: ${BACKUP_AGE_RECIPIENT:-}
+    # Only what backup-entrypoint requires; the sidecar's other keys stay out of this container.
+    secrets:
+      - postgres_password
+      - backup_r2_secret_access_key
+      - backup_crypt_password
+      - backup_crypt_salt
     networks: [internal]
     depends_on:
       db:

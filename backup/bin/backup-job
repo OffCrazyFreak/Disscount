@@ -94,7 +94,7 @@ copy_photo_folder() {
 
   # Keys are unique per upload, so a file already in the generation never needs replacing.
   # Small files are bound by upload latency, so parallel uploads set the speed of a generation's first full copy.
-  rclone copy --files-from-raw "$work/new-$folder" --no-traverse --transfers 32 --stats-one-line --stats 0 \
+  rclone copy --files-from-raw "$work/new-$folder" --no-traverse --transfers 32 --checkers 32 --stats-one-line --stats 0 \
     "/data/photos-$folder" "$destination"
   # cryptcheck encrypts the local file with the stored file's nonce and compares hashes, so nothing is decrypted.
   rclone cryptcheck --one-way --files-from-raw "$work/new-$folder" --checkers 32 \
