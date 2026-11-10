@@ -17,7 +17,7 @@ import {
 
 interface IDetailPopoverButtonProps {
   id?: string;
-  /** Everything the popover says, for screen readers, such as "Otvoreno, zatvara uskoro u 21:00". */
+  /** The button's accessible name, saying what it shows, such as "Otvoreno, zatvara uskoro u 21:00". */
   name: string;
   /** Hidden until asked for, such as "Zatvara u 21:00" or the nearest store's address. */
   detail: ReactNode;
