@@ -3,8 +3,25 @@
 # which the environments not yet moved to this file keep building on the server.
 # IMAGE_TAG is the moving tag per environment (dev or prod); /health reports the exact commit.
 
+# Every service starts with no Linux capabilities and cannot gain more through setuid binaries;
+# each adds back only what it uses (docs/INFRASTRUCTURE.md, Container privileges).
+x-hardened: &hardened
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+
 services:
   db:
+    <<: *hardened
+    # Starts as root to own the data folder, then switches to the postgres user.
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    pids_limit: 256
     image: postgres:17-alpine@sha256:3540c0362c809df084ffac0ae69fe794515f9de92692f02178bcdce0ef0302ac
     restart: unless-stopped
     environment:
@@ -22,6 +39,8 @@ services:
 
   # One-shot drizzle migration (better-auth tables); Hibernate creates the app tables.
   migrate:
+    <<: *hardened
+    pids_limit: 128
     image: ghcr.io/offcrazyfreak/disscount-migrator:${IMAGE_TAG:?IMAGE_TAG must be set}
     # The tag moves, so a cached copy would silently redeploy the previous build.
     pull_policy: always
@@ -37,6 +56,8 @@ services:
         condition: service_completed_successfully
 
   backend:
+    <<: *hardened
+    pids_limit: 512
     image: ghcr.io/offcrazyfreak/disscount-backend:${IMAGE_TAG:?IMAGE_TAG must be set}
     pull_policy: always
     restart: unless-stopped
@@ -81,6 +102,12 @@ services:
   # The backend never creates its top folders, so a forgotten volume leaves a store off instead of
   # writing into the container layer. Created here, owned by the backend's uid 1001.
   photo-folders:
+    <<: *hardened
+    # Root needs these to create, hand over and enter the backend's 0700 folders.
+    cap_add:
+      - CHOWN
+      - FOWNER
+      - DAC_OVERRIDE
     image: alpine:3.22@sha256:49340b346798875b5592e5d420241f2f9cfba5f47e62ebb1446a1b34734e898f
     restart: "no"
     network_mode: none
@@ -98,6 +125,13 @@ services:
 
   # Serves the public product photos on the image hostname (R2_PUBLIC_URL); read-only.
   images:
+    <<: *hardened
+    # The master process starts as root and runs its workers as the nginx user.
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+    pids_limit: 128
     image: nginx:1.28-alpine@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236
     restart: unless-stopped
     volumes:
@@ -118,6 +152,8 @@ services:
         condition: service_completed_successfully
 
   frontend:
+    <<: *hardened
+    pids_limit: 256
     image: ghcr.io/offcrazyfreak/disscount-frontend:${IMAGE_TAG:?IMAGE_TAG must be set}
     pull_policy: always
     restart: unless-stopped
@@ -165,6 +201,15 @@ services:
 
   # Scheduled encrypted backups to R2 (docs/BACKUPS.md). Only runs where COMPOSE_PROFILES includes backup.
   backup:
+    <<: *hardened
+    # Root reads the 0700 photo folders and /etc/dokploy; the scratch restore hands its files to postgres.
+    cap_add:
+      - CHOWN
+      - FOWNER
+      - DAC_OVERRIDE
+      - SETUID
+      - SETGID
+    pids_limit: 512
     image: ghcr.io/offcrazyfreak/disscount-backup:${IMAGE_TAG:?IMAGE_TAG must be set}
     pull_policy: always
     restart: unless-stopped
@@ -212,6 +257,8 @@ services:
   # The command lives here, not in backup-job: Dokploy reads this file from the branch tip, so a Rollback pairs it
   # with an older backup image, which only has to provide the tools.
   predeploy-dump:
+    <<: *hardened
+    pids_limit: 128
     image: ghcr.io/offcrazyfreak/disscount-backup:${IMAGE_TAG:?IMAGE_TAG must be set}
     pull_policy: always
     restart: "no"
