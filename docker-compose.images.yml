@@ -5,7 +5,7 @@
 
 services:
   db:
-    image: postgres:17-alpine
+    image: postgres:17-alpine@sha256:3540c0362c809df084ffac0ae69fe794515f9de92692f02178bcdce0ef0302ac
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -81,7 +81,7 @@ services:
   # The backend never creates its top folders, so a forgotten volume leaves a store off instead of
   # writing into the container layer. Created here, owned by the backend's uid 1001.
   photo-folders:
-    image: alpine:3.22
+    image: alpine:3.22@sha256:49340b346798875b5592e5d420241f2f9cfba5f47e62ebb1446a1b34734e898f
     restart: "no"
     network_mode: none
     volumes:
@@ -98,7 +98,7 @@ services:
 
   # Serves the public product photos on the image hostname (R2_PUBLIC_URL); read-only.
   images:
-    image: nginx:1.28-alpine
+    image: nginx:1.28-alpine@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236
     restart: unless-stopped
     volumes:
       - photos-public:/data/photos-public:ro

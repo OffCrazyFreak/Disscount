@@ -1,7 +1,7 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
 
 # ---- Base: Node + pinned pnpm ----
-FROM node:24-slim AS base
+FROM node:24-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9 AS base
 RUN npm install -g pnpm@11.9.0
 WORKDIR /app
 
@@ -69,7 +69,7 @@ RUN ./node_modules/.bin/esbuild scripts/migrate.mjs --bundle --platform=node --f
     --banner:js="import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);"
 
 # ---- migrator: one-shot job that applies drizzle/ and exits, no app source ----
-FROM node:24-slim AS migrator
+FROM node:24-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9 AS migrator
 WORKDIR /app
 COPY --from=migrator-bundle /app/dist/migrate.mjs ./
 COPY drizzle ./drizzle
