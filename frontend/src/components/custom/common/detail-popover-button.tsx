@@ -15,11 +15,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-interface IOpeningStatusDetailProps {
+interface IDetailPopoverButtonProps {
   id?: string;
-  /** The full status, such as "Otvoreno, zatvara uskoro u 21:00". */
+  /** Everything the popover says, for screen readers, such as "Otvoreno, zatvara uskoro u 21:00". */
   name: string;
-  /** The tooltip, such as "Zatvara u 21:00". */
+  /** Hidden until asked for, such as "Zatvara u 21:00" or the nearest store's address. */
   detail: ReactNode;
   children: ReactNode;
 }
@@ -29,12 +29,12 @@ function keepFocus(event: Event) {
 }
 
 /** One popover serves every pointer, since Radix tooltips ignore taps and a touch laptop reports a fine pointer. */
-export default function OpeningStatusDetail({
+export default function DetailPopoverButton({
   id,
   name,
   detail,
   children,
-}: IOpeningStatusDetailProps) {
+}: IDetailPopoverButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pointerType = useRef<string | null>(null);
 
@@ -48,7 +48,7 @@ export default function OpeningStatusDetail({
   }
 
   function click(event: MouseEvent) {
-    // The row a badge sits in may itself open or toggle on a click.
+    // The row or card header it sits in may itself open or toggle on a click.
     event.stopPropagation();
     // Hover already opened it, so a mouse click must not toggle it shut.
     if (pointerType.current === "mouse") event.preventDefault();

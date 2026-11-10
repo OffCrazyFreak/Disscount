@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import OpeningStatusDetail from "@/components/custom/store-hours/opening-status-detail";
+import DetailPopoverButton from "@/components/custom/common/detail-popover-button";
 import { useStoreOpening } from "@/components/custom/store-hours/store-hours-context";
 import { useOpeningStatusText } from "@/components/custom/store-hours/use-opening-status-text";
 import { formatDistance } from "@/utils/distance";
@@ -36,7 +36,7 @@ export default function NearestStoreDistance({
   const shownAddress = address || tMap("unknownAddress");
 
   return (
-    <OpeningStatusDetail
+    <DetailPopoverButton
       name={t("nearestName", {
         distance,
         store: [shownAddress, state].filter(Boolean).join(", "),
@@ -51,6 +51,6 @@ export default function NearestStoreDistance({
       <span className="text-sm font-normal whitespace-nowrap text-muted-foreground">
         ({distance})
       </span>
-    </OpeningStatusDetail>
+    </DetailPopoverButton>
   );
 }
