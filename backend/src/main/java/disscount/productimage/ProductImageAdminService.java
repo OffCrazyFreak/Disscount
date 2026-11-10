@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ProductImageAdminService {
+class ProductImageAdminService {
 
     static final int MAX_PAGE_SIZE = 100;
 

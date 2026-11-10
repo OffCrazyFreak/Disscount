@@ -16,7 +16,7 @@ import java.util.UUID;
 @RequestMapping("/api/favorite-stores")
 @RequiredArgsConstructor
 @Tag(name = "Favorite Stores", description = "The user's favourite individual stores")
-public class FavoriteStoreController {
+class FavoriteStoreController {
 
     private final FavoriteStoreService favoriteStoreService;
 

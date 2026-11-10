@@ -2,7 +2,7 @@ package disscount.shared;
 
 import java.util.Optional;
 
-public class DisabledPhotoStore implements PhotoStore {
+class DisabledPhotoStore implements PhotoStore {
 
     @Override
     public boolean enabled() {

@@ -9,7 +9,7 @@ import java.util.UUID;
 /** Not transactional: the collision below aborts the erasure's own transaction, so it settles outside it. */
 @Service
 @RequiredArgsConstructor
-public class AccountErasureService {
+class AccountErasureService {
 
     private final UserService userService;
     private final ErasureLedgerRepository erasureLedger;

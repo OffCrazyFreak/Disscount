@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class FavoriteStoreDto {
+class FavoriteStoreDto {
 
     private UUID id;
     private String storeKey;

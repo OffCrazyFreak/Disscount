@@ -28,7 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
 @Tag(name = "Product Images", description = "Product photos: public reads, user uploads and reports")
-public class ProductImageController {
+class ProductImageController {
 
     private final ProductImageQueryService queries;
     private final ProductImageWriteService writes;

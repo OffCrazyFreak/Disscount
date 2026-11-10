@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/product-images")
 @RequiredArgsConstructor
 @Tag(name = "Admin Product Images", description = "Review queue and photo curation")
-public class AdminProductImageController {
+class AdminProductImageController {
 
     private final ProductImageAdminService admin;
 

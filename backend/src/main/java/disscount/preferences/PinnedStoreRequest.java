@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class PinnedStoreRequest {
+class PinnedStoreRequest {
 
     @NotBlank(message = "{validation.storeApiId.required}")
     private String storeApiId;

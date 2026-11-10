@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface ErasureLedgerRepository extends JpaRepository<ErasureLedgerEntry, UUID> {
+interface ErasureLedgerRepository extends JpaRepository<ErasureLedgerEntry, UUID> {
 }

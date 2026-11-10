@@ -24,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
-public class ProductImageWriteService {
+class ProductImageWriteService {
 
     private final ProductImageRepository images;
     private final ProductImageSetRepository sets;

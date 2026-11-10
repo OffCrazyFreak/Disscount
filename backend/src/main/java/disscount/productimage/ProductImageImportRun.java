@@ -18,7 +18,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductImageImportRun {
+class ProductImageImportRun {
 
     @Id
     @Column(length = 32)

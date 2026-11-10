@@ -11,7 +11,7 @@ import java.util.Optional;
 /** Spring's default provider reads the JVM's zone, so this one keeps audited rows on the Timestamps clock. */
 @Configuration
 @EnableJpaAuditing(dateTimeProviderRef = "utcDateTimeProvider")
-public class JpaConfig {
+class JpaConfig {
 
     @Bean
     DateTimeProvider utcDateTimeProvider() {

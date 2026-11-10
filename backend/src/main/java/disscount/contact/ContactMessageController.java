@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/contact")
 @RequiredArgsConstructor
 @Tag(name = "Contact", description = "Public contact form submissions")
-public class ContactMessageController {
+class ContactMessageController {
 
     private final ContactMessageService contactMessageService;
     private final ContactRateLimiter contactRateLimiter;

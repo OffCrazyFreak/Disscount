@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ShoppingListItemRepository extends JpaRepository<ShoppingListItem, UUID> {
+interface ShoppingListItemRepository extends JpaRepository<ShoppingListItem, UUID> {
 
     @Query("SELECT sli FROM ShoppingListItem sli WHERE sli.shoppingList = :shoppingList AND sli.deletedAt IS NULL ORDER BY sli.createdAt ASC")
     List<ShoppingListItem> findActiveByShoppingList(ShoppingList shoppingList);

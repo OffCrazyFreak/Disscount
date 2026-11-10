@@ -27,7 +27,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 /** Renders a photo from its untouched source, so a new crop never compounds an earlier one. */
 @Component
 @RequiredArgsConstructor
-public class ProductImageRendering {
+class ProductImageRendering {
 
     private static final Logger log = LoggerFactory.getLogger(ProductImageRendering.class);
     private static final String WEBP = "image/webp";

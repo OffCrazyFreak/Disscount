@@ -17,7 +17,7 @@ import java.util.UUID;
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 @Tag(name = "Admin", description = "Admin-only management endpoints")
-public class AdminController {
+class AdminController {
 
     private final UserService userService;
 

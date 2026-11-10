@@ -20,7 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Digital Cards", description = "Digital card management endpoints")
-public class DigitalCardController {
+class DigitalCardController {
 
     private final DigitalCardService digitalCardService;
 

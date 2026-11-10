@@ -16,7 +16,7 @@ import java.util.UUID;
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 @Tag(name = "User Management", description = "User management endpoints")
-public class UserController {
+class UserController {
 
     private final UserService userService;
     private final AccountErasureService accountErasureService;

@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CardPhotoDto {
+class CardPhotoDto {
 
     private String slot;
     private String sha256;

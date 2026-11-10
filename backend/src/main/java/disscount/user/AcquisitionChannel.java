@@ -1,7 +1,7 @@
 package disscount.user;
 
 // Granular per social platform, so marketing spend can be attributed to the channel that converts.
-public enum AcquisitionChannel {
+enum AcquisitionChannel {
     GOOGLE_SEARCH,
     INSTAGRAM,
     FACEBOOK,

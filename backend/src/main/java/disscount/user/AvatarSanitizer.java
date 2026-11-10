@@ -11,7 +11,7 @@ import java.util.Base64;
 /** Rewritten here so a client skipping its shrink step cannot store PNG, SVG or EXIF and GPS metadata. */
 @Component
 @RequiredArgsConstructor
-public class AvatarSanitizer {
+class AvatarSanitizer {
 
     private static final String PREFIX = "data:";
     private static final String BASE64_MARKER = ";base64,";

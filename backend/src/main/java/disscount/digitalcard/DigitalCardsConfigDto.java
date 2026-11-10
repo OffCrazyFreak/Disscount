@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DigitalCardsConfigDto {
+class DigitalCardsConfigDto {
 
     private boolean photosEnabled;
 }

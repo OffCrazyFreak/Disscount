@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class ContactMessageDto {
+class ContactMessageDto {
 
     private UUID id;
     @Schema(nullable = true)

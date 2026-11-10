@@ -22,7 +22,7 @@ import java.util.UUID;
 @RequestMapping("/api/digital-cards/{id}/photos/{slot}")
 @RequiredArgsConstructor
 @Tag(name = "Digital Card Photos", description = "Card photo upload and download")
-public class DigitalCardPhotoController {
+class DigitalCardPhotoController {
 
     private final DigitalCardPhotoService photoService;
 

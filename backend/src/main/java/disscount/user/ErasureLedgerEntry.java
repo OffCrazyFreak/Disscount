@@ -12,7 +12,7 @@ import java.util.UUID;
 @Table(name = "erasure_ledger")
 @Getter
 @NoArgsConstructor
-public class ErasureLedgerEntry {
+class ErasureLedgerEntry {
 
     public static final String ACCOUNT = "account";
 

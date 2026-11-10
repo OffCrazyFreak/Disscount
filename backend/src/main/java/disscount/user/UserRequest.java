@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class UserRequest {
+class UserRequest {
     @Size(min = 2, max = 40, message = "{validation.username.size}")
     @Schema(nullable = true)
     private String username;

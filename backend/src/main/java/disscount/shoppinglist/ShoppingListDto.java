@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class ShoppingListDto {
+class ShoppingListDto {
 
     private UUID id;
     @Schema(nullable = true)

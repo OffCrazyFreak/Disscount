@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface ProductImageReportRepository extends JpaRepository<ProductImageReport, UUID> {
+interface ProductImageReportRepository extends JpaRepository<ProductImageReport, UUID> {
 
     boolean existsByImageIdAndUserId(UUID imageId, UUID userId);
 

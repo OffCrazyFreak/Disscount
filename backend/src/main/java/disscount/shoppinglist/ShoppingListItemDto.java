@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 
 @Data
 @Builder
-public class ShoppingListItemDto {
+class ShoppingListItemDto {
 
     private UUID id;
     private UUID shoppingListId;

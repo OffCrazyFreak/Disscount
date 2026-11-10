@@ -16,7 +16,7 @@ import disscount.user.User;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PinnedStore {
+class PinnedStore {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

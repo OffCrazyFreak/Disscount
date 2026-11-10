@@ -21,7 +21,7 @@ import java.util.UUID;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class UserProvisioningFilter extends OncePerRequestFilter {
+class UserProvisioningFilter extends OncePerRequestFilter {
 
     private final UserService userService;
 

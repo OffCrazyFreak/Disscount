@@ -3,7 +3,7 @@ package disscount.shared;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class TrimmedLengthValidator implements ConstraintValidator<TrimmedLength, String> {
+class TrimmedLengthValidator implements ConstraintValidator<TrimmedLength, String> {
 
     private int min;
     private int max;

@@ -19,7 +19,7 @@ import java.util.UUID;
 @RequestMapping("/api/admin/contact")
 @RequiredArgsConstructor
 @Tag(name = "Admin Contact", description = "Admin-only contact message management")
-public class AdminContactController {
+class AdminContactController {
 
     private final ContactMessageService contactMessageService;
 

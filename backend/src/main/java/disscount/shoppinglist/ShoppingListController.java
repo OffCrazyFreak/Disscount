@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/shopping-lists")
 @RequiredArgsConstructor
 @Tag(name = "Shopping Lists", description = "Shopping list management endpoints")
-public class ShoppingListController {
+class ShoppingListController {
 
     private final ShoppingListService shoppingListService;
     private final ShoppingListCopyService shoppingListCopyService;

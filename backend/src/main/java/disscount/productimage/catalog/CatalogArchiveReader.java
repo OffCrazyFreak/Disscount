@@ -14,7 +14,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /** ZIP entry order is not guaranteed, so prices count per chain product id and join to barcodes at the end. */
-public final class CatalogArchiveReader {
+final class CatalogArchiveReader {
 
     public record Entry(String name, String brand, int storeListings, int chainCount) {}
 

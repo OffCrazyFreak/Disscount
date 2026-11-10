@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class WatchlistItem {
+class WatchlistItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

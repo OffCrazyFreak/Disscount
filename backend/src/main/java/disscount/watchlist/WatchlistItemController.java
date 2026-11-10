@@ -16,7 +16,7 @@ import java.util.UUID;
 @RequestMapping("/api/watchlist")
 @RequiredArgsConstructor
 @Tag(name = "Watchlist", description = "User watchlist management endpoints")
-public class WatchlistItemController {
+class WatchlistItemController {
 
     private final WatchlistItemService watchlistItemService;
 

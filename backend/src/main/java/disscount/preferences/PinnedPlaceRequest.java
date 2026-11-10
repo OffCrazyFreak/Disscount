@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class PinnedPlaceRequest {
+class PinnedPlaceRequest {
 
     @NotBlank(message = "{validation.placeApiId.required}")
     private String placeApiId;

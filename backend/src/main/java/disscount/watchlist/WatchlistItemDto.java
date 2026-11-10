@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class WatchlistItemDto {
+class WatchlistItemDto {
 
     private UUID id;
     private UUID userId;

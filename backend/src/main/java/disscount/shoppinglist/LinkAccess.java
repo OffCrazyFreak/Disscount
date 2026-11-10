@@ -1,7 +1,7 @@
 package disscount.shoppinglist;
 
 /** A separate enum so OWNER is not expressible on the wire: Jackson rejects it before any service code runs. */
-public enum LinkAccess {
+enum LinkAccess {
 
     NONE,
     VIEW,

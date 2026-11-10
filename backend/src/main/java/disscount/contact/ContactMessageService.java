@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class ContactMessageService {
+class ContactMessageService {
 
     private final ContactMessageRepository contactMessageRepository;
     private final UserRepository userRepository;

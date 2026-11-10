@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 /** better-auth deletes an expired session only when its token returns; the policy promises 30 days for addresses. */
 @Component
 @RequiredArgsConstructor
-public class SessionRetentionJob {
+class SessionRetentionJob {
 
     // A day under the promised 30, so a missed sweep or a backend outage still clears the address in time.
     static final Duration IP_ADDRESS_RETENTION = Duration.ofDays(29);

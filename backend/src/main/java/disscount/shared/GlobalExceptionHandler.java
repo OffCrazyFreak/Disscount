@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 
 /** Codes not in the bundle are shown as written, so a missing code degrades to its own text, not a blank. */
 @RestControllerAdvice
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 

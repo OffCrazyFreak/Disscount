@@ -10,7 +10,7 @@ import java.util.UUID;
 /** The markers come from the backup bucket, because the database being restored cannot hold them. */
 @Service
 @RequiredArgsConstructor
-public class ErasureReplay {
+class ErasureReplay {
 
     private final AuthIdentityDao authIdentities;
     private final UserRepository users;

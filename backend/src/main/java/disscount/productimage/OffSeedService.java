@@ -19,7 +19,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 @RequiredArgsConstructor
-public class OffSeedService {
+class OffSeedService {
 
     private static final Logger log = LoggerFactory.getLogger(OffSeedService.class);
     private static final int CHUNK = 500;

@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /** In memory, like the photo limiter: one backend instance, and a deploy resetting it costs little. */
 @Component
-public class ContactRateLimiter {
+class ContactRateLimiter {
 
     static final int MAX_PER_HOUR = 5;
     static final int MAX_PER_DAY = 20;

@@ -10,7 +10,7 @@ import disscount.shared.Timestamps;
 
 @Component
 @RequiredArgsConstructor
-public class DigitalCardCleanupJob {
+class DigitalCardCleanupJob {
 
     static final int RETENTION_DAYS = 30;
 

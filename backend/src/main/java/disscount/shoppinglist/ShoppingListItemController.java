@@ -15,7 +15,7 @@ import java.util.UUID;
 @RequestMapping("/api/shopping-lists/{listId}/items")
 @RequiredArgsConstructor
 @Tag(name = "Shopping List Items", description = "Shopping list item management endpoints")
-public class ShoppingListItemController {
+class ShoppingListItemController {
 
     private final ShoppingListItemService shoppingListItemService;
 

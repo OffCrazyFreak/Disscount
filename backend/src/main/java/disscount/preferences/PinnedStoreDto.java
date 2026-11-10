@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class PinnedStoreDto {
+class PinnedStoreDto {
 
     private UUID id;
     private UUID userId;

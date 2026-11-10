@@ -13,7 +13,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class ShoppingListCopyService {
+class ShoppingListCopyService {
 
     private final ShoppingListRepository shoppingListRepository;
     private final ShoppingListAccessService accessService;

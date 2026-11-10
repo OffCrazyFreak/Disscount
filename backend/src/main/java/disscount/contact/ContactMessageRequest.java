@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class ContactMessageRequest {
+class ContactMessageRequest {
 
     @Email(message = "{validation.email.invalid}")
     @Size(max = 255, message = "{validation.email.tooLong}")

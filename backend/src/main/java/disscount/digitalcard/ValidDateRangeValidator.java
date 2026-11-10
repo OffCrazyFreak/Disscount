@@ -3,7 +3,7 @@ package disscount.digitalcard;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class ValidDateRangeValidator implements ConstraintValidator<ValidDateRange, DigitalCardRequest> {
+class ValidDateRangeValidator implements ConstraintValidator<ValidDateRange, DigitalCardRequest> {
 
     @Override
     public boolean isValid(DigitalCardRequest request, ConstraintValidatorContext context) {

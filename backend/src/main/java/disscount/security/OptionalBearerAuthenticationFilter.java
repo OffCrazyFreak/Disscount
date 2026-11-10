@@ -20,7 +20,7 @@ import java.io.IOException;
 /** A stale token must not 401 a share link; dropping the resource server would demote signed-in recipients to VIEW. */
 @Component
 @RequiredArgsConstructor
-public class OptionalBearerAuthenticationFilter extends OncePerRequestFilter {
+class OptionalBearerAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String BEARER_PREFIX = "Bearer ";
 

@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ShoppingListItem {
+class ShoppingListItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

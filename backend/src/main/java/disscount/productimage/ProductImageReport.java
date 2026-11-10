@@ -23,7 +23,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProductImageReport {
+class ProductImageReport {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

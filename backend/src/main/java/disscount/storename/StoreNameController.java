@@ -12,7 +12,7 @@ import java.util.List;
 @RequestMapping("/api/store-names")
 @RequiredArgsConstructor
 @Tag(name = "Store Names", description = "Community store name suggestions")
-public class StoreNameController {
+class StoreNameController {
 
     private final StoreNameService storeNameService;
 

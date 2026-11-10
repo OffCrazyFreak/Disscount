@@ -9,7 +9,7 @@ import java.util.UUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-public final class ProductImageDtos {
+final class ProductImageDtos {
 
     private ProductImageDtos() {}
 

@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ProductImageQueryService {
+class ProductImageQueryService {
 
     static final int MAX_THUMBNAIL_EANS = 100;
 

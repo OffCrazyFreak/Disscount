@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Constraint(validatedBy = ValidDateRangeValidator.class)
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidDateRange {
+@interface ValidDateRange {
 
     String message() default "{validation.card.dateRange.invalid}";
 

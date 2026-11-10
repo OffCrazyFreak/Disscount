@@ -16,7 +16,7 @@ import java.util.UUID;
 @RequestMapping("/api/pinned-stores")
 @RequiredArgsConstructor
 @Tag(name = "Pinned Stores", description = "User pinned stores management endpoints")
-public class PinnedStoreController {
+class PinnedStoreController {
 
     private final PinnedStoreService pinnedStoreService;
 

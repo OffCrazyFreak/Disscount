@@ -1,6 +1,6 @@
 package disscount.watchlist;
 
-public enum WatchType {
+enum WatchType {
     PERCENTAGE,
     ABSOLUTE
 }

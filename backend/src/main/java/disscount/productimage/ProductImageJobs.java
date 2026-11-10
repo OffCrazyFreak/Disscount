@@ -23,7 +23,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProductImageJobs {
+class ProductImageJobs {
 
     private static final Logger log = LoggerFactory.getLogger(ProductImageJobs.class);
     static final String WEEKLY_IMPORT = "weekly-import";
