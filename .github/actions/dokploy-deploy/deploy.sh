@@ -200,8 +200,11 @@ fi
 if [ -z "${COMPOSE_ID:-}" ]; then
   missing="$missing DOKPLOY_COMPOSE_ID"
 fi
+if [ -z "${APP_URL:-}" ]; then
+  missing="$missing NEXT_PUBLIC_APP_URL"
+fi
 if [ -n "$missing" ]; then
-  echo "::error::These secrets are empty on the $ENVIRONMENT_TAG GitHub environment:$missing. No tag was moved."
+  echo "::error::These settings are empty on the $ENVIRONMENT_TAG GitHub environment:$missing. No tag was moved."
   exit 1
 fi
 
