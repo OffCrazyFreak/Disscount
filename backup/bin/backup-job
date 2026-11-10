@@ -45,12 +45,64 @@ finish() {
   rm -rf "$work"
 }
 
+# Compares the stored object's size and MD5 with the local file, without downloading or decrypting it.
+verify_upload() {
+  local source="$1" target="$2" expected uploaded
+  expected="$(stat -c %s "$source");$(md5sum "$source" | cut -d' ' -f1)"
+  uploaded="$(rclone lsf --format sh --hash MD5 "$target")"
+  [[ "$uploaded" == "$expected" ]] || {
+    note "upload check: ${target#"$remote/"} does not match the local file"
+    return 1
+  }
+}
+
 # Encrypts a finished local file with age and uploads it under a name that is never reused.
 upload_encrypted() {
   local source="$1" target="$2"
   age -r "$BACKUP_AGE_RECIPIENT" -o "$source.age" "$source"
   rclone copyto --s3-no-check-bucket "$source.age" "$remote/$target.age"
-  note "uploaded $target.age ($(stat -c %s "$source.age") bytes)"
+  verify_upload "$source.age" "$remote/$target.age"
+  note "uploaded $target.age ($(stat -c %s "$source.age") bytes), checked"
+}
+
+# A wrong or fresh volume looks like an empty one, and an empty copy would pass every other check.
+check_photo_floor() {
+  local files="$1" rows
+  # search_path covers the app tables before and after they move out of public.
+  rows="$(PGOPTIONS='-c search_path=app,public' psql -Atc \
+    "select count(*) from product_image where deleted_at is null and (full_key is not null or original_key is not null)")"
+  note "photos: $files files on disk, $rows product photos in the database"
+  ((files > 0 || rows == 0)) || {
+    note "photos: the photo volumes are empty while the database lists product photos"
+    return 1
+  }
+}
+
+# Copies the files the generation lacks, then checks each against its local file through the crypt remote.
+copy_photo_folder() {
+  local folder="$1" destination="$2" status=0
+  rclone lsf -R --files-only --exclude '.tmp-*' "/data/photos-$folder" | sort >"$work/local-$folder"
+  # Exit 3 means the generation has no folder yet, which its first run creates.
+  rclone lsf -R --files-only "$destination" >"$work/stored-$folder" || status=$?
+  ((status == 0 || status == 3)) || return "$status"
+  sort -o "$work/stored-$folder" "$work/stored-$folder"
+  comm -23 "$work/local-$folder" "$work/stored-$folder" >"$work/new-$folder"
+
+  local new
+  new="$(wc -l <"$work/new-$folder")"
+  ((new > 0)) || return 0
+
+  # Keys are unique per upload, so a file already in the generation never needs replacing.
+  # Small files are bound by upload latency, so parallel uploads set the speed of a generation's first full copy.
+  rclone copy --files-from-raw "$work/new-$folder" --no-traverse --transfers 32 --stats-one-line --stats 0 \
+    "/data/photos-$folder" "$destination"
+  # cryptcheck encrypts the local file with the stored file's nonce and compares hashes, so nothing is decrypted.
+  rclone cryptcheck --one-way --files-from-raw "$work/new-$folder" --checkers 32 \
+    "/data/photos-$folder" "$destination" || {
+    note "upload check: photos in $folder do not match the local files"
+    return 1
+  }
+  note "photos: $new new $folder files copied and checked"
 }
 
 # pg_dump writes to a temp file first, so a failed or empty dump is never uploaded.
@@ -106,7 +158,9 @@ write_erasure_markers() {
   while read -r scope id erased_at; do
     name="$(printf '%s' "$scope:$id" | openssl dgst -sha256 -mac HMAC -macopt "hexkey:$key" -r | cut -d' ' -f1)"
     grep -qxF "$name" "$work/existing" && continue
-    printf '{"v":1,"scope":"%s","erasedAt":"%s"}\n' "$scope" "$erased_at" | rclone rcat "$prefix/$name"
+    printf '{"v":1,"scope":"%s","erasedAt":"%s"}\n' "$scope" "$erased_at" >"$work/marker"
+    rclone copyto "$work/marker" "$prefix/$name"
+    verify_upload "$work/marker" "$prefix/$name"
     written=$((written + 1))
   done <"$work/ledger"
   note "erasure markers: $written written for $(wc -l <"$work/ledger") erasures in the last 30 days"
@@ -129,13 +183,14 @@ run() {
     photos)
       # A new generation starts every 14 days; its first run copies everything, later runs only new files.
       local generation=$(($(date -u +%s) / 86400 / 14))
-      local folder
+      local folder files=0
       for folder in private public; do
         [[ -d "/data/photos-$folder" ]] || { echo "/data/photos-$folder is not mounted" >&2; return 1; }
-        # Keys are unique per upload, so a file already in the generation never needs replacing.
-        # Small files are bound by upload latency, so parallel uploads set the speed of a generation's first full copy.
-        rclone copy --ignore-existing --transfers 32 --exclude '.tmp-*' --stats-one-line --stats 0 \
-          "/data/photos-$folder" "photos:gen-$generation/$folder"
+        files=$((files + $(find "/data/photos-$folder" -type f ! -name '.tmp-*' | wc -l)))
+      done
+      check_photo_floor "$files"
+      for folder in private public; do
+        copy_photo_folder "$folder" "photos:gen-$generation/$folder"
       done
       note "photos copied into generation $generation"
       ;;
