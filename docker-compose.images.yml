@@ -6,7 +6,7 @@
 # Every service starts with no Linux capabilities and cannot gain more through setuid binaries;
 # each adds back only what it uses (docs/INFRASTRUCTURE.md, Container privileges).
 # The root filesystem is read-only, so a service writes only to its volumes and the tmpfs folders it lists;
-# tmpfs lives in RAM, so each one has a size. Three services opt out with read_only: false and say why.
+# tmpfs lives in RAM, so each one has a size. Two services opt out with read_only: false and say why.
 x-hardened: &hardened
   read_only: true
   security_opt:
@@ -143,8 +143,10 @@ services:
       - SETUID
       - SETGID
     pids_limit: 128
-    # Compose copies the inline config below into the container after creating it, which a read-only image refuses.
-    read_only: false
+    # The master owns its temp folders and pid file here.
+    tmpfs:
+      - /var/cache/nginx:size=8m
+      - /run:size=1m
     image: nginx:1.28-alpine
     restart: unless-stopped
     volumes:
@@ -380,24 +382,9 @@ volumes:
   photos-public:
 
 configs:
-  # No $ variables in here: Compose would interpolate them.
+  # A file, not inline content: Compose copies inline content in after creating the container, which read_only refuses.
   images_nginx:
-    content: |
-      server {
-        listen 80;
-        server_tokens off;
-        root /data/photos-public;
-        autoindex off;
-        location = /healthz { access_log off; return 200; }
-        # Unfinished writes are .tmp-* files beside their target.
-        location ~ /\. { return 404; }
-        # Keys carry a hash of their bytes, so a cached copy can never go stale.
-        location /products/ {
-          add_header Cache-Control "public, max-age=31536000, immutable";
-          add_header X-Content-Type-Options nosniff;
-        }
-        location / { return 404; }
-      }
+    file: ./images/nginx.conf
 
 secrets:
   postgres_password:
