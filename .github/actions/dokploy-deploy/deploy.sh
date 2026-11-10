@@ -20,6 +20,7 @@ else
   WAIT_MINUTES=15
 fi
 
+DOKPLOY_URL="${DOKPLOY_URL:-}"
 DOKPLOY_URL="${DOKPLOY_URL%/}"
 RUN_LABEL="run ${GITHUB_RUN_ID:-local}/${GITHUB_RUN_ATTEMPT:-1}"
 
@@ -66,12 +67,12 @@ move_tag() {
   done
 }
 
+# Measured from when a request ends, so a slow or retried read still leaves a full quiet window.
 wait_for_dokploy_gap() {
   local wait=$((last_dokploy_request + DOKPLOY_GAP_SECONDS - SECONDS))
   if [ "$wait" -gt 0 ]; then
     sleep "$wait"
   fi
-  last_dokploy_request=$SECONDS
 }
 
 # Only the status code is printed, because Dokploy's response bodies can echo service
@@ -89,6 +90,7 @@ trigger_deploy() {
       --header "x-api-key: $DOKPLOY_API_KEY" \
       --header "Content-Type: application/json" \
       --data "$body" || true)
+    last_dokploy_request=$SECONDS
 
     # A dev job right behind another can find the key's count full; the window clears it.
     if [ "$status" != 401 ] || [ "$attempt" = 2 ] || [ "$ENVIRONMENT_TAG" != dev ]; then
@@ -120,6 +122,7 @@ read_deployment_status() {
       else
         empty
       end' 2>/dev/null || true)"
+  last_dokploy_request=$SECONDS
 }
 
 # compose.deploy only queues the job, and /health stays the proof that the release is live.
@@ -162,7 +165,7 @@ wait_for_deploy() {
   done
 
   if [ -z "$row_seen" ] && [ "$(live_release)" = "$release" ]; then
-    echo "::warning::$release is live, but Dokploy never listed a deployment described as \"$description\", so this run cannot prove a new deploy happened. Check that Dokploy still stores the deploy description."
+    echo "::warning::$release is live, but Dokploy never listed a deployment described as \"$description\", so this run cannot prove Dokploy redeployed it. Check that Dokploy still stores the deploy description."
     return 0
   fi
 
@@ -188,20 +191,27 @@ fi
 # Checked before any tag moves, so a missing setting never leaves the tag on a commit that was
 # never deployed. Only emptiness: a test request cannot tell a wrong key from the rate limit.
 missing=""
-for setting in DOKPLOY_URL DOKPLOY_API_KEY COMPOSE_ID; do
-  if [ -z "${!setting:-}" ]; then
-    missing="$missing $setting"
-  fi
-done
+if [ -z "$DOKPLOY_URL" ]; then
+  missing="$missing DOKPLOY_URL"
+fi
+if [ -z "${DOKPLOY_API_KEY:-}" ]; then
+  missing="$missing DOKPLOY_API_KEY"
+fi
+if [ -z "${COMPOSE_ID:-}" ]; then
+  missing="$missing DOKPLOY_COMPOSE_ID"
+fi
 if [ -n "$missing" ]; then
-  echo "::error::Empty deploy settings:$missing. Set them on the $ENVIRONMENT_TAG GitHub environment; no tag was moved."
+  echo "::error::These secrets are empty on the $ENVIRONMENT_TAG GitHub environment:$missing. No tag was moved."
   exit 1
 fi
 
+# When this commit is live already, or /health did not say, only Dokploy's row can show a redeploy.
 live_before="$(live_release)"
 needs_row=""
 if [ "$live_before" = "$RELEASE_ID" ]; then
   echo "$RELEASE_ID is already live, so this run waits for Dokploy to finish a fresh deploy of it."
+  needs_row=1
+elif [ -z "$live_before" ]; then
   needs_row=1
 fi
 
@@ -209,7 +219,7 @@ previous=""
 if [ "$ENVIRONMENT_TAG" = dev ]; then
   if ! [[ "$live_before" =~ ^[0-9a-f]{40}$ ]]; then
     echo "::warning::$APP_URL/health named no release before this deploy, so there is no known good release and the backstop is off for this run."
-  elif [ -n "$needs_row" ]; then
+  elif [ "$live_before" = "$RELEASE_ID" ]; then
     echo "There is no earlier release to go back to."
   else
     previous="$live_before"
