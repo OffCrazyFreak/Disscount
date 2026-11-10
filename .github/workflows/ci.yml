@@ -63,7 +63,7 @@ jobs:
             backup:
               - *workflow
               - backup/**
-            # What the boot test builds: the backend image, the migrator stage and the compose files.
+            # What the boot test builds: the backend, migrator and backup images and the compose files.
             smoke:
               - *workflow
               - backend/**
@@ -364,6 +364,14 @@ jobs:
           load: true
           tags: ghcr.io/offcrazyfreak/disscount-migrator:smoke
           cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-migrator:buildcache
+
+      # migrate waits for predeploy-dump, which runs this image and exits at once with backups off.
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: backup
+          load: true
+          tags: ghcr.io/offcrazyfreak/disscount-backup:smoke
+          cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-backup:buildcache
 
       # --pull missing: the app images exist only locally, while Postgres and Alpine still come from the registry.
       - name: Boot the stack and wait for healthy

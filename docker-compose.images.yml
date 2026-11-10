@@ -32,6 +32,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      # Exits at once where backups are off; on production it dumps first and only alerts when that fails.
+      predeploy-dump:
+        condition: service_completed_successfully
 
   backend:
     image: ghcr.io/offcrazyfreak/disscount-backend:${IMAGE_TAG:?IMAGE_TAG must be set}
@@ -203,6 +206,98 @@ services:
       # The backend creates erasure_ledger on its first boot; until then erasure-markers would fail every minute.
       backend:
         condition: service_healthy
+
+  # One-shot encrypted dump before every production deploy, which migrate waits for (docs/BACKUPS.md).
+  # No profile, so migrate can require it and always runs after it.
+  # The command lives here, not in backup-job: Dokploy reads this file from the branch tip, so a Rollback pairs it
+  # with an older backup image, which only has to provide the tools.
+  predeploy-dump:
+    image: ghcr.io/offcrazyfreak/disscount-backup:${IMAGE_TAG:?IMAGE_TAG must be set}
+    pull_policy: always
+    restart: "no"
+    environment:
+      COMPOSE_PROFILES: ${COMPOSE_PROFILES:-}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      BACKUP_R2_ENDPOINT: ${BACKUP_R2_ENDPOINT:-}
+      BACKUP_R2_BUCKET: ${BACKUP_R2_BUCKET:-}
+      BACKUP_R2_ACCESS_KEY_ID: ${BACKUP_R2_ACCESS_KEY_ID:-}
+      BACKUP_AGE_RECIPIENT: ${BACKUP_AGE_RECIPIENT:-}
+    # What backup-entrypoint requires plus the ping key; the sidecar's other keys stay out of this container.
+    secrets:
+      - postgres_password
+      - backup_r2_secret_access_key
+      - backup_crypt_password
+      - backup_crypt_salt
+      - backup_healthchecks_ping_key
+    networks: [internal]
+    depends_on:
+      db:
+        condition: service_healthy
+    # backup-entrypoint refuses blank settings, so the script decides first and enters it only when backups are on.
+    entrypoint: [bash, -c]
+    # $$ keeps Compose from interpolating; the variables come from the container's environment.
+    command:
+      - |
+        set -euo pipefail
+
+        if [[ ",$${COMPOSE_PROFILES// /}," != *,backup,* ]]; then
+          echo "predeploy-dump: backups off, no pre-deploy dump"
+          exit 0
+        fi
+
+        # Second pass: backup-entrypoint has loaded the secrets and rclone settings and runs this same script again.
+        if [[ -n "$${PREDEPLOY_SETTINGS_LOADED:-}" ]]; then
+          fail() {
+            echo "$$1" >/tmp/predeploy-reason
+            exit 1
+          }
+
+          work="$$(mktemp -d /tmp/predeploy.XXXXXX)"
+          trap 'rm -rf "$$work"' EXIT
+
+          # The predeploy- name keeps restores that take the newest timestamped nightly dump from picking this one.
+          name="predeploy-$$(date -u +%Y%m%dT%H%M%SZ).dump.age"
+          target="r2:$$BACKUP_R2_BUCKET/db/nightly/$$name"
+
+          # A finished, non-empty, readable file only: an upload stays locked for 28 days.
+          pg_dump --format=custom --compress=zstd --file="$$work/db.dump" || fail "pg_dump failed"
+          [[ -s "$$work/db.dump" ]] || fail "the dump is empty"
+          pg_restore --list "$$work/db.dump" >/dev/null || fail "the dump does not read back"
+
+          age -r "$$BACKUP_AGE_RECIPIENT" -o "$$work/db.dump.age" "$$work/db.dump" || fail "age encryption failed"
+          rclone copyto --s3-no-check-bucket "$$work/db.dump.age" "$$target" || fail "the upload to R2 failed"
+
+          # Size and MD5 of the stored object against the local file, without downloading or decrypting it.
+          expected="$$(stat -c %s "$$work/db.dump.age");$$(md5sum "$$work/db.dump.age" | cut -d' ' -f1)"
+          uploaded="$$(rclone lsf --format sh --hash MD5 "$$target")" || fail "the uploaded dump cannot be read back"
+          [[ "$$uploaded" == "$$expected" ]] || fail "the uploaded dump does not match the local file"
+
+          echo "uploaded db/nightly/$$name ($${expected%%;*} bytes)" >/tmp/predeploy-summary
+          exit 0
+        fi
+
+        # Same healthchecks.io ping as backup-job; the body carries only this script's own line, never tool output.
+        ping() {
+          local key
+          key="$$(cat /run/secrets/backup_healthchecks_ping_key 2>/dev/null || true)"
+          [[ -n "$$key" ]] || return 0
+          curl -fsS -m 10 --retry 3 -o /dev/null --data-raw "$$2" \
+            "https://hc-ping.com/$$key/disscount-predeploy-dump$$1?create=1" || true
+        }
+
+        # First pass. A failure only alerts (owner, 2026-11-11): stopping here would take production down,
+        # so the deploy goes ahead on the hourly dumps.
+        if env PREDEPLOY_SETTINGS_LOADED=1 backup-entrypoint bash -c "$$BASH_EXECUTION_STRING"; then
+          line="predeploy-dump: $$(cat /tmp/predeploy-summary)"
+          echo "$$line"
+          ping "" "$$line"
+        else
+          reason="$$(cat /tmp/predeploy-reason 2>/dev/null || echo "the settings were refused or a step broke, see the lines above")"
+          line="predeploy dump FAILED: $$reason"
+          echo "$$line; the deploy goes ahead on the hourly dumps (docs/BACKUPS.md, Dump before each deploy)" >&2
+          ping /fail "$$line"
+        fi
 
 networks:
   internal:
