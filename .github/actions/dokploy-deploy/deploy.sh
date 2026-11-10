@@ -11,6 +11,10 @@ POLL_SECONDS=15
 DOKPLOY_GAP_SECONDS=65
 last_dokploy_request=-$DOKPLOY_GAP_SECONDS
 
+# Set by trigger_deploy, and by read_deployment_status once it finds this deploy's own row.
+triggered_after=0
+deployment_id=""
+
 # Dev: the ceiling for a deploy Dokploy never reports as failed. Healthy deploys took 54 to 74 s,
 # and compose gives up on the slowest healthcheck chain at 300 s.
 # Only dev has proved the backstop, so prod keeps its long wait and its manual Rollback.
@@ -76,21 +80,26 @@ wait_for_dokploy_gap() {
 }
 
 # Only the status code is printed, because Dokploy's response bodies can echo service
-# settings into a public log. The description is how the wait finds this deploy's own row.
+# settings into a public log. Sets triggered_after to a time no later than the creation of this
+# deploy's row, on Dokploy's clock: the response's Date header less 1 s, because the header has
+# whole seconds. The runner clock is only the fallback when the answer has no Date header.
 trigger_deploy() {
-  local release="$1" title="$2" description="$3" status attempt body
+  local release="$1" title="$2" description="$3" status attempt body response sent_at server_date
 
   body="$(jq -nc --arg composeId "$COMPOSE_ID" --arg title "$title" --arg description "$description" \
     '{composeId: $composeId, title: $title, description: $description}')"
 
   for attempt in 1 2; do
     wait_for_dokploy_gap
-    status=$(curl --silent --show-error --max-time 30 --output /dev/null --write-out '%{http_code}' \
+    sent_at="$(date -u +%s)"
+    response=$(curl --silent --show-error --max-time 30 --output /dev/null \
+      --write-out '%{http_code}\n%header{date}' \
       --request POST "$DOKPLOY_URL/api/compose.deploy" \
       --header "x-api-key: $DOKPLOY_API_KEY" \
       --header "Content-Type: application/json" \
       --data "$body" || true)
     last_dokploy_request=$SECONDS
+    status="${response%%$'\n'*}"
 
     # A dev job right behind another can find the key's count full; the window clears it.
     if [ "$status" != 401 ] || [ "$attempt" = 2 ] || [ "$ENVIRONMENT_TAG" != dev ]; then
@@ -103,33 +112,60 @@ trigger_deploy() {
     echo "::error::Dokploy did not accept the deploy (HTTP $status). The $ENVIRONMENT_TAG tag already points at $release; run Rollback with the last good commit (or, before Rollback is on main, push a revert) before any Redeploy."
     return 1
   fi
+
+  # GNU date reads an empty string as midnight, so an answer without the header must not reach it.
+  server_date="${response#*$'\n'}"
+  if [ -n "$server_date" ] && server_date="$(date -u -d "$server_date" +%s 2>/dev/null)"; then
+    triggered_after=$((server_date - 1))
+  else
+    triggered_after="$sent_at"
+  fi
+  deployment_id=""
 }
 
-# Sets deployment_status to the status of the deployment row carrying this description, or to
-# nothing when there is no such row yet or the read failed. 401s are not retried: a wrong key and
-# a full rate limit both answer 401, and a retry would only fill the count further.
+# Sets deployment_status to the status of this deploy's own row, or to nothing when there is no
+# such row yet or the read failed. 401s are not retried: a wrong key and a full rate limit both
+# answer 401, and a retry would only fill the count further.
+#
+# Dokploy v0.31.0 keeps our description only while the deploy runs; when it ends, it rewrites the
+# title and description to the compose repository's tip commit, as "Commit: <sha>". So the row is
+# ours when it still carries our description, or once it is the earliest finished row created
+# after the trigger. Its id is kept, so a later deploy of someone else can never take its place.
 read_deployment_status() {
-  local description="$1"
+  local description="$1" row
 
   wait_for_dokploy_gap
-  deployment_status="$(curl --silent --fail --max-time 30 --retry 2 --retry-delay 3 --get \
+  row="$(curl --silent --fail --max-time 30 --retry 2 --retry-delay 3 --get \
     --header "x-api-key: $DOKPLOY_API_KEY" \
     --data-urlencode "composeId=$COMPOSE_ID" \
     "$DOKPLOY_URL/api/deployment.allByCompose" |
-    jq -r --arg description "$description" '
+    jq -r --arg description "$description" --arg id "$deployment_id" --argjson after "$triggered_after" '
+      def created: .createdAt | sub("\\.[0-9]+"; "") | fromdateiso8601;
+      def finished_since_trigger: (.description // "" | startswith("Commit: ")) and created >= $after;
+
       if type == "array" then
-        map(select(.description == $description)) | max_by(.createdAt) | .status // empty
+        (map(select(.deploymentId == $id)) | first)
+        // (map(select(.description == $description)) | min_by(.createdAt))
+        // (map(select(finished_since_trigger)) | min_by(.createdAt))
+        | select(. != null)
+        | "\(.deploymentId) \(.status)"
       else
         empty
       end' 2>/dev/null || true)"
   last_dokploy_request=$SECONDS
+
+  deployment_status=""
+  if [ -n "$row" ]; then
+    deployment_id="${row%% *}"
+    deployment_status="${row#* }"
+  fi
 }
 
 # compose.deploy only queues the job, and /health stays the proof that the release is live.
 # Dokploy's row for this deploy ends the wait early when it reports error or cancelled. When
 # needs_row is set, /health already reported the release before the deploy, so success also
-# needs the row to reach done. A Dokploy that stops storing descriptions never shows the row;
-# then /health alone decides at the deadline, with a warning.
+# needs the row to reach done. A Dokploy that stops writing rows never shows one; then /health
+# alone decides at the deadline, with a warning.
 wait_for_deploy() {
   local release="$1" description="$2" needs_row="$3" deadline=$((SECONDS + WAIT_MINUTES * 60))
   local live row_seen="" deployment_status=""
@@ -165,7 +201,7 @@ wait_for_deploy() {
   done
 
   if [ -z "$row_seen" ] && [ "$(live_release)" = "$release" ]; then
-    echo "::warning::$release is live, but Dokploy never listed a deployment described as \"$description\", so this run cannot prove Dokploy redeployed it. Check that Dokploy still stores the deploy description."
+    echo "::warning::$release is live, but Dokploy never listed a deployment row for this deploy (described as \"$description\" while it runs, or \"Commit: <sha>\" once it ends), so this run cannot prove Dokploy redeployed it. Check how this Dokploy version writes deployment rows."
     return 0
   fi
 
