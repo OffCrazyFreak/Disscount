@@ -2,7 +2,7 @@ package disscount.preferences;
 
 import disscount.support.ApiContract;
 import disscount.support.FullStackTest;
-import disscount.user.domain.User;
+import disscount.user.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import tools.jackson.databind.JsonNode;

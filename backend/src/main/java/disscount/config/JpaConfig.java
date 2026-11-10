@@ -1,6 +1,6 @@
 package disscount.config;
 
-import disscount.util.Timestamps;
+import disscount.shared.Timestamps;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.auditing.DateTimeProvider;

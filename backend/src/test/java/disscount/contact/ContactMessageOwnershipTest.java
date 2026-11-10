@@ -1,0 +1,89 @@
+package disscount.contact;
+
+import disscount.support.FullStackTest;
+import disscount.user.User;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import tools.jackson.databind.JsonNode;
+
+import java.util.concurrent.ThreadLocalRandom;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+/** The sender comes from the token, never the body; reading back is admin only and pinned in AdminGatingTest. */
+class ContactMessageOwnershipTest extends FullStackTest {
+
+    @Autowired ContactMessageRepository messages;
+
+    // A fresh address per request, so the per-IP limit never trips across tests sharing the context.
+    private static MockHttpServletRequestBuilder submit(String body) {
+        String ip = "10.0." + ThreadLocalRandom.current().nextInt(256) + "." + ThreadLocalRandom.current().nextInt(256);
+        return post("/api/contact").contentType(MediaType.APPLICATION_JSON).content(body)
+                .with(request -> {
+                    request.setRemoteAddr(ip);
+                    return request;
+                });
+    }
+
+    @Test
+    void theSenderIsTheTokensUserWhateverTheBodyClaims() throws Exception {
+        User sender = newUser("sender");
+        User someoneElse = newUser("someone");
+
+        JsonNode created = body(mvc.perform(submit(
+                "{\"subject\":\"Pitanje\",\"message\":\"Poruka\",\"userId\":\"" + someoneElse.getId() + "\"}").with(as(sender)))
+                .andExpect(status().isOk()));
+
+        assertThat(created.get("userId").asString()).isEqualTo(sender.getId().toString());
+    }
+
+    @Test
+    void anAnonymousMessageHasNoSender() throws Exception {
+        User someoneElse = newUser("someone");
+
+        JsonNode created = body(mvc.perform(submit(
+                "{\"subject\":\"Pitanje\",\"message\":\"Poruka\",\"userId\":\"" + someoneElse.getId() + "\"}"))
+                .andExpect(status().isOk()));
+
+        assertThat(created.get("userId").isNull()).isTrue();
+    }
+
+    // A bot gets a success so it has no reason to retry, but nothing is stored.
+    @Test
+    void aHoneypotHitIsA204WithAnEmptyBodyAndStoresNothing() throws Exception {
+        long before = messages.count();
+
+        mvc.perform(submit("{\"subject\":\"Pitanje\",\"message\":\"Poruka\",\"honeypot\":\"x\"}").with(as(newUser("bot"))))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        assertThat(messages.count()).isEqualTo(before);
+    }
+
+    // People never type into the hidden field, so even whitespace there means a bot filled it.
+    @Test
+    void aWhitespaceOnlyHoneypotIsStillAHitAndStoresNothing() throws Exception {
+        long before = messages.count();
+
+        mvc.perform(submit("{\"subject\":\"Pitanje\",\"message\":\"Poruka\",\"honeypot\":\" \\t \"}"))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        assertThat(messages.count()).isEqualTo(before);
+    }
+
+    @Test
+    void anEmptyHoneypotIsAPersonAndTheMessageIsStored() throws Exception {
+        long before = messages.count();
+
+        mvc.perform(submit("{\"subject\":\"Pitanje\",\"message\":\"Poruka\",\"honeypot\":\"\"}"))
+                .andExpect(status().isOk());
+
+        assertThat(messages.count()).isEqualTo(before + 1);
+    }
+}
