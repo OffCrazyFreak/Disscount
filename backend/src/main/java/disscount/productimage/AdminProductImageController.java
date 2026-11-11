@@ -15,7 +15,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -40,9 +43,8 @@ class AdminProductImageController {
     @Operation(summary = "Products to go through, most widely sold first (filter: todo, pending, reported)")
     @GetMapping("/queue")
     public AdminQueuePageDto queue(@RequestParam(defaultValue = "todo") String filter,
-                                   @RequestParam(defaultValue = "0") int page,
-                                   @RequestParam(defaultValue = "50") int size) {
-        return admin.queue(filter, page, size);
+                                   @ParameterObject @PageableDefault(size = 50) Pageable page) {
+        return admin.queue(filter, page);
     }
 
     @Operation(summary = "Every photo of a product, hidden and unconfirmed included")

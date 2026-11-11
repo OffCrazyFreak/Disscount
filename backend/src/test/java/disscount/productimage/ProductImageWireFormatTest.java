@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.JsonNode;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -110,12 +112,29 @@ class ProductImageWireFormatTest extends FullStackTest {
                 .andExpect(status().isOk()));
 
         ApiContract.assertMatches("AdminQueuePageDto", page);
-        assertThat(page.get("page").asInt()).isZero();
-        assertThat(page.get("size").asInt()).isEqualTo(1);
+        ApiContract.assertMatches("PageInfoDto", page.get("page"));
+        assertThat(page.get("page").get("number").asInt()).isZero();
+        assertThat(page.get("page").get("size").asInt()).isEqualTo(1);
+        assertThat(page.get("page").get("totalItems").asLong()).isPositive();
+        assertThat(page.get("page").get("totalPages").asInt()).isPositive();
         assertThat(page.get("items")).singleElement().satisfies(item -> {
             ApiContract.assertMatches("AdminQueueItemDto", item);
             assertThat(item.get("ean").asString()).isEqualTo(ean);
             assertThat(item.get("previewUrl").isString()).isTrue();
         });
+    }
+
+    @Test
+    void theAdminQueueCapsThePageSizeAndIgnoresAClientSort() throws Exception {
+        // A sort that reached the query would name a field the entity lacks and fail it.
+        JsonNode page = body(mvc.perform(get("/api/admin/product-images/queue")
+                        .param("size", "500")
+                        .param("sort", "noSuchField,desc")
+                        .with(as(newAdmin())))
+                .andExpect(status().isOk()));
+
+        assertThat(page.get("page").get("size").asInt()).isEqualTo(100);
+        List<Integer> listings = page.get("items").valueStream().map(item -> item.get("storeListings").asInt()).toList();
+        assertThat(listings).isNotEmpty().isSortedAccordingTo(Comparator.reverseOrder());
     }
 }
