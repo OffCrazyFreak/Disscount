@@ -1,6 +1,7 @@
 package disscount.preferences.pinnedstore;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -29,5 +30,23 @@ class PinnedStoreRequestSizeTest {
     void valuesThatFillTheColumnAreValid() {
         assertThat(validator.validate(new BulkPinnedStoreRequest(List.of(new PinnedStoreRequest(LONGEST, LONGEST)))))
                 .isEmpty();
+    }
+
+    @Test
+    void moreThanFiftyPinnedStoresIsAFormError() {
+        assertThat(validator.validate(new BulkPinnedStoreRequest(pinned(51))))
+                .extracting(violation -> violation.getPropertyPath().toString())
+                .containsExactly("stores");
+    }
+
+    @Test
+    void fiftyPinnedStoresAreValid() {
+        assertThat(validator.validate(new BulkPinnedStoreRequest(pinned(50)))).isEmpty();
+    }
+
+    private static List<PinnedStoreRequest> pinned(int count) {
+        return IntStream.range(0, count)
+                .mapToObj(index -> new PinnedStoreRequest("store-" + index, "Store " + index))
+                .toList();
     }
 }

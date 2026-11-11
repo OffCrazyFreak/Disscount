@@ -54,6 +54,27 @@ class ShoppingListItemRequestTest {
         assertThat(validator.validate(request)).isEmpty();
     }
 
+    // The text columns are varchar(255), and anyone with a shop level link can send these fields.
+    @Test
+    void textLongerThanItsColumnIsAFormError() {
+        String tooLong = "a".repeat(256);
+        ShoppingListItemRequest request = new ShoppingListItemRequest(
+                tooLong, tooLong, tooLong, tooLong, tooLong, null, null, tooLong, null, null);
+
+        assertThat(validator.validate(request))
+                .extracting(violation -> violation.getPropertyPath().toString())
+                .containsExactlyInAnyOrder("ean", "brand", "name", "quantity", "unit", "chainCode");
+    }
+
+    @Test
+    void textThatFillsTheColumnIsValid() {
+        String longest = "a".repeat(255);
+        ShoppingListItemRequest request = new ShoppingListItemRequest(
+                longest, longest, longest, longest, longest, null, null, longest, null, null);
+
+        assertThat(validator.validate(request)).isEmpty();
+    }
+
     private static ShoppingListItemRequest item(String ean, String name) {
         return new ShoppingListItemRequest(ean, null, name, null, null, null, null, null, null, null);
     }

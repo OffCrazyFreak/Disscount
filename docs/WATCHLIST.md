@@ -54,7 +54,7 @@ The backend stores the rule and never a price. Entity `WatchlistItem` (`backend/
 | -------------------------- | -------------------------------------------------------------------- |
 | `id`                       | UUID                                                                 |
 | `user_id`                  | The owner (`app_user`)                                               |
-| `product_api_id`           | The product's EAN                                                    |
+| `product_api_id`           | The product's EAN, at most 255 characters (the column width)         |
 | `watch_type`               | `PERCENTAGE` or `ABSOLUTE` (stored as a string)                      |
 | `threshold_value`          | The number the user typed: percent, or euros                         |
 | `created_at`, `updated_at` | Stamped with `Timestamps.nowUtc()` in `@PrePersist` and `@PreUpdate` |
@@ -83,7 +83,7 @@ The rule modal (`app/[locale]/products/components/forms/watchlist-item-modal.tsx
 | `ABSOLUTE`   | "price drops by €"       | 0.1 to 999                 | 10 % of the average price, clamped to the range; 1 € with no price |
 
 - A product can carry one rule of each type, so "10 % off or 0.50 € off" is two rows.
-- The ranges and defaults live in `app/[locale]/products/utils/watchlist-thresholds.ts`. The backend checks only that the value is positive (`watchlistItemRequestSchema` on the client, `@Positive` on `WatchlistItemRequest` on the server), so a client other than ours could store 5000 %.
+- The ranges and defaults live in `app/[locale]/products/utils/watchlist-thresholds.ts`. The backend checks that the value is positive (`@Positive` on `WatchlistItemRequest`) and that a `PERCENTAGE` rule is at most 100 (`@PercentageAtMostHundred`, reported on `thresholdValue`, #703 limits for long text and pins). An `ABSOLUTE` rule has no upper limit on the server, so a client other than ours could store 5000 €.
 - `parseThreshold` accepts the whole string or nothing, so "10abc" is invalid rather than read as 10.
 - The product page's watchlist toggle (`app/[locale]/products/components/watchlist-action-button.tsx`) opens the modal; the watchlist page's own button (`(user)/watchlist/components/watchlist-action-button.tsx`) edits or removes.
 
@@ -151,7 +151,7 @@ The hook's own comment calls it a stand-in until the server inbox (#222) can ret
 | Resetting the price-drop badge           | Automatic                 | On a visible visit to `/watchlist`, or a change of pinned stores                  |
 | Replaying offline adds and removes       | Automatic                 | Paused mutations                                                                  |
 | Purging soft-deleted rows                | Not built                 | Soft-deleted rules stay in the table                                              |
-| Changing threshold ranges                | Manual code change        | `watchlist-thresholds.ts`; the backend has no range to update                     |
+| Changing threshold ranges                | Manual code change        | `watchlist-thresholds.ts`; the backend only caps a percentage at 100              |
 
 ---
 
@@ -189,7 +189,7 @@ The threshold modal's ranges and the bell's grouping have no dedicated test beyo
 | Gotcha                                              | Why it bites                                                                                                        | What to do                                                                                               |
 | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | **The badge and the bell measure different things** | The badge counts drops since the last visit; the bell lists rule matches. A product can be in one and not the other | Debug the right hook: `useWatchlistPriceDropCount` or `useWatchlistNotifications`                        |
-| **Ranges are frontend only**                        | The server accepts any positive number                                                                              | A new client must apply `watchlistLimits` itself                                                         |
+| **Ranges are mostly frontend only**                 | The server accepts any positive number up to 100 for a percentage and any positive number in euros                  | A new client must apply `watchlistLimits` itself                                                         |
 | **Re-adding after a delete makes a new row**        | The upsert only matches live rows, so the soft-deleted one stays behind                                             | Expected; history is not reused                                                                          |
 | **One product query per watched EAN**               | A long watchlist means many parallel upstream calls on every page with the bell                                     | Fine at today's sizes; a batched endpoint upstream would fix it (#45 covers history, not current prices) |
 | **The snapshot needs a known scope**                | Writing before pinned stores load would rebase against every chain                                                  | Keep the `isScopeKnown` guard                                                                            |

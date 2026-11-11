@@ -10,19 +10,19 @@ Sharing a list (link access levels, the one route that serves owners and link vi
 
 ## 1. Quick reference
 
-| Thing            | Value                                                                                                                                                                                                                    |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Routes           | `/shopping-lists` (login required), `/shopping-lists/<id>` (owner, or anyone holding the link when it is shared)                                                                                                         |
-| Modals           | `?modal=shopping-list/new`, `shopping-list/edit&id=`, `shopping-list/copy&id=`, `shopping-list/share&id=`, `shopping-list-actions&id=`, `add-to-list&ean=` (optionally `&list=`), `add-plain-item` (optionally `&item=`) |
-| Backend packages | `disscount.shoppinglist` (lists, access, copy, items, merging)                                                                                                                                                           |
-| Tables           | `shopping_list`, `shopping_list_item` (both soft delete with `deleted_at`)                                                                                                                                               |
-| Limits           | 50 lists per person and 50 items per list ([BACKEND.md §7.1](BACKEND.md#71-per-user-limits)), title 3 to 100 characters (frontend form rule only), item amount 1 to 999, item name 255 characters (the column width)     |
-| Who adds items   | only the owner, on the server and in the UI                                                                                                                                                                              |
-| Prices           | live from the cijene API per EAN; a ticked item keeps the prices captured when it was ticked                                                                                                                             |
-| Offline          | lists and items are cached on the device; create, rename, delete, add, tick and remove queue and replay                                                                                                                  |
-| Env vars         | none of its own                                                                                                                                                                                                          |
-| Frontend tests   | `pnpm test` (Vitest)                                                                                                                                                                                                     |
-| Backend tests    | `mvn -B test` (H2, no network)                                                                                                                                                                                           |
+| Thing            | Value                                                                                                                                                                                                                          |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Routes           | `/shopping-lists` (login required), `/shopping-lists/<id>` (owner, or anyone holding the link when it is shared)                                                                                                               |
+| Modals           | `?modal=shopping-list/new`, `shopping-list/edit&id=`, `shopping-list/copy&id=`, `shopping-list/share&id=`, `shopping-list-actions&id=`, `add-to-list&ean=` (optionally `&list=`), `add-plain-item` (optionally `&item=`)       |
+| Backend packages | `disscount.shoppinglist` (lists, access, copy, items, merging)                                                                                                                                                                 |
+| Tables           | `shopping_list`, `shopping_list_item` (both soft delete with `deleted_at`)                                                                                                                                                     |
+| Limits           | 50 lists per person and 50 items per list ([BACKEND.md §7.1](BACKEND.md#71-per-user-limits)), title 3 to 100 characters (the backend checks the 100), item amount 1 to 999, item text fields 255 characters (the column width) |
+| Who adds items   | only the owner, on the server and in the UI                                                                                                                                                                                    |
+| Prices           | live from the cijene API per EAN; a ticked item keeps the prices captured when it was ticked                                                                                                                                   |
+| Offline          | lists and items are cached on the device; create, rename, delete, add, tick and remove queue and replay                                                                                                                        |
+| Env vars         | none of its own                                                                                                                                                                                                                |
+| Frontend tests   | `pnpm test` (Vitest)                                                                                                                                                                                                           |
+| Backend tests    | `mvn -B test` (H2, no network)                                                                                                                                                                                                 |
 
 ---
 
@@ -70,7 +70,7 @@ Entities live in `backend/src/main/java/disscount/shoppinglist/`. The tables com
 | ------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `id`          | UUID, primary key   | Generated by the server (`GenerationType.UUID`), unlike digital cards                                                         |
 | `owner_id`    | UUID, FK `app_user` | Not null, lazy                                                                                                                |
-| `title`       | varchar             | Not null, `@NotBlank`. The 3 to 100 length rule is the frontend form's, not the server's                                      |
+| `title`       | varchar             | Not null, `@NotBlank`, `@Size(max = 100)` on create, rename and copy. The 3 character minimum is the frontend form's only     |
 | `link_access` | varchar(16), null   | `VIEW`, `SHOP`, `EDIT`, or null for "not shared". Read through `resolvedLinkAccess()`, see [SHARING.md](SHARING.md#9-gotchas) |
 | `created_at`  | timestamp           | Stamped through `Timestamps.nowUtc()` in `@PrePersist`                                                                        |
 | `updated_at`  | timestamp           | Moves on a rename and on every item write (`touchList`), which is what orders the lists index                                 |
@@ -82,12 +82,12 @@ Entities live in `backend/src/main/java/disscount/shoppinglist/`. The tables com
 | --------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `id`                        | UUID, primary key         | Generated by the server                                                                                                                                                 |
 | `shopping_list_id`          | UUID, FK `shopping_list`  | Not null, lazy                                                                                                                                                          |
-| `ean`                       | varchar, null             | The product's barcode number. Null for a plain item typed by the user; a blank EAN is stored as null                                                                    |
-| `brand`, `quantity`, `unit` | varchar, null             | A snapshot of the product's catalogue fields, taken when it was added                                                                                                   |
+| `ean`                       | varchar(255), null        | The product's barcode number. Null for a plain item typed by the user; a blank EAN is stored as null                                                                    |
+| `brand`, `quantity`, `unit` | varchar(255), null        | A snapshot of the product's catalogue fields, taken when it was added                                                                                                   |
 | `name`                      | varchar(255)              | Not null, `@NotBlank`, stored stripped of outer whitespace                                                                                                              |
 | `amount`                    | integer                   | Not null, default 1. The request allows 1 to 999 and a merge caps the sum at 999                                                                                        |
 | `is_checked`                | boolean                   | Not null, default false. "Bought"                                                                                                                                       |
-| `chain_code`                | varchar, null             | The chain the item is bought at, a cijene slug such as `konzum`. Only the format is validated (`^[a-z0-9_-]+$`), never a fixed list, so new upstream chains never break |
+| `chain_code`                | varchar(255), null        | The chain the item is bought at, a cijene slug such as `konzum`. Only the format is validated (`^[a-z0-9_-]+$`), never a fixed list, so new upstream chains never break |
 | `avg_price`                 | numeric(10,4), null       | The average across chains, captured at the tick                                                                                                                         |
 | `store_price`               | numeric(10,4), null       | The price at `chain_code`, captured at the tick                                                                                                                         |
 | `updated_by_user_id`        | UUID, FK `app_user`, null | The account that last wrote the row. Sent to the owner only, see [SHARING.md](SHARING.md#7-privacy-decisions)                                                           |
@@ -104,7 +104,7 @@ The DTOs (`ShoppingListDto`, `ShoppingListItemDto`) are built in one place, `Sho
 
 On the frontend the contract lives in two zod files:
 
-- `lib/api/schemas/shopping-list.ts`: `shoppingListRequestSchema` (form rules: title trimmed, then 3 to 100 characters), `shoppingListDtoSchema` (the response), `shoppingListCopyRequestSchema`, and the `LinkAccess` and `ListAccess` enums.
+- `lib/api/schemas/shopping-list.ts`: `shoppingListRequestSchema` (form rules: title trimmed, then 3 to 100 characters; the backend checks only the 100), `shoppingListDtoSchema` (the response), `shoppingListCopyRequestSchema`, and the `LinkAccess` and `ListAccess` enums.
 - `lib/api/schemas/shopping-list-item.ts`: `shoppingListItemRequestSchema` (name required, amount an integer from 1 to `MAX_SHOPPING_LIST_ITEM_AMOUNT`, defaulting to 1) and `shoppingListItemDtoSchema`.
 
 Request and response schemas are separate objects on purpose. The request schemas carry form rules the backend does not enforce, so inheriting them into the response would make a row the server considers valid (saved before a limit existed) fail to parse. The response schemas require every key, because the backend always sends every key with null for "unset" (PR #462, require the response DTO keys Spring always sends).
@@ -413,8 +413,8 @@ Not covered by an automated test: the info table maths against real prices, the 
 | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **The merge rule lives in two places**                       | `ShoppingListItemMatcher` decides, `item-merge.ts` predicts it for a toast. Change both together, or the toast lies                                                                                                                           |
 | **Only the owner adds items**                                | The backend refuses every other level (`error.shoppingList.ownerOnlyAddItems`), and the quick add field is hidden for them. Do not offer an add path to link visitors until membership exists ([SHARING.md §10](SHARING.md#10-not-built-yet)) |
-| **The title limit is the frontend's**                        | The server checks only `@NotBlank`. A request from outside the app can store a longer title, which is why the response schema has no length rule                                                                                              |
-| **A name over 255 characters is a 500**                      | The column is 255 wide and the request does not validate length, so the frontend caps the inputs with `MAX_SHOPPING_LIST_ITEM_NAME_LENGTH` (#416 tracks a server side rule)                                                                   |
+| **The title minimum is the frontend's**                      | The server checks `@NotBlank` and at most 100 characters, so a request from outside the app can store a one or two character title. Titles saved before the 100 limit may be longer, which is why the response schema has no length rule      |
+| **Item text is capped at the column width**                  | Every item text field is 255 characters wide. The request refuses longer text with a form error (#703, limits for long text and pins), and the frontend caps the inputs with `MAX_SHOPPING_LIST_ITEM_NAME_LENGTH`. Keep the two equal         |
 | **Roll back one item, never the list**                       | Overlapping ticks undo each other under a whole list rollback. Use the helpers in `optimistic-items.ts`                                                                                                                                       |
 | **Renaming a query root stops offline persistence**          | `shoppingLists` and `shoppingListItems` must match `cached-query-keys.ts`, and a queued tick only survives a reload through that persisted snapshot                                                                                           |
 | **A new list write key must start with `shoppingLists`**     | Polling pauses on `useIsMutating({ mutationKey: ["shoppingLists"] })`; another prefix would let a poll overwrite the optimistic cache                                                                                                         |
@@ -431,7 +431,7 @@ Not covered by an automated test: the info table maths against real prices, the 
 ## 20. Future improvements & TODOs
 
 - [ ] #182 (shared lists live updates): polling shipped in #358; the issue stays open for the push option, Server Sent Events from Spring turned into `invalidateQueries`, quiet when nothing changes.
-- [ ] #416 (plain item follow-ups): an optimistic row for quick add, one name matching rule shared by frontend and backend, and a server side name length limit.
+- [ ] #416 (plain item follow-ups): an optimistic row for quick add and one name matching rule shared by frontend and backend. The server side name length limit came with #703 (limits for long text and pins).
 - [ ] #277 (where a whole list is cheapest near you, and what a second store would save) and #270 (a store to store route for a list, in the app and in Google or Apple Maps).
 - [ ] #45 (batch price history requests) and #62 (periods longer than 30 days), which unblock the disabled history periods.
 - [ ] #168 (store select blank when price data fails): the price states in [§8](#8-prices-on-the-list-page) replace the blank select with a reason, which may resolve it; unverified in a browser.

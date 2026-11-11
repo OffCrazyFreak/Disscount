@@ -1,6 +1,7 @@
 package disscount.preferences.pinnedplace;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -29,5 +30,23 @@ class PinnedPlaceRequestSizeTest {
     void valuesThatFillTheColumnAreValid() {
         assertThat(validator.validate(new BulkPinnedPlaceRequest(List.of(new PinnedPlaceRequest(LONGEST, LONGEST)))))
                 .isEmpty();
+    }
+
+    @Test
+    void moreThanFiftyPinnedPlacesIsAFormError() {
+        assertThat(validator.validate(new BulkPinnedPlaceRequest(pinned(51))))
+                .extracting(violation -> violation.getPropertyPath().toString())
+                .containsExactly("places");
+    }
+
+    @Test
+    void fiftyPinnedPlacesAreValid() {
+        assertThat(validator.validate(new BulkPinnedPlaceRequest(pinned(50)))).isEmpty();
+    }
+
+    private static List<PinnedPlaceRequest> pinned(int count) {
+        return IntStream.range(0, count)
+                .mapToObj(index -> new PinnedPlaceRequest("place-" + index, "Place " + index))
+                .toList();
     }
 }

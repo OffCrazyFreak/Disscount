@@ -95,7 +95,9 @@
   "validation": {
     "usernameMin": "Upiši barem 2 znaka",
     "usernameMax": "Upiši najviše 40 znakova",
-    "currentPasswordRequired": "Unesi trenutnu lozinku"
+    "currentPasswordRequired": "Unesi trenutnu lozinku",
+    "pinnedStoresMax": "Odaberi najviše 50 trgovina",
+    "pinnedPlacesMax": "Odaberi najviše 50 lokacija"
   },
   "onboarding": {
     "fallbackDescription": "Kratko postavljanje računa. Sve možeš kasnije promijeniti.",
