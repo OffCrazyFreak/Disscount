@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 class ProductImageQueryService {
 
     static final int MAX_THUMBNAIL_EANS = 100;
@@ -31,7 +32,6 @@ class ProductImageQueryService {
     private final PhotoStore store;
     private final ProductImageViews views;
 
-    @Transactional(readOnly = true)
     public ProductImagesDto forProduct(String ean) {
         requireEan(ean);
         if (!store.enabled()) return new ProductImagesDto(ean, List.of());
@@ -40,7 +40,6 @@ class ProductImageQueryService {
         return views.publicView(ean, mainId, images.findByEanOrderByCreatedAtAsc(ean));
     }
 
-    @Transactional(readOnly = true)
     public ProductThumbnailsDto thumbnails(List<String> eans) {
         Set<String> unique = new LinkedHashSet<>(eans);
         if (unique.size() > MAX_THUMBNAIL_EANS) {
@@ -57,7 +56,6 @@ class ProductImageQueryService {
         return new ProductThumbnailsDto(result);
     }
 
-    @Transactional(readOnly = true)
     public ListedEansDto listedEans() {
         return new ListedEansDto(sets.findListedEans());
     }

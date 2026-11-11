@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class DigitalCardService {
 
     static final int MAX_ACTIVE_CARDS = 300;
@@ -49,7 +49,6 @@ public class DigitalCardService {
     private final PhotoStore photoStore;
     private final DigitalCardMapper mapper;
 
-    @Transactional(readOnly = true)
     public List<DigitalCardDto> list(UUID userId) {
         List<DigitalCard> cards = cardRepository.findActiveByUserId(userId);
         if (cards.isEmpty()) return List.of();
@@ -64,17 +63,16 @@ public class DigitalCardService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     public DigitalCardDto get(UUID userId, UUID id) {
         return toDto(requireActive(userId, id));
     }
 
-    @Transactional(readOnly = true)
     public boolean photosEnabled() {
         return photoStore.enabled();
     }
 
     /** A replayed create never resurrects, another user's id looks unused; the lock makes the cap atomic. */
+    @Transactional
     public DigitalCardDto upsert(UUID userId, UUID id, DigitalCardRequest request) {
         userLock.acquire(userId);
         DigitalCard card = cardRepository.findById(id).orElse(null);
@@ -105,6 +103,7 @@ public class DigitalCardService {
         return toDto(card);
     }
 
+    @Transactional
     public DigitalCardDto setPinned(UUID userId, UUID id, boolean pinned) {
         userLock.acquire(userId);
         if (cardRepository.updatePinnedAt(id, userId, pinned ? Timestamps.nowUtc() : null) == 0) {
@@ -113,6 +112,7 @@ public class DigitalCardService {
         return toDto(requireActive(userId, id));
     }
 
+    @Transactional
     public DigitalCardDto setArchived(UUID userId, UUID id, boolean archived) {
         userLock.acquire(userId);
         if (cardRepository.updateArchivedAt(id, userId, archived ? Timestamps.nowUtc() : null) == 0) {
@@ -121,6 +121,7 @@ public class DigitalCardService {
         return toDto(requireActive(userId, id));
     }
 
+    @Transactional
     public void delete(UUID userId, UUID id) {
         userLock.acquire(userId);
         DigitalCard card = requireActive(userId, id);
@@ -133,6 +134,7 @@ public class DigitalCardService {
         cardRepository.save(card);
     }
 
+    @Transactional
     public void recordUsed(UUID userId, List<CardUsedEntry> entries) {
         if (entries == null || entries.isEmpty() || entries.size() > MAX_USED_ENTRIES) {
             throw new BadRequestException("error.card.usedBatchSize", String.valueOf(MAX_USED_ENTRIES));
@@ -155,17 +157,20 @@ public class DigitalCardService {
     /** Cards hold card numbers and photos, which must not outlive the account. */
     @EventListener
     @Order(10)
+    @Transactional
     public void onAccountErased(AccountErased erased) {
         deleteAllForUser(erased.userId());
     }
 
     /** Account deletion: nothing of the user's cards may outlive the profile. */
+    @Transactional
     public void deleteAllForUser(UUID userId) {
         photoRepository.deleteAllByUserId(userId);
         cardRepository.deleteAllByUserId(userId);
         cleanup.enqueueErasure(PhotoKeys.userPrefix(userId));
     }
 
+    @Transactional
     public int purgeDeletedBefore(LocalDateTime cutoff) {
         List<DigitalCard> stale = cardRepository.findDeletedBefore(cutoff);
         for (DigitalCard card : stale) {

@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 /** A photo someone else confirmed stays as product data, minus author and private original; the rest goes (#486). */
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProductImageErasure {
 
     private final ProductImageRepository images;

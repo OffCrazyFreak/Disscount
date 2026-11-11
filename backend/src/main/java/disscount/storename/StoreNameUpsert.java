@@ -13,6 +13,7 @@ import java.util.UUID;
 /** Its own bean so the REQUIRES_NEW boundary goes through the proxy. */
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class StoreNameUpsert {
 
     private final StoreNameSuggestionRepository repository;

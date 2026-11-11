@@ -15,13 +15,14 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class FavoriteStoreService {
 
     private final FavoriteStoreRepository favoriteStoreRepository;
     private final ActiveUsers activeUsers;
 
     /** Replaces the user's whole list, the way pinned places are saved. */
+    @Transactional
     public List<FavoriteStoreDto> updateFavoriteStores(UUID userId, BulkFavoriteStoreRequest request) {
         activeUsers.lockActive(userId);
 
@@ -43,7 +44,6 @@ public class FavoriteStoreService {
         return saved.stream().map(FavoriteStoreDto::from).toList();
     }
 
-    @Transactional(readOnly = true)
     public List<FavoriteStoreDto> getUserFavoriteStores(UUID userId) {
         return favoriteStoreRepository.findByUserId(userId).stream()
                 .map(FavoriteStoreDto::from)
@@ -53,10 +53,12 @@ public class FavoriteStoreService {
     /** Favourite stores show where the person shops. */
     @EventListener
     @Order(30)
+    @Transactional
     public void onAccountErased(AccountErased erased) {
         deleteAllForUser(erased.userId());
     }
 
+    @Transactional
     public void deleteAllForUser(UUID userId) {
         favoriteStoreRepository.deleteAllByUserId(userId);
     }

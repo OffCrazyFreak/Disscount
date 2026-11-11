@@ -14,12 +14,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class WatchlistItemService {
 
     private final WatchlistItemRepository watchlistItemRepository;
     private final ActiveUsers activeUsers;
 
+    @Transactional
     public WatchlistItemDto addOrUpdateWatchlist(UUID userId, WatchlistItemRequest request) {
         activeUsers.requireActive(userId);
 
@@ -44,7 +45,6 @@ public class WatchlistItemService {
         return WatchlistItemDto.from(saved);
     }
 
-    @Transactional(readOnly = true)
     public List<WatchlistItemDto> getUserWatchlist(UUID userId) {
         return watchlistItemRepository.findByUserId(userId)
                 .stream()
@@ -52,6 +52,7 @@ public class WatchlistItemService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void removeFromWatchlist(UUID id, UUID userId) {
         WatchlistItem watchlistItem = watchlistItemRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new NotFoundException("error.watchlistItem.notFound"));
@@ -62,7 +63,6 @@ public class WatchlistItemService {
         }
     }
 
-    @Transactional(readOnly = true)
     public List<WatchlistItemDto> getWatchlistItemsByProductApiId(UUID userId, String productApiId) {
         List<WatchlistItem> watchlistItems = watchlistItemRepository
                 .findByProductApiId(productApiId, userId);

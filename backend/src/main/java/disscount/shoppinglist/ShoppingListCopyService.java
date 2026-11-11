@@ -11,7 +11,7 @@ import java.util.UUID;
 /** Its own service: it reads someone else's list in one transaction, so a failure leaves no half-filled copy. */
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 class ShoppingListCopyService {
 
     private final ShoppingListRepository shoppingListRepository;
@@ -19,6 +19,7 @@ class ShoppingListCopyService {
     private final ShoppingListService shoppingListService;
     private final ShoppingListMapper shoppingListMapper;
 
+    @Transactional
     public ShoppingListDto copy(UUID listId, UUID userId, ShoppingListCopyRequest request) {
         ShoppingList source = shoppingListService.findVisible(listId, userId);
         shoppingListService.requireWriteUser(userId);

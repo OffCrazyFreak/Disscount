@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 class ContactMessageService {
 
     private final ContactMessageRepository contactMessageRepository;
@@ -27,6 +27,7 @@ class ContactMessageService {
     // Bounds the admin list query; a full paginated UI is a possible follow-up.
     private static final int MAX_ADMIN_MESSAGES = 500;
 
+    @Transactional
     public Optional<ContactMessageDto> create(ContactMessageRequest request) {
         // Browsers send the hidden field empty; any character a bot puts there, whitespace included, is a hit.
         if (StringUtils.hasLength(request.honeypot())) {
@@ -61,18 +62,22 @@ class ContactMessageService {
         return ContactMessageDto.from(loadOrThrow(id));
     }
 
+    @Transactional
     public ContactMessageDto markRead(UUID id) {
         return mutate(id, msg -> msg.setReadAt(Timestamps.nowUtc()));
     }
 
+    @Transactional
     public ContactMessageDto markUnread(UUID id) {
         return mutate(id, msg -> msg.setReadAt(null));
     }
 
+    @Transactional
     public ContactMessageDto softDelete(UUID id) {
         return mutate(id, msg -> msg.setDeletedAt(Timestamps.nowUtc()));
     }
 
+    @Transactional
     public ContactMessageDto restore(UUID id) {
         return mutate(id, msg -> msg.setDeletedAt(null));
     }

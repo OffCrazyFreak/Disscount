@@ -12,12 +12,13 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class PinnedStoreService {
 
     private final PinnedStoreRepository pinnedStoreRepository;
     private final ActiveUsers activeUsers;
 
+    @Transactional
     public List<PinnedStoreDto> updatePinnedStores(UUID userId, BulkPinnedStoreRequest request) {
         activeUsers.lockActive(userId);
 
@@ -41,7 +42,6 @@ public class PinnedStoreService {
         return saved.stream().map(PinnedStoreDto::from).toList();
     }
 
-    @Transactional(readOnly = true)
     public List<PinnedStoreDto> getUserPinnedStores(UUID userId) {
         return pinnedStoreRepository.findByUserId(userId).stream()
                 .map(PinnedStoreDto::from)

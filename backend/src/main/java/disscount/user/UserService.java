@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class UserService {
 
     // Coarse enough that a browsing session costs one extra write, fine enough for daily buckets.
@@ -36,14 +36,13 @@ public class UserService {
     private final ErasureLedgerRepository erasureLedger;
     private final AvatarSanitizer avatarSanitizer;
 
-    // Read-only, or the class-level @Transactional would keep a dirty-checking flush for a query that never writes.
-    @Transactional(readOnly = true)
     public Optional<UserDto> findById(UUID id) {
         return userRepository.findByIdAndDeletedAtIsNull(id)
                 .map(UserDto::from);
     }
 
     /** A deleted account is never revived: the login outlived a failed deletion, so the browser can finish it. */
+    @Transactional
     public void ensureActiveProfile(UUID id, String email, String name, String image) {
         if (email == null) return;
 
@@ -123,6 +122,7 @@ public class UserService {
         return null;
     }
 
+    @Transactional
     public UserDto updateProfile(UUID userId, UserRequest request) {
         User user = userRepository.requireActive(userId);
 
@@ -180,6 +180,7 @@ public class UserService {
     }
 
     /** Idempotent and fine with no profile, as better-auth's beforeDelete calls it and a refusal blocks deletion. */
+    @Transactional
     public void deleteAccount(UUID userId) {
         // Locked so a card write racing the deletion waits and then finds a deleted user.
         userRepository.findByIdForUpdate(userId).ifPresent(user -> {
@@ -202,7 +203,6 @@ public class UserService {
         return activeUsers.isActiveAdmin(userId);
     }
 
-    @Transactional(readOnly = true)
     public List<UserDto> findAllActive() {
         List<UserDto> dtos = userRepository.findByDeletedAtIsNullOrderByCreatedAtAsc()
                 .stream()
@@ -221,6 +221,7 @@ public class UserService {
     }
 
     /** Identity deletion cascades sessions and accounts; the profile is only anonymized, so business data stays. */
+    @Transactional
     public void deleteUserAsAdmin(UUID targetUserId, UUID adminUserId) {
         if (targetUserId.equals(adminUserId)) {
             throw new BadRequestException("error.user.cannotDeleteSelf");
@@ -236,6 +237,7 @@ public class UserService {
         deleteAccount(targetUserId);
     }
 
+    @Transactional
     public UserDto updateAccountType(UUID userId, AccountType accountType) {
         // The target of an admin action, not the caller: the admin's own session is fine, so no 401 here.
         User user = userRepository.findByIdAndDeletedAtIsNull(userId)

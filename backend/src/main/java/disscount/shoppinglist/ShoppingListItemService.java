@@ -14,7 +14,7 @@ import java.util.UUID;
 /** Each method resolves access; findVisible answers not-found, so item endpoints cannot probe for list ids. */
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 class ShoppingListItemService {
 
     private final ShoppingListItemRepository shoppingListItemRepository;
@@ -24,6 +24,7 @@ class ShoppingListItemService {
     private final ShoppingListMapper shoppingListMapper;
 
     /** Owner only: an unbounded right to add to someone's list waits for per-person revocation in version 2. */
+    @Transactional
     public ShoppingListItemDto addItemToShoppingList(UUID shoppingListId, UUID userId, ShoppingListItemRequest request) {
         ShoppingList shoppingList = shoppingListService.findVisible(shoppingListId, userId);
         shoppingListService.requireWriteUser(userId);
@@ -82,6 +83,7 @@ class ShoppingListItemService {
     }
 
     /** SHOP is enough: ticking off and choosing a store is the in-the-shop level. */
+    @Transactional
     public ShoppingListItemDto updateShoppingListItem(
             UUID listId, UUID itemId, UUID userId, ShoppingListItemRequest request) {
         ShoppingList list = shoppingListService.findVisible(listId, userId);
@@ -100,6 +102,7 @@ class ShoppingListItemService {
         return shoppingListMapper.toItemDto(item, access);
     }
 
+    @Transactional
     public void deleteShoppingListItem(UUID listId, UUID itemId, UUID userId) {
         ShoppingList list = shoppingListService.findVisible(listId, userId);
         shoppingListService.requireWriteUser(userId);
