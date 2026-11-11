@@ -1,43 +1,75 @@
 package disscount.config;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Properties;
-
+import disscount.productimage.openfoodfacts.OpenFoodFactsClient;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** Read from disk because the test application.properties shadows main's on the classpath and keeps springdoc on. */
+/**
+ * Boots from main's resources, because the test application.properties replaces main's and keeps springdoc on.
+ * Only the variables production sets and an H2 database are filled in here.
+ */
 class SpringdocProfileTest {
 
-    private static final Path RESOURCES = Path.of("src/main/resources");
+    private static final String SWAGGER_UI = "/swagger-ui/index.html";
 
-    @Test
-    void mainKeepsTheApiDocsOff() throws IOException {
-        Properties main = load("application.properties");
+    @SpringBootTest(properties = {
+            "spring.config.location=file:src/main/resources/",
+            "SPRING_DATASOURCE_URL=jdbc:h2:mem:springdoc;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
+            "SPRING_DATASOURCE_USERNAME=sa",
+            "SPRING_DATASOURCE_PASSWORD=",
+            "spring.datasource.driver-class-name=org.h2.Driver",
+            "spring.datasource.hikari.data-source-properties.logServerErrorDetail=",
+            "spring.jpa.hibernate.ddl-auto=create-drop",
+            "BETTER_AUTH_JWKS_URI=http://localhost:3000/api/auth/jwks",
+            "BETTER_AUTH_ISSUER=http://localhost:3000",
+            "product-images.jobs.enabled=false"
+    })
+    @AutoConfigureMockMvc
+    abstract static class MainConfiguration {
 
-        assertThat(main.getProperty("springdoc.api-docs.enabled")).isEqualTo("false");
-        assertThat(main.getProperty("springdoc.swagger-ui.enabled")).isEqualTo("false");
+        @Autowired MockMvc mvc;
+
+        // Never reach the network from a test.
+        @MockitoBean OpenFoodFactsClient openFoodFacts;
     }
 
-    @Test
-    void theLocalProfileTurnsThemOn() throws IOException {
-        Properties local = load("application-local.properties");
+    @Nested
+    class WithoutTheLocalProfile extends MainConfiguration {
 
-        assertThat(local.getProperty("springdoc.api-docs.enabled")).isEqualTo("true");
-        assertThat(local.getProperty("springdoc.swagger-ui.enabled")).isEqualTo("true");
-    }
-
-    private static Properties load(String file) throws IOException {
-        Properties properties = new Properties();
-
-        try (Reader reader = Files.newBufferedReader(RESOURCES.resolve(file))) {
-            properties.load(reader);
+        @Test
+        void theApiDescriptionIsNotServed() throws Exception {
+            mvc.perform(get("/v3/api-docs")).andExpect(status().isNotFound());
         }
 
-        return properties;
+        @Test
+        void swaggerUiIsNotServed() throws Exception {
+            mvc.perform(get("/api-docs")).andExpect(status().isNotFound());
+            mvc.perform(get(SWAGGER_UI)).andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    @ActiveProfiles("local")
+    class WithTheLocalProfile extends MainConfiguration {
+
+        @Test
+        void theApiDescriptionIsServed() throws Exception {
+            mvc.perform(get("/v3/api-docs")).andExpect(status().isOk());
+        }
+
+        @Test
+        void swaggerUiIsServed() throws Exception {
+            mvc.perform(get("/api-docs")).andExpect(status().is3xxRedirection());
+            mvc.perform(get(SWAGGER_UI)).andExpect(status().isOk());
+        }
     }
 }
