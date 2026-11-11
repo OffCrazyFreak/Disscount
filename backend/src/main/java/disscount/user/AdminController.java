@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import disscount.shared.SecurityUtils;
+import disscount.shared.CurrentUser;
 
 import java.util.List;
 import java.util.Map;
@@ -30,16 +30,17 @@ class AdminController {
     @Operation(summary = "Change a user's account type (admin only)")
     @PatchMapping("/users/{userId}")
     public ResponseEntity<UserDto> updateAccountType(
+            @CurrentUser UUID adminId,
             @PathVariable UUID userId,
             @Valid @RequestBody UpdateAccountTypeRequest request
     ) {
-        return ResponseEntity.ok(userService.updateAccountType(userId, request.accountType()));
+        return ResponseEntity.ok(userService.updateAccountType(userId, request.accountType(), adminId));
     }
 
     @Operation(summary = "Delete a user (admin only)")
     @DeleteMapping("/users/{userId}")
-    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable UUID userId) {
-        userService.deleteUserAsAdmin(userId, SecurityUtils.getCurrentUserId());
+    public ResponseEntity<Map<String, String>> deleteUser(@CurrentUser UUID adminId, @PathVariable UUID userId) {
+        userService.deleteUserAsAdmin(userId, adminId);
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
     }
 }

@@ -8,7 +8,7 @@ import java.util.UUID;
 import disscount.productimage.ProductImageDtos.ListedEansDto;
 import disscount.productimage.ProductImageDtos.ProductImagesDto;
 import disscount.productimage.ProductImageDtos.ProductThumbnailsDto;
-import disscount.shared.SecurityUtils;
+import disscount.shared.CurrentUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -56,14 +56,17 @@ class ProductImageController {
 
     @Operation(summary = "Upload a product photo (multipart field: photo, JPEG)")
     @PostMapping(value = "/{ean}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ProductImagesDto> upload(@PathVariable String ean, @RequestPart("photo") MultipartFile photo) {
-        return ResponseEntity.ok(writes.upload(SecurityUtils.getCurrentUserId(), ean, photo));
+    public ResponseEntity<ProductImagesDto> upload(
+            @CurrentUser UUID userId,
+            @PathVariable String ean,
+            @RequestPart("photo") MultipartFile photo) {
+        return ResponseEntity.ok(writes.upload(userId, ean, photo));
     }
 
     @Operation(summary = "Report a product photo")
     @PostMapping("/images/{imageId}/report")
-    public ResponseEntity<Void> report(@PathVariable UUID imageId) {
-        writes.report(SecurityUtils.getCurrentUserId(), imageId);
+    public ResponseEntity<Void> report(@CurrentUser UUID userId, @PathVariable UUID imageId) {
+        writes.report(userId, imageId);
         return ResponseEntity.noContent().build();
     }
 }

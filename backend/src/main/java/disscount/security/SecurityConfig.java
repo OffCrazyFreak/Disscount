@@ -1,9 +1,8 @@
 package disscount.security;
 
-import disscount.shared.SecurityUtils;
-import disscount.user.UserService;
-import jakarta.servlet.http.HttpServletResponse;
+import disscount.user.ActiveUsers;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -24,10 +23,12 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.util.function.Supplier;
 
@@ -37,7 +38,7 @@ import java.util.function.Supplier;
 public class SecurityConfig {
 
     private final UserProvisioningFilter userProvisioningFilter;
-    private final UserService userService;
+    private final ActiveUsers activeUsers;
 
     @Bean
     public JwtDecoder jwtDecoder(
@@ -113,16 +114,6 @@ public class SecurityConfig {
         return new AuthorizationDecision(isOrdinary);
     }
 
-    /** Looked up per request rather than read from the token, so a demotion or deletion applies at once. */
-    private AuthorizationDecision isActiveAdmin(
-            Supplier<? extends Authentication> authentication,
-            RequestAuthorizationContext context
-    ) {
-        boolean isAdmin = isOrdinarySessionToken(authentication, context).isGranted()
-                && SecurityUtils.getCurrentUserIdOptional().filter(userService::isActiveAdmin).isPresent();
-        return new AuthorizationDecision(isAdmin);
-    }
-
     /** The public routes' rule: anyone, signed in or not, except a purpose scoped token. */
     private static AuthorizationDecision isNotPurposeScoped(
             Supplier<? extends Authentication> authentication,
@@ -149,7 +140,12 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(
+            HttpSecurity http,
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver
+    ) throws Exception {
+        AuthenticationEntryPoint entryPoint = new ProblemAuthenticationEntryPoint(exceptionResolver);
+
         http
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -167,16 +163,17 @@ public class SecurityConfig {
                     "/swagger-ui/**",
                     "/swagger-ui.html"
                 ).permitAll()
-                .requestMatchers("/api/admin/**").access(this::isActiveAdmin)
+                .requestMatchers("/api/admin/**").access(new AdminAuthorizationManager(activeUsers))
                 .anyRequest().access(SecurityConfig::isOrdinarySessionToken)
             )
             .exceptionHandling(ex -> ex
-                .authenticationEntryPoint((req, res, authEx) ->
-                    res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"))
-                .accessDeniedHandler((req, res, accessEx) ->
-                    res.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden"))
+                .authenticationEntryPoint(entryPoint)
+                .accessDeniedHandler(new ProblemAccessDeniedHandler(exceptionResolver))
             )
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+            // Its own entry point answers a token that fails to decode, before the one above is consulted.
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(Customizer.withDefaults())
+                .authenticationEntryPoint(entryPoint))
             .addFilterAfter(userProvisioningFilter, BearerTokenAuthenticationFilter.class);
 
         return http.build();

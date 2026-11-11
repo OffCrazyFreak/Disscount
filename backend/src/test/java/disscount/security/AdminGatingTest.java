@@ -28,6 +28,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -150,6 +151,14 @@ class AdminGatingTest extends FullStackTest {
         users.save(admin);
 
         mvc.perform(call(Route.LIST_USERS).with(as(admin))).andExpect(status().isForbidden());
+    }
+
+    @Test
+    void anAdminsPurposeScopedTokenIs403() throws Exception {
+        mvc.perform(call(Route.LIST_USERS).with(jwt().jwt(j -> j
+                        .subject(admin.getId().toString())
+                        .claim("purpose", "account-erasure"))))
+                .andExpect(status().isForbidden());
     }
 
     // A new admin endpoint must join the table above, or it ships with no proof it is gated.

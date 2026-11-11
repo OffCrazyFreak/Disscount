@@ -1,7 +1,6 @@
 package disscount.contact;
 
 import disscount.shared.NotFoundException;
-import disscount.shared.SecurityUtils;
 import disscount.shared.Timestamps;
 import disscount.user.ActiveUsers;
 import lombok.RequiredArgsConstructor;
@@ -27,15 +26,13 @@ class ContactMessageService {
     private static final int MAX_ADMIN_MESSAGES = 500;
 
     @Transactional
-    public Optional<ContactMessageDto> create(ContactMessageRequest request) {
+    public Optional<ContactMessageDto> create(ContactMessageRequest request, UUID callerId) {
         // Browsers send the hidden field empty; any character a bot puts there, whitespace included, is a hit.
         if (StringUtils.hasLength(request.honeypot())) {
             return Optional.empty();
         }
 
-        UUID senderId = SecurityUtils.getCurrentUserIdOptional()
-                .filter(activeUsers::isActive)
-                .orElse(null);
+        UUID senderId = callerId != null && activeUsers.isActive(callerId) ? callerId : null;
 
         ContactMessage message = ContactMessage.builder()
                 .senderId(senderId)
