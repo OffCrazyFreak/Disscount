@@ -1,6 +1,7 @@
 package disscount.shoppinglist;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ class ShoppingListCopyService {
     private final ShoppingListGuard guard;
     private final ShoppingListMapper shoppingListMapper;
 
+    @PreAuthorize("@shoppingListGuard.canWrite(#listId, #userId)")
     @Transactional
     public ShoppingListDto copy(UUID listId, UUID userId, ShoppingListCopyRequest request) {
         ShoppingList source = shoppingListService.findVisible(listId, userId);

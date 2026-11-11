@@ -1,6 +1,7 @@
 package disscount.shoppinglist;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ class ShoppingListItemService {
     private final ShoppingListMapper shoppingListMapper;
 
     /** Owner only: an unbounded right to add to someone's list waits for per-person revocation in version 2. */
+    @PreAuthorize("@shoppingListGuard.canWrite(#shoppingListId, #userId)")
     @Transactional
     public ShoppingListItemDto addItemToShoppingList(UUID shoppingListId, UUID userId, ShoppingListItemRequest request) {
         ShoppingList shoppingList = shoppingListService.findVisible(shoppingListId, userId);
@@ -84,6 +86,7 @@ class ShoppingListItemService {
     }
 
     /** SHOP is enough: ticking off and choosing a store is the in-the-shop level. */
+    @PreAuthorize("@shoppingListGuard.canCheckItems(#listId, #userId)")
     @Transactional
     public ShoppingListItemDto updateShoppingListItem(
             UUID listId, UUID itemId, UUID userId, ShoppingListItemRequest request) {
@@ -103,6 +106,7 @@ class ShoppingListItemService {
         return shoppingListMapper.toItemDto(item, access);
     }
 
+    @PreAuthorize("@shoppingListGuard.canEditItems(#listId, #userId)")
     @Transactional
     public void deleteShoppingListItem(UUID listId, UUID itemId, UUID userId) {
         ShoppingList list = shoppingListService.findVisible(listId, userId);

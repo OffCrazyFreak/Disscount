@@ -4,6 +4,8 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 import disscount.security.SecurityConfig;
+import disscount.shared.NotFoundException;
+import disscount.shared.Timestamps;
 import disscount.support.IncludingDeleted;
 import disscount.user.ActiveUsers;
 import disscount.user.User;
@@ -27,6 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(WatchlistItemController.class)
 @AutoConfigureDataJpa
 @AutoConfigureTestDatabase
-@Import({SecurityConfig.class, WatchlistItemService.class, ActiveUsers.class})
+@Import({SecurityConfig.class, WatchlistItemService.class, WatchlistGuard.class, ActiveUsers.class})
 class WatchlistItemOwnershipTest {
 
     @Autowired MockMvc mvc;
@@ -46,6 +49,7 @@ class WatchlistItemOwnershipTest {
     @Autowired WatchlistItemRepository watchlist;
     @Autowired JdbcTemplate jdbc;
     @Autowired EntityManager entityManager;
+    @Autowired WatchlistGuard guard;
     @MockitoBean UserService userService;
 
     private User alice;
@@ -137,5 +141,19 @@ class WatchlistItemOwnershipTest {
     @Test
     void requestsWithoutATokenAre401() throws Exception {
         mvc.perform(delete("/api/watchlist/{id}", itemOf(bob).getId())).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void theGuardTreatsAnotherUsersItemLikeAnUnknownIdAndKeepsYourDeletedOne() {
+        WatchlistItem bobsItem = itemOf(bob);
+        WatchlistItem own = itemOf(alice);
+        own.setDeletedAt(Timestamps.nowUtc());
+        watchlist.saveAndFlush(own);
+
+        assertThat(guard.ownsItem(alice.getId(), own.getId())).isTrue();
+        assertThatThrownBy(() -> guard.ownsItem(alice.getId(), bobsItem.getId()))
+                .isInstanceOf(NotFoundException.class).hasMessage("error.watchlistItem.notFound");
+        assertThatThrownBy(() -> guard.ownsItem(alice.getId(), UUID.randomUUID()))
+                .isInstanceOf(NotFoundException.class).hasMessage("error.watchlistItem.notFound");
     }
 }

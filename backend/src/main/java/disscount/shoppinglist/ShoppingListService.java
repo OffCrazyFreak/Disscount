@@ -1,6 +1,7 @@
 package disscount.shoppinglist;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,12 +57,14 @@ public class ShoppingListService {
                 .toList();
     }
 
+    @PreAuthorize("@shoppingListGuard.canView(#listId, #userId)")
     public ShoppingListDto getShoppingListById(UUID listId, UUID userId) {
         ShoppingList list = findVisible(listId, userId);
         return shoppingListMapper.toDto(list, accessService.resolve(list, userId));
     }
 
     /** Renaming and resharing are separate rights; folding them lets EDIT reshare. */
+    @PreAuthorize("@shoppingListGuard.canView(#listId, #userId)")
     @Transactional
     public ShoppingListDto updateShoppingList(UUID listId, UUID userId, ShoppingListRequest request) {
         ShoppingList list = findVisible(listId, userId);
@@ -82,6 +85,7 @@ public class ShoppingListService {
         return shoppingListMapper.toDto(shoppingListRepository.save(list), access);
     }
 
+    @PreAuthorize("@shoppingListGuard.canView(#listId, #userId)")
     @Transactional
     public void deleteShoppingList(UUID listId, UUID userId) {
         ShoppingList list = findVisible(listId, userId);
@@ -95,6 +99,7 @@ public class ShoppingListService {
     }
 
     /** Not-found rather than forbidden, so a 403 cannot confirm an id is real. */
+    @PreAuthorize("@shoppingListGuard.canView(#listId, #userId)")
     public ShoppingList findVisible(UUID listId, UUID userId) {
         ShoppingList list = shoppingListRepository.findById(listId)
                 .orElseThrow(() -> new NotFoundException("error.shoppingList.notFound"));
