@@ -120,25 +120,36 @@ async function recordSignInFailure(ctx: HookContext) {
   });
 }
 
+// A request without a session is refused before any proof is checked, so it is no failed proof.
 async function recordReauth(ctx: HookContext, method: ReauthMethod) {
+  const userId = sessionUserId(ctx);
+  if (!userId) return;
+
   const failed = isAPIError(ctx.context.returned);
 
   await recordSecurityEvent(
     failed ? "authn_reauth_fail" : "authn_reauth_success",
     {
-      userId: sessionUserId(ctx),
+      userId,
       headers: headersOf(ctx),
       payload: { method },
     },
   );
 }
 
-// A reauth proof rotates the session, which the reauth event already records.
+// A password change and a reauth proof make sessions too, so only these paths are sign-ins.
+const SIGN_IN_PATHS = new Set([
+  "/sign-in/email",
+  "/sign-in/social",
+  "/callback/:id",
+  "/verify-email",
+]);
+
 export async function recordSignIn(
   session: { userId: string },
   ctx: AuthContext,
 ) {
-  if (ctx?.path?.startsWith("/reauth/")) return;
+  if (!ctx?.path || !SIGN_IN_PATHS.has(ctx.path)) return;
 
   await recordSecurityEvent("authn_login_success", {
     userId: session.userId,

@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { auth } from "@/lib/auth";
 import { revokeAccountSession } from "@/lib/auth/account-sessions";
+import { recordSecurityEvent } from "@/lib/security-events/record-security-event";
 
 const sessionIdSchema = z.uuid();
 
@@ -29,6 +30,12 @@ export async function DELETE(
   if (!revoked) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
+
+  await recordSecurityEvent("session_revoked", {
+    userId: signedIn.user.id,
+    headers: await headers(),
+    payload: { scope: "one" },
+  });
 
   return NextResponse.json({ status: true });
 }

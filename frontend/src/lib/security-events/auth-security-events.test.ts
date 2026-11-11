@@ -168,6 +168,17 @@ describe("recordEndpointOutcome", () => {
     ).toEqual([{ scope: "one" }, { scope: "all" }, { scope: "others" }]);
   });
 
+  it("records no reauth failure for a request without a session", async () => {
+    await recordEndpointOutcome(
+      hookContext({
+        path: "/reauth/verify-password",
+        returned: new APIError("UNAUTHORIZED"),
+      }),
+    );
+
+    expect(recordSecurityEvent).not.toHaveBeenCalled();
+  });
+
   it("ignores every other endpoint", async () => {
     await recordEndpointOutcome(
       hookContext({ path: "/get-session", returned: {} }),
@@ -197,8 +208,9 @@ describe("session and account hooks", () => {
     ).toEqual(["password", "google", "email_link", "other"]);
   });
 
-  it("leaves the session a reauth proof rotates to the reauth event", async () => {
+  it("records no sign-in for the session a reauth proof or a password change makes", async () => {
     await recordSignIn(session, hookContext({ path: "/reauth/verify-code" }));
+    await recordSignIn(session, hookContext({ path: "/change-password" }));
 
     expect(recordSecurityEvent).not.toHaveBeenCalled();
   });
