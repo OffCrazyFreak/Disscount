@@ -292,6 +292,8 @@
           "type" : [ "string", "null" ]
         },
         "honeypot" : {
+          "maxLength" : 255,
+          "minLength" : 0,
           "type" : [ "string", "null" ]
         },
         "message" : {

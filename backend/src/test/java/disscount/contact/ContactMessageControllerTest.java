@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -71,5 +72,15 @@ class ContactMessageControllerTest {
         mvc.perform(contactFrom("93.140.10.22"))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
+    }
+
+    @Test
+    void anOversizedHoneypotIsRefusedBeforeTheService() throws Exception {
+        String body = "{\"subject\":\"Pozdrav\",\"message\":\"Poruka\",\"honeypot\":\"" + "x".repeat(256) + "\"}";
+
+        mvc.perform(contactFrom("93.140.10.23").content(body))
+                .andExpect(status().isBadRequest());
+
+        verify(contactMessageService, never()).create(any(), any());
     }
 }
