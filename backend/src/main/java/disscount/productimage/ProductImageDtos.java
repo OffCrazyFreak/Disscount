@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import disscount.shared.PageDto;
+import disscount.shared.PageDto.PageInfoDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
@@ -62,7 +64,13 @@ final class ProductImageDtos {
             int reportedCount,
             @Schema(nullable = true) LocalDateTime reviewedAt) {}
 
-    public record AdminQueuePageDto(List<AdminQueueItemDto> items, long total, int page, int size, long reviewedCount) {}
+    /** The shared page shape with the number of reviewed products beside it, so the queue header needs one request. */
+    public record AdminQueuePageDto(List<AdminQueueItemDto> items, PageInfoDto page, long reviewedCount) {
+
+        static AdminQueuePageDto from(PageDto<AdminQueueItemDto> page, long reviewedCount) {
+            return new AdminQueuePageDto(page.items(), page.page(), reviewedCount);
+        }
+    }
 
     /** Photos one user uploaded and how many of them an admin deleted, for the admin users list. */
     public record ContributorPhotoCountDto(UUID userId, long uploaded, long deleted) {}

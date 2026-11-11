@@ -8,6 +8,7 @@ export * from "@/lib/api/schemas/preferences";
 export * from "@/lib/api/schemas/favorite-store";
 export * from "@/lib/api/schemas/watchlist";
 export * from "@/lib/api/schemas/store-directory";
+export * from "@/lib/api/schemas/page";
 export * from "@/lib/api/schemas/product-image";
 export * from "@/lib/api/schemas/account-session";
 export * from "@/lib/api/schemas/store-hours";
