@@ -1,8 +1,8 @@
 package disscount.user;
 
-import disscount.shared.BadRequestException;
-import disscount.shared.PhotoValidator;
-import disscount.shared.ValidatedPhoto;
+import disscount.shared.errors.BadRequestException;
+import disscount.shared.photo.PhotoValidator;
+import disscount.shared.photo.ValidatedPhoto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -23,7 +23,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-class ProductImageSet {
+public class ProductImageSet {
 
     @Id
     @Column(length = 14)

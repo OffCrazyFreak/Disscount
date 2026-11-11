@@ -1,6 +1,6 @@
 package disscount.contact;
 
-import disscount.shared.NotFoundException;
+import disscount.shared.errors.NotFoundException;
 import disscount.shared.Timestamps;
 import disscount.user.AccountErased;
 import disscount.user.ActiveUsers;

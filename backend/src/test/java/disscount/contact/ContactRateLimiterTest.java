@@ -1,6 +1,6 @@
 package disscount.contact;
 
-import disscount.shared.TooManyRequestsException;
+import disscount.shared.errors.TooManyRequestsException;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;

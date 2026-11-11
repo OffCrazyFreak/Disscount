@@ -1,9 +1,9 @@
 package disscount.user;
 
-import disscount.preferences.BulkPinnedPlaceRequest;
-import disscount.preferences.BulkPinnedStoreRequest;
-import disscount.preferences.PinnedPlaceService;
-import disscount.preferences.PinnedStoreService;
+import disscount.preferences.pinnedplace.BulkPinnedPlaceRequest;
+import disscount.preferences.pinnedstore.BulkPinnedStoreRequest;
+import disscount.preferences.pinnedplace.PinnedPlaceService;
+import disscount.preferences.pinnedstore.PinnedStoreService;
 import disscount.shared.Timestamps;
 import disscount.shoppinglist.ShoppingListAccessService;
 import disscount.shoppinglist.ShoppingListGuard;

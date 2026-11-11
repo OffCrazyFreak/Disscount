@@ -1,8 +1,8 @@
 package disscount.shoppinglist;
 
-import disscount.shared.ForbiddenException;
-import disscount.shared.NotFoundException;
-import disscount.shared.UnauthorizedException;
+import disscount.shared.errors.ForbiddenException;
+import disscount.shared.errors.NotFoundException;
+import disscount.shared.errors.UnauthorizedException;
 import disscount.support.FullStackTest;
 import disscount.user.User;
 import org.junit.jupiter.api.BeforeEach;

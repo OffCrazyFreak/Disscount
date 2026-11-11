@@ -1,7 +1,7 @@
 package disscount.digitalcard;
 
 import java.util.Set;
-import disscount.shared.TestImages;
+import disscount.shared.photo.TestImages;
 import disscount.support.ApiContract;
 import disscount.support.FullStackTest;
 import disscount.user.User;

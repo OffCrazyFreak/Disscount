@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import disscount.shared.BadRequestException;
+import disscount.shared.errors.BadRequestException;
 import disscount.user.AccountErased;
 
 import java.util.List;

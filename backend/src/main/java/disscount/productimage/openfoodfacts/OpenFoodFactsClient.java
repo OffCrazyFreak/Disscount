@@ -15,7 +15,7 @@ import java.util.Optional;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-import disscount.shared.TooManyRequestsException;
+import disscount.shared.errors.TooManyRequestsException;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 

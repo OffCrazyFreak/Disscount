@@ -141,7 +141,7 @@ All card endpoints need a valid JWT. Errors are RFC 9457 `ProblemDetail` bodies 
 
 ## 5. Photos
 
-Photos are optional and sit behind a `PhotoStore` interface (`put`, `get`, `delete`, `deletePrefix`). Two implementations exist, chosen in `shared/PhotoStoreConfig`, which builds the product photo stores from the same classes: `FilesystemPhotoStore` when `PHOTO_DIR` is set (files under `cards/` in that directory; off while the folder is missing, see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#storage-on-the-servers-disk)), otherwise `DisabledPhotoStore`, and the wallet then works without photos.
+Photos are optional and sit behind a `PhotoStore` interface (`put`, `get`, `delete`, `deletePrefix`). Two implementations exist, chosen in `shared/photo/PhotoStoreConfig`, which builds the product photo stores from the same classes: `FilesystemPhotoStore` when `PHOTO_DIR` is set (files under `cards/` in that directory; off while the folder is missing, see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#storage-on-the-servers-disk)), otherwise `DisabledPhotoStore`, and the wallet then works without photos.
 
 ### What the browser does
 
@@ -297,8 +297,8 @@ A loyalty card number is personal data, and a photo of a card more so.
 
 | Path                                                                                           | Role                                                                                              |
 | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `backend/.../digitalcard/CardPhotoWriter.java`, `CardUserLock.java`                            | The short row-write transaction; the per-user lock                                                |
-| `backend/.../digitalcard/PhotoCleanupService.java`                                             | Queues file deletes in `photo_cleanup`, attempts them, retries                                    |
+| `backend/.../digitalcard/photo/CardPhotoWriter.java`, `digitalcard/CardUserLock.java`          | The short row-write transaction; the per-user lock                                                |
+| `backend/.../digitalcard/photo/PhotoCleanupService.java`                                       | Queues file deletes in `photo_cleanup`, attempts them, retries                                    |
 | `backend/.../digitalcard/DigitalCardCleanupJob.java`                                           | Daily 30-day hard delete; retries photo cleanup                                                   |
 | `backend/.../config/UploadLimitConfig.java`                                                    | 20 card photo uploads per minute per user; the limiter sweeps its expired windows every 5 minutes |
 | `frontend/src/lib/offline/card-photo-store.ts`, `card-photo-outbox.ts`, `purge.ts`             | Photo blobs, upload outbox, logout purge                                                          |

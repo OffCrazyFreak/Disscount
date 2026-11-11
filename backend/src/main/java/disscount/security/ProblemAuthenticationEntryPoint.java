@@ -1,6 +1,6 @@
 package disscount.security;
 
-import disscount.shared.UnauthorizedException;
+import disscount.shared.errors.UnauthorizedException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

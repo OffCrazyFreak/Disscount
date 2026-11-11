@@ -14,8 +14,8 @@ import javax.imageio.ImageIO;
 
 import disscount.productimage.render.ProductImageRenderer.Crop;
 import disscount.productimage.render.ProductImageRenderer.Rendered;
-import disscount.shared.BadRequestException;
-import disscount.shared.TestImages;
+import disscount.shared.errors.BadRequestException;
+import disscount.shared.photo.TestImages;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

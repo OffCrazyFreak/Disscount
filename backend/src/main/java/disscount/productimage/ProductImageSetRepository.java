@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-interface ProductImageSetRepository extends JpaRepository<ProductImageSet, String> {
+public interface ProductImageSetRepository extends JpaRepository<ProductImageSet, String> {
 
     @Query("select s.ean from ProductImageSet s")
     List<String> findAllEans();

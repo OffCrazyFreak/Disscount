@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import disscount.shoppinglist.item.ShoppingListItem;
+import disscount.shoppinglist.item.ShoppingListItemDto;
+
 /** One place, so the owner view and shared view cannot drift apart in what they expose. */
 @Component
 public class ShoppingListMapper {

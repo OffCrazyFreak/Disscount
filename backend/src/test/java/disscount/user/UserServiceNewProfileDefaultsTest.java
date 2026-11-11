@@ -13,6 +13,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import disscount.user.erasure.ErasureLedgerRepository;
+
 class UserServiceNewProfileDefaultsTest {
 
     private final UserRepository userRepository = mock(UserRepository.class);

@@ -1,0 +1,185 @@
+package disscount.digitalcard.photo;
+
+import disscount.config.UploadLimitConfig;
+import disscount.digitalcard.DigitalCard;
+import disscount.digitalcard.DigitalCardRepository;
+import disscount.shared.errors.BadRequestException;
+import disscount.shared.FixedWindowLimiter;
+import disscount.shared.errors.NotFoundException;
+import disscount.shared.photo.PhotoStore;
+import disscount.shared.photo.PhotoStoreConfig;
+import disscount.shared.photo.PhotoValidator;
+import disscount.shared.errors.ServiceUnavailableException;
+import disscount.shared.photo.StoredPhoto;
+import disscount.shared.photo.ValidatedPhoto;
+import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
+import java.util.Set;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class DigitalCardPhotoService {
+
+    private static final Logger log = LoggerFactory.getLogger(DigitalCardPhotoService.class);
+
+    public static final String SLOT_FRONT = "front";
+    public static final String SLOT_BACK = "back";
+    public static final String SLOT_ICON = "icon";
+    public static final Set<String> SLOTS = Set.of(SLOT_FRONT, SLOT_BACK, SLOT_ICON);
+
+    private final DigitalCardRepository cardRepository;
+    private final DigitalCardPhotoRepository photoRepository;
+    private final CardPhotoWriter writer;
+    @Qualifier(PhotoStoreConfig.CARD_PHOTOS)
+    private final PhotoStore photoStore;
+    private final PhotoValidator validator;
+    @Qualifier(UploadLimitConfig.CARD_PHOTOS)
+    private final FixedWindowLimiter rateLimiter;
+
+    /** The bytes handed to a controller for streaming; {@code thumb} picks the small variant. */
+    public record PhotoStream(StoredPhoto photo, String sha256, boolean thumb) {}
+
+    /** Only the row write is transactional, and if it fails the objects just stored are removed. */
+    @PreAuthorize("@digitalCardGuard.ownsCard(#userId, #cardId)")
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public CardPhotoDto upload(UUID userId, UUID cardId, String slot, MultipartFile full, MultipartFile thumb) {
+        if (!photoStore.enabled()) {
+            throw new ServiceUnavailableException("error.cardPhoto.unavailable");
+        }
+        requireSlot(slot);
+        rateLimiter.check(userId);
+
+        boolean needsThumb = !SLOT_ICON.equals(slot);
+        if (needsThumb && (thumb == null || thumb.isEmpty())) {
+            throw new BadRequestException("error.cardPhoto.missingThumb");
+        }
+        if (!needsThumb && thumb != null && !thumb.isEmpty()) {
+            throw new BadRequestException("error.cardPhoto.iconNoThumb");
+        }
+
+        // Cheap ownership check before any CPU is spent on someone else's id; the writer repeats it under the lock.
+        requireCard(userId, cardId);
+        ValidatedPhoto fullPhoto = validator.validate(read(full));
+        ValidatedPhoto thumbPhoto = needsThumb ? validator.validate(read(thumb)) : null;
+
+        // Both images feed the hash, so replacing only the thumbnail still changes the key, ETag and ?v=.
+        String sha256 = thumbPhoto == null
+                ? sha256Hex(fullPhoto.bytes())
+                : sha256Hex((sha256Hex(fullPhoto.bytes()) + ":" + sha256Hex(thumbPhoto.bytes()))
+                        .getBytes(StandardCharsets.US_ASCII));
+        String uploadId = PhotoKeys.newUploadId();
+        String fullKey = PhotoKeys.fullKey(userId, cardId, slot, sha256, uploadId, fullPhoto.extension());
+        String thumbKey = thumbPhoto == null ? null
+                : PhotoKeys.thumbKey(userId, cardId, slot, sha256, uploadId, thumbPhoto.extension());
+
+        try {
+            photoStore.put(fullKey, fullPhoto.bytes(), fullPhoto.contentType());
+            if (thumbPhoto != null) {
+                photoStore.put(thumbKey, thumbPhoto.bytes(), thumbPhoto.contentType());
+            }
+            return writer.replace(userId, cardId, slot, new CardPhotoWriter.Stored(
+                    sha256, fullKey, thumbKey, fullPhoto.contentType(), fullPhoto.bytes().length));
+        } catch (RuntimeException e) {
+            discardUnreferenced(cardId, slot, fullKey, thumbKey);
+            throw e;
+        }
+    }
+
+    @PreAuthorize("@digitalCardGuard.ownsCard(#userId, #cardId)")
+    public PhotoStream open(UUID userId, UUID cardId, String slot, boolean thumb, String version) {
+        requireSlot(slot);
+        requireCard(userId, cardId);
+
+        DigitalCardPhoto row = photoRepository.findByCardIdAndSlot(cardId, slot)
+                .orElseThrow(() -> new NotFoundException("error.cardPhoto.notFound"));
+
+        // The client caches bytes by version, so an old version must 404 instead of serving new bytes under it.
+        if (version != null && !version.equals(row.getSha256())) {
+            throw new NotFoundException("error.cardPhoto.notFound");
+        }
+
+        String key = thumb ? row.getThumbKey() : row.getFullKey();
+        if (key == null) throw new NotFoundException("error.cardPhoto.notFound");
+
+        // The row exists but storage is off, which is an outage: a 404 would tell the client the photo is gone.
+        if (!photoStore.enabled()) throw new ServiceUnavailableException("error.cardPhoto.unavailable");
+
+        StoredPhoto stored = photoStore.get(key)
+                .orElseThrow(() -> new NotFoundException("error.cardPhoto.notFound"));
+        return new PhotoStream(stored, row.getSha256(), thumb);
+    }
+
+    @PreAuthorize("@digitalCardGuard.ownsCard(#userId, #cardId)")
+    public String currentSha256(UUID userId, UUID cardId, String slot) {
+        requireSlot(slot);
+        requireCard(userId, cardId);
+        return photoRepository.findByCardIdAndSlot(cardId, slot)
+                .map(DigitalCardPhoto::getSha256)
+                .orElseThrow(() -> new NotFoundException("error.cardPhoto.notFound"));
+    }
+
+    @PreAuthorize("@digitalCardGuard.ownsCard(#userId, #cardId)")
+    @Transactional
+    public void delete(UUID userId, UUID cardId, String slot) {
+        requireSlot(slot);
+        writer.remove(userId, cardId, slot);
+    }
+
+    // Content addressed keys can equal the live row's keys (same bytes uploaded twice), and those must survive.
+    private void discardUnreferenced(UUID cardId, String slot, String fullKey, String thumbKey) {
+        try {
+            DigitalCardPhoto live = photoRepository.findByCardIdAndSlot(cardId, slot).orElse(null);
+            for (String key : new String[]{fullKey, thumbKey}) {
+                if (key == null) continue;
+                boolean referenced = live != null
+                        && (key.equals(live.getFullKey()) || key.equals(live.getThumbKey()));
+                if (!referenced) photoStore.delete(key);
+            }
+        } catch (RuntimeException cleanupFailure) {
+            log.warn("Could not discard photo objects after a failed write: {}", cleanupFailure.getMessage());
+        }
+    }
+
+    private DigitalCard requireCard(UUID userId, UUID cardId) {
+        return cardRepository.findActiveByIdAndUserId(cardId, userId)
+                .orElseThrow(() -> new NotFoundException("error.card.notFound"));
+    }
+
+    private static void requireSlot(String slot) {
+        if (!SLOTS.contains(slot)) {
+            throw new BadRequestException("error.cardPhoto.unknownSlot");
+        }
+    }
+
+    private static byte[] read(MultipartFile file) {
+        try {
+            return file.getBytes();
+        } catch (IOException e) {
+            throw new BadRequestException("error.cardPhoto.unreadable");
+        }
+    }
+
+    private static String sha256Hex(byte[] bytes) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+}

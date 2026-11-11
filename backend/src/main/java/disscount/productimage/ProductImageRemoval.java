@@ -5,12 +5,13 @@ import java.io.InputStream;
 import java.util.UUID;
 
 import disscount.productimage.render.ProductImageRenderer;
+import disscount.productimage.render.ProductImageRendering;
 import disscount.shared.AfterCommit;
-import disscount.shared.BadRequestException;
-import disscount.shared.PhotoStore;
-import disscount.shared.PhotoStoreConfig;
-import disscount.shared.ServiceUnavailableException;
-import disscount.shared.StoredPhoto;
+import disscount.shared.errors.BadRequestException;
+import disscount.shared.photo.PhotoStore;
+import disscount.shared.photo.PhotoStoreConfig;
+import disscount.shared.errors.ServiceUnavailableException;
+import disscount.shared.photo.StoredPhoto;
 import disscount.shared.Timestamps;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

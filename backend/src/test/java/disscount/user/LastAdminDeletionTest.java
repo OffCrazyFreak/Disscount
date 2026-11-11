@@ -1,9 +1,11 @@
 package disscount.user;
 
-import disscount.shared.BadRequestException;
-import disscount.shared.ConflictException;
+import disscount.shared.errors.BadRequestException;
+import disscount.shared.errors.ConflictException;
 import disscount.support.FullStackTest;
 import disscount.support.MigratedPostgres;
+import disscount.user.erasure.AccountErasureService;
+import disscount.user.erasure.ErasureLedgerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

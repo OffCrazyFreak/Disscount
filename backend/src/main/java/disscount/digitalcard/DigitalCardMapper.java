@@ -4,6 +4,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import disscount.digitalcard.photo.CardPhotoDto;
+import disscount.digitalcard.photo.DigitalCardPhoto;
+
 @Component
 public class DigitalCardMapper {
 

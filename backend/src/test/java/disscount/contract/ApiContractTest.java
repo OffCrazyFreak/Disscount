@@ -1,6 +1,6 @@
 package disscount.contract;
 
-import disscount.digitalcard.DigitalCardPhotoService;
+import disscount.digitalcard.photo.DigitalCardPhotoService;
 import disscount.support.ApiContract;
 import disscount.support.FullStackTest;
 import org.junit.jupiter.api.Test;

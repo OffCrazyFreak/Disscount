@@ -1,12 +1,16 @@
 package disscount.digitalcard;
 
+import disscount.digitalcard.photo.DigitalCardPhoto;
+import disscount.digitalcard.photo.DigitalCardPhotoRepository;
+import disscount.digitalcard.photo.PhotoCleanupService;
+import disscount.digitalcard.photo.PhotoKeys;
 import disscount.shared.AfterCommit;
-import disscount.shared.BadRequestException;
-import disscount.shared.NotFoundException;
-import disscount.shared.PhotoStore;
-import disscount.shared.PhotoStoreConfig;
+import disscount.shared.errors.BadRequestException;
+import disscount.shared.errors.NotFoundException;
+import disscount.shared.photo.PhotoStore;
+import disscount.shared.photo.PhotoStoreConfig;
 import disscount.shared.Timestamps;
-import disscount.shared.UserLimit;
+import disscount.shared.errors.UserLimit;
 import disscount.storename.StoreNameNormalizer;
 import disscount.storename.StoreNameService;
 import disscount.user.AccountErased;

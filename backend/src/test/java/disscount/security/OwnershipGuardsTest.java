@@ -42,7 +42,7 @@ class OwnershipGuardsTest extends FullStackTest {
                 .flatMap(service -> byIdMethods(AopUtils.getTargetClass(service)))
                 .peek(method -> assertThat(guardExpression(method))
                         .as(method.toString())
-                        .startsWith(GUARD_BY_FEATURE.get(method.getDeclaringClass().getPackageName())))
+                        .startsWith(GUARD_BY_FEATURE.get(featureOf(method.getDeclaringClass()))))
                 .map(method -> method.getDeclaringClass().getSimpleName() + "." + method.getName())
                 .sorted()
                 .toList();
@@ -85,7 +85,13 @@ class OwnershipGuardsTest extends FullStackTest {
 
     private Stream<Object> ownerScopedServices() {
         return context.getBeansWithAnnotation(Service.class).values().stream()
-                .filter(service -> GUARD_BY_FEATURE.containsKey(AopUtils.getTargetClass(service).getPackageName()));
+                .filter(service -> GUARD_BY_FEATURE.containsKey(featureOf(AopUtils.getTargetClass(service))));
+    }
+
+    /** "disscount.digitalcard" for a class in disscount.digitalcard or any of its topic folders. */
+    private static String featureOf(Class<?> type) {
+        String[] segments = type.getPackageName().split("\\.");
+        return segments[0] + "." + segments[1];
     }
 
     private static Stream<Method> byIdMethods(Class<?> serviceClass) {

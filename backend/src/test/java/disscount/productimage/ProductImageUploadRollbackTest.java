@@ -4,11 +4,13 @@ import java.util.UUID;
 
 import disscount.config.UploadLimitConfig;
 import disscount.productimage.openfoodfacts.OpenFoodFactsClient;
+import disscount.productimage.render.PhotoRenderFailedException;
 import disscount.productimage.render.ProductImageRenderer;
-import disscount.shared.FakePhotoStore;
-import disscount.shared.PhotoStoreConfig;
-import disscount.shared.PhotoValidator;
-import disscount.shared.TestImages;
+import disscount.productimage.render.ProductImageRendering;
+import disscount.shared.photo.FakePhotoStore;
+import disscount.shared.photo.PhotoStoreConfig;
+import disscount.shared.photo.PhotoValidator;
+import disscount.shared.photo.TestImages;
 import disscount.user.ActiveUsers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

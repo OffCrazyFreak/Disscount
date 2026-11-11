@@ -347,7 +347,7 @@ Frontend paths are under `frontend/src/`, and `shopping-lists/` means `app/[loca
 | Path                                                               | Role                                                                              |
 | ------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
 | `shoppinglist/ShoppingListMapper.java`                             | The one place lists and items become DTOs, with the owner only redaction          |
-| `shoppinglist/ShoppingListItemMatcher.java`                        | The merge rule                                                                    |
+| `shoppinglist/item/ShoppingListItemMatcher.java`                   | The merge rule                                                                    |
 | `lib/api/shopping-lists/hooks.ts`                                  | React Query hooks; attaches the mutation keys and the optimism                    |
 | `lib/api/shopping-lists/optimistic-items.ts`, `optimistic-list.ts` | Single item and list field optimism with rollback                                 |
 | `lib/offline/offline-mutation-keys.ts`, `offline-mutations.ts`     | The offline write allowlist and its replay functions                              |

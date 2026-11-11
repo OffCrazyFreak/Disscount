@@ -10,7 +10,7 @@ import disscount.productimage.ProductImageDtos.CropRequest;
 import disscount.productimage.ProductImageDtos.ImageStatusRequest;
 import disscount.productimage.ProductImageDtos.SetMainRequest;
 import disscount.shared.CurrentUser;
-import disscount.shared.StoredPhoto;
+import disscount.shared.photo.StoredPhoto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

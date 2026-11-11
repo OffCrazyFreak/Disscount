@@ -87,11 +87,11 @@ class JsonWireFormatTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "disscount.contact.ContactMessageDto",
-            "disscount.preferences.FavoriteStoreDto",
-            "disscount.preferences.PinnedPlaceDto",
-            "disscount.preferences.PinnedStoreDto",
+            "disscount.preferences.favoritestore.FavoriteStoreDto",
+            "disscount.preferences.pinnedplace.PinnedPlaceDto",
+            "disscount.preferences.pinnedstore.PinnedStoreDto",
             "disscount.shoppinglist.ShoppingListDto",
-            "disscount.shoppinglist.ShoppingListItemDto",
+            "disscount.shoppinglist.item.ShoppingListItemDto",
             "disscount.watchlist.WatchlistItemDto"})
     void formerBuilderDtosKeepTheirAlphabeticalKeyOrder(String className) throws Exception {
         JsonNode dto = json.valueToTree(emptyRecord(Class.forName(className)));

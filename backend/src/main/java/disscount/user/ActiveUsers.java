@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+import disscount.user.erasure.ErasureLedgerRepository;
+
 /** What other features may ask about a user: whether the account is live, its row lock, and whether an address was erased. */
 @Component
 @RequiredArgsConstructor

@@ -1,6 +1,6 @@
 package disscount.security;
 
-import disscount.shared.ForbiddenException;
+import disscount.shared.errors.ForbiddenException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
