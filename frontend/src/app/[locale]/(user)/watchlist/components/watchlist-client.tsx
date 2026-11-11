@@ -78,7 +78,7 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
       <SearchResultsStatus
         query={query}
         count={filteredItems.length}
-        isLoading={listLoading}
+        isLoading={listLoading || productsLoading}
       />
 
       <SectionTabs
