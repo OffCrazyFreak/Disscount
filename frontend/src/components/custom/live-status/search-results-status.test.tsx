@@ -76,6 +76,15 @@ describe("SearchResultsStatus", () => {
     const { rerender } = renderWithProviders(
       <SearchResultsStatus query="" count={9} />,
     );
+    const changes: string[] = [];
+    const observer = new MutationObserver(() =>
+      changes.push(screen.getByRole("status").textContent ?? ""),
+    );
+    observer.observe(screen.getByRole("status"), {
+      childList: true,
+      characterData: true,
+      subtree: true,
+    });
 
     rerender(<SearchResultsStatus query="m" count={5} />);
     await act(() => vi.advanceTimersByTimeAsync(200));
@@ -91,6 +100,8 @@ describe("SearchResultsStatus", () => {
     expect(screen.getByRole("status")).toHaveTextContent(
       /^3 rezultata za "mli"$/,
     );
+    expect(changes).toEqual(['3 rezultata za "mli"']);
+    observer.disconnect();
   });
 
   it("announces a new search that settles on the same count", async () => {
