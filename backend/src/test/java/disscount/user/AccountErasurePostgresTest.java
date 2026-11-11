@@ -131,6 +131,46 @@ class AccountErasurePostgresTest extends FullStackTest {
         assertThat(linkAccessOf(listId)).isNull();
     }
 
+    // Without the lock, the message passes the live check before the erasure commits and keeps its sender afterwards.
+    @Test
+    void aSignedInContactMessageRacingTheErasureWaitsAndKeepsNoSender() throws Exception {
+        User sender = newUser("sender");
+        String subject = "Utrka " + sender.getId();
+
+        CountDownLatch erasing = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+
+        CompletableFuture<Void> erasure = CompletableFuture.runAsync(() -> transactions.executeWithoutResult(status -> {
+            accountErasure.erase(sender.getId());
+            erasing.countDown();
+            await(release);
+        }));
+        assertThat(erasing.await(10, TimeUnit.SECONDS)).isTrue();
+
+        CompletableFuture<Integer> send = CompletableFuture.supplyAsync(() -> {
+            try {
+                return mvc.perform(post("/api/contact")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {"email":"ana@example.com","fullName":"Ana","subject":"%s","message":"Tekst"}
+                                        """.formatted(subject))
+                                .with(as(sender)))
+                        .andReturn().getResponse().getStatus();
+            } catch (Exception failed) {
+                throw new IllegalStateException(failed);
+            }
+        });
+        Thread.sleep(500);
+        assertThat(send).as("the message waits for the erasure's owner lock").isNotDone();
+
+        release.countDown();
+        erasure.get(10, TimeUnit.SECONDS);
+
+        assertThat(send.get(10, TimeUnit.SECONDS)).isEqualTo(200);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM app.contact_message WHERE subject = ? AND user_id IS NULL",
+                Long.class, subject)).isEqualTo(1);
+    }
+
     private static void await(CountDownLatch latch) {
         try {
             latch.await(10, TimeUnit.SECONDS);

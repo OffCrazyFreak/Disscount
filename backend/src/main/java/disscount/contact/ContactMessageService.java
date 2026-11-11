@@ -35,7 +35,8 @@ class ContactMessageService {
             return Optional.empty();
         }
 
-        UUID senderId = callerId != null && activeUsers.isActive(callerId) ? callerId : null;
+        // Locked until the insert commits, so an erasure that wins first leaves this a signed-out message it cannot miss.
+        UUID senderId = callerId != null && activeUsers.lockIfActive(callerId) ? callerId : null;
 
         ContactMessage message = ContactMessage.builder()
                 .senderId(senderId)
