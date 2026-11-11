@@ -362,7 +362,8 @@ id=$(docker inspect -f '{{.Id}}' <container>)
 cg=$(find /sys/fs/cgroup -maxdepth 3 -type d -name "*$id*" | head -1)
 grep -E '^(anon|file|shmem) ' "$cg/memory.stat"
 
-# Was it ever killed? Both must say false and 0
+# Was the current container killed? Both must say false and 0. A redeploy starts a new
+# container and cgroup, so for history read the kernel log (journalctl -k | grep -i oom) instead.
 docker inspect --format '{{.State.OOMKilled}}' <container>
 grep oom_kill "$cg/memory.events"
 
