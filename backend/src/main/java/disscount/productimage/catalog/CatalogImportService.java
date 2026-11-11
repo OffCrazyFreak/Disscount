@@ -17,12 +17,13 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
+@EnableConfigurationProperties(CatalogProperties.class)
 public class CatalogImportService {
 
     private static final Logger log = LoggerFactory.getLogger(CatalogImportService.class);
@@ -37,12 +38,11 @@ public class CatalogImportService {
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
-    public CatalogImportService(JdbcTemplate jdbc, TransactionTemplate tx, ObjectMapper json,
-                                @Value("${product-images.catalog.list-url:https://api.cijene.dev/v0/list}") String listUrl) {
+    CatalogImportService(JdbcTemplate jdbc, TransactionTemplate tx, ObjectMapper json, CatalogProperties properties) {
         this.jdbc = jdbc;
         this.tx = tx;
         this.json = json;
-        this.listUrl = listUrl;
+        this.listUrl = properties.listUrl();
     }
 
     public int importLatest() throws IOException, InterruptedException {

@@ -30,7 +30,7 @@ class ErasureReplayRunnerTest {
     private ErasureReplayRunner runner(String key, boolean allowEmpty) throws Exception {
         Path keyFile = Files.writeString(dir.resolve("hmac.key"), key + "\n");
         Path markers = Files.createDirectories(dir.resolve("markers"));
-        return new ErasureReplayRunner(replay, markers, keyFile, allowEmpty);
+        return new ErasureReplayRunner(replay, new ErasureReplayProperties(markers, keyFile, allowEmpty));
     }
 
     @Test

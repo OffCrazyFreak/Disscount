@@ -26,7 +26,7 @@ class ProductImageJobsTest {
     final FakePhotoStore store = new FakePhotoStore();
 
     ProductImageJobs jobs() {
-        return new ProductImageJobs(true, store, catalog, seed, mock(ProductImageRendering.class),
+        return new ProductImageJobs(new ProductImageJobProperties(true), store, catalog, seed, mock(ProductImageRendering.class),
                 mock(ProductImageRepository.class), mock(ProductImageSetRepository.class), runs);
     }
 
