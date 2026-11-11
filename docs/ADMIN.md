@@ -80,7 +80,7 @@ The proxy that turns the session into a backend token is in [BACKEND-PROXY.md](B
 
 **Changing an account type** (`PATCH /api/admin/users/{userId}`): the select updates the cached list optimistically, rolls back only that row on error, and refetches once the last pending change settles, so a refetch never shows another row's old value. Your own row's select is disabled in the browser, and the backend also refuses demoting yourself or the last admin with 409.
 
-**Deleting a user** (`DELETE /api/admin/users/{userId}`): a confirm dialog, then `UserService.deleteUserAsAdmin`, which refuses your own id (`error.user.cannotDeleteSelf`), deletes the better-auth identity (and with it every session and linked account), then runs the same `deleteAccount` as a self-service deletion: anonymised profile, cards and favourite stores removed, tombstone written. What is kept is listed in [SETTINGS.md](SETTINGS.md#8-deleting-the-account).
+**Deleting a user** (`DELETE /api/admin/users/{userId}`): a confirm dialog, then the Next.js route at that path forwards to `UserService.deleteUserAsAdmin`, which refuses your own id (`error.user.cannotDeleteSelf`) and the last live admin, then runs the same `deleteAccount` as a self-service deletion: anonymised profile, cards and favourite stores removed, tombstone written. Once Spring answers 2xx, the route deletes the better-auth identity (and with it every session and linked account). The order and its failure cases are in [AUTH.md](AUTH.md#74-who-deletes-a-login). What is kept is listed in [SETTINGS.md](SETTINGS.md#8-deleting-the-account).
 
 ---
 
@@ -108,7 +108,7 @@ The product photo review queue: candidates from Open Food Facts and user uploads
 | ----------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `GET /api/admin/users`                          | `AdminController`             | Every active user with email and activity; unbounded                                                                              |
 | `PATCH /api/admin/users/{userId}`               | `AdminController`             | Set `accountType`; 409 for self-demotion or the last admin                                                                        |
-| `DELETE /api/admin/users/{userId}`              | `AdminController`             | Delete and erase a user; refuses yourself                                                                                         |
+| `DELETE /api/admin/users/{userId}`              | `AdminController`             | Erase a user's app data; the Next.js route then deletes the login; refuses yourself                                               |
 | `GET /api/admin/contact?includeDeleted=`        | `AdminContactController`      | Up to 500 messages, newest first                                                                                                  |
 | `GET /api/admin/contact/{id}`                   | `AdminContactController`      | One message                                                                                                                       |
 | `PATCH /api/admin/contact/{id}/read`, `/unread` | `AdminContactController`      | Set or clear `read_at`                                                                                                            |
@@ -122,14 +122,14 @@ Swagger lists them all at `/api-docs`.
 
 ## 8. Tables the dashboard touches
 
-| Table                                                                                                       | Read                       | Written                                                   |
-| ----------------------------------------------------------------------------------------------------------- | -------------------------- | --------------------------------------------------------- |
-| `app_user`                                                                                                  | Yes                        | `account_type`; erasure fields on delete                  |
-| better-auth `user`, `session`                                                                               | Yes (email, sign-in times) | Deleted on an admin delete (`AuthIdentityDao.deleteById`) |
-| `erasure_ledger`                                                                                            | No                         | A tombstone on delete                                     |
-| `wallet_card`, `wallet_card_photo` (photos queued in `photo_cleanup`), `favorite_store`, `store_name_usage` | No                         | Deleted on an admin delete                                |
-| `contact_message`                                                                                           | Yes                        | `read_at`, `deleted_at`                                   |
-| Product image tables                                                                                        | Yes                        | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                |
+| Table                                                                                                       | Read                       | Written                                          |
+| ----------------------------------------------------------------------------------------------------------- | -------------------------- | ------------------------------------------------ |
+| `app_user`                                                                                                  | Yes                        | `account_type`; erasure fields on delete         |
+| better-auth `user`, `session`                                                                               | Yes (email, sign-in times) | Deleted on an admin delete, by the Next.js route |
+| `erasure_ledger`                                                                                            | No                         | A tombstone on delete                            |
+| `wallet_card`, `wallet_card_photo` (photos queued in `photo_cleanup`), `favorite_store`, `store_name_usage` | No                         | Deleted on an admin delete                       |
+| `contact_message`                                                                                           | Yes                        | `read_at`, `deleted_at`                          |
+| Product image tables                                                                                        | Yes                        | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)       |
 
 ---
 
@@ -153,7 +153,7 @@ Swagger lists them all at `/api-docs`.
 | `frontend/src/lib/api/schemas/auth-user.ts`                               | `canAccessDashboard`, `isAdmin`                                         |
 | `backend/src/main/java/disscount/user/UserService.java`                   | `findAllActive`, `updateAccountType` and its guard, `deleteUserAsAdmin` |
 | `backend/src/main/java/disscount/security/AdminAuthorizationManager.java` | The `/api/admin/**` rule: an ordinary session token of a live `ADMIN`   |
-| `backend/src/main/java/disscount/user/AuthIdentityDao.java`               | Reads and deletes better-auth rows from Spring                          |
+| `backend/src/main/java/disscount/user/AuthIdentityDao.java`               | Reads better-auth rows from Spring                                      |
 
 ---
 
