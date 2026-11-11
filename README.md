@@ -151,7 +151,7 @@ Day to day, run Postgres in Docker and the frontend and backend natively, so bot
 
 ### Startup flow
 
-The backend and frontend share one PostgreSQL database: the backend owns the app tables (Hibernate `ddl-auto`), the frontend owns the better-auth tables (drizzle). Start the database, run the backend, then the frontend.
+The backend and frontend share one PostgreSQL database: the backend owns the app tables (Flyway files in `backend/src/main/resources/db/migration`, which the `local` profile applies on start), the frontend owns the better-auth tables (drizzle). Start the database, run the backend, then the frontend: on a new database Flyway must run before drizzle adds its tables, or it refuses to start. A local database whose app tables Hibernate made before Flyway has no migration history; empty it with `docker compose -f docker-compose.local-db.yml down -v` and start again.
 
 ### 1. Database (PostgreSQL)
 
