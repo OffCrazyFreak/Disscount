@@ -85,6 +85,17 @@ class ErasedProfileReadsTest {
         assertThat(accountTypeOf(next)).isEqualTo(AccountType.CONSUMER);
     }
 
+    // Every profile soft-deleted before the backfill wrote their tombstones: still not an empty database.
+    @Test
+    void aProfileDeletedBeforeTheLedgerAlsoCountsForTheFirstAdmin() {
+        users.save(User.builder().id(UUID.randomUUID()).deletedAt(Timestamps.nowUtc().minusDays(30)).build());
+
+        UUID next = UUID.randomUUID();
+        signIn(next);
+
+        assertThat(accountTypeOf(next)).isEqualTo(AccountType.CONSUMER);
+    }
+
     @Test
     void anErasedProfileIsToldSoAndNeverInsertedAgain() {
         UUID id = UUID.randomUUID();

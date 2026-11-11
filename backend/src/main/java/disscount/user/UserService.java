@@ -60,8 +60,8 @@ public class UserService {
                 userRepository.save(user);
             }
         } else {
-            // First user becomes admin; ledger rows count too, so a deleted first admin never re-triggers this.
-            AccountType accountType = userRepository.count() + erasureLedger.count() == 0
+            // First user becomes admin; deleted profiles and ledger rows count too, so a database that ever had users never re-triggers this.
+            AccountType accountType = userRepository.countIncludingDeleted() + erasureLedger.count() == 0
                     ? AccountType.ADMIN
                     : AccountType.CONSUMER;
             String username = seedUsername(name, email);
