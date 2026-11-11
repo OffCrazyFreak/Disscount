@@ -35,7 +35,7 @@ class UserControllerErasureTokenTest {
         mvc.perform(delete("/api/users/me").with(jwt().jwt(j -> j.subject(userId.toString()))))
                 .andExpect(status().isForbidden());
 
-        verify(accountErasureService, never()).erase(any());
+        verify(accountErasureService, never()).eraseOwnAccount(any());
     }
 
     @Test
@@ -44,7 +44,7 @@ class UserControllerErasureTokenTest {
                         .claim("purpose", "something-else"))))
                 .andExpect(status().isForbidden());
 
-        verify(accountErasureService, never()).erase(any());
+        verify(accountErasureService, never()).eraseOwnAccount(any());
     }
 
     @Test
@@ -53,7 +53,7 @@ class UserControllerErasureTokenTest {
                         .claim("purpose", "account-erasure"))))
                 .andExpect(status().isOk());
 
-        verify(accountErasureService).erase(userId);
+        verify(accountErasureService).eraseOwnAccount(userId);
     }
 
     @Test
@@ -94,6 +94,6 @@ class UserControllerErasureTokenTest {
     void anAnonymousCallerIsRejected() throws Exception {
         mvc.perform(delete("/api/users/me")).andExpect(status().isUnauthorized());
 
-        verify(accountErasureService, never()).erase(any());
+        verify(accountErasureService, never()).eraseOwnAccount(any());
     }
 }

@@ -4,6 +4,7 @@ import disscount.shared.NotFoundException;
 import disscount.shared.Timestamps;
 import disscount.user.ActiveUsers;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class WatchlistItemService {
+
+    static final String NOT_FOUND = "error.watchlistItem.notFound";
 
     private final WatchlistItemRepository watchlistItemRepository;
     private final ActiveUsers activeUsers;
@@ -52,10 +55,11 @@ public class WatchlistItemService {
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("@watchlistGuard.ownsItem(#userId, #id)")
     @Transactional
     public void removeFromWatchlist(UUID id, UUID userId) {
         WatchlistItem watchlistItem = watchlistItemRepository.findIncludingDeletedByIdAndUserId(id, userId)
-                .orElseThrow(() -> new NotFoundException("error.watchlistItem.notFound"));
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND));
 
         if (watchlistItem.getDeletedAt() == null) {
             watchlistItem.setDeletedAt(Timestamps.nowUtc());

@@ -3,6 +3,7 @@
 Reference documentation for Disscount. Each file is a standalone deep-dive into one part of the system. A "Key files" section lists only the files whose role is not obvious from the name or that sit outside the feature folder.
 
 - [INFRASTRUCTURE.md](INFRASTRUCTURE.md) - infrastructure, env vars, DNS/SSL, backups, monitoring.
+- [BACKEND.md](BACKEND.md) - the Spring backend: feature packages and their dependency rules, transactions, the admin URL rule and the ownership guards, soft delete, problem responses, backend tests.
 - [AUTH.md](AUTH.md) - auth architecture (better-auth IdP + Spring resource server, URL-modal flow, mandatory onboarding).
 - [PWA.md](PWA.md) - PWA setup, service worker, offline behaviour, install flow.
 - [SHOPPING-LISTS.md](SHOPPING-LISTS.md) - shopping lists: data model, merging duplicates, ticking with captured prices, optimistic writes and the offline queue, grouping by store and the map link, the stores tab, the price history chart.

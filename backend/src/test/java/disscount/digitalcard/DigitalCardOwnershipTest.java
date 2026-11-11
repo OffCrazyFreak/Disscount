@@ -1,10 +1,12 @@
 package disscount.digitalcard;
 
+import disscount.shared.NotFoundException;
 import disscount.shared.TestImages;
 import disscount.support.FullStackTest;
 import disscount.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -13,6 +15,7 @@ import tools.jackson.databind.JsonNode;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -27,6 +30,9 @@ class DigitalCardOwnershipTest extends FullStackTest {
             {"cardName":"Moja kartica","cardType":"loyalty","storeName":"Konzum","chainCode":"konzum",
              "codeValue":"3850123456789","codeType":"ean_13","cardColor":"#D50000"}
             """;
+
+    @Autowired DigitalCardGuard guard;
+    @Autowired DigitalCardPhotoService photoService;
 
     private User owner;
     private User stranger;
@@ -105,5 +111,29 @@ class DigitalCardOwnershipTest extends FullStackTest {
         mvc.perform(get("/api/digital-cards/me")).andExpect(status().isUnauthorized());
         mvc.perform(get("/api/digital-cards/{id}", cardId)).andExpect(status().isUnauthorized());
         mvc.perform(get("/api/digital-cards/{id}/photos/{slot}", cardId, "icon")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void theGuardTreatsAStrangersCardLikeAnUnknownId() {
+        assertThat(guard.ownsCard(owner.getId(), cardId)).isTrue();
+        assertThatThrownBy(() -> guard.ownsCard(stranger.getId(), cardId))
+                .isInstanceOf(NotFoundException.class).hasMessage("error.card.notFound");
+        assertThatThrownBy(() -> guard.ownsCard(owner.getId(), UUID.randomUUID()))
+                .isInstanceOf(NotFoundException.class).hasMessage("error.card.notFound");
+    }
+
+    @Test
+    void theGuardLetsAPutCreateAnUnusedIdButNotTakeAStrangersCard() {
+        assertThat(guard.mayWriteCard(owner.getId(), cardId)).isTrue();
+        assertThat(guard.mayWriteCard(stranger.getId(), UUID.randomUUID())).isTrue();
+        assertThatThrownBy(() -> guard.mayWriteCard(stranger.getId(), cardId))
+                .isInstanceOf(NotFoundException.class).hasMessage("error.card.notFound");
+    }
+
+    // The service checks the slot before the card, so only a guard in front of it answers 404 here.
+    @Test
+    void theGuardRunsBeforeTheServiceBody() {
+        assertThatThrownBy(() -> photoService.open(stranger.getId(), cardId, "no-such-slot", false, null))
+                .isInstanceOf(NotFoundException.class).hasMessage("error.card.notFound");
     }
 }

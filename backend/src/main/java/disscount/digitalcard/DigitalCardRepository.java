@@ -21,6 +21,10 @@ public interface DigitalCardRepository extends JpaRepository<DigitalCard, UUID> 
     @Query("SELECT c FROM DigitalCard c WHERE c.id = :id AND c.userId = :userId")
     Optional<DigitalCard> findActiveByIdAndUserId(UUID id, UUID userId);
 
+    boolean existsByIdAndUserId(UUID id, UUID userId);
+
+    boolean existsByIdAndUserIdNot(UUID id, UUID userId);
+
     @Query("SELECT COUNT(c) FROM DigitalCard c WHERE c.userId = :userId")
     long countActiveByUserId(UUID userId);
 

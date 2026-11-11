@@ -1,6 +1,7 @@
 package disscount.shoppinglist;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,12 +18,14 @@ class ShoppingListCopyService {
     private final ShoppingListRepository shoppingListRepository;
     private final ShoppingListAccessService accessService;
     private final ShoppingListService shoppingListService;
+    private final ShoppingListGuard guard;
     private final ShoppingListMapper shoppingListMapper;
 
+    @PreAuthorize("@shoppingListGuard.canWrite(#listId, #userId)")
     @Transactional
     public ShoppingListDto copy(UUID listId, UUID userId, ShoppingListCopyRequest request) {
         ShoppingList source = shoppingListService.findVisible(listId, userId);
-        shoppingListService.requireWriteUser(userId);
+        guard.requireWriteUser(userId);
 
         // Only an owner may carry sharing across, or a recipient could hand out a link the owner never chose.
         if (request.isIncludeSharing() && !accessService.resolve(source, userId).isOwner()) {
