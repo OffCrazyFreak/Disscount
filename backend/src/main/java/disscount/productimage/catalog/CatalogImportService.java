@@ -57,9 +57,9 @@ public class CatalogImportService {
     }
 
     void store(Map<String, CatalogArchiveReader.Entry> catalog) {
-        Set<String> existing = new HashSet<>(jdbc.queryForList("select ean from product_image_set", String.class));
+        Set<String> existing = new HashSet<>(jdbc.queryForList("select ean from app.product_image_set", String.class));
         // A product that left every chain drops to the bottom of the queue instead of keeping last week's rank.
-        jdbc.update("update product_image_set set store_listings = 0, chain_count = 0");
+        jdbc.update("update app.product_image_set set store_listings = 0, chain_count = 0");
 
         List<Object[]> updates = new ArrayList<>();
         List<Object[]> inserts = new ArrayList<>();
@@ -71,8 +71,8 @@ public class CatalogImportService {
             }
         });
 
-        batch("update product_image_set set name = ?, brand = ?, store_listings = ?, chain_count = ? where ean = ?", updates);
-        batch("insert into product_image_set (ean, name, brand, store_listings, chain_count, pinned, needs_review) "
+        batch("update app.product_image_set set name = ?, brand = ?, store_listings = ?, chain_count = ? where ean = ?", updates);
+        batch("insert into app.product_image_set (ean, name, brand, store_listings, chain_count, pinned, needs_review) "
                 + "values (?, ?, ?, ?, ?, false, false)", inserts);
     }
 

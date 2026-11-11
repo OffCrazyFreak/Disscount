@@ -12,7 +12,7 @@ export async function deleteErasedIdentity(userId: string): Promise<void> {
     .where(
       and(
         eq(user.id, userId),
-        sql`exists (select 1 from erasure_ledger where erasure_ledger.user_id = ${user.id})`,
+        sql`exists (select 1 from app.erasure_ledger where erasure_ledger.user_id = ${user.id})`,
       ),
     );
 }

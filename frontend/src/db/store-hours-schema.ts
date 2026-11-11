@@ -2,16 +2,17 @@ import {
   date,
   integer,
   jsonb,
-  pgTable,
   primaryKey,
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
 
+import { webPgSchema } from "@/db/pg-schemas";
+
 import type { SundayRule, TimeRangeDto } from "@/lib/api/schemas";
 
 /** Keyed like `store_location`; refreshed weekly from the chain finder or OpenStreetMap. */
-export const storeHours = pgTable(
+export const storeHours = webPgSchema.table(
   "store_hours",
   {
     chainCode: text("chain_code").notNull(),
@@ -37,7 +38,7 @@ export const storeHours = pgTable(
 );
 
 /** Sunday and holiday hours a chain announces only days ahead; an empty store code covers the whole chain. */
-export const storeHoursOverlay = pgTable(
+export const storeHoursOverlay = webPgSchema.table(
   "store_hours_overlay",
   {
     chainCode: text("chain_code").notNull(),
@@ -53,7 +54,7 @@ export const storeHoursOverlay = pgTable(
 );
 
 /** A run whose store count drops sharply is rejected, so a redesigned page cannot wipe a chain. */
-export const storeHoursRun = pgTable(
+export const storeHoursRun = webPgSchema.table(
   "store_hours_run",
   {
     job: text("job").notNull(),

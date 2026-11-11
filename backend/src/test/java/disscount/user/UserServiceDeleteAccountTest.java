@@ -110,7 +110,7 @@ class UserServiceDeleteAccountTest {
         favoriteStores.deleteAll();
         erasureLedger.deleteAll();
         // Row by row would skip soft-deleted rows, which @SQLRestriction hides from JPA.
-        JdbcTestUtils.deleteFromTables(jdbc, "wallet_card_photo", "wallet_card", "app_user");
+        JdbcTestUtils.deleteFromTables(jdbc, "app.wallet_card_photo", "app.wallet_card", "app.app_user");
         ((FakePhotoStore) store).objects.clear();
     }
 
@@ -145,7 +145,7 @@ class UserServiceDeleteAccountTest {
 
         userService.deleteAccount(user.getId());
 
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM wallet_card WHERE user_id = ?", Long.class, user.getId()))
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM app.wallet_card WHERE user_id = ?", Long.class, user.getId()))
                 .isZero();
     }
 

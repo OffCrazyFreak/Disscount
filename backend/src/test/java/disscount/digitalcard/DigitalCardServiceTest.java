@@ -82,7 +82,7 @@ class DigitalCardServiceTest {
     void setUp() {
         cleanupRows.deleteAll();
         // Row by row would skip soft-deleted rows, which @SQLRestriction hides from JPA.
-        JdbcTestUtils.deleteFromTables(jdbc, "wallet_card_photo", "wallet_card", "app_user");
+        JdbcTestUtils.deleteFromTables(jdbc, "app.wallet_card_photo", "app.wallet_card", "app.app_user");
         storeNameUsages.deleteAll();
         storeNames.deleteAll();
         ((FakePhotoStore) store).objects.clear();
@@ -203,7 +203,7 @@ class DigitalCardServiceTest {
 
         for (Supplier<DigitalCardDto> write : writes) {
             // Backdated so a reply built before the flush cannot match by luck.
-            jdbc.update("UPDATE wallet_card SET updated_at = ? WHERE id = ?",
+            jdbc.update("UPDATE app.wallet_card SET updated_at = ? WHERE id = ?",
                     Timestamps.nowUtc().minusHours(1), id);
 
             DigitalCardDto returned = write.get();
@@ -219,7 +219,7 @@ class DigitalCardServiceTest {
         UUID id = UUID.randomUUID();
         service.upsert(owner.getId(), id, request("Kartica"));
         LocalDateTime edited = Timestamps.nowUtc().minusHours(1);
-        jdbc.update("UPDATE wallet_card SET updated_at = ? WHERE id = ?", edited, id);
+        jdbc.update("UPDATE app.wallet_card SET updated_at = ? WHERE id = ?", edited, id);
 
         List<DigitalCardDto> replies = List.of(
                 service.setPinned(owner.getId(), id, true),
@@ -326,7 +326,7 @@ class DigitalCardServiceTest {
         service.upsert(owner.getId(), recent, request("Nedavna"));
         service.delete(owner.getId(), old);
         service.delete(owner.getId(), recent);
-        jdbc.update("UPDATE wallet_card SET deleted_at = ? WHERE id = ?", Timestamps.nowUtc().minusDays(31), old);
+        jdbc.update("UPDATE app.wallet_card SET deleted_at = ? WHERE id = ?", Timestamps.nowUtc().minusDays(31), old);
 
         int purged = service.purgeDeletedBefore(Timestamps.nowUtc().minusDays(30));
 
@@ -341,14 +341,14 @@ class DigitalCardServiceTest {
         UUID id = UUID.randomUUID();
         service.upsert(owner.getId(), id, request("Stara"));
         photoService.upload(owner.getId(), id, "icon", file(TestImages.webp(32, 32)), null);
-        jdbc.update("UPDATE wallet_card SET deleted_at = ? WHERE id = ?", Timestamps.nowUtc().minusDays(31), id);
+        jdbc.update("UPDATE app.wallet_card SET deleted_at = ? WHERE id = ?", Timestamps.nowUtc().minusDays(31), id);
 
         // JPQL reaches a photo through its card, so the hidden card hides the photo from reads too.
         assertThat(photos.findByCardId(id)).isEmpty();
 
         assertThat(service.purgeDeletedBefore(Timestamps.nowUtc().minusDays(30))).isEqualTo(1);
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM wallet_card_photo", Long.class)).isZero();
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM wallet_card", Long.class)).isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM app.wallet_card_photo", Long.class)).isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM app.wallet_card", Long.class)).isZero();
     }
 
     @Test

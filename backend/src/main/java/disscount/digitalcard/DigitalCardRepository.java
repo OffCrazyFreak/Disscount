@@ -46,18 +46,18 @@ public interface DigitalCardRepository extends JpaRepository<DigitalCard, UUID> 
     // Native from here on: @SQLRestriction hides deleted cards from JPQL reads, updates and deletes alike.
 
     /** Deleted cards keep their id, so a replayed create of a deleted card can answer 404 instead of reviving it. */
-    @Query(value = "SELECT COUNT(*) > 0 FROM wallet_card WHERE id = :id AND deleted_at IS NOT NULL", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) > 0 FROM app.wallet_card WHERE id = :id AND deleted_at IS NOT NULL", nativeQuery = true)
     boolean isDeleted(UUID id);
 
-    @Query(value = "SELECT * FROM wallet_card WHERE deleted_at < :cutoff", nativeQuery = true)
+    @Query(value = "SELECT * FROM app.wallet_card WHERE deleted_at < :cutoff", nativeQuery = true)
     List<DigitalCard> findDeletedBefore(LocalDateTime cutoff);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query(value = "DELETE FROM wallet_card WHERE id IN (:ids)", nativeQuery = true)
+    @Query(value = "DELETE FROM app.wallet_card WHERE id IN (:ids)", nativeQuery = true)
     void purgeByIds(Collection<UUID> ids);
 
     /** Deleted cards included, as their card numbers must not outlive the account either. */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query(value = "DELETE FROM wallet_card WHERE user_id = :userId", nativeQuery = true)
+    @Query(value = "DELETE FROM app.wallet_card WHERE user_id = :userId", nativeQuery = true)
     void deleteAllByUserId(UUID userId);
 }
