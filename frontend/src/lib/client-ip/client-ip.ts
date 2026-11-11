@@ -48,6 +48,16 @@ function isCloudflarePeer(headers: Headers) {
   return !!peer && isIP(peer) !== 0 && isCloudflare(peer);
 }
 
+/** The address and country of any request, under the same trust rules as withTrustedClientIp. */
+export function trustedClientMeta(headers: Headers | null | undefined) {
+  if (!headers) return { ipAddress: null, country: null };
+
+  return {
+    ipAddress: resolveClientIp(headers),
+    country: isCloudflarePeer(headers) ? trustedCountry(headers) : null,
+  };
+}
+
 export function withTrustedClientIp(request: Request): Request {
   // Copied entry by entry, because in Vitest new Headers(request.headers) drops every header but content-type.
   const headers = new Headers([...request.headers]);
