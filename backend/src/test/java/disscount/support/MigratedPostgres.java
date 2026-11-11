@@ -25,6 +25,8 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 @TestPropertySource(properties = {
         "spring.flyway.enabled=true",
         "spring.jpa.hibernate.ddl-auto=validate",
+        // The backend login's own path would find a native query that forgot its app. or auth. prefix.
+        "spring.datasource.hikari.connection-init-sql=set search_path = public",
         // The DDL Hibernate would create, which SchemaDriftTest compares with the migrated tables.
         "spring.jpa.properties.jakarta.persistence.schema-generation.scripts.action=create",
         "spring.jpa.properties.jakarta.persistence.schema-generation.scripts.create-target=" + MigratedPostgres.HIBERNATE_DDL,

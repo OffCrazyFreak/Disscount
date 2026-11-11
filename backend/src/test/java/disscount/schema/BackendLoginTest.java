@@ -22,6 +22,12 @@ class BackendLoginTest extends FullStackTest {
         assertThat(jdbc.queryForObject("select current_user", String.class)).isEqualTo(DatabaseRoles.BACKEND);
     }
 
+    // So every native query in these tests must name its schema, as on a login without the fallback path.
+    @Test
+    void theTestConnectionsFindNoTableWithoutItsSchema() {
+        assertThat(jdbc.queryForObject("show search_path", String.class)).isEqualTo("public");
+    }
+
     @Test
     void theAppCannotRewriteTheAdminAudit() {
         assertThatThrownBy(() -> jdbc.update("delete from app.admin_audit")).rootCause().hasMessageContaining("permission denied");
