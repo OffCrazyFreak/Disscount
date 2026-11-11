@@ -1,5 +1,7 @@
 package disscount.user;
 
+import disscount.contact.ContactMessage;
+import disscount.contact.ContactMessageRepository;
 import disscount.digitalcard.DigitalCardPhotoRepository;
 import disscount.digitalcard.DigitalCardRepository;
 import disscount.digitalcard.PhotoCleanupRepository;
@@ -24,9 +26,11 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -52,6 +56,7 @@ class AccountErasureTest extends FullStackTest {
     @Autowired ShoppingListRepository shoppingLists;
     @Autowired WatchlistItemRepository watchlist;
     @Autowired PinnedStoreRepository pinnedStores;
+    @Autowired ContactMessageRepository contactMessages;
 
     private static RequestPostProcessor erasureToken(User user) {
         return jwt().jwt(j -> j.subject(user.getId().toString()).claim("purpose", "account-erasure"));
@@ -76,10 +81,42 @@ class AccountErasureTest extends FullStackTest {
                 .andExpect(status().isOk());
         mvc.perform(withJson(put("/api/pinned-stores/bulk"), "{\"stores\":[{\"storeApiId\":\"konzum:1\",\"storeName\":\"Konzum\"}]}")
                 .with(as(user))).andExpect(status().isOk());
-        mvc.perform(withJson(post("/api/shopping-lists"), "{\"title\":\"Tjedna kupnja\"}").with(as(user)))
+        mvc.perform(withJson(post("/api/shopping-lists"), "{\"title\":\"Tjedna kupnja\",\"linkAccess\":\"EDIT\"}").with(as(user)))
                 .andExpect(status().isOk());
         mvc.perform(withJson(post("/api/watchlist"), "{\"productApiId\":\"3850123456789\",\"watchType\":\"PERCENTAGE\",\"thresholdValue\":10}")
                 .with(as(user))).andExpect(status().isOk());
+
+        // Saved directly, as the per-address contact limit is shared by every test in this context.
+        String email = loginEmailOf(user);
+        when(authIdentityDao.findEmail(user.getId())).thenReturn(Optional.of(email));
+        contactMessages.save(contactMessage(user.getId(), email, "Signed in"));
+        contactMessages.save(contactMessage(null, email.toUpperCase(), "Signed out"));
+    }
+
+    private static String loginEmailOf(User user) {
+        return user.getId() + "@example.com";
+    }
+
+    private static ContactMessage contactMessage(UUID senderId, String email, String subject) {
+        return ContactMessage.builder()
+                .senderId(senderId)
+                .email(email)
+                .fullName("Ana Anić")
+                .subject(subject)
+                .message("Cijene u Konzumu su krive.")
+                .build();
+    }
+
+    private List<UUID> messageIdsFrom(User user) {
+        return contactMessages.findAll().stream()
+                .filter(message -> user.getId().equals(message.getSenderId())
+                        || loginEmailOf(user).equalsIgnoreCase(message.getEmail()))
+                .map(ContactMessage::getId)
+                .toList();
+    }
+
+    private UUID sharedListOf(User user) {
+        return shoppingLists.findActiveByOwnerId(user.getId()).getFirst().getId();
     }
 
     private int useCountOf(String store) {
@@ -109,14 +146,28 @@ class AccountErasureTest extends FullStackTest {
                 productImages.findAll().stream().anyMatch(image -> key.equals(image.getOriginalKey())));
         assertThat(storeNameUsages.findAll()).noneMatch(usage -> usage.getUserId().equals(id));
 
-        // Business data stays, attached to the anonymised profile.
-        assertThat(shoppingLists.findActiveByOwnerId(id)).hasSize(1);
+        // The list stays with the hidden profile, and its link no longer opens it for anyone.
+        assertThat(shoppingLists.findActiveByOwnerId(id)).singleElement()
+                .satisfies(list -> assertThat(list.getLinkAccess()).isNull());
+
+        // A message keeps its text and loses who sent it, whether sent signed in or signed out from the login address.
+        assertThat(contactMessages.findAll())
+                .filteredOn(message -> id.equals(message.getSenderId()))
+                .singleElement()
+                .satisfies(message -> {
+                    assertThat(message.getEmail()).isNull();
+                    assertThat(message.getFullName()).isNull();
+                    assertThat(message.getMessage()).isEqualTo("Cijene u Konzumu su krive.");
+                });
+        assertThat(contactMessages.findAll()).noneMatch(message -> loginEmailOf(leaving).equalsIgnoreCase(message.getEmail()));
+
+        // These stay, attached to the hidden profile (owner, 2026-11-11).
         assertThat(watchlist.findByUserId(id)).hasSize(1);
         assertThat(pinnedStores.findByUserId(id)).hasSize(1);
     }
 
     @Test
-    void theErasureTokenRemovesPersonalDataAndKeepsBusinessData() throws Exception {
+    void theErasureTokenRemovesPersonalDataAndKeepsWhatTheOwnerChoseToKeep() throws Exception {
         String store = "Dućan " + UUID.randomUUID().toString().substring(0, 8);
         User leaving = newUser("leaving");
         User staying = newUser("staying");
@@ -132,9 +183,66 @@ class AccountErasureTest extends FullStackTest {
         assertThat(useCountOf(store)).isEqualTo(1);
         assertThat(cards.findActiveByUserId(staying.getId())).hasSize(1);
         assertThat(favoriteStores.findByUserId(staying.getId())).hasSize(1);
-        assertThat(shoppingLists.findActiveByOwnerId(staying.getId())).hasSize(1);
+        assertThat(shoppingLists.findActiveByOwnerId(staying.getId())).singleElement()
+                .satisfies(list -> assertThat(list.getLinkAccess()).isNotNull());
         assertThat(watchlist.findByUserId(staying.getId())).hasSize(1);
         assertThat(pinnedStores.findByUserId(staying.getId())).hasSize(1);
+        assertThat(contactMessages.findAll())
+                .filteredOn(message -> loginEmailOf(staying).equalsIgnoreCase(message.getEmail()))
+                .hasSize(2)
+                .allMatch(message -> message.getFullName() != null);
+    }
+
+    // Same answer as for an unknown id, so the link says nothing about the account that made it.
+    @Test
+    void aLinkVisitorOfAnErasedOwnersListGetsWhatAnUnknownLinkGets() throws Exception {
+        User leaving = newUser("leaving");
+        User visitor = newUser("visitor");
+        giveEverything(leaving, "Dućan " + UUID.randomUUID().toString().substring(0, 8));
+        UUID listId = sharedListOf(leaving);
+        mvc.perform(get("/api/shopping-lists/{id}", listId).with(as(visitor))).andExpect(status().isOk());
+
+        mvc.perform(delete("/api/users/me").with(erasureToken(leaving))).andExpect(status().isOk());
+
+        String unknown = body(mvc.perform(get("/api/shopping-lists/{id}", UUID.randomUUID()).with(as(visitor)))
+                .andExpect(status().isNotFound())).get("detail").asString();
+        for (RequestPostProcessor caller : List.<RequestPostProcessor>of(as(visitor), request -> request)) {
+            mvc.perform(get("/api/shopping-lists/{id}", listId).with(caller))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.detail").value(unknown));
+        }
+        mvc.perform(withJson(put("/api/shopping-lists/{id}", listId), "{\"title\":\"Moj popis\"}").with(as(visitor)))
+                .andExpect(status().isNotFound());
+        mvc.perform(withJson(post("/api/shopping-lists/{id}/items", listId), "{\"name\":\"Mlijeko\"}").with(as(visitor)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void aSecondErasureChangesNothing() throws Exception {
+        User leaving = newUser("leaving");
+        giveEverything(leaving, "Dućan " + UUID.randomUUID().toString().substring(0, 8));
+        List<UUID> messages = messageIdsFrom(leaving);
+        mvc.perform(delete("/api/users/me").with(erasureToken(leaving))).andExpect(status().isOk());
+        String afterFirst = snapshotOf(leaving, messages);
+
+        mvc.perform(delete("/api/users/me").with(erasureToken(leaving))).andExpect(status().isOk());
+
+        assertThat(messages).hasSize(2);
+        assertThat(snapshotOf(leaving, messages)).isEqualTo(afterFirst);
+    }
+
+    private String snapshotOf(User user, List<UUID> messageIds) {
+        entityManager.clear();
+        User profile = IncludingDeleted.find(entityManager, User.class, user.getId()).orElseThrow();
+        return List.of(
+                String.valueOf(profile.getDeletedAt()),
+                String.valueOf(erasureLedger.findById(user.getId()).orElseThrow().getErasedAt()),
+                shoppingLists.findActiveByOwnerId(user.getId()).stream()
+                        .map(list -> list.getId() + ":" + list.getLinkAccess() + ":" + list.getUpdatedAt()).toList().toString(),
+                contactMessages.findAllById(messageIds).stream()
+                        .map(message -> message.getId() + ":" + message.getEmail() + ":" + message.getFullName()
+                                + ":" + message.getUpdatedAt()).sorted().toList().toString()
+        ).toString();
     }
 
     // better-auth calls this before deleting any identity, including one that never made a request here.

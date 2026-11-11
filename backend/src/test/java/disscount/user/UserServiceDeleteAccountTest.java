@@ -155,7 +155,7 @@ class UserServiceDeleteAccountTest {
 
         userService.deleteAccount(user.getId());
 
-        verify(productImageErasure).onAccountErased(new AccountErased(user.getId()));
+        verify(productImageErasure).onAccountErased(new AccountErased(user.getId(), null));
     }
 
     @Test

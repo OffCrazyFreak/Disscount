@@ -2,6 +2,7 @@ package disscount.contact;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -21,4 +22,13 @@ public interface ContactMessageRepository extends JpaRepository<ContactMessage, 
 
     @Query(value = "SELECT * FROM app.contact_message WHERE id = :id", nativeQuery = true)
     Optional<ContactMessage> findIncludingDeletedById(UUID id);
+
+    /** Messages sent signed in, and those sent signed out from the login address; a null address matches none. */
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = """
+            UPDATE app.contact_message SET email = NULL, full_name = NULL
+            WHERE (user_id = :senderId OR (user_id IS NULL AND lower(email) = lower(CAST(:loginEmail AS VARCHAR))))
+              AND (email IS NOT NULL OR full_name IS NOT NULL)
+            """, nativeQuery = true)
+    int blankSender(UUID senderId, String loginEmail);
 }

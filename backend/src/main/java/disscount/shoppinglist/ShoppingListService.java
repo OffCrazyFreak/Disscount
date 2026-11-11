@@ -1,6 +1,8 @@
 package disscount.shoppinglist;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import disscount.shared.ForbiddenException;
 import disscount.shared.NotFoundException;
 import disscount.shared.Timestamps;
+import disscount.user.AccountErased;
 import disscount.user.ActiveUsers;
 
 import java.util.List;
@@ -111,11 +114,22 @@ public class ShoppingListService {
         return list;
     }
 
+    /** A link nobody can switch off must not outlive its owner, so it goes off; the lists stay (owner, 2026-11-11). */
+    @EventListener
+    @Order(50)
+    @Transactional
+    public void onAccountErased(AccountErased erased) {
+        shoppingListRepository.unshareAllOfOwner(erased.userId());
+    }
+
     /** Off then on hands back the same URL, since the URL is the id. Intended. */
     private void applyLinkAccess(ShoppingList list, LinkAccess requested) {
         if (requested == null) {
             return;
         }
+
+        // Under the owner's row lock, so a share racing the erasure lands before it and is switched off, or is refused.
+        activeUsers.lockActive(list.getOwnerId());
 
         ListAccess next = requested.toListAccess();
         list.setLinkAccess(next == ListAccess.NONE ? null : next);

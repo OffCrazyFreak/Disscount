@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.shared.ForbiddenException;
+import disscount.user.ActiveUsers;
 
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ class ShoppingListCopyService {
     private final ShoppingListService shoppingListService;
     private final ShoppingListGuard guard;
     private final ShoppingListMapper shoppingListMapper;
+    private final ActiveUsers activeUsers;
 
     @PreAuthorize("@shoppingListGuard.canWrite(#listId, #userId)")
     @Transactional
@@ -30,6 +32,11 @@ class ShoppingListCopyService {
         // Only an owner may carry sharing across, or a recipient could hand out a link the owner never chose.
         if (request.isIncludeSharing() && !accessService.resolve(source, userId).isOwner()) {
             throw new ForbiddenException("error.shoppingList.ownerOnlyCopySharing");
+        }
+
+        // A copy born shared is a share change, so it takes the lock every share change takes (ShoppingListService).
+        if (request.isIncludeSharing()) {
+            activeUsers.lockActive(userId);
         }
 
         ShoppingList copy = ShoppingList.builder()

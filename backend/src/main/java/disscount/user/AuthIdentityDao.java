@@ -14,6 +14,7 @@ import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /** Native queries as no entity maps these better-auth tables, which are never mirrored into app_user. */
@@ -46,6 +47,16 @@ public class AuthIdentityDao {
             );
         }
         return identitiesById;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Optional<String> findEmail(UUID userId) {
+        List<String> emails = entityManager
+                .createNativeQuery("SELECT email FROM auth.\"user\" WHERE id = :id")
+                .setParameter("id", userId)
+                .getResultList();
+
+        return emails.stream().findFirst();
     }
 
     @SuppressWarnings("unchecked")

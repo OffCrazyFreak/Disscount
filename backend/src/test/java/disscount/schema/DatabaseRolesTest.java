@@ -69,6 +69,8 @@ class DatabaseRolesTest {
         allowed(DatabaseRoles.BACKEND, "insert into app.app_user (id, account_type, created_at) values (gen_random_uuid(), 'CONSUMER', now())");
         allowed(DatabaseRoles.BACKEND, "update app.app_user set username = null where false");
         allowed(DatabaseRoles.BACKEND, "delete from app.wallet_card where false");
+        allowed(DatabaseRoles.BACKEND, "update app.shopping_list set link_access = null where false");
+        allowed(DatabaseRoles.BACKEND, "update app.contact_message set email = null, full_name = null where false");
         allowed(DatabaseRoles.BACKEND, "insert into app.admin_audit values (gen_random_uuid(), gen_random_uuid(), gen_random_uuid(), 'DELETE_USER', now())");
         allowed(DatabaseRoles.BACKEND, "select count(*) from app.admin_audit");
 
@@ -84,6 +86,7 @@ class DatabaseRolesTest {
                 select u.id, u.email, greatest(u.last_login_at, max(s.created_at)), max(s.updated_at)
                 from auth."user" u left join auth.session s on s.user_id = u.id group by u.id, u.email, u.last_login_at
                 """);
+        allowed(DatabaseRoles.BACKEND, "select email from auth.\"user\" where id = gen_random_uuid()");
         allowed(DatabaseRoles.BACKEND, "delete from auth.session where expires_at < now() - interval '1 day'");
         allowed(DatabaseRoles.BACKEND, "update auth.session set ip_address = null where created_at < now() and ip_address is not null");
 

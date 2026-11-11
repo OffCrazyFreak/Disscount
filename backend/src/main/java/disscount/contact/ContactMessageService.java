@@ -2,8 +2,11 @@ package disscount.contact;
 
 import disscount.shared.NotFoundException;
 import disscount.shared.Timestamps;
+import disscount.user.AccountErased;
 import disscount.user.ActiveUsers;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,6 +78,14 @@ class ContactMessageService {
     @Transactional
     public ContactMessageDto restore(UUID id) {
         return mutate(id, msg -> msg.setDeletedAt(null));
+    }
+
+    /** The name and address go with the account; the text stays for the admins (owner, 2026-11-11). */
+    @EventListener
+    @Order(60)
+    @Transactional
+    public void onAccountErased(AccountErased erased) {
+        contactMessageRepository.blankSender(erased.userId(), erased.loginEmail());
     }
 
     private ContactMessageDto mutate(UUID id, Consumer<ContactMessage> change) {

@@ -207,7 +207,9 @@ public class UserService {
             userRepository.saveAndFlush(user);
         });
 
-        events.publishEvent(new AccountErased(userId));
+        // The login still exists here, as Next.js and the replay delete it only once this commits.
+        String loginEmail = authIdentityDao.findEmail(userId).orElse(null);
+        events.publishEvent(new AccountErased(userId, loginEmail));
 
         if (!erasureLedger.existsById(userId)) {
             // Flushed so a concurrent deletion's tombstone collides here, where AccountErasureService can catch it.
