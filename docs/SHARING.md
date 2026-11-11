@@ -58,7 +58,7 @@ caller owns the list, and the request DTO is bound to a separate `LinkAccess` en
 cannot express it, so it is rejected at deserialization rather than by a service guard.
 
 **Anonymous callers are capped at `VIEW`** however generous the link is. That is the rule
-that keeps every write attributable to an account.
+that keeps every write attributable to an account. Every write from an anonymous caller on a list they can see answers 401 (`error.shoppingList.signInToChange`), owner-only ones included, so the page can ask them to sign in.
 
 ## 3. The id is the link, and what that costs
 

@@ -4,7 +4,7 @@ A reference for how the Spring Boot backend is laid out and which rules hold it 
 
 > **Mental model in one sentence:** the backend is one flat Java package per feature, each hiding its internals behind package-private classes, talking to other features only through a few public classes and user ids, with security checked twice (a URL rule for admin routes and a guard bean in front of every owner-scoped service method) and every error answered as the same translated problem response.
 
-The layout and its rules come from #429 (Spring backend restructure), built in steps R1 to R13. This doc describes the state after R6.
+The layout and its rules come from #429 (Spring backend restructure), built in steps R1 to R13. This doc describes the state after R6 and R8.
 
 ---
 
@@ -109,7 +109,9 @@ The order is explicit because the bulk deletes clear the persistence context; `A
 
 **`@CurrentUser`.** A controller parameter `@CurrentUser UUID userId` is the bearer token's subject, resolved by `CurrentUserArgumentResolver`. It is required by default. `@CurrentUser(required = false)` is null for an anonymous caller and appears only on the by-id shopping list routes and `POST /api/contact`. It carries `@Parameter(hidden = true)`, so the OpenAPI document does not grow a query parameter.
 
-**Open session in view** is still Spring's default (on) until #429 R8. One persistence context then spans the whole request, which matters for the guards below.
+**Paged lists** answer the shared `PageDto` record, `{ items, page: { number, size, totalItems, totalPages } }`, with the page size capped at 100. A client `sort` is ignored (`Paging.withoutClientSort`), because each query fixes its own order and a client sort could order by a field the caller may not read.
+
+**Open session in view** is off (`spring.jpa.open-in-view=false`, #429 R8). Each transaction gets its own persistence context, and nothing is loaded lazily after a service method returns, so a service maps its entities to records before the controller sees them.
 
 ---
 
@@ -142,8 +144,8 @@ The other features have no by-id methods a user owns: preferences are replaced a
 How a guard answers:
 
 - **Someone else's id looks unknown.** A guard never returns false for a foreign id. A false becomes a 403, which would confirm the id exists, so the guard throws the feature's own 404 (`error.card.notFound`, `error.watchlistItem.notFound`, `error.shoppingList.notFound`) with the same body an unknown id gets.
-- **Shopping lists keep three outcomes:** 404 for a list the caller cannot see, 401 `error.shoppingList.signInToChange` for an anonymous write, 403 `error.shoppingList.insufficientAccess` for a link level too low. Owner-only refusals with their own message (`ownerOnlyDelete`, `ownerOnlyAddItems`, `ownerOnlyAccess`, `ownerOnlyCopySharing`) stay in the services.
-- **A guard reads a count or two columns, never an entity.** It runs before the service in the same request, and with open session in view an entity it loaded would sit in the persistence context. The service's own read after `CardUserLock` would then get that cached, possibly stale copy instead of the locked row.
+- **Shopping lists keep three outcomes:** 404 for a list the caller cannot see, 401 `error.shoppingList.signInToChange` for an anonymous write, 403 `error.shoppingList.insufficientAccess` for a link level too low. Every write, the owner-only ones included, asks for a signed-in caller first, so an anonymous rename with `linkAccess` or an anonymous delete of a shared list is a 401 (owner decision on #679). Owner-only refusals for signed-in callers keep their own message in the services (`ownerOnlyDelete`, `ownerOnlyAddItems`, `ownerOnlyAccess`, `ownerOnlyCopySharing`).
+- **A guard reads a count or two columns, never an entity.** The check needs nothing more, and a guard runs outside the service's transaction, so an entity it loaded would be detached at once and of no use to the service, which reads its own copy after `CardUserLock`.
 - **A real denial is still a 403 problem.** If a future guard does return false, `GlobalExceptionHandler` answers Spring's `AuthorizationDeniedException` with the same 403 body the filter chain uses, instead of the logged 500 the catch-all would give.
 
 **Both layers stay.** The scoped repository queries (`findActiveByIdAndUserId` and friends) are still there behind the guards (owner decision in #429: both). The guard makes a forgotten owner condition fail closed; the query keeps a bug in a guard from exposing another user's rows.
@@ -219,7 +221,7 @@ The ownership tests are the guard's evidence: for each owner-scoped feature, use
 ## 10. Gotchas
 
 - **A guard that returns false leaks.** It answers 403, which tells a stranger the id is real. Throw the feature's 404 instead.
-- **A guard that loads an entity can resurrect a row.** With open session in view, the service gets the guard's cached copy; a dirty check on a row deleted in between would write it back. Read counts or columns.
+- **A guard's check is a snapshot taken before the service's lock.** A card deleted between the guard and `CardUserLock` is caught by the service's own scoped read under the lock, which is one reason both layers stay.
 - **JPQL never sees deleted rows**, including bulk updates and deletes. A cleanup written in JPQL silently skips them.
 - **`deleteAll()` in a test leaves hidden rows behind**, and their foreign keys then fail the next test's cleanup.
 - **The last admin cannot be removed through the app** (demote, admin delete, or deleting your own account all answer 409). Every role change and every erasure, a consumer's too, takes the admin row locks before it reads a role, which is what keeps a promotion racing an erasure from slipping past the check. The erasure replay is the exception, because a restored backup must forget every account it is told to. With no admin left, recovery is a manual `UPDATE app_user SET account_type = 'ADMIN'` on the server.
@@ -231,7 +233,6 @@ The ownership tests are the guard's evidence: for each owner-scoped feature, use
 
 What the rest of #429 changes:
 
-- **R8**: paged lists answer our own `PageDto` (`{ items, page: { number, size, totalItems, totalPages } }`), open session in view goes off, and the page size is capped at 100. With open session in view off, the guards' rule about entities stays good practice but stops being a correctness trap.
 - **R9**: Flyway with plain SQL migrations owns the schema, `ddl-auto` becomes `validate`, and a CI drift check compares the migrated schema with the entities on PostgreSQL. `config/UserForeignKeys` goes, as the migrations hold the foreign keys.
 - **R10**: deleting a better-auth identity moves to Next.js together with #53 (atomic account deletion); Spring then only erases app data through the erasure token path.
 - **R11**: the app tables move to an `app` schema and better-auth's to `auth`, with three least-privilege database roles (migrator, Spring runtime, Next.js runtime).

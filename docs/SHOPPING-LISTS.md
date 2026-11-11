@@ -121,8 +121,8 @@ Errors are RFC 9457 `ProblemDetail` bodies whose messages are `error.shoppingLis
 | `GET /api/shopping-lists/me`                     | authenticated  | The caller's active lists with their items, newest `updatedAt` first (one query, items fetch joined) |
 | `GET /api/shopping-lists/items`                  | authenticated  | Every item on the caller's active lists, flattened. Feeds the watchlist suggestions                  |
 | `GET /api/shopping-lists/{id}`                   | optional token | One list, for the owner or a link visitor                                                            |
-| `PUT /api/shopping-lists/{id}`                   | optional token | Rename (`EDIT` or owner, signed in) and change `linkAccess` (owner only)                             |
-| `DELETE /api/shopping-lists/{id}`                | optional token | Soft delete. Owner only                                                                              |
+| `PUT /api/shopping-lists/{id}`                   | optional token | Rename (`EDIT` or owner) and change `linkAccess` (owner only); signed in, or 401                     |
+| `DELETE /api/shopping-lists/{id}`                | optional token | Soft delete. Owner only; signed in, or 401                                                           |
 | `POST /api/shopping-lists/{id}/copy`             | optional token | Copy into a new list the caller owns, in one transaction ([§12](#12-copying-deleting-and-sharing))   |
 | `POST /api/shopping-lists/{id}/items`            | optional token | Add an item, merging into a matching row. Owner only                                                 |
 | `PUT /api/shopping-lists/{id}/items/{itemId}`    | optional token | Update an item. `SHOP` may change the in-shop fields, `EDIT` everything                              |
