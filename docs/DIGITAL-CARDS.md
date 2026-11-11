@@ -13,7 +13,7 @@ _Written against the `feat/digital-cards-rebuild` branch. This is the rebuild; t
 | Thing           | Value                                                                                                  |
 | --------------- | ------------------------------------------------------------------------------------------------------ |
 | Route           | `/digital-cards` (login required), plus the modals `?modal=digital-card/new`, `edit&id=`, `view&id=`   |
-| Backend package | `disscount.digitalCard` (cards, photos), `disscount.storeName` (community store-name list)             |
+| Backend package | `disscount.digitalcard` (cards, photos), `disscount.storename` (community store-name list)             |
 | Tables          | `wallet_card`, `wallet_card_photo`, `store_name_suggestion`, `store_name_usage`, `photo_cleanup`       |
 | Limits          | 300 active cards per user, 60 characters for names, 500 for a note, 4096 for a code                    |
 | Photos          | up to 3 per card (`front`, `back`, `icon`), WebP or JPEG, 512 KB per part, stored on the server's disk |
@@ -62,7 +62,7 @@ Step by step:
 
 ## 3. Data model
 
-Backend entities live in `backend/src/main/java/disscount/digitalCard/domain/` and `.../storeName/domain/`. The tables are new names on purpose: the old `digital_card` table cannot merge into the new shape (see [§17](#17-gotchas--lessons-learned)).
+Backend entities live in `backend/src/main/java/disscount/digitalcard/` and `.../storename/`. The tables are new names on purpose: the old `digital_card` table cannot merge into the new shape (see [§17](#17-gotchas--lessons-learned)).
 
 ### `wallet_card` (entity `DigitalCard`)
 
@@ -141,7 +141,7 @@ All card endpoints need a valid JWT. Errors are RFC 9457 `ProblemDetail` bodies 
 
 ## 5. Photos
 
-Photos are optional and sit behind a `PhotoStore` interface (`put`, `get`, `delete`, `deletePrefix`). Two implementations exist, chosen in `storage/PhotoStoreConfig`, which builds the product photo stores from the same classes: `FilesystemPhotoStore` when `PHOTO_DIR` is set (files under `cards/` in that directory; off while the folder is missing, see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#storage-on-the-servers-disk)), otherwise `DisabledPhotoStore`, and the wallet then works without photos.
+Photos are optional and sit behind a `PhotoStore` interface (`put`, `get`, `delete`, `deletePrefix`). Two implementations exist, chosen in `shared/PhotoStoreConfig`, which builds the product photo stores from the same classes: `FilesystemPhotoStore` when `PHOTO_DIR` is set (files under `cards/` in that directory; off while the folder is missing, see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#storage-on-the-servers-disk)), otherwise `DisabledPhotoStore`, and the wallet then works without photos.
 
 ### What the browser does
 
@@ -297,9 +297,9 @@ A loyalty card number is personal data, and a photo of a card more so.
 
 | Path                                                                                           | Role                                                                                              |
 | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `backend/.../digitalCard/service/CardPhotoWriter.java`, `CardUserLock.java`                    | The short row-write transaction; the per-user lock                                                |
-| `backend/.../digitalCard/service/PhotoCleanupService.java`                                     | Queues file deletes in `photo_cleanup`, attempts them, retries                                    |
-| `backend/.../digitalCard/service/DigitalCardCleanupJob.java`                                   | Daily 30-day hard delete; retries photo cleanup                                                   |
+| `backend/.../digitalcard/CardPhotoWriter.java`, `CardUserLock.java`                            | The short row-write transaction; the per-user lock                                                |
+| `backend/.../digitalcard/PhotoCleanupService.java`                                             | Queues file deletes in `photo_cleanup`, attempts them, retries                                    |
+| `backend/.../digitalcard/DigitalCardCleanupJob.java`                                           | Daily 30-day hard delete; retries photo cleanup                                                   |
 | `backend/.../config/UploadLimitConfig.java`                                                    | 20 card photo uploads per minute per user; the limiter sweeps its expired windows every 5 minutes |
 | `frontend/src/lib/offline/card-photo-store.ts`, `card-photo-outbox.ts`, `purge.ts`             | Photo blobs, upload outbox, logout purge                                                          |
 | `frontend/src/lib/offline/failure-policy.ts`, `card-retry.ts`, `slot-lock.ts`, `purge-gate.ts` | Keep or drop rules and card retries; per-slot photo ordering; purge ordering gate                 |

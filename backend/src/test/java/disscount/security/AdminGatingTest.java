@@ -1,14 +1,14 @@
 package disscount.security;
 
-import disscount.contactMessage.dao.ContactMessageRepository;
-import disscount.contactMessage.domain.ContactMessage;
-import disscount.digitalCard.photo.TestImages;
-import disscount.productImage.dao.ProductImageRepository;
-import disscount.productImage.domain.ImageSource;
-import disscount.productImage.domain.ImageStatus;
-import disscount.productImage.domain.ProductImage;
+import disscount.contact.ContactMessage;
+import disscount.contact.ContactMessageRepository;
+import disscount.productimage.ImageSource;
+import disscount.productimage.ImageStatus;
+import disscount.productimage.ProductImage;
+import disscount.productimage.ProductImageRepository;
+import disscount.shared.TestImages;
 import disscount.support.FullStackTest;
-import disscount.user.domain.User;
+import disscount.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -135,8 +135,8 @@ class AdminGatingTest extends FullStackTest {
 
     // The dashboard lets ENTERPRISE and PUBLIC_SECTOR in; the admin API must not.
     @ParameterizedTest
-    @EnumSource(value = disscount.user.domain.enums.AccountType.class, names = "ADMIN", mode = EnumSource.Mode.EXCLUDE)
-    void everyNonAdminAccountTypeIs403(disscount.user.domain.enums.AccountType accountType) throws Exception {
+    @EnumSource(value = disscount.user.AccountType.class, names = "ADMIN", mode = EnumSource.Mode.EXCLUDE)
+    void everyNonAdminAccountTypeIs403(disscount.user.AccountType accountType) throws Exception {
         User caller = newUser("caller", accountType);
 
         for (Route route : Route.values()) {

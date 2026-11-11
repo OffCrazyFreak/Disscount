@@ -1,8 +1,9 @@
 # Backup sidecar: scheduled, encrypted copies of the database, photos and Dokploy config to R2.
 # Same Postgres major as the db service, so pg_dump and the nightly scratch restore match it.
-FROM postgres:17-alpine@sha256:266d3c257594e195b309ae9d1805e54c788f1d7b375f56bf6c367aac6c917e7b
+FROM postgres:17-alpine@sha256:3540c0362c809df084ffac0ae69fe794515f9de92692f02178bcdce0ef0302ac
 
-# The digest pins Alpine, so rclone and age only change through a reviewed digest bump; the ~ ranges catch a minor jump.
+# apk still installs the newest rclone, age and openssl inside each ~ range on every rebuild; the ranges stop a minor jump.
+# Renovate cannot see supercronic, so bump its version and SHA1 together by hand.
 ARG SUPERCRONIC_VERSION=v0.2.51
 ARG SUPERCRONIC_SHA1SUM=1692066e350a88ff4d7d6474fe3c7a6c41ec5e89
 

@@ -53,7 +53,7 @@ The browser steps are a convenience; the server check is the real guard, because
 | Card photos   | `PUT /api/digital-cards/{id}/photos/{slot}` | Spring multipart `max-file-size=512KB`, `max-request-size=1100KB`, then `PhotoValidator`            | Sanitised bytes go to `cards/` on the server's disk                                                                                                            |
 | Product photo | `POST /api/products/{ean}/images`           | The same multipart limits and `PhotoValidator`, then JPEG only                                      | Sanitised original kept, then `ProductImageRenderer` writes 1080 and 400 px JPEGs on white to the public photo folder ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)) |
 
-`PhotoValidator` (`backend/.../digitalCard/photo/`) decides the format from the first bytes, never from the claimed type or file name. JPEG is decoded and re-encoded with ImageIO, which drops metadata; it starts at quality 0.85 and steps down to 0.50 until the result is no bigger than the upload, because a phone JPEG is often already below 0.85 and the first step alone made files bigger (27 to 37% on real dev photos, 45% on a noisy test image). When no step is small enough the smallest is kept, so a JPEG uploaded below quality 0.50 can still grow slightly. The 512 KB limit is checked again on the bytes that get stored. WebP is rewritten keeping only the pixel chunks (`VP8X`, `VP8 `, `VP8L`, `ALPH`), which drops EXIF, XMP and ICC. [DIGITAL-CARDS.md §5](DIGITAL-CARDS.md#5-photos) lists every rule.
+`PhotoValidator` (`backend/.../shared/`) decides the format from the first bytes, never from the claimed type or file name. JPEG is decoded and re-encoded with ImageIO, which drops metadata; it starts at quality 0.85 and steps down to 0.50 until the result is no bigger than the upload, because a phone JPEG is often already below 0.85 and the first step alone made files bigger (27 to 37% on real dev photos, 45% on a noisy test image). When no step is small enough the smallest is kept, so a JPEG uploaded below quality 0.50 can still grow slightly. The 512 KB limit is checked again on the bytes that get stored. WebP is rewritten keeping only the pixel chunks (`VP8X`, `VP8 `, `VP8L`, `ALPH`), which drops EXIF, XMP and ICC. [DIGITAL-CARDS.md §5](DIGITAL-CARDS.md#5-photos) lists every rule.
 
 ## 5. Key files
 
@@ -61,8 +61,8 @@ The browser steps are a convenience; the server check is the real guard, because
 | --------------------------------------------------------------------- | ------------------------------------------------------ |
 | `frontend/src/utils/browser/image.ts`                                 | Shared decode, resize, encode and size stepping        |
 | `frontend/src/components/custom/settings/components/avatar-field.tsx` | Avatar picker; turns the blob into a data URI          |
-| `backend/.../digitalCard/photo/PhotoValidator.java`                   | Format sniffing, size and dimension checks, sanitising |
-| `backend/.../user/avatar/AvatarSanitizer.java`                        | Data URI in, sanitised data URI out                    |
+| `backend/.../shared/PhotoValidator.java`                              | Format sniffing, size and dimension checks, sanitising |
+| `backend/.../user/AvatarSanitizer.java`                               | Data URI in, sanitised data URI out                    |
 
 ## 6. Gotchas
 

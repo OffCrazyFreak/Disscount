@@ -16,7 +16,7 @@ x-frontend-build: &frontend-build
 
 services:
   db:
-    image: postgres:17-alpine
+    image: postgres:17-alpine@sha256:3540c0362c809df084ffac0ae69fe794515f9de92692f02178bcdce0ef0302ac
     container_name: disscount-db
     restart: unless-stopped
     environment:
