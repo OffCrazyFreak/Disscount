@@ -6,7 +6,6 @@ import lombok.*;
 
 import java.util.UUID;
 
-
 @Entity
 @Table(name = "pinned_place", 
        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "place_api_id"}))

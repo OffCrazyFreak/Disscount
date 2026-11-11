@@ -6,7 +6,6 @@ import lombok.*;
 
 import java.util.UUID;
 
-
 @Entity
 @Table(name = "favorite_store",
        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "store_key"}))

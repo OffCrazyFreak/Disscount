@@ -152,7 +152,6 @@ public class DigitalCardService {
         }
     }
 
-    /** Account deletion: nothing of the user's cards may outlive the profile. */
     /** Cards hold card numbers and photos, which must not outlive the account. */
     @EventListener
     @Order(10)
@@ -160,6 +159,7 @@ public class DigitalCardService {
         deleteAllForUser(erased.userId());
     }
 
+    /** Account deletion: nothing of the user's cards may outlive the profile. */
     public void deleteAllForUser(UUID userId) {
         photoRepository.deleteAllByUserId(userId);
         cardRepository.deleteAllByUserId(userId);
