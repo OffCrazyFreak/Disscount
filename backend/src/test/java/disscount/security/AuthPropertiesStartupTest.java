@@ -44,8 +44,23 @@ class AuthPropertiesStartupTest {
     }
 
     @Test
+    void anEmptyIssuerStopsStartup() {
+        runner.withPropertyValues(JWKS + "http://localhost:3000/api/auth/jwks", ISSUER)
+                .run(context -> assertThat(context).hasFailed());
+    }
+
+    @Test
+    void anEmptyJwksUrlStopsStartup() {
+        runner.withPropertyValues(JWKS, ISSUER + "http://localhost:3000")
+                .run(context -> assertThat(context).hasFailed());
+    }
+
+    @Test
     void aMissingKeyStopsStartup() {
         runner.withPropertyValues(JWKS + "http://localhost:3000/api/auth/jwks")
+                .run(context -> assertThat(context).hasFailed());
+
+        runner.withPropertyValues(ISSUER + "http://localhost:3000")
                 .run(context -> assertThat(context).hasFailed());
     }
 }
