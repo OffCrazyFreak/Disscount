@@ -391,17 +391,31 @@ services:
         }
 
         # First pass. A failure only alerts (owner, 2026-11-11): stopping here would take production down,
-        # so the deploy goes ahead on the hourly dumps.
-        if env PREDEPLOY_SETTINGS_LOADED=1 backup-entrypoint bash -c "$$BASH_EXECUTION_STRING"; then
-          line="predeploy-dump: $$(cat /tmp/predeploy-summary)"
+        # so the deploy goes ahead on the hourly dumps, and every path below ends in exit 0.
+        # Wide headroom over today's dump (about 10 MB), so a hung pg_dump or R2 call alerts instead of stalling migrate.
+        limit=600
+        status=0
+        timeout -k 10 "$$limit" env PREDEPLOY_SETTINGS_LOADED=1 backup-entrypoint bash -c "$$BASH_EXECUTION_STRING" \
+          || status=$$?
+
+        if ((status == 0)); then
+          line="predeploy-dump: $$(cat /tmp/predeploy-summary 2>/dev/null || echo "uploaded")"
           echo "$$line"
           ping "" "$$line"
+          exit 0
+        fi
+
+        # busybox timeout leaves the killed command's 143 (TERM) or 137 (KILL); coreutils timeout answers 124.
+        if ((status == 124 || status == 137 || status == 143)); then
+          reason="timed out after $$limit s"
         else
           reason="$$(cat /tmp/predeploy-reason 2>/dev/null || echo "the settings were refused or a step broke, see the lines above")"
-          line="predeploy dump FAILED: $$reason"
-          echo "$$line; the deploy goes ahead on the hourly dumps (docs/BACKUPS.md, Dump before each deploy)" >&2
-          ping /fail "$$line"
         fi
+
+        line="predeploy dump FAILED: $$reason"
+        echo "$$line; the deploy goes ahead on the hourly dumps (docs/BACKUPS.md, Dump before each deploy)" >&2
+        ping /fail "$$line"
+        exit 0
 
 networks:
   internal:
