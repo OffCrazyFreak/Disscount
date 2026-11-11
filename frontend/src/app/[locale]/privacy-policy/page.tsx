@@ -110,8 +110,9 @@ export default async function PrivacyPolicyPage() {
 
       <LegalSection heading="Brisanje podataka">
         <p>
-          Račun i povezane podatke možeš obrisati u bilo kojem trenutku unutar
-          aplikacije. Upute se nalaze na stranici brisanja podataka.
+          Račun možeš obrisati u bilo kojem trenutku unutar aplikacije. Na
+          stranici brisanja podataka piše što tada brišemo, a što ostaje bez
+          tvog imena i emaila.
         </p>
       </LegalSection>
 

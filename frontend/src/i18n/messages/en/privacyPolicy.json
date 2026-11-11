@@ -14,6 +14,6 @@
   },
   "backups": {
     "heading": "Backups",
-    "body": "We regularly copy the database and photos so a failure doesn't destroy them. We keep the copies encrypted in the European Union, with Cloudflare, our data processor, and they delete themselves no later than 31 days after they're made. When you delete your account, your data leaves the copies as they expire. Until then we also keep a deletion record with a pseudonymised ID of your account, which reveals neither your name nor your email. If we ever have to restore the database from a copy, we delete again, before the app reopens, the accounts deleted after that copy was made. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
+    "body": "We regularly copy the database and photos so a failure doesn't destroy them. We keep the copies encrypted in the European Union, with Cloudflare, our data processor, and they delete themselves no later than 31 days after they're made. When you delete your account, what we delete also leaves the copies as they expire. We keep the deletion record, with the random ID of your account and the time of deletion, in the database with no end date, and in the copies as a pseudonymised marker until they expire. Neither reveals your name or your email. If we ever have to restore the database from a copy, we delete again, before the app reopens, the accounts deleted after that copy was made. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
   }
 }
