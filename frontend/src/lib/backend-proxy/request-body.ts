@@ -56,10 +56,7 @@ function joinChunks(
   return body;
 }
 
-/**
- * Counts the bytes as they arrive, because a chunked body carries no Content-Length to check.
- * Rejects with the signal's reason once it aborts, so a client that stalls mid-body is not waited on.
- */
+/** Counts the bytes as they arrive, because a chunked body carries no Content-Length to check. */
 export async function readBodyWithin(
   request: Request,
   limit: number,
