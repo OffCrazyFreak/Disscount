@@ -67,7 +67,7 @@ jobs:
             backup:
               - *workflow
               - backup/**
-            # What the boot test builds or boots: the backend, migrator and backup images, the photo server's config and the compose files.
+            # What the boot test builds or boots: the backend, flyway, migrator and backup images, the photo server's config and the compose files.
             smoke:
               - *workflow
               - backend/**
@@ -321,7 +321,7 @@ jobs:
           path: ~/.m2/repository
           key: ${{ steps.maven-cache.outputs.cache-primary-key }}
 
-  # Boots the backend and migrator images the way Dokploy runs them. Only a boot catches a Dockerfile
+  # Boots the backend, flyway and migrator images the way Dokploy runs them. Only a boot catches a Dockerfile
   # that builds but leaves the app unable to start (a file the build stage never copied). No draft
   # skip, so a broken image shows up as soon as it is pushed.
   image-smoke:
@@ -347,6 +347,7 @@ jobs:
       - name: Lint the Dockerfiles
         run: |
           docker build --check backend
+          docker build --check --target flyway backend
           docker build --check --target migrator frontend
           docker build --check frontend
           docker build --check backup
@@ -363,6 +364,14 @@ jobs:
           load: true
           tags: ghcr.io/offcrazyfreak/disscount-backend:smoke
           cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-backend:buildcache
+
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: backend
+          target: flyway
+          load: true
+          tags: ghcr.io/offcrazyfreak/disscount-flyway:smoke
+          cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-flyway:buildcache
 
       - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
@@ -503,6 +512,9 @@ jobs:
           - image: backend
             context: backend
             target: runtime
+          - image: flyway
+            context: backend
+            target: flyway
           - image: backup
             context: backup
             target: ""

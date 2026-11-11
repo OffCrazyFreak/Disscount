@@ -35,8 +35,23 @@ services:
     # Loopback-only access lets local database tools connect without exposing Postgres
     # to the network. Containers still reach it through the compose network at db:5432.
 
+  # One-shot Flyway migration of the backend tables (backend/src/main/resources/db/migration); Hibernate only checks them.
+  flyway:
+    build:
+      context: ./backend
+      target: flyway
+    container_name: disscount-flyway
+    restart: "no"
+    environment:
+      FLYWAY_URL: ${SPRING_DATASOURCE_URL}
+      FLYWAY_USER: ${SPRING_DATASOURCE_USERNAME}
+      FLYWAY_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+
   # One-shot: apply better-auth/drizzle migrations, then exit. Uses the frontend `build`
-  # stage (it has drizzle-kit + the drizzle/ folder). Hibernate creates the backend tables.
+  # stage (it has drizzle-kit + the drizzle/ folder).
   migrate:
     build:
       <<: *frontend-build
@@ -49,6 +64,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      # Flyway refuses to start on a new database that already holds tables, so it runs before drizzle adds them.
+      flyway:
+        condition: service_completed_successfully
 
   backend:
     build:
@@ -80,6 +98,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
       migrate:
         condition: service_completed_successfully
 

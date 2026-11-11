@@ -41,7 +41,29 @@ services:
       timeout: 5s
       retries: 10
 
-  # One-shot drizzle migration (better-auth tables); Hibernate creates the app tables.
+  # One-shot Flyway migration of the backend tables (backend/src/main/resources/db/migration); Hibernate only checks them.
+  # Its own image, so a Rollback to an older backend image never puts a web server that never exits here.
+  flyway:
+    <<: *hardened
+    pids_limit: 128
+    mem_limit: 256m
+    image: ghcr.io/offcrazyfreak/disscount-flyway:${IMAGE_TAG:?IMAGE_TAG must be set}
+    pull_policy: always
+    restart: "no"
+    # The backend's own login until the migrator role arrives (#429 R11).
+    environment:
+      FLYWAY_URL: ${SPRING_DATASOURCE_URL}
+      FLYWAY_USER: ${SPRING_DATASOURCE_USERNAME}
+      FLYWAY_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    networks: [internal]
+    depends_on:
+      db:
+        condition: service_healthy
+      # Exits at once where backups are off; on production it dumps first and only alerts when that fails.
+      predeploy-dump:
+        condition: service_completed_successfully
+
+  # One-shot drizzle migration (better-auth tables).
   migrate:
     <<: *hardened
     pids_limit: 128
@@ -56,8 +78,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      # Exits at once where backups are off; on production it dumps first and only alerts when that fails.
-      predeploy-dump:
+      # Flyway refuses to start on a new database that already holds tables, so it runs before drizzle adds them.
+      flyway:
         condition: service_completed_successfully
 
   backend:
@@ -102,10 +124,13 @@ services:
       timeout: 5s
       retries: 12
       start_period: 40s
-    # The backend reads better-auth columns natively, so it must not start before their migration.
+    # Hibernate refuses tables that do not fit the entities, and the backend reads better-auth columns natively,
+    # so both migrations come first; a failed one stops the deploy here.
     depends_on:
       db:
         condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
       migrate:
         condition: service_completed_successfully
       photo-folders:
@@ -277,7 +302,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      # The backend creates erasure_ledger on its first boot; until then erasure-markers would fail every minute.
+      # erasure-markers reads erasure_ledger, which exists once the flyway job ran, and a healthy backend proves that.
       backend:
         condition: service_healthy
 
