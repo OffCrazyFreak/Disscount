@@ -69,7 +69,7 @@ export default function DataDeletionPage() {
           u aplikaciji, bez veze s tvojim računom.
         </p>
         <p>
-          Poruke za kontakt ostaju bez imena i emaila pošiljatelja, a tekst
+          Te poruke za kontakt ostaju bez imena i emaila pošiljatelja, a tekst
           ostaje onakav kakav je poslan. Zato u poruke za kontakt ne upisuj
           osobne podatke koje ne želiš ostaviti kod nas.
         </p>
