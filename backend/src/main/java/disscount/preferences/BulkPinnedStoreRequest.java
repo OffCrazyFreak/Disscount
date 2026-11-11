@@ -8,5 +8,5 @@ import jakarta.validation.constraints.NotNull;
 public record BulkPinnedStoreRequest(
         @NotNull(message = "{validation.pinnedStores.required}")
         @Valid
-        List<PinnedStoreRequest> stores) {
+        List<@NotNull(message = "{validation.storeApiId.required}") PinnedStoreRequest> stores) {
 }

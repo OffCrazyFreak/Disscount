@@ -8,5 +8,5 @@ import jakarta.validation.constraints.NotNull;
 public record BulkPinnedPlaceRequest(
         @NotNull(message = "{validation.pinnedPlaces.required}")
         @Valid
-        List<PinnedPlaceRequest> places) {
+        List<@NotNull(message = "{validation.placeApiId.required}") PinnedPlaceRequest> places) {
 }
