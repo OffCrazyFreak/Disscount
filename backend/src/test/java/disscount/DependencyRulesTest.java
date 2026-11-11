@@ -20,7 +20,7 @@ class DependencyRulesTest {
     private static final List<String> FEATURES = List.of(
             "contact", "digitalcard", "preferences", "productimage", "shoppinglist", "storename", "user", "watchlist");
 
-    private static final Pattern REFERENCE = Pattern.compile("\\bdisscount\\.(\\w+)\\.(\\w+)");
+    private static final Pattern REFERENCE = Pattern.compile("\\bdisscount\\.(\\w+)\\.(\\w+|\\*)");
 
     @Test
     void userImportsNoOtherFeature() throws IOException {
