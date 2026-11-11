@@ -68,8 +68,7 @@ services:
   backend:
     <<: *hardened
     pids_limit: 512
-    # The JVM takes 60% of this as heap (backend/Dockerfile). Swap equal to the limit means none, so a leak
-    # ends in a quick OOM restart instead of a slow crawl through the disk.
+    # No swap on top, so a leak ends in a quick restart instead of a crawl through the disk.
     mem_limit: ${BACKEND_MEM_LIMIT:-1536m}
     memswap_limit: ${BACKEND_MEM_LIMIT:-1536m}
     # Tomcat's work folder with multipart uploads, the JVM's perf data and libwebp, which the WebP
