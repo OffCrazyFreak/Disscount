@@ -11,7 +11,7 @@ import java.util.UUID;
 @Repository
 public interface ShoppingListRepository extends JpaRepository<ShoppingList, UUID> {
 
-    /** Fetch-joined as convertToDto walks lazy items, so never paginate; id tiebreak fixes uuid order per database. */
+    /** Fetch-joined as ShoppingListMapper walks lazy items, so never paginate; id tiebreak fixes uuid order per database. */
     @Query("SELECT sl FROM ShoppingList sl LEFT JOIN FETCH sl.items "
             + "WHERE sl.ownerId = :ownerId AND sl.deletedAt IS NULL "
             + "ORDER BY sl.updatedAt DESC, sl.createdAt DESC, sl.id DESC")
