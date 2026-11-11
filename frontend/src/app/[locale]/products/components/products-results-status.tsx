@@ -10,7 +10,7 @@ interface IProductsResultsStatusProps {
   noPriceLocations: string[];
 }
 
-/** The region stays mounted and empties while loading, and names the search word, so every settled search is read out again. */
+/** Stays mounted, empties while loading and names the search word, so every settled search is read again. */
 export default function ProductsResultsStatus({
   query,
   isPending,
