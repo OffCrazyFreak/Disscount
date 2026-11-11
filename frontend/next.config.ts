@@ -88,6 +88,19 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "no-referrer" },
         ],
       },
+      {
+        // The emailed reset link lands here with ?token=, and OWASP asks the reset page
+        // to send no referrer, so no subresource request carries the token onward.
+        source: `/:locale(${LOCALE_PREFIXES.join("|")})?/reset-password`,
+        headers: [{ key: "Referrer-Policy", value: "no-referrer" }],
+      },
+      {
+        // Any URL holding a token in its query, the /?modal=reset-password page included,
+        // until instrumentation-client.ts strips it.
+        source: "/:path*",
+        has: [{ type: "query", key: "token" }],
+        headers: [{ key: "Referrer-Policy", value: "no-referrer" }],
+      },
       // Read at build time, which is fine: NEXT_PUBLIC_APP_URL is a build arg per deploy.
       ...(isIndexableOrigin(clientEnv.NEXT_PUBLIC_APP_URL)
         ? []
