@@ -1,8 +1,11 @@
-package disscount.productimage;
+package disscount.productimage.jobs;
 
 import java.util.Optional;
 
+import disscount.productimage.ProductImageRepository;
+import disscount.productimage.ProductImageSetRepository;
 import disscount.productimage.catalog.CatalogImportService;
+import disscount.productimage.render.ProductImageRendering;
 import disscount.shared.FakePhotoStore;
 import disscount.shared.PhotoStore;
 import disscount.shared.PhotoStoreConfig;

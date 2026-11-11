@@ -11,6 +11,7 @@ import disscount.productimage.ProductImageDtos.CropDto;
 import disscount.productimage.ProductImageDtos.ProductImageDto;
 import disscount.productimage.ProductImageDtos.ProductImagesDto;
 import disscount.productimage.openfoodfacts.OffImageUrls;
+import disscount.productimage.render.ProductImageRendering;
 import disscount.shared.PhotoStore;
 import disscount.shared.PhotoStoreConfig;
 import lombok.RequiredArgsConstructor;

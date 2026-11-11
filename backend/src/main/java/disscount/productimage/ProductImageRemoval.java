@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.UUID;
 
 import disscount.productimage.render.ProductImageRenderer;
+import disscount.productimage.render.ProductImageRendering;
 import disscount.shared.AfterCommit;
 import disscount.shared.BadRequestException;
 import disscount.shared.PhotoStore;

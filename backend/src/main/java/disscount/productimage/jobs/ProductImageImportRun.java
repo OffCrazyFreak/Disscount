@@ -1,4 +1,4 @@
-package disscount.productimage;
+package disscount.productimage.jobs;
 
 import java.time.LocalDateTime;
 

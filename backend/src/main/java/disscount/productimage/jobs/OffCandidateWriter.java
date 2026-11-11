@@ -1,17 +1,23 @@
-package disscount.productimage;
+package disscount.productimage.jobs;
 
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import disscount.productimage.HiddenReason;
+import disscount.productimage.ImageSource;
+import disscount.productimage.ImageStatus;
+import disscount.productimage.ProductImage;
+import disscount.productimage.ProductImageRepository;
+
 @Component
 @RequiredArgsConstructor
-class OffCandidateWriter {
+public class OffCandidateWriter {
 
     private final ProductImageRepository images;
 
-    void upsert(String ean, String externalKey, String rev, String lang) {
+    public void upsert(String ean, String externalKey, String rev, String lang) {
         Optional<ProductImage> existing = images.findByEanAndSourceAndExternalKey(ean, ImageSource.OPEN_FOOD_FACTS, externalKey);
         if (existing.isPresent()) {
             ProductImage image = existing.get();

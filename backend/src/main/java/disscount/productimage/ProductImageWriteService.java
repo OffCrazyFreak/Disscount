@@ -6,6 +6,7 @@ import java.util.UUID;
 import disscount.config.UploadLimitConfig;
 import disscount.productimage.ProductImageDtos.ProductImagesDto;
 import disscount.productimage.render.ProductImageRenderer;
+import disscount.productimage.render.ProductImageRendering;
 import disscount.shared.AfterRollback;
 import disscount.shared.BadRequestException;
 import disscount.shared.FixedWindowLimiter;

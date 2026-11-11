@@ -1,11 +1,19 @@
-package disscount.productimage;
+package disscount.productimage.jobs;
 
 import java.util.UUID;
 
+import disscount.productimage.HiddenReason;
+import disscount.productimage.ImageSource;
+import disscount.productimage.ImageStatus;
+import disscount.productimage.ProductImage;
+import disscount.productimage.ProductImageRepository;
+import disscount.productimage.ProductImageSet;
+import disscount.productimage.ProductImageSetRepository;
 import disscount.productimage.catalog.CatalogImportService;
 import disscount.productimage.openfoodfacts.OffImageGoneException;
 import disscount.productimage.openfoodfacts.OffImageUnavailableException;
 import disscount.productimage.openfoodfacts.OpenFoodFactsClient;
+import disscount.productimage.render.ProductImageRendering;
 import disscount.shared.FakePhotoStore;
 import disscount.shared.PhotoStoreConfig;
 import disscount.shared.TestImages;

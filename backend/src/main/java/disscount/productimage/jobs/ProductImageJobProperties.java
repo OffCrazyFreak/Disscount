@@ -1,4 +1,4 @@
-package disscount.productimage;
+package disscount.productimage.jobs;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import disscount.productimage.render.ProductImageRendering;
 import disscount.user.AccountErased;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;

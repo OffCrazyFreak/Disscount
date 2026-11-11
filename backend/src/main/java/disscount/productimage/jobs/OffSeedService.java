@@ -1,4 +1,4 @@
-package disscount.productimage;
+package disscount.productimage.jobs;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import disscount.productimage.MainPicker;
+import disscount.productimage.ProductImageRepository;
+import disscount.productimage.ProductImageSetRepository;
 import disscount.productimage.catalog.Barcodes;
 import disscount.productimage.openfoodfacts.OffExportReader;
 import disscount.productimage.openfoodfacts.OffExportReader.Front;

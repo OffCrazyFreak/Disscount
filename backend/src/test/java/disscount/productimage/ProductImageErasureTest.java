@@ -3,7 +3,9 @@ package disscount.productimage;
 import java.util.UUID;
 
 import disscount.config.UploadLimitConfig;
+import disscount.productimage.jobs.OffCandidateWriter;
 import disscount.productimage.openfoodfacts.OpenFoodFactsClient;
+import disscount.productimage.render.ProductImageRendering;
 import disscount.shared.FakePhotoStore;
 import disscount.shared.NotFoundException;
 import disscount.shared.PhotoStoreConfig;

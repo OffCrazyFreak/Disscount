@@ -4,7 +4,7 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 /** Why a photo is HIDDEN; a hidden row with no reason predates this column and counts as an admin decision. */
-enum HiddenReason {
+public enum HiddenReason {
     /** The render job could not copy it; a new Open Food Facts revision gives it another try. */
     JOB_SKIPPED,
     /** An admin rejected it, which nothing automatic may undo. */

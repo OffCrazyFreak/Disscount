@@ -4,8 +4,10 @@ import java.util.UUID;
 
 import disscount.config.UploadLimitConfig;
 import disscount.productimage.ProductImageDtos.ContributorPhotoCountDto;
+import disscount.productimage.jobs.OffCandidateWriter;
 import disscount.productimage.openfoodfacts.OpenFoodFactsClient;
 import disscount.productimage.render.ProductImageRenderer;
+import disscount.productimage.render.ProductImageRendering;
 import disscount.shared.BadRequestException;
 import disscount.shared.FakePhotoStore;
 import disscount.shared.NotFoundException;

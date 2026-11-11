@@ -1,4 +1,4 @@
-package disscount.productimage;
+package disscount.productimage.jobs;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -6,9 +6,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import disscount.productimage.HiddenReason;
+import disscount.productimage.ImageStatus;
+import disscount.productimage.MainPicker;
+import disscount.productimage.ProductImage;
+import disscount.productimage.ProductImageRepository;
+import disscount.productimage.ProductImageSetRepository;
 import disscount.productimage.catalog.CatalogImportService;
 import disscount.productimage.openfoodfacts.OffImageGoneException;
 import disscount.productimage.openfoodfacts.OffImageUnavailableException;
+import disscount.productimage.render.PhotoRenderFailedException;
+import disscount.productimage.render.ProductImageRendering;
 import disscount.shared.BadRequestException;
 import disscount.shared.NotFoundException;
 import disscount.shared.PhotoStore;

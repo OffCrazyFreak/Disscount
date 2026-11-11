@@ -1,12 +1,15 @@
-package disscount.productimage;
+package disscount.productimage.render;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
+import disscount.productimage.ImageSource;
+import disscount.productimage.ImageStatus;
+import disscount.productimage.ProductImage;
+import disscount.productimage.ProductImageRepository;
 import disscount.productimage.openfoodfacts.OffImageUrls;
 import disscount.productimage.openfoodfacts.OpenFoodFactsClient;
-import disscount.productimage.render.ProductImageRenderer;
 import disscount.productimage.render.ProductImageRenderer.Crop;
 import disscount.productimage.render.ProductImageRenderer.Rendered;
 import disscount.shared.AfterCommit;
@@ -27,7 +30,7 @@ import org.springframework.stereotype.Component;
 /** Renders a photo from its untouched source, so a new crop never compounds an earlier one. */
 @Component
 @RequiredArgsConstructor
-class ProductImageRendering {
+public class ProductImageRendering {
 
     private static final Logger log = LoggerFactory.getLogger(ProductImageRendering.class);
     private static final String WEBP = "image/webp";
@@ -76,7 +79,7 @@ class ProductImageRendering {
     }
 
     /** True while the row is still the uncopied candidate the job loaded, so the job may write to it. */
-    static boolean stillWaiting(ProductImage current, ProductImage loaded) {
+    public static boolean stillWaiting(ProductImage current, ProductImage loaded) {
         return current.getStatus() == ImageStatus.CANDIDATE && !current.isRendered()
                 && Objects.equals(current.getExternalRev(), loaded.getExternalRev());
     }
@@ -171,7 +174,7 @@ class ProductImageRendering {
     }
 
     /** Deletes a deleted photo's public files once no other row points at them; call after clearing the row's keys. */
-    void dropFiles(String fullKey, String thumbKey, String smallKey) {
+    public void dropFiles(String fullKey, String thumbKey, String smallKey) {
         deleteIfUnused(fullKey, null);
         deleteIfUnused(thumbKey, null);
         deleteIfUnused(smallKey, null);
@@ -185,7 +188,7 @@ class ProductImageRendering {
     }
 
     /** Fails the erasure on failure, so an erased account's file cannot stay public; call after deleting the row. */
-    void eraseFiles(String fullKey, String thumbKey, String smallKey) {
+    public void eraseFiles(String fullKey, String thumbKey, String smallKey) {
         for (String key : new String[]{fullKey, thumbKey, smallKey}) {
             if (key == null) continue;
             if (images.existsByFullKey(key) || images.existsByThumbKey(key) || images.existsBySmallKey(key)) continue;

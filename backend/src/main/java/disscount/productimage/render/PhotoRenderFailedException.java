@@ -1,7 +1,7 @@
-package disscount.productimage;
+package disscount.productimage.render;
 
 /** The renderer failed on bytes it had read: a fault of that photo, which the next tick would only repeat. */
-class PhotoRenderFailedException extends RuntimeException {
+public class PhotoRenderFailedException extends RuntimeException {
 
     PhotoRenderFailedException(Throwable cause) {
         super(cause.getMessage(), cause);

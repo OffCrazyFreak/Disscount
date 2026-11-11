@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import disscount.productimage.openfoodfacts.OffProductPhotos;
 
-final class MainPicker {
+public final class MainPicker {
 
     private MainPicker() {}
 
@@ -19,7 +19,7 @@ final class MainPicker {
     }
 
     /** Croatian front first, then English, then any front; user photos only when no front exists. */
-    static Optional<ProductImage> pick(List<ProductImage> images) {
+    public static Optional<ProductImage> pick(List<ProductImage> images) {
         return images.stream()
                 .filter(i -> rank(i) < Integer.MAX_VALUE)
                 .min(Comparator.comparingInt(MainPicker::rank).thenComparing(ProductImage::getCreatedAt,

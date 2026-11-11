@@ -1,4 +1,4 @@
-package disscount.productimage;
+package disscount.productimage.jobs;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
