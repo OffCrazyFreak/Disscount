@@ -37,7 +37,7 @@ class AdminController {
         return ResponseEntity.ok(userService.updateAccountType(userId, request.accountType(), adminId));
     }
 
-    @Operation(summary = "Delete a user (admin only)")
+    @Operation(summary = "Erase a user's app data (admin only); the web app deletes their login afterwards")
     @DeleteMapping("/users/{userId}")
     public ResponseEntity<Map<String, String>> deleteUser(@CurrentUser UUID adminId, @PathVariable UUID userId) {
         userService.deleteUserAsAdmin(userId, adminId);

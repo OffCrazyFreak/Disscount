@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -172,14 +171,13 @@ class AccountErasureTest extends FullStackTest {
     }
 
     @Test
-    void anAdminDeleteRemovesTheIdentityAndRunsTheSameErasure() throws Exception {
+    void anAdminDeleteRunsTheSameErasureAndLeavesTheIdentityToNextJs() throws Exception {
         User admin = newAdmin();
         User leaving = newUser("leaving");
         giveEverything(leaving, "Dućan " + UUID.randomUUID().toString().substring(0, 8));
 
         mvc.perform(delete("/api/admin/users/{id}", leaving.getId()).with(as(admin))).andExpect(status().isOk());
 
-        verify(authIdentityDao).deleteById(leaving.getId());
         assertErased(leaving);
     }
 

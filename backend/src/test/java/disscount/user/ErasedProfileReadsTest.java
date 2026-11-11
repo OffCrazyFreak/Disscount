@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
-import static org.mockito.Mockito.verify;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -115,7 +114,6 @@ class ErasedProfileReadsTest {
 
         userService.deleteUserAsAdmin(id, UUID.randomUUID());
 
-        verify(authIdentityDao).deleteById(id);
         assertThat(erasureLedger.count()).isEqualTo(1);
     }
 

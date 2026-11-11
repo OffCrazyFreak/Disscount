@@ -53,14 +53,6 @@ public class AuthIdentityDao {
         return entityManager.createNativeQuery("SELECT id FROM \"user\"").getResultList();
     }
 
-    /** Removes the identity, which cascades its sessions and accounts. */
-    @Transactional
-    public void deleteById(UUID userId) {
-        entityManager.createNativeQuery("DELETE FROM \"user\" WHERE id = :id")
-                .setParameter("id", userId)
-                .executeUpdate();
-    }
-
     @Transactional
     public int deleteSessionsExpiredBefore(LocalDateTime cutoff) {
         return entityManager.createNativeQuery("DELETE FROM \"session\" WHERE expires_at < :cutoff")
