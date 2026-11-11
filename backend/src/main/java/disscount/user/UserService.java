@@ -187,6 +187,13 @@ public class UserService {
         return null;
     }
 
+    /** The account erasure route: the last live admin is refused, as the admin set may never empty itself. */
+    @Transactional
+    public void deleteOwnAccount(UUID userId) {
+        refuseErasingTheLastAdmin(userId);
+        deleteAccount(userId);
+    }
+
     /** Idempotent and fine with no profile, as better-auth's beforeDelete calls it and a refusal blocks deletion. */
     @Transactional
     public void deleteAccount(UUID userId) {
@@ -236,6 +243,9 @@ public class UserService {
             throw new BadRequestException("error.user.notFound");
         }
 
+        // Before the identity goes, so a refusal leaves the account whole.
+        refuseErasingTheLastAdmin(targetUserId);
+
         authIdentityDao.deleteById(targetUserId);
 
         deleteAccount(targetUserId);
@@ -256,18 +266,32 @@ public class UserService {
         return UserDto.from(user);
     }
 
-    /** Recovery from zero admins is a manual database update, since the first-signup rule never comes back. */
     private void refuseLosingTheLastAdmin(UUID userId, UUID adminUserId) {
         if (userId.equals(adminUserId)) {
             throw new ConflictException("error.user.cannotDemoteSelf");
         }
 
-        // Locked, so two admins demoting each other at once cannot both see the other one left.
+        requireAnotherLiveAdmin(userId, "error.user.lastAdmin");
+    }
+
+    private void refuseErasingTheLastAdmin(UUID userId) {
+        boolean isAdmin = userRepository.findById(userId)
+                .map(user -> user.getAccountType() == AccountType.ADMIN)
+                .orElse(false);
+
+        if (isAdmin) {
+            requireAnotherLiveAdmin(userId, "error.user.lastAdminDelete");
+        }
+    }
+
+    /** Recovery from zero admins is a manual database update, since the first-signup rule never comes back. */
+    private void requireAnotherLiveAdmin(UUID userId, String refusal) {
+        // Locked, so two admins demoting or deleting each other at once cannot both see the other one left.
         List<User> admins = userRepository.lockActiveAdmins();
         boolean anotherAdminStays = admins.stream().anyMatch(admin -> !admin.getId().equals(userId));
 
         if (!anotherAdminStays) {
-            throw new ConflictException("error.user.lastAdmin");
+            throw new ConflictException(refusal);
         }
     }
 }
