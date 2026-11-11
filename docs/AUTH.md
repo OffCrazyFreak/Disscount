@@ -195,7 +195,7 @@ Hibernate 7.4 applies it everywhere except native SQL, so the flows that need de
 Deleted profiles are hidden as well, so the account lifecycle reads that need them ask `erasure_ledger`, which gets a row for every erasure:
 
 - **Sign-in after an erasure.** `ensureActiveProfile` finds no live profile, sees the ledger row and throws `AccountErasedException` (410). A profile deleted before the ledger existed has no row yet; its insert then collides on the hidden id, and a native `isDeletedProfile` check confirms the deleted row before answering 410. Any other failed insert stays an error, because a 410 makes the browser finish the deletion. Sign-in never inserts a deleted id again.
-- **The first admin** counts live profiles plus ledger rows, as above.
+- **The first admin** counts every profile, deleted ones included, plus ledger rows, as above.
 - **An admin deleting an already erased account** passes the existence check through the ledger, so a repeat request runs the same idempotent erasure instead of a 400.
 - **Usernames.** `existsByUsername` sees only live names. `deleteAccount` nulls the name of every profile it deletes, so a hidden row never holds a name the unique index would still refuse.
 
