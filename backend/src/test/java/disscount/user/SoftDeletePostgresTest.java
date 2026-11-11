@@ -7,19 +7,15 @@ import disscount.shared.TestImages;
 import disscount.shared.Timestamps;
 import disscount.support.FullStackTest;
 import disscount.support.IncludingDeleted;
+import disscount.support.MigratedPostgres;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -40,20 +36,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * The native queries that read soft-deleted rows, run on the database production uses.
  * The rest of the suite runs them on H2, whose SQL dialect is close to PostgreSQL but not the same.
  */
-@Testcontainers
+@MigratedPostgres
 class SoftDeletePostgresTest extends FullStackTest {
-
-    // The version production runs.
-    @Container
-    private static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine");
-
-    @DynamicPropertySource
-    static void database(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
-        registry.add("spring.datasource.username", POSTGRES::getUsername);
-        registry.add("spring.datasource.password", POSTGRES::getPassword);
-        registry.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
-    }
 
     private static final String CARD = """
             {"cardName":"Moja","cardType":"loyalty","storeName":"Konzum","codeValue":"123","codeType":"ean_13","cardColor":"#D50000"}

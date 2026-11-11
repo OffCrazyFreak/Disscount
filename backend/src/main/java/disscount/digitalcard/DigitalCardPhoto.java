@@ -31,7 +31,7 @@ public class DigitalCardPhoto {
     @Column(nullable = false, length = 8)
     private String slot;
 
-    // A raw char(64) definition reads back from PostgreSQL as bpchar, which ddl-auto=update re-alters at every start.
+    // Matches the character(64) column, which PostgreSQL reports as bpchar.
     @JdbcTypeCode(SqlTypes.CHAR)
     @Column(nullable = false, length = 64)
     private String sha256;

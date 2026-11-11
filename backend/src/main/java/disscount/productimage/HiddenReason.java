@@ -10,7 +10,7 @@ enum HiddenReason {
     /** An admin rejected it, which nothing automatic may undo. */
     ADMIN;
 
-    // Stored as text for the same reason as ImageStatus: ddl-auto=update keeps an enum column's CHECK constraint.
+    // Stored as the name; a new value needs a migration that widens ck_product_image_hidden_reason.
     @Converter
     public static class Column implements AttributeConverter<HiddenReason, String> {
         @Override

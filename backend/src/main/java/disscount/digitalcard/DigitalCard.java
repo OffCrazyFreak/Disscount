@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import disscount.shared.Timestamps;
 
-/** Not `digital_card`: ddl-auto=update never drops, so reusing the name would merge this shape into the stale table. */
+/** Not `digital_card`: that older table still exists on production with another shape, and nothing drops it yet. */
 @Entity
 @SQLRestriction("deleted_at is null")
 @Table(name = "wallet_card", indexes = @Index(name = "idx_wallet_card_user", columnList = "user_id"))

@@ -33,7 +33,7 @@ public class ShoppingList {
     @Column(nullable = false)
     private String title;
 
-    // Nullable as ddl-auto=update cannot add NOT NULL to a full table; read through resolvedLinkAccess().
+    // Nullable as lists from before sharing hold null; read through resolvedLinkAccess().
     @Enumerated(EnumType.STRING)
     @Column(name = "link_access", length = 16)
     private ListAccess linkAccess;
