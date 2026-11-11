@@ -195,7 +195,7 @@ Every error is `application/problem+json` (RFC 9457), shaped in one place, `shar
 - Services throw one of the `shared` exceptions with a message key: `BadRequestException` (400), `UnauthorizedException` (401), `ForbiddenException` (403), `NotFoundException` (404), `ConflictException` (409), `TooManyRequestsException` (429, with `Retry-After`), `ServiceUnavailableException` (503).
 - `title` and `detail` are translated from `messages*.properties` by `Accept-Language` (hr, en, it, sl, de). A key missing from the bundle shows as written.
 - 409 and 503 also carry the key as `code`, because the detail is translated and a client that branches on the error needs a stable value.
-- Validation errors carry `fieldErrors`. A unique violation answers 409 without logging the driver text, which holds the value.
+- Validation errors carry `fieldErrors`, one message per field. When a field breaks several rules, its presence rule (`NotNull`, `NotBlank`, `NotEmpty`) wins, so an empty required field reads as required and never as too short or too long (`FieldViolation`). A unique violation answers 409 without logging the driver text, which holds the value.
 - The filter chain's 401 and 403 go through the same handler (`ProblemAuthenticationEntryPoint`, `ProblemAccessDeniedHandler`), and so does a method security denial.
 - Anything unexpected is a 500 with a generic detail, logged as an error, which Sentry's log appender reports (`GlobalExceptionHandlerSentryTest`).
 
