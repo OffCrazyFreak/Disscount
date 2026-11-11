@@ -27,8 +27,6 @@ import org.springframework.security.oauth2.server.resource.web.authentication.Be
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.util.function.Supplier;
@@ -88,7 +86,7 @@ public class SecurityConfig {
             OptionalBearerAuthenticationFilter optionalBearerAuthenticationFilter
     ) throws Exception {
         http
-            .securityMatcher(shoppingListByIdMatcher())
+            .securityMatcher(PublicRoutes.sharedListMatcher())
             // The browser never reaches Spring: only the Next.js proxy calls it, and the proxy runs the CSRF checks.
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -128,20 +126,6 @@ public class SecurityConfig {
         return new AuthorizationDecision(!isPurposeScoped);
     }
 
-    /** Unlisted methods fall through to the authenticated chain, so the default is deny. */
-    private static RequestMatcher shoppingListByIdMatcher() {
-        return new OrRequestMatcher(
-                new UuidScopedRequestMatcher(HttpMethod.GET, "/api/shopping-lists/{id}"),
-                // Link unfurlers probe with HEAD, which the matcher compares exactly.
-                new UuidScopedRequestMatcher(HttpMethod.HEAD, "/api/shopping-lists/{id}"),
-                new UuidScopedRequestMatcher(HttpMethod.PUT, "/api/shopping-lists/{id}"),
-                new UuidScopedRequestMatcher(HttpMethod.DELETE, "/api/shopping-lists/{id}"),
-                new UuidScopedRequestMatcher(HttpMethod.POST, "/api/shopping-lists/{id}/items"),
-                new UuidScopedRequestMatcher(HttpMethod.POST, "/api/shopping-lists/{id}/copy"),
-                new UuidScopedRequestMatcher(HttpMethod.PUT, "/api/shopping-lists/{id}/items/{itemId}"),
-                new UuidScopedRequestMatcher(HttpMethod.DELETE, "/api/shopping-lists/{id}/items/{itemId}"));
-    }
-
     @Bean
     @Order(2)
     public SecurityFilterChain filterChain(
@@ -154,12 +138,9 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers(HttpMethod.POST, "/api/contact").access(SecurityConfig::isNotPurposeScoped)
+                .requestMatchers(PublicRoutes.openMatchers()).access(SecurityConfig::isNotPurposeScoped)
                 // Only the deleteUser hook mints this, so a session token cannot erase the profile and keep its login.
                 .requestMatchers(HttpMethod.DELETE, "/api/users/me").access(SecurityConfig::isAccountErasureToken)
-                // Product photos are public like the prices; uploads and reports still need a login.
-                .requestMatchers(HttpMethod.GET, "/api/products/*/images", "/api/products/images/thumbnails",
-                        "/api/products/catalog/eans").access(SecurityConfig::isNotPurposeScoped)
                 .requestMatchers("/actuator/health").permitAll()
                 // The docs are public and read-only; each route they describe keeps its own rule here.
                 .requestMatchers(HttpMethod.GET,
