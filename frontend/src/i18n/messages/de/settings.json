@@ -95,7 +95,9 @@
   "validation": {
     "usernameMin": "Gib mindestens 2 Zeichen ein",
     "usernameMax": "Gib höchstens 40 Zeichen ein",
-    "currentPasswordRequired": "Gib dein aktuelles Passwort ein"
+    "currentPasswordRequired": "Gib dein aktuelles Passwort ein",
+    "pinnedStoresMax": "Wähle höchstens 50 Händler",
+    "pinnedPlacesMax": "Wähle höchstens 50 Standorte"
   },
   "onboarding": {
     "fallbackDescription": "Kurze Einrichtung deines Kontos. Du kannst alles später ändern.",

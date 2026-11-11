@@ -1,7 +1,11 @@
 package disscount.preferences;
 
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import disscount.support.FullStackTest;
 import disscount.user.User;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.MediaType;
@@ -47,5 +51,17 @@ class BulkListRequiredTest extends FullStackTest {
                         .content("{\"" + field + "\":[null]}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.type").value("urn:disscount:validation"));
+    }
+
+    @Test
+    void aFiftyFirstPinIsAFieldErrorThatStatesTheLimit() throws Exception {
+        User caller = newUser("caller");
+        String places = IntStream.range(0, 51)
+                .mapToObj(index -> "{\"placeApiId\":\"mjesto-" + index + "\",\"placeName\":\"Mjesto " + index + "\"}")
+                .collect(Collectors.joining(",", "{\"places\":[", "]}"));
+
+        mvc.perform(put("/api/pinned-places/bulk").with(as(caller)).contentType(MediaType.APPLICATION_JSON).content(places))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.places").value("Možeš prikvačiti najviše 50 mjesta."));
     }
 }
