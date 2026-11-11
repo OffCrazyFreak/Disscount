@@ -89,6 +89,7 @@ public class SecurityConfig {
     ) throws Exception {
         http
             .securityMatcher(shoppingListByIdMatcher())
+            // The browser never reaches Spring: only the Next.js proxy calls it, and the proxy runs the CSRF checks.
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz.anyRequest().permitAll())

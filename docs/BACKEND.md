@@ -20,7 +20,7 @@ The layout and its rules come from #429 (Spring backend restructure), built in s
 | Who calls it | Only the Next.js proxy, which turns the session cookie into a per-request token ([BACKEND-PROXY.md](BACKEND-PROXY.md))                                       |
 | Auth         | better-auth in Next.js signs the tokens, Spring only verifies them ([AUTH.md section 7](AUTH.md#7-the-spring-side-resource-server-and-profile-provisioning)) |
 | Settings     | `@ConfigurationProperties` records, one per concern ([section 9.1](#91-settings))                                                                            |
-| API docs     | Swagger UI at `/api-docs` and `/v3/api-docs` only under the `local` profile and in tests                                                                     |
+| API docs     | Public and read-only: Swagger UI at `/api/swagger-ui/index.html` and the description at `/api/v3/api-docs`, on every environment and through the proxy       |
 
 ---
 
@@ -120,6 +120,10 @@ The order is explicit because the bulk deletes clear the persistence context; `A
 ## 5. Security
 
 Authentication (which token, which purpose, profile provisioning) is in [AUTH.md section 7](AUTH.md#7-the-spring-side-resource-server-and-profile-provisioning). This section covers the two authorization layers.
+
+CSRF protection is off in both filter chains because the browser never reaches Spring. The backend sits on a private Docker network, and its only caller is the Next.js proxy, which runs the CSRF checks itself (the `X-Disscount-Client` header, `Sec-Fetch-Site` and `Origin`, see [BACKEND-PROXY.md](BACKEND-PROXY.md)). Spring Security's CSRF guide recommends protection for any request a browser can send, so this holds only while the proxy stays the single entrance.
+
+The API docs are open on every environment so anyone can read the API. Their paths are `permitAll` for GET only, and every route they describe keeps its own rule, so reading the docs unlocks nothing. springdoc leaves the actuator out of the description, and the spec names `/` as its server, so it never shows the internal backend host. `PublicApiDocsTest` boots main's own settings and pins both.
 
 ### 5.1 Admin routes: one URL rule
 
@@ -241,7 +245,7 @@ The required keys come from environment placeholders with no default. Spring lea
 
 ## 10. Gotchas
 
-- **The test `application.properties` replaces main's** instead of adding to it, so a key main needs in every test goes in both files. Springdoc is the exception on purpose: main turns it off and the test file leaves it on for `ApiContractTest`.
+- **The test `application.properties` replaces main's** instead of adding to it, so a key main needs in every test goes in both files. Both use the same springdoc paths, because `ApiContractTest` builds the contract from `/api/v3/api-docs`.
 - **A guard that returns false leaks.** It answers 403, which tells a stranger the id is real. Throw the feature's 404 instead.
 - **A guard's check is a snapshot taken before the service's lock.** A card deleted between the guard and `CardUserLock` is caught by the service's own scoped read under the lock, which is one reason both layers stay.
 - **JPQL never sees deleted rows**, including bulk updates and deletes. A cleanup written in JPQL silently skips them.

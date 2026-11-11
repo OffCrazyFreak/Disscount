@@ -28,14 +28,15 @@ flowchart LR
 
 `app/api/[...path]/route.ts` exports `GET`, `HEAD`, `POST`, `PUT`, `PATCH` and `DELETE`, all calling `proxyToBackend(request, segments)` in `lib/backend-proxy/proxy-to-backend.ts`.
 
-| Step            | What happens                                                                                                                                                                                                                                 | Refusal                                          |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| 1. Path guard   | The first segment must be a Spring root (`BACKEND_ROOTS` in `backend-path.ts`), and no segment may be empty, `.`, `..`, or contain `/` or `\` after decoding. The URL is rebuilt on the fixed `BACKEND_ORIGIN` and its origin checked again. | 404 `not_found`                                  |
-| 2. CSRF         | `X-Disscount-Client: web` must be present; `Sec-Fetch-Site`, when sent, must be `same-origin`; for anything but GET and HEAD, `Origin`, when sent, must equal `appUrl()`.                                                                    | 403 `csrf_rejected`                              |
-| 3. Token        | `auth.api.getToken({ headers })` reads the session and signs a JWT. A missing or expired session is not an error, just no token.                                                                                                             | 503 `auth_unavailable` if the read itself fails  |
-| 4. Identity pin | `X-Disscount-User` is compared with the session's user id (see below).                                                                                                                                                                       | 401 `session_changed`                            |
-| 5. Forward      | `fetch` to Spring with an allow-listed copy of the headers, the streamed body, `redirect: "manual"`, `cache: "no-store"`, and an abort signal that fires when the browser goes away or after 30 seconds.                                     | 502 `backend_unavailable`, 504 `backend_timeout` |
-| 6. Answer       | Spring's status and body pass through untouched, with an allow-listed copy of its headers and a `Server-Timing` header.                                                                                                                      | none                                             |
+| Step            | What happens                                                                                                                                                                                                                                                        | Refusal                                          |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| 1. Path guard   | The first segment must be a Spring root (`BACKEND_ROOTS` in `backend-path.ts`), and no segment may be empty, `.`, `..`, or contain `/` or `\` after decoding. The URL is rebuilt on the fixed `BACKEND_ORIGIN` and its origin checked again.                        | 404 `not_found`                                  |
+| 2. CSRF         | `X-Disscount-Client: web` must be present; `Sec-Fetch-Site`, when sent, must be `same-origin`; for anything but GET and HEAD, `Origin`, when sent, must equal `appUrl()`.                                                                                           | 403 `csrf_rejected`                              |
+| 2a. Body size   | The body is read into memory while its bytes are counted, so a chunked body without `Content-Length` is capped too (`request-body.ts`). 64 KB for JSON, 1100 KB for the two photo uploads, and the avatar's 400,000 characters plus 8 KB for `PATCH /api/users/me`. | 413 `payload_too_large`                          |
+| 3. Token        | `auth.api.getToken({ headers })` reads the session and signs a JWT. A missing or expired session is not an error, just no token.                                                                                                                                    | 503 `auth_unavailable` if the read itself fails  |
+| 4. Identity pin | `X-Disscount-User` is compared with the session's user id (see below).                                                                                                                                                                                              | 401 `session_changed`                            |
+| 5. Forward      | `fetch` to Spring with an allow-listed copy of the headers, the counted body, `redirect: "manual"`, `cache: "no-store"`, and an abort signal that fires when the browser goes away or after 30 seconds.                                                             | 502 `backend_unavailable`, 504 `backend_timeout` |
+| 6. Answer       | Spring's status and body pass through untouched, with an allow-listed copy of its headers and a `Server-Timing` header.                                                                                                                                             | none                                             |
 
 The identity decision (`decideIdentity` in `request-guards.ts`):
 
@@ -50,6 +51,10 @@ The identity decision (`decideIdentity` in `request-guards.ts`):
 The last row is an owner decision made while building it: there is no account to cross into, and public routes and shared lists keep loading after a session expires, exactly as they did with a browser token. Spring still answers 401 on routes that need an account, which keeps queued offline writes queued.
 
 ---
+
+### The API docs route
+
+`app/api/v3/api-docs/[[...path]]/route.ts` and `app/api/swagger-ui/[...path]/route.ts` answer GET only and call `proxyDocsToBackend`. A browser opens Swagger UI by navigating to `/api/swagger-ui/index.html`, which sends no `X-Disscount-Client` header, so these routes skip the CSRF check, mint no token and pass no cookie. `docsUrl` in `backend-path.ts` lets them reach springdoc's two prefixes only. "Try it out" in Swagger UI calls the real routes through the catch-all, which refuses it with 403 `csrf_rejected`, because Swagger UI sends no client header; the docs are for reading.
 
 ## 3. The two headers the browser sends
 
@@ -80,7 +85,7 @@ Both directions use an allow-list (`forwarded-headers.ts`), never a deny-list.
 
 When Spring sets no `cache-control`, the proxy sets `private, no-store`, so neither Cloudflare nor the browser HTTP cache keeps an account's JSON. Card photos come from Spring as `no-store, private`, and `fetchCardPhotoBlob` also asks with the fetch cache mode `no-store`, so the browser HTTP cache never stores or serves them; the account-scoped photo blob store is their only cache.
 
-Bodies stream both ways (`duplex: "half"` on the request), so photo uploads are not buffered. 204, 304 and HEAD answers carry no body, and the unread upstream body is cancelled so its pooled connection is freed.
+Request bodies are buffered up to the size cap in step 2a, so Spring never sees a body larger than the proxy allows and an oversized one never opens a connection to it. The largest buffer is a photo upload's 1100 KB, the same limit Spring's multipart settings enforce. Response bodies stream. 204, 304 and HEAD answers carry no body, and the unread upstream body is cancelled so its pooled connection is freed.
 
 If `getToken` refreshes the session (at most once a day, better-auth's `updateAge`), the `nextCookies` plugin writes the new cookie and Next merges it onto the proxy's response, so the session keeps sliding.
 
@@ -94,6 +99,7 @@ All of the proxy's own answers are `application/problem+json` with `status`, `ti
 | ------ | --------------------- | -------------------------------------------------------------------------------- | ------ |
 | 404    | `not_found`           | The path is not one of Spring's.                                                 | no     |
 | 403    | `csrf_rejected`       | Missing client header, cross-site `Sec-Fetch-Site`, foreign `Origin` on a write. | no     |
+| 413    | `payload_too_large`   | The body is over the route's cap, declared or counted.                           | no     |
 | 401    | `session_changed`     | The cookie names another account than the pin.                                   | no     |
 | 503    | `auth_unavailable`    | Reading the session failed (database down).                                      | yes    |
 | 502    | `backend_unavailable` | Spring could not be reached.                                                     | yes    |
@@ -128,6 +134,8 @@ The browser's query cache (`lib/api/query-client-defaults.ts`) reports every 5xx
 | Path (under `frontend/src/` unless noted)              | Role                                                                                                           |
 | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
 | `lib/backend-proxy/backend-path.ts`                    | `BACKEND_ROOTS` and the URL builder (the SSRF guard).                                                          |
+| `lib/backend-proxy/request-body.ts`                    | `bodyLimit` per route and `readBodyWithin`, which counts streamed bytes.                                       |
+| `app/api/v3/api-docs/`, `app/api/swagger-ui/`          | The open, GET-only API docs routes.                                                                            |
 | `lib/backend-proxy/request-guards.ts`                  | `isCsrfSafe`, `identityPin`, `decideIdentity`. Pure, so the jsdom test harness reuses them.                    |
 | `lib/backend-proxy/proxy-contract.ts`                  | The two header names and `session_changed`, shared by browser and server.                                      |
 | `lib/api/session-changed.ts`                           | Refetches the session on any 401, at most once per 30 seconds unless it is `session_changed`.                  |
@@ -181,6 +189,8 @@ The decision in #430 is to add a short per-session token memo only if `auth` exc
 | `lib/backend-proxy/proxy-forwarding.test.ts`                                                                                                 | Header allow-lists both ways, client IP headers verbatim, multipart and binary bodies, 204, 304 and HEAD, problem bodies untouched. |
 | `lib/backend-proxy/proxy-failures.test.ts`                                                                                                   | 502, 503, 504, abort propagation, no token, cookie or list id in a Sentry event.                                                    |
 | `lib/backend-proxy/backend-path.test.ts`                                                                                                     | URL building, and that no `app/api/*` folder or `cijene` collides with a backend root.                                              |
+| `lib/backend-proxy/proxy-body-limit.test.ts`                                                                                                 | 413 on a declared length and on a chunked body without one, photo and avatar caps, and the body reaching Spring whole.              |
+| `lib/backend-proxy/proxy-docs.test.ts`                                                                                                       | The docs route works without the client header, sends no session or token, and refuses other paths.                                 |
 | `lib/backend-proxy/proxy-problem.test.ts`                                                                                                    | Problem titles follow `Accept-Language`, match a regional tag on its language, and fall back to Croatian.                           |
 | `lib/api/api-base.test.tsx`                                                                                                                  | The client sends both headers and no token, and refetches the session on a 401, once per burst.                                     |
 | `context/user-context-session-changes.test.tsx`, `lib/offline/offline-replay.test.tsx`, `lib/api/shopping-lists/shared-list-access.test.tsx` | The account switch, sign-out, revoke, deletion, offline replay and shared list behaviour from #437, through `actingAs`.             |
