@@ -19,7 +19,8 @@ export type ProxyProblemCode =
   | (typeof SERVER_REPORTED_PROBLEMS)[number]
   | "upstream_unavailable"
   | "bad_request"
-  | "too_many_requests";
+  | "too_many_requests"
+  | "payload_too_large";
 
 type ProxyTitleKey = keyof typeof hrErrors.proxy;
 
@@ -45,6 +46,7 @@ const PROBLEMS: Record<
   upstream_unavailable: { status: 502, titleKey: "unavailable" },
   bad_request: { status: 400, titleKey: "badRequest" },
   too_many_requests: { status: 429, titleKey: "tooManyRequests" },
+  payload_too_large: { status: 413, titleKey: "tooLarge" },
 };
 
 /** The client sends <html lang> here, the same header Spring localises its own titles from. */

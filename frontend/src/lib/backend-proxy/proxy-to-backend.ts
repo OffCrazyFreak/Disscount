@@ -15,6 +15,11 @@ import {
   identityPin,
   isCsrfSafe,
 } from "@/lib/backend-proxy/request-guards";
+import {
+  bodyLimit,
+  readBodyWithin,
+  TOO_LARGE,
+} from "@/lib/backend-proxy/request-body";
 import { mintSessionToken } from "@/lib/backend-proxy/session-token";
 import { appUrl } from "@/lib/env";
 
@@ -59,15 +64,13 @@ async function forward(
   request: Request,
   url: URL,
   token: string | null,
+  body: Uint8Array<ArrayBuffer> | undefined,
 ): Promise<{ upstream: Response } | Response> {
-  const hasBody = request.method !== "GET" && request.method !== "HEAD";
   try {
     const upstream = await fetch(url, {
       method: request.method,
       headers: upstreamRequestHeaders(request, token),
-      body: hasBody ? request.body : undefined,
-      // Node needs it for a streamed body; TypeScript's RequestInit lacks it.
-      ...(hasBody ? { duplex: "half" } : {}),
+      body,
       signal: AbortSignal.any([
         request.signal,
         AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
@@ -108,12 +111,18 @@ export async function proxyToBackend(
   if (!isCsrfSafe(request, appUrl()))
     return proxyProblem("csrf_rejected", request);
 
+  const body = await readBodyWithin(
+    request,
+    bodyLimit(request.method, segments),
+  );
+  if (body === TOO_LARGE) return proxyProblem("payload_too_large", request);
+
   const authStart = performance.now();
   const authorized = await authorize(request, segments[0]);
   if (authorized instanceof Response) return authorized;
 
   const upstreamStart = performance.now();
-  const forwarded = await forward(request, url, authorized.token);
+  const forwarded = await forward(request, url, authorized.token, body);
   if (forwarded instanceof Response) return forwarded;
 
   const authMs = (upstreamStart - authStart).toFixed(1);

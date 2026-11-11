@@ -8,6 +8,7 @@
     "refreshPage": "Nešto nije u redu. Osvježi stranicu i pokušaj ponovno",
     "unavailable": "Usluga nije dostupna",
     "badRequest": "Neispravan zahtjev",
-    "tooManyRequests": "Previše pokušaja, pričekaj malo"
+    "tooManyRequests": "Previše pokušaja, pričekaj malo",
+    "tooLarge": "Zahtjev je prevelik"
   }
 }

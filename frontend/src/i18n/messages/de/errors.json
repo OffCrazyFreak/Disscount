@@ -8,6 +8,7 @@
     "refreshPage": "Etwas ist schiefgelaufen. Lade die Seite neu und versuche es erneut",
     "unavailable": "Dienst nicht verfügbar",
     "badRequest": "Ungültige Anfrage",
-    "tooManyRequests": "Zu viele Versuche, warte kurz"
+    "tooManyRequests": "Zu viele Versuche, warte kurz",
+    "tooLarge": "Die Anfrage ist zu groß"
   }
 }

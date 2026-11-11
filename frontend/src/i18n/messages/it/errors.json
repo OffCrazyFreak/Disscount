@@ -8,6 +8,7 @@
     "refreshPage": "Qualcosa è andato storto. Ricarica la pagina e riprova",
     "unavailable": "Servizio non disponibile",
     "badRequest": "Richiesta non valida",
-    "tooManyRequests": "Troppi tentativi, aspetta un attimo"
+    "tooManyRequests": "Troppi tentativi, aspetta un attimo",
+    "tooLarge": "La richiesta è troppo grande"
   }
 }
