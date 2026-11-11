@@ -34,8 +34,7 @@ COPY src/main/resources/db/migration ./sql
 ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=60 -XX:+ExitOnOutOfMemoryError -XX:+UseSerialGC -XX:-UsePerfData"
 USER flyway
 ENTRYPOINT ["java", "-jar", "flyway.jar"]
-# Without migration files a migrate would leave an empty history table that blocks the baseline, so this image only reports.
-CMD ["info"]
+CMD ["migrate"]
 
 # ---- Runtime stage: run the jar on a small JRE as a non-root user ----
 FROM eclipse-temurin:21-jre@sha256:0b99b3376fbb50dbf9c0af8535fdd5b8eb0d3fdfc8b1e4967f383b6919f6901a AS runtime
