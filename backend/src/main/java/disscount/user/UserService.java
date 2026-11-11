@@ -233,13 +233,32 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto updateAccountType(UUID userId, AccountType accountType) {
+    public UserDto updateAccountType(UUID userId, AccountType accountType, UUID adminUserId) {
         // The target of an admin action, not the caller: the admin's own session is fine, so no 401 here.
         User user = userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
+        if (user.getAccountType() == AccountType.ADMIN && accountType != AccountType.ADMIN) {
+            refuseLosingTheLastAdmin(userId, adminUserId);
+        }
+
         user.setAccountType(accountType);
         user = userRepository.save(user);
         return UserDto.from(user);
+    }
+
+    /** Recovery from zero admins is a manual database update, since the first-signup rule never comes back. */
+    private void refuseLosingTheLastAdmin(UUID userId, UUID adminUserId) {
+        if (userId.equals(adminUserId)) {
+            throw new ConflictException("error.user.cannotDemoteSelf");
+        }
+
+        // Locked, so two admins demoting each other at once cannot both see the other one left.
+        List<User> admins = userRepository.lockActiveAdmins();
+        boolean anotherAdminStays = admins.stream().anyMatch(admin -> !admin.getId().equals(userId));
+
+        if (!anotherAdminStays) {
+            throw new ConflictException("error.user.lastAdmin");
+        }
     }
 }

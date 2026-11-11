@@ -30,10 +30,11 @@ class AdminController {
     @Operation(summary = "Change a user's account type (admin only)")
     @PatchMapping("/users/{userId}")
     public ResponseEntity<UserDto> updateAccountType(
+            @CurrentUser UUID adminId,
             @PathVariable UUID userId,
             @Valid @RequestBody UpdateAccountTypeRequest request
     ) {
-        return ResponseEntity.ok(userService.updateAccountType(userId, request.accountType()));
+        return ResponseEntity.ok(userService.updateAccountType(userId, request.accountType(), adminId));
     }
 
     @Operation(summary = "Delete a user (admin only)")
