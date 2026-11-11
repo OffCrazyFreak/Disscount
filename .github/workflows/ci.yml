@@ -347,6 +347,7 @@ jobs:
       - name: Lint the Dockerfiles
         run: |
           docker build --check backend
+          docker build --check --target flyway backend
           docker build --check --target migrator frontend
           docker build --check frontend
           docker build --check backup
@@ -503,6 +504,10 @@ jobs:
           - image: backend
             context: backend
             target: runtime
+          # Built ahead of the migrations that will use it (#429 R9), so its GHCR package exists before any deploy pulls it.
+          - image: flyway
+            context: backend
+            target: flyway
           - image: backup
             context: backup
             target: ""
