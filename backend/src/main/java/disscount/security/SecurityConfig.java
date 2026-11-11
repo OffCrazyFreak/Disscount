@@ -3,6 +3,7 @@ package disscount.security;
 import disscount.user.ActiveUsers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +32,9 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.util.function.Supplier;
 
+/** The one-off erasure profiles run without a web server, which has no MVC exception resolver for the chain. */
 @Configuration
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @EnableWebSecurity
 // So a @WebMvcTest slice that imports only this chain still runs the @PreAuthorize guards.
 @Import(MethodSecurityConfig.class)
