@@ -133,7 +133,7 @@ The API docs are open on every environment so anyone can read the API. Their pat
 
 ### 5.2 Owner-scoped methods: guard beans
 
-`@EnableMethodSecurity` on `SecurityConfig` turns on Spring's `@PreAuthorize`. Each owner-scoped feature has one guard bean, and every public service method of that feature that takes a resource id names it:
+`@EnableMethodSecurity` on `MethodSecurityConfig` turns on Spring's `@PreAuthorize`. Each owner-scoped feature has one guard bean, and every public service method of that feature that takes a resource id names it:
 
 ```java
 @PreAuthorize("@digitalCardGuard.ownsCard(#userId, #id)")
@@ -274,7 +274,9 @@ The required keys come from environment placeholders with no default. Spring lea
 
 - **Name the schema in native SQL.** The tables are in `app` and better-auth's in `auth` ([INFRASTRUCTURE.md, Database roles](INFRASTRUCTURE.md#database-roles)). Hibernate adds `app` to entity queries through `hibernate.default_schema`, but native SQL and test helpers write `app.<table>` or `auth."user"` themselves; the runtime login's search path still finds a bare name, so a missing prefix only shows on a login without that path.
 - **The runtime login is not the owner.** Spring runs as `disscount_backend`, which may read and write `app` but cannot change a table, update or delete `admin_audit`, or read better-auth columns beyond `id`, `email` and `last_login_at` of `auth."user"` and the session columns of the retention job. A new cross-schema read needs a line in `db/database-roles.sql`; the `@MigratedPostgres` tests run as this login, so they fail first.
+- **Web-only beans need `@ConditionalOnWebApplication(type = SERVLET)`.** The one-shot `erasure-backfill` and `erasure-replay` profiles boot the whole app with `spring.main.web-application-type=none`, so MVC beans such as the `handlerExceptionResolver` the filter chain uses do not exist there. `SecurityConfig`, its two filters, `CurrentUserConfig` and `OpenApiConfig` carry the condition; method security lives apart in `MethodSecurityConfig`, so the guards stay on in every mode. `ErasureBackfillBootTest` and `ErasureReplayBootTest` boot each profile and fail when a new bean breaks this.
 
+- **A `@MigratedPostgres` test must not use `@DirtiesContext`.** `@ImportTestcontainers` makes the shared container a bean of the context, so closing that context stops the container every later `@MigratedPostgres` class uses, and they fail to log in.
 - **The test `application.properties` replaces main's** instead of adding to it, so a key main needs in every test goes in both files. Both use the same springdoc paths, because `ApiContractTest` builds the contract from `/api/v3/api-docs`.
 - **A guard that returns false leaks.** It answers 403, which tells a stranger the id is real. Throw the feature's 404 instead.
 - **A guard's check is a snapshot taken before the service's lock.** A card deleted between the guard and `CardUserLock` is caught by the service's own scoped read under the lock, which is one reason both layers stay.
