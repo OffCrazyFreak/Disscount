@@ -265,6 +265,7 @@ Notes:
 ### Merging
 
 - Merge once CI is green and review is settled, as the orchestrating session; a delegate reports instead of merging.
+- When a PR turns up issues outside its task, keep it open and ask me whether to fix them in it, open an issue, or leave them, before merging.
 
 ## Agents and delegation
 
