@@ -836,6 +836,8 @@
           "type" : [ "integer", "null" ]
         },
         "avgPrice" : {
+          "maximum" : 999999.9999,
+          "minimum" : 0,
           "type" : [ "number", "null" ]
         },
         "brand" : {
@@ -859,6 +861,8 @@
           "type" : [ "string", "null" ]
         },
         "storePrice" : {
+          "maximum" : 999999.9999,
+          "minimum" : 0,
           "type" : [ "number", "null" ]
         },
         "unit" : {
