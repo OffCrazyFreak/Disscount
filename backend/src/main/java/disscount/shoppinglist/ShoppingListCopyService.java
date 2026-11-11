@@ -17,12 +17,13 @@ class ShoppingListCopyService {
     private final ShoppingListRepository shoppingListRepository;
     private final ShoppingListAccessService accessService;
     private final ShoppingListService shoppingListService;
+    private final ShoppingListGuard guard;
     private final ShoppingListMapper shoppingListMapper;
 
     @Transactional
     public ShoppingListDto copy(UUID listId, UUID userId, ShoppingListCopyRequest request) {
         ShoppingList source = shoppingListService.findVisible(listId, userId);
-        shoppingListService.requireWriteUser(userId);
+        guard.requireWriteUser(userId);
 
         // Only an owner may carry sharing across, or a recipient could hand out a link the owner never chose.
         if (request.isIncludeSharing() && !accessService.resolve(source, userId).isOwner()) {

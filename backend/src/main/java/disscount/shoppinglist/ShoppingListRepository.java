@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -15,4 +16,7 @@ public interface ShoppingListRepository extends JpaRepository<ShoppingList, UUID
             + "WHERE sl.ownerId = :ownerId "
             + "ORDER BY sl.updatedAt DESC, sl.createdAt DESC, sl.id DESC")
     List<ShoppingList> findActiveByOwnerId(UUID ownerId);
+
+    @Query("SELECT new disscount.shoppinglist.ListSharing(sl.ownerId, sl.linkAccess) FROM ShoppingList sl WHERE sl.id = :id")
+    Optional<ListSharing> findSharingById(UUID id);
 }

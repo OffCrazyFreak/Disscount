@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.ErrorResponse;
@@ -61,6 +62,12 @@ class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ForbiddenException.class)
     public ProblemDetail handleForbiddenException(ForbiddenException ex) {
         return problem(HttpStatus.FORBIDDEN, "forbidden", message(ex.getMessage()));
+    }
+
+    /** A method security denial; without it the catch-all below would answer a logged 500. */
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ProblemDetail handleAuthorizationDenied(AuthorizationDeniedException ex) {
+        return problem(HttpStatus.FORBIDDEN, "forbidden", message("problem.detail.forbidden"));
     }
 
     @ExceptionHandler(NotFoundException.class)

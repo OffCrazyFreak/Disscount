@@ -21,13 +21,14 @@ class ShoppingListItemService {
     private final ShoppingListRepository shoppingListRepository;
     private final ShoppingListAccessService accessService;
     private final ShoppingListService shoppingListService;
+    private final ShoppingListGuard guard;
     private final ShoppingListMapper shoppingListMapper;
 
     /** Owner only: an unbounded right to add to someone's list waits for per-person revocation in version 2. */
     @Transactional
     public ShoppingListItemDto addItemToShoppingList(UUID shoppingListId, UUID userId, ShoppingListItemRequest request) {
         ShoppingList shoppingList = shoppingListService.findVisible(shoppingListId, userId);
-        shoppingListService.requireWriteUser(userId);
+        guard.requireWriteUser(userId);
 
         if (!accessService.resolve(shoppingList, userId).isOwner()) {
             throw new ForbiddenException("error.shoppingList.ownerOnlyAddItems");
@@ -87,7 +88,7 @@ class ShoppingListItemService {
     public ShoppingListItemDto updateShoppingListItem(
             UUID listId, UUID itemId, UUID userId, ShoppingListItemRequest request) {
         ShoppingList list = shoppingListService.findVisible(listId, userId);
-        shoppingListService.requireWriteUser(userId);
+        guard.requireWriteUser(userId);
         ListAccess access = requireAccess(list, userId, ListAccess::canCheck);
 
         ShoppingListItem item = findItem(list, itemId);
@@ -105,7 +106,7 @@ class ShoppingListItemService {
     @Transactional
     public void deleteShoppingListItem(UUID listId, UUID itemId, UUID userId) {
         ShoppingList list = shoppingListService.findVisible(listId, userId);
-        shoppingListService.requireWriteUser(userId);
+        guard.requireWriteUser(userId);
         requireAccess(list, userId, ListAccess::canEditItems);
 
         ShoppingListItem item = findItem(list, itemId);

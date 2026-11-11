@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import disscount.shared.ForbiddenException;
 import disscount.shared.NotFoundException;
 import disscount.shared.Timestamps;
-import disscount.shared.UnauthorizedException;
 import disscount.user.ActiveUsers;
 
 import java.util.List;
@@ -23,6 +22,7 @@ public class ShoppingListService {
     private final ShoppingListRepository shoppingListRepository;
     private final ActiveUsers activeUsers;
     private final ShoppingListAccessService accessService;
+    private final ShoppingListGuard guard;
     private final ShoppingListMapper shoppingListMapper;
 
     @Transactional
@@ -71,7 +71,7 @@ public class ShoppingListService {
             throw new ForbiddenException("error.shoppingList.ownerOnlyAccess");
         }
 
-        requireWriteUser(userId);
+        guard.requireWriteUser(userId);
         if (!access.canEditItems()) {
             throw new ForbiddenException("error.shoppingList.insufficientAccess");
         }
@@ -104,14 +104,6 @@ public class ShoppingListService {
         }
 
         return list;
-    }
-
-    /** Anonymous callers cap at VIEW, so every write stays attributable. */
-    public void requireWriteUser(UUID userId) {
-        if (userId == null) {
-            throw new UnauthorizedException("error.shoppingList.signInToChange");
-        }
-        activeUsers.requireActive(userId);
     }
 
     /** Off then on hands back the same URL, since the URL is the id. Intended. */
