@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -13,11 +12,7 @@ public interface ShoppingListRepository extends JpaRepository<ShoppingList, UUID
 
     /** Fetch-joined as ShoppingListMapper walks lazy items, so never paginate; id tiebreak fixes uuid order per database. */
     @Query("SELECT sl FROM ShoppingList sl LEFT JOIN FETCH sl.items "
-            + "WHERE sl.ownerId = :ownerId AND sl.deletedAt IS NULL "
+            + "WHERE sl.ownerId = :ownerId "
             + "ORDER BY sl.updatedAt DESC, sl.createdAt DESC, sl.id DESC")
     List<ShoppingList> findActiveByOwnerId(UUID ownerId);
-
-    /** No AndOwner variant: authorization belongs to ShoppingListService.findVisible, this method's one caller. */
-    @Query("SELECT sl FROM ShoppingList sl WHERE sl.id = :id AND sl.deletedAt IS NULL")
-    Optional<ShoppingList> findActiveById(UUID id);
 }

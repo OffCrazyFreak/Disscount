@@ -6,12 +6,14 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Entity
+@SQLRestriction("deleted_at is null")
 @Table(name = "app_user")
 @Getter
 @Setter

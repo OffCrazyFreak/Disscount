@@ -21,7 +21,9 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,6 +60,7 @@ class PhotoCleanupServiceTest {
     @Autowired StoreNameUsageRepository storeNameUsages;
     @Autowired FakePhotoStore store;
     @Autowired @Qualifier(UploadLimitConfig.CARD_PHOTOS) FixedWindowLimiter limiter;
+    @Autowired JdbcTemplate jdbc;
 
     User owner;
     UUID cardId = UUID.randomUUID();
@@ -65,11 +68,10 @@ class PhotoCleanupServiceTest {
     @BeforeEach
     void setUp() {
         queue.deleteAll();
-        photos.deleteAll();
-        cards.deleteAll();
         storeNameUsages.deleteAll();
         storeNames.deleteAll();
-        users.deleteAll();
+        // Row by row would skip soft-deleted rows, which @SQLRestriction hides from JPA.
+        JdbcTestUtils.deleteFromTables(jdbc, "wallet_card_photo", "wallet_card", "app_user");
         limiter.sweep();
         store.objects.clear();
         store.enabled = true;

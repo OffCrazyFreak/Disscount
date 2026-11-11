@@ -13,6 +13,7 @@ import disscount.shoppinglist.ShoppingListRepository;
 import disscount.storename.StoreNameSuggestionRepository;
 import disscount.storename.StoreNameUsageRepository;
 import disscount.support.FullStackTest;
+import disscount.support.IncludingDeleted;
 import disscount.watchlist.WatchlistItemRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +89,7 @@ class AccountErasureTest extends FullStackTest {
 
     private void assertErased(User leaving) {
         UUID id = leaving.getId();
-        User profile = users.findById(id).orElseThrow();
+        User profile = IncludingDeleted.find(entityManager, User.class, id).orElseThrow();
         assertThat(profile.getDeletedAt()).isNotNull();
         assertThat(profile.getUsername()).isNull();
         assertThat(profile.getImage()).isNull();
@@ -145,7 +146,7 @@ class AccountErasureTest extends FullStackTest {
         mvc.perform(delete("/api/users/me").with(jwt().jwt(j -> j.subject(neverSeen.toString()).claim("purpose", "account-erasure"))))
                 .andExpect(status().isOk());
 
-        assertThat(users.findById(neverSeen)).isEmpty();
+        assertThat(IncludingDeleted.find(entityManager, User.class, neverSeen)).isEmpty();
         assertThat(erasureLedger.findById(neverSeen)).isPresent();
     }
 
@@ -167,7 +168,7 @@ class AccountErasureTest extends FullStackTest {
                         .claim("email", "leaving@example.com"))))
                 .andExpect(status().isGone())
                 .andExpect(content().json("{\"code\":\"account_erased\",\"userId\":\"" + leaving.getId() + "\"}"));
-        assertThat(users.findById(leaving.getId()).orElseThrow().getDeletedAt()).isNotNull();
+        assertThat(IncludingDeleted.find(entityManager, User.class, leaving.getId()).orElseThrow().getDeletedAt()).isNotNull();
     }
 
     @Test

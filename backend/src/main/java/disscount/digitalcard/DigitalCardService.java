@@ -81,11 +81,14 @@ public class DigitalCardService {
         String previousChain = created ? null : card.getChainCode();
 
         if (created) {
+            if (cardRepository.isDeleted(id)) {
+                throw new NotFoundException(NOT_FOUND);
+            }
             if (cardRepository.countActiveByUserId(userId) >= MAX_ACTIVE_CARDS) {
                 throw new ConflictException("error.card.limitReached");
             }
             card = DigitalCard.builder().id(id).userId(userId).build();
-        } else if (!card.getUserId().equals(userId) || card.getDeletedAt() != null) {
+        } else if (!card.getUserId().equals(userId)) {
             throw new NotFoundException(NOT_FOUND);
         }
 
@@ -179,7 +182,9 @@ public class DigitalCardService {
             cleanup.enqueuePrefix(prefix);
             photoRepository.deleteAllByCardId(cardId);
         }
-        cardRepository.deleteAll(stale);
+        if (!stale.isEmpty()) {
+            cardRepository.purgeByIds(stale.stream().map(DigitalCard::getId).toList());
+        }
         return stale.size();
     }
 

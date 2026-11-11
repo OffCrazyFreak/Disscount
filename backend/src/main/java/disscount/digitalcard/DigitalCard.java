@@ -2,6 +2,7 @@ package disscount.digitalcard;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import disscount.shared.Timestamps;
 
 /** Not `digital_card`: ddl-auto=update never drops, so reusing the name would merge this shape into the stale table. */
 @Entity
+@SQLRestriction("deleted_at is null")
 @Table(name = "wallet_card", indexes = @Index(name = "idx_wallet_card_user", columnList = "user_id"))
 @Getter
 @Setter

@@ -6,7 +6,6 @@ import disscount.shared.Timestamps;
 import disscount.user.ActiveUsers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -51,10 +50,9 @@ class ContactMessageService {
     }
 
     public List<ContactMessageDto> list(boolean includeDeleted) {
-        Pageable pageable = PageRequest.of(0, MAX_ADMIN_MESSAGES);
         List<ContactMessage> messages = includeDeleted
-                ? contactMessageRepository.findAllByOrderByCreatedAtDesc(pageable)
-                : contactMessageRepository.findByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
+                ? contactMessageRepository.findIncludingDeletedNewestFirst(MAX_ADMIN_MESSAGES)
+                : contactMessageRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, MAX_ADMIN_MESSAGES));
         return messages.stream().map(ContactMessageDto::from).toList();
     }
 
@@ -89,7 +87,7 @@ class ContactMessageService {
     }
 
     private ContactMessage loadOrThrow(UUID id) {
-        return contactMessageRepository.findById(id)
+        return contactMessageRepository.findIncludingDeletedById(id)
                 .orElseThrow(() -> new NotFoundException("error.contactMessage.notFound"));
     }
 }

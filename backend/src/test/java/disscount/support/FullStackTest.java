@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+import jakarta.persistence.EntityManager;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -32,6 +33,7 @@ public abstract class FullStackTest {
     @Autowired protected MockMvc mvc;
     @Autowired protected ObjectMapper json;
     @Autowired protected UserRepository users;
+    @Autowired protected EntityManager entityManager;
 
     // The better-auth tables are not in H2, so this native SQL cannot run here.
     @MockitoBean protected AuthIdentityDao authIdentityDao;

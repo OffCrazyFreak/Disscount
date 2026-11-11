@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 /** Auditing fills createdAt and updatedAt; the service sets readAt and deletedAt by hand. */
 @Entity
+@SQLRestriction("deleted_at is null")
 @Table(name = "contact_message")
 @EntityListeners(AuditingEntityListener.class)
 @Getter

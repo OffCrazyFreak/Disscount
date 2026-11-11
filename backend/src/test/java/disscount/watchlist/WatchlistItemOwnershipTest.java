@@ -4,6 +4,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 import disscount.security.SecurityConfig;
+import disscount.support.IncludingDeleted;
 import disscount.user.ActiveUsers;
 import disscount.user.User;
 import disscount.user.UserRepository;
@@ -14,11 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.data.jpa.test.autoconfigure.AutoConfigureDataJpa;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,6 +44,8 @@ class WatchlistItemOwnershipTest {
     @Autowired ObjectMapper json;
     @Autowired UserRepository users;
     @Autowired WatchlistItemRepository watchlist;
+    @Autowired JdbcTemplate jdbc;
+    @Autowired EntityManager entityManager;
     @MockitoBean UserService userService;
 
     private User alice;
@@ -47,8 +53,8 @@ class WatchlistItemOwnershipTest {
 
     @BeforeEach
     void setUp() {
-        watchlist.deleteAll();
-        users.deleteAll();
+        // Row by row would skip soft-deleted rows, which @SQLRestriction hides from JPA.
+        JdbcTestUtils.deleteFromTables(jdbc, "watchlist_item", "app_user");
         alice = users.save(User.builder().id(UUID.randomUUID()).username("alice").build());
         bob = users.save(User.builder().id(UUID.randomUUID()).username("bob").build());
     }
@@ -91,11 +97,11 @@ class WatchlistItemOwnershipTest {
         WatchlistItem own = itemOf(alice);
 
         mvc.perform(delete("/api/watchlist/{id}", own.getId()).with(as(alice))).andExpect(status().isNoContent());
-        var deletedAt = watchlist.findById(own.getId()).orElseThrow().getDeletedAt();
+        var deletedAt = IncludingDeleted.find(entityManager, WatchlistItem.class, own.getId()).orElseThrow().getDeletedAt();
         assertThat(deletedAt).isNotNull();
 
         mvc.perform(delete("/api/watchlist/{id}", own.getId()).with(as(alice))).andExpect(status().isNoContent());
-        assertThat(watchlist.findById(own.getId()).orElseThrow().getDeletedAt()).isEqualTo(deletedAt);
+        assertThat(IncludingDeleted.find(entityManager, WatchlistItem.class, own.getId()).orElseThrow().getDeletedAt()).isEqualTo(deletedAt);
     }
 
     @Test
