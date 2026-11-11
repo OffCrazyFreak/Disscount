@@ -1,4 +1,4 @@
-package disscount.shoppinglist;
+package disscount.shoppinglist.item;
 
 import java.math.BigDecimal;
 

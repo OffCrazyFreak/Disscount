@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 import disscount.shared.Timestamps;
+import disscount.shoppinglist.item.ShoppingListItem;
 
 /** Dynamic updates, so saving a title or a touch never writes back a link the owner's erasure switched off. */
 @Entity

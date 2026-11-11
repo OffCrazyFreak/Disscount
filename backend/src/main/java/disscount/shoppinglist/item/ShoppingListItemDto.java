@@ -1,4 +1,4 @@
-package disscount.shoppinglist;
+package disscount.shoppinglist.item;
 
 import disscount.shared.AlphabeticalJson;
 
@@ -11,7 +11,7 @@ import lombok.Builder;
 
 @AlphabeticalJson
 @Builder
-record ShoppingListItemDto(
+public record ShoppingListItemDto(
         UUID id,
         UUID shoppingListId,
         @Schema(nullable = true) String ean,

@@ -1,4 +1,4 @@
-package disscount.shoppinglist;
+package disscount.shoppinglist.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -8,6 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 import disscount.shared.ForbiddenException;
 import disscount.shared.NotFoundException;
 import disscount.shared.Timestamps;
+import disscount.shoppinglist.ListAccess;
+import disscount.shoppinglist.ShoppingList;
+import disscount.shoppinglist.ShoppingListAccessService;
+import disscount.shoppinglist.ShoppingListGuard;
+import disscount.shoppinglist.ShoppingListMapper;
+import disscount.shoppinglist.ShoppingListQuota;
+import disscount.shoppinglist.ShoppingListRepository;
+import disscount.shoppinglist.ShoppingListService;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -16,7 +24,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-class ShoppingListItemService {
+public class ShoppingListItemService {
 
     private final ShoppingListItemRepository shoppingListItemRepository;
     private final ShoppingListRepository shoppingListRepository;

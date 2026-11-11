@@ -1,7 +1,7 @@
 package disscount.shoppinglist;
 
 /** OWNER is produced by ShoppingListAccessService and never persisted. */
-enum ListAccess {
+public enum ListAccess {
 
     NONE,
     VIEW,

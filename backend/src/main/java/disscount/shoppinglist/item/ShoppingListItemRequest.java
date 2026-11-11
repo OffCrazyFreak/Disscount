@@ -1,4 +1,4 @@
-package disscount.shoppinglist;
+package disscount.shoppinglist.item;
 
 import java.math.BigDecimal;
 
@@ -11,7 +11,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 /** A missing amount counts as 1 and a missing isChecked as false; ShoppingListItemService applies both. */
-record ShoppingListItemRequest(
+public record ShoppingListItemRequest(
         @Schema(nullable = true)
         String ean,
 

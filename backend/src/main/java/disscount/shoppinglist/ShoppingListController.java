@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import disscount.shared.CurrentUser;
+import disscount.shoppinglist.item.ShoppingListItemDto;
 
 import java.util.List;
 import java.util.UUID;

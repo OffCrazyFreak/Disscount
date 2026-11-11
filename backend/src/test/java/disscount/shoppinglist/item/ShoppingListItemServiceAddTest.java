@@ -1,4 +1,4 @@
-package disscount.shoppinglist;
+package disscount.shoppinglist.item;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,6 +7,13 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import disscount.shared.Timestamps;
+import disscount.shoppinglist.ShoppingList;
+import disscount.shoppinglist.ShoppingListAccessService;
+import disscount.shoppinglist.ShoppingListGuard;
+import disscount.shoppinglist.ShoppingListMapper;
+import disscount.shoppinglist.ShoppingListQuota;
+import disscount.shoppinglist.ShoppingListRepository;
+import disscount.shoppinglist.ShoppingListService;
 import disscount.user.ActiveUsers;
 import disscount.user.AuthIdentityDao;
 import disscount.user.User;

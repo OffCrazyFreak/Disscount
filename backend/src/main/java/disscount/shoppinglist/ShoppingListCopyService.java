@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.shared.ForbiddenException;
+import disscount.shoppinglist.item.ShoppingListItem;
 
 import java.util.List;
 import java.util.UUID;

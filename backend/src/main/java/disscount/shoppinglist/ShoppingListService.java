@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import disscount.shared.ForbiddenException;
 import disscount.shared.NotFoundException;
 import disscount.shared.Timestamps;
+import disscount.shoppinglist.item.ShoppingListItemDto;
 import disscount.user.AccountErased;
 import disscount.user.ActiveUsers;
 

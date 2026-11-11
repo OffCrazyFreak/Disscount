@@ -1,4 +1,4 @@
-package disscount.shoppinglist;
+package disscount.shoppinglist.item;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import disscount.shared.Timestamps;
+import disscount.shoppinglist.ShoppingList;
 
 import java.math.BigDecimal;
 
@@ -20,7 +21,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-class ShoppingListItem {
+public class ShoppingListItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

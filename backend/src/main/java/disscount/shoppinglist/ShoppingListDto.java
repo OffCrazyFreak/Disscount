@@ -1,6 +1,7 @@
 package disscount.shoppinglist;
 
 import disscount.shared.AlphabeticalJson;
+import disscount.shoppinglist.item.ShoppingListItemDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
