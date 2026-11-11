@@ -111,13 +111,15 @@ The seven `filterByFields` callers gained tokenized, ranked, abbreviation-tolera
 
 ## 8. Key files
 
-| Path                                             | Role                                                              |
-| ------------------------------------------------ | ----------------------------------------------------------------- |
-| `utils/search/command-filter.ts`                 | `commandFilter`, the cmdk adapter                                 |
-| `utils/strings.ts`                               | `normalizeForSearch` (the fold) and `compareHr` (the sort)        |
-| `utils/generic.ts`                               | `filterByFields`, now a thin wrapper over `scoreFields`           |
-| `app/[locale]/products/utils/product-filters.ts` | `normalizeChainCode`, the code-only normalizer                    |
-| `components/custom/search/search-draft-store.ts` | Typed text apart from the URL, shared by the product search boxes |
+| Path                                                      | Role                                                                                        |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `utils/search/command-filter.ts`                          | `commandFilter`, the cmdk adapter                                                           |
+| `utils/strings.ts`                                        | `normalizeForSearch` (the fold) and `compareHr` (the sort)                                  |
+| `utils/generic.ts`                                        | `filterByFields`, now a thin wrapper over `scoreFields`                                     |
+| `app/[locale]/products/utils/product-filters.ts`          | `normalizeChainCode`, the code-only normalizer                                              |
+| `components/custom/search/search-draft-store.ts`          | Typed text apart from the URL, shared by the product search boxes                           |
+| `components/custom/live-status/debounced-status.tsx`      | The screen reader only status every search count goes through, with its 600 ms settle delay |
+| `components/custom/live-status/search-results-status.tsx` | `SearchResultsStatus`, the count with the search word for the pages that filter as you type |
 
 **Libraries: none.** Matching is entirely in-repo. cmdk `^1.1.1` supplies the combobox, but its own `command-score` filter is replaced by `commandFilter`.
 
@@ -181,6 +183,8 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 **Base UI's hidden input stops Enter submitting a form with no button.** A browser submits implicitly only when the form has a single field or a default button. The header bar has neither once the hidden input is there, so `SearchBar` calls `requestSubmit` itself.
 
 **Placeholder results are not settled results.** `useGetProductByName` keeps the previous search's products as placeholder data while the next query loads, so the list does not blank on every search. While that is on screen React Query reports `isLoading` false, so `useInfiniteProducts` exposes `isRefreshing` (`isPlaceholderData`), and the products page holds the count in the title and the screen reader status back until it clears; the grid is dimmed and `aria-busy` meanwhile. When the carried over results filter down to nothing (the previous search found none, or the active filters hide them all), `useInfiniteProducts` reports loading instead, because an empty state there would read as the answer to the new query. React Query hands the placeholder the last search that had data, so a search typed after clearing the field shows the results from before the clear, dimmed, until it loads.
+
+**A screen reader hears the result count once typing stops, with the search word.** A visible count heading is not a live region, so each search page also renders a screen reader only `role="status"`. The watchlist, shopping lists, suggestions, updates and digital cards render `SearchResultsStatus`, which says, for example, `3 rezultata za "mlijeko"` from one key, `shell.search.resultsStatus`. It is empty with no query (or only spaces) and while the page's data loads, so a half loaded list is never read as no results. These pages filter on every keystroke and `autoSearch` updates the URL each time, so `DebouncedStatus` holds the text until it has not changed for 600 ms (the same delay the search suggestions use); a fast typist hears one count. The search word is in the sentence so two searches that land on the same count still differ and both get read out; the products page names it too (`products.list.resultsStatus`, which keeps its own "ili više" tail for a capped search and is not debounced, because it searches on submit). The map is the exception: its count covers the chain, open now and near me filters as well as the search, so it keeps its own message without the word, and two filter changes that leave the same number of stores are read only once. Each region stays mounted and has no `key`, because a region added with its text already inside is not read out; for the same reason a page opened with `?q=` in the URL says nothing on load. On the watchlist the status sits next to the search bar, outside the tabs, so it survives switching to the suggestions tab; it counts watched products only.
 
 ## 11. Future improvements & TODOs
 
