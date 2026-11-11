@@ -1,7 +1,6 @@
 package disscount.schema;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +9,7 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.metamodel.mapping.BasicValuedModelPart;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -40,11 +40,18 @@ class EnumColumnsTest extends FullStackTest {
         assertThat(values.stream().map(value -> value.table() + "." + value.column()).distinct())
                 .hasSizeGreaterThanOrEqualTo(7);
 
+        List<String> refused = new ArrayList<>();
+
         for (EnumColumn value : values) {
-            assertThatCode(() -> insertInto(value))
-                    .as(value.table() + "." + value.column() + " = " + value.storedValue())
-                    .doesNotThrowAnyException();
+            try {
+                insertInto(value);
+            } catch (DataAccessException e) {
+                refused.add(value.table() + "." + value.column() + " = " + value.storedValue());
+            }
         }
+
+        // Every refused value at once, so one run lists every check a migration has to widen.
+        assertThat(refused).isEmpty();
     }
 
     // Through Hibernate's own conversion, so a column with an AttributeConverter stores what the app stores.
