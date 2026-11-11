@@ -222,7 +222,7 @@ The ownership tests are the guard's evidence: for each owner-scoped feature, use
 - **A guard that loads an entity can resurrect a row.** With open session in view, the service gets the guard's cached copy; a dirty check on a row deleted in between would write it back. Read counts or columns.
 - **JPQL never sees deleted rows**, including bulk updates and deletes. A cleanup written in JPQL silently skips them.
 - **`deleteAll()` in a test leaves hidden rows behind**, and their foreign keys then fail the next test's cleanup.
-- **The last admin cannot be removed through the app** (demote, admin delete, or deleting your own account all answer 409). The erasure replay is the exception, because a restored backup must forget every account it is told to. With no admin left, recovery is a manual `UPDATE app_user SET account_type = 'ADMIN'` on the server.
+- **The last admin cannot be removed through the app** (demote, admin delete, or deleting your own account all answer 409). Every role change and every erasure, a consumer's too, takes the admin row locks before it reads a role, which is what keeps a promotion racing an erasure from slipping past the check. The erasure replay is the exception, because a restored backup must forget every account it is told to. With no admin left, recovery is a manual `UPDATE app_user SET account_type = 'ADMIN'` on the server.
 - **The account deletion flow shows a generic failure for that 409.** `lib/auth/erase-backend-account.ts` turns any non-2xx into "Account erasure failed; nothing was deleted" and reports it to Sentry, so the last admin trying to delete their account sees a generic error and the account stays whole.
 
 ---
