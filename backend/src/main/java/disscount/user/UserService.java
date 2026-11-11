@@ -34,6 +34,7 @@ public class UserService {
     private final ApplicationEventPublisher events;
     private final ErasureLedgerRepository erasureLedger;
     private final AvatarSanitizer avatarSanitizer;
+    private final AdminAuditRepository adminAudit;
 
     public Optional<UserDto> findById(UUID id) {
         return userRepository.findById(id)
@@ -246,6 +247,8 @@ public class UserService {
         refuseErasingTheLastAdmin(targetUserId);
 
         deleteAccount(targetUserId);
+
+        adminAudit.save(new AdminAuditEntry(adminUserId, targetUserId, AdminAction.DELETE_USER));
     }
 
     @Transactional
@@ -264,9 +267,26 @@ public class UserService {
             requireAnotherLiveAdmin(admins, userId, "error.user.lastAdmin");
         }
 
+        AccountType previousType = user.getAccountType();
+
         user.setAccountType(accountType);
         user = userRepository.save(user);
+
+        adminRoleChange(previousType, accountType).ifPresent(action ->
+                adminAudit.save(new AdminAuditEntry(adminUserId, userId, action)));
+
         return UserDto.from(user);
+    }
+
+    /** Only gaining or losing admin is audited; a change between the other types grants no admin power. */
+    private static Optional<AdminAction> adminRoleChange(AccountType from, AccountType to) {
+        boolean wasAdmin = from == AccountType.ADMIN;
+        boolean isAdmin = to == AccountType.ADMIN;
+
+        if (!wasAdmin && isAdmin) return Optional.of(AdminAction.PROMOTE_TO_ADMIN);
+        if (wasAdmin && !isAdmin) return Optional.of(AdminAction.DEMOTE_FROM_ADMIN);
+
+        return Optional.empty();
     }
 
     private void refuseErasingTheLastAdmin(UUID userId) {
