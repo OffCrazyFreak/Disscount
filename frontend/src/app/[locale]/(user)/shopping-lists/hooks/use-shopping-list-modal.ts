@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { shoppingListService } from "@/lib/api";
 import type { ShoppingListDto, ShoppingListRequest } from "@/lib/api/types";
 import { stashModalError } from "@/lib/modal/modal-error-bus";
+import { isLimitReached } from "@/lib/limits/limit-reached";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { removeFormDraft } from "@/utils/browser/local-storage";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
@@ -47,6 +48,9 @@ export function useShoppingListModal({
         queryKey: SHOPPING_LIST_QUERY_KEYS.all,
       });
     } catch (error) {
+      // The limit dialog explains it; the draft stays for when there is room again.
+      if (isLimitReached(error)) return;
+
       stashModalError(draftKey, error);
       openModalUrl(
         shoppingList

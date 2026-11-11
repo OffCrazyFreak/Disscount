@@ -5,8 +5,7 @@ import { cardWriteMessage, httpStatus } from "@/lib/offline/failure-policy";
 
 // So a caller can hand in a stable wrapper that always reads the current language.
 export type CardToastTranslator = (
-  key:
-    "offline.cardLimit" | "offline.cardSaveFailed" | "offline.cardDeleteFailed",
+  key: "offline.cardSaveFailed" | "offline.cardDeleteFailed",
 ) => string;
 
 // Failed only because the tab is switching accounts; the proxy's refusal carries the translation.

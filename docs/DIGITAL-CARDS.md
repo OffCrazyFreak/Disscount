@@ -15,7 +15,7 @@ _Written against the `feat/digital-cards-rebuild` branch. This is the rebuild; t
 | Route           | `/digital-cards` (login required), plus the modals `?modal=digital-card/new`, `edit&id=`, `view&id=`   |
 | Backend package | `disscount.digitalcard` (cards, photos), `disscount.storename` (community store-name list)             |
 | Tables          | `wallet_card`, `wallet_card_photo`, `store_name_suggestion`, `store_name_usage`, `photo_cleanup`       |
-| Limits          | 300 active cards per user, 60 characters for names, 500 for a note, 4096 for a code                    |
+| Limits          | 50 active cards per user, 60 characters for names, 500 for a note, 4096 for a code                     |
 | Photos          | up to 3 per card (`front`, `back`, `icon`), WebP or JPEG, 512 KB per part, stored on the server's disk |
 | Photo folder    | `cards/` in `PHOTO_DIR`, the `photos-private` volume at `/data/photos-private`                         |
 | Env vars        | `PHOTO_DIR` (backend, optional)                                                                        |
@@ -135,7 +135,7 @@ All card endpoints need a valid JWT. Errors are RFC 9457 `ProblemDetail` bodies 
 
 **Validation** (`DigitalCardRequest`): `cardName` and `storeName` 2 to 60 characters after trimming (`@TrimmedLength`, reported as field errors), `cardType` and `codeType` from an allowlist, `codeValue` 1 to 4096, `barcodeValue` up to 4096, `cardColor` a hex colour, `note` up to 500, `balance` 0 to 1,000,000 with two decimals, `balanceUnit` three capital letters, `expiresOn` not before `validFrom`. `cardName`, `storeName`, `codeValue`, `barcodeValue` and `note` may not contain a NUL character (a `@Pattern` on each field), and `GET /api/store-names?q=` with a NUL answers 400. The `POST /used` size and entry checks run through `@Validated` on the controller, and `GlobalExceptionHandler` turns the `ConstraintViolationException` into a 400.
 
-**Limits:** 300 active cards per user (409 "Imaš već najveći dopušteni broj kartica. Obriši neku koju ne koristiš."; archived cards count toward it), exact even under concurrent requests because every card write first locks the user's `app_user` row (see [§5](#5-photos)); `POST /used` accepts 1 to 50 entries; photo uploads are limited to 20 per minute per user (429 with a `Retry-After` header, in memory per instance, the `cardPhotoUploadLimiter` bean in `config/UploadLimitConfig.java`). When photo storage is off the upload answers 503 "Slike trenutno nisu dostupne" with `code` `error.cardPhoto.unavailable` (every 503 problem carries its message code, since the detail is translated).
+**Limits:** 50 active cards per user (409 with `code` `error.limit.digitalCards`, `limit` `DIGITAL_CARDS` and `max` 50, see [BACKEND.md §7.1](BACKEND.md#71-per-user-limits); archived cards count toward it, deleted ones do not), exact even under concurrent requests because every card write first locks the user's `app_user` row (see [§5](#5-photos)); `POST /used` accepts 1 to 50 entries; photo uploads are limited to 20 per minute per user (429 with a `Retry-After` header, in memory per instance, the `cardPhotoUploadLimiter` bean in `config/UploadLimitConfig.java`). When photo storage is off the upload answers 503 "Slike trenutno nisu dostupne" with `code` `error.cardPhoto.unavailable` (every 503 problem carries its message code, since the detail is translated).
 
 ---
 
@@ -171,7 +171,7 @@ The stored bytes are the sanitized ones. For `icon` the `sha256` is the hash of 
 
 Upload validates both parts, writes them to disk **outside any transaction** (so no database connection is held while the files are written), and only then writes the row in a short transaction (`CardPhotoWriter`). That transaction re-checks that the card is still active, so a delete that committed during the upload wins. If the row write fails, the objects just stored are deleted, unless the live row already references the same keys (the same bytes uploaded twice).
 
-Every card write (upsert, delete, pin, archive, photo replace and remove, account deletion) first takes a `PESSIMISTIC_WRITE` lock on the user's `app_user` row through `CardUserLock` and `ActiveUsers.lockActive`, which also rejects a deleted user. That serializes one user's writes, which is what makes the 300-card limit exact and turns a concurrent replay of the same id into a plain update. Account deletion takes the lock and flushes the anonymization before the card purge, so it persists.
+Every card write (upsert, delete, pin, archive, photo replace and remove, account deletion) first takes a `PESSIMISTIC_WRITE` lock on the user's `app_user` row through `CardUserLock` and `ActiveUsers.lockActive`, which also rejects a deleted user. That serializes one user's writes, which is what makes the card limit exact and turns a concurrent replay of the same id into a plain update. Account deletion takes the lock and flushes the anonymization before the card purge, so it persists.
 
 Object deletes (replaced or removed photos, a deleted card, account deletion, the 30-day purge) are queued in `photo_cleanup` in the same transaction, so a crash or a storage failure cannot orphan a file for good ([§3](#3-data-model)).
 
@@ -218,7 +218,7 @@ Cards have to work in a shop with no signal, so the whole wallet is offline-firs
 
 **Photo blobs are pruned** when a card is deleted and whenever the card list refetches: a blob whose `sha256` no longer matches the card's current photo is removed.
 
-**Writes that fail on replay** show a toast (`card-write-failed.ts`), because the `onError` passed when the mutation was started is lost on a page reload. A 404 is silent (the card was deleted elsewhere), and a 409 toasts only for the card-limit message.
+**Writes that fail on replay** show a toast (`card-write-failed.ts`), because the `onError` passed when the mutation was started is lost on a page reload. A 404 and a 409 are silent: a 404 means the card was deleted elsewhere, and the card limit opens the limit dialog instead ([SHOPPING-LISTS.md, the limit dialog](SHOPPING-LISTS.md#the-limit-dialog)); any other 409 means the write already landed.
 
 ---
 

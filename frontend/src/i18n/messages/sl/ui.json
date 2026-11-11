@@ -18,5 +18,17 @@
     "writeFailed": "Spremembe ni bilo mogoče shraniti. Poskusi znova.",
     "writeFailedLostAccess": "Spremembe ni bilo mogoče shraniti. Morda nimaš več dostopa do tega seznama.",
     "retiredWriteDropped": "Spremembe iz starejše različice aplikacije ni bilo mogoče shraniti. Odpri seznam in preveri."
+  },
+  "limitReached": {
+    "title": "Ni več prostora",
+    "description": {
+      "SHOPPING_LISTS": "{max, plural, one {Imaš lahko največ # nakupovalni seznam.} two {Imaš lahko največ # nakupovalna seznama.} few {Imaš lahko največ # nakupovalne sezname.} other {Imaš lahko največ # nakupovalnih seznamov.}}",
+      "SHOPPING_LIST_ITEMS": "{max, plural, one {Seznam ima lahko največ # izdelek.} two {Seznam ima lahko največ # izdelka.} few {Seznam ima lahko največ # izdelke.} other {Seznam ima lahko največ # izdelkov.}}",
+      "WATCHLIST_ITEMS": "{max, plural, one {Spremljaš lahko največ # izdelek.} two {Spremljaš lahko največ # izdelka.} few {Spremljaš lahko največ # izdelke.} other {Spremljaš lahko največ # izdelkov.}}",
+      "DIGITAL_CARDS": "{max, plural, one {Imaš lahko največ # kartico.} two {Imaš lahko največ # kartici.} few {Imaš lahko največ # kartice.} other {Imaš lahko največ # kartic.}}"
+    },
+    "contactHint": "Če jih potrebuješ več, nam piši.",
+    "contact": "Piši podpori",
+    "close": "Zapri"
   }
 }

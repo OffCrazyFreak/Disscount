@@ -33,7 +33,7 @@ Checked: field names on both sides, nested DTOs, arrays and maps, scalar type (a
 
 Mirrored schemas: every `*Dto` and `*Request` in `backend-contract.test.ts`, covering users, pinned stores and places, favorite stores, watchlist, shopping lists and items, digital cards, contact messages, store names and product images.
 
-Mirrored enums: `AccountType`, `AcquisitionChannel`, `CardPhotoSlot`, `ImageSource`, `ImageStatus`, `LinkAccess`, `ListAccess`, `QueueFilter`, `WatchType`.
+Mirrored enums: `AccountType`, `AcquisitionChannel`, `CardPhotoSlot`, `ImageSource`, `ImageStatus`, `LinkAccess`, `ListAccess`, `QueueFilter`, `UserLimit`, `WatchType`. `UserLimit` reaches no DTO: it travels in the `limit` field of a 409 problem body ([BACKEND.md §7.1](BACKEND.md#71-per-user-limits)).
 
 Nullability follows from how each direction travels. A DTO's direction comes from its name: `*Request` is a request, everything else a response.
 

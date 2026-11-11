@@ -18,5 +18,17 @@
     "writeFailed": "Modifica non salvata. Riprova.",
     "writeFailedLostAccess": "Modifica non salvata. Forse non hai più accesso a questa lista.",
     "retiredWriteDropped": "Una modifica da una versione precedente dell'app non è stata salvata. Apri la lista e controlla."
+  },
+  "limitReached": {
+    "title": "Non c'è più spazio",
+    "description": {
+      "SHOPPING_LISTS": "{max, plural, one {Puoi avere al massimo # lista della spesa.} other {Puoi avere al massimo # liste della spesa.}}",
+      "SHOPPING_LIST_ITEMS": "{max, plural, one {Una lista può contenere al massimo # prodotto.} other {Una lista può contenere al massimo # prodotti.}}",
+      "WATCHLIST_ITEMS": "{max, plural, one {Puoi seguire al massimo # prodotto.} other {Puoi seguire al massimo # prodotti.}}",
+      "DIGITAL_CARDS": "{max, plural, one {Puoi avere al massimo # carta.} other {Puoi avere al massimo # carte.}}"
+    },
+    "contactHint": "Se te ne servono di più, scrivici.",
+    "contact": "Scrivi al supporto",
+    "close": "Chiudi"
   }
 }
