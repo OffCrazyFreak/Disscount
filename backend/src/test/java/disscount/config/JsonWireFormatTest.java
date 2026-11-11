@@ -4,6 +4,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import disscount.digitalcard.CardUsedEntry;
+import disscount.shared.AlphabeticalJson;
 import disscount.digitalcard.DigitalCardDto;
 import disscount.shoppinglist.ShoppingListCopyRequest;
 import disscount.user.UserDto;
@@ -75,5 +76,14 @@ class JsonWireFormatTest {
                 .isInstanceOf(JacksonException.class);
 
         assertThat(json.readValue("{\"title\":\"Kopija\"}", ShoppingListCopyRequest.class).isIncludeItems()).isFalse();
+    }
+
+    @AlphabeticalJson
+    record Unsorted(String zeta, String alpha) {}
+
+    // Records that replaced Lombok classes keep the alphabetical key order Jackson 3 gave the classes.
+    @Test
+    void aRecordMarkedAlphabeticalWritesItsKeysInOrder() throws Exception {
+        assertThat(json.writeValueAsString(new Unsorted("z", "a"))).isEqualTo("{\"alpha\":\"a\",\"zeta\":\"z\"}");
     }
 }
