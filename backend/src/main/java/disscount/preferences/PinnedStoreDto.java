@@ -1,0 +1,16 @@
+package disscount.preferences;
+
+import lombok.Builder;
+import lombok.Data;
+
+import java.util.UUID;
+
+@Data
+@Builder
+class PinnedStoreDto {
+
+    private UUID id;
+    private UUID userId;
+    private String storeApiId;
+    private String storeName;
+}

@@ -9,7 +9,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 
 @Configuration
-public class OpenApiConfig {
+class OpenApiConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {

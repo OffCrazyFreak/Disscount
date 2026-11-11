@@ -2,7 +2,7 @@ package disscount.config;
 
 import java.time.Clock;
 
-import disscount.util.FixedWindowLimiter;
+import disscount.shared.FixedWindowLimiter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

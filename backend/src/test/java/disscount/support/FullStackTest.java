@@ -1,13 +1,13 @@
 package disscount.support;
 
-import disscount.productImage.off.OpenFoodFactsClient;
-import disscount.storage.FakePhotoStore;
-import disscount.storage.PhotoStore;
-import disscount.storage.PhotoStoreConfig;
-import disscount.user.dao.AuthIdentityDao;
-import disscount.user.dao.UserRepository;
-import disscount.user.domain.User;
-import disscount.user.domain.enums.AccountType;
+import disscount.productimage.openfoodfacts.OpenFoodFactsClient;
+import disscount.shared.FakePhotoStore;
+import disscount.shared.PhotoStore;
+import disscount.shared.PhotoStoreConfig;
+import disscount.user.AccountType;
+import disscount.user.AuthIdentityDao;
+import disscount.user.User;
+import disscount.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;

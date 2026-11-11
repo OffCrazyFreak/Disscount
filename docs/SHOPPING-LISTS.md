@@ -14,7 +14,7 @@ Sharing a list (link access levels, the one route that serves owners and link vi
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Routes           | `/shopping-lists` (login required), `/shopping-lists/<id>` (owner, or anyone holding the link when it is shared)                                                                                                         |
 | Modals           | `?modal=shopping-list/new`, `shopping-list/edit&id=`, `shopping-list/copy&id=`, `shopping-list/share&id=`, `shopping-list-actions&id=`, `add-to-list&ean=` (optionally `&list=`), `add-plain-item` (optionally `&item=`) |
-| Backend packages | `disscount.shoppingList` (lists, access, copy), `disscount.shoppingListItem` (items, merging)                                                                                                                            |
+| Backend packages | `disscount.shoppinglist` (lists, access, copy, items, merging)                                                                                                                                                           |
 | Tables           | `shopping_list`, `shopping_list_item` (both soft delete with `deleted_at`)                                                                                                                                               |
 | Limits           | title 3 to 100 characters (frontend form rule only), item amount 1 to 999, item name 255 characters (the column width)                                                                                                   |
 | Who adds items   | only the owner, on the server and in the UI                                                                                                                                                                              |
@@ -62,7 +62,7 @@ Step by step:
 
 ### Backend entities
 
-Entities live in `backend/src/main/java/disscount/shoppingList/domain/` and `.../shoppingListItem/domain/`. The schema is managed by Hibernate (`spring.jpa.hibernate.ddl-auto=update`), so there are no migration files.
+Entities live in `backend/src/main/java/disscount/shoppinglist/`. The schema is managed by Hibernate (`spring.jpa.hibernate.ddl-auto=update`), so there are no migration files.
 
 #### `shopping_list` (entity `ShoppingList`)
 
@@ -340,8 +340,8 @@ Frontend paths are under `frontend/src/`, and `shopping-lists/` means `app/[loca
 
 | Path                                                               | Role                                                                              |
 | ------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
-| `shoppingList/service/ShoppingListMapper.java`                     | The one place lists and items become DTOs, with the owner only redaction          |
-| `shoppingListItem/service/ShoppingListItemMatcher.java`            | The merge rule                                                                    |
+| `shoppinglist/ShoppingListMapper.java`                             | The one place lists and items become DTOs, with the owner only redaction          |
+| `shoppinglist/ShoppingListItemMatcher.java`                        | The merge rule                                                                    |
 | `lib/api/shopping-lists/hooks.ts`                                  | React Query hooks; attaches the mutation keys and the optimism                    |
 | `lib/api/shopping-lists/optimistic-items.ts`, `optimistic-list.ts` | Single item and list field optimism with rollback                                 |
 | `lib/offline/offline-mutation-keys.ts`, `offline-mutations.ts`     | The offline write allowlist and its replay functions                              |

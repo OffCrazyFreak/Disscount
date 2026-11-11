@@ -125,16 +125,16 @@ The browser's query cache (`lib/api/query-client-defaults.ts`) reports every 5xx
 
 ## 7. Key files
 
-| Path (under `frontend/src/` unless noted)            | Role                                                                                                           |
-| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `lib/backend-proxy/backend-path.ts`                  | `BACKEND_ROOTS` and the URL builder (the SSRF guard).                                                          |
-| `lib/backend-proxy/request-guards.ts`                | `isCsrfSafe`, `identityPin`, `decideIdentity`. Pure, so the jsdom test harness reuses them.                    |
-| `lib/backend-proxy/proxy-contract.ts`                | The two header names and `session_changed`, shared by browser and server.                                      |
-| `lib/api/session-changed.ts`                         | Refetches the session on any 401, at most once per 30 seconds unless it is `session_changed`.                  |
-| `context/user-context.tsx`                           | `handleUserLogin` moves the pin before the profile load.                                                       |
-| `lib/auth/index.ts`                                  | jwt plugin: `disableSettingJwtHeader: true`, token life `BACKEND_TOKEN_TTL_MINUTES`.                           |
-| `test/backend-identity.ts`                           | `actingAs(request)` for jsdom tests: decides the account as the proxy would, from the pin and `serverSession`. |
-| `backend/src/main/java/disscount/util/ClientIp.java` | Trusts the forwarded IP headers the proxy passes verbatim.                                                     |
+| Path (under `frontend/src/` unless noted)              | Role                                                                                                           |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `lib/backend-proxy/backend-path.ts`                    | `BACKEND_ROOTS` and the URL builder (the SSRF guard).                                                          |
+| `lib/backend-proxy/request-guards.ts`                  | `isCsrfSafe`, `identityPin`, `decideIdentity`. Pure, so the jsdom test harness reuses them.                    |
+| `lib/backend-proxy/proxy-contract.ts`                  | The two header names and `session_changed`, shared by browser and server.                                      |
+| `lib/api/session-changed.ts`                           | Refetches the session on any 401, at most once per 30 seconds unless it is `session_changed`.                  |
+| `context/user-context.tsx`                             | `handleUserLogin` moves the pin before the profile load.                                                       |
+| `lib/auth/index.ts`                                    | jwt plugin: `disableSettingJwtHeader: true`, token life `BACKEND_TOKEN_TTL_MINUTES`.                           |
+| `test/backend-identity.ts`                             | `actingAs(request)` for jsdom tests: decides the account as the proxy would, from the pin and `serverSession`. |
+| `backend/src/main/java/disscount/shared/ClientIp.java` | Trusts the forwarded IP headers the proxy passes verbatim.                                                     |
 
 ---
 

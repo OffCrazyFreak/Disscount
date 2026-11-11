@@ -1,6 +1,6 @@
 package disscount.config;
 
-import disscount.util.Timestamps;
+import disscount.shared.Timestamps;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.auditing.DateTimeProvider;
@@ -11,7 +11,7 @@ import java.util.Optional;
 /** Spring's default provider reads the JVM's zone, so this one keeps audited rows on the Timestamps clock. */
 @Configuration
 @EnableJpaAuditing(dateTimeProviderRef = "utcDateTimeProvider")
-public class JpaConfig {
+class JpaConfig {
 
     @Bean
     DateTimeProvider utcDateTimeProvider() {

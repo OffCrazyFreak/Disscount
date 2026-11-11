@@ -238,7 +238,7 @@ All copy is in the next-intl catalogs, in all five languages ([I18N.md](I18N.md)
 | `frontend/src/app/products/sitemap.ts`, `frontend/src/utils/product-sitemap.ts`, `frontend/src/app/robots.ts` | Product sitemaps and their listing                                    |
 | `frontend/src/utils/product-id.ts`, `product-links.ts`                                                        | Product id shape and decoding; the one place the product URL is built |
 | `frontend/src/constants/price-history.ts`                                                                     | Periods, the archive start date, disabled periods                     |
-| `backend/.../productImage/catalog/`                                                                           | The weekly catalogue import behind the sitemap's EAN list             |
+| `backend/.../productimage/catalog/`                                                                           | The weekly catalogue import behind the sitemap's EAN list             |
 
 `backend/...` is `backend/src/main/java/disscount/`.
 

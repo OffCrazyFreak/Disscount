@@ -1,7 +1,7 @@
 package disscount.preferences;
 
 import disscount.support.FullStackTest;
-import disscount.user.domain.User;
+import disscount.user.User;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.MediaType;

@@ -8,4 +8,4 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Configuration
 @Profile("!erasure-replay")
 @EnableScheduling
-public class SchedulingConfig {}
+class SchedulingConfig {}
