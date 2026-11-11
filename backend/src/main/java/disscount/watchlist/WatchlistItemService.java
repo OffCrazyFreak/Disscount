@@ -2,8 +2,7 @@ package disscount.watchlist;
 
 import disscount.shared.NotFoundException;
 import disscount.shared.Timestamps;
-import disscount.user.User;
-import disscount.user.UserRepository;
+import disscount.user.ActiveUsers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,10 +18,10 @@ import java.util.stream.Collectors;
 public class WatchlistItemService {
 
     private final WatchlistItemRepository watchlistItemRepository;
-    private final UserRepository userRepository;
+    private final ActiveUsers activeUsers;
 
     public WatchlistItemDto addOrUpdateWatchlist(UUID userId, WatchlistItemRequest request) {
-        User user = userRepository.requireActive(userId);
+        activeUsers.requireActive(userId);
 
         Optional<WatchlistItem> existing = watchlistItemRepository
                 .findByProductApiIdAndWatchType(request.getProductApiId(), request.getWatchType(), userId);
@@ -35,7 +34,7 @@ public class WatchlistItemService {
         }
 
         WatchlistItem watchlistItem = WatchlistItem.builder()
-                .user(user)
+                .userId(userId)
                 .productApiId(request.getProductApiId())
                 .watchType(request.getWatchType())
                 .thresholdValue(request.getThresholdValue())
@@ -76,7 +75,7 @@ public class WatchlistItemService {
     private WatchlistItemDto mapToDto(WatchlistItem watchlistItem) {
         return WatchlistItemDto.builder()
                 .id(watchlistItem.getId())
-                .userId(watchlistItem.getUser().getId())
+                .userId(watchlistItem.getUserId())
                 .productApiId(watchlistItem.getProductApiId())
                 .watchType(watchlistItem.getWatchType())
                 .thresholdValue(watchlistItem.getThresholdValue())

@@ -12,10 +12,10 @@ import java.util.UUID;
 @Repository
 public interface PinnedStoreRepository extends JpaRepository<PinnedStore, UUID> {
 
-    @Query("SELECT ps FROM PinnedStore ps WHERE ps.user.id = :userId")
+    @Query("SELECT ps FROM PinnedStore ps WHERE ps.userId = :userId")
     List<PinnedStore> findByUserId(@Param("userId") UUID userId);
 
     @Modifying
-    @Query("DELETE FROM PinnedStore ps WHERE ps.user.id = :userId")
+    @Query("DELETE FROM PinnedStore ps WHERE ps.userId = :userId")
     void deleteAllByUserId(@Param("userId") UUID userId);
 }

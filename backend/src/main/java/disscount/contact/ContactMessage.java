@@ -1,11 +1,7 @@
 package disscount.contact;
 
-import disscount.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -15,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "contact_message")
@@ -26,9 +23,8 @@ import java.time.LocalDateTime;
 public class ContactMessage extends BaseEntity {
 
     // Nullable: anonymous (logged-out) senders are allowed.
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User sender;
+    @Column(name = "user_id")
+    private UUID senderId;
 
     @Column(name = "email")
     private String email;

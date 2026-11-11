@@ -1,12 +1,14 @@
 package disscount.preferences;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.shared.BadRequestException;
-import disscount.user.User;
-import disscount.user.UserRepository;
+import disscount.user.AccountErased;
+import disscount.user.ActiveUsers;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,11 +19,11 @@ import java.util.UUID;
 public class FavoriteStoreService {
 
     private final FavoriteStoreRepository favoriteStoreRepository;
-    private final UserRepository userRepository;
+    private final ActiveUsers activeUsers;
 
     /** Replaces the user's whole list, the way pinned places are saved. */
     public List<FavoriteStoreDto> updateFavoriteStores(UUID userId, BulkFavoriteStoreRequest request) {
-        User user = userRepository.requireActiveForUpdate(userId);
+        activeUsers.lockActive(userId);
 
         List<String> keys = request.getStores().stream()
                 .map(FavoriteStoreRequest::getStoreKey)
@@ -35,7 +37,7 @@ public class FavoriteStoreService {
         favoriteStoreRepository.flush();
 
         List<FavoriteStore> saved = favoriteStoreRepository.saveAll(keys.stream()
-                .map(key -> FavoriteStore.builder().user(user).storeKey(key).build())
+                .map(key -> FavoriteStore.builder().userId(userId).storeKey(key).build())
                 .toList());
 
         return saved.stream().map(this::mapToDto).toList();
@@ -46,6 +48,13 @@ public class FavoriteStoreService {
         return favoriteStoreRepository.findByUserId(userId).stream()
                 .map(this::mapToDto)
                 .toList();
+    }
+
+    /** Favourite stores show where the person shops. */
+    @EventListener
+    @Order(30)
+    public void onAccountErased(AccountErased erased) {
+        deleteAllForUser(erased.userId());
     }
 
     public void deleteAllForUser(UUID userId) {

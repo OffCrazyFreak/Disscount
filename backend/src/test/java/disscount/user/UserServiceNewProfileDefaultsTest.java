@@ -1,10 +1,8 @@
 package disscount.user;
 
-import disscount.digitalcard.DigitalCardService;
-import disscount.preferences.FavoriteStoreService;
-import disscount.productimage.ProductImageErasure;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -20,7 +18,7 @@ class UserServiceNewProfileDefaultsTest {
     private final UserRepository userRepository = mock(UserRepository.class);
     private final UserProfileCreator profileCreator = mock(UserProfileCreator.class);
     private final UserService userService = new UserService(userRepository, mock(AuthIdentityDao.class),
-            profileCreator, mock(DigitalCardService.class), mock(FavoriteStoreService.class), mock(ProductImageErasure.class),
+            profileCreator, mock(ActiveUsers.class), mock(ApplicationEventPublisher.class),
             mock(ErasureLedgerRepository.class), mock(AvatarSanitizer.class));
 
     @Test

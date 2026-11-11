@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import disscount.shared.Timestamps;
-import disscount.user.User;
 
 /** Not `digital_card`: ddl-auto=update never drops, so reusing the name would merge this shape into the stale table. */
 @Entity
@@ -25,9 +24,8 @@ public class DigitalCard {
     @Id
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
 
     @Column(name = "card_name", nullable = false, length = 60)
     private String cardName;

@@ -3,8 +3,7 @@ package disscount.contact;
 import disscount.shared.NotFoundException;
 import disscount.shared.SecurityUtils;
 import disscount.shared.Timestamps;
-import disscount.user.User;
-import disscount.user.UserRepository;
+import disscount.user.ActiveUsers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +22,7 @@ import java.util.function.Consumer;
 class ContactMessageService {
 
     private final ContactMessageRepository contactMessageRepository;
-    private final UserRepository userRepository;
+    private final ActiveUsers activeUsers;
 
     // Bounds the admin list query; a full paginated UI is a possible follow-up.
     private static final int MAX_ADMIN_MESSAGES = 500;
@@ -34,12 +33,12 @@ class ContactMessageService {
             return Optional.empty();
         }
 
-        User sender = SecurityUtils.getCurrentUserIdOptional()
-                .flatMap(userRepository::findByIdAndDeletedAtIsNull)
+        UUID senderId = SecurityUtils.getCurrentUserIdOptional()
+                .filter(activeUsers::isActive)
                 .orElse(null);
 
         ContactMessage message = ContactMessage.builder()
-                .sender(sender)
+                .senderId(senderId)
                 .email(request.getEmail())
                 .fullName(request.getFullName())
                 .subject(request.getSubject())
@@ -92,7 +91,7 @@ class ContactMessageService {
     private ContactMessageDto convertToDto(ContactMessage message) {
         return ContactMessageDto.builder()
                 .id(message.getId())
-                .userId(message.getSender() != null ? message.getSender().getId() : null)
+                .userId(message.getSenderId())
                 .email(message.getEmail())
                 .fullName(message.getFullName())
                 .subject(message.getSubject())

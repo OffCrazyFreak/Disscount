@@ -3,10 +3,13 @@ package disscount.storename;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.shared.BadRequestException;
+import disscount.user.AccountErased;
 
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +38,14 @@ public class StoreNameService {
         } catch (DataIntegrityViolationException race) {
             upsert.upsert(userId, cleaned, normalized);
         }
+    }
+
+    /** A custom store name can say where the person shops, so their uses go and the counts drop with them. */
+    @EventListener
+    @Order(20)
+    @Transactional
+    public void onAccountErased(AccountErased erased) {
+        forgetUser(erased.userId());
     }
 
     /** Joins the caller's transaction so the usage rows and the counts they gave go together. */

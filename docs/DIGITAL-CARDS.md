@@ -171,7 +171,7 @@ The stored bytes are the sanitized ones. For `icon` the `sha256` is the hash of 
 
 Upload validates both parts, writes them to disk **outside any transaction** (so no database connection is held while the files are written), and only then writes the row in a short transaction (`CardPhotoWriter`). That transaction re-checks that the card is still active, so a delete that committed during the upload wins. If the row write fails, the objects just stored are deleted, unless the live row already references the same keys (the same bytes uploaded twice).
 
-Every card write (upsert, delete, pin, archive, photo replace and remove, account deletion) first takes `UserRepository.findByIdForUpdate` (`PESSIMISTIC_WRITE`), wrapped by `CardUserLock` (through `requireActiveForUpdate`), which also rejects a deleted user. That serializes one user's writes, which is what makes the 300-card limit exact and turns a concurrent replay of the same id into a plain update. Account deletion takes the lock and flushes the anonymization before the card purge, so it persists.
+Every card write (upsert, delete, pin, archive, photo replace and remove, account deletion) first takes a `PESSIMISTIC_WRITE` lock on the user's `app_user` row through `CardUserLock` and `ActiveUsers.lockActive`, which also rejects a deleted user. That serializes one user's writes, which is what makes the 300-card limit exact and turns a concurrent replay of the same id into a plain update. Account deletion takes the lock and flushes the anonymization before the card purge, so it persists.
 
 Object deletes (replaced or removed photos, a deleted card, account deletion, the 30-day purge) are queued in `photo_cleanup` in the same transaction, so a crash or a storage failure cannot orphan a file for good ([§3](#3-data-model)).
 
@@ -186,7 +186,7 @@ The hash in the key means a replaced photo gets a new key, so a cached copy can 
 
 ### Deletes after the commit
 
-Photo deletes are queued with the database change and attempted **after** the commit (`AfterCommit`), so a rolled-back transaction never loses a photo. `FilesystemPhotoStore.deletePrefix` removes every file under the prefix, which is how account deletion clears `cards/{userId}/`.
+Photo deletes are queued with the database change and attempted **after** the commit (`shared.AfterCommit`), so a rolled-back transaction never loses a photo. `FilesystemPhotoStore.deletePrefix` removes every file under the prefix, which is how account deletion clears `cards/{userId}/`.
 
 ### Storage setup
 
@@ -271,7 +271,7 @@ A loyalty card number is personal data, and a photo of a card more so.
 | Card numbers never reach `localStorage`    | The form draft excludes `codeValue` and `barcodeValue` (`exclude` in `use-digital-card-form.ts`)                                                                                                                                    |
 | Card numbers never reach URLs or search    | Search reads name, store and note only (`filterCards`); the modal URL carries a card id, never a number                                                                                                                             |
 | A failed save can still restore the number | `pending-card-stash.ts` keeps the number in memory for 5 minutes so the reopened form is not empty. Memory only, gone on reload                                                                                                     |
-| Account deletion purges cards              | `UserService.deleteAccount` locks the user, then calls `digitalCardService.deleteAllForUser`, which hard-deletes the user's cards and photo rows and queues removal of the `cards/{userId}/` prefix on disk                         |
+| Account deletion purges cards              | `UserService.deleteAccount` locks the user and publishes `AccountErased`; `DigitalCardService.onAccountErased` hard-deletes the user's cards and photo rows and queues removal of the `cards/{userId}/` prefix on disk              |
 | Deleted cards do not linger                | A delete is soft first; the daily `DigitalCardCleanupJob` (03:30 UTC) hard-deletes cards soft-deleted more than 30 days ago                                                                                                         |
 | Photos are removed immediately on delete   | The photo rows and files go at once, even though the card row stays for the 30 days                                                                                                                                                 |
 | Photo metadata is stripped                 | EXIF, XMP and ICC are removed server side, so a location in a photo never lands on disk                                                                                                                                             |
@@ -345,7 +345,7 @@ The store field's Autocomplete came from the reui registry (`@reui` in `frontend
 | Retrying failed photo deletes                        | Auto           | `DigitalCardCleanupJob.retryPhotoCleanup`, every 15 minutes             |
 | Purging data on logout                               | Auto           | `purgeOfflineCache` on any identity change                              |
 | Hard-deleting cards soft-deleted 30 days ago         | Auto           | `DigitalCardCleanupJob`, daily at 03:30 UTC                             |
-| Removing a user's cards and photos on account delete | Auto           | `UserService.deleteAccount`                                             |
+| Removing a user's cards and photos on account delete | Auto           | `DigitalCardService.onAccountErased`, on `AccountErased`                |
 | Shortcut icons for the PWA                           | Auto           | `scripts/generate-shortcut-icons.mjs` (the icon files are committed)    |
 | **Setting `PHOTO_DIR`**                              | Manual         | Dokploy, per environment; the compose files forward it to the backend   |
 | **Dropping the old `digital_card` table**            | Manual         | After deploy, once nothing reads it                                     |

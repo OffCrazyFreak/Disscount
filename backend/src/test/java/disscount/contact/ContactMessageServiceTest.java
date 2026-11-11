@@ -11,6 +11,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import disscount.shared.NotFoundException;
+import disscount.user.ActiveUsers;
 import disscount.user.User;
 import disscount.user.UserRepository;
 import disscount.user.UserService;
@@ -22,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest(showSql = false)
-@Import(ContactMessageService.class)
+@Import({ActiveUsers.class, ContactMessageService.class})
 class ContactMessageServiceTest {
 
     @Autowired ContactMessageService service;

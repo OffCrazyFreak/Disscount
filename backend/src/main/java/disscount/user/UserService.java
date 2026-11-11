@@ -4,12 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import disscount.digitalcard.DigitalCardService;
-import disscount.preferences.FavoriteStoreService;
-import disscount.productimage.ProductImageErasure;
 import disscount.shared.BadRequestException;
 import disscount.shared.ConflictException;
 import disscount.shared.Timestamps;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.Duration;
@@ -35,9 +33,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final AuthIdentityDao authIdentityDao;
     private final UserProfileCreator profileCreator;
-    private final DigitalCardService digitalCardService;
-    private final FavoriteStoreService favoriteStoreService;
-    private final ProductImageErasure productImageErasure;
+    private final ActiveUsers activeUsers;
+    private final ApplicationEventPublisher events;
     private final ErasureLedgerRepository erasureLedger;
     private final AvatarSanitizer avatarSanitizer;
 
@@ -191,16 +188,11 @@ public class UserService {
             user.setUsername(null);
             user.setImage(null);
             user.setDeletedAt(Timestamps.nowUtc());
-            // Flushed now because the card purge below clears the persistence context, dropping any unsaved change.
+            // Flushed now because the listeners' bulk deletes clear the persistence context, dropping any unsaved change.
             userRepository.saveAndFlush(user);
         });
 
-        // Cards hold card numbers and photos, which must not outlive the account.
-        digitalCardService.deleteAllForUser(userId);
-        // Favourite stores show where the person shops.
-        favoriteStoreService.deleteAllForUser(userId);
-        // Unconfirmed photos and private originals may show the person or their home.
-        productImageErasure.eraseContributor(userId);
+        events.publishEvent(new AccountErased(userId));
 
         if (!erasureLedger.existsById(userId)) {
             // Flushed so a concurrent deletion's tombstone collides here, where AccountErasureService can catch it.
@@ -208,15 +200,8 @@ public class UserService {
         }
     }
 
-    /** Locks the caller's profile until commit, so a write racing account deletion lands first or is refused. */
-    public void lockActive(UUID userId) {
-        userRepository.requireActiveForUpdate(userId);
-    }
-
     public boolean isActiveAdmin(UUID userId) {
-        return userRepository.findByIdAndDeletedAtIsNull(userId)
-                .map(u -> u.getAccountType() == AccountType.ADMIN)
-                .orElse(false);
+        return activeUsers.isActiveAdmin(userId);
     }
 
     @Transactional(readOnly = true)

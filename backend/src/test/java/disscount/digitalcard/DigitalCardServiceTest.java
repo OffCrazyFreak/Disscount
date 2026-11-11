@@ -13,6 +13,7 @@ import disscount.storename.StoreNameService;
 import disscount.storename.StoreNameSuggestionRepository;
 import disscount.storename.StoreNameUpsert;
 import disscount.storename.StoreNameUsageRepository;
+import disscount.user.ActiveUsers;
 import disscount.user.User;
 import disscount.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 // Not transactional on purpose: photo cleanup runs after commit, so the service has to really commit.
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-@Import({DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
+@Import({ActiveUsers.class, DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
         StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, UploadLimitConfig.class,
         CardPhotoWriter.class, CardUserLock.class, PhotoCleanupService.class,
         DigitalCardServiceTest.StoreConfig.class})
@@ -219,7 +220,7 @@ class DigitalCardServiceTest {
     @Test
     void capsActiveCardsAtThreeHundred() {
         cards.saveAll(IntStream.range(0, 300).mapToObj(i -> DigitalCard.builder()
-                .id(UUID.randomUUID()).user(owner).cardName("Kartica " + i).cardType("other")
+                .id(UUID.randomUUID()).userId(owner.getId()).cardName("Kartica " + i).cardType("other")
                 .storeName("Dućan").codeValue("1").codeType("unknown").cardColor("#616161").build()).toList());
 
         assertThatThrownBy(() -> service.upsert(owner.getId(), UUID.randomUUID(), request("Višak")))
@@ -357,7 +358,7 @@ class DigitalCardServiceTest {
     @Test
     void concurrentCreatesCannotPassTheCap() throws Exception {
         cards.saveAll(IntStream.range(0, 299).mapToObj(i -> DigitalCard.builder()
-                .id(UUID.randomUUID()).user(owner).cardName("Kartica " + i).cardType("other")
+                .id(UUID.randomUUID()).userId(owner.getId()).cardName("Kartica " + i).cardType("other")
                 .storeName("Dućan").codeValue("1").codeType("unknown").cardColor("#616161").build()).toList());
 
         List<Throwable> failures = runConcurrently(6,

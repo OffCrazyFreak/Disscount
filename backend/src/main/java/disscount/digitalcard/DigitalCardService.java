@@ -1,5 +1,6 @@
 package disscount.digitalcard;
 
+import disscount.shared.AfterCommit;
 import disscount.shared.BadRequestException;
 import disscount.shared.ConflictException;
 import disscount.shared.NotFoundException;
@@ -8,11 +9,13 @@ import disscount.shared.PhotoStoreConfig;
 import disscount.shared.Timestamps;
 import disscount.storename.StoreNameNormalizer;
 import disscount.storename.StoreNameService;
-import disscount.user.User;
+import disscount.user.AccountErased;
 import org.springframework.beans.factory.annotation.Qualifier;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,7 +76,7 @@ public class DigitalCardService {
 
     /** A replayed create never resurrects, another user's id looks unused; the lock makes the cap atomic. */
     public DigitalCardDto upsert(UUID userId, UUID id, DigitalCardRequest request) {
-        User user = userLock.acquire(userId);
+        userLock.acquire(userId);
         DigitalCard card = cardRepository.findById(id).orElse(null);
         boolean created = card == null;
         String previousStore = created ? null : card.getStoreName();
@@ -83,8 +86,8 @@ public class DigitalCardService {
             if (cardRepository.countActiveByUserId(userId) >= MAX_ACTIVE_CARDS) {
                 throw new ConflictException("error.card.limitReached");
             }
-            card = DigitalCard.builder().id(id).user(user).build();
-        } else if (!card.getUser().getId().equals(userId) || card.getDeletedAt() != null) {
+            card = DigitalCard.builder().id(id).userId(userId).build();
+        } else if (!card.getUserId().equals(userId) || card.getDeletedAt() != null) {
             throw new NotFoundException(NOT_FOUND);
         }
 
@@ -149,19 +152,25 @@ public class DigitalCardService {
         }
     }
 
+    /** Cards hold card numbers and photos, which must not outlive the account. */
+    @EventListener
+    @Order(10)
+    public void onAccountErased(AccountErased erased) {
+        deleteAllForUser(erased.userId());
+    }
+
     /** Account deletion: nothing of the user's cards may outlive the profile. */
     public void deleteAllForUser(UUID userId) {
         photoRepository.deleteAllByUserId(userId);
         cardRepository.deleteAllByUserId(userId);
         cleanup.enqueueErasure(PhotoKeys.userPrefix(userId));
-        storeNameService.forgetUser(userId);
     }
 
     public int purgeDeletedBefore(LocalDateTime cutoff) {
         List<DigitalCard> stale = cardRepository.findDeletedBefore(cutoff);
         for (DigitalCard card : stale) {
             UUID cardId = card.getId();
-            String prefix = PhotoKeys.cardPrefix(card.getUser().getId(), cardId);
+            String prefix = PhotoKeys.cardPrefix(card.getUserId(), cardId);
             cleanup.enqueuePrefix(prefix);
             photoRepository.deleteAllByCardId(cardId);
         }

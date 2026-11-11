@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.shared.ForbiddenException;
-import disscount.user.User;
 
 import java.util.UUID;
 
@@ -22,7 +21,7 @@ class ShoppingListCopyService {
 
     public ShoppingListDto copy(UUID listId, UUID userId, ShoppingListCopyRequest request) {
         ShoppingList source = shoppingListService.findVisible(listId, userId);
-        User owner = shoppingListService.requireWriteUser(userId);
+        shoppingListService.requireWriteUser(userId);
 
         // Only an owner may carry sharing across, or a recipient could hand out a link the owner never chose.
         if (request.isIncludeSharing() && !accessService.resolve(source, userId).isOwner()) {
@@ -30,7 +29,7 @@ class ShoppingListCopyService {
         }
 
         ShoppingList copy = ShoppingList.builder()
-                .owner(owner)
+                .ownerId(userId)
                 .title(request.getTitle())
                 .linkAccess(request.isIncludeSharing() ? source.getLinkAccess() : null)
                 .build();
@@ -38,7 +37,7 @@ class ShoppingListCopyService {
         if (request.isIncludeItems()) {
             source.getItems().stream()
                     .filter(item -> item.getDeletedAt() == null)
-                    .map(item -> copyItem(item, copy, owner, request.isIncludeProgress()))
+                    .map(item -> copyItem(item, copy, userId, request.isIncludeProgress()))
                     .forEach(copy.getItems()::add);
         }
 
@@ -47,7 +46,7 @@ class ShoppingListCopyService {
     }
 
     private ShoppingListItem copyItem(
-            ShoppingListItem source, ShoppingList target, User actor, boolean includeProgress) {
+            ShoppingListItem source, ShoppingList target, UUID actorId, boolean includeProgress) {
         return ShoppingListItem.builder()
                 .shoppingList(target)
                 .ean(source.getEan())
@@ -61,7 +60,7 @@ class ShoppingListCopyService {
                 .chainCode(includeProgress ? source.getChainCode() : null)
                 .avgPrice(includeProgress ? source.getAvgPrice() : null)
                 .storePrice(includeProgress ? source.getStorePrice() : null)
-                .updatedByUser(actor)
+                .updatedByUserId(actorId)
                 .build();
     }
 }

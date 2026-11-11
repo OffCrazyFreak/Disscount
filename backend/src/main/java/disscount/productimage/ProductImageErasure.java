@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import disscount.user.AccountErased;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +22,14 @@ public class ProductImageErasure {
     private final ProductImageReportRepository reports;
     private final ProductImageRendering rendering;
     private final ProductImageRemoval removal;
+
+    /** Unconfirmed photos and private originals may show the person or their home. */
+    @EventListener
+    @Order(40)
+    @Transactional
+    public void onAccountErased(AccountErased erased) {
+        eraseContributor(erased.userId());
+    }
 
     @Transactional
     public void eraseContributor(UUID userId) {

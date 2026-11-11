@@ -94,7 +94,7 @@ class AccountErasureTest extends FullStackTest {
         assertThat(profile.getImage()).isNull();
         assertThat(erasureLedger.findById(id)).isPresent();
 
-        assertThat(cards.findAll()).noneMatch(card -> card.getUser().getId().equals(id));
+        assertThat(cards.findAll()).noneMatch(card -> card.getUserId().equals(id));
         assertThat(cardPhotos.findAll()).noneMatch(photo -> photo.getFullKey().contains(id.toString()));
         assertThat(((FakePhotoStore) photoStore).objects.keySet()).noneMatch(key -> key.contains(id.toString()));
         assertThat(photoCleanup.findAll()).noneMatch(row -> row.getKeyOrPrefix().contains(id.toString()));
@@ -110,7 +110,7 @@ class AccountErasureTest extends FullStackTest {
         assertThat(storeNameUsages.findAll()).noneMatch(usage -> usage.getUserId().equals(id));
 
         // Business data stays, attached to the anonymised profile.
-        assertThat(shoppingLists.findActiveByOwner(profile)).hasSize(1);
+        assertThat(shoppingLists.findActiveByOwnerId(id)).hasSize(1);
         assertThat(watchlist.findByUserId(id)).hasSize(1);
         assertThat(pinnedStores.findByUserId(id)).hasSize(1);
     }
@@ -132,7 +132,7 @@ class AccountErasureTest extends FullStackTest {
         assertThat(useCountOf(store)).isEqualTo(1);
         assertThat(cards.findActiveByUserId(staying.getId())).hasSize(1);
         assertThat(favoriteStores.findByUserId(staying.getId())).hasSize(1);
-        assertThat(shoppingLists.findActiveByOwner(staying)).hasSize(1);
+        assertThat(shoppingLists.findActiveByOwnerId(staying.getId())).hasSize(1);
         assertThat(watchlist.findByUserId(staying.getId())).hasSize(1);
         assertThat(pinnedStores.findByUserId(staying.getId())).hasSize(1);
     }

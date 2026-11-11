@@ -1,18 +1,18 @@
-package disscount.digitalcard;
+package disscount.shared;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-final class AfterCommit {
+public final class AfterCommit {
 
     private static final Logger log = LoggerFactory.getLogger(AfterCommit.class);
 
     private AfterCommit() {}
 
-    /** Object storage is not transactional, so deletes wait for commit; a failure only orphans an object. */
-    static void run(Runnable action) {
+    /** For work outside the database, such as object storage; a failure is logged, as the commit already happened. */
+    public static void run(Runnable action) {
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
             safely(action);
             return;
@@ -30,7 +30,7 @@ final class AfterCommit {
         try {
             action.run();
         } catch (RuntimeException e) {
-            log.warn("Photo storage cleanup failed: {}", e.getMessage());
+            log.warn("Work after commit failed: {}", e.getMessage());
         }
     }
 }

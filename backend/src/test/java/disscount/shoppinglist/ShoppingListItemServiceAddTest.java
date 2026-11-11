@@ -7,6 +7,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import disscount.shared.Timestamps;
+import disscount.user.ActiveUsers;
 import disscount.user.User;
 import disscount.user.UserRepository;
 
@@ -17,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest(showSql = false)
 @Import({
+        ActiveUsers.class,
         ShoppingListItemService.class,
         ShoppingListService.class,
         ShoppingListAccessService.class,
@@ -36,7 +38,7 @@ class ShoppingListItemServiceAddTest {
     void setUp() {
         owner = users.save(User.builder().id(UUID.randomUUID()).username("ana").build());
         list = lists.save(ShoppingList.builder()
-                .owner(owner)
+                .ownerId(owner.getId())
                 .title("Vikend")
                 .createdAt(Timestamps.nowUtc())
                 .updatedAt(Timestamps.nowUtc())

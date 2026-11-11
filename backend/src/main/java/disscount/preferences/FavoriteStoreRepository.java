@@ -12,10 +12,10 @@ import java.util.UUID;
 @Repository
 public interface FavoriteStoreRepository extends JpaRepository<FavoriteStore, UUID> {
 
-    @Query("SELECT fs FROM FavoriteStore fs WHERE fs.user.id = :userId")
+    @Query("SELECT fs FROM FavoriteStore fs WHERE fs.userId = :userId")
     List<FavoriteStore> findByUserId(@Param("userId") UUID userId);
 
     @Modifying
-    @Query("DELETE FROM FavoriteStore fs WHERE fs.user.id = :userId")
+    @Query("DELETE FROM FavoriteStore fs WHERE fs.userId = :userId")
     void deleteAllByUserId(@Param("userId") UUID userId);
 }

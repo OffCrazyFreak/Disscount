@@ -13,7 +13,7 @@ import disscount.shared.PhotoStoreConfig;
 import disscount.shared.PhotoValidator;
 import disscount.shared.ServiceUnavailableException;
 import disscount.shared.TestImages;
-import disscount.user.UserService;
+import disscount.user.ActiveUsers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +49,7 @@ class ProductImageDeletionTest {
     @Autowired PlatformTransactionManager transactions;
     @Autowired @Qualifier(PhotoStoreConfig.PRODUCT_ORIGINALS) FakePhotoStore originals;
     @Autowired @Qualifier(PhotoStoreConfig.PRODUCT_PHOTOS) FakePhotoStore publicStore;
-    @MockitoBean UserService userService;
+    @MockitoBean ActiveUsers activeUsers;
     @MockitoBean OpenFoodFactsClient off;
 
     final UUID ana = UUID.randomUUID();
@@ -64,7 +64,7 @@ class ProductImageDeletionTest {
         originals.objects.clear();
         originals.enabled = true;
         publicStore.objects.clear();
-        when(userService.isActiveAdmin(adminId)).thenReturn(true);
+        when(activeUsers.isActiveAdmin(adminId)).thenReturn(true);
     }
 
     @Test

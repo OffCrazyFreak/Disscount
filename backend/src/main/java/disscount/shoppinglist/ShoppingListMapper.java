@@ -21,7 +21,7 @@ public class ShoppingListMapper {
         return ShoppingListDto.builder()
                 .id(list.getId())
                 // Owner only: ids are stable and links travel, so a recipient could correlate two links as one person.
-                .ownerId(isOwner ? list.getOwner().getId() : null)
+                .ownerId(isOwner ? list.getOwnerId() : null)
                 .title(list.getTitle())
                 .linkAccess(isOwner ? list.resolvedLinkAccess() : null)
                 .myAccess(access)
@@ -53,9 +53,9 @@ public class ShoppingListMapper {
     }
 
     private UUID updatedByUserId(ShoppingListItem item, ListAccess access) {
-        if (access != ListAccess.OWNER || item.getUpdatedByUser() == null) {
+        if (access != ListAccess.OWNER || item.getUpdatedByUserId() == null) {
             return null;
         }
-        return item.getUpdatedByUser().getId();
+        return item.getUpdatedByUserId();
     }
 }

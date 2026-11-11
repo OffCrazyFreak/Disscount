@@ -5,8 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.shared.BadRequestException;
-import disscount.user.User;
-import disscount.user.UserRepository;
+import disscount.user.ActiveUsers;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,10 +16,10 @@ import java.util.UUID;
 public class PinnedStoreService {
 
     private final PinnedStoreRepository pinnedStoreRepository;
-    private final UserRepository userRepository;
+    private final ActiveUsers activeUsers;
 
     public List<PinnedStoreDto> updatePinnedStores(UUID userId, BulkPinnedStoreRequest request) {
-        User user = userRepository.requireActiveForUpdate(userId);
+        activeUsers.lockActive(userId);
 
         long distinctIds = request.getStores().stream().map(PinnedStoreRequest::getStoreApiId).distinct().count();
 
@@ -33,7 +32,7 @@ public class PinnedStoreService {
 
         List<PinnedStore> saved = pinnedStoreRepository.saveAll(request.getStores().stream()
                 .map(store -> PinnedStore.builder()
-                        .user(user)
+                        .userId(userId)
                         .storeApiId(store.getStoreApiId())
                         .storeName(store.getStoreName())
                         .build())
@@ -52,7 +51,7 @@ public class PinnedStoreService {
     private PinnedStoreDto mapToDto(PinnedStore pinnedStore) {
         return PinnedStoreDto.builder()
                 .id(pinnedStore.getId())
-                .userId(pinnedStore.getUser().getId())
+                .userId(pinnedStore.getUserId())
                 .storeApiId(pinnedStore.getStoreApiId())
                 .storeName(pinnedStore.getStoreName())
                 .build();

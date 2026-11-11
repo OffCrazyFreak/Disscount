@@ -149,7 +149,7 @@ sequenceDiagram
 - The dialog always asks for a proof, even inside the 15 minute fresh window, because the proof travels inside the delete request.
 - If Spring refuses or times out, better-auth aborts and the identity stays whole, so the user can retry.
 
-**What is erased and what stays** (`UserService.deleteAccount`):
+**What is erased and what stays** (`UserService.deleteAccount`). It anonymises the profile, then publishes `AccountErased`; each feature that holds personal data has a listener that erases its own rows inside the same transaction, in a fixed `@Order` that `AccountErasedListenersTest` pins. A listener that throws rolls the whole erasure back (`AccountErasureRollbackTest`), so the user can retry. A new feature with personal data adds its own listener.
 
 | Data                                                      | What happens                                                                                                                                                                                                                    |
 | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

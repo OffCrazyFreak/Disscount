@@ -4,6 +4,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 import disscount.security.SecurityConfig;
+import disscount.user.ActiveUsers;
 import disscount.user.User;
 import disscount.user.UserRepository;
 import disscount.user.UserService;
@@ -32,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(WatchlistItemController.class)
 @AutoConfigureDataJpa
 @AutoConfigureTestDatabase
-@Import({SecurityConfig.class, WatchlistItemService.class})
+@Import({SecurityConfig.class, WatchlistItemService.class, ActiveUsers.class})
 class WatchlistItemOwnershipTest {
 
     @Autowired MockMvc mvc;
@@ -54,7 +55,7 @@ class WatchlistItemOwnershipTest {
 
     private WatchlistItem itemOf(User user) {
         return watchlist.save(WatchlistItem.builder()
-                .user(user).productApiId("3850123456789").watchType(WatchType.PERCENTAGE).thresholdValue(10.0).build());
+                .userId(user.getId()).productApiId("3850123456789").watchType(WatchType.PERCENTAGE).thresholdValue(10.0).build());
     }
 
     private RequestPostProcessor as(User user) {

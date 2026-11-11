@@ -62,7 +62,7 @@ import static org.mockito.Mockito.verify;
 // Not transactional on purpose: the bug only shows when the service's own transaction really commits.
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-@Import({UserService.class, AccountErasureService.class, DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
+@Import({ActiveUsers.class, UserService.class, AccountErasureService.class, DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
         StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, UploadLimitConfig.class,
         CardPhotoWriter.class, CardUserLock.class, PhotoCleanupService.class, FavoriteStoreService.class,
         AvatarSanitizer.class, UserServiceDeleteAccountTest.StoreConfig.class})
@@ -136,7 +136,7 @@ class UserServiceDeleteAccountTest {
 
         userService.deleteAccount(user.getId());
 
-        verify(productImageErasure).eraseContributor(user.getId());
+        verify(productImageErasure).onAccountErased(new AccountErased(user.getId()));
     }
 
     @Test
@@ -166,7 +166,7 @@ class UserServiceDeleteAccountTest {
         userService.deleteAccount(leaving.getId());
 
         assertThat(favoriteStores.findAll()).singleElement()
-                .satisfies(f -> assertThat(f.getUser().getId()).isEqualTo(staying.getId()));
+                .satisfies(f -> assertThat(f.getUserId()).isEqualTo(staying.getId()));
     }
 
     @Test

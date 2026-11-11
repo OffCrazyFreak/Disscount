@@ -5,8 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.shared.BadRequestException;
-import disscount.user.User;
-import disscount.user.UserRepository;
+import disscount.user.ActiveUsers;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,10 +16,10 @@ import java.util.UUID;
 public class PinnedPlaceService {
 
     private final PinnedPlaceRepository pinnedPlaceRepository;
-    private final UserRepository userRepository;
+    private final ActiveUsers activeUsers;
 
     public List<PinnedPlaceDto> updatePinnedPlaces(UUID userId, BulkPinnedPlaceRequest request) {
-        User user = userRepository.requireActiveForUpdate(userId);
+        activeUsers.lockActive(userId);
 
         long distinctIds = request.getPlaces().stream().map(PinnedPlaceRequest::getPlaceApiId).distinct().count();
 
@@ -33,7 +32,7 @@ public class PinnedPlaceService {
 
         List<PinnedPlace> saved = pinnedPlaceRepository.saveAll(request.getPlaces().stream()
                 .map(place -> PinnedPlace.builder()
-                        .user(user)
+                        .userId(userId)
                         .placeApiId(place.getPlaceApiId())
                         .placeName(place.getPlaceName())
                         .build())
@@ -52,7 +51,7 @@ public class PinnedPlaceService {
     private PinnedPlaceDto mapToDto(PinnedPlace pinnedPlace) {
         return PinnedPlaceDto.builder()
                 .id(pinnedPlace.getId())
-                .userId(pinnedPlace.getUser().getId())
+                .userId(pinnedPlace.getUserId())
                 .placeApiId(pinnedPlace.getPlaceApiId())
                 .placeName(pinnedPlace.getPlaceName())
                 .build();
