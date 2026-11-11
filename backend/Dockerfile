@@ -1,7 +1,7 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
 
 # ---- Build stage: compile the Spring Boot jar with Maven ----
-FROM maven:3.9-eclipse-temurin-21 AS build
+FROM maven:3.9-eclipse-temurin-21@sha256:99e61abcff91a9b1333463bd8451fb18495d6eba9250ac66a338b518f8278320 AS build
 WORKDIR /app
 
 # Resolve dependencies from pom.xml first so they cache in their own layer and
@@ -16,7 +16,7 @@ COPY src ./src
 RUN mvn -B -q clean package -DskipTests
 
 # ---- Runtime stage: run the jar on a small JRE as a non-root user ----
-FROM eclipse-temurin:21-jre AS runtime
+FROM eclipse-temurin:21-jre@sha256:0b99b3376fbb50dbf9c0af8535fdd5b8eb0d3fdfc8b1e4967f383b6919f6901a AS runtime
 WORKDIR /app
 
 # curl is used by the Docker healthcheck (compose probes /actuator/health).

@@ -3,7 +3,8 @@
   "extends": [
     "config:recommended",
     ":semanticCommits",
-    ":semanticCommitTypeAll(chore)"
+    ":semanticCommitTypeAll(chore)",
+    "docker:pinDigests"
   ],
   "baseBranchPatterns": ["dev"],
   "timezone": "Europe/Zagreb",
@@ -31,9 +32,18 @@
       "groupName": "github actions minor and patch"
     },
     {
+      "description": "Weekly, because Renovate's out-of-schedule vulnerability PRs cover no Docker images",
       "matchManagers": ["dockerfile", "docker-compose"],
       "matchUpdateTypes": ["minor", "patch", "digest"],
-      "groupName": "docker images minor and patch"
+      "groupName": "docker images minor and patch",
+      "schedule": ["before 6am on monday"]
+    },
+    {
+      "description": "The BuildKit image pinned in the CI workflow, found by the custom manager below",
+      "matchPackageNames": ["moby/buildkit"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "docker images minor and patch",
+      "schedule": ["before 6am on monday"]
     },
     {
       "description": "Majors wait for approval on the Dependency Dashboard; a Postgres major also needs a dump and restore of the pgdata volume",
@@ -74,6 +84,15 @@
       ],
       "depNameTemplate": "pnpm",
       "datasourceTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "description": "BuildKit image that setup-buildx-action starts in CI",
+      "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"],
+      "matchStrings": [
+        "(?<depName>moby/buildkit):(?<currentValue>v\\d+\\.\\d+\\.\\d+)(?:@(?<currentDigest>sha256:[a-f0-9]{64}))?"
+      ],
+      "datasourceTemplate": "docker"
     }
   ]
 }
