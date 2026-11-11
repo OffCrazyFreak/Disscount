@@ -1,4 +1,4 @@
-package disscount.digitalcard;
+package disscount.digitalcard.photo;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,4 +1,4 @@
-package disscount.digitalcard;
+package disscount.digitalcard.photo;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,6 +8,7 @@ import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import disscount.digitalcard.DigitalCard;
 import disscount.shared.Timestamps;
 
 @Entity

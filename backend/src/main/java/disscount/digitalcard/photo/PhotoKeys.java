@@ -1,18 +1,18 @@
-package disscount.digitalcard;
+package disscount.digitalcard.photo;
 
 import java.util.UUID;
 
 import disscount.shared.PhotoStoreConfig;
 
-final class PhotoKeys {
+public final class PhotoKeys {
 
     private PhotoKeys() {}
 
-    static String userPrefix(UUID userId) {
+    public static String userPrefix(UUID userId) {
         return PhotoStoreConfig.CARD_FOLDER + "/" + userId + "/";
     }
 
-    static String cardPrefix(UUID userId, UUID cardId) {
+    public static String cardPrefix(UUID userId, UUID cardId) {
         return userPrefix(userId) + cardId + "/";
     }
 

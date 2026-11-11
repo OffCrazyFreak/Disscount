@@ -2,9 +2,9 @@ package disscount.user;
 
 import disscount.contact.ContactMessage;
 import disscount.contact.ContactMessageRepository;
-import disscount.digitalcard.DigitalCardPhotoRepository;
+import disscount.digitalcard.photo.DigitalCardPhotoRepository;
 import disscount.digitalcard.DigitalCardRepository;
-import disscount.digitalcard.PhotoCleanupRepository;
+import disscount.digitalcard.photo.PhotoCleanupRepository;
 import disscount.preferences.favoritestore.FavoriteStoreRepository;
 import disscount.preferences.pinnedstore.PinnedStoreRepository;
 import disscount.productimage.ImageSource;

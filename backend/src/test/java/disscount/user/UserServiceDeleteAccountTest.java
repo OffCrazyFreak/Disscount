@@ -1,15 +1,15 @@
 package disscount.user;
 
 import disscount.config.UploadLimitConfig;
-import disscount.digitalcard.CardPhotoWriter;
+import disscount.digitalcard.photo.CardPhotoWriter;
 import disscount.digitalcard.CardUserLock;
 import disscount.digitalcard.DigitalCardMapper;
-import disscount.digitalcard.DigitalCardPhotoRepository;
-import disscount.digitalcard.DigitalCardPhotoService;
+import disscount.digitalcard.photo.DigitalCardPhotoRepository;
+import disscount.digitalcard.photo.DigitalCardPhotoService;
 import disscount.digitalcard.DigitalCardRepository;
 import disscount.digitalcard.DigitalCardService;
-import disscount.digitalcard.PhotoCleanupRepository;
-import disscount.digitalcard.PhotoCleanupService;
+import disscount.digitalcard.photo.PhotoCleanupRepository;
+import disscount.digitalcard.photo.PhotoCleanupService;
 import disscount.preferences.favoritestore.BulkFavoriteStoreRequest;
 import disscount.preferences.favoritestore.FavoriteStoreRepository;
 import disscount.preferences.favoritestore.FavoriteStoreRequest;

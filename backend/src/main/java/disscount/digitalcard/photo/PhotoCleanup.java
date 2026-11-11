@@ -1,4 +1,4 @@
-package disscount.digitalcard;
+package disscount.digitalcard.photo;
 
 import jakarta.persistence.*;
 import lombok.*;

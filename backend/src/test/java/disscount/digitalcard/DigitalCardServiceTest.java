@@ -1,6 +1,11 @@
 package disscount.digitalcard;
 
 import disscount.config.UploadLimitConfig;
+import disscount.digitalcard.photo.CardPhotoWriter;
+import disscount.digitalcard.photo.DigitalCardPhotoRepository;
+import disscount.digitalcard.photo.DigitalCardPhotoService;
+import disscount.digitalcard.photo.PhotoCleanupRepository;
+import disscount.digitalcard.photo.PhotoCleanupService;
 import disscount.shared.BadRequestException;
 import disscount.shared.LimitReachedException;
 import disscount.shared.FakePhotoStore;

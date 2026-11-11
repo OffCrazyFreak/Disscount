@@ -1,5 +1,7 @@
 package disscount.digitalcard;
 
+import disscount.digitalcard.photo.DigitalCardPhotoController;
+import disscount.digitalcard.photo.DigitalCardPhotoService;
 import disscount.security.SecurityConfig;
 import disscount.shared.LimitReachedException;
 import disscount.shared.UserLimit;

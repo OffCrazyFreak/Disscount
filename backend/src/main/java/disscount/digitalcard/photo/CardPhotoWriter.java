@@ -1,9 +1,12 @@
-package disscount.digitalcard;
+package disscount.digitalcard.photo;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import disscount.digitalcard.CardUserLock;
+import disscount.digitalcard.DigitalCard;
+import disscount.digitalcard.DigitalCardRepository;
 import disscount.shared.NotFoundException;
 
 import java.util.Arrays;

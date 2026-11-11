@@ -1,4 +1,4 @@
-package disscount.digitalcard;
+package disscount.digitalcard.photo;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
-import disscount.digitalcard.DigitalCardPhotoService.PhotoStream;
+import disscount.digitalcard.photo.DigitalCardPhotoService.PhotoStream;
 import disscount.shared.BadRequestException;
 import disscount.shared.CurrentUser;
 
@@ -21,7 +21,7 @@ import java.util.UUID;
 @RequestMapping("/api/digital-cards/{id}/photos/{slot}")
 @RequiredArgsConstructor
 @Tag(name = "Digital Card Photos", description = "Card photo upload and download")
-class DigitalCardPhotoController {
+public class DigitalCardPhotoController {
 
     private final DigitalCardPhotoService photoService;
 

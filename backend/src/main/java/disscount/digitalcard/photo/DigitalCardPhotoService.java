@@ -1,6 +1,8 @@
-package disscount.digitalcard;
+package disscount.digitalcard.photo;
 
 import disscount.config.UploadLimitConfig;
+import disscount.digitalcard.DigitalCard;
+import disscount.digitalcard.DigitalCardRepository;
 import disscount.shared.BadRequestException;
 import disscount.shared.FixedWindowLimiter;
 import disscount.shared.NotFoundException;

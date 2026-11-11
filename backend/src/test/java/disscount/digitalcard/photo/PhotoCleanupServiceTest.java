@@ -1,6 +1,10 @@
-package disscount.digitalcard;
+package disscount.digitalcard.photo;
 
 import disscount.config.UploadLimitConfig;
+import disscount.digitalcard.CardUserLock;
+import disscount.digitalcard.DigitalCardMapper;
+import disscount.digitalcard.DigitalCardRepository;
+import disscount.digitalcard.DigitalCardService;
 import disscount.shared.FakePhotoStore;
 import disscount.shared.FixedWindowLimiter;
 import disscount.shared.PhotoValidator;

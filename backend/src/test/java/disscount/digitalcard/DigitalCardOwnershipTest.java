@@ -1,5 +1,6 @@
 package disscount.digitalcard;
 
+import disscount.digitalcard.photo.DigitalCardPhotoService;
 import disscount.shared.NotFoundException;
 import disscount.shared.TestImages;
 import disscount.support.FullStackTest;

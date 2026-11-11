@@ -9,6 +9,8 @@ import java.util.UUID;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
+import disscount.digitalcard.photo.CardPhotoDto;
+
 @Builder
 public record DigitalCardDto(
         UUID id,

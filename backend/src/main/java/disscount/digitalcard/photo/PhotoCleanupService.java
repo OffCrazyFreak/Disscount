@@ -1,4 +1,4 @@
-package disscount.digitalcard;
+package disscount.digitalcard.photo;
 
 import disscount.shared.AfterCommit;
 import disscount.shared.PhotoStore;

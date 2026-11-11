@@ -1,5 +1,9 @@
 package disscount.digitalcard;
 
+import disscount.digitalcard.photo.DigitalCardPhoto;
+import disscount.digitalcard.photo.DigitalCardPhotoRepository;
+import disscount.digitalcard.photo.PhotoCleanupService;
+import disscount.digitalcard.photo.PhotoKeys;
 import disscount.shared.AfterCommit;
 import disscount.shared.BadRequestException;
 import disscount.shared.NotFoundException;
