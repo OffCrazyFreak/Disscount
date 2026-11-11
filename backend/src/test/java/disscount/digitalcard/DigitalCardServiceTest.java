@@ -13,6 +13,7 @@ import disscount.storename.StoreNameService;
 import disscount.storename.StoreNameSuggestionRepository;
 import disscount.storename.StoreNameUpsert;
 import disscount.storename.StoreNameUsageRepository;
+import disscount.support.Concurrently;
 import disscount.support.IncludingDeleted;
 import disscount.user.ActiveUsers;
 import disscount.user.User;
@@ -378,7 +379,7 @@ class DigitalCardServiceTest {
         UUID id = UUID.randomUUID();
         DigitalCardRequest custom = request("Zajednička").toBuilder().chainCode(null).build();
 
-        List<Throwable> failures = runConcurrently(6, i -> service.upsert(owner.getId(), id, custom));
+        List<Throwable> failures = Concurrently.run(6, i -> service.upsert(owner.getId(), id, custom));
 
         assertThat(failures).isEmpty();
         assertThat(cards.findActiveByUserId(owner.getId())).hasSize(1);
@@ -391,7 +392,7 @@ class DigitalCardServiceTest {
                 .id(UUID.randomUUID()).userId(owner.getId()).cardName("Kartica " + i).cardType("other")
                 .storeName("Dućan").codeValue("1").codeType("unknown").cardColor("#616161").build()).toList());
 
-        List<Throwable> failures = runConcurrently(6,
+        List<Throwable> failures = Concurrently.run(6,
                 i -> service.upsert(owner.getId(), UUID.randomUUID(), request("Nova " + i)));
 
         assertThat(failures).hasSize(5).allMatch(e -> e instanceof ConflictException);
@@ -437,27 +438,5 @@ class DigitalCardServiceTest {
 
         assertThat(service.get(owner.getId(), id).lastUsedAt())
                 .isCloseTo(Timestamps.nowUtc().minusDays(400), within(1, ChronoUnit.MINUTES));
-    }
-
-    private List<Throwable> runConcurrently(int threads, java.util.function.IntConsumer task) throws Exception {
-        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
-        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
-        List<java.util.concurrent.Future<?>> futures = IntStream.range(0, threads).mapToObj(i -> pool.submit(() -> {
-            start.await();
-            task.accept(i);
-            return null;
-        })).collect(java.util.stream.Collectors.toList());
-        start.countDown();
-
-        List<Throwable> failures = new java.util.ArrayList<>();
-        for (java.util.concurrent.Future<?> future : futures) {
-            try {
-                future.get(30, java.util.concurrent.TimeUnit.SECONDS);
-            } catch (java.util.concurrent.ExecutionException e) {
-                failures.add(e.getCause());
-            }
-        }
-        pool.shutdown();
-        return failures;
     }
 }
