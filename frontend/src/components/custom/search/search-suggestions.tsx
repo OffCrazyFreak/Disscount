@@ -13,16 +13,13 @@ import {
   AutocompleteList,
   AutocompleteRow,
 } from "@/components/reui/autocomplete";
-import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import DebouncedStatus from "@/components/custom/live-status/debounced-status";
 import { getCachedProductNames } from "@/lib/cijene-api/cached-product-names";
 import { productRecentSearches } from "@/utils/browser/storage/recent-searches";
 import {
   rankSearchSuggestions,
   type ISearchSuggestion,
 } from "@/utils/search/search-suggestions";
-
-// Long enough that a screen reader hears a settled count, not one per keystroke.
-const ANNOUNCE_DELAY_MS = 600;
 
 type ICell = ISearchSuggestion | { kind: "remove"; text: string };
 
@@ -57,11 +54,6 @@ export default function SearchSuggestions({
       : [suggestion],
   );
   const isShown = isOpen && suggestions.length > 0;
-
-  const announcement = useDebouncedValue(
-    isShown ? t("suggestionCount", { count: suggestions.length }) : "",
-    ANNOUNCE_DELAY_MS,
-  );
 
   function handleOpenChange(open: boolean) {
     // Pressing any cell closes the list, but removing one search leaves the rest to pick from.
@@ -136,9 +128,11 @@ export default function SearchSuggestions({
         </AutocompleteContent>
       </Autocomplete>
 
-      <p role="status" className="sr-only">
-        {announcement}
-      </p>
+      <DebouncedStatus
+        message={
+          isShown ? t("suggestionCount", { count: suggestions.length }) : ""
+        }
+      />
     </>
   );
 }

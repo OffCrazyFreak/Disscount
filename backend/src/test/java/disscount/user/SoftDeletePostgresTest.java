@@ -73,7 +73,7 @@ class SoftDeletePostgresTest extends FullStackTest {
         mvc.perform(delete("/api/watchlist/{id}", id).with(as(owner))).andExpect(status().isNoContent());
         mvc.perform(delete("/api/watchlist/{id}", id).with(as(owner))).andExpect(status().isNoContent());
 
-        assertThat(count("SELECT COUNT(*) FROM watchlist_item WHERE id = ? AND deleted_at IS NOT NULL", UUID.fromString(id)))
+        assertThat(count("SELECT COUNT(*) FROM app.watchlist_item WHERE id = ? AND deleted_at IS NOT NULL", UUID.fromString(id)))
                 .isEqualTo(1);
     }
 
@@ -115,12 +115,12 @@ class SoftDeletePostgresTest extends FullStackTest {
         mvc.perform(multipart(HttpMethod.PUT, "/api/digital-cards/{id}/photos/{slot}", id, "icon")
                 .file(new MockMultipartFile("full", "icon.webp", "image/webp", TestImages.webp(32, 32)))
                 .with(as(owner))).andExpect(status().isOk());
-        jdbc.update("UPDATE wallet_card SET deleted_at = ? WHERE id = ?", Timestamps.nowUtc().minusDays(31), id);
+        jdbc.update("UPDATE app.wallet_card SET deleted_at = ? WHERE id = ?", Timestamps.nowUtc().minusDays(31), id);
 
         assertThat(cardService.purgeDeletedBefore(Timestamps.nowUtc().minusDays(30))).isPositive();
 
-        assertThat(count("SELECT COUNT(*) FROM wallet_card WHERE id = ?", id)).isZero();
-        assertThat(count("SELECT COUNT(*) FROM wallet_card_photo WHERE card_id = ?", id)).isZero();
+        assertThat(count("SELECT COUNT(*) FROM app.wallet_card WHERE id = ?", id)).isZero();
+        assertThat(count("SELECT COUNT(*) FROM app.wallet_card_photo WHERE card_id = ?", id)).isZero();
     }
 
     @Test
@@ -133,9 +133,9 @@ class SoftDeletePostgresTest extends FullStackTest {
         mvc.perform(delete("/api/users/me").with(jwt().jwt(j -> j.subject(leaving.getId().toString())
                 .claim("purpose", "account-erasure")))).andExpect(status().isOk());
 
-        assertThat(count("SELECT COUNT(*) FROM wallet_card WHERE user_id = ?", leaving.getId())).isZero();
+        assertThat(count("SELECT COUNT(*) FROM app.wallet_card WHERE user_id = ?", leaving.getId())).isZero();
         mvc.perform(get("/api/users/me").with(signInAs(leaving.getId()))).andExpect(status().isGone());
-        assertThat(count("SELECT COUNT(*) FROM app_user WHERE id = ?", leaving.getId())).isEqualTo(1);
+        assertThat(count("SELECT COUNT(*) FROM app.app_user WHERE id = ?", leaving.getId())).isEqualTo(1);
     }
 
     @Test
@@ -145,7 +145,7 @@ class SoftDeletePostgresTest extends FullStackTest {
 
         mvc.perform(get("/api/users/me").with(signInAs(id))).andExpect(status().isGone());
 
-        assertThat(count("SELECT COUNT(*) FROM app_user WHERE id = ?", id)).isEqualTo(1);
+        assertThat(count("SELECT COUNT(*) FROM app.app_user WHERE id = ?", id)).isEqualTo(1);
     }
 
     @Test
@@ -169,9 +169,9 @@ class SoftDeletePostgresTest extends FullStackTest {
         backfill.run();
 
         assertThat(erasureLedger.count()).isEqualTo(tombstones);
-        assertThat(count("SELECT COUNT(*) FROM app_user u WHERE u.deleted_at IS NOT NULL AND NOT EXISTS "
-                + "(SELECT 1 FROM erasure_ledger l WHERE l.user_id = u.id)")).isZero();
-        assertThat(count("SELECT COUNT(*) FROM app_user WHERE deleted_at IS NOT NULL AND username IS NOT NULL")).isZero();
+        assertThat(count("SELECT COUNT(*) FROM app.app_user u WHERE u.deleted_at IS NOT NULL AND NOT EXISTS "
+                + "(SELECT 1 FROM app.erasure_ledger l WHERE l.user_id = u.id)")).isZero();
+        assertThat(count("SELECT COUNT(*) FROM app.app_user WHERE deleted_at IS NOT NULL AND username IS NOT NULL")).isZero();
     }
 
     private static org.springframework.test.web.servlet.request.RequestPostProcessor signInAs(UUID id) {

@@ -1,8 +1,10 @@
 import { sql } from "drizzle-orm";
-import { index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { index, text, timestamp, uuid } from "drizzle-orm/pg-core";
+
+import { webPgSchema } from "@/db/pg-schemas";
 
 // Kept for a day to cap sends per recipient; the address is stored as a SHA-256 hash, never in clear.
-export const emailSend = pgTable(
+export const emailSend = webPgSchema.table(
   "email_send",
   {
     id: uuid("id")

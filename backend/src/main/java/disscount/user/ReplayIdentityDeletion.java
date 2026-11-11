@@ -19,7 +19,7 @@ class ReplayIdentityDeletion {
     /** Cascades the identity's sessions and accounts. */
     @Transactional
     public void deleteById(UUID userId) {
-        entityManager.createNativeQuery("DELETE FROM \"user\" WHERE id = :id")
+        entityManager.createNativeQuery("DELETE FROM auth.\"user\" WHERE id = :id")
                 .setParameter("id", userId)
                 .executeUpdate();
     }

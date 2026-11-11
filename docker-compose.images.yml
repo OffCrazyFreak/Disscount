@@ -50,11 +50,11 @@ services:
     image: ghcr.io/offcrazyfreak/disscount-flyway:${IMAGE_TAG:?IMAGE_TAG must be set}
     pull_policy: always
     restart: "no"
-    # The backend's own login until the migrator role arrives (#429 R11).
+    # The migrator login, which owns every table (db/database-roles.sql); blank falls back to the database owner.
     environment:
       FLYWAY_URL: ${SPRING_DATASOURCE_URL}
-      FLYWAY_USER: ${SPRING_DATASOURCE_USERNAME}
-      FLYWAY_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      FLYWAY_USER: ${MIGRATOR_DB_USERNAME:-${POSTGRES_USER}}
+      FLYWAY_PASSWORD: ${MIGRATOR_DB_PASSWORD:-${POSTGRES_PASSWORD}}
     networks: [internal]
     depends_on:
       db:
@@ -72,8 +72,14 @@ services:
     # The tag moves, so a cached copy would silently redeploy the previous build.
     pull_policy: always
     restart: "no"
+    # The migrator login, not DATABASE_URL's Next.js login; blank falls back to the database owner. The URL here holds no
+    # login, so an older migrator image, which requires DATABASE_URL, also signs in through PGUSER and PGPASSWORD.
     environment:
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: postgresql://db:5432/${POSTGRES_DB}
+      PGHOST: db
+      PGDATABASE: ${POSTGRES_DB}
+      PGUSER: ${MIGRATOR_DB_USERNAME:-${POSTGRES_USER}}
+      PGPASSWORD: ${MIGRATOR_DB_PASSWORD:-${POSTGRES_PASSWORD}}
     networks: [internal]
     depends_on:
       db:

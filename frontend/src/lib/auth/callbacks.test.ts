@@ -188,7 +188,7 @@ describe("claimUnverifiedAccountOnReset", () => {
     const [condition] = mocks.deleteAccounts.mock.calls[0];
     const query = new PgDialect().sqlToQuery(condition as SQL);
     expect(query.sql).toBe(
-      '("account"."user_id" = $1 and "account"."provider_id" <> $2)',
+      '("auth"."account"."user_id" = $1 and "auth"."account"."provider_id" <> $2)',
     );
     expect(query.params).toEqual(["user-1", "credential"]);
     expect(mocks.updateUser).toHaveBeenCalledWith({ emailVerified: true });

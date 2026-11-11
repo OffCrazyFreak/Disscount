@@ -10,6 +10,9 @@
 \set ON_ERROR_STOP on
 begin;
 
+-- The tables live in app and auth since #429 R11; the owner's own path is only public.
+set local search_path = app, auth, public;
+
 create temp table seed_user on commit drop as
   select id, (now() at time zone 'utc') as now_utc from "user" where email = :'email';
 

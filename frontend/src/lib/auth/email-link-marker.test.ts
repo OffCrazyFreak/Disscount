@@ -63,7 +63,7 @@ describe("claimResetEmail", () => {
 
     const lookup = render(fake.selectWheres[0]);
     expect(lookup.sql).toBe(
-      '("verification"."identifier" = $1 and "verification"."expires_at" > $2)',
+      '("auth"."verification"."identifier" = $1 and "auth"."verification"."expires_at" > $2)',
     );
     expect(lookup.params[0]).toBe("reset-email:user-1");
 
@@ -93,7 +93,7 @@ describe("claimResetEmail", () => {
     );
     const usedRowLookup = render(fake.selectWheres.at(-1));
     expect(usedRowLookup.sql).toBe(
-      '("verification"."identifier" = $1 and "verification"."expires_at" > $2)',
+      '("auth"."verification"."identifier" = $1 and "auth"."verification"."expires_at" > $2)',
     );
     expect(usedRowLookup.params[0]).toBe("reset-password:token-1");
   });
@@ -124,7 +124,7 @@ describe("claimVerificationEmail", () => {
 
     const lookup = render(fake.selectWheres[0]);
     expect(lookup.sql).toBe(
-      '("verification"."identifier" = $1 and "verification"."expires_at" > $2)',
+      '("auth"."verification"."identifier" = $1 and "auth"."verification"."expires_at" > $2)',
     );
     expect(lookup.params[0]).toBe("verification-email:user-1");
   });

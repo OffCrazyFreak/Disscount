@@ -23,7 +23,7 @@ function reauthRequired() {
 async function isErasedAccount(userId: string): Promise<boolean> {
   try {
     const result = await db.execute(
-      sql`select 1 from erasure_ledger where user_id = ${userId} limit 1`,
+      sql`select 1 from app.erasure_ledger where user_id = ${userId} limit 1`,
     );
     return result.rows.length > 0;
   } catch {

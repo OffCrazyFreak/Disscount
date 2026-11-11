@@ -1,14 +1,15 @@
 import {
   doublePrecision,
   integer,
-  pgTable,
   primaryKey,
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
 
+import { webPgSchema } from "@/db/pg-schemas";
+
 /** Upstream identity keeps a store's row across syncs; null coordinates stop slow geocoder retries. */
-export const storeLocation = pgTable(
+export const storeLocation = webPgSchema.table(
   "store_location",
   {
     chainCode: text("chain_code").notNull(),
@@ -31,7 +32,7 @@ export const storeLocation = pgTable(
 );
 
 /** One row per sync job, so a run can tell how stale the data is. */
-export const storeLocationSync = pgTable("store_location_sync", {
+export const storeLocationSync = webPgSchema.table("store_location_sync", {
   id: text("id").primaryKey(),
   startedAt: timestamp("started_at", { withTimezone: true }),
   finishedAt: timestamp("finished_at", { withTimezone: true }),

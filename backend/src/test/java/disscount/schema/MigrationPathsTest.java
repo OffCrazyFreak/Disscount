@@ -168,8 +168,11 @@ class MigrationPathsTest {
         return name;
     }
 
+    // The watchlist test writes before V6 moves the tables into app and reads after, so both schemas resolve;
+    // the container's URL already has a query string, hence the ampersand.
     private static Connection connect(String database) throws SQLException {
-        return DriverManager.getConnection(url(database), POSTGRES.getUsername(), POSTGRES.getPassword());
+        return DriverManager.getConnection(url(database) + "&currentSchema=app,public", POSTGRES.getUsername(),
+                POSTGRES.getPassword());
     }
 
     private static String url(String database) {

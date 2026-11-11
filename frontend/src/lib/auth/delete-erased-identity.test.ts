@@ -33,7 +33,7 @@ describe("deleteErasedIdentity", () => {
     await deleteErasedIdentity(USER_ID);
 
     expect(captured.query?.sql).toBe(
-      'delete from "user" where ("user"."id" = $1 and exists (select 1 from erasure_ledger where erasure_ledger.user_id = "user"."id"))',
+      'delete from "auth"."user" where ("auth"."user"."id" = $1 and exists (select 1 from app.erasure_ledger where erasure_ledger.user_id = "auth"."user"."id"))',
     );
     expect(captured.query?.params).toEqual([USER_ID]);
   });

@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
+import SearchResultsStatus from "@/components/custom/live-status/search-results-status";
 import NoResults from "@/components/custom/common/no-results";
 import { AnimatedGroup } from "@/components/custom/animation/animated-group";
 import PostCard from "@/app/[locale]/updates/components/post-card";
@@ -57,6 +58,8 @@ export default async function UpdatesPage(
 
         <NewPostButton />
       </div>
+
+      <SearchResultsStatus query={query} count={matchingPosts.length} />
 
       {matchingPosts.length > 0 ? (
         <AnimatedGroup className="space-y-4">

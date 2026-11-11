@@ -24,8 +24,9 @@ class SessionRetentionJobTest {
 
     @BeforeEach
     void createSessionTable() {
+        entityManager.createNativeQuery("CREATE SCHEMA IF NOT EXISTS auth").executeUpdate();
         entityManager.createNativeQuery("""
-                CREATE TABLE IF NOT EXISTS "session" (
+                CREATE TABLE IF NOT EXISTS auth."session" (
                     token VARCHAR(64) PRIMARY KEY,
                     expires_at TIMESTAMP NOT NULL,
                     created_at TIMESTAMP NOT NULL,
@@ -33,7 +34,7 @@ class SessionRetentionJobTest {
                     user_agent VARCHAR(255)
                 )
                 """).executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM \"session\"").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM auth.\"session\"").executeUpdate();
     }
 
     @Test
@@ -63,7 +64,7 @@ class SessionRetentionJobTest {
 
     private void insertSession(String token, LocalDateTime expiresAt, LocalDateTime createdAt) {
         entityManager.createNativeQuery("""
-                        INSERT INTO "session" (token, expires_at, created_at, ip_address, user_agent)
+                        INSERT INTO auth."session" (token, expires_at, created_at, ip_address, user_agent)
                         VALUES (:token, :expiresAt, :createdAt, '203.0.113.7', 'Firefox')
                         """)
                 .setParameter("token", token)
@@ -74,7 +75,7 @@ class SessionRetentionJobTest {
 
     @SuppressWarnings("unchecked")
     private List<String> tokens() {
-        return entityManager.createNativeQuery("SELECT token FROM \"session\"").getResultList();
+        return entityManager.createNativeQuery("SELECT token FROM auth.\"session\"").getResultList();
     }
 
     private Object ipAddress(String token) {
@@ -86,7 +87,7 @@ class SessionRetentionJobTest {
     }
 
     private Object column(String name, String token) {
-        return entityManager.createNativeQuery("SELECT " + name + " FROM \"session\" WHERE token = :token")
+        return entityManager.createNativeQuery("SELECT " + name + " FROM auth.\"session\" WHERE token = :token")
                 .setParameter("token", token)
                 .getSingleResult();
     }

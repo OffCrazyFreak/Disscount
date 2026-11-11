@@ -17,6 +17,7 @@ import {
 } from "@/app/[locale]/(user)/digital-cards/utils/card-sorting";
 import LoginRequired from "@/components/custom/common/login-required";
 import NotSavedOffline from "@/components/custom/common/not-saved-offline";
+import SearchResultsStatus from "@/components/custom/live-status/search-results-status";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import { usePathname } from "@/i18n/navigation";
@@ -74,12 +75,12 @@ export default function DigitalCardsClient() {
         onSortChange={setSortMode}
       />
 
-      <CardAnnouncer
-        extra={
-          query && !isLoading
-            ? t("announce.results", { count: matching.length })
-            : ""
-        }
+      <CardAnnouncer />
+
+      <SearchResultsStatus
+        query={query}
+        count={matching.length}
+        isLoading={isLoading}
       />
 
       <DigitalCardsResults

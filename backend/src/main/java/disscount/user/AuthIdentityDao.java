@@ -30,8 +30,8 @@ public class AuthIdentityDao {
         List<Object[]> rows = entityManager
                 .createNativeQuery("""
                         SELECT u.id, u.email, GREATEST(u.last_login_at, MAX(s.created_at)), MAX(s.updated_at)
-                        FROM "user" u
-                        LEFT JOIN "session" s ON s.user_id = u.id
+                        FROM auth."user" u
+                        LEFT JOIN auth."session" s ON s.user_id = u.id
                         WHERE u.id IN (:ids)
                         GROUP BY u.id, u.email, u.last_login_at
                         """)
@@ -50,12 +50,12 @@ public class AuthIdentityDao {
 
     @SuppressWarnings("unchecked")
     public List<UUID> findAllIds() {
-        return entityManager.createNativeQuery("SELECT id FROM \"user\"").getResultList();
+        return entityManager.createNativeQuery("SELECT id FROM auth.\"user\"").getResultList();
     }
 
     @Transactional
     public int deleteSessionsExpiredBefore(LocalDateTime cutoff) {
-        return entityManager.createNativeQuery("DELETE FROM \"session\" WHERE expires_at < :cutoff")
+        return entityManager.createNativeQuery("DELETE FROM auth.\"session\" WHERE expires_at < :cutoff")
                 .setParameter("cutoff", cutoff)
                 .executeUpdate();
     }
@@ -64,7 +64,7 @@ public class AuthIdentityDao {
     @Transactional
     public int clearSessionIpAddressesCreatedBefore(LocalDateTime cutoff) {
         return entityManager.createNativeQuery("""
-                        UPDATE "session" SET ip_address = NULL
+                        UPDATE auth."session" SET ip_address = NULL
                         WHERE created_at < :cutoff AND ip_address IS NOT NULL
                         """)
                 .setParameter("cutoff", cutoff)

@@ -31,11 +31,11 @@ public interface DigitalCardPhotoRepository extends JpaRepository<DigitalCardPho
     // Native from here on: JPQL through p.card skips the photos of a deleted card, which the purge must still delete.
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query(value = "DELETE FROM wallet_card_photo WHERE card_id = :cardId", nativeQuery = true)
+    @Query(value = "DELETE FROM app.wallet_card_photo WHERE card_id = :cardId", nativeQuery = true)
     void deleteAllByCardId(UUID cardId);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query(value = "DELETE FROM wallet_card_photo WHERE card_id IN (SELECT id FROM wallet_card WHERE user_id = :userId)",
+    @Query(value = "DELETE FROM app.wallet_card_photo WHERE card_id IN (SELECT id FROM app.wallet_card WHERE user_id = :userId)",
             nativeQuery = true)
     void deleteAllByUserId(UUID userId);
 }
