@@ -11,9 +11,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,7 +40,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public Optional<UserDto> findById(UUID id) {
         return userRepository.findByIdAndDeletedAtIsNull(id)
-                .map(this::convertToUserDto);
+                .map(UserDto::from);
     }
 
     /** A deleted account is never revived: the login outlived a failed deletion, so the browser can finish it. */
@@ -128,7 +126,7 @@ public class UserService {
     public UserDto updateProfile(UUID userId, UserRequest request) {
         User user = userRepository.requireActive(userId);
 
-        String username = request.getUsername();
+        String username = request.username();
         if (username != null && !username.equals(user.getUsername())) {
             // Checked here so the answer carries fieldErrors; the unique index catches the race with the same 409.
             if (userRepository.existsByUsername(username)) {
@@ -137,23 +135,23 @@ public class UserService {
             user.setUsername(username);
         }
 
-        user.setNotificationsPushEnabledAt(applyToggle(user.getNotificationsPushEnabledAt(), request.getNotificationsPush()));
-        user.setNotificationsEmailEnabledAt(applyToggle(user.getNotificationsEmailEnabledAt(), request.getNotificationsEmail()));
-        user.setNewsletterEnabledAt(applyToggle(user.getNewsletterEnabledAt(), request.getNewsletter()));
-        user.setFeedbackContactEnabledAt(applyToggle(user.getFeedbackContactEnabledAt(), request.getFeedbackContact()));
+        user.setNotificationsPushEnabledAt(applyToggle(user.getNotificationsPushEnabledAt(), request.notificationsPush()));
+        user.setNotificationsEmailEnabledAt(applyToggle(user.getNotificationsEmailEnabledAt(), request.notificationsEmail()));
+        user.setNewsletterEnabledAt(applyToggle(user.getNewsletterEnabledAt(), request.newsletter()));
+        user.setFeedbackContactEnabledAt(applyToggle(user.getFeedbackContactEnabledAt(), request.feedbackContact()));
 
-        if (request.getAcquisitionChannel() != null) {
-            user.setAcquisitionChannel(request.getAcquisitionChannel());
+        if (request.acquisitionChannel() != null) {
+            user.setAcquisitionChannel(request.acquisitionChannel());
         }
 
         // null = leave unchanged, "" = clear the avatar, otherwise store the new base64 image
-        String image = request.getImage();
+        String image = request.image();
         if (image != null) {
             user.setImage(image.isEmpty() ? null : avatarSanitizer.sanitize(image));
         }
 
         // Only "completed" stamps it and finished is never downgraded, or a slow skipped ping could relock the flow.
-        String outcome = request.getOnboardingOutcome();
+        String outcome = request.onboardingOutcome();
         boolean isDowngrade = outcome != null
                 && !ONBOARDING_COMPLETED.equals(outcome)
                 && ONBOARDING_COMPLETED.equals(user.getOnboardingOutcome());
@@ -167,7 +165,7 @@ public class UserService {
         }
 
         user = userRepository.save(user);
-        return convertToUserDto(user);
+        return UserDto.from(user);
     }
 
     /** null leaves it unchanged, true sets now only if off, preserving the first enable time, and false clears. */
@@ -208,31 +206,18 @@ public class UserService {
     public List<UserDto> findAllActive() {
         List<UserDto> dtos = userRepository.findByDeletedAtIsNullOrderByCreatedAtAsc()
                 .stream()
-                .map(this::convertToUserDto)
+                .map(UserDto::from)
                 .toList();
 
-        // Email and sign-in history live in better-auth's tables, so the admin list fills them: one source of truth.
-        if (!dtos.isEmpty()) {
-            Map<UUID, AuthIdentity> identitiesById = authIdentityDao.findByUserIds(dtos.stream().map(UserDto::getId).toList());
-            dtos.forEach(dto -> applyAuthIdentity(dto, identitiesById.get(dto.getId())));
+        if (dtos.isEmpty()) {
+            return dtos;
         }
 
-        return dtos;
-    }
-
-    private void applyAuthIdentity(UserDto dto, AuthIdentity identity) {
-        if (identity == null) return;
-
-        dto.setEmail(identity.email());
-        dto.setLastLoginAt(identity.lastLoginAt());
-        // The stamped column starts at this feature's rollout, so surviving session rows fill in the history behind it.
-        dto.setLastActiveAt(latestOf(dto.getLastActiveAt(), identity.lastSeenAt()));
-    }
-
-    private Instant latestOf(Instant first, Instant second) {
-        if (first == null) return second;
-        if (second == null) return first;
-        return first.isAfter(second) ? first : second;
+        // Email and sign-in history live in better-auth's tables, so the admin list fills them: one source of truth.
+        Map<UUID, AuthIdentity> identitiesById = authIdentityDao.findByUserIds(dtos.stream().map(UserDto::id).toList());
+        return dtos.stream()
+                .map(dto -> dto.withIdentity(identitiesById.get(dto.id())))
+                .toList();
     }
 
     /** Identity deletion cascades sessions and accounts; the profile is only anonymized, so business data stays. */
@@ -258,30 +243,6 @@ public class UserService {
 
         user.setAccountType(accountType);
         user = userRepository.save(user);
-        return convertToUserDto(user);
-    }
-
-    private UserDto convertToUserDto(User user) {
-        // No email: the current user reads the session, and the admin list backfills it (see findAllActive).
-        return UserDto.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .notificationsPushEnabledAt(user.getNotificationsPushEnabledAt())
-                .notificationsEmailEnabledAt(user.getNotificationsEmailEnabledAt())
-                .newsletterEnabledAt(user.getNewsletterEnabledAt())
-                .feedbackContactEnabledAt(user.getFeedbackContactEnabledAt())
-                .acquisitionChannel(user.getAcquisitionChannel())
-                .image(user.getImage())
-                .onboardingCompletedAt(user.getOnboardingCompletedAt())
-                .onboardingOutcome(user.getOnboardingOutcome())
-                .accountType(user.getAccountType())
-                .createdAt(user.getCreatedAt())
-                .lastActiveAt(toUtcInstant(user.getLastActiveAt()))
-                .build();
-    }
-
-    // The column is zone-less but written by Timestamps.nowUtc(), so UTC is the offset it was stamped with.
-    private Instant toUtcInstant(LocalDateTime value) {
-        return value == null ? null : value.toInstant(ZoneOffset.UTC);
+        return UserDto.from(user);
     }
 }

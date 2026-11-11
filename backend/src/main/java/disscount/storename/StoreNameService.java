@@ -70,7 +70,7 @@ public class StoreNameService {
                 ? repository.findTopVisible(page)
                 : repository.search(escapeLike(normalized), page);
 
-        return found.stream().map(s -> new StoreNameSuggestionDto(s.getName())).toList();
+        return found.stream().map(StoreNameSuggestionDto::from).toList();
     }
 
     private static String escapeLike(String value) {

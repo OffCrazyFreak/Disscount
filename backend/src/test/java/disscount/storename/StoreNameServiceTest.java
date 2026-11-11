@@ -78,10 +78,10 @@ class StoreNameServiceTest {
         hidden.setHidden(true);
         repository.save(hidden);
 
-        List<String> names = service.search("DUCAN").stream().map(StoreNameSuggestionDto::getName).toList();
+        List<String> names = service.search("DUCAN").stream().map(StoreNameSuggestionDto::name).toList();
 
         assertThat(names).containsExactly("Dućan kod Ive", "Mali dućan");
-        assertThat(service.search("").stream().map(StoreNameSuggestionDto::getName))
+        assertThat(service.search("").stream().map(StoreNameSuggestionDto::name))
                 .startsWith("Mali dućan").doesNotContain("Sakriven dućan");
     }
 
@@ -92,7 +92,7 @@ class StoreNameServiceTest {
             service.record(user(), "Poladvapola");
         }
 
-        assertThat(service.search("a_p")).extracting(StoreNameSuggestionDto::getName).containsExactly("Pola_pola");
+        assertThat(service.search("a_p")).extracting(StoreNameSuggestionDto::name).containsExactly("Pola_pola");
         assertThat(service.search("%")).isEmpty();
     }
 
@@ -115,7 +115,7 @@ class StoreNameServiceTest {
 
         service.record(user(), "samo moja trgovina");
 
-        assertThat(service.search("moja")).extracting(StoreNameSuggestionDto::getName)
+        assertThat(service.search("moja")).extracting(StoreNameSuggestionDto::name)
                 .containsExactly("Samo moja trgovina");
     }
 
@@ -146,7 +146,7 @@ class StoreNameServiceTest {
         service.record(user(), "Zajednička trgovina");
         service.record(user(), "Zajednička trgovina");
 
-        assertThat(service.search("zajed")).extracting(StoreNameSuggestionDto::getName)
+        assertThat(service.search("zajed")).extracting(StoreNameSuggestionDto::name)
                 .containsExactly("Zajednička trgovina");
     }
 

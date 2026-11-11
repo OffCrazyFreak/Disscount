@@ -14,16 +14,16 @@ public final class CardServiceTestSupport {
     }
 
     public static DigitalCardRequest request(String cardName) {
-        DigitalCardRequest r = new DigitalCardRequest();
-        r.setCardName(cardName);
-        r.setCardType("loyalty");
-        r.setStoreName("Konzum");
-        r.setChainCode("konzum");
-        r.setCodeValue("3850123456789");
-        r.setCodeType("ean_13");
-        r.setCardColor("#D50000");
-        r.setBalance(new BigDecimal("12.5"));
-        r.setBalanceUnit("EUR");
-        return r;
+        return DigitalCardRequest.builder()
+                .cardName(cardName)
+                .cardType("loyalty")
+                .storeName("Konzum")
+                .chainCode("konzum")
+                .codeValue("3850123456789")
+                .codeType("ean_13")
+                .cardColor("#D50000")
+                .balance(new BigDecimal("12.5"))
+                .balanceUnit("EUR")
+                .build();
     }
 }

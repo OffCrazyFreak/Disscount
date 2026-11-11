@@ -141,14 +141,14 @@ public class DigitalCardService {
         LocalDateTime now = Timestamps.nowUtc();
         LocalDateTime oldest = now.minusDays(MAX_USED_AGE_DAYS);
         for (CardUsedEntry entry : entries) {
-            if (entry == null || entry.getId() == null || entry.getUsedAt() == null) {
+            if (entry == null || entry.id() == null || entry.usedAt() == null) {
                 throw new BadRequestException("error.card.usedEntryIncomplete");
             }
             // Clamped both ways so a skewed device clock cannot pin a card to the top or bottom of every sort.
-            LocalDateTime usedAt = toUtc(entry.getUsedAt());
+            LocalDateTime usedAt = toUtc(entry.usedAt());
             if (usedAt.isAfter(now)) usedAt = now;
             if (usedAt.isBefore(oldest)) usedAt = oldest;
-            cardRepository.touchLastUsed(entry.getId(), userId, usedAt);
+            cardRepository.touchLastUsed(entry.id(), userId, usedAt);
         }
     }
 
@@ -179,20 +179,20 @@ public class DigitalCardService {
     }
 
     private void apply(DigitalCard card, DigitalCardRequest r) {
-        card.setCardName(r.getCardName().trim());
-        card.setStoreName(r.getStoreName().trim());
-        card.setCardType(r.getCardType());
-        card.setChainCode(r.getChainCode());
-        card.setCodeValue(r.getCodeValue().trim());
-        card.setBarcodeValue(blankToNull(r.getBarcodeValue()));
-        card.setCodeType(r.getCodeType());
-        card.setCardColor(r.getCardColor());
-        card.setNote(blankToNull(r.getNote()));
-        card.setValidFrom(r.getValidFrom());
-        card.setExpiresOn(r.getExpiresOn());
-        card.setBalance(r.getBalance() == null ? null : r.getBalance().setScale(2, RoundingMode.UNNECESSARY));
+        card.setCardName(r.cardName().trim());
+        card.setStoreName(r.storeName().trim());
+        card.setCardType(r.cardType());
+        card.setChainCode(r.chainCode());
+        card.setCodeValue(r.codeValue().trim());
+        card.setBarcodeValue(blankToNull(r.barcodeValue()));
+        card.setCodeType(r.codeType());
+        card.setCardColor(r.cardColor());
+        card.setNote(blankToNull(r.note()));
+        card.setValidFrom(r.validFrom());
+        card.setExpiresOn(r.expiresOn());
+        card.setBalance(r.balance() == null ? null : r.balance().setScale(2, RoundingMode.UNNECESSARY));
         // A unit without an amount means nothing, and null unit means points.
-        card.setBalanceUnit(r.getBalance() == null ? null : r.getBalanceUnit());
+        card.setBalanceUnit(r.balance() == null ? null : r.balanceUnit());
     }
 
     private void recordStoreName(UUID userId, String storeName) {

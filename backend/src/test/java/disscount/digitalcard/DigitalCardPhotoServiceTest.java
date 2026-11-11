@@ -89,9 +89,9 @@ class DigitalCardPhotoServiceTest {
         CardPhotoDto dto = photoService.upload(owner.getId(), cardId, "front",
                 part(TestImages.webp(64, 48)), part(TestImages.webp(16, 12)));
 
-        String prefix = "cards/" + owner.getId() + "/" + cardId + "/front-" + dto.getSha256();
-        assertThat(dto.getSlot()).isEqualTo("front");
-        assertThat(dto.getSha256()).hasSize(64);
+        String prefix = "cards/" + owner.getId() + "/" + cardId + "/front-" + dto.sha256();
+        assertThat(dto.slot()).isEqualTo("front");
+        assertThat(dto.sha256()).hasSize(64);
         assertThat(fake().objects.keySet()).hasSize(2)
                 .anyMatch(k -> k.matches(java.util.regex.Pattern.quote(prefix) + "-[0-9a-f]{12}\\.webp"))
                 .anyMatch(k -> k.matches(java.util.regex.Pattern.quote(prefix) + "-[0-9a-f]{12}-thumb\\.webp"));
@@ -104,9 +104,9 @@ class DigitalCardPhotoServiceTest {
         CardPhotoDto second = photoService.upload(owner.getId(), cardId, "back",
                 part(TestImages.webp(80, 60)), part(TestImages.webp(20, 15)));
 
-        assertThat(second.getSha256()).isNotEqualTo(first.getSha256());
+        assertThat(second.sha256()).isNotEqualTo(first.sha256());
         assertThat(photos.findByCardId(cardId)).hasSize(1);
-        assertThat(fake().objects.keySet()).hasSize(2).allMatch(k -> k.contains(second.getSha256()));
+        assertThat(fake().objects.keySet()).hasSize(2).allMatch(k -> k.contains(second.sha256()));
     }
 
     @Test
@@ -125,8 +125,8 @@ class DigitalCardPhotoServiceTest {
     void openRejectsAStaleVersionAndForeignUsers() {
         CardPhotoDto dto = photoService.upload(owner.getId(), cardId, "icon", part(TestImages.webp(32, 32)), null);
 
-        assertThat(photoService.open(owner.getId(), cardId, "icon", false, dto.getSha256()).sha256())
-                .isEqualTo(dto.getSha256());
+        assertThat(photoService.open(owner.getId(), cardId, "icon", false, dto.sha256()).sha256())
+                .isEqualTo(dto.sha256());
         assertThatThrownBy(() -> photoService.open(owner.getId(), cardId, "icon", false, "0".repeat(64)))
                 .isInstanceOf(NotFoundException.class);
         assertThatThrownBy(() -> photoService.open(owner.getId(), cardId, "icon", true, null))
@@ -193,10 +193,10 @@ class DigitalCardPhotoServiceTest {
         CardPhotoDto first = photoService.upload(owner.getId(), cardId, "front", part(full), part(TestImages.webp(16, 12)));
         CardPhotoDto second = photoService.upload(owner.getId(), cardId, "front", part(full), part(TestImages.webp(20, 15)));
 
-        assertThat(second.getSha256()).isNotEqualTo(first.getSha256());
-        assertThat(fake().objects.keySet()).hasSize(2).allMatch(k -> k.contains(second.getSha256()));
+        assertThat(second.sha256()).isNotEqualTo(first.sha256());
+        assertThat(fake().objects.keySet()).hasSize(2).allMatch(k -> k.contains(second.sha256()));
         assertThat(photos.findByCardId(cardId)).singleElement()
-                .satisfies(p -> assertThat(p.getSha256()).isEqualTo(second.getSha256()));
+                .satisfies(p -> assertThat(p.getSha256()).isEqualTo(second.sha256()));
     }
 
     @Test
@@ -240,11 +240,11 @@ class DigitalCardPhotoServiceTest {
 
         assertThatThrownBy(() -> photoService.upload(owner.getId(), cardId, "icon", part(bytes), null))
                 .isInstanceOf(IllegalStateException.class);
-        assertThat(fake().objects.keySet()).singleElement().satisfies(k -> assertThat(k).contains(live.getSha256()));
+        assertThat(fake().objects.keySet()).singleElement().satisfies(k -> assertThat(k).contains(live.sha256()));
 
         assertThatThrownBy(() -> photoService.upload(owner.getId(), cardId, "icon", part(TestImages.webp(40, 40)), null))
                 .isInstanceOf(IllegalStateException.class);
-        assertThat(fake().objects.keySet()).singleElement().satisfies(k -> assertThat(k).contains(live.getSha256()));
+        assertThat(fake().objects.keySet()).singleElement().satisfies(k -> assertThat(k).contains(live.sha256()));
     }
 
     private FakePhotoStore fake() {

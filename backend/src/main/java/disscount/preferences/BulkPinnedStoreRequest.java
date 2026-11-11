@@ -1,15 +1,12 @@
 package disscount.preferences;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-
 import java.util.List;
 
-@Data
-public class BulkPinnedStoreRequest {
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
-    @NotNull(message = "{validation.pinnedStores.required}")
-    @Valid
-    private List<PinnedStoreRequest> stores;
+public record BulkPinnedStoreRequest(
+        @NotNull(message = "{validation.pinnedStores.required}")
+        @Valid
+        List<PinnedStoreRequest> stores) {
 }

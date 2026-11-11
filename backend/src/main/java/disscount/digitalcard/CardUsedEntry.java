@@ -1,21 +1,14 @@
 package disscount.digitalcard;
 
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.Instant;
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class CardUsedEntry {
+import jakarta.validation.constraints.NotNull;
 
-    @NotNull(message = "{validation.card.usedEntry.idRequired}")
-    private UUID id;
+public record CardUsedEntry(
+        @NotNull(message = "{validation.card.usedEntry.idRequired}")
+        UUID id,
 
-    @NotNull(message = "{validation.card.usedEntry.timeRequired}")
-    private Instant usedAt;
+        @NotNull(message = "{validation.card.usedEntry.timeRequired}")
+        Instant usedAt) {
 }

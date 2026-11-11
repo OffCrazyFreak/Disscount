@@ -77,7 +77,7 @@ class ShoppingListController {
         UUID ownerId = SecurityUtils.getCurrentUserId();
         List<ShoppingListDto> lists = shoppingListService.getUserShoppingLists(ownerId);
         List<ShoppingListItemDto> items = lists.stream()
-                .flatMap(list -> list.getItems().stream())
+                .flatMap(list -> list.items().stream())
                 .collect(Collectors.toList());
         return ResponseEntity.ok(items);
     }

@@ -24,31 +24,31 @@ public class WatchlistItemService {
         activeUsers.requireActive(userId);
 
         Optional<WatchlistItem> existing = watchlistItemRepository
-                .findByProductApiIdAndWatchType(request.getProductApiId(), request.getWatchType(), userId);
+                .findByProductApiIdAndWatchType(request.productApiId(), request.watchType(), userId);
         
         if (existing.isPresent()) {
             WatchlistItem watchlistItem = existing.get();
-            watchlistItem.setThresholdValue(request.getThresholdValue());
+            watchlistItem.setThresholdValue(request.thresholdValue());
             WatchlistItem saved = watchlistItemRepository.save(watchlistItem);
-            return mapToDto(saved);
+            return WatchlistItemDto.from(saved);
         }
 
         WatchlistItem watchlistItem = WatchlistItem.builder()
                 .userId(userId)
-                .productApiId(request.getProductApiId())
-                .watchType(request.getWatchType())
-                .thresholdValue(request.getThresholdValue())
+                .productApiId(request.productApiId())
+                .watchType(request.watchType())
+                .thresholdValue(request.thresholdValue())
                 .build();
 
         WatchlistItem saved = watchlistItemRepository.save(watchlistItem);
-        return mapToDto(saved);
+        return WatchlistItemDto.from(saved);
     }
 
     @Transactional(readOnly = true)
     public List<WatchlistItemDto> getUserWatchlist(UUID userId) {
         return watchlistItemRepository.findByUserId(userId)
                 .stream()
-                .map(this::mapToDto)
+                .map(WatchlistItemDto::from)
                 .collect(Collectors.toList());
     }
 
@@ -68,19 +68,7 @@ public class WatchlistItemService {
                 .findByProductApiId(productApiId, userId);
 
         return watchlistItems.stream()
-                .map(this::mapToDto)
+                .map(WatchlistItemDto::from)
                 .collect(Collectors.toList());
-    }
-
-    private WatchlistItemDto mapToDto(WatchlistItem watchlistItem) {
-        return WatchlistItemDto.builder()
-                .id(watchlistItem.getId())
-                .userId(watchlistItem.getUserId())
-                .productApiId(watchlistItem.getProductApiId())
-                .watchType(watchlistItem.getWatchType())
-                .thresholdValue(watchlistItem.getThresholdValue())
-                .createdAt(watchlistItem.getCreatedAt())
-                .updatedAt(watchlistItem.getUpdatedAt())
-                .build();
     }
 }

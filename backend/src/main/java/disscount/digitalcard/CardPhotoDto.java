@@ -1,14 +1,8 @@
 package disscount.digitalcard;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+record CardPhotoDto(String slot, String sha256) {
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-class CardPhotoDto {
-
-    private String slot;
-    private String sha256;
+    static CardPhotoDto from(DigitalCardPhoto photo) {
+        return new CardPhotoDto(photo.getSlot(), photo.getSha256());
+    }
 }

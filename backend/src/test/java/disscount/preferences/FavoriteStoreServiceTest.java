@@ -39,7 +39,7 @@ class FavoriteStoreServiceTest {
         service.updateFavoriteStores(user.getId(), request("spar:3"));
 
         assertThat(service.getUserFavoriteStores(user.getId()))
-                .extracting(FavoriteStoreDto::getStoreKey)
+                .extracting(FavoriteStoreDto::storeKey)
                 .containsExactly("spar:3");
     }
 
@@ -64,12 +64,6 @@ class FavoriteStoreServiceTest {
     }
 
     private static BulkFavoriteStoreRequest request(String... keys) {
-        BulkFavoriteStoreRequest request = new BulkFavoriteStoreRequest();
-        request.setStores(List.of(keys).stream().map(key -> {
-            FavoriteStoreRequest store = new FavoriteStoreRequest();
-            store.setStoreKey(key);
-            return store;
-        }).toList());
-        return request;
+        return new BulkFavoriteStoreRequest(List.of(keys).stream().map(FavoriteStoreRequest::new).toList());
     }
 }

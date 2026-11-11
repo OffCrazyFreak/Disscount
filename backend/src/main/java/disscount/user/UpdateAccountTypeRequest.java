@@ -1,10 +1,8 @@
 package disscount.user;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 
-@Data
-class UpdateAccountTypeRequest {
-    @NotNull(message = "{validation.accountType.required}")
-    private AccountType accountType;
+record UpdateAccountTypeRequest(
+        @NotNull(message = "{validation.accountType.required}")
+        AccountType accountType) {
 }

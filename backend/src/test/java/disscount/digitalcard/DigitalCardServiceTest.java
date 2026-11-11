@@ -97,11 +97,11 @@ class DigitalCardServiceTest {
         DigitalCardDto replay = service.upsert(owner.getId(), id, request("Moja kartica"));
         DigitalCardDto edited = service.upsert(owner.getId(), id, request("Preimenovana"));
 
-        assertThat(created.getId()).isEqualTo(id);
+        assertThat(created.id()).isEqualTo(id);
         // The database keeps microseconds, the freshly created entity still carries nanoseconds.
-        assertThat(replay.getCreatedAt()).isCloseTo(created.getCreatedAt(), within(1, ChronoUnit.MILLIS));
-        assertThat(edited.getCardName()).isEqualTo("Preimenovana");
-        assertThat(edited.getBalance()).isEqualByComparingTo("12.50");
+        assertThat(replay.createdAt()).isCloseTo(created.createdAt(), within(1, ChronoUnit.MILLIS));
+        assertThat(edited.cardName()).isEqualTo("Preimenovana");
+        assertThat(edited.balance()).isEqualByComparingTo("12.50");
         assertThat(service.list(owner.getId())).hasSize(1);
     }
 
@@ -115,7 +115,7 @@ class DigitalCardServiceTest {
         assertThatThrownBy(() -> service.get(stranger.getId(), id)).isInstanceOf(NotFoundException.class);
         assertThatThrownBy(() -> service.delete(stranger.getId(), id)).isInstanceOf(NotFoundException.class);
         assertThatThrownBy(() -> service.setPinned(stranger.getId(), id, true)).isInstanceOf(NotFoundException.class);
-        assertThat(service.get(owner.getId(), id).getCardName()).isEqualTo("Privatna");
+        assertThat(service.get(owner.getId(), id).cardName()).isEqualTo("Privatna");
     }
 
     @Test
@@ -159,8 +159,8 @@ class DigitalCardServiceTest {
 
         List<DigitalCardDto> list = service.list(owner.getId());
 
-        assertThat(list).extracting(DigitalCardDto::getId).containsExactlyInAnyOrder(kept, archived);
-        assertThat(list.stream().filter(c -> c.getId().equals(archived)).findFirst().orElseThrow().getArchivedAt())
+        assertThat(list).extracting(DigitalCardDto::id).containsExactlyInAnyOrder(kept, archived);
+        assertThat(list.stream().filter(c -> c.id().equals(archived)).findFirst().orElseThrow().archivedAt())
                 .isNotNull();
         assertThat(service.list(stranger.getId())).isEmpty();
     }
@@ -170,10 +170,10 @@ class DigitalCardServiceTest {
         UUID id = UUID.randomUUID();
         service.upsert(owner.getId(), id, request("Kartica"));
 
-        assertThat(service.setPinned(owner.getId(), id, true).getPinnedAt()).isNotNull();
-        assertThat(service.setPinned(owner.getId(), id, false).getPinnedAt()).isNull();
-        assertThat(service.setArchived(owner.getId(), id, true).getArchivedAt()).isNotNull();
-        assertThat(service.setArchived(owner.getId(), id, false).getArchivedAt()).isNull();
+        assertThat(service.setPinned(owner.getId(), id, true).pinnedAt()).isNotNull();
+        assertThat(service.setPinned(owner.getId(), id, false).pinnedAt()).isNull();
+        assertThat(service.setArchived(owner.getId(), id, true).archivedAt()).isNotNull();
+        assertThat(service.setArchived(owner.getId(), id, false).archivedAt()).isNull();
     }
 
     @Test
@@ -193,8 +193,8 @@ class DigitalCardServiceTest {
             DigitalCardDto returned = write.get();
 
             // The database rounds to microseconds; a reply built before the flush misses the commit stamp by far more.
-            assertThat(returned.getUpdatedAt())
-                    .isCloseTo(service.get(owner.getId(), id).getUpdatedAt(), within(1, ChronoUnit.MICROS));
+            assertThat(returned.updatedAt())
+                    .isCloseTo(service.get(owner.getId(), id).updatedAt(), within(1, ChronoUnit.MICROS));
         }
     }
 
@@ -212,9 +212,9 @@ class DigitalCardServiceTest {
                 service.setArchived(owner.getId(), id, false));
 
         for (DigitalCardDto reply : replies) {
-            assertThat(reply.getUpdatedAt()).isCloseTo(edited, within(1, ChronoUnit.MILLIS));
+            assertThat(reply.updatedAt()).isCloseTo(edited, within(1, ChronoUnit.MILLIS));
         }
-        assertThat(service.get(owner.getId(), id).getUpdatedAt()).isCloseTo(edited, within(1, ChronoUnit.MILLIS));
+        assertThat(service.get(owner.getId(), id).updatedAt()).isCloseTo(edited, within(1, ChronoUnit.MILLIS));
     }
 
     @Test
@@ -229,7 +229,7 @@ class DigitalCardServiceTest {
 
         // Editing an existing card at the cap is still allowed.
         UUID existing = cards.findActiveByUserId(owner.getId()).get(0).getId();
-        assertThat(service.upsert(owner.getId(), existing, request("Preimenovana")).getCardName())
+        assertThat(service.upsert(owner.getId(), existing, request("Preimenovana")).cardName())
                 .isEqualTo("Preimenovana");
     }
 
@@ -245,8 +245,8 @@ class DigitalCardServiceTest {
 
         DigitalCardDto after = service.get(owner.getId(), id);
         // H2 rounds to microseconds rather than truncating, so compare within a millisecond.
-        assertThat(after.getLastUsedAt()).isCloseTo(LocalDateTime.ofInstant(later, ZoneOffset.UTC), within(1, ChronoUnit.MILLIS));
-        assertThat(after.getUpdatedAt()).isCloseTo(before.getUpdatedAt(), within(1, ChronoUnit.MILLIS));
+        assertThat(after.lastUsedAt()).isCloseTo(LocalDateTime.ofInstant(later, ZoneOffset.UTC), within(1, ChronoUnit.MILLIS));
+        assertThat(after.updatedAt()).isCloseTo(before.updatedAt(), within(1, ChronoUnit.MILLIS));
     }
 
     @Test
@@ -257,7 +257,7 @@ class DigitalCardServiceTest {
         service.recordUsed(owner.getId(), List.of(new CardUsedEntry(id, Instant.now().plusSeconds(86_400))));
         service.recordUsed(stranger.getId(), List.of(new CardUsedEntry(id, Instant.now())));
 
-        assertThat(service.get(owner.getId(), id).getLastUsedAt()).isBeforeOrEqualTo(Timestamps.nowUtc());
+        assertThat(service.get(owner.getId(), id).lastUsedAt()).isBeforeOrEqualTo(Timestamps.nowUtc());
     }
 
     @Test
@@ -275,7 +275,7 @@ class DigitalCardServiceTest {
         photoService.upload(owner.getId(), id, "front", file(TestImages.webp(64, 64)), file(TestImages.webp(16, 16)));
         photoService.upload(owner.getId(), id, "icon", file(TestImages.webp(32, 32)), null);
         assertThat(((FakePhotoStore) store).objects).hasSize(3);
-        assertThat(service.get(owner.getId(), id).getPhotos()).hasSize(2);
+        assertThat(service.get(owner.getId(), id).photos()).hasSize(2);
 
         service.delete(owner.getId(), id);
 
@@ -324,9 +324,10 @@ class DigitalCardServiceTest {
     @Test
     void storeNameIsRecordedOnlyForCustomStores() {
         service.upsert(owner.getId(), UUID.randomUUID(), request("Lanac"));
-        DigitalCardRequest custom = request("Moja trgovina");
-        custom.setChainCode(null);
-        custom.setStoreName("  Žabac   dućan ");
+        DigitalCardRequest custom = request("Moja trgovina").toBuilder()
+                .chainCode(null)
+                .storeName("  Žabac   dućan ")
+                .build();
 
         service.upsert(owner.getId(), UUID.randomUUID(), custom);
         service.upsert(stranger.getId(), UUID.randomUUID(), custom);
@@ -345,8 +346,7 @@ class DigitalCardServiceTest {
     @Test
     void concurrentPutsOfOneIdAllSucceedAsUpdates() throws Exception {
         UUID id = UUID.randomUUID();
-        DigitalCardRequest custom = request("Zajednička");
-        custom.setChainCode(null);
+        DigitalCardRequest custom = request("Zajednička").toBuilder().chainCode(null).build();
 
         List<Throwable> failures = runConcurrently(6, i -> service.upsert(owner.getId(), id, custom));
 
@@ -371,25 +371,25 @@ class DigitalCardServiceTest {
     @Test
     void storeNameCountsOnlyCreationsAndRenames() {
         UUID id = UUID.randomUUID();
-        DigitalCardRequest custom = request("Moja trgovina");
-        custom.setChainCode(null);
-        custom.setStoreName("Žabac dućan");
+        DigitalCardRequest custom = request("Moja trgovina").toBuilder()
+                .chainCode(null)
+                .storeName("Žabac dućan")
+                .build();
 
         service.upsert(owner.getId(), id, custom);
         service.upsert(owner.getId(), id, custom);
-        custom.setCardName("Preimenovana");
+        custom = custom.toBuilder().cardName("Preimenovana").build();
         service.upsert(owner.getId(), id, custom);
         assertThat(storeNames.findAll()).singleElement().satisfies(s -> assertThat(s.getUseCount()).isEqualTo(1));
 
-        custom.setStoreName("Drugi dućan");
+        custom = custom.toBuilder().storeName("Drugi dućan").build();
         service.upsert(owner.getId(), id, custom);
         assertThat(storeNames.findAll()).hasSize(2);
 
         // Switching a chain card to a custom store with the same name is a new use of that name.
         UUID chainCard = UUID.randomUUID();
         service.upsert(owner.getId(), chainCard, request("Lanac"));
-        DigitalCardRequest switched = request("Lanac");
-        switched.setChainCode(null);
+        DigitalCardRequest switched = request("Lanac").toBuilder().chainCode(null).build();
         service.upsert(owner.getId(), chainCard, switched);
         assertThat(storeNames.findAll()).extracting("normalizedName").contains("konzum");
     }
@@ -405,7 +405,7 @@ class DigitalCardServiceTest {
 
         service.recordUsed(owner.getId(), List.of(new CardUsedEntry(id, Instant.now().minus(3 * 365L, ChronoUnit.DAYS))));
 
-        assertThat(service.get(owner.getId(), id).getLastUsedAt())
+        assertThat(service.get(owner.getId(), id).lastUsedAt())
                 .isCloseTo(Timestamps.nowUtc().minusDays(400), within(1, ChronoUnit.MINUTES));
     }
 

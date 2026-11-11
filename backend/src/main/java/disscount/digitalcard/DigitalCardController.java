@@ -56,7 +56,7 @@ class DigitalCardController {
             @PathVariable UUID id,
             @Valid @RequestBody CardPinRequest request) {
         return ResponseEntity.ok(
-                digitalCardService.setPinned(SecurityUtils.getCurrentUserId(), id, request.getPinned()));
+                digitalCardService.setPinned(SecurityUtils.getCurrentUserId(), id, request.pinned()));
     }
 
     @Operation(summary = "Archive or restore a card")
@@ -65,7 +65,7 @@ class DigitalCardController {
             @PathVariable UUID id,
             @Valid @RequestBody CardArchiveRequest request) {
         return ResponseEntity.ok(
-                digitalCardService.setArchived(SecurityUtils.getCurrentUserId(), id, request.getArchived()));
+                digitalCardService.setArchived(SecurityUtils.getCurrentUserId(), id, request.archived()));
     }
 
     @Operation(summary = "Delete a card (soft delete, photos are removed at once)")

@@ -143,9 +143,10 @@ class UserServiceDeleteAccountTest {
     void deleteAccountRemovesStoreNameUsageAndTakesBackTheCount() {
         User leaving = users.save(User.builder().id(UUID.randomUUID()).username("ana").build());
         User staying = users.save(User.builder().id(UUID.randomUUID()).username("ivo").build());
-        var custom = request("Moja");
-        custom.setChainCode(null);
-        custom.setStoreName("Zajednički dućan");
+        var custom = request("Moja").toBuilder()
+                .chainCode(null)
+                .storeName("Zajednički dućan")
+                .build();
         cardService.upsert(leaving.getId(), UUID.randomUUID(), custom);
         cardService.upsert(staying.getId(), UUID.randomUUID(), custom);
         assertThat(storeNames.findAll()).singleElement().satisfies(s -> assertThat(s.getUseCount()).isEqualTo(2));
@@ -309,12 +310,6 @@ class UserServiceDeleteAccountTest {
     }
 
     private static BulkFavoriteStoreRequest favorites(String... keys) {
-        BulkFavoriteStoreRequest request = new BulkFavoriteStoreRequest();
-        request.setStores(List.of(keys).stream().map(key -> {
-            FavoriteStoreRequest store = new FavoriteStoreRequest();
-            store.setStoreKey(key);
-            return store;
-        }).toList());
-        return request;
+        return new BulkFavoriteStoreRequest(List.of(keys).stream().map(FavoriteStoreRequest::new).toList());
     }
 }

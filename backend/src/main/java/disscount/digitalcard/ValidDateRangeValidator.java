@@ -7,8 +7,8 @@ class ValidDateRangeValidator implements ConstraintValidator<ValidDateRange, Dig
 
     @Override
     public boolean isValid(DigitalCardRequest request, ConstraintValidatorContext context) {
-        if (request.getValidFrom() == null || request.getExpiresOn() == null
-                || !request.getExpiresOn().isBefore(request.getValidFrom())) {
+        if (request.validFrom() == null || request.expiresOn() == null
+                || !request.expiresOn().isBefore(request.validFrom())) {
             return true;
         }
 

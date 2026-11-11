@@ -28,7 +28,7 @@ public class DigitalCardMapper {
                 .archivedAt(card.getArchivedAt())
                 .createdAt(card.getCreatedAt())
                 .updatedAt(card.getUpdatedAt())
-                .photos(photos.stream().map(p -> new CardPhotoDto(p.getSlot(), p.getSha256())).toList())
+                .photos(photos.stream().map(CardPhotoDto::from).toList())
                 .build();
     }
 }

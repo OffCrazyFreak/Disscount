@@ -21,39 +21,30 @@ public class PinnedStoreService {
     public List<PinnedStoreDto> updatePinnedStores(UUID userId, BulkPinnedStoreRequest request) {
         activeUsers.lockActive(userId);
 
-        long distinctIds = request.getStores().stream().map(PinnedStoreRequest::getStoreApiId).distinct().count();
+        long distinctIds = request.stores().stream().map(PinnedStoreRequest::storeApiId).distinct().count();
 
-        if (distinctIds < request.getStores().size()) {
+        if (distinctIds < request.stores().size()) {
             throw new BadRequestException("error.pinnedStore.duplicate");
         }
 
         pinnedStoreRepository.deleteAllByUserId(userId);
         pinnedStoreRepository.flush();
 
-        List<PinnedStore> saved = pinnedStoreRepository.saveAll(request.getStores().stream()
+        List<PinnedStore> saved = pinnedStoreRepository.saveAll(request.stores().stream()
                 .map(store -> PinnedStore.builder()
                         .userId(userId)
-                        .storeApiId(store.getStoreApiId())
-                        .storeName(store.getStoreName())
+                        .storeApiId(store.storeApiId())
+                        .storeName(store.storeName())
                         .build())
                 .toList());
 
-        return saved.stream().map(this::mapToDto).toList();
+        return saved.stream().map(PinnedStoreDto::from).toList();
     }
 
     @Transactional(readOnly = true)
     public List<PinnedStoreDto> getUserPinnedStores(UUID userId) {
         return pinnedStoreRepository.findByUserId(userId).stream()
-                .map(this::mapToDto)
+                .map(PinnedStoreDto::from)
                 .toList();
-    }
-
-    private PinnedStoreDto mapToDto(PinnedStore pinnedStore) {
-        return PinnedStoreDto.builder()
-                .id(pinnedStore.getId())
-                .userId(pinnedStore.getUserId())
-                .storeApiId(pinnedStore.getStoreApiId())
-                .storeName(pinnedStore.getStoreName())
-                .build();
     }
 }

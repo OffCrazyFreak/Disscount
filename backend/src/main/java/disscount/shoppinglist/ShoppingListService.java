@@ -30,10 +30,10 @@ public class ShoppingListService {
 
         ShoppingList shoppingList = ShoppingList.builder()
                 .ownerId(ownerId)
-                .title(request.getTitle())
+                .title(request.title())
                 .build();
 
-        applyLinkAccess(shoppingList, request.getLinkAccess());
+        applyLinkAccess(shoppingList, request.linkAccess());
 
         shoppingList = shoppingListRepository.save(shoppingList);
         return shoppingListMapper.toDto(shoppingList, ListAccess.OWNER);
@@ -61,7 +61,7 @@ public class ShoppingListService {
         ShoppingList list = findVisible(listId, userId);
         ListAccess access = accessService.resolve(list, userId);
 
-        if (request.getLinkAccess() != null && !access.canManageShare()) {
+        if (request.linkAccess() != null && !access.canManageShare()) {
             throw new ForbiddenException("error.shoppingList.ownerOnlyAccess");
         }
 
@@ -70,8 +70,8 @@ public class ShoppingListService {
             throw new ForbiddenException("error.shoppingList.insufficientAccess");
         }
 
-        list.setTitle(request.getTitle());
-        applyLinkAccess(list, request.getLinkAccess());
+        list.setTitle(request.title());
+        applyLinkAccess(list, request.linkAccess());
 
         return shoppingListMapper.toDto(shoppingListRepository.save(list), access);
     }

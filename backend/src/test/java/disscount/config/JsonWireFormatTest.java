@@ -65,7 +65,7 @@ class JsonWireFormatTest {
                 "{\"id\":\"8d2c1f0e-3a4b-4c5d-9e6f-7a8b9c0d1e2f\",\"usedAt\":\"2026-03-01T12:15:30+02:00\",\"extra\":1}",
                 CardUsedEntry.class);
 
-        assertThat(entry.getUsedAt()).isEqualTo(Instant.parse("2026-03-01T10:15:30Z"));
+        assertThat(entry.usedAt()).isEqualTo(Instant.parse("2026-03-01T10:15:30Z"));
     }
 
     // Jackson 3 rejects a null for a primitive where Jackson 2 read it as false; the frontend always sends booleans.

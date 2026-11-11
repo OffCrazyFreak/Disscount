@@ -290,16 +290,16 @@ class DigitalCardControllerTest {
     }
 
     private String validBody() throws Exception {
-        DigitalCardRequest r = new DigitalCardRequest();
-        r.setCardName("Moja kartica");
-        r.setCardType("loyalty");
-        r.setStoreName("Konzum");
-        r.setChainCode("konzum");
-        r.setCodeValue("3850123456789");
-        r.setCodeType("ean_13");
-        r.setCardColor("#D50000");
-        r.setBalance(new BigDecimal("12.5"));
-        r.setBalanceUnit("EUR");
-        return json.writeValueAsString(r);
+        return json.writeValueAsString(DigitalCardRequest.builder()
+                .cardName("Moja kartica")
+                .cardType("loyalty")
+                .storeName("Konzum")
+                .chainCode("konzum")
+                .codeValue("3850123456789")
+                .codeType("ean_13")
+                .cardColor("#D50000")
+                .balance(new BigDecimal("12.5"))
+                .balanceUnit("EUR")
+                .build());
     }
 }

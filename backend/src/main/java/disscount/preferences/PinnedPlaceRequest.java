@@ -1,14 +1,11 @@
 package disscount.preferences;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
 
-@Data
-class PinnedPlaceRequest {
+record PinnedPlaceRequest(
+        @NotBlank(message = "{validation.placeApiId.required}")
+        String placeApiId,
 
-    @NotBlank(message = "{validation.placeApiId.required}")
-    private String placeApiId;
-
-    @NotBlank(message = "{validation.placeName.required}")
-    private String placeName;
+        @NotBlank(message = "{validation.placeName.required}")
+        String placeName) {
 }
