@@ -1,6 +1,6 @@
 # Testing
 
-The frontend uses Vitest with Testing Library, jsdom and MSW. The backend has its own JUnit suite on H2, plus two tests on real `postgres:17-alpine`, so `mvn -B verify` needs Docker: `DoubleBootSchemaTest` starts the app twice with main's `application.properties` and fails if the second start changes the schema, and `ReadOnlyDefaultTest` checks that a service write method without `@Transactional` cannot write (H2 ignores a read-only connection, PostgreSQL refuses the statement). The rest of this file covers the frontend.
+The frontend uses Vitest with Testing Library, jsdom and MSW. The backend has its own JUnit suite on H2, plus three tests on real `postgres:17-alpine`, so `mvn -B verify` needs Docker: `DoubleBootSchemaTest` starts the app twice with main's `application.properties` and fails if the second start changes the schema, and `ReadOnlyDefaultTest` checks that a service write method without `@Transactional` cannot write (H2 ignores a read-only connection, PostgreSQL refuses the statement), and `SoftDeletePostgresTest` runs every native query that reads soft-deleted rows, and the `erasure-backfill` step twice, through the full app. The rest of this file covers the frontend.
 
 ## What the backend suite covers
 
