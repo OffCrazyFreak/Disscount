@@ -60,12 +60,13 @@ export default function DataDeletionPage() {
 
       <LegalSection heading="Što ostaje">
         <p>
-          Popisi za kupnju, praćeni proizvodi, tvoje trgovine i lokacije te
-          tekst poruka za kontakt ostaju u bazi, vezani uz nasumični
+          Popisi za kupnju, praćeni proizvodi, trgovine i lokacije iz postavki
+          te tekst poruka za kontakt ostaju u bazi, vezani uz nasumični
           identifikator računa, bez imena i emaila. Uz isti identifikator ostaje
           i nekoliko podataka profila: vrsta računa, datum registracije i zadnje
           aktivnosti, postavke obavijesti i odgovori iz uvodnih koraka. Tvoje
-          promjene na tuđim popisima ostaju na tim popisima.
+          promjene na tuđim popisima ostaju na tim popisima. Odobrene
+          fotografije proizvoda ostaju u aplikaciji, bez veze s tvojim računom.
         </p>
         <p>
           Zato u poruke za kontakt ne upisuj osobne podatke koje ne želiš

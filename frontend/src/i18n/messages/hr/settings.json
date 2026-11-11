@@ -198,7 +198,7 @@
       "revokeDialogTitle": "Odjaviti ostale uređaje?",
       "revokeDialogDescription": "Odjavit ćemo te sa svih uređaja osim ovog.",
       "deleteDialogTitle": "Obrisati račun?",
-      "deleteDialogDescription": "Trajno brišemo prijavu, kartice s fotografijama i nazivima trgovina, omiljene trgovine, fotografije proizvoda koje još nisu odobrene te ime i email iz tvojih poruka za kontakt. Poveznice na tvoje popise prestaju raditi. Popisi, praćeni proizvodi, tvoje trgovine i lokacije te tekst poruka ostaju, bez imena i emaila. Ovo ne možeš poništiti.",
+      "deleteDialogDescription": "Trajno brišemo prijavu, kartice s fotografijama i nazivima trgovina, omiljene trgovine na karti, fotografije proizvoda koje još nisu odobrene te ime i email iz tvojih poruka za kontakt. Poveznice na tvoje popise prestaju raditi. Popisi, praćeni proizvodi, trgovine i lokacije iz postavki te tekst poruka ostaju, bez imena i emaila. Ovo ne možeš poništiti.",
       "revokeFailed": "Ostali uređaji nisu odjavljeni. Pokušaj ponovno.",
       "revoked": "Ostali uređaji su odjavljeni.",
       "deleted": "Tvoj račun je obrisan.",
