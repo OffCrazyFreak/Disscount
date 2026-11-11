@@ -184,7 +184,7 @@ mvn clean install
 mvn spring-boot:run -Dspring-boot.run.profiles=local
 ```
 
-The backend runs on port 8080. Swagger UI: http://localhost:8080/api-docs
+The backend runs on port 8080. Swagger UI, under the `local` profile only: http://localhost:8080/api-docs
 
 ### 3. Frontend (Next.js)
 
