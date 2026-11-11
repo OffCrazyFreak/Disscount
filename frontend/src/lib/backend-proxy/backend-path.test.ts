@@ -19,15 +19,25 @@ describe("backendUrl", () => {
   });
 });
 
+// Each one forwards every method Spring serves on its path; the admin delete removes the login after Spring's erase.
+const DELIBERATE_SHADOWS = ["admin/users/[userId]/route.ts"];
+
 describe("Next routes under app/api", () => {
-  it("never take a path the proxy forwards to Spring", () => {
+  it("never take a path the proxy forwards to Spring, except the deliberate ones", () => {
     // A Next route beats the catch-all, so a folder named like a backend root would silently steal its calls.
     const apiFolder = fileURLToPath(new URL("../../app/api", import.meta.url));
-    const nextRoutes = readdirSync(apiFolder).filter(
-      (name) => name !== "[...path]",
-    );
+    const shadowingFiles = readdirSync(apiFolder)
+      .filter((name) => BACKEND_ROOTS.has(name))
+      .flatMap((root) =>
+        readdirSync(`${apiFolder}/${root}`, {
+          recursive: true,
+          encoding: "utf8",
+        })
+          .filter((file) => /(^|\/)route\.[jt]s$/.test(file))
+          .map((file) => `${root}/${file}`),
+      );
 
-    expect(nextRoutes.filter((name) => BACKEND_ROOTS.has(name))).toEqual([]);
+    expect(shadowingFiles).toEqual(DELIBERATE_SHADOWS);
   });
 
   it("keep account data out of the service worker's /api/cijene/ cache", () => {

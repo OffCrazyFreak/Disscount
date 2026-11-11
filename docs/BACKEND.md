@@ -255,8 +255,7 @@ The required keys come from environment placeholders with no default. Spring lea
 
 What the rest of #429 changes:
 
-- **R10**: deleting a better-auth identity moves to Next.js together with #53 (atomic account deletion); Spring then only erases app data through the erasure token path.
-- **R11**: the app tables move to an `app` schema and better-auth's to `auth`, with three least-privilege database roles (migrator, Spring runtime, Next.js runtime).
+- **R11**: the app tables move to an `app` schema and better-auth's to `auth`, with three least-privilege database roles (migrator, Spring runtime, Next.js runtime). The Spring runtime role needs no `DELETE` on `auth."user"`: only the erasure replay deletes logins from Spring ([AUTH.md](AUTH.md#74-who-deletes-a-login)), so it runs with its own grant.
 
 Open:
 

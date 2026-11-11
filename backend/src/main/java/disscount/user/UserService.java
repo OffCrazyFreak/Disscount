@@ -231,7 +231,7 @@ public class UserService {
                 .toList();
     }
 
-    /** Identity deletion cascades sessions and accounts; the profile is only anonymized, so business data stays. */
+    /** App data only: Next.js deletes the identity once this commits, so the Spring role never deletes a login. */
     @Transactional
     public void deleteUserAsAdmin(UUID targetUserId, UUID adminUserId) {
         if (targetUserId.equals(adminUserId)) {
@@ -243,10 +243,7 @@ public class UserService {
             throw new BadRequestException("error.user.notFound");
         }
 
-        // Before the identity goes, so a refusal leaves the account whole.
         refuseErasingTheLastAdmin(targetUserId);
-
-        authIdentityDao.deleteById(targetUserId);
 
         deleteAccount(targetUserId);
     }
