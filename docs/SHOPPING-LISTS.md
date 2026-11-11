@@ -94,6 +94,8 @@ Entities live in `backend/src/main/java/disscount/shoppinglist/`. The tables com
 | `created_at`, `updated_at`  | timestamp                 | `Timestamps.nowUtc()`                                                                                                                                                   |
 | `deleted_at`                | timestamp, null           | Soft delete marker                                                                                                                                                      |
 
+The API refuses a negative `avgPrice` or `storePrice`, or one above 999999.9999, with a form error. Extra decimals are allowed, because the app sends unrounded averages and the column rounds them to four places.
+
 There is no position column: the page sorts rows itself ([§9](#9-grouping-by-store-and-the-map-link)).
 
 ### Wire format and the frontend schemas

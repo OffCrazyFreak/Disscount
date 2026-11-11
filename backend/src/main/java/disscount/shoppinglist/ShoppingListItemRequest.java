@@ -3,6 +3,8 @@ package disscount.shoppinglist;
 import java.math.BigDecimal;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -38,9 +40,14 @@ record ShoppingListItemRequest(
         @Schema(nullable = true)
         String chainCode,
 
+        // The column is numeric(10, 4) and rounds extra decimals, which the app sends for averages, so only size is checked.
+        @DecimalMin(value = "0", message = "{validation.price.negative}")
+        @DecimalMax(value = "999999.9999", message = "{validation.price.tooLarge}")
         @Schema(nullable = true)
         BigDecimal avgPrice,
 
+        @DecimalMin(value = "0", message = "{validation.price.negative}")
+        @DecimalMax(value = "999999.9999", message = "{validation.price.tooLarge}")
         @Schema(nullable = true)
         BigDecimal storePrice) {
 }

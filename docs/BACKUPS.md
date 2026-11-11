@@ -46,9 +46,9 @@ The one-shot `predeploy-dump` service in `docker-compose.images.yml` runs on eve
 
 **A failed dump only alerts** (owner decision 2026-11-11, "Alert only"). When any step fails (settings, dump, encryption, upload, check), or the whole run takes longer than 600 seconds (a hung `pg_dump` or R2 connection, reported as `timed out after 600 s`), the service prints `predeploy dump FAILED: <reason>`, sends a fail ping to the healthchecks.io check `disscount-predeploy-dump` and still exits 0, so `flyway`, `migrate` and the deploy go ahead. That deploy then relies on the last hourly dump, so up to about an hour of data is at risk if its migration goes wrong. A successful dump sends the success ping. Stopping the deploy instead would take production down: Compose has already removed the old containers of every service whose image or settings changed by the time the dump fails (tested locally on 2026-11-10).
 
-With `BACKUP_HEALTHCHECKS_PING_KEY` blank no ping goes out, so a failed dump shows only in the Dokploy deployment log.
+With `BACKUP_HEALTHCHECKS_PING_KEY` blank no ping goes out, so a failed dump shows only in the `predeploy-dump` container log. The Dokploy deployment log lists the container starting and exiting but not its output (checked on dev on 2026-11-11).
 
-When the alert comes, read the `predeploy dump FAILED` line in the Dokploy deployment log, fix the cause (a setting, the token, R2), and press Redeploy if the next migration needs a fresh dump before it.
+When the alert comes, read the `predeploy dump FAILED` line with `docker compose -f docker-compose.images.yml logs predeploy-dump` from the environment's compose folder on the server, fix the cause (a setting, the token, R2), and press Redeploy if the next migration needs a fresh dump before it.
 
 The check is created on its first ping (`?create=1`) with healthchecks.io's defaults, a 1 day period and 1 hour grace. Deploys are not daily, so its period must be raised to the longest healthchecks.io allows, or a quiet day reads as a missed run.
 

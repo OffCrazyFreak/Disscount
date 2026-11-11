@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface ProductImageRepository extends JpaRepository<ProductImage, UUID> {
 
@@ -22,6 +24,14 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, UUID
     List<ProductImage> findByEanIn(Collection<String> eans);
 
     boolean existsByFullKey(String fullKey);
+
+    // REQUIRES_NEW because an after-rollback callback joining the finished transaction could not read.
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Query("""
+            select count(i) > 0 from ProductImage i
+            where i.originalKey = :key or i.fullKey = :key or i.thumbKey = :key or i.smallKey = :key
+            """)
+    boolean anyRowPointsAt(@Param("key") String key);
 
     boolean existsByThumbKey(String thumbKey);
 

@@ -606,10 +606,12 @@
     "PinnedPlaceRequest" : {
       "properties" : {
         "placeApiId" : {
+          "maxLength" : 255,
           "minLength" : 1,
           "type" : "string"
         },
         "placeName" : {
+          "maxLength" : 255,
           "minLength" : 1,
           "type" : "string"
         }
@@ -639,10 +641,12 @@
     "PinnedStoreRequest" : {
       "properties" : {
         "storeApiId" : {
+          "maxLength" : 255,
           "minLength" : 1,
           "type" : "string"
         },
         "storeName" : {
+          "maxLength" : 255,
           "minLength" : 1,
           "type" : "string"
         }
@@ -836,6 +840,8 @@
           "type" : [ "integer", "null" ]
         },
         "avgPrice" : {
+          "maximum" : 999999.9999,
+          "minimum" : 0,
           "type" : [ "number", "null" ]
         },
         "brand" : {
@@ -859,6 +865,8 @@
           "type" : [ "string", "null" ]
         },
         "storePrice" : {
+          "maximum" : 999999.9999,
+          "minimum" : 0,
           "type" : [ "number", "null" ]
         },
         "unit" : {
