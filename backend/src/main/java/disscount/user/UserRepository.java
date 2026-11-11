@@ -30,9 +30,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("SELECT u FROM User u WHERE u.id = :id")
     Optional<User> findByIdForUpdate(UUID id);
 
-    /** Row locks on every live admin, held until the transaction ends. */
+    /** Row locks on every live admin, held until the transaction ends; ordered so concurrent callers lock in the same order. */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT u FROM User u WHERE u.accountType = disscount.user.AccountType.ADMIN AND u.deletedAt IS NULL")
+    @Query("SELECT u FROM User u WHERE u.accountType = disscount.user.AccountType.ADMIN AND u.deletedAt IS NULL ORDER BY u.id")
     List<User> lockActiveAdmins();
 
     /** For the caller's own id: a token outlives its account, so a missing row means the session is over. */
