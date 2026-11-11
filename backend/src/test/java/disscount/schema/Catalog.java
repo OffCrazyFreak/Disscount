@@ -11,7 +11,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** The parts of a schema in public that Hibernate's validate never reads: nullability, checks, keys and indexes. */
+/** The parts of the app schema that Hibernate's validate never reads: nullability, checks, keys and indexes. */
 record Catalog(
         List<ColumnRow> columns,
         List<CheckRow> checks,
@@ -37,7 +37,7 @@ record Catalog(
     private static final String COLUMNS = """
             select c.relname, a.attname, format_type(a.atttypid, a.atttypmod), a.attnotnull, a.atthasdef
             from pg_class c
-            join pg_namespace n on n.oid = c.relnamespace and n.nspname = 'public'
+            join pg_namespace n on n.oid = c.relnamespace and n.nspname = 'app'
             join pg_attribute a on a.attrelid = c.oid and a.attnum > 0 and not a.attisdropped
             where c.relkind = 'r' and c.relname = any (?)
             """;
@@ -51,7 +51,7 @@ record Catalog(
                    coalesce(target.relname, '')
             from pg_constraint con
             join pg_class c on c.oid = con.conrelid
-            join pg_namespace n on n.oid = c.relnamespace and n.nspname = 'public'
+            join pg_namespace n on n.oid = c.relnamespace and n.nspname = 'app'
             left join pg_class target on target.oid = con.confrelid
             where c.relname = any (?)
             """;
@@ -65,7 +65,7 @@ record Catalog(
             from pg_index x
             join pg_class c on c.oid = x.indrelid
             join pg_class i on i.oid = x.indexrelid
-            join pg_namespace n on n.oid = c.relnamespace and n.nspname = 'public'
+            join pg_namespace n on n.oid = c.relnamespace and n.nspname = 'app'
             where c.relname = any (?)
             """;
 
@@ -111,7 +111,7 @@ record Catalog(
         Set<String> tables = new TreeSet<>();
 
         try (PreparedStatement statement = connection.prepareStatement(
-                "select tablename from pg_tables where schemaname = 'public'");
+                "select tablename from pg_tables where schemaname = 'app'");
                 ResultSet rows = statement.executeQuery()) {
             while (rows.next()) {
                 tables.add(rows.getString(1));

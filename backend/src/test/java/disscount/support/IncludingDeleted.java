@@ -14,7 +14,7 @@ public final class IncludingDeleted {
     public static <T> Optional<T> find(EntityManager entityManager, Class<T> entity, UUID id) {
         String table = entity.getAnnotation(Table.class).name();
 
-        return entityManager.createNativeQuery("SELECT * FROM " + table + " WHERE id = :id", entity)
+        return entityManager.createNativeQuery("SELECT * FROM app." + table + " WHERE id = :id", entity)
                 .setParameter("id", id)
                 .getResultList()
                 .stream()

@@ -112,7 +112,7 @@ class AdminAuditTest extends FullStackTest {
     // Through the service, as the API only reaches these guards when another admin is the caller.
     @Test
     void theLastAdminGuardsWriteNothing() {
-        jdbc.update("UPDATE app_user SET account_type = 'CONSUMER' WHERE account_type = 'ADMIN'");
+        jdbc.update("UPDATE app.app_user SET account_type = 'CONSUMER' WHERE account_type = 'ADMIN'");
         User lastAdmin = newAdmin();
         User formerAdmin = newUser("former-admin");
 
@@ -158,6 +158,6 @@ class AdminAuditTest extends FullStackTest {
     }
 
     private long auditRowCount() {
-        return jdbc.queryForObject("SELECT count(*) FROM admin_audit", Long.class);
+        return jdbc.queryForObject("SELECT count(*) FROM app.admin_audit", Long.class);
     }
 }

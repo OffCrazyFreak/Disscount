@@ -28,7 +28,7 @@ class ErasureBackfillRunnerTest {
 
     @BeforeEach
     void setUp() {
-        JdbcTestUtils.deleteFromTables(jdbc, "erasure_ledger", "app_user");
+        JdbcTestUtils.deleteFromTables(jdbc, "app.erasure_ledger", "app.app_user");
         runner = new ErasureBackfillRunner(erasureLedger, users);
     }
 
