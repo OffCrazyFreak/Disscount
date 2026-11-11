@@ -420,7 +420,7 @@ Not covered by an automated test: the info table maths against real prices, the 
 | **Ticked items keep old prices**                             | By design: a tick is a receipt. Group subtotals and "Potrošeno" read the captured prices, unticked rows read today's                                                                                                                          |
 | **The totals' low and high ends are estimates**              | They are the average minus and plus 10 percent, not real chain prices                                                                                                                                                                         |
 | **History keys and `staleTime` must match the product page** | Build them only with `priceHistoryQueries`, or the two charts fetch the same days twice                                                                                                                                                       |
-| **Account deletion keeps the lists**                         | `UserService.deleteAccount` anonymises the profile and keeps business data, and `AccountErasureTest` pins that the lists stay. #202 tracks the complete erasure                                                                               |
+| **Account deletion keeps the lists, not their links**        | `UserService.deleteAccount` anonymises the profile and keeps the lists (owner, 2026-11-11), and `ShoppingListService.onAccountErased` switches every link off, so a link visitor gets the 404 of an unknown list (`AccountErasureTest`)       |
 | **Deleting a list leaves its items**                         | Only the list gets `deleted_at`; the items stay live rows, but every route reaches them through their hidden list and answers 404 (`ShoppingListSoftDeleteTest`)                                                                              |
 | **The watchlist's discounted list is not transactional**     | It is a create plus one add per product from the browser, unlike the copy endpoint; it cleans up after a partial failure itself                                                                                                               |
 
@@ -434,5 +434,4 @@ Not covered by an automated test: the info table maths against real prices, the 
 - [ ] #45 (batch price history requests) and #62 (periods longer than 30 days), which unblock the disabled history periods.
 - [ ] #168 (store select blank when price data fails): the price states in [§8](#8-prices-on-the-list-page) replace the blank select with a reason, which may resolve it; unverified in a browser.
 - [ ] #154 and #155 (personalise lists with images and colours), #61 (switchable, personalised list views).
-- [ ] #202 (complete account erasure), which decides what happens to a deleted account's lists.
 - [ ] Membership, adding through a link, attribution in the UI: see [SHARING.md §10](SHARING.md#10-not-built-yet).

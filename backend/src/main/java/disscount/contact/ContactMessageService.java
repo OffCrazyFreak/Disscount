@@ -2,10 +2,13 @@ package disscount.contact;
 
 import disscount.shared.NotFoundException;
 import disscount.shared.Timestamps;
+import disscount.user.AccountErased;
 import disscount.user.ActiveUsers;
 import disscount.user.AdminAction;
 import disscount.user.AdminAuditLog;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,12 +38,19 @@ class ContactMessageService {
             return Optional.empty();
         }
 
-        UUID senderId = callerId != null && activeUsers.isActive(callerId) ? callerId : null;
+        // Both locks hold until the insert commits, so the erasure's blanking either sees this row or has already run.
+        if (callerId != null) {
+            activeUsers.lockActive(callerId);
+        }
+
+        boolean fromErasedAccount = callerId == null
+                && StringUtils.hasText(request.email())
+                && activeUsers.isErasedLoginAddress(request.email());
 
         ContactMessage message = ContactMessage.builder()
-                .senderId(senderId)
-                .email(request.email())
-                .fullName(request.fullName())
+                .senderId(callerId)
+                .email(fromErasedAccount ? null : request.email())
+                .fullName(fromErasedAccount ? null : request.fullName())
                 .subject(request.subject())
                 .message(request.message())
                 .sourcePath(request.sourcePath())
@@ -87,6 +97,14 @@ class ContactMessageService {
     @Transactional
     public ContactMessageDto restore(UUID id, UUID adminId) {
         return mutate(id, adminId, AdminAction.RESTORE_CONTACT_MESSAGE, msg -> msg.setDeletedAt(null));
+    }
+
+    /** The name and address go with the account; the text stays for the admins (owner, 2026-11-11). */
+    @EventListener
+    @Order(60)
+    @Transactional
+    public void onAccountErased(AccountErased erased) {
+        contactMessageRepository.blankSender(erased.userId(), erased.loginEmail());
     }
 
     private ContactMessageDto mutate(UUID id, UUID adminId, AdminAction action, Consumer<ContactMessage> change) {

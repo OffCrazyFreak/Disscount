@@ -79,16 +79,18 @@ flowchart TD
 
 ### Account erasure as an event
 
-`UserService.deleteAccount` soft-deletes the profile, publishes `AccountErased(userId)` and writes an `erasure_ledger` tombstone, all in one transaction. The listeners are plain synchronous `@EventListener`s, so they run inside that transaction and a listener that throws rolls the whole erasure back:
+`UserService.deleteAccount` soft-deletes the profile, publishes `AccountErased(userId, loginEmail)` (the address read from better-auth, null once the login is gone) and writes an `erasure_ledger` tombstone, all in one transaction. The listeners are plain synchronous `@EventListener`s, so they run inside that transaction and a listener that throws rolls the whole erasure back:
 
-| Order | Listener                               | Erases                                                                                                  |
-| ----- | -------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| 10    | `DigitalCardService.onAccountErased`   | Cards (deleted ones too), their photo rows, and queues the photo files                                  |
-| 20    | `StoreNameService.onAccountErased`     | Store name usages                                                                                       |
-| 30    | `FavoriteStoreService.onAccountErased` | Favourite stores                                                                                        |
-| 40    | `ProductImageErasure.onAccountErased`  | The user's unconfirmed product photos and private originals; confirmed photos stay without their author |
+| Order | Listener                                | Erases                                                                                                  |
+| ----- | --------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| 10    | `DigitalCardService.onAccountErased`    | Cards (deleted ones too), their photo rows, and queues the photo files                                  |
+| 20    | `StoreNameService.onAccountErased`      | Store name usages                                                                                       |
+| 30    | `FavoriteStoreService.onAccountErased`  | Favourite stores                                                                                        |
+| 40    | `ProductImageErasure.onAccountErased`   | The user's unconfirmed product photos and private originals; confirmed photos stay without their author |
+| 50    | `ShoppingListService.onAccountErased`   | Switches off the share link of every list the user owns; the lists stay                                 |
+| 60    | `ContactMessageService.onAccountErased` | Nulls name and email on the user's contact messages and on signed-out ones sent from the login address  |
 
-The order is explicit because the bulk deletes clear the persistence context; `AccountErasedListenersTest` pins it.
+The order is explicit because the bulk deletes clear the persistence context; `AccountErasedListenersTest` pins it. Writes that race the erasure take the owner's row lock, the lock the erasure holds, so they land before it or are refused: creating or copying a list (through the list quota) and every list update, where the owner gets 401 and a link visitor the 404 of an unknown list. `ShoppingList` is `@DynamicUpdate`, so an item edit that touches its list's `updatedAt` never writes back a link the erasure switched off. A signed-in contact message takes the sender's lock and gets 401 once the account is gone; a signed-out one from an address locks the account that signs in with it (`ActiveUsers.isErasedLoginAddress`) and is saved without name and email when that account was just erased (`AccountErasurePostgresTest`).
 
 ### Work after the commit
 

@@ -69,7 +69,7 @@ The backend stores the rule and never a price. Entity `WatchlistItem` (`backend/
 
 All four need a signed-in session; the browser reaches them through the backend proxy ([BACKEND-PROXY.md](BACKEND-PROXY.md)). Every query in `WatchlistItemRepository` is scoped by `user.id`, and `WatchlistGuard` checks the item's owner before the delete runs ([BACKEND.md section 5.2](BACKEND.md#52-owner-scoped-methods-guard-beans)); `WatchlistItemOwnershipTest` pins both. The frontend parses every response through `watchlistItemDtoSchema` (`lib/api/schemas/watchlist.ts`), so a changed field fails loudly at the service boundary.
 
-**Account deletion keeps the rows.** `UserService.deleteAccount` anonymises the profile and leaves watchlist rules in place, like shopping lists; `AccountErasureTest` asserts the rule survives. The full erasure flow is in [AUTH.md](AUTH.md#13-gotchas-and-lessons).
+**Account deletion keeps the rows.** `UserService.deleteAccount` anonymises the profile and leaves watchlist rules in place, as the owner decided on 2026-11-11 (#202); `AccountErasureTest` asserts the rule survives. The full erasure flow is in [AUTH.md](AUTH.md#13-gotchas-and-lessons).
 
 ---
 

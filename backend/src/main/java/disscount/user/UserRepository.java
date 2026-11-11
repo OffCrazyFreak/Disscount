@@ -25,11 +25,17 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     /** Live names only; deleteAccount nulls the name of a deleted profile, so none is left to collide with. */
     boolean existsByUsername(String username);
 
-    /** Native for the same reason as the ledger backfill; frees names that deletions before deleteAccount nulled kept. */
+    /** Native for the same reason as the ledger backfill; clears what deletions before deleteAccount kept. */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query(value = "UPDATE app.app_user SET username = NULL WHERE deleted_at IS NOT NULL AND username IS NOT NULL",
-            nativeQuery = true)
-    int clearUsernamesOfDeletedProfiles();
+    @Query(value = """
+            UPDATE app.app_user SET username = NULL, image = NULL
+            WHERE deleted_at IS NOT NULL AND (username IS NOT NULL OR image IS NOT NULL)
+            """, nativeQuery = true)
+    int clearNamesAndAvatarsOfDeletedProfiles();
+
+    /** Native, as @SQLRestriction hides deleted profiles; text, as H2 hands a native uuid back as bytes. */
+    @Query(value = "SELECT CAST(id AS VARCHAR(36)) FROM app.app_user WHERE deleted_at IS NOT NULL", nativeQuery = true)
+    List<String> findDeletedProfileIds();
 
     /** Native, so profiles deleted before the ledger existed also count; @SQLRestriction hides them from count(). */
     @Query(value = "SELECT COUNT(*) FROM app.app_user", nativeQuery = true)

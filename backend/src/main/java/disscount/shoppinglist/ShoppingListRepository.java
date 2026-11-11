@@ -1,6 +1,7 @@
 package disscount.shoppinglist;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -22,4 +23,10 @@ public interface ShoppingListRepository extends JpaRepository<ShoppingList, UUID
 
     @Query("SELECT new disscount.shoppinglist.ListSharing(sl.ownerId, sl.linkAccess) FROM ShoppingList sl WHERE sl.id = :id")
     Optional<ListSharing> findSharingById(UUID id);
+
+    /** Native, so lists the owner deleted lose their link too; @SQLRestriction hides them from JPQL. */
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = "UPDATE app.shopping_list SET link_access = NULL WHERE owner_id = :ownerId AND link_access IS NOT NULL",
+            nativeQuery = true)
+    int unshareAllOfOwner(UUID ownerId);
 }

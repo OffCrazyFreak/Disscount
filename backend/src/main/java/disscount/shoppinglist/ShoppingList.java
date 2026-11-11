@@ -3,6 +3,7 @@ package disscount.shoppinglist;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
@@ -12,7 +13,9 @@ import java.util.UUID;
 
 import disscount.shared.Timestamps;
 
+/** Dynamic updates, so saving a title or a touch never writes back a link the owner's erasure switched off. */
 @Entity
+@DynamicUpdate
 @SQLRestriction("deleted_at is null")
 @Table(name = "shopping_list")
 @Getter

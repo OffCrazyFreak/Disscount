@@ -1,6 +1,8 @@
 package disscount.shoppinglist;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import disscount.shared.ForbiddenException;
 import disscount.shared.NotFoundException;
 import disscount.shared.Timestamps;
+import disscount.user.AccountErased;
 import disscount.user.ActiveUsers;
 
 import java.util.List;
@@ -68,6 +71,8 @@ public class ShoppingListService {
     @PreAuthorize("@shoppingListGuard.canWrite(#listId, #userId)")
     @Transactional
     public ShoppingListDto updateShoppingList(UUID listId, UUID userId, ShoppingListRequest request) {
+        // Locked before the list loads, so the access below reads what a racing share change or erasure left.
+        lockOwner(listId, userId);
         ShoppingList list = findVisible(listId, userId);
         ListAccess access = accessService.resolve(list, userId);
 
@@ -112,7 +117,34 @@ public class ShoppingListService {
         return list;
     }
 
-    /** Off then on hands back the same URL, since the URL is the id. Intended. */
+    /** A link nobody can switch off must not outlive its owner, so it goes off; the lists stay (owner, 2026-11-11). */
+    @EventListener
+    @Order(50)
+    @Transactional
+    public void onAccountErased(AccountErased erased) {
+        shoppingListRepository.unshareAllOfOwner(erased.userId());
+    }
+
+    /**
+     * An update racing the owner's erasure lands before it or is refused: the owner with the 401 of every write
+     * after deletion, a link visitor with the 404 of an unknown link.
+     */
+    private void lockOwner(UUID listId, UUID callerId) {
+        UUID ownerId = shoppingListRepository.findSharingById(listId)
+                .map(ListSharing::ownerId)
+                .orElseThrow(() -> new NotFoundException("error.shoppingList.notFound"));
+
+        if (ownerId.equals(callerId)) {
+            activeUsers.lockActive(callerId);
+            return;
+        }
+
+        if (!activeUsers.lockIfActive(ownerId)) {
+            throw new NotFoundException("error.shoppingList.notFound");
+        }
+    }
+
+    /** Off then on hands back the same URL, since the URL is the id. Intended. Callers hold the owner's row lock. */
     private void applyLinkAccess(ShoppingList list, LinkAccess requested) {
         if (requested == null) {
             return;

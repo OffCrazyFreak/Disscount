@@ -47,6 +47,7 @@ class SoftDeletePostgresTest extends FullStackTest {
     @Autowired ContactMessageRepository contactMessages;
     @Autowired DigitalCardService cardService;
     @Autowired ErasureLedgerRepository erasureLedger;
+    @Autowired AccountErasureService accountErasure;
     @Autowired TransactionTemplate transactions;
 
     private static MockHttpServletRequestBuilder withJson(MockHttpServletRequestBuilder request, String body) {
@@ -149,13 +150,19 @@ class SoftDeletePostgresTest extends FullStackTest {
     }
 
     @Test
-    void theBackfillTombstonesOldDeletedProfilesOnceAndClearsTheirNames() {
+    void theBackfillTombstonesOldDeletedProfilesOnceAndErasesThem() {
         LocalDateTime deletedAt = Timestamps.nowUtc().minusDays(90).truncatedTo(ChronoUnit.MICROS);
         UUID legacy = users.save(User.builder().id(UUID.randomUUID()).username("legacy-" + UUID.randomUUID())
                 .deletedAt(deletedAt).build()).getId();
         User live = newUser("live");
+        UUID list = UUID.randomUUID();
+        jdbc.update("INSERT INTO app.shopping_list (id, created_at, updated_at, title, owner_id, link_access) "
+                + "VALUES (?, now(), now(), 'Popis', ?, 'EDIT')", list, legacy);
+        UUID message = UUID.randomUUID();
+        jdbc.update("INSERT INTO app.contact_message (id, created_at, updated_at, email, full_name, subject, message, user_id) "
+                + "VALUES (?, now(), now(), 'ana@example.com', 'Ana', 'Pozdrav', 'Tekst', ?)", message, legacy);
         // The bean's @Transactional proxy only exists under its profile, so the test opens the same write transaction.
-        ErasureBackfillRunner runner = new ErasureBackfillRunner(erasureLedger, users);
+        ErasureBackfillRunner runner = new ErasureBackfillRunner(erasureLedger, users, accountErasure);
         Runnable backfill = () -> transactions.executeWithoutResult(status -> runner.run(null));
 
         backfill.run();
@@ -164,6 +171,9 @@ class SoftDeletePostgresTest extends FullStackTest {
                 .satisfies(entry -> assertThat(entry.getErasedAt()).isEqualTo(deletedAt));
         assertThat(IncludingDeleted.find(entityManager, User.class, legacy).orElseThrow().getUsername()).isNull();
         assertThat(users.findById(live.getId()).orElseThrow().getUsername()).isEqualTo(live.getUsername());
+        assertThat(count("SELECT COUNT(*) FROM app.shopping_list WHERE id = ? AND link_access IS NULL", list)).isEqualTo(1);
+        assertThat(count("SELECT COUNT(*) FROM app.contact_message WHERE id = ? AND email IS NULL AND full_name IS NULL "
+                + "AND message = 'Tekst'", message)).isEqualTo(1);
 
         long tombstones = erasureLedger.count();
         backfill.run();

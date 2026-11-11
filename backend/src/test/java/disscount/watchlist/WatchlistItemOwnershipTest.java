@@ -8,6 +8,7 @@ import disscount.shared.NotFoundException;
 import disscount.shared.Timestamps;
 import disscount.support.IncludingDeleted;
 import disscount.user.ActiveUsers;
+import disscount.user.AuthIdentityDao;
 import disscount.user.User;
 import disscount.user.UserRepository;
 import disscount.user.UserService;
@@ -40,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(WatchlistItemController.class)
 @AutoConfigureDataJpa
 @AutoConfigureTestDatabase
-@Import({SecurityConfig.class, WatchlistItemService.class, WatchlistGuard.class, ActiveUsers.class})
+@Import({SecurityConfig.class, WatchlistItemService.class, WatchlistGuard.class, ActiveUsers.class, AuthIdentityDao.class})
 class WatchlistItemOwnershipTest {
 
     @Autowired MockMvc mvc;

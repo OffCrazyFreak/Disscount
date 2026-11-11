@@ -15,6 +15,7 @@ import disscount.storename.StoreNameSuggestionRepository;
 import disscount.storename.StoreNameUpsert;
 import disscount.storename.StoreNameUsageRepository;
 import disscount.user.ActiveUsers;
+import disscount.user.AuthIdentityDao;
 import disscount.user.User;
 import disscount.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-@Import({ActiveUsers.class, DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
+@Import({ActiveUsers.class, AuthIdentityDao.class, DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
         StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, UploadLimitConfig.class,
         CardPhotoWriter.class, CardUserLock.class, PhotoCleanupService.class,
         DigitalCardPhotoServiceTest.StoreConfig.class})
