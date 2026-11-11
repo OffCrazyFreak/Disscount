@@ -90,7 +90,7 @@ flowchart TD
 | 50    | `ShoppingListService.onAccountErased`   | Switches off the share link of every list the user owns; the lists stay                                 |
 | 60    | `ContactMessageService.onAccountErased` | Nulls name and email on the user's contact messages and on signed-out ones sent from the login address  |
 
-The order is explicit because the bulk deletes clear the persistence context; `AccountErasedListenersTest` pins it. Every path that sets a share link (create, update, a copy with sharing) takes the owner's row lock first, the lock the erasure holds, so a share change either lands before the erasure and is switched off by it, or waits and gets 401. A signed-in contact message takes the same lock, so one that waits on an erasure is saved as a signed-out message with no sender (`AccountErasurePostgresTest`).
+The order is explicit because the bulk deletes clear the persistence context; `AccountErasedListenersTest` pins it. Writes that race the erasure take the owner's row lock, the lock the erasure holds, so they land before it or are refused: creating or copying a list (through the list quota) and every list update, where the owner gets 401 and a link visitor the 404 of an unknown list. `ShoppingList` is `@DynamicUpdate`, so an item edit that touches its list's `updatedAt` never writes back a link the erasure switched off. A signed-in contact message takes the sender's lock and gets 401 once the account is gone; a signed-out one from an address locks the account that signs in with it (`ActiveUsers.isErasedLoginAddress`) and is saved without name and email when that account was just erased (`AccountErasurePostgresTest`).
 
 ### Work after the commit
 

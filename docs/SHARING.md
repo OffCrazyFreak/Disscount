@@ -208,4 +208,4 @@ Worth knowing before changing any of this:
 - **Link expiry.** There is none, and with rotation gone there is no way to invalidate a
   shared URL except making the list private, which affects everyone at once. Account
   erasure does exactly that for every list of the erased owner ([SETTINGS.md](SETTINGS.md)),
-  and share changes take the owner's row lock so they cannot race it.
+  and list updates take the owner's row lock so they cannot race it.
