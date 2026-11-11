@@ -258,7 +258,7 @@ Notes:
 ### Review
 
 - Give every PR one Sonnet `reviewer` before opening it.
-- Run coderabbit CLI only on big changes in codebase (1000+ changed lines, 20+ files, or auth, security, personal data or migrations), in parallel to the sonnet reviewer.
+- Run coderabbit CLI only on big changes in codebase (1000+ changed lines, 30+ files, or auth, security, personal data or migrations), in parallel to the sonnet reviewer.
 - For a release into `main`, run one sonnet high `reviewer` per app area plus CodeRabbit (automatic or CLI), and wait for all of them.
 
 ### Merging
