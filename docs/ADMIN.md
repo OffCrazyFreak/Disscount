@@ -4,7 +4,7 @@ A reference for the admin dashboard (`/dashboard`) and the `/api/admin/**` endpo
 
 > **Mental model in one sentence:** `/dashboard` is a client page whose guard is only a convenience; the real boundary is the `/api/admin/**` rule in Spring's `SecurityConfig`, and a test walks every admin route to prove it.
 
-How admin is granted, why there is no `@PreAuthorize`, and the accepted risks (admins can demote each other down to none) are documented once in [AUTH.md section 7.1](AUTH.md#71-admin-access). The photo review queue has its own doc, [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md). This doc covers the dashboard as a whole and links there.
+How admin is granted, why there is no `@PreAuthorize`, and the guard that keeps at least one admin are documented once in [AUTH.md section 7.1](AUTH.md#71-admin-access). The photo review queue has its own doc, [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md). This doc covers the dashboard as a whole and links there.
 
 ---
 
@@ -16,7 +16,7 @@ How admin is granted, why there is no `@PreAuthorize`, and the accepted risks (a
 | Nav link            | Header and sidebar, shown when `canAccessDashboard(accountType)` is true                                                            |
 | Tabs (admins)       | Korisnici (users), Kontakt (contact inbox), Slike proizvoda (product photo queue)                                                   |
 | Account types       | `ADMIN`, `CONSUMER` (default), `ENTERPRISE`, `PUBLIC_SECTOR` (`AccountType.java`)                                                   |
-| Backend check       | `/api/admin/**` rule in `SecurityConfig`, through `UserService.isActiveAdmin`; `403` otherwise                                      |
+| Backend check       | `/api/admin/**` rule in `SecurityConfig`, through `AdminAuthorizationManager`; a `403` problem response otherwise                   |
 | Endpoints           | `/api/admin/users`, `/api/admin/contact`, `/api/admin/product-images`                                                               |
 | Other admin-only UI | The photo gallery's admin controls on the product page, and a "new post" button on `/updates` that only shows a "coming soon" toast |
 | Copy                | `frontend/src/i18n/messages/<locale>/dashboard.json`                                                                                |
@@ -48,13 +48,13 @@ sequenceDiagram
   B->>B: DashboardGuard reads accountType from the user context
   B->>P: GET /api/admin/users (session cookie)
   P->>S: Same request with a short-lived JWT
-  S->>D: SecurityConfig /api/admin/** rule: isActiveAdmin(currentUserId)
+  S->>D: SecurityConfig /api/admin/** rule: AdminAuthorizationManager(token subject)
   D-->>S: active row with account_type = ADMIN?
-  S-->>B: 200, or 403
+  S-->>B: 200, or a 403 problem
 ```
 
 - **The guard is cosmetic.** `DashboardGuard` redirects in the browser, after the page's JavaScript has loaded. Anyone can read the dashboard's code; the data is what is protected.
-- **The admin rule is one URL rule in the security chain.** `SecurityConfig` sends everything under `/api/admin/**` through `isActiveAdmin`, before any controller runs, so no handler or service checks for itself and a new route under that path is gated from its first line. The refusal is the chain's plain 403, not a translated problem body; the dashboard shows its own message for it.
+- **The admin rule is one URL rule in the security chain.** `SecurityConfig` sends everything under `/api/admin/**` through `AdminAuthorizationManager`, before any controller runs, so no handler or service checks for itself and a new route under that path is gated from its first line. The refusal is a 403 `application/problem+json` body (`urn:disscount:forbidden`, translated title and detail), the same shape as every other error; the dashboard branches on the status only and shows its own message.
 - **The role is read from the database on every call.** The JWT carries no role, so a promotion or demotion applies on the next request.
 
 The proxy that turns the session into a backend token is in [BACKEND-PROXY.md](BACKEND-PROXY.md).
@@ -78,7 +78,7 @@ The proxy that turns the session into a backend token is in [BACKEND-PROXY.md](B
 
 `lastLoginAt` and `lastActiveAt` are sent as `Instant`s with an offset, so the browser's date maths is not shifted by each admin's time zone ([AUTH.md](AUTH.md#13-gotchas-and-lessons)).
 
-**Changing an account type** (`PATCH /api/admin/users/{userId}`): the select updates the cached list optimistically, rolls back only that row on error, and refetches once the last pending change settles, so a refetch never shows another row's old value. Your own row's select is disabled in the browser only.
+**Changing an account type** (`PATCH /api/admin/users/{userId}`): the select updates the cached list optimistically, rolls back only that row on error, and refetches once the last pending change settles, so a refetch never shows another row's old value. Your own row's select is disabled in the browser, and the backend also refuses demoting yourself or the last admin with 409.
 
 **Deleting a user** (`DELETE /api/admin/users/{userId}`): a confirm dialog, then `UserService.deleteUserAsAdmin`, which refuses your own id (`error.user.cannotDeleteSelf`), deletes the better-auth identity (and with it every session and linked account), then runs the same `deleteAccount` as a self-service deletion: anonymised profile, cards and favourite stores removed, tombstone written. What is kept is listed in [SETTINGS.md](SETTINGS.md#8-deleting-the-account).
 
@@ -104,17 +104,17 @@ The product photo review queue: candidates from Open Food Facts and user uploads
 
 ## 7. Endpoints
 
-| Method and path                                 | Handler                       | What it does                                                    |
-| ----------------------------------------------- | ----------------------------- | --------------------------------------------------------------- |
-| `GET /api/admin/users`                          | `AdminController`             | Every active user with email and activity; unbounded            |
-| `PATCH /api/admin/users/{userId}`               | `AdminController`             | Set `accountType`; any active user, no self or last-admin check |
-| `DELETE /api/admin/users/{userId}`              | `AdminController`             | Delete and erase a user; refuses yourself                       |
-| `GET /api/admin/contact?includeDeleted=`        | `AdminContactController`      | Up to 500 messages, newest first                                |
-| `GET /api/admin/contact/{id}`                   | `AdminContactController`      | One message                                                     |
-| `PATCH /api/admin/contact/{id}/read`, `/unread` | `AdminContactController`      | Set or clear `read_at`                                          |
-| `DELETE /api/admin/contact/{id}`                | `AdminContactController`      | Soft delete                                                     |
-| `PATCH /api/admin/contact/{id}/restore`         | `AdminContactController`      | Undo the soft delete                                            |
-| `/api/admin/product-images/**`                  | `AdminProductImageController` | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                      |
+| Method and path                                 | Handler                       | What it does                                               |
+| ----------------------------------------------- | ----------------------------- | ---------------------------------------------------------- |
+| `GET /api/admin/users`                          | `AdminController`             | Every active user with email and activity; unbounded       |
+| `PATCH /api/admin/users/{userId}`               | `AdminController`             | Set `accountType`; 409 for self-demotion or the last admin |
+| `DELETE /api/admin/users/{userId}`              | `AdminController`             | Delete and erase a user; refuses yourself                  |
+| `GET /api/admin/contact?includeDeleted=`        | `AdminContactController`      | Up to 500 messages, newest first                           |
+| `GET /api/admin/contact/{id}`                   | `AdminContactController`      | One message                                                |
+| `PATCH /api/admin/contact/{id}/read`, `/unread` | `AdminContactController`      | Set or clear `read_at`                                     |
+| `DELETE /api/admin/contact/{id}`                | `AdminContactController`      | Soft delete                                                |
+| `PATCH /api/admin/contact/{id}/restore`         | `AdminContactController`      | Undo the soft delete                                       |
+| `/api/admin/product-images/**`                  | `AdminProductImageController` | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                 |
 
 Swagger lists them all at `/api-docs`.
 
@@ -138,8 +138,8 @@ Swagger lists them all at `/api-docs`.
 | Task                                  | Automatic or manual      | Notes                                                                               |
 | ------------------------------------- | ------------------------ | ----------------------------------------------------------------------------------- |
 | First admin                           | Automatic                | The first profile ever created becomes `ADMIN` ([AUTH.md](AUTH.md#71-admin-access)) |
-| Promoting or demoting                 | Manual, on the Users tab |                                                                                     |
-| Recovering when no admin is left      | Manual, on the server    | `UPDATE app_user SET account_type = 'ADMIN' WHERE ...` through `psql`               |
+| Promoting or demoting                 | Manual, on the Users tab | Not yourself, and never the last admin (409)                                        |
+| Recovering when no admin is left      | Manual, on the server    | Only after deleting admins; `UPDATE app_user SET account_type = 'ADMIN' WHERE ...`  |
 | Reading contact messages              | Manual                   | No alert on arrival                                                                 |
 | Purging soft-deleted contact messages | Not built                | They stay until deleted in the database                                             |
 | Reviewing product photos              | Manual                   | [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                                              |
@@ -148,11 +148,12 @@ Swagger lists them all at `/api-docs`.
 
 ## 10. Key files
 
-| Path                                                        | Role                                                                       |
-| ----------------------------------------------------------- | -------------------------------------------------------------------------- |
-| `frontend/src/lib/api/schemas/auth-user.ts`                 | `canAccessDashboard`, `isAdmin`                                            |
-| `backend/src/main/java/disscount/user/UserService.java`     | `isActiveAdmin`, `findAllActive`, `updateAccountType`, `deleteUserAsAdmin` |
-| `backend/src/main/java/disscount/user/AuthIdentityDao.java` | Reads and deletes better-auth rows from Spring                             |
+| Path                                                                      | Role                                                                    |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `frontend/src/lib/api/schemas/auth-user.ts`                               | `canAccessDashboard`, `isAdmin`                                         |
+| `backend/src/main/java/disscount/user/UserService.java`                   | `findAllActive`, `updateAccountType` and its guard, `deleteUserAsAdmin` |
+| `backend/src/main/java/disscount/security/AdminAuthorizationManager.java` | The `/api/admin/**` rule: an ordinary session token of a live `ADMIN`   |
+| `backend/src/main/java/disscount/user/AuthIdentityDao.java`               | Reads and deletes better-auth rows from Spring                          |
 
 ---
 
@@ -167,7 +168,7 @@ No admin-specific environment variables or feature flags. The page uses the shad
 | Gotcha                                             | Why it bites                                                                                                                                                          | What to do                                                                                             |
 | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | **An admin route outside `/api/admin/**` is open** | The rule matches that path only; anything else gets the catch-all that admits every signed-in token                                                                   | Keep admin routes under `/api/admin/**`, and add each to `AdminGatingTest`, which fails until you do   |
-| **Self-protection is browser only**                | The disabled select on your own row is UI; a direct PATCH on your own id works, and so does demoting the last admin                                                   | Accepted by the owner ([AUTH.md](AUTH.md#71-admin-access)); recovery is a manual SQL update            |
+| **Deleting admins can still leave none**           | `updateAccountType` refuses demoting yourself and the last admin with 409, but `deleteUserAsAdmin` only refuses deleting yourself                                     | Demote before deleting; recovery is a manual SQL update ([AUTH.md](AUTH.md#71-admin-access))           |
 | **`GET /api/admin/users` returns everyone**        | No pagination, and WAU and MAU are counted over the full list in the browser, so paginating would break the stats                                                     | Move the counts to the server before paginating ([SEARCH.md](SEARCH.md#11-future-improvements--todos)) |
 | **A drifted user fails the whole list**            | `lib/api/admin/index.ts` parses every user with `userDtoSchema`, so one user missing a key the backend always sends shows the load error instead of a half-filled row | Change `UserDto` and `userDtoSchema` in the same PR                                                    |
 | **Contact list stops at 500**                      | Older messages silently fall off the list                                                                                                                             | Add paging when the inbox grows                                                                        |
@@ -177,4 +178,4 @@ No admin-specific environment variables or feature flags. The page uses the shad
 
 ## 14. Future improvements and TODOs
 
-- [ ] Admin hardening (method security, last-admin and self-change guards, a smaller user list): proposed in #214, which is closed, while AUTH.md records the current manual checks as an accepted decision. Reopen or file a new issue if the decision changes.
+- [ ] Admin hardening still open: method security and a last-admin guard on delete (#429 R6), and a smaller user list. The demotion guards shipped in #429 R5 (AUTH.md section 7.1).

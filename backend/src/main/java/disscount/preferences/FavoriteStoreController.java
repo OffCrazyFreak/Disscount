@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import disscount.shared.SecurityUtils;
+import disscount.shared.CurrentUser;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,15 +23,14 @@ class FavoriteStoreController {
     @Operation(summary = "Replace the current user's favourite stores")
     @PutMapping("/bulk")
     public ResponseEntity<List<FavoriteStoreDto>> updateFavoriteStores(
+            @CurrentUser UUID userId,
             @Valid @RequestBody BulkFavoriteStoreRequest request) {
-        UUID userId = SecurityUtils.getCurrentUserId();
         return ResponseEntity.ok(favoriteStoreService.updateFavoriteStores(userId, request));
     }
 
     @Operation(summary = "Get the current user's favourite stores")
     @GetMapping("/me")
-    public ResponseEntity<List<FavoriteStoreDto>> getCurrentUserFavoriteStores() {
-        UUID userId = SecurityUtils.getCurrentUserId();
+    public ResponseEntity<List<FavoriteStoreDto>> getCurrentUserFavoriteStores(@CurrentUser UUID userId) {
         return ResponseEntity.ok(favoriteStoreService.getUserFavoriteStores(userId));
     }
 }

@@ -18,7 +18,7 @@ class UserServiceNewProfileDefaultsTest {
     private final UserRepository userRepository = mock(UserRepository.class);
     private final UserProfileCreator profileCreator = mock(UserProfileCreator.class);
     private final UserService userService = new UserService(userRepository, mock(AuthIdentityDao.class),
-            profileCreator, mock(ActiveUsers.class), mock(ApplicationEventPublisher.class),
+            profileCreator, mock(ApplicationEventPublisher.class),
             mock(ErasureLedgerRepository.class), mock(AvatarSanitizer.class));
 
     @Test

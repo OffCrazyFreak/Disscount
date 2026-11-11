@@ -9,7 +9,7 @@ import disscount.productimage.ProductImageDtos.ContributorPhotoCountDto;
 import disscount.productimage.ProductImageDtos.CropRequest;
 import disscount.productimage.ProductImageDtos.ImageStatusRequest;
 import disscount.productimage.ProductImageDtos.SetMainRequest;
-import disscount.shared.SecurityUtils;
+import disscount.shared.CurrentUser;
 import disscount.shared.StoredPhoto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -59,26 +59,32 @@ class AdminProductImageController {
 
     @Operation(summary = "Show this photo first; automatic picks will not replace it")
     @PutMapping("/{ean}/main")
-    public AdminProductDto setMain(@PathVariable String ean, @Valid @RequestBody SetMainRequest request) {
-        return admin.setMain(SecurityUtils.getCurrentUserId(), ean, request.imageId());
+    public AdminProductDto setMain(
+            @CurrentUser UUID adminId,
+            @PathVariable String ean,
+            @Valid @RequestBody SetMainRequest request) {
+        return admin.setMain(adminId, ean, request.imageId());
     }
 
     @Operation(summary = "Mark the product as gone through")
     @PostMapping("/{ean}/reviewed")
-    public AdminProductDto reviewed(@PathVariable String ean) {
-        return admin.reviewed(SecurityUtils.getCurrentUserId(), ean);
+    public AdminProductDto reviewed(@CurrentUser UUID adminId, @PathVariable String ean) {
+        return admin.reviewed(adminId, ean);
     }
 
     @Operation(summary = "Verify (also clears reports) or hide a photo")
     @PutMapping("/images/{imageId}/status")
-    public AdminProductDto status(@PathVariable UUID imageId, @Valid @RequestBody ImageStatusRequest request) {
-        return admin.setStatus(SecurityUtils.getCurrentUserId(), imageId, request.status());
+    public AdminProductDto status(
+            @CurrentUser UUID adminId,
+            @PathVariable UUID imageId,
+            @Valid @RequestBody ImageStatusRequest request) {
+        return admin.setStatus(adminId, imageId, request.status());
     }
 
     @Operation(summary = "Delete a photo's files for good; the same file or Open Food Facts photo cannot come back")
     @DeleteMapping("/images/{imageId}")
-    public AdminProductDto delete(@PathVariable UUID imageId) {
-        return admin.delete(SecurityUtils.getCurrentUserId(), imageId);
+    public AdminProductDto delete(@CurrentUser UUID adminId, @PathVariable UUID imageId) {
+        return admin.delete(adminId, imageId);
     }
 
     @Operation(summary = "Photos each user uploaded and how many an admin deleted")
@@ -89,8 +95,11 @@ class AdminProductImageController {
 
     @Operation(summary = "Rotate and crop a photo from its original; a null crop keeps the whole photo")
     @PutMapping("/images/{imageId}/crop")
-    public AdminProductDto crop(@PathVariable UUID imageId, @Valid @RequestBody CropRequest request) {
-        return admin.crop(SecurityUtils.getCurrentUserId(), imageId, request.rotation(), request.crop());
+    public AdminProductDto crop(
+            @CurrentUser UUID adminId,
+            @PathVariable UUID imageId,
+            @Valid @RequestBody CropRequest request) {
+        return admin.crop(adminId, imageId, request.rotation(), request.crop());
     }
 
     @Operation(summary = "The private original of a user or admin photo, for the crop screen")

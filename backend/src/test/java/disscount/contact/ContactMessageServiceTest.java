@@ -1,14 +1,11 @@
 package disscount.contact;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import disscount.shared.NotFoundException;
 import disscount.user.ActiveUsers;
@@ -35,18 +32,16 @@ class ContactMessageServiceTest {
     @BeforeEach
     void setUp() {
         user = users.save(User.builder().id(UUID.randomUUID()).username("marko").build());
-        SecurityContextHolder.getContext()
-                .setAuthentication(new TestingAuthenticationToken(user.getId().toString(), null));
-    }
-
-    @AfterEach
-    void clearAuthentication() {
-        SecurityContextHolder.clearContext();
     }
 
     @Test
     void aSignedInUserIsStoredAsTheSender() {
-        assertThat(service.create(request()).orElseThrow().userId()).isEqualTo(user.getId());
+        assertThat(service.create(request(), user.getId()).orElseThrow().userId()).isEqualTo(user.getId());
+    }
+
+    @Test
+    void anAnonymousSenderIsStoredWithoutAnAccount() {
+        assertThat(service.create(request(), null).orElseThrow().userId()).isNull();
     }
 
     @Test
@@ -54,7 +49,7 @@ class ContactMessageServiceTest {
         user.setDeletedAt(LocalDateTime.of(2026, 1, 1, 0, 0));
         users.save(user);
 
-        ContactMessageDto message = service.create(request()).orElseThrow();
+        ContactMessageDto message = service.create(request(), user.getId()).orElseThrow();
 
         assertThat(message.userId()).isNull();
         assertThat(message.subject()).isEqualTo("Pozdrav");
@@ -64,7 +59,7 @@ class ContactMessageServiceTest {
     void aHoneypotSubmissionIsDroppedWithoutAMessage() {
         ContactMessageRequest bot = request("https://spam.example");
 
-        assertThat(service.create(bot)).isEmpty();
+        assertThat(service.create(bot, user.getId())).isEmpty();
         assertThat(service.list(true)).isEmpty();
     }
 
@@ -72,7 +67,7 @@ class ContactMessageServiceTest {
     void aWhitespaceOnlyHoneypotIsDroppedWithoutAMessage() {
         ContactMessageRequest bot = request("   ");
 
-        assertThat(service.create(bot)).isEmpty();
+        assertThat(service.create(bot, user.getId())).isEmpty();
         assertThat(service.list(true)).isEmpty();
     }
 

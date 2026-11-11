@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import disscount.digitalcard.DigitalCardPhotoService.PhotoStream;
 import disscount.shared.BadRequestException;
-import disscount.shared.SecurityUtils;
+import disscount.shared.CurrentUser;
 
 import java.util.UUID;
 
@@ -28,22 +28,23 @@ class DigitalCardPhotoController {
     @Operation(summary = "Upload or replace a card photo (multipart: full, plus thumb for front and back)")
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CardPhotoDto> upload(
+            @CurrentUser UUID userId,
             @PathVariable UUID id,
             @PathVariable String slot,
             @RequestPart("full") MultipartFile full,
             @RequestPart(value = "thumb", required = false) MultipartFile thumb) {
-        return ResponseEntity.ok(photoService.upload(SecurityUtils.getCurrentUserId(), id, slot, full, thumb));
+        return ResponseEntity.ok(photoService.upload(userId, id, slot, full, thumb));
     }
 
     @Operation(summary = "Stream a card photo")
     @GetMapping
     public ResponseEntity<InputStreamResource> download(
+            @CurrentUser UUID userId,
             @PathVariable UUID id,
             @PathVariable String slot,
             @RequestParam(defaultValue = "full") String size,
             @RequestParam(required = false) String v,
             WebRequest request) {
-        UUID userId = SecurityUtils.getCurrentUserId();
         boolean thumb = parseSize(size);
 
         // The ETag is derivable from the row alone, so a revalidation never touches object storage.
@@ -66,8 +67,8 @@ class DigitalCardPhotoController {
 
     @Operation(summary = "Delete a card photo")
     @DeleteMapping
-    public ResponseEntity<Void> delete(@PathVariable UUID id, @PathVariable String slot) {
-        photoService.delete(SecurityUtils.getCurrentUserId(), id, slot);
+    public ResponseEntity<Void> delete(@CurrentUser UUID userId, @PathVariable UUID id, @PathVariable String slot) {
+        photoService.delete(userId, id, slot);
         return ResponseEntity.noContent().build();
     }
 

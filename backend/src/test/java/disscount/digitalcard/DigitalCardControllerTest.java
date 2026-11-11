@@ -6,6 +6,7 @@ import disscount.shared.NotFoundException;
 import disscount.shared.ServiceUnavailableException;
 import disscount.shared.StoredPhoto;
 import disscount.shared.TooManyRequestsException;
+import disscount.user.ActiveUsers;
 import disscount.user.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,7 @@ class DigitalCardControllerTest {
     @MockitoBean DigitalCardService cardService;
     @MockitoBean DigitalCardPhotoService photoService;
     @MockitoBean UserService userService;
+    @MockitoBean ActiveUsers activeUsers;
 
     private final UUID userId = UUID.randomUUID();
     private final UUID cardId = UUID.randomUUID();

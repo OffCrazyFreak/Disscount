@@ -1,6 +1,7 @@
 package disscount.contact;
 
 import disscount.security.SecurityConfig;
+import disscount.user.ActiveUsers;
 import disscount.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,10 +35,11 @@ class ContactMessageControllerTest {
     @Autowired MockMvc mvc;
     @MockitoBean ContactMessageService contactMessageService;
     @MockitoBean UserService userService;
+    @MockitoBean ActiveUsers activeUsers;
 
     @BeforeEach
     void storeEveryMessage() {
-        when(contactMessageService.create(any())).thenReturn(Optional.of(ContactMessageDto.builder().build()));
+        when(contactMessageService.create(any(), any())).thenReturn(Optional.of(ContactMessageDto.builder().build()));
     }
 
     private static MockHttpServletRequestBuilder contactFrom(String visitor) {
@@ -59,12 +61,12 @@ class ContactMessageControllerTest {
                 .andExpect(header().exists(HttpHeaders.RETRY_AFTER));
 
         mvc.perform(contactFrom("93.140.10.21")).andExpect(status().isOk());
-        verify(contactMessageService, times(6)).create(any());
+        verify(contactMessageService, times(6)).create(any(), any());
     }
 
     @Test
     void aDroppedHoneypotSubmissionIs204WithNoBody() throws Exception {
-        when(contactMessageService.create(any())).thenReturn(Optional.empty());
+        when(contactMessageService.create(any(), any())).thenReturn(Optional.empty());
 
         mvc.perform(contactFrom("93.140.10.22"))
                 .andExpect(status().isNoContent())
