@@ -78,9 +78,9 @@ The proxy that turns the session into a backend token is in [BACKEND-PROXY.md](B
 
 `lastLoginAt` and `lastActiveAt` are sent as `Instant`s with an offset, so the browser's date maths is not shifted by each admin's time zone ([AUTH.md](AUTH.md#13-gotchas-and-lessons)).
 
-**Changing an account type** (`PATCH /api/admin/users/{userId}`): the select updates the cached list optimistically, rolls back only that row on error, and refetches once the last pending change settles, so a refetch never shows another row's old value. Your own row's select is disabled in the browser, and the backend also refuses demoting yourself or the last admin with 409.
+**Changing an account type** (`PATCH /api/admin/users/{userId}`): the select updates the cached list optimistically, rolls back only that row on error, and refetches once the last pending change settles, so a refetch never shows another row's old value. Your own row's select is disabled in the browser, and the backend also refuses demoting yourself or the last admin with 409. A change that grants or removes `ADMIN` writes an `admin_audit` row ([8](#8-tables-the-dashboard-touches)); a change between the other types, or to the type the user already has, writes none.
 
-**Deleting a user** (`DELETE /api/admin/users/{userId}`): a confirm dialog, then the Next.js route at that path forwards to `UserService.deleteUserAsAdmin`, which refuses your own id (`error.user.cannotDeleteSelf`) and answers 409 `error.user.lastAdminDelete` when the target is the last live admin, both before anything is deleted. It then runs the same `deleteAccount` as a self-service deletion: anonymised profile, cards and favourite stores removed, tombstone written. Once Spring answers 2xx, the route deletes the better-auth identity (and with it every session and linked account). The order and its failure cases are in [AUTH.md](AUTH.md#74-who-deletes-a-login). What is kept is listed in [SETTINGS.md](SETTINGS.md#8-deleting-the-account).
+**Deleting a user** (`DELETE /api/admin/users/{userId}`): a confirm dialog, then the Next.js route at that path forwards to `UserService.deleteUserAsAdmin`, which refuses your own id (`error.user.cannotDeleteSelf`) and answers 409 `error.user.lastAdminDelete` when the target is the last live admin, both before anything is deleted. It then runs the same `deleteAccount` as a self-service deletion: anonymised profile, cards and favourite stores removed, tombstone written. Once Spring answers 2xx, the route deletes the better-auth identity (and with it every session and linked account). The order and its failure cases are in [AUTH.md](AUTH.md#74-who-deletes-a-login). What is kept is listed in [SETTINGS.md](SETTINGS.md#8-deleting-the-account). The same transaction writes an `admin_audit` row, so a delete that rolls back leaves none.
 
 ---
 
@@ -127,9 +127,17 @@ Swagger lists them all at `/api-docs`.
 | `app_user`                                                                                                  | Yes                        | `account_type`; erasure fields on delete         |
 | better-auth `user`, `session`                                                                               | Yes (email, sign-in times) | Deleted on an admin delete, by the Next.js route |
 | `erasure_ledger`                                                                                            | No                         | A tombstone on delete                            |
+| `admin_audit`                                                                                               | No                         | One row per delete, promotion or demotion        |
 | `wallet_card`, `wallet_card_photo` (photos queued in `photo_cleanup`), `favorite_store`, `store_name_usage` | No                         | Deleted on an admin delete                       |
 | `contact_message`                                                                                           | Yes                        | `read_at`, `deleted_at`                          |
 | Product image tables                                                                                        | Yes                        | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)       |
+
+**The admin audit** (`admin_audit`, migration `V5`). Every admin action that succeeds writes one row inside the transaction of the action itself: the acting admin's id (`actor_user_id`), the target's id (`target_user_id`), the action (`DELETE_USER`, `PROMOTE_TO_ADMIN` or `DEMOTE_FROM_ADMIN`, under the check `ck_admin_audit_action`) and `occurred_at`, stamped with `Timestamps.nowUtc()`. It holds no email, name or free text. A refused action (403, the 400s for your own id or an unknown one, the 409s of the admin guards) writes nothing, because the refusal comes before the insert or rolls it back. The table is append only: `AdminAuditRepository` can only insert and read, and every column is `updatable = false`.
+
+- **No foreign keys.** An admin may delete an id that only `erasure_ledger` knows (a login that never got a profile, [AUTH.md 7.3](AUTH.md#73-soft-delete-and-the-erasure-ledger)), so a key on `target_user_id` would make that delete fail. A key on either id would also block a later hard purge of erased `app_user` rows, or with a cascade delete the record of what an admin did.
+- **Account erasure keeps the rows.** No `AccountErased` listener touches the table, so erasing the target or the admin, by themselves, by another admin or through the erasure replay, leaves every row (`AdminAuditTest`). The rows hold ids only, like `erasure_ledger`, and are the record of who did what.
+- **A backup restore loses newer rows.** The audit lives in the database, so restoring a dump drops the rows written after it. The erasure replay brings back the erasures, not the audit.
+- **Nothing reads it yet.** There is no dashboard view; read it with SQL on the server.
 
 ---
 
@@ -152,6 +160,7 @@ Swagger lists them all at `/api-docs`.
 | ------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | `frontend/src/lib/api/schemas/auth-user.ts`                               | `canAccessDashboard`, `isAdmin`                                         |
 | `backend/src/main/java/disscount/user/UserService.java`                   | `findAllActive`, `updateAccountType` and its guard, `deleteUserAsAdmin` |
+| `backend/src/main/java/disscount/user/AdminAuditEntry.java`               | One `admin_audit` row; `AdminAction` lists the actions                  |
 | `backend/src/main/java/disscount/security/AdminAuthorizationManager.java` | The `/api/admin/**` rule: an ordinary session token of a live `ADMIN`   |
 | `backend/src/main/java/disscount/user/AuthIdentityDao.java`               | Reads better-auth rows from Spring                                      |
 
@@ -178,4 +187,5 @@ No admin-specific environment variables or feature flags. The page uses the shad
 
 ## 14. Future improvements and TODOs
 
+- [ ] A dashboard view of `admin_audit` (who deleted, promoted or demoted whom, and when). It needs an endpoint under `/api/admin/**`, added to `AdminGatingTest`.
 - [ ] Admin hardening still open: a smaller user list. The demotion guards shipped in #429 R5 and the last-admin delete guard in R6 (AUTH.md section 7.1).
