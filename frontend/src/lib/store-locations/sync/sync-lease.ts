@@ -17,7 +17,7 @@ export async function acquireSyncLease({
   every,
 }: ISyncLease = LOCATION_LEASE): Promise<boolean> {
   const result = await db.execute(sql`
-    insert into store_location_sync (id, started_at, finished_at)
+    insert into web.store_location_sync (id, started_at, finished_at)
     values (${id}, now(), null)
     on conflict (id) do update
       set started_at = now()
@@ -37,7 +37,7 @@ export async function releaseSyncLease(
   { id }: ISyncLease = LOCATION_LEASE,
 ): Promise<void> {
   await db.execute(sql`
-    update store_location_sync
+    update web.store_location_sync
     set finished_at = now(), last_error = ${error}
     where id = ${id}
   `);
@@ -46,7 +46,7 @@ export async function releaseSyncLease(
 // A rerun in progress keeps the previous answer, because acquiring changes only `started_at`.
 export async function hasSyncSucceeded({ id }: ISyncLease): Promise<boolean> {
   const result = await db.execute(sql`
-    select 1 from store_location_sync
+    select 1 from web.store_location_sync
     where id = ${id} and finished_at is not null and last_error is null
   `);
 
@@ -58,7 +58,7 @@ export async function isSyncDue({
   every,
 }: ISyncLease = LOCATION_LEASE): Promise<boolean> {
   const result = await db.execute(sql`
-    select 1 from store_location_sync
+    select 1 from web.store_location_sync
     where id = ${id}
       and (started_at > now() - interval '2 hours'
            and (finished_at is null or finished_at < started_at)
