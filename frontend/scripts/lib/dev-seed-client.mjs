@@ -1,5 +1,5 @@
 // HTTP plumbing for seed-dev-account.mjs: the production guard, better-auth sign-in
-// and sign-out, the backend bearer token, and JSON calls through the app's own origin.
+// and sign-out, and JSON calls through the app's own origin and its backend proxy.
 import { setTimeout as sleep } from "node:timers/promises";
 
 // The seed must never write to real users' data, whatever the caller passes in.
@@ -79,19 +79,26 @@ async function readJson(response, label) {
   return text ? JSON.parse(text) : null;
 }
 
-/** A caller for the backend (bearer token) and for session-cookie Next routes. */
+/** A caller for the backend proxy and for session-cookie Next routes. */
 export async function createApi(baseUrl, cookie) {
-  const tokenResponse = await fetch(`${baseUrl}/api/auth/token`, {
+  const sessionResponse = await fetch(`${baseUrl}/api/auth/get-session`, {
     headers: { cookie },
   });
-  const { token } = await readJson(tokenResponse, "Token");
+  const session = await readJson(sessionResponse, "Session");
+  if (!session?.user?.id) throw new Error("Session has no signed-in user.");
+
+  // The same CSRF header and identity pin the browser sends (src/lib/backend-proxy/proxy-contract.ts).
+  const proxyHeaders = {
+    "x-disscount-client": "web",
+    "x-disscount-user": session.user.id,
+  };
 
   async function call(method, path, body) {
     const isForm = body instanceof FormData;
     const response = await fetch(`${baseUrl}${path}`, {
       method,
       headers: {
-        authorization: `Bearer ${token}`,
+        ...proxyHeaders,
         cookie,
         origin: baseUrl,
         ...(body && !isForm ? { "content-type": "application/json" } : {}),
