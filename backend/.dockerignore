@@ -1,5 +1,6 @@
 # Build output (the image builds the jar itself)
 target/
+flyway/target/
 
 # Secrets / local env (passed in at runtime, never baked into the image)
 .env

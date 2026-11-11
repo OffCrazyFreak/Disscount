@@ -347,6 +347,7 @@ jobs:
       - name: Lint the Dockerfiles
         run: |
           docker build --check backend
+          docker build --check --target flyway backend
           docker build --check --target migrator frontend
           docker build --check frontend
           docker build --check backup
@@ -363,6 +364,15 @@ jobs:
           load: true
           tags: ghcr.io/offcrazyfreak/disscount-backend:smoke
           cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-backend:buildcache
+
+      # No service runs it yet; built here so a broken flyway module fails the pull request, not the dev deploy.
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: backend
+          target: flyway
+          load: true
+          tags: ghcr.io/offcrazyfreak/disscount-flyway:smoke
+          cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-flyway:buildcache
 
       - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
@@ -503,6 +513,10 @@ jobs:
           - image: backend
             context: backend
             target: runtime
+          # Built ahead of the migrations that will use it (#429 R9), so its GHCR package exists before any deploy pulls it.
+          - image: flyway
+            context: backend
+            target: flyway
           - image: backup
             context: backup
             target: ""

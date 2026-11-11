@@ -51,15 +51,17 @@ move_tag() {
     docker buildx imagetools inspect "ghcr.io/offcrazyfreak/disscount-$image:$commit_tag" >/dev/null || return 1
   done
 
-  # Commits from before the backup image have none, so a Rollback to one leaves the backup tag where it is.
-  if inspect_error="$(docker buildx imagetools inspect "ghcr.io/offcrazyfreak/disscount-backup:$commit_tag" 2>&1 >/dev/null)"; then
-    images="$images backup"
-  elif grep -qi "not found" <<<"$inspect_error"; then
-    echo "::warning::No backup image for $release; the backup tag stays on its current commit."
-  else
-    echo "::error::Could not check the backup image: $inspect_error"
-    return 1
-  fi
+  # Commits from before the backup or flyway image have none, so a Rollback to one leaves that tag where it is.
+  for image in backup flyway; do
+    if inspect_error="$(docker buildx imagetools inspect "ghcr.io/offcrazyfreak/disscount-$image:$commit_tag" 2>&1 >/dev/null)"; then
+      images="$images $image"
+    elif grep -qi "not found" <<<"$inspect_error"; then
+      echo "::warning::No $image image for $release; the $image tag stays on its current commit."
+    else
+      echo "::error::Could not check the $image image: $inspect_error"
+      return 1
+    fi
+  done
 
   for image in $images; do
     docker buildx imagetools create \
