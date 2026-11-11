@@ -29,6 +29,8 @@ class SpringdocProfileTest {
             "spring.datasource.driver-class-name=org.h2.Driver",
             "spring.datasource.hikari.data-source-properties.logServerErrorDetail=",
             "spring.jpa.hibernate.ddl-auto=create-drop",
+            // The local profile turns Flyway on, and its Postgres-only migrations cannot run on H2.
+            "spring.flyway.enabled=false",
             "BETTER_AUTH_JWKS_URI=http://localhost:3000/api/auth/jwks",
             "BETTER_AUTH_ISSUER=http://localhost:3000",
             "product-images.jobs.enabled=false"
