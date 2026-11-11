@@ -58,7 +58,7 @@ flowchart LR
 - `docker-compose.yml`: **local development** (publishes ports to localhost, named container names).
 - `docker-compose.prod.yml`: **Dokploy** (no host ports, joins the external `dokploy-network`, no `container_name`, and Traefik handles routing). This is the file Dokploy deploys for `main`, which still builds on the server.
 - `docker-compose.images.yml`: the same stack, pulling the CI-built GHCR images by `IMAGE_TAG` instead of building. This is the file Dokploy deploys for `dev` ([§4](#4-how-a-deploy-works-git-to-live)).
-- Both Dokploy files also mount the `photos-private` and `photos-public` volumes on the backend, run a one-shot `photo-folders` service that creates the photo folders, and serve public product photos from an `images` nginx service ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#storage-on-the-servers-disk)). Its inline `configs` need Docker Compose 2.23 or newer; the server runs v5.6.1.
+- Both Dokploy files also mount the `photos-private` and `photos-public` volumes on the backend, run a one-shot `photo-folders` service that creates the photo folders, and serve public product photos from an `images` nginx service ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#storage-on-the-servers-disk)). `docker-compose.images.yml` mounts its nginx config from `images/nginx.conf`; `docker-compose.prod.yml` keeps a copy inline, which needs Docker Compose 2.23 or newer (the server runs v5.6.1), so a config change goes into both until that file is deleted. A deploy that changes only the config leaves the running container on the old one, because Compose does not count config contents as a change; restart `images` after it (tested locally with Compose v5.7.0).
 
 ---
 
@@ -288,6 +288,32 @@ docker inspect <container> --format '{{.HostConfig.CapDrop}} {{.HostConfig.CapAd
 ```
 
 A service that fails with `Operation not permitted` after an image change most likely needs one capability more. Add that one to its `cap_add`, never drop the anchor.
+
+#### Read-only filesystems
+
+The anchor also sets `read_only: true`, so a container cannot change its own image: a compromised process cannot drop a tool or edit a script anywhere except its volumes and the `tmpfs` folders the service lists. A `tmpfs` is a folder held in memory and emptied on every restart; under memory pressure the kernel can move its pages to the server's swap, so a card photo upload passing through the backend's `/tmp` can briefly reach the disk, as it always did when `/tmp` was in the image. Each one has an explicit `size=`, because what it holds counts as the container's memory, and it will count against the memory limits a later PR adds. A size is a ceiling, so an idle folder costs nothing.
+
+| Service          | Writable folders                                                                                        | Why                                                                                                                                                                                                                                                                                                  |
+| ---------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `backend`        | `/tmp` 128 MB, with `exec`                                                                              | Tomcat's work folder, where every multipart upload lands (up to 1.1 MB per request, `application.properties`), the JVM's `hsperfdata` and `libwebp-imageio.so`, which the WebP library unpacks here and loads. Docker mounts a tmpfs `noexec` by default, and then every product photo render fails. |
+| `frontend`       | `/tmp` 16 MB, plus `/app/.next/cache` 64 MB and `/app/.next/server/route-cache` 16 MB owned by uid 1001 | Next.js keeps optimized images and fetch results in `.next/cache` and the rendered brand share images in `route-cache` (10 images, about 0.8 MB). Both were already emptied by every redeploy.                                                                                                       |
+| `migrate`        | none                                                                                                    | Only talks to the database.                                                                                                                                                                                                                                                                          |
+| `db`             | `/tmp` 16 MB, `/run/postgresql` 1 MB owned by uid 70                                                    | The socket and its lock file. The data folder is the `pgdata` volume, so the entrypoint still fixes its owner there.                                                                                                                                                                                 |
+| `photo-folders`  | none                                                                                                    | Writes only to the photo volumes.                                                                                                                                                                                                                                                                    |
+| `images`         | `/var/cache/nginx` 8 MB, `/run` 1 MB                                                                    | The nginx master's temp folders and pid file. Its config is a file in the repository, `images/nginx.conf`, because Compose copies an inline `configs` `content:` into the container after creating it, and refuses that for a read-only service.                                                     |
+| `backup`         | whole filesystem (`read_only: false`)                                                                   | Compose copies secrets that come from `environment:` the same way and refuses that too. rclone also creates `/root/.config/rclone`.                                                                                                                                                                  |
+| `predeploy-dump` | whole filesystem (`read_only: false`)                                                                   | Same secrets as `backup`.                                                                                                                                                                                                                                                                            |
+
+The backups keep writing their dumps to disk because of that. In a tmpfs, the nightly job would hold the dump, its `.age` copy and the whole scratch restore in RAM: an empty Postgres 17 cluster alone is 38 MB, before the restored database (9.9 MB on production on 2026-11-11) is added to it.
+
+To check a running container:
+
+```bash
+docker inspect <container> --format '{{.HostConfig.ReadonlyRootfs}} {{json .HostConfig.Tmpfs}}'
+# true {"/tmp":"exec,size=128m"}
+```
+
+A read-only failure shows in `docker logs <container>` as `Read-only file system`, `EROFS`, or sometimes `ENOENT` on a `mkdir` under the image (Next.js reported its `route-cache` that way). The fix is a sized tmpfs for that one folder, never `read_only: false` for the whole service. A full tmpfs shows as `No space left on device` or `ENOSPC`; raise that folder's `size=`. Compose refuses to start a read-only service with an inline config or an environment secret, with `` `file` is the sole supported option ``.
 
 ### Nightly updates and reboots
 

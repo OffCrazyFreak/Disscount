@@ -67,11 +67,12 @@ jobs:
             backup:
               - *workflow
               - backup/**
-            # What the boot test builds: the backend, migrator and backup images and the compose files.
+            # What the boot test builds or boots: the backend, migrator and backup images, the photo server's config and the compose files.
             smoke:
               - *workflow
               - backend/**
               - backup/**
+              - images/**
               - docker-compose*.yml
               - .env.example
               - frontend/Dockerfile
@@ -383,7 +384,7 @@ jobs:
       - name: Boot the stack and wait for healthy
         run: |
           docker network create dokploy-network
-          docker compose --env-file .env.example -f docker-compose.images.yml up --detach --wait --wait-timeout 180 --pull missing backend
+          docker compose --env-file .env.example -f docker-compose.images.yml up --detach --wait --wait-timeout 180 --pull missing backend images
 
       - name: Show container logs
         if: failure()
