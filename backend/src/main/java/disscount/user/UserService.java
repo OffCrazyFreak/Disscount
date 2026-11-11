@@ -283,8 +283,13 @@ public class UserService {
         boolean wasAdmin = from == AccountType.ADMIN;
         boolean isAdmin = to == AccountType.ADMIN;
 
-        if (!wasAdmin && isAdmin) return Optional.of(AdminAction.PROMOTE_TO_ADMIN);
-        if (wasAdmin && !isAdmin) return Optional.of(AdminAction.DEMOTE_FROM_ADMIN);
+        if (!wasAdmin && isAdmin) {
+            return Optional.of(AdminAction.PROMOTE_TO_ADMIN);
+        }
+
+        if (wasAdmin && !isAdmin) {
+            return Optional.of(AdminAction.DEMOTE_FROM_ADMIN);
+        }
 
         return Optional.empty();
     }

@@ -1,5 +1,6 @@
 package disscount.user;
 
+import disscount.shared.ConflictException;
 import disscount.support.FullStackTest;
 import disscount.support.MigratedPostgres;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -22,6 +24,7 @@ class AdminAuditTest extends FullStackTest {
 
     @Autowired AdminAuditRepository adminAudit;
     @Autowired AccountErasureService accountErasure;
+    @Autowired UserService userService;
     @Autowired JdbcTemplate jdbc;
 
     private static MockHttpServletRequestBuilder setAccountType(User target, AccountType accountType) {
@@ -104,6 +107,35 @@ class AdminAuditTest extends FullStackTest {
         mvc.perform(deleteUser(unknownId).with(as(admin))).andExpect(status().isBadRequest());
 
         assertThat(auditRowCount()).isEqualTo(rowsBefore);
+    }
+
+    // Through the service, as the API only reaches these guards when another admin is the caller.
+    @Test
+    void theLastAdminGuardsWriteNothing() {
+        jdbc.update("UPDATE app_user SET account_type = 'CONSUMER' WHERE account_type = 'ADMIN'");
+        User lastAdmin = newAdmin();
+        User formerAdmin = newUser("former-admin");
+
+        assertThatThrownBy(() -> userService.deleteUserAsAdmin(lastAdmin.getId(), formerAdmin.getId()))
+                .isInstanceOf(ConflictException.class)
+                .hasMessage("error.user.lastAdminDelete");
+        assertThatThrownBy(() -> userService.updateAccountType(lastAdmin.getId(), AccountType.CONSUMER, formerAdmin.getId()))
+                .isInstanceOf(ConflictException.class)
+                .hasMessage("error.user.lastAdmin");
+
+        assertThat(auditOf(lastAdmin)).isEmpty();
+    }
+
+    @Test
+    void aRepeatedDeleteWritesARowForEachRequest() throws Exception {
+        User admin = newAdmin();
+        User target = newUser("target");
+
+        mvc.perform(deleteUser(target.getId()).with(as(admin))).andExpect(status().isOk());
+        mvc.perform(deleteUser(target.getId()).with(as(admin))).andExpect(status().isOk());
+
+        assertThat(auditOf(target)).extracting(AdminAuditEntry::getAction)
+                .containsExactly(AdminAction.DELETE_USER, AdminAction.DELETE_USER);
     }
 
     @Test
