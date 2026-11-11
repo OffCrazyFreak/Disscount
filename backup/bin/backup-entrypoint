@@ -39,5 +39,8 @@ RCLONE_CONFIG_PHOTOS_PASSWORD2="$(rclone obscure -- "$BACKUP_CRYPT_SALT")"
 export RCLONE_CONFIG_PHOTOS_PASSWORD RCLONE_CONFIG_PHOTOS_PASSWORD2
 
 export PGHOST="${PGHOST:-db}" PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" PGDATABASE="$POSTGRES_DB"
+# Unqualified table names resolve before and after the app and auth tables move out of public (#429 R11);
+# a schema that does not exist yet is skipped. pg_dump and pg_restore set their own search_path.
+export PGOPTIONS="${PGOPTIONS:--c search_path=app,auth,public}"
 
 exec "$@"
