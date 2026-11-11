@@ -1,7 +1,7 @@
 {
   "ipAddresses": {
     "heading": "IP adrese",
-    "body": "Pri prijavi uz sesiju spremamo IP adresu uređaja kako bismo mogli provjeriti sumnjive prijave u tvoj račun. Adresu brišemo najkasnije 30 dana nakon prijave, a isteklu sesiju brišemo cijelu. Za zaštitu od zlouporabe IP adresu kratko koristimo i za ograničenje broja pokušaja: kod prijave i sličnih radnji do 15 minuta u bazi, a kod obrasca za kontakt do 24 sata samo u memoriji poslužitelja. Kad sigurna veza s našim poslužiteljem ne uspije, zapis grešaka poslužitelja bilježi adresu te veze. Te zapise koristimo samo za otklanjanje kvarova. Sigurnosne kopije baze te podatke mogu sadržavati još do 31 dan. Kad se dogodi greška, IP adresu dobiva i Sentry, koji je čuva najviše 30 dana. Pravna osnova je legitimni interes (članak 6. stavak 1. točka (f) GDPR-a)."
+    "body": "Pri prijavi uz sesiju spremamo IP adresu uređaja kako bismo mogli provjeriti sumnjive prijave u tvoj račun. Adresu brišemo najkasnije 30 dana nakon prijave, a isteklu sesiju brišemo cijelu. IP adresu spremamo i u sigurnosni zapisnik (opisan niže), također najkasnije 30 dana. Za zaštitu od zlouporabe IP adresu kratko koristimo i za ograničenje broja pokušaja: kod prijave i sličnih radnji do 15 minuta u bazi, a kod obrasca za kontakt do 24 sata samo u memoriji poslužitelja. Kad sigurna veza s našim poslužiteljem ne uspije, zapis grešaka poslužitelja bilježi adresu te veze. Te zapise koristimo samo za otklanjanje kvarova. Sigurnosne kopije baze te podatke mogu sadržavati još do 31 dan. Kad se dogodi greška, IP adresu dobiva i Sentry, koji je čuva najviše 30 dana. Pravna osnova je legitimni interes (članak 6. stavak 1. točka (f) GDPR-a)."
   },
   "errorTracking": {
     "heading": "Praćenje grešaka",
@@ -11,6 +11,10 @@
   "securityNotices": {
     "heading": "Sigurnosne obavijesti",
     "body": "Kad se promijeni lozinka tvog računa, šaljemo ti email s obaviješću. Kad promijeniš email adresu, obavijest šaljemo na staru adresu i u njoj navodimo novu. Tako možeš uočiti promjenu za koju ne znaš i odmah reagirati. Te obavijesti dio su zaštite računa pa ih ne možeš isključiti. Pravna osnova je legitimni interes (članak 6. stavak 1. točka (f) GDPR-a)."
+  },
+  "securityLog": {
+    "heading": "Sigurnosni zapisnik",
+    "body": "Radi zaštite tvog računa bilježimo prijave i neuspjele prijave, potvrde identiteta prije osjetljivih radnji, odjave i odjave drugih uređaja, promjene lozinke i email adrese te povezivanje i odvajanje prijave putem Googlea ili Facebooka. Uz svaki zapis spremamo vrijeme, interni identifikator tvog računa i državu iz koje je stigao zahtjev, a prvih 29 dana i IP adresu uređaja i podatke o pregledniku. Kod neuspjele prijave upisanu email adresu spremamo samo kao jednosmjerni kod iz kojeg se adresa ne može pročitati. Zapise o neuspjelim prijavama brišemo nakon 30 dana, a ostale nakon 12 mjeseci. Bilježimo i radnje administratora: tko je pregledao popis korisnika ili poruke iz obrasca za kontakt, tko je poruku označio, obrisao ili vratio te tko je obrisao račun ili promijenio ulogu korisnika. Te zapise čuvamo 12 mjeseci. Kad obrišeš račun, zapisi ostaju do isteka tih rokova, bez tvog imena i email adrese. Sigurnosne kopije baze te podatke mogu sadržavati još do 31 dan. Zapise koristimo samo za otkrivanje i istraživanje zlouporabe računa. Pravna osnova je legitimni interes (članak 6. stavak 1. točka (f) GDPR-a)."
   },
   "backups": {
     "heading": "Sigurnosne kopije",
