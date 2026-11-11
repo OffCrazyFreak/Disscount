@@ -159,12 +159,12 @@ public class SecurityConfig {
                 // Product photos are public like the prices; uploads and reports still need a login.
                 .requestMatchers(HttpMethod.GET, "/api/products/*/images", "/api/products/images/thumbnails",
                         "/api/products/catalog/eans").access(SecurityConfig::isNotPurposeScoped)
-                .requestMatchers(
-                    "/actuator/health",
-                    "/v3/api-docs/**",
-                    "/api-docs/**",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html"
+                .requestMatchers("/actuator/health").permitAll()
+                // The docs are public and read-only; each route they describe keeps its own rule here.
+                .requestMatchers(HttpMethod.GET,
+                    "/api/v3/api-docs/**",
+                    "/api/swagger-ui/**",
+                    "/api/swagger-ui.html"
                 ).permitAll()
                 .requestMatchers("/api/admin/**").access(new AdminAuthorizationManager(activeUsers))
                 .anyRequest().access(SecurityConfig::isOrdinarySessionToken)

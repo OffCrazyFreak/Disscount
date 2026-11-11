@@ -3,7 +3,7 @@ import "server-only";
 import * as Sentry from "@sentry/nextjs";
 
 import { BACKEND_ORIGIN } from "@/lib/api/backend-origin";
-import { backendUrl } from "@/lib/backend-proxy/backend-path";
+import { backendUrl, docsUrl } from "@/lib/backend-proxy/backend-path";
 import {
   downstreamResponseHeaders,
   upstreamRequestHeaders,
@@ -132,4 +132,20 @@ export async function proxyToBackend(
     forwarded.upstream,
     `auth;dur=${authMs}, upstream;dur=${upstreamMs}`,
   );
+}
+
+/** The API docs are public, so a browser opens them directly: no client header, no session and no body. */
+export async function proxyDocsToBackend(
+  request: Request,
+  segments: string[],
+): Promise<Response> {
+  const url = docsUrl(segments, new URL(request.url).search, BACKEND_ORIGIN);
+  if (!url) return proxyProblem("not_found", request);
+
+  const upstreamStart = performance.now();
+  const forwarded = await forward(request, url, null, undefined);
+  if (forwarded instanceof Response) return forwarded;
+
+  const upstreamMs = (performance.now() - upstreamStart).toFixed(1);
+  return relay(request, forwarded.upstream, `upstream;dur=${upstreamMs}`);
 }

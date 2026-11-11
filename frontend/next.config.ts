@@ -4,7 +4,10 @@ import createNextIntlPlugin from "next-intl/plugin";
 import { DEFAULT_LOCALE, LOCALES } from "./src/i18n/locales";
 import { SENTRY_APPLICATION_KEY } from "./src/lib/sentry/application-key";
 import { clientEnv, validateClientEnv } from "./src/lib/env";
-import { buildContentSecurityPolicy } from "./src/utils/content-security-policy";
+import {
+  buildContentSecurityPolicy,
+  buildDocsContentSecurityPolicy,
+} from "./src/utils/content-security-policy";
 import { isIndexableOrigin } from "./src/utils/indexing";
 
 // Fails `next build` and `next dev` on a malformed public variable, before it is baked in.
@@ -60,6 +63,16 @@ const nextConfig: NextConfig = {
           {
             key: "Strict-Transport-Security",
             value: "max-age=31536000; includeSubDomains",
+          },
+        ],
+      },
+      {
+        // Swagger UI is Spring's page, so it gets its own policy and the site-wide one stays as it is.
+        source: "/api/swagger-ui/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: buildDocsContentSecurityPolicy(),
           },
         ],
       },
