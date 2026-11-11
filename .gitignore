@@ -19,6 +19,7 @@ Thumbs.db
 
 # --- Java/Spring Boot Backend ---
 backend/target/
+backend/flyway/target/
 backend/.classpath
 backend/.project
 backend/.settings/

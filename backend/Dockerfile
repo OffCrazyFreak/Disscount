@@ -19,6 +19,27 @@ RUN mvn -B -q clean package -DskipTests
 RUN cp target/*.jar app.jar \
     && java -Djarmode=tools -jar app.jar extract --layers --destination extracted
 
+# ---- flyway-build: the one-shot Flyway job (flyway/), built apart from the backend ----
+FROM maven:3.9-eclipse-temurin-21@sha256:99e61abcff91a9b1333463bd8451fb18495d6eba9250ac66a338b518f8278320 AS flyway-build
+WORKDIR /flyway
+COPY flyway/pom.xml .
+RUN mvn -B -q dependency:go-offline
+COPY flyway/src ./src
+RUN mvn -B -q package
+
+# ---- flyway: migrates the backend tables and exits; its own image, so a Rollback never runs a web server in its place ----
+FROM eclipse-temurin:21-jre@sha256:0b99b3376fbb50dbf9c0af8535fdd5b8eb0d3fdfc8b1e4967f383b6919f6901a AS flyway
+WORKDIR /flyway
+RUN useradd -r -u 1001 flyway
+COPY --from=flyway-build /flyway/target/flyway.jar ./
+COPY --from=flyway-build /flyway/target/lib ./lib
+# The root filesystem is read-only in Compose, so the JVM keeps no perf data file in /tmp.
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=60 -XX:+ExitOnOutOfMemoryError -XX:+UseSerialGC -XX:-UsePerfData"
+USER flyway
+ENTRYPOINT ["java", "-jar", "flyway.jar"]
+# Without migration files a migrate would leave an empty history table that blocks the baseline, so this image only reports.
+CMD ["info"]
+
 # ---- Runtime stage: run the jar on a small JRE as a non-root user ----
 FROM eclipse-temurin:21-jre@sha256:0b99b3376fbb50dbf9c0af8535fdd5b8eb0d3fdfc8b1e4967f383b6919f6901a AS runtime
 WORKDIR /app
