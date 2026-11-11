@@ -50,6 +50,14 @@ public class ShoppingListService {
                 .collect(Collectors.toList());
     }
 
+    /** The owner's live items across all live lists, in list order, as the owner sees them. */
+    @Transactional(readOnly = true)
+    public List<ShoppingListItemDto> getUserShoppingListItems(UUID ownerId) {
+        return getUserShoppingLists(ownerId).stream()
+                .flatMap(list -> list.items().stream())
+                .toList();
+    }
+
     @Transactional(readOnly = true)
     public ShoppingListDto getShoppingListById(UUID listId, UUID userId) {
         ShoppingList list = findVisible(listId, userId);
