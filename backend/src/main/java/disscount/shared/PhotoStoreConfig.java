@@ -3,12 +3,13 @@ package disscount.shared;
 import java.nio.file.Path;
 
 import disscount.shared.AtomicFileStore.Visibility;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /** Each store is confined to its folder and injected by qualifier, so card code never gets product originals. */
 @Configuration
+@EnableConfigurationProperties(PhotoProperties.class)
 public class PhotoStoreConfig {
 
     public static final String CARD_PHOTOS = "photoStore";
@@ -21,23 +22,21 @@ public class PhotoStoreConfig {
     public static final String PRODUCTS_FOLDER = "products";
 
     @Bean(CARD_PHOTOS)
-    PhotoStore photoStore(@Value("${photos.private-dir:}") String directory) {
-        return create(directory, CARD_FOLDER, Visibility.OWNER_ONLY, "error.cardPhoto.unavailable", null);
+    PhotoStore photoStore(PhotoProperties photos) {
+        return create(photos.privateDir(), CARD_FOLDER, Visibility.OWNER_ONLY, "error.cardPhoto.unavailable", null);
     }
 
     @Bean(PRODUCT_ORIGINALS)
-    PhotoStore productOriginalStore(@Value("${photos.private-dir:}") String directory) {
-        return create(directory, ORIGINALS_FOLDER, Visibility.OWNER_ONLY, "error.productImage.unavailable", null);
+    PhotoStore productOriginalStore(PhotoProperties photos) {
+        return create(photos.privateDir(), ORIGINALS_FOLDER, Visibility.OWNER_ONLY, "error.productImage.unavailable", null);
     }
 
     @Bean(PRODUCT_PHOTOS)
-    PhotoStore productImageStore(
-            @Value("${photos.public-dir:}") String directory,
-            @Value("${photos.public-url:}") String publicUrl
-    ) {
-        if (publicUrl.isBlank()) return new DisabledPhotoStore();
-        return create(directory, PRODUCTS_FOLDER, Visibility.WORLD_READABLE, "error.productImage.unavailable",
-                publicUrl.replaceAll("/$", ""));
+    PhotoStore productImageStore(PhotoProperties photos) {
+        if (photos.publicUrl().isBlank()) return new DisabledPhotoStore();
+
+        return create(photos.publicDir(), PRODUCTS_FOLDER, Visibility.WORLD_READABLE, "error.productImage.unavailable",
+                photos.publicUrl().replaceAll("/$", ""));
     }
 
     private static PhotoStore create(String directory, String folder, Visibility visibility,

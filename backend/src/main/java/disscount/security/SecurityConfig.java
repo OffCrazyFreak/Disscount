@@ -3,7 +3,7 @@ package disscount.security;
 import disscount.user.ActiveUsers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +37,7 @@ import java.util.function.Supplier;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@EnableConfigurationProperties({JwkSetProperties.class, BetterAuthProperties.class})
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -44,12 +45,11 @@ public class SecurityConfig {
     private final ActiveUsers activeUsers;
 
     @Bean
-    public JwtDecoder jwtDecoder(
-            @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") String jwksUri,
-            @Value("${better.auth.issuer}") String issuer
-    ) {
+    public JwtDecoder jwtDecoder(JwkSetProperties jwkSet, BetterAuthProperties betterAuth) {
+        String issuer = betterAuth.issuer().toString();
+
         NimbusJwtDecoder decoder = NimbusJwtDecoder
-                .withJwkSetUri(jwksUri)
+                .withJwkSetUri(jwkSet.jwkSetUri().toString())
                 .jwsAlgorithm(SignatureAlgorithm.ES256)
                 .build();
 

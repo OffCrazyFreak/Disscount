@@ -15,6 +15,10 @@ COPY lombok.config .
 COPY src ./src
 RUN mvn -B -q clean package -DskipTests
 
+# Splits the jar into layers, so a source-only change rebuilds the small application layer and reuses the dependency ones.
+RUN cp target/*.jar app.jar \
+    && java -Djarmode=tools -jar app.jar extract --layers --destination extracted
+
 # ---- flyway-build: the one-shot Flyway job (flyway/), built apart from the backend ----
 FROM maven:3.9-eclipse-temurin-21@sha256:99e61abcff91a9b1333463bd8451fb18495d6eba9250ac66a338b518f8278320 AS flyway-build
 WORKDIR /flyway
@@ -46,8 +50,11 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && useradd -r -u 1001 appuser
 
-# Copy only the built jar from the build stage.
-COPY --from=build /app/target/*.jar app.jar
+# Least often changed first; extracted/ holds app.jar beside its lib/ folder, so java -jar app.jar still starts it.
+COPY --from=build /app/extracted/dependencies/ ./
+COPY --from=build /app/extracted/spring-boot-loader/ ./
+COPY --from=build /app/extracted/snapshot-dependencies/ ./
+COPY --from=build /app/extracted/application/ ./
 
 # Commit SHA from CI, read as the Sentry release; declared late so it does not bust the build cache.
 ARG GIT_SHA

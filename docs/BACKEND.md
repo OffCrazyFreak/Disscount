@@ -19,6 +19,8 @@ The layout and its rules come from #429 (Spring backend restructure), built in s
 | Checks       | `mvn -B verify` in `backend/` (needs Docker for the PostgreSQL tests)                                                                                        |
 | Who calls it | Only the Next.js proxy, which turns the session cookie into a per-request token ([BACKEND-PROXY.md](BACKEND-PROXY.md))                                       |
 | Auth         | better-auth in Next.js signs the tokens, Spring only verifies them ([AUTH.md section 7](AUTH.md#7-the-spring-side-resource-server-and-profile-provisioning)) |
+| Settings     | `@ConfigurationProperties` records, one per concern ([section 9.1](#91-settings))                                                                            |
+| API docs     | Swagger UI at `/api-docs` and `/v3/api-docs` only under the `local` profile and in tests                                                                     |
 
 ---
 
@@ -219,8 +221,27 @@ The ownership tests are the guard's evidence: for each owner-scoped feature, use
 
 ---
 
+### 9.1 Settings
+
+The app's own keys are read through `@ConfigurationProperties` records, never `@Value`:
+
+| Record                                               | Keys                                                                                                 | Read by                                              |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `shared/PhotoProperties`                             | `photos.private-dir`, `photos.public-dir`, `photos.public-url` (blank by default)                    | `PhotoStoreConfig`                                   |
+| `security/BetterAuthProperties`                      | `better.auth.issuer` (required)                                                                      | `SecurityConfig`                                     |
+| `security/JwkSetProperties`                          | `spring.security.oauth2.resourceserver.jwt.jwk-set-uri` (required)                                   | `SecurityConfig`                                     |
+| `user/ErasureReplayProperties`                       | `erasure-replay.markers`, `erasure-replay.key-file` (required), `erasure-replay.allow-empty` (false) | `ErasureReplayRunner`, `erasure-replay` profile only |
+| `productimage/ProductImageJobProperties`             | `product-images.jobs.enabled` (true)                                                                 | `ProductImageJobs`                                   |
+| `productimage/catalog/CatalogProperties`             | `product-images.catalog.list-url`                                                                    | `CatalogImportService`                               |
+| `productimage/openfoodfacts/OpenFoodFactsProperties` | `product-images.off.api-base`, `product-images.off.export-url`                                       | `OpenFoodFactsClient`                                |
+
+The class that reads a record registers it with `@EnableConfigurationProperties`, so a slice test that imports that class gets its settings, and the erasure record is bound only under its profile. The one `@Value` left is `GIT_SHA` in `SentryReleaseConfig`: it is a build variable, and tests set it under that exact name.
+
+The required keys come from environment placeholders with no default. Spring leaves an unset placeholder as its own text when binding a record, so the URLs are typed `URI` and `@Validated`: the `${...}` text cannot become a URI, and startup fails as it did with `@Value` (`AuthPropertiesStartupTest`). An empty value fails too.
+
 ## 10. Gotchas
 
+- **The test `application.properties` replaces main's** instead of adding to it, so a key main needs in every test goes in both files. Springdoc is the exception on purpose: main turns it off and the test file leaves it on for `ApiContractTest`.
 - **A guard that returns false leaks.** It answers 403, which tells a stranger the id is real. Throw the feature's 404 instead.
 - **A guard's check is a snapshot taken before the service's lock.** A card deleted between the guard and `CardUserLock` is caught by the service's own scoped read under the lock, which is one reason both layers stay.
 - **JPQL never sees deleted rows**, including bulk updates and deletes. A cleanup written in JPQL silently skips them.
@@ -236,7 +257,6 @@ What the rest of #429 changes:
 
 - **R10**: deleting a better-auth identity moves to Next.js together with #53 (atomic account deletion); Spring then only erases app data through the erasure token path.
 - **R11**: the app tables move to an `app` schema and better-auth's to `auth`, with three least-privilege database roles (migrator, Spring runtime, Next.js runtime).
-- **R12**: `@ConfigurationProperties` records replace the `@Value` fields, springdoc is off outside `local`, unused starters and properties go, and the container gets JVM memory flags.
 
 Open:
 
