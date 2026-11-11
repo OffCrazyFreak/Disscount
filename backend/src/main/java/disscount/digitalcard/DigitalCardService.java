@@ -2,11 +2,11 @@ package disscount.digitalcard;
 
 import disscount.shared.AfterCommit;
 import disscount.shared.BadRequestException;
-import disscount.shared.ConflictException;
 import disscount.shared.NotFoundException;
 import disscount.shared.PhotoStore;
 import disscount.shared.PhotoStoreConfig;
 import disscount.shared.Timestamps;
+import disscount.shared.UserLimit;
 import disscount.storename.StoreNameNormalizer;
 import disscount.storename.StoreNameService;
 import disscount.user.AccountErased;
@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class DigitalCardService {
 
-    static final int MAX_ACTIVE_CARDS = 300;
     static final int MAX_USED_ENTRIES = 50;
     static final int MAX_USED_AGE_DAYS = 400;
 
@@ -87,9 +86,7 @@ public class DigitalCardService {
             if (cardRepository.isDeleted(id)) {
                 throw new NotFoundException(NOT_FOUND);
             }
-            if (cardRepository.countActiveByUserId(userId) >= MAX_ACTIVE_CARDS) {
-                throw new ConflictException("error.card.limitReached");
-            }
+            UserLimit.DIGITAL_CARDS.requireRoomFor(cardRepository.countActiveByUserId(userId), 1);
             card = DigitalCard.builder().id(id).userId(userId).build();
         } else if (!card.getUserId().equals(userId)) {
             throw new NotFoundException(NOT_FOUND);

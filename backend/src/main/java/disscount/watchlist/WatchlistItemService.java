@@ -2,6 +2,7 @@ package disscount.watchlist;
 
 import disscount.shared.NotFoundException;
 import disscount.shared.Timestamps;
+import disscount.shared.UserLimit;
 import disscount.user.ActiveUsers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,7 +26,8 @@ public class WatchlistItemService {
 
     @Transactional
     public WatchlistItemDto addOrUpdateWatchlist(UUID userId, WatchlistItemRequest request) {
-        activeUsers.requireActive(userId);
+        // Held to commit, so two adds at the cap cannot both count room.
+        activeUsers.lockActive(userId);
 
         Optional<WatchlistItem> existing = watchlistItemRepository
                 .findByProductApiIdAndWatchType(request.productApiId(), request.watchType(), userId);
@@ -36,6 +38,8 @@ public class WatchlistItemService {
             WatchlistItem saved = watchlistItemRepository.save(watchlistItem);
             return WatchlistItemDto.from(saved);
         }
+
+        UserLimit.WATCHLIST_ITEMS.requireRoomFor(watchlistItemRepository.countActiveByUserId(userId), 1);
 
         WatchlistItem watchlistItem = WatchlistItem.builder()
                 .userId(userId)

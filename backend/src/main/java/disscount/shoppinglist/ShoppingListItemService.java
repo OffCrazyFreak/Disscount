@@ -24,6 +24,7 @@ class ShoppingListItemService {
     private final ShoppingListService shoppingListService;
     private final ShoppingListGuard guard;
     private final ShoppingListMapper shoppingListMapper;
+    private final ShoppingListQuota quota;
 
     /** Owner only: an unbounded right to add to someone's list waits for per-person revocation in version 2. */
     @PreAuthorize("@shoppingListGuard.canWrite(#shoppingListId, #userId)")
@@ -35,6 +36,8 @@ class ShoppingListItemService {
         if (!accessService.resolve(shoppingList, userId).isOwner()) {
             throw new ForbiddenException("error.shoppingList.ownerOnlyAddItems");
         }
+
+        quota.lockOwner(shoppingList);
 
         String ean = ShoppingListItemMatcher.blankToNull(request.ean());
         String name = request.name().strip();
@@ -63,6 +66,9 @@ class ShoppingListItemService {
             item.setUpdatedAt(Timestamps.nowUtc());
             item.setUpdatedByUserId(userId);
         } else {
+            // A merge adds no row, so only a new item counts against the cap.
+            quota.requireRoomForItem(shoppingList);
+
             item = ShoppingListItem.builder()
                     .shoppingList(shoppingList)
                     .ean(ean)

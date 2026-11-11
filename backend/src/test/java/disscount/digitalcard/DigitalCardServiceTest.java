@@ -2,13 +2,14 @@ package disscount.digitalcard;
 
 import disscount.config.UploadLimitConfig;
 import disscount.shared.BadRequestException;
-import disscount.shared.ConflictException;
+import disscount.shared.LimitReachedException;
 import disscount.shared.FakePhotoStore;
 import disscount.shared.NotFoundException;
 import disscount.shared.PhotoStore;
 import disscount.shared.PhotoValidator;
 import disscount.shared.TestImages;
 import disscount.shared.Timestamps;
+import disscount.shared.UserLimit;
 import disscount.storename.StoreNameService;
 import disscount.storename.StoreNameSuggestionRepository;
 import disscount.storename.StoreNameUpsert;
@@ -75,6 +76,8 @@ class DigitalCardServiceTest {
     @Autowired PhotoCleanupRepository cleanupRows;
     @Autowired JdbcTemplate jdbc;
     @Autowired EntityManager entityManager;
+
+    private static final int LIMIT = UserLimit.DIGITAL_CARDS.max();
 
     User owner;
     User stranger;
@@ -235,19 +238,26 @@ class DigitalCardServiceTest {
     }
 
     @Test
-    void capsActiveCardsAtThreeHundred() {
-        cards.saveAll(IntStream.range(0, 300).mapToObj(i -> DigitalCard.builder()
-                .id(UUID.randomUUID()).userId(owner.getId()).cardName("Kartica " + i).cardType("other")
-                .storeName("Dućan").codeValue("1").codeType("unknown").cardColor("#616161").build()).toList());
+    void theFiftiethCardPassesAndTheNextIsRefused() {
+        saveCards(LIMIT - 1);
+        service.upsert(owner.getId(), UUID.randomUUID(), request("Zadnja"));
 
         assertThatThrownBy(() -> service.upsert(owner.getId(), UUID.randomUUID(), request("Višak")))
-                .isInstanceOf(ConflictException.class)
-                .hasMessage("error.card.limitReached");
+                .isInstanceOfSatisfying(LimitReachedException.class,
+                        e -> assertThat(e.getLimit()).isEqualTo(UserLimit.DIGITAL_CARDS));
 
         // Editing an existing card at the cap is still allowed.
         UUID existing = cards.findActiveByUserId(owner.getId()).get(0).getId();
         assertThat(service.upsert(owner.getId(), existing, request("Preimenovana")).cardName())
                 .isEqualTo("Preimenovana");
+    }
+
+    @Test
+    void aDeletedCardFreesItsPlace() {
+        saveCards(LIMIT);
+        service.delete(owner.getId(), cards.findActiveByUserId(owner.getId()).get(0).getId());
+
+        assertThat(service.upsert(owner.getId(), UUID.randomUUID(), request("Nova")).cardName()).isEqualTo("Nova");
     }
 
     @Test
@@ -388,15 +398,13 @@ class DigitalCardServiceTest {
 
     @Test
     void concurrentCreatesCannotPassTheCap() throws Exception {
-        cards.saveAll(IntStream.range(0, 299).mapToObj(i -> DigitalCard.builder()
-                .id(UUID.randomUUID()).userId(owner.getId()).cardName("Kartica " + i).cardType("other")
-                .storeName("Dućan").codeValue("1").codeType("unknown").cardColor("#616161").build()).toList());
+        saveCards(LIMIT - 1);
 
         List<Throwable> failures = Concurrently.run(6,
                 i -> service.upsert(owner.getId(), UUID.randomUUID(), request("Nova " + i)));
 
-        assertThat(failures).hasSize(5).allMatch(e -> e instanceof ConflictException);
-        assertThat(cards.countActiveByUserId(owner.getId())).isEqualTo(300);
+        assertThat(failures).hasSize(5).allMatch(e -> e instanceof LimitReachedException);
+        assertThat(cards.countActiveByUserId(owner.getId())).isEqualTo(LIMIT);
     }
 
     @Test
@@ -438,5 +446,11 @@ class DigitalCardServiceTest {
 
         assertThat(service.get(owner.getId(), id).lastUsedAt())
                 .isCloseTo(Timestamps.nowUtc().minusDays(400), within(1, ChronoUnit.MINUTES));
+    }
+
+    private void saveCards(int count) {
+        cards.saveAll(IntStream.range(0, count).mapToObj(i -> DigitalCard.builder()
+                .id(UUID.randomUUID()).userId(owner.getId()).cardName("Kartica " + i).cardType("other")
+                .storeName("Dućan").codeValue("1").codeType("unknown").cardColor("#616161").build()).toList());
     }
 }
