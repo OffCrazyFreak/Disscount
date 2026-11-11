@@ -4,7 +4,7 @@ The frontend uses Vitest with Testing Library, jsdom and MSW. The backend has it
 
 ## What the backend suite covers
 
-`mvn -B verify` covers digital cards, store names, account deletion, security chains, JWT decoding, JSON dates, problem responses, per-feature ownership, admin gating and the fields the frontend reads. Pricing, merging and jobs are mostly untested, so a change there needs its own check and a line in the PR saying so.
+`mvn -B verify` covers digital cards, store names, account deletion, security chains, JWT decoding, JSON dates, problem responses, per-feature ownership, admin gating, the fields the frontend reads and the backend dependency rules (`DependencyRulesTest` reads the main sources: `user` and `shared` name no other feature, and other features use only `ActiveUsers` and `AccountErased` from `user`). Pricing, merging and jobs are mostly untested, so a change there needs its own check and a line in the PR saying so.
 
 ## Commands
 
