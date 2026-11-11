@@ -104,17 +104,17 @@ The product photo review queue: candidates from Open Food Facts and user uploads
 
 ## 7. Endpoints
 
-| Method and path                                 | Handler                       | What it does                                                    |
-| ----------------------------------------------- | ----------------------------- | --------------------------------------------------------------- |
-| `GET /api/admin/users`                          | `AdminController`             | Every active user with email and activity; unbounded            |
-| `PATCH /api/admin/users/{userId}`               | `AdminController`             | Set `accountType`; any active user, no self or last-admin check |
-| `DELETE /api/admin/users/{userId}`              | `AdminController`             | Delete and erase a user; refuses yourself                       |
-| `GET /api/admin/contact?includeDeleted=`        | `AdminContactController`      | Up to 500 messages, newest first                                |
-| `GET /api/admin/contact/{id}`                   | `AdminContactController`      | One message                                                     |
-| `PATCH /api/admin/contact/{id}/read`, `/unread` | `AdminContactController`      | Set or clear `read_at`                                          |
-| `DELETE /api/admin/contact/{id}`                | `AdminContactController`      | Soft delete                                                     |
-| `PATCH /api/admin/contact/{id}/restore`         | `AdminContactController`      | Undo the soft delete                                            |
-| `/api/admin/product-images/**`                  | `AdminProductImageController` | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                      |
+| Method and path                                 | Handler                       | What it does                                                                                                                      |
+| ----------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/admin/users`                          | `AdminController`             | Every active user with email and activity; unbounded                                                                              |
+| `PATCH /api/admin/users/{userId}`               | `AdminController`             | Set `accountType`; any active user, no self or last-admin check                                                                   |
+| `DELETE /api/admin/users/{userId}`              | `AdminController`             | Delete and erase a user; refuses yourself                                                                                         |
+| `GET /api/admin/contact?includeDeleted=`        | `AdminContactController`      | Up to 500 messages, newest first                                                                                                  |
+| `GET /api/admin/contact/{id}`                   | `AdminContactController`      | One message                                                                                                                       |
+| `PATCH /api/admin/contact/{id}/read`, `/unread` | `AdminContactController`      | Set or clear `read_at`                                                                                                            |
+| `DELETE /api/admin/contact/{id}`                | `AdminContactController`      | Soft delete                                                                                                                       |
+| `PATCH /api/admin/contact/{id}/restore`         | `AdminContactController`      | Undo the soft delete; deleted messages load through native queries ([AUTH.md 7.3](AUTH.md#73-soft-delete-and-the-erasure-ledger)) |
+| `/api/admin/product-images/**`                  | `AdminProductImageController` | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                                                                                        |
 
 Swagger lists them all at `/api-docs`.
 
