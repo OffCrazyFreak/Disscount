@@ -71,13 +71,78 @@ class DatabaseRolesTest {
         allowed(DatabaseRoles.BACKEND, "delete from app.wallet_card where false");
         allowed(DatabaseRoles.BACKEND, "update app.shopping_list set link_access = null where false");
         allowed(DatabaseRoles.BACKEND, "update app.contact_message set email = null, full_name = null where false");
-        allowed(DatabaseRoles.BACKEND, "insert into app.admin_audit values (gen_random_uuid(), gen_random_uuid(), gen_random_uuid(), 'DELETE_USER', now())");
+        allowed(DatabaseRoles.BACKEND, "insert into app.admin_audit (id, actor_user_id, target_user_id, action, occurred_at) values (gen_random_uuid(), gen_random_uuid(), gen_random_uuid(), 'DELETE_USER', now())");
         allowed(DatabaseRoles.BACKEND, "select count(*) from app.admin_audit");
 
         refused(DatabaseRoles.BACKEND, "update app.admin_audit set action = 'DELETE_USER'");
         refused(DatabaseRoles.BACKEND, "delete from app.admin_audit");
         refused(DatabaseRoles.BACKEND, "truncate app.admin_audit");
         refused(DatabaseRoles.BACKEND, "create table app.not_yours (id int)");
+    }
+
+    @Test
+    void nextJsOnlyAppendsToTheSecurityEventsAndTheBackendCannotReachThem() throws SQLException {
+        allowed(DatabaseRoles.WEB, "insert into web.security_event (event_type, outcome) values ('session_logout', 'success')");
+        allowed(DatabaseRoles.WEB, "select count(*) from web.security_event");
+
+        refused(DatabaseRoles.WEB, "update web.security_event set ip_address = null");
+        refused(DatabaseRoles.WEB, "delete from web.security_event");
+        refused(DatabaseRoles.WEB, "truncate web.security_event");
+        refused(DatabaseRoles.WEB, "select web.purge_security_events()");
+        refused(DatabaseRoles.WEB, "select app.purge_admin_audit()");
+
+        refused(DatabaseRoles.BACKEND, "select * from web.security_event");
+        refused(DatabaseRoles.BACKEND, "insert into web.security_event (event_type, outcome) values ('session_logout', 'success')");
+    }
+
+    @Test
+    void theAdminPurgeDeletesOnlyRowsOlderThanTwelveMonths() throws SQLException {
+        UUID expired = UUID.randomUUID();
+        UUID kept = UUID.randomUUID();
+
+        allowed(DatabaseRoles.BACKEND, adminAuditRow(expired, "12 months 1 day"));
+        allowed(DatabaseRoles.BACKEND, adminAuditRow(kept, "11 months 29 days"));
+        allowed(DatabaseRoles.BACKEND, "select app.purge_admin_audit()");
+
+        assertThat(single("select count(*) from app.admin_audit where actor_user_id = '%s'".formatted(expired))).isEqualTo("0");
+        assertThat(single("select count(*) from app.admin_audit where actor_user_id = '%s'".formatted(kept))).isEqualTo("1");
+    }
+
+    @Test
+    void theSecurityEventPurgeClearsAddressesAt29DaysAndDeletesFailuresAt30AndTheRestAt12Months() throws SQLException {
+        UUID user = UUID.randomUUID();
+
+        allowed(DatabaseRoles.WEB, securityEventRow(user, "authn_login_success", "success", "28 days"));
+        allowed(DatabaseRoles.WEB, securityEventRow(user, "authn_password_change", "success", "29 days 1 hour"));
+        allowed(DatabaseRoles.WEB, securityEventRow(user, "authn_login_fail", "failure", "29 days 23 hours"));
+        allowed(DatabaseRoles.WEB, securityEventRow(user, "authn_reauth_fail", "failure", "30 days 1 hour"));
+        allowed(DatabaseRoles.WEB, securityEventRow(user, "authn_login_blocked_breached", "blocked", "11 months"));
+        allowed(DatabaseRoles.WEB, securityEventRow(user, "session_logout", "success", "12 months 1 day"));
+
+        allowed(DatabaseRoles.BACKEND, "select * from web.purge_security_events()");
+
+        assertThat(single("""
+                select string_agg(event_type || ':' || (ip_address is not null) || ':' || (user_agent is not null), ',' order by occurred_at desc)
+                from web.security_event where user_id = '%s'
+                """.formatted(user))).isEqualTo(String.join(",",
+                "authn_login_success:true:true",
+                "authn_password_change:false:false",
+                "authn_login_fail:false:false",
+                "authn_login_blocked_breached:false:false"));
+    }
+
+    private static String adminAuditRow(UUID actor, String age) {
+        return """
+                insert into app.admin_audit (id, actor_user_id, action, occurred_at)
+                values (gen_random_uuid(), '%s', 'READ_USER_LIST', (now() at time zone 'UTC') - interval '%s')
+                """.formatted(actor, age);
+    }
+
+    private static String securityEventRow(UUID user, String eventType, String outcome, String age) {
+        return """
+                insert into web.security_event (user_id, event_type, outcome, ip_address, user_agent, occurred_at)
+                values ('%s', '%s', '%s', '203.0.113.9', 'Firefox', (now() at time zone 'UTC') - interval '%s')
+                """.formatted(user, eventType, outcome, age);
     }
 
     @Test
@@ -185,6 +250,9 @@ class DatabaseRolesTest {
                            select string_agg(a.attname || '=' || a.attacl::text, ',' order by a.attname)
                            from pg_attribute a where a.attrelid = c.oid and a.attacl is not null)), ';' order by c.oid::regclass::text)
                        || (select string_agg(d.defaclacl::text, ';' order by d.defaclacl::text) from pg_default_acl d)
+                       || (select string_agg(format('%s %s %s', p.oid::regprocedure, pg_get_userbyid(p.proowner), p.proacl), ';'
+                                             order by p.oid::regprocedure::text)
+                           from pg_proc p join pg_namespace pn on pn.oid = p.pronamespace where pn.nspname in ('app', 'web'))
                 from pg_class c join pg_namespace n on n.oid = c.relnamespace
                 where n.nspname in ('app', 'auth', 'web', 'drizzle')
                 """);

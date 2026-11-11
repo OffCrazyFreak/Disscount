@@ -123,6 +123,8 @@ unset FLYWAY_PASSWORD PGPASSWORD
 
 On a new server, decrypt and restore `<timestamp>.globals.sql.age` first, which recreates the logins without their passwords. After any restore, run `db/database-roles.sql` again (it sets the three passwords and repairs any grant the dump lacked), then, before traffic reopens, the [erasure replay](#erasure-replay).
 
+A restore also brings back audit rows (`app.admin_audit`, `web.security_event`) and addresses that the hourly `AuditRetentionJob` had already removed; its next run after the app starts removes them again, so nothing is needed by hand. The replay does not touch these tables, because account erasure keeps audit rows by design until their retention ends ([AUTH.md 8.6](AUTH.md#86-security-event-log)).
+
 **Photos:** with an rclone config that has the same `r2` and `photos` (crypt) remotes and the same password and salt, `rclone copy photos:gen-<n>/private <photo folder>` and the same for `public`. Copy the previous generation first and the newest on top (only the newest if just one exists). The newest holds every photo still on disk when it started plus newer ones, but its first copy may not have finished; `copy` only adds and keys are unique per upload, so the two together miss nothing. Photos deleted since the older generation started come back as files no restored row points to; delete them before reopening.
 
 **Checking restored card photos:** `wallet_card_photo.sha256` depends on the slot. For the icon, which has no thumbnail, it is the SHA-256 of the file. For the front and back it is the SHA-256 of `<full file hash>:<thumb file hash>`, so a check recomputes it from both files.

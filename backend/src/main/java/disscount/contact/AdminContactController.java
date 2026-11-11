@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import disscount.shared.CurrentUser;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -26,37 +28,38 @@ class AdminContactController {
     @Operation(summary = "List contact messages (admin only)")
     @GetMapping
     public ResponseEntity<List<ContactMessageDto>> list(
+            @CurrentUser UUID adminId,
             @RequestParam(defaultValue = "false") boolean includeDeleted) {
-        return ResponseEntity.ok(contactMessageService.list(includeDeleted));
+        return ResponseEntity.ok(contactMessageService.list(includeDeleted, adminId));
     }
 
     @Operation(summary = "Get a contact message by ID (admin only)")
     @GetMapping("/{id}")
-    public ResponseEntity<ContactMessageDto> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(contactMessageService.getById(id));
+    public ResponseEntity<ContactMessageDto> getById(@CurrentUser UUID adminId, @PathVariable UUID id) {
+        return ResponseEntity.ok(contactMessageService.getById(id, adminId));
     }
 
     @Operation(summary = "Mark as read (admin only)")
     @PatchMapping("/{id}/read")
-    public ResponseEntity<ContactMessageDto> markRead(@PathVariable UUID id) {
-        return ResponseEntity.ok(contactMessageService.markRead(id));
+    public ResponseEntity<ContactMessageDto> markRead(@CurrentUser UUID adminId, @PathVariable UUID id) {
+        return ResponseEntity.ok(contactMessageService.markRead(id, adminId));
     }
 
     @Operation(summary = "Mark as unread (admin only)")
     @PatchMapping("/{id}/unread")
-    public ResponseEntity<ContactMessageDto> markUnread(@PathVariable UUID id) {
-        return ResponseEntity.ok(contactMessageService.markUnread(id));
+    public ResponseEntity<ContactMessageDto> markUnread(@CurrentUser UUID adminId, @PathVariable UUID id) {
+        return ResponseEntity.ok(contactMessageService.markUnread(id, adminId));
     }
 
     @Operation(summary = "Soft delete (admin only)")
     @DeleteMapping("/{id}")
-    public ResponseEntity<ContactMessageDto> softDelete(@PathVariable UUID id) {
-        return ResponseEntity.ok(contactMessageService.softDelete(id));
+    public ResponseEntity<ContactMessageDto> softDelete(@CurrentUser UUID adminId, @PathVariable UUID id) {
+        return ResponseEntity.ok(contactMessageService.softDelete(id, adminId));
     }
 
     @Operation(summary = "Restore (admin only)")
     @PatchMapping("/{id}/restore")
-    public ResponseEntity<ContactMessageDto> restore(@PathVariable UUID id) {
-        return ResponseEntity.ok(contactMessageService.restore(id));
+    public ResponseEntity<ContactMessageDto> restore(@CurrentUser UUID adminId, @PathVariable UUID id) {
+        return ResponseEntity.ok(contactMessageService.restore(id, adminId));
     }
 }

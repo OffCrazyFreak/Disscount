@@ -12,6 +12,7 @@ import disscount.shared.NotFoundException;
 import disscount.shared.UnauthorizedException;
 import disscount.user.ActiveUsers;
 import disscount.user.AuthIdentityDao;
+import disscount.user.AdminAuditLog;
 import disscount.user.User;
 import disscount.user.UserRepository;
 import disscount.user.UserService;
@@ -33,6 +34,7 @@ class ContactMessageServiceTest {
     @MockitoBean UserService userService;
     @MockitoBean AuthIdentityDao authIdentities;
     @Autowired JdbcTemplate jdbc;
+    @MockitoBean AdminAuditLog adminAudit;
 
     User user;
 
@@ -89,7 +91,7 @@ class ContactMessageServiceTest {
         ContactMessageRequest bot = request("https://spam.example");
 
         assertThat(service.create(bot, user.getId())).isEmpty();
-        assertThat(service.list(true)).isEmpty();
+        assertThat(service.list(true, UUID.randomUUID())).isEmpty();
     }
 
     @Test
@@ -97,15 +99,15 @@ class ContactMessageServiceTest {
         ContactMessageRequest bot = request("   ");
 
         assertThat(service.create(bot, user.getId())).isEmpty();
-        assertThat(service.list(true)).isEmpty();
+        assertThat(service.list(true, UUID.randomUUID())).isEmpty();
     }
 
     @Test
     void anUnknownMessageIdIsNotFound() {
         UUID unknown = UUID.randomUUID();
 
-        assertThatThrownBy(() -> service.getById(unknown)).isInstanceOf(NotFoundException.class);
-        assertThatThrownBy(() -> service.markRead(unknown)).isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(() -> service.getById(unknown, UUID.randomUUID())).isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(() -> service.markRead(unknown, UUID.randomUUID())).isInstanceOf(NotFoundException.class);
     }
 
     private static ContactMessageRequest request() {

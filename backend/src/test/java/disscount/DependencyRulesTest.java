@@ -20,6 +20,10 @@ class DependencyRulesTest {
     private static final List<String> FEATURES = List.of(
             "contact", "digitalcard", "preferences", "productimage", "shoppinglist", "storename", "user", "watchlist");
 
+    // AdminAuditLog and AdminAction let other features record admin actions in their own transaction (#211).
+    private static final List<String> USER_PUBLIC_API = List.of(
+            "user.ActiveUsers", "user.AccountErased", "user.AdminAuditLog", "user.AdminAction");
+
     private static final Pattern REFERENCE = Pattern.compile("\\bdisscount\\.(\\w+)\\.(\\w+|\\*)");
 
     @Test
@@ -42,7 +46,7 @@ class DependencyRulesTest {
             assertThat(featureReferences(feature))
                     .as(feature)
                     .filteredOn(reference -> reference.startsWith("user."))
-                    .allMatch(reference -> reference.equals("user.ActiveUsers") || reference.equals("user.AccountErased"));
+                    .allMatch(USER_PUBLIC_API::contains);
         }
     }
 

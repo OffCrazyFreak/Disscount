@@ -66,7 +66,7 @@ import static org.mockito.Mockito.verify;
 // Not transactional on purpose: the bug only shows when the service's own transaction really commits.
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-@Import({ActiveUsers.class, UserService.class, AccountErasureService.class, DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
+@Import({ActiveUsers.class, UserService.class, AdminAuditLog.class, AccountErasureService.class, DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
         StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, UploadLimitConfig.class,
         CardPhotoWriter.class, CardUserLock.class, PhotoCleanupService.class, FavoriteStoreService.class,
         AvatarSanitizer.class, UserServiceDeleteAccountTest.StoreConfig.class})

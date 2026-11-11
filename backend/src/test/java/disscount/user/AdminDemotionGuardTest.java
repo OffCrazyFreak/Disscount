@@ -71,7 +71,7 @@ class AdminDemotionGuardTest extends FullStackTest {
         UserRepository repository = mock(UserRepository.class);
         UserService service = new UserService(repository, mock(AuthIdentityDao.class), mock(UserProfileCreator.class),
                 mock(ApplicationEventPublisher.class), mock(ErasureLedgerRepository.class), mock(AvatarSanitizer.class),
-                mock(AdminAuditRepository.class));
+                mock(AdminAuditLog.class));
         User lastAdmin = newAdmin();
         User demotedCaller = newUser("demoted");
         when(repository.findById(lastAdmin.getId())).thenReturn(Optional.of(lastAdmin));

@@ -28,6 +28,10 @@ export default async function PrivacyPolicyPage() {
     locale: DEFAULT_LOCALE,
     namespace: "privacyPolicy.securityNotices",
   });
+  const tSecurityLog = await getTranslations({
+    locale: DEFAULT_LOCALE,
+    namespace: "privacyPolicy.securityLog",
+  });
   const tBackups = await getTranslations({
     locale: DEFAULT_LOCALE,
     namespace: "privacyPolicy.backups",
@@ -37,7 +41,7 @@ export default async function PrivacyPolicyPage() {
     <LegalPage
       title="Pravila privatnosti"
       intro="Ova pravila objašnjavaju koje podatke Disscount prikuplja i kako ih koristi."
-      lastUpdated="5. studenoga 2026."
+      lastUpdated="11. studenoga 2026."
     >
       <LegalSection heading="Koje podatke prikupljamo">
         <p>
@@ -77,6 +81,10 @@ export default async function PrivacyPolicyPage() {
 
       <LegalSection heading={tSecurityNotices("heading")}>
         <p>{tSecurityNotices("body")}</p>
+      </LegalSection>
+
+      <LegalSection heading={tSecurityLog("heading")}>
+        <p>{tSecurityLog("body")}</p>
       </LegalSection>
 
       <LegalSection heading="Slike proizvoda">

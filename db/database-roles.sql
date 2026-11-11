@@ -1,8 +1,10 @@
 -- The three database logins and what each may touch (#429 R11, docs/INFRASTRUCTURE.md, Database roles).
 --
 --   migrator  owns the app, auth, web and drizzle schemas and every table in them; Flyway and drizzle run as it
---   backend   the Spring runtime: reads and writes app, reads the few better-auth columns it shows or cleans
+--   backend   the Spring runtime: reads and writes app, reads the few better-auth columns it shows or cleans,
+--             runs the two audit purge functions
 --   web       the Next.js runtime: reads and writes auth and web, reads app.erasure_ledger's user ids
+--   Neither runtime login may update, delete or truncate app.admin_audit or web.security_event.
 --
 -- Run it as the database owner (POSTGRES_USER) with psql 15 or newer. It is idempotent: it creates what is missing,
 -- hands every table to the migrator and replaces both runtime logins' grants with exactly the ones below, so a second
@@ -124,6 +126,15 @@ WHERE (n.nspname IN ('app', 'auth', 'web', 'drizzle') OR (n.nspname = 'public' A
   AND NOT EXISTS (SELECT FROM pg_depend d WHERE d.objid = c.oid AND d.deptype IN ('a', 'i'))
 \gexec
 
+-- A SECURITY DEFINER function runs as its owner, so the purge functions run as the migrator, never as the owner login.
+SELECT format('ALTER FUNCTION %s OWNER TO %I', p.oid::regprocedure, :'migrator')
+FROM pg_proc p
+JOIN pg_namespace n ON n.oid = p.pronamespace
+WHERE n.nspname IN ('app', 'auth', 'web')
+  AND pg_get_userbyid(p.proowner) <> :'migrator'
+  AND NOT EXISTS (SELECT FROM pg_depend d WHERE d.objid = p.oid AND d.deptype = 'e')
+\gexec
+
 
 -- Start both runtime logins from nothing, so a grant removed from this file is removed from the database too.
 
@@ -134,6 +145,10 @@ ALTER DEFAULT PRIVILEGES FOR ROLE :"migrator" REVOKE ALL ON TABLES FROM :"backen
 ALTER DEFAULT PRIVILEGES FOR ROLE :"migrator" REVOKE ALL ON SEQUENCES FROM :"backend", :"web";
 ALTER DEFAULT PRIVILEGES FOR ROLE :"migrator" IN SCHEMA app, auth, web REVOKE ALL ON TABLES FROM :"backend", :"web";
 ALTER DEFAULT PRIVILEGES FOR ROLE :"migrator" IN SCHEMA app, auth, web REVOKE ALL ON SEQUENCES FROM :"backend", :"web";
+REVOKE ALL ON ALL FUNCTIONS IN SCHEMA app, auth, web FROM :"backend", :"web";
+
+-- Postgres lets everyone run a new function; here only the logins granted below may run one.
+ALTER DEFAULT PRIVILEGES FOR ROLE :"migrator" REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
 
 
 -- backend: the app schema. Tables the migrator makes later get the same, so a new migration needs no grant.
@@ -143,11 +158,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA app TO :"backend";
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA app TO :"backend";
 ALTER DEFAULT PRIVILEGES FOR ROLE :"migrator" IN SCHEMA app GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO :"backend";
 ALTER DEFAULT PRIVILEGES FOR ROLE :"migrator" IN SCHEMA app GRANT USAGE, SELECT ON SEQUENCES TO :"backend";
-
--- The record of what admins did is append only (docs/ADMIN.md, section 8).
-SELECT format('REVOKE UPDATE, DELETE, TRUNCATE ON app.admin_audit FROM %I', :'backend')
-WHERE to_regclass('app.admin_audit') IS NOT NULL
-\gexec
 
 -- backend reads only what AuthIdentityDao uses: the admin user list (email, last sign-in) and the session
 -- retention job (deletes expired sessions, clears old addresses). No password hash, key or other login data,
@@ -177,6 +187,25 @@ GRANT USAGE ON SCHEMA app TO :"web";
 
 SELECT format('GRANT SELECT (user_id) ON app.erasure_ledger TO %I', :'web')
 WHERE to_regclass('app.erasure_ledger') IS NOT NULL
+\gexec
+
+
+
+-- The audit tables are append only: the runtime logins insert and read, and rows leave only through the purge
+-- functions below, which delete nothing younger than the privacy policy promises (docs/ADMIN.md, section 8).
+-- A new append-only table joins this list, so the grants above cannot hand it UPDATE or DELETE.
+
+SELECT format('REVOKE UPDATE, DELETE, TRUNCATE ON %s FROM %I, %I', append_only, :'backend', :'web')
+FROM unnest(array['app.admin_audit', 'web.security_event']) AS append_only
+WHERE to_regclass(append_only) IS NOT NULL
+\gexec
+
+-- The audit retention job runs in Spring, so only the backend login may run the purges; it reaches no web table.
+GRANT USAGE ON SCHEMA web TO :"backend";
+
+SELECT format('GRANT EXECUTE ON FUNCTION %s TO %I', purge, :'backend')
+FROM unnest(array['app.purge_admin_audit()', 'web.purge_security_events()']) AS purge
+WHERE to_regprocedure(purge) IS NOT NULL
 \gexec
 
 COMMIT;

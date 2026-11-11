@@ -39,9 +39,19 @@ import { CLIENT_IP_HEADER, trustedCountry } from "@/lib/client-ip/client-ip";
 import { guardSensitiveAction } from "@/lib/auth/sensitive-action-guard";
 import { reauth } from "@/lib/auth/reauth/reauth-plugin";
 import {
+  confirmedEmailChange,
   notifyEmailChanged,
   notifyPasswordChanged,
 } from "@/lib/auth/security-notifications";
+import { recordSecurityEvent } from "@/lib/security-events/record-security-event";
+import {
+  recordEndpointOutcome,
+  recordIdentityLinked,
+  recordIdentityUnlinked,
+  recordSignIn,
+  recordSignOut,
+  recordUserCreated,
+} from "@/lib/security-events/auth-security-events";
 
 const BETTER_AUTH_URL = serverEnv.BETTER_AUTH_URL;
 const BETTER_AUTH_SECRET = serverEnv.BETTER_AUTH_SECRET;
@@ -118,9 +128,13 @@ export const auth = betterAuth({
     requireEmailVerification: true,
     resetPasswordTokenExpiresIn: RESET_TOKEN_TTL_SECONDS,
     revokeSessionsOnPasswordReset: true,
-    onPasswordReset: async ({ user }) => {
+    onPasswordReset: async ({ user }, request) => {
       await claimUnverifiedAccountOnReset(user);
       notifyPasswordChanged(user);
+      await recordSecurityEvent("authn_password_reset", {
+        userId: user.id,
+        headers: request?.headers,
+      });
     },
     // Fire-and-forget like the sends below, so a registered address answers no slower.
     onExistingUserSignUp: async ({ user }) => {
@@ -202,6 +216,8 @@ export const auth = betterAuth({
       ) {
         notifyPasswordChanged(returned.user as { email: string });
       }
+
+      await recordEndpointOutcome(ctx);
     }),
   },
 
@@ -218,10 +234,27 @@ export const auth = betterAuth({
           const country = trustedCountry(ctx?.headers ?? ctx?.request?.headers);
           return { data: { ...session, country } };
         },
-        after: recordLastLogin,
+        after: async (session, ctx) => {
+          await recordLastLogin(session);
+          await recordSignIn(session, ctx);
+        },
+      },
+      delete: {
+        after: recordSignOut,
+      },
+    },
+    account: {
+      create: {
+        after: recordIdentityLinked,
+      },
+      delete: {
+        after: recordIdentityUnlinked,
       },
     },
     user: {
+      create: {
+        after: recordUserCreated,
+      },
       update: {
         // Re-checks at apply time, closing the link-during-confirmation race the request-time guard leaves open.
         before: async (userData, ctx) => {
@@ -249,6 +282,13 @@ export const auth = betterAuth({
         },
         after: async (updatedUser, ctx) => {
           notifyEmailChanged(updatedUser, ctx);
+
+          if (confirmedEmailChange(updatedUser, ctx)) {
+            await recordSecurityEvent("user_email_changed", {
+              userId: updatedUser.id,
+              headers: ctx?.headers ?? ctx?.request?.headers,
+            });
+          }
         },
       },
     },

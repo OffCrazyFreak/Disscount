@@ -17,7 +17,7 @@ export default function DataDeletionPage() {
     <LegalPage
       title="Brisanje podataka"
       intro="Upute za brisanje tvog računa i povezanih podataka iz Disscounta."
-      lastUpdated="5. studenoga 2026."
+      lastUpdated="11. studenoga 2026."
     >
       <LegalSection heading="Brisanje unutar aplikacije">
         <p>
@@ -78,6 +78,10 @@ export default function DataDeletionPage() {
           brisanja. Po njemu znamo da je račun obrisan, pa ga stara prijava ne
           može ponovno stvoriti, a nakon vraćanja baze iz kopije račun opet
           brišemo. Zapis ne sadrži ni ime ni email.
+        </p>
+        <p>
+          Sigurnosni zapisnik o prijavama i radnjama administratora ostaje do
+          isteka rokova iz pravila privatnosti, bez tvog imena i email adrese.
         </p>
       </LegalSection>
     </LegalPage>

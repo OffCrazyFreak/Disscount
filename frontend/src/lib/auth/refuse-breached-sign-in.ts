@@ -17,6 +17,7 @@ import {
   PASSWORD_BREACHED,
   PASSWORD_BREACHED_MESSAGE,
 } from "@/lib/auth/password-policy";
+import { recordSecurityEvent } from "@/lib/security-events/record-security-event";
 
 // One container today, so an in-process set is enough to serialise the claim per user.
 const claiming = new Set<string>();
@@ -44,6 +45,12 @@ export async function refuseBreachedSignIn(
       claiming.delete(userId);
     }
   }
+
+  // Here, not in hooks.after: only this hook knows whose correct password was refused.
+  await recordSecurityEvent("authn_login_blocked_breached", {
+    userId,
+    headers: ctx.headers ?? ctx.request?.headers,
+  });
 
   throw new APIError("FORBIDDEN", {
     code: PASSWORD_BREACHED,

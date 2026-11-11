@@ -28,22 +28,34 @@ export function notifyPasswordChanged(user: INotifiedUser) {
     .catch(logEmailFailure("password-changed notice"));
 }
 
-/** A confirmed email change's token still names the old address, where the notice goes. */
-export function notifyEmailChanged(
+/** The token of a confirmed email change, or null for any other user update. */
+export function confirmedEmailChange(
   updatedUser: INotifiedUser,
   ctx: GenericEndpointContext | null | undefined,
 ) {
   const token: unknown = ctx?.query?.token;
-  if (ctx?.path !== "/verify-email" || typeof token !== "string") return;
+  if (ctx?.path !== "/verify-email" || typeof token !== "string") return null;
 
   const claims = readVerificationToken(token);
   if (
     claims.requestType !== "change-email-verification" ||
     claims.updateTo !== updatedUser.email
   ) {
-    return;
+    return null;
   }
 
+  return { token, claims };
+}
+
+/** A confirmed email change's token still names the old address, where the notice goes. */
+export function notifyEmailChanged(
+  updatedUser: INotifiedUser,
+  ctx: GenericEndpointContext | null | undefined,
+) {
+  const change = confirmedEmailChange(updatedUser, ctx);
+  if (!change) return;
+
+  const { token, claims } = change;
   const locale = userLocale(updatedUser);
   void emailService
     .sendEmailChanged({

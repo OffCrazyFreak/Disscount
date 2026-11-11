@@ -23,8 +23,8 @@ class AdminController {
 
     @Operation(summary = "List all active users (admin only)")
     @GetMapping("/users")
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        return ResponseEntity.ok(userService.findAllActive());
+    public ResponseEntity<List<UserDto>> getAllUsers(@CurrentUser UUID adminId) {
+        return ResponseEntity.ok(userService.findAllActiveAsAdmin(adminId));
     }
 
     @Operation(summary = "Change a user's account type (admin only)")
