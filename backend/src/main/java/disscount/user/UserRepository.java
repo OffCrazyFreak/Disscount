@@ -3,6 +3,7 @@ package disscount.user;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -23,6 +24,12 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     /** Live names only; deleteAccount nulls the name of a deleted profile, so none is left to collide with. */
     boolean existsByUsername(String username);
+
+    /** Native for the same reason as the ledger backfill; frees names that deletions before deleteAccount nulled kept. */
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = "UPDATE app_user SET username = NULL WHERE deleted_at IS NOT NULL AND username IS NOT NULL",
+            nativeQuery = true)
+    int clearUsernamesOfDeletedProfiles();
 
     /** Row lock held until the transaction ends; the per-user mutex for card writes. */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
