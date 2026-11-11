@@ -734,7 +734,8 @@
           "type" : "boolean"
         },
         "title" : {
-          "minLength" : 1,
+          "maxLength" : 100,
+          "minLength" : 0,
           "type" : "string"
         }
       },
@@ -887,7 +888,8 @@
           "type" : [ "string", "null" ]
         },
         "title" : {
-          "minLength" : 1,
+          "maxLength" : 100,
+          "minLength" : 0,
           "type" : "string"
         }
       },

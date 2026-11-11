@@ -1,6 +1,7 @@
 package disscount.shoppinglist;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /** Booleans, not a level enum, as a copy can take products without progress, or sharing without products. */
@@ -9,6 +10,7 @@ import lombok.Data;
 public class ShoppingListCopyRequest {
 
     @NotBlank(message = "{validation.title.required}")
+    @Size(max = 100, message = "{validation.title.tooLong}")
     private String title;
 
     /** Without this the copy is just the title, which is a legitimate thing to want. */
