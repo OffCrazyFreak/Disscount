@@ -201,7 +201,8 @@
       "deleteDialogDescription": "Trajno brišemo tvoj račun i sve podatke. Ovo ne možeš poništiti.",
       "revokeFailed": "Ostali uređaji nisu odjavljeni. Pokušaj ponovno.",
       "revoked": "Ostali uređaji su odjavljeni.",
-      "deleted": "Tvoj račun je obrisan."
+      "deleted": "Tvoj račun je obrisan.",
+      "lastAdminDelete": "Osim tebe nitko nije admin. Prvo nekom drugom daj admin prava, pa onda obriši račun."
     },
     "reauth": {
       "cancel": "Odustani",

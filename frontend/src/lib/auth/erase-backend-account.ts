@@ -4,6 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 import { APIError } from "better-auth/api";
 
 import { BACKEND_ORIGIN } from "@/lib/api/backend-origin";
+import { LAST_ADMIN_DELETE } from "@/lib/auth/security-policy";
 
 // Shared with backend SecurityConfig, which lets only this purpose call DELETE /api/users/me.
 const ACCOUNT_ERASURE_PURPOSE = "account-erasure";
@@ -11,6 +12,9 @@ const ACCOUNT_ERASURE_PURPOSE = "account-erasure";
 const ERASURE_TOKEN_TTL_SECONDS = 60;
 // A hung backend has to fail the deletion rather than hold the request open.
 const ERASURE_TIMEOUT_MS = 15_000;
+// Backend message code for the last live admin erasing their own account.
+const BACKEND_LAST_ADMIN_DELETE = "error.user.lastAdminDelete";
+const CONFLICT_STATUS = 409;
 
 export type SignJwt = (payload: Record<string, unknown>) => Promise<string>;
 
@@ -28,19 +32,31 @@ export async function eraseBackendAccount(
     exp: issuedAt + ERASURE_TOKEN_TTL_SECONDS,
   });
 
-  let status: number | string;
+  let response: Response;
   try {
-    const response = await fetch(`${BACKEND_ORIGIN}/api/users/me`, {
+    response = await fetch(`${BACKEND_ORIGIN}/api/users/me`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
       signal: AbortSignal.timeout(ERASURE_TIMEOUT_MS),
     });
-    if (response.ok) return;
-    status = response.status;
   } catch (error) {
-    status = error instanceof Error ? error.name : typeof error;
+    failErasure(userId, error instanceof Error ? error.name : typeof error);
   }
 
+  if (response.ok) return;
+
+  if (await isLastAdminRefusal(response)) {
+    // An answer the user can fix, so it stays out of Sentry.
+    throw new APIError("CONFLICT", {
+      code: LAST_ADMIN_DELETE,
+      message: "The last admin cannot delete their account",
+    });
+  }
+
+  failErasure(userId, response.status);
+}
+
+function failErasure(userId: string, status: number | string): never {
   console.error("Backend account erasure failed:", status);
   // Only the account id identifies the user; every deletion fails while this keeps firing.
   Sentry.captureException(
@@ -50,4 +66,17 @@ export async function eraseBackendAccount(
   throw new APIError("INTERNAL_SERVER_ERROR", {
     message: "Account erasure failed; nothing was deleted",
   });
+}
+
+async function isLastAdminRefusal(response: Response): Promise<boolean> {
+  if (response.status !== CONFLICT_STATUS) return false;
+
+  const body: unknown = await response.json().catch(() => null);
+
+  return (
+    typeof body === "object" &&
+    body !== null &&
+    "code" in body &&
+    body.code === BACKEND_LAST_ADMIN_DELETE
+  );
 }

@@ -240,5 +240,4 @@ What the rest of #429 changes:
 
 Open:
 
-- The account deletion page could show the translated 409 detail instead of a generic failure, and skip the Sentry report for it.
 - Nothing serialises the first-admin count with the first profile insert, so two first logins racing on an empty database can both become admin ([AUTH.md 7.1](AUTH.md#71-admin-access)).

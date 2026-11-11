@@ -201,7 +201,8 @@
       "deleteDialogDescription": "We'll permanently delete your account and all your data. You can't undo this.",
       "revokeFailed": "Couldn't sign out your other devices. Try again.",
       "revoked": "Your other devices are signed out.",
-      "deleted": "Your account has been deleted."
+      "deleted": "Your account has been deleted.",
+      "lastAdminDelete": "Nobody else is an admin. Give someone else admin rights first, then delete your account."
     },
     "reauth": {
       "cancel": "Cancel",
