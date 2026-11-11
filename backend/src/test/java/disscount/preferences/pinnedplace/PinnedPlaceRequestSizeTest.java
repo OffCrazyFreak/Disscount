@@ -1,4 +1,4 @@
-package disscount.preferences;
+package disscount.preferences.pinnedplace;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 // The columns are varchar(255), so a longer value would fail the insert with a 500 instead of a form error.
-class PinnedRequestSizeTest {
+class PinnedPlaceRequestSizeTest {
 
     private static final String TOO_LONG = "a".repeat(256);
     private static final String LONGEST = "a".repeat(255);
@@ -26,19 +26,8 @@ class PinnedRequestSizeTest {
     }
 
     @Test
-    void aPinnedStoreLongerThanItsColumnIsAFormError() {
-        BulkPinnedStoreRequest request = new BulkPinnedStoreRequest(List.of(new PinnedStoreRequest(TOO_LONG, TOO_LONG)));
-
-        assertThat(validator.validate(request))
-                .extracting(violation -> violation.getPropertyPath().toString())
-                .containsExactlyInAnyOrder("stores[0].storeApiId", "stores[0].storeName");
-    }
-
-    @Test
     void valuesThatFillTheColumnAreValid() {
         assertThat(validator.validate(new BulkPinnedPlaceRequest(List.of(new PinnedPlaceRequest(LONGEST, LONGEST)))))
-                .isEmpty();
-        assertThat(validator.validate(new BulkPinnedStoreRequest(List.of(new PinnedStoreRequest(LONGEST, LONGEST)))))
                 .isEmpty();
     }
 }

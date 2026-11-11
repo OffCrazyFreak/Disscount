@@ -1,4 +1,4 @@
-package disscount.preferences;
+package disscount.preferences.favoritestore;
 
 import java.util.List;
 

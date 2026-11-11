@@ -1,4 +1,4 @@
-package disscount.preferences;
+package disscount.preferences.favoritestore;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

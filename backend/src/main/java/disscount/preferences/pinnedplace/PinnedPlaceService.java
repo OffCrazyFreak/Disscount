@@ -1,4 +1,4 @@
-package disscount.preferences;
+package disscount.preferences.pinnedplace;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

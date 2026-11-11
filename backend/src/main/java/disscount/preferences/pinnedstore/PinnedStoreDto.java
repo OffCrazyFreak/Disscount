@@ -1,4 +1,4 @@
-package disscount.preferences;
+package disscount.preferences.pinnedstore;
 
 import disscount.shared.AlphabeticalJson;
 

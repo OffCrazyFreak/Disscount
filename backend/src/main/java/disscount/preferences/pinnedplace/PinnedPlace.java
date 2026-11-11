@@ -1,4 +1,4 @@
-package disscount.preferences;
+package disscount.preferences.pinnedplace;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

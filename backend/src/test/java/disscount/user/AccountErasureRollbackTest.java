@@ -1,7 +1,7 @@
 package disscount.user;
 
 import disscount.digitalcard.DigitalCardRepository;
-import disscount.preferences.FavoriteStoreRepository;
+import disscount.preferences.favoritestore.FavoriteStoreRepository;
 import disscount.storename.StoreNameUsageRepository;
 import disscount.support.FullStackTest;
 import org.junit.jupiter.api.Test;

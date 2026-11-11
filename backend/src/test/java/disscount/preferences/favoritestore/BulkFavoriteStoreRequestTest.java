@@ -1,4 +1,4 @@
-package disscount.preferences;
+package disscount.preferences.favoritestore;
 
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

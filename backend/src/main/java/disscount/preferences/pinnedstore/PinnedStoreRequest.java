@@ -1,4 +1,4 @@
-package disscount.preferences;
+package disscount.preferences.pinnedstore;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
