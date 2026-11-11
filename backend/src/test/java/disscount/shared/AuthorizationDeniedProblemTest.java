@@ -16,8 +16,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** The catch-all makes this a 500, as ResponseEntityExceptionHandler lacks it; method security must flip it to 403. */
-class AuthorizationDeniedCharacterizationTest {
+/** ResponseEntityExceptionHandler does not know method security, so without its own handler a denial is a 500. */
+class AuthorizationDeniedProblemTest {
 
     @RestController
     static class DeniedController {
@@ -28,7 +28,7 @@ class AuthorizationDeniedCharacterizationTest {
     }
 
     @Test
-    void aMethodSecurityDenialIsA500Today() throws Exception {
+    void aMethodSecurityDenialIsTheSame403ProblemAsTheChains() throws Exception {
         ResourceBundleMessageSource messages = new ResourceBundleMessageSource();
         messages.setBasename("messages");
         // Spring reads unset encodings as ISO-8859-1, and the JDK caches the bundle for every later test.
@@ -39,9 +39,13 @@ class AuthorizationDeniedCharacterizationTest {
                 .build();
 
         mvc.perform(get("/denied").header(HttpHeaders.ACCEPT_LANGUAGE, "hr"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isForbidden())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
-                .andExpect(jsonPath("$.type").value("urn:disscount:internal-error"))
-                .andExpect(jsonPath("$.title").value("Nešto je pošlo po krivu"));
+                .andExpect(jsonPath("$.type").value("urn:disscount:forbidden"))
+                .andExpect(jsonPath("$.status").value(403))
+                .andExpect(jsonPath("$.title").value("Nemaš pristup"))
+                .andExpect(jsonPath("$.detail").value("Nemaš dopuštenje za ovo."))
+                .andExpect(jsonPath("$.instance").value("/denied"))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 }

@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +39,7 @@ public class DigitalCardService {
     static final int MAX_USED_AGE_DAYS = 400;
 
     private static final Logger log = LoggerFactory.getLogger(DigitalCardService.class);
-    private static final String NOT_FOUND = "error.card.notFound";
+    static final String NOT_FOUND = "error.card.notFound";
 
     private final DigitalCardRepository cardRepository;
     private final DigitalCardPhotoRepository photoRepository;
@@ -63,6 +64,7 @@ public class DigitalCardService {
                 .toList();
     }
 
+    @PreAuthorize("@digitalCardGuard.ownsCard(#userId, #id)")
     public DigitalCardDto get(UUID userId, UUID id) {
         return toDto(requireActive(userId, id));
     }
@@ -72,6 +74,7 @@ public class DigitalCardService {
     }
 
     /** A replayed create never resurrects, another user's id looks unused; the lock makes the cap atomic. */
+    @PreAuthorize("@digitalCardGuard.mayWriteCard(#userId, #id)")
     @Transactional
     public DigitalCardDto upsert(UUID userId, UUID id, DigitalCardRequest request) {
         userLock.acquire(userId);
@@ -106,6 +109,7 @@ public class DigitalCardService {
         return toDto(card);
     }
 
+    @PreAuthorize("@digitalCardGuard.ownsCard(#userId, #id)")
     @Transactional
     public DigitalCardDto setPinned(UUID userId, UUID id, boolean pinned) {
         userLock.acquire(userId);
@@ -115,6 +119,7 @@ public class DigitalCardService {
         return toDto(requireActive(userId, id));
     }
 
+    @PreAuthorize("@digitalCardGuard.ownsCard(#userId, #id)")
     @Transactional
     public DigitalCardDto setArchived(UUID userId, UUID id, boolean archived) {
         userLock.acquire(userId);
@@ -124,6 +129,7 @@ public class DigitalCardService {
         return toDto(requireActive(userId, id));
     }
 
+    @PreAuthorize("@digitalCardGuard.ownsCard(#userId, #id)")
     @Transactional
     public void delete(UUID userId, UUID id) {
         userLock.acquire(userId);

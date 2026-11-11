@@ -58,7 +58,7 @@ caller owns the list, and the request DTO is bound to a separate `LinkAccess` en
 cannot express it, so it is rejected at deserialization rather than by a service guard.
 
 **Anonymous callers are capped at `VIEW`** however generous the link is. That is the rule
-that keeps every write attributable to an account.
+that keeps every write attributable to an account. Every write from an anonymous caller on a list they can see answers 401 (`error.shoppingList.signInToChange`), owner-only ones included, so the page can ask them to sign in.
 
 ## 3. The id is the link, and what that costs
 
@@ -86,7 +86,7 @@ The by-id routes have their own `@Order(1)` `SecurityFilterChain`. They are the 
 | PUT    | `/api/shopping-lists/{id}/items/{itemId}` | `SHOP` for the in-shop fields, `EDIT` for the rest   |
 | DELETE | `/api/shopping-lists/{id}/items/{itemId}` | `EDIT`                                               |
 
-A list the caller may not see is a **404, never a 403**, so the response cannot be used to confirm that a list exists. The branch lives in `ShoppingListService.findVisible`, which is the only caller of `findActiveById` and runs before every other check. There is deliberately no `findActiveByIdAndOwner`: that was the old authorization mechanism, and a future method reaching for it would silently get owner-only semantics and the 400 that tells a stranger the id was real.
+A list the caller may not see is a **404, never a 403**, so the response cannot be used to confirm that a list exists. `ShoppingListGuard` checks it first, through `@PreAuthorize` on every by-id service method ([BACKEND.md section 5.2](BACKEND.md#52-owner-scoped-methods-guard-beans)), from the list's owner and link level alone, together with the 401 for an anonymous write and the 403 for a link level too low. `ShoppingListService.findVisible` repeats the visibility check when it loads the list, and the services keep the owner-only refusals that have their own message. There is deliberately no `findActiveByIdAndOwner`: that was the old authorization mechanism, and a future method reaching for it would silently get owner-only semantics and the 400 that tells a stranger the id was real.
 
 `applyItemUpdate` splits the item fields by level: a `SHOP` caller can change `isChecked`, `chainCode` and the captured prices, and everything structural is left as the server has it, so a fuller payload cannot rename or resize an item.
 
@@ -139,6 +139,7 @@ Worth knowing before changing any of this:
 | Area          | Path                                                                            |
 | ------------- | ------------------------------------------------------------------------------- |
 | Access rule   | `backend/.../shoppinglist/ShoppingListAccessService.java`                       |
+| Method guard  | `backend/.../shoppinglist/ShoppingListGuard.java`                               |
 | Redaction     | `backend/.../shoppinglist/ShoppingListMapper.java`                              |
 | Optional auth | `backend/.../security/OptionalBearerAuthenticationFilter.java`                  |
 | Route matcher | `backend/.../security/UuidScopedRequestMatcher.java`                            |

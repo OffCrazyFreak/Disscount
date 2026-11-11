@@ -8,13 +8,17 @@ import java.util.UUID;
 @Service
 public class ShoppingListAccessService {
 
-    /** @param userId the caller, or null when the request carries no token at all */
     public ListAccess resolve(ShoppingList list, UUID userId) {
-        if (userId != null && userId.equals(list.getOwnerId())) {
+        return resolve(new ListSharing(list.getOwnerId(), list.getLinkAccess()), userId);
+    }
+
+    /** @param userId the caller, or null when the request carries no token at all */
+    ListAccess resolve(ListSharing sharing, UUID userId) {
+        if (userId != null && userId.equals(sharing.ownerId())) {
             return ListAccess.OWNER;
         }
 
-        ListAccess link = list.resolvedLinkAccess();
+        ListAccess link = sharing.resolvedLinkAccess();
         if (link == ListAccess.NONE) {
             return ListAccess.NONE;
         }

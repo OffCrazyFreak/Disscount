@@ -41,7 +41,7 @@ class UserController {
     @Operation(summary = "Erase the current user's app data; only better-auth's account erasure token may call it")
     @DeleteMapping("/me")
     public ResponseEntity<Map<String, String>> deleteCurrentUser(@CurrentUser UUID authenticatedUserId) {
-        accountErasureService.erase(authenticatedUserId);
+        accountErasureService.eraseOwnAccount(authenticatedUserId);
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
     }
 }

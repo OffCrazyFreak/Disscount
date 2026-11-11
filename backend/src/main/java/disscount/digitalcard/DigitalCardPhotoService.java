@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +54,7 @@ public class DigitalCardPhotoService {
     public record PhotoStream(StoredPhoto photo, String sha256, boolean thumb) {}
 
     /** Only the row write is transactional, and if it fails the objects just stored are removed. */
+    @PreAuthorize("@digitalCardGuard.ownsCard(#userId, #cardId)")
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public CardPhotoDto upload(UUID userId, UUID cardId, String slot, MultipartFile full, MultipartFile thumb) {
         if (!photoStore.enabled()) {
@@ -97,6 +99,7 @@ public class DigitalCardPhotoService {
         }
     }
 
+    @PreAuthorize("@digitalCardGuard.ownsCard(#userId, #cardId)")
     public PhotoStream open(UUID userId, UUID cardId, String slot, boolean thumb, String version) {
         requireSlot(slot);
         requireCard(userId, cardId);
@@ -120,6 +123,7 @@ public class DigitalCardPhotoService {
         return new PhotoStream(stored, row.getSha256(), thumb);
     }
 
+    @PreAuthorize("@digitalCardGuard.ownsCard(#userId, #cardId)")
     public String currentSha256(UUID userId, UUID cardId, String slot) {
         requireSlot(slot);
         requireCard(userId, cardId);
@@ -128,6 +132,7 @@ public class DigitalCardPhotoService {
                 .orElseThrow(() -> new NotFoundException("error.cardPhoto.notFound"));
     }
 
+    @PreAuthorize("@digitalCardGuard.ownsCard(#userId, #cardId)")
     @Transactional
     public void delete(UUID userId, UUID cardId, String slot) {
         requireSlot(slot);

@@ -78,6 +78,20 @@ class ShoppingListLinkAccessTest extends FullStackTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    // Owner-only writes say "sign in" to an anonymous visitor too, before telling them the list is not theirs.
+    @Test
+    void anAnonymousResharingOrDeleteIs401AndLeavesTheListAlone() throws Exception {
+        lists.share(owner, listId, "Zajednička", "EDIT");
+
+        mvc.perform(rename("{\"title\":\"Moja\",\"linkAccess\":\"VIEW\"}"))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(delete("/api/shopping-lists/{id}", listId)).andExpect(status().isUnauthorized());
+
+        JsonNode list = body(mvc.perform(get("/api/shopping-lists/{id}", listId).with(as(owner))).andExpect(status().isOk()));
+        assertThat(list.get("title").asString()).isEqualTo("Zajednička");
+        assertThat(list.get("linkAccess").asString()).isEqualTo("EDIT");
+    }
+
     @Test
     void aShopLinkTicksItemsOffButChangesNothingStructural() throws Exception {
         lists.share(owner, listId, "Zajednička", "SHOP");

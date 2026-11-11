@@ -1,13 +1,13 @@
 package disscount.shoppinglist;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.shared.ForbiddenException;
 import disscount.shared.NotFoundException;
 import disscount.shared.Timestamps;
-import disscount.shared.UnauthorizedException;
 import disscount.user.ActiveUsers;
 
 import java.util.List;
@@ -23,6 +23,7 @@ public class ShoppingListService {
     private final ShoppingListRepository shoppingListRepository;
     private final ActiveUsers activeUsers;
     private final ShoppingListAccessService accessService;
+    private final ShoppingListGuard guard;
     private final ShoppingListMapper shoppingListMapper;
 
     @Transactional
@@ -56,12 +57,14 @@ public class ShoppingListService {
                 .toList();
     }
 
+    @PreAuthorize("@shoppingListGuard.canView(#listId, #userId)")
     public ShoppingListDto getShoppingListById(UUID listId, UUID userId) {
         ShoppingList list = findVisible(listId, userId);
         return shoppingListMapper.toDto(list, accessService.resolve(list, userId));
     }
 
     /** Renaming and resharing are separate rights; folding them lets EDIT reshare. */
+    @PreAuthorize("@shoppingListGuard.canWrite(#listId, #userId)")
     @Transactional
     public ShoppingListDto updateShoppingList(UUID listId, UUID userId, ShoppingListRequest request) {
         ShoppingList list = findVisible(listId, userId);
@@ -71,7 +74,7 @@ public class ShoppingListService {
             throw new ForbiddenException("error.shoppingList.ownerOnlyAccess");
         }
 
-        requireWriteUser(userId);
+        guard.requireWriteUser(userId);
         if (!access.canEditItems()) {
             throw new ForbiddenException("error.shoppingList.insufficientAccess");
         }
@@ -82,6 +85,7 @@ public class ShoppingListService {
         return shoppingListMapper.toDto(shoppingListRepository.save(list), access);
     }
 
+    @PreAuthorize("@shoppingListGuard.canWrite(#listId, #userId)")
     @Transactional
     public void deleteShoppingList(UUID listId, UUID userId) {
         ShoppingList list = findVisible(listId, userId);
@@ -95,6 +99,7 @@ public class ShoppingListService {
     }
 
     /** Not-found rather than forbidden, so a 403 cannot confirm an id is real. */
+    @PreAuthorize("@shoppingListGuard.canView(#listId, #userId)")
     public ShoppingList findVisible(UUID listId, UUID userId) {
         ShoppingList list = shoppingListRepository.findById(listId)
                 .orElseThrow(() -> new NotFoundException("error.shoppingList.notFound"));
@@ -104,14 +109,6 @@ public class ShoppingListService {
         }
 
         return list;
-    }
-
-    /** Anonymous callers cap at VIEW, so every write stays attributable. */
-    public void requireWriteUser(UUID userId) {
-        if (userId == null) {
-            throw new UnauthorizedException("error.shoppingList.signInToChange");
-        }
-        activeUsers.requireActive(userId);
     }
 
     /** Off then on hands back the same URL, since the URL is the id. Intended. */
