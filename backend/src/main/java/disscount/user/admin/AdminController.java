@@ -1,4 +1,4 @@
-package disscount.user;
+package disscount.user.admin;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import disscount.shared.CurrentUser;
+import disscount.user.UserDto;
+import disscount.user.UserService;
 
 import java.util.List;
 import java.util.Map;

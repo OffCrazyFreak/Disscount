@@ -2,6 +2,7 @@ package disscount.user;
 
 import disscount.shared.BadRequestException;
 import disscount.shared.PhotoValidator;
+import disscount.user.erasure.ErasureLedgerRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
 

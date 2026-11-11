@@ -1,4 +1,4 @@
-package disscount.user;
+package disscount.user.admin;
 
 import disscount.support.FullStackTest;
 import disscount.support.MigratedPostgres;

@@ -1,4 +1,4 @@
-package disscount.user;
+package disscount.user.erasure;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -7,10 +7,12 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import disscount.user.UserService;
+
 /** Not transactional: the collision below aborts the erasure's own transaction, so it settles outside it. */
 @Service
 @RequiredArgsConstructor
-class AccountErasureService {
+public class AccountErasureService {
 
     private final UserService userService;
     private final ErasureLedgerRepository erasureLedger;

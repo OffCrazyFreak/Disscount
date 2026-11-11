@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import disscount.shared.CurrentUser;
+import disscount.user.erasure.AccountErasureService;
 
 import java.util.Map;
 import java.util.UUID;

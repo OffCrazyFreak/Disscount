@@ -1,4 +1,4 @@
-package disscount.user;
+package disscount.user.erasure;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

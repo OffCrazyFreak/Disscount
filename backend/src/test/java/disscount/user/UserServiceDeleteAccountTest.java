@@ -26,6 +26,8 @@ import disscount.storename.StoreNameSuggestionRepository;
 import disscount.storename.StoreNameUpsert;
 import disscount.storename.StoreNameUsageRepository;
 import disscount.support.IncludingDeleted;
+import disscount.user.erasure.AccountErasureService;
+import disscount.user.erasure.ErasureLedgerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package disscount.user;
+package disscount.user.erasure;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;

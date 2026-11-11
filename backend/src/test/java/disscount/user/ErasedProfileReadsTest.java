@@ -2,6 +2,7 @@ package disscount.user;
 
 import disscount.shared.Timestamps;
 import disscount.support.IncludingDeleted;
+import disscount.user.erasure.ErasureLedgerRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

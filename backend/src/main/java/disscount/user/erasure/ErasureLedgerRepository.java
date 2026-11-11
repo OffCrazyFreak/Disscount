@@ -1,4 +1,4 @@
-package disscount.user;
+package disscount.user.erasure;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-interface ErasureLedgerRepository extends JpaRepository<ErasureLedgerEntry, UUID> {
+public interface ErasureLedgerRepository extends JpaRepository<ErasureLedgerEntry, UUID> {
 
     /** Native, as @SQLRestriction hides deleted profiles from JPQL; for profiles deleted before the ledger existed. */
     @Modifying(flushAutomatically = true, clearAutomatically = true)

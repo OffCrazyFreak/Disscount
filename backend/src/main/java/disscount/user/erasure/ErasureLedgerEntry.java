@@ -1,4 +1,4 @@
-package disscount.user;
+package disscount.user.erasure;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +12,7 @@ import java.util.UUID;
 @Table(name = "erasure_ledger")
 @Getter
 @NoArgsConstructor
-class ErasureLedgerEntry {
+public class ErasureLedgerEntry {
 
     public static final String ACCOUNT = "account";
 

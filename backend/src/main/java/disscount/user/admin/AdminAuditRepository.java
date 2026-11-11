@@ -1,4 +1,4 @@
-package disscount.user;
+package disscount.user.admin;
 
 import org.springframework.data.repository.Repository;
 
@@ -6,8 +6,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import disscount.user.AdminAction;
+
 /** Insert and read only, as the audit is append only; expired rows go through app.purge_admin_audit(). */
-interface AdminAuditRepository extends Repository<AdminAuditEntry, UUID> {
+public interface AdminAuditRepository extends Repository<AdminAuditEntry, UUID> {
 
     AdminAuditEntry save(AdminAuditEntry entry);
 

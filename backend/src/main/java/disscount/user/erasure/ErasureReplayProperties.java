@@ -1,4 +1,4 @@
-package disscount.user;
+package disscount.user.erasure;
 
 import java.nio.file.Path;
 

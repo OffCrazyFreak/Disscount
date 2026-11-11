@@ -1,7 +1,9 @@
-package disscount.user;
+package disscount.user.erasure;
 
 import disscount.shared.Timestamps;
 import disscount.support.IncludingDeleted;
+import disscount.user.User;
+import disscount.user.UserRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

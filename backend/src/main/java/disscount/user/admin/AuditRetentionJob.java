@@ -1,4 +1,4 @@
-package disscount.user;
+package disscount.user.admin;
 
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

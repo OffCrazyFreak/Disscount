@@ -1,7 +1,8 @@
-package disscount.user;
+package disscount.user.erasure;
 
 import disscount.support.FullStackTest;
 import disscount.support.MigratedPostgres;
+import disscount.user.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

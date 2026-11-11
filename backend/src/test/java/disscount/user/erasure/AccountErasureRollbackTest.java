@@ -1,9 +1,12 @@
-package disscount.user;
+package disscount.user.erasure;
 
 import disscount.digitalcard.DigitalCardRepository;
 import disscount.preferences.favoritestore.FavoriteStoreRepository;
 import disscount.storename.StoreNameUsageRepository;
 import disscount.support.FullStackTest;
+import disscount.user.AccountErased;
+import disscount.user.User;
+import disscount.user.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;

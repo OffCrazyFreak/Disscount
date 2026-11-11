@@ -2,6 +2,7 @@ package disscount.user;
 
 import disscount.shared.ConflictException;
 import disscount.support.FullStackTest;
+import disscount.user.erasure.ErasureLedgerRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;

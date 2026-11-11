@@ -1,8 +1,13 @@
-package disscount.user;
+package disscount.user.admin;
 
 import disscount.shared.ConflictException;
 import disscount.support.FullStackTest;
 import disscount.support.MigratedPostgres;
+import disscount.user.AccountType;
+import disscount.user.AdminAction;
+import disscount.user.User;
+import disscount.user.UserService;
+import disscount.user.erasure.AccountErasureService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

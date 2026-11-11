@@ -1,6 +1,8 @@
 package disscount.user;
 
 import disscount.shared.Timestamps;
+import disscount.user.admin.AdminAuditEntry;
+import disscount.user.admin.AdminAuditRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;

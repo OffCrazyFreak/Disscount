@@ -1,4 +1,4 @@
-package disscount.user;
+package disscount.user.erasure;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+
+import disscount.user.UserRepository;
 
 /**
  * One-shot data step (docs/AUTH.md, Soft delete): profiles deleted before the ledger and the erasure listeners

@@ -1,6 +1,7 @@
-package disscount.user;
+package disscount.user.admin;
 
 import disscount.shared.Timestamps;
+import disscount.user.AdminAction;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +13,7 @@ import java.util.UUID;
 @Table(name = "admin_audit")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-class AdminAuditEntry {
+public class AdminAuditEntry {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -35,7 +36,7 @@ class AdminAuditEntry {
     @Column(name = "occurred_at", nullable = false, updatable = false)
     private LocalDateTime occurredAt;
 
-    AdminAuditEntry(UUID actorUserId, UUID targetUserId, UUID objectId, AdminAction action) {
+    public AdminAuditEntry(UUID actorUserId, UUID targetUserId, UUID objectId, AdminAction action) {
         this.actorUserId = actorUserId;
         this.targetUserId = targetUserId;
         this.objectId = objectId;

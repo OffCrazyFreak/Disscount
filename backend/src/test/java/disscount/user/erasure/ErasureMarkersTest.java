@@ -1,4 +1,4 @@
-package disscount.user;
+package disscount.user.erasure;
 
 import org.junit.jupiter.api.Test;
 

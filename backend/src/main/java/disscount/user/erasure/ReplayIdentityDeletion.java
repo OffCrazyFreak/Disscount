@@ -1,4 +1,4 @@
-package disscount.user;
+package disscount.user.erasure;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

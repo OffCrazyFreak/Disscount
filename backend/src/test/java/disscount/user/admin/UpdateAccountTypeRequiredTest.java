@@ -1,6 +1,7 @@
-package disscount.user;
+package disscount.user.admin;
 
 import disscount.support.FullStackTest;
+import disscount.user.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 

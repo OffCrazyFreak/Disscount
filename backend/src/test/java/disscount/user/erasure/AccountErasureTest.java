@@ -1,4 +1,4 @@
-package disscount.user;
+package disscount.user.erasure;
 
 import disscount.contact.ContactMessage;
 import disscount.contact.ContactMessageRepository;
@@ -16,6 +16,7 @@ import disscount.storename.StoreNameSuggestionRepository;
 import disscount.storename.StoreNameUsageRepository;
 import disscount.support.FullStackTest;
 import disscount.support.IncludingDeleted;
+import disscount.user.User;
 import disscount.watchlist.WatchlistItemRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

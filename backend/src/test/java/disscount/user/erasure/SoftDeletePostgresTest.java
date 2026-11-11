@@ -1,4 +1,4 @@
-package disscount.user;
+package disscount.user.erasure;
 
 import disscount.contact.ContactMessage;
 import disscount.contact.ContactMessageRepository;
@@ -8,6 +8,7 @@ import disscount.shared.Timestamps;
 import disscount.support.FullStackTest;
 import disscount.support.IncludingDeleted;
 import disscount.support.MigratedPostgres;
+import disscount.user.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
