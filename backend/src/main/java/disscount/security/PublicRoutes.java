@@ -13,7 +13,7 @@ public final class PublicRoutes {
 
     record Route(HttpMethod method, String pattern) {
 
-        /** Compares against a path template, where only a template variable may stand in for a pattern variable. */
+        /** Compares against a path template from the API docs the way the request matcher would compare a path. */
         boolean describes(HttpMethod operationMethod, String pathTemplate) {
             if (!method.equals(operationMethod)) {
                 return false;
@@ -34,12 +34,17 @@ public final class PublicRoutes {
             return true;
         }
 
+        /** A wildcard matches any segment, as in a request; a named variable is UUID scoped, so only a variable. */
         private static boolean segmentDescribes(String patternSegment, String templateSegment) {
+            if (patternSegment.equals("*")) {
+                return true;
+            }
+
             return isVariable(patternSegment) ? isVariable(templateSegment) : patternSegment.equals(templateSegment);
         }
 
         private static boolean isVariable(String segment) {
-            return segment.equals("*") || (segment.startsWith("{") && segment.endsWith("}"));
+            return segment.startsWith("{") && segment.endsWith("}");
         }
     }
 
