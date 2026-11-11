@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import { IEmailMessage, IEmailProvider } from "@/lib/email/provider";
 import {
   buildActionEmail,
@@ -20,7 +22,7 @@ interface IActionEmailArgs {
 }
 
 interface ITokenEmailArgs extends IActionEmailArgs {
-  // Part of the idempotency key, so a retried hook does not send a duplicate.
+  // Hashed into the idempotency key, so a retried hook does not send a duplicate.
   token: string;
 }
 
@@ -43,6 +45,13 @@ interface IEmailChangedArgs extends INoticeEmailArgs {
 
 interface IChangeEmailArgs extends ITokenEmailArgs {
   newEmail: string;
+}
+
+// Resend keeps request logs, so the key carries a hash: stable per token, useless as a link.
+function tokenIdempotencyKey(purpose: string, token: string) {
+  const tokenHash = createHash("sha256").update(token).digest("hex");
+
+  return `${purpose}/${tokenHash}`;
 }
 
 // Call sites depend on this, not on Resend, so a provider swap touches only ./index.
@@ -92,26 +101,34 @@ export class EmailService {
   }
 
   async sendVerificationEmail(args: ITokenEmailArgs) {
-    return this.sendAction("verification", `verify-email/${args.token}`, args);
+    return this.sendAction(
+      "verification",
+      tokenIdempotencyKey("verify-email", args.token),
+      args,
+    );
   }
 
   async sendPasswordReset(args: ITokenEmailArgs) {
     return this.sendAction(
       "passwordReset",
-      `reset-password/${args.token}`,
+      tokenIdempotencyKey("reset-password", args.token),
       args,
     );
   }
 
   // Same underlying reset token, different wording: for OAuth-only accounts adding a password.
   async sendSetPassword(args: ITokenEmailArgs) {
-    return this.sendAction("setPassword", `set-password/${args.token}`, args);
+    return this.sendAction(
+      "setPassword",
+      tokenIdempotencyKey("set-password", args.token),
+      args,
+    );
   }
 
   async sendBreachedPassword(args: ITokenEmailArgs) {
     return this.sendAction(
       "breachedPassword",
-      `breached-password/${args.token}`,
+      tokenIdempotencyKey("breached-password", args.token),
       args,
     );
   }
@@ -119,7 +136,7 @@ export class EmailService {
   async sendAccountExists(args: ITokenEmailArgs) {
     return this.sendAction(
       "accountExists",
-      `account-exists/${args.token}`,
+      tokenIdempotencyKey("account-exists", args.token),
       args,
     );
   }
@@ -127,14 +144,18 @@ export class EmailService {
   async sendCompleteSignUp(args: ITokenEmailArgs) {
     return this.sendAction(
       "completeSignUp",
-      `complete-sign-up/${args.token}`,
+      tokenIdempotencyKey("complete-sign-up", args.token),
       args,
     );
   }
 
   // Goes to the CURRENT address, so a hijacked session can't move the account.
   async sendChangeEmailConfirmation(args: IChangeEmailArgs) {
-    return this.sendAction("changeEmail", `change-email/${args.token}`, args);
+    return this.sendAction(
+      "changeEmail",
+      tokenIdempotencyKey("change-email", args.token),
+      args,
+    );
   }
 
   async sendReauthCode({ to, locale, code, codeId }: ICodeEmailArgs) {
