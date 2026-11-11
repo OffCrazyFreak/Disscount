@@ -286,7 +286,6 @@ Notes:
 ### As a delegate
 
 - As a delegate, stay in your turn until your own checks and CI are final, fix red runs, then report.
-- As a delegate, clean up your test data and stop your servers before reporting, and list the branch and worktree you left.
 
 ### Manual steps
 
@@ -296,6 +295,7 @@ Notes:
 
 - Answer in chat; write a file only for findings a later session must reuse or that exceed 60 lines, because this run already holds them.
 - Save kept files as `~/Documents/<project>/research/YYYY-MM-DD-topic.md` or `/plans`, files several sessions share in `/scratch/<task>`, throwaway files in the harness scratchpad, and write nowhere else outside the repository.
+- When you finish, clean up after yourself: stop the servers and processes you started, and remove the test data, Docker containers, images, volumes, worktrees, branches and temp files you created once nothing needs them, keeping each T3 thread's folder.
 - Cleanup files at merge. When clearing T3 scratch, empty a thread's folder and keep the folder itself, because T3 cannot open a thread whose folder is missing.
 - When compacting, keep the open questions, the files changed and the commands that verify them.
 
