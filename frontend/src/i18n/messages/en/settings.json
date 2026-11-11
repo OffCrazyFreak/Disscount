@@ -198,7 +198,7 @@
       "revokeDialogTitle": "Sign out of other devices?",
       "revokeDialogDescription": "We'll sign you out on every device except this one.",
       "deleteDialogTitle": "Delete account?",
-      "deleteDialogDescription": "We'll permanently delete your login, your cards with their photos and store names, your favourite stores on the map, product photos not yet approved, and the name and email in your contact messages. Links to your lists stop working. Your lists, watchlist, the stores and locations in your settings and the text of your messages stay, without your name or email. You can't undo this.",
+      "deleteDialogDescription": "We'll permanently delete your login, your cards with their photos and store names, your favourite stores on the map, product photos not yet approved, and the name and email on contact messages sent while signed in or from your account's email. Links to your lists stop working. Your lists, watchlist and the stores and locations in your settings stay, without your name or email, and the text of your messages stays as it was sent. You can't undo this.",
       "revokeFailed": "Couldn't sign out your other devices. Try again.",
       "revoked": "Your other devices are signed out.",
       "deleted": "Your account has been deleted.",

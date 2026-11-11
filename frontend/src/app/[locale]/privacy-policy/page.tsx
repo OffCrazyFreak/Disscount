@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { localizedUrl } from "@/i18n/alternates";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
 import LegalPage from "@/components/custom/legal/legal-page";
@@ -110,9 +111,11 @@ export default async function PrivacyPolicyPage() {
 
       <LegalSection heading="Brisanje podataka">
         <p>
-          Račun možeš obrisati u bilo kojem trenutku unutar aplikacije. Na
-          stranici brisanja podataka piše što tada brišemo, a što ostaje bez
-          tvog imena i emaila.
+          Račun možeš obrisati u bilo kojem trenutku unutar aplikacije. Na{" "}
+          <Link className="text-primary underline" href="/data-deletion">
+            stranici brisanja podataka
+          </Link>{" "}
+          piše što tada brišemo, a što ostaje bez tvog imena i emaila.
         </p>
       </LegalSection>
 
