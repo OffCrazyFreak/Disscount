@@ -17,6 +17,7 @@ import disscount.storename.StoreNameUsageRepository;
 import disscount.support.Concurrently;
 import disscount.support.IncludingDeleted;
 import disscount.user.ActiveUsers;
+import disscount.user.AuthIdentityDao;
 import disscount.user.User;
 import disscount.user.UserRepository;
 import jakarta.persistence.EntityManager;
@@ -51,7 +52,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 // Not transactional on purpose: photo cleanup runs after commit, so the service has to really commit.
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-@Import({ActiveUsers.class, DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
+@Import({ActiveUsers.class, AuthIdentityDao.class, DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
         StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, UploadLimitConfig.class,
         CardPhotoWriter.class, CardUserLock.class, PhotoCleanupService.class,
         DigitalCardServiceTest.StoreConfig.class})

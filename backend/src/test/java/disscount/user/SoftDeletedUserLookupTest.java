@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** A token minted before the deletion is still valid for its lifetime, so each lookup must refuse the row itself. */
 @DataJpaTest(showSql = false)
-@Import({ActiveUsers.class, WatchlistItemService.class, PinnedPlaceService.class, PinnedStoreService.class,
+@Import({ActiveUsers.class, AuthIdentityDao.class, WatchlistItemService.class, PinnedPlaceService.class, PinnedStoreService.class,
         ShoppingListService.class, ShoppingListAccessService.class, ShoppingListGuard.class,
         ShoppingListMapper.class, ShoppingListQuota.class})
 class SoftDeletedUserLookupTest {

@@ -4,6 +4,7 @@ import disscount.shared.LimitReachedException;
 import disscount.shared.UserLimit;
 import disscount.support.Concurrently;
 import disscount.user.ActiveUsers;
+import disscount.user.AuthIdentityDao;
 import disscount.user.User;
 import disscount.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 // Not transactional on purpose: the race needs each add to commit on its own connection.
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-@Import({ActiveUsers.class, WatchlistItemService.class})
+@Import({ActiveUsers.class, AuthIdentityDao.class, WatchlistItemService.class})
 class WatchlistLimitTest {
 
     private static final int LIMIT = UserLimit.WATCHLIST_ITEMS.max();

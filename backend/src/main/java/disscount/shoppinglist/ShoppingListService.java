@@ -72,6 +72,7 @@ public class ShoppingListService {
     @Transactional
     public ShoppingListDto updateShoppingList(UUID listId, UUID userId, ShoppingListRequest request) {
         ShoppingList list = findVisible(listId, userId);
+        lockOwner(list, userId);
         ListAccess access = accessService.resolve(list, userId);
 
         if (request.linkAccess() != null && !access.canManageShare()) {
@@ -123,14 +124,26 @@ public class ShoppingListService {
         shoppingListRepository.unshareAllOfOwner(erased.userId());
     }
 
-    /** Off then on hands back the same URL, since the URL is the id. Intended. */
+    /**
+     * An update racing the owner's erasure lands before it or is refused: the owner with the 401 of every write
+     * after deletion, a link visitor with the 404 of an unknown link.
+     */
+    private void lockOwner(ShoppingList list, UUID callerId) {
+        if (list.getOwnerId().equals(callerId)) {
+            activeUsers.lockActive(callerId);
+            return;
+        }
+
+        if (!activeUsers.lockIfActive(list.getOwnerId())) {
+            throw new NotFoundException("error.shoppingList.notFound");
+        }
+    }
+
+    /** Off then on hands back the same URL, since the URL is the id. Intended. Callers hold the owner's row lock. */
     private void applyLinkAccess(ShoppingList list, LinkAccess requested) {
         if (requested == null) {
             return;
         }
-
-        // Under the owner's row lock, so a share racing the erasure lands before it and is switched off, or is refused.
-        activeUsers.lockActive(list.getOwnerId());
 
         ListAccess next = requested.toListAccess();
         list.setLinkAccess(next == ListAccess.NONE ? null : next);

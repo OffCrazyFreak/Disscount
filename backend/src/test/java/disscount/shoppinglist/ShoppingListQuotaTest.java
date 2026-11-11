@@ -5,6 +5,7 @@ import disscount.shared.Timestamps;
 import disscount.shared.UserLimit;
 import disscount.support.Concurrently;
 import disscount.user.ActiveUsers;
+import disscount.user.AuthIdentityDao;
 import disscount.user.User;
 import disscount.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @Import({
-        ActiveUsers.class,
+        ActiveUsers.class, AuthIdentityDao.class,
         ShoppingListService.class,
         ShoppingListItemService.class,
         ShoppingListCopyService.class,

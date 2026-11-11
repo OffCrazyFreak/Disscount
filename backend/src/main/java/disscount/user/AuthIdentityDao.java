@@ -60,6 +60,16 @@ public class AuthIdentityDao {
     }
 
     @SuppressWarnings("unchecked")
+    public Optional<UUID> findIdByEmail(String email) {
+        List<UUID> ids = entityManager
+                .createNativeQuery("SELECT id FROM auth.\"user\" WHERE lower(email) = lower(:email)")
+                .setParameter("email", email)
+                .getResultList();
+
+        return ids.stream().findFirst();
+    }
+
+    @SuppressWarnings("unchecked")
     public List<UUID> findAllIds() {
         return entityManager.createNativeQuery("SELECT id FROM auth.\"user\"").getResultList();
     }

@@ -87,6 +87,7 @@ class DatabaseRolesTest {
                 from auth."user" u left join auth.session s on s.user_id = u.id group by u.id, u.email, u.last_login_at
                 """);
         allowed(DatabaseRoles.BACKEND, "select email from auth.\"user\" where id = gen_random_uuid()");
+        allowed(DatabaseRoles.BACKEND, "select id from auth.\"user\" where lower(email) = lower('ana@example.com')");
         allowed(DatabaseRoles.BACKEND, "delete from auth.session where expires_at < now() - interval '1 day'");
         allowed(DatabaseRoles.BACKEND, "update auth.session set ip_address = null where created_at < now() and ip_address is not null");
 

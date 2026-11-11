@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Import;
 
 import disscount.shared.Timestamps;
 import disscount.user.ActiveUsers;
+import disscount.user.AuthIdentityDao;
 import disscount.user.User;
 import disscount.user.UserRepository;
 
@@ -18,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest(showSql = false)
 @Import({
-        ActiveUsers.class,
+        ActiveUsers.class, AuthIdentityDao.class,
         ShoppingListItemService.class,
         ShoppingListService.class,
         ShoppingListAccessService.class,

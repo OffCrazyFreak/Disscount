@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import disscount.support.MigratedPostgres;
 import disscount.user.ActiveUsers;
+import disscount.user.AuthIdentityDao;
 import disscount.user.User;
 import disscount.user.UserRepository;
 
@@ -28,7 +29,7 @@ import disscount.user.UserRepository;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @MigratedPostgres
-@Import({ActiveUsers.class, ReadOnlyDefaultTest.ForgetfulWatchlistService.class})
+@Import({ActiveUsers.class, AuthIdentityDao.class, ReadOnlyDefaultTest.ForgetfulWatchlistService.class})
 class ReadOnlyDefaultTest {
 
     /** Stands in for a write method someone added without @Transactional: it inherits the class default. */

@@ -35,13 +35,19 @@ class ContactMessageService {
             return Optional.empty();
         }
 
-        // Locked until the insert commits, so an erasure that wins first leaves this a signed-out message it cannot miss.
-        UUID senderId = callerId != null && activeUsers.lockIfActive(callerId) ? callerId : null;
+        // Both locks hold until the insert commits, so the erasure's blanking either sees this row or has already run.
+        if (callerId != null) {
+            activeUsers.lockActive(callerId);
+        }
+
+        boolean fromErasedAccount = callerId == null
+                && StringUtils.hasText(request.email())
+                && activeUsers.isErasedLoginAddress(request.email());
 
         ContactMessage message = ContactMessage.builder()
-                .senderId(senderId)
-                .email(request.email())
-                .fullName(request.fullName())
+                .senderId(callerId)
+                .email(fromErasedAccount ? null : request.email())
+                .fullName(fromErasedAccount ? null : request.fullName())
                 .subject(request.subject())
                 .message(request.message())
                 .sourcePath(request.sourcePath())

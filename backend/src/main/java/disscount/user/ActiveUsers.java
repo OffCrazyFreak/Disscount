@@ -6,13 +6,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-/** What other features may ask about a user: whether the account is live, and its row lock. */
+/** What other features may ask about a user: whether the account is live, its row lock, and whether an address was erased. */
 @Component
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ActiveUsers {
 
     private final UserRepository users;
+    private final AuthIdentityDao authIdentities;
+    private final ErasureLedgerRepository erasureLedger;
 
     public boolean isActive(UUID userId) {
         return users.existsById(userId);
@@ -33,6 +35,18 @@ public class ActiveUsers {
     @Transactional
     public boolean lockIfActive(UUID userId) {
         return users.findByIdForUpdate(userId).isPresent();
+    }
+
+    /**
+     * For a message sent signed out from this address: locks the profile of the login that uses it, so an erasure
+     * of that account either runs after the caller commits, or has committed and this answers true.
+     */
+    @Transactional
+    public boolean isErasedLoginAddress(String email) {
+        return authIdentities.findIdByEmail(email)
+                .filter(id -> users.findByIdForUpdate(id).isEmpty())
+                .filter(erasureLedger::existsById)
+                .isPresent();
     }
 
     public boolean isActiveAdmin(UUID userId) {
