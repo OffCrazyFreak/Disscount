@@ -65,6 +65,18 @@ describe("useSecurityActions deleteAccount", () => {
     expect(logout).not.toHaveBeenCalled();
   });
 
+  it("tells the dialog when the last admin tries to delete their account", async () => {
+    auth.deleteUser.mockResolvedValue({
+      error: { status: 409, code: "LAST_ADMIN_DELETE" },
+    });
+
+    const { result } = renderHookWithProviders(() => useSecurityActions());
+    const failure = await result.current.deleteAccount({ password: "pw" });
+
+    expect(failure).toEqual({ reason: "last-admin" });
+    expect(logout).not.toHaveBeenCalled();
+  });
+
   it("reports a wrong password to the dialog instead of deleting", async () => {
     auth.deleteUser.mockResolvedValue({
       error: { status: 400, code: "INVALID_PASSWORD" },

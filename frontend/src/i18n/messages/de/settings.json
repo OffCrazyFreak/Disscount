@@ -201,7 +201,8 @@
       "deleteDialogDescription": "Wir löschen dein Konto und alle Daten endgültig. Das kannst du nicht rückgängig machen.",
       "revokeFailed": "Das Abmelden auf den anderen Geräten hat nicht geklappt. Versuch es noch mal.",
       "revoked": "Deine anderen Geräte sind abgemeldet.",
-      "deleted": "Dein Konto wurde gelöscht."
+      "deleted": "Dein Konto wurde gelöscht.",
+      "lastAdminDelete": "Außer dir ist niemand Admin. Gib zuerst jemand anderem Admin-Rechte und lösch dann dein Konto."
     },
     "reauth": {
       "cancel": "Abbrechen",
