@@ -1,5 +1,6 @@
 package disscount.user;
 
+import disscount.shared.BadRequestException;
 import disscount.shared.ConflictException;
 import disscount.support.FullStackTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -142,11 +143,11 @@ class LastAdminDeletionTest extends FullStackTest {
         User first = newAdmin();
         User second = newAdmin();
 
-        ConflictException refused = raceAgainstHeldLocks(
+        Throwable refused = raceAgainstHeldLocks(
                 () -> userService.deleteUserAsAdmin(second.getId(), first.getId()),
                 () -> userService.deleteUserAsAdmin(first.getId(), second.getId()));
 
-        assertThat(refused).hasMessage("error.user.lastAdminDelete");
+        assertThat(refused).isInstanceOf(ConflictException.class).hasMessage("error.user.lastAdminDelete");
         assertThat(isLive(first)).isTrue();
         assertThat(isLive(second)).isFalse();
     }
@@ -156,20 +157,36 @@ class LastAdminDeletionTest extends FullStackTest {
         User first = newAdmin();
         User second = newAdmin();
 
-        ConflictException refused = raceAgainstHeldLocks(
+        Throwable refused = raceAgainstHeldLocks(
                 () -> accountErasure.eraseOwnAccount(first.getId()),
                 () -> accountErasure.eraseOwnAccount(second.getId()));
 
-        assertThat(refused).hasMessage("error.user.lastAdminDelete");
+        assertThat(refused).isInstanceOf(ConflictException.class).hasMessage("error.user.lastAdminDelete");
         assertThat(isLive(first)).isFalse();
         assertThat(isLive(second)).isTrue();
+    }
+
+    // Unserialized, the promotion would land on the erased account and the only real admin could then leave.
+    @Test
+    void aPromotionRacingAnErasureWaitsAndFindsTheAccountGone() throws Exception {
+        User admin = newAdmin();
+        User consumer = newUser("consumer");
+
+        Throwable refused = raceAgainstHeldLocks(
+                () -> accountErasure.eraseOwnAccount(consumer.getId()),
+                () -> userService.updateAccountType(consumer.getId(), AccountType.ADMIN, admin.getId()));
+
+        assertThat(refused).isInstanceOf(BadRequestException.class).hasMessage("error.user.notFound");
+        assertThatThrownBy(() -> accountErasure.eraseOwnAccount(admin.getId()))
+                .isInstanceOf(ConflictException.class)
+                .hasMessage("error.user.lastAdminDelete");
     }
 
     /**
      * Runs the winner inside a transaction that holds its admin row locks until released, starts the loser,
      * checks the loser waits on those locks, then commits the winner and returns the loser's refusal.
      */
-    private ConflictException raceAgainstHeldLocks(Runnable winner, Runnable loser) throws Exception {
+    private Throwable raceAgainstHeldLocks(Runnable winner, Runnable loser) throws Exception {
         CountDownLatch locksHeld = new CountDownLatch(1);
         CountDownLatch release = new CountDownLatch(1);
 
@@ -187,9 +204,7 @@ class LastAdminDeletionTest extends FullStackTest {
         release.countDown();
         winning.get(10, TimeUnit.SECONDS);
 
-        Throwable failure = catchFailure(losing);
-        assertThat(failure).isInstanceOf(ConflictException.class);
-        return (ConflictException) failure;
+        return catchFailure(losing);
     }
 
     private static Throwable catchFailure(Future<?> future) throws Exception {

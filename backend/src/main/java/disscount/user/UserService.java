@@ -253,12 +253,18 @@ public class UserService {
 
     @Transactional
     public UserDto updateAccountType(UUID userId, AccountType accountType, UUID adminUserId) {
+        List<User> admins = lockAdminsBeforeReadingRoles();
+
         // The target of an admin action, not the caller: the admin's own session is fine, so no 401 here.
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         if (user.getAccountType() == AccountType.ADMIN && accountType != AccountType.ADMIN) {
-            refuseLosingTheLastAdmin(userId, adminUserId);
+            if (userId.equals(adminUserId)) {
+                throw new ConflictException("error.user.cannotDemoteSelf");
+            }
+
+            requireAnotherLiveAdmin(admins, userId, "error.user.lastAdmin");
         }
 
         user.setAccountType(accountType);
@@ -266,28 +272,26 @@ public class UserService {
         return UserDto.from(user);
     }
 
-    private void refuseLosingTheLastAdmin(UUID userId, UUID adminUserId) {
-        if (userId.equals(adminUserId)) {
-            throw new ConflictException("error.user.cannotDemoteSelf");
-        }
-
-        requireAnotherLiveAdmin(userId, "error.user.lastAdmin");
-    }
-
     private void refuseErasingTheLastAdmin(UUID userId) {
-        boolean isAdmin = userRepository.findById(userId)
-                .map(user -> user.getAccountType() == AccountType.ADMIN)
-                .orElse(false);
+        List<User> admins = lockAdminsBeforeReadingRoles();
+        boolean isAdmin = admins.stream().anyMatch(admin -> admin.getId().equals(userId));
 
         if (isAdmin) {
-            requireAnotherLiveAdmin(userId, "error.user.lastAdminDelete");
+            requireAnotherLiveAdmin(admins, userId, "error.user.lastAdminDelete");
         }
+    }
+
+    /**
+     * Every role change and every erasure takes these locks before it reads a role, so each one decides on the
+     * others' committed result: two admins removing each other, or a promotion racing an erasure, never both
+     * see an admin who is about to go.
+     */
+    private List<User> lockAdminsBeforeReadingRoles() {
+        return userRepository.lockActiveAdmins();
     }
 
     /** Recovery from zero admins is a manual database update, since the first-signup rule never comes back. */
-    private void requireAnotherLiveAdmin(UUID userId, String refusal) {
-        // Locked, so two admins demoting or deleting each other at once cannot both see the other one left.
-        List<User> admins = userRepository.lockActiveAdmins();
+    private static void requireAnotherLiveAdmin(List<User> admins, UUID userId, String refusal) {
         boolean anotherAdminStays = admins.stream().anyMatch(admin -> !admin.getId().equals(userId));
 
         if (!anotherAdminStays) {
