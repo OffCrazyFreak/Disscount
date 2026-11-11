@@ -248,6 +248,15 @@ class UserServiceDeleteAccountTest {
         assertThat(IncludingDeleted.find(entityManager, User.class, user.getId()).orElseThrow().getDeletedAt()).isEqualTo(deletedAt);
     }
 
+    // A 410 makes the browser finish the deletion, so an insert failing for another reason must stay an error.
+    @Test
+    void aFailedInsertWithNoDeletedProfileIsNotTakenForAnErasure() {
+        doThrow(new DataIntegrityViolationException("not null")).when(profileCreator).create(any());
+
+        assertThatThrownBy(() -> userService.ensureActiveProfile(UUID.randomUUID(), "ana@example.com", "Ana", null))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
     @Test
     void anErasedIdentityWithoutAProfileGetsNoNewOne() {
         UUID neverProvisioned = UUID.randomUUID();

@@ -31,6 +31,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             nativeQuery = true)
     int clearUsernamesOfDeletedProfiles();
 
+    /** Native, as @SQLRestriction hides the row; only for a profile deleted before the ledger existed. */
+    @Query(value = "SELECT COUNT(*) > 0 FROM app_user WHERE id = :id AND deleted_at IS NOT NULL", nativeQuery = true)
+    boolean isDeletedProfile(UUID id);
+
     /** Row lock held until the transaction ends; the per-user mutex for card writes. */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT u FROM User u WHERE u.id = :id")

@@ -95,8 +95,9 @@ public class UserService {
         } catch (DataIntegrityViolationException collision) {
             if (userRepository.existsById(id)) return;
 
-            // Only the id can collide now, and a row this repository cannot see is a deleted profile with no tombstone yet.
-            throw new AccountErasedException();
+            // A 410 makes the browser finish the deletion, so only a deleted profile still missing its tombstone earns it.
+            if (userRepository.isDeletedProfile(id)) throw new AccountErasedException();
+            throw collision;
         }
     }
 
