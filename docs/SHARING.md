@@ -150,11 +150,9 @@ Worth knowing before changing any of this:
 
 ## 9. Gotchas
 
-- **`ddl-auto=update` and the enum.** `link_access` is `@Enumerated(EnumType.STRING)`, so
-  Hibernate generated a CHECK constraint for it and will never alter that constraint.
-  Adding a fifth level later needs the constraint dropped by hand.
-- **`link_access` must stay nullable.** `ddl-auto=update` cannot add a `NOT NULL` column to
-  a populated table. Read it through `resolvedLinkAccess()`, which maps null to `NONE`,
+- **Adding a level needs a migration.** `link_access` has the check `ck_shopping_list_link_access`; a new `LinkAccess` value needs a Flyway file that drops and recreates it, and `EnumColumnsTest` fails until it exists.
+- **`link_access` is nullable.** Lists from before sharing hold null, and making the column
+  `NOT NULL` needs a migration that fills them first. Read it through `resolvedLinkAccess()`, which maps null to `NONE`,
   never directly.
 - **Copying a list asks what to carry**, through `POST /api/shopping-lists/{id}/copy`.
   Products default on; the ticks with their captured prices, and the sharing settings,

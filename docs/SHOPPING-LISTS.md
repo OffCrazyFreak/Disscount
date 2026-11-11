@@ -62,7 +62,7 @@ Step by step:
 
 ### Backend entities
 
-Entities live in `backend/src/main/java/disscount/shoppinglist/`. The schema is managed by Hibernate (`spring.jpa.hibernate.ddl-auto=update`), so there are no migration files.
+Entities live in `backend/src/main/java/disscount/shoppinglist/`. The tables come from the Flyway files in `backend/src/main/resources/db/migration`; Hibernate only validates them ([INFRASTRUCTURE.md](INFRASTRUCTURE.md#103-backend-tables-and-flyway)).
 
 #### `shopping_list` (entity `ShoppingList`)
 
@@ -382,16 +382,16 @@ Versions are in `frontend/package.json` and `backend/pom.xml`. The ones whose ro
 
 ## 17. What's automatic vs manual
 
-| Thing                                    | Automatic or manual                                                                           |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Merging a duplicate add                  | Automatic, on the server                                                                      |
-| Capturing prices at a tick               | Automatic                                                                                     |
-| Choosing a chain per item                | Automatic default: the select shows the cheapest chain, saved only on a pick or a tick        |
-| Replaying offline writes                 | Automatic on reconnect, and after a reload                                                    |
-| Live updates on a shared list            | Automatic polling ([SHARING.md §5](SHARING.md#5-the-route))                                   |
-| Schema changes                           | Automatic through `ddl-auto=update`, which only adds; dropping or retyping a column is manual |
-| Cleaning up soft deleted lists and items | Nothing does it; the rows stay                                                                |
-| Turning on longer history periods        | Manual: remove them from `DISABLED_PERIODS` once the API can serve them                       |
+| Thing                                    | Automatic or manual                                                                            |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Merging a duplicate add                  | Automatic, on the server                                                                       |
+| Capturing prices at a tick               | Automatic                                                                                      |
+| Choosing a chain per item                | Automatic default: the select shows the cheapest chain, saved only on a pick or a tick         |
+| Replaying offline writes                 | Automatic on reconnect, and after a reload                                                     |
+| Live updates on a shared list            | Automatic polling ([SHARING.md §5](SHARING.md#5-the-route))                                    |
+| Schema changes                           | A new Flyway file, applied by the `flyway` job on deploy; dropping a column takes two releases |
+| Cleaning up soft deleted lists and items | Nothing does it; the rows stay                                                                 |
+| Turning on longer history periods        | Manual: remove them from `DISABLED_PERIODS` once the API can serve them                        |
 
 ---
 

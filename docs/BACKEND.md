@@ -15,7 +15,7 @@ The layout and its rules come from #429 (Spring backend restructure), built in s
 | Source       | `backend/src/main/java/disscount/`                                                                                                                           |
 | Framework    | Spring Boot 4.1 on Java 21, Hibernate 7.4, Spring Security 7 as an OAuth2 resource server                                                                    |
 | Database     | PostgreSQL 17 in every environment, H2 in most tests                                                                                                         |
-| Schema       | Hibernate `ddl-auto=update` today; Flyway with `ddl-auto=validate` arrives in #429 R9                                                                        |
+| Schema       | Flyway SQL files in `src/main/resources/db/migration`, run by the one-shot `flyway` job; Hibernate only validates (`ddl-auto=validate`)                      |
 | Checks       | `mvn -B verify` in `backend/` (needs Docker for the PostgreSQL tests)                                                                                        |
 | Who calls it | Only the Next.js proxy, which turns the session cookie into a per-request token ([BACKEND-PROXY.md](BACKEND-PROXY.md))                                       |
 | Auth         | better-auth in Next.js signs the tokens, Spring only verifies them ([AUTH.md section 7](AUTH.md#7-the-spring-side-resource-server-and-profile-provisioning)) |
@@ -59,7 +59,7 @@ flowchart TD
 ```
 
 1. A feature imports only `shared` and another feature's public classes.
-2. Features refer to another feature's rows by id (`UUID userId`), never by a `@ManyToOne` to its entity. The database foreign keys stay: Hibernate does not create one for a plain id column, so `config/UserForeignKeys` adds the eight that point at `app_user` until Flyway owns the schema.
+2. Features refer to another feature's rows by id (`UUID userId`), never by a `@ManyToOne` to its entity. The database foreign keys stay: the migrations hold the eight that point at `app_user`, and `SchemaDriftTest` fails if one goes missing.
 3. `user` depends on no other feature. Features that hold per-user data react to the `AccountErased` event instead of `user` calling them.
 4. `shared` imports no feature.
 
@@ -195,13 +195,14 @@ Every error is `application/problem+json` (RFC 9457), shaped in one place, `shar
 
 ## 8. Testing
 
-| Kind                           | Runs on                                    | Used for                                                                                          |
-| ------------------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| Unit and `@DataJpaTest` slices | H2                                         | Most service and repository tests                                                                 |
-| `FullStackTest` subclasses     | H2, one cached Spring context with MockMvc | Ownership tests per feature, `AdminGatingTest`, wire-format snapshots, account erasure end to end |
-| Testcontainers                 | `postgres:17-alpine`                       | `DoubleBootSchemaTest`, `ReadOnlyDefaultTest`, `SoftDeletePostgresTest`, `LastAdminDeletionTest`  |
+| Kind                           | Runs on                                    | Used for                                                                                                       |
+| ------------------------------ | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| Unit and `@DataJpaTest` slices | H2                                         | Most service and repository tests                                                                              |
+| `FullStackTest` subclasses     | H2, one cached Spring context with MockMvc | Ownership tests per feature, `AdminGatingTest`, wire-format snapshots, account erasure end to end              |
+| `@MigratedPostgres`            | `postgres:17-alpine` migrated by Flyway    | `SchemaDriftTest`, `EnumColumnsTest`, `ReadOnlyDefaultTest`, `SoftDeletePostgresTest`, `LastAdminDeletionTest` |
+| Testcontainers, no Spring      | `postgres:17-alpine`                       | `MigrationPathsTest` (new database, production and dev baselines, the watchlist cleanup)                       |
 
-PostgreSQL is used where H2 behaves differently: read-only transactions, native SQL on deleted rows, schema changes between boots, and row locks. `LastAdminDeletionTest` also needs a database of its own, because the shared H2 context keeps every other test's admins, so no admin there is ever the last one. Its race tests hold the first deletion's locks open, check that the second one waits, then commit the first and expect the second to get the 409.
+PostgreSQL is used where H2 behaves differently: read-only transactions, native SQL on deleted rows, checks and partial indexes, and row locks. The `@MigratedPostgres` classes share one container and one Spring context. `LastAdminDeletionTest` stays off H2, because the shared H2 context keeps every other test's admins, so no admin there is ever the last one; on Postgres it demotes every admin before each test. Its race tests hold the first deletion's locks open, check that the second one waits, then commit the first and expect the second to get the 409.
 
 The ownership tests are the guard's evidence: for each owner-scoped feature, user A against user B's id answers 404 on every by-id route (except a shopping list B shares by link, which A may see at its link level), the list routes never return B's rows, and the guard bean itself throws the 404 (and, for lists, the 401 and 403). `ApiContractTest` keeps `contracts/backend-api.json` in step with the DTOs ([API-CONTRACT.md](API-CONTRACT.md)). [TESTING.md](TESTING.md) has the rest.
 
@@ -254,7 +255,6 @@ The required keys come from environment placeholders with no default. Spring lea
 
 What the rest of #429 changes:
 
-- **R9**: Flyway with plain SQL migrations owns the schema, `ddl-auto` becomes `validate`, and a CI drift check compares the migrated schema with the entities on PostgreSQL. `config/UserForeignKeys` goes, as the migrations hold the foreign keys.
 - **R11**: the app tables move to an `app` schema and better-auth's to `auth`, with three least-privilege database roles (migrator, Spring runtime, Next.js runtime). The Spring runtime role needs no `DELETE` on `auth."user"`: only the erasure replay deletes logins from Spring ([AUTH.md](AUTH.md#74-who-deletes-a-login)), so it runs with its own grant.
 
 Open:

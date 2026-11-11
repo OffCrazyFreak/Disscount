@@ -11,7 +11,7 @@ public enum ImageStatus {
     VERIFIED,
     HIDDEN;
 
-    // Hibernate 7 adds product_image_status_check despite the converter; ddl-auto=update skips it: edit by hand.
+    // Stored as the name; a new value needs a migration that widens ck_product_image_status.
     @Converter
     public static class Column implements AttributeConverter<ImageStatus, String> {
         @Override
