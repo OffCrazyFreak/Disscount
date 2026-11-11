@@ -17,7 +17,7 @@ export default function DataDeletionPage() {
     <LegalPage
       title="Brisanje podataka"
       intro="Upute za brisanje tvog računa i povezanih podataka iz Disscounta."
-      lastUpdated="5. studenoga 2026."
+      lastUpdated="11. studenoga 2026."
     >
       <LegalSection heading="Brisanje unutar aplikacije">
         <p>
@@ -45,8 +45,9 @@ export default function DataDeletionPage() {
         <p>
           Uklanjamo tvoje osobne podatke i pristup računu. Tvoji podaci iz
           sigurnosnih kopija nestaju najkasnije 31 dan nakon brisanja, kako
-          kopije istječu (više u pravilima privatnosti). Pojedini anonimizirani
-          zapisi mogu se zadržati ako to zahtijeva zakon.
+          kopije istječu (više u pravilima privatnosti). Sigurnosni zapisnik o
+          prijavama i radnjama administratora ostaje do isteka rokova iz pravila
+          privatnosti, bez tvog imena i email adrese.
         </p>
       </LegalSection>
     </LegalPage>

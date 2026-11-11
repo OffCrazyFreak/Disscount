@@ -34,7 +34,7 @@ public class UserService {
     private final ApplicationEventPublisher events;
     private final ErasureLedgerRepository erasureLedger;
     private final AvatarSanitizer avatarSanitizer;
-    private final AdminAuditRepository adminAudit;
+    private final AdminAuditLog adminAudit;
 
     public Optional<UserDto> findById(UUID id) {
         return userRepository.findById(id)
@@ -215,7 +215,14 @@ public class UserService {
         }
     }
 
-    public List<UserDto> findAllActive() {
+    /** The admin list shows every email, so reading it is recorded like an admin action (docs/ADMIN.md, section 8). */
+    @Transactional
+    public List<UserDto> findAllActiveAsAdmin(UUID adminUserId) {
+        adminAudit.recordRead(adminUserId, AdminAction.READ_USER_LIST, null);
+        return findAllActive();
+    }
+
+    private List<UserDto> findAllActive() {
         List<UserDto> dtos = userRepository.findAllByOrderByCreatedAtAsc()
                 .stream()
                 .map(UserDto::from)
@@ -248,7 +255,7 @@ public class UserService {
 
         deleteAccount(targetUserId);
 
-        adminAudit.save(new AdminAuditEntry(adminUserId, targetUserId, AdminAction.DELETE_USER));
+        adminAudit.recordUserAction(adminUserId, targetUserId, AdminAction.DELETE_USER);
     }
 
     @Transactional
@@ -273,7 +280,7 @@ public class UserService {
         user = userRepository.save(user);
 
         adminRoleChange(previousType, accountType).ifPresent(action ->
-                adminAudit.save(new AdminAuditEntry(adminUserId, userId, action)));
+                adminAudit.recordUserAction(adminUserId, userId, action));
 
         return UserDto.from(user);
     }

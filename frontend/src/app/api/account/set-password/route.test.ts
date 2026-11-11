@@ -7,6 +7,11 @@ vi.mock("hibp", () => ({ pwnedPassword: vi.fn() }));
 const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   setPassword: vi.fn(async () => ({ status: true })),
+  recordSecurityEvent: vi.fn(),
+}));
+
+vi.mock("@/lib/security-events/record-security-event", () => ({
+  recordSecurityEvent: mocks.recordSecurityEvent,
 }));
 
 vi.mock("@/lib/auth", () => ({
@@ -53,8 +58,10 @@ describe("POST /api/account/set-password", () => {
     expect(mocks.setPassword).not.toHaveBeenCalled();
   });
 
-  it("sets an acceptable password", async () => {
-    mocks.getSession.mockResolvedValue({ session: { createdAt: new Date() } });
+  it("sets an acceptable password and records it", async () => {
+    mocks.getSession.mockResolvedValue({
+      session: { createdAt: new Date(), userId: "user-1" },
+    });
     vi.mocked(pwnedPassword).mockResolvedValue(0);
 
     const response = await setPassword("correct horse battery staple");
@@ -64,5 +71,22 @@ describe("POST /api/account/set-password", () => {
       body: { newPassword: "correct horse battery staple" },
       headers: expect.any(Headers),
     });
+    expect(mocks.recordSecurityEvent).toHaveBeenCalledExactlyOnceWith(
+      "authn_password_set",
+      { userId: "user-1", headers: expect.any(Headers) },
+    );
+  });
+
+  it("records nothing when better-auth refuses to set it", async () => {
+    mocks.getSession.mockResolvedValue({
+      session: { createdAt: new Date(), userId: "user-1" },
+    });
+    vi.mocked(pwnedPassword).mockResolvedValue(0);
+    mocks.setPassword.mockRejectedValueOnce(new Error("already has one"));
+
+    const response = await setPassword("correct horse battery staple");
+
+    expect(response.status).toBe(500);
+    expect(mocks.recordSecurityEvent).not.toHaveBeenCalled();
   });
 });

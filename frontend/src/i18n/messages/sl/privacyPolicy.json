@@ -1,7 +1,7 @@
 {
   "ipAddresses": {
     "heading": "IP-naslovi",
-    "body": "Ob prijavi skupaj s sejo shranimo IP-naslov tvoje naprave, da lahko preverimo sumljive prijave v tvoj račun. Naslov izbrišemo najpozneje 30 dni po prijavi, potečeno sejo pa izbrišemo v celoti. Za zaščito pred zlorabo IP-naslov kratek čas uporabljamo tudi za omejevanje ponavljajočih se poskusov: pri prijavi in podobnih dejanjih do 15 minut v bazi, pri obrazcu za stik pa do 24 ur samo v pomnilniku strežnika. Ko varna povezava z našim strežnikom ne uspe, dnevnik napak strežnika zabeleži naslov te povezave. Te zapise uporabljamo samo za odpravljanje okvar. Varnostne kopije baze lahko te podatke vsebujejo še največ 31 dni. Ko pride do napake, IP-naslov prejme tudi Sentry in ga hrani največ 30 dni. Pravna podlaga je zakoniti interes (člen 6(1)(f) GDPR)."
+    "body": "Ob prijavi skupaj s sejo shranimo IP-naslov tvoje naprave, da lahko preverimo sumljive prijave v tvoj račun. Naslov izbrišemo najpozneje 30 dni po prijavi, potečeno sejo pa izbrišemo v celoti. IP-naslov shranimo tudi v varnostni dnevnik, opisan spodaj, prav tako največ 30 dni. Za zaščito pred zlorabo IP-naslov kratek čas uporabljamo tudi za omejevanje ponavljajočih se poskusov: pri prijavi in podobnih dejanjih do 15 minut v bazi, pri obrazcu za stik pa do 24 ur samo v pomnilniku strežnika. Ko varna povezava z našim strežnikom ne uspe, dnevnik napak strežnika zabeleži naslov te povezave. Te zapise uporabljamo samo za odpravljanje okvar. Varnostne kopije baze lahko te podatke vsebujejo še največ 31 dni. Ko pride do napake, IP-naslov prejme tudi Sentry in ga hrani največ 30 dni. Pravna podlaga je zakoniti interes (člen 6(1)(f) GDPR)."
   },
   "errorTracking": {
     "heading": "Spremljanje napak",
@@ -11,6 +11,10 @@
   "securityNotices": {
     "heading": "Varnostna obvestila",
     "body": "Ko se geslo tvojega računa spremeni, ti pošljemo e-poštno obvestilo. Ko spremeniš e-poštni naslov, obvestilo pošljemo na stari naslov in v njem navedemo novega. Tako lahko opaziš spremembo, za katero ne veš, in takoj ukrepaš. Ta obvestila so del zaščite računa, zato jih ne moreš izklopiti. Pravna podlaga je zakoniti interes (člen 6(1)(f) GDPR)."
+  },
+  "securityLog": {
+    "heading": "Varnostni dnevnik",
+    "body": "Za zaščito tvojega računa beležimo prijave in neuspele prijave, potrditve identitete pred občutljivimi dejanji, odjave in odjave drugih naprav, spremembe gesla in e-poštnega naslova ter povezovanje in odstranjevanje prijave z Googlom ali Facebookom. Ob vsakem zapisu shranimo čas, notranji identifikator tvojega računa in državo, iz katere je prišla zahteva, prvih 29 dni pa tudi IP-naslov naprave in podatke o brskalniku. Pri neuspeli prijavi vpisani e-poštni naslov shranimo le kot enosmerno kodo, iz katere naslova ni mogoče prebrati. Zapise o neuspelih prijavah in potrditvah identitete izbrišemo po 30 dneh, ostale po 12 mesecih. Beležimo tudi dejanja skrbnikov: kdo je pregledal seznam uporabnikov ali sporočila iz obrazca za stik, kdo je sporočilo označil, izbrisal ali obnovil in kdo je izbrisal račun ali spremenil vlogo uporabnika. Te zapise hranimo 12 mesecev. Ko izbrišeš račun, zapisi ostanejo do izteka teh rokov, brez tvojega imena in e-poštnega naslova. Varnostne kopije baze lahko te podatke vsebujejo še do 31 dni. Zapise uporabljamo samo za odkrivanje in preiskovanje zlorab računov. Pravna podlaga je zakoniti interes (člen 6(1)(f) GDPR)."
   },
   "backups": {
     "heading": "Varnostne kopije",

@@ -85,6 +85,13 @@
       "when": 1794412873535,
       "tag": "0011_auth_and_web_schemas",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794420597151,
+      "tag": "0012_security_event",
+      "breakpoints": true
     }
   ]
 }

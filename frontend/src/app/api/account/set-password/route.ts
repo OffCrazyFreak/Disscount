@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth/password-policy";
 import { rejectUnacceptablePassword } from "@/lib/auth/password-rejection";
 import { REAUTH_REQUIRED, isFreshSession } from "@/lib/auth/security-policy";
+import { recordSecurityEvent } from "@/lib/security-events/record-security-event";
 
 export async function POST(request: Request) {
   let newPassword: unknown;
@@ -45,9 +46,15 @@ export async function POST(request: Request) {
       body: { newPassword: parsed.data },
       headers: requestHeaders,
     });
-
-    return NextResponse.json({ status: true });
   } catch {
     return NextResponse.json({ error: "set_password_failed" }, { status: 500 });
   }
+
+  // Outside the try, so a failed audit write can never turn a set password into an error.
+  await recordSecurityEvent("authn_password_set", {
+    userId: signedIn.session.userId,
+    headers: requestHeaders,
+  });
+
+  return NextResponse.json({ status: true });
 }

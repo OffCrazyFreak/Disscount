@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 // Not transactional on purpose: the profile insert runs in its own transaction and must really commit or collide.
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-@Import({UserService.class, UserProfileCreator.class, ActiveUsers.class})
+@Import({UserService.class, UserProfileCreator.class, ActiveUsers.class, AdminAuditLog.class})
 class ErasedProfileReadsTest {
 
     @MockitoBean AuthIdentityDao authIdentityDao;
