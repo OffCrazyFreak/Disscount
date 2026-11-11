@@ -18,6 +18,18 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 // Croatian is unprefixed; every other locale lives under its own path segment.
 const LOCALE_PREFIXES = LOCALES.filter((locale) => locale !== DEFAULT_LOCALE);
 
+const PERMISSIONS_POLICY = [
+  "camera=(self)",
+  "geolocation=(self)",
+  "microphone=()",
+  "payment=()",
+  "usb=()",
+  "bluetooth=()",
+  "accelerometer=()",
+  "gyroscope=()",
+  "magnetometer=()",
+].join(", ");
+
 const nextConfig: NextConfig = {
   // Emit a minimal self-contained server build (.next/standalone) for a lean Docker image.
   output: "standalone",
@@ -34,6 +46,8 @@ const nextConfig: NextConfig = {
   // Version skew protection: a tab from an older deploy gets a full page load
   // instead of a client navigation. A build without GIT_SHA skips it.
   deploymentId: process.env.GIT_SHA || undefined,
+
+  poweredByHeader: false,
 
   // The dev indicator sits bottom-left, on top of the mobile bottom nav.
   devIndicators: false,
@@ -64,6 +78,10 @@ const nextConfig: NextConfig = {
             key: "Strict-Transport-Security",
             value: "max-age=31536000; includeSubDomains",
           },
+          // The scanner needs the camera and near-me the location; wake lock, clipboard and share keep their defaults.
+          { key: "Permissions-Policy", value: PERMISSIONS_POLICY },
+          // Sign-in is a full-page redirect and external links open with noopener, so no window needs an opener.
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
         ],
       },
       {
