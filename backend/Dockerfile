@@ -32,6 +32,11 @@ COPY --from=build /app/target/*.jar app.jar
 ARG GIT_SHA
 ENV GIT_SHA=$GIT_SHA
 
+# Heap sized from the container's memory limit, leaving 40% for metaspace, threads, libwebp and the /tmp tmpfs.
+# Exits on OutOfMemoryError so Docker restarts a clean JVM; Serial GC is pinned so the choice stays the same if the
+# limit grows past the JVM's 1792 MB switch to G1; it has the smallest footprint (docs/INFRASTRUCTURE.md, Memory limits).
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=60 -XX:+ExitOnOutOfMemoryError -XX:+UseSerialGC"
+
 USER appuser
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
