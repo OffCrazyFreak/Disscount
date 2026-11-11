@@ -16,10 +16,11 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import disscount.shared.TooManyRequestsException;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
+@EnableConfigurationProperties(OpenFoodFactsProperties.class)
 public class OpenFoodFactsClient {
 
     // Their terms ask every app to identify itself: https://openfoodfacts.github.io/openfoodfacts-server/api/
@@ -36,17 +37,14 @@ public class OpenFoodFactsClient {
     private final Clock clock;
     private final Deque<Long> recentProductReads = new ArrayDeque<>();
 
-    public OpenFoodFactsClient(
-            ObjectMapper json,
-            @Value("${product-images.off.api-base:https://world.openfoodfacts.org}") String apiBase,
-            @Value("${product-images.off.export-url:https://static.openfoodfacts.org/data/en.openfoodfacts.org.products.csv.gz}") String exportUrl) {
+    OpenFoodFactsClient(ObjectMapper json, OpenFoodFactsProperties properties) {
         this.http = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .build();
         this.json = json;
-        this.apiBase = apiBase;
-        this.exportUrl = exportUrl;
+        this.apiBase = properties.apiBase();
+        this.exportUrl = properties.exportUrl();
         this.clock = Clock.systemUTC();
     }
 

@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
@@ -51,7 +52,8 @@ class JwtDecoderCharacterizationTest {
         jwks.start();
 
         String jwksUri = "http://127.0.0.1:" + jwks.getAddress().getPort() + "/api/auth/jwks";
-        decoder = new SecurityConfig(null, null).jwtDecoder(jwksUri, ISSUER);
+        decoder = new SecurityConfig(null, null)
+                .jwtDecoder(new JwkSetProperties(URI.create(jwksUri)), new BetterAuthProperties(URI.create(ISSUER)));
     }
 
     @AfterAll

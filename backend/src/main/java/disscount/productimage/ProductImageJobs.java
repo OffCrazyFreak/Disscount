@@ -17,12 +17,13 @@ import disscount.shared.Timestamps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
+@EnableConfigurationProperties(ProductImageJobProperties.class)
 class ProductImageJobs {
 
     private static final Logger log = LoggerFactory.getLogger(ProductImageJobs.class);
@@ -45,11 +46,11 @@ class ProductImageJobs {
     private final AtomicBoolean importing = new AtomicBoolean();
     private final AtomicBoolean renderingNow = new AtomicBoolean();
 
-    public ProductImageJobs(@Value("${product-images.jobs.enabled:true}") boolean enabled,
+    public ProductImageJobs(ProductImageJobProperties properties,
                             @Qualifier(PhotoStoreConfig.PRODUCT_PHOTOS) PhotoStore store, CatalogImportService catalog, OffSeedService seed,
                             ProductImageRendering rendering, ProductImageRepository images,
                             ProductImageSetRepository sets, ProductImageImportRunRepository runs) {
-        this.enabled = enabled;
+        this.enabled = properties.enabled();
         this.store = store;
         this.catalog = catalog;
         this.seed = seed;
