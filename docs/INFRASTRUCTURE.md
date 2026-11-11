@@ -350,6 +350,8 @@ Only the backend has `memswap_limit` set, to the same value as `mem_limit`, whic
 
 The backend's `Dockerfile` sets `JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=60 -XX:+ExitOnOutOfMemoryError -XX:+UseSerialGC"`. The JVM reads the container's limit and takes 60% as maximum heap (25% without the flag). `ExitOnOutOfMemoryError` makes a full heap stop the JVM, so Docker starts a clean one instead of a half-broken process staying up. Serial GC is the collector with the smallest memory footprint, and the JVM would choose it anyway on this server below 1792 MB; pinning it keeps the choice when the limit grows. The heap is a share of whatever limit the container has, so a backend with no limit takes 60% of the host: `docker-compose.prod.yml` gives its backend the same 1536m and no swap for the cutover's fallback path, and the local `docker-compose.yml` has none, so there the heap is 60% of your machine. Every `java` process in the container prints `Picked up JAVA_TOOL_OPTIONS: ...` once at start, which is expected.
 
+The build stage splits the jar with `java -Djarmode=tools -jar app.jar extract --layers`, and the runtime stage copies its four layers (dependencies, the Spring Boot loader, snapshot dependencies, the application) as separate image layers, least often changed first. A change to our code alone then ships a layer of about 0.5 MB, where the whole jar of about 75 MB was one layer before. The runtime still starts with `java -jar app.jar`, which finds its libraries in `lib/` beside it.
+
 ##### How to measure
 
 Read on the server, never `memory.peak` alone, because it includes disk cache the kernel would drop:

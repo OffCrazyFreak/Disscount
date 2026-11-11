@@ -1,9 +1,9 @@
 package disscount.user;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 /** Run on a restored database before traffic reopens (docs/BACKUPS.md, Restore); a failure exits non-zero. */
 @Component
 @Profile(ErasureReplayRunner.PROFILE)
+@EnableConfigurationProperties(ErasureReplayProperties.class)
 @Slf4j
 class ErasureReplayRunner implements ApplicationRunner {
 
@@ -31,14 +32,11 @@ class ErasureReplayRunner implements ApplicationRunner {
     private final Path keyFile;
     private final boolean allowEmpty;
 
-    ErasureReplayRunner(ErasureReplay replay,
-                        @Value("${erasure-replay.markers}") Path markers,
-                        @Value("${erasure-replay.key-file}") Path keyFile,
-                        @Value("${erasure-replay.allow-empty:false}") boolean allowEmpty) {
+    ErasureReplayRunner(ErasureReplay replay, ErasureReplayProperties properties) {
         this.replay = replay;
-        this.markers = markers;
-        this.keyFile = keyFile;
-        this.allowEmpty = allowEmpty;
+        this.markers = properties.markers();
+        this.keyFile = properties.keyFile();
+        this.allowEmpty = properties.allowEmpty();
     }
 
     @Override

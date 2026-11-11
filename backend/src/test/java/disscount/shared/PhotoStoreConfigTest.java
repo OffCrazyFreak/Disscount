@@ -16,37 +16,45 @@ class PhotoStoreConfigTest {
 
     final PhotoStoreConfig config = new PhotoStoreConfig();
 
+    static PhotoProperties privateDir(String directory) {
+        return new PhotoProperties(directory, "", "");
+    }
+
+    static PhotoProperties publicDir(String directory, String publicUrl) {
+        return new PhotoProperties("", directory, publicUrl);
+    }
+
     @Test
     void aSetDirectoryMakesADiskStoreEvenWithoutItsFolder(@TempDir Path directory) {
-        PhotoStore store = config.photoStore(directory.toString());
+        PhotoStore store = config.photoStore(privateDir(directory.toString()));
         assertThat(store).isInstanceOf(FilesystemPhotoStore.class);
         assertThat(store.enabled()).isFalse();
     }
 
     @Test
     void publicPhotosGetTheirUrlWithoutTheTrailingSlash(@TempDir Path directory) {
-        PhotoStore store = config.productImageStore(directory.toString(), URL);
+        PhotoStore store = config.productImageStore(publicDir(directory.toString(), URL));
         assertThat(store.publicUrl("products/1/a.webp")).isEqualTo("https://images.test/products/1/a.webp");
     }
 
     @Test
     void aBlankDirectoryIsDisabled() {
-        assertThat(config.photoStore("")).isInstanceOf(DisabledPhotoStore.class);
-        assertThat(config.productOriginalStore("").get("product-originals/1/a.jpg")).isEmpty();
-        assertThat(config.productImageStore("", URL)).isInstanceOf(DisabledPhotoStore.class);
+        assertThat(config.photoStore(privateDir(""))).isInstanceOf(DisabledPhotoStore.class);
+        assertThat(config.productOriginalStore(privateDir("")).get("product-originals/1/a.jpg")).isEmpty();
+        assertThat(config.productImageStore(publicDir("", URL))).isInstanceOf(DisabledPhotoStore.class);
     }
 
     @Test
     void publicPhotosWithoutAPublicUrlAreOff(@TempDir Path directory) {
-        assertThat(config.productImageStore(directory.toString(), "")).isInstanceOf(DisabledPhotoStore.class);
+        assertThat(config.productImageStore(publicDir(directory.toString(), ""))).isInstanceOf(DisabledPhotoStore.class);
     }
 
     @Test
     void eachFolderSwitchesOnlyItsOwnStore(@TempDir Path directory) throws IOException {
         String dir = directory.toString();
-        PhotoStore cards = config.photoStore(dir);
-        PhotoStore originals = config.productOriginalStore(dir);
-        PhotoStore products = config.productImageStore(dir, URL);
+        PhotoStore cards = config.photoStore(privateDir(dir));
+        PhotoStore originals = config.productOriginalStore(privateDir(dir));
+        PhotoStore products = config.productImageStore(publicDir(dir, URL));
 
         Files.createDirectory(directory.resolve(PhotoStoreConfig.CARD_FOLDER));
         assertThat(List.of(cards.enabled(), originals.enabled(), products.enabled())).containsExactly(true, false, false);
