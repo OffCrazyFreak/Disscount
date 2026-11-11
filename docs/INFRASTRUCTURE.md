@@ -330,7 +330,7 @@ A read-only failure shows in `docker logs <container>` as `Read-only file system
 
 #### Memory limits
 
-Every service has a `mem_limit`, so one runaway container stops at its own ceiling instead of taking both sites and the Dokploy panel down with it ([#365](https://github.com/OffCrazyFreak/Disscount/issues/365)). The kernel kills a process that passes its limit (an OOM kill) and Docker restarts the container under its `restart` policy. A limit counts everything the container holds in RAM: process memory, its `tmpfs` folders and the disk cache of files it reads or writes, though the kernel drops that cache before it kills anything. The limits are plain Compose `mem_limit`, set in one place per service, never also under `deploy.resources`.
+Every service has a `mem_limit`, so one runaway container stops at its own ceiling instead of taking both sites and the Dokploy panel down with it ([#365](https://github.com/OffCrazyFreak/Disscount/issues/365)). The kernel kills a process that passes its limit (an OOM kill). Docker restarts the container under its `restart` policy only when the container's main process dies: a killed backup job leaves `supercronic` and the `backup` container running and shows only as a failed job (and its healthchecks.io fail ping), and the one-shot services (`restart: "no"`) are not restarted at all. A limit counts everything the container holds in RAM: process memory, its `tmpfs` folders and the disk cache of files it reads or writes, though the kernel drops that cache before it kills anything. The limits are plain Compose `mem_limit`, set in one place per service, never also under `deploy.resources`.
 
 These are interim limits (owner, 2026-11-10: "Ship now, tighten later"), read on 2026-11-11 from `docker stats` and each container's cgroup on the server, with headroom. Dev had restarted 37 minutes before, so its peaks are short; production had run 7 days on the older stack.
 
@@ -371,16 +371,17 @@ grep oom_kill "$cg/memory.events"
 docker inspect --format '{{.HostConfig.Memory}} {{.HostConfig.MemorySwap}}' <container>
 ```
 
-For the backend, `anon` overstates what it needs: Serial GC under a large heap collects rarely, so dead objects sit in the heap until it fills. What matters is the live set, the heap still used right after a full collection. Actuator only exposes `health`, so `jvm.gc.live.data.size` is not reachable; read it with `jcmd` from a JDK container that joins the backend's processes as the same user (the runtime image has no JDK). `GC.run` forces a full collection, a pause of a fraction of a second, so run it at a quiet hour:
+For the backend, `anon` overstates what it needs: Serial GC under a large heap collects rarely, so dead objects sit in the heap until it fills. What matters is the live set, the heap still used right after a full collection. Actuator only exposes `health`, so `jvm.gc.live.data.size` is not reachable; read it with `jcmd` from a JDK container that joins the backend's processes as the same user and group (the runtime image has no JDK, and the JDK image has no user 1001, so pass the backend's numeric ids). `GC.run` forces a full collection, a pause of a fraction of a second, so run it at a quiet hour:
 
 ```bash
 jdk=$(grep -o 'maven:3.9-eclipse-temurin-21@sha256:[0-9a-f]*' backend/Dockerfile)
-docker run --rm --pid=container:<backend container> --user 1001 --entrypoint jcmd "$jdk" 1 GC.run
-docker run --rm --pid=container:<backend container> --user 1001 --entrypoint jcmd "$jdk" 1 GC.heap_info
+ug=$(docker exec <backend container> sh -c 'echo "$(id -u):$(id -g)"')
+docker run --rm --pid=container:<backend container> --user "$ug" --entrypoint jcmd "$jdk" 1 GC.run
+docker run --rm --pid=container:<backend container> --user "$ug" --entrypoint jcmd "$jdk" 1 GC.heap_info
 # "tenured generation ... used" is the live set
 ```
 
-The rule for a new limit: take the highest live set seen over a week, add the non-heap part (`anon` minus the heap in use) and the tmpfs sizes, and multiply by 1.25 to 1.5. For the backend, the heap ceiling must stay above that live set, so the limit is at least the live set divided by 0.6. Also note `pids.peak` from the same cgroup folder for `pids_limit`.
+The rule for a new limit: take the highest live set seen over a week, add the non-heap part (`anon` minus the heap in use) and the tmpfs sizes, and multiply by 1.25 to 1.5. For the backend that is not enough on its own, because Serial GC lets the heap grow to its ceiling (60% of the limit) between collections: the limit must also cover that ceiling plus peak non-heap and tmpfs, so check `limit >= 0.6 x limit + non-heap + tmpfs`, which means `limit >= (non-heap + tmpfs) / 0.4`, and that the 60% ceiling stays well above the live set. Take the larger result, with headroom. Also note `pids.peak` from the same cgroup folder for `pids_limit`.
 
 Follow-up: after a week of dev data under these limits, size each one from the numbers above and tighten it.
 
