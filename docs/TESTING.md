@@ -1,10 +1,10 @@
 # Testing
 
-The frontend uses Vitest with Testing Library, jsdom and MSW. The backend has its own JUnit suite on H2, plus `DoubleBootSchemaTest`, which starts the app twice on real `postgres:17-alpine` with main's `application.properties` and fails if the second start changes the schema, so `mvn -B verify` needs Docker. The rest of this file covers the frontend.
+The frontend uses Vitest with Testing Library, jsdom and MSW. The backend has its own JUnit suite on H2, plus two tests on real `postgres:17-alpine`, so `mvn -B verify` needs Docker: `DoubleBootSchemaTest` starts the app twice with main's `application.properties` and fails if the second start changes the schema, and `ReadOnlyDefaultTest` checks that a service write method without `@Transactional` cannot write (H2 ignores a read-only connection, PostgreSQL refuses the statement). The rest of this file covers the frontend.
 
 ## What the backend suite covers
 
-`mvn -B verify` covers digital cards, store names, account deletion, security chains, JWT decoding, JSON dates, problem responses, per-feature ownership, admin gating, the fields the frontend reads and the backend dependency rules (`DependencyRulesTest` reads the main sources: `user` and `shared` name no other feature, and other features use only `ActiveUsers` and `AccountErased` from `user`). Pricing, merging and jobs are mostly untested, so a change there needs its own check and a line in the PR saying so.
+`mvn -B verify` covers digital cards, store names, account deletion, security chains, JWT decoding, JSON dates, problem responses, per-feature ownership, admin gating, the fields the frontend reads, the read-only transaction default of services and the backend dependency rules (`DependencyRulesTest` reads the main sources: `user` and `shared` name no other feature, and other features use only `ActiveUsers` and `AccountErased` from `user`). Pricing, merging and jobs are mostly untested, so a change there needs its own check and a line in the PR saying so.
 
 ## Commands
 

@@ -47,6 +47,8 @@ Gotchas:
 - A nullable nested DTO comes out as `$ref` beside `type: "null"` (`AdminImageDto.crop`, `CropRequest.crop`). Both readers here treat that as nullable, but a strict OpenAPI 3.1 tool would read it as a schema nothing satisfies, so a client generator would need that shape fixed first.
 - A nullable enum's `enum` list does not include null, for the same reason.
 - An annotation is a claim, and the wire format tests only catch a missing one when a test response really holds that null.
+- DTOs and request bodies are records with a static `from()`. Jackson 3 writes a plain class's keys alphabetically but a record's in declaration order, and springdoc (on its own Jackson 2) reads declaration order either way. The records that replaced alphabetically written classes carry `@AlphabeticalJson`, so their JSON bytes stayed the same; the order is cosmetic, and nothing on the frontend reads it.
+- A request field that may be missing must not be a Java primitive in a record: Jackson 3 refuses a missing primitive there with a 400. `ShoppingListCopyRequest` stays a class for that reason, so a missing flag still reads as false.
 
 Not checked:
 
