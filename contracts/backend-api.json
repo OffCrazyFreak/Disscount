@@ -1056,7 +1056,8 @@
     "WatchlistItemRequest" : {
       "properties" : {
         "productApiId" : {
-          "minLength" : 1,
+          "maxLength" : 255,
+          "minLength" : 0,
           "type" : "string"
         },
         "thresholdValue" : {
