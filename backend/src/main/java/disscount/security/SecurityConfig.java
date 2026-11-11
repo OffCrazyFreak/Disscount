@@ -7,11 +7,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -31,10 +31,10 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.util.function.Supplier;
 
-/** Method security runs the feature guards named in @PreAuthorize on owner-scoped service methods (docs/BACKEND.md). */
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+// So a @WebMvcTest slice that imports only this chain still runs the @PreAuthorize guards.
+@Import(MethodSecurityConfig.class)
 @EnableConfigurationProperties({JwkSetProperties.class, BetterAuthProperties.class})
 @RequiredArgsConstructor
 public class SecurityConfig {
