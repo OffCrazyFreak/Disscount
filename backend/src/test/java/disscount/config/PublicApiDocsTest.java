@@ -1,6 +1,7 @@
 package disscount.config;
 
 import disscount.productimage.openfoodfacts.OpenFoodFactsClient;
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,6 +10,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static disscount.config.OpenApiConfig.ACCOUNT_PIN;
+import static disscount.config.OpenApiConfig.SESSION_COOKIE;
+import static disscount.config.OpenApiConfig.WEB_CLIENT;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.endsWith;
@@ -41,6 +45,7 @@ class PublicApiDocsTest {
 
     private static final String API_DOCS = "/api/v3/api-docs";
     private static final String SWAGGER_UI = "/api/swagger-ui/index.html";
+    private static final Matcher<Iterable<? extends String>> SIGNED_IN = containsInAnyOrder(WEB_CLIENT, ACCOUNT_PIN, SESSION_COOKIE);
 
     @Autowired MockMvc mvc;
 
@@ -90,9 +95,22 @@ class PublicApiDocsTest {
                 .andExpect(jsonPath("$.components.securitySchemes.sessionCookie.in").value("cookie"))
                 .andExpect(jsonPath("$.components.securitySchemes.sessionCookie.name")
                         .value("__Secure-better-auth.session_token"))
-                .andExpect(jsonPath("$.security[0].keys()", containsInAnyOrder(
-                        OpenApiConfig.WEB_CLIENT, OpenApiConfig.ACCOUNT_PIN, OpenApiConfig.SESSION_COOKIE)))
-                .andExpect(jsonPath("$.security[1].keys()", contains(OpenApiConfig.WEB_CLIENT)));
+                // A global requirement would apply to every operation, so each one carries its own.
+                .andExpect(jsonPath("$.security").doesNotExist());
+    }
+
+    @Test
+    void aPublicRouteTakesTheClientHeaderAloneAndAnAccountRouteNeedsTheSession() throws Exception {
+        mvc.perform(get(API_DOCS))
+                .andExpect(jsonPath("$.paths['/api/contact'].post.security.length()").value(2))
+                .andExpect(jsonPath("$.paths['/api/contact'].post.security[0].keys()", contains(WEB_CLIENT)))
+                .andExpect(jsonPath("$.paths['/api/contact'].post.security[1].keys()", SIGNED_IN))
+                .andExpect(jsonPath("$.paths['/api/shopping-lists/{id}'].get.security[0].keys()", contains(WEB_CLIENT)))
+                .andExpect(jsonPath("$.paths['/api/users/me'].get.security.length()").value(1))
+                .andExpect(jsonPath("$.paths['/api/users/me'].get.security[0].keys()", SIGNED_IN))
+                // Literal, so it is not the public by-id list route its pattern {id} would match in a request.
+                .andExpect(jsonPath("$.paths['/api/shopping-lists/me'].get.security.length()").value(1))
+                .andExpect(jsonPath("$.paths['/api/products/{ean}/images'].post.security.length()").value(1));
     }
 
     @Test
