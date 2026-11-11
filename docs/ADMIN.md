@@ -143,14 +143,14 @@ Swagger lists them all at `/api-docs`.
 
 ## 9. What is automatic vs manual
 
-| Task                                  | Automatic or manual      | Notes                                                                               |
-| ------------------------------------- | ------------------------ | ----------------------------------------------------------------------------------- |
-| First admin                           | Automatic                | The first profile ever created becomes `ADMIN` ([AUTH.md](AUTH.md#71-admin-access)) |
-| Promoting or demoting                 | Manual, on the Users tab | Not yourself, and never the last admin (409)                                        |
-| Recovering when no admin is left      | Manual, on the server    | Only after deleting admins; `UPDATE app_user SET account_type = 'ADMIN' WHERE ...`  |
-| Reading contact messages              | Manual                   | No alert on arrival                                                                 |
-| Purging soft-deleted contact messages | Not built                | They stay until deleted in the database                                             |
-| Reviewing product photos              | Manual                   | [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                                              |
+| Task                                  | Automatic or manual      | Notes                                                                                  |
+| ------------------------------------- | ------------------------ | -------------------------------------------------------------------------------------- |
+| First admin                           | Automatic                | The first profile ever created becomes `ADMIN` ([AUTH.md](AUTH.md#71-admin-access))    |
+| Promoting or demoting                 | Manual, on the Users tab | Not yourself, and never the last admin (409)                                           |
+| Recovering when no admin is left      | Manual, on the server    | Only after deleting admins; `UPDATE app.app_user SET account_type = 'ADMIN' WHERE ...` |
+| Reading contact messages              | Manual                   | No alert on arrival                                                                    |
+| Purging soft-deleted contact messages | Not built                | They stay until deleted in the database                                                |
+| Reviewing product photos              | Manual                   | [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                                                 |
 
 ---
 

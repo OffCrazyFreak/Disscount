@@ -88,7 +88,7 @@ Manual checks and agents comparing screens use throwaway accounts on a local or 
 Creating an account, once per database:
 
 1. `POST <base-url>/api/auth/sign-up/email` with `{ "email", "password", "name" }` and an `Origin: <base-url>` header, so better-auth hashes the password itself. Sign-up still mails a verification link, which bounces for a made-up address; that is one send per account.
-2. In that database, `update "user" set email_verified = true where email = '<address>';`. Sign-in refuses an unverified address and mails it another link, so do this before the first sign-in.
+2. In that database, `update auth."user" set email_verified = true where email = '<address>';`. Sign-in refuses an unverified address and mails it another link, so do this before the first sign-in.
 
 Filling it, from `frontend/`:
 

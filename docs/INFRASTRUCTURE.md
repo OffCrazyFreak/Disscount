@@ -470,7 +470,7 @@ ls /etc/dokploy/backups/disscount/        # local copies
 # restore into a target Postgres (example: a throwaway test container)
 docker run -d --name pg-test -e POSTGRES_PASSWORD=test -e POSTGRES_DB=restoretest postgres:17-alpine
 gunzip < <dump>.sql.gz | docker exec -i pg-test pg_restore -U postgres -d restoretest --no-owner --no-acl
-docker exec pg-test psql -U postgres -d restoretest -c '\dt'   # verify
+docker exec pg-test psql -U postgres -d restoretest -c '\dt (app|auth|web).*'   # verify; the tables are in app, auth and web since #429 R11
 
 # To restore into PROD, target the prod db container instead (⚠️ overwrites data, be sure).
 ```
