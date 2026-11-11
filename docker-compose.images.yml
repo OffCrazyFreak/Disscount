@@ -7,6 +7,7 @@
 # each adds back only what it uses (docs/INFRASTRUCTURE.md, Container privileges).
 # The root filesystem is read-only, so a service writes only to its volumes and the tmpfs folders it lists;
 # tmpfs lives in RAM, so each one has a size. Two services opt out with read_only: false and say why.
+# Every service has a mem_limit that includes its tmpfs; sizes and how to re-measure are in docs/INFRASTRUCTURE.md, Memory limits.
 x-hardened: &hardened
   read_only: true
   security_opt:
@@ -25,6 +26,7 @@ services:
       - SETGID
       - SETUID
     pids_limit: 256
+    mem_limit: 512m
     # The entrypoint hands the socket folder to postgres; the data folder is the pgdata volume.
     tmpfs:
       - /tmp:size=16m
@@ -48,6 +50,7 @@ services:
   migrate:
     <<: *hardened
     pids_limit: 128
+    mem_limit: 256m
     image: ghcr.io/offcrazyfreak/disscount-migrator:${IMAGE_TAG:?IMAGE_TAG must be set}
     # The tag moves, so a cached copy would silently redeploy the previous build.
     pull_policy: always
@@ -65,6 +68,10 @@ services:
   backend:
     <<: *hardened
     pids_limit: 512
+    # The JVM takes 60% of this as heap (backend/Dockerfile). Swap equal to the limit means none, so a leak
+    # ends in a quick OOM restart instead of a slow crawl through the disk.
+    mem_limit: ${BACKEND_MEM_LIMIT:-1536m}
+    memswap_limit: ${BACKEND_MEM_LIMIT:-1536m}
     # Tomcat's work folder with multipart uploads, the JVM's perf data and libwebp, which the WebP
     # library unpacks here and loads, so this one tmpfs allows exec.
     tmpfs:
@@ -119,6 +126,7 @@ services:
       - CHOWN
       - FOWNER
       - DAC_OVERRIDE
+    mem_limit: 64m
     image: alpine:3.22@sha256:49340b346798875b5592e5d420241f2f9cfba5f47e62ebb1446a1b34734e898f
     restart: "no"
     network_mode: none
@@ -143,6 +151,7 @@ services:
       - SETUID
       - SETGID
     pids_limit: 128
+    mem_limit: 64m
     # The master owns its temp folders and pid file here.
     tmpfs:
       - /var/cache/nginx:size=8m
@@ -169,6 +178,7 @@ services:
   frontend:
     <<: *hardened
     pids_limit: 256
+    mem_limit: 768m
     # Next.js caches optimized images and fetches in .next/cache and the rendered share images in route-cache.
     # A restart empties both, as every redeploy already did.
     tmpfs:
@@ -231,6 +241,8 @@ services:
       - SETUID
       - SETGID
     pids_limit: 512
+    # The nightly job runs a scratch Postgres and restores the dump into it; not yet measured on a server.
+    mem_limit: 512m
     # Compose copies environment-sourced secrets into the container after creating it, which a read-only image refuses.
     read_only: false
     image: ghcr.io/offcrazyfreak/disscount-backup:${IMAGE_TAG:?IMAGE_TAG must be set}
@@ -282,6 +294,7 @@ services:
   predeploy-dump:
     <<: *hardened
     pids_limit: 128
+    mem_limit: 256m
     # Writable for the same reason as backup: its secrets come from the environment.
     read_only: false
     image: ghcr.io/offcrazyfreak/disscount-backup:${IMAGE_TAG:?IMAGE_TAG must be set}
