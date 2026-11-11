@@ -17,6 +17,9 @@ public interface ShoppingListRepository extends JpaRepository<ShoppingList, UUID
             + "ORDER BY sl.updatedAt DESC, sl.createdAt DESC, sl.id DESC")
     List<ShoppingList> findActiveByOwnerId(UUID ownerId);
 
+    @Query("SELECT COUNT(sl) FROM ShoppingList sl WHERE sl.ownerId = :ownerId")
+    long countActiveByOwnerId(UUID ownerId);
+
     @Query("SELECT new disscount.shoppinglist.ListSharing(sl.ownerId, sl.linkAccess) FROM ShoppingList sl WHERE sl.id = :id")
     Optional<ListSharing> findSharingById(UUID id);
 }

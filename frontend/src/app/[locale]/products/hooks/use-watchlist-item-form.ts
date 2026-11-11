@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { watchlistService, WatchType } from "@/lib/api";
 import { useModalError } from "@/hooks/use-modal-error";
 import { stashModalError } from "@/lib/modal/modal-error-bus";
+import { isLimitReached } from "@/lib/limits/limit-reached";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { removeFormDraftField } from "@/utils/browser/local-storage";
 import {
@@ -118,6 +119,9 @@ export function useWatchlistItemForm(
           : t("watchlistModal.toast.added"),
       );
     } catch (error) {
+      // The limit dialog explains it; the draft stays for when there is room again.
+      if (isLimitReached(error)) return;
+
       stashModalError(draftKey, error);
       openModalUrl({
         name: "watchlist",

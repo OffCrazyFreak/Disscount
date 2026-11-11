@@ -265,7 +265,6 @@
     }
   },
   "offline": {
-    "cardLimit": "Hai già il numero massimo di carte. Eliminane una che non usi.",
     "cardSaveFailed": "Carta non salvata. Riprova.",
     "cardDeleteFailed": "Carta non eliminata. Riprova.",
     "photoDeleteFailed": "Immagine non eliminata. Riprova.",

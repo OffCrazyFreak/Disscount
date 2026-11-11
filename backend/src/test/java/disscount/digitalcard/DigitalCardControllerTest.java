@@ -1,7 +1,8 @@
 package disscount.digitalcard;
 
 import disscount.security.SecurityConfig;
-import disscount.shared.ConflictException;
+import disscount.shared.LimitReachedException;
+import disscount.shared.UserLimit;
 import disscount.shared.NotFoundException;
 import disscount.shared.ServiceUnavailableException;
 import disscount.shared.StoredPhoto;
@@ -149,15 +150,17 @@ class DigitalCardControllerTest {
     }
 
     @Test
-    void cardCapIs409() throws Exception {
+    void cardCapIs409WithTheLimitAndItsSize() throws Exception {
         when(cardService.upsert(eq(userId), eq(cardId), any()))
-                .thenThrow(new ConflictException("error.card.limitReached"));
+                .thenThrow(new LimitReachedException(UserLimit.DIGITAL_CARDS));
 
         mvc.perform(put("/api/digital-cards/{id}", cardId).with(auth())
                         .contentType(MediaType.APPLICATION_JSON).content(validBody()))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.detail").value("Imaš već najveći dopušteni broj kartica. Obriši neku koju ne koristiš."))
-                .andExpect(jsonPath("$.code").value("error.card.limitReached"));
+                .andExpect(jsonPath("$.detail").value("Možeš imati najviše 50 kartica."))
+                .andExpect(jsonPath("$.code").value("error.limit.digitalCards"))
+                .andExpect(jsonPath("$.limit").value("DIGITAL_CARDS"))
+                .andExpect(jsonPath("$.max").value(50));
     }
 
     @Test

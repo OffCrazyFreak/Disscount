@@ -14,6 +14,9 @@ interface ShoppingListItemRepository extends JpaRepository<ShoppingListItem, UUI
     @Query("SELECT sli FROM ShoppingListItem sli WHERE sli.shoppingList = :shoppingList ORDER BY sli.createdAt ASC")
     List<ShoppingListItem> findActiveByShoppingList(ShoppingList shoppingList);
 
+    @Query("SELECT COUNT(sli) FROM ShoppingListItem sli WHERE sli.shoppingList = :shoppingList")
+    long countActiveByShoppingList(ShoppingList shoppingList);
+
     @Query("SELECT sli FROM ShoppingListItem sli WHERE sli.id = :id AND sli.shoppingList = :shoppingList")
     Optional<ShoppingListItem> findActiveByIdAndShoppingList(UUID id, ShoppingList shoppingList);
 }

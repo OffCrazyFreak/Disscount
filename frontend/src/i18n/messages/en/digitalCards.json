@@ -265,7 +265,6 @@
     }
   },
   "offline": {
-    "cardLimit": "You already have the most cards allowed. Delete one you don't use.",
     "cardSaveFailed": "Couldn't save the card. Try again.",
     "cardDeleteFailed": "Couldn't delete the card. Try again.",
     "photoDeleteFailed": "Couldn't delete the photo. Try again.",
