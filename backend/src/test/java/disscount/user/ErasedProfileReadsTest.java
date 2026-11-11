@@ -39,7 +39,7 @@ class ErasedProfileReadsTest {
 
     @BeforeEach
     void setUp() {
-        JdbcTestUtils.deleteFromTables(jdbc, "erasure_ledger", "app_user");
+        JdbcTestUtils.deleteFromTables(jdbc, "app.erasure_ledger", "app.app_user");
     }
 
     private void signIn(UUID id) {
@@ -51,7 +51,7 @@ class ErasedProfileReadsTest {
     }
 
     private long rowsWithId(UUID id) {
-        return jdbc.queryForObject("SELECT COUNT(*) FROM app_user WHERE id = ?", Long.class, id);
+        return jdbc.queryForObject("SELECT COUNT(*) FROM app.app_user WHERE id = ?", Long.class, id);
     }
 
     @Test

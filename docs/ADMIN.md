@@ -132,7 +132,7 @@ Swagger lists them all at `/api/swagger-ui/index.html`.
 | `contact_message`                                                                                           | Yes                        | `read_at`, `deleted_at`                          |
 | Product image tables                                                                                        | Yes                        | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)       |
 
-**The admin audit** (`admin_audit`, migration `V5`). Every admin action that succeeds writes one row inside the transaction of the action itself: the acting admin's id (`actor_user_id`), the target's id (`target_user_id`), the action (`DELETE_USER`, `PROMOTE_TO_ADMIN` or `DEMOTE_FROM_ADMIN`, under the check `ck_admin_audit_action`) and `occurred_at`, stamped with `Timestamps.nowUtc()`. It holds no email, name or free text. A refused action (403, the 400s for your own id or an unknown one, the 409s of the admin guards) writes nothing, because the refusal comes before the insert or rolls it back. The table is append only by convention: `AdminAuditRepository` can only insert and read, and every column but the generated id is `updatable = false`. The database itself still accepts an `UPDATE` or `DELETE`; the R11 database roles of #429 can take those grants away. A repeated delete of an already erased account succeeds again and writes another `DELETE_USER` row, because each row is one admin request that succeeded.
+**The admin audit** (`admin_audit`, migration `V5`). Every admin action that succeeds writes one row inside the transaction of the action itself: the acting admin's id (`actor_user_id`), the target's id (`target_user_id`), the action (`DELETE_USER`, `PROMOTE_TO_ADMIN` or `DEMOTE_FROM_ADMIN`, under the check `ck_admin_audit_action`) and `occurred_at`, stamped with `Timestamps.nowUtc()`. It holds no email, name or free text. A refused action (403, the 400s for your own id or an unknown one, the 409s of the admin guards) writes nothing, because the refusal comes before the insert or rolls it back. The table is append only: `AdminAuditRepository` can only insert and read, every column but the generated id is `updatable = false`, and since #429 R11 the backend's database login has only `INSERT` and `SELECT` on it, so an `UPDATE` or `DELETE` from Spring is refused (`BackendLoginTest`). Only the owner and the migrator can still change rows. A repeated delete of an already erased account succeeds again and writes another `DELETE_USER` row, because each row is one admin request that succeeded.
 
 - **No foreign keys.** An admin may delete an id that only `erasure_ledger` knows (a login that never got a profile, [AUTH.md 7.3](AUTH.md#73-soft-delete-and-the-erasure-ledger)), so a key on `target_user_id` would make that delete fail. A key on either id would also block a later hard purge of erased `app_user` rows, or with a cascade delete the record of what an admin did.
 - **Account erasure keeps the rows.** No `AccountErased` listener touches the table, so erasing the target or the admin, by themselves, by another admin or through the erasure replay, leaves every row (`AdminAuditTest`). The rows hold ids only, like `erasure_ledger`, and are the record of who did what.
@@ -143,14 +143,14 @@ Swagger lists them all at `/api/swagger-ui/index.html`.
 
 ## 9. What is automatic vs manual
 
-| Task                                  | Automatic or manual      | Notes                                                                               |
-| ------------------------------------- | ------------------------ | ----------------------------------------------------------------------------------- |
-| First admin                           | Automatic                | The first profile ever created becomes `ADMIN` ([AUTH.md](AUTH.md#71-admin-access)) |
-| Promoting or demoting                 | Manual, on the Users tab | Not yourself, and never the last admin (409)                                        |
-| Recovering when no admin is left      | Manual, on the server    | Only after deleting admins; `UPDATE app_user SET account_type = 'ADMIN' WHERE ...`  |
-| Reading contact messages              | Manual                   | No alert on arrival                                                                 |
-| Purging soft-deleted contact messages | Not built                | They stay until deleted in the database                                             |
-| Reviewing product photos              | Manual                   | [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                                              |
+| Task                                  | Automatic or manual      | Notes                                                                                  |
+| ------------------------------------- | ------------------------ | -------------------------------------------------------------------------------------- |
+| First admin                           | Automatic                | The first profile ever created becomes `ADMIN` ([AUTH.md](AUTH.md#71-admin-access))    |
+| Promoting or demoting                 | Manual, on the Users tab | Not yourself, and never the last admin (409)                                           |
+| Recovering when no admin is left      | Manual, on the server    | Only after deleting admins; `UPDATE app.app_user SET account_type = 'ADMIN' WHERE ...` |
+| Reading contact messages              | Manual                   | No alert on arrival                                                                    |
+| Purging soft-deleted contact messages | Not built                | They stay until deleted in the database                                                |
+| Reviewing product photos              | Manual                   | [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                                                 |
 
 ---
 

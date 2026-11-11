@@ -210,7 +210,6 @@
     "cardsLabel": "Kartice"
   },
   "announce": {
-    "results": "{count, plural, =0 {Nema rezultata} one {# rezultat} few {# rezultata} other {# rezultata}}",
     "pinned": "Kartica je prikvačena.",
     "unpinned": "Kartica je otkvačena.",
     "archived": "Kartica je arhivirana.",

@@ -43,7 +43,7 @@ class LastAdminDeletionTest extends FullStackTest {
 
     @BeforeEach
     void startWithNoAdmins() {
-        jdbc.update("UPDATE app_user SET account_type = 'CONSUMER' WHERE account_type = 'ADMIN'");
+        jdbc.update("UPDATE app.app_user SET account_type = 'CONSUMER' WHERE account_type = 'ADMIN'");
     }
 
     private static MockHttpServletRequestBuilder eraseOwnAccount(User user) {

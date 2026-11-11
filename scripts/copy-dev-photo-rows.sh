@@ -7,15 +7,16 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+# The tables moved into app in #429 R11; the path also finds them in public on a database from before.
 local_psql() {
-  docker compose -f docker-compose.local-db.yml exec -T db sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" "$@"' psql "$@"
+  docker compose -f docker-compose.local-db.yml exec -T -e PGOPTIONS='-c search_path=app,public' db sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" "$@"' psql "$@"
 }
 
 dev_psql() {
-  ssh disscount 'docker exec -i $(docker ps -qf name=disscount-development-.*-db-1) sh -c '\''psql -q -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" "$@"'\'' psql '"$*"
+  ssh disscount 'docker exec -i -e PGOPTIONS="-c search_path=app,public" $(docker ps -qf name=disscount-development-.*-db-1) sh -c '\''psql -q -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" "$@"'\'' psql '"$*"
 }
 
-columns_sql="select string_agg(column_name, ',' order by column_name) from information_schema.columns where table_schema = 'public' and table_name = 'product_image'"
+columns_sql="select string_agg(column_name, ',' order by column_name) from information_schema.columns where table_schema = current_schema() and table_name = 'product_image'"
 local_columns=$(local_psql -Atc "$columns_sql")
 dev_columns=$(dev_psql -At <<<"$columns_sql;")
 if [[ ",$local_columns," != *",small_key,"* ]]; then

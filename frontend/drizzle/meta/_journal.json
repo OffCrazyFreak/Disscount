@@ -78,6 +78,13 @@
       "when": 1793724875516,
       "tag": "0010_store_hours",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794412873535,
+      "tag": "0011_auth_and_web_schemas",
+      "breakpoints": true
     }
   ]
 }

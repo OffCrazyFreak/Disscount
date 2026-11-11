@@ -44,7 +44,8 @@
     "suggestions": "Prijedlozi pretrage",
     "recentSearches": "Nedavne pretrage",
     "removeRecent": "Ukloni iz nedavnih pretraga: {query}",
-    "suggestionCount": "{count, plural, one {# prijedlog} few {# prijedloga} other {# prijedloga}}"
+    "suggestionCount": "{count, plural, one {# prijedlog} few {# prijedloga} other {# prijedloga}}",
+    "resultsStatus": "{count, plural, =0 {Nema rezultata} one {# rezultat} few {# rezultata} other {# rezultata}} za \"{query}\""
   },
   "header": {
     "login": "Prijava"

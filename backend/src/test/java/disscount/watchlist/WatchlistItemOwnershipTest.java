@@ -58,7 +58,7 @@ class WatchlistItemOwnershipTest {
     @BeforeEach
     void setUp() {
         // Row by row would skip soft-deleted rows, which @SQLRestriction hides from JPA.
-        JdbcTestUtils.deleteFromTables(jdbc, "watchlist_item", "app_user");
+        JdbcTestUtils.deleteFromTables(jdbc, "app.watchlist_item", "app.app_user");
         alice = users.save(User.builder().id(UUID.randomUUID()).username("alice").build());
         bob = users.save(User.builder().id(UUID.randomUUID()).username("bob").build());
     }

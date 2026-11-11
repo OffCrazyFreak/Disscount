@@ -201,5 +201,4 @@ The threshold modal's ranges and the bell's grouping have no dedicated test beyo
 - [ ] #221: deliver alerts as Web Push notifications. #216: fix notification consent and build a compliant email alert path. Both need a backend job that checks prices, which does not exist.
 - [ ] #63: base discount detection on price history instead of the cross-chain average. #278: show sale prices.
 - [ ] #200: re-check the watchlist ownership report against the current code; `WatchlistItemOwnershipTest` now covers it.
-- [ ] #407: announce the search result count to screen readers on the watchlist.
 - [ ] Sorting controls on the watchlist are part of the sorting rework noted in [SEARCH.md](SEARCH.md#11-future-improvements--todos).

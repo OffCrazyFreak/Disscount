@@ -13,6 +13,7 @@ if (!databaseUrl) {
 export default defineConfig({
   dialect: "postgresql",
   schema: [
+    "./src/db/pg-schemas.ts",
     "./src/db/auth-schema.ts",
     "./src/db/store-location-schema.ts",
     "./src/db/store-hours-schema.ts",

@@ -90,6 +90,8 @@ public final class FlywayJob {
         return Flyway.configure()
                 .dataSource(requiredEnv("FLYWAY_URL"), requiredEnv("FLYWAY_USER"), requiredEnv("FLYWAY_PASSWORD"))
                 .locations(MIGRATIONS)
+                // The history table stayed in public when the tables moved into app (V6), whatever a login's search_path says.
+                .defaultSchema("public")
                 .validateMigrationNaming(true);
     }
 

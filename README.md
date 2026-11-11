@@ -173,7 +173,7 @@ cp .env.example .env
 Set in `backend/.env`:
 
 - `SPRING_DATASOURCE_URL` (e.g. `jdbc:postgresql://localhost:5432/disscount`)
-- `SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD`
+- `SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD` (locally the database owner is fine; servers use the logins of `db/database-roles.sql`)
 - `BETTER_AUTH_JWKS_URI` (e.g. `http://localhost:3000/api/auth/jwks`)
 - Optional, to see dev's product photos: `PHOTO_DIR` and `PUBLIC_PHOTO_DIR` (local folders) and `R2_PUBLIC_URL=https://images-dev.disscount.me`, then `scripts/copy-dev-photo-rows.sh` ([docs/PRODUCT-IMAGES.md](docs/PRODUCT-IMAGES.md#local-development))
 

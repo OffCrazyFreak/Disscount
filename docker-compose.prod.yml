@@ -38,10 +38,11 @@ services:
       context: ./backend
       target: flyway
     restart: "no"
+    # The migrator login, which owns every table (db/database-roles.sql); blank falls back to the database owner.
     environment:
       FLYWAY_URL: ${SPRING_DATASOURCE_URL}
-      FLYWAY_USER: ${SPRING_DATASOURCE_USERNAME}
-      FLYWAY_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      FLYWAY_USER: ${MIGRATOR_DB_USERNAME:-${POSTGRES_USER}}
+      FLYWAY_PASSWORD: ${MIGRATOR_DB_PASSWORD:-${POSTGRES_PASSWORD}}
     networks: [internal]
     depends_on:
       db:
@@ -54,8 +55,14 @@ services:
       target: build
     restart: "no"
     command: ["pnpm", "exec", "drizzle-kit", "migrate"]
+    # The migrator login, not DATABASE_URL's Next.js login; blank falls back to the database owner. The URL here holds no
+    # login, so an older migrator image, which requires DATABASE_URL, also signs in through PGUSER and PGPASSWORD.
     environment:
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: postgresql://db:5432/${POSTGRES_DB}
+      PGHOST: db
+      PGDATABASE: ${POSTGRES_DB}
+      PGUSER: ${MIGRATOR_DB_USERNAME:-${POSTGRES_USER}}
+      PGPASSWORD: ${MIGRATOR_DB_PASSWORD:-${POSTGRES_PASSWORD}}
     networks: [internal]
     depends_on:
       db:

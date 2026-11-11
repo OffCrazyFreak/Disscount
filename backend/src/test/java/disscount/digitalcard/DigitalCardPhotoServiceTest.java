@@ -77,7 +77,7 @@ class DigitalCardPhotoServiceTest {
         storeNameUsages.deleteAll();
         storeNames.deleteAll();
         // Row by row would skip soft-deleted rows, which @SQLRestriction hides from JPA.
-        JdbcTestUtils.deleteFromTables(jdbc, "wallet_card_photo", "wallet_card", "app_user");
+        JdbcTestUtils.deleteFromTables(jdbc, "app.wallet_card_photo", "app.wallet_card", "app.app_user");
         limiter.sweep();
         fake().objects.clear();
         fake().enabled = true;

@@ -1,11 +1,13 @@
 import { useTranslations } from "next-intl";
 
+import DebouncedStatus from "@/components/custom/live-status/debounced-status";
+
 interface IResultCountStatusProps {
   shown: number;
   unplaced: number;
 }
 
-/** Screen readers only, because the count still changes with every search or filter. */
+/** Screen readers only, and debounced, because the count changes with every keystroke and filter. */
 export default function ResultCountStatus({
   shown,
   unplaced,
@@ -14,8 +16,8 @@ export default function ResultCountStatus({
   const count = t("shown", { count: shown });
 
   return (
-    <p role="status" className="sr-only">
-      {unplaced > 0 ? t("unplaced", { shown: count, unplaced }) : count}
-    </p>
+    <DebouncedStatus
+      message={unplaced > 0 ? t("unplaced", { shown: count, unplaced }) : count}
+    />
   );
 }

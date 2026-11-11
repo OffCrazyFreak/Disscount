@@ -60,10 +60,13 @@ jobs:
               - .prettierignore
               - frontend/package.json
               - frontend/pnpm-lock.yaml
+            # DatabaseRolesTest runs db/database-roles.sql over the Flyway and the drizzle migrations.
             backend:
               - *workflow
               - backend/**
               - contracts/**
+              - db/**
+              - frontend/drizzle/**
             backup:
               - *workflow
               - backup/**

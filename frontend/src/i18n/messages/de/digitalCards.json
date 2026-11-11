@@ -210,7 +210,6 @@
     "cardsLabel": "Karten"
   },
   "announce": {
-    "results": "{count, plural, =0 {Keine Ergebnisse} one {# Ergebnis} other {# Ergebnisse}}",
     "pinned": "Karte angeheftet.",
     "unpinned": "Karte nicht mehr angeheftet.",
     "archived": "Karte archiviert.",

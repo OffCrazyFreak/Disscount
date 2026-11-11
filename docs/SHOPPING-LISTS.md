@@ -430,6 +430,5 @@ Not covered by an automated test: the info table maths against real prices, the 
 - [ ] #45 (batch price history requests) and #62 (periods longer than 30 days), which unblock the disabled history periods.
 - [ ] #168 (store select blank when price data fails): the price states in [§8](#8-prices-on-the-list-page) replace the blank select with a reason, which may resolve it; unverified in a browser.
 - [ ] #154 and #155 (personalise lists with images and colours), #61 (switchable, personalised list views).
-- [ ] #407 (announce the result count to screen readers on the watchlist, shopping lists, suggestions and updates searches).
 - [ ] #202 (complete account erasure), which decides what happens to a deleted account's lists.
 - [ ] Membership, adding through a link, attribution in the UI: see [SHARING.md §10](SHARING.md#10-not-built-yet).

@@ -24,7 +24,7 @@ describe("recordLastLogin", () => {
     expect(set).toHaveBeenCalledWith({ lastLoginAt: session.createdAt });
 
     const condition = new PgDialect().sqlToQuery(where.mock.calls[0][0] as SQL);
-    expect(condition.sql).toBe('"user"."id" = $1');
+    expect(condition.sql).toBe('"auth"."user"."id" = $1');
     expect(condition.params).toEqual([session.userId]);
   });
 

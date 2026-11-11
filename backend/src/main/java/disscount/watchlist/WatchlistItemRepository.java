@@ -16,10 +16,10 @@ public interface WatchlistItemRepository extends JpaRepository<WatchlistItem, UU
     List<WatchlistItem> findByUserId(@Param("userId") UUID userId);
 
     // Owner-scoped so a stranger's item looks missing; native so deleted rows still match and a repeat delete stays 204.
-    @Query(value = "SELECT * FROM watchlist_item WHERE id = :id AND user_id = :userId", nativeQuery = true)
+    @Query(value = "SELECT * FROM app.watchlist_item WHERE id = :id AND user_id = :userId", nativeQuery = true)
     Optional<WatchlistItem> findIncludingDeletedByIdAndUserId(@Param("id") UUID id, @Param("userId") UUID userId);
 
-    @Query(value = "SELECT COUNT(*) > 0 FROM watchlist_item WHERE id = :id AND user_id = :userId", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) > 0 FROM app.watchlist_item WHERE id = :id AND user_id = :userId", nativeQuery = true)
     boolean existsIncludingDeletedByIdAndUserId(@Param("id") UUID id, @Param("userId") UUID userId);
 
     @Query("SELECT w FROM WatchlistItem w WHERE w.productApiId = :productApiId AND w.userId = :userId")
