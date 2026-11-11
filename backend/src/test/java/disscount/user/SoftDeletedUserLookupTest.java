@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.context.annotation.Import;
 
 import java.util.List;
@@ -31,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class SoftDeletedUserLookupTest {
 
     @Autowired UserRepository users;
+    @Autowired TestEntityManager entityManager;
     @Autowired WatchlistItemService watchlist;
     @Autowired PinnedPlaceService pinnedPlaces;
     @Autowired PinnedStoreService pinnedStores;
@@ -40,7 +42,9 @@ class SoftDeletedUserLookupTest {
 
     @BeforeEach
     void setUp() {
-        deletedUserId = users.save(User.builder().id(UUID.randomUUID()).deletedAt(Timestamps.nowUtc()).build()).getId();
+        deletedUserId = users.saveAndFlush(User.builder().id(UUID.randomUUID()).deletedAt(Timestamps.nowUtc()).build()).getId();
+        // A later request starts a new persistence context; the saved instance would otherwise answer lookups by id.
+        entityManager.clear();
     }
 
     private static void assertRefusedAsUnknownUser(ThrowingCallable call) {

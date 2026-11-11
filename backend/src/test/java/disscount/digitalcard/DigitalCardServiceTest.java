@@ -13,9 +13,11 @@ import disscount.storename.StoreNameService;
 import disscount.storename.StoreNameSuggestionRepository;
 import disscount.storename.StoreNameUpsert;
 import disscount.storename.StoreNameUsageRepository;
+import disscount.support.IncludingDeleted;
 import disscount.user.ActiveUsers;
 import disscount.user.User;
 import disscount.user.UserRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,6 +73,7 @@ class DigitalCardServiceTest {
     @Autowired PhotoStore store;
     @Autowired PhotoCleanupRepository cleanupRows;
     @Autowired JdbcTemplate jdbc;
+    @Autowired EntityManager entityManager;
 
     User owner;
     User stranger;
@@ -77,11 +81,10 @@ class DigitalCardServiceTest {
     @BeforeEach
     void setUp() {
         cleanupRows.deleteAll();
-        photos.deleteAll();
-        cards.deleteAll();
+        // Row by row would skip soft-deleted rows, which @SQLRestriction hides from JPA.
+        JdbcTestUtils.deleteFromTables(jdbc, "wallet_card_photo", "wallet_card", "app_user");
         storeNameUsages.deleteAll();
         storeNames.deleteAll();
-        users.deleteAll();
         ((FakePhotoStore) store).objects.clear();
         ((FakePhotoStore) store).enabled = true;
         ((FakePhotoStore) store).failDeletes = false;
@@ -128,7 +131,20 @@ class DigitalCardServiceTest {
                 .isInstanceOf(NotFoundException.class);
         assertThatThrownBy(() -> service.get(owner.getId(), id)).isInstanceOf(NotFoundException.class);
         assertThat(service.list(owner.getId())).isEmpty();
-        assertThat(cards.findById(id)).isPresent();
+        assertThat(IncludingDeleted.find(entityManager, DigitalCard.class, id)).isPresent();
+    }
+
+    // The deleted row is hidden from findById but keeps its id, so a create would otherwise collide on the key.
+    @Test
+    void aReplayedCreateOfADeletedIdIsNotFoundForEveryUser() {
+        UUID id = UUID.randomUUID();
+        service.upsert(owner.getId(), id, request("Obrisana"));
+        service.delete(owner.getId(), id);
+
+        assertThatThrownBy(() -> service.upsert(stranger.getId(), id, request("Tuđa")))
+                .isInstanceOf(NotFoundException.class);
+        assertThat(IncludingDeleted.find(entityManager, DigitalCard.class, id)).get()
+                .satisfies(card -> assertThat(card.getUserId()).isEqualTo(owner.getId()));
     }
 
     @Test
@@ -139,7 +155,7 @@ class DigitalCardServiceTest {
 
         assertThatThrownBy(() -> service.setPinned(owner.getId(), id, true)).isInstanceOf(NotFoundException.class);
         assertThatThrownBy(() -> service.setArchived(owner.getId(), id, true)).isInstanceOf(NotFoundException.class);
-        assertThat(cards.findById(id)).get().satisfies(card -> {
+        assertThat(IncludingDeleted.find(entityManager, DigitalCard.class, id)).get().satisfies(card -> {
             assertThat(card.getDeletedAt()).isNotNull();
             assertThat(card.getPinnedAt()).isNull();
             assertThat(card.getArchivedAt()).isNull();
@@ -310,15 +326,29 @@ class DigitalCardServiceTest {
         service.upsert(owner.getId(), recent, request("Nedavna"));
         service.delete(owner.getId(), old);
         service.delete(owner.getId(), recent);
-        DigitalCard oldCard = cards.findById(old).orElseThrow();
-        oldCard.setDeletedAt(Timestamps.nowUtc().minusDays(31));
-        cards.save(oldCard);
+        jdbc.update("UPDATE wallet_card SET deleted_at = ? WHERE id = ?", Timestamps.nowUtc().minusDays(31), old);
 
         int purged = service.purgeDeletedBefore(Timestamps.nowUtc().minusDays(30));
 
         assertThat(purged).isEqualTo(1);
-        assertThat(cards.findById(old)).isEmpty();
-        assertThat(cards.findById(recent)).isPresent();
+        assertThat(IncludingDeleted.find(entityManager, DigitalCard.class, old)).isEmpty();
+        assertThat(IncludingDeleted.find(entityManager, DigitalCard.class, recent)).isPresent();
+    }
+
+    // Deleting a card removes its photos, so a photo row on a hidden card is a leftover the purge must still take.
+    @Test
+    void aPhotoStillOnADeletedCardIsHiddenAndPurgedWithIt() {
+        UUID id = UUID.randomUUID();
+        service.upsert(owner.getId(), id, request("Stara"));
+        photoService.upload(owner.getId(), id, "icon", file(TestImages.webp(32, 32)), null);
+        jdbc.update("UPDATE wallet_card SET deleted_at = ? WHERE id = ?", Timestamps.nowUtc().minusDays(31), id);
+
+        // JPQL reaches a photo through its card, so the hidden card hides the photo from reads too.
+        assertThat(photos.findByCardId(id)).isEmpty();
+
+        assertThat(service.purgeDeletedBefore(Timestamps.nowUtc().minusDays(30))).isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM wallet_card_photo", Long.class)).isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM wallet_card", Long.class)).isZero();
     }
 
     @Test

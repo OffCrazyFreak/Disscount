@@ -96,7 +96,7 @@ public class ShoppingListService {
 
     /** Not-found rather than forbidden, so a 403 cannot confirm an id is real. */
     public ShoppingList findVisible(UUID listId, UUID userId) {
-        ShoppingList list = shoppingListRepository.findActiveById(listId)
+        ShoppingList list = shoppingListRepository.findById(listId)
                 .orElseThrow(() -> new NotFoundException("error.shoppingList.notFound"));
 
         if (!accessService.resolve(list, userId).canView()) {

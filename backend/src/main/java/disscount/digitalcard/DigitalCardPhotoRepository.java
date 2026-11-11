@@ -28,11 +28,14 @@ public interface DigitalCardPhotoRepository extends JpaRepository<DigitalCardPho
     @Query("SELECT COUNT(p) > 0 FROM DigitalCardPhoto p WHERE p.fullKey LIKE CONCAT(:prefix, '%')")
     boolean anyKeyStartsWith(String prefix);
 
+    // Native from here on: JPQL through p.card skips the photos of a deleted card, which the purge must still delete.
+
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("DELETE FROM DigitalCardPhoto p WHERE p.card.id = :cardId")
+    @Query(value = "DELETE FROM wallet_card_photo WHERE card_id = :cardId", nativeQuery = true)
     void deleteAllByCardId(UUID cardId);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("DELETE FROM DigitalCardPhoto p WHERE p.card.id IN (SELECT c.id FROM DigitalCard c WHERE c.userId = :userId)")
+    @Query(value = "DELETE FROM wallet_card_photo WHERE card_id IN (SELECT id FROM wallet_card WHERE user_id = :userId)",
+            nativeQuery = true)
     void deleteAllByUserId(UUID userId);
 }

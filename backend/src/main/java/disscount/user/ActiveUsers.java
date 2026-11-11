@@ -15,7 +15,7 @@ public class ActiveUsers {
     private final UserRepository users;
 
     public boolean isActive(UUID userId) {
-        return users.findByIdAndDeletedAtIsNull(userId).isPresent();
+        return users.existsById(userId);
     }
 
     /** For the caller's own id: answers 401 once the account is gone, as the session outlived it. */
@@ -32,13 +32,11 @@ public class ActiveUsers {
     /** {@link #lockActive} for work that should quietly do nothing once the account is gone. */
     @Transactional
     public boolean lockIfActive(UUID userId) {
-        return users.findByIdForUpdate(userId)
-                .filter(user -> user.getDeletedAt() == null)
-                .isPresent();
+        return users.findByIdForUpdate(userId).isPresent();
     }
 
     public boolean isActiveAdmin(UUID userId) {
-        return users.findByIdAndDeletedAtIsNull(userId)
+        return users.findById(userId)
                 .map(user -> user.getAccountType() == AccountType.ADMIN)
                 .orElse(false);
     }

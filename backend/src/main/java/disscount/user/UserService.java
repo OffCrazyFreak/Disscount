@@ -36,7 +36,7 @@ public class UserService {
     private final AvatarSanitizer avatarSanitizer;
 
     public Optional<UserDto> findById(UUID id) {
-        return userRepository.findByIdAndDeletedAtIsNull(id)
+        return userRepository.findById(id)
                 .map(UserDto::from);
     }
 
@@ -45,12 +45,9 @@ public class UserService {
     public void ensureActiveProfile(UUID id, String email, String name, String image) {
         if (email == null) return;
 
+        // A live profile was never erased, so the ledger stays off the hot path.
         Optional<User> existing = userRepository.findById(id);
-        // Profiles deleted before the ledger have no tombstone, so the row is proof; the ledger is off the hot path.
-        boolean isErased = existing
-                .map(user -> user.getDeletedAt() != null)
-                .orElseGet(() -> erasureLedger.existsById(id));
-        if (isErased) {
+        if (existing.isEmpty() && erasureLedger.existsById(id)) {
             throw new AccountErasedException();
         }
 
@@ -63,8 +60,8 @@ public class UserService {
                 userRepository.save(user);
             }
         } else {
-            // First user becomes admin; count() includes soft-deleted rows so a deleted admin never re-triggers this.
-            AccountType accountType = userRepository.count() == 0
+            // First user becomes admin; deleted profiles and ledger rows count too, so a database that ever had users never re-triggers this.
+            AccountType accountType = userRepository.countIncludingDeleted() + erasureLedger.count() == 0
                     ? AccountType.ADMIN
                     : AccountType.CONSUMER;
             String username = seedUsername(name, email);
@@ -85,9 +82,21 @@ public class UserService {
                 // A concurrent first login or two accounts seeding a name; the insert has its own transaction: retry.
                 if (userRepository.existsById(id)) return;
 
-                // Nameless rather than fail: the settings form asks for one immediately.
-                profileCreator.create(profile.username(null).build());
+                createNameless(profile, id);
             }
+        }
+    }
+
+    /** Nameless rather than fail: the settings form asks for one immediately. */
+    private void createNameless(User.UserBuilder profile, UUID id) {
+        try {
+            profileCreator.create(profile.username(null).build());
+        } catch (DataIntegrityViolationException collision) {
+            if (userRepository.existsById(id)) return;
+
+            // A 410 makes the browser finish the deletion, so only a deleted profile still missing its tombstone earns it.
+            if (userRepository.isDeletedProfile(id)) throw new AccountErasedException();
+            throw collision;
         }
     }
 
@@ -199,7 +208,7 @@ public class UserService {
     }
 
     public List<UserDto> findAllActive() {
-        List<UserDto> dtos = userRepository.findByDeletedAtIsNullOrderByCreatedAtAsc()
+        List<UserDto> dtos = userRepository.findAllByOrderByCreatedAtAsc()
                 .stream()
                 .map(UserDto::from)
                 .toList();
@@ -222,8 +231,8 @@ public class UserService {
             throw new BadRequestException("error.user.cannotDeleteSelf");
         }
 
-        // deleteAccount tolerates a missing profile for the deleteUser hook; an admin names a listed user.
-        if (!userRepository.existsById(targetUserId)) {
+        // deleteAccount tolerates a missing profile for the deleteUser hook; an admin names a listed or erased user.
+        if (!userRepository.existsById(targetUserId) && !erasureLedger.existsById(targetUserId)) {
             throw new BadRequestException("error.user.notFound");
         }
 
@@ -235,7 +244,7 @@ public class UserService {
     @Transactional
     public UserDto updateAccountType(UUID userId, AccountType accountType, UUID adminUserId) {
         // The target of an admin action, not the caller: the admin's own session is fine, so no 401 here.
-        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BadRequestException("error.user.notFound"));
 
         if (user.getAccountType() == AccountType.ADMIN && accountType != AccountType.ADMIN) {

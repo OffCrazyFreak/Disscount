@@ -73,7 +73,7 @@ class AdminDemotionGuardTest extends FullStackTest {
                 mock(ApplicationEventPublisher.class), mock(ErasureLedgerRepository.class), mock(AvatarSanitizer.class));
         User lastAdmin = newAdmin();
         User demotedCaller = newUser("demoted");
-        when(repository.findByIdAndDeletedAtIsNull(lastAdmin.getId())).thenReturn(Optional.of(lastAdmin));
+        when(repository.findById(lastAdmin.getId())).thenReturn(Optional.of(lastAdmin));
         when(repository.lockActiveAdmins()).thenReturn(List.of(lastAdmin));
 
         assertThatThrownBy(() -> service.updateAccountType(lastAdmin.getId(), AccountType.CONSUMER, demotedCaller.getId()))

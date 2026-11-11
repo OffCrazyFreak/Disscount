@@ -54,7 +54,7 @@ public class WatchlistItemService {
 
     @Transactional
     public void removeFromWatchlist(UUID id, UUID userId) {
-        WatchlistItem watchlistItem = watchlistItemRepository.findByIdAndUserId(id, userId)
+        WatchlistItem watchlistItem = watchlistItemRepository.findIncludingDeletedByIdAndUserId(id, userId)
                 .orElseThrow(() -> new NotFoundException("error.watchlistItem.notFound"));
 
         if (watchlistItem.getDeletedAt() == null) {

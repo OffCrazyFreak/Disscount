@@ -98,7 +98,7 @@ There is no position column: the page sorts rows itself ([§9](#9-grouping-by-st
 
 ### Wire format and the frontend schemas
 
-The DTOs (`ShoppingListDto`, `ShoppingListItemDto`) are built in one place, `ShoppingListMapper`, so the owner's view and a link visitor's view cannot drift apart. The mapper drops soft deleted items, nulls `ownerId`, `linkAccess` and every `updatedByUserId` for anyone but the owner, and echoes the caller's resolved access as `myAccess`.
+The DTOs (`ShoppingListDto`, `ShoppingListItemDto`) are built in one place, `ShoppingListMapper`, so the owner's view and a link visitor's view cannot drift apart. Deleted lists and items never load (`@SQLRestriction`, [AUTH.md 7.3](AUTH.md#73-soft-delete-and-the-erasure-ledger)), and the mapper still drops an item deleted earlier in the same request, nulls `ownerId`, `linkAccess` and every `updatedByUserId` for anyone but the owner, and echoes the caller's resolved access as `myAccess`.
 
 On the frontend the contract lives in two zod files:
 
@@ -417,7 +417,7 @@ Not covered by an automated test: the info table maths against real prices, the 
 | **The totals' low and high ends are estimates**              | They are the average minus and plus 10 percent, not real chain prices                                                                                                                                                                         |
 | **History keys and `staleTime` must match the product page** | Build them only with `priceHistoryQueries`, or the two charts fetch the same days twice                                                                                                                                                       |
 | **Account deletion keeps the lists**                         | `UserService.deleteAccount` anonymises the profile and keeps business data, and `AccountErasureTest` pins that the lists stay. #202 tracks the complete erasure                                                                               |
-| **Deleting a list leaves its items**                         | Only the list gets `deleted_at`; nothing reads the items of a deleted list, but the rows stay                                                                                                                                                 |
+| **Deleting a list leaves its items**                         | Only the list gets `deleted_at`; the items stay live rows, but every route reaches them through their hidden list and answers 404 (`ShoppingListSoftDeleteTest`)                                                                              |
 | **The watchlist's discounted list is not transactional**     | It is a create plus one add per product from the browser, unlike the copy endpoint; it cleans up after a partial failure itself                                                                                                               |
 
 ---

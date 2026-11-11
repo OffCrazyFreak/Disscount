@@ -4,7 +4,7 @@ A reference for the admin dashboard (`/dashboard`) and the `/api/admin/**` endpo
 
 > **Mental model in one sentence:** `/dashboard` is a client page whose guard is only a convenience; the real boundary is the `/api/admin/**` rule in Spring's `SecurityConfig`, and a test walks every admin route to prove it.
 
-How admin is granted, why there is no `@PreAuthorize`, and the guard that keeps at least one admin are documented once in [AUTH.md section 7.1](AUTH.md#71-admin-access). The photo review queue has its own doc, [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md). This doc covers the dashboard as a whole and links there.
+How admin is granted, why there is no `@PreAuthorize`, and the guard against demoting yourself or the last admin are documented once in [AUTH.md section 7.1](AUTH.md#71-admin-access). The photo review queue has its own doc, [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md). This doc covers the dashboard as a whole and links there.
 
 ---
 
@@ -104,17 +104,17 @@ The product photo review queue: candidates from Open Food Facts and user uploads
 
 ## 7. Endpoints
 
-| Method and path                                 | Handler                       | What it does                                               |
-| ----------------------------------------------- | ----------------------------- | ---------------------------------------------------------- |
-| `GET /api/admin/users`                          | `AdminController`             | Every active user with email and activity; unbounded       |
-| `PATCH /api/admin/users/{userId}`               | `AdminController`             | Set `accountType`; 409 for self-demotion or the last admin |
-| `DELETE /api/admin/users/{userId}`              | `AdminController`             | Delete and erase a user; refuses yourself                  |
-| `GET /api/admin/contact?includeDeleted=`        | `AdminContactController`      | Up to 500 messages, newest first                           |
-| `GET /api/admin/contact/{id}`                   | `AdminContactController`      | One message                                                |
-| `PATCH /api/admin/contact/{id}/read`, `/unread` | `AdminContactController`      | Set or clear `read_at`                                     |
-| `DELETE /api/admin/contact/{id}`                | `AdminContactController`      | Soft delete                                                |
-| `PATCH /api/admin/contact/{id}/restore`         | `AdminContactController`      | Undo the soft delete                                       |
-| `/api/admin/product-images/**`                  | `AdminProductImageController` | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                 |
+| Method and path                                 | Handler                       | What it does                                                                                                                      |
+| ----------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/admin/users`                          | `AdminController`             | Every active user with email and activity; unbounded                                                                              |
+| `PATCH /api/admin/users/{userId}`               | `AdminController`             | Set `accountType`; 409 for self-demotion or the last admin                                                                        |
+| `DELETE /api/admin/users/{userId}`              | `AdminController`             | Delete and erase a user; refuses yourself                                                                                         |
+| `GET /api/admin/contact?includeDeleted=`        | `AdminContactController`      | Up to 500 messages, newest first                                                                                                  |
+| `GET /api/admin/contact/{id}`                   | `AdminContactController`      | One message                                                                                                                       |
+| `PATCH /api/admin/contact/{id}/read`, `/unread` | `AdminContactController`      | Set or clear `read_at`                                                                                                            |
+| `DELETE /api/admin/contact/{id}`                | `AdminContactController`      | Soft delete                                                                                                                       |
+| `PATCH /api/admin/contact/{id}/restore`         | `AdminContactController`      | Undo the soft delete; deleted messages load through native queries ([AUTH.md 7.3](AUTH.md#73-soft-delete-and-the-erasure-ledger)) |
+| `/api/admin/product-images/**`                  | `AdminProductImageController` | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                                                                                        |
 
 Swagger lists them all at `/api-docs`.
 

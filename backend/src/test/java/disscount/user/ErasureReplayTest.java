@@ -1,6 +1,7 @@
 package disscount.user;
 
 import disscount.support.FullStackTest;
+import disscount.support.IncludingDeleted;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,7 +36,7 @@ class ErasureReplayTest extends FullStackTest {
         int count = replay.replay(KEY, Set.of(markerOf(erased.getId())));
 
         assertThat(count).isEqualTo(1);
-        User profile = users.findById(erased.getId()).orElseThrow();
+        User profile = IncludingDeleted.find(entityManager, User.class, erased.getId()).orElseThrow();
         assertThat(profile.getDeletedAt()).isNotNull();
         assertThat(profile.getUsername()).isNull();
         assertThat(erasureLedger.findById(erased.getId())).isPresent();

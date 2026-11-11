@@ -4,11 +4,13 @@ import disscount.shared.Timestamps;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
+@SQLRestriction("deleted_at is null")
 @Table(name = "watchlist_item")
 @Getter
 @Setter

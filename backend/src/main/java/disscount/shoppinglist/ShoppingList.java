@@ -3,6 +3,7 @@ package disscount.shoppinglist;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.UUID;
 import disscount.shared.Timestamps;
 
 @Entity
+@SQLRestriction("deleted_at is null")
 @Table(name = "shopping_list")
 @Getter
 @Setter

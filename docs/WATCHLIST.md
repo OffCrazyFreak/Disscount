@@ -59,12 +59,12 @@ The backend stores the rule and never a price. Entity `WatchlistItem` (`backend/
 | `created_at`, `updated_at` | Stamped with `Timestamps.nowUtc()` in `@PrePersist` and `@PreUpdate` |
 | `deleted_at`               | Soft delete marker                                                   |
 
-| Method and path                             | What it does                                                                                                             |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `POST /api/watchlist`                       | Upsert: if the caller already has a live rule of that type for that EAN, only its threshold changes; otherwise a new row |
-| `GET /api/watchlist/me`                     | The caller's live rules                                                                                                  |
-| `GET /api/watchlist/product/{productApiId}` | The caller's live rules for one EAN (up to two, one per type)                                                            |
-| `DELETE /api/watchlist/{id}`                | Soft delete. A repeat delete answers 204; another user's id answers 404 like an unknown one                              |
+| Method and path                             | What it does                                                                                                                                                                                                  |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /api/watchlist`                       | Upsert: if the caller already has a live rule of that type for that EAN, only its threshold changes; otherwise a new row                                                                                      |
+| `GET /api/watchlist/me`                     | The caller's live rules                                                                                                                                                                                       |
+| `GET /api/watchlist/product/{productApiId}` | The caller's live rules for one EAN (up to two, one per type)                                                                                                                                                 |
+| `DELETE /api/watchlist/{id}`                | Soft delete. A repeat delete answers 204: a native lookup bypasses `@SQLRestriction` and finds the already deleted row, whose `deleted_at` stays unchanged; another user's id answers 404 like an unknown one |
 
 All four need a signed-in session; the browser reaches them through the backend proxy ([BACKEND-PROXY.md](BACKEND-PROXY.md)). Every query in `WatchlistItemRepository` is scoped by `user.id`, which `WatchlistItemOwnershipTest` pins. The frontend parses every response through `watchlistItemDtoSchema` (`lib/api/schemas/watchlist.ts`), so a changed field fails loudly at the service boundary.
 
