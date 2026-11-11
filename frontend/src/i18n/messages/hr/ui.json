@@ -18,5 +18,17 @@
     "writeFailed": "Promjena nije spremljena. Pokušaj ponovno.",
     "writeFailedLostAccess": "Promjena nije spremljena. Možda više nemaš pristup ovom popisu.",
     "retiredWriteDropped": "Promjena iz starije verzije aplikacije nije spremljena. Otvori popis i provjeri."
+  },
+  "limitReached": {
+    "title": "Nema više mjesta",
+    "description": {
+      "SHOPPING_LISTS": "{max, plural, one {Možeš imati najviše # popis za kupnju.} few {Možeš imati najviše # popisa za kupnju.} other {Možeš imati najviše # popisa za kupnju.}}",
+      "SHOPPING_LIST_ITEMS": "{max, plural, one {Popis može imati najviše # proizvod.} few {Popis može imati najviše # proizvoda.} other {Popis može imati najviše # proizvoda.}}",
+      "WATCHLIST_ITEMS": "{max, plural, one {Možeš pratiti najviše # proizvod.} few {Možeš pratiti najviše # proizvoda.} other {Možeš pratiti najviše # proizvoda.}}",
+      "DIGITAL_CARDS": "{max, plural, one {Možeš imati najviše # karticu.} few {Možeš imati najviše # kartice.} other {Možeš imati najviše # kartica.}}"
+    },
+    "contactHint": "Ako ti treba više, javi nam se.",
+    "contact": "Piši podršci",
+    "close": "Zatvori"
   }
 }

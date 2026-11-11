@@ -18,5 +18,17 @@
     "writeFailed": "The change wasn't saved. Try again.",
     "writeFailedLostAccess": "The change wasn't saved. You may no longer have access to this list.",
     "retiredWriteDropped": "A change from an older version of the app wasn't saved. Open the list and check."
+  },
+  "limitReached": {
+    "title": "No room left",
+    "description": {
+      "SHOPPING_LISTS": "{max, plural, one {You can have up to # shopping list.} other {You can have up to # shopping lists.}}",
+      "SHOPPING_LIST_ITEMS": "{max, plural, one {A list can hold up to # item.} other {A list can hold up to # items.}}",
+      "WATCHLIST_ITEMS": "{max, plural, one {You can watch up to # product.} other {You can watch up to # products.}}",
+      "DIGITAL_CARDS": "{max, plural, one {You can have up to # card.} other {You can have up to # cards.}}"
+    },
+    "contactHint": "If you need more, write to us.",
+    "contact": "Contact support",
+    "close": "Close"
   }
 }

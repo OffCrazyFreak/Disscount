@@ -6,10 +6,7 @@ import { isNetworkFailure } from "@/lib/offline/is-network-failure";
 /** Resending can never succeed for these, so the queued entry is dropped. */
 const PERMANENT_STATUSES = new Set([400, 404, 409, 413, 422]);
 
-export type CardWriteMessageKey =
-  "offline.cardLimit" | "offline.cardSaveFailed";
-
-export const CARD_LIMIT_KEY = "offline.cardLimit";
+export type CardWriteMessageKey = "offline.cardSaveFailed";
 
 // Photo storage is switched off for the deployment, so resending cannot succeed.
 const PHOTOS_UNAVAILABLE_CODE = "error.cardPhoto.unavailable";
@@ -39,12 +36,8 @@ export function cardWriteMessage(error: unknown): CardWriteMessageKey | null {
   // The card was deleted elsewhere; the invalidation that follows removes it here too.
   if (status === 404) return null;
 
-  if (status === 409) {
-    // Other conflicts mean the write already landed, so there is nothing to tell.
-    return parseProblem(error)?.code === "error.card.limitReached"
-      ? CARD_LIMIT_KEY
-      : null;
-  }
+  // The card cap opens the limit dialog; any other conflict means the write already landed.
+  if (status === 409) return null;
 
   return "offline.cardSaveFailed";
 }
