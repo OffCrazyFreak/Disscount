@@ -13,10 +13,24 @@ const SETTLED = {
 };
 
 describe("ProductsResultsStatus", () => {
-  it("announces the count with the Croatian plural", () => {
+  it("announces the count with the Croatian plural and the search word", () => {
     renderWithProviders(<ProductsResultsStatus {...SETTLED} total={3} />);
 
-    expect(screen.getByRole("status")).toHaveTextContent("3 rezultata");
+    expect(screen.getByRole("status")).toHaveTextContent(
+      /^3 rezultata za "mlijeko"$/,
+    );
+  });
+
+  it("reads a new search with the same count as a different message", () => {
+    const { rerender } = renderWithProviders(
+      <ProductsResultsStatus {...SETTLED} total={3} />,
+    );
+    const region = screen.getByRole("status");
+
+    rerender(<ProductsResultsStatus {...SETTLED} query="sir" total={3} />);
+
+    expect(screen.getByRole("status")).toBe(region);
+    expect(region).toHaveTextContent(/^3 rezultata za "sir"$/);
   });
 
   it("says a capped count may be higher", () => {
@@ -25,7 +39,7 @@ describe("ProductsResultsStatus", () => {
     );
 
     expect(screen.getByRole("status")).toHaveTextContent(
-      "100 rezultata ili više",
+      /^100 rezultata ili više za "mlijeko"$/,
     );
   });
 
@@ -34,7 +48,9 @@ describe("ProductsResultsStatus", () => {
       <ProductsResultsStatus {...SETTLED} total={0} isTruncated />,
     );
 
-    expect(screen.getByRole("status")).toHaveTextContent(/^Nema rezultata$/);
+    expect(screen.getByRole("status")).toHaveTextContent(
+      /^Nema rezultata za "mlijeko"$/,
+    );
   });
 
   it("stays mounted but silent while the search loads", () => {
