@@ -64,7 +64,7 @@ public class ShoppingListService {
     }
 
     /** Renaming and resharing are separate rights; folding them lets EDIT reshare. */
-    @PreAuthorize("@shoppingListGuard.canView(#listId, #userId)")
+    @PreAuthorize("@shoppingListGuard.canWrite(#listId, #userId)")
     @Transactional
     public ShoppingListDto updateShoppingList(UUID listId, UUID userId, ShoppingListRequest request) {
         ShoppingList list = findVisible(listId, userId);
@@ -85,7 +85,7 @@ public class ShoppingListService {
         return shoppingListMapper.toDto(shoppingListRepository.save(list), access);
     }
 
-    @PreAuthorize("@shoppingListGuard.canView(#listId, #userId)")
+    @PreAuthorize("@shoppingListGuard.canWrite(#listId, #userId)")
     @Transactional
     public void deleteShoppingList(UUID listId, UUID userId) {
         ShoppingList list = findVisible(listId, userId);
