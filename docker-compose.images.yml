@@ -18,16 +18,11 @@ x-hardened: &hardened
 services:
   db:
     <<: *hardened
-    # Starts as root to own the data folder, then switches to the postgres user.
-    cap_add:
-      - CHOWN
-      - DAC_OVERRIDE
-      - FOWNER
-      - SETGID
-      - SETUID
+    # Starts as the image's postgres user (uid 70), so it needs no capabilities; it must own every file in pgdata.
+    user: postgres
     pids_limit: 256
     mem_limit: 512m
-    # The entrypoint hands the socket folder to postgres; the data folder is the pgdata volume.
+    # The socket folder belongs to postgres from the start; the data folder is the pgdata volume.
     tmpfs:
       - /tmp:size=16m
       - /run/postgresql:uid=70,gid=70,size=1m
