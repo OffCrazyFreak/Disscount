@@ -143,18 +143,9 @@
           "type" : "array"
         },
         "page" : {
-          "format" : "int32",
-          "type" : "integer"
+          "$ref" : "#/components/schemas/PageInfoDto"
         },
         "reviewedCount" : {
-          "format" : "int64",
-          "type" : "integer"
-        },
-        "size" : {
-          "format" : "int32",
-          "type" : "integer"
-        },
-        "total" : {
           "format" : "int64",
           "type" : "integer"
         }
@@ -564,6 +555,27 @@
             "type" : "string"
           },
           "type" : "array"
+        }
+      },
+      "type" : "object"
+    },
+    "PageInfoDto" : {
+      "properties" : {
+        "number" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "size" : {
+          "format" : "int32",
+          "type" : "integer"
+        },
+        "totalItems" : {
+          "format" : "int64",
+          "type" : "integer"
+        },
+        "totalPages" : {
+          "format" : "int32",
+          "type" : "integer"
         }
       },
       "type" : "object"

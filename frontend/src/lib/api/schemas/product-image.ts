@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { pageSchema } from "@/lib/api/schemas/page";
+
 export const productImageSourceSchema = z.enum([
   "OPEN_FOOD_FACTS",
   "USER",
@@ -80,11 +82,9 @@ export const adminPhotoQueueItemSchema = adminProductFactsSchema.extend({
   reviewedAt: z.string().nullable(),
 });
 
-export const adminPhotoQueuePageSchema = z.object({
-  items: z.array(adminPhotoQueueItemSchema),
-  total: z.number().int(),
-  page: z.number().int(),
-  size: z.number().int(),
+export const adminPhotoQueuePageSchema = pageSchema(
+  adminPhotoQueueItemSchema,
+).extend({
   reviewedCount: z.number().int(),
 });
 

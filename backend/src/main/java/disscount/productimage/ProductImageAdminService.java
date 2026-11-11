@@ -16,6 +16,8 @@ import disscount.productimage.openfoodfacts.OpenFoodFactsClient;
 import disscount.productimage.render.ProductImageRenderer;
 import disscount.shared.BadRequestException;
 import disscount.shared.NotFoundException;
+import disscount.shared.PageDto;
+import disscount.shared.Paging;
 import disscount.shared.PhotoStore;
 import disscount.shared.PhotoStoreConfig;
 import disscount.shared.ServiceUnavailableException;
@@ -24,7 +26,7 @@ import disscount.shared.Timestamps;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 class ProductImageAdminService {
-
-    static final int MAX_PAGE_SIZE = 100;
 
     public enum QueueFilter { TODO, PENDING, REPORTED }
 
@@ -48,8 +48,8 @@ class ProductImageAdminService {
     @Qualifier(PhotoStoreConfig.PRODUCT_ORIGINALS)
     private final PhotoStore originals;
 
-    public AdminQueuePageDto queue(String filter, int page, int size) {
-        PageRequest request = PageRequest.of(Math.max(0, page), Math.min(MAX_PAGE_SIZE, Math.max(1, size)));
+    public AdminQueuePageDto queue(String filter, Pageable requested) {
+        Pageable request = Paging.withoutClientSort(requested);
         Page<ProductImageSet> result = switch (parseFilter(filter)) {
             case TODO -> sets.findToReview(request);
             case PENDING -> sets.findWithPending(ImageStatus.PENDING, request);
@@ -61,11 +61,8 @@ class ProductImageAdminService {
                 ? Map.of()
                 : images.findByEanIn(eans).stream().collect(Collectors.groupingBy(ProductImage::getEan));
 
-        List<AdminQueueItemDto> items = result.getContent().stream()
-                .map(set -> queueItem(set, byEan.getOrDefault(set.getEan(), List.of())))
-                .toList();
-        return new AdminQueuePageDto(items, result.getTotalElements(), request.getPageNumber(), request.getPageSize(),
-                sets.countReviewed());
+        Page<AdminQueueItemDto> items = result.map(set -> queueItem(set, byEan.getOrDefault(set.getEan(), List.of())));
+        return AdminQueuePageDto.from(PageDto.from(items), sets.countReviewed());
     }
 
     public AdminProductDto product(String ean) {

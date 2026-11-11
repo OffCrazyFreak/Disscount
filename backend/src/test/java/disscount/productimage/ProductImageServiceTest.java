@@ -28,6 +28,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -328,11 +329,11 @@ class ProductImageServiceTest {
         sets.save(ProductImageSet.builder().ean(EAN).storeListings(500).build());
         admin.reviewed(adminId, EAN);
 
-        AdminQueuePageDto page = admin.queue("todo", 0, 10);
+        AdminQueuePageDto page = admin.queue("todo", PageRequest.of(0, 10));
 
         assertThat(page.items()).extracting(i -> i.ean()).containsExactly("5449000000996", "3856021300547");
         assertThat(page.reviewedCount()).isEqualTo(1);
-        assertThatThrownBy(() -> admin.queue("nope", 0, 10)).hasMessage("error.productImage.invalidFilter");
+        assertThatThrownBy(() -> admin.queue("nope", PageRequest.of(0, 10))).hasMessage("error.productImage.invalidFilter");
     }
 
     @Test

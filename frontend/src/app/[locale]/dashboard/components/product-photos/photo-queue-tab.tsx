@@ -14,9 +14,7 @@ import type { AdminPhotoQueuePage, PhotoQueueFilter } from "@/lib/api/types";
 
 const EMPTY_PAGE: AdminPhotoQueuePage = {
   items: [],
-  total: 0,
-  page: 0,
-  size: QUEUE_PAGE_SIZE,
+  page: { number: 0, size: QUEUE_PAGE_SIZE, totalItems: 0, totalPages: 0 },
   reviewedCount: 0,
 };
 
@@ -33,7 +31,7 @@ export default function PhotoQueueTab() {
         <PhotoQueueFilters
           filter={filter}
           reviewedCount={data.reviewedCount}
-          total={data.total}
+          total={data.page.totalItems}
           onChange={(next) => {
             setFilter(next);
             setPage(0);
@@ -43,14 +41,13 @@ export default function PhotoQueueTab() {
         <PhotoQueueList
           items={data.items}
           page={page}
-          pageSize={data.size}
+          pageSize={data.page.size}
           selectedEan={selected?.ean}
           onSelect={pick}
         />
         <PhotoQueuePager
           page={page}
-          total={data.total}
-          size={data.size}
+          pages={data.page.totalPages}
           onPage={(next) => {
             setPage(next);
             clear();

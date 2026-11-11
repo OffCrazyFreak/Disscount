@@ -5,19 +5,16 @@ import { Button } from "@/components/ui/button";
 
 interface IPhotoQueuePagerProps {
   page: number;
-  total: number;
-  size: number;
+  pages: number;
   onPage: (page: number) => void;
 }
 
 export default function PhotoQueuePager({
   page,
-  total,
-  size,
+  pages,
   onPage,
 }: IPhotoQueuePagerProps) {
   const t = useTranslations("productPhotos");
-  const pages = Math.max(1, Math.ceil(total / Math.max(1, size)));
   if (pages <= 1) return null;
 
   return (
