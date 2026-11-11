@@ -44,7 +44,8 @@
     "suggestions": "Suggerimenti di ricerca",
     "recentSearches": "Ricerche recenti",
     "removeRecent": "Rimuovi dalle ricerche recenti: {query}",
-    "suggestionCount": "{count, plural, one {# suggerimento} other {# suggerimenti}}"
+    "suggestionCount": "{count, plural, one {# suggerimento} other {# suggerimenti}}",
+    "resultsStatus": "{count, plural, =0 {Nessun risultato} one {# risultato} other {# risultati}} per \"{query}\""
   },
   "header": {
     "login": "Accedi"

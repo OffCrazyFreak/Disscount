@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { ListChecks } from "lucide-react";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
+import SearchResultsStatus from "@/components/custom/live-status/search-results-status";
 import ShoppingListsResults from "@/app/[locale]/(user)/shopping-lists/components/shopping-lists-results";
 import CreateShoppingListButton from "@/app/[locale]/(user)/shopping-lists/components/create-shopping-list-button";
 import LoginRequired from "@/components/custom/common/login-required";
@@ -101,6 +102,12 @@ export default function ShoppingListsClient({
             }
           />
         </div>
+
+        <SearchResultsStatus
+          query={query}
+          count={matchingShoppingLists.length}
+          isLoading={isUserLoading}
+        />
 
         <ShoppingListsResults
           isLoading={isUserLoading}

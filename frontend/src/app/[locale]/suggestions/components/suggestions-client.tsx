@@ -7,6 +7,7 @@ import { Search } from "lucide-react";
 
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
+import SearchResultsStatus from "@/components/custom/live-status/search-results-status";
 import NoResults from "@/components/custom/common/no-results";
 import { AnimatedGroup } from "@/components/custom/animation/animated-group";
 import SuggestionCard from "@/app/[locale]/suggestions/components/suggestion-card";
@@ -44,6 +45,8 @@ export default function SuggestionsClient({ query }: ISuggestionsClientProps) {
             : t("heading", { count: matchingSuggestions.length })}
         </h3>
       </div>
+
+      <SearchResultsStatus query={query} count={matchingSuggestions.length} />
 
       {matchingSuggestions.length > 0 ? (
         <AnimatedGroup className="space-y-4">

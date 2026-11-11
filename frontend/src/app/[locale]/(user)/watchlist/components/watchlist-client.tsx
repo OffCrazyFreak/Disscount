@@ -7,6 +7,7 @@ import { Eye } from "lucide-react";
 import { useTranslations } from "next-intl";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
+import SearchResultsStatus from "@/components/custom/live-status/search-results-status";
 import LoginRequired from "@/components/custom/common/login-required";
 import NotSavedOffline from "@/components/custom/common/not-saved-offline";
 import { useIsNotSavedOffline } from "@/hooks/use-is-not-saved-offline";
@@ -73,6 +74,12 @@ export default function WatchlistClient({ query }: IWatchlistClientProps) {
           disabled={!listLoading && !hasWatchedProducts}
         />
       </Suspense>
+
+      <SearchResultsStatus
+        query={query}
+        count={filteredItems.length}
+        isLoading={listLoading}
+      />
 
       <SectionTabs
         label={t("sectionNav.label")}
