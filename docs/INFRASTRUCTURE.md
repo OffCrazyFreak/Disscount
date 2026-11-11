@@ -304,7 +304,7 @@ Anything above 0 means a file was written as another user and may stop Postgres 
 
 #### Read-only filesystems
 
-The anchor also sets `read_only: true`, so a container cannot change its own image: a compromised process cannot drop a tool or edit a script anywhere except its volumes and the `tmpfs` folders the service lists. A `tmpfs` is a folder held in memory and emptied on every restart; under memory pressure the kernel can move its pages to the server's swap, so a card photo upload passing through the backend's `/tmp` can briefly reach the disk, as it always did when `/tmp` was in the image. Each one has an explicit `size=`, because what it holds counts as the container's memory, and it will count against the memory limits a later PR adds. A size is a ceiling, so an idle folder costs nothing.
+The anchor also sets `read_only: true`, so a container cannot change its own image: a compromised process cannot drop a tool or edit a script anywhere except its volumes and the `tmpfs` folders the service lists. A `tmpfs` is a folder held in memory and emptied on every restart; under memory pressure the kernel can move its pages to the server's swap, except in the backend, which has none (see Memory limits below). Each one has an explicit `size=`, because what it holds counts as the container's memory and against its `mem_limit`. A size is a ceiling, so an idle folder costs nothing.
 
 | Service          | Writable folders                                                                                        | Why                                                                                                                                                                                                                                                                                                  |
 | ---------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -327,6 +327,63 @@ docker inspect <container> --format '{{.HostConfig.ReadonlyRootfs}} {{json .Host
 ```
 
 A read-only failure shows in `docker logs <container>` as `Read-only file system`, `EROFS`, or sometimes `ENOENT` on a `mkdir` under the image (Next.js reported its `route-cache` that way). The fix is a sized tmpfs for that one folder, never `read_only: false` for the whole service. A full tmpfs shows as `No space left on device` or `ENOSPC`; raise that folder's `size=`. Compose refuses to start a read-only service with an inline config or an environment secret, with `` `file` is the sole supported option ``.
+
+#### Memory limits
+
+Every service has a `mem_limit`, so one runaway container stops at its own ceiling instead of taking both sites and the Dokploy panel down with it ([#365](https://github.com/OffCrazyFreak/Disscount/issues/365)). The kernel kills a process that passes its limit (an OOM kill). Docker restarts the container under its `restart` policy only when the container's main process dies: a killed backup job leaves `supercronic` and the `backup` container running and shows only as a failed job (and its healthchecks.io fail ping), and the one-shot services (`restart: "no"`) are not restarted at all. A limit counts everything the container holds in RAM: process memory, its `tmpfs` folders and the disk cache of files it reads or writes, though the kernel drops that cache before it kills anything. The limits are plain Compose `mem_limit`, set in one place per service, never also under `deploy.resources`.
+
+These are interim limits (owner, 2026-11-10: "Ship now, tighten later"), read on 2026-11-11 from `docker stats` and each container's cgroup on the server, with headroom. Dev had restarted 37 minutes before, so its peaks are short; production had run 7 days on the older stack.
+
+| Service          | `mem_limit`                            | tmpfs inside it | Measured 2026-11-11                                                                           | Why this size                                                                                                                          |
+| ---------------- | -------------------------------------- | --------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `backend`        | `${BACKEND_MEM_LIMIT:-1536m}`, no swap | 128 MB          | 516 MB anon on dev, 495 MB on prod; dev peaked at 1.3 GB on 2026-11-10 (865 MB without cache) | The photo renderer's peak on dev's photo backlog. Heap 60% (922 MB), the rest for metaspace, threads, libwebp and `/tmp`.              |
+| `frontend`       | 768m                                   | 96 MB           | prod 542 MB peak over 7 days, dev 219 MB                                                      | Prod's peak plus the tmpfs still leaves about 130 MB.                                                                                  |
+| `db`             | 512m                                   | 17 MB           | dev 171 MB peak (79 MB shared buffers), prod 62 MB                                            | Postgres 17's default 128 MB of shared buffers fill as the database grows; the rest is per-connection memory and cache.                |
+| `backup`         | 512m                                   | none, on disk   | not measured, the sidecar has not run on a server yet                                         | The nightly job runs a scratch Postgres (default settings) and restores the dump into it; dumps and cache are on disk and reclaimable. |
+| `migrate`        | 256m                                   | none            | one-shot                                                                                      | One Node process running the Drizzle migrations.                                                                                       |
+| `predeploy-dump` | 256m                                   | none, on disk   | one-shot                                                                                      | `pg_dump`, `age` and `rclone` in a row, each streaming.                                                                                |
+| `images`         | 64m                                    | 9 MB            | dev 10 MB peak                                                                                | nginx serving files from disk.                                                                                                         |
+| `photo-folders`  | 64m                                    | none            | one-shot                                                                                      | One shell command.                                                                                                                     |
+
+Only the backend has `memswap_limit` set, to the same value as `mem_limit`, which means no swap at all: a JVM whose heap pages out slows every request and every garbage collection, and a quick restart is better. The others keep Docker's default, swap up to their limit again (`MemorySwap` twice `Memory` in `docker inspect`). `BACKEND_MEM_LIMIT` is optional and sets both; leave it unset for the default.
+
+The backend's `Dockerfile` sets `JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=60 -XX:+ExitOnOutOfMemoryError -XX:+UseSerialGC"`. The JVM reads the container's limit and takes 60% as maximum heap (25% without the flag). `ExitOnOutOfMemoryError` makes a full heap stop the JVM, so Docker starts a clean one instead of a half-broken process staying up. Serial GC is the collector with the smallest memory footprint, and the JVM would choose it anyway on this server below 1792 MB; pinning it keeps the choice when the limit grows. The heap is a share of whatever limit the container has, so a backend with no limit takes 60% of the host: `docker-compose.prod.yml` gives its backend the same 1536m and no swap for the cutover's fallback path, and the local `docker-compose.yml` has none, so there the heap is 60% of your machine. Every `java` process in the container prints `Picked up JAVA_TOOL_OPTIONS: ...` once at start, which is expected.
+
+##### How to measure
+
+Read on the server, never `memory.peak` alone, because it includes disk cache the kernel would drop:
+
+```bash
+# Current use per container
+docker stats --no-stream --format '{{.Name}} {{.MemUsage}}'
+
+# Process memory without cache: the anon line, in bytes
+id=$(docker inspect -f '{{.Id}}' <container>)
+cg=$(find /sys/fs/cgroup -maxdepth 3 -type d -name "*$id*" | head -1)
+grep -E '^(anon|file|shmem) ' "$cg/memory.stat"
+
+# Was the current container killed? Both must say false and 0. A redeploy starts a new
+# container and cgroup, so for history read the kernel log (journalctl -k | grep -i oom) instead.
+docker inspect --format '{{.State.OOMKilled}}' <container>
+grep oom_kill "$cg/memory.events"
+
+# The limits Docker applied
+docker inspect --format '{{.HostConfig.Memory}} {{.HostConfig.MemorySwap}}' <container>
+```
+
+For the backend, `anon` overstates what it needs: Serial GC under a large heap collects rarely, so dead objects sit in the heap until it fills. What matters is the live set, the heap still used right after a full collection. Actuator only exposes `health`, so `jvm.gc.live.data.size` is not reachable; read it with `jcmd` from a JDK container that joins the backend's processes as the same user and group (the runtime image has no JDK, and the JDK image has no user 1001, so pass the backend's numeric ids). `GC.run` forces a full collection, a pause of a fraction of a second, so run it at a quiet hour:
+
+```bash
+jdk=$(grep -o 'maven:3.9-eclipse-temurin-21@sha256:[0-9a-f]*' backend/Dockerfile)
+ug=$(docker exec <backend container> sh -c 'echo "$(id -u):$(id -g)"')
+docker run --rm --pid=container:<backend container> --user "$ug" --entrypoint jcmd "$jdk" 1 GC.run
+docker run --rm --pid=container:<backend container> --user "$ug" --entrypoint jcmd "$jdk" 1 GC.heap_info
+# "tenured generation ... used" is the live set
+```
+
+The rule for a new limit: take the highest live set seen over a week, add the non-heap part (`anon` minus the heap in use) and the tmpfs sizes, and multiply by 1.25 to 1.5. For the backend that is not enough on its own, because Serial GC lets the heap grow to its ceiling (60% of the limit) between collections: the limit must also cover that ceiling plus peak non-heap and tmpfs, so check `limit >= 0.6 x limit + non-heap + tmpfs`, which means `limit >= (non-heap + tmpfs) / 0.4`, and that the 60% ceiling stays well above the live set. Take the larger result, with headroom. Also note `pids.peak` from the same cgroup folder for `pids_limit`.
+
+Follow-up: after a week of dev data under these limits, size each one from the numbers above and tighten it.
 
 ### Nightly updates and reboots
 
