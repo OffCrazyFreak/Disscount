@@ -15,6 +15,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -155,6 +156,47 @@ class AdminAuditTest extends FullStackTest {
         assertThat(users.existsById(admin.getId())).isFalse();
         assertSingleEntry(auditOf(demoted), admin, demoted, AdminAction.DEMOTE_FROM_ADMIN);
         assertSingleEntry(auditOf(deleted), admin, deleted, AdminAction.DELETE_USER);
+    }
+
+    @Test
+    void readingTheUserListWritesOneRowPerAdminPerWindow() throws Exception {
+        User admin = newAdmin();
+        User otherAdmin = newAdmin();
+
+        mvc.perform(get("/api/admin/users").with(as(admin))).andExpect(status().isOk());
+        mvc.perform(get("/api/admin/users").with(as(admin))).andExpect(status().isOk());
+        mvc.perform(get("/api/admin/users").with(as(otherAdmin))).andExpect(status().isOk());
+
+        assertThat(adminAudit.findByActorUserIdOrderByOccurredAtAsc(admin.getId()))
+                .singleElement()
+                .satisfies(entry -> {
+                    assertThat(entry.getAction()).isEqualTo(AdminAction.READ_USER_LIST);
+                    assertThat(entry.getTargetUserId()).isNull();
+                    assertThat(entry.getObjectId()).isNull();
+                });
+        assertThat(adminAudit.findByActorUserIdOrderByOccurredAtAsc(otherAdmin.getId())).hasSize(1);
+    }
+
+    @Test
+    void aReadAfterTheWindowWritesAnotherRow() throws Exception {
+        User admin = newAdmin();
+        jdbc.update("""
+                INSERT INTO app.admin_audit (id, actor_user_id, action, occurred_at)
+                VALUES (gen_random_uuid(), ?, 'READ_USER_LIST', (now() AT TIME ZONE 'UTC') - interval '11 minutes')
+                """, admin.getId());
+
+        mvc.perform(get("/api/admin/users").with(as(admin))).andExpect(status().isOk());
+
+        assertThat(adminAudit.findByActorUserIdOrderByOccurredAtAsc(admin.getId())).hasSize(2);
+    }
+
+    @Test
+    void aRefusedListReadWritesNothing() throws Exception {
+        User consumer = newUser("consumer");
+
+        mvc.perform(get("/api/admin/users").with(as(consumer))).andExpect(status().isForbidden());
+
+        assertThat(adminAudit.findByActorUserIdOrderByOccurredAtAsc(consumer.getId())).isEmpty();
     }
 
     private long auditRowCount() {

@@ -20,7 +20,7 @@ class UserServiceNewProfileDefaultsTest {
     private final UserService userService = new UserService(userRepository, mock(AuthIdentityDao.class),
             profileCreator, mock(ApplicationEventPublisher.class),
             mock(ErasureLedgerRepository.class), mock(AvatarSanitizer.class),
-            mock(AdminAuditRepository.class));
+            mock(AdminAuditLog.class));
 
     @Test
     void newProfileStartsWithTheNewsletterOffAndTheOtherSwitchesOn() {
