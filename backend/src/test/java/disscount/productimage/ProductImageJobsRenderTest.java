@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -43,6 +44,7 @@ class ProductImageJobsRenderTest {
 
     static final String WIDELY_SOLD = "8076800195057";
     static final String LESS_SOLD = "5449000000996";
+    static final String RARELY_SOLD = "3017620422003";
 
     @TestConfiguration
     static class StoreConfig {
@@ -268,7 +270,73 @@ class ProductImageJobsRenderTest {
         assertThat(images.findAllById(List.of(first.getId(), second.getId()))).allSatisfy(i -> {
             assertThat(i.getStatus()).isEqualTo(ImageStatus.CANDIDATE);
             assertThat(i.getRenderAttempts()).isNull();
-            assertThat(i.getRenderRetryAt()).isNull();
+            assertThat(i.getRenderRetryAt()).isAfter(Timestamps.nowUtc());
+        });
+    }
+
+    // Two bad photos at the head of the queue would otherwise pause it at them on every tick.
+    @Test
+    void twoPhotosTheRendererFailsOnStepAsideSoTheNextOneIsCopied() {
+        ProductImage first = mainCandidate(WIDELY_SOLD, 900);
+        ProductImage second = mainCandidate(LESS_SOLD, 40);
+        ProductImage good = mainCandidate(RARELY_SOLD, 5);
+        byte[] unrenderable = TestImages.jpeg(601, 401);
+        when(off.download(anyString())).thenReturn(unrenderable);
+        when(off.download(contains("/301/762/042/2003/"))).thenReturn(TestImages.jpeg(600, 400));
+
+        try (MockedStatic<ProductImageRenderer> renderer = failingOn(unrenderable)) {
+            jobs.renderMainPhotos();
+            jobs.renderMainPhotos();
+        }
+
+        assertThat(images.findById(good.getId())).get().extracting(ProductImage::isRendered).isEqualTo(true);
+        assertThat(images.findAllById(List.of(first.getId(), second.getId()))).allSatisfy(i -> {
+            assertThat(i.getStatus()).isEqualTo(ImageStatus.CANDIDATE);
+            assertThat(i.getRenderAttempts()).isNull();
+        });
+    }
+
+    @Test
+    void photosThatFailTogetherAgainAfterTheirPauseAreChargedATry() {
+        ProductImage first = mainCandidate(WIDELY_SOLD, 900);
+        ProductImage second = mainCandidate(LESS_SOLD, 40);
+        byte[] unrenderable = TestImages.jpeg(601, 401);
+        when(off.download(anyString())).thenReturn(unrenderable);
+
+        try (MockedStatic<ProductImageRenderer> renderer = failingOn(unrenderable)) {
+            jobs.renderMainPhotos();
+            makeDue(first, second);
+            jobs.renderMainPhotos();
+        }
+
+        assertThat(images.findAllById(List.of(first.getId(), second.getId()))).allSatisfy(i -> {
+            assertThat(i.getRenderAttempts()).isEqualTo(1);
+            assertThat(i.getRenderRetryAt()).isAfter(Timestamps.nowUtc().plus(ProductImageJobs.RENDER_PAUSE));
+        });
+    }
+
+    @Test
+    void twoOlderPhotosTheRendererFailsOnStepAsideSoTheNextOneIsRenderedAgain() {
+        ProductImage first = renderedJpegMain(WIDELY_SOLD);
+        ProductImage second = renderedJpegMain(LESS_SOLD);
+        ProductImage good = renderedJpegMain(RARELY_SOLD);
+        sets.findById(RARELY_SOLD).ifPresent(set -> {
+            set.setStoreListings(5);
+            sets.save(set);
+        });
+        byte[] unrenderable = TestImages.jpeg(601, 401);
+        when(off.download(anyString())).thenReturn(unrenderable);
+        when(off.download(contains("/301/762/042/2003/"))).thenReturn(TestImages.jpeg(600, 400));
+
+        try (MockedStatic<ProductImageRenderer> renderer = failingOn(unrenderable)) {
+            jobs.renderMainPhotos();
+            jobs.renderMainPhotos();
+        }
+
+        assertThat(images.findById(good.getId())).get().extracting(ProductImage::getFullWidth).isEqualTo(600);
+        assertThat(images.findAllById(List.of(first.getId(), second.getId()))).allSatisfy(i -> {
+            assertThat(i.getFullKey()).isNotNull();
+            assertThat(i.getRenderAttempts()).isNull();
         });
     }
 
@@ -295,6 +363,21 @@ class ProductImageJobsRenderTest {
             assertThat(i.getRenderRetryAt()).isNotNull();
         });
         assertThat(images.findById(next.getId())).get().extracting(ProductImage::getFullWidth).isEqualTo(600);
+    }
+
+    private static MockedStatic<ProductImageRenderer> failingOn(byte[] source) {
+        MockedStatic<ProductImageRenderer> renderer = mockStatic(ProductImageRenderer.class, CALLS_REAL_METHODS);
+        renderer.when(() -> ProductImageRenderer.render(eq(source), anyInt(), any()))
+                .thenThrow(new IllegalStateException("WebP encoding failed"));
+        return renderer;
+    }
+
+    private void makeDue(ProductImage... waiting) {
+        for (ProductImage image : waiting) {
+            ProductImage due = images.findById(image.getId()).orElseThrow();
+            due.setRenderRetryAt(Timestamps.nowUtc().minusMinutes(1));
+            images.save(due);
+        }
     }
 
     /** A main photo copied before WebP: JPEG keys and no small list file. */

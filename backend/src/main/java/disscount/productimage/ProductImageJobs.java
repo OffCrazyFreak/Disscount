@@ -32,6 +32,7 @@ class ProductImageJobs {
     static final Duration IMPORT_EVERY = Duration.ofDays(7);
     static final int RENDER_BATCH = 10;
     static final Duration RENDER_RETRY_AFTER = Duration.ofHours(1);
+    static final Duration RENDER_PAUSE = Duration.ofMinutes(15);
     static final int MAX_RENDER_ATTEMPTS = 5;
 
     private final boolean enabled;
@@ -113,6 +114,8 @@ class ProductImageJobs {
                 } catch (PhotoRenderFailedException e) {
                     if (held != null) {
                         log.warn("Product photo rendering paused: the renderer failed on two photos in a row: {}", e.getMessage());
+                        pauseCandidate(held);
+                        pauseCandidate(new Held(image, e));
                         return;
                     }
                     held = new Held(image, e);
@@ -153,6 +156,8 @@ class ProductImageJobs {
                 if (held != null) {
                     log.warn("Re-rendering older product photos paused: the renderer failed on two photos in a row: {}",
                             e.getMessage());
+                    pauseOlder(held);
+                    pauseOlder(new Held(image, e));
                     return;
                 }
                 held = new Held(image, e);
@@ -174,6 +179,32 @@ class ProductImageJobs {
 
     /** Charged only once the next photo renders: one bad photo is followed by a success, a broken encoder is not. */
     private record Held(ProductImage image, RuntimeException cause) {}
+
+    /** A photo that already waited once fails again, so it is charged; otherwise it steps aside briefly for free. */
+    private void pauseCandidate(Held held) {
+        if (held.image().getRenderRetryAt() != null) {
+            postpone(held.image(), held.cause());
+            return;
+        }
+
+        ProductImage image = current(held.image());
+        if (image != null) waitBriefly(image);
+    }
+
+    private void pauseOlder(Held held) {
+        if (held.image().getRenderRetryAt() != null) {
+            retryOlderLater(held.image(), held.cause());
+            return;
+        }
+
+        images.findById(held.image().getId()).ifPresent(this::waitBriefly);
+    }
+
+    /** Lets the photos behind it in the queue have a turn without counting an attempt against this one. */
+    private void waitBriefly(ProductImage image) {
+        image.setRenderRetryAt(Timestamps.nowUtc().plus(RENDER_PAUSE));
+        images.save(image);
+    }
 
     /** The photo keeps showing its earlier files; after the last attempt it simply keeps them. */
     private void retryOlderLater(ProductImage loaded, RuntimeException cause) {
