@@ -14,8 +14,13 @@ vi.mock("@sentry/nextjs", () => ({
 
 const { backend, call, signTokensFromCookie } =
   await import("@/test/proxy-call");
-const { JSON_BODY_LIMIT, PHOTO_BODY_LIMIT, PROFILE_BODY_LIMIT, bodyLimit } =
-  await import("@/lib/backend-proxy/request-body");
+const {
+  JSON_BODY_LIMIT,
+  PHOTO_BODY_LIMIT,
+  PROFILE_BODY_LIMIT,
+  bodyLimit,
+  readBodyWithin,
+} = await import("@/lib/backend-proxy/request-body");
 
 signTokensFromCookie(mocks.getToken);
 
@@ -117,6 +122,81 @@ describe("backend proxy body limit", () => {
     });
 
     expect(response.status).toBe(413);
+  });
+
+  it.each([
+    ["a visitor who never signed in", { pin: "anon" }],
+    ["a tab whose session has ended", { pin: "user-a" }],
+  ])(
+    "answers 401 without reading a photo upload from %s",
+    async (_, identity) => {
+      const received = backend();
+      // Never ends, so the test would time out if the proxy tried to read it.
+      const body = new ReadableStream<Uint8Array>({ pull() {} });
+
+      const response = await call("/api/digital-cards/card-1/photos/front", {
+        method: "PUT",
+        body,
+        ...identity,
+      });
+
+      expect(response.status).toBe(401);
+      expect(await response.json()).toMatchObject({
+        code: "sign_in_required",
+      });
+      expect(received).toHaveLength(0);
+    },
+  );
+});
+
+/** One chunk, then silence: a client that stalls mid-body and never closes it. */
+function stalledBody(onCancel: () => void = () => {}) {
+  return new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(new Uint8Array(1024).fill(120));
+    },
+    cancel: onCancel,
+  });
+}
+
+function stalledRequest(signal?: AbortSignal, onCancel?: () => void) {
+  return new Request("http://localhost:3000/api/contact", {
+    method: "POST",
+    body: stalledBody(onCancel),
+    signal,
+    duplex: "half",
+  } as RequestInit);
+}
+
+describe("a body that stalls", () => {
+  it("stops reading at the deadline and cancels the stream", async () => {
+    const deadline = new AbortController();
+    const cancelled = vi.fn();
+    const reading = readBodyWithin(
+      stalledRequest(undefined, cancelled),
+      JSON_BODY_LIMIT,
+      deadline.signal,
+    );
+
+    deadline.abort(new DOMException("deadline", "TimeoutError"));
+
+    await expect(reading).rejects.toMatchObject({ name: "TimeoutError" });
+    expect(cancelled).toHaveBeenCalled();
+  });
+
+  it("answers 499 without calling Spring when the browser goes away mid-body", async () => {
+    const received = backend();
+    const browser = new AbortController();
+
+    const answer = call("/api/contact", {
+      method: "POST",
+      body: stalledBody(),
+      signal: browser.signal,
+    });
+    browser.abort();
+
+    expect((await answer).status).toBe(499);
+    expect(received).toHaveLength(0);
   });
 });
 

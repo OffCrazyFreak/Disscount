@@ -9,6 +9,7 @@
     "unavailable": "Usluga nije dostupna",
     "badRequest": "Neispravan zahtjev",
     "tooManyRequests": "Previše pokušaja, pričekaj malo",
-    "tooLarge": "Zahtjev je prevelik"
+    "tooLarge": "Zahtjev je prevelik",
+    "signInRequired": "Prijavi se pa pokušaj ponovno"
   }
 }

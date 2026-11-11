@@ -9,6 +9,7 @@
     "unavailable": "Service unavailable",
     "badRequest": "Bad request",
     "tooManyRequests": "Too many tries, wait a moment",
-    "tooLarge": "The request is too large"
+    "tooLarge": "The request is too large",
+    "signInRequired": "Sign in and try again"
   }
 }

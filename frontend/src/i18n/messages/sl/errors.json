@@ -9,6 +9,7 @@
     "unavailable": "Storitev ni na voljo",
     "badRequest": "Neveljavna zahteva",
     "tooManyRequests": "Preveč poskusov, malo počakaj",
-    "tooLarge": "Zahteva je prevelika"
+    "tooLarge": "Zahteva je prevelika",
+    "signInRequired": "Prijavi se in poskusi znova"
   }
 }

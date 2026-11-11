@@ -56,31 +56,46 @@ function joinChunks(
   return body;
 }
 
-/** Counts the bytes as they arrive, because a chunked body carries no Content-Length to check. */
+/**
+ * Counts the bytes as they arrive, because a chunked body carries no Content-Length to check.
+ * Rejects with the signal's reason once it aborts, so a client that stalls mid-body is not waited on.
+ */
 export async function readBodyWithin(
   request: Request,
   limit: number,
+  signal: AbortSignal,
 ): Promise<Uint8Array<ArrayBuffer> | undefined | typeof TOO_LARGE> {
   if (!request.body) return undefined;
   if (declaresMoreThan(request, limit)) return TOO_LARGE;
 
+  signal.throwIfAborted();
+
   const reader = request.body.getReader();
-  const chunks: Uint8Array[] = [];
-  let total = 0;
+  // Cancelling settles a pending read, which a stalled client would otherwise never do.
+  const stopReading = () => void reader.cancel(signal.reason);
+  signal.addEventListener("abort", stopReading, { once: true });
 
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
+  try {
+    const chunks: Uint8Array[] = [];
+    let total = 0;
 
-    total += value.byteLength;
+    for (;;) {
+      const { done, value } = await reader.read();
+      signal.throwIfAborted();
+      if (done) break;
 
-    if (total > limit) {
-      await reader.cancel();
-      return TOO_LARGE;
+      total += value.byteLength;
+
+      if (total > limit) {
+        await reader.cancel();
+        return TOO_LARGE;
+      }
+
+      chunks.push(value);
     }
 
-    chunks.push(value);
+    return joinChunks(chunks, total);
+  } finally {
+    signal.removeEventListener("abort", stopReading);
   }
-
-  return joinChunks(chunks, total);
 }

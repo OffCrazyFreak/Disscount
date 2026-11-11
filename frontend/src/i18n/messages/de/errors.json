@@ -9,6 +9,7 @@
     "unavailable": "Dienst nicht verfügbar",
     "badRequest": "Ungültige Anfrage",
     "tooManyRequests": "Zu viele Versuche, warte kurz",
-    "tooLarge": "Die Anfrage ist zu groß"
+    "tooLarge": "Die Anfrage ist zu groß",
+    "signInRequired": "Melde dich an und versuche es erneut"
   }
 }

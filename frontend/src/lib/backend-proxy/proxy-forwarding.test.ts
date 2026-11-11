@@ -91,7 +91,7 @@ describe("backend proxy response", () => {
     expect(response.headers.get("etag")).toBe('"v1"');
     expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect(response.headers.get("server-timing")).toMatch(
-      /^auth;dur=[\d.]+, upstream;dur=[\d.]+$/,
+      /^auth;dur=[\d.]+, body;dur=[\d.]+, upstream;dur=[\d.]+$/,
     );
   });
 
@@ -148,7 +148,7 @@ describe("backend proxy response", () => {
 });
 
 describe("backend proxy bodies", () => {
-  it("streams a multipart photo upload with its boundary", async () => {
+  it("forwards a multipart photo upload with its boundary", async () => {
     let uploaded: number[] = [];
     server.use(
       http.put(
@@ -171,6 +171,8 @@ describe("backend proxy bodies", () => {
         Origin: "http://localhost:3000",
       },
       body: upload.body!,
+      session: "user-a",
+      pin: "user-a",
     });
 
     expect(uploaded).toEqual([1, 2, 3]);
