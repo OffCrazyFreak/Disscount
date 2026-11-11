@@ -4,7 +4,7 @@ A reference for how the Spring Boot backend is laid out and which rules hold it 
 
 > **Mental model in one sentence:** the backend is one flat Java package per feature, each hiding its internals behind package-private classes, talking to other features only through a few public classes and user ids, with security checked twice (a URL rule for admin routes and a guard bean in front of every owner-scoped service method) and every error answered as the same translated problem response.
 
-The layout and its rules come from #429 (Spring backend restructure), built in steps R1 to R13. This doc describes the state after R6 and R8.
+The layout and its rules come from #429 (Spring backend restructure), built in steps R1 to R13. This doc describes the state after R11.
 
 ---
 
@@ -15,7 +15,7 @@ The layout and its rules come from #429 (Spring backend restructure), built in s
 | Source       | `backend/src/main/java/disscount/`                                                                                                                           |
 | Framework    | Spring Boot 4.1 on Java 21, Hibernate 7.4, Spring Security 7 as an OAuth2 resource server                                                                    |
 | Database     | PostgreSQL 17 in every environment, H2 in most tests                                                                                                         |
-| Schema       | Flyway SQL files in `src/main/resources/db/migration`, run by the one-shot `flyway` job; Hibernate only validates (`ddl-auto=validate`)                      |
+| Schema       | The `app` schema; Flyway SQL files in `src/main/resources/db/migration`, run by the one-shot `flyway` job as the migrator; Hibernate only validates          |
 | Checks       | `mvn -B verify` in `backend/` (needs Docker for the PostgreSQL tests)                                                                                        |
 | Who calls it | Only the Next.js proxy, which turns the session cookie into a per-request token ([BACKEND-PROXY.md](BACKEND-PROXY.md))                                       |
 | Auth         | better-auth in Next.js signs the tokens, Spring only verifies them ([AUTH.md section 7](AUTH.md#7-the-spring-side-resource-server-and-profile-provisioning)) |
@@ -241,6 +241,9 @@ The required keys come from environment placeholders with no default. Spring lea
 
 ## 10. Gotchas
 
+- **Name the schema in native SQL.** The tables are in `app` and better-auth's in `auth` ([INFRASTRUCTURE.md, Database roles](INFRASTRUCTURE.md#database-roles)). Hibernate adds `app` to entity queries through `hibernate.default_schema`, but native SQL and test helpers write `app.<table>` or `auth."user"` themselves; the runtime login's search path still finds a bare name, so a missing prefix only shows on a login without that path.
+- **The runtime login is not the owner.** Spring runs as `disscount_backend`, which may read and write `app` but cannot change a table, update or delete `admin_audit`, or read better-auth columns beyond `id`, `email` and `last_login_at` of `auth."user"` and the session columns of the retention job. A new cross-schema read needs a line in `db/database-roles.sql`; the `@MigratedPostgres` tests run as this login, so they fail first.
+
 - **The test `application.properties` replaces main's** instead of adding to it, so a key main needs in every test goes in both files. Springdoc is the exception on purpose: main turns it off and the test file leaves it on for `ApiContractTest`.
 - **A guard that returns false leaks.** It answers 403, which tells a stranger the id is real. Throw the feature's 404 instead.
 - **A guard's check is a snapshot taken before the service's lock.** A card deleted between the guard and `CardUserLock` is caught by the service's own scoped read under the lock, which is one reason both layers stay.
@@ -252,10 +255,6 @@ The required keys come from environment placeholders with no default. Spring lea
 ---
 
 ## 11. Future improvements & TODOs
-
-What the rest of #429 changes:
-
-- **R11**: the app tables move to an `app` schema and better-auth's to `auth`, with three least-privilege database roles (migrator, Spring runtime, Next.js runtime). The Spring runtime role needs no `DELETE` on `auth."user"`: only the erasure replay deletes logins from Spring ([AUTH.md](AUTH.md#74-who-deletes-a-login)), so it runs with its own grant.
 
 Open:
 

@@ -210,7 +210,7 @@ Counts on 2026-11-11 (read only): dev has 3 deleted profiles, all with a ledger 
 
 ### 7.4 Who deletes a login
 
-The Spring web runtime never deletes a row in better-auth's `user` table (#429 R10, #53). It erases app data and writes the `erasure_ledger` tombstone; Next.js deletes the login (the `user` row, which cascades its sessions and linked accounts). R11 can then leave `DELETE` on that table out of the Spring role. There are three paths:
+The Spring web runtime never deletes a row in better-auth's `user` table (#429 R10, #53). It erases app data and writes the `erasure_ledger` tombstone; Next.js deletes the login (the `user` row, which cascades its sessions and linked accounts). Since R11 the Spring login has no `DELETE` on `auth."user"` at all. There are three paths:
 
 | Path                           | Spring                                                                                                                                                    | Next.js                                                                                                      |
 | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
@@ -227,7 +227,7 @@ Failure cases:
 - Spring commits but its answer is lost (timeout, dropped connection): the route treats it like a failure and keeps the login, because without a 2xx it cannot tell that the caller was an admin.
 - In both of the last two cases the person keeps a login with erased app data, the same gap as a failed self delete ([13](#13-gotchas-and-lessons)): every backend call answers 410 `account_erased`, and their next page load runs `finishErasedAccountDeletion`, which deletes the login without a proof because the ledger holds the id. They can still sign in and reach the Next.js account pages (sessions, email, password) until that page load runs, but every Spring feature is refused and nothing revives the profile. If they never come back, the login (with its email) stays until someone deletes it; a sweep of tombstoned logins is listed in [14](#14-future-improvements-and-todos).
 
-**The replay keeps its own delete in Spring.** A restore has no browser to finish a deletion and runs before traffic reopens, so the replay must remove the login itself. `ReplayIdentityDeletion` and `ErasureReplay` exist only under the `erasure-replay` profile, so the web runtime has no bean that can delete a login (`ErasureReplayTest` checks this). Moving the replay's delete into Next.js would need a second one-shot job with its own image and runbook step for a rarely run operation, and a restore that ran only the Spring half would leave restored logins of erased people. When R11 adds the roles, the replay runs with credentials that also hold `DELETE` on `auth."user"` (its own role, or the migrator), and the Spring runtime role does not get that grant.
+**The replay keeps its own delete in Spring.** A restore has no browser to finish a deletion and runs before traffic reopens, so the replay must remove the login itself. `ReplayIdentityDeletion` and `ErasureReplay` exist only under the `erasure-replay` profile, so the web runtime has no bean that can delete a login (`ErasureReplayTest` checks this). Moving the replay's delete into Next.js would need a second one-shot job with its own image and runbook step for a rarely run operation, and a restore that ran only the Spring half would leave restored logins of erased people. Since R11 the replay runs as the migrator login, which owns `auth."user"`, and the Spring runtime login has no `DELETE` on it ([INFRASTRUCTURE.md, Database roles](INFRASTRUCTURE.md#database-roles)).
 
 ## 8. Password reset, set password, and change email
 
@@ -357,7 +357,7 @@ Backend (`backend/.env`, referenced in `application.properties`):
 | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `BETTER_AUTH_JWKS_URI`                                                                | Where Spring fetches Better Auth's public keys, e.g. `http://localhost:3000/api/auth/jwks` (internal Docker URL in prod). |
 | `BETTER_AUTH_ISSUER`                                                                  | Expected `iss` claim the decoder validates, and the expected `aud`.                                                       |
-| `SPRING_DATASOURCE_URL` / `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD` | The shared Postgres.                                                                                                      |
+| `SPRING_DATASOURCE_URL` / `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD` | The shared Postgres, as the `disscount_backend` login on servers ([INFRASTRUCTURE.md](INFRASTRUCTURE.md#database-roles)). |
 
 ## 10. Automatic vs manual
 

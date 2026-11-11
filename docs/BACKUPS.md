@@ -60,7 +60,7 @@ The service has no profile, so `flyway` can always require it to finish first. T
 
 - `backup/Dockerfile`: `postgres:17-alpine` pinned by digest (same major as the `db` service, so the dump and the scratch restore match it) plus `rclone`, `age`, `openssl` (the marker HMAC), `bash`, `curl`, `tar`, `flock` and supercronic, whose download is checked against its published SHA-1. The digest pins the Alpine release, so rclone and age only change through a reviewed digest bump.
 - `backup/crontab`: the schedule.
-- `backup/bin/backup-entrypoint`: reads the secrets under `/run/secrets`, refuses to start if a required setting is missing, and configures rclone from environment variables (an S3 remote `r2` and a crypt remote `photos` on top of it). It sets `PGOPTIONS=-c search_path=app,auth,public`, so the jobs' unqualified table names (`erasure_ledger`, `"user"`, `product_image`) resolve before and after the tables leave `public` ([#429](https://github.com/OffCrazyFreak/Disscount/issues/429) R11); a schema that does not exist yet is skipped, and `pg_dump` and `pg_restore` set their own path. Write any new query unqualified the same way.
+- `backup/bin/backup-entrypoint`: reads the secrets under `/run/secrets`, refuses to start if a required setting is missing, and configures rclone from environment variables (an S3 remote `r2` and a crypt remote `photos` on top of it). It sets `PGOPTIONS=-c search_path=app,auth,public`, so the jobs' unqualified table names (`erasure_ledger`, `"user"`, `product_image`) resolve in the `app` and `auth` schemas since [#429](https://github.com/OffCrazyFreak/Disscount/issues/429) R11 moved them out of `public`, and the same names work with an older backup image after a Rollback; `pg_dump` and `pg_restore` set their own path. Write any new query unqualified the same way. The jobs log in as the owner (`POSTGRES_USER`), which reads every schema; the nightly scratch restore drops owners and grants (`--no-owner --no-acl`), so it needs none of the app's logins.
 - `backup/bin/backup-job`: one job per call. Each job takes a lock (a second run while one is going is skipped), pings healthchecks.io at start, success and failure, writes to a temp folder, and uploads only finished files; database dumps must also be non-empty and readable, and every upload is checked against its local file (see [Schedule and retention](#schedule-and-retention)). Each successful `erasure-markers` run (every minute) touches `/tmp/backup-heartbeat`, and the container's healthcheck turns unhealthy when it has not succeeded for 5 minutes. The other jobs report through healthchecks.io. The ping body carries only the job's own summary lines (file names, sizes, counts), never tool output, which can quote database rows; full output is in the container log.
 - `docker-compose.images.yml`: the `backup` service, the `predeploy-dump` service and its inline command, the `photos-private` and `photos-public` volumes, and the secrets.
 - `.github/workflows/ci.yml` and `.github/actions/dokploy-deploy/deploy.sh`: build and tag the image.
@@ -109,10 +109,10 @@ rclone lsf r2:<bucket>/db/nightly/ | grep -v '^predeploy-'   # pick a timestamp;
 rclone copy r2:<bucket>/db/nightly/<timestamp>.dump.age .
 age -d -i key.txt -o db.dump <timestamp>.dump.age
 pg_restore --list db.dump              # sanity check
-pg_restore --clean --if-exists --no-owner -d "$DATABASE_URL" db.dump
+pg_restore --clean --if-exists -U "$POSTGRES_USER" -d "$POSTGRES_DB" db.dump   # as the owner: keeps table owners and grants
 ```
 
-Decrypt and restore `<timestamp>.globals.sql.age` first on a new server if roles are missing. After any restore, and before traffic reopens, run the [erasure replay](#erasure-replay).
+Restore as the owner (`POSTGRES_USER`), not as `DATABASE_URL`'s login, which may not create tables, and without `--no-owner`, so the tables stay the migrator's and keep the logins' grants ([INFRASTRUCTURE.md, Database roles](INFRASTRUCTURE.md#database-roles)). On a new server, decrypt and restore `<timestamp>.globals.sql.age` first, which recreates the logins without their passwords. After any restore, run `db/database-roles.sql` again (it sets the three passwords and repairs any grant the dump lacked), then, before traffic reopens, the [erasure replay](#erasure-replay).
 
 **Photos:** with an rclone config that has the same `r2` and `photos` (crypt) remotes and the same password and salt, `rclone copy photos:gen-<n>/private <photo folder>` and the same for `public`. Copy the previous generation first and the newest on top (only the newest if just one exists). The newest holds every photo still on disk when it started plus newer ones, but its first copy may not have finished; `copy` only adds and keys are unique per upload, so the two together miss nothing. Photos deleted since the older generation started come back as files no restored row points to; delete them before reopening.
 
@@ -129,14 +129,17 @@ The replay is a one-shot run of the backend image with the `erasure-replay` prof
 ```bash
 rclone copy r2:<bucket>/_erasures/v1 ./erasures   # no crypt, the names are already hashes
 read -rs key && printf '%s' "$key" > hmac.key && unset key   # paste BACKUP_ERASURE_HMAC_KEY; stays out of shell history
+read -r SPRING_DATASOURCE_USERNAME && read -rs SPRING_DATASOURCE_PASSWORD   # MIGRATOR_DB_USERNAME and MIGRATOR_DB_PASSWORD
+export SPRING_DATASOURCE_USERNAME SPRING_DATASOURCE_PASSWORD
 docker compose -f docker-compose.images.yml run --rm --no-deps \
+  -e SPRING_DATASOURCE_USERNAME -e SPRING_DATASOURCE_PASSWORD \
   -v "$PWD/erasures:/replay/markers:ro" -v "$PWD/hmac.key:/replay/hmac.key:ro" \
   backend --spring.profiles.active=erasure-replay \
   --erasure-replay.markers=/replay/markers --erasure-replay.key-file=/replay/hmac.key
 rm hmac.key
 ```
 
-Both mounts must be readable by the image's `appuser`. Erasures newer than both the last dump and the last marker (at most a minute) are lost with the server, like any other data from that minute. R2 deletes an expired object within about a day, not to the minute, so a dump can outlive the marker written after it by up to a day; the owner accepted that rather than keeping markers longer than 30 days.
+The replay logs in as the migrator, because it deletes logins from `auth."user"` and the backend's own login may not; `-e NAME` without a value hands the container the shell's value, so the password never appears in the command. Both mounts must be readable by the image's `appuser`. Erasures newer than both the last dump and the last marker (at most a minute) are lost with the server, like any other data from that minute. R2 deletes an expired object within about a day, not to the minute, so a dump can outlive the marker written after it by up to a day; the owner accepted that rather than keeping markers longer than 30 days.
 
 ## Why a sidecar
 
