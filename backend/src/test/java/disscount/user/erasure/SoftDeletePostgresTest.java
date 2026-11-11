@@ -3,7 +3,7 @@ package disscount.user.erasure;
 import disscount.contact.ContactMessage;
 import disscount.contact.ContactMessageRepository;
 import disscount.digitalcard.DigitalCardService;
-import disscount.shared.TestImages;
+import disscount.shared.photo.TestImages;
 import disscount.shared.Timestamps;
 import disscount.support.FullStackTest;
 import disscount.support.IncludingDeleted;

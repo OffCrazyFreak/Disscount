@@ -6,9 +6,9 @@ import disscount.productimage.ProductImageRepository;
 import disscount.productimage.ProductImageSetRepository;
 import disscount.productimage.catalog.CatalogImportService;
 import disscount.productimage.render.ProductImageRendering;
-import disscount.shared.FakePhotoStore;
-import disscount.shared.PhotoStore;
-import disscount.shared.PhotoStoreConfig;
+import disscount.shared.photo.FakePhotoStore;
+import disscount.shared.photo.PhotoStore;
+import disscount.shared.photo.PhotoStoreConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 

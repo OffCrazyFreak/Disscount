@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import disscount.shared.BadRequestException;
+import disscount.shared.errors.BadRequestException;
 import disscount.user.ActiveUsers;
 
 import java.util.List;

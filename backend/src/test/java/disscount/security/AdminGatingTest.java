@@ -6,7 +6,7 @@ import disscount.productimage.ImageSource;
 import disscount.productimage.ImageStatus;
 import disscount.productimage.ProductImage;
 import disscount.productimage.ProductImageRepository;
-import disscount.shared.TestImages;
+import disscount.shared.photo.TestImages;
 import disscount.support.FullStackTest;
 import disscount.user.User;
 import org.junit.jupiter.api.BeforeEach;

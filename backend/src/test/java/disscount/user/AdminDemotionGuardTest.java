@@ -1,6 +1,6 @@
 package disscount.user;
 
-import disscount.shared.ConflictException;
+import disscount.shared.errors.ConflictException;
 import disscount.support.FullStackTest;
 import disscount.user.erasure.ErasureLedgerRepository;
 import org.junit.jupiter.api.Test;

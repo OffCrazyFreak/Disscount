@@ -6,6 +6,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.scheduling.annotation.Scheduled;
 
+import disscount.shared.errors.TooManyRequestsException;
+
 public class FixedWindowLimiter {
 
     private record Window(long startedAt, int count) {}

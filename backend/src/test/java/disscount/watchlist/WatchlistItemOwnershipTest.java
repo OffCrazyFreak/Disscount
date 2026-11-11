@@ -4,7 +4,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 import disscount.security.SecurityConfig;
-import disscount.shared.NotFoundException;
+import disscount.shared.errors.NotFoundException;
 import disscount.shared.Timestamps;
 import disscount.support.IncludingDeleted;
 import disscount.user.ActiveUsers;

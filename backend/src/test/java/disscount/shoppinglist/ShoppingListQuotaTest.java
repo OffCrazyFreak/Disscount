@@ -1,8 +1,8 @@
 package disscount.shoppinglist;
 
-import disscount.shared.LimitReachedException;
+import disscount.shared.errors.LimitReachedException;
 import disscount.shared.Timestamps;
-import disscount.shared.UserLimit;
+import disscount.shared.errors.UserLimit;
 import disscount.shoppinglist.item.ShoppingListItem;
 import disscount.shoppinglist.item.ShoppingListItemDto;
 import disscount.shoppinglist.item.ShoppingListItemRepository;

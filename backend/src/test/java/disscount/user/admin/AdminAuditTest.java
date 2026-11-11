@@ -1,6 +1,6 @@
 package disscount.user.admin;
 
-import disscount.shared.ConflictException;
+import disscount.shared.errors.ConflictException;
 import disscount.support.FullStackTest;
 import disscount.support.MigratedPostgres;
 import disscount.user.AccountType;

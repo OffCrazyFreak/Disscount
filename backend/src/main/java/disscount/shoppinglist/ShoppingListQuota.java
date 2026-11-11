@@ -1,6 +1,6 @@
 package disscount.shoppinglist;
 
-import disscount.shared.UserLimit;
+import disscount.shared.errors.UserLimit;
 import disscount.shoppinglist.item.ShoppingListItemRepository;
 import disscount.user.ActiveUsers;
 import lombok.RequiredArgsConstructor;

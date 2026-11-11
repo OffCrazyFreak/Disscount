@@ -24,7 +24,7 @@ import javax.imageio.stream.MemoryCacheImageOutputStream;
 import com.luciad.imageio.webp.CompressionType;
 import com.luciad.imageio.webp.WebPWriteParam;
 
-import disscount.shared.BadRequestException;
+import disscount.shared.errors.BadRequestException;
 
 /** White is painted into the pixels because dark mode extensions recolour CSS backgrounds but not image pixels. */
 public final class ProductImageRenderer {

@@ -1,9 +1,9 @@
 package disscount.support;
 
 import disscount.productimage.openfoodfacts.OpenFoodFactsClient;
-import disscount.shared.FakePhotoStore;
-import disscount.shared.PhotoStore;
-import disscount.shared.PhotoStoreConfig;
+import disscount.shared.photo.FakePhotoStore;
+import disscount.shared.photo.PhotoStore;
+import disscount.shared.photo.PhotoStoreConfig;
 import disscount.user.AccountType;
 import disscount.user.AuthIdentityDao;
 import disscount.user.User;

@@ -1,8 +1,8 @@
 package disscount.digitalcard;
 
 import disscount.digitalcard.photo.DigitalCardPhotoService;
-import disscount.shared.NotFoundException;
-import disscount.shared.TestImages;
+import disscount.shared.errors.NotFoundException;
+import disscount.shared.photo.TestImages;
 import disscount.support.FullStackTest;
 import disscount.user.User;
 import org.junit.jupiter.api.BeforeEach;

@@ -5,10 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
-import disscount.shared.AtomicFileStore;
-import disscount.shared.FilesystemPhotoStore;
-import disscount.shared.PhotoStore;
-import disscount.shared.PhotoStoreConfig;
+import disscount.shared.photo.AtomicFileStore;
+import disscount.shared.photo.FilesystemPhotoStore;
+import disscount.shared.photo.PhotoStore;
+import disscount.shared.photo.PhotoStoreConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 

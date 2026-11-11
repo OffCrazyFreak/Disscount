@@ -1,7 +1,7 @@
 package disscount.storename;
 
 import disscount.digitalcard.CardServiceTestSupport;
-import disscount.shared.BadRequestException;
+import disscount.shared.errors.BadRequestException;
 import disscount.shared.Timestamps;
 import disscount.user.ActiveUsers;
 import disscount.user.AuthIdentityDao;

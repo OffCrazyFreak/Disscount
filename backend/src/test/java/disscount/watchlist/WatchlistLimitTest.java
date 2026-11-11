@@ -1,7 +1,7 @@
 package disscount.watchlist;
 
-import disscount.shared.LimitReachedException;
-import disscount.shared.UserLimit;
+import disscount.shared.errors.LimitReachedException;
+import disscount.shared.errors.UserLimit;
 import disscount.support.Concurrently;
 import disscount.user.ActiveUsers;
 import disscount.user.AuthIdentityDao;

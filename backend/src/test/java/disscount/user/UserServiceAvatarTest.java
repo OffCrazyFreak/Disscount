@@ -1,7 +1,7 @@
 package disscount.user;
 
-import disscount.shared.BadRequestException;
-import disscount.shared.PhotoValidator;
+import disscount.shared.errors.BadRequestException;
+import disscount.shared.photo.PhotoValidator;
 import disscount.user.erasure.ErasureLedgerRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
@@ -9,10 +9,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.util.Base64;
 import java.util.UUID;
 
-import static disscount.shared.TestImages.contains;
-import static disscount.shared.TestImages.jpeg;
-import static disscount.shared.TestImages.jpegWithApp1;
-import static disscount.shared.TestImages.png;
+import static disscount.shared.photo.TestImages.contains;
+import static disscount.shared.photo.TestImages.jpeg;
+import static disscount.shared.photo.TestImages.jpegWithApp1;
+import static disscount.shared.photo.TestImages.png;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;

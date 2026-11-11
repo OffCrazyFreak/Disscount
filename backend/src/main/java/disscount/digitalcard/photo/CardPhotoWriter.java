@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import disscount.digitalcard.CardUserLock;
 import disscount.digitalcard.DigitalCard;
 import disscount.digitalcard.DigitalCardRepository;
-import disscount.shared.NotFoundException;
+import disscount.shared.errors.NotFoundException;
 
 import java.util.Arrays;
 import java.util.UUID;

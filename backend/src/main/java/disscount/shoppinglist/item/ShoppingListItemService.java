@@ -5,8 +5,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import disscount.shared.ForbiddenException;
-import disscount.shared.NotFoundException;
+import disscount.shared.errors.ForbiddenException;
+import disscount.shared.errors.NotFoundException;
 import disscount.shared.Timestamps;
 import disscount.shoppinglist.ListAccess;
 import disscount.shoppinglist.ShoppingList;

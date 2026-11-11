@@ -1,8 +1,8 @@
 package disscount.watchlist;
 
-import disscount.shared.NotFoundException;
+import disscount.shared.errors.NotFoundException;
 import disscount.shared.Timestamps;
-import disscount.shared.UserLimit;
+import disscount.shared.errors.UserLimit;
 import disscount.user.ActiveUsers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;

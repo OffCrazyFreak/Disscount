@@ -8,8 +8,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import disscount.shared.NotFoundException;
-import disscount.shared.UnauthorizedException;
+import disscount.shared.errors.NotFoundException;
+import disscount.shared.errors.UnauthorizedException;
 import disscount.user.ActiveUsers;
 import disscount.user.AuthIdentityDao;
 import disscount.user.AdminAuditLog;

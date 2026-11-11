@@ -1,8 +1,8 @@
 package disscount.digitalcard.photo;
 
 import disscount.shared.AfterCommit;
-import disscount.shared.PhotoStore;
-import disscount.shared.PhotoStoreConfig;
+import disscount.shared.photo.PhotoStore;
+import disscount.shared.photo.PhotoStoreConfig;
 import org.springframework.beans.factory.annotation.Qualifier;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

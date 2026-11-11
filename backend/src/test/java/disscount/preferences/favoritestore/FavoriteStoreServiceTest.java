@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
-import disscount.shared.BadRequestException;
-import disscount.shared.UnauthorizedException;
+import disscount.shared.errors.BadRequestException;
+import disscount.shared.errors.UnauthorizedException;
 import disscount.user.ActiveUsers;
 import disscount.user.AuthIdentityDao;
 import disscount.user.User;

@@ -2,7 +2,7 @@ package disscount.digitalcard.photo;
 
 import java.util.UUID;
 
-import disscount.shared.PhotoStoreConfig;
+import disscount.shared.photo.PhotoStoreConfig;
 
 public final class PhotoKeys {
 

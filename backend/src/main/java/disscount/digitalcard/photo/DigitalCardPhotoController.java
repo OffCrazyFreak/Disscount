@@ -12,7 +12,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import disscount.digitalcard.photo.DigitalCardPhotoService.PhotoStream;
-import disscount.shared.BadRequestException;
+import disscount.shared.errors.BadRequestException;
 import disscount.shared.CurrentUser;
 
 import java.util.UUID;

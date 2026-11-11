@@ -3,7 +3,7 @@ package disscount.contact;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import disscount.shared.TooManyRequestsException;
+import disscount.shared.errors.TooManyRequestsException;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

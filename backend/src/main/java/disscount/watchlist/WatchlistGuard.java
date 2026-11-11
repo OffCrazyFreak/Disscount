@@ -1,6 +1,6 @@
 package disscount.watchlist;
 
-import disscount.shared.NotFoundException;
+import disscount.shared.errors.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
