@@ -1,5 +1,6 @@
 package disscount.digitalcard;
 
+import disscount.shared.AfterCommit;
 import disscount.shared.PhotoStore;
 import disscount.shared.PhotoStoreConfig;
 import org.springframework.beans.factory.annotation.Qualifier;

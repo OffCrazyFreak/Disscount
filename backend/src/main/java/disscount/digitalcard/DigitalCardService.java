@@ -1,5 +1,6 @@
 package disscount.digitalcard;
 
+import disscount.shared.AfterCommit;
 import disscount.shared.BadRequestException;
 import disscount.shared.ConflictException;
 import disscount.shared.NotFoundException;

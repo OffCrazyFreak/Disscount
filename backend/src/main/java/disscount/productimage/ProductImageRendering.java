@@ -9,6 +9,7 @@ import disscount.productimage.openfoodfacts.OpenFoodFactsClient;
 import disscount.productimage.render.ProductImageRenderer;
 import disscount.productimage.render.ProductImageRenderer.Crop;
 import disscount.productimage.render.ProductImageRenderer.Rendered;
+import disscount.shared.AfterCommit;
 import disscount.shared.BadRequestException;
 import disscount.shared.NotFoundException;
 import disscount.shared.PhotoStore;
@@ -21,8 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /** Renders a photo from its untouched source, so a new crop never compounds an earlier one. */
 @Component
@@ -176,16 +175,7 @@ class ProductImageRendering {
         if (oldKey == null || oldKey.equals(newKey)) return;
         if (images.existsByFullKey(oldKey) || images.existsByThumbKey(oldKey) || images.existsBySmallKey(oldKey)) return;
         // A rolled back transaction still points at the old file, so it may only go once the new keys are committed.
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                @Override
-                public void afterCommit() {
-                    delete(oldKey);
-                }
-            });
-        } else {
-            delete(oldKey);
-        }
+        AfterCommit.run(() -> delete(oldKey));
     }
 
     /** Fails the erasure on failure, so an erased account's file cannot stay public; call after deleting the row. */

@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.UUID;
 
 import disscount.productimage.render.ProductImageRenderer;
+import disscount.shared.AfterCommit;
 import disscount.shared.BadRequestException;
 import disscount.shared.PhotoStore;
 import disscount.shared.PhotoStoreConfig;
@@ -16,8 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /** Removes a photo's files but keeps the row, whose fingerprint and Open Food Facts key stop it returning. */
 @Component
@@ -62,7 +61,7 @@ class ProductImageRemoval {
         reports.deleteByImageId(image.getId());
 
         rendering.dropFiles(full, thumb, small);
-        if (original != null) afterCommit(() -> deleteOriginal(original));
+        if (original != null) AfterCommit.run(() -> deleteOriginal(original));
     }
 
     /** Fails the erasure if it cannot, as a logged failure after commit would leave the most personal file behind. */
@@ -97,18 +96,5 @@ class ProductImageRemoval {
         } catch (RuntimeException e) {
             log.warn("Could not delete the original of a deleted product photo {}", key, e);
         }
-    }
-
-    private static void afterCommit(Runnable action) {
-        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-            action.run();
-            return;
-        }
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                action.run();
-            }
-        });
     }
 }
