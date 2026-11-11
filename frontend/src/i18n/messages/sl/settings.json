@@ -201,7 +201,8 @@
       "deleteDialogDescription": "Tvoj račun in vse podatke trajno izbrišemo. Tega ne moreš razveljaviti.",
       "revokeFailed": "Drugih naprav ni bilo mogoče odjaviti. Poskusi znova.",
       "revoked": "Druge naprave so odjavljene.",
-      "deleted": "Tvoj račun je izbrisan."
+      "deleted": "Tvoj račun je izbrisan.",
+      "lastAdminDelete": "Nihče drug ni admin. Najprej daj admin pravice komu drugemu, nato izbriši račun."
     },
     "reauth": {
       "cancel": "Prekliči",

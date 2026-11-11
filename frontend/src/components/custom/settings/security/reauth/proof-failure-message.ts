@@ -16,6 +16,8 @@ export function proofFailureMessage(failure: IProofFailure) {
       return { key: "security.reauth.codeExpired" } as const;
     case "too-many":
       return { key: "security.submit.tooManyAttempts" } as const;
+    case "last-admin":
+      return { key: "security.actions.lastAdminDelete" } as const;
     case "failed":
       return { key: "security.submit.generic" } as const;
   }

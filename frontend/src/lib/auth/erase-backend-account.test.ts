@@ -75,6 +75,44 @@ describe("eraseBackendAccount", () => {
     );
   });
 
+  it("refuses the last admin with its own code and no Sentry report", async () => {
+    server.use(
+      http.delete("*/api/users/me", () =>
+        HttpResponse.json(
+          { status: 409, code: "error.user.lastAdminDelete" },
+          { status: 409 },
+        ),
+      ),
+    );
+
+    await expect(
+      eraseBackendAccount(USER_ID, signedAs([])),
+    ).rejects.toMatchObject({
+      statusCode: 409,
+      body: { code: "LAST_ADMIN_DELETE" },
+    });
+
+    expect(captureException).not.toHaveBeenCalled();
+  });
+
+  it("still reports any other conflict as a failed erasure", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    server.use(
+      http.delete("*/api/users/me", () =>
+        HttpResponse.json(
+          { status: 409, code: "error.user.somethingElse" },
+          { status: 409 },
+        ),
+      ),
+    );
+
+    await expect(
+      eraseBackendAccount(USER_ID, signedAs([])),
+    ).rejects.toMatchObject({ statusCode: 500 });
+
+    expect(captureException).toHaveBeenCalledOnce();
+  });
+
   it("does not report a successful erasure", async () => {
     server.use(
       http.delete("*/api/users/me", () => HttpResponse.json({ message: "ok" })),

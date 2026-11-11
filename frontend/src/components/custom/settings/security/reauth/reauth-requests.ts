@@ -3,6 +3,7 @@ import {
   CODE_EXPIRED,
   CODE_RESEND_TOO_SOON,
   INVALID_CODE,
+  LAST_ADMIN_DELETE,
   REAUTH_REQUIRED,
 } from "@/lib/auth/security-policy";
 
@@ -12,7 +13,12 @@ export type ReauthProof = { password: string } | { code: string };
 
 export interface IProofFailure {
   reason:
-    "wrong-password" | "wrong-code" | "code-expired" | "too-many" | "failed";
+    | "wrong-password"
+    | "wrong-code"
+    | "code-expired"
+    | "too-many"
+    | "last-admin"
+    | "failed";
   attemptsLeft?: number;
 }
 
@@ -45,6 +51,8 @@ export function proofFailureFrom(
       };
     case CODE_EXPIRED:
       return { reason: "code-expired" };
+    case LAST_ADMIN_DELETE:
+      return { reason: "last-admin" };
   }
 
   return { reason: error.status === 429 ? "too-many" : "failed" };

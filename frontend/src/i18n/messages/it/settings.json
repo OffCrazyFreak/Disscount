@@ -201,7 +201,8 @@
       "deleteDialogDescription": "Eliminiamo per sempre il tuo account e tutti i dati. Non puoi annullare l'operazione.",
       "revokeFailed": "Non siamo riusciti a disconnettere gli altri dispositivi. Riprova.",
       "revoked": "Gli altri dispositivi sono disconnessi.",
-      "deleted": "Account eliminato."
+      "deleted": "Account eliminato.",
+      "lastAdminDelete": "Nessun altro è admin. Prima dai i permessi di admin a qualcun altro, poi elimina l'account."
     },
     "reauth": {
       "cancel": "Annulla",
