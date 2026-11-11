@@ -84,6 +84,7 @@
 
 ## Board
 
+- When finishing up work, make sure to update the tasks or issues accordingly.
 - Move merged user-facing work to For review, and merged invisible work to Done.
 - Put owner-only steps (logins, payments, phone) as a draft at the top of In progress board, with exact links and step by step numbered guide.
 
