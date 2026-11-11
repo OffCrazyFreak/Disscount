@@ -38,7 +38,7 @@ class ApiContractTest extends FullStackTest {
     @Test
     void theCommittedContractDescribesThisBackend() throws Exception {
         ObjectNode current = json.createObjectNode();
-        current.set("schemas", body(mvc.perform(get("/v3/api-docs")).andExpect(status().isOk())).at("/components/schemas"));
+        current.set("schemas", body(mvc.perform(get("/api/v3/api-docs")).andExpect(status().isOk())).at("/components/schemas"));
         current.set("enums", json.valueToTree(enums()));
 
         if (Boolean.getBoolean("contract.update")) {

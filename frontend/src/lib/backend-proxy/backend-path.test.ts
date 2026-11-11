@@ -3,7 +3,11 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { BACKEND_ROOTS, backendUrl } from "@/lib/backend-proxy/backend-path";
+import {
+  BACKEND_ROOTS,
+  backendUrl,
+  docsUrl,
+} from "@/lib/backend-proxy/backend-path";
 
 const BACKEND = "http://backend:8080";
 
@@ -16,6 +20,31 @@ describe("backendUrl", () => {
 
   it("refuses a root Spring does not serve", () => {
     expect(backendUrl(["actuator", "env"], "", BACKEND)).toBeNull();
+  });
+});
+
+describe("docsUrl", () => {
+  it.each([
+    [["v3", "api-docs"], "http://backend:8080/api/v3/api-docs"],
+    [
+      ["v3", "api-docs", "swagger-config"],
+      "http://backend:8080/api/v3/api-docs/swagger-config",
+    ],
+    [
+      ["swagger-ui", "index.html"],
+      "http://backend:8080/api/swagger-ui/index.html",
+    ],
+  ])("maps %j to springdoc's own path", (segments, href) => {
+    expect(docsUrl(segments, "", BACKEND)?.href).toBe(href);
+  });
+
+  it.each([
+    ["an API root", ["users", "me"]],
+    ["another v3 path", ["v3", "users"]],
+    ["a dot segment", ["swagger-ui", "..", "users"]],
+    ["a decoded slash", ["swagger-ui", "../users/me"]],
+  ])("refuses %s", (_, segments) => {
+    expect(docsUrl(segments, "", BACKEND)).toBeNull();
   });
 });
 

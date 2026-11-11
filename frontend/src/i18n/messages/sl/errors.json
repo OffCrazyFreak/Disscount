@@ -8,6 +8,8 @@
     "refreshPage": "Nekaj je šlo narobe. Osveži stran in poskusi znova",
     "unavailable": "Storitev ni na voljo",
     "badRequest": "Neveljavna zahteva",
-    "tooManyRequests": "Preveč poskusov, malo počakaj"
+    "tooManyRequests": "Preveč poskusov, malo počakaj",
+    "tooLarge": "Zahteva je prevelika",
+    "signInRequired": "Prijavi se in poskusi znova"
   }
 }

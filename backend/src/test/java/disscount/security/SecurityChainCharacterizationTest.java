@@ -102,14 +102,14 @@ class SecurityChainCharacterizationTest {
 
     @Test
     void swaggerUiAndTheSpecAreServedAnonymously() throws Exception {
-        mvc.perform(get("/api-docs"))
+        mvc.perform(get("/api/swagger-ui.html"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(header().string(HttpHeaders.LOCATION, containsString("/swagger-ui/index.html")));
-        mvc.perform(get("/swagger-ui/index.html")).andExpect(status().isOk());
-        mvc.perform(get("/v3/api-docs"))
+                .andExpect(header().string(HttpHeaders.LOCATION, containsString("/api/swagger-ui/index.html")));
+        mvc.perform(get("/api/swagger-ui/index.html")).andExpect(status().isOk());
+        mvc.perform(get("/api/v3/api-docs"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.info.title").value("Disscount API"))
-                .andExpect(jsonPath("$.components.securitySchemes.bearerAuth.scheme").value("bearer"))
+                .andExpect(jsonPath("$.components.securitySchemes.webClient.name").value("X-Disscount-Client"))
                 .andExpect(jsonPath("$.paths['/api/shopping-lists/{id}'].get").exists());
     }
 

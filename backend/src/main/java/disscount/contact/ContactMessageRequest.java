@@ -28,6 +28,7 @@ record ContactMessageRequest(
         String sourcePath,
 
         // Honeypot: must stay empty; bots fill it. Filled submissions are silently dropped.
+        @Size(max = 255, message = "{validation.honeypot.tooLong}")
         @Schema(nullable = true)
         String honeypot) {
 }

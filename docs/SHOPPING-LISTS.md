@@ -113,7 +113,7 @@ Request and response schemas are separate objects on purpose. The request schema
 
 ## 4. API
 
-Errors are RFC 9457 `ProblemDetail` bodies whose messages are `error.shoppingList.*`, `error.shoppingListItem.notFound` and `validation.*` codes, resolved in the request's language from the five `messages*.properties` files (see [I18N.md](I18N.md)). Swagger UI at `/api-docs` lists every route.
+Errors are RFC 9457 `ProblemDetail` bodies whose messages are `error.shoppingList.*`, `error.shoppingListItem.notFound` and `validation.*` codes, resolved in the request's language from the five `messages*.properties` files (see [I18N.md](I18N.md)). Swagger UI at `/api/swagger-ui/index.html` lists every route.
 
 | Method and path                                  | Chain          | What it does                                                                                         |
 | ------------------------------------------------ | -------------- | ---------------------------------------------------------------------------------------------------- |
