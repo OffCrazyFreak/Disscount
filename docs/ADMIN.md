@@ -78,7 +78,7 @@ The proxy that turns the session into a backend token is in [BACKEND-PROXY.md](B
 
 `lastLoginAt` and `lastActiveAt` are sent as `Instant`s with an offset, so the browser's date maths is not shifted by each admin's time zone ([AUTH.md](AUTH.md#13-gotchas-and-lessons)).
 
-**Changing an account type** (`PATCH /api/admin/users/{userId}`): the select updates the cached list optimistically, rolls back only that row on error, and refetches once the last pending change settles, so a refetch never shows another row's old value. Your own row's select is disabled in the browser only.
+**Changing an account type** (`PATCH /api/admin/users/{userId}`): the select updates the cached list optimistically, rolls back only that row on error, and refetches once the last pending change settles, so a refetch never shows another row's old value. Your own row's select is disabled in the browser, and the backend also refuses demoting yourself or the last admin with 409.
 
 **Deleting a user** (`DELETE /api/admin/users/{userId}`): a confirm dialog, then `UserService.deleteUserAsAdmin`, which refuses your own id (`error.user.cannotDeleteSelf`), deletes the better-auth identity (and with it every session and linked account), then runs the same `deleteAccount` as a self-service deletion: anonymised profile, cards and favourite stores removed, tombstone written. What is kept is listed in [SETTINGS.md](SETTINGS.md#8-deleting-the-account).
 
@@ -104,17 +104,17 @@ The product photo review queue: candidates from Open Food Facts and user uploads
 
 ## 7. Endpoints
 
-| Method and path                                 | Handler                       | What it does                                                    |
-| ----------------------------------------------- | ----------------------------- | --------------------------------------------------------------- |
-| `GET /api/admin/users`                          | `AdminController`             | Every active user with email and activity; unbounded            |
-| `PATCH /api/admin/users/{userId}`               | `AdminController`             | Set `accountType`; any active user, no self or last-admin check |
-| `DELETE /api/admin/users/{userId}`              | `AdminController`             | Delete and erase a user; refuses yourself                       |
-| `GET /api/admin/contact?includeDeleted=`        | `AdminContactController`      | Up to 500 messages, newest first                                |
-| `GET /api/admin/contact/{id}`                   | `AdminContactController`      | One message                                                     |
-| `PATCH /api/admin/contact/{id}/read`, `/unread` | `AdminContactController`      | Set or clear `read_at`                                          |
-| `DELETE /api/admin/contact/{id}`                | `AdminContactController`      | Soft delete                                                     |
-| `PATCH /api/admin/contact/{id}/restore`         | `AdminContactController`      | Undo the soft delete                                            |
-| `/api/admin/product-images/**`                  | `AdminProductImageController` | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                      |
+| Method and path                                 | Handler                       | What it does                                               |
+| ----------------------------------------------- | ----------------------------- | ---------------------------------------------------------- |
+| `GET /api/admin/users`                          | `AdminController`             | Every active user with email and activity; unbounded       |
+| `PATCH /api/admin/users/{userId}`               | `AdminController`             | Set `accountType`; 409 for self-demotion or the last admin |
+| `DELETE /api/admin/users/{userId}`              | `AdminController`             | Delete and erase a user; refuses yourself                  |
+| `GET /api/admin/contact?includeDeleted=`        | `AdminContactController`      | Up to 500 messages, newest first                           |
+| `GET /api/admin/contact/{id}`                   | `AdminContactController`      | One message                                                |
+| `PATCH /api/admin/contact/{id}/read`, `/unread` | `AdminContactController`      | Set or clear `read_at`                                     |
+| `DELETE /api/admin/contact/{id}`                | `AdminContactController`      | Soft delete                                                |
+| `PATCH /api/admin/contact/{id}/restore`         | `AdminContactController`      | Undo the soft delete                                       |
+| `/api/admin/product-images/**`                  | `AdminProductImageController` | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                 |
 
 Swagger lists them all at `/api-docs`.
 
@@ -178,4 +178,4 @@ No admin-specific environment variables or feature flags. The page uses the shad
 
 ## 14. Future improvements and TODOs
 
-- [ ] Admin hardening (method security, last-admin and self-change guards, a smaller user list): proposed in #214, which is closed, while AUTH.md records the current manual checks as an accepted decision. Reopen or file a new issue if the decision changes.
+- [ ] Admin hardening still open: method security and a last-admin guard on delete (#429 R6), and a smaller user list. The demotion guards shipped in #429 R5 (AUTH.md section 7.1).
