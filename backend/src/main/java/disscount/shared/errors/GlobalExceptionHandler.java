@@ -15,6 +15,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -32,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -189,13 +189,8 @@ class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        Map<String, String> fieldErrors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String key = (error instanceof FieldError fieldError)
-                    ? fieldError.getField()
-                    : error.getObjectName();
-            fieldErrors.put(key, error.getDefaultMessage());
-        });
+        Map<String, String> fieldErrors = FieldViolation.mostBasicPerField(
+                ex.getBindingResult().getAllErrors().stream().map(GlobalExceptionHandler::fieldViolation));
 
         return respond(ex, validationProblem(fieldErrors), headers, status, request);
     }
@@ -208,13 +203,21 @@ class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             return handleGenericException(ex);
         }
 
-        Map<String, String> fieldErrors = new HashMap<>();
-        for (ConstraintViolation<?> violation : violations.getConstraintViolations()) {
-            fieldErrors.put(violation.getPropertyPath().toString(), violationMessage(violation));
-        }
+        Map<String, String> fieldErrors = FieldViolation.mostBasicPerField(
+                violations.getConstraintViolations().stream().map(this::fieldViolation));
         log.warn("Entity validation failed on fields: {}", fieldErrors.keySet());
 
         return validationProblem(fieldErrors);
+    }
+
+    private static FieldViolation fieldViolation(ObjectError error) {
+        String field = (error instanceof FieldError fieldError) ? fieldError.getField() : error.getObjectName();
+        return new FieldViolation(field, error.getCode(), error.getDefaultMessage());
+    }
+
+    private FieldViolation fieldViolation(ConstraintViolation<?> violation) {
+        String constraint = violation.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName();
+        return new FieldViolation(violation.getPropertyPath().toString(), constraint, violationMessage(violation));
     }
 
     private ProblemDetail validationProblem(Map<String, String> fieldErrors) {

@@ -17,6 +17,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -50,6 +51,17 @@ class ProblemResponseCharacterizationTest {
                 .andExpect(jsonPath("$.fieldErrors", aMapWithSize(2)))
                 .andExpect(jsonPath("$.fieldErrors.subject").value("Upiši naslov."))
                 .andExpect(jsonPath("$.fieldErrors.message").value("Upiši poruku."));
+    }
+
+    @Test
+    void anEmptyValueOnARequiredSizedFieldAnswersTheRequiredMessage() throws Exception {
+        mvc.perform(put("/api/pinned-places/bulk")
+                        .with(signedIn())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"places\":[{\"placeApiId\":\"\",\"placeName\":\"\"}]}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors['places[0].placeApiId']").value("Mjesto je obavezno."))
+                .andExpect(jsonPath("$.fieldErrors['places[0].placeName']").value("Upiši naziv mjesta."));
     }
 
     @Test
