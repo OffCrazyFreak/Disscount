@@ -850,23 +850,32 @@
           "type" : [ "number", "null" ]
         },
         "brand" : {
+          "maxLength" : 255,
+          "minLength" : 0,
           "type" : [ "string", "null" ]
         },
         "chainCode" : {
+          "maxLength" : 255,
+          "minLength" : 0,
           "pattern" : "^[a-z0-9_-]+$",
           "type" : [ "string", "null" ]
         },
         "ean" : {
+          "maxLength" : 255,
+          "minLength" : 0,
           "type" : [ "string", "null" ]
         },
         "isChecked" : {
           "type" : [ "boolean", "null" ]
         },
         "name" : {
-          "minLength" : 1,
+          "maxLength" : 255,
+          "minLength" : 0,
           "type" : "string"
         },
         "quantity" : {
+          "maxLength" : 255,
+          "minLength" : 0,
           "type" : [ "string", "null" ]
         },
         "storePrice" : {
@@ -875,6 +884,8 @@
           "type" : [ "number", "null" ]
         },
         "unit" : {
+          "maxLength" : 255,
+          "minLength" : 0,
           "type" : [ "string", "null" ]
         }
       },
