@@ -319,7 +319,7 @@ Every request reaches Next.js through Cloudflare and Traefik, so the TCP peer is
 
 Better Auth stores the visitor's address (`session.ip_address`) and browser (`session.user_agent`) on every session row at sign-in, and never updates them: a sliding refresh rewrites only `expiresAt` and `updatedAt`. It deletes an expired session only when that token comes back, or on sign-out, revoke, password reset and account erasure. A device that never returns would leave its row behind forever, so the backend sweeps the table itself. The owner's rule is that no stored session address is older than 30 days; it is kept for reviewing suspicious sign-ins, and nothing in the app reads it today (the "Aktivne prijave" list shows the country and device).
 
-`SessionRetentionJob` (backend, `user/service`) runs every hour at minute 17 UTC through `AuthIdentityDao`, one transaction per step, address first so a failed delete never holds it back:
+`SessionRetentionJob` (backend, `user/`) runs every hour at minute 17 UTC through `AuthIdentityDao`, one transaction per step, address first so a failed delete never holds it back:
 
 1. Clears `ip_address` on rows created more than 29 days ago (`IP_ADDRESS_RETENTION`), a day under the promise so a missed sweep or a backend outage still clears it in time. The user agent stays, because the sign-ins list names the device from it, and the row keeps working.
 2. Deletes sessions whose `expires_at` passed more than an hour ago (`EXPIRED_GRACE`), so a request that loaded a session just before it lapsed still finishes against its row.
