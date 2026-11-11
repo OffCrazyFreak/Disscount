@@ -206,4 +206,6 @@ Worth knowing before changing any of this:
 - **Rate limiting on the by-id routes.** Recommended by the W3C TAG for capability URLs.
   Brute-forcing a version 4 UUID is infeasible, so this is hygiene rather than a hole.
 - **Link expiry.** There is none, and with rotation gone there is no way to invalidate a
-  shared URL except making the list private, which affects everyone at once.
+  shared URL except making the list private, which affects everyone at once. Account
+  erasure does exactly that for every list of the erased owner ([SETTINGS.md](SETTINGS.md)),
+  and share changes take the owner's row lock so they cannot race it.
