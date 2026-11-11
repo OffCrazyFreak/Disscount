@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         ShoppingListItemService.class,
         ShoppingListService.class,
         ShoppingListAccessService.class,
+        ShoppingListGuard.class,
         ShoppingListMapper.class,
 })
 class ShoppingListItemServiceAddTest {
