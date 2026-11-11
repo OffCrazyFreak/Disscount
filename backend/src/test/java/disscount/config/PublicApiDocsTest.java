@@ -9,6 +9,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.startsWith;
@@ -76,6 +78,21 @@ class PublicApiDocsTest {
                 .andExpect(jsonPath("$.paths['/actuator/health']").doesNotExist())
                 .andExpect(jsonPath("$.servers[0].url").value("/"))
                 .andExpect(jsonPath("$.servers.length()").value(1));
+    }
+
+    @Test
+    void theDescriptionAsksForWhatTheProxyChecksAndNoBearerToken() throws Exception {
+        mvc.perform(get(API_DOCS))
+                .andExpect(jsonPath("$.components.securitySchemes.length()").value(3))
+                .andExpect(jsonPath("$.components.securitySchemes.webClient.in").value("header"))
+                .andExpect(jsonPath("$.components.securitySchemes.webClient.name").value("X-Disscount-Client"))
+                .andExpect(jsonPath("$.components.securitySchemes.accountPin.name").value("X-Disscount-User"))
+                .andExpect(jsonPath("$.components.securitySchemes.sessionCookie.in").value("cookie"))
+                .andExpect(jsonPath("$.components.securitySchemes.sessionCookie.name")
+                        .value("__Secure-better-auth.session_token"))
+                .andExpect(jsonPath("$.security[0].keys()", containsInAnyOrder(
+                        OpenApiConfig.WEB_CLIENT, OpenApiConfig.ACCOUNT_PIN, OpenApiConfig.SESSION_COOKIE)))
+                .andExpect(jsonPath("$.security[1].keys()", contains(OpenApiConfig.WEB_CLIENT)));
     }
 
     @Test

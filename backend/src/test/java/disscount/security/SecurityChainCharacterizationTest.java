@@ -109,7 +109,7 @@ class SecurityChainCharacterizationTest {
         mvc.perform(get("/api/v3/api-docs"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.info.title").value("Disscount API"))
-                .andExpect(jsonPath("$.components.securitySchemes.bearerAuth.scheme").value("bearer"))
+                .andExpect(jsonPath("$.components.securitySchemes.webClient.name").value("X-Disscount-Client"))
                 .andExpect(jsonPath("$.paths['/api/shopping-lists/{id}'].get").exists());
     }
 
