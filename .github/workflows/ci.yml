@@ -381,7 +381,7 @@ jobs:
           tags: ghcr.io/offcrazyfreak/disscount-migrator:smoke
           cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-migrator:buildcache
 
-      # migrate waits for predeploy-dump, which runs this image and exits at once with backups off.
+      # flyway waits for predeploy-dump, which runs this image and exits at once with backups off.
       - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: backup

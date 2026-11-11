@@ -306,8 +306,8 @@ services:
       backend:
         condition: service_healthy
 
-  # One-shot encrypted dump before every production deploy, which migrate waits for (docs/BACKUPS.md).
-  # No profile, so migrate can require it and always runs after it.
+  # One-shot encrypted dump before every production deploy, which flyway (and so every migration) waits for (docs/BACKUPS.md).
+  # No profile, so flyway can require it and always runs after it.
   # The command lives here, not in backup-job: Dokploy reads this file from the branch tip, so a Rollback pairs it
   # with an older backup image, which only has to provide the tools.
   predeploy-dump:

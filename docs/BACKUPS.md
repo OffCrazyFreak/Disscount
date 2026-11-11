@@ -42,9 +42,9 @@ The `predeploy-` dumps share `db/nightly/` for its 28 day lock and 30 day expiry
 
 ## Dump before each deploy
 
-The one-shot `predeploy-dump` service in `docker-compose.images.yml` runs on every deploy, and `migrate` starts only after it has finished. Without `backup` in `COMPOSE_PROFILES` (dev, CI, local) it prints `predeploy-dump: backups off, no pre-deploy dump` and exits 0, with no ping. On production it runs `pg_dump` into a file, checks that the file is not empty and reads back, encrypts it with age, uploads it as `db/nightly/predeploy-<timestamp>.dump.age` and compares the stored size and MD5 with the local file. It skips the scratch restore that `db-nightly` runs, and it takes no globals.
+The one-shot `predeploy-dump` service in `docker-compose.images.yml` runs on every deploy, and `flyway` (then drizzle's `migrate`) starts only after it has finished. Without `backup` in `COMPOSE_PROFILES` (dev, CI, local) it prints `predeploy-dump: backups off, no pre-deploy dump` and exits 0, with no ping. On production it runs `pg_dump` into a file, checks that the file is not empty and reads back, encrypts it with age, uploads it as `db/nightly/predeploy-<timestamp>.dump.age` and compares the stored size and MD5 with the local file. It skips the scratch restore that `db-nightly` runs, and it takes no globals.
 
-**A failed dump only alerts** (owner decision 2026-11-11, "Alert only"). When any step fails (settings, dump, encryption, upload, check) the service prints `predeploy dump FAILED: <reason>`, sends a fail ping to the healthchecks.io check `disscount-predeploy-dump` and still exits 0, so `migrate` and the deploy go ahead. That deploy then relies on the last hourly dump, so up to about an hour of data is at risk if its migration goes wrong. A successful dump sends the success ping. Stopping the deploy instead would take production down: Compose has already removed the old containers of every service whose image or settings changed by the time the dump fails (tested locally on 2026-11-10).
+**A failed dump only alerts** (owner decision 2026-11-11, "Alert only"). When any step fails (settings, dump, encryption, upload, check) the service prints `predeploy dump FAILED: <reason>`, sends a fail ping to the healthchecks.io check `disscount-predeploy-dump` and still exits 0, so `flyway`, `migrate` and the deploy go ahead. That deploy then relies on the last hourly dump, so up to about an hour of data is at risk if its migration goes wrong. A successful dump sends the success ping. Stopping the deploy instead would take production down: Compose has already removed the old containers of every service whose image or settings changed by the time the dump fails (tested locally on 2026-11-10).
 
 When the alert comes, read the `predeploy dump FAILED` line in the Dokploy deployment log, fix the cause (a setting, the token, R2), and press Redeploy if the next migration needs a fresh dump before it.
 
@@ -52,7 +52,7 @@ The check is created on its first ping (`?create=1`) with healthchecks.io's defa
 
 Its command is written in the compose file, not in `backup-job`. Dokploy reads the compose file from the branch tip while the images follow the moving tag, so a Rollback pairs this file with an older backup image; the command only needs tools every backup image has (`pg_dump`, `age`, `rclone`, `curl`, `backup-entrypoint`).
 
-The service has no profile, so `migrate` can always require it to finish first. That is why every environment that uses `docker-compose.images.yml` needs every `BACKUP_*` secret name, even blank (see [Configuration](#configuration)).
+The service has no profile, so `flyway` can always require it to finish first. That is why every environment that uses `docker-compose.images.yml` needs every `BACKUP_*` secret name, even blank (see [Configuration](#configuration)).
 
 ## Key files
 
