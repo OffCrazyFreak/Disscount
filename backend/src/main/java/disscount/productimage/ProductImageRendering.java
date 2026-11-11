@@ -10,6 +10,7 @@ import disscount.productimage.render.ProductImageRenderer;
 import disscount.productimage.render.ProductImageRenderer.Crop;
 import disscount.productimage.render.ProductImageRenderer.Rendered;
 import disscount.shared.AfterCommit;
+import disscount.shared.AfterRollback;
 import disscount.shared.BadRequestException;
 import disscount.shared.NotFoundException;
 import disscount.shared.PhotoStore;
@@ -101,6 +102,11 @@ class ProductImageRendering {
         String base = PhotoStoreConfig.PRODUCTS_FOLDER + "/" + image.getEan() + "/" + rendered.sha256().substring(0, 20);
         Copy copy = new Copy(base + ".webp", base + "-small.webp", rendered.fullWidth(), rendered.fullHeight(),
                 rendered.sourceWidth(), rendered.sourceHeight());
+        // The keys follow the content, so the same photo uploaded earlier may already own these files.
+        AfterRollback.run(() -> {
+            if (!images.anyRowPointsAt(copy.fullKey())) delete(copy.fullKey());
+            if (!images.anyRowPointsAt(copy.smallKey())) delete(copy.smallKey());
+        });
         store.put(copy.fullKey(), rendered.full(), WEBP);
         store.put(copy.smallKey(), rendered.small(), WEBP);
         return copy;

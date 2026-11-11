@@ -6,6 +6,7 @@ import java.util.UUID;
 import disscount.config.UploadLimitConfig;
 import disscount.productimage.ProductImageDtos.ProductImagesDto;
 import disscount.productimage.render.ProductImageRenderer;
+import disscount.shared.AfterRollback;
 import disscount.shared.BadRequestException;
 import disscount.shared.FixedWindowLimiter;
 import disscount.shared.NotFoundException;
@@ -62,6 +63,10 @@ class ProductImageWriteService {
         ProductImageSet set = sets.findById(ean).orElseGet(() -> sets.save(ProductImageSet.builder().ean(ean).build()));
 
         String originalKey = PhotoStoreConfig.ORIGINALS_FOLDER + "/" + ean + "/" + UUID.randomUUID() + ".jpg";
+        // Erasure finds originals through their row, so one left by a failed upload would never be deleted.
+        AfterRollback.run(() -> {
+            if (!images.anyRowPointsAt(originalKey)) originals.delete(originalKey);
+        });
         originals.put(originalKey, photo.bytes(), photo.contentType());
 
         ProductImage image = images.save(ProductImage.builder()
