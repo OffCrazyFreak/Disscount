@@ -1,6 +1,7 @@
 import { toast } from "sonner";
 
 import { parseProblem } from "@/lib/api/problem-details";
+import { isLimitReached } from "@/lib/limits/limit-reached";
 
 // So a caller can hand in a stable wrapper that always reads the current language.
 export type OfflineToastTranslator = (
@@ -12,6 +13,9 @@ export type OfflineToastTranslator = (
 
 /** Also call from a hook's own onError, which replaces this default rather than running beside it. */
 export function listWriteFailed(error: Error, t: OfflineToastTranslator) {
+  // The limit dialog explains that one.
+  if (isLimitReached(error)) return;
+
   const lostAccess = parseProblem(error)?.status === 403;
 
   toast.error(

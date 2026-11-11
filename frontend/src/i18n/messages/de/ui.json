@@ -18,5 +18,17 @@
     "writeFailed": "Die Änderung wurde nicht gespeichert. Versuche es erneut.",
     "writeFailedLostAccess": "Die Änderung wurde nicht gespeichert. Vielleicht hast du keinen Zugriff mehr auf diese Liste.",
     "retiredWriteDropped": "Eine Änderung aus einer älteren App-Version wurde nicht gespeichert. Öffne die Liste und prüfe sie."
+  },
+  "limitReached": {
+    "title": "Kein Platz mehr",
+    "description": {
+      "SHOPPING_LISTS": "{max, plural, one {Du kannst höchstens # Einkaufsliste haben.} other {Du kannst höchstens # Einkaufslisten haben.}}",
+      "SHOPPING_LIST_ITEMS": "{max, plural, one {Eine Liste kann höchstens # Produkt enthalten.} other {Eine Liste kann höchstens # Produkte enthalten.}}",
+      "WATCHLIST_ITEMS": "{max, plural, one {Du kannst höchstens # Produkt beobachten.} other {Du kannst höchstens # Produkte beobachten.}}",
+      "DIGITAL_CARDS": "{max, plural, one {Du kannst höchstens # Karte haben.} other {Du kannst höchstens # Karten haben.}}"
+    },
+    "contactHint": "Wenn du mehr brauchst, schreib uns.",
+    "contact": "Support kontaktieren",
+    "close": "Schließen"
   }
 }

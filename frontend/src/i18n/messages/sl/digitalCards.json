@@ -265,7 +265,6 @@
     }
   },
   "offline": {
-    "cardLimit": "Imaš že največje dovoljeno število kartic. Izbriši kakšno, ki je ne uporabljaš.",
     "cardSaveFailed": "Kartice ni bilo mogoče shraniti. Poskusi znova.",
     "cardDeleteFailed": "Kartice ni bilo mogoče izbrisati. Poskusi znova.",
     "photoDeleteFailed": "Slike ni bilo mogoče izbrisati. Poskusi znova.",

@@ -13,6 +13,7 @@ A reference for the watchlist (`/watchlist`, "Praćeni proizvodi" in Croatian): 
 | Page                  | `/watchlist`, login required (logged out users see a sign-in prompt, not a redirect)                             |
 | Rule modal            | `?modal=watchlist&ean=<ean>` (optional `&type=percentage\|absolute`), opened from a product                      |
 | Backend table         | `watchlist_item`, soft deleted                                                                                   |
+| Limit                 | 50 entries per person, counted when a new entry is added ([BACKEND.md §7.1](BACKEND.md#71-per-user-limits))      |
 | Backend endpoints     | `POST /api/watchlist`, `GET /api/watchlist/me`, `GET /api/watchlist/product/{ean}`, `DELETE /api/watchlist/{id}` |
 | Where alerts are made | In the browser, every time the watched products' prices load                                                     |
 | Where alerts appear   | The header bell, the Praćenje nav badge (header, sidebar, bottom nav), the watchlist page                        |

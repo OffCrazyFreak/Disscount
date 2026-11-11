@@ -99,6 +99,17 @@ class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return detail;
     }
 
+    @ExceptionHandler(LimitReachedException.class)
+    public ProblemDetail handleLimitReached(LimitReachedException ex) {
+        UserLimit limit = ex.getLimit();
+
+        ProblemDetail detail = problem(HttpStatus.CONFLICT, "conflict", message(limit.code(), limit.max()));
+        detail.setProperty("code", limit.code());
+        detail.setProperty("limit", limit.name());
+        detail.setProperty("max", limit.max());
+        return detail;
+    }
+
     @ExceptionHandler(ServiceUnavailableException.class)
     public ProblemDetail handleServiceUnavailable(ServiceUnavailableException ex) {
         ProblemDetail detail = problem(HttpStatus.SERVICE_UNAVAILABLE, "unavailable", message(ex.getMessage()));

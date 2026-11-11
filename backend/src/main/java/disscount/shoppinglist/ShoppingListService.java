@@ -28,10 +28,11 @@ public class ShoppingListService {
     private final ShoppingListAccessService accessService;
     private final ShoppingListGuard guard;
     private final ShoppingListMapper shoppingListMapper;
+    private final ShoppingListQuota quota;
 
     @Transactional
     public ShoppingListDto createShoppingList(UUID ownerId, ShoppingListRequest request) {
-        activeUsers.requireActive(ownerId);
+        quota.requireRoomForList(ownerId, 0);
 
         ShoppingList shoppingList = ShoppingList.builder()
                 .ownerId(ownerId)

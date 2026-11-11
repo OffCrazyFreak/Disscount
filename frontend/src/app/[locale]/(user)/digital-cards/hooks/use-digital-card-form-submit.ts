@@ -9,6 +9,7 @@ import { CARD_PHOTO_SLOTS, type CardPhotoSlot } from "@/constants/card-codes";
 import { digitalCardService } from "@/lib/api";
 import type { DigitalCardRequest } from "@/lib/api/types";
 import { stashModalError } from "@/lib/modal/modal-error-bus";
+import { isLimitReached } from "@/lib/limits/limit-reached";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import {
   getFormDraft,
@@ -78,6 +79,10 @@ export function useDigitalCardFormSubmit({
       await saving;
     } catch (error) {
       if (draft) setFormDraft(draftKey, draft.values, draft.savedAt);
+
+      // The limit dialog explains it; the draft stays for when there is room again.
+      if (isLimitReached(error)) return;
+
       stashModalError(draftKey, error);
       stashPendingCard(draftKey, {
         id: cardId,

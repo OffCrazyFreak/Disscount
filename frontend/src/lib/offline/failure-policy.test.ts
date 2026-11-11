@@ -1,11 +1,7 @@
 import { AxiosError } from "axios";
 import { describe, expect, it } from "vitest";
 
-import {
-  CARD_LIMIT_KEY,
-  cardWriteMessage,
-  failureAction,
-} from "@/lib/offline/failure-policy";
+import { cardWriteMessage, failureAction } from "@/lib/offline/failure-policy";
 import { httpError } from "@/test/http-error";
 
 describe("failureAction", () => {
@@ -39,16 +35,14 @@ describe("cardWriteMessage", () => {
     expect(cardWriteMessage(httpError(404))).toBeNull();
   });
 
-  it.each([
-    "Dosegnut je najveći broj kartica.",
-    "You've reached the card limit.",
-  ])("names the limit from its code whatever the language (%s)", (detail) => {
+  it("leaves the card cap to the limit dialog", () => {
     const limit = httpError(409, {
       status: 409,
-      code: "error.card.limitReached",
-      detail,
+      code: "error.limit.digitalCards",
+      limit: "DIGITAL_CARDS",
+      max: 50,
     });
-    expect(cardWriteMessage(limit)).toBe(CARD_LIMIT_KEY);
+    expect(cardWriteMessage(limit)).toBeNull();
   });
 
   it("treats any other conflict as already saved", () => {

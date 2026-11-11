@@ -193,6 +193,31 @@ Every error is `application/problem+json` (RFC 9457), shaped in one place, `shar
 - The filter chain's 401 and 403 go through the same handler (`ProblemAuthenticationEntryPoint`, `ProblemAccessDeniedHandler`), and so does a method security denial.
 - Anything unexpected is a 500 with a generic detail, logged as an error, which Sentry's log appender reports (`GlobalExceptionHandlerSentryTest`).
 
+### 7.1 Per-user limits
+
+Each person may have at most 50 shopping lists, 50 items on one list, 50 watchlist entries and 50 cards (issue #213, the owner's numbers). All four are constants in one enum, `shared/UserLimit`, so changing one is a code change. Only live rows count: a soft deleted list, item, entry or card frees its place. Archived cards still count.
+
+A create that would pass a limit throws `LimitReachedException`, a `ConflictException`, and answers 409 with two extra fields next to `code`:
+
+```json
+{
+  "status": 409,
+  "code": "error.limit.shoppingLists",
+  "limit": "SHOPPING_LISTS",
+  "max": 50,
+  "detail": "Možeš imati najviše 50 popisa za kupnju."
+}
+```
+
+| Limit                 | Code                            | Counted in                                       |
+| --------------------- | ------------------------------- | ------------------------------------------------ |
+| `SHOPPING_LISTS`      | `error.limit.shoppingLists`     | `ShoppingListQuota`, on create and on copy       |
+| `SHOPPING_LIST_ITEMS` | `error.limit.shoppingListItems` | `ShoppingListQuota`, on a new item and on a copy |
+| `WATCHLIST_ITEMS`     | `error.limit.watchlist`         | `WatchlistItemService.addOrUpdateWatchlist`      |
+| `DIGITAL_CARDS`       | `error.limit.digitalCards`      | `DigitalCardService.upsert`                      |
+
+Only a new row counts: an item that merges into an existing row, a watchlist threshold change and a card edit pass at the limit. Every check runs after `ActiveUsers.lockActive` has locked the owner's `app_user` row, so two creates at once cannot both see room; only an owner creates lists or adds items, so the owner's lock also covers the items on a list. The enum reaches `contracts/backend-api.json` as `UserLimit`, and the frontend mirrors it in `userLimitSchema`. The frontend shows one dialog for all four ([SHOPPING-LISTS.md, the limit dialog](SHOPPING-LISTS.md#the-limit-dialog)).
+
 ---
 
 ## 8. Testing

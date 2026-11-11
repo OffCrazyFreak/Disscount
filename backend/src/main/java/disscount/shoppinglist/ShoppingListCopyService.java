@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.shared.ForbiddenException;
-import disscount.user.ActiveUsers;
 
+import java.util.List;
 import java.util.UUID;
 
 /** Its own service: it reads someone else's list in one transaction, so a failure leaves no half-filled copy. */
@@ -21,7 +21,7 @@ class ShoppingListCopyService {
     private final ShoppingListService shoppingListService;
     private final ShoppingListGuard guard;
     private final ShoppingListMapper shoppingListMapper;
-    private final ActiveUsers activeUsers;
+    private final ShoppingListQuota quota;
 
     @PreAuthorize("@shoppingListGuard.canWrite(#listId, #userId)")
     @Transactional
@@ -34,10 +34,10 @@ class ShoppingListCopyService {
             throw new ForbiddenException("error.shoppingList.ownerOnlyCopySharing");
         }
 
-        // A copy born shared is a share change, so it takes the lock every share change takes (ShoppingListService).
-        if (request.isIncludeSharing()) {
-            activeUsers.lockActive(userId);
-        }
+        List<ShoppingListItem> sourceItems = request.isIncludeItems()
+                ? source.getItems().stream().filter(item -> item.getDeletedAt() == null).toList()
+                : List.of();
+        quota.requireRoomForList(userId, sourceItems.size());
 
         ShoppingList copy = ShoppingList.builder()
                 .ownerId(userId)
@@ -45,12 +45,9 @@ class ShoppingListCopyService {
                 .linkAccess(request.isIncludeSharing() ? source.getLinkAccess() : null)
                 .build();
 
-        if (request.isIncludeItems()) {
-            source.getItems().stream()
-                    .filter(item -> item.getDeletedAt() == null)
-                    .map(item -> copyItem(item, copy, userId, request.isIncludeProgress()))
-                    .forEach(copy.getItems()::add);
-        }
+        sourceItems.stream()
+                .map(item -> copyItem(item, copy, userId, request.isIncludeProgress()))
+                .forEach(copy.getItems()::add);
 
         // Cascades to the items, so the list and everything on it commit as one.
         return shoppingListMapper.toDto(shoppingListRepository.save(copy), ListAccess.OWNER);

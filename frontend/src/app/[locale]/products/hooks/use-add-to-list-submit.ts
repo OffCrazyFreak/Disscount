@@ -15,6 +15,7 @@ import { buildShoppingListItemRequest } from "@/app/[locale]/products/utils/shop
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { mergesIntoExisting } from "@/app/[locale]/(user)/shopping-lists/utils/item-merge";
 import { stashModalError } from "@/lib/modal/modal-error-bus";
+import { isLimitReached } from "@/lib/limits/limit-reached";
 
 interface IUseAddToListSubmitProps {
   ean: string;
@@ -118,6 +119,9 @@ export function useAddToListSubmit({
         },
       );
     } catch (error) {
+      // The limit dialog explains it; the draft stays for when there is room again.
+      if (isLimitReached(error)) return;
+
       stashModalError(draftKey, error);
       openModalUrl({ name: "add-to-list", ean, listId: preferredListId });
     }
