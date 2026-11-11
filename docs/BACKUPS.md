@@ -109,10 +109,19 @@ rclone lsf r2:<bucket>/db/nightly/ | grep -v '^predeploy-'   # pick a timestamp;
 rclone copy r2:<bucket>/db/nightly/<timestamp>.dump.age .
 age -d -i key.txt -o db.dump <timestamp>.dump.age
 pg_restore --list db.dump              # sanity check
-pg_restore --clean --if-exists -U "$POSTGRES_USER" -d "$POSTGRES_DB" db.dump   # as the owner: keeps table owners and grants
+pg_restore --clean --if-exists -h <db host> -U "$POSTGRES_USER" -d "$POSTGRES_DB" db.dump   # as the owner, asks for POSTGRES_PASSWORD; keeps owners and grants
 ```
 
-Restore as the owner (`POSTGRES_USER`), not as `DATABASE_URL`'s login, which may not create tables, and without `--no-owner`, so the tables stay the migrator's and keep the logins' grants ([INFRASTRUCTURE.md, Database roles](INFRASTRUCTURE.md#database-roles)). On a new server, decrypt and restore `<timestamp>.globals.sql.age` first, which recreates the logins without their passwords. After any restore, run `db/database-roles.sql` again (it sets the three passwords and repairs any grant the dump lacked), then, before traffic reopens, the [erasure replay](#erasure-replay).
+Restore as the owner (`POSTGRES_USER`), not as `DATABASE_URL`'s login, which may not create tables, and without `--no-owner`, so the tables stay the migrator's and keep the logins' grants ([INFRASTRUCTURE.md, Database roles](INFRASTRUCTURE.md#database-roles)). A dump from before [#429](https://github.com/OffCrazyFreak/Disscount/issues/429) R11 still has its tables in `public` (`pg_restore --list db.dump | grep -q ' TABLE public app_user '` finds it), and the roles script refuses that layout. Restore such a dump into an empty database, because `--clean` only drops what the dump holds, and the newer `app` and `auth` tables left behind would collide with `V6` and `0011`. Move the tables first by running both migration jobs once as the owner, whose tables they still are:
+
+```bash
+read -r owner && read -rs FLYWAY_PASSWORD && export FLYWAY_PASSWORD PGPASSWORD="$FLYWAY_PASSWORD"   # POSTGRES_USER and POSTGRES_PASSWORD
+docker compose -f docker-compose.images.yml run --rm --no-deps -e FLYWAY_USER="$owner" -e FLYWAY_PASSWORD flyway
+docker compose -f docker-compose.images.yml run --rm --no-deps -e PGUSER="$owner" -e PGPASSWORD migrate
+unset FLYWAY_PASSWORD PGPASSWORD
+```
+
+On a new server, decrypt and restore `<timestamp>.globals.sql.age` first, which recreates the logins without their passwords. After any restore, run `db/database-roles.sql` again (it sets the three passwords and repairs any grant the dump lacked), then, before traffic reopens, the [erasure replay](#erasure-replay).
 
 **Photos:** with an rclone config that has the same `r2` and `photos` (crypt) remotes and the same password and salt, `rclone copy photos:gen-<n>/private <photo folder>` and the same for `public`. Copy the previous generation first and the newest on top (only the newest if just one exists). The newest holds every photo still on disk when it started plus newer ones, but its first copy may not have finished; `copy` only adds and keys are unique per upload, so the two together miss nothing. Photos deleted since the older generation started come back as files no restored row points to; delete them before reopening.
 
