@@ -52,7 +52,9 @@ class ContactMessageService {
     // Messages hold senders' emails and words, so every admin read and change lands in the admin audit.
     @Transactional
     public List<ContactMessageDto> list(boolean includeDeleted, UUID adminId) {
-        adminAudit.recordRead(adminId, AdminAction.READ_CONTACT_LIST, null);
+        // Its own action, so a read that shows deleted messages is never hidden behind an earlier plain one.
+        adminAudit.recordRead(adminId,
+                includeDeleted ? AdminAction.READ_CONTACT_LIST_WITH_DELETED : AdminAction.READ_CONTACT_LIST, null);
 
         List<ContactMessage> messages = includeDeleted
                 ? contactMessageRepository.findIncludingDeletedNewestFirst(MAX_ADMIN_MESSAGES)

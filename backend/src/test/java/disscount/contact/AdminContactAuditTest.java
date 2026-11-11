@@ -68,13 +68,15 @@ class AdminContactAuditTest extends FullStackTest {
     }
 
     @Test
-    void listingTheInboxTwiceWithinTheWindowWritesOneRow() throws Exception {
+    void listingTheInboxTwiceWithinTheWindowWritesOneRowPerKindOfList() throws Exception {
+        mvc.perform(get("/api/admin/contact").with(as(admin))).andExpect(status().isOk());
         mvc.perform(get("/api/admin/contact").with(as(admin))).andExpect(status().isOk());
         mvc.perform(get("/api/admin/contact").param("includeDeleted", "true").with(as(admin))).andExpect(status().isOk());
 
         assertThat(jdbc.queryForList("""
                 SELECT action FROM app.admin_audit WHERE actor_user_id = ? AND object_id IS NULL
-                """, String.class, admin.getId())).containsExactly("READ_CONTACT_LIST");
+                """, String.class, admin.getId()))
+                .containsExactlyInAnyOrder("READ_CONTACT_LIST", "READ_CONTACT_LIST_WITH_DELETED");
     }
 
     @Test
