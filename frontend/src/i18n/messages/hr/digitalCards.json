@@ -322,7 +322,6 @@
     }
   },
   "offline": {
-    "cardLimit": "Imaš već najveći dopušteni broj kartica. Obriši neku koju ne koristiš.",
     "cardSaveFailed": "Kartica nije spremljena. Pokušaj ponovno.",
     "cardDeleteFailed": "Kartica nije obrisana. Pokušaj ponovno.",
     "photoDeleteFailed": "Slika nije obrisana. Pokušaj ponovno.",

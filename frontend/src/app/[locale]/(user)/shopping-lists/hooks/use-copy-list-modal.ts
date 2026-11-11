@@ -6,6 +6,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { isLimitReached } from "@/lib/limits/limit-reached";
 
 import { shoppingListService } from "@/lib/api";
 import { isDeadListLink } from "@/lib/api/shopping-lists/is-dead-list-link";
@@ -106,8 +107,9 @@ export function useCopyListModal(id: string) {
       // replace, not close-then-push: closeModalUrl pops asynchronously and would undo it.
       toast.success(t("copyModal.successToast"));
       router.replace(shoppingListPath(copy.id));
-    } catch {
-      toast.error(t("copyModal.errorToast"));
+    } catch (error) {
+      // The limit dialog explains that one.
+      if (!isLimitReached(error)) toast.error(t("copyModal.errorToast"));
     }
   }
 

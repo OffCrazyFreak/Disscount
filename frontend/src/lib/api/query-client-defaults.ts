@@ -12,6 +12,8 @@ import { isCancel } from "axios";
 import { ZodError } from "zod";
 
 import { isReportedByProxy } from "@/lib/api/problem-details";
+import { limitReachedOf } from "@/lib/limits/limit-reached";
+import { showLimitReached } from "@/lib/limits/limit-reached-store";
 import { httpStatus } from "@/lib/offline/failure-policy";
 import { isNetworkFailure } from "@/lib/offline/is-network-failure";
 
@@ -106,8 +108,13 @@ export function createQueryClientConfig(): QueryClientConfig {
       onSuccess: (_data, query) => queriesReportedFailing.delete(query),
     }),
     mutationCache: new MutationCache({
-      onError: (error, _variables, _context, mutation) =>
-        reportUnexpectedFailure(error, mutation.options.mutationKey),
+      onError: (error, _variables, _context, mutation) => {
+        // Here, not per hook, so a create replayed from the offline queue opens the dialog too.
+        const limitReached = limitReachedOf(error);
+        if (limitReached) showLimitReached(limitReached);
+
+        reportUnexpectedFailure(error, mutation.options.mutationKey);
+      },
     }),
     defaultOptions: {
       queries: {

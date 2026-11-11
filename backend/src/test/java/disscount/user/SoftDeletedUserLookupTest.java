@@ -8,6 +8,7 @@ import disscount.shared.Timestamps;
 import disscount.shoppinglist.ShoppingListAccessService;
 import disscount.shoppinglist.ShoppingListGuard;
 import disscount.shoppinglist.ShoppingListMapper;
+import disscount.shoppinglist.ShoppingListQuota;
 import disscount.shoppinglist.ShoppingListRequest;
 import disscount.shoppinglist.ShoppingListService;
 import disscount.watchlist.WatchlistItemRequest;
@@ -29,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DataJpaTest(showSql = false)
 @Import({ActiveUsers.class, WatchlistItemService.class, PinnedPlaceService.class, PinnedStoreService.class,
         ShoppingListService.class, ShoppingListAccessService.class, ShoppingListGuard.class,
-        ShoppingListMapper.class})
+        ShoppingListMapper.class, ShoppingListQuota.class})
 class SoftDeletedUserLookupTest {
 
     @Autowired UserRepository users;

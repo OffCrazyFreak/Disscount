@@ -16,7 +16,7 @@ Sharing a list (link access levels, the one route that serves owners and link vi
 | Modals           | `?modal=shopping-list/new`, `shopping-list/edit&id=`, `shopping-list/copy&id=`, `shopping-list/share&id=`, `shopping-list-actions&id=`, `add-to-list&ean=` (optionally `&list=`), `add-plain-item` (optionally `&item=`) |
 | Backend packages | `disscount.shoppinglist` (lists, access, copy, items, merging)                                                                                                                                                           |
 | Tables           | `shopping_list`, `shopping_list_item` (both soft delete with `deleted_at`)                                                                                                                                               |
-| Limits           | title 3 to 100 characters (frontend form rule only), item amount 1 to 999, item name 255 characters (the column width)                                                                                                   |
+| Limits           | 50 lists per person and 50 items per list ([BACKEND.md §7.1](BACKEND.md#71-per-user-limits)), title 3 to 100 characters (frontend form rule only), item amount 1 to 999, item name 255 characters (the column width)     |
 | Who adds items   | only the owner, on the server and in the UI                                                                                                                                                                              |
 | Prices           | live from the cijene API per EAN; a ticked item keeps the prices captured when it was ticked                                                                                                                             |
 | Offline          | lists and items are cached on the device; create, rename, delete, add, tick and remove queue and replay                                                                                                                  |
@@ -230,6 +230,10 @@ The list rename works the same way on the list's own fields, and also writes the
 **Polling yields to writes.** A poll landing mid-write would replace the optimistic cache with the pre-write list, so `useGetShoppingListById` subscribes to `useIsMutating({ mutationKey: ["shoppingLists"] })` and pauses polling while any list write is pending. Every list write key starts with `shoppingLists` for this reason; a new one has to as well.
 
 **The create and edit modal close optimistically.** `use-shopping-list-modal.ts` closes the modal on submit, online or offline, and reopens it with the error if the write fails. Offline it also shows a "will sync when back online" toast, because a paused mutation only resolves on reconnect.
+
+### The limit dialog
+
+A create refused at a per-user limit ([BACKEND.md §7.1](BACKEND.md#71-per-user-limits)) opens one dialog, `components/custom/limit-reached/limit-reached-dialog.tsx`, for lists, items, watchlist entries and cards alike. It says the limit in one sentence and has a button that opens the contact form (`?modal=contact`). The query client's `MutationCache.onError` (`lib/api/query-client-defaults.ts`) opens it through a small module store (`lib/limits/limit-reached-store.ts`), so a create replayed from the offline queue after a reload opens it too. The call sites skip their own toast or reopened form for that error (`isLimitReached`), and the typed draft stays saved. A 409 is a permanent failure, so a queued create past the limit is dropped and the refetch removes its optimistic row.
 
 ---
 

@@ -11,6 +11,7 @@ import { useRouter } from "@/i18n/navigation";
 import { shoppingListService } from "@/lib/api";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { stashModalError } from "@/lib/modal/modal-error-bus";
+import { isLimitReached } from "@/lib/limits/limit-reached";
 import { useModalError } from "@/hooks/use-modal-error";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import {
@@ -154,6 +155,9 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
         },
       );
     } catch (error) {
+      // The limit dialog explains it; the draft stays for when there is room again.
+      if (isLimitReached(error)) return;
+
       // The close's cleanup flush already ran, so this removal is not written back over.
       const submittedKey = draftKeyFor(itemName);
       if (submittedKey !== draftKey) removeFormDraft(draftKey);

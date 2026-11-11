@@ -36,6 +36,7 @@ import {
   shoppingListRequestSchema,
   storeNameSuggestionDtoSchema,
   userDtoSchema,
+  userLimitSchema,
   userRequestSchema,
   watchlistItemDtoSchema,
   watchlistItemRequestSchema,
@@ -142,6 +143,7 @@ const MIRRORED_ENUMS: Record<string, string[]> = {
   QueueFilter: enumValues(photoQueueFilterSchema).map((filter) =>
     filter.toUpperCase(),
   ),
+  UserLimit: enumValues(userLimitSchema),
   WatchType: enumValues(watchlistItemDtoSchema.shape.watchType),
 };
 
