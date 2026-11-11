@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 class ProductImageAdminService {
 
     static final int MAX_PAGE_SIZE = 100;
@@ -47,7 +48,6 @@ class ProductImageAdminService {
     @Qualifier(PhotoStoreConfig.PRODUCT_ORIGINALS)
     private final PhotoStore originals;
 
-    @Transactional(readOnly = true)
     public AdminQueuePageDto queue(String filter, int page, int size) {
         PageRequest request = PageRequest.of(Math.max(0, page), Math.min(MAX_PAGE_SIZE, Math.max(1, size)));
         Page<ProductImageSet> result = switch (parseFilter(filter)) {
@@ -68,7 +68,6 @@ class ProductImageAdminService {
                 sets.countReviewed());
     }
 
-    @Transactional(readOnly = true)
     public AdminProductDto product(String ean) {
         ProductImageQueryService.requireEan(ean);
         ProductImageSet set = sets.findById(ean).orElseGet(() -> ProductImageSet.builder().ean(ean).build());
@@ -137,7 +136,6 @@ class ProductImageAdminService {
         return product(image.getEan());
     }
 
-    @Transactional(readOnly = true)
     public List<ContributorPhotoCountDto> contributorCounts() {
         return images.countByContributor().stream()
                 .map(c -> new ContributorPhotoCountDto(c.getUserId(), c.getUploaded(), c.getDeleted()))
@@ -168,7 +166,6 @@ class ProductImageAdminService {
     }
 
     /** The private upload behind a user or admin photo, for the crop screen; Open Food Facts serves its own. */
-    @Transactional(readOnly = true)
     public StoredPhoto original(UUID imageId) {
         ProductImage image = images.findById(imageId)
                 .filter(i -> i.getSource() != ImageSource.OPEN_FOOD_FACTS && i.getOriginalKey() != null && !i.isDeleted())

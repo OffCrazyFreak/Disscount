@@ -1,16 +1,17 @@
 package disscount.preferences;
 
-import lombok.Builder;
-import lombok.Data;
+import disscount.shared.AlphabeticalJson;
 
 import java.util.UUID;
 
-@Data
-@Builder
-class PinnedStoreDto {
+@AlphabeticalJson
+record PinnedStoreDto(UUID id, UUID userId, String storeApiId, String storeName) {
 
-    private UUID id;
-    private UUID userId;
-    private String storeApiId;
-    private String storeName;
+    static PinnedStoreDto from(PinnedStore pinnedStore) {
+        return new PinnedStoreDto(
+                pinnedStore.getId(),
+                pinnedStore.getUserId(),
+                pinnedStore.getStoreApiId(),
+                pinnedStore.getStoreName());
+    }
 }

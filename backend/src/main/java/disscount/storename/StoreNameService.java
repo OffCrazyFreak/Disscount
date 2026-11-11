@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.shared.BadRequestException;
@@ -16,6 +17,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class StoreNameService {
 
     private static final int MAX_RESULTS = 50;
@@ -26,6 +28,7 @@ public class StoreNameService {
     private final StoreNameUpsert upsert;
 
     /** Its own transaction so a duplicate-key race cannot roll back the card save; the loser retries once. */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void record(UUID userId, String name) {
         String cleaned = StoreNameNormalizer.clean(name);
         String normalized = StoreNameNormalizer.normalize(name);
@@ -55,7 +58,6 @@ public class StoreNameService {
         usageRepository.deleteAllByUserId(userId);
     }
 
-    @Transactional(readOnly = true)
     public List<StoreNameSuggestionDto> search(String query) {
         if (query != null && query.indexOf('\u0000') >= 0) {
             throw new BadRequestException("error.storeName.invalidCharacter");
@@ -70,7 +72,7 @@ public class StoreNameService {
                 ? repository.findTopVisible(page)
                 : repository.search(escapeLike(normalized), page);
 
-        return found.stream().map(s -> new StoreNameSuggestionDto(s.getName())).toList();
+        return found.stream().map(StoreNameSuggestionDto::from).toList();
     }
 
     private static String escapeLike(String value) {

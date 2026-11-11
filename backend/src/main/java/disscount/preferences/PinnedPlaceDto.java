@@ -1,16 +1,17 @@
 package disscount.preferences;
 
-import lombok.Builder;
-import lombok.Data;
+import disscount.shared.AlphabeticalJson;
 
 import java.util.UUID;
 
-@Data
-@Builder
-class PinnedPlaceDto {
+@AlphabeticalJson
+record PinnedPlaceDto(UUID id, UUID userId, String placeApiId, String placeName) {
 
-    private UUID id;
-    private UUID userId;
-    private String placeApiId;
-    private String placeName;
+    static PinnedPlaceDto from(PinnedPlace pinnedPlace) {
+        return new PinnedPlaceDto(
+                pinnedPlace.getId(),
+                pinnedPlace.getUserId(),
+                pinnedPlace.getPlaceApiId(),
+                pinnedPlace.getPlaceName());
+    }
 }

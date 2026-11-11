@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /** Booleans, not a level enum, as a copy can take products without progress, or sharing without products. */
+// A class, not a record: Jackson 3 rejects a missing primitive in a record, and a missing flag here means false.
 @Data
 public class ShoppingListCopyRequest {
 

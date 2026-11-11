@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -48,22 +49,22 @@ class SoftDeletedUserLookupTest {
 
     @Test
     void aSoftDeletedUserCannotWriteAWatchlistItem() {
-        assertRefusedAsUnknownUser(() -> watchlist.addOrUpdateWatchlist(deletedUserId, new WatchlistItemRequest()));
+        assertRefusedAsUnknownUser(() -> watchlist.addOrUpdateWatchlist(deletedUserId, new WatchlistItemRequest(null, null, null)));
     }
 
     @Test
     void aSoftDeletedUserCannotReplacePinnedPlaces() {
-        assertRefusedAsUnknownUser(() -> pinnedPlaces.updatePinnedPlaces(deletedUserId, new BulkPinnedPlaceRequest()));
+        assertRefusedAsUnknownUser(() -> pinnedPlaces.updatePinnedPlaces(deletedUserId, new BulkPinnedPlaceRequest(List.of())));
     }
 
     @Test
     void aSoftDeletedUserCannotReplacePinnedStores() {
-        assertRefusedAsUnknownUser(() -> pinnedStores.updatePinnedStores(deletedUserId, new BulkPinnedStoreRequest()));
+        assertRefusedAsUnknownUser(() -> pinnedStores.updatePinnedStores(deletedUserId, new BulkPinnedStoreRequest(List.of())));
     }
 
     @Test
     void aSoftDeletedUserCannotCreateOrReadShoppingLists() {
-        assertRefusedAsUnknownUser(() -> shoppingLists.createShoppingList(deletedUserId, new ShoppingListRequest()));
+        assertRefusedAsUnknownUser(() -> shoppingLists.createShoppingList(deletedUserId, new ShoppingListRequest("Popis", null)));
         assertRefusedAsUnknownUser(() -> shoppingLists.getUserShoppingLists(deletedUserId));
         assertRefusedAsUnknownUser(() -> shoppingLists.requireWriteUser(deletedUserId));
     }

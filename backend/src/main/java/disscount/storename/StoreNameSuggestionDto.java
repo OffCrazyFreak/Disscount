@@ -1,13 +1,8 @@
 package disscount.storename;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+record StoreNameSuggestionDto(String name) {
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-class StoreNameSuggestionDto {
-
-    private String name;
+    static StoreNameSuggestionDto from(StoreNameSuggestion suggestion) {
+        return new StoreNameSuggestionDto(suggestion.getName());
+    }
 }

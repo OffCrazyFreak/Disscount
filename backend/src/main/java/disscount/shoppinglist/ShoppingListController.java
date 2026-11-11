@@ -11,7 +11,6 @@ import disscount.shared.SecurityUtils;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/shopping-lists")
@@ -75,11 +74,7 @@ class ShoppingListController {
     @GetMapping("/items")
     public ResponseEntity<List<ShoppingListItemDto>> getAllUserShoppingListItems() {
         UUID ownerId = SecurityUtils.getCurrentUserId();
-        List<ShoppingListDto> lists = shoppingListService.getUserShoppingLists(ownerId);
-        List<ShoppingListItemDto> items = lists.stream()
-                .flatMap(list -> list.getItems().stream())
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(items);
+        return ResponseEntity.ok(shoppingListService.getUserShoppingListItems(ownerId));
     }
 
     /** Null for an anonymous caller on the by-id routes, which is a legitimate state there. */

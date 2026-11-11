@@ -14,8 +14,7 @@ class BulkFavoriteStoreRequestTest {
 
     @Test
     void aNullStoreIsAValidationErrorNotAServerError() {
-        BulkFavoriteStoreRequest request = new BulkFavoriteStoreRequest();
-        request.setStores(Arrays.asList((FavoriteStoreRequest) null));
+        BulkFavoriteStoreRequest request = new BulkFavoriteStoreRequest(Arrays.asList((FavoriteStoreRequest) null));
 
         assertThat(validator.validate(request)).isNotEmpty();
     }

@@ -30,9 +30,7 @@ class UserServiceAvatarTest {
     private UserRequest withImage(String image) {
         when(userRepository.requireActive(user.getId())).thenReturn(user);
         when(userRepository.save(any(User.class))).thenAnswer(call -> call.getArgument(0));
-        UserRequest request = new UserRequest();
-        request.setImage(image);
-        return request;
+        return new UserRequest(null, null, null, null, null, null, image, null);
     }
 
     private static String dataUri(String type, byte[] bytes) {

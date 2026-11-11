@@ -15,18 +15,19 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class FavoriteStoreService {
 
     private final FavoriteStoreRepository favoriteStoreRepository;
     private final ActiveUsers activeUsers;
 
     /** Replaces the user's whole list, the way pinned places are saved. */
+    @Transactional
     public List<FavoriteStoreDto> updateFavoriteStores(UUID userId, BulkFavoriteStoreRequest request) {
         activeUsers.lockActive(userId);
 
-        List<String> keys = request.getStores().stream()
-                .map(FavoriteStoreRequest::getStoreKey)
+        List<String> keys = request.stores().stream()
+                .map(FavoriteStoreRequest::storeKey)
                 .toList();
 
         if (keys.stream().distinct().count() < keys.size()) {
@@ -40,31 +41,25 @@ public class FavoriteStoreService {
                 .map(key -> FavoriteStore.builder().userId(userId).storeKey(key).build())
                 .toList());
 
-        return saved.stream().map(this::mapToDto).toList();
+        return saved.stream().map(FavoriteStoreDto::from).toList();
     }
 
-    @Transactional(readOnly = true)
     public List<FavoriteStoreDto> getUserFavoriteStores(UUID userId) {
         return favoriteStoreRepository.findByUserId(userId).stream()
-                .map(this::mapToDto)
+                .map(FavoriteStoreDto::from)
                 .toList();
     }
 
     /** Favourite stores show where the person shops. */
     @EventListener
     @Order(30)
+    @Transactional
     public void onAccountErased(AccountErased erased) {
         deleteAllForUser(erased.userId());
     }
 
+    @Transactional
     public void deleteAllForUser(UUID userId) {
         favoriteStoreRepository.deleteAllByUserId(userId);
-    }
-
-    private FavoriteStoreDto mapToDto(FavoriteStore favoriteStore) {
-        return FavoriteStoreDto.builder()
-                .id(favoriteStore.getId())
-                .storeKey(favoriteStore.getStoreKey())
-                .build();
     }
 }

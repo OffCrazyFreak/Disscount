@@ -46,7 +46,7 @@ class ContactMessageServiceTest {
 
     @Test
     void aSignedInUserIsStoredAsTheSender() {
-        assertThat(service.create(request()).orElseThrow().getUserId()).isEqualTo(user.getId());
+        assertThat(service.create(request()).orElseThrow().userId()).isEqualTo(user.getId());
     }
 
     @Test
@@ -56,14 +56,13 @@ class ContactMessageServiceTest {
 
         ContactMessageDto message = service.create(request()).orElseThrow();
 
-        assertThat(message.getUserId()).isNull();
-        assertThat(message.getSubject()).isEqualTo("Pozdrav");
+        assertThat(message.userId()).isNull();
+        assertThat(message.subject()).isEqualTo("Pozdrav");
     }
 
     @Test
     void aHoneypotSubmissionIsDroppedWithoutAMessage() {
-        ContactMessageRequest bot = request();
-        bot.setHoneypot("https://spam.example");
+        ContactMessageRequest bot = request("https://spam.example");
 
         assertThat(service.create(bot)).isEmpty();
         assertThat(service.list(true)).isEmpty();
@@ -71,8 +70,7 @@ class ContactMessageServiceTest {
 
     @Test
     void aWhitespaceOnlyHoneypotIsDroppedWithoutAMessage() {
-        ContactMessageRequest bot = request();
-        bot.setHoneypot("   ");
+        ContactMessageRequest bot = request("   ");
 
         assertThat(service.create(bot)).isEmpty();
         assertThat(service.list(true)).isEmpty();
@@ -87,9 +85,10 @@ class ContactMessageServiceTest {
     }
 
     private static ContactMessageRequest request() {
-        ContactMessageRequest request = new ContactMessageRequest();
-        request.setSubject("Pozdrav");
-        request.setMessage("Poruka");
-        return request;
+        return request(null);
+    }
+
+    private static ContactMessageRequest request(String honeypot) {
+        return new ContactMessageRequest(null, null, "Pozdrav", "Poruka", null, honeypot);
     }
 }

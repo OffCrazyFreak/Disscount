@@ -49,8 +49,8 @@ class ShoppingListItemServiceAddTest {
     void aPlainItemIsSavedWithoutAnEan() {
         ShoppingListItemDto added = add(null, "Staklenke", 2);
 
-        assertThat(added.getEan()).isNull();
-        assertThat(added.getAmount()).isEqualTo(2);
+        assertThat(added.ean()).isNull();
+        assertThat(added.amount()).isEqualTo(2);
     }
 
     @Test
@@ -117,7 +117,7 @@ class ShoppingListItemServiceAddTest {
         ShoppingListItemDto added = add("3850000000001", "Mlijeko", 1);
 
         ShoppingListItemRequest update = request(null, "Mlijeko", 3);
-        service.updateShoppingListItem(list.getId(), added.getId(), owner.getId(), update);
+        service.updateShoppingListItem(list.getId(), added.id(), owner.getId(), update);
 
         assertThat(activeItems()).singleElement().satisfies(item -> {
             assertThat(item.getEan()).isEqualTo("3850000000001");
@@ -134,10 +134,6 @@ class ShoppingListItemServiceAddTest {
     }
 
     private static ShoppingListItemRequest request(String ean, String name, int amount) {
-        ShoppingListItemRequest request = new ShoppingListItemRequest();
-        request.setEan(ean);
-        request.setName(name);
-        request.setAmount(amount);
-        return request;
+        return new ShoppingListItemRequest(ean, null, name, null, null, amount, null, null, null, null);
     }
 }

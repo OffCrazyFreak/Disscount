@@ -9,7 +9,7 @@ import java.util.UUID;
 /** What other features may ask about a user: whether the account is live, and its row lock. */
 @Component
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class ActiveUsers {
 
     private final UserRepository users;
@@ -24,11 +24,13 @@ public class ActiveUsers {
     }
 
     /** Locks the caller's profile until commit, so a write racing account deletion lands first or is refused. */
+    @Transactional
     public void lockActive(UUID userId) {
         users.requireActiveForUpdate(userId);
     }
 
     /** {@link #lockActive} for work that should quietly do nothing once the account is gone. */
+    @Transactional
     public boolean lockIfActive(UUID userId) {
         return users.findByIdForUpdate(userId)
                 .filter(user -> user.getDeletedAt() == null)

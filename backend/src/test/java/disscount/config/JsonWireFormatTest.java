@@ -8,13 +8,19 @@ import disscount.digitalcard.DigitalCardDto;
 import disscount.shoppinglist.ShoppingListCopyRequest;
 import disscount.user.UserDto;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.RecordComponent;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -65,7 +71,7 @@ class JsonWireFormatTest {
                 "{\"id\":\"8d2c1f0e-3a4b-4c5d-9e6f-7a8b9c0d1e2f\",\"usedAt\":\"2026-03-01T12:15:30+02:00\",\"extra\":1}",
                 CardUsedEntry.class);
 
-        assertThat(entry.getUsedAt()).isEqualTo(Instant.parse("2026-03-01T10:15:30Z"));
+        assertThat(entry.usedAt()).isEqualTo(Instant.parse("2026-03-01T10:15:30Z"));
     }
 
     // Jackson 3 rejects a null for a primitive where Jackson 2 read it as false; the frontend always sends booleans.
@@ -75,5 +81,30 @@ class JsonWireFormatTest {
                 .isInstanceOf(JacksonException.class);
 
         assertThat(json.readValue("{\"title\":\"Kopija\"}", ShoppingListCopyRequest.class).isIncludeItems()).isFalse();
+    }
+
+    // Lombok @Builder classes before they became records, which Jackson 3 wrote in alphabetical key order.
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "disscount.contact.ContactMessageDto",
+            "disscount.preferences.FavoriteStoreDto",
+            "disscount.preferences.PinnedPlaceDto",
+            "disscount.preferences.PinnedStoreDto",
+            "disscount.shoppinglist.ShoppingListDto",
+            "disscount.shoppinglist.ShoppingListItemDto",
+            "disscount.watchlist.WatchlistItemDto"})
+    void formerBuilderDtosKeepTheirAlphabeticalKeyOrder(String className) throws Exception {
+        JsonNode dto = json.valueToTree(emptyRecord(Class.forName(className)));
+
+        assertThat(List.copyOf(dto.propertyNames())).isNotEmpty().isSorted();
+    }
+
+    private static Object emptyRecord(Class<?> type) throws Exception {
+        Class<?>[] componentTypes = Arrays.stream(type.getRecordComponents())
+                .map(RecordComponent::getType)
+                .toArray(Class<?>[]::new);
+        Constructor<?> canonical = type.getDeclaredConstructor(componentTypes);
+        canonical.setAccessible(true);
+        return canonical.newInstance(new Object[componentTypes.length]);
     }
 }

@@ -1,14 +1,13 @@
 package disscount.preferences;
 
-import lombok.Builder;
-import lombok.Data;
+import disscount.shared.AlphabeticalJson;
 
 import java.util.UUID;
 
-@Data
-@Builder
-class FavoriteStoreDto {
+@AlphabeticalJson
+record FavoriteStoreDto(UUID id, String storeKey) {
 
-    private UUID id;
-    private String storeKey;
+    static FavoriteStoreDto from(FavoriteStore favoriteStore) {
+        return new FavoriteStoreDto(favoriteStore.getId(), favoriteStore.getStoreKey());
+    }
 }

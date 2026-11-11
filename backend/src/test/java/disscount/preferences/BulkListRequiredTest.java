@@ -36,4 +36,16 @@ class BulkListRequiredTest extends FullStackTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.type").value("urn:disscount:validation"));
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/api/pinned-stores/bulk", "/api/pinned-places/bulk", "/api/favorite-stores/bulk"})
+    void aNullEntryIsAValidationError(String url) throws Exception {
+        User caller = newUser("caller");
+        String field = url.contains("places") ? "places" : "stores";
+
+        mvc.perform(put(url).with(as(caller)).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"" + field + "\":[null]}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("urn:disscount:validation"));
+    }
 }

@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +30,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class DigitalCardPhotoService {
 
     private static final Logger log = LoggerFactory.getLogger(DigitalCardPhotoService.class);
@@ -51,6 +53,7 @@ public class DigitalCardPhotoService {
     public record PhotoStream(StoredPhoto photo, String sha256, boolean thumb) {}
 
     /** Only the row write is transactional, and if it fails the objects just stored are removed. */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public CardPhotoDto upload(UUID userId, UUID cardId, String slot, MultipartFile full, MultipartFile thumb) {
         if (!photoStore.enabled()) {
             throw new ServiceUnavailableException("error.cardPhoto.unavailable");
@@ -94,7 +97,6 @@ public class DigitalCardPhotoService {
         }
     }
 
-    @Transactional(readOnly = true)
     public PhotoStream open(UUID userId, UUID cardId, String slot, boolean thumb, String version) {
         requireSlot(slot);
         requireCard(userId, cardId);
@@ -118,7 +120,6 @@ public class DigitalCardPhotoService {
         return new PhotoStream(stored, row.getSha256(), thumb);
     }
 
-    @Transactional(readOnly = true)
     public String currentSha256(UUID userId, UUID cardId, String slot) {
         requireSlot(slot);
         requireCard(userId, cardId);
@@ -127,6 +128,7 @@ public class DigitalCardPhotoService {
                 .orElseThrow(() -> new NotFoundException("error.cardPhoto.notFound"));
     }
 
+    @Transactional
     public void delete(UUID userId, UUID cardId, String slot) {
         requireSlot(slot);
         writer.remove(userId, cardId, slot);

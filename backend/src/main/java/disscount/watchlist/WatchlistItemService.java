@@ -14,44 +14,45 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class WatchlistItemService {
 
     private final WatchlistItemRepository watchlistItemRepository;
     private final ActiveUsers activeUsers;
 
+    @Transactional
     public WatchlistItemDto addOrUpdateWatchlist(UUID userId, WatchlistItemRequest request) {
         activeUsers.requireActive(userId);
 
         Optional<WatchlistItem> existing = watchlistItemRepository
-                .findByProductApiIdAndWatchType(request.getProductApiId(), request.getWatchType(), userId);
+                .findByProductApiIdAndWatchType(request.productApiId(), request.watchType(), userId);
         
         if (existing.isPresent()) {
             WatchlistItem watchlistItem = existing.get();
-            watchlistItem.setThresholdValue(request.getThresholdValue());
+            watchlistItem.setThresholdValue(request.thresholdValue());
             WatchlistItem saved = watchlistItemRepository.save(watchlistItem);
-            return mapToDto(saved);
+            return WatchlistItemDto.from(saved);
         }
 
         WatchlistItem watchlistItem = WatchlistItem.builder()
                 .userId(userId)
-                .productApiId(request.getProductApiId())
-                .watchType(request.getWatchType())
-                .thresholdValue(request.getThresholdValue())
+                .productApiId(request.productApiId())
+                .watchType(request.watchType())
+                .thresholdValue(request.thresholdValue())
                 .build();
 
         WatchlistItem saved = watchlistItemRepository.save(watchlistItem);
-        return mapToDto(saved);
+        return WatchlistItemDto.from(saved);
     }
 
-    @Transactional(readOnly = true)
     public List<WatchlistItemDto> getUserWatchlist(UUID userId) {
         return watchlistItemRepository.findByUserId(userId)
                 .stream()
-                .map(this::mapToDto)
+                .map(WatchlistItemDto::from)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void removeFromWatchlist(UUID id, UUID userId) {
         WatchlistItem watchlistItem = watchlistItemRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new NotFoundException("error.watchlistItem.notFound"));
@@ -62,25 +63,12 @@ public class WatchlistItemService {
         }
     }
 
-    @Transactional(readOnly = true)
     public List<WatchlistItemDto> getWatchlistItemsByProductApiId(UUID userId, String productApiId) {
         List<WatchlistItem> watchlistItems = watchlistItemRepository
                 .findByProductApiId(productApiId, userId);
 
         return watchlistItems.stream()
-                .map(this::mapToDto)
+                .map(WatchlistItemDto::from)
                 .collect(Collectors.toList());
-    }
-
-    private WatchlistItemDto mapToDto(WatchlistItem watchlistItem) {
-        return WatchlistItemDto.builder()
-                .id(watchlistItem.getId())
-                .userId(watchlistItem.getUserId())
-                .productApiId(watchlistItem.getProductApiId())
-                .watchType(watchlistItem.getWatchType())
-                .thresholdValue(watchlistItem.getThresholdValue())
-                .createdAt(watchlistItem.getCreatedAt())
-                .updatedAt(watchlistItem.getUpdatedAt())
-                .build();
     }
 }

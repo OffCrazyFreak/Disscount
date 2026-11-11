@@ -12,48 +12,39 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class PinnedPlaceService {
 
     private final PinnedPlaceRepository pinnedPlaceRepository;
     private final ActiveUsers activeUsers;
 
+    @Transactional
     public List<PinnedPlaceDto> updatePinnedPlaces(UUID userId, BulkPinnedPlaceRequest request) {
         activeUsers.lockActive(userId);
 
-        long distinctIds = request.getPlaces().stream().map(PinnedPlaceRequest::getPlaceApiId).distinct().count();
+        long distinctIds = request.places().stream().map(PinnedPlaceRequest::placeApiId).distinct().count();
 
-        if (distinctIds < request.getPlaces().size()) {
+        if (distinctIds < request.places().size()) {
             throw new BadRequestException("error.pinnedPlace.duplicate");
         }
 
         pinnedPlaceRepository.deleteAllByUserId(userId);
         pinnedPlaceRepository.flush();
 
-        List<PinnedPlace> saved = pinnedPlaceRepository.saveAll(request.getPlaces().stream()
+        List<PinnedPlace> saved = pinnedPlaceRepository.saveAll(request.places().stream()
                 .map(place -> PinnedPlace.builder()
                         .userId(userId)
-                        .placeApiId(place.getPlaceApiId())
-                        .placeName(place.getPlaceName())
+                        .placeApiId(place.placeApiId())
+                        .placeName(place.placeName())
                         .build())
                 .toList());
 
-        return saved.stream().map(this::mapToDto).toList();
+        return saved.stream().map(PinnedPlaceDto::from).toList();
     }
 
-    @Transactional(readOnly = true)
     public List<PinnedPlaceDto> getUserPinnedPlaces(UUID userId) {
         return pinnedPlaceRepository.findByUserId(userId).stream()
-                .map(this::mapToDto)
+                .map(PinnedPlaceDto::from)
                 .toList();
-    }
-
-    private PinnedPlaceDto mapToDto(PinnedPlace pinnedPlace) {
-        return PinnedPlaceDto.builder()
-                .id(pinnedPlace.getId())
-                .userId(pinnedPlace.getUserId())
-                .placeApiId(pinnedPlace.getPlaceApiId())
-                .placeName(pinnedPlace.getPlaceName())
-                .build();
     }
 }

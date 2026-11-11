@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /** By-id methods run with an optional bearer token, so userId may be null; authorization is here (docs/SHARING.md). */
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class ShoppingListService {
 
     private final ShoppingListRepository shoppingListRepository;
@@ -25,22 +25,21 @@ public class ShoppingListService {
     private final ShoppingListAccessService accessService;
     private final ShoppingListMapper shoppingListMapper;
 
+    @Transactional
     public ShoppingListDto createShoppingList(UUID ownerId, ShoppingListRequest request) {
         activeUsers.requireActive(ownerId);
 
         ShoppingList shoppingList = ShoppingList.builder()
                 .ownerId(ownerId)
-                .title(request.getTitle())
+                .title(request.title())
                 .build();
 
-        applyLinkAccess(shoppingList, request.getLinkAccess());
+        applyLinkAccess(shoppingList, request.linkAccess());
 
         shoppingList = shoppingListRepository.save(shoppingList);
         return shoppingListMapper.toDto(shoppingList, ListAccess.OWNER);
     }
 
-    // Read-only, or the class-level @Transactional would keep a dirty-checking flush for a query that never writes.
-    @Transactional(readOnly = true)
     public List<ShoppingListDto> getUserShoppingLists(UUID ownerId) {
         activeUsers.requireActive(ownerId);
 
@@ -50,18 +49,25 @@ public class ShoppingListService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
+    /** The owner's live items across all live lists, in list order, as the owner sees them. */
+    public List<ShoppingListItemDto> getUserShoppingListItems(UUID ownerId) {
+        return getUserShoppingLists(ownerId).stream()
+                .flatMap(list -> list.items().stream())
+                .toList();
+    }
+
     public ShoppingListDto getShoppingListById(UUID listId, UUID userId) {
         ShoppingList list = findVisible(listId, userId);
         return shoppingListMapper.toDto(list, accessService.resolve(list, userId));
     }
 
     /** Renaming and resharing are separate rights; folding them lets EDIT reshare. */
+    @Transactional
     public ShoppingListDto updateShoppingList(UUID listId, UUID userId, ShoppingListRequest request) {
         ShoppingList list = findVisible(listId, userId);
         ListAccess access = accessService.resolve(list, userId);
 
-        if (request.getLinkAccess() != null && !access.canManageShare()) {
+        if (request.linkAccess() != null && !access.canManageShare()) {
             throw new ForbiddenException("error.shoppingList.ownerOnlyAccess");
         }
 
@@ -70,12 +76,13 @@ public class ShoppingListService {
             throw new ForbiddenException("error.shoppingList.insufficientAccess");
         }
 
-        list.setTitle(request.getTitle());
-        applyLinkAccess(list, request.getLinkAccess());
+        list.setTitle(request.title());
+        applyLinkAccess(list, request.linkAccess());
 
         return shoppingListMapper.toDto(shoppingListRepository.save(list), access);
     }
 
+    @Transactional
     public void deleteShoppingList(UUID listId, UUID userId) {
         ShoppingList list = findVisible(listId, userId);
 

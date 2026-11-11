@@ -12,6 +12,7 @@ import java.util.UUID;
 /** No transaction or pooled connection is held while the image is re-encoded or written to disk. */
 @Component
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CardPhotoWriter {
 
     /** The objects already stored for a photo; {@code thumbKey} is null for the icon slot. */

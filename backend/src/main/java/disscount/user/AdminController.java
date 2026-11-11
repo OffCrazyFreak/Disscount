@@ -33,7 +33,7 @@ class AdminController {
             @PathVariable UUID userId,
             @Valid @RequestBody UpdateAccountTypeRequest request
     ) {
-        return ResponseEntity.ok(userService.updateAccountType(userId, request.getAccountType()));
+        return ResponseEntity.ok(userService.updateAccountType(userId, request.accountType()));
     }
 
     @Operation(summary = "Delete a user (admin only)")

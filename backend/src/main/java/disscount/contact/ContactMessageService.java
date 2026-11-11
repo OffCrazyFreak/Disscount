@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 class ContactMessageService {
 
     private final ContactMessageRepository contactMessageRepository;
@@ -27,9 +27,10 @@ class ContactMessageService {
     // Bounds the admin list query; a full paginated UI is a possible follow-up.
     private static final int MAX_ADMIN_MESSAGES = 500;
 
+    @Transactional
     public Optional<ContactMessageDto> create(ContactMessageRequest request) {
         // Browsers send the hidden field empty; any character a bot puts there, whitespace included, is a hit.
-        if (StringUtils.hasLength(request.getHoneypot())) {
+        if (StringUtils.hasLength(request.honeypot())) {
             return Optional.empty();
         }
 
@@ -39,14 +40,14 @@ class ContactMessageService {
 
         ContactMessage message = ContactMessage.builder()
                 .senderId(senderId)
-                .email(request.getEmail())
-                .fullName(request.getFullName())
-                .subject(request.getSubject())
-                .message(request.getMessage())
-                .sourcePath(request.getSourcePath())
+                .email(request.email())
+                .fullName(request.fullName())
+                .subject(request.subject())
+                .message(request.message())
+                .sourcePath(request.sourcePath())
                 .build();
 
-        return Optional.of(convertToDto(contactMessageRepository.save(message)));
+        return Optional.of(ContactMessageDto.from(contactMessageRepository.save(message)));
     }
 
     public List<ContactMessageDto> list(boolean includeDeleted) {
@@ -54,25 +55,29 @@ class ContactMessageService {
         List<ContactMessage> messages = includeDeleted
                 ? contactMessageRepository.findAllByOrderByCreatedAtDesc(pageable)
                 : contactMessageRepository.findByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
-        return messages.stream().map(this::convertToDto).toList();
+        return messages.stream().map(ContactMessageDto::from).toList();
     }
 
     public ContactMessageDto getById(UUID id) {
-        return convertToDto(loadOrThrow(id));
+        return ContactMessageDto.from(loadOrThrow(id));
     }
 
+    @Transactional
     public ContactMessageDto markRead(UUID id) {
         return mutate(id, msg -> msg.setReadAt(Timestamps.nowUtc()));
     }
 
+    @Transactional
     public ContactMessageDto markUnread(UUID id) {
         return mutate(id, msg -> msg.setReadAt(null));
     }
 
+    @Transactional
     public ContactMessageDto softDelete(UUID id) {
         return mutate(id, msg -> msg.setDeletedAt(Timestamps.nowUtc()));
     }
 
+    @Transactional
     public ContactMessageDto restore(UUID id) {
         return mutate(id, msg -> msg.setDeletedAt(null));
     }
@@ -80,27 +85,11 @@ class ContactMessageService {
     private ContactMessageDto mutate(UUID id, Consumer<ContactMessage> change) {
         ContactMessage message = loadOrThrow(id);
         change.accept(message);
-        return convertToDto(contactMessageRepository.save(message));
+        return ContactMessageDto.from(contactMessageRepository.save(message));
     }
 
     private ContactMessage loadOrThrow(UUID id) {
         return contactMessageRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("error.contactMessage.notFound"));
-    }
-
-    private ContactMessageDto convertToDto(ContactMessage message) {
-        return ContactMessageDto.builder()
-                .id(message.getId())
-                .userId(message.getSenderId())
-                .email(message.getEmail())
-                .fullName(message.getFullName())
-                .subject(message.getSubject())
-                .message(message.getMessage())
-                .sourcePath(message.getSourcePath())
-                .readAt(message.getReadAt())
-                .createdAt(message.getCreatedAt())
-                .updatedAt(message.getUpdatedAt())
-                .deletedAt(message.getDeletedAt())
-                .build();
     }
 }

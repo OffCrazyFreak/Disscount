@@ -8,14 +8,13 @@ import disscount.shared.ForbiddenException;
 import disscount.shared.NotFoundException;
 import disscount.shared.Timestamps;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 /** Each method resolves access; findVisible answers not-found, so item endpoints cannot probe for list ids. */
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 class ShoppingListItemService {
 
     private final ShoppingListItemRepository shoppingListItemRepository;
@@ -25,6 +24,7 @@ class ShoppingListItemService {
     private final ShoppingListMapper shoppingListMapper;
 
     /** Owner only: an unbounded right to add to someone's list waits for per-person revocation in version 2. */
+    @Transactional
     public ShoppingListItemDto addItemToShoppingList(UUID shoppingListId, UUID userId, ShoppingListItemRequest request) {
         ShoppingList shoppingList = shoppingListService.findVisible(shoppingListId, userId);
         shoppingListService.requireWriteUser(userId);
@@ -33,15 +33,15 @@ class ShoppingListItemService {
             throw new ForbiddenException("error.shoppingList.ownerOnlyAddItems");
         }
 
-        String ean = ShoppingListItemMatcher.blankToNull(request.getEan());
-        String name = request.getName().strip();
+        String ean = ShoppingListItemMatcher.blankToNull(request.ean());
+        String name = request.name().strip();
         Optional<ShoppingListItem> existingItem = ShoppingListItemMatcher.findMergeTarget(
                 shoppingListItemRepository.findActiveByShoppingList(shoppingList), ean, name);
 
         ShoppingListItem item;
         if (existingItem.isPresent()) {
             item = existingItem.get();
-            int requestedAmount = request.getAmount() != null ? request.getAmount() : 1;
+            int requestedAmount = request.amount() != null ? request.amount() : 1;
             // Cap the merged total at the same limit the request DTO enforces (@Max)
             int newAmount = Math.min(item.getAmount() + requestedAmount, 999);
             item.setAmount(newAmount);
@@ -50,12 +50,12 @@ class ShoppingListItemService {
                 item.setEan(ean);
                 item.setName(name);
             }
-            if (request.getBrand() != null) item.setBrand(request.getBrand());
-            if (request.getQuantity() != null) item.setQuantity(request.getQuantity());
-            if (request.getUnit() != null) item.setUnit(request.getUnit());
-            if (request.getChainCode() != null) item.setChainCode(request.getChainCode());
-            if (request.getAvgPrice() != null) item.setAvgPrice(request.getAvgPrice());
-            if (request.getStorePrice() != null) item.setStorePrice(request.getStorePrice());
+            if (request.brand() != null) item.setBrand(request.brand());
+            if (request.quantity() != null) item.setQuantity(request.quantity());
+            if (request.unit() != null) item.setUnit(request.unit());
+            if (request.chainCode() != null) item.setChainCode(request.chainCode());
+            if (request.avgPrice() != null) item.setAvgPrice(request.avgPrice());
+            if (request.storePrice() != null) item.setStorePrice(request.storePrice());
 
             item.setUpdatedAt(Timestamps.nowUtc());
             item.setUpdatedByUserId(userId);
@@ -63,15 +63,15 @@ class ShoppingListItemService {
             item = ShoppingListItem.builder()
                     .shoppingList(shoppingList)
                     .ean(ean)
-                    .brand(request.getBrand())
+                    .brand(request.brand())
                     .name(name)
-                    .quantity(request.getQuantity())
-                    .unit(request.getUnit())
-                    .amount(request.getAmount() != null ? request.getAmount() : 1)
-                    .isChecked(request.getIsChecked() != null ? request.getIsChecked() : false)
-                    .chainCode(request.getChainCode())
-                    .avgPrice(request.getAvgPrice())
-                    .storePrice(request.getStorePrice())
+                    .quantity(request.quantity())
+                    .unit(request.unit())
+                    .amount(request.amount() != null ? request.amount() : 1)
+                    .isChecked(request.isChecked() != null ? request.isChecked() : false)
+                    .chainCode(request.chainCode())
+                    .avgPrice(request.avgPrice())
+                    .storePrice(request.storePrice())
                     .updatedByUserId(userId)
                     .build();
         }
@@ -83,6 +83,7 @@ class ShoppingListItemService {
     }
 
     /** SHOP is enough: ticking off and choosing a store is the in-the-shop level. */
+    @Transactional
     public ShoppingListItemDto updateShoppingListItem(
             UUID listId, UUID itemId, UUID userId, ShoppingListItemRequest request) {
         ShoppingList list = shoppingListService.findVisible(listId, userId);
@@ -101,6 +102,7 @@ class ShoppingListItemService {
         return shoppingListMapper.toItemDto(item, access);
     }
 
+    @Transactional
     public void deleteShoppingListItem(UUID listId, UUID itemId, UUID userId) {
         ShoppingList list = shoppingListService.findVisible(listId, userId);
         shoppingListService.requireWriteUser(userId);
@@ -129,23 +131,23 @@ class ShoppingListItemService {
 
     /** Structural fields stay as stored, so a SHOP caller cannot rename or resize with a fuller payload. */
     private void applyItemUpdate(ShoppingListItem item, ShoppingListItemRequest request, ListAccess access) {
-        item.setIsChecked(request.getIsChecked() != null ? request.getIsChecked() : false);
-        item.setChainCode(request.getChainCode());
-        item.setAvgPrice(request.getAvgPrice());
-        item.setStorePrice(request.getStorePrice());
+        item.setIsChecked(request.isChecked() != null ? request.isChecked() : false);
+        item.setChainCode(request.chainCode());
+        item.setAvgPrice(request.avgPrice());
+        item.setStorePrice(request.storePrice());
 
         if (!access.canEditItems()) {
             return;
         }
 
         // A plain item has no EAN to send back, and a missing one must never unlink a product.
-        String ean = ShoppingListItemMatcher.blankToNull(request.getEan());
+        String ean = ShoppingListItemMatcher.blankToNull(request.ean());
         if (ean != null) item.setEan(ean);
-        item.setBrand(request.getBrand());
-        item.setName(request.getName().strip());
-        item.setQuantity(request.getQuantity());
-        item.setUnit(request.getUnit());
-        item.setAmount(request.getAmount() != null ? request.getAmount() : 1);
+        item.setBrand(request.brand());
+        item.setName(request.name().strip());
+        item.setQuantity(request.quantity());
+        item.setUnit(request.unit());
+        item.setAmount(request.amount() != null ? request.amount() : 1);
     }
 
     /** Item activity reorders the owner's list index, which sorts by updatedAt. */
