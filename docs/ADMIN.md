@@ -80,7 +80,7 @@ The proxy that turns the session into a backend token is in [BACKEND-PROXY.md](B
 
 **Changing an account type** (`PATCH /api/admin/users/{userId}`): the select updates the cached list optimistically, rolls back only that row on error, and refetches once the last pending change settles, so a refetch never shows another row's old value. Your own row's select is disabled in the browser, and the backend also refuses demoting yourself or the last admin with 409.
 
-**Deleting a user** (`DELETE /api/admin/users/{userId}`): a confirm dialog, then `UserService.deleteUserAsAdmin`, which refuses your own id (`error.user.cannotDeleteSelf`), deletes the better-auth identity (and with it every session and linked account), then runs the same `deleteAccount` as a self-service deletion: anonymised profile, cards and favourite stores removed, tombstone written. What is kept is listed in [SETTINGS.md](SETTINGS.md#8-deleting-the-account).
+**Deleting a user** (`DELETE /api/admin/users/{userId}`): a confirm dialog, then `UserService.deleteUserAsAdmin`, which refuses your own id (`error.user.cannotDeleteSelf`) and answers 409 `error.user.lastAdminDelete` when the target is the last live admin, both before anything is deleted. It then deletes the better-auth identity (and with it every session and linked account) and runs the same `deleteAccount` as a self-service deletion: anonymised profile, cards and favourite stores removed, tombstone written. What is kept is listed in [SETTINGS.md](SETTINGS.md#8-deleting-the-account).
 
 ---
 
@@ -108,7 +108,7 @@ The product photo review queue: candidates from Open Food Facts and user uploads
 | ----------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `GET /api/admin/users`                          | `AdminController`             | Every active user with email and activity; unbounded                                                                              |
 | `PATCH /api/admin/users/{userId}`               | `AdminController`             | Set `accountType`; 409 for self-demotion or the last admin                                                                        |
-| `DELETE /api/admin/users/{userId}`              | `AdminController`             | Delete and erase a user; refuses yourself                                                                                         |
+| `DELETE /api/admin/users/{userId}`              | `AdminController`             | Delete and erase a user; refuses yourself, and the last admin with 409                                                            |
 | `GET /api/admin/contact?includeDeleted=`        | `AdminContactController`      | Up to 500 messages, newest first                                                                                                  |
 | `GET /api/admin/contact/{id}`                   | `AdminContactController`      | One message                                                                                                                       |
 | `PATCH /api/admin/contact/{id}/read`, `/unread` | `AdminContactController`      | Set or clear `read_at`                                                                                                            |
