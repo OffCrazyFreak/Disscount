@@ -15,6 +15,10 @@ COPY lombok.config .
 COPY src ./src
 RUN mvn -B -q clean package -DskipTests
 
+# Splits the jar into layers, so a source-only change rebuilds the small application layer and reuses the dependency ones.
+RUN cp target/*.jar app.jar \
+    && java -Djarmode=tools -jar app.jar extract --layers --destination extracted
+
 # ---- Runtime stage: run the jar on a small JRE as a non-root user ----
 FROM eclipse-temurin:21-jre@sha256:0b99b3376fbb50dbf9c0af8535fdd5b8eb0d3fdfc8b1e4967f383b6919f6901a AS runtime
 WORKDIR /app
@@ -25,8 +29,11 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && useradd -r -u 1001 appuser
 
-# Copy only the built jar from the build stage.
-COPY --from=build /app/target/*.jar app.jar
+# Least often changed first; extracted/ holds app.jar beside its lib/ folder, so java -jar app.jar still starts it.
+COPY --from=build /app/extracted/dependencies/ ./
+COPY --from=build /app/extracted/spring-boot-loader/ ./
+COPY --from=build /app/extracted/snapshot-dependencies/ ./
+COPY --from=build /app/extracted/application/ ./
 
 # Commit SHA from CI, read as the Sentry release; declared late so it does not bust the build cache.
 ARG GIT_SHA
