@@ -5,6 +5,7 @@ export const REAUTH_REQUIRED = "REAUTH_REQUIRED";
 export const INVALID_CODE = "INVALID_CODE";
 export const CODE_EXPIRED = "CODE_EXPIRED";
 export const CODE_RESEND_TOO_SOON = "CODE_RESEND_TOO_SOON";
+export const LAST_ADMIN_DELETE = "LAST_ADMIN_DELETE";
 
 // "proof": password or code in this request; "fresh": session made or rotated in the window; "blocked": never HTTP.
 export type SensitiveRequirement = "proof" | "fresh" | "blocked";
