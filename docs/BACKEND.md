@@ -2,7 +2,7 @@
 
 A reference for how the Spring Boot backend is laid out and which rules hold it together, written for someone new to Spring. It covers the package layout, the rules between packages, transactions, security, soft delete, errors and tests. Feature behaviour (cards, lists, photos) lives in each feature's own doc; this file is about the frame they share.
 
-> **Mental model in one sentence:** the backend is one flat Java package per feature, each hiding its internals behind package-private classes, talking to other features only through a few public classes and user ids, with security checked twice (a URL rule for admin routes and a guard bean in front of every owner-scoped service method) and every error answered as the same translated problem response.
+> **Mental model in one sentence:** the backend is one Java package per feature, split into topic folders when it grows, each hiding its internals behind package-private classes, talking to other features only through a few public classes and user ids, with security checked twice (a URL rule for admin routes and a guard bean in front of every owner-scoped service method) and every error answered as the same translated problem response.
 
 The layout and its rules come from #429 (Spring backend restructure), built in steps R1 to R13. This doc describes the state after R11.
 
@@ -26,21 +26,23 @@ The layout and its rules come from #429 (Spring backend restructure), built in s
 
 ## 2. Packages
 
-One flat package per feature, so Java's package-private visibility can hide repositories, entities and helpers from every other feature. Sub-packages would force those classes to be `public`, because package-private does not reach into a sub-package.
+One package per feature, so Java's package-private visibility can hide repositories, entities and helpers from every other feature. Past about 20 files, a feature splits into topic folders named by what the code does, such as `user/erasure` or `digitalcard/photo`, never into layer folders such as `dto` or `service` (#702). Package-private does not reach into a sub-package, so a class becomes `public` only when another folder uses it; a topic folder keeps that cost low because most of its classes are used only inside it.
 
-| Package        | What it holds                                                                                                               |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `user`         | Profiles, the admin user endpoints, account erasure, the erasure ledger and replay, `ActiveUsers`, `AccountErased`          |
-| `contact`      | Contact form messages and the admin contact tab                                                                             |
-| `preferences`  | Pinned stores, pinned places and favourite stores                                                                           |
-| `watchlist`    | Watchlist rules                                                                                                             |
-| `storename`    | Store name suggestions for custom cards                                                                                     |
-| `shoppinglist` | Lists and their items, one aggregate, plus sharing and copying                                                              |
-| `digitalcard`  | The card wallet and card photos                                                                                             |
-| `productimage` | Product photos, with three self-contained helper sub-packages: `catalog`, `openfoodfacts`, `render`                         |
-| `security`     | Filter chains, token purpose rules, the admin `AuthorizationManager`, method security                                       |
-| `shared`       | Errors, time, `@CurrentUser`, client IP, rate limiting, photo storage and sanitising, validation constraints, `AfterCommit` |
-| `config`       | Framework wiring with no business meaning (JSON, JPA, OpenAPI, scheduling, Sentry, upload limits, user foreign keys)        |
+A feature's public API, the classes other features may use, stays in its root folder. Its topic folders are internal: only the same feature reaches into them. `shared` is the exception, because every feature imports it, so its topic folders are open to all.
+
+| Package        | What it holds                                                                                                                                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `user`         | Profiles, `ActiveUsers`, `AccountErased`, `AdminAuditLog`; `erasure` (account erasure, the ledger and replay), `admin` (the admin user endpoints and the audit rows)                                          |
+| `contact`      | Contact form messages and the admin contact tab                                                                                                                                                               |
+| `preferences`  | One folder each: `favoritestore`, `pinnedstore`, `pinnedplace`                                                                                                                                                |
+| `watchlist`    | Watchlist rules                                                                                                                                                                                               |
+| `storename`    | Store name suggestions for custom cards                                                                                                                                                                       |
+| `shoppinglist` | Lists, sharing and copying; `item` (the items on a list)                                                                                                                                                      |
+| `digitalcard`  | The card wallet; `photo` (card photos and their file cleanup)                                                                                                                                                 |
+| `productimage` | Product photos and their admin review; `catalog`, `openfoodfacts`, `render` (rendering and the renderer), `jobs` (scheduled jobs and the Open Food Facts seed)                                                |
+| `security`     | Filter chains, token purpose rules, the admin `AuthorizationManager`, method security                                                                                                                         |
+| `shared`       | Time, `@CurrentUser`, client IP, rate limiting, paging, validation constraints, `AfterCommit`; `errors` (the HTTP error exceptions, `UserLimit`, the problem handler), `photo` (photo storage and sanitising) |
+| `config`       | Framework wiring with no business meaning (JSON, JPA, OpenAPI, scheduling, Sentry, upload limits, user foreign keys)                                                                                          |
 
 Inside a feature, a class is package-private unless another package needs it, such as `security`, another feature's public API, or a test in another package.
 
@@ -58,12 +60,12 @@ flowchart TD
     F -.->|public API only| F2[another feature]
 ```
 
-1. A feature imports only `shared` and another feature's public classes.
+1. A feature imports only `shared` and the public classes in another feature's root folder, never a class from its topic folders.
 2. Features refer to another feature's rows by id (`UUID userId`), never by a `@ManyToOne` to its entity. The database foreign keys stay: the migrations hold the eight that point at `app_user`, and `SchemaDriftTest` fails if one goes missing.
 3. `user` depends on no other feature. Features that hold per-user data react to the `AccountErased` event instead of `user` calling them.
 4. `shared` imports no feature.
 
-`DependencyRulesTest` reads the main sources (the owner chose no ArchUnit and no Spring Modulith) and checks rules 3 and 4, plus that other features use only `ActiveUsers` and `AccountErased` from `user`. Rules 1 and 2 are mostly held by visibility: a package-private class from another feature does not compile.
+`DependencyRulesTest` reads the main sources (the owner chose no ArchUnit and no Spring Modulith) and checks rules 3 and 4, that no code reaches into another feature's topic folders, and that other features use only `ActiveUsers`, `AccountErased`, `AdminAuditLog` and `AdminAction` from `user`. The rest of rules 1 and 2 is mostly held by visibility: a package-private class from another feature does not compile.
 
 ### What other features know about users
 
@@ -176,7 +178,7 @@ Six entities (`User`, `ShoppingList`, `ShoppingListItem`, `WatchlistItem`, `Digi
 
 ## 7. Errors as problem responses
 
-Every error is `application/problem+json` (RFC 9457), shaped in one place, `shared/GlobalExceptionHandler`, which extends Spring's `ResponseEntityExceptionHandler` so framework errors (405, 415, unreadable body) get the same shape:
+Every error is `application/problem+json` (RFC 9457), shaped in one place, `shared/errors/GlobalExceptionHandler`, which extends Spring's `ResponseEntityExceptionHandler` so framework errors (405, 415, unreadable body) get the same shape:
 
 ```json
 {
@@ -199,7 +201,7 @@ Every error is `application/problem+json` (RFC 9457), shaped in one place, `shar
 
 ### 7.1 Per-user limits
 
-Each person may have at most 50 shopping lists, 50 items on one list, 50 watchlist entries and 50 cards (issue #213, the owner's numbers). All four are constants in one enum, `shared/UserLimit`, so changing one is a code change. Only live rows count: a soft deleted list, item, entry or card frees its place. Archived cards still count.
+Each person may have at most 50 shopping lists, 50 items on one list, 50 watchlist entries and 50 cards (issue #213, the owner's numbers). All four are constants in one enum, `shared/errors/UserLimit`, so changing one is a code change. Only live rows count: a soft deleted list, item, entry or card frees its place. Archived cards still count.
 
 A create that would pass a limit throws `LimitReachedException`, a `ConflictException`, and answers 409 with two extra fields next to `code`:
 
@@ -258,11 +260,11 @@ The app's own keys are read through `@ConfigurationProperties` records, never `@
 
 | Record                                               | Keys                                                                                                 | Read by                                              |
 | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| `shared/PhotoProperties`                             | `photos.private-dir`, `photos.public-dir`, `photos.public-url` (blank by default)                    | `PhotoStoreConfig`                                   |
+| `shared/photo/PhotoProperties`                       | `photos.private-dir`, `photos.public-dir`, `photos.public-url` (blank by default)                    | `PhotoStoreConfig`                                   |
 | `security/BetterAuthProperties`                      | `better.auth.issuer` (required)                                                                      | `SecurityConfig`                                     |
 | `security/JwkSetProperties`                          | `spring.security.oauth2.resourceserver.jwt.jwk-set-uri` (required)                                   | `SecurityConfig`                                     |
-| `user/ErasureReplayProperties`                       | `erasure-replay.markers`, `erasure-replay.key-file` (required), `erasure-replay.allow-empty` (false) | `ErasureReplayRunner`, `erasure-replay` profile only |
-| `productimage/ProductImageJobProperties`             | `product-images.jobs.enabled` (true)                                                                 | `ProductImageJobs`                                   |
+| `user/erasure/ErasureReplayProperties`               | `erasure-replay.markers`, `erasure-replay.key-file` (required), `erasure-replay.allow-empty` (false) | `ErasureReplayRunner`, `erasure-replay` profile only |
+| `productimage/jobs/ProductImageJobProperties`        | `product-images.jobs.enabled` (true)                                                                 | `ProductImageJobs`                                   |
 | `productimage/catalog/CatalogProperties`             | `product-images.catalog.list-url`                                                                    | `CatalogImportService`                               |
 | `productimage/openfoodfacts/OpenFoodFactsProperties` | `product-images.off.api-base`, `product-images.off.export-url`                                       | `OpenFoodFactsClient`                                |
 

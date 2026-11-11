@@ -173,9 +173,9 @@ Swagger lists them all at `/api/swagger-ui/index.html`.
 | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | `frontend/src/lib/api/schemas/auth-user.ts`                               | `canAccessDashboard`, `isAdmin`                                                |
 | `backend/src/main/java/disscount/user/UserService.java`                   | `findAllActiveAsAdmin`, `updateAccountType` and its guard, `deleteUserAsAdmin` |
-| `backend/src/main/java/disscount/user/AdminAuditEntry.java`               | One `admin_audit` row; `AdminAction` lists the actions                         |
+| `backend/src/main/java/disscount/user/admin/AdminAuditEntry.java`         | One `admin_audit` row; `AdminAction` lists the actions                         |
 | `backend/src/main/java/disscount/user/AdminAuditLog.java`                 | Writes the rows in the action's transaction, deduplicates reads                |
-| `backend/src/main/java/disscount/user/AuditRetentionJob.java`             | The hourly purge of both audit tables through their definer functions          |
+| `backend/src/main/java/disscount/user/admin/AuditRetentionJob.java`       | The hourly purge of both audit tables through their definer functions          |
 | `backend/src/main/java/disscount/security/AdminAuthorizationManager.java` | The `/api/admin/**` rule: an ordinary session token of a live `ADMIN`          |
 | `backend/src/main/java/disscount/user/AuthIdentityDao.java`               | Reads better-auth rows from Spring                                             |
 
