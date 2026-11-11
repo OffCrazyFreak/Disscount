@@ -49,6 +49,9 @@ services:
   backend:
     build:
       context: ./backend
+    # The image sizes its heap from this limit; without one it would take 60% of the host.
+    mem_limit: 1536m
+    memswap_limit: 1536m
     restart: unless-stopped
     environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
