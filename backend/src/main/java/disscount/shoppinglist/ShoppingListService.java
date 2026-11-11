@@ -71,8 +71,9 @@ public class ShoppingListService {
     @PreAuthorize("@shoppingListGuard.canWrite(#listId, #userId)")
     @Transactional
     public ShoppingListDto updateShoppingList(UUID listId, UUID userId, ShoppingListRequest request) {
+        // Locked before the list loads, so the access below reads what a racing share change or erasure left.
+        lockOwner(listId, userId);
         ShoppingList list = findVisible(listId, userId);
-        lockOwner(list, userId);
         ListAccess access = accessService.resolve(list, userId);
 
         if (request.linkAccess() != null && !access.canManageShare()) {
@@ -128,13 +129,17 @@ public class ShoppingListService {
      * An update racing the owner's erasure lands before it or is refused: the owner with the 401 of every write
      * after deletion, a link visitor with the 404 of an unknown link.
      */
-    private void lockOwner(ShoppingList list, UUID callerId) {
-        if (list.getOwnerId().equals(callerId)) {
+    private void lockOwner(UUID listId, UUID callerId) {
+        UUID ownerId = shoppingListRepository.findSharingById(listId)
+                .map(ListSharing::ownerId)
+                .orElseThrow(() -> new NotFoundException("error.shoppingList.notFound"));
+
+        if (ownerId.equals(callerId)) {
             activeUsers.lockActive(callerId);
             return;
         }
 
-        if (!activeUsers.lockIfActive(list.getOwnerId())) {
+        if (!activeUsers.lockIfActive(ownerId)) {
             throw new NotFoundException("error.shoppingList.notFound");
         }
     }

@@ -60,7 +60,7 @@ class ContactMessageServiceTest {
         users.save(user);
 
         assertThatThrownBy(() -> service.create(request(), user.getId())).isInstanceOf(UnauthorizedException.class);
-        assertThat(service.list(true)).isEmpty();
+        assertThat(service.list(true, UUID.randomUUID())).isEmpty();
     }
 
     @Test
