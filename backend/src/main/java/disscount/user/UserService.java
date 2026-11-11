@@ -31,7 +31,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final AuthIdentityDao authIdentityDao;
     private final UserProfileCreator profileCreator;
-    private final ActiveUsers activeUsers;
     private final ApplicationEventPublisher events;
     private final ErasureLedgerRepository erasureLedger;
     private final AvatarSanitizer avatarSanitizer;
@@ -197,10 +196,6 @@ public class UserService {
             // Flushed so a concurrent deletion's tombstone collides here, where AccountErasureService can catch it.
             erasureLedger.saveAndFlush(new ErasureLedgerEntry(userId, Timestamps.nowUtc()));
         }
-    }
-
-    public boolean isActiveAdmin(UUID userId) {
-        return activeUsers.isActiveAdmin(userId);
     }
 
     public List<UserDto> findAllActive() {

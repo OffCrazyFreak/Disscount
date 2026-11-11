@@ -1,6 +1,7 @@
 package disscount.contact;
 
 import disscount.security.SecurityConfig;
+import disscount.user.ActiveUsers;
 import disscount.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,7 @@ class ContactMessageControllerTest {
     @Autowired MockMvc mvc;
     @MockitoBean ContactMessageService contactMessageService;
     @MockitoBean UserService userService;
+    @MockitoBean ActiveUsers activeUsers;
 
     @BeforeEach
     void storeEveryMessage() {

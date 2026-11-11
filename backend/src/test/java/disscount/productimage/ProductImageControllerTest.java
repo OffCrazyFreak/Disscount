@@ -9,6 +9,7 @@ import disscount.productimage.ProductImageDtos.ProductImageDto;
 import disscount.productimage.ProductImageDtos.ProductImagesDto;
 import disscount.productimage.ProductImageDtos.ProductThumbnailsDto;
 import disscount.security.SecurityConfig;
+import disscount.user.ActiveUsers;
 import disscount.user.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ class ProductImageControllerTest {
     @MockitoBean ProductImageWriteService writes;
     @MockitoBean ProductImageAdminService admin;
     @MockitoBean UserService userService;
+    @MockitoBean ActiveUsers activeUsers;
 
     final UUID userId = UUID.randomUUID();
 

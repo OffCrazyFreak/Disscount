@@ -25,6 +25,7 @@ class UserControllerErasureTokenTest {
 
     @Autowired MockMvc mvc;
     @MockitoBean UserService userService;
+    @MockitoBean ActiveUsers activeUsers;
     @MockitoBean AccountErasureService accountErasureService;
 
     private final UUID userId = UUID.randomUUID();

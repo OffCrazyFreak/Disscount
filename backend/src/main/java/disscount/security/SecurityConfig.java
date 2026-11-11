@@ -1,7 +1,6 @@
 package disscount.security;
 
-import disscount.shared.SecurityUtils;
-import disscount.user.UserService;
+import disscount.user.ActiveUsers;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +36,7 @@ import java.util.function.Supplier;
 public class SecurityConfig {
 
     private final UserProvisioningFilter userProvisioningFilter;
-    private final UserService userService;
+    private final ActiveUsers activeUsers;
 
     @Bean
     public JwtDecoder jwtDecoder(
@@ -113,16 +112,6 @@ public class SecurityConfig {
         return new AuthorizationDecision(isOrdinary);
     }
 
-    /** Looked up per request rather than read from the token, so a demotion or deletion applies at once. */
-    private AuthorizationDecision isActiveAdmin(
-            Supplier<? extends Authentication> authentication,
-            RequestAuthorizationContext context
-    ) {
-        boolean isAdmin = isOrdinarySessionToken(authentication, context).isGranted()
-                && SecurityUtils.getCurrentUserIdOptional().filter(userService::isActiveAdmin).isPresent();
-        return new AuthorizationDecision(isAdmin);
-    }
-
     /** The public routes' rule: anyone, signed in or not, except a purpose scoped token. */
     private static AuthorizationDecision isNotPurposeScoped(
             Supplier<? extends Authentication> authentication,
@@ -167,7 +156,7 @@ public class SecurityConfig {
                     "/swagger-ui/**",
                     "/swagger-ui.html"
                 ).permitAll()
-                .requestMatchers("/api/admin/**").access(this::isActiveAdmin)
+                .requestMatchers("/api/admin/**").access(new AdminAuthorizationManager(activeUsers))
                 .anyRequest().access(SecurityConfig::isOrdinarySessionToken)
             )
             .exceptionHandling(ex -> ex
