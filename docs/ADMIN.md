@@ -138,7 +138,7 @@ Swagger lists them all at `/api-docs`.
 | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ---------------- | ----------- |
 | `DELETE_USER`, `PROMOTE_TO_ADMIN`, `DEMOTE_FROM_ADMIN`                                                          | `UserService`, every time                       | The user         | Null        |
 | `READ_USER_LIST`                                                                                                | `GET /api/admin/users`, once per window         | Null             | Null        |
-| `READ_CONTACT_LIST`                                                                                             | `GET /api/admin/contact`, once per window       | Null             | Null        |
+| `READ_CONTACT_LIST`, `READ_CONTACT_LIST_WITH_DELETED`                                                           | `GET /api/admin/contact`, once per window       | Null             | Null        |
 | `READ_CONTACT_MESSAGE`                                                                                          | `GET /api/admin/contact/{id}`, once per window  | Null             | The message |
 | `MARK_CONTACT_MESSAGE_READ`, `MARK_CONTACT_MESSAGE_UNREAD`, `DELETE_CONTACT_MESSAGE`, `RESTORE_CONTACT_MESSAGE` | `ContactMessageService`, every time             | Null             | The message |
 | `READ_AUDIT`                                                                                                    | Reserved for the audit view, which is not built | Null             | Null        |
