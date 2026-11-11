@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import disscount.shared.SecurityUtils;
+import disscount.shared.CurrentUser;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,16 +22,16 @@ class PinnedPlaceController {
 
     @Operation(summary = "Update user's pinned places (bulk operation)")
     @PutMapping("/bulk")
-    public ResponseEntity<List<PinnedPlaceDto>> updatePinnedPlaces(@Valid @RequestBody BulkPinnedPlaceRequest request) {
-        UUID userId = SecurityUtils.getCurrentUserId();
+    public ResponseEntity<List<PinnedPlaceDto>> updatePinnedPlaces(
+            @CurrentUser UUID userId,
+            @Valid @RequestBody BulkPinnedPlaceRequest request) {
         List<PinnedPlaceDto> pinned = pinnedPlaceService.updatePinnedPlaces(userId, request);
         return ResponseEntity.ok(pinned);
     }
 
     @Operation(summary = "Get current user's pinned places")
     @GetMapping("/me")
-    public ResponseEntity<List<PinnedPlaceDto>> getCurrentUserPinnedPlaces() {
-        UUID userId = SecurityUtils.getCurrentUserId();
+    public ResponseEntity<List<PinnedPlaceDto>> getCurrentUserPinnedPlaces(@CurrentUser UUID userId) {
         List<PinnedPlaceDto> pinnedPlaces = pinnedPlaceService.getUserPinnedPlaces(userId);
         return ResponseEntity.ok(pinnedPlaces);
     }

@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import disscount.shared.SecurityUtils;
+import disscount.shared.CurrentUser;
 
 import java.util.Map;
 import java.util.UUID;
@@ -23,8 +23,7 @@ class UserController {
 
     @Operation(summary = "Get current authenticated user")
     @GetMapping("/me")
-    public ResponseEntity<UserDto> getCurrentUser() {
-        UUID authenticatedUserId = SecurityUtils.getCurrentUserId();
+    public ResponseEntity<UserDto> getCurrentUser(@CurrentUser UUID authenticatedUserId) {
         return userService.findById(authenticatedUserId)
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
@@ -32,16 +31,16 @@ class UserController {
 
     @Operation(summary = "Update current user's profile (username, notifications)")
     @PatchMapping("/me")
-    public ResponseEntity<UserDto> updateCurrentUser(@Valid @RequestBody UserRequest request) {
-        UUID authenticatedUserId = SecurityUtils.getCurrentUserId();
+    public ResponseEntity<UserDto> updateCurrentUser(
+            @CurrentUser UUID authenticatedUserId,
+            @Valid @RequestBody UserRequest request) {
         UserDto updatedUser = userService.updateProfile(authenticatedUserId, request);
         return ResponseEntity.ok(updatedUser);
     }
 
     @Operation(summary = "Erase the current user's app data; only better-auth's account erasure token may call it")
     @DeleteMapping("/me")
-    public ResponseEntity<Map<String, String>> deleteCurrentUser() {
-        UUID authenticatedUserId = SecurityUtils.getCurrentUserId();
+    public ResponseEntity<Map<String, String>> deleteCurrentUser(@CurrentUser UUID authenticatedUserId) {
         accountErasureService.erase(authenticatedUserId);
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
     }

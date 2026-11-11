@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import disscount.shared.SecurityUtils;
+import disscount.shared.CurrentUser;
 
 import java.util.List;
 import java.util.Map;
@@ -38,8 +38,8 @@ class AdminController {
 
     @Operation(summary = "Delete a user (admin only)")
     @DeleteMapping("/users/{userId}")
-    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable UUID userId) {
-        userService.deleteUserAsAdmin(userId, SecurityUtils.getCurrentUserId());
+    public ResponseEntity<Map<String, String>> deleteUser(@CurrentUser UUID adminId, @PathVariable UUID userId) {
+        userService.deleteUserAsAdmin(userId, adminId);
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
     }
 }

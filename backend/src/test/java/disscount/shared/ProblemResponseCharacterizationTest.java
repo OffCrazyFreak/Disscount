@@ -7,6 +7,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
+
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.matchesPattern;
@@ -27,6 +30,11 @@ class ProblemResponseCharacterizationTest {
     private static final String ISO_INSTANT = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z";
 
     @Autowired MockMvc mvc;
+
+    // A UUID subject, as better-auth issues, so @CurrentUser resolves before the failure under test.
+    private static RequestPostProcessor signedIn() {
+        return jwt().jwt(token -> token.subject(UUID.randomUUID().toString()));
+    }
 
     @Test
     void aRequestBodyFailingValidationListsEachField() throws Exception {
@@ -65,7 +73,7 @@ class ProblemResponseCharacterizationTest {
 
     @Test
     void aMalformedUuidInThePathIsA400() throws Exception {
-        mvc.perform(delete("/api/watchlist/not-a-uuid").with(jwt()))
+        mvc.perform(delete("/api/watchlist/not-a-uuid").with(signedIn()))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.type").value("urn:disscount:bad-request"));
     }
@@ -104,7 +112,7 @@ class ProblemResponseCharacterizationTest {
 
     @Test
     void aListParameterFailingValidationIsKeyedByMethodAndParameter() throws Exception {
-        mvc.perform(post("/api/digital-cards/used").with(jwt()).contentType(MediaType.APPLICATION_JSON).content("[]"))
+        mvc.perform(post("/api/digital-cards/used").with(signedIn()).contentType(MediaType.APPLICATION_JSON).content("[]"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.type").value("urn:disscount:validation"))
                 .andExpect(jsonPath("$.fieldErrors", aMapWithSize(1)))
