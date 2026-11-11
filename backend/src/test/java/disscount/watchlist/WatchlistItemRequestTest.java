@@ -24,4 +24,22 @@ class WatchlistItemRequestTest {
     void aProductIdThatFillsTheColumnIsValid() {
         assertThat(validator.validate(new WatchlistItemRequest("1".repeat(255), WatchType.ABSOLUTE, 1.0))).isEmpty();
     }
+
+    // A drop of more than 100% can never happen, so such an alert would never fire.
+    @Test
+    void aPercentageAlertOverAHundredIsAFormError() {
+        assertThat(validator.validate(new WatchlistItemRequest("3850123456789", WatchType.PERCENTAGE, 100.5)))
+                .extracting(violation -> violation.getPropertyPath().toString())
+                .containsExactly("thresholdValue");
+    }
+
+    @Test
+    void aHundredPercentAlertIsValid() {
+        assertThat(validator.validate(new WatchlistItemRequest("3850123456789", WatchType.PERCENTAGE, 100.0))).isEmpty();
+    }
+
+    @Test
+    void anAbsoluteAlertOverAHundredEurosStaysValid() {
+        assertThat(validator.validate(new WatchlistItemRequest("3850123456789", WatchType.ABSOLUTE, 500.0))).isEmpty();
+    }
 }
