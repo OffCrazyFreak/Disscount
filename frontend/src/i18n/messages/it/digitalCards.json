@@ -153,7 +153,6 @@
     "cardsLabel": "Carte"
   },
   "announce": {
-    "results": "{count, plural, =0 {Nessun risultato} one {# risultato} other {# risultati}}",
     "pinned": "Carta fissata.",
     "unpinned": "Carta non più fissata.",
     "archived": "Carta archiviata.",

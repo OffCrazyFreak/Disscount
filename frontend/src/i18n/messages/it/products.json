@@ -160,7 +160,7 @@
     "searchPlaceholder": "Cerca prodotti",
     "resultsTitle": "Risultati per «{query}»",
     "resultsTitleWithCount": "Risultati per «{query}» ({count}{suffix})",
-    "resultsStatus": "{count, plural, =0 {Nessun risultato} one {# risultato} other {# risultati}}{truncated, select, yes { o più} other {}}",
+    "resultsStatus": "{count, plural, =0 {Nessun risultato} one {# risultato} other {# risultati}}{truncated, select, yes { o più} other {}} per \"{query}\"",
     "partialPricesTitle": "Alcuni prezzi non sono disponibili",
     "partialPricesText": "Per alcune località scelte al momento non abbiamo prezzi, quindi mostriamo gli altri.",
     "errorTitle": "Ricerca non riuscita",

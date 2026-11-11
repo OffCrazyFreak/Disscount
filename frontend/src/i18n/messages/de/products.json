@@ -170,7 +170,7 @@
     "searchPlaceholder": "Produkte suchen",
     "resultsTitle": "Suchergebnisse für „{query}“",
     "resultsTitleWithCount": "Suchergebnisse für „{query}“ ({count}{suffix})",
-    "resultsStatus": "{count, plural, =0 {Keine Ergebnisse} one {# Ergebnis} other {# Ergebnisse}}{truncated, select, yes { oder mehr} other {}}",
+    "resultsStatus": "{count, plural, =0 {Keine Ergebnisse} one {# Ergebnis} other {# Ergebnisse}}{truncated, select, yes { oder mehr} other {}} für \"{query}\"",
     "partialPricesTitle": "Einige Preise fehlen",
     "partialPricesText": "Für einige gewählte Standorte haben wir gerade keine Preise, deshalb zeigen wir die übrigen.",
     "errorTitle": "Suche fehlgeschlagen",

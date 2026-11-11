@@ -10,7 +10,7 @@ interface IProductsResultsStatusProps {
   noPriceLocations: string[];
 }
 
-/** The region stays mounted and empties while loading, so every settled search is read out again. */
+/** Stays mounted, empties while loading and names the search word, so every settled search is read again. */
 export default function ProductsResultsStatus({
   query,
   isPending,
@@ -21,7 +21,8 @@ export default function ProductsResultsStatus({
 }: IProductsResultsStatusProps) {
   const t = useTranslations("products.list");
   const format = useFormatter();
-  const hasSettledResults = Boolean(query) && !isPending && !hasError;
+  const trimmedQuery = query.trim();
+  const hasSettledResults = Boolean(trimmedQuery) && !isPending && !hasError;
 
   if (hasSettledResults && total === 0 && noPriceLocations.length > 0) {
     return (
@@ -39,6 +40,7 @@ export default function ProductsResultsStatus({
       {hasSettledResults &&
         t("resultsStatus", {
           count: total,
+          query: trimmedQuery,
           // The cap applies before filters, so a filtered-out search can be capped yet empty
           truncated: isTruncated && total > 0 ? "yes" : "no",
         })}
