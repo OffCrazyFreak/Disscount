@@ -1,6 +1,7 @@
 package disscount.user;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashSet;
@@ -9,12 +10,14 @@ import java.util.UUID;
 
 /** The markers come from the backup bucket, because the database being restored cannot hold them. */
 @Service
+@Profile(ErasureReplayRunner.PROFILE)
 @RequiredArgsConstructor
 class ErasureReplay {
 
     private final AuthIdentityDao authIdentities;
     private final UserRepository users;
     private final AccountErasureService accountErasure;
+    private final ReplayIdentityDeletion identityDeletion;
 
     public int replay(byte[] key, Set<String> markers) {
         // An identity can exist without a profile, and a profile can outlive its identity.
@@ -27,7 +30,7 @@ class ErasureReplay {
 
             accountErasure.erase(id);
             // better-auth deletes the identity once the erasure commits, so the replay does the same.
-            authIdentities.deleteById(id);
+            identityDeletion.deleteById(id);
             erased++;
         }
         return erased;
