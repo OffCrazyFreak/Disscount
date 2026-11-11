@@ -3,8 +3,7 @@ package disscount.digitalcard;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import disscount.user.User;
-import disscount.user.UserRepository;
+import disscount.user.ActiveUsers;
 
 import java.util.UUID;
 
@@ -13,9 +12,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CardUserLock {
 
-    private final UserRepository userRepository;
+    private final ActiveUsers activeUsers;
 
-    public User acquire(UUID userId) {
-        return userRepository.requireActiveForUpdate(userId);
+    public void acquire(UUID userId) {
+        activeUsers.lockActive(userId);
     }
 }

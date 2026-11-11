@@ -33,6 +33,6 @@ public interface DigitalCardPhotoRepository extends JpaRepository<DigitalCardPho
     void deleteAllByCardId(UUID cardId);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("DELETE FROM DigitalCardPhoto p WHERE p.card.id IN (SELECT c.id FROM DigitalCard c WHERE c.user.id = :userId)")
+    @Query("DELETE FROM DigitalCardPhoto p WHERE p.card.id IN (SELECT c.id FROM DigitalCard c WHERE c.userId = :userId)")
     void deleteAllByUserId(UUID userId);
 }

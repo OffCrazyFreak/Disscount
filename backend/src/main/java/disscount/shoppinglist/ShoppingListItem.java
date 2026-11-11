@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import disscount.shared.Timestamps;
-import disscount.user.User;
 
 import java.math.BigDecimal;
 
@@ -69,9 +68,8 @@ class ShoppingListItem {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "updated_by_user_id")
-    private User updatedByUser;
+    @Column(name = "updated_by_user_id")
+    private UUID updatedByUserId;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;

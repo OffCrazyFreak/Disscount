@@ -15,7 +15,7 @@ import disscount.shared.PhotoValidator;
 import disscount.shared.ServiceUnavailableException;
 import disscount.shared.Timestamps;
 import disscount.shared.ValidatedPhoto;
-import disscount.user.UserService;
+import disscount.user.ActiveUsers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -39,16 +39,16 @@ class ProductImageWriteService {
     private final ProductImageRendering rendering;
     private final ProductImageRemoval removal;
     private final ProductImageViews views;
-    private final UserService userService;
+    private final ActiveUsers activeUsers;
 
     /** Confirms another user's unconfirmed photo of the product, as two people photographed what one page showed. */
     @Transactional
     public ProductImagesDto upload(UUID userId, String ean, MultipartFile file) {
         ProductImageQueryService.requireEan(ean);
         requireStorage();
-        userService.lockActive(userId);
+        activeUsers.lockActive(userId);
 
-        boolean admin = userService.isActiveAdmin(userId);
+        boolean admin = activeUsers.isActiveAdmin(userId);
         if (!admin) limiter.check(userId);
 
         ValidatedPhoto photo = validator.validate(bytes(file));
@@ -98,7 +98,7 @@ class ProductImageWriteService {
     /** One report per user and photo; repeating it is not an error. */
     @Transactional
     public void report(UUID userId, UUID imageId) {
-        userService.lockActive(userId);
+        activeUsers.lockActive(userId);
         ProductImage image = images.findById(imageId)
                 .filter(i -> i.getStatus() != ImageStatus.HIDDEN && i.getStatus() != ImageStatus.CANDIDATE)
                 .orElseThrow(() -> new NotFoundException("error.productImage.notFound"));

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Import;
 
 import disscount.shared.BadRequestException;
 import disscount.shared.UnauthorizedException;
+import disscount.user.ActiveUsers;
 import disscount.user.User;
 import disscount.user.UserRepository;
 
@@ -18,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest(showSql = false)
-@Import(FavoriteStoreService.class)
+@Import({ActiveUsers.class, FavoriteStoreService.class})
 class FavoriteStoreServiceTest {
 
     @Autowired FavoriteStoreService service;

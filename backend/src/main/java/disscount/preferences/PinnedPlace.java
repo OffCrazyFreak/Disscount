@@ -6,7 +6,6 @@ import lombok.*;
 
 import java.util.UUID;
 
-import disscount.user.User;
 
 @Entity
 @Table(name = "pinned_place", 
@@ -22,9 +21,8 @@ class PinnedPlace {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
 
     @NotBlank(message = "{validation.placeApiId.required}")
     @Column(name = "place_api_id", nullable = false)

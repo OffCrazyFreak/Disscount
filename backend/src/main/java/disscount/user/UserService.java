@@ -35,6 +35,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final AuthIdentityDao authIdentityDao;
     private final UserProfileCreator profileCreator;
+    private final ActiveUsers activeUsers;
     private final DigitalCardService digitalCardService;
     private final FavoriteStoreService favoriteStoreService;
     private final ProductImageErasure productImageErasure;
@@ -208,15 +209,8 @@ public class UserService {
         }
     }
 
-    /** Locks the caller's profile until commit, so a write racing account deletion lands first or is refused. */
-    public void lockActive(UUID userId) {
-        userRepository.requireActiveForUpdate(userId);
-    }
-
     public boolean isActiveAdmin(UUID userId) {
-        return userRepository.findByIdAndDeletedAtIsNull(userId)
-                .map(u -> u.getAccountType() == AccountType.ADMIN)
-                .orElse(false);
+        return activeUsers.isActiveAdmin(userId);
     }
 
     @Transactional(readOnly = true)

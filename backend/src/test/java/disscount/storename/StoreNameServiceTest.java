@@ -3,6 +3,7 @@ package disscount.storename;
 import disscount.digitalcard.CardServiceTestSupport;
 import disscount.shared.BadRequestException;
 import disscount.shared.Timestamps;
+import disscount.user.ActiveUsers;
 import disscount.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest(showSql = false)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-@Import({StoreNameService.class, StoreNameUpsert.class})
+@Import({ActiveUsers.class, StoreNameService.class, StoreNameUpsert.class})
 class StoreNameServiceTest {
 
     @Autowired StoreNameService service;

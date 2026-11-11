@@ -13,30 +13,30 @@ import java.util.UUID;
 @Repository
 public interface DigitalCardRepository extends JpaRepository<DigitalCard, UUID> {
 
-    @Query("SELECT c FROM DigitalCard c WHERE c.user.id = :userId AND c.deletedAt IS NULL")
+    @Query("SELECT c FROM DigitalCard c WHERE c.userId = :userId AND c.deletedAt IS NULL")
     List<DigitalCard> findActiveByUserId(UUID userId);
 
     // Ownership lives in the query, so a card of another user is indistinguishable from a missing one.
-    @Query("SELECT c FROM DigitalCard c WHERE c.id = :id AND c.user.id = :userId AND c.deletedAt IS NULL")
+    @Query("SELECT c FROM DigitalCard c WHERE c.id = :id AND c.userId = :userId AND c.deletedAt IS NULL")
     Optional<DigitalCard> findActiveByIdAndUserId(UUID id, UUID userId);
 
-    @Query("SELECT COUNT(c) FROM DigitalCard c WHERE c.user.id = :userId AND c.deletedAt IS NULL")
+    @Query("SELECT COUNT(c) FROM DigitalCard c WHERE c.userId = :userId AND c.deletedAt IS NULL")
     long countActiveByUserId(UUID userId);
 
     // A bulk update on purpose: it skips @PreUpdate, so using a card never bumps updated_at.
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("UPDATE DigitalCard c SET c.lastUsedAt = :usedAt WHERE c.id = :id AND c.user.id = :userId "
+    @Query("UPDATE DigitalCard c SET c.lastUsedAt = :usedAt WHERE c.id = :id AND c.userId = :userId "
             + "AND c.deletedAt IS NULL AND (c.lastUsedAt IS NULL OR c.lastUsedAt < :usedAt)")
     int touchLastUsed(UUID id, UUID userId, LocalDateTime usedAt);
 
     // Bulk updates for the same reason: pinning or archiving is not an edit, so updated_at stays.
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("UPDATE DigitalCard c SET c.pinnedAt = :pinnedAt WHERE c.id = :id AND c.user.id = :userId "
+    @Query("UPDATE DigitalCard c SET c.pinnedAt = :pinnedAt WHERE c.id = :id AND c.userId = :userId "
             + "AND c.deletedAt IS NULL")
     int updatePinnedAt(UUID id, UUID userId, LocalDateTime pinnedAt);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("UPDATE DigitalCard c SET c.archivedAt = :archivedAt WHERE c.id = :id AND c.user.id = :userId "
+    @Query("UPDATE DigitalCard c SET c.archivedAt = :archivedAt WHERE c.id = :id AND c.userId = :userId "
             + "AND c.deletedAt IS NULL")
     int updateArchivedAt(UUID id, UUID userId, LocalDateTime archivedAt);
 
@@ -44,6 +44,6 @@ public interface DigitalCardRepository extends JpaRepository<DigitalCard, UUID> 
     List<DigitalCard> findDeletedBefore(LocalDateTime cutoff);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("DELETE FROM DigitalCard c WHERE c.user.id = :userId")
+    @Query("DELETE FROM DigitalCard c WHERE c.userId = :userId")
     void deleteAllByUserId(UUID userId);
 }

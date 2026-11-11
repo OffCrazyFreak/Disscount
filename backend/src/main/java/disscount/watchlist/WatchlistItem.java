@@ -1,7 +1,6 @@
 package disscount.watchlist;
 
 import disscount.shared.Timestamps;
-import disscount.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -22,9 +21,8 @@ class WatchlistItem {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
 
     @NotBlank(message = "{validation.productApiId.required}")
     @Column(name = "product_api_id", nullable = false)

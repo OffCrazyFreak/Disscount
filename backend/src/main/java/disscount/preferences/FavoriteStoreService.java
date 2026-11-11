@@ -5,8 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.shared.BadRequestException;
-import disscount.user.User;
-import disscount.user.UserRepository;
+import disscount.user.ActiveUsers;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,11 +16,11 @@ import java.util.UUID;
 public class FavoriteStoreService {
 
     private final FavoriteStoreRepository favoriteStoreRepository;
-    private final UserRepository userRepository;
+    private final ActiveUsers activeUsers;
 
     /** Replaces the user's whole list, the way pinned places are saved. */
     public List<FavoriteStoreDto> updateFavoriteStores(UUID userId, BulkFavoriteStoreRequest request) {
-        User user = userRepository.requireActiveForUpdate(userId);
+        activeUsers.lockActive(userId);
 
         List<String> keys = request.getStores().stream()
                 .map(FavoriteStoreRequest::getStoreKey)
@@ -35,7 +34,7 @@ public class FavoriteStoreService {
         favoriteStoreRepository.flush();
 
         List<FavoriteStore> saved = favoriteStoreRepository.saveAll(keys.stream()
-                .map(key -> FavoriteStore.builder().user(user).storeKey(key).build())
+                .map(key -> FavoriteStore.builder().userId(userId).storeKey(key).build())
                 .toList());
 
         return saved.stream().map(this::mapToDto).toList();

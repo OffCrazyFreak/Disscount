@@ -12,17 +12,17 @@ import java.util.UUID;
 @Repository
 public interface WatchlistItemRepository extends JpaRepository<WatchlistItem, UUID> {
 
-    @Query("SELECT w FROM WatchlistItem w WHERE w.user.id = :userId AND w.deletedAt IS NULL")
+    @Query("SELECT w FROM WatchlistItem w WHERE w.userId = :userId AND w.deletedAt IS NULL")
     List<WatchlistItem> findByUserId(@Param("userId") UUID userId);
 
     // Owner-scoped so a stranger's item looks missing; deleted rows still match so a repeat delete stays 204.
-    @Query("SELECT w FROM WatchlistItem w WHERE w.id = :id AND w.user.id = :userId")
+    @Query("SELECT w FROM WatchlistItem w WHERE w.id = :id AND w.userId = :userId")
     Optional<WatchlistItem> findByIdAndUserId(@Param("id") UUID id, @Param("userId") UUID userId);
 
-    @Query("SELECT w FROM WatchlistItem w WHERE w.productApiId = :productApiId AND w.user.id = :userId AND w.deletedAt IS NULL")
+    @Query("SELECT w FROM WatchlistItem w WHERE w.productApiId = :productApiId AND w.userId = :userId AND w.deletedAt IS NULL")
     List<WatchlistItem> findByProductApiId(@Param("productApiId") String productApiId, @Param("userId") UUID userId);
 
-    @Query("SELECT w FROM WatchlistItem w WHERE w.productApiId = :productApiId AND w.watchType = :watchType AND w.user.id = :userId AND w.deletedAt IS NULL")
+    @Query("SELECT w FROM WatchlistItem w WHERE w.productApiId = :productApiId AND w.watchType = :watchType AND w.userId = :userId AND w.deletedAt IS NULL")
     Optional<WatchlistItem> findByProductApiIdAndWatchType(
         @Param("productApiId") String productApiId, 
         @Param("watchType") WatchType watchType, 

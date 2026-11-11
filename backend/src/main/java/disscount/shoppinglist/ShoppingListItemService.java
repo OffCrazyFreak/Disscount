@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import disscount.shared.ForbiddenException;
 import disscount.shared.NotFoundException;
 import disscount.shared.Timestamps;
-import disscount.user.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +27,7 @@ class ShoppingListItemService {
     /** Owner only: an unbounded right to add to someone's list waits for per-person revocation in version 2. */
     public ShoppingListItemDto addItemToShoppingList(UUID shoppingListId, UUID userId, ShoppingListItemRequest request) {
         ShoppingList shoppingList = shoppingListService.findVisible(shoppingListId, userId);
-        User actor = shoppingListService.requireWriteUser(userId);
+        shoppingListService.requireWriteUser(userId);
 
         if (!accessService.resolve(shoppingList, userId).isOwner()) {
             throw new ForbiddenException("error.shoppingList.ownerOnlyAddItems");
@@ -59,7 +58,7 @@ class ShoppingListItemService {
             if (request.getStorePrice() != null) item.setStorePrice(request.getStorePrice());
 
             item.setUpdatedAt(Timestamps.nowUtc());
-            item.setUpdatedByUser(actor);
+            item.setUpdatedByUserId(userId);
         } else {
             item = ShoppingListItem.builder()
                     .shoppingList(shoppingList)
@@ -73,7 +72,7 @@ class ShoppingListItemService {
                     .chainCode(request.getChainCode())
                     .avgPrice(request.getAvgPrice())
                     .storePrice(request.getStorePrice())
-                    .updatedByUser(actor)
+                    .updatedByUserId(userId)
                     .build();
         }
 
@@ -87,14 +86,14 @@ class ShoppingListItemService {
     public ShoppingListItemDto updateShoppingListItem(
             UUID listId, UUID itemId, UUID userId, ShoppingListItemRequest request) {
         ShoppingList list = shoppingListService.findVisible(listId, userId);
-        User actor = shoppingListService.requireWriteUser(userId);
+        shoppingListService.requireWriteUser(userId);
         ListAccess access = requireAccess(list, userId, ListAccess::canCheck);
 
         ShoppingListItem item = findItem(list, itemId);
 
         applyItemUpdate(item, request, access);
         item.setUpdatedAt(Timestamps.nowUtc());
-        item.setUpdatedByUser(actor);
+        item.setUpdatedByUserId(userId);
 
         item = shoppingListItemRepository.save(item);
         touchList(list);

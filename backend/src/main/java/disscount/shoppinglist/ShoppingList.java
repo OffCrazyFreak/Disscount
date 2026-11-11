@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.UUID;
 
 import disscount.shared.Timestamps;
-import disscount.user.User;
 
 @Entity
 @Table(name = "shopping_list")
@@ -25,9 +24,8 @@ public class ShoppingList {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = false)
-    private User owner;
+    @Column(name = "owner_id", nullable = false)
+    private UUID ownerId;
 
     @NotBlank(message = "{validation.title.required}")
     @Column(nullable = false)

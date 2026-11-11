@@ -10,7 +10,7 @@ public class ShoppingListAccessService {
 
     /** @param userId the caller, or null when the request carries no token at all */
     public ListAccess resolve(ShoppingList list, UUID userId) {
-        if (userId != null && userId.equals(list.getOwner().getId())) {
+        if (userId != null && userId.equals(list.getOwnerId())) {
             return ListAccess.OWNER;
         }
 

@@ -8,8 +8,7 @@ import disscount.shared.ForbiddenException;
 import disscount.shared.NotFoundException;
 import disscount.shared.Timestamps;
 import disscount.shared.UnauthorizedException;
-import disscount.user.User;
-import disscount.user.UserRepository;
+import disscount.user.ActiveUsers;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,15 +21,15 @@ import java.util.stream.Collectors;
 public class ShoppingListService {
 
     private final ShoppingListRepository shoppingListRepository;
-    private final UserRepository userRepository;
+    private final ActiveUsers activeUsers;
     private final ShoppingListAccessService accessService;
     private final ShoppingListMapper shoppingListMapper;
 
     public ShoppingListDto createShoppingList(UUID ownerId, ShoppingListRequest request) {
-        User owner = requireUser(ownerId);
+        activeUsers.requireActive(ownerId);
 
         ShoppingList shoppingList = ShoppingList.builder()
-                .owner(owner)
+                .ownerId(ownerId)
                 .title(request.getTitle())
                 .build();
 
@@ -43,9 +42,9 @@ public class ShoppingListService {
     // Read-only, or the class-level @Transactional would keep a dirty-checking flush for a query that never writes.
     @Transactional(readOnly = true)
     public List<ShoppingListDto> getUserShoppingLists(UUID ownerId) {
-        User owner = requireUser(ownerId);
+        activeUsers.requireActive(ownerId);
 
-        return shoppingListRepository.findActiveByOwner(owner)
+        return shoppingListRepository.findActiveByOwnerId(ownerId)
                 .stream()
                 .map(list -> shoppingListMapper.toDto(list, ListAccess.OWNER))
                 .collect(Collectors.toList());
@@ -101,15 +100,11 @@ public class ShoppingListService {
     }
 
     /** Anonymous callers cap at VIEW, so every write stays attributable. */
-    public User requireWriteUser(UUID userId) {
+    public void requireWriteUser(UUID userId) {
         if (userId == null) {
             throw new UnauthorizedException("error.shoppingList.signInToChange");
         }
-        return requireUser(userId);
-    }
-
-    private User requireUser(UUID userId) {
-        return userRepository.requireActive(userId);
+        activeUsers.requireActive(userId);
     }
 
     /** Off then on hands back the same URL, since the URL is the id. Intended. */

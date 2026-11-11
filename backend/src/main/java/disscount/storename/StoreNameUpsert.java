@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.shared.Timestamps;
-import disscount.user.UserRepository;
+import disscount.user.ActiveUsers;
 
 import java.util.UUID;
 
@@ -17,14 +17,13 @@ public class StoreNameUpsert {
 
     private final StoreNameSuggestionRepository repository;
     private final StoreNameUsageRepository usages;
-    private final UserRepository users;
+    private final ActiveUsers activeUsers;
 
     /** A duplicate usage insert (a user racing itself) throws and rolls back; the caller retries and finds the row. */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void upsert(UUID userId, String name, String normalized) {
         // Runs after the card commit, so account deletion may have won the race: take its lock and re-check.
-        boolean active = users.findByIdForUpdate(userId).filter(u -> u.getDeletedAt() == null).isPresent();
-        if (!active) {
+        if (!activeUsers.lockIfActive(userId)) {
             return;
         }
 
