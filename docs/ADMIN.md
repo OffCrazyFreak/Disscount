@@ -178,4 +178,4 @@ No admin-specific environment variables or feature flags. The page uses the shad
 
 ## 14. Future improvements and TODOs
 
-- [ ] Admin hardening still open: method security and a last-admin guard on delete (#429 R6), and a smaller user list. The demotion guards shipped in #429 R5 (AUTH.md section 7.1).
+- [ ] Admin hardening still open: a smaller user list. The demotion guards shipped in #429 R5 and the last-admin delete guard in R6 (AUTH.md section 7.1).

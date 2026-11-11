@@ -1,0 +1,243 @@
+# Disscount: Spring Backend Guide
+
+A reference for how the Spring Boot backend is laid out and which rules hold it together, written for someone new to Spring. It covers the package layout, the rules between packages, transactions, security, soft delete, errors and tests. Feature behaviour (cards, lists, photos) lives in each feature's own doc; this file is about the frame they share.
+
+> **Mental model in one sentence:** the backend is one flat Java package per feature, each hiding its internals behind package-private classes, talking to other features only through a few public classes and user ids, with security checked twice (a URL rule for admin routes and a guard bean in front of every owner-scoped service method) and every error answered as the same translated problem response.
+
+The layout and its rules come from #429 (Spring backend restructure), built in steps R1 to R13. This doc describes the state after R6.
+
+---
+
+## 1. Quick reference
+
+| Thing        | Value                                                                                                                                                        |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Source       | `backend/src/main/java/disscount/`                                                                                                                           |
+| Framework    | Spring Boot 4.1 on Java 21, Hibernate 7.4, Spring Security 7 as an OAuth2 resource server                                                                    |
+| Database     | PostgreSQL 17 in every environment, H2 in most tests                                                                                                         |
+| Schema       | Hibernate `ddl-auto=update` today; Flyway with `ddl-auto=validate` arrives in #429 R9                                                                        |
+| Checks       | `mvn -B verify` in `backend/` (needs Docker for the PostgreSQL tests)                                                                                        |
+| Who calls it | Only the Next.js proxy, which turns the session cookie into a per-request token ([BACKEND-PROXY.md](BACKEND-PROXY.md))                                       |
+| Auth         | better-auth in Next.js signs the tokens, Spring only verifies them ([AUTH.md section 7](AUTH.md#7-the-spring-side-resource-server-and-profile-provisioning)) |
+
+---
+
+## 2. Packages
+
+One flat package per feature, so Java's package-private visibility can hide repositories, entities and helpers from every other feature. Sub-packages would force those classes to be `public`, because package-private does not reach into a sub-package.
+
+| Package        | What it holds                                                                                                               |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `user`         | Profiles, the admin user endpoints, account erasure, the erasure ledger and replay, `ActiveUsers`, `AccountErased`          |
+| `contact`      | Contact form messages and the admin contact tab                                                                             |
+| `preferences`  | Pinned stores, pinned places and favourite stores                                                                           |
+| `watchlist`    | Watchlist rules                                                                                                             |
+| `storename`    | Store name suggestions for custom cards                                                                                     |
+| `shoppinglist` | Lists and their items, one aggregate, plus sharing and copying                                                              |
+| `digitalcard`  | The card wallet and card photos                                                                                             |
+| `productimage` | Product photos, with three self-contained helper sub-packages: `catalog`, `openfoodfacts`, `render`                         |
+| `security`     | Filter chains, token purpose rules, the admin `AuthorizationManager`, method security                                       |
+| `shared`       | Errors, time, `@CurrentUser`, client IP, rate limiting, photo storage and sanitising, validation constraints, `AfterCommit` |
+| `config`       | Framework wiring with no business meaning (JSON, JPA, OpenAPI, scheduling, Sentry, upload limits, user foreign keys)        |
+
+Inside a feature, a class is package-private unless another package needs it, such as `security`, another feature's public API, or a test in another package.
+
+---
+
+## 3. Dependency rules
+
+```mermaid
+flowchart TD
+    F[other features] -->|ActiveUsers, AccountErased| U[user]
+    F --> S[shared]
+    U --> S
+    SEC[security] --> U
+    SEC --> S
+    F -.->|public API only| F2[another feature]
+```
+
+1. A feature imports only `shared` and another feature's public classes.
+2. Features refer to another feature's rows by id (`UUID userId`), never by a `@ManyToOne` to its entity. The database foreign keys stay: Hibernate does not create one for a plain id column, so `config/UserForeignKeys` adds the eight that point at `app_user` until Flyway owns the schema.
+3. `user` depends on no other feature. Features that hold per-user data react to the `AccountErased` event instead of `user` calling them.
+4. `shared` imports no feature.
+
+`DependencyRulesTest` reads the main sources (the owner chose no ArchUnit and no Spring Modulith) and checks rules 3 and 4, plus that other features use only `ActiveUsers` and `AccountErased` from `user`. Rules 1 and 2 are mostly held by visibility: a package-private class from another feature does not compile.
+
+### What other features know about users
+
+`ActiveUsers` is the one door into `user`:
+
+| Method                  | Use                                                                                                                                                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `isActive(userId)`      | Is this account live                                                                                                                                                     |
+| `requireActive(userId)` | The caller's own account; answers `401 error.user.notFound` once it is gone, because a token outlives its account by minutes                                             |
+| `lockActive(userId)`    | The same under a row lock held until commit, so a write racing account deletion lands first or is refused. Digital cards use it as their per-user mutex (`CardUserLock`) |
+| `lockIfActive(userId)`  | The lock for work that should quietly do nothing once the account is gone                                                                                                |
+| `isActiveAdmin(userId)` | The admin URL rule                                                                                                                                                       |
+
+### Account erasure as an event
+
+`UserService.deleteAccount` soft-deletes the profile, publishes `AccountErased(userId)` and writes an `erasure_ledger` tombstone, all in one transaction. The listeners are plain synchronous `@EventListener`s, so they run inside that transaction and a listener that throws rolls the whole erasure back:
+
+| Order | Listener                               | Erases                                                                                                  |
+| ----- | -------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| 10    | `DigitalCardService.onAccountErased`   | Cards (deleted ones too), their photo rows, and queues the photo files                                  |
+| 20    | `StoreNameService.onAccountErased`     | Store name usages                                                                                       |
+| 30    | `FavoriteStoreService.onAccountErased` | Favourite stores                                                                                        |
+| 40    | `ProductImageErasure.onAccountErased`  | The user's unconfirmed product photos and private originals; confirmed photos stay without their author |
+
+The order is explicit because the bulk deletes clear the persistence context; `AccountErasedListenersTest` pins it.
+
+### Work after the commit
+
+`shared/AfterCommit.run` runs a task once the current transaction commits, or at once when there is none. It is for work outside the database, such as object storage or the store name counter, and it logs a failure instead of throwing, because the commit already happened. The rule it serves: no remote I/O inside a write transaction. The card photo upload is the template, where the files are stored first, only the row write is transactional, and the stored files are removed again if that write fails.
+
+---
+
+## 4. Layers, records and transactions
+
+| Layer      | Does                                                                   | Does not                                         |
+| ---------- | ---------------------------------------------------------------------- | ------------------------------------------------ |
+| Controller | Maps HTTP to one service call; reads the caller through `@CurrentUser` | Hold logic, open transactions, call repositories |
+| Service    | Owns the transaction, takes ids and request records, checks rules      | Return entities to controllers                   |
+| Repository | Package-private Spring Data interface                                  | Get called from another feature                  |
+| Entity     | Row invariants only (`@PrePersist`, column rules)                      | Business rules                                   |
+
+**Records and `from()`.** Requests and responses are Java records. A response with one source has a static `from(entity)` (for example `UserDto.from`, `WatchlistItemDto.from`). Three responses depend on who is asking or on several rows, and have a mapper instead: `ShoppingListMapper` (the caller's access level), `DigitalCardMapper` (the card with its photos) and `ProductImageViews` (public and admin views of a photo). There is no MapStruct.
+
+**Transaction defaults.** Every service has `@Transactional(readOnly = true)` on the class and `@Transactional` on each write method. A write method that forgets its annotation then fails loudly instead of committing by accident. `ReadOnlyDefaultTest` proves it on PostgreSQL, because H2 ignores a read-only connection: a flushed write is refused by the database, and an unflushed one is never sent.
+
+**`@CurrentUser`.** A controller parameter `@CurrentUser UUID userId` is the bearer token's subject, resolved by `CurrentUserArgumentResolver`. It is required by default. `@CurrentUser(required = false)` is null for an anonymous caller and appears only on the by-id shopping list routes and `POST /api/contact`. It carries `@Parameter(hidden = true)`, so the OpenAPI document does not grow a query parameter.
+
+**Open session in view** is still Spring's default (on) until #429 R8. One persistence context then spans the whole request, which matters for the guards below.
+
+---
+
+## 5. Security
+
+Authentication (which token, which purpose, profile provisioning) is in [AUTH.md section 7](AUTH.md#7-the-spring-side-resource-server-and-profile-provisioning). This section covers the two authorization layers.
+
+### 5.1 Admin routes: one URL rule
+
+`SecurityConfig` sends every `/api/admin/**` request through `AdminAuthorizationManager`, which needs an ordinary session token whose subject is a live `ADMIN` profile. No admin controller checks again. `AdminGatingTest` walks every mapped admin route (401 anonymous, 403 for each non-admin account type, 2xx for an admin) and fails when a mapped route is missing from its table. Demoting or deleting the last admin is refused with 409 ([AUTH.md 7.1](AUTH.md#71-admin-access)).
+
+### 5.2 Owner-scoped methods: guard beans
+
+`@EnableMethodSecurity` on `SecurityConfig` turns on Spring's `@PreAuthorize`. Each owner-scoped feature has one guard bean, and every public service method of that feature that takes a resource id names it:
+
+```java
+@PreAuthorize("@digitalCardGuard.ownsCard(#userId, #id)")
+@Transactional
+public DigitalCardDto setPinned(UUID userId, UUID id, boolean pinned) { ... }
+```
+
+| Guard               | Methods                                                                          | Checks                                                                                                                                |
+| ------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `DigitalCardGuard`  | 9 in `DigitalCardService` and `DigitalCardPhotoService`                          | `ownsCard`: a live card of this user. `mayWriteCard` (the create-or-replace PUT): no live card of someone else under this id          |
+| `WatchlistGuard`    | 1 in `WatchlistItemService`                                                      | `ownsItem`: an item of this user, deleted ones included, so a repeat delete stays 204                                                 |
+| `ShoppingListGuard` | 8 in `ShoppingListService`, `ShoppingListItemService`, `ShoppingListCopyService` | `canView`, `canWrite`, `canCheckItems`, `canEditItems`, from the caller's access level ([SHARING.md section 4](SHARING.md#4-backend)) |
+
+The other features have no by-id methods a user owns: preferences are replaced as a whole list, the profile is always "me", and contact messages and photo moderation sit behind the admin URL rule.
+
+How a guard answers:
+
+- **Someone else's id looks unknown.** A guard never returns false for a foreign id. A false becomes a 403, which would confirm the id exists, so the guard throws the feature's own 404 (`error.card.notFound`, `error.watchlistItem.notFound`, `error.shoppingList.notFound`) with the same body an unknown id gets.
+- **Shopping lists keep three outcomes:** 404 for a list the caller cannot see, 401 `error.shoppingList.signInToChange` for an anonymous write, 403 `error.shoppingList.insufficientAccess` for a link level too low. Owner-only refusals with their own message (`ownerOnlyDelete`, `ownerOnlyAddItems`, `ownerOnlyAccess`, `ownerOnlyCopySharing`) stay in the services.
+- **A guard reads a count or two columns, never an entity.** It runs before the service in the same request, and with open session in view an entity it loaded would sit in the persistence context. The service's own read after `CardUserLock` would then get that cached, possibly stale copy instead of the locked row.
+- **A real denial is still a 403 problem.** If a future guard does return false, `GlobalExceptionHandler` answers Spring's `AuthorizationDeniedException` with the same 403 body the filter chain uses, instead of the logged 500 the catch-all would give.
+
+**Both layers stay.** The scoped repository queries (`findActiveByIdAndUserId` and friends) are still there behind the guards (owner decision in #429: both). The guard makes a forgotten owner condition fail closed; the query keeps a bug in a guard from exposing another user's rows.
+
+**What the guard runs before.** Method security wraps the service outside its transaction, so the guard runs before anything in the method body. A card photo route with someone else's card id answers 404 even when the slot is unknown, photos are switched off or the upload limit is reached; your own card gets those answers as before.
+
+**Adding a by-id method.** Put `@PreAuthorize` with the feature's guard on it. `OwnershipGuardsTest` scans the owner-scoped features (`digitalcard`, `shoppinglist`, `watchlist`) and fails when a public service method with a `UUID` parameter other than `userId` or `ownerId` lacks the guard, and when a service with such a method is not wrapped by the `@PreAuthorize` interceptor. A new owner-scoped feature needs a guard bean and an entry in that test's table. A `@WebMvcTest` slice that imports `SecurityConfig` and a real service must import the guard too, or the expression fails to find the bean and the call answers 500.
+
+---
+
+## 6. Soft delete, the ledger and `IncludingDeleted`
+
+Six entities (`User`, `ShoppingList`, `ShoppingListItem`, `WatchlistItem`, `DigitalCard`, `ContactMessage`) carry `@SQLRestriction("deleted_at is null")`, so Hibernate adds the condition to every JPA lookup, JPQL query, collection and bulk statement. Native SQL is the only way to see a deleted row, and the five flows that need one use explicit native queries named `...IncludingDeleted...` or `isDeleted`. The details and the table of flows are in [AUTH.md 7.3](AUTH.md#73-soft-delete-and-the-erasure-ledger).
+
+**The erasure ledger.** `erasure_ledger` gets a row for every erased account and answers the account lifecycle reads a hidden profile no longer can: the 410 on sign-in after an erasure, the first-admin count (`countIncludingDeleted` plus ledger rows), the admin delete of an already erased account, and the erasure replay after a backup restore ([BACKUPS.md](BACKUPS.md)). The one-shot `erasure-backfill` profile adds tombstones for profiles deleted before the ledger existed.
+
+**In tests**, read a deleted row with `support/IncludingDeleted.find(entityManager, Entity.class, id)`, never `findById`, and clean tables with `JdbcTestUtils.deleteFromTables`, because `deleteAll()` skips hidden rows.
+
+---
+
+## 7. Errors as problem responses
+
+Every error is `application/problem+json` (RFC 9457), shaped in one place, `shared/GlobalExceptionHandler`, which extends Spring's `ResponseEntityExceptionHandler` so framework errors (405, 415, unreadable body) get the same shape:
+
+```json
+{
+  "type": "urn:disscount:conflict",
+  "title": "Spremanje nije uspjelo",
+  "status": 409,
+  "detail": "Ovo je jedini administratorski račun, pa ga ne možeš obrisati.",
+  "instance": "/api/users/me",
+  "timestamp": "2026-11-11T12:00:00.000Z",
+  "code": "error.user.lastAdminDelete"
+}
+```
+
+- Services throw one of the `shared` exceptions with a message key: `BadRequestException` (400), `UnauthorizedException` (401), `ForbiddenException` (403), `NotFoundException` (404), `ConflictException` (409), `TooManyRequestsException` (429, with `Retry-After`), `ServiceUnavailableException` (503).
+- `title` and `detail` are translated from `messages*.properties` by `Accept-Language` (hr, en, it, sl, de). A key missing from the bundle shows as written.
+- 409 and 503 also carry the key as `code`, because the detail is translated and a client that branches on the error needs a stable value.
+- Validation errors carry `fieldErrors`. A unique violation answers 409 without logging the driver text, which holds the value.
+- The filter chain's 401 and 403 go through the same handler (`ProblemAuthenticationEntryPoint`, `ProblemAccessDeniedHandler`), and so does a method security denial.
+- Anything unexpected is a 500 with a generic detail, logged as an error, which Sentry's log appender reports (`GlobalExceptionHandlerSentryTest`).
+
+---
+
+## 8. Testing
+
+| Kind                           | Runs on                                    | Used for                                                                                          |
+| ------------------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| Unit and `@DataJpaTest` slices | H2                                         | Most service and repository tests                                                                 |
+| `FullStackTest` subclasses     | H2, one cached Spring context with MockMvc | Ownership tests per feature, `AdminGatingTest`, wire-format snapshots, account erasure end to end |
+| Testcontainers                 | `postgres:17-alpine`                       | `DoubleBootSchemaTest`, `ReadOnlyDefaultTest`, `SoftDeletePostgresTest`, `LastAdminDeletionTest`  |
+
+PostgreSQL is used where H2 behaves differently: read-only transactions, native SQL on deleted rows, schema changes between boots, and row locks. `LastAdminDeletionTest` also needs a database of its own, because the shared H2 context keeps every other test's admins, so no admin there is ever the last one. Its race tests hold the first deletion's locks open, check that the second one waits, then commit the first and expect the second to get the 409.
+
+The ownership tests are the guard's evidence: for each owner-scoped feature, user A against user B's id answers 404 on every by-id route, the list routes never return B's rows, and the guard bean itself throws the 404 (and, for lists, the 401 and 403). `ApiContractTest` keeps `contracts/backend-api.json` in step with the DTOs ([API-CONTRACT.md](API-CONTRACT.md)). [TESTING.md](TESTING.md) has the rest.
+
+---
+
+## 9. What's automatic vs manual
+
+| Automatic                                                  | Manual                                                                              |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| The soft delete condition on every JPA query               | Choosing a native query when a flow must see deleted rows                           |
+| The admin URL rule on every `/api/admin/**` route          | Adding a new admin route to `AdminGatingTest`'s table (the test fails until you do) |
+| `OwnershipGuardsTest` failing on an unguarded by-id method | Writing the guard check and the `@PreAuthorize`                                     |
+| Read-only transactions on every service method             | `@Transactional` on each write method                                               |
+| Translated problem bodies for every thrown exception       | A message key in all five bundles for every new error                               |
+| Erasure of per-user data through `AccountErased`           | A listener with an explicit `@Order` for any new per-user table                     |
+
+---
+
+## 10. Gotchas
+
+- **A guard that returns false leaks.** It answers 403, which tells a stranger the id is real. Throw the feature's 404 instead.
+- **A guard that loads an entity can resurrect a row.** With open session in view, the service gets the guard's cached copy; a dirty check on a row deleted in between would write it back. Read counts or columns.
+- **JPQL never sees deleted rows**, including bulk updates and deletes. A cleanup written in JPQL silently skips them.
+- **`deleteAll()` in a test leaves hidden rows behind**, and their foreign keys then fail the next test's cleanup.
+- **The last admin cannot be removed through the app** (demote, admin delete, or deleting your own account all answer 409). The erasure replay is the exception, because a restored backup must forget every account it is told to. With no admin left, recovery is a manual `UPDATE app_user SET account_type = 'ADMIN'` on the server.
+- **The account deletion flow shows a generic failure for that 409.** `lib/auth/erase-backend-account.ts` turns any non-2xx into "Account erasure failed; nothing was deleted" and reports it to Sentry, so the last admin trying to delete their account sees a generic error and the account stays whole.
+
+---
+
+## 11. Future improvements & TODOs
+
+What the rest of #429 changes:
+
+- **R8**: paged lists answer our own `PageDto` (`{ items, page: { number, size, totalItems, totalPages } }`), open session in view goes off, and the page size is capped at 100. With open session in view off, the guards' rule about entities stays good practice but stops being a correctness trap.
+- **R9**: Flyway with plain SQL migrations owns the schema, `ddl-auto` becomes `validate`, and a CI drift check compares the migrated schema with the entities on PostgreSQL. `config/UserForeignKeys` goes, as the migrations hold the foreign keys.
+- **R10**: deleting a better-auth identity moves to Next.js together with #53 (atomic account deletion); Spring then only erases app data through the erasure token path.
+- **R11**: the app tables move to an `app` schema and better-auth's to `auth`, with three least-privilege database roles (migrator, Spring runtime, Next.js runtime).
+- **R12**: `@ConfigurationProperties` records replace the `@Value` fields, springdoc is off outside `local`, unused starters and properties go, and the container gets JVM memory flags.
+
+Open:
+
+- The account deletion page could show the translated 409 detail instead of a generic failure, and skip the Sentry report for it.
+- Nothing serialises the first-admin count with the first profile insert, so two first logins racing on an empty database can both become admin ([AUTH.md 7.1](AUTH.md#71-admin-access)).
