@@ -48,6 +48,7 @@
 
 - Stamp zone-less timestamp columns through `Timestamps.nowUtc()`, never `LocalDateTime.now()`, because the JVM zone would leak into what `parseServerDate` reads as UTC.
 - Give each backend feature one flat package, package-private by default; a feature imports only `shared` and other features' public classes, and refers to their data by id, with thin controllers.
+- Change backend tables only with a new numbered SQL file in `backend/src/main/resources/db/migration`, never by editing one that has run; Hibernate only checks the tables.
 
 ## Frontend
 

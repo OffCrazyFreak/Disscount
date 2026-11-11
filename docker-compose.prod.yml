@@ -32,7 +32,22 @@ services:
       timeout: 5s
       retries: 10
 
-  # One-shot drizzle migration (better-auth tables); Hibernate creates the app tables.
+  # One-shot Flyway migration of the backend tables (backend/src/main/resources/db/migration); Hibernate only checks them.
+  flyway:
+    build:
+      context: ./backend
+      target: flyway
+    restart: "no"
+    environment:
+      FLYWAY_URL: ${SPRING_DATASOURCE_URL}
+      FLYWAY_USER: ${SPRING_DATASOURCE_USERNAME}
+      FLYWAY_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    networks: [internal]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # One-shot drizzle migration (better-auth tables).
   migrate:
     build:
       <<: *frontend-build
@@ -45,6 +60,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      # Flyway refuses to start on a new database that already holds tables, so it runs before drizzle adds them.
+      flyway:
+        condition: service_completed_successfully
 
   backend:
     build:
@@ -82,6 +100,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
       migrate:
         condition: service_completed_successfully
       photo-folders:

@@ -52,6 +52,7 @@ move_tag() {
   done
 
   # Commits from before the backup or flyway image have none, so a Rollback to one leaves that tag where it is.
+  # An older backend then runs after the newer flyway job, which finds nothing to apply.
   for image in backup flyway; do
     if inspect_error="$(docker buildx imagetools inspect "ghcr.io/offcrazyfreak/disscount-$image:$commit_tag" 2>&1 >/dev/null)"; then
       images="$images $image"

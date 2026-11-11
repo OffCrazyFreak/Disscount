@@ -67,7 +67,7 @@ jobs:
             backup:
               - *workflow
               - backup/**
-            # What the boot test builds or boots: the backend, migrator and backup images, the photo server's config and the compose files.
+            # What the boot test builds or boots: the backend, flyway, migrator and backup images, the photo server's config and the compose files.
             smoke:
               - *workflow
               - backend/**
@@ -321,7 +321,7 @@ jobs:
           path: ~/.m2/repository
           key: ${{ steps.maven-cache.outputs.cache-primary-key }}
 
-  # Boots the backend and migrator images the way Dokploy runs them. Only a boot catches a Dockerfile
+  # Boots the backend, flyway and migrator images the way Dokploy runs them. Only a boot catches a Dockerfile
   # that builds but leaves the app unable to start (a file the build stage never copied). No draft
   # skip, so a broken image shows up as soon as it is pushed.
   image-smoke:
@@ -365,7 +365,6 @@ jobs:
           tags: ghcr.io/offcrazyfreak/disscount-backend:smoke
           cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-backend:buildcache
 
-      # No service runs it yet; built here so a broken flyway module fails the pull request, not the dev deploy.
       - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: backend
@@ -382,7 +381,7 @@ jobs:
           tags: ghcr.io/offcrazyfreak/disscount-migrator:smoke
           cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-migrator:buildcache
 
-      # migrate waits for predeploy-dump, which runs this image and exits at once with backups off.
+      # flyway waits for predeploy-dump, which runs this image and exits at once with backups off.
       - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: backup
@@ -513,7 +512,6 @@ jobs:
           - image: backend
             context: backend
             target: runtime
-          # Built ahead of the migrations that will use it (#429 R9), so its GHCR package exists before any deploy pulls it.
           - image: flyway
             context: backend
             target: flyway

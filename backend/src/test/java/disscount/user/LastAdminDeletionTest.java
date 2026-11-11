@@ -3,19 +3,15 @@ package disscount.user;
 import disscount.shared.BadRequestException;
 import disscount.shared.ConflictException;
 import disscount.support.FullStackTest;
+import disscount.support.MigratedPostgres;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -36,20 +32,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * PostgreSQL, because the race is decided by its row locks, and because the shared H2 database keeps
  * other tests' admins, so no H2 test can make an admin the last one.
  */
-@Testcontainers
+@MigratedPostgres
 class LastAdminDeletionTest extends FullStackTest {
-
-    // The version production runs.
-    @Container
-    private static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine");
-
-    @DynamicPropertySource
-    static void database(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
-        registry.add("spring.datasource.username", POSTGRES::getUsername);
-        registry.add("spring.datasource.password", POSTGRES::getPassword);
-        registry.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
-    }
 
     @Autowired JdbcTemplate jdbc;
     @Autowired UserService userService;

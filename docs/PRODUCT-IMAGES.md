@@ -191,7 +191,7 @@ flowchart LR
 
 ## 10. Data model
 
-Entities in `backend/.../productimage/`. Tables are created by Hibernate `ddl-auto=update`.
+Entities in `backend/.../productimage/`. Tables come from the Flyway files in `backend/src/main/resources/db/migration` (`V2` created them); Hibernate only validates.
 
 | Table                      | Key columns                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -343,7 +343,7 @@ A successful copy clears `render_attempts` and `render_retry_at`.
 - **Photos exist only for barcode shaped ids.** The backend accepts 8 to 14 digits (`Barcodes.isEanShape`), while cijene also has longer codes and `<chain>:<code>` ids. For those, `GET /{ean}/images` answers 400, the thumbnails request drops them, and the product page falls back to the brand share image.
 - **Never reuse a key.** The year-long immutable cache is only safe because a new render gets a new hash; writing new bytes to an old key would leave every browser on the old photo.
 - **The crop height limit sits on `ReactCrop`, not the `<img>`.** `ReactCrop.css` makes the image inherit `max-height`, so a class on the image is ignored and a tall photo pushes the buttons off screen.
-- **A fresh database gets a CHECK on the status and source values.** Since Hibernate 7 the converter no longer keeps it out, so a database created from scratch has `product_image_status_check` and `product_image_source_check`. Production's table is older and has neither. `ddl-auto=update` never refreshes a CHECK, so until the move to Flyway, adding an `ImageStatus` or `ImageSource` value means updating that constraint by hand in every database that has it.
+- **Every database has a CHECK on the status, source and hidden reason values** (`ck_product_image_status`, `ck_product_image_source`, `ck_product_image_hidden_reason`, from `V3`). Adding an `ImageStatus`, `ImageSource` or `HiddenReason` value needs a Flyway file that drops and recreates its check; `EnumColumnsTest` fails until it exists.
 
 ---
 
