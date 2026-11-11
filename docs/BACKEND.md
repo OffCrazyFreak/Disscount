@@ -201,7 +201,7 @@ Every error is `application/problem+json` (RFC 9457), shaped in one place, `shar
 
 PostgreSQL is used where H2 behaves differently: read-only transactions, native SQL on deleted rows, schema changes between boots, and row locks. `LastAdminDeletionTest` also needs a database of its own, because the shared H2 context keeps every other test's admins, so no admin there is ever the last one. Its race tests hold the first deletion's locks open, check that the second one waits, then commit the first and expect the second to get the 409.
 
-The ownership tests are the guard's evidence: for each owner-scoped feature, user A against user B's id answers 404 on every by-id route, the list routes never return B's rows, and the guard bean itself throws the 404 (and, for lists, the 401 and 403). `ApiContractTest` keeps `contracts/backend-api.json` in step with the DTOs ([API-CONTRACT.md](API-CONTRACT.md)). [TESTING.md](TESTING.md) has the rest.
+The ownership tests are the guard's evidence: for each owner-scoped feature, user A against user B's id answers 404 on every by-id route (except a shopping list B shares by link, which A may see at its link level), the list routes never return B's rows, and the guard bean itself throws the 404 (and, for lists, the 401 and 403). `ApiContractTest` keeps `contracts/backend-api.json` in step with the DTOs ([API-CONTRACT.md](API-CONTRACT.md)). [TESTING.md](TESTING.md) has the rest.
 
 ---
 
@@ -224,7 +224,7 @@ The ownership tests are the guard's evidence: for each owner-scoped feature, use
 - **A guard's check is a snapshot taken before the service's lock.** A card deleted between the guard and `CardUserLock` is caught by the service's own scoped read under the lock, which is one reason both layers stay.
 - **JPQL never sees deleted rows**, including bulk updates and deletes. A cleanup written in JPQL silently skips them.
 - **`deleteAll()` in a test leaves hidden rows behind**, and their foreign keys then fail the next test's cleanup.
-- **The last admin cannot be removed through the app** (demote, admin delete, or deleting your own account all answer 409). Every role change and every erasure, a consumer's too, takes the admin row locks before it reads a role, which is what keeps a promotion racing an erasure from slipping past the check. The erasure replay is the exception, because a restored backup must forget every account it is told to. With no admin left, recovery is a manual `UPDATE app_user SET account_type = 'ADMIN'` on the server.
+- **The last admin cannot be removed through the app**: demoting the last admin, an admin deleting the last admin, and the last admin deleting their own account all answer 409. An admin targeting their own id through `DELETE /api/admin/users/{userId}` gets 400 `error.user.cannotDeleteSelf` first, whatever the admin count. Every role change and every erasure, a consumer's too, takes the admin row locks before it reads a role, which is what keeps a promotion racing an erasure from slipping past the check. The erasure replay is the exception, because a restored backup must forget every account it is told to. With no admin left, recovery is a manual `UPDATE app_user SET account_type = 'ADMIN'` on the server.
 - **The account deletion flow shows a generic failure for that 409.** `lib/auth/erase-backend-account.ts` turns any non-2xx into "Account erasure failed; nothing was deleted" and reports it to Sentry, so the last admin trying to delete their account sees a generic error and the account stays whole.
 
 ---
