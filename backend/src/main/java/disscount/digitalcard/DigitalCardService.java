@@ -9,10 +9,13 @@ import disscount.shared.PhotoStoreConfig;
 import disscount.shared.Timestamps;
 import disscount.storename.StoreNameNormalizer;
 import disscount.storename.StoreNameService;
+import disscount.user.AccountErased;
 import org.springframework.beans.factory.annotation.Qualifier;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -150,11 +153,17 @@ public class DigitalCardService {
     }
 
     /** Account deletion: nothing of the user's cards may outlive the profile. */
+    /** Cards hold card numbers and photos, which must not outlive the account. */
+    @EventListener
+    @Order(10)
+    public void onAccountErased(AccountErased erased) {
+        deleteAllForUser(erased.userId());
+    }
+
     public void deleteAllForUser(UUID userId) {
         photoRepository.deleteAllByUserId(userId);
         cardRepository.deleteAllByUserId(userId);
         cleanup.enqueueErasure(PhotoKeys.userPrefix(userId));
-        storeNameService.forgetUser(userId);
     }
 
     public int purgeDeletedBefore(LocalDateTime cutoff) {

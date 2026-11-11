@@ -1,11 +1,9 @@
 package disscount.user;
 
-import disscount.digitalcard.DigitalCardService;
-import disscount.preferences.FavoriteStoreService;
-import disscount.productimage.ProductImageErasure;
 import disscount.shared.BadRequestException;
 import disscount.shared.PhotoValidator;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Base64;
 import java.util.UUID;
@@ -24,7 +22,7 @@ class UserServiceAvatarTest {
 
     private final UserRepository userRepository = mock(UserRepository.class);
     private final UserService userService = new UserService(userRepository, mock(AuthIdentityDao.class),
-            mock(UserProfileCreator.class), mock(ActiveUsers.class), mock(DigitalCardService.class), mock(FavoriteStoreService.class), mock(ProductImageErasure.class),
+            mock(UserProfileCreator.class), mock(ActiveUsers.class), mock(ApplicationEventPublisher.class),
             mock(ErasureLedgerRepository.class), new AvatarSanitizer(new PhotoValidator()));
 
     private final User user = User.builder().id(UUID.randomUUID()).username("ana").image("data:image/webp;base64,old").build();

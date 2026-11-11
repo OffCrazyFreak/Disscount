@@ -1,10 +1,13 @@
 package disscount.preferences;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import disscount.shared.BadRequestException;
+import disscount.user.AccountErased;
 import disscount.user.ActiveUsers;
 
 import java.util.List;
@@ -45,6 +48,13 @@ public class FavoriteStoreService {
         return favoriteStoreRepository.findByUserId(userId).stream()
                 .map(this::mapToDto)
                 .toList();
+    }
+
+    /** Favourite stores show where the person shops. */
+    @EventListener
+    @Order(30)
+    public void onAccountErased(AccountErased erased) {
+        deleteAllForUser(erased.userId());
     }
 
     public void deleteAllForUser(UUID userId) {
