@@ -33,8 +33,7 @@ describe("Next routes under app/api", () => {
           recursive: true,
           encoding: "utf8",
         })
-          .filter((file) => !file.endsWith(".test.ts"))
-          .filter((file) => file.endsWith(".ts"))
+          .filter((file) => /(^|\/)route\.[jt]s$/.test(file))
           .map((file) => `${root}/${file}`),
       );
 
