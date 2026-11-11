@@ -365,6 +365,15 @@ jobs:
           tags: ghcr.io/offcrazyfreak/disscount-backend:smoke
           cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-backend:buildcache
 
+      # No service runs it yet; built here so a broken flyway module fails the pull request, not the dev deploy.
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: backend
+          target: flyway
+          load: true
+          tags: ghcr.io/offcrazyfreak/disscount-flyway:smoke
+          cache-from: type=registry,ref=ghcr.io/offcrazyfreak/disscount-flyway:buildcache
+
       - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: backend
