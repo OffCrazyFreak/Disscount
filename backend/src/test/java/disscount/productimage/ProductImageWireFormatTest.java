@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.JsonNode;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -123,19 +125,16 @@ class ProductImageWireFormatTest extends FullStackTest {
     }
 
     @Test
-    void theAdminQueueCapsThePageSizeAndKeepsItsOwnOrder() throws Exception {
-        sets.save(sets.findById(ean).map(set -> {
-            set.setStoreListings(Integer.MAX_VALUE);
-            return set;
-        }).orElseThrow());
-
+    void theAdminQueueCapsThePageSizeAndIgnoresAClientSort() throws Exception {
+        // A sort that reached the query would name a field the entity lacks and fail it.
         JsonNode page = body(mvc.perform(get("/api/admin/product-images/queue")
                         .param("size", "500")
-                        .param("sort", "ean,desc")
+                        .param("sort", "noSuchField,desc")
                         .with(as(newAdmin())))
                 .andExpect(status().isOk()));
 
         assertThat(page.get("page").get("size").asInt()).isEqualTo(100);
-        assertThat(page.get("items").get(0).get("ean").asString()).isEqualTo(ean);
+        List<Integer> listings = page.get("items").valueStream().map(item -> item.get("storeListings").asInt()).toList();
+        assertThat(listings).isNotEmpty().isSortedAccordingTo(Comparator.reverseOrder());
     }
 }
