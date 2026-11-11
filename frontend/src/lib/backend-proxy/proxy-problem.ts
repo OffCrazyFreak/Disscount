@@ -19,7 +19,10 @@ export type ProxyProblemCode =
   | (typeof SERVER_REPORTED_PROBLEMS)[number]
   | "upstream_unavailable"
   | "bad_request"
-  | "too_many_requests";
+  | "too_many_requests"
+  | "payload_too_large"
+  | "request_timeout"
+  | "sign_in_required";
 
 type ProxyTitleKey = keyof typeof hrErrors.proxy;
 
@@ -45,6 +48,11 @@ const PROBLEMS: Record<
   upstream_unavailable: { status: 502, titleKey: "unavailable" },
   bad_request: { status: 400, titleKey: "badRequest" },
   too_many_requests: { status: 429, titleKey: "tooManyRequests" },
+  payload_too_large: { status: 413, titleKey: "tooLarge" },
+  // The browser stalled mid-body; a retry on a better connection is all it can do.
+  request_timeout: { status: 408, titleKey: "refreshPage" },
+  // A 401 like Spring's own, so the client refetches the session and the offline queue keeps the write.
+  sign_in_required: { status: 401, titleKey: "signInRequired" },
 };
 
 /** The client sends <html lang> here, the same header Spring localises its own titles from. */

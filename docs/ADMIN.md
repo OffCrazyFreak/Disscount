@@ -116,7 +116,7 @@ The product photo review queue: candidates from Open Food Facts and user uploads
 | `PATCH /api/admin/contact/{id}/restore`         | `AdminContactController`      | Undo the soft delete; deleted messages load through native queries ([AUTH.md 7.3](AUTH.md#73-soft-delete-and-the-erasure-ledger)) |
 | `/api/admin/product-images/**`                  | `AdminProductImageController` | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                                                                                        |
 
-Swagger lists them all at `/api-docs`.
+Swagger lists them all at `/api/swagger-ui/index.html`.
 
 ---
 

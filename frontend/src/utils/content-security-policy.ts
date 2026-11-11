@@ -28,3 +28,18 @@ export function buildContentSecurityPolicy(isDevelopment: boolean): string {
     "base-uri 'self'",
   ].join("; ");
 }
+
+/** Swagger UI loads only its own files and the API description, but styles its widgets inline. */
+export function buildDocsContentSecurityPolicy(): string {
+  return [
+    "default-src 'none'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data:",
+    "connect-src 'self'",
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    "base-uri 'none'",
+    "form-action 'none'",
+  ].join("; ");
+}

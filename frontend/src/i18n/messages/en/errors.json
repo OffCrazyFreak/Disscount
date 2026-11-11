@@ -8,6 +8,8 @@
     "refreshPage": "Something went wrong. Refresh the page and try again",
     "unavailable": "Service unavailable",
     "badRequest": "Bad request",
-    "tooManyRequests": "Too many tries, wait a moment"
+    "tooManyRequests": "Too many tries, wait a moment",
+    "tooLarge": "The request is too large",
+    "signInRequired": "Sign in and try again"
   }
 }

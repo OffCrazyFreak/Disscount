@@ -4,7 +4,10 @@ import createNextIntlPlugin from "next-intl/plugin";
 import { DEFAULT_LOCALE, LOCALES } from "./src/i18n/locales";
 import { SENTRY_APPLICATION_KEY } from "./src/lib/sentry/application-key";
 import { clientEnv, validateClientEnv } from "./src/lib/env";
-import { buildContentSecurityPolicy } from "./src/utils/content-security-policy";
+import {
+  buildContentSecurityPolicy,
+  buildDocsContentSecurityPolicy,
+} from "./src/utils/content-security-policy";
 import { isIndexableOrigin } from "./src/utils/indexing";
 
 // Fails `next build` and `next dev` on a malformed public variable, before it is baked in.
@@ -14,6 +17,18 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 // Croatian is unprefixed; every other locale lives under its own path segment.
 const LOCALE_PREFIXES = LOCALES.filter((locale) => locale !== DEFAULT_LOCALE);
+
+const PERMISSIONS_POLICY = [
+  "camera=(self)",
+  "geolocation=(self)",
+  "microphone=()",
+  "payment=()",
+  "usb=()",
+  "bluetooth=()",
+  "accelerometer=()",
+  "gyroscope=()",
+  "magnetometer=()",
+].join(", ");
 
 const nextConfig: NextConfig = {
   // Emit a minimal self-contained server build (.next/standalone) for a lean Docker image.
@@ -31,6 +46,8 @@ const nextConfig: NextConfig = {
   // Version skew protection: a tab from an older deploy gets a full page load
   // instead of a client navigation. A build without GIT_SHA skips it.
   deploymentId: process.env.GIT_SHA || undefined,
+
+  poweredByHeader: false,
 
   // The dev indicator sits bottom-left, on top of the mobile bottom nav.
   devIndicators: false,
@@ -60,6 +77,20 @@ const nextConfig: NextConfig = {
           {
             key: "Strict-Transport-Security",
             value: "max-age=31536000; includeSubDomains",
+          },
+          // The scanner needs the camera and near-me the location; wake lock, clipboard and share keep their defaults.
+          { key: "Permissions-Policy", value: PERMISSIONS_POLICY },
+          // Sign-in is a full-page redirect and external links open with noopener, so no window needs an opener.
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+        ],
+      },
+      {
+        // Swagger UI is Spring's page, so it gets its own policy and the site-wide one stays as it is.
+        source: "/api/swagger-ui/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: buildDocsContentSecurityPolicy(),
           },
         ],
       },

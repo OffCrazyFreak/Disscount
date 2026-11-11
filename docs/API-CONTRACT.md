@@ -11,7 +11,7 @@ The frontend parses every backend response with zod, and a zod enum rejects a va
 Three links, each with its own test:
 
 - **Real responses match the contract.** The `*WireFormatTest` classes run the whole app on H2 and call `ApiContract.assertMatches("SomeDto", response)`, which compares the keys and fails on a null the contract does not declare, nested DTOs included.
-- **The contract matches the backend.** `ApiContractTest` builds the contract again and compares it to the committed file. The schemas come from springdoc's `/v3/api-docs` (`components.schemas`, every DTO a controller names). The enums come from a classpath scan of `disscount`, leaving out test classes, because some enums are `String` fields on the wire (`ImageSource`, `ImageStatus`) and some are never in a DTO (`QueueFilter`).
+- **The contract matches the backend.** `ApiContractTest` builds the contract again and compares it to the committed file. The schemas come from springdoc's `/api/v3/api-docs` (`components.schemas`, every DTO a controller names). The enums come from a classpath scan of `disscount`, leaving out test classes, because some enums are `String` fields on the wire (`ImageSource`, `ImageStatus`) and some are never in a DTO (`QueueFilter`).
 - **The zod schemas match the contract.** `frontend/src/lib/api/schemas/backend-contract.test.ts` turns each zod schema into JSON Schema with `z.toJSONSchema` and compares field names, types, nullability, enum values and nested objects.
 
 The frontend test also fails on anything unclassified: a new DTO or enum in the file must be added to the mirrored table or to the named "no zod schema" or "backend only" list.
