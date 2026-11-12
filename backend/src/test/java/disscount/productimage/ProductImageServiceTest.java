@@ -347,6 +347,15 @@ class ProductImageServiceTest {
     }
 
     @Test
+    void aPhotoOfAPaddedCodeIsStoredUnderTheBareCodeAndFoundByEitherSpelling() {
+        writes.upload(ana, "0" + EAN, jpeg());
+
+        assertThat(images.findByEanOrderByCreatedAtAsc(EAN)).hasSize(1);
+        assertThat(queries.forProduct(EAN).images()).hasSize(1);
+        assertThat(queries.thumbnails(List.of(EAN, "0" + EAN)).thumbnails()).containsOnlyKeys(EAN, "0" + EAN);
+    }
+
+    @Test
     void thumbnailsPointAtTheSmallListFileAndFallBackToTheThumbForOlderPhotos() {
         writes.upload(ana, EAN, jpeg());
         assertThat(queries.thumbnails(List.of(EAN)).thumbnails().get(EAN)).endsWith("-small.webp");

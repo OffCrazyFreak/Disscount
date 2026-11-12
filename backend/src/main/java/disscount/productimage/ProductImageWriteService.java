@@ -48,8 +48,8 @@ class ProductImageWriteService {
 
     /** Confirms another user's unconfirmed photo of the product, as two people photographed what one page showed. */
     @Transactional
-    public ProductImagesDto upload(UUID userId, String ean, MultipartFile file) {
-        ProductImageQueryService.requireEan(ean);
+    public ProductImagesDto upload(UUID userId, String requestedEan, MultipartFile file) {
+        String ean = ProductImageQueryService.canonicalEan(requestedEan);
         requireStorage();
         activeUsers.lockActive(userId);
 

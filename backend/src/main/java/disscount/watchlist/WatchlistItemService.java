@@ -2,6 +2,7 @@ package disscount.watchlist;
 
 import disscount.shared.errors.NotFoundException;
 import disscount.shared.Timestamps;
+import disscount.shared.CanonicalBarcode;
 import disscount.shared.errors.UserLimit;
 import disscount.user.ActiveUsers;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +29,10 @@ public class WatchlistItemService {
     public WatchlistItemDto addOrUpdateWatchlist(UUID userId, WatchlistItemRequest request) {
         // Held to commit, so two adds at the cap cannot both count room.
         activeUsers.lockActive(userId);
+        String productApiId = CanonicalBarcode.of(request.productApiId());
 
         Optional<WatchlistItem> existing = watchlistItemRepository
-                .findByProductApiIdAndWatchType(request.productApiId(), request.watchType(), userId);
+                .findByProductApiIdAndWatchType(productApiId, request.watchType(), userId);
         
         if (existing.isPresent()) {
             WatchlistItem watchlistItem = existing.get();
@@ -43,7 +45,7 @@ public class WatchlistItemService {
 
         WatchlistItem watchlistItem = WatchlistItem.builder()
                 .userId(userId)
-                .productApiId(request.productApiId())
+                .productApiId(productApiId)
                 .watchType(request.watchType())
                 .thresholdValue(request.thresholdValue())
                 .build();
@@ -73,7 +75,7 @@ public class WatchlistItemService {
 
     public List<WatchlistItemDto> getWatchlistItemsByProductApiId(UUID userId, String productApiId) {
         List<WatchlistItem> watchlistItems = watchlistItemRepository
-                .findByProductApiId(productApiId, userId);
+                .findByProductApiId(CanonicalBarcode.of(productApiId), userId);
 
         return watchlistItems.stream()
                 .map(WatchlistItemDto::from)

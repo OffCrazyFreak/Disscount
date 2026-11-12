@@ -65,6 +65,15 @@ class WatchlistLimitTest {
     }
 
     @Test
+    void aCodePaddedWithZerosUpdatesTheSameWatch() {
+        add("0012345678905");
+        add("12345678905");
+
+        assertThat(watchlist.findByUserId(owner.getId())).singleElement()
+                .extracting(WatchlistItem::getProductApiId).isEqualTo("12345678905");
+    }
+
+    @Test
     void aRemovedEntryFreesItsPlace() {
         saveEntries(LIMIT);
         service.removeFromWatchlist(watchlist.findByUserId(owner.getId()).get(0).getId(), owner.getId());

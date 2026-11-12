@@ -92,6 +92,15 @@ class ProductPhotoLimitTest {
     }
 
     @Test
+    void aCodePaddedWithZerosIsTheSameProduct() {
+        savePhotos(ana, 2, "12345678905");
+        writes.upload(ana.getId(), "0012345678905", jpeg());
+
+        assertThat(images.countByContributorIdAndEan(ana.getId(), "12345678905")).isEqualTo(3);
+        assertRefused(() -> writes.upload(ana.getId(), "00012345678905", jpeg()), UserLimit.PRODUCT_PHOTOS_PER_PRODUCT);
+    }
+
+    @Test
     void theSeventyFifthPhotoOfTheDayPassesAndTheNextWaitsForTheNextUtcDay() {
         savePhotosOfDifferentProducts(ana, 74);
         writes.upload(ana.getId(), EAN, jpeg());

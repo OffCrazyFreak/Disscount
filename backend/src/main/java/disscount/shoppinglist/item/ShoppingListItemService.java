@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import disscount.shared.errors.ForbiddenException;
 import disscount.shared.errors.NotFoundException;
+import disscount.shared.CanonicalBarcode;
 import disscount.shared.Timestamps;
 import disscount.shoppinglist.ListAccess;
 import disscount.shoppinglist.ShoppingList;
@@ -47,7 +48,7 @@ public class ShoppingListItemService {
 
         quota.lockOwner(shoppingList);
 
-        String ean = ShoppingListItemMatcher.blankToNull(request.ean());
+        String ean = CanonicalBarcode.of(ShoppingListItemMatcher.blankToNull(request.ean()));
         String name = request.name().strip();
         Optional<ShoppingListItem> existingItem = ShoppingListItemMatcher.findMergeTarget(
                 shoppingListItemRepository.findActiveByShoppingList(shoppingList), ean, name);
@@ -160,7 +161,7 @@ public class ShoppingListItemService {
         }
 
         // A plain item has no EAN to send back, and a missing one must never unlink a product.
-        String ean = ShoppingListItemMatcher.blankToNull(request.ean());
+        String ean = CanonicalBarcode.of(ShoppingListItemMatcher.blankToNull(request.ean()));
         if (ean != null) item.setEan(ean);
         item.setBrand(request.brand());
         item.setName(request.name().strip());
