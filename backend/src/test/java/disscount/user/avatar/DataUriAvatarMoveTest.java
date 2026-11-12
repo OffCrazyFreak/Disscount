@@ -7,8 +7,10 @@ import disscount.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 import static disscount.shared.photo.TestImages.contains;
@@ -26,6 +28,7 @@ class DataUriAvatarMoveTest extends FullStackTest {
         files.objects.clear();
         files.enabled = true;
         files.failPuts = false;
+        files.failingPutPrefixes.clear();
         users.deleteAll();
     }
 
@@ -85,6 +88,22 @@ class DataUriAvatarMoveTest extends FullStackTest {
         files.failPuts = false;
         assertThat(move.moveAll()).isEqualTo(60);
         assertThat(files.objects).hasSize(60);
+    }
+
+    @Test
+    void laterRowsMoveInTheSameRunWhileEarlierRowsKeepFailing() {
+        for (int i = 0; i < 60; i++) withImage(dataUri(TestImages.jpeg(16, 16)));
+        // The database's own order, which is the order the move walks in.
+        List<UUID> inOrder = users.findIdsWithDataUriImageAfter(new UUID(0, 0), PageRequest.of(0, 100));
+        List<UUID> failing = inOrder.subList(0, 55);
+        List<UUID> later = inOrder.subList(55, 60);
+        failing.forEach(id -> files.failingPutPrefixes.add(AvatarKeys.userPrefix(id)));
+
+        assertThat(move.moveAll()).isEqualTo(5);
+
+        assertThat(later).allSatisfy(id -> assertThat(users.findById(id).orElseThrow().getAvatarKey()).isNotNull());
+        assertThat(failing).allSatisfy(id -> assertThat(users.findById(id).orElseThrow().getImage()).startsWith("data:"));
+        assertThat(files.objects).hasSize(5);
     }
 
     @Test

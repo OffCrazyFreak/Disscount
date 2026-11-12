@@ -13,6 +13,7 @@ public class FakePhotoStore implements PhotoStore {
     public volatile boolean failDeletes = false;
     public volatile boolean failPuts = false;
     public final Set<String> failingKeys = ConcurrentHashMap.newKeySet();
+    public final Set<String> failingPutPrefixes = ConcurrentHashMap.newKeySet();
 
     @Override
     public boolean enabled() {
@@ -21,7 +22,9 @@ public class FakePhotoStore implements PhotoStore {
 
     @Override
     public void put(String key, byte[] bytes, String contentType) {
-        if (failPuts) throw new IllegalStateException("disk full");
+        if (failPuts || failingPutPrefixes.stream().anyMatch(key::startsWith)) {
+            throw new IllegalStateException("disk full");
+        }
         objects.put(key, bytes);
     }
 
