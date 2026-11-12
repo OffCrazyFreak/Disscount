@@ -52,6 +52,17 @@ class CatalogArchiveReaderTest {
     }
 
     @Test
+    void aGtinWithItsLeadingZerosStrippedIsStillAPublicGtin() {
+        // UPC-A 012345678905 and Del Monte 024000011859, as cijene-api sends them.
+        assertThat(Barcodes.isPublicGtin("12345678905")).isTrue();
+        assertThat(Barcodes.isPublicGtin("24000011859")).isTrue();
+        // GTIN-13 0000123456784 stripped to 9 digits.
+        assertThat(Barcodes.isPublicGtin("123456784")).isTrue();
+        assertThat(Barcodes.isPublicGtin("12345678906")).isFalse();
+        assertThat(Barcodes.isPublicGtin("1234567")).isFalse();
+    }
+
+    @Test
     void barcodeRulesKeepRealGtinsOnly() {
         assertThat(Barcodes.isPublicGtin("3856021300547")).isTrue();
         assertThat(Barcodes.isPublicGtin("20123956")).isTrue();

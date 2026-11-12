@@ -4,15 +4,15 @@ public final class Barcodes {
 
     private Barcodes() {}
 
-    /** A GTIN-8/12/13/14 with a valid check digit, minus the in-store codes no public database can know. */
+    /**
+     * A GTIN with a valid check digit, minus the in-store codes no public database can know. Lengths 9 to 11 are a
+     * GTIN-12 or GTIN-13 with its leading zeros stripped, the way cijene-api sends it. Zeros add nothing to the check
+     * digit, and padded to 13 digits such a code starts with 00, never an in-store prefix, so no padding is needed.
+     */
     public static boolean isPublicGtin(String code) {
-        if (code == null) return false;
+        if (!isEanShape(code)) return false;
         int length = code.length();
-        if (length != 8 && length != 12 && length != 13 && length != 14) return false;
-        for (int i = 0; i < length; i++) {
-            char c = code.charAt(i);
-            if (c < '0' || c > '9') return false;
-        }
+
         // GS1 prefixes 20 to 29 are restricted circulation: weighed goods and a shop's own labels.
         if (length == 13 && code.charAt(0) == '2') return false;
 
