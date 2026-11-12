@@ -11,6 +11,7 @@ import { dirtySections } from "@/components/custom/settings/settings-dirty";
 import {
   buildModeUserPatch,
   buildSaveJobs,
+  type IAvatarChange,
   type SaveMode,
 } from "@/components/custom/settings/settings-save-jobs";
 import {
@@ -22,16 +23,14 @@ import { useSettingsSaveRunners } from "@/components/custom/settings/hooks/use-s
 
 interface IUseSettingsSaveProps {
   form: UseFormReturn<SettingsFormValues>;
-  avatarPreview: string | null;
-  avatarTouched: boolean;
+  avatar: IAvatarChange;
   onSaved: () => void;
   clearDraft: () => void;
 }
 
 export function useSettingsSave({
   form,
-  avatarPreview,
-  avatarTouched,
+  avatar,
   onSaved,
   clearDraft,
 }: IUseSettingsSaveProps) {
@@ -42,7 +41,7 @@ export function useSettingsSave({
   async function save(mode: SaveMode): Promise<boolean> {
     const values = form.getValues();
     const defaults = (defaultValues ?? {}) as Partial<SettingsFormValues>;
-    const dirty = dirtySections(values, defaults, avatarTouched);
+    const dirty = dirtySections(values, defaults, avatar.touched);
 
     if (mode === "settings") closeModalUrl();
     if (mode === "settings" && dirty.size === 0) return true;
@@ -54,10 +53,8 @@ export function useSettingsSave({
     const jobs = buildSaveJobs(
       values,
       defaults,
-      buildModeUserPatch(mode, values, defaults, dirty, {
-        touched: avatarTouched,
-        preview: avatarPreview,
-      }),
+      buildModeUserPatch(mode, values, defaults),
+      avatar,
       runners,
     );
 

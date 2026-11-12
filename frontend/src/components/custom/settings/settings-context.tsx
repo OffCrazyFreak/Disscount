@@ -2,13 +2,19 @@
 
 import { createContext, useContext } from "react";
 
+export interface IAvatarSelection {
+  preview: string;
+  upload: Blob;
+}
+
 export interface ISettingsUiContextValue {
   isReady: boolean;
   saving: boolean;
   restored: boolean;
   avatarPreview: string | null;
   avatarTouched: boolean;
-  updateAvatar: (preview: string | null) => void;
+  /** Null removes the avatar; the preview is shown at once and the image uploads on save. */
+  updateAvatar: (change: IAvatarSelection | null) => void;
   save: () => void;
   resetToDefaults: () => void;
 }

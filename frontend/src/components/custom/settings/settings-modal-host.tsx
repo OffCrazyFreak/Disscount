@@ -24,6 +24,7 @@ import SecurityProvider from "@/components/custom/settings/security/security-con
 interface IAvatarState {
   initialized: boolean;
   preview: string | null;
+  upload: Blob | null;
   touched: boolean;
 }
 
@@ -41,6 +42,7 @@ export default function SettingsModalHost() {
   const [avatar, setAvatar] = useState<IAvatarState>({
     initialized: false,
     preview: null,
+    upload: null,
     touched: false,
   });
 
@@ -49,6 +51,7 @@ export default function SettingsModalHost() {
     setAvatar({
       initialized: true,
       preview: user?.image ?? null,
+      upload: null,
       touched: false,
     });
   }
@@ -68,9 +71,9 @@ export default function SettingsModalHost() {
 
   const { saveSettings, saveOnboarding, saving } = useSettingsSave({
     form,
-    avatarPreview: avatar.preview,
-    avatarTouched: avatar.touched,
-    onSaved: () => setAvatar((state) => ({ ...state, touched: false })),
+    avatar: { touched: avatar.touched, upload: avatar.upload },
+    onSaved: () =>
+      setAvatar((state) => ({ ...state, upload: null, touched: false })),
     clearDraft,
   });
 
@@ -80,6 +83,7 @@ export default function SettingsModalHost() {
     setAvatar({
       initialized: true,
       preview: user?.image ?? null,
+      upload: null,
       touched: false,
     });
   }
@@ -100,8 +104,13 @@ export default function SettingsModalHost() {
           restored,
           avatarPreview: avatar.preview,
           avatarTouched: avatar.touched,
-          updateAvatar: (preview) =>
-            setAvatar((state) => ({ ...state, preview, touched: true })),
+          updateAvatar: (change) =>
+            setAvatar((state) => ({
+              ...state,
+              preview: change?.preview ?? null,
+              upload: change?.upload ?? null,
+              touched: true,
+            })),
           save: () => {
             void saveSettings();
           },

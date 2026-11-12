@@ -14,13 +14,8 @@ vi.mock("@sentry/nextjs", () => ({
 
 const { backend, call, signTokensFromCookie } =
   await import("@/test/proxy-call");
-const {
-  JSON_BODY_LIMIT,
-  PHOTO_BODY_LIMIT,
-  PROFILE_BODY_LIMIT,
-  bodyLimit,
-  readBodyWithin,
-} = await import("@/lib/backend-proxy/request-body");
+const { JSON_BODY_LIMIT, PHOTO_BODY_LIMIT, bodyLimit, readBodyWithin } =
+  await import("@/lib/backend-proxy/request-body");
 
 signTokensFromCookie(mocks.getToken);
 
@@ -204,7 +199,9 @@ describe("bodyLimit", () => {
   it.each([
     ["PUT", "digital-cards/card-1/photos/front", PHOTO_BODY_LIMIT],
     ["POST", "products/3850104000000/images", PHOTO_BODY_LIMIT],
-    ["PATCH", "users/me", PROFILE_BODY_LIMIT],
+    ["PUT", "users/me/avatar", PHOTO_BODY_LIMIT],
+    ["PATCH", "users/me", JSON_BODY_LIMIT],
+    ["POST", "users/me/avatar", JSON_BODY_LIMIT],
     ["POST", "contact", JSON_BODY_LIMIT],
     ["PUT", "digital-cards/card-1", JSON_BODY_LIMIT],
     ["POST", "digital-cards/card-1/photos/front", JSON_BODY_LIMIT],

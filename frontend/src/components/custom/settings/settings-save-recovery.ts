@@ -13,6 +13,7 @@ import {
 
 const JOB_FIELDS: Record<SaveJobKey, (keyof SettingsFormValues)[]> = {
   user: USER_FIELDS,
+  avatar: [],
   stores: ["pinnedStores"],
   places: ["pinnedPlaces"],
 };
@@ -21,7 +22,9 @@ type JobErrorKey =
   "save.errors.user" | "save.errors.stores" | "save.errors.places";
 
 const JOB_ERRORS: Record<SaveJobKey, JobErrorKey> = {
+  // The avatar is part of the profile on screen, so its failure reads the same.
   user: "save.errors.user",
+  avatar: "save.errors.user",
   stores: "save.errors.stores",
   places: "save.errors.places",
 };
@@ -40,7 +43,7 @@ export function rebaselineSavedSections(
       form.resetField(field, { defaultValue: values[field] });
     }
 
-    if (job.key === "user") onSaved();
+    if (job.key === "avatar") onSaved();
   });
 }
 
@@ -62,6 +65,7 @@ export function failedSaveTab(
   key: SaveJobKey,
   dirty: Set<SettingsSection>,
 ): SettingsSection {
+  if (key === "avatar") return "profil";
   if (key !== "user") return "preference";
 
   return dirty.has("profil") ? "profil" : "obavijesti";

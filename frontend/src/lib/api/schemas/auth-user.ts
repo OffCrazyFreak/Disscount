@@ -49,7 +49,6 @@ export const userRequestSchema = z.object({
   newsletter: z.boolean().optional(),
   feedbackContact: z.boolean().optional(),
   acquisitionChannel: acquisitionChannelSchema.nullable().optional(),
-  image: z.string().nullable().optional(),
   // At most three digits, as UserRequest.onboardingOutcome allows on the server.
   onboardingOutcome: z
     .union([

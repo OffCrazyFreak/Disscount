@@ -19,3 +19,25 @@ describe("userService.getCurrentUser", () => {
     await expect(userService.getCurrentUser()).rejects.toBeInstanceOf(ZodError);
   });
 });
+
+describe("userService avatar uploads", () => {
+  it("sends the avatar Blob as the multipart part file", async () => {
+    let part: FormDataEntryValue | null = null;
+    server.use(
+      http.put("*/api/users/me/avatar", async ({ request }) => {
+        part = (await request.formData()).get("file");
+        return HttpResponse.json({
+          ...storedUser,
+          image: "https://images.test/a.webp",
+        });
+      }),
+    );
+
+    const user = await userService.uploadAvatar(
+      new Blob(["x"], { type: "image/webp" }),
+    );
+
+    expect(part).toBeInstanceOf(Blob);
+    expect(user.image).toBe("https://images.test/a.webp");
+  });
+});
