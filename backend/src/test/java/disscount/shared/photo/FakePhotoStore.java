@@ -3,6 +3,7 @@ package disscount.shared.photo;
 import java.io.ByteArrayInputStream;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FakePhotoStore implements PhotoStore {
@@ -10,6 +11,8 @@ public class FakePhotoStore implements PhotoStore {
     public final Map<String, byte[]> objects = new ConcurrentHashMap<>();
     public volatile boolean enabled = true;
     public volatile boolean failDeletes = false;
+    public volatile boolean failPuts = false;
+    public final Set<String> failingKeys = ConcurrentHashMap.newKeySet();
 
     @Override
     public boolean enabled() {
@@ -18,6 +21,7 @@ public class FakePhotoStore implements PhotoStore {
 
     @Override
     public void put(String key, byte[] bytes, String contentType) {
+        if (failPuts) throw new IllegalStateException("disk full");
         objects.put(key, bytes);
     }
 
@@ -31,7 +35,7 @@ public class FakePhotoStore implements PhotoStore {
 
     @Override
     public void delete(String key) {
-        if (failDeletes) throw new IllegalStateException("storage down");
+        if (failDeletes || failingKeys.contains(key)) throw new IllegalStateException("storage down");
         objects.remove(key);
     }
 

@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 import disscount.shared.AfterCommit;
 import disscount.shared.photo.PhotoStore;
 import disscount.shared.photo.PhotoStoreConfig;
@@ -36,10 +38,17 @@ class AvatarCleanupService {
         enqueue(prefix, true);
     }
 
-    /** Scheduled sweep for rows whose first attempt failed or never ran (crash, storage outage). */
+    /** Scheduled sweep for rows whose first attempt failed or never ran (crash, storage outage); tries each row once. */
     void retryPending() {
         if (!store.enabled()) return;
-        repository.findOldest(PageRequest.of(0, BATCH)).forEach(this::attempt);
+
+        List<AvatarCleanup> page = repository.findOldest(PageRequest.of(0, BATCH));
+        while (!page.isEmpty()) {
+            page.forEach(this::attempt);
+
+            AvatarCleanup last = page.getLast();
+            page = repository.findOldestAfter(last.getCreatedAt(), last.getId(), PageRequest.of(0, BATCH));
+        }
     }
 
     private void enqueue(String keyOrPrefix, boolean prefix) {

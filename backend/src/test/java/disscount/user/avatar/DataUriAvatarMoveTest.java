@@ -25,6 +25,7 @@ class DataUriAvatarMoveTest extends FullStackTest {
         files = (FakePhotoStore) avatarStore;
         files.objects.clear();
         files.enabled = true;
+        files.failPuts = false;
         users.deleteAll();
     }
 
@@ -45,7 +46,7 @@ class DataUriAvatarMoveTest extends FullStackTest {
     void aDatabaseAvatarBecomesACleanedFileAndTheColumnIsCleared() {
         User user = withImage(dataUri(TestImages.jpegWithApp1(TestImages.jpeg(256, 256), "secret-gps")));
 
-        assertThat(move.moveBatch()).isEqualTo(1);
+        assertThat(move.moveAll()).isEqualTo(1);
 
         User moved = reload(user);
         assertThat(moved.getImage()).isNull();
@@ -56,17 +57,41 @@ class DataUriAvatarMoveTest extends FullStackTest {
     @Test
     void runningAgainMovesNothingAndKeepsTheFile() {
         withImage(dataUri(TestImages.jpeg(64, 64)));
-        move.moveBatch();
+        move.moveAll();
 
-        assertThat(move.moveBatch()).isZero();
+        assertThat(move.moveAll()).isZero();
         assertThat(files.objects).hasSize(1);
+    }
+
+    @Test
+    void anOldPngAvatarBecomesAJpegFileInsteadOfBeingDropped() {
+        User safari = withImage("data:image/png;base64," + Base64.getEncoder().encodeToString(TestImages.png(256, 256)));
+
+        assertThat(move.moveAll()).isEqualTo(1);
+
+        User moved = reload(safari);
+        assertThat(moved.getImage()).isNull();
+        assertThat(moved.getAvatarKey()).endsWith(".jpg");
+        assertThat(files.objects.get(moved.getAvatarKey())).startsWith((byte) 0xFF, (byte) 0xD8);
+    }
+
+    @Test
+    void rowsThatKeepFailingDoNotStopTheRowsBehindThem() {
+        for (int i = 0; i < 60; i++) withImage(dataUri(TestImages.jpeg(16, 16)));
+        files.failPuts = true;
+
+        assertThat(move.moveAll()).isZero();
+
+        files.failPuts = false;
+        assertThat(move.moveAll()).isEqualTo(60);
+        assertThat(files.objects).hasSize(60);
     }
 
     @Test
     void anUnreadableDatabaseAvatarIsDroppedSoItIsNotRetriedForever() {
         User broken = withImage("data:image/webp;base64,not-base64!");
 
-        move.moveBatch();
+        move.moveAll();
 
         assertThat(reload(broken).getImage()).isNull();
         assertThat(reload(broken).getAvatarKey()).isNull();
@@ -77,7 +102,7 @@ class DataUriAvatarMoveTest extends FullStackTest {
     void aProviderPictureUrlIsLeftAlone() {
         User google = withImage("https://lh3.googleusercontent.com/a/picture");
 
-        assertThat(move.moveBatch()).isZero();
+        assertThat(move.moveAll()).isZero();
 
         assertThat(reload(google).getImage()).isEqualTo("https://lh3.googleusercontent.com/a/picture");
     }
@@ -87,7 +112,7 @@ class DataUriAvatarMoveTest extends FullStackTest {
         User user = withImage(dataUri(TestImages.jpeg(64, 64)));
         files.enabled = false;
 
-        assertThat(move.moveBatch()).isZero();
+        assertThat(move.moveAll()).isZero();
 
         assertThat(reload(user).getImage()).startsWith("data:");
     }

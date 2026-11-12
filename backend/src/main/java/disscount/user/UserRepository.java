@@ -22,9 +22,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByAvatarKey(String avatarKey);
 
-    /** Live profiles still holding an avatar from before #474, which kept the image bytes in the database. */
-    @Query("SELECT u.id FROM User u WHERE u.image LIKE 'data:%' ORDER BY u.id")
-    List<UUID> findIdsWithDataUriImage(Pageable page);
+    /** Live profiles still holding an avatar from before #474, after a cursor so a run never revisits a failed row. */
+    @Query("SELECT u.id FROM User u WHERE u.image LIKE 'data:%' AND u.id > :after ORDER BY u.id")
+    List<UUID> findIdsWithDataUriImageAfter(UUID after, Pageable page);
 
     @Query("SELECT u.id FROM User u")
     List<UUID> findActiveIds();

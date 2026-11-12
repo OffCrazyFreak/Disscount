@@ -15,6 +15,13 @@ import disscount.shared.photo.ValidatedPhoto;
 import disscount.user.User;
 import disscount.user.UserRepository;
 
+import javax.imageio.ImageIO;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
@@ -36,16 +43,25 @@ class DataUriAvatarMove {
     @Qualifier(PhotoStoreConfig.AVATARS)
     private final PhotoStore store;
 
-    /** One batch per call; 0 means nothing is left, or only rows that failed and wait for the next run. */
-    int moveBatch() {
+    // Below every id in Postgres and H2, which both order uuids by their unsigned bytes.
+    private static final UUID BEFORE_ALL = new UUID(0, 0);
+
+    /** Tries every row once per run, in id order; a row that fails waits for the next run. Returns how many settled. */
+    int moveAll() {
         if (!store.enabled()) return 0;
 
-        List<UUID> ids = users.findIdsWithDataUriImage(PageRequest.of(0, BATCH));
+        int tried = 0;
         int settled = 0;
-        for (UUID id : ids) {
-            if (settle(id)) settled++;
+        List<UUID> ids = users.findIdsWithDataUriImageAfter(BEFORE_ALL, PageRequest.of(0, BATCH));
+        while (!ids.isEmpty()) {
+            for (UUID id : ids) {
+                tried++;
+                if (settle(id)) settled++;
+            }
+            ids = users.findIdsWithDataUriImageAfter(ids.getLast(), PageRequest.of(0, BATCH));
         }
-        if (!ids.isEmpty()) log.info("Settled {} of {} database avatars", settled, ids.size());
+
+        if (tried > 0) log.info("Settled {} of {} database avatars", settled, tried);
         return settled;
     }
 
@@ -57,7 +73,7 @@ class DataUriAvatarMove {
         ValidatedPhoto photo;
         try {
             // The card photo caps, as these were accepted under them and the move must not lose anyone's avatar.
-            photo = validator.validate(decode(dataUri));
+            photo = validator.validate(pngAsJpeg(decode(dataUri)));
         } catch (BadRequestException unreadable) {
             // It could not be shown safely, and leaving it would make every run try it again.
             log.warn("Dropped an unreadable database avatar of user {}", userId);
@@ -85,6 +101,35 @@ class DataUriAvatarMove {
         } catch (RuntimeException e) {
             log.warn("Could not queue a moved avatar file for deletion: {}", e.getMessage());
         }
+    }
+
+    /** Safari once stored PNG avatars (docs/IMAGE-UPLOADS.md), which uploads now refuse; production holds one. */
+    private static byte[] pngAsJpeg(byte[] bytes) {
+        if (!isPng(bytes)) return bytes;
+
+        try {
+            BufferedImage png = ImageIO.read(new ByteArrayInputStream(bytes));
+            if (png == null) throw new BadRequestException("error.cardPhoto.invalid");
+
+            // JPEG has no alpha, so a transparent corner turns white instead of black.
+            BufferedImage flat = new BufferedImage(png.getWidth(), png.getHeight(), BufferedImage.TYPE_INT_RGB);
+            Graphics2D canvas = flat.createGraphics();
+            canvas.setColor(Color.WHITE);
+            canvas.fillRect(0, 0, flat.getWidth(), flat.getHeight());
+            canvas.drawImage(png, 0, 0, null);
+            canvas.dispose();
+
+            ByteArrayOutputStream jpeg = new ByteArrayOutputStream();
+            ImageIO.write(flat, "jpg", jpeg);
+            return jpeg.toByteArray();
+        } catch (IOException | RuntimeException e) {
+            if (e instanceof BadRequestException bad) throw bad;
+            throw new BadRequestException("error.cardPhoto.invalid");
+        }
+    }
+
+    private static boolean isPng(byte[] d) {
+        return d.length > 7 && (d[0] & 0xFF) == 0x89 && d[1] == 'P' && d[2] == 'N' && d[3] == 'G';
     }
 
     private static byte[] decode(String dataUri) {

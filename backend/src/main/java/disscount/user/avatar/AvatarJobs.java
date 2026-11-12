@@ -19,9 +19,6 @@ class AvatarJobs {
     // Runs by itself after a deploy, so production needs no manual step; batches until no data URI is left.
     @Scheduled(fixedDelay = 3_600_000, initialDelay = 5 * 60_000)
     public void moveDataUriAvatars() {
-        int settled;
-        do {
-            settled = move.moveBatch();
-        } while (settled > 0);
+        move.moveAll();
     }
 }

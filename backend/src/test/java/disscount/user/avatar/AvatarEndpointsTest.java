@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -32,6 +33,7 @@ class AvatarEndpointsTest extends FullStackTest {
     @Autowired AvatarCleanupRepository cleanupQueue;
     @Autowired AvatarCleanupService cleanup;
     @Autowired PlatformTransactionManager transactions;
+    @Autowired JdbcTemplate jdbc;
 
     private FakePhotoStore files;
     private User user;
@@ -42,6 +44,7 @@ class AvatarEndpointsTest extends FullStackTest {
         files.objects.clear();
         files.enabled = true;
         files.failDeletes = false;
+        files.failingKeys.clear();
         cleanupQueue.deleteAll();
         user = newUser("ana");
     }
@@ -219,5 +222,26 @@ class AvatarEndpointsTest extends FullStackTest {
 
         assertThat(files.objects).isEmpty();
         assertThat(cleanupQueue.findAll()).isEmpty();
+    }
+
+    @Test
+    void rowsThatKeepFailingDoNotHideTheRowsBehindThemFromTheSweep() {
+        files.enabled = false;
+        for (int i = 0; i < 250; i++) {
+            String key = AvatarKeys.userPrefix(user.getId()) + "stuck-" + i + ".webp";
+            files.objects.put(key, new byte[]{1});
+            files.failingKeys.add(key);
+            cleanup.enqueueKey(key);
+        }
+        String behind = AvatarKeys.userPrefix(user.getId()) + "behind.webp";
+        files.objects.put(behind, new byte[]{1});
+        cleanup.enqueueKey(behind);
+        jdbc.update("UPDATE app.avatar_cleanup SET created_at = created_at + INTERVAL '1' HOUR WHERE key_or_prefix = ?", behind);
+        files.enabled = true;
+
+        cleanup.retryPending();
+
+        assertThat(files.objects).doesNotContainKey(behind);
+        assertThat(cleanupQueue.findAll()).hasSize(250);
     }
 }
