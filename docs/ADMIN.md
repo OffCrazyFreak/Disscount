@@ -90,7 +90,7 @@ Every message from the public contact form (`POST /api/contact`, the `?modal=con
 
 - **Storage.** Table `contact_message`: an optional link to the sender's `app_user` (set when the sender was signed in), `email`, `full_name`, `subject`, `message` (up to 5000 characters), `source_path` (the page it was sent from), `read_at`, plus created and deleted times. Erasing the sender's account nulls `email` and `full_name` and keeps the text ([SETTINGS.md](SETTINGS.md)).
 - **Spam defence.** A hidden honeypot field: a submission that fills it is silently dropped. `ContactRateLimiter` allows 5 messages an hour and 20 a day per client IP, in memory ([AUTH.md section 8.3](AUTH.md#83-rate-limits-and-the-visitors-address)).
-- **List.** Newest first, at most 500 (`MAX_ADMIN_MESSAGES`); there is no pagination. Filters: all or unread, a "show deleted" switch (a separate query key, `includeDeleted`), and a search over name, email, subject and message.
+- **List.** Newest first, in pages of 50 (the shared `PageDto`, capped at 100 by `spring.data.web.pageable.max-page-size`), ordered by `created_at` then `id`, so messages sent in the same instant never repeat or vanish between pages. The table loads the next page as you scroll near the page end, with the same trigger as the products list (`useOnNearPageEnd`), and also while the shown rows are too few to scroll (`useLoadMoreNearPageEnd`). A message that arrives while you scroll pushes older ones down a page, so the client drops repeated ids. Filters: all or unread, a "show deleted" switch (a separate query key, `includeDeleted`), and a search over name, email, subject and message. The filter and the search run in the browser over the loaded pages; while they hide most rows the table keeps loading pages until the screen fills or the inbox ends.
 - **Actions.** Mark read or unread, soft delete, restore, copy the sender's email, open the full message, and reply, a `mailto:` link that opens the admin's mail client. Each action shows a toast.
 - **No notification.** Nothing emails or pings the admin when a message arrives; the inbox has to be checked.
 
@@ -104,17 +104,17 @@ The product photo review queue: candidates from Open Food Facts and user uploads
 
 ## 7. Endpoints
 
-| Method and path                                 | Handler                       | What it does                                                                                                                      |
-| ----------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `GET /api/admin/users`                          | `AdminController`             | Every active user with email and activity; unbounded                                                                              |
-| `PATCH /api/admin/users/{userId}`               | `AdminController`             | Set `accountType`; 409 for self-demotion or the last admin                                                                        |
-| `DELETE /api/admin/users/{userId}`              | `AdminController`             | Erase a user's app data, then the Next.js route deletes the login; refuses yourself, and the last admin with 409                  |
-| `GET /api/admin/contact?includeDeleted=`        | `AdminContactController`      | Up to 500 messages, newest first                                                                                                  |
-| `GET /api/admin/contact/{id}`                   | `AdminContactController`      | One message                                                                                                                       |
-| `PATCH /api/admin/contact/{id}/read`, `/unread` | `AdminContactController`      | Set or clear `read_at`                                                                                                            |
-| `DELETE /api/admin/contact/{id}`                | `AdminContactController`      | Soft delete                                                                                                                       |
-| `PATCH /api/admin/contact/{id}/restore`         | `AdminContactController`      | Undo the soft delete; deleted messages load through native queries ([AUTH.md 7.3](AUTH.md#73-soft-delete-and-the-erasure-ledger)) |
-| `/api/admin/product-images/**`                  | `AdminProductImageController` | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                                                                                        |
+| Method and path                                      | Handler                       | What it does                                                                                                                      |
+| ---------------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/admin/users`                               | `AdminController`             | Every active user with email and activity; unbounded                                                                              |
+| `PATCH /api/admin/users/{userId}`                    | `AdminController`             | Set `accountType`; 409 for self-demotion or the last admin                                                                        |
+| `DELETE /api/admin/users/{userId}`                   | `AdminController`             | Erase a user's app data, then the Next.js route deletes the login; refuses yourself, and the last admin with 409                  |
+| `GET /api/admin/contact?includeDeleted=&page=&size=` | `AdminContactController`      | One page of messages, newest first (default 50, at most 100)                                                                      |
+| `GET /api/admin/contact/{id}`                        | `AdminContactController`      | One message                                                                                                                       |
+| `PATCH /api/admin/contact/{id}/read`, `/unread`      | `AdminContactController`      | Set or clear `read_at`                                                                                                            |
+| `DELETE /api/admin/contact/{id}`                     | `AdminContactController`      | Soft delete                                                                                                                       |
+| `PATCH /api/admin/contact/{id}/restore`              | `AdminContactController`      | Undo the soft delete; deleted messages load through native queries ([AUTH.md 7.3](AUTH.md#73-soft-delete-and-the-erasure-ledger)) |
+| `/api/admin/product-images/**`                       | `AdminProductImageController` | See [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)                                                                                        |
 
 Swagger lists them all at `/api/swagger-ui/index.html`.
 
