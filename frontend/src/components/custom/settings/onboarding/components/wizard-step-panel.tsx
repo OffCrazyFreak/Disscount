@@ -9,7 +9,6 @@ interface IWizardStepPanelProps {
   children: ReactNode;
 }
 
-// Directional slide between wizard steps; plain crossfade under reduced motion.
 export default function WizardStepPanel({
   stepId,
   direction,

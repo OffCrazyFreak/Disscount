@@ -1,0 +1,136 @@
+{
+  "meta": {
+    "title": "Shopping list",
+    "description": "View and manage the items on a shopping list."
+  },
+  "backToLists": "Back to shopping lists",
+  "lastSynced": "List refreshed {time}",
+  "updatedByOthers": "Someone just changed this list.",
+  "access": {
+    "view": "You can only view this list.",
+    "shop": "You can check off what you've bought and choose a store, but you can't change the list.",
+    "edit": "You can change quantities and delete products, but you can't add new ones.",
+    "withNextStep": "{text} {nextStep}",
+    "signIn": "Sign in to edit.",
+    "askOwner": "Ask the list owner for more access.",
+    "checking": "Checking your access..."
+  },
+  "actions": {
+    "deleteTitle": "Delete shopping list",
+    "deleteDescription": "Delete the list “{title}”? This can't be undone.",
+    "deleteConfirm": "Delete",
+    "edit": "Edit list",
+    "copy": "Copy list",
+    "share": "Share list",
+    "editShare": "Edit list sharing",
+    "delete": "Delete list"
+  },
+  "toasts": {
+    "linkCopied": "Link copied",
+    "shareFailed": "Couldn't share the list",
+    "itemDeleted": "Product removed.",
+    "listDeleted": "List deleted.",
+    "listDeleteFailed": "Couldn't delete the list. Try again."
+  },
+  "unavailable": {
+    "deadLinkTitle": "This link no longer works",
+    "deadLinkDescription": "The owner has stopped sharing this list, or the link is wrong.",
+    "exploreProducts": "Browse products",
+    "loadFailedTitle": "Couldn't load the list",
+    "loadFailedDescription": "Check your internet connection and try again.",
+    "retry": "Try again"
+  },
+  "info": {
+    "created": "Created:",
+    "updated": "Updated:",
+    "total": "Total:",
+    "remaining": "Remaining:",
+    "spent": "Spent:",
+    "saved": "Saved:",
+    "overpaid": "Overpaid:",
+    "priceRange": "<low>{min}</low><mid> | {avg} | </mid><high>{max}</high>",
+    "savings": "{amount} ({percent}%)",
+    "unpricedItems": "{count, plural, one {# item without a price} other {# items without a price}}"
+  },
+  "items": {
+    "titleWithChecked": "{label} ({checked}/{total} bought)",
+    "emptyOwner": "This list is still empty. Search for products and add them here.",
+    "empty": "This list is still empty.",
+    "searchProducts": "Search products",
+    "markUnbought": "Mark {name} as not bought",
+    "markBought": "Mark {name} as bought",
+    "remove": "Remove product",
+    "amountLabel": "Quantity:",
+    "decreaseAmount": "Decrease quantity by 1",
+    "increaseAmount": "Increase quantity by 1",
+    "approxPrice": "~ {price}",
+    "pricePerUnit": "{price}/{unit}",
+    "noPrice": "No price"
+  },
+  "prices": {
+    "failed": "Prices unavailable",
+    "offline": "Prices not saved for offline use",
+    "noPrices": "No store prices",
+    "failedCount": "{count, plural, one {Prices for # item are unavailable.} other {Prices for # items are unavailable.}}",
+    "retry": "Try again",
+    "retrySucceeded": "Prices loaded.",
+    "withStore": "{store}: {reason}"
+  },
+  "priceHistory": {
+    "noData": "No price history yet."
+  },
+  "stores": {
+    "noItems": "This list is still empty. Search for products and add them here.",
+    "allChecked": "Everything's bought!",
+    "loadError": "Couldn't load the prices. Try again.",
+    "noPrices": "No prices available for the items on this list.",
+    "optimizeBy": "Sort by:",
+    "optimize": {
+      "products": "Number of available products",
+      "basket": "Cheapest basket",
+      "total": "Number of cheapest products",
+      "distance": "Distance"
+    },
+    "availableItems": "Available products {count}/{total}",
+    "dataFrom": "Data from {date}",
+    "hasLowest": "has a product with the lowest price",
+    "hasHighest": "has a product with the highest price",
+    "availability": "Product availability",
+    "min": "Lowest",
+    "avg": "Average",
+    "max": "Highest",
+    "stat": "{label}: {price}",
+    "lowestAmongChains": "(lowest among stores)",
+    "highestAmongChains": "(highest among stores)",
+    "table": {
+      "empty": "No items on the shopping list",
+      "product": "Product",
+      "quantity": "Quantity",
+      "price": "Price",
+      "total": "Total",
+      "unavailable": "Product unavailable",
+      "unavailableTooltip": "This product isn't available in this store",
+      "lowestPrice": "lowest price",
+      "highestPrice": "highest price"
+    }
+  },
+  "emptyValue": "-",
+  "groups": {
+    "toggle": "By store",
+    "other": "Other",
+    "onMap": "On the map",
+    "summary": "{count, plural, one {# product} other {# products}}{partial, select, yes { · at least {subtotal}} none {} other { · {subtotal}}}",
+    "otherSummary": "{count, plural, one {# item} other {# items}}{partial, select, yes { · at least {subtotal}} none {} other { · {subtotal}}}"
+  },
+  "quickAdd": {
+    "added": "Added: {name}",
+    "label": "Add a product or item",
+    "add": "Add",
+    "searching": "Searching products…",
+    "suggestions": "{count, plural, =0 {No products by that name. Press Enter to add it as an item.} one {# product} other {# products}}"
+  },
+  "sectionNav": {
+    "label": "List sections",
+    "products": "Products"
+  }
+}

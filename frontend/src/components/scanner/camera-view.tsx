@@ -8,9 +8,11 @@ import ScanOverlay from "@/components/scanner/scan-overlay";
 import usePageVisible from "@/hooks/use-page-visible";
 import "@/components/scanner/scanner.css";
 
-// The library defaults to 500 without a tracker; 750 measurably slowed
-// decoding of a real barcode, which is this feature's whole job.
-const CAMERA_SCAN_RETRY_DELAY = 400;
+// 750 slowed decoding; cards need four reads in 1.5 s, which 400 ms cannot fit; products need two.
+const RETRY_DELAY_BY_PRESET: Record<ScanPreset, number> = {
+  all: 200,
+  product: 400,
+};
 const CAMERA_TRACK_POLL_INTERVAL = 300;
 const CAMERA_TRACK_POLL_LIMIT = 20;
 
@@ -24,7 +26,7 @@ const CAMERA_COMPONENTS = {
 interface ICameraViewProps {
   preset: ScanPreset;
   deviceId?: string;
-  onScan: (code: IScannedCode) => void;
+  onDetect: (codes: IScannedCode[]) => void;
   onError: (error: unknown) => void;
   onCameraReady: () => void;
 }
@@ -56,20 +58,14 @@ function stopVideo(video: HTMLVideoElement | null) {
 export default function CameraView({
   preset,
   deviceId,
-  onScan,
+  onDetect,
   onError,
   onCameraReady,
 }: ICameraViewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isPageVisible = usePageVisible();
 
-  // Ideals only on the axes: min and max are both mandatory, so either one lets a
-  // device with no conforming mode raise OverconstrainedError, and the error copy
-  // blames the camera choice, which is not what went wrong. Capping at 720p also
-  // cost real detail across an EAN-13's bars at arm's length. frameRate keeps its
-  // max because every camera has a mode at or under 30fps, and uncapped means
-  // 60fps of decode work for no extra accuracy. exact on deviceId stays, since a
-  // bare id is only a hint.
+  // Ideals only, or a device can raise OverconstrainedError; deviceId stays exact; frameRate max avoids 60fps decode.
   const constraints = useMemo(
     () => ({
       width: { ideal: 1920 },
@@ -94,9 +90,7 @@ export default function CameraView({
 
       if (!track) return;
 
-      // The torch is reset per stream, the notification only once. Latching both
-      // together skipped the reset on the stream rebuilt after a tab switch, so
-      // a device that remembers the torch came back with it still lit.
+      // Reset per stream, notified once, so a remembering device does not come back lit.
       turnTorchOff(track);
 
       if (hasNotifiedReady) return;
@@ -136,17 +130,20 @@ export default function CameraView({
       {/* Remount per camera: the library only re-applies constraints to the live track. */}
       <Scanner
         key={deviceId ?? "auto"}
-        onScan={(codes) => {
-          if (codes[0]) {
-            onScan({ rawValue: codes[0].rawValue, format: codes[0].format });
-          }
-        }}
+        onScan={(codes) =>
+          onDetect(
+            codes.map((c) => ({ rawValue: c.rawValue, format: c.format })),
+          )
+        }
+        // Consensus counts repeated reads, which the library drops by default.
+        allowMultiple
+        scanDelay={0}
         onError={onError}
         formats={SCAN_FORMATS_BY_PRESET[preset]}
         constraints={constraints}
-        retryDelay={CAMERA_SCAN_RETRY_DELAY}
+        retryDelay={RETRY_DELAY_BY_PRESET[preset]}
         paused={!isPageVisible}
-        sound
+        sound={false}
         components={CAMERA_COMPONENTS}
       />
     </div>

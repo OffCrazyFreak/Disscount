@@ -18,7 +18,11 @@ import {
   House,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import type shell from "@/i18n/messages/hr/shell.json";
 import { isAdmin, type AccountType } from "@/lib/api/schemas/auth-user";
+
+/** Keys into the `shell` namespace, translated where the item is rendered. */
+export type NavKey = `nav.${keyof typeof shell.nav}`;
 
 /** Destination for items whose page does not exist yet. */
 export const PLACEHOLDER_HREF = "#";
@@ -26,133 +30,107 @@ export const PLACEHOLDER_HREF = "#";
 export interface INavigationItem {
   id: string;
   href: string;
-  label: string; // Full name, shown in the sidebar
-  shortLabel?: string; // Shorter name shown in the cramped desktop header navbar
+  labelKey: NavKey;
+  shortLabelKey?: NavKey;
   icon: LucideIcon;
-  badge?: boolean; // For items that can show badge counts
-  comingSoon?: boolean; // Show an "USKORO" badge for not-yet-available features
-  shortcutDescription?: string; // Read out by assistive tech; its presence opts the item into a PWA shortcut
-  showInHeader: boolean; // Show in desktop header navigation
-  isCollapsible?: boolean; // Has sub-menu (Kategorije, Trgovine, Lokacije)
-  children?: INavigationItem[]; // Nested items shown indented under this one
+  badge?: boolean;
+  comingSoon?: boolean; // Read out by assistive tech; its presence opts the item into a PWA shortcut
+  shortcutDescriptionKey?: NavKey;
+  showInHeader: boolean;
+  children?: readonly INavigationItem[];
 }
 
-export const homeNavItem: INavigationItem = {
+export const homeNavItem = {
   id: "home",
   href: "/",
-  label: "Početna",
+  labelKey: "nav.home",
   icon: House,
 
   showInHeader: false,
-};
+} as const satisfies INavigationItem;
 
 // Lives in the desktop header, so the sidebar only surfaces it on mobile
-export const dashboardNavItem: INavigationItem = {
+export const dashboardNavItem = {
   id: "dashboard",
   href: "/dashboard",
-  label: "Nadzorna ploča",
+  labelKey: "nav.dashboard",
   icon: LayoutDashboard,
 
   showInHeader: false,
-};
+} as const satisfies INavigationItem;
 
 // The catalogue itself, which productNavItems only ever reached through filters
-export const productsNavItem: INavigationItem = {
+export const productsNavItem = {
   id: "products",
   href: "/products",
-  label: "Proizvodi",
+  labelKey: "nav.products",
   icon: Package,
 
   showInHeader: false,
-};
+} as const satisfies INavigationItem;
 
-// Primary navigation items (shown in header on desktop, top of sidebar on mobile)
-export const userNavItems: INavigationItem[] = [
+const userNavTable = [
   {
     id: "shopping-lists",
     href: "/shopping-lists",
-    label: "Popisi za kupnju",
-    shortLabel: "Popisi",
+    labelKey: "nav.shoppingLists",
+    shortLabelKey: "nav.shoppingListsShort",
     icon: ListChecks,
-    shortcutDescription: "Otvori svoje popise za kupnju",
+    shortcutDescriptionKey: "nav.shoppingListsShortcut",
 
     showInHeader: true,
   },
   {
     id: "watchlist",
     href: "/watchlist",
-    label: "Praćeni proizvodi",
-    shortLabel: "Praćenje",
+    labelKey: "nav.watchlist",
+    shortLabelKey: "nav.watchlistShort",
     icon: Eye,
     badge: true,
-    shortcutDescription: "Pogledaj proizvode koje pratiš",
+    shortcutDescriptionKey: "nav.watchlistShortcut",
 
     showInHeader: true,
   },
   {
     id: "digital-cards",
     href: "/digital-cards",
-    label: "Digitalne kartice",
-    shortLabel: "Kartice",
+    labelKey: "nav.digitalCards",
+    shortLabelKey: "nav.digitalCardsShort",
     icon: CreditCard,
-    shortcutDescription: "Otvori svoje digitalne kartice",
-    // TODO(#127): generate its PWA shortcut icon before dropping this flag.
-    comingSoon: true,
+    shortcutDescriptionKey: "nav.digitalCardsShortcut",
 
     showInHeader: true,
   },
   {
     id: "spending",
     href: "/spending",
-    label: "Potrošnja",
+    labelKey: "nav.spending",
     icon: PiggyBank,
-    shortcutDescription: "Pregledaj svoju potrošnju",
-    // TODO(#127): generate its PWA shortcut icon before dropping this flag.
+    shortcutDescriptionKey: "nav.spendingShortcut",
     comingSoon: true,
 
     showInHeader: false,
   },
-];
+] as const satisfies readonly INavigationItem[];
+export const userNavItems: readonly INavigationItem[] = userNavTable;
 
-export const productNavItems: INavigationItem[] = [
+const productNavTable = [
   {
     id: "discounted",
     href: "/products?discounted=true",
-    label: "Popusti",
+    labelKey: "nav.discounted",
     icon: Percent,
     // TODO(#83): the price API cannot filter by discount yet.
     comingSoon: true,
 
     showInHeader: false,
   },
-  // TODO(#82): parked until the price API exposes a category taxonomy.
-  // {
-  //   id: "categories",
-  //   href: "#",
-  //   label: "Kategorije",
-  //   icon: List,
-
-  //   showInHeader: false,
-  //   isCollapsible: true,
-  // },
-  // TODO(#84): parked until the price API can list and filter by brand.
-  // {
-  //   id: "brands",
-  //   href: "#",
-  //   label: "Marke",
-  //   icon: Tag,
-
-  //   showInHeader: false,
-  //   isCollapsible: true,
-  // },
   {
     id: "map",
     href: "/map",
-    label: "Karta",
+    labelKey: "nav.map",
     icon: MapIcon,
-    // TODO(#127): manifest.ts only reads userNavItems, so a PWA shortcut for
-    // this one needs adding by hand.
-    comingSoon: true,
+    shortcutDescriptionKey: "nav.mapShortcut",
 
     showInHeader: false,
 
@@ -160,29 +138,25 @@ export const productNavItems: INavigationItem[] = [
       {
         id: "stores",
         href: PLACEHOLDER_HREF,
-        label: "Trgovine",
+        labelKey: "nav.stores",
         icon: Store,
 
         showInHeader: false,
-
-        isCollapsible: true,
       },
       {
         id: "locations",
         href: PLACEHOLDER_HREF,
-        label: "Lokacije",
+        labelKey: "nav.locations",
         icon: MapPin,
 
         showInHeader: false,
-
-        isCollapsible: true,
       },
     ],
   },
   {
     id: "statistics",
     href: "/statistics",
-    label: "Statistika",
+    labelKey: "nav.statistics",
     icon: ChartNoAxesCombined,
     comingSoon: true,
 
@@ -191,20 +165,20 @@ export const productNavItems: INavigationItem[] = [
   {
     id: "updates",
     href: "/updates",
-    label: "Novosti",
+    labelKey: "nav.updates",
     icon: Megaphone,
     comingSoon: true,
 
     showInHeader: false,
   },
-];
+] as const satisfies readonly INavigationItem[];
+export const productNavItems: readonly INavigationItem[] = productNavTable;
 
-// Support entry points, shared with the footer; coming-soon until their pages/modals ship.
-export const supportNavItems: INavigationItem[] = [
+const supportNavTable = [
   {
     id: "suggestions",
     href: "/suggestions",
-    label: "Ideje i prijedlozi",
+    labelKey: "nav.suggestions",
     icon: Lightbulb,
     comingSoon: true,
 
@@ -213,7 +187,7 @@ export const supportNavItems: INavigationItem[] = [
   {
     id: "bug-report",
     href: PLACEHOLDER_HREF,
-    label: "Prijavi grešku",
+    labelKey: "nav.bugReport",
     icon: Bug,
     comingSoon: true,
 
@@ -222,7 +196,7 @@ export const supportNavItems: INavigationItem[] = [
   {
     id: "contact",
     href: "?modal=contact",
-    label: "Kontakt",
+    labelKey: "nav.contact",
     icon: Mail,
 
     showInHeader: false,
@@ -230,42 +204,47 @@ export const supportNavItems: INavigationItem[] = [
   {
     id: "donate",
     href: "?modal=donate",
-    label: "Podrži Disscount",
+    labelKey: "nav.donate",
     icon: HeartHandshake,
 
     showInHeader: false,
   },
-];
+] as const satisfies readonly INavigationItem[];
+export const supportNavItems: readonly INavigationItem[] = supportNavTable;
 
-const ALL_NAV_ITEMS: INavigationItem[] = [
+const ALL_NAV_ITEMS = [
   homeNavItem,
   dashboardNavItem,
   productsNavItem,
-  ...userNavItems,
-  ...productNavItems,
-  ...supportNavItems,
-];
+  ...userNavTable,
+  ...productNavTable,
+  ...supportNavTable,
+] as const satisfies readonly INavigationItem[];
 
-/**
- * Every group and their children, so an id cannot resolve on one surface and
- * throw on another. The throw is deliberate fail-fast: the table is hardcoded, so
- * a bad id is a bug to surface at import rather than render as an empty cell.
- */
-export function findNavItem(id: string): INavigationItem {
+type TopLevelNavItem = (typeof ALL_NAV_ITEMS)[number];
+
+/** Derived from the table, so a mistyped or renamed id fails to compile. */
+export type NavItemId =
+  | TopLevelNavItem["id"]
+  | Extract<
+      TopLevelNavItem,
+      { children: readonly INavigationItem[] }
+    >["children"][number]["id"];
+
+/** Throws because a bad id in this hardcoded table is a bug to surface at import. */
+export function findNavItem(id: NavItemId): INavigationItem {
+  const items: readonly INavigationItem[] = ALL_NAV_ITEMS;
   const found =
-    ALL_NAV_ITEMS.find((item) => item.id === id) ??
-    ALL_NAV_ITEMS.flatMap((item) => item.children ?? []).find(
-      (child) => child.id === id,
-    );
+    items.find((item) => item.id === id) ??
+    items
+      .flatMap((item) => item.children ?? [])
+      .find((child) => child.id === id);
   if (!found) throw new Error(`Unknown navigation item: ${id}`);
 
   return found;
 }
 
-/**
- * One home for the coming-soon rule, which six navigation surfaces were each
- * deriving for themselves. Admins get to open what is not shipped yet.
- */
+/** One home for the coming-soon rule, which admins bypass to open what is not shipped yet. */
 export function isNavItemLocked(
   item: INavigationItem,
   accountType?: AccountType | null,

@@ -13,37 +13,28 @@ interface IMultiSelectValueProps extends Omit<
   "children"
 > {
   placeholder?: string;
-  clickToRemove?: boolean;
-  overflowBehavior?: "wrap" | "wrap-when-open" | "cutoff";
 }
 
 export default function MultiSelectValue({
   placeholder,
-  clickToRemove = true,
   className,
-  overflowBehavior = "wrap-when-open",
   ...props
 }: IMultiSelectValueProps) {
   const { selectedValues, toggleValue, items, open } = useMultiSelectContext();
 
-  const shouldWrap =
-    overflowBehavior === "wrap" ||
-    (overflowBehavior === "wrap-when-open" && open);
-
   const { containerRef, overflowRef, overflowAmount } = useBadgeOverflow(
     selectedValues,
-    shouldWrap,
+    open,
     items,
   );
 
   if (selectedValues.size === 0 && placeholder) {
-    // Keeps the caller's props: an id or aria attribute that vanished until
-    // something was selected would break whatever pointed at it.
+    // Keeps the caller's props, because a vanishing id or aria attribute breaks what points at it.
     return (
       <span
         {...props}
         className={cn(
-          "min-w-0 overflow-hidden font-normal text-muted-foreground",
+          "min-w-0 truncate font-normal text-muted-foreground",
           className,
         )}
       >
@@ -57,12 +48,10 @@ export default function MultiSelectValue({
       {...props}
       ref={containerRef}
       className={cn(
-        // min-w-0 undoes a flex item's automatic minimum, which here is the
-        // combined width of every badge, since each one is shrink-0 and
-        // nowrap. Without it the row cannot shrink, so it never scrolls, the
-        // overflow measurement always reads zero and the badges just spill.
+        // min-w-0 undoes a flex item's automatic minimum, or the row never scrolls and badges spill.
         "flex w-full min-w-0 gap-1.5 overflow-hidden",
-        shouldWrap && "h-full flex-wrap",
+        // About three and a half rows, so the cut-off shows it scrolls and the list stays on a phone.
+        open && "h-full max-h-26 flex-wrap overflow-y-auto overscroll-contain",
         className,
       )}
     >
@@ -74,35 +63,24 @@ export default function MultiSelectValue({
             data-selected-item
             className="group"
             key={value}
-            onClick={
-              clickToRemove
-                ? (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
 
-                    toggleValue(value);
-                  }
-                : undefined
-            }
+              toggleValue(value);
+            }}
           >
             {items.get(value)}
-            {/* Decorative, and the click behind it is pointer-only on purpose: a
-                badge renders inside the trigger button, so it cannot become a
-                control without nesting one. Deselecting in the list is the
-                keyboard and screen-reader path. Nothing is announced from in
-                here, because text inside the button becomes part of the
-                button's own accessible name. */}
-            {clickToRemove && (
-              <XIcon
-                aria-hidden="true"
-                className="size-3.5 shrink-0 text-muted-foreground group-hover:text-destructive"
-              />
-            )}
+            {/* Pointer-only, as a badge in the trigger cannot be a control; the list is the keyboard path. */}
+            <XIcon
+              aria-hidden="true"
+              className="size-3.5 shrink-0 text-muted-foreground group-hover:text-destructive"
+            />
           </Badge>
         ))}
       <Badge
         style={{
-          display: overflowAmount > 0 && !shouldWrap ? "block" : "none",
+          display: overflowAmount > 0 && !open ? "block" : "none",
         }}
         variant="outline"
         ref={overflowRef}

@@ -1,15 +1,20 @@
 import { useMutation } from "@tanstack/react-query";
 import apiClient from "@/lib/api/api-base";
-import { UserDto, UserRequest, userRequestSchema } from "@/lib/api/types";
+import {
+  UserDto,
+  UserRequest,
+  userDtoSchema,
+  userRequestSchema,
+} from "@/lib/api/types";
 
 const USERS_BASE_PATH = "/api/users";
 
-export async function getCurrentUser(): Promise<UserDto> {
-  const response = await apiClient.get<UserDto>(`${USERS_BASE_PATH}/me`);
-  return response.data;
+async function getCurrentUser(): Promise<UserDto> {
+  const response = await apiClient.get<unknown>(`${USERS_BASE_PATH}/me`);
+  return userDtoSchema.parse(response.data);
 }
 
-export async function updateCurrentUser(data: UserRequest): Promise<UserDto> {
+async function updateCurrentUser(data: UserRequest): Promise<UserDto> {
   const validatedData = userRequestSchema.parse(data);
 
   const response = await apiClient.patch<UserDto>(
@@ -19,21 +24,50 @@ export async function updateCurrentUser(data: UserRequest): Promise<UserDto> {
   return response.data;
 }
 
-export async function deleteCurrentUser(): Promise<void> {
-  await apiClient.delete(`${USERS_BASE_PATH}/me`);
+async function uploadAvatar(avatar: Blob): Promise<UserDto> {
+  const body = new FormData();
+  body.append(
+    "file",
+    avatar,
+    avatar.type === "image/jpeg" ? "avatar.jpg" : "avatar.webp",
+  );
+
+  const response = await apiClient.put<unknown>(
+    `${USERS_BASE_PATH}/me/avatar`,
+    body,
+    // Unset so the browser writes the multipart boundary itself.
+    { headers: { "Content-Type": undefined } },
+  );
+  return userDtoSchema.parse(response.data);
 }
 
-export function useUpdateCurrentUser() {
+async function removeAvatar(): Promise<UserDto> {
+  const response = await apiClient.delete<unknown>(
+    `${USERS_BASE_PATH}/me/avatar`,
+  );
+  return userDtoSchema.parse(response.data);
+}
+
+function useUpdateCurrentUser() {
   return useMutation<UserDto, Error, UserRequest>({
     mutationFn: updateCurrentUser,
   });
 }
 
+function useUploadAvatar() {
+  return useMutation<UserDto, Error, Blob>({ mutationFn: uploadAvatar });
+}
+
+function useRemoveAvatar() {
+  return useMutation<UserDto, Error, void>({ mutationFn: removeAvatar });
+}
+
 const userService = {
   getCurrentUser,
-  updateCurrentUser,
-  deleteCurrentUser,
+  uploadAvatar,
   useUpdateCurrentUser,
+  useUploadAvatar,
+  useRemoveAvatar,
 };
 
 export default userService;

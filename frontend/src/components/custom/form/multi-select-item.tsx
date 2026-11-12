@@ -25,23 +25,32 @@ export default function MultiSelectItem({
   badgeLabel,
   onSelect,
   onMouseDown,
+  keywords,
+  disabled,
   ...props
 }: IMultiSelectItemProps) {
-  const { toggleValue, selectedValues, setSearchValue, onItemAdded } =
-    useMultiSelectContext();
+  const {
+    toggleValue,
+    selectedValues,
+    setSearchValue,
+    onItemAdded,
+    onItemRemoved,
+  } = useMultiSelectContext();
   const isSelected = selectedValues.has(value);
 
   useEffect(() => {
-    onItemAdded(value, badgeLabel ?? children);
-  }, [value, children, onItemAdded, badgeLabel]);
+    onItemAdded(value, badgeLabel ?? children, { keywords, disabled });
+  }, [value, children, onItemAdded, badgeLabel, keywords, disabled]);
+
+  useEffect(() => () => onItemRemoved(value), [value, onItemRemoved]);
 
   return (
     <CommandItem
       {...props}
       value={value}
-      // An item is a div, so pressing on it would move focus off the search
-      // input and stop you typing after a pick. Blocking the default keeps the
-      // caret in the input; the click still fires and selects.
+      keywords={keywords}
+      disabled={disabled}
+      // An item is a div, so blocking the default keeps the caret in the search while click still fires.
       onMouseDown={(e) => {
         e.preventDefault();
         onMouseDown?.(e);
@@ -54,8 +63,7 @@ export default function MultiSelectItem({
     >
       <CheckIcon
         aria-hidden="true"
-        // text-primary beats CommandItem's [&_svg:not([class*='text-'])] muted rule, so a
-        // picked option reads as picked rather than as a grey tick you have to hunt for.
+        // text-primary beats CommandItem's muted svg rule, so a picked option reads as picked.
         className={cn(
           "mr-2 size-4 text-primary",
           isSelected ? "opacity-100" : "opacity-0",

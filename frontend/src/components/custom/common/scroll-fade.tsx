@@ -13,10 +13,7 @@ interface IScrollFadeProps {
   className?: string;
 }
 
-/**
- * Gradient overlay hinting at content past an edge. Place it as a child of a
- * `relative` wrapper around a scrollable element.
- */
+/** Place it as a child of a `relative` wrapper around a scrollable element. */
 export default function ScrollFade({
   targetRef,
   side = "bottom",
@@ -44,11 +41,28 @@ export default function ScrollFade({
 
     // Watch the content: items loading in change scrollability, not element size.
     const observer = new ResizeObserver(update);
-    for (const child of element.children) observer.observe(child);
+    function observeChildren() {
+      if (!element) return;
+
+      observer.disconnect();
+      // The scroller itself too: a modal growing with the window can stop overflowing.
+      observer.observe(element);
+      for (const child of element.children) observer.observe(child);
+    }
+
+    observeChildren();
+
+    // Conditional content swaps the children, and a node mounted later would otherwise never be measured.
+    const mutations = new MutationObserver(() => {
+      observeChildren();
+      update();
+    });
+    mutations.observe(element, { childList: true });
 
     return () => {
       element.removeEventListener("scroll", update);
       observer.disconnect();
+      mutations.disconnect();
     };
   }, [targetRef, side]);
 
@@ -56,7 +70,7 @@ export default function ScrollFade({
     <EdgeFade
       side={side}
       className={cn(
-        "absolute transition-opacity duration-200",
+        "absolute transition-opacity duration-200 motion-reduce:transition-none",
         hasHiddenContent ? "opacity-100" : "opacity-0",
         className,
       )}

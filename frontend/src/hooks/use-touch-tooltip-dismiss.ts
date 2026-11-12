@@ -1,19 +1,6 @@
 import { useCallback, useState } from "react";
 
-/**
- * Force-hides a Recharts tooltip when a touch gesture ends, so on mobile the
- * tooltip only stays visible while the finger is on the chart. On desktop no
- * touch events fire, so `tooltipActive` stays undefined and Recharts keeps its
- * normal hover behavior.
- *
- * Usage:
- *   const { tooltipActive, touchHandlers } = useTouchTooltipDismiss();
- *   <ChartContainer {...touchHandlers}>
- *     <LineChart ...>
- *       <ChartTooltip active={tooltipActive} ... />
- *     </LineChart>
- *   </ChartContainer>
- */
+/** So on mobile the tooltip lasts only while touching; with no touch events, desktop keeps its hover. */
 export function useTouchTooltipDismiss() {
   const [touchHidden, setTouchHidden] = useState(false);
 

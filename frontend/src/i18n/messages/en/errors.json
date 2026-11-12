@@ -1,0 +1,15 @@
+{
+  "auth": {
+    "changeEmailLinkedAccounts": "To change your email, first unlink your connected accounts (Google, Facebook)."
+  },
+  "proxy": {
+    "sessionChanged": "Another account signed in. Refreshing your data.",
+    "notFound": "We can't find that",
+    "refreshPage": "Something went wrong. Refresh the page and try again",
+    "unavailable": "Service unavailable",
+    "badRequest": "Bad request",
+    "tooManyRequests": "Too many tries, wait a moment",
+    "tooLarge": "The request is too large",
+    "signInRequired": "Sign in and try again"
+  }
+}

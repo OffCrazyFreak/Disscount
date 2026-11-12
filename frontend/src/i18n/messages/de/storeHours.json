@@ -1,0 +1,28 @@
+{
+  "status": {
+    "open": "Geöffnet",
+    "closed": "Geschlossen",
+    "unconfirmed": "Öffnungszeiten nicht bestätigt"
+  },
+  "when": "{day, select, today {{time, select, midnight {um Mitternacht} other {um {time}}}} tomorrow {morgen {time, select, midnight {um Mitternacht} other {um {time}}}} mon {Montag {time, select, midnight {um Mitternacht} other {um {time}}}} tue {Dienstag {time, select, midnight {um Mitternacht} other {um {time}}}} wed {Mittwoch {time, select, midnight {um Mitternacht} other {um {time}}}} thu {Donnerstag {time, select, midnight {um Mitternacht} other {um {time}}}} fri {Freitag {time, select, midnight {um Mitternacht} other {um {time}}}} sat {Samstag {time, select, midnight {um Mitternacht} other {um {time}}}} other {Sonntag {time, select, midnight {um Mitternacht} other {um {time}}}}}",
+  "detail": {
+    "open": "Schließt {when}",
+    "closingSoon": "Schließt bald, {time, select, midnight {um Mitternacht} other {um {time}}}",
+    "closed": "Öffnet {when}",
+    "openingSoon": "Öffnet bald, {time, select, midnight {um Mitternacht} other {um {time}}}"
+  },
+  "name": {
+    "open": "Geöffnet, schließt {when}",
+    "closingSoon": "Geöffnet, schließt bald {time, select, midnight {um Mitternacht} other {um {time}}}",
+    "closed": "Geschlossen, öffnet {when}",
+    "openingSoon": "Geschlossen, öffnet bald {time, select, midnight {um Mitternacht} other {um {time}}}"
+  },
+  "source": {
+    "chain": "Quelle: {chain}",
+    "osm": "Quelle: OpenStreetMap",
+    "dated": "{source} ({date})"
+  },
+  "check": "Prüfen",
+  "checkLabel": "Öffnungszeiten auf der Seite des Geschäfts prüfen (öffnet sich in einem neuen Tab)",
+  "changed": "{store}: {status}"
+}

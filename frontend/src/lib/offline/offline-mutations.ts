@@ -1,4 +1,8 @@
-import type { QueryClient, QueryKey } from "@tanstack/react-query";
+import type {
+  MutationScope,
+  QueryClient,
+  QueryKey,
+} from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import {
@@ -10,16 +14,35 @@ import {
   deleteShoppingListItem,
 } from "@/lib/api/shopping-lists";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
+import {
+  deleteDigitalCard,
+  saveDigitalCard,
+  setDigitalCardArchived,
+  setDigitalCardPinned,
+} from "@/lib/api/digital-cards/queries";
+import { DIGITAL_CARD_QUERY_KEYS } from "@/lib/api/digital-cards/keys";
 import { addToWatchlist, removeFromWatchlist } from "@/lib/api/watchlist";
+import { WATCHLIST_QUERY_KEYS } from "@/lib/api/watchlist/keys";
 import type {
+  DigitalCardRequest,
   ShoppingListRequest,
   ShoppingListItemRequest,
   WatchlistItemRequest,
 } from "@/lib/api/types";
-import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
+import {
+  DIGITAL_CARD_MUTATION_SCOPE,
+  OFFLINE_MUTATION_KEYS,
+} from "@/lib/offline/offline-mutation-keys";
+import { CARD_WRITE_RETRY } from "@/lib/offline/card-retry";
+import {
+  cardDeleteFailed,
+  cardWriteFailed,
+  type CardToastTranslator,
+} from "@/lib/offline/card-write-failed";
 import {
   deleteWriteFailed,
   listWriteFailed,
+  type OfflineToastTranslator,
 } from "@/lib/offline/list-write-failed";
 
 function listAndItemsKeys(listId: string): QueryKey[] {
@@ -31,18 +54,25 @@ function listAndItemsKeys(listId: string): QueryKey[] {
 }
 
 // A reload loses the inline mutationFn, so replays need these defaults registered first.
-export function registerOfflineMutationDefaults(queryClient: QueryClient) {
+export function registerOfflineMutationDefaults(
+  queryClient: QueryClient,
+  t: OfflineToastTranslator,
+  tCards: CardToastTranslator,
+) {
   function defineOfflineMutation<TVariables, TData>(
     mutationKey: QueryKey,
     mutationFn: (variables: TVariables) => Promise<TData>,
     invalidatedKeys: (variables: TVariables) => QueryKey[],
-    // A reload also loses the onError passed at mutate() time, so a write that fails on
-    // replay reverts with no explanation. Only pass this for mutations whose call sites
-    // do NOT handle errors themselves, or the user gets the same toast twice.
+    // A reload loses mutate()'s onError; pass this only if call sites do not handle errors, or toasts double.
     onError?: (error: Error) => void,
+    // Persisted with the mutation; mutations sharing a scope replay one at a time.
+    scope?: MutationScope,
   ) {
     queryClient.setMutationDefaults<TData, Error, TVariables>(mutationKey, {
       mutationFn,
+      ...(scope ? { scope } : {}),
+      // A card write replayed from disk keeps the bounded retry of one started live.
+      ...(scope === DIGITAL_CARD_MUTATION_SCOPE ? CARD_WRITE_RETRY : {}),
       ...(onError ? { onError } : {}),
       onSettled: (_data, _error, variables) => {
         for (const queryKey of invalidatedKeys(variables)) {
@@ -93,7 +123,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
       data: ShoppingListItemRequest;
     }) => updateShoppingListItem(listId, itemId, data),
     ({ listId }) => listAndItemsKeys(listId),
-    listWriteFailed,
+    (error) => listWriteFailed(error, t),
   );
 
   defineOfflineMutation(
@@ -101,38 +131,65 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient) {
     ({ listId, itemId }: { listId: string; itemId: string }) =>
       deleteShoppingListItem(listId, itemId),
     ({ listId }) => listAndItemsKeys(listId),
-    // Deletes get their own handler: a replayed delete for an item that is already gone
-    // answers 404, which is the desired end state rather than a failure, and the shared
-    // handler would blame it on lost access.
-    deleteWriteFailed,
+    // Own handler because a 404 on a gone item is the desired end, not lost access.
+    (error) => deleteWriteFailed(error, t),
   );
 
-  // Tombstones for the two keys sharing used before it moved from a token to the list id.
-  // A write queued by the previous build hydrates under one of these, and without a
-  // mutationFn resuming it throws. Nothing can replay them: they carry a token, and the
-  // endpoint behind it no longer exists. So they resolve, say what happened, and stop.
+  // Tombstones: a retired key's queued write has no mutationFn and would throw on resume, so a stub resolves it.
   for (const retiredKey of [
     ["sharedShoppingList", "items", "update"],
     ["sharedShoppingList", "items", "delete"],
   ]) {
     queryClient.setMutationDefaults(retiredKey, {
       mutationFn: async () => undefined,
-      onSuccess: () =>
-        toast.error(
-          "Promjena s prošle verzije nije spremljena. Otvori popis i provjeri.",
-        ),
+      onSuccess: () => toast.error(t("offline.retiredWriteDropped")),
     });
   }
 
   defineOfflineMutation(
+    OFFLINE_MUTATION_KEYS.digitalCardSave,
+    ({ id, data }: { id: string; data: DigitalCardRequest }) =>
+      saveDigitalCard(id, data),
+    () => [DIGITAL_CARD_QUERY_KEYS.me],
+    (error) => cardWriteFailed(error, tCards),
+    DIGITAL_CARD_MUTATION_SCOPE,
+  );
+
+  defineOfflineMutation(
+    OFFLINE_MUTATION_KEYS.digitalCardDelete,
+    (id: string) => deleteDigitalCard(id),
+    () => [DIGITAL_CARD_QUERY_KEYS.me],
+    (error) => cardDeleteFailed(error, tCards),
+    DIGITAL_CARD_MUTATION_SCOPE,
+  );
+
+  defineOfflineMutation(
+    OFFLINE_MUTATION_KEYS.digitalCardPin,
+    ({ id, pinned }: { id: string; pinned: boolean }) =>
+      setDigitalCardPinned(id, pinned),
+    () => [DIGITAL_CARD_QUERY_KEYS.me],
+    (error) => cardWriteFailed(error, tCards),
+    DIGITAL_CARD_MUTATION_SCOPE,
+  );
+
+  defineOfflineMutation(
+    OFFLINE_MUTATION_KEYS.digitalCardArchive,
+    ({ id, archived }: { id: string; archived: boolean }) =>
+      setDigitalCardArchived(id, archived),
+    () => [DIGITAL_CARD_QUERY_KEYS.me],
+    (error) => cardWriteFailed(error, tCards),
+    DIGITAL_CARD_MUTATION_SCOPE,
+  );
+
+  defineOfflineMutation(
     OFFLINE_MUTATION_KEYS.watchlistAdd,
     (data: WatchlistItemRequest) => addToWatchlist(data),
-    () => [["watchlist"]],
+    () => [WATCHLIST_QUERY_KEYS.all],
   );
 
   defineOfflineMutation(
     OFFLINE_MUTATION_KEYS.watchlistRemove,
     (id: string) => removeFromWatchlist(id),
-    () => [["watchlist"]],
+    () => [WATCHLIST_QUERY_KEYS.all],
   );
 }

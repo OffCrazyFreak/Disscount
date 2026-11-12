@@ -7,21 +7,31 @@ import {
   type RefObject,
 } from "react";
 
-/**
- * `popover` floats the list beside its trigger; `inline` drops it into the page
- * under the trigger. Chosen by viewport, not by the caller.
- */
+/** Chosen by viewport, not by the caller. */
 export type MultiSelectPresentation = "popover" | "inline";
+
+export interface IMultiSelectOption {
+  keywords?: string[];
+  disabled?: boolean;
+}
 
 export interface IMultiSelectContext {
   open: boolean;
   setOpen: (open: boolean) => void;
   selectedValues: Set<string>;
   toggleValue: (value: string) => void;
+  setValues: (values: string[]) => void;
   searchValue: string;
   setSearchValue: (value: string) => void;
   items: Map<string, ReactNode>;
-  onItemAdded: (value: string, label: ReactNode) => void;
+  options: Map<string, IMultiSelectOption>;
+  onItemAdded: (
+    value: string,
+    label: ReactNode,
+    option?: IMultiSelectOption,
+  ) => void;
+  /** Drops an option no longer offered, so "select all" cannot pick it. */
+  onItemRemoved: (value: string) => void;
   presentation: MultiSelectPresentation;
   /** Inline has no Radix layer to restore focus for it, so Escape does it by hand. */
   triggerRef: RefObject<HTMLButtonElement | null>;

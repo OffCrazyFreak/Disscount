@@ -2,8 +2,10 @@
 
 import { CircleCheck } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 export default function DoneStep() {
+  const t = useTranslations("settings");
   const reduceMotion = useReducedMotion();
 
   return (
@@ -18,10 +20,9 @@ export default function DoneStep() {
       </motion.div>
 
       <div className="space-y-1">
-        <p className="font-medium">Disscount je spreman za tebe.</p>
+        <p className="font-medium">{t("onboarding.done.title")}</p>
         <p className="text-sm text-muted-foreground text-pretty">
-          Klikom na Završi spremamo tvoje odabire. Sve možeš kasnije promijeniti
-          u postavkama računa.
+          {t("onboarding.done.text")}
         </p>
       </div>
     </div>

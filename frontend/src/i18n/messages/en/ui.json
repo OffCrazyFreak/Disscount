@@ -1,0 +1,37 @@
+{
+  "dialog": { "close": "Close" },
+  "command": {
+    "title": "Command palette",
+    "description": "Search for a command to run..."
+  },
+  "sidebar": {
+    "mobileTitle": "Sidebar",
+    "mobileDescription": "Shows the sidebar on mobile.",
+    "toggle": "Show or hide the sidebar"
+  },
+  "share": {
+    "copied": "Link copied",
+    "failed": "Couldn't share"
+  },
+  "toaster": { "label": "Messages" },
+  "offline": {
+    "writeFailed": "The change wasn't saved. Try again.",
+    "writeFailedLostAccess": "The change wasn't saved. You may no longer have access to this list.",
+    "retiredWriteDropped": "A change from an older version of the app wasn't saved. Open the list and check."
+  },
+  "limitReached": {
+    "title": "No room left",
+    "description": {
+      "SHOPPING_LISTS": "{max, plural, one {You can have up to # shopping list.} other {You can have up to # shopping lists.}}",
+      "SHOPPING_LIST_ITEMS": "{max, plural, one {A list can hold up to # item.} other {A list can hold up to # items.}}",
+      "WATCHLIST_ITEMS": "{max, plural, one {You can watch up to # product.} other {You can watch up to # products.}}",
+      "DIGITAL_CARDS": "{max, plural, one {You can have up to # card.} other {You can have up to # cards.}}",
+      "PRODUCT_PHOTOS": "{max, plural, one {You can add up to # product photo in total.} other {You can add up to # product photos in total.}}",
+      "PRODUCT_PHOTOS_PER_DAY": "{max, plural, one {You can add up to # product photo a day.} other {You can add up to # product photos a day.}}",
+      "PRODUCT_PHOTOS_PER_PRODUCT": "{max, plural, one {You can add up to # photo of one product.} other {You can add up to # photos of one product.}}"
+    },
+    "contactHint": "If you need more, write to us.",
+    "contact": "Contact support",
+    "close": "Close"
+  }
+}

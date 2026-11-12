@@ -3,29 +3,26 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-// Variants track badgeVariants; size scales padding/text/icon and sets the intended
-// content: lg = icon+title+text, md = icon+title, sm = text only.
+// size sets the intended content: lg = icon+title+text, md = icon+title, sm = text only.
 const bannerVariants = cva(
   "flex items-center rounded-lg border [&>svg]:shrink-0 mb-4",
   {
     variants: {
       variant: {
-        primary: "border-transparent bg-primary text-white",
-        // The soft variants tint whatever they sit on rather than covering it, so they take
-        // the header's backdrop-blur treatment. Alpha fills also mean one value works in
-        // both themes, which is why they no longer carry dark: background overrides; only
-        // the text keeps one, since contrast has to be chosen per theme.
+        primary: "border-transparent bg-primary text-primary-foreground",
+        // Soft variants tint what they sit on, so they take the header's blur; alpha works in both themes.
         primarySoft:
-          "border-primary/40 bg-primary/10 text-primary backdrop-blur-sm",
-        destructive: "border-transparent bg-destructive text-white",
+          "border-primary/40 bg-primary/10 text-primary backdrop-blur-xs",
+        destructive:
+          "border-transparent bg-destructive text-destructive-foreground",
         destructiveSoft:
-          "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-300 backdrop-blur-sm",
+          "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-300 backdrop-blur-xs",
         warning: "border-transparent bg-amber-200 text-amber-700",
         warningSoft:
-          "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 backdrop-blur-sm",
+          "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 backdrop-blur-xs",
         info: "border-transparent bg-blue-500 text-white",
         infoSoft:
-          "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300 backdrop-blur-sm",
+          "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300 backdrop-blur-xs",
         outline: "text-foreground",
       },
       size: {
@@ -46,9 +43,9 @@ const BANNER_TEXT_COLORS: Record<
   NonNullable<VariantProps<typeof bannerVariants>["variant"]>,
   string
 > = {
-  primary: "text-white/90",
+  primary: "text-primary-foreground/90",
   primarySoft: "text-primary/90",
-  destructive: "text-white/90",
+  destructive: "text-destructive-foreground/90",
   destructiveSoft: "text-red-700 dark:text-red-300/90",
   warning: "text-amber-800",
   warningSoft: "text-amber-900 dark:text-amber-200/90",
@@ -85,9 +82,7 @@ function Banner({
       <div className="min-w-0 space-y-0.5">
         {title && <h4 className="font-bold">{title}</h4>}
         {text && (
-          // No size of its own: the size variant already sets one on the container, and a
-          // hardcoded text-xs here quietly overrode it, so every banner rendered its body
-          // at the smallest size no matter which size was asked for.
+          // No size here, because the variant sets one on the container, which this would override.
           <p className={cn(BANNER_TEXT_COLORS[variant ?? "primary"])}>{text}</p>
         )}
         {children}
@@ -96,4 +91,4 @@ function Banner({
   );
 }
 
-export { Banner, bannerVariants };
+export { Banner };

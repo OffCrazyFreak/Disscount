@@ -1,6 +1,8 @@
 "use client";
 
 import { type ComponentPropsWithRef, useState } from "react";
+import { useTranslations } from "next-intl";
+
 import { cn } from "@/lib/utils";
 
 interface IUserAvatarUser {
@@ -37,10 +39,8 @@ export default function UserAvatar({
   ref,
   ...props
 }: IUserAvatarProps) {
-  // The failed URL, not a boolean: a new avatar URL then stops matching and is
-  // retried on its own, without an effect resetting the flag behind it. Cleared on
-  // a successful load, so a URL that failed once transiently is retried if the user
-  // switches away and back rather than staying on initials for the whole mount.
+  const t = useTranslations("common");
+  // The failed URL, not a boolean, so a new avatar URL retries on its own with no effect resetting a flag.
   const [failedImage, setFailedImage] = useState<string | null>(null);
 
   const showImage = user.image && user.image !== failedImage;
@@ -56,13 +56,11 @@ export default function UserAvatar({
       {...props}
     >
       {showImage ? (
-        /* next/image is not an option here: next.config.ts declares no
-           images.remotePatterns, so it would reject the external provider avatar
-           URLs outright, and Radix's Avatar never fires load for data-URI images. */
+        /* No next/image, as there are no images.remotePatterns; Radix's Avatar never loads data URIs. */
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={user.image ?? undefined}
-          alt={user.name || user.email || "Avatar"}
+          alt={user.name || user.email || t("userAvatar.alt")}
           onError={() => setFailedImage(user.image ?? null)}
           onLoad={() => setFailedImage(null)}
           className="size-full object-cover"

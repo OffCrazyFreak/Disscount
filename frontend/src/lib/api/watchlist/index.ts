@@ -1,60 +1,44 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import apiClient from "@/lib/api/api-base";
+import { WATCHLIST_QUERY_KEYS } from "@/lib/api/watchlist/keys";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
-import { WatchlistItemRequest, WatchlistItemDto } from "@/lib/api/types";
+import {
+  watchlistItemDtoSchema,
+  type WatchlistItemRequest,
+  type WatchlistItemDto,
+} from "@/lib/api/types";
 
-// Query key constants
-export const WATCHLIST_QUERY_KEYS = {
-  all: ["watchlist"] as const,
-  me: ["watchlist", "me"] as const,
-  byProduct: (productApiId: string) =>
-    ["watchlist", "product", productApiId] as const,
-};
-
-/**
- * Add product to watchlist
- */
 export async function addToWatchlist(
   data: WatchlistItemRequest,
 ): Promise<WatchlistItemDto> {
-  const response = await apiClient.post<WatchlistItemDto>(
-    "/api/watchlist",
-    data,
-  );
-  return response.data;
+  const response = await apiClient.post<unknown>("/api/watchlist", data);
+  return watchlistItemDtoSchema.parse(response.data);
 }
 
-/**
- * Get current user's watchlist
- */
-export async function getCurrentUserWatchlist(): Promise<WatchlistItemDto[]> {
-  const response = await apiClient.get<WatchlistItemDto[]>("/api/watchlist/me");
-  return response.data;
+async function getCurrentUserWatchlist(): Promise<WatchlistItemDto[]> {
+  const response = await apiClient.get<unknown[]>("/api/watchlist/me");
+  return response.data.map((item) => watchlistItemDtoSchema.parse(item));
 }
 
-/**
- * Get watchlist items by product API ID (EAN)
- * Returns all watchlist items for this product (can have multiple with different watch types)
- */
-export async function getWatchlistItemsByProductApiId(
+async function getWatchlistItemsByProductApiId(
   productApiId: string,
 ): Promise<WatchlistItemDto[]> {
-  const response = await apiClient.get<WatchlistItemDto[]>(
+  const response = await apiClient.get<unknown[]>(
     `/api/watchlist/product/${productApiId}`,
   );
-  return response.data;
+  return response.data.map((item) => watchlistItemDtoSchema.parse(item));
 }
 
-/**
- * Remove product from watchlist
- */
 export async function removeFromWatchlist(id: string): Promise<void> {
   await apiClient.delete(`/api/watchlist/${id}`);
 }
 
-// React Query hooks
-
-export function useAddToWatchlist() {
+function useAddToWatchlist() {
   const queryClient = useQueryClient();
 
   return useMutation<WatchlistItemDto, Error, WatchlistItemRequest>({
@@ -66,23 +50,30 @@ export function useAddToWatchlist() {
   });
 }
 
-export function useGetCurrentUserWatchlist({ enabled = true } = {}) {
-  return useQuery<WatchlistItemDto[], Error>({
+function currentUserWatchlistQueryOptions() {
+  return queryOptions({
     queryKey: WATCHLIST_QUERY_KEYS.me,
     queryFn: getCurrentUserWatchlist,
-    enabled,
   });
 }
 
-export function useGetWatchlistItemsByProductApiId(productApiId: string) {
-  return useQuery<WatchlistItemDto[], Error>({
+function watchlistItemsByProductQueryOptions(productApiId: string) {
+  return queryOptions({
     queryKey: WATCHLIST_QUERY_KEYS.byProduct(productApiId),
     queryFn: () => getWatchlistItemsByProductApiId(productApiId),
     enabled: !!productApiId,
   });
 }
 
-export function useRemoveFromWatchlist() {
+function useGetCurrentUserWatchlist({ enabled = true } = {}) {
+  return useQuery({ ...currentUserWatchlistQueryOptions(), enabled });
+}
+
+function useGetWatchlistItemsByProductApiId(productApiId: string) {
+  return useQuery(watchlistItemsByProductQueryOptions(productApiId));
+}
+
+function useRemoveFromWatchlist() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, string>({
@@ -94,22 +85,12 @@ export function useRemoveFromWatchlist() {
   });
 }
 
-// Service object with all functions and hooks
 const watchlistService = {
-  // API functions
-  addToWatchlist,
-  getCurrentUserWatchlist,
-  getWatchlistItemsByProductApiId,
   removeFromWatchlist,
-
-  // React Query hooks
   useAddToWatchlist,
   useGetCurrentUserWatchlist,
   useGetWatchlistItemsByProductApiId,
   useRemoveFromWatchlist,
-
-  // Query keys
-  QUERY_KEYS: WATCHLIST_QUERY_KEYS,
 };
 
 export default watchlistService;

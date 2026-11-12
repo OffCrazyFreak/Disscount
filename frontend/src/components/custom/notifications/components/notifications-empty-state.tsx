@@ -1,4 +1,5 @@
 import { Eye } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 
 interface INotificationsEmptyStateProps {
@@ -10,12 +11,14 @@ export default function NotificationsEmptyState({
   hasWatchlistItems,
   onAddProducts,
 }: INotificationsEmptyStateProps) {
+  const t = useTranslations("common");
+
   return (
     <div className="p-2 space-y-4 text-center">
       <p className="text-sm text-muted-foreground text-pretty">
         {hasWatchlistItems
-          ? "Danas nema popusta na praćenim proizvodima."
-          : "Dodaj proizvode na popis za praćenje kako bi te obavijestili kada proizvodi koje želiš budu na popustu u tvojim trgovinama!"}
+          ? t("notifications.emptyWatching")
+          : t("notifications.emptyNotWatching")}
       </p>
 
       {!hasWatchlistItems && (
@@ -26,7 +29,7 @@ export default function NotificationsEmptyState({
           iconPlacement="left"
           onClick={onAddProducts}
         >
-          Dodaj proizvode
+          {t("notifications.addProducts")}
         </Button>
       )}
     </div>

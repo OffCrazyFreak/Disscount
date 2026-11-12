@@ -1,0 +1,26 @@
+import { byDesc, chainComparators } from "@/utils/search/rank";
+import { IWatchlistItemWithProduct } from "@/lib/watchlist/watchlist-types";
+import {
+  getMaxDiscountAmount,
+  getMaxDiscountPercentage,
+  isAnyWatchThresholdReached,
+} from "@/lib/watchlist/watchlist-threshold-utils";
+
+/** Every term reads the preferred-store scope, falling back to all stores when nothing is pinned. */
+export function sortWatchlistItemsByDiscount<
+  T extends IWatchlistItemWithProduct,
+>(items: T[], hasPinnedStores: boolean): T[] {
+  return [...items].sort(
+    chainComparators<T>(
+      byDesc((item) =>
+        isAnyWatchThresholdReached(item, hasPinnedStores) ? 1 : 0,
+      ),
+      byDesc((item) =>
+        getMaxDiscountAmount(item.discountInfo, hasPinnedStores),
+      ),
+      byDesc((item) =>
+        getMaxDiscountPercentage(item.discountInfo, hasPinnedStores),
+      ),
+    ),
+  );
+}

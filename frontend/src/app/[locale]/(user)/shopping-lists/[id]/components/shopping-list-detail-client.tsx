@@ -1,0 +1,112 @@
+"use client";
+
+import { useIsRestoring } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import ShoppingListHeader from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-header";
+import ShoppingListSections from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-sections";
+import ShoppingListInfoTable from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-info-table";
+import ShoppingListAccessBanner from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-access-banner";
+import ShoppingListUnavailable from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-unavailable";
+import ShoppingListUpdateStatus from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-update-status";
+import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
+import { useUser } from "@/context/user-context";
+import { useShoppingListData } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-shopping-list-data";
+import { isDeadListLink } from "@/lib/api/shopping-lists/is-dead-list-link";
+
+interface IShoppingListDetailClientProps {
+  listId: string;
+}
+
+/** The list id is the shareable URL, so this route is reachable signed out and every control is gated on myAccess. */
+export default function ShoppingListDetailClient({
+  listId,
+}: IShoppingListDetailClientProps) {
+  const t = useTranslations("shoppingListDetail");
+  // Offline the session check fails; the owner still gets the signed-in controls.
+  const { canShowAccountData: isSignedIn } = useUser();
+
+  const {
+    shoppingList,
+    isLoading,
+    error,
+    refetch,
+    listUpdatedAt,
+    cheapestStores,
+    averagePrices,
+    storePrices,
+    priceStates,
+    retryFailedPrices,
+    isRetryingPrices,
+    isPricesLoading,
+  } = useShoppingListData(listId);
+  // Restoring queries report idle, not loading, and the server render is always restoring.
+  const isRestoring = useIsRestoring();
+
+  if (isLoading || isRestoring) {
+    return (
+      <div className="grid place-items-center">
+        <BlockLoadingSpinner size={96} />
+      </div>
+    );
+  }
+
+  if (!shoppingList || isDeadListLink(error)) {
+    return (
+      <ShoppingListUnavailable
+        error={error}
+        onRetry={() => void refetch()}
+        isSignedIn={isSignedIn}
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Unconditional, because disabled item controls point at its id with aria-describedby. */}
+      <ShoppingListAccessBanner
+        myAccess={shoppingList.myAccess}
+        isSignedIn={isSignedIn}
+      />
+
+      <ShoppingListUpdateStatus
+        shoppingList={shoppingList}
+        fetchedAt={listUpdatedAt}
+      />
+
+      <section>
+        <ShoppingListHeader
+          shoppingList={shoppingList}
+          isSignedIn={isSignedIn}
+        />
+
+        {listUpdatedAt > 0 && (
+          <LastSyncedLabel
+            updatedAt={listUpdatedAt}
+            label={(time) => t("lastSynced", { time })}
+            className="mt-1 block"
+          />
+        )}
+      </section>
+
+      <section>
+        <ShoppingListInfoTable
+          shoppingList={shoppingList}
+          averagePrices={averagePrices}
+          isPricesLoading={isPricesLoading}
+        />
+      </section>
+
+      <ShoppingListSections
+        shoppingList={shoppingList}
+        cheapestStores={cheapestStores}
+        isPricesLoading={isPricesLoading}
+        averagePrices={averagePrices}
+        storePrices={storePrices}
+        priceStates={priceStates}
+        isRetryingPrices={isRetryingPrices}
+        onRetryPrices={retryFailedPrices}
+      />
+    </div>
+  );
+}

@@ -1,0 +1,1 @@
+ALTER TABLE "store_location" ADD COLUMN "address" text;

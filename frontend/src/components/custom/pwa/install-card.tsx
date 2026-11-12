@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { CircleAlert, Plus } from "lucide-react";
 
@@ -9,8 +10,8 @@ import { Banner } from "@/components/custom/common/banner";
 import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
 import InstallInstructionsSheet from "@/components/custom/pwa/install-instructions-sheet";
 import {
-  installActionLabel,
-  installPitch,
+  installActionLabelKey,
+  installPitchKey,
 } from "@/components/custom/pwa/install-copy";
 import { cn } from "@/lib/utils";
 
@@ -19,15 +20,9 @@ interface IInstallCardProps {
   permanent?: boolean;
 }
 
-/**
- * The install card, in the sidebar and on the landing page.
- *
- * There is no unsupported state: beforeinstallprompt is Chromium-only, so
- * claiming a browser was unsupported was wrong for macOS Safari and Firefox on
- * Android, both of which install through their own menus. Everything without a
- * native prompt falls through to the manual instructions instead.
- */
+/** No unsupported state, because macOS Safari and Firefox on Android install through their menus. */
 export default function InstallCard({ permanent = false }: IInstallCardProps) {
+  const t = useTranslations("common");
   const {
     canShowInstallUI,
     canPromoteInstall,
@@ -38,16 +33,15 @@ export default function InstallCard({ permanent = false }: IInstallCardProps) {
   } = useInstallPrompt();
   const [instructionsOpen, setInstructionsOpen] = useState(false);
 
-  // The landing page promises the app is installable, so it owes an explanation
-  // where it is not. The sidebar just stays quiet.
+  // The landing page promises installation, so it owes an explanation where it is not possible.
   if (permanent && showUnsupportedNotice) {
     return (
       <Banner
         variant="primarySoft"
         size="lg"
         icon={CircleAlert}
-        title="Ovaj preglednik ne podržava instalaciju"
-        text="Otvori Disscount u drugom pregledniku, npr. Google Chromeu, da ga dodaš na uređaj."
+        title={t("install.unsupportedTitle")}
+        text={t("install.unsupportedText")}
         className="mb-0"
       />
     );
@@ -92,13 +86,13 @@ export default function InstallCard({ permanent = false }: IInstallCardProps) {
               !permanent && "text-muted-foreground",
             )}
           >
-            {installPitch(platform)}
+            {t(installPitchKey(platform))}
           </p>
         </div>
 
         <Button className="w-full" onClick={handleInstall}>
           <Plus aria-hidden="true" className="size-4" />
-          {installActionLabel(platform)}
+          {t(installActionLabelKey(platform))}
         </Button>
       </div>
 

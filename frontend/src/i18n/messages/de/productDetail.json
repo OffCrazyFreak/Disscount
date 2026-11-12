@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "title": "Produktdetails",
+    "description": "Preisvergleich für das Produkt.",
+    "productTitle": "{name}: Preise vergleichen",
+    "productDescription": "Vergleiche die Preise für {name} in {chains, plural, one {# Supermarktkette} other {# Supermarktketten}}. Niedrigster Preis: {price}."
+  },
+  "notFound": {
+    "title": "Produkt nicht gefunden",
+    "description": "Wir können dieses Produkt nicht laden. Such es am besten noch mal."
+  },
+  "sort": {
+    "label": "Sortieren nach:",
+    "stores": "Händler",
+    "price": "Preis",
+    "distance": "Entfernung"
+  },
+  "chains": {
+    "refreshed": "Preise {time} aktualisiert",
+    "loadError": "Die Preise konnten nicht geladen werden. Versuche es erneut.",
+    "empty": "Für dieses Produkt gibt es keine Preise.",
+    "whereToBuy": "Wo kaufen"
+  },
+  "priceHistory": {
+    "empty": "Noch kein Preisverlauf.",
+    "average": "Durchschnitt",
+    "period": {
+      "week": "(letzte 7 Tage)",
+      "month": "(letzte 30 Tage)",
+      "year": "(letzte 365 Tage)",
+      "all": "(seit Beginn)"
+    }
+  },
+  "storeItem": {
+    "dataFrom": "Stand: {date}",
+    "min": "Min.: {price}",
+    "average": "Durchschnitt: {price}",
+    "max": "Max.: {price}",
+    "pricesByLocation": "Preise nach Standort"
+  },
+  "pricesTable": {
+    "empty": "Für diesen Händler gibt es keine Preise",
+    "location": "Standort",
+    "address": "Adresse",
+    "price": "Preis",
+    "unknown": "Unbekannt",
+    "notAvailable": "k. A.",
+    "showOnMap": ", auf der Karte zeigen"
+  },
+  "sectionNav": {
+    "label": "Produktabschnitte"
+  }
+}

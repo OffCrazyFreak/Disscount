@@ -2,12 +2,18 @@ import { isAxiosError } from "axios";
 import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
-// RFC 9457 Problem Details as emitted by the backend GlobalExceptionHandler.
-export const problemDetailsSchema = z.object({
+import {
+  SERVER_REPORTED_PROBLEMS,
+  SESSION_CHANGED,
+} from "@/lib/backend-proxy/proxy-contract";
+
+const problemDetailsSchema = z.object({
   type: z.string().optional(),
   title: z.string().optional(),
   status: z.number().optional(),
   detail: z.string().optional(),
+  // The server's message code, set on conflicts; the detail is translated text.
+  code: z.string().optional(),
   fieldErrors: z.record(z.string(), z.string()).optional(),
 });
 
@@ -20,22 +26,33 @@ export function parseProblem(error: unknown): ProblemDetails | null {
   return parsed.success ? parsed.data : null;
 }
 
+/** The proxy refused the call because the session cookie names another account than this tab. */
+export function isSessionChanged(error: unknown): boolean {
+  return (
+    isAxiosError(error) &&
+    error.response?.status === 401 &&
+    parseProblem(error)?.code === SESSION_CHANGED
+  );
+}
+
+/** The proxy answered with a failure it already reported to Sentry, with better tags than the browser has. */
+export function isReportedByProxy(error: unknown): boolean {
+  const code = parseProblem(error)?.code;
+  return SERVER_REPORTED_PROBLEMS.some((reported) => reported === code);
+}
+
 export function problemMessage(error: unknown, fallback: string): string {
   const problem = parseProblem(error);
   return problem?.detail || problem?.title || fallback;
 }
 
-/**
- * Maps a Problem Details error onto react-hook-form: a fieldError lands on its field
- * only when that field is registered (or renamed via fieldMap); anything unknown, and
- * the case of no field match at all, becomes a root error so it stays visible. Returns
- * true when at least one field-level error was applied.
- */
+/** Unknown fields become a root error so nothing stays invisible. */
 export function applyProblemToForm<T extends FieldValues>(
   error: unknown,
   form: UseFormReturn<T>,
-  fieldMap?: Partial<Record<string, Path<T>>>,
-  fallbackMessage = "Provjeri unesene podatke.",
+  fieldMap: Partial<Record<string, Path<T>>> | undefined,
+  // Translated by the caller: this runs outside React, with no locale of its own.
+  fallbackMessage: string,
 ): boolean {
   const problem = parseProblem(error);
   const knownFields = new Set(Object.keys(form.getValues()));

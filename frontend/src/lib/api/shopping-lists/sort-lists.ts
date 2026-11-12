@@ -1,13 +1,7 @@
 import type { ShoppingListDto } from "@/lib/api/types";
 import { parseServerDate } from "@/utils/date";
 
-/**
- * Newest first, which is what "your latest list" means everywhere it is offered.
- *
- * An unparseable timestamp yields NaN, and NaN !== 0 is true, so comparing it loosely
- * would return NaN and skip the tiebreaks below. The spec coerces that to 0, leaving the
- * order at whatever the API happened to return.
- */
+/** NaN from a bad timestamp would skip the tiebreaks below, as the spec coerces it to 0. */
 export function sortShoppingListsByRecency(
   lists: ShoppingListDto[],
 ): ShoppingListDto[] {

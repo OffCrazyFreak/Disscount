@@ -1,58 +1,71 @@
-import { withSentryConfig } from "@sentry/nextjs";
-import withSerwistInit from "@serwist/next";
-import { randomUUID } from "node:crypto";
+import { withSentryConfig } from "@sentry/nextjs/config";
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+import { DEFAULT_LOCALE, LOCALES } from "./src/i18n/locales";
+import { SENTRY_APPLICATION_KEY } from "./src/lib/sentry/application-key";
+import { clientEnv, validateClientEnv } from "./src/lib/env";
+import {
+  buildContentSecurityPolicy,
+  buildDocsContentSecurityPolicy,
+} from "./src/utils/content-security-policy";
+import { isIndexableOrigin } from "./src/utils/indexing";
 
-const withSerwist = withSerwistInit({
-  swSrc: "src/app/sw.ts",
-  swDest: "public/sw.js",
-  // Service worker only runs in production builds; in dev it would fight
-  // Turbopack/HMR. The React Query persistence layer still works in dev.
-  disable: process.env.NODE_ENV === "development",
-  // Precache the offline fallback page so it's available with no connection.
-  additionalPrecacheEntries: [{ url: "/offline", revision: randomUUID() }],
-  reloadOnOnline: true,
-});
+// Fails `next build` and `next dev` on a malformed public variable, before it is baked in.
+validateClientEnv();
+
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
+// Croatian is unprefixed; every other locale lives under its own path segment.
+const LOCALE_PREFIXES = LOCALES.filter((locale) => locale !== DEFAULT_LOCALE);
+
+const PERMISSIONS_POLICY = [
+  "camera=(self)",
+  "geolocation=(self)",
+  "microphone=()",
+  "payment=()",
+  "usb=()",
+  "bluetooth=()",
+  "accelerometer=()",
+  "gyroscope=()",
+  "magnetometer=()",
+].join(", ");
 
 const nextConfig: NextConfig = {
   // Emit a minimal self-contained server build (.next/standalone) for a lean Docker image.
   output: "standalone",
 
+  // Sentry loads this hook by URL at startup, so the standalone file tracer never finds it.
+  // Without it, its diagnostics-channel integrations silently stop recording spans.
+  outputFileTracingIncludes: {
+    "/*": [
+      "./node_modules/.pnpm/@sentry+server-runtime-injection@*/**",
+      "./node_modules/.pnpm/@sentry+conventions@*/**",
+    ],
+  },
+
+  // Version skew protection: a tab from an older deploy gets a full page load
+  // instead of a client navigation. A build without GIT_SHA skips it.
+  deploymentId: process.env.GIT_SHA || undefined,
+
+  poweredByHeader: false,
+
   // The dev indicator sits bottom-left, on top of the mobile bottom nav.
   devIndicators: false,
 
-  async rewrites() {
-    const backendOrigin =
-      process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+  // Inlined so the browser Sentry init can read it too; empty leaves the SDK on NODE_ENV,
+  // so `pnpm dev` stays "development".
+  env: { SENTRY_ENVIRONMENT: process.env.SENTRY_ENVIRONMENT ?? "" },
 
-    return [
-      {
-        // Proxy backend API calls - exclude /api/cijene/* (external), /api/auth/* and
-        // /api/account/* (better-auth, handled by Next.js)
-        source: "/api/:path((?!cijene/)(?!auth/)(?!account/).*)",
-        destination: `${backendOrigin}/api/:path*`,
-      },
-    ];
+  // Set explicitly because Next warns the default can differ between compiler versions,
+  // and the effects keyed on existing useMemo/useCallback results rely on them staying.
+  reactCompiler: {
+    environment: { enablePreserveExistingMemoizationGuarantees: true },
   },
 
   async headers() {
-    // Pragmatic CSP: since Next needs 'unsafe-inline'/'unsafe-eval', a granular
-    // per-domain allowlist buys little real XSS protection while breaking third-party
-    // scripts. We allow https: broadly and keep the cheap, high-value protections
-    // (no framing of our pages, no plugins, locked base URI).
-    const csp = [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https:",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https:",
-      "font-src 'self' data:",
-      "connect-src 'self' https: ws: wss:",
-      "frame-src 'self' https:",
-      "worker-src 'self' blob:",
-      "frame-ancestors 'none'",
-      "object-src 'none'",
-      "base-uri 'self'",
-    ].join("; ");
+    const csp = buildContentSecurityPolicy(
+      process.env.NODE_ENV === "development",
+    );
 
     return [
       {
@@ -65,6 +78,20 @@ const nextConfig: NextConfig = {
             key: "Strict-Transport-Security",
             value: "max-age=31536000; includeSubDomains",
           },
+          // The scanner needs the camera and near-me the location; wake lock, clipboard and share keep their defaults.
+          { key: "Permissions-Policy", value: PERMISSIONS_POLICY },
+          // Sign-in is a full-page redirect and external links open with noopener, so no window needs an opener.
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+        ],
+      },
+      {
+        // Swagger UI is Spring's page, so it gets its own policy and the site-wide one stays as it is.
+        source: "/api/swagger-ui/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: buildDocsContentSecurityPolicy(),
+          },
         ],
       },
       {
@@ -73,11 +100,16 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Content-Security-Policy", value: csp }],
       },
       {
+        // Reaches browsers only through the Cloudflare cache rule in docs/INFRASTRUCTURE.md.
+        source: "/sw.js",
+        headers: [{ key: "Cache-Control", value: "no-cache" }],
+      },
+      {
         // Lists are unlisted, not public. Deliberately a header and not a robots.txt
         // rule: a disallow stops the crawler fetching the page at all, so it would never
         // see the directive. A shared link only leaks by being pasted somewhere
         // crawlable, which is exactly the case this covers.
-        source: "/shopping-lists/:path*",
+        source: `/:locale(${LOCALE_PREFIXES.join("|")})?/shopping-lists/:path*`,
         headers: [
           { key: "X-Robots-Tag", value: "noindex, nofollow" },
           // The list id is in the path and, while the list is shared, that id is what
@@ -87,40 +119,69 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "no-referrer" },
         ],
       },
+      {
+        // The emailed reset link lands here with ?token=, and OWASP asks the reset page
+        // to send no referrer, so no subresource request carries the token onward.
+        source: `/:locale(${LOCALE_PREFIXES.join("|")})?/reset-password`,
+        headers: [{ key: "Referrer-Policy", value: "no-referrer" }],
+      },
+      {
+        // Any URL holding a token in its query, the /?modal=reset-password page included,
+        // until instrumentation-client.ts strips it.
+        source: "/:path*",
+        has: [{ type: "query", key: "token" }],
+        headers: [{ key: "Referrer-Policy", value: "no-referrer" }],
+      },
+      // Read at build time, which is fine: NEXT_PUBLIC_APP_URL is a build arg per deploy.
+      ...(isIndexableOrigin(clientEnv.NEXT_PUBLIC_APP_URL)
+        ? []
+        : [
+            {
+              source: "/:path*",
+              headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+            },
+          ]),
     ];
   },
 };
 
-export default withSerwist(
-  withSentryConfig(nextConfig, {
-    // For all available options, see:
-    // https://www.npmjs.com/package/@sentry/webpack-plugin#options
+export default withSentryConfig(withNextIntl(nextConfig), {
+  // For all available options, see:
+  // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
-    org: "disscount",
+  org: "disscount",
 
-    project: "disscount-frontend",
+  project: "disscount-frontend",
 
-    // Only print logs for uploading source maps in CI
-    silent: !process.env.CI,
+  applicationKey: SENTRY_APPLICATION_KEY,
 
-    // For all available options, see:
-    // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
+  // Both are empty outside CI image builds, which skips the upload and auto-detects the release.
+  authToken: process.env.SENTRY_AUTH_TOKEN,
 
-    // Upload a larger set of source maps for prettier stack traces (increases build time)
-    widenClientFileUpload: true,
+  release: {
+    name: process.env.GIT_SHA,
+    // Marks which environment each release went to; skipped when the build has none.
+    deploy: process.env.SENTRY_ENVIRONMENT
+      ? { env: process.env.SENTRY_ENVIRONMENT }
+      : undefined,
+  },
 
-    // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-    // This can increase your server load as well as your hosting bill.
-    // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
-    // side errors will fail.
-    tunnelRoute: "/monitoring",
+  // Image builds run inside BuildKit without CI set, so the token is what marks an upload.
+  silent: !process.env.SENTRY_AUTH_TOKEN,
 
-    webpack: {
-      // Tree-shaking options for reducing bundle size
-      treeshake: {
-        // Automatically tree-shake Sentry logger statements to reduce bundle size
-        removeDebugLogging: true,
-      },
-    },
-  }),
-);
+  // For all available options, see:
+  // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
+
+  // Upload a larger set of source maps for prettier stack traces (increases build time)
+  widenClientFileUpload: true,
+
+  // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
+  // This can increase your server load as well as your hosting bill.
+  // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
+  // side errors will fail.
+  tunnelRoute: "/monitoring",
+
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
+  },
+});

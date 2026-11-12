@@ -1,18 +1,18 @@
 # Landing page
 
-The landing page is the public marketing home of Disscount, served at `/` to logged-out and logged-in visitors alike. It explains what the app does (grocery price comparison across Croatian retail chains), shows the live and upcoming features, and funnels people into the product (search, scan, sign up). It is built to be fully server-rendered for SEO, in hardcoded Croatian, with small client-side islands only where interactivity is genuinely needed.
+The landing page is the public marketing home of Disscount, served at `/` to logged-out and logged-in visitors alike. It explains what the app does (grocery price comparison across Croatian retail chains), shows the live and upcoming features, and funnels people into the product (search, scan, sign up). It is built to be fully server-rendered for SEO, translated through next-intl like the rest of the app, with small client-side islands only where interactivity is genuinely needed.
 
 This document covers how the page is composed, the server-vs-client rendering model, the shared visual primitives (fades, glows, doodles), the data that drives the copy, the SEO plumbing, the fonts, and the traps that will bite you if you touch it.
 
 ## What it is, end to end
 
-The route lives in the `(root)` route group, which adds no URL segment, so `app/(root)/page.tsx` is the page for `/`. It is a React Server Component: it renders a `metadata` export and a single stack of section components separated by vertical spacing. Every section is itself a Server Component; the only client-side code runs inside small nested islands (animation wrappers, the search bar, the barcode scanner trigger, etc.).
+The route lives in the `(root)` route group, which adds no URL segment, so `app/[locale]/(root)/page.tsx` is the page for `/`. It is a React Server Component: it renders a `metadata` export and a single stack of section components separated by vertical spacing. Every section is itself a Server Component; the only client-side code runs inside small nested islands (animation wrappers, the search bar, the barcode scanner trigger, etc.).
 
 The trick that keeps the page SEO-friendly while still animated is that all text lives in Server Components and is passed as `children` into client animation wrappers. React streams that server-rendered text through the client boundary as part of the RSC payload, so crawlers see the real copy in the initial HTML even though a client component wraps it.
 
 ```mermaid
 flowchart TD
-  Layout["app/layout.tsx (Server)\nfonts, metadata, background layers,\nHeader, WindowScrollFade"] --> Page["app/(root)/page.tsx (Server)\nmetadata + LandingJsonLd + sections"]
+  Layout["app/[locale]/layout.tsx (Server)\nfonts, metadata, background layers,\nHeader, WindowScrollFade"] --> Page["app/[locale]/(root)/page.tsx (Server)\nmetadata + LandingJsonLd + sections"]
 
   Page --> Hero[HeroSection]
   Page --> Stats[StatsBand]
@@ -25,7 +25,7 @@ flowchart TD
   Page --> Faq[FaqSection]
   Page --> Cta[FinalCtaSection]
 
-  Hero -.client island.-> HeroActions["HeroActions + SearchBar + scanner"]
+  Hero -.client island.-> HeroActions["HeroActions + ProductSearchBar + scanner"]
   Hero -.client island.-> HeroCart["HeroCart (cursor pose + CartChaser)"]
   Feat -.client island.-> FCA["FeatureCardAction (scanner / notifications)"]
   Stores -.client island.-> Marquee["StoreChainLogo (CSS marquee)"]
@@ -35,20 +35,20 @@ flowchart TD
 
 ## Sections, in order
 
-`page.tsx` renders these sections top to bottom inside a `space-y-14 sm:space-y-20 pb-16` wrapper. Each has its own file under `app/(root)/components/sections/`.
+`page.tsx` renders these sections top to bottom inside a `space-y-14 sm:space-y-20 pb-16` wrapper. Each has its own file under `app/[locale]/(root)/components/sections/`.
 
-| #   | Section       | File                        | Purpose                                                  | Client islands inside                                       |
-| --- | ------------- | --------------------------- | -------------------------------------------------------- | ----------------------------------------------------------- |
-| 1   | Hero          | `hero-section.tsx`          | Logo, wordmark, rotating tagline, search + scan card     | `HeroActions`, `HeroTagline`, `HeroCart`, `StaggerChildren` |
-| 2   | Stats band    | `stats-band.tsx`            | Green band with real numbers (29 lanaca, 100% besplatno) | `ScrollReveal`                                              |
-| 3   | How it works  | `how-it-works-section.tsx`  | Three steps with animated doodles                        | `ScrollReveal`, doodles                                     |
-| 4   | Features      | `features-section.tsx`      | Grid of feature cards, live and USKORO                   | `ScrollReveal`, `FeatureCardAction`                         |
-| 5   | Price history | `price-history-section.tsx` | "Is the discount real?" with a chart doodle              | `ScrollReveal`, `PriceLineDoodle`                           |
-| 6   | Stores        | `stores-section.tsx`        | Marquee of 29 real chain logos, link to discounts        | `StoresMarquee`                                             |
-| 7   | PWA           | `pwa-section.tsx`           | Install + offline perks, phone + desktop screenshots     | `ScrollReveal`                                              |
-| 8   | Pricing       | `pricing-section.tsx`       | Two receipt cards (free + premium USKORO)                | `ScrollReveal`                                              |
-| 9   | FAQ           | `faq-section.tsx`           | Native `<details>` accordion, `FAQPage` schema source    | `ScrollReveal`                                              |
-| 10  | Final CTA     | `final-cta-section.tsx`     | Green block, two CTA buttons                             | `ScrollReveal`                                              |
+| #   | Section       | File                        | Purpose                                                      | Client islands inside                                       |
+| --- | ------------- | --------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- |
+| 1   | Hero          | `hero-section.tsx`          | Logo, wordmark, rotating tagline, search + scan card         | `HeroActions`, `HeroTagline`, `HeroCart`, `StaggerChildren` |
+| 2   | Stats band    | `stats-band.tsx`            | Green band with real numbers (25+ lanaca, 100% besplatno)    | `ScrollReveal`                                              |
+| 3   | How it works  | `how-it-works-section.tsx`  | Three steps with animated doodles                            | `ScrollReveal`, doodles                                     |
+| 4   | Features      | `features-section.tsx`      | Grid of feature cards, live and USKORO                       | `ScrollReveal`, `FeatureCardAction`                         |
+| 5   | Price history | `price-history-section.tsx` | "Is the discount real?" with a chart doodle                  | `ScrollReveal`, `PriceLineDoodle`                           |
+| 6   | Stores        | `stores-section.tsx`        | Marquee of every chain in `storeNamesMap`, link to discounts | `StoresMarquee`                                             |
+| 7   | PWA           | `pwa-section.tsx`           | Install + offline perks, phone + desktop screenshots         | `ScrollReveal`                                              |
+| 8   | Pricing       | `pricing-section.tsx`       | Two receipt cards (free + premium USKORO)                    | `ScrollReveal`                                              |
+| 9   | FAQ           | `faq-section.tsx`           | Native `<details>` accordion, `FAQPage` schema source        | `ScrollReveal`                                              |
+| 10  | Final CTA     | `final-cta-section.tsx`     | Green block, two CTA buttons                                 | `ScrollReveal`                                              |
 
 `SectionHeading` (`section-heading.tsx`) is the shared title + subtitle block used by the How it works, Features, Stores, Pricing, and FAQ sections. It also carries the white `TextGlow` behind the heading, so adding the glow in one place covers every heading. The Stats band and the Final CTA style their own headings instead, and the Stats band's `<h2>` is `sr-only` (visually the numbers are the heading), which keeps the one-`<h2>`-per-section rule intact for crawlers.
 
@@ -84,6 +84,8 @@ Coming-soon cards keep their `href` commented out in `features.ts` so they rende
 
 The notifications action needs the header dropdown to open from elsewhere on the page, so the notifications context carries an open _request_, not the open state: `INotificationsContext` exposes `openMenuSignal` (a counter) and `requestOpenMenu()`, `useWatchlistNotifications` owns the counter, and `NotificationsDropdown` keeps its own local `useState` for whether it is open. The instance flagged `openViaContext` (the header one) watches the counter and opens when it moves past the value it saw at mount, so a remount never replays a stale request. `FeatureCardAction` calls `requestOpenMenu()` for a logged-in user, or opens the login modal (`openModalUrl({ name: "login" })`) for a guest, because the dropdown only mounts when authenticated.
 
+A round double-arrow button (`components/custom/fab/scroll-cue.tsx`) sits centred above the bottom nav on the landing page and the products list, so a signed-out visitor sees the page goes on below the fold ([#170](https://github.com/OffCrazyFreak/Disscount/issues/170), the illusion of completeness). It shows only at the very top of a page that is taller than the screen, bounces three times and then rests (no motion under `prefers-reduced-motion`), and a tap scrolls one screen down minus the header and 48 px, so a sliver of the current screen stays in view below the header. It renders nothing for a signed-in user, or while the session is still loading so it never flashes at them, and it is `inert` when hidden. It sits at `--z-fab`, under sheets and dialogs, and hides while a sheet or the install banner is open (it would cover the banner's install button). The bounce starts only once the button is visible. The bottom edge fade is the layout's `WindowScrollFade`, which every page already has.
+
 Store logos in the marquee are `<Link>`s to `/products?chain=<chain>`, matching the exact URL param the products page and the sidebar filter already use. The duplicated (aria-hidden) marquee row uses `tabIndex={-1}` so keyboard users do not tab through the logos twice.
 
 ## The cursor-aware hero cart
@@ -104,30 +106,30 @@ The pose hook writes raw pointer-derived values into `useMotionValue`s that feed
 
 The chaser activates once `useScrolledPast(10)` trips. `useCursorFollow` `.jump()`s its springs to the hero cart's current center (so it visibly escapes from the hero), then lazily trails the pointer with a soft spring, always aiming `STOP_DISTANCE_PX` (64px) short of the cursor along the approach direction so it never sits under it. It re-orients on both pointer moves and its own position changes, flipping only outside a 12px horizontal deadzone so it does not flap on near-vertical approaches. Visually it is a `pointer-events-none aria-hidden` fixed element at `z-30`, under the window scroll fade at `--z-scroll-fade` (40). Note it now ties with the back-to-top FAB at `--z-back-to-top` (30), and sits above the header at `--z-header` (20): the mobile bottom nav lowered both of those out of the 50s, and the whole ladder now lives as `--z-*` tokens in `globals.css` (see [MOBILE-NAV.md](MOBILE-NAV.md#layer-stack)). It is portaled to `document.body`, with a masked `backdrop-blur` disc plus a `TextGlow` behind the SVG so the green cart stays readable over the green stats band. Scrolling back to the top exits the chaser (`AnimatePresence`) and restores the hero cart.
 
-`cursorTiltDeg` (`app/(root)/utils/cursor.ts`) holds the one non-obvious bit of math: with `scaleX(-1)` applied before `rotate(r)`, the rendered rotation is mirrored to `-r`, so tilt is computed as `atan2(dy, |dx|)`; the same value then aims the nose at the cursor under both facings. It clamps via the shared `clamp` in `utils/generic.ts`.
+`cursorTiltDeg` (`app/[locale]/(root)/utils/cursor.ts`) holds the one non-obvious bit of math: with `scaleX(-1)` applied before `rotate(r)`, the rendered rotation is mirrored to `-r`, so tilt is computed as `atan2(dy, |dx|)`; the same value then aims the nose at the cursor under both facings. It clamps via the shared `clamp` in `utils/generic.ts`.
 
 ## Shared visual primitives
 
-These generic, presentational components live in `components/custom/common/` (and `components/ui/`), and are reused across the landing (and elsewhere).
+These generic, presentational components live in `components/custom/common/` and `components/custom/animation/`, and are reused across the landing (and elsewhere).
 
-| Component          | File                            | What it does                                                           | Server/client |
-| ------------------ | ------------------------------- | ---------------------------------------------------------------------- | ------------- |
-| `EdgeFade`         | `common/edge-fade.tsx`          | Gradient overlay that fades content against one edge                   | Server        |
-| `ScrollFade`       | `common/scroll-fade.tsx`        | Scroll-aware `EdgeFade` for an overflow container (sidebar, dropdowns) | Client        |
-| `WindowScrollFade` | `common/window-scroll-fade.tsx` | Fixed bottom fade for the whole page; hides at the end of the document | Client        |
-| `TextGlow`         | `common/text-glow.tsx`          | Soft white radial glow behind a text block                             | Server        |
-| `ScrollReveal`     | `ui/scroll-reveal.tsx`          | Staggered scroll-in reveal (spring), reduced-motion safe               | Client        |
-| `StaggerChildren`  | `ui/stagger-children.tsx`       | Staggered fade/rise of children on mount (hero)                        | Client        |
-| `DoodleCanvas`     | `doodles/doodle-canvas.tsx`     | `motion.svg` shell whose child paths draw on when scrolled into view   | Client        |
-| `SparkleField`     | `doodles/sparkle-field.tsx`     | Seeded scatter of twinkling sparkles                                   | Server        |
+| Component          | File                             | What it does                                                           | Server/client |
+| ------------------ | -------------------------------- | ---------------------------------------------------------------------- | ------------- |
+| `EdgeFade`         | `common/edge-fade.tsx`           | Gradient overlay that fades content against one edge                   | Server        |
+| `ScrollFade`       | `common/scroll-fade.tsx`         | Scroll-aware `EdgeFade` for an overflow container (sidebar, dropdowns) | Client        |
+| `WindowScrollFade` | `common/window-scroll-fade.tsx`  | Fixed bottom fade for the whole page; hides at the end of the document | Client        |
+| `TextGlow`         | `common/text-glow.tsx`           | Soft white radial glow behind a text block                             | Server        |
+| `ScrollReveal`     | `animation/scroll-reveal.tsx`    | Staggered scroll-in reveal (spring), reduced-motion safe               | Client        |
+| `StaggerChildren`  | `animation/stagger-children.tsx` | Staggered fade/rise of children on mount (hero)                        | Client        |
+| `DoodleCanvas`     | `doodles/doodle-canvas.tsx`      | `motion.svg` shell whose child paths draw on when scrolled into view   | Client        |
+| `SparkleField`     | `doodles/sparkle-field.tsx`      | Seeded scatter of twinkling sparkles                                   | Server        |
 
-The doodles (`barcode`, `price-tag`, `cart`, `receipt`, `price-line`, `scale`) are hand-drawn SVGs built on `DoodleCanvas` with `drawVariants`, so their strokes draw themselves on scroll. `squiggle-underline` and `sparkle-doodle` are pure CSS-animated Server Components. `WindowScrollFade` is mounted once in `app/layout.tsx`, so every page gets a bottom fade that self-hides when there is nothing more to scroll.
+Three doodles (`barcode-doodle`, `price-line-doodle`, `scale-doodle`) are hand-drawn SVGs built on `DoodleCanvas` with `drawVariants`, so their strokes draw themselves on scroll. `squiggle-underline` and `sparkle-doodle` are pure CSS-animated Server Components. `WindowScrollFade` is mounted once in `app/[locale]/layout.tsx`, so every page gets a bottom fade that self-hides when there is nothing more to scroll.
 
 `TextGlow` uses `radial-gradient(ellipse closest-side ...)` so the glow reaches full transparency exactly at the wrapper edges (no hard rectangular cut-off), plus a solid `spread` core so it reads strongly while still showing the dot pattern faintly through it. It must sit as the first child of a `relative isolate` wrapper; the `isolate` keeps its `-z-10` contained behind the section text instead of escaping behind the page background.
 
 ## Data files
 
-Copy is centralised in `app/(root)/data/` so a non-developer can edit text without touching JSX.
+The `data/` files hold ids and message keys; the copy itself lives in the `landing` namespace of the message catalogs (see [I18N.md](I18N.md)).
 
 | File               | Exports                                                                   | Used by                                         |
 | ------------------ | ------------------------------------------------------------------------- | ----------------------------------------------- |
@@ -141,32 +143,37 @@ Because `faqItems` feeds both the visible accordion and the structured data, the
 
 The landing is the app's most SEO-sensitive surface, so several layers work together.
 
-| Layer                    | Where                                              | Notes                                                                                                                           |
-| ------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Page title + description | `page.tsx` `metadata`                              | Title fills the `Disscount - %s` template from the layout; Croatian description                                                 |
-| Site-wide metadata       | `app/layout.tsx`                                   | `openGraph` (`hr_HR`), `twitter` (`summary_large_image`), keywords, robots index/follow                                         |
-| Structured data          | `components/json-ld.tsx`                           | One `<script type="application/ld+json">` with a `@graph`                                                                       |
-| Sitemap                  | `app/sitemap.ts`                                   | Public routes only; pulls `/updates/<id>` from `templatePosts`                                                                  |
-| Robots                   | `app/robots.ts`                                    | Allows `/`, disallows user/admin/auth routes; points at the sitemap                                                             |
-| Noindex headers          | `next.config.ts` `headers()`                       | `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer` on `/shopping-lists/*`, which is where a shared list lives |
-| Social images            | `app/opengraph-image.tsx`, `app/twitter-image.tsx` | Generated with `next/og` (see the OG-image work)                                                                                |
+| Layer                    | Where                                                                | Notes                                                                                                                                                                                                                       |
+| ------------------------ | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Page title + description | `page.tsx` `metadata`                                                | Title fills the `Disscount - %s` template from the layout; translated description                                                                                                                                           |
+| Site-wide metadata       | `app/[locale]/layout.tsx`                                            | `openGraph` (locale per language), `twitter` (`summary_large_image`), keywords, robots index/follow (noindex outside production)                                                                                            |
+| Structured data          | `components/json-ld.tsx`                                             | One `<script type="application/ld+json">` with a `@graph`                                                                                                                                                                   |
+| Sitemap                  | `app/sitemap.ts`, `app/products/sitemap.ts`                          | Public routes; pulls `/updates/<id>` from `templatePosts`. Products live in eight files at `/products/sitemap/<id>.xml`, filled per request from the backend catalogue                                                      |
+| Robots                   | `app/robots.ts`                                                      | Allows `/`, disallows user/admin/auth routes; points at the sitemap and every product sitemap file                                                                                                                          |
+| Noindex headers          | `next.config.ts` `headers()`                                         | `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer` on `/shopping-lists/*`, which is where a shared list lives; `noindex, nofollow` on everything when `NEXT_PUBLIC_APP_URL` is not `https://disscount.me` |
+| Social images            | `app/[locale]/opengraph-image.tsx`, `app/[locale]/twitter-image.tsx` | Generated with `next/og` (see the OG-image work)                                                                                                                                                                            |
 
 The JSON-LD `@graph` contains a `WebSite` node with a `SearchAction` (`/products?q={search_term_string}`), an `Organization` node (logo, `sameAs` socials), a `SoftwareApplication` node (category `ShoppingApplication`, a free `Offer`, screenshots), and a `FAQPage` node built from `faqItems`. Heading semantics matter: the hero `<h1>` carries the keyword copy ("Pronađi najbolje cijene u Hrvatskoj"), the wordmark is a styled `<p>`, and each section contributes exactly one `<h2>`.
 
 Temper FAQ expectations: since 2023 Google shows FAQ rich results almost exclusively for government and health sites. Keep the `FAQPage` schema anyway (it costs nothing, and other engines and LLMs consume it), just do not expect visible rich snippets from it.
 
-The page is also fully static: neither `page.tsx` nor `app/layout.tsx` touches request-time APIs (`cookies()`, `headers()`, `searchParams`), so Next prerenders `/` to static HTML at build time. Crawlers and users get the finished page with zero server work per request. Keep it that way: adding a request-time API anywhere in the root layout would silently turn every page dynamic (the production build output marks static routes with a circle, dynamic with an f).
+The page is also fully static: neither `page.tsx` nor `app/[locale]/layout.tsx` touches request-time APIs (`cookies()`, `headers()`, `searchParams`), so Next prerenders `/` to static HTML at build time. Crawlers and users get the finished page with zero server work per request. Keep it that way: adding a request-time API anywhere in the root layout would silently turn every page dynamic (the production build output marks static routes with a circle, dynamic with an f).
 
 ## Fonts
 
-Two fonts are loaded through `next/font/local` in `app/fonts/index.ts`.
+Three fonts are loaded through `next/font/local` in `app/fonts/index.ts`.
 
-| Font                   | Variable               | Role                                                   | Note                                                                                                                                       |
-| ---------------------- | ---------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Huninn                 | `--font-huninn`        | Body font (`--font-sans`)                              | Self-hosted 28 KB latin + latin-ext subset; the full Google TTF is a 4.5 MB CJK font and `next/font/google` has no fallback metrics for it |
-| Saira Stencil SemiBold | `--font-saira-stencil` | The "disscount" wordmark, stat numbers, big CTA titles | Applied via the `.font-saira-stencil-semibold` utility in `globals.css`                                                                    |
+| Font                   | Variable                   | Role                                                   | Note                                                                                                                                       |
+| ---------------------- | -------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Huninn                 | `--font-huninn`            | Body font (`--font-sans`)                              | Self-hosted 28 KB latin + latin-ext subset; the full Google TTF is a 4.5 MB CJK font and `next/font/google` has no fallback metrics for it |
+| Baseline ellipsis      | `--font-baseline-ellipsis` | U+2026 only, ahead of Huninn in `--font-sans`          | 588 byte face with one glyph, limited by `unicode-range`; see below                                                                        |
+| Saira Stencil SemiBold | `--font-saira-stencil`     | The "disscount" wordmark, stat numbers, big CTA titles | Applied via the `.font-saira-stencil-semibold` utility in `globals.css`                                                                    |
 
 The latin-ext subset is what makes Croatian diacritics (č, ć, đ, š, ž) render; a plain latin subset would show tofu.
+
+Huninn carries a `descent-override: 26%` declaration. The file, Google's original included, declares an 18% descent while its descenders reach 23%, so at fractional display scaling (125% is the common case) Chromium cut the bottom pixel row off `g`, `j`, `p` and `y` inside inputs. Keep the override if the subset is ever regenerated.
+
+Huninn draws U+2026 vertically centred and one em wide, so every CSS `text-overflow: ellipsis` showed floating dots. `app/fonts/Ellipsis/baseline-ellipsis.woff2` holds only a U+2026 glyph built from three of Huninn's own period outlines, with Huninn's metrics, so it looks like three typed periods and cannot grow a line box. A string value such as `text-overflow: "..."` is not an alternative: Chromium does not support it. Its `adjustFontFallback: false` is required: the fallback face `next/font` generates has no `unicode-range`, so it would sit ahead of Huninn and take over every character. The glyph is derived from Huninn under the SIL OFL 1.1 (`app/fonts/Ellipsis/OFL.txt`) and named "Disscount Ellipsis". Rebuild it with fontTools and the FontBuilder API if Huninn ever changes; nothing in the repository depends on the tool.
 
 ## Styling and animation
 
@@ -184,58 +191,39 @@ Every CSS animation is disabled under `@media (prefers-reduced-motion: reduce)`,
 
 ## Automatic vs manual
 
-| Thing                              | Automatic                                                        | Manual                                                    |
-| ---------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------- |
-| Metadata, JSON-LD, sitemap, robots | Regenerate from code on every build                              | Editing the copy/routes they list                         |
-| FAQ structured data                | Built from `faqItems`                                            | Editing the questions/answers                             |
-| Store logos grid                   | Derived from `storeNamesMap` keys + `/public/store-chains/*.png` | Adding a new chain (add the PNG + map entry)              |
-| Feature grid                       | Rendered from `featureItems`                                     | Adding/reordering/retiring a feature                      |
-| Coming-soon card links             | Render as non-clickable divs                                     | Uncomment the `href` in `features.ts` when the page ships |
-| OG / social images                 | Rendered by the image routes                                     | Redesigning the artwork                                   |
+| Thing                              | Automatic                                                        | Manual                                                                                              |
+| ---------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Metadata, JSON-LD, sitemap, robots | Regenerate from code on every build                              | Editing the copy/routes they list                                                                   |
+| FAQ structured data                | Built from `faqItems`                                            | Editing the questions/answers                                                                       |
+| Store logos grid                   | Derived from `storeNamesMap` keys + `/public/store-chains/*.png` | Adding a new chain: add the PNG and the map entry, then run `node scripts/optimize-store-logos.mjs` |
+| Feature grid                       | Rendered from `featureItems`                                     | Adding/reordering/retiring a feature                                                                |
+| Coming-soon card links             | Render as non-clickable divs                                     | Uncomment the `href` in `features.ts` when the page ships                                           |
+| OG / social images                 | Rendered by the image routes                                     | Redesigning the artwork                                                                             |
 
 ## Key files
 
 | Path                                                                                    | Role                                                      |
 | --------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| `app/(root)/page.tsx`                                                                   | Composes the sections, page metadata, JSON-LD             |
-| `app/(root)/components/sections/*`                                                      | One file per section                                      |
-| `app/(root)/components/sections/section-heading.tsx`                                    | Shared heading + `TextGlow`                               |
-| `app/(root)/components/sections/feature-card.tsx`                                       | Server card; chooses `<Link>` / action / div              |
-| `app/(root)/components/sections/feature-card-action.tsx`                                | Client action island (scanner / notifications)            |
-| `app/(root)/components/sections/hero-cart.tsx`                                          | Client island: cursor-aware hero cart + mounts the chaser |
-| `app/(root)/components/doodles/cart-chaser.tsx`                                         | Mini cart that trails the cursor after scroll             |
-| `app/(root)/hooks/{use-cursor-pose,use-cursor-follow}.ts`                               | Pose (flip/tilt) and lazy-follow motion values            |
-| `app/(root)/utils/cursor.ts`, `hooks/use-fine-pointer.ts`                               | Mirror-safe tilt math; desktop-pointer matchMedia hook    |
-| `app/(root)/data/*`                                                                     | Copy: landing, features, faq                              |
-| `app/(root)/components/doodles/*`                                                       | Hand-drawn animated SVGs + `DoodleCanvas`, `SparkleField` |
-| `app/(root)/components/json-ld.tsx`                                                     | Structured data `@graph`                                  |
+| `app/[locale]/(root)/components/sections/feature-card.tsx`                              | Server card; chooses `<Link>` / action / div              |
+| `app/[locale]/(root)/components/sections/feature-card-action.tsx`                       | Client action island (scanner / notifications)            |
+| `app/[locale]/(root)/components/sections/hero-cart.tsx`                                 | Client island: cursor-aware hero cart + mounts the chaser |
+| `app/[locale]/(root)/utils/cursor.ts`, `hooks/use-fine-pointer.ts`                      | Mirror-safe tilt math; desktop-pointer matchMedia hook    |
 | `components/custom/common/{edge-fade,scroll-fade,window-scroll-fade,text-glow}.tsx`     | Shared fade/glow primitives                               |
-| `components/ui/scroll-reveal.tsx`                                                       | Scroll-in reveal wrapper                                  |
-| `app/{sitemap,robots}.ts`, `app/{opengraph,twitter}-image.tsx`                          | SEO plumbing                                              |
-| `app/fonts/index.ts`                                                                    | Huninn + Saira Stencil                                    |
+| `components/custom/animation/{scroll-reveal,stagger-children}.tsx`                      | Scroll-in reveal and mount stagger wrappers               |
 | `context/{notifications-context,notifications-types,use-watchlist-notifications}.ts(x)` | Lifted notifications open state                           |
 
 ## Config, env, and feature flags
 
-| Name                            | Where                                    | Effect                                                       |
-| ------------------------------- | ---------------------------------------- | ------------------------------------------------------------ |
-| `NEXT_PUBLIC_APP_URL`           | JSON-LD, sitemap, robots, `metadataBase` | Absolute URLs for SEO; falls back to `http://localhost:3000` |
-| `NEXT_PUBLIC_UMAMI_WEBSITE_ID`  | `app/layout.tsx`                         | Injects the privacy-friendly analytics script when set       |
-| `NEXT_PUBLIC_ENABLE_REACT_SCAN` | `app/providers/react-scan.tsx`           | Turns on the render-profiling overlay; off by default        |
+| Name                           | Where                                    | Effect                                                       |
+| ------------------------------ | ---------------------------------------- | ------------------------------------------------------------ |
+| `NEXT_PUBLIC_APP_URL`          | JSON-LD, sitemap, robots, `metadataBase` | Absolute URLs for SEO; falls back to `http://localhost:3000` |
+| `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | `app/[locale]/layout.tsx`                | Injects the privacy-friendly analytics script when set       |
 
-There are no landing-specific secrets. The page is Croatian-only and there is no i18n framework, so all copy is plain Croatian string literals.
+There are no landing-specific secrets. All copy comes from the `landing` message namespace in every supported language.
 
 ## Libraries
 
-Versions come from `frontend/package.json`.
-
-| Library           | Version     | Use on the landing                                              |
-| ----------------- | ----------- | --------------------------------------------------------------- |
-| next              | `16.2.9`    | App Router, RSC, metadata, `next/font`, `next/og`, `next/image` |
-| react / react-dom | `19.2.4`    | Server + client components                                      |
-| motion            | `^12.23.26` | Scroll reveals, doodle path-draws, tagline cross-fade           |
-| lucide-react      | `^0.561.0`  | Feature and perk icons                                          |
-| tailwindcss       | `^4`        | Styling, CSS-first theme, keyframes                             |
+`motion` drives the scroll reveals, doodle path-draws and tagline cross-fade. The rest is the app's usual stack; versions are in `frontend/package.json`.
 
 ## Gotchas
 
@@ -243,7 +231,7 @@ The RSC boundary is the big one. Passing a non-serializable value (a Lucide icon
 
 The Tailwind spacing scale is rescaled. `globals.css` sets `--spacing: 0.2rem` (Tailwind's default is `0.25rem`), so every spacing/size utility is 0.8x: `w-64` is `205px`, not `256px`; `p-2.5` is `8px`. Any pixel math for positioning (the PWA screenshot overlap, marquee tile sizes) has to account for this. `max-w-*` uses a separate rem scale and is not affected.
 
-`useReducedMotion` from `motion` reads `matchMedia` during render, not in an effect, and can cause a server/client markup mismatch. Verified against framer-motion 12.42.2: it calls `initPrefersReducedMotion()` in the render body, which returns early when there is no `window`, so the hook returns `null` on the server and the visitor's real preference on the very first client render. Use `useReducedMotionSafe` (returns `false` until mounted) for anything that branches markup on reduced motion. Motion does not document this either way, so recheck the source on a `motion` major before assuming the wrapper can go.
+`useReducedMotion` from `motion` reads `matchMedia` during render, not in an effect, and can cause a server/client markup mismatch. Verified against framer-motion 14.9.1: it calls `initPrefersReducedMotion()` in the render body, which returns early when there is no `window`, so the hook returns `null` on the server and the visitor's real preference on the very first client render. Use `useReducedMotionSafe` (returns `false` until mounted) for anything that branches markup on reduced motion. Motion does not document this either way, so recheck the source on a `motion` major before assuming the wrapper can go.
 
 A `drop-shadow` filter on the same element as a `clip-path` gets clipped away, because the browser applies `filter` before `clip-path`. The pricing receipt's torn (zigzag) bottom needs its shadow on the outer wrapper, not on the clipped element, or the tear is invisible on the white card.
 
@@ -261,15 +249,11 @@ CSS transform order mirrors rotation. With `scaleX(-1)` before `rotate(r)`, the 
 
 Mixing an `animate` prop with `style` MotionValues on one element makes them fight over the same transforms. `HeroCart` and `CartChaser` both nest two `motion.div`s instead: the outer one owns `animate` (opacity/scale/rotateY enter-exit states), the inner one owns the continuous `style` springs (`scaleX`, `rotate`).
 
-Decorative overflow becomes a horizontal scrollbar unless it is clipped. `TextGlow` is positioned with negative insets (`-inset-6`/`-inset-8`) so its halo intentionally sits ~25px outside its text box; on a narrow viewport a near-full-width heading pushes that transparent overhang past the right edge (~13px at 390px). The doodle glows do the same to a smaller degree. This surfaces as a scrollbar because of a CSS rule: when one overflow axis is `hidden` (not `visible`/`clip`), the other axis computes to `auto`. `<main>` in `app/layout.tsx` therefore uses `overflow-x-clip` (clips, no scroll container) rather than `overflow-y-hidden`, which had silently made the x-axis scrollable. Clip the x axis only. This started as `overflow-clip`, which clips both axes, and the vertical half was not free: `main` carries `px-4 pt-4` and no bottom padding, so the last child sits flush against the content edge and its bottom border and shadow were sliced off. Restoring `pb-4` is the wrong fix, since 809441bb694ec5ecfc4e57c4aa2358ce2aab6637 removed that padding deliberately to let the footer supply the spacing. Prefer `overflow-*-clip` over `overflow-*-hidden` for containing decorative bleed, and clip only the axis that actually bleeds.
+Decorative overflow becomes a horizontal scrollbar unless it is clipped. `TextGlow` is positioned with negative insets (`-inset-6`/`-inset-8`) so its halo intentionally sits ~25px outside its text box; on a narrow viewport a near-full-width heading pushes that transparent overhang past the right edge (~13px at 390px). The doodle glows do the same to a smaller degree. This surfaces as a scrollbar because of a CSS rule: when one overflow axis is `hidden` (not `visible`/`clip`), the other axis computes to `auto`. `<main>` in `app/[locale]/layout.tsx` therefore uses `overflow-x-clip` (clips, no scroll container) rather than `overflow-y-hidden`, which had silently made the x-axis scrollable. Clip the x axis only. This started as `overflow-clip`, which clips both axes, and the vertical half was not free: `main` carries `px-4 pt-4` and no bottom padding, so the last child sits flush against the content edge and its bottom border and shadow were sliced off. Restoring `pb-4` is the wrong fix, since 809441bb694ec5ecfc4e57c4aa2358ce2aab6637 removed that padding deliberately to let the footer supply the spacing. Prefer `overflow-*-clip` over `overflow-*-hidden` for containing decorative bleed, and clip only the axis that actually bleeds.
 
 The exact chain count is never hardcoded. The number of covered retail chains grows over time (the price API already lists 30 while `storeNamesMap` has 28 keys), so the copy, metadata, OG image, and FAQ all say `25+ trgovačkih lanaca` rather than a fixed number. The marquee derives its logos from `storeNamesMap` directly, so it always matches the data.
 
 ## Future improvements and TODOs
 
-- Wire the remaining coming-soon feature cards (Analiza potrošnje, Digitalne kartice, Karta trgovina) once their pages ship, by uncommenting the `href` in `features.ts` and dropping `comingSoon`.
-- Move `ScrollReveal` and `StaggerChildren` out of `components/ui/` (AGENTS.md reserves that folder for unedited shadcn primitives) into `components/custom/` (e.g. an `animation/` folder) with default exports, matching the convention for hand-written components.
-- Consider an FAQ-driven long-tail SEO expansion and a real testimonials/social-proof section once there is content for it.
-- The landing is Croatian-only; if the app adds `next-intl`, the landing copy in the `data/*` files is the natural first surface to translate.
-- Revisit the notifications-from-guest flow: today it opens the login modal, but a dedicated "sign in to get price alerts" nudge could convert better.
+- Wire the remaining coming-soon feature cards (Analiza potrošnje, Kartice vjernosti, Karta trgovina) once their pages ship, by uncommenting the `href` in `features.ts` and dropping `comingSoon`.
 - If the filled-vs-outline button box-model fix is wanted app-wide, bake a transparent border into the filled button variants in `components/ui/button.tsx` instead of per-usage.

@@ -19,10 +19,7 @@ interface ICreateLongPressTimerOptions {
   onProgress: (fraction: number) => void;
 }
 
-/**
- * Framework-free so the bottom bar and the product cards share one gesture
- * implementation despite owning very different pointer streams.
- */
+/** Framework-free so the bottom bar and product cards share one gesture despite very different pointer streams. */
 export function createLongPressTimer({
   onFire,
   onProgress,
@@ -75,8 +72,7 @@ export function createLongPressTimer({
     pending = true;
     emit(0);
 
-    // A real gate, not a clamp: nothing is scheduled and nothing is drawn until
-    // it elapses, which is what keeps an ordinary tap silent.
+    // A real gate, not a clamp: nothing draws until it elapses, which keeps an ordinary tap silent.
     gate = window.setTimeout(() => {
       gate = null;
 
@@ -109,10 +105,7 @@ export function createLongPressTimer({
     );
   }
 
-  /**
-   * For unmount, where cancel() would be wrong: it starts a drain, so the ramp
-   * keeps scheduling frames and writing to a detached element for HOLD_DRAIN_MS.
-   */
+  /** For unmount, because cancel() starts a drain that keeps writing to a detached element for HOLD_DRAIN_MS. */
   function dispose() {
     clear();
     pending = false;

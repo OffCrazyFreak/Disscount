@@ -9,12 +9,7 @@ interface ITextGlowProps {
   className?: string;
 }
 
-/**
- * Soft white radial glow that lifts a text block off the patterned background.
- * A solid core (`spread`) keeps it strong, while `closest-side` fades it to
- * transparent exactly at the wrapper edges - no hard rectangular cut-off.
- * Presentational; place it as the first child of a `relative isolate` wrapper.
- */
+/** `closest-side` fades to transparent exactly at the wrapper edges, so there is no hard rectangular cut-off. */
 export default function TextGlow({
   intensity = 0.7,
   spread = 70,

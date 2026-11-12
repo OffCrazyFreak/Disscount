@@ -1,0 +1,37 @@
+{
+  "dialog": { "close": "Chiudi" },
+  "command": {
+    "title": "Riquadro comandi",
+    "description": "Cerca un comando da eseguire..."
+  },
+  "sidebar": {
+    "mobileTitle": "Barra laterale",
+    "mobileDescription": "Mostra la barra laterale sul telefono.",
+    "toggle": "Apri o chiudi il menu laterale"
+  },
+  "share": {
+    "copied": "Link copiato",
+    "failed": "Non siamo riusciti a condividere"
+  },
+  "toaster": { "label": "Messaggi" },
+  "offline": {
+    "writeFailed": "Modifica non salvata. Riprova.",
+    "writeFailedLostAccess": "Modifica non salvata. Forse non hai più accesso a questa lista.",
+    "retiredWriteDropped": "Una modifica da una versione precedente dell'app non è stata salvata. Apri la lista e controlla."
+  },
+  "limitReached": {
+    "title": "Non c'è più spazio",
+    "description": {
+      "SHOPPING_LISTS": "{max, plural, one {Puoi avere al massimo # lista della spesa.} other {Puoi avere al massimo # liste della spesa.}}",
+      "SHOPPING_LIST_ITEMS": "{max, plural, one {Una lista può contenere al massimo # prodotto.} other {Una lista può contenere al massimo # prodotti.}}",
+      "WATCHLIST_ITEMS": "{max, plural, one {Puoi seguire al massimo # prodotto.} other {Puoi seguire al massimo # prodotti.}}",
+      "DIGITAL_CARDS": "{max, plural, one {Puoi avere al massimo # carta.} other {Puoi avere al massimo # carte.}}",
+      "PRODUCT_PHOTOS": "{max, plural, one {In tutto puoi aggiungere al massimo # foto di prodotti.} other {In tutto puoi aggiungere al massimo # foto di prodotti.}}",
+      "PRODUCT_PHOTOS_PER_DAY": "{max, plural, one {Puoi aggiungere al massimo # foto di prodotti al giorno.} other {Puoi aggiungere al massimo # foto di prodotti al giorno.}}",
+      "PRODUCT_PHOTOS_PER_PRODUCT": "{max, plural, one {Puoi aggiungere al massimo # foto per ogni prodotto.} other {Puoi aggiungere al massimo # foto per ogni prodotto.}}"
+    },
+    "contactHint": "Se te ne servono di più, scrivici.",
+    "contact": "Scrivi al supporto",
+    "close": "Chiudi"
+  }
+}

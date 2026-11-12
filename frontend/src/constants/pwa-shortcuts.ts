@@ -1,11 +1,14 @@
 import type { MetadataRoute } from "next";
-import { userNavItems } from "@/constants/navigation";
+import shell from "@/i18n/messages/hr/shell.json";
+import {
+  findNavItem,
+  type NavItemId,
+  type NavKey,
+} from "@/constants/navigation";
 
 type Shortcut = NonNullable<MetadataRoute.Manifest["shortcuts"]>[number];
 
-// Chrome takes PNG only here. The tiles come from
-// scripts/generate-shortcut-icons.mjs; why each shortcut needs two of them is in
-// docs/PWA.md#app-shortcuts.
+// Chrome takes PNG only; docs/PWA.md#app-shortcuts says why each shortcut needs two tiles.
 function shortcutIcons(id: string): NonNullable<Shortcut["icons"]> {
   return [
     {
@@ -23,6 +26,11 @@ function shortcutIcons(id: string): NonNullable<Shortcut["icons"]> {
   ];
 }
 
+// The manifest is static with lang "hr", so shortcuts read the Croatian messages directly instead of a request locale.
+function hr(key: NavKey): string {
+  return shell.nav[key.slice("nav.".length) as keyof typeof shell.nav];
+}
+
 const scanShortcut: Shortcut = {
   name: "Skeniraj barkod",
   short_name: "Skeniraj",
@@ -31,17 +39,26 @@ const scanShortcut: Shortcut = {
   icons: shortcutIcons("scan"),
 };
 
-// Android shows 3 of these (Chrome keeps a fourth slot for its own "Site
-// settings"), so order is what decides what a phone actually surfaces.
-// Scanning leads: it is the fastest path from launcher to a price.
+// Owner's order from #127: Android shows only the first 3, and loyalty cards are needed fast at the till.
+export const shortcutNavIds = [
+  "shopping-lists",
+  "digital-cards",
+  "watchlist",
+  "map",
+  "spending",
+] as const satisfies readonly NavItemId[];
+
 export const pwaShortcuts: Shortcut[] = [
   scanShortcut,
-  ...userNavItems
-    .filter((item) => !item.comingSoon && item.shortcutDescription)
+  ...shortcutNavIds
+    .map(findNavItem)
+    .filter((item) => !item.comingSoon && item.shortcutDescriptionKey)
     .map((item) => ({
-      name: item.label,
-      short_name: item.shortLabel ?? item.label,
-      description: item.shortcutDescription,
+      name: hr(item.labelKey),
+      short_name: hr(item.shortLabelKey ?? item.labelKey),
+      description: item.shortcutDescriptionKey
+        ? hr(item.shortcutDescriptionKey)
+        : undefined,
       url: item.href,
       icons: shortcutIcons(item.id),
     })),

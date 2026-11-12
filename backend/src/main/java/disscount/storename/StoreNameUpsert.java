@@ -1,0 +1,54 @@
+package disscount.storename;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import disscount.shared.Timestamps;
+import disscount.user.ActiveUsers;
+
+import java.util.UUID;
+
+/** Its own bean so the REQUIRES_NEW boundary goes through the proxy. */
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class StoreNameUpsert {
+
+    private final StoreNameSuggestionRepository repository;
+    private final StoreNameUsageRepository usages;
+    private final ActiveUsers activeUsers;
+
+    /** A duplicate usage insert (a user racing itself) throws and rolls back; the caller retries and finds the row. */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void upsert(UUID userId, String name, String normalized) {
+        // Runs after the card commit, so account deletion may have won the race: take its lock and re-check.
+        if (!activeUsers.lockIfActive(userId)) {
+            return;
+        }
+
+        StoreNameSuggestion suggestion = repository.findByNormalizedName(normalized).orElse(null);
+
+        if (suggestion == null) {
+            suggestion = repository.saveAndFlush(StoreNameSuggestion.builder()
+                    .name(name)
+                    .normalizedName(normalized)
+                    .useCount(1)
+                    .build());
+            usages.saveAndFlush(usage(userId, suggestion));
+            return;
+        }
+
+        if (usages.existsByUser(userId, suggestion.getId())) {
+            return;
+        }
+
+        usages.saveAndFlush(usage(userId, suggestion));
+        repository.incrementUseCount(normalized, Timestamps.nowUtc());
+    }
+
+    private static StoreNameUsage usage(UUID userId, StoreNameSuggestion suggestion) {
+        return StoreNameUsage.builder().userId(userId).suggestion(suggestion).build();
+    }
+}

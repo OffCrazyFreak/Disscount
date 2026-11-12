@@ -1,6 +1,4 @@
-/* Hide the library finder's frame (dashed box + corner brackets, hardcoded
-   red inline styles) so ScanOverlay can draw a primary-colored replica.
-   The finder stays mounted because it hosts the torch/zoom buttons. */
+/* The finder stays mounted because it hosts the torch and zoom buttons, so only its hardcoded frame is hidden for ScanOverlay. */
 
 .scanner-finder-recolor div[style*="dashed"],
 .scanner-finder-recolor div[style*="239, 68, 68"],

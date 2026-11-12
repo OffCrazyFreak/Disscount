@@ -1,7 +1,4 @@
-// Facets and the infinite list request this same limit to share one cache entry.
-// The upstream cijene-api /v1/products endpoint caps at 100 and offers no paging,
-// total count, or facet aggregation, so facet counts cover at most the first 100
-// matches (issue #93). Going beyond that needs upstream search-layer support.
+// Upstream caps at 100 with no paging or facet aggregation, so facet counts cover at most the first 100 matches (#93).
 export const PRODUCT_SEARCH_LIMIT = 100;
 
 // Upstream's own default for GET /v1/products when `limit` is omitted.

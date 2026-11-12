@@ -1,0 +1,91 @@
+import { memo } from "react";
+import { useTranslations } from "next-intl";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
+import { ProductResponse, StorePrice } from "@/lib/cijene-api/schemas";
+import {
+  getMinPrice,
+  getMaxPrice,
+} from "@/app/[locale]/products/utils/product-utils";
+import { useUser } from "@/context/user-context";
+import { getLocationLabel } from "@/utils/labels";
+import { compareHr } from "@/utils/strings";
+import StorePriceRow from "@/app/[locale]/products/[id]/components/store-item/store-price-row";
+
+interface IStorePricesTableProps {
+  storePrices: StorePrice[];
+  product: ProductResponse;
+}
+
+const StorePricesTable = memo(
+  ({ storePrices, product }: IStorePricesTableProps) => {
+    const t = useTranslations("productDetail.pricesTable");
+    const { accountUser } = useUser();
+
+    const productMinPrice = getMinPrice(product);
+    const productMaxPrice = getMaxPrice(product);
+
+    // Store cities carry no postal area, so a namesake matches by name alone.
+    const preferredPlaceIds =
+      accountUser?.pinnedPlaces?.map((place) => place.placeName) || [];
+
+    if (storePrices.length === 0) {
+      return <div className="text-center py-8 text-gray-500">{t("empty")}</div>;
+    }
+
+    return (
+      <ScrollFadeArea className="max-h-96" fadeClassName="from-card h-12">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="font-bold">{t("location")}</TableHead>
+              <TableHead className="font-bold">{t("address")}</TableHead>
+              <TableHead className="font-bold text-center">
+                {t("price")}
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {[...storePrices]
+              .sort((a, b) => {
+                const aCity = getLocationLabel(a.store.city);
+                const bCity = getLocationLabel(b.store.city);
+
+                const aIsPreferred = preferredPlaceIds.includes(aCity);
+                const bIsPreferred = preferredPlaceIds.includes(bCity);
+
+                if (aIsPreferred !== bIsPreferred) return aIsPreferred ? -1 : 1;
+
+                return (
+                  compareHr(aCity, bCity) ||
+                  compareHr(a.store.address || "", b.store.address || "")
+                );
+              })
+              .map((price, index) => (
+                <StorePriceRow
+                  key={`${price.store.code}-${index}`}
+                  price={price}
+                  isLocationPreferred={preferredPlaceIds.includes(
+                    getLocationLabel(price.store.city),
+                  )}
+                  productMinPrice={productMinPrice}
+                  productMaxPrice={productMaxPrice}
+                />
+              ))}
+          </TableBody>
+        </Table>
+      </ScrollFadeArea>
+    );
+  },
+);
+
+StorePricesTable.displayName = "StorePricesTable";
+
+export default StorePricesTable;

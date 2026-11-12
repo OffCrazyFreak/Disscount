@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import { useTranslations } from "next-intl";
 
 import StretchedLink from "@/components/custom/common/stretched-link";
 
@@ -13,14 +14,7 @@ interface IProductInfoProps {
   onNavigate?: (viaKeyboard: boolean) => boolean | void;
 }
 
-/**
- * The name is the link rather than an anchor laid over the card, so it stays
- * drag selectable: text inside an anchor selects natively while a click still
- * navigates. Category and brand sit outside that anchor, so they need to be
- * raised above its stretched pseudo-element to stay selectable too. Neither this
- * root nor the heading may be positioned, or the stretch would resolve against
- * them instead of the card.
- */
+/** The name is the link so it stays selectable; a positioned root or heading would catch the stretch. */
 const ProductInfo = memo(function ProductInfo({
   name,
   brand,
@@ -28,17 +22,24 @@ const ProductInfo = memo(function ProductInfo({
   href,
   onNavigate,
 }: IProductInfoProps) {
-  const label = name || "Nepoznat proizvod";
+  const t = useTranslations("products");
+  const label = name || t("productInfo.unknownProduct");
 
   return (
     <div className="min-w-0 flex-1">
       {category && (
-        <div className="relative z-10 w-fit text-xs @md:text-sm text-gray-500">
+        <div
+          lang="hr"
+          className="relative z-10 w-fit text-xs @md:text-sm text-gray-500"
+        >
           {category}
         </div>
       )}
 
-      <h3 className="font-bold text-sm @md:text-base text-pretty">
+      <h3
+        lang={name ? "hr" : undefined}
+        className="font-bold text-sm @md:text-base text-pretty"
+      >
         {href ? (
           <StretchedLink href={href} onNavigate={onNavigate}>
             {label}
@@ -49,7 +50,9 @@ const ProductInfo = memo(function ProductInfo({
       </h3>
 
       {brand && (
-        <div className="relative z-10 w-fit text-xs @md:text-sm">{brand}</div>
+        <div lang="hr" className="relative z-10 w-fit text-xs @md:text-sm">
+          {brand}
+        </div>
       )}
     </div>
   );

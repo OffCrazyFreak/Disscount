@@ -1,10 +1,9 @@
 "use client";
 
 import { ReactNode } from "react";
-import { RotateCcw, Save, X, type LucideIcon } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import ModalFooterActions from "@/components/custom/modal/modal-footer-actions";
 
 export interface IModalShellFooterProps {
   cancelLabel?: string;
@@ -25,10 +24,7 @@ export interface IModalShellFooterProps {
   caption?: ReactNode;
 }
 
-/**
- * Whether the composed footer would render anything. Exported so ModalShell can
- * decide about its wrapper without a second copy of this condition.
- */
+/** Exported so ModalShell can decide about its wrapper without a second copy of this condition. */
 export function hasFooterContent(props: IModalShellFooterProps): boolean {
   return Boolean(
     props.cancelLabel ||
@@ -40,87 +36,16 @@ export function hasFooterContent(props: IModalShellFooterProps): boolean {
 }
 
 export function ModalShellFooter({
-  cancelLabel,
-  onCancel,
-  submitLabel,
-  submitDisabled,
-  submitLoading,
-  submitVariant = "primary",
-  submitIcon = Save,
-  onSubmit,
-  formId,
-  resetLabel,
-  onReset,
-  resetDisabled,
-  footerStart,
   caption,
+  ...actions
 }: IModalShellFooterProps) {
-  const hasButtons =
-    !!cancelLabel || !!resetLabel || !!submitLabel || !!footerStart;
+  const hasButtons = hasFooterContent(actions);
 
   if (!hasButtons && !caption) return null;
 
-  const submitEnabled = !submitDisabled && !submitLoading;
-
   return (
     <div className="flex flex-col gap-2 px-6 pb-6 pt-4">
-      {hasButtons && (
-        <div className="flex flex-wrap items-center gap-2">
-          {cancelLabel && (
-            <Button
-              type="button"
-              variant="outline"
-              icon={X}
-              iconPlacement="left"
-              onClick={onCancel}
-              disabled={submitLoading}
-            >
-              {cancelLabel}
-            </Button>
-          )}
-
-          {footerStart}
-
-          <div className="ml-auto flex shrink-0 items-center gap-2">
-            {resetLabel && (
-              // Icon-only on mobile so it fits next to cancel + submit; labelled from sm up.
-              <Button
-                type={formId && !onReset ? "reset" : "button"}
-                form={formId && !onReset ? formId : undefined}
-                variant="outline"
-                size="icon"
-                icon={RotateCcw}
-                iconPlacement="left"
-                onClick={onReset}
-                disabled={resetDisabled || submitLoading}
-                aria-label={resetLabel}
-                labelFrom="sm"
-              >
-                {resetLabel}
-              </Button>
-            )}
-
-            {submitLabel && (
-              // A brief nudge every 10s while there is something to save.
-              <div className={cn(submitEnabled && "animate-submit-nudge")}>
-                <Button
-                  type={formId ? "submit" : "button"}
-                  form={formId}
-                  variant={submitVariant}
-                  icon={submitIcon}
-                  iconPlacement="left"
-                  onClick={formId ? undefined : onSubmit}
-                  disabled={submitDisabled}
-                  loading={submitLoading}
-                  loadingIconPlacement="left"
-                >
-                  {submitLabel}
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {hasButtons && <ModalFooterActions {...actions} />}
 
       {caption && (
         <p className="text-center text-xs text-muted-foreground">{caption}</p>

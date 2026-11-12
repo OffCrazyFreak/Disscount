@@ -1,0 +1,109 @@
+{
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "shoppingLists": "Shopping lists",
+    "shoppingListsShort": "Lists",
+    "shoppingListsShortcut": "Open your shopping lists",
+    "watchlist": "Watchlist",
+    "watchlistShort": "Watchlist",
+    "watchlistShortcut": "Open your watchlist",
+    "watchlistPriceDrops": "{label}, {count, plural, one {# new discount} other {# new discounts}}",
+    "digitalCards": "Loyalty cards",
+    "digitalCardsShort": "Cards",
+    "digitalCardsShortcut": "Open your loyalty cards",
+    "spending": "Spending",
+    "spendingShortcut": "See your spending",
+    "discounted": "Deals",
+    "map": "Map",
+    "mapShortcut": "Open the store map",
+    "stores": "Stores",
+    "locations": "Locations",
+    "statistics": "Statistics",
+    "updates": "News",
+    "suggestions": "Ideas and suggestions",
+    "bugReport": "Report a bug",
+    "contact": "Contact",
+    "donate": "Support Disscount"
+  },
+  "sidebar": {
+    "explore": "Explore",
+    "myAccount": "My account",
+    "support": "Help and support",
+    "comingSoon": "SOON",
+    "toggle": "Show or hide filters"
+  },
+  "search": {
+    "productsPlaceholder": "Search products",
+    "placeholder": "Search",
+    "submit": "Search",
+    "clear": "Clear search",
+    "scanBarcode": "Scan barcode",
+    "backToTop": "Back to top",
+    "suggestions": "Search suggestions",
+    "recentSearches": "Recent searches",
+    "removeRecent": "Remove from recent searches: {query}",
+    "suggestionCount": "{count, plural, one {# suggestion} other {# suggestions}}",
+    "resultsStatus": "{count, plural, =0 {No results} one {# result} other {# results}} for \"{query}\""
+  },
+  "header": {
+    "login": "Sign in"
+  },
+  "bottomNav": {
+    "label": "Main navigation",
+    "searchClose": "{label}, close",
+    "searchOpen": "{label}, search"
+  },
+  "userMenu": {
+    "trigger": "User menu",
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "preferences": "Preferences",
+    "security": "Security",
+    "logout": "Sign out"
+  },
+  "modalRouter": {
+    "gate": {
+      "addToList": "Sign in to add the product to a list.",
+      "watchlist": "Sign in to add this product to your watchlist.",
+      "manageLists": "Sign in to build your lists.",
+      "manageCards": "Sign in to save your loyalty cards.",
+      "settings": "Sign in to open settings.",
+      "onboarding": "Sign in and get going."
+    },
+    "deleteList": {
+      "title": "Delete shopping list",
+      "description": "Delete the list “{title}”? This can't be undone.",
+      "confirm": "Delete"
+    }
+  },
+  "modal": {
+    "close": "Close",
+    "unsavedLabel": "Unsaved changes",
+    "unsavedHint": "You have unsaved changes. Save to keep them, or Reset to discard them."
+  },
+  "loading": {
+    "saving": "Saving...",
+    "creating": "Creating...",
+    "adding": "Adding...",
+    "updating": "Updating...",
+    "deleting": "Deleting...",
+    "restoring": "Restoring...",
+    "sending": "Sending...",
+    "copying": "Copying...",
+    "sharing": "Sharing...",
+    "settingUp": "Setting up...",
+    "signingIn": "Signing in...",
+    "signingOut": "Signing out...",
+    "registering": "Signing up...",
+    "linking": "Linking...",
+    "unlinking": "Unlinking..."
+  },
+  "skipLink": {
+    "label": "Skip to main content"
+  },
+  "scrollCue": {
+    "label": "Scroll down"
+  }
+}

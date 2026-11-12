@@ -1,0 +1,45 @@
+import { useEffect } from "react";
+import { skipToken, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
+import { UserDto } from "@/lib/api/types";
+import { getCacheIdentity } from "@/lib/offline/cache-identity";
+import {
+  canWriteAfterPurges,
+  currentPurgeGeneration,
+} from "@/lib/offline/purge-gate";
+
+/** Offline the profile request fails, so this copy keeps pinned stores, name and avatar; logout clears it. */
+export function useAccountUser(
+  user: UserDto | null,
+  hasUnverifiedAccount: boolean,
+): UserDto | null {
+  const queryClient = useQueryClient();
+  // Never fetched: the user context loads the profile, this only reads back its copy.
+  const { data } = useQuery<UserDto>({
+    queryKey: USER_QUERY_KEYS.me,
+    queryFn: skipToken,
+  });
+
+  useEffect(() => {
+    if (!user) return;
+
+    // A purge on account switch resets this key after its first await, wiping an earlier save.
+    const generation = currentPurgeGeneration();
+    let isCurrent = true;
+
+    void canWriteAfterPurges(generation).then((canWrite) => {
+      // A switch from another tab moves the identity first, so the old profile must not save as the new.
+      if (canWrite && isCurrent && user.id === getCacheIdentity()) {
+        queryClient.setQueryData(USER_QUERY_KEYS.me, user);
+      }
+    });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [queryClient, user]);
+
+  if (user) return user;
+  return hasUnverifiedAccount ? (data ?? null) : null;
+}

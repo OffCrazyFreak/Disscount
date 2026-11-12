@@ -32,11 +32,7 @@ export interface INotificationsContext {
   isLoading: boolean;
   hasNotifications: boolean;
   hasWatchlistItems: boolean;
-  /**
-   * One-shot open request from outside the dropdown (e.g. the landing CTA).
-   * A counter, not an open flag: the menu's own open state stays local to the
-   * component, so a remount can never resurrect a stale open menu.
-   */
+  /** A counter, not an open flag, so a remount can never resurrect a stale open menu. */
   openMenuSignal: number;
   requestOpenMenu: () => void;
 }

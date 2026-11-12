@@ -1,7 +1,7 @@
 "use client";
 
+import { usePathname } from "@/i18n/navigation";
 import { Suspense, useState } from "react";
-import { usePathname } from "next/navigation";
 import { SidebarMenuItem, SidebarMenuSub } from "@/components/ui/sidebar";
 import SidebarProductNavShell from "@/components/custom/sidebar/sidebar-product-nav-shell";
 import SidebarNavItem from "@/components/custom/sidebar/sidebar-nav-item";
@@ -20,7 +20,6 @@ import { useClientSearchParams } from "@/hooks/use-client-search-params";
 
 type OpenSection = "stores" | "locations" | null;
 
-/** Ways into the product catalogue: discounts, the map and its filters. */
 export default function SidebarProductNav() {
   const [openMenu, setOpenMenu] = useState<OpenSection>(null);
   const pathname = usePathname();

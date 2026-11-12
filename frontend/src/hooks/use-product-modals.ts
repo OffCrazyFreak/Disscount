@@ -1,23 +1,22 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { productByEanQueryKey } from "@/lib/cijene-api";
+import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import {
   openModalUrl,
   type IOpenModalOptions,
 } from "@/lib/modal/modal-navigation";
 
-/**
- * Opens the URL-driven product modals, seeding the by-ean cache first: those
- * modals take only the EAN, so without the seed they refetch what the caller
- * already has and the modal opens empty.
- */
+/** Seeds the by-ean cache because those modals take only the EAN, and would otherwise refetch and open empty. */
 export default function useProductModals(product: ProductResponse) {
   const queryClient = useQueryClient();
 
   function seed() {
-    queryClient.setQueryData(productByEanQueryKey(product.ean), product);
+    queryClient.setQueryData(
+      CIJENE_QUERY_KEYS.productByEan(product.ean),
+      product,
+    );
   }
 
   function openAddToList(options?: IOpenModalOptions) {

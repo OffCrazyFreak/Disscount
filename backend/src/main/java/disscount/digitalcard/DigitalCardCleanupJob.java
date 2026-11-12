@@ -1,0 +1,33 @@
+package disscount.digitalcard;
+
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import disscount.digitalcard.photo.PhotoCleanupService;
+import disscount.shared.Timestamps;
+
+@Component
+@RequiredArgsConstructor
+class DigitalCardCleanupJob {
+
+    static final int RETENTION_DAYS = 30;
+
+    private static final Logger log = LoggerFactory.getLogger(DigitalCardCleanupJob.class);
+
+    private final DigitalCardService cardService;
+    private final PhotoCleanupService photoCleanup;
+
+    @Scheduled(cron = "0 30 3 * * *", zone = "UTC")
+    public void purgeDeletedCards() {
+        int purged = cardService.purgeDeletedBefore(Timestamps.nowUtc().minusDays(RETENTION_DAYS));
+        log.info("Purged {} soft-deleted digital cards", purged);
+    }
+
+    @Scheduled(fixedDelay = 900_000, initialDelay = 60_000)
+    public void retryPhotoCleanup() {
+        photoCleanup.retryPending();
+    }
+}

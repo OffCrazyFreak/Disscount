@@ -1,4 +1,5 @@
 import { type ReactElement } from "react";
+import { useTranslations } from "next-intl";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,14 +12,14 @@ import UserMenuHeader from "@/components/custom/user-menu/components/user-menu-h
 import UserMenuItems from "@/components/custom/user-menu/components/user-menu-items";
 
 interface IUserMenuProps {
-  /** Replaces the avatar trigger (e.g. the sidebar's user row). Must be a
-   *  single element, since `asChild` clones it to attach props and a ref. */
+  /** Must be a single element, since `asChild` clones it to attach props and a ref. */
   trigger?: ReactElement;
   side?: "top" | "right" | "bottom" | "left";
 }
 
 export default function UserMenu({ trigger, side }: IUserMenuProps = {}) {
-  const { user, logout } = useUser();
+  const t = useTranslations("shell");
+  const { accountUser: user, logout } = useUser();
 
   const avatarUser = {
     name: user?.username || "",
@@ -32,7 +33,7 @@ export default function UserMenu({ trigger, side }: IUserMenuProps = {}) {
         {trigger ?? (
           <button
             type="button"
-            aria-label="Korisnički izbornik"
+            aria-label={t("userMenu.trigger")}
             className="cursor-pointer rounded-full"
           >
             <UserAvatar
@@ -44,7 +45,6 @@ export default function UserMenu({ trigger, side }: IUserMenuProps = {}) {
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" side={side} className="w-max">
-        {/* User name and email */}
         <UserMenuHeader avatarUser={avatarUser} user={user} />
 
         <DropdownMenuSeparator />

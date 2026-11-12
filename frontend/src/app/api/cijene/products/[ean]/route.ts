@@ -1,11 +1,10 @@
 import { NextRequest } from "next/server";
-import { z } from "zod";
+import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
 import { cijeneApiV1Client } from "@/lib/cijene-api/client";
 import {
   getProductParamsSchema,
   productResponseSchema,
 } from "@/lib/cijene-api/schemas";
-import { createApiError } from "@/lib/cijene-api/utils/response-utils";
 import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";
 import { buildQueryString } from "@/utils/generic";
 
@@ -23,16 +22,13 @@ export async function GET(
   });
 
   if (!parsed.success) {
-    return createApiError("Invalid parameters for product", {
-      status: 400,
-      details: z.treeifyError(parsed.error),
-    });
+    return proxyProblem("bad_request", request);
   }
 
   const { ean: validEan, ...filters } = parsed.data;
   const queryString = buildQueryString(filters);
 
-  return withCijeneRoute("product", productResponseSchema, () =>
+  return withCijeneRoute(request, "product", productResponseSchema, () =>
     cijeneApiV1Client.get(
       `/products/${encodeURIComponent(validEan)}${
         queryString && `?${queryString}`

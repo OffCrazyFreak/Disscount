@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Loads the secrets Compose mounts under /run/secrets, configures rclone from the environment,
+# then hands over to the command (supercronic by default).
+set -euo pipefail
+
+# Compose secrets keep these values out of `docker inspect`; a plain variable still works for local runs.
+for name in BACKUP_R2_SECRET_ACCESS_KEY BACKUP_CRYPT_PASSWORD BACKUP_CRYPT_SALT \
+  BACKUP_HEALTHCHECKS_PING_KEY BACKUP_DOKPLOY_DB_PASSWORD BACKUP_ERASURE_HMAC_KEY POSTGRES_PASSWORD; do
+  file="/run/secrets/$(echo "$name" | tr '[:upper:]' '[:lower:]')"
+  if [[ -s "$file" ]]; then
+    export "$name=$(cat "$file")"
+  fi
+done
+
+missing=()
+for name in BACKUP_R2_ENDPOINT BACKUP_R2_BUCKET BACKUP_R2_ACCESS_KEY_ID BACKUP_R2_SECRET_ACCESS_KEY \
+  BACKUP_CRYPT_PASSWORD BACKUP_CRYPT_SALT BACKUP_AGE_RECIPIENT POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD; do
+  [[ -n "${!name:-}" ]] || missing+=("$name")
+done
+if ((${#missing[@]})); then
+  echo "backup: missing settings: ${missing[*]}" >&2
+  exit 1
+fi
+
+# The token is scoped to one bucket and cannot create buckets, so rclone must not try.
+export RCLONE_CONFIG_R2_TYPE="${RCLONE_CONFIG_R2_TYPE:-s3}"
+export RCLONE_CONFIG_R2_PROVIDER=Cloudflare
+export RCLONE_CONFIG_R2_ENDPOINT="$BACKUP_R2_ENDPOINT"
+export RCLONE_CONFIG_R2_ACCESS_KEY_ID="$BACKUP_R2_ACCESS_KEY_ID"
+export RCLONE_CONFIG_R2_SECRET_ACCESS_KEY="$BACKUP_R2_SECRET_ACCESS_KEY"
+export RCLONE_CONFIG_R2_NO_CHECK_BUCKET=true
+
+# Photos go through rclone crypt, which encrypts file contents and names; rclone wants both keys obscured.
+export RCLONE_CONFIG_PHOTOS_TYPE=crypt
+export RCLONE_CONFIG_PHOTOS_REMOTE="r2:$BACKUP_R2_BUCKET/photos"
+# "--" because a random key can start with "-", which rclone would read as a flag.
+RCLONE_CONFIG_PHOTOS_PASSWORD="$(rclone obscure -- "$BACKUP_CRYPT_PASSWORD")"
+RCLONE_CONFIG_PHOTOS_PASSWORD2="$(rclone obscure -- "$BACKUP_CRYPT_SALT")"
+export RCLONE_CONFIG_PHOTOS_PASSWORD RCLONE_CONFIG_PHOTOS_PASSWORD2
+
+export PGHOST="${PGHOST:-db}" PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" PGDATABASE="$POSTGRES_DB"
+# Unqualified table names resolve before and after the app and auth tables move out of public (#429 R11);
+# a schema that does not exist yet is skipped. pg_dump and pg_restore set their own search_path.
+export PGOPTIONS="${PGOPTIONS:--c search_path=app,auth,public}"
+
+exec "$@"

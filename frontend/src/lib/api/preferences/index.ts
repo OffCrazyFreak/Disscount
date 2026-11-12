@@ -1,5 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import apiClient from "@/lib/api/api-base";
+import { PREFERENCE_QUERY_KEYS } from "@/lib/api/preferences/keys";
 import {
   BulkPinnedPlaceRequest,
   BulkPinnedStoreRequest,
@@ -7,20 +13,14 @@ import {
   PinnedStoreDto,
 } from "@/lib/api/types";
 
-/**
- * Get current user's pinned stores
- */
-export async function getPinnedStores(): Promise<PinnedStoreDto[]> {
+async function getPinnedStores(): Promise<PinnedStoreDto[]> {
   const response = await apiClient.get<PinnedStoreDto[]>(
     "/api/pinned-stores/me",
   );
   return response.data;
 }
 
-/**
- * Update user's pinned stores (bulk operation)
- */
-export async function updatePinnedStores(
+async function updatePinnedStores(
   data: BulkPinnedStoreRequest,
 ): Promise<PinnedStoreDto[]> {
   const response = await apiClient.put<PinnedStoreDto[]>(
@@ -30,20 +30,14 @@ export async function updatePinnedStores(
   return response.data;
 }
 
-/**
- * Get current user's pinned places
- */
-export async function getPinnedPlaces(): Promise<PinnedPlaceDto[]> {
+async function getPinnedPlaces(): Promise<PinnedPlaceDto[]> {
   const response = await apiClient.get<PinnedPlaceDto[]>(
     "/api/pinned-places/me",
   );
   return response.data;
 }
 
-/**
- * Update user's pinned places (bulk operation)
- */
-export async function updatePinnedPlaces(
+async function updatePinnedPlaces(
   data: BulkPinnedPlaceRequest,
 ): Promise<PinnedPlaceDto[]> {
   const response = await apiClient.put<PinnedPlaceDto[]>(
@@ -53,51 +47,55 @@ export async function updatePinnedPlaces(
   return response.data;
 }
 
-// React Query hooks
-export function useGetPinnedStores({ enabled = true } = {}) {
-  return useQuery<PinnedStoreDto[], Error>({
-    queryKey: ["pinnedStores"],
+function pinnedStoresQueryOptions() {
+  return queryOptions({
+    queryKey: PREFERENCE_QUERY_KEYS.pinnedStores,
     queryFn: getPinnedStores,
-    enabled,
   });
 }
 
-export function useUpdatePinnedStores() {
+function useGetPinnedStores({ enabled = true } = {}) {
+  return useQuery({ ...pinnedStoresQueryOptions(), enabled });
+}
+
+function useUpdatePinnedStores() {
   const queryClient = useQueryClient();
   return useMutation<PinnedStoreDto[], Error, BulkPinnedStoreRequest>({
     mutationFn: updatePinnedStores,
     onSuccess: () => {
-      // Invalidate the pinnedStores query to refetch when needed
-      queryClient.invalidateQueries({ queryKey: ["pinnedStores"] });
+      queryClient.invalidateQueries({
+        queryKey: PREFERENCE_QUERY_KEYS.pinnedStores,
+      });
     },
   });
 }
 
-export function useGetPinnedPlaces({ enabled = true } = {}) {
-  return useQuery<PinnedPlaceDto[], Error>({
-    queryKey: ["pinnedPlaces"],
+function pinnedPlacesQueryOptions() {
+  return queryOptions({
+    queryKey: PREFERENCE_QUERY_KEYS.pinnedPlaces,
     queryFn: getPinnedPlaces,
-    enabled,
   });
 }
 
-export function useUpdatePinnedPlaces() {
+function useGetPinnedPlaces({ enabled = true } = {}) {
+  return useQuery({ ...pinnedPlacesQueryOptions(), enabled });
+}
+
+function useUpdatePinnedPlaces() {
   const queryClient = useQueryClient();
   return useMutation<PinnedPlaceDto[], Error, BulkPinnedPlaceRequest>({
     mutationFn: updatePinnedPlaces,
     onSuccess: () => {
-      // Invalidate the pinnedPlaces query to refetch when needed
-      queryClient.invalidateQueries({ queryKey: ["pinnedPlaces"] });
+      queryClient.invalidateQueries({
+        queryKey: PREFERENCE_QUERY_KEYS.pinnedPlaces,
+      });
     },
   });
 }
 
 const preferencesService = {
   getPinnedStores,
-  updatePinnedStores,
   getPinnedPlaces,
-  updatePinnedPlaces,
-  // React Query hooks
   useGetPinnedStores,
   useUpdatePinnedStores,
   useGetPinnedPlaces,

@@ -1,6 +1,7 @@
 import { ArrowBigDownDash, ArrowBigUpDash } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { priceDeltaColorClass } from "@/utils/price";
+import { formatPrice, priceDeltaColorClass } from "@/utils/price";
 
 interface IPriceChangeDisplayProps {
   priceChange: {
@@ -12,6 +13,9 @@ interface IPriceChangeDisplayProps {
 export default function PriceChangeDisplay({
   priceChange,
 }: IPriceChangeDisplayProps) {
+  const t = useTranslations("products");
+  const locale = useLocale();
+
   if (!priceChange) return null;
 
   return (
@@ -22,13 +26,20 @@ export default function PriceChangeDisplay({
       )}
     >
       <span>
-        {priceChange.difference > 0 && "+"}
         {/* minus is displayed automatically from the number */}
-        {priceChange.difference.toFixed(2)}€
+        {priceChange.difference > 0
+          ? t("price.increase", {
+              amount: formatPrice(priceChange.difference, locale),
+            })
+          : formatPrice(priceChange.difference, locale)}
       </span>
 
       {priceChange.percentage !== null && (
-        <span>({Math.round(Math.abs(priceChange.percentage))}%)</span>
+        <span>
+          {t("price.percentage", {
+            percentage: Math.round(Math.abs(priceChange.percentage)),
+          })}
+        </span>
       )}
 
       {priceChange.difference !== 0 &&

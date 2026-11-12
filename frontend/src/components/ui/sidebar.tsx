@@ -5,6 +5,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, VariantProps } from "class-variance-authority";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { useTranslations } from "next-intl";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -54,6 +55,22 @@ function useSidebar() {
   return context;
 }
 
+/** Moves focus to the trigger on screen: others stay in the closed sidebar or are hidden. */
+function focusSidebarTrigger() {
+  const triggers = document.querySelectorAll<HTMLElement>(
+    "[data-slot=sidebar-trigger]",
+  );
+
+  for (const trigger of triggers) {
+    // The drawer's own trigger goes away with it.
+    if (trigger.closest("[inert], [data-mobile]")) continue;
+
+    // The header stays on screen, so there is never a reason to scroll to it.
+    trigger.focus({ preventScroll: true });
+    if (document.activeElement === trigger) return;
+  }
+}
+
 function SidebarProvider({
   defaultOpen = true,
   open: openProp,
@@ -77,6 +94,15 @@ function SidebarProvider({
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === "function" ? value(open) : value;
+
+      // Closing makes the sidebar inert, which would drop focus inside it to the page's top.
+      if (
+        !openState &&
+        document.activeElement?.closest("[data-slot=sidebar-container]")
+      ) {
+        focusSidebarTrigger();
+      }
+
       if (setOpenProp) {
         setOpenProp(openState);
       } else {
@@ -91,13 +117,9 @@ function SidebarProvider({
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
-    // return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
-
     setOpen((open) => !open);
     setOpenMobile((open) => !open);
-
-    return;
-  }, [isMobile, setOpen, setOpenMobile]);
+  }, [setOpen, setOpenMobile]);
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
@@ -169,7 +191,9 @@ function Sidebar({
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: "offcanvas" | "icon" | "none";
 }) {
+  const t = useTranslations("ui");
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+  const drawerOpenerRef = React.useRef<Element | null>(null);
 
   if (collapsible === "none") {
     return (
@@ -191,12 +215,39 @@ function Sidebar({
   // drawer's direction-specific width classes.
   if (isMobile) {
     return (
-      <Drawer direction={side} open={openMobile} onOpenChange={setOpenMobile}>
+      <Drawer
+        swipeDirection={side}
+        open={openMobile}
+        onOpenChange={setOpenMobile}
+      >
         <DrawerContent
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
           className="bg-sidebar text-sidebar-foreground max-w-8/10 p-0"
+          initialFocus={() => {
+            // Runs before focus moves in, so this is still what opened the drawer.
+            drawerOpenerRef.current = document.activeElement;
+            return true;
+          }}
+          finalFocus={() => {
+            // A link or search can close the drawer on a page where what opened it is
+            // gone or hidden (the map swaps the header's trigger for its own), and Safari
+            // never focuses a tapped button; focus would drop to the page's top.
+            const opener = drawerOpenerRef.current;
+
+            if (
+              opener instanceof HTMLElement &&
+              opener !== document.body &&
+              !opener.closest("[inert], [data-mobile]")
+            ) {
+              opener.focus({ preventScroll: true });
+              if (document.activeElement === opener) return false;
+            }
+
+            focusSidebarTrigger();
+            return false;
+          }}
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -206,8 +257,10 @@ function Sidebar({
           {...props}
         >
           <DrawerHeader className="sr-only">
-            <DrawerTitle>Sidebar</DrawerTitle>
-            <DrawerDescription>Displays the mobile sidebar.</DrawerDescription>
+            <DrawerTitle>{t("sidebar.mobileTitle")}</DrawerTitle>
+            <DrawerDescription>
+              {t("sidebar.mobileDescription")}
+            </DrawerDescription>
           </DrawerHeader>
           <div className="flex h-full w-full flex-col">{children}</div>
         </DrawerContent>
@@ -238,6 +291,8 @@ function Sidebar({
       />
       <div
         data-slot="sidebar-container"
+        // Slid off screen, but its fields and links would stay in the tab order.
+        inert={collapsible === "offcanvas" && state === "collapsed"}
         className={cn(
           "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
           side === "left"
@@ -269,8 +324,10 @@ function Sidebar({
 function SidebarTrigger({
   className,
   onClick,
+  onKeyDown,
   ...props
 }: React.ComponentProps<typeof Button>) {
+  const t = useTranslations("ui");
   const { toggleSidebar, open, openMobile, isMobile } = useSidebar();
   const isOpen = isMobile ? openMobile : open;
 
@@ -284,6 +341,12 @@ function SidebarTrigger({
       onClick={(event) => {
         onClick?.(event);
         toggleSidebar();
+      }}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+
+        // Closing hands focus here, so an Enter still held from a search would reopen the sidebar.
+        if (event.repeat) event.preventDefault();
       }}
       {...props}
     >
@@ -312,22 +375,23 @@ function SidebarTrigger({
           )}
         </AnimatePresence>
       </div>
-      <span className="sr-only">Toggle Sidebar</span>
+      <span className="sr-only">{t("sidebar.toggle")}</span>
     </Button>
   );
 }
 
 function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
+  const t = useTranslations("ui");
   const { toggleSidebar } = useSidebar();
 
   return (
     <button
       data-sidebar="rail"
       data-slot="sidebar-rail"
-      aria-label="Toggle Sidebar"
+      aria-label={t("sidebar.toggle")}
       tabIndex={-1}
       onClick={toggleSidebar}
-      title="Toggle Sidebar"
+      title={t("sidebar.toggle")}
       className={cn(
         "hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex",
         "in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize",
@@ -520,7 +584,7 @@ const sidebarMenuButtonVariants = cva(
       variant: {
         primary: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
         outline:
-          "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
+          "bg-background shadow-[0_0_0_1px_var(--sidebar-border)] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_var(--sidebar-accent)]",
       },
       size: {
         default: "h-8 text-sm",
@@ -763,4 +827,5 @@ export {
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
+  focusSidebarTrigger,
 };

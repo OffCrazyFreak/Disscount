@@ -21,10 +21,6 @@ interface IRemoveIconButtonProps {
   className?: string;
 }
 
-/**
- * An X that removes what it sits beside, naming itself through a tooltip so the
- * icon can stay small. Red for a deletion, outlined for a reset.
- */
 export default function RemoveIconButton({
   onClick,
   label,

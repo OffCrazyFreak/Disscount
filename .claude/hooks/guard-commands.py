@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """PreToolUse guard for Bash commands.
 
-The permission rules in settings.json are prefix matches, so `Bash(pnpm dev:*)`
-misses `pnpm --filter frontend dev` and `Bash(mvn spring-boot:run)` misses
-`mvn -B spring-boot:run`. Every dev-server deny entry leaks the same way. This
-closes all of them at once by parsing each command instead of matching a prefix.
-
-It also blocks pnpm inside a git worktree: pnpm resolves the workspace through
-the symlinked node_modules and offers to purge the MAIN tree's copy. It aborts
-on a missing TTY today, so with CI=true set it would delete the real one.
+It blocks pnpm in a git worktree whose frontend/node_modules is a symlink: pnpm
+resolves the workspace through it and offers to purge the MAIN tree's copy. It
+aborts on a missing TTY today, so with CI=true set it would delete the real one.
+A worktree with its own install is safe, and pnpm runs there as usual.
+It also blocks `--no-verify`, pushes to `main` or `dev` (rules in guard_git.py),
+`pkill -f` or `pgrep -f` patterns that match their own command line
+(guard_process.py), and merging a pull request whose required checks are not
+green (guard_merge.py).
+The permission rules in settings.json are prefix matches, so this parses each
+command instead of matching a prefix.
 
 A guard is only worth having if it cannot be stepped around, so parsing is
 deliberately paranoid: it follows command substitutions, `sh -c` payloads, and
@@ -26,17 +28,18 @@ import shlex
 import subprocess
 import sys
 
-# Package managers and build tools whose args we inspect for a dev-server goal.
-RUNNERS = {"pnpm", "npm", "yarn", "bun", "npx", "next", "mvn", "./mvnw", "mvnw"}
-
-# Goals that start a long-running server. Matched against a runner's arguments,
-# never against the raw string, so `grep -rn "pnpm dev"` stays allowed.
-SERVER_GOALS = {"dev", "email", "spring-boot:run", "start"}
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from guard_git import git_refusal  # noqa: E402
+from guard_merge import merge_refusal  # noqa: E402
+from guard_process import process_match_refusal  # noqa: E402
 
 WRAPPERS = {"sudo", "timeout", "env", "nice", "nohup", "command", "time", "xargs"}
 
 # Re-entering a shell hides the real command inside a string argument.
 SHELLS = {"sh", "bash", "zsh", "dash", "ksh", "fish"}
+
+# These lead a command without being one: `while pgrep ...`, `if git push ...`, `! pkill ...`.
+SHELL_KEYWORDS = {"if", "then", "elif", "else", "while", "until", "do", "!", "{"}
 
 ENV_ASSIGN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
 
@@ -162,11 +165,17 @@ def strip_prefixes(tokens):
     without a table per wrapper, so this can still stop on the wrong token.
     `wrapped` tells the caller to fall back to scanning the whole segment.
     """
+    # A subshell's parentheses stay attached to its first and last words.
+    tokens = [token.lstrip("(").rstrip(")") for token in tokens]
     i = 0
     wrapped = False
 
     while i < len(tokens):
         token = tokens[i]
+
+        if token in SHELL_KEYWORDS or not token:
+            i += 1
+            continue
 
         if ENV_ASSIGN.match(token):
             i += 1
@@ -191,20 +200,6 @@ def strip_prefixes(tokens):
 
 def basename(token):
     return token.rsplit("/", 1)[-1] if "/" in token else token
-
-
-def names_a_server(tokens):
-    """True when these tokens invoke a runner with a dev-server goal."""
-    for index, token in enumerate(tokens):
-        if basename(token) not in RUNNERS and token not in RUNNERS:
-            continue
-        for arg in tokens[index + 1 :]:
-            if arg.startswith("-"):
-                continue
-            if arg in SERVER_GOALS or arg.endswith(":run"):
-                return True
-
-    return False
 
 
 def shell_payloads(tokens):
@@ -276,8 +271,32 @@ def in_worktree(cwd):
     return git_dir != common_dir
 
 
-def check(command, cwd, depth=0):
-    """Return a refusal message, or None to allow."""
+def modules_are_linked(cwd):
+    """True when this checkout's frontend/node_modules is a symlink, or git cannot say."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", cwd, "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return True
+
+    if result.returncode != 0:
+        return True
+
+    return os.path.islink(os.path.join(result.stdout.strip(), "frontend", "node_modules"))
+
+
+def check(command, cwd, depth=0, root=None):
+    """Return a refusal message, or None to allow.
+
+    `root` is the whole original command: it is the command line the running
+    shell shows to pgrep, however deep the nesting got.
+    """
+    root = root if root is not None else command
+
     if depth > MAX_DEPTH:
         return (
             "Blocked: command nests shells or substitutions too deeply to check.\n"
@@ -287,16 +306,19 @@ def check(command, cwd, depth=0):
     command = strip_heredocs(command)
 
     for nested in substitutions(command):
-        message = check(nested, cwd, depth + 1)
+        message = check(nested, cwd, depth + 1, root)
         if message:
             return message
 
     # None means a `cd` landed somewhere unknowable, so cwd-dependent checks
     # can no longer be trusted for the rest of the command.
     effective_cwd = cwd
+    # A symlink made earlier in this same command does not exist yet when the guard runs.
+    links_modules = False
 
     for segment in segments(command):
-        tokens, wrapped = strip_prefixes(tokens_of(segment))
+        raw_tokens = tokens_of(segment)
+        tokens, wrapped = strip_prefixes(raw_tokens)
         if not tokens:
             continue
 
@@ -310,21 +332,35 @@ def check(command, cwd, depth=0):
 
         if name in SHELLS:
             for payload in shell_payloads(args):
-                message = check(payload, effective_cwd or cwd, depth + 1)
+                message = check(payload, effective_cwd or cwd, depth + 1, root)
                 if message:
                     return message
             continue
 
+        names = [basename(token) for token in tokens]
+        if name == "git" or (wrapped and "git" in names):
+            git_args = tokens[names.index("git") + 1 :]
+            message = git_refusal(git_args, effective_cwd, raw_tokens)
+            if message:
+                return message
+            continue
+
+        if name == "gh" or (wrapped and "gh" in names):
+            hidden = bool(SUBSTITUTION.search(command)) or "xargs" in map(basename, raw_tokens)
+            message = merge_refusal(tokens[names.index("gh") + 1 :], effective_cwd, hidden)
+            if message:
+                return message
+
+        message = process_match_refusal(tokens, wrapped, root)
+        if message:
+            return message
+
+        if name == "ln" and any(arg.rstrip("/").endswith("node_modules") for arg in args):
+            links_modules = True
+            continue
+
         # A wrapper whose options we could not parse may have hidden the real
         # command, so judge the whole segment rather than just its head.
-        if names_a_server(tokens if not wrapped else tokens_of(segment)):
-            return (
-                f"Blocked: `{segment}` starts a dev server or long-running app.\n"
-                "AGENTS.md: the dev server is already running, so never start "
-                "another. Prefix matching in settings.json missed this spelling, "
-                "which is why this hook exists."
-            )
-
         if name == "pnpm" or (wrapped and "pnpm" in [basename(t) for t in tokens]):
             if effective_cwd is None:
                 return (
@@ -332,13 +368,13 @@ def check(command, cwd, depth=0):
                     "cannot resolve, so it cannot tell whether the directory is a "
                     "git worktree. Run pnpm from a literal path instead."
                 )
-            if in_worktree(effective_cwd):
+            if in_worktree(effective_cwd) and (links_modules or modules_are_linked(effective_cwd)):
                 return (
-                    f"Blocked: `{segment}` runs pnpm inside a git worktree "
-                    f"({effective_cwd}).\n"
-                    "pnpm resolves the workspace through the symlinked node_modules "
-                    "and will offer to purge the MAIN tree's copy. Call the binary "
-                    "directly instead, e.g. ./node_modules/.bin/tsc --noEmit."
+                    f"Blocked: `{segment}` runs pnpm in a git worktree with a symlinked "
+                    f"frontend/node_modules ({effective_cwd}).\n"
+                    "pnpm resolves the workspace through the link and will offer to purge "
+                    "the MAIN tree's copy. Delete the link and run pnpm install "
+                    "--frozen-lockfile in frontend/, or call the binary directly."
                 )
 
     return None

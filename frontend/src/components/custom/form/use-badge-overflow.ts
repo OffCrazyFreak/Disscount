@@ -10,19 +10,11 @@ interface IBadgeOverflow {
   overflowAmount: number;
 }
 
-/**
- * Hides badges from the end of the row until they fit, and reports how many
- * went, so a "+N" can stand in for them.
- *
- * Measured rather than calculated: badge widths depend on the label, the font
- * and the user's text size, none of which are known ahead of layout.
- */
+/** Measured rather than calculated, because badge widths depend on the label, the font and the user's text size. */
 export default function useBadgeOverflow(
   selectedValues: Set<string>,
   shouldWrap: boolean,
-  // Items register their labels in an effect, so the first layout pass can
-  // measure an empty row. The registry is a new Map on every registration,
-  // which is what re-triggers the measurement once the badges exist.
+  // The registry is a new Map on every registration, which retriggers measurement once the badges exist.
   items: Map<string, unknown>,
 ): IBadgeOverflow {
   const [overflowAmount, setOverflowAmount] = useState(0);
@@ -41,9 +33,7 @@ export default function useBadgeOverflow(
     if (overflowElement != null) overflowElement.style.display = "none";
     itemElements.forEach((child) => child.style.removeProperty("display"));
 
-    // Wrapping already shows every badge, and a single badge wider than the box
-    // still reports scrollWidth > clientWidth, so without this the loop would
-    // hide badges and reveal a "+N" that contradicts what is on screen.
+    // A badge wider than the box still reports overflow, so the loop would show a false "+N".
     if (shouldWrap) {
       setOverflowAmount(0);
       return;
@@ -62,9 +52,7 @@ export default function useBadgeOverflow(
     setOverflowAmount(amount);
   }, [shouldWrap]);
 
-  // useLayoutEffect, and the setState is the whole point: the overflow count comes
-  // from scrollWidth against clientWidth on real laid-out nodes, so it cannot exist
-  // until after layout. Running before paint stops the "+N" flickering.
+  // The count needs laid-out nodes, so setState runs in a layout effect, which stops "+N" flickering.
   useLayoutEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     checkOverflow();
@@ -73,11 +61,18 @@ export default function useBadgeOverflow(
   const containerRef = useCallback(
     (node: HTMLDivElement) => {
       valueRef.current = node;
+      let isDetached = false;
 
       const observer = new ResizeObserver(checkOverflow);
       observer.observe(node);
 
+      // A late web font widens the badges but not the row, so the observer never fires.
+      document.fonts?.ready.then(() => {
+        if (!isDetached) checkOverflow();
+      });
+
       return () => {
+        isDetached = true;
         observer.disconnect();
         valueRef.current = null;
       };

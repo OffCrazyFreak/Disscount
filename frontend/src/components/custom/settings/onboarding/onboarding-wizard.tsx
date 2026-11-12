@@ -2,6 +2,7 @@
 
 import { ArrowLeft, ArrowRight, Check, LogOut } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ export default function OnboardingWizard({
     direction,
     currentStep,
     title,
+    description,
     isLast,
     isFirst,
     next,
@@ -38,6 +40,7 @@ export default function OnboardingWizard({
     finish,
     rootError,
   } = useOnboarding({ open, save });
+  const t = useTranslations("settings");
   const { logout } = useUser();
 
   const StepComponent = currentStep.component;
@@ -50,17 +53,14 @@ export default function OnboardingWizard({
     enabled: !busy,
   });
 
-  // Strip the modal param first: the host unmounts with the session, and a
-  // lingering ?modal=onboarding would reopen as the "prijavi se" auth gate.
+  // Strip first, because the host unmounts with the session and the param would open the auth gate.
   async function handleLogout() {
     closeModalUrl();
     try {
       await logout();
     } catch {
-      // The wizard is already gone, so there is nowhere left to surface this.
-      // Swallowed deliberately: the alternative is an unhandled rejection, since
-      // the caller invokes this as void handleLogout().
-      toast.error("Odjava nije uspjela. Pokušaj ponovno.");
+      // The wizard is gone, and the caller's void handleLogout() would make this an unhandled rejection.
+      toast.error(t("onboarding.logoutFailed"));
     }
   }
 
@@ -71,11 +71,8 @@ export default function OnboardingWizard({
         if (!isOpen && !required) closeModalUrl();
       }}
       title={title}
-      description={
-        currentStep.description ??
-        "Kratko postavljanje računa, sve se kasnije može promijeniti."
-      }
-      srOnlyDescription={!currentStep.description}
+      description={description ?? t("onboarding.fallbackDescription")}
+      srOnlyDescription={!description}
       preventClose={required || busy}
       onSubmit={() => void (isLast ? finish() : next())}
       submitDisabled={busy}
@@ -87,8 +84,7 @@ export default function OnboardingWizard({
       footer={
         // Same left/right split as ModalShellFooter.
         <div className="flex items-center gap-2 px-6 pb-6 pt-4">
-          {/* One slot: Natrag from step 1 on, and on step 0, where it would be
-              empty, the only way out of a wizard that cannot be closed. */}
+          {/* One slot: Natrag from step 1 on, and on step 0 the only way out of a wizard that cannot be closed. */}
           {isFirst ? (
             required && (
               <Button
@@ -99,7 +95,7 @@ export default function OnboardingWizard({
                 icon={LogOut}
                 iconPlacement="left"
               >
-                Odjava
+                {t("onboarding.logout")}
               </Button>
             )
           ) : (
@@ -111,7 +107,7 @@ export default function OnboardingWizard({
               icon={ArrowLeft}
               iconPlacement="left"
             >
-              Natrag
+              {t("onboarding.back")}
             </Button>
           )}
 
@@ -125,7 +121,7 @@ export default function OnboardingWizard({
                 icon={Check}
                 iconPlacement="left"
               >
-                Završi
+                {t("onboarding.finish")}
               </Button>
             ) : (
               <Button
@@ -135,7 +131,7 @@ export default function OnboardingWizard({
                 icon={ArrowRight}
                 iconPlacement="right"
               >
-                Dalje
+                {t("onboarding.next")}
               </Button>
             )}
           </div>

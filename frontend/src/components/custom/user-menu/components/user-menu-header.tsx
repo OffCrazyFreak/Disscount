@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 import { DropdownMenuLabel } from "@/components/ui/dropdown-menu";
 import UserAvatar from "@/components/custom/common/user-avatar";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +15,8 @@ export default function UserMenuHeader({
   avatarUser,
   user,
 }: IUserMenuHeaderProps) {
+  const tAuth = useTranslations("auth");
+
   return (
     <DropdownMenuLabel className="flex items-center justify-between gap-3">
       <UserAvatar className="font-bold text-sm" user={avatarUser} size={"lg"} />
@@ -20,7 +24,7 @@ export default function UserMenuHeader({
         <div className="font-bold">{user?.username}</div>
         <div className="text-xs text-gray-400">{user?.email}</div>
         {user?.accountType && user.accountType !== "CONSUMER" && (
-          <Badge>{ACCOUNT_TYPE_LABELS[user.accountType]}</Badge>
+          <Badge>{tAuth(ACCOUNT_TYPE_LABELS[user.accountType])}</Badge>
         )}
       </div>
     </DropdownMenuLabel>

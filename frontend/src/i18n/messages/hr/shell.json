@@ -1,0 +1,109 @@
+{
+  "nav": {
+    "home": "Početna",
+    "dashboard": "Nadzorna ploča",
+    "products": "Proizvodi",
+    "shoppingLists": "Popisi za kupnju",
+    "shoppingListsShort": "Popisi",
+    "shoppingListsShortcut": "Otvori svoje popise za kupnju",
+    "watchlist": "Praćeni proizvodi",
+    "watchlistShort": "Praćenje",
+    "watchlistShortcut": "Pogledaj proizvode koje pratiš",
+    "watchlistPriceDrops": "{label}, {count, plural, one {# novi popust} few {# nova popusta} other {# novih popusta}}",
+    "digitalCards": "Kartice vjernosti",
+    "digitalCardsShort": "Kartice",
+    "digitalCardsShortcut": "Otvori svoje kartice vjernosti",
+    "spending": "Potrošnja",
+    "spendingShortcut": "Pregledaj svoju potrošnju",
+    "discounted": "Popusti",
+    "map": "Karta",
+    "mapShortcut": "Otvori kartu trgovina",
+    "stores": "Trgovine",
+    "locations": "Lokacije",
+    "statistics": "Statistika",
+    "updates": "Novosti",
+    "suggestions": "Ideje i prijedlozi",
+    "bugReport": "Prijavi grešku",
+    "contact": "Kontakt",
+    "donate": "Podrži Disscount"
+  },
+  "sidebar": {
+    "explore": "Istraži",
+    "myAccount": "Moj račun",
+    "support": "Pomoć i podrška",
+    "comingSoon": "USKORO",
+    "toggle": "Prikaži ili sakrij filtre"
+  },
+  "search": {
+    "productsPlaceholder": "Pretraži proizvode",
+    "placeholder": "Pretraži",
+    "submit": "Pretraži",
+    "clear": "Očisti pretragu",
+    "scanBarcode": "Skeniraj barkod",
+    "backToTop": "Natrag na vrh",
+    "suggestions": "Prijedlozi pretrage",
+    "recentSearches": "Nedavne pretrage",
+    "removeRecent": "Ukloni iz nedavnih pretraga: {query}",
+    "suggestionCount": "{count, plural, one {# prijedlog} few {# prijedloga} other {# prijedloga}}",
+    "resultsStatus": "{count, plural, =0 {Nema rezultata} one {# rezultat} few {# rezultata} other {# rezultata}} za \"{query}\""
+  },
+  "header": {
+    "login": "Prijava"
+  },
+  "bottomNav": {
+    "label": "Glavna navigacija",
+    "searchClose": "{label}, zatvori",
+    "searchOpen": "{label}, traži"
+  },
+  "userMenu": {
+    "trigger": "Korisnički izbornik",
+    "profile": "Profil",
+    "notifications": "Obavijesti",
+    "preferences": "Preference",
+    "security": "Sigurnost",
+    "logout": "Odjava"
+  },
+  "modalRouter": {
+    "gate": {
+      "addToList": "Prijavi se da dodaš proizvod na popis.",
+      "watchlist": "Prijavi se da pratiš ovaj proizvod.",
+      "manageLists": "Prijavi se da složiš svoje popise.",
+      "manageCards": "Prijavi se da spremiš svoje kartice vjernosti.",
+      "settings": "Prijavi se da otvoriš postavke.",
+      "onboarding": "Prijavi se i kreni."
+    },
+    "deleteList": {
+      "title": "Obriši popis za kupnju",
+      "description": "Sigurno želiš obrisati popis \"{title}\"? Ovo se ne može poništiti.",
+      "confirm": "Obriši"
+    }
+  },
+  "modal": {
+    "close": "Zatvori",
+    "unsavedLabel": "Nespremljene izmjene",
+    "unsavedHint": "Imaš nespremljene izmjene. Klikni Spremi da ih sačuvaš ili Resetiraj da ih poništiš."
+  },
+  "loading": {
+    "saving": "Spremanje...",
+    "creating": "Stvaranje...",
+    "adding": "Dodavanje...",
+    "updating": "Ažuriranje...",
+    "deleting": "Brisanje...",
+    "restoring": "Vraćanje...",
+    "sending": "Slanje...",
+    "copying": "Kopiranje...",
+    "sharing": "Dijeljenje...",
+    "settingUp": "Postavljanje...",
+    "signingIn": "Prijava...",
+    "signingOut": "Odjava...",
+    "registering": "Registracija...",
+    "linking": "Povezivanje...",
+    "unlinking": "Odspajanje..."
+  },
+  "skipLink": {
+    "label": "Preskoči na sadržaj"
+  },
+  "scrollCue": {
+    "label": "Pomakni se niže"
+  }
+}

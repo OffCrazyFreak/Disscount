@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { useUser } from "@/context/user-context";
 import { isRouteActive } from "@/utils/routes";
 import { isNavItemLocked } from "@/constants/navigation";
@@ -17,10 +17,6 @@ export interface IBottomNavCell {
   isLocked: boolean;
 }
 
-/**
- * The five cells with their route and permission state already resolved, so the
- * bar itself only has to answer what a press does.
- */
 export default function useBottomNavCells(): IBottomNavCell[] {
   const pathname = usePathname();
   const { user } = useUser();

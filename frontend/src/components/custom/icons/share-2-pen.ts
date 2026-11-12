@@ -1,10 +1,6 @@
 import { createPenBadgeIcon } from "@/components/custom/icons/pen-badge";
 
-/**
- * Lucide's share-2, badged with a pen: the list is already shared, so the button opens
- * the settings rather than starting a share. Only the owner ever sees it, because
- * linkAccess comes back null for everyone else.
- */
+/** Only the owner ever sees it, because linkAccess comes back null for everyone else. */
 const Share2Pen = createPenBadgeIcon("share-2-pen", [
   ["circle", { cx: "18", cy: "5", r: "3", key: "node-top" }],
   ["circle", { cx: "6", cy: "12", r: "3", key: "node-left" }],

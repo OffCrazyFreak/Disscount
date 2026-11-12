@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "title": "Dettagli del prodotto",
+    "description": "Confronto dei prezzi del prodotto.",
+    "productTitle": "{name}: confronta i prezzi",
+    "productDescription": "Confronta i prezzi di {name} in {chains, plural, one {# catena di supermercati} other {# catene di supermercati}}. Prezzo più basso: {price}."
+  },
+  "notFound": {
+    "title": "Prodotto non trovato",
+    "description": "Non riusciamo a caricare questo prodotto. Prova a cercarlo di nuovo."
+  },
+  "sort": {
+    "label": "Ordina per:",
+    "stores": "Negozi",
+    "price": "Prezzo",
+    "distance": "Distanza"
+  },
+  "chains": {
+    "refreshed": "Prezzi aggiornati {time}",
+    "loadError": "Impossibile caricare i prezzi. Riprova.",
+    "empty": "Nessun prezzo disponibile per questo prodotto.",
+    "whereToBuy": "Dove comprare"
+  },
+  "priceHistory": {
+    "empty": "Ancora nessuno storico prezzi.",
+    "average": "Media",
+    "period": {
+      "week": "(ultimi 7 giorni)",
+      "month": "(ultimi 30 giorni)",
+      "year": "(ultimi 365 giorni)",
+      "all": "(dall'inizio)"
+    }
+  },
+  "storeItem": {
+    "dataFrom": "Dati del {date}",
+    "min": "Minimo: {price}",
+    "average": "Media: {price}",
+    "max": "Massimo: {price}",
+    "pricesByLocation": "Prezzi per località"
+  },
+  "pricesTable": {
+    "empty": "Nessun prezzo disponibile per questa catena",
+    "location": "Città",
+    "address": "Indirizzo",
+    "price": "Prezzo",
+    "unknown": "Sconosciuto",
+    "notAvailable": "N/D",
+    "showOnMap": ", mostra sulla mappa"
+  },
+  "sectionNav": {
+    "label": "Sezioni del prodotto"
+  }
+}

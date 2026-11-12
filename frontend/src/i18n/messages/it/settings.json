@@ -1,0 +1,244 @@
+{
+  "modal": {
+    "title": "Impostazioni",
+    "description": "Gestisci profilo, notifiche, preferenze e sicurezza.",
+    "cancel": "Annulla",
+    "save": "Salva",
+    "reset": "Reimposta",
+    "replayGuide": "Rivedi la guida",
+    "unsavedChanges": "Modifiche non salvate"
+  },
+  "tabs": {
+    "profile": "Profilo",
+    "notifications": "Notifiche",
+    "preferences": "Preferenze",
+    "security": "Sicurezza"
+  },
+  "profile": {
+    "avatar": {
+      "change": "Cambia foto",
+      "remove": "Rimuovi foto",
+      "formats": "PNG, JPG, WebP o GIF.",
+      "tooLarge": "L'immagine è troppo grande, massimo 15 MB.",
+      "loadFailed": "Non riusciamo a caricare l'immagine, prova con un JPG o un PNG."
+    },
+    "username": {
+      "label": "Nome utente",
+      "description": "Come ti chiamiamo? Il nome deve essere solo tuo."
+    },
+    "acquisition": {
+      "label": "Come hai conosciuto Disscount?",
+      "placeholder": "Scegli una fonte",
+      "description": "Così sappiamo dove le persone ci trovano."
+    },
+    "channels": {
+      "GOOGLE_SEARCH": "Ricerca su Google",
+      "INSTAGRAM": "Instagram",
+      "FACEBOOK": "Facebook",
+      "TIKTOK": "TikTok",
+      "YOUTUBE": "YouTube",
+      "FRIEND_OR_FAMILY": "Consiglio di amici o parenti",
+      "ONLINE_AD": "Pubblicità online",
+      "BLOG_OR_NEWS": "Blog, articolo o media",
+      "APP_STORE": "App Store / Google Play",
+      "POSTER_OR_FLYER": "Cartellone o volantino",
+      "EVENT": "Fiera o evento",
+      "OTHER": "Altro"
+    }
+  },
+  "notifications": {
+    "hint": "Scegli come, su cosa e quando ricevere notifiche su offerte e novità.",
+    "push": {
+      "label": "Consenti le notifiche dell'app",
+      "description": "Ti avvisiamo solo delle offerte sui prodotti che segui, senza spam."
+    },
+    "email": {
+      "label": "Consenti le notifiche via email",
+      "description": "Ti scriviamo via email solo per le offerte sui prodotti che segui, senza spam."
+    },
+    "newsletter": {
+      "label": "Novità e aggiornamenti",
+      "description": "Ogni tanto una novità su Disscount nella tua email, senza spam."
+    },
+    "feedback": {
+      "label": "Contatto per i feedback",
+      "description": "Ogni tanto possiamo chiederti cosa pensi dell'app."
+    }
+  },
+  "preferences": {
+    "stores": {
+      "label": "Negozi",
+      "hint": "Scegli i negozi vicino a te."
+    },
+    "places": {
+      "label": "Località",
+      "hint": "Scegli le località vicino a te.",
+      "placeholder": "Scegli le località"
+    },
+    "selectedMark": "✓",
+    "language": {
+      "label": "Lingua",
+      "hint": "La lingua dell'app e delle email che ti inviamo.",
+      "locked": "Prima salva o reimposta le modifiche, poi cambia lingua."
+    }
+  },
+  "save": {
+    "offline": "Sei offline. Salveremo le modifiche appena ti riconnetti.",
+    "onboardingDone": "Tutto pronto!",
+    "settingsSaved": "Impostazioni salvate!",
+    "errors": {
+      "user": "Non siamo riusciti a salvare il profilo. Riprova.",
+      "stores": "Non siamo riusciti a salvare i negozi. Riprova.",
+      "places": "Non siamo riusciti a salvare le località. Riprova."
+    }
+  },
+  "validation": {
+    "usernameMin": "Inserisci almeno 2 caratteri",
+    "usernameMax": "Inserisci al massimo 40 caratteri",
+    "currentPasswordRequired": "Inserisci la password attuale",
+    "pinnedStoresMax": "Scegli al massimo 50 negozi",
+    "pinnedPlacesMax": "Scegli al massimo 50 località"
+  },
+  "onboarding": {
+    "fallbackDescription": "Una breve configurazione dell'account. Puoi cambiare tutto in seguito.",
+    "progress": "Passo {current} di {total}",
+    "logout": "Esci",
+    "logoutFailed": "Non siamo riusciti a farti uscire. Riprova.",
+    "back": "Indietro",
+    "next": "Avanti",
+    "finish": "Fine",
+    "steps": {
+      "welcome": {
+        "title": "Che bello averti qui!",
+        "titleNamed": "{username}, che bello averti qui!"
+      },
+      "profile": {
+        "title": "Il tuo profilo",
+        "description": "Presentati. Puoi cambiare tutto più tardi nelle impostazioni."
+      },
+      "notifications": {
+        "title": "Notifiche",
+        "description": "Scegli come, su cosa e quando ricevere notifiche su offerte e novità."
+      },
+      "preferences": {
+        "title": "I tuoi negozi e località",
+        "description": "Segna negozi e località vicino a te per confronti di prezzo più precisi."
+      },
+      "done": {
+        "title": "Tutto pronto!"
+      }
+    },
+    "welcome": {
+      "intro": "Ti accompagniamo in pochi passaggi per adattare Disscount a te. Puoi modificare tutto più tardi nelle impostazioni.",
+      "profile": {
+        "title": "Personalizza il profilo",
+        "text": "Scegli nome e foto profilo per rendere l'app tua."
+      },
+      "stores": {
+        "title": "I tuoi negozi",
+        "text": "Scegli negozi e località per confrontare i prezzi in base al tuo budget."
+      },
+      "notifications": {
+        "title": "Notifiche senza spam",
+        "text": "Scegli come, su cosa e quando ricevere notifiche su offerte e novità."
+      }
+    },
+    "done": {
+      "title": "Disscount è pronto per te.",
+      "text": "Quando selezioni «Fine», salviamo le tue scelte. Puoi cambiare tutto più tardi nelle impostazioni."
+    }
+  },
+  "security": {
+    "credentials": {
+      "label": "Accesso e password",
+      "hintWithPassword": "Per cambiare email o password, conferma la password attuale.",
+      "hintWithoutPassword": "Imposta una password per accedere anche con l'email, non solo con un account social.",
+      "email": "Email",
+      "emailLockedSocial": "Per cambiare email, scollega prima gli account social.",
+      "emailLockedNoPassword": "Potrai cambiare email dopo aver impostato una password.",
+      "newPassword": "Nuova password",
+      "password": "Password",
+      "newPasswordPlaceholder": "Lascia vuoto se non vuoi cambiarla",
+      "currentPassword": "Password attuale",
+      "currentPasswordDescription": "Serve per confermare il cambio di email o password."
+    },
+    "submit": {
+      "setPasswordFailed": "Non siamo riusciti a impostare la password. Riprova.",
+      "passwordSet": "Password impostata! Ora puoi accedere anche con l'email.",
+      "noChanges": "Nessuna modifica da salvare.",
+      "currentPasswordWrong": "La password attuale non è corretta.",
+      "changePasswordFailed": "Non siamo riusciti a cambiare la password. Riprova.",
+      "socialLinked": "Per cambiare email, scollega prima gli account collegati (Google, Facebook).",
+      "changeEmailFailed": "Non siamo riusciti a cambiare l'email. Riprova.",
+      "passwordChanged": "Password cambiata.",
+      "passwordChangedConfirmEmail": "Password cambiata. Per cambiare l'email, conferma il link inviato al tuo indirizzo attuale.",
+      "emailConfirmationSent": "Abbiamo inviato un link al tuo indirizzo attuale. Cambiamo l'email appena confermi.",
+      "generic": "Qualcosa è andato storto. Riprova.",
+      "tooManyAttempts": "Troppi tentativi sbagliati. Riprova tra 15 minuti."
+    },
+    "recovery": {
+      "title": "Controlla la tua email",
+      "description": "Ti abbiamo mandato un link per cambiare la password. Dopo il cambio, ti faremo uscire da tutti i dispositivi.",
+      "sendFailed": "Non siamo riusciti a inviare il link. Riprova."
+    },
+    "linked": {
+      "label": "Account collegati",
+      "hint": "Collega gli account social per accedere più in fretta.",
+      "link": "Collega",
+      "unlink": "Scollega",
+      "linkFailed": "Non siamo riusciti a collegare l'account. Riprova.",
+      "unlinkFailed": "Non siamo riusciti a scollegare l'account. Riprova.",
+      "unlinked": "Account scollegato."
+    },
+    "actions": {
+      "revokeLabel": "Esci dagli altri dispositivi",
+      "revokeDescription": "Esci da tutti i dispositivi tranne questo.",
+      "revokeButton": "Esci",
+      "deleteLabel": "Elimina account",
+      "deleteDescription": "Elimina l'accesso, le carte e i negozi preferiti. Le liste e i prodotti seguiti restano, senza il tuo nome né la tua email.",
+      "deleteButton": "Elimina",
+      "revokeDialogTitle": "Uscire dagli altri dispositivi?",
+      "revokeDialogDescription": "Ti disconnetteremo da tutti i dispositivi tranne questo.",
+      "deleteDialogTitle": "Eliminare l'account?",
+      "deleteDialogDescription": "Eliminiamo per sempre l'accesso, le carte con le foto e i nomi dei negozi, i negozi preferiti sulla mappa, le foto dei prodotti non ancora approvate e il nome e l'email dei messaggi di contatto inviati con l'accesso o dall'email del tuo account. I link alle tue liste smettono di funzionare. Le liste, i prodotti seguiti e i negozi e le località delle impostazioni restano senza nome né email, e il testo dei messaggi resta come è stato inviato. Non puoi annullare l'operazione.",
+      "revokeFailed": "Non siamo riusciti a disconnettere gli altri dispositivi. Riprova.",
+      "revoked": "Gli altri dispositivi sono disconnessi.",
+      "deleted": "Account eliminato.",
+      "lastAdminDelete": "Nessun altro è admin. Prima dai i permessi di admin a qualcun altro, poi elimina l'account."
+    },
+    "reauth": {
+      "cancel": "Annulla",
+      "passwordHint": "Inserisci la password per confermare che sei tu.",
+      "codeSending": "Ti stiamo inviando un codice via email...",
+      "codeSent": "Abbiamo inviato un codice a <strong>{email}</strong>.",
+      "codeSendFailed": "Non siamo riusciti a inviare il codice. Riprova.",
+      "codeEmailLimit": "Abbiamo inviato troppe email al tuo indirizzo. Riprova tra un'ora.",
+      "codeLabel": "Codice dell'email",
+      "codeMissing": "Non è arrivato?",
+      "resend": "Invia di nuovo",
+      "resendIn": "Invia di nuovo tra {wait}",
+      "wrongCode": "Il codice non è corretto. Riprova.",
+      "wrongCodeAttempts": "Il codice non è corretto. {attemptsLeft, plural, one {Ti resta # tentativo.} other {Ti restano # tentativi.}}",
+      "codeExpired": "Il codice è scaduto o è già stato usato. Chiedine uno nuovo.",
+      "unlinkTitle": "Scollegare {provider}?",
+      "unlinkDescription": "Conferma che sei tu e scolleghiamo {provider} dal tuo account.",
+      "setPasswordTitle": "Imposta una password",
+      "setPasswordDescription": "Conferma che sei tu e salviamo la tua nuova password.",
+      "setPasswordConfirm": "Salva password"
+    },
+    "sessions": {
+      "label": "Accessi attivi",
+      "hint": "I dispositivi su cui il tuo account è connesso in questo momento.",
+      "thisDevice": "Questo dispositivo",
+      "unknownDevice": "Dispositivo sconosciuto",
+      "device": "{browser} · {os}",
+      "lastActive": "Ultima attività: {when}",
+      "signOut": "Esci",
+      "signOutDevice": "Esci da {device}",
+      "signedOut": "Dispositivo disconnesso.",
+      "signOutFailed": "Non siamo riusciti a disconnettere il dispositivo. Riprova.",
+      "loadFailed": "Non siamo riusciti a caricare i tuoi accessi.",
+      "tokenNote": "Un dispositivo disconnesso mantiene l'accesso ai tuoi dati ancora per {minutes, plural, one {# minuto} other {# minuti}} al massimo."
+    }
+  }
+}

@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+
 import type { IWatchlistNotification } from "@/context/notifications-types";
 import StorePriceList from "@/components/custom/price/store-price-list";
 import { formatQuantity } from "@/utils/strings";

@@ -6,11 +6,7 @@ function parseTextParam(value: string | null): string | undefined {
   return value?.trim() || undefined;
 }
 
-/**
- * Reads the geo filters that both the prices and stores endpoints accept:
- * a coordinate pair plus a radius.
- */
-export function parseGeoParams(searchParams: URLSearchParams) {
+function parseGeoParams(searchParams: URLSearchParams) {
   return {
     lat: parseNumberParam(searchParams.get("lat")),
     lon: parseNumberParam(searchParams.get("lon")),
@@ -18,9 +14,6 @@ export function parseGeoParams(searchParams: URLSearchParams) {
   };
 }
 
-/**
- * Reads the store filters shared by the prices and stores endpoints.
- */
 export function parseStoreFilterParams(searchParams: URLSearchParams) {
   return {
     chains: parseTextParam(searchParams.get("chains")),

@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
+import { Link } from "@/i18n/navigation";
 import CartLogo from "@/components/icons/cart-logo";
 import FooterSupportIcons from "@/components/custom/common/footer-support-icons";
 
@@ -9,21 +10,22 @@ import LinkedInIcon from "@/components/icons/linkedin-icon";
 import GithubIcon from "@/components/icons/github-icon";
 import CopyrightIcon from "@/components/icons/copyright-icon";
 import { Separator } from "@/components/ui/separator";
+import LanguageSwitcher from "@/components/custom/locale/language-switcher";
 import { GITHUB_REPO_URL, LINKEDIN_URL } from "@/constants/contact";
 
 export default function FooterSection() {
-  const currentYear = new Date().getFullYear();
+  const t = useTranslations("common");
+  const currentYear = new Date().getUTCFullYear();
 
   return (
     <footer className="mt-auto">
       <div className="m-4">
-        <div className="bg-background/50 mx-auto max-w-5xl rounded-2xl border backdrop-blur-sm p-6 flex flex-col items-center gap-4 sm:flex-row sm:flex-wrap sm:justify-between sm:gap-2">
+        <div className="bg-background/70 mx-auto max-w-5xl rounded-2xl border backdrop-blur-xs p-6 flex flex-col items-center gap-4 sm:flex-row sm:flex-wrap sm:justify-between sm:gap-2">
           <div
-            aria-label={`Copyright Jakov Jakovac ${currentYear}`}
+            aria-label={t("footer.copyright", { year: String(currentYear) })}
             className="text-muted-foreground text-xs sm:text-sm flex items-center justify-center sm:justify-start gap-2"
           >
             <Link href="/" className="flex items-center space-x-2">
-              {/* App logo */}
               <CartLogo className="size-8 sm:size-10 text-primary" />
 
               <span className="font-saira-stencil-semibold text-primary">
@@ -47,22 +49,7 @@ export default function FooterSection() {
             />
 
             <div className="flex items-center gap-4">
-              {/* Language Switcher */}
-              {/* <Link
-                href={isEnglish ? "/" : "/en"}
-                aria-label={
-                  isEnglish ? "Switch to Croatian" : "Switch to English"
-                }
-                className="block hover:scale-110 transition-all"
-              >
-                <Image
-                  src={isEnglish ? "/flags/cro.png" : "/flags/eng.png"}
-                  alt={isEnglish ? "Croatian flag" : "English flag"}
-                  width={32}
-                  height={32}
-                  className="size-6"
-                />
-              </Link> */}
+              <LanguageSwitcher />
 
               <Link
                 href={GITHUB_REPO_URL}

@@ -1,0 +1,455 @@
+# Image-based stack for Dokploy: GitHub Actions builds and pushes the images to GHCR, so the
+# server only pulls them. Same services, networks and environment as docker-compose.prod.yml,
+# which the environments not yet moved to this file keep building on the server.
+# IMAGE_TAG is the moving tag per environment (dev or prod); /health reports the exact commit.
+
+# Every service starts with no Linux capabilities and cannot gain more through setuid binaries;
+# each adds back only what it uses (docs/INFRASTRUCTURE.md, Container privileges).
+# The root filesystem is read-only, so a service writes only to its volumes and the tmpfs folders it lists;
+# tmpfs lives in RAM, so each one has a size. Two services opt out with read_only: false and say why.
+# Every service has a mem_limit that includes its tmpfs; sizes and how to re-measure are in docs/INFRASTRUCTURE.md, Memory limits.
+x-hardened: &hardened
+  read_only: true
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+
+services:
+  db:
+    <<: *hardened
+    # Starts as the image's postgres user (uid 70), so it needs no capabilities; it must own every file in pgdata.
+    user: postgres
+    pids_limit: 256
+    mem_limit: 512m
+    # The socket folder belongs to postgres from the start; the data folder is the pgdata volume.
+    tmpfs:
+      - /tmp:size=16m
+      - /run/postgresql:uid=70,gid=70,size=1m
+    image: postgres:17-alpine@sha256:3540c0362c809df084ffac0ae69fe794515f9de92692f02178bcdce0ef0302ac
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # One-shot Flyway migration of the backend tables (backend/src/main/resources/db/migration); Hibernate only checks them.
+  # Its own image, so a Rollback to an older backend image never puts a web server that never exits here.
+  flyway:
+    <<: *hardened
+    pids_limit: 128
+    mem_limit: 256m
+    image: ghcr.io/offcrazyfreak/disscount-flyway:${IMAGE_TAG:?IMAGE_TAG must be set}
+    pull_policy: always
+    restart: "no"
+    # The migrator login, which owns every table (db/database-roles.sql); blank falls back to the database owner.
+    environment:
+      FLYWAY_URL: ${SPRING_DATASOURCE_URL}
+      FLYWAY_USER: ${MIGRATOR_DB_USERNAME:-${POSTGRES_USER}}
+      FLYWAY_PASSWORD: ${MIGRATOR_DB_PASSWORD:-${POSTGRES_PASSWORD}}
+    networks: [internal]
+    depends_on:
+      db:
+        condition: service_healthy
+      # Exits at once where backups are off; on production it dumps first and only alerts when that fails.
+      predeploy-dump:
+        condition: service_completed_successfully
+
+  # One-shot drizzle migration (better-auth tables).
+  migrate:
+    <<: *hardened
+    pids_limit: 128
+    mem_limit: 256m
+    image: ghcr.io/offcrazyfreak/disscount-migrator:${IMAGE_TAG:?IMAGE_TAG must be set}
+    # The tag moves, so a cached copy would silently redeploy the previous build.
+    pull_policy: always
+    restart: "no"
+    # The migrator login, not DATABASE_URL's Next.js login; blank falls back to the database owner. The URL here holds no
+    # login, so an older migrator image, which requires DATABASE_URL, also signs in through PGUSER and PGPASSWORD.
+    environment:
+      DATABASE_URL: postgresql://db:5432/${POSTGRES_DB}
+      PGHOST: db
+      PGDATABASE: ${POSTGRES_DB}
+      PGUSER: ${MIGRATOR_DB_USERNAME:-${POSTGRES_USER}}
+      PGPASSWORD: ${MIGRATOR_DB_PASSWORD:-${POSTGRES_PASSWORD}}
+    networks: [internal]
+    depends_on:
+      db:
+        condition: service_healthy
+      # Flyway refuses to start on a new database that already holds tables, so it runs before drizzle adds them.
+      flyway:
+        condition: service_completed_successfully
+
+  backend:
+    <<: *hardened
+    pids_limit: 512
+    # No swap on top, so a leak ends in a quick restart instead of a crawl through the disk.
+    mem_limit: ${BACKEND_MEM_LIMIT:-1536m}
+    memswap_limit: ${BACKEND_MEM_LIMIT:-1536m}
+    # Tomcat's work folder with multipart uploads, the JVM's perf data and libwebp, which the WebP
+    # library unpacks here and loads, so this one tmpfs allows exec.
+    tmpfs:
+      - /tmp:exec,size=128m
+    image: ghcr.io/offcrazyfreak/disscount-backend:${IMAGE_TAG:?IMAGE_TAG must be set}
+    pull_policy: always
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      BETTER_AUTH_JWKS_URI: ${BETTER_AUTH_JWKS_URI}
+      BETTER_AUTH_ISSUER: ${BETTER_AUTH_ISSUER}
+      SENTRY_DSN: ${SENTRY_DSN}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT}
+      # Verbose SDK init/transport logging for debugging; leave unset normally
+      SENTRY_DEBUG: ${SENTRY_DEBUG:-false}
+      # The image hostname that serves public product photos; blank switches them off.
+      R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
+      # Photo folders on the two photo volumes; blank switches those photos off (docs/PRODUCT-IMAGES.md).
+      PHOTO_DIR: ${PHOTO_DIR:-}
+      PUBLIC_PHOTO_DIR: ${PUBLIC_PHOTO_DIR:-}
+    volumes:
+      - photos-private:/data/photos-private
+      - photos-public:/data/photos-public
+    networks: [internal]
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:8080/actuator/health || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    # Hibernate refuses tables that do not fit the entities, and the backend reads better-auth columns natively,
+    # so both migrations come first; a failed one stops the deploy here.
+    depends_on:
+      db:
+        condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
+      migrate:
+        condition: service_completed_successfully
+      photo-folders:
+        condition: service_completed_successfully
+
+  # The backend never creates its top folders, so a forgotten volume leaves a store off instead of
+  # writing into the container layer. Created here, owned by the backend's uid 1001.
+  photo-folders:
+    <<: *hardened
+    # Root needs these to create, hand over and enter the backend's 0700 folders.
+    cap_add:
+      - CHOWN
+      - FOWNER
+      - DAC_OVERRIDE
+    mem_limit: 64m
+    image: alpine:3.22@sha256:49340b346798875b5592e5d420241f2f9cfba5f47e62ebb1446a1b34734e898f
+    restart: "no"
+    network_mode: none
+    volumes:
+      - photos-private:/data/photos-private
+      - photos-public:/data/photos-public
+    command:
+      - sh
+      - -c
+      - >-
+        mkdir -p /data/photos-private/cards /data/photos-private/product-originals /data/photos-public/products /data/photos-public/avatars &&
+        chown 1001:999 /data/photos-private /data/photos-private/cards /data/photos-private/product-originals /data/photos-public /data/photos-public/products /data/photos-public/avatars &&
+        chmod 700 /data/photos-private /data/photos-private/cards /data/photos-private/product-originals &&
+        chmod 755 /data/photos-public /data/photos-public/products /data/photos-public/avatars
+
+  # Serves the public product photos on the image hostname (R2_PUBLIC_URL); read-only.
+  images:
+    <<: *hardened
+    # The master process starts as root and runs its workers as the nginx user.
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+    pids_limit: 128
+    mem_limit: 64m
+    # The master owns its temp folders and pid file here.
+    tmpfs:
+      - /var/cache/nginx:size=8m
+      - /run:size=1m
+    image: nginx:1.28-alpine@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236
+    restart: unless-stopped
+    volumes:
+      - photos-public:/data/photos-public:ro
+    configs:
+      - source: images_nginx
+        target: /etc/nginx/conf.d/default.conf
+    expose:
+      - "80"
+    networks: [dokploy-network]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    depends_on:
+      photo-folders:
+        condition: service_completed_successfully
+
+  frontend:
+    <<: *hardened
+    pids_limit: 256
+    mem_limit: 768m
+    # Next.js caches optimized images and fetches in .next/cache and the rendered share images in route-cache.
+    # A restart empties both, as every redeploy already did.
+    tmpfs:
+      - /tmp:size=16m
+      - /app/.next/cache:uid=1001,gid=999,size=64m
+      - /app/.next/server/route-cache:uid=1001,gid=999,size=16m
+    image: ghcr.io/offcrazyfreak/disscount-frontend:${IMAGE_TAG:?IMAGE_TAG must be set}
+    pull_policy: always
+    restart: unless-stopped
+    environment:
+      # Runtime secrets (server-only)
+      DATABASE_URL: ${DATABASE_URL}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      FACEBOOK_CLIENT_ID: ${FACEBOOK_CLIENT_ID}
+      FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_SECRET}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      EMAIL_FROM: ${EMAIL_FROM}
+      CIJENE_API_URL: ${CIJENE_API_URL}
+      CIJENE_API_TOKEN: ${CIJENE_API_TOKEN}
+      GEOAPIFY_API_KEY: ${GEOAPIFY_API_KEY:-}
+      # NEXT_PUBLIC_* also read server-side at runtime
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
+      NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+    expose:
+      - "3000"
+    networks: [internal, dokploy-network]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      backend:
+        condition: service_healthy
+
+  # Scheduled encrypted backups to R2 (docs/BACKUPS.md). Only runs where COMPOSE_PROFILES includes backup.
+  backup:
+    <<: *hardened
+    # Root reads the 0700 photo folders and /etc/dokploy; the scratch restore hands its files to postgres.
+    cap_add:
+      - CHOWN
+      - FOWNER
+      - DAC_OVERRIDE
+      - SETUID
+      - SETGID
+    pids_limit: 512
+    # The nightly job runs a scratch Postgres and restores the dump into it; not yet measured on a server.
+    mem_limit: 512m
+    # Compose copies environment-sourced secrets into the container after creating it, which a read-only image refuses.
+    read_only: false
+    image: ghcr.io/offcrazyfreak/disscount-backup:${IMAGE_TAG:?IMAGE_TAG must be set}
+    pull_policy: always
+    restart: unless-stopped
+    profiles: [backup]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      BACKUP_R2_ENDPOINT: ${BACKUP_R2_ENDPOINT:-}
+      BACKUP_R2_BUCKET: ${BACKUP_R2_BUCKET:-}
+      BACKUP_R2_ACCESS_KEY_ID: ${BACKUP_R2_ACCESS_KEY_ID:-}
+      BACKUP_AGE_RECIPIENT: ${BACKUP_AGE_RECIPIENT:-}
+    # Files under /run/secrets, so these stay out of `docker inspect` and the container's environment.
+    secrets:
+      - postgres_password
+      - backup_r2_secret_access_key
+      - backup_crypt_password
+      - backup_crypt_salt
+      - backup_healthchecks_ping_key
+      - backup_dokploy_db_password
+      - backup_erasure_hmac_key
+    volumes:
+      - photos-private:/data/photos-private:ro
+      - photos-public:/data/photos-public:ro
+      - /etc/dokploy:/host/etc/dokploy:ro
+    # dokploy-network reaches Dokploy's own database for the nightly config backup.
+    networks: [internal, dokploy-network]
+    # Lets a running dump or upload finish when a deploy replaces the container.
+    stop_grace_period: 10m
+    # erasure-markers touches the heartbeat on every successful run, once a minute.
+    healthcheck:
+      test: ["CMD-SHELL", "find /tmp/backup-heartbeat -mmin -5 | grep -q ."]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 3m
+    depends_on:
+      db:
+        condition: service_healthy
+      # erasure-markers reads erasure_ledger, which exists once the flyway job ran, and a healthy backend proves that.
+      backend:
+        condition: service_healthy
+
+  # One-shot encrypted dump before every production deploy, which flyway (and so every migration) waits for (docs/BACKUPS.md).
+  # No profile, so flyway can require it and always runs after it.
+  # The command lives here, not in backup-job: Dokploy reads this file from the branch tip, so a Rollback pairs it
+  # with an older backup image, which only has to provide the tools.
+  predeploy-dump:
+    <<: *hardened
+    pids_limit: 128
+    mem_limit: 256m
+    # Writable for the same reason as backup: its secrets come from the environment.
+    read_only: false
+    image: ghcr.io/offcrazyfreak/disscount-backup:${IMAGE_TAG:?IMAGE_TAG must be set}
+    pull_policy: always
+    restart: "no"
+    environment:
+      COMPOSE_PROFILES: ${COMPOSE_PROFILES:-}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      BACKUP_R2_ENDPOINT: ${BACKUP_R2_ENDPOINT:-}
+      BACKUP_R2_BUCKET: ${BACKUP_R2_BUCKET:-}
+      BACKUP_R2_ACCESS_KEY_ID: ${BACKUP_R2_ACCESS_KEY_ID:-}
+      BACKUP_AGE_RECIPIENT: ${BACKUP_AGE_RECIPIENT:-}
+    # What backup-entrypoint requires plus the ping key; the sidecar's other keys stay out of this container.
+    secrets:
+      - postgres_password
+      - backup_r2_secret_access_key
+      - backup_crypt_password
+      - backup_crypt_salt
+      - backup_healthchecks_ping_key
+    networks: [internal]
+    depends_on:
+      db:
+        condition: service_healthy
+    # backup-entrypoint refuses blank settings, so the script decides first and enters it only when backups are on.
+    entrypoint: [bash, -c]
+    # $$ keeps Compose from interpolating; the variables come from the container's environment.
+    command:
+      - |
+        set -euo pipefail
+
+        if [[ ",$${COMPOSE_PROFILES// /}," != *,backup,* ]]; then
+          echo "predeploy-dump: backups off, no pre-deploy dump"
+          exit 0
+        fi
+
+        # Second pass: backup-entrypoint has loaded the secrets and rclone settings and runs this same script again.
+        if [[ -n "$${PREDEPLOY_SETTINGS_LOADED:-}" ]]; then
+          fail() {
+            echo "$$1" >/tmp/predeploy-reason
+            exit 1
+          }
+
+          work="$$(mktemp -d /tmp/predeploy.XXXXXX)"
+          trap 'rm -rf "$$work"' EXIT
+
+          # The predeploy- name keeps restores that take the newest timestamped nightly dump from picking this one.
+          name="predeploy-$$(date -u +%Y%m%dT%H%M%SZ).dump.age"
+          target="r2:$$BACKUP_R2_BUCKET/db/nightly/$$name"
+
+          # A finished, non-empty, readable file only: an upload stays locked for 28 days.
+          pg_dump --format=custom --compress=zstd --file="$$work/db.dump" || fail "pg_dump failed"
+          [[ -s "$$work/db.dump" ]] || fail "the dump is empty"
+          pg_restore --list "$$work/db.dump" >/dev/null || fail "the dump does not read back"
+
+          age -r "$$BACKUP_AGE_RECIPIENT" -o "$$work/db.dump.age" "$$work/db.dump" || fail "age encryption failed"
+          rclone copyto --s3-no-check-bucket "$$work/db.dump.age" "$$target" || fail "the upload to R2 failed"
+
+          # Size and MD5 of the stored object against the local file, without downloading or decrypting it.
+          expected="$$(stat -c %s "$$work/db.dump.age");$$(md5sum "$$work/db.dump.age" | cut -d' ' -f1)"
+          uploaded="$$(rclone lsf --format sh --hash MD5 "$$target")" || fail "the uploaded dump cannot be read back"
+          [[ "$$uploaded" == "$$expected" ]] || fail "the uploaded dump does not match the local file"
+
+          echo "uploaded db/nightly/$$name ($${expected%%;*} bytes)" >/tmp/predeploy-summary
+          exit 0
+        fi
+
+        # Same healthchecks.io ping as backup-job; the body carries only this script's own line, never tool output.
+        ping() {
+          local key
+          key="$$(cat /run/secrets/backup_healthchecks_ping_key 2>/dev/null || true)"
+          [[ -n "$$key" ]] || return 0
+          curl -fsS -m 10 --retry 3 -o /dev/null --data-raw "$$2" \
+            "https://hc-ping.com/$$key/disscount-predeploy-dump$$1?create=1" || true
+        }
+
+        # First pass. A failure only alerts (owner, 2026-11-11): stopping here would take production down,
+        # so the deploy goes ahead on the hourly dumps, and every path below ends in exit 0.
+        # Wide headroom over today's dump (about 10 MB), so a hung pg_dump or R2 call alerts instead of stalling migrate.
+        limit=600
+        status=0
+        timeout -k 10 "$$limit" env PREDEPLOY_SETTINGS_LOADED=1 backup-entrypoint bash -c "$$BASH_EXECUTION_STRING" \
+          || status=$$?
+
+        if ((status == 0)); then
+          line="predeploy-dump: $$(cat /tmp/predeploy-summary 2>/dev/null || echo "uploaded")"
+          echo "$$line"
+          ping "" "$$line"
+          exit 0
+        fi
+
+        # busybox timeout leaves the killed command's 143 (TERM) or 137 (KILL); coreutils timeout answers 124.
+        if ((status == 124 || status == 137 || status == 143)); then
+          reason="timed out after $$limit s"
+        else
+          reason="$$(cat /tmp/predeploy-reason 2>/dev/null || echo "the settings were refused or a step broke, see the lines above")"
+        fi
+
+        line="predeploy dump FAILED: $$reason"
+        echo "$$line; the deploy goes ahead on the hourly dumps (docs/BACKUPS.md, Dump before each deploy)" >&2
+        ping /fail "$$line"
+        exit 0
+
+networks:
+  internal:
+  dokploy-network:
+    external: true
+
+volumes:
+  pgdata:
+  photos-private:
+  photos-public:
+
+configs:
+  # A file, not inline content: Compose copies inline content in after creating the container, which read_only refuses.
+  images_nginx:
+    file: ./images/nginx.conf
+
+secrets:
+  postgres_password:
+    environment: POSTGRES_PASSWORD
+  backup_r2_secret_access_key:
+    environment: BACKUP_R2_SECRET_ACCESS_KEY
+  backup_crypt_password:
+    environment: BACKUP_CRYPT_PASSWORD
+  backup_crypt_salt:
+    environment: BACKUP_CRYPT_SALT
+  backup_healthchecks_ping_key:
+    environment: BACKUP_HEALTHCHECKS_PING_KEY
+  backup_dokploy_db_password:
+    environment: BACKUP_DOKPLOY_DB_PASSWORD
+  backup_erasure_hmac_key:
+    environment: BACKUP_ERASURE_HMAC_KEY

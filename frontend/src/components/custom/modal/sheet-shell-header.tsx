@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import {
   DrawerClose,
@@ -20,17 +21,7 @@ export interface ISheetShellHeaderProps {
   showCloseButton?: boolean;
 }
 
-/**
- * The band between the grab handle and the body.
- *
- * Its padding is unconditional, and that is the whole point: `sr-only` takes the
- * title out of flow, so a sheet that names itself in its content still keeps the
- * gap that separates the handle from the first control.
- *
- * The top inset is an explicit 1rem rather than `pt-4`, which this project's
- * 0.2rem spacing scale would render as 12.8px, leaving the handle closer to the
- * title than to the sheet's own edge.
- */
+/** Padding keeps the gap as `sr-only` removes the title; 1rem because `pt-4` is only 12.8px here. */
 export default function SheetShellHeader({
   title,
   description,
@@ -38,6 +29,8 @@ export default function SheetShellHeader({
   srOnlyDescription = true,
   showCloseButton = false,
 }: ISheetShellHeaderProps) {
+  const t = useTranslations("shell");
+
   return (
     <div className="flex shrink-0 items-start justify-between gap-2 px-4 pt-[1rem] pb-2">
       <div className="flex min-w-0 flex-col gap-1">
@@ -55,16 +48,18 @@ export default function SheetShellHeader({
       </div>
 
       {showCloseButton && (
-        <DrawerClose asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            aria-label="Zatvori"
-            className="shrink-0 text-muted-foreground"
-          >
-            <X />
-          </Button>
+        <DrawerClose
+          render={
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={t("modal.close")}
+              className="shrink-0 text-muted-foreground"
+            />
+          }
+        >
+          <X aria-hidden="true" />
         </DrawerClose>
       )}
     </div>

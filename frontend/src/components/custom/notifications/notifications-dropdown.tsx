@@ -1,7 +1,8 @@
 "use client";
 
+import { useRouter } from "@/i18n/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,16 +16,14 @@ import NotificationSummary from "@/components/custom/notifications/components/no
 import NotificationsList from "@/components/custom/notifications/components/notifications-list";
 
 interface INotificationsDropdownProps {
-  /**
-   * Answer open requests from external UI (e.g. the landing CTA). Only ONE
-   * mounted dropdown should opt in, otherwise they all open together.
-   */
+  /** Only one mounted dropdown should opt in, or they all open together. */
   openViaContext?: boolean;
 }
 
 export default function NotificationsDropdown({
   openViaContext = false,
 }: INotificationsDropdownProps) {
+  const t = useTranslations("common");
   const {
     notifications,
     summary,
@@ -37,8 +36,7 @@ export default function NotificationsDropdown({
 
   const [isOpen, setOpen] = useState(false);
 
-  // Seeded with the current signal so a remount replays nothing: only a bump
-  // that happens while this instance is mounted counts as a real request.
+  // Seeded with the current signal so a remount replays nothing; only a bump while mounted counts as a request.
   const lastHandledSignal = useRef(openMenuSignal);
 
   useEffect(() => {
@@ -63,8 +61,10 @@ export default function NotificationsDropdown({
           className="relative"
           aria-label={
             hasNotifications
-              ? `Obavijesti (${notifications.length})`
-              : "Obavijesti"
+              ? t("notifications.labelWithCount", {
+                  count: notifications.length,
+                })
+              : t("notifications.label")
           }
         >
           <BellRingIcon aria-hidden="true" />
@@ -78,7 +78,6 @@ export default function NotificationsDropdown({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="max-w-screen sm:max-w-xs">
-        {/* Summary section */}
         {hasNotifications && <NotificationSummary summary={summary} />}
 
         <NotificationsList

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -18,14 +19,14 @@ interface ICopyButtonProps {
 
 const CONFIRMED_MS = 2000;
 
-/** Ghost icon button that copies `value` to the clipboard and confirms it. */
 export default function CopyButton({
   value,
   label,
   successMessage,
-  errorMessage = "Greška pri kopiranju",
+  errorMessage,
   className,
 }: ICopyButtonProps) {
+  const t = useTranslations("common");
   const [copied, setCopied] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -38,14 +39,13 @@ export default function CopyButton({
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(value);
-      // The toast announces it; the icon swap is for anyone who is looking rather
-      // than listening.
+      // The toast announces it; the icon swap is for anyone looking rather than listening.
       toast.success(successMessage);
       setCopied(true);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => setCopied(false), CONFIRMED_MS);
     } catch {
-      toast.error(errorMessage);
+      toast.error(errorMessage ?? t("copyButton.error"));
     }
   }
 

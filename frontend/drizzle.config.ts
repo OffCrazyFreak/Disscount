@@ -5,12 +5,21 @@ dotenv.config({ path: ".env.local" });
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
-  throw new Error("DATABASE_URL environment variable is required. Check your .env.local file.");
+  throw new Error(
+    "DATABASE_URL environment variable is required. Check your .env.local file.",
+  );
 }
 
 export default defineConfig({
   dialect: "postgresql",
-  schema: "./src/db/auth-schema.ts",
+  schema: [
+    "./src/db/pg-schemas.ts",
+    "./src/db/auth-schema.ts",
+    "./src/db/store-location-schema.ts",
+    "./src/db/store-hours-schema.ts",
+    "./src/db/email-send-schema.ts",
+    "./src/db/security-event-schema.ts",
+  ],
   out: "./drizzle",
   dbCredentials: {
     url: databaseUrl,

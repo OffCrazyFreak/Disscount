@@ -38,10 +38,7 @@ export default function MultiSelectContent({
 
   useMultiSelectEscape(isInline && open, contentRef, triggerRef, close);
 
-  // The animationend touch-up below cannot be the only correction: under
-  // prefers-reduced-motion there is no animation and so no event, which would
-  // leave exactly the users most likely to need it with the keyboard over the
-  // list. Scrolling on open covers that, and is a no-op when already in view.
+  // Reduced motion fires no animationend, so scrolling on open keeps the list clear of the keyboard.
   useEffect(() => {
     if (!isInline || !open) return;
 
@@ -52,8 +49,7 @@ export default function MultiSelectContent({
     return () => cancelAnimationFrame(frame);
   }, [isInline, open]);
 
-  // No focus move on an outside press: the user is already on their way
-  // somewhere else, and pulling focus back to the trigger would fight them.
+  // No focus move on an outside press, because pulling focus back would fight a user on their way somewhere else.
   useMultiSelectOutsidePointer(isInline && open, contentRef, triggerRef, () =>
     setOpen(false),
   );
@@ -70,13 +66,9 @@ export default function MultiSelectContent({
       {isInline ? (
         <CollapsibleContent
           ref={contentRef}
-          // The global class animates the height, so the surrounding scroller
-          // grows rather than jumping. `my-0` drops the primitive's own margin.
+          // The global class animates height so the scroller grows; `my-0` drops the primitive's margin.
           className="CollapsibleContent my-0"
-          // Touch-up after the height settles. Guarded twice: animationend
-          // bubbles, so a child's own animation would otherwise yank the
-          // surrounding scroller back here, and the close animation would scroll
-          // to a box that is collapsing to nothing.
+          // Guarded because animationend bubbles, and closing would scroll to a collapsing box.
           onAnimationEnd={(event) => {
             if (event.target !== event.currentTarget) return;
             if (event.currentTarget.dataset.state !== "open") return;
@@ -87,8 +79,7 @@ export default function MultiSelectContent({
           <div className="mt-2 rounded-md border bg-popover text-popover-foreground shadow-xs">
             <MultiSelectPanel
               search={search}
-              // In flow the list can be any height without going off screen, but
-              // it should still not swallow a short viewport whole.
+              // In flow the list can be any height, but it should not swallow a short viewport whole.
               listClassName="max-h-[min(18.75rem,45dvh)]"
               {...props}
             >
@@ -98,9 +89,7 @@ export default function MultiSelectContent({
         </CollapsibleContent>
       ) : (
         <PopoverContent
-          // Capped by the room Radix says is left, which binds once the viewport
-          // is shorter than the list wants. CommandList keeps its own 300px, so
-          // this shortens the list rather than growing it.
+          // Capped by the room Radix says is left; CommandList keeps its own 300px, so this only shortens the list.
           collisionPadding={8}
           className="flex max-h-[var(--radix-popover-content-available-height)] min-w-[var(--radix-popover-trigger-width)] flex-col overflow-hidden p-0"
         >

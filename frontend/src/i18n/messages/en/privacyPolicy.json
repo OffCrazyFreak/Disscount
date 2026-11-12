@@ -1,0 +1,23 @@
+{
+  "ipAddresses": {
+    "heading": "IP addresses",
+    "body": "When you sign in, we store your device's IP address with the session so we can check suspicious sign-ins to your account. We remove the address no later than 30 days after sign-in, and we delete an expired session entirely. We also store the IP address in the security log described below, again for no more than 30 days. To prevent abuse we also use your IP address briefly to limit repeated attempts: up to 15 minutes in our database for sign-in and similar actions, and up to 24 hours for the contact form, kept only in the server's memory. When a secure connection to our server fails, the server's error log records the address of that connection. We use those entries only to fix faults. Database backups may hold this data for up to 31 more days. When an error happens, Sentry also receives your IP address and keeps it for at most 30 days. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
+  },
+  "errorTracking": {
+    "heading": "Error tracking",
+    "collected": "When something breaks in the app, we send technical details to Sentry, our processor, which stores them in the European Union: the error, your browser and device, the page address, your account's internal ID, your device's IP address, and the request's headers and cookies, without sign-in data. Sentry may work out an approximate location (country, sometimes city) from the IP address. We don't attach your name or email to events, but a request that fails may include what you typed, such as your name and email address when signing in or signing up.",
+    "replay": "For a small share of visits, and for visits with an error, we also record a session replay with all text and input hidden. Passwords, tokens and session cookies are removed before sending. We use this data only to fix errors. Sentry keeps it for at most 30 days. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
+  },
+  "securityNotices": {
+    "heading": "Security notices",
+    "body": "When your account's password changes, we email you a notice. When you change your email address, the notice goes to the old address and names the new one. That way you can spot a change you don't know about and act straight away. These notices are part of protecting your account, so you can't turn them off. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
+  },
+  "securityLog": {
+    "heading": "Security log",
+    "body": "To protect your account we record sign-ins and failed sign-ins, identity checks before sensitive actions, sign-outs and sign-outs of other devices, password and email address changes, and linking or unlinking Google or Facebook sign-in. With each entry we store the time, your account's internal identifier and the country the request came from, and for the first 29 days also your device's IP address and browser details. For a failed sign-in we store the typed email address only as a one-way code that the address cannot be read from. We delete entries of failed sign-ins and failed identity checks after 30 days and the rest after 12 months. We also record what admins do: who viewed the user list or the contact form messages, who marked, deleted or restored a message, and who deleted an account or changed a user's role. We keep those entries for 12 months. When you delete your account, the entries stay until those periods end, without your name or email address. Database backups may hold this data for up to 31 more days. We use the entries only to detect and investigate account misuse. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
+  },
+  "backups": {
+    "heading": "Backups",
+    "body": "We regularly copy the database and photos so a failure doesn't destroy them. We keep the copies encrypted in the European Union, with Cloudflare, our data processor, and they delete themselves no later than 31 days after they're made. When you delete your account, what we delete also leaves the copies as they expire. We keep the deletion record, with the random ID of your account and the time of deletion, in the database with no end date, so every copy of the database made after the deletion holds it too. We also store a separate pseudonymised deletion marker with the copies, which expires like they do. Neither reveals your name or your email. If we ever have to restore the database from a copy, we delete again, before the app reopens, the accounts deleted after that copy was made. The legal basis is legitimate interest (GDPR Article 6(1)(f))."
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "title": "Prodotti seguiti",
+    "description": "Segui i prezzi dei prodotti e ricevi notifiche sulle offerte."
+  },
+  "client": {
+    "loginTitle": "Prodotti seguiti",
+    "loginDescription": "Segui i prodotti che compri e ricevi una notifica appena il prezzo scende.",
+    "searchPlaceholder": "Cerca tra i prodotti seguiti"
+  },
+  "header": {
+    "searchResultsTitle": "Risultati per «{query}» ({count})",
+    "title": "Prodotti seguiti",
+    "pricesUpdated": "Prezzi aggiornati {time}"
+  },
+  "list": {
+    "emptyTitle": "Non segui ancora nessun prodotto",
+    "emptyDescription": "Cerca un prodotto, scegli «Segui prodotto» e ricevi notifiche sulle offerte.",
+    "searchProducts": "Cerca prodotti"
+  },
+  "suggestions": {
+    "label": "Prodotti suggeriti"
+  },
+  "actionButton": {
+    "watch": "Segui prodotto",
+    "remove": "Smetti di seguire"
+  },
+  "discountRow": {
+    "srSuffix": ", {infoLabel}, apri le preferenze dei negozi"
+  },
+  "discountInfo": {
+    "loadError": "Non caricato",
+    "noData": "Nessun dato",
+    "unavailable": "Non disponibile",
+    "setPreferences": "Imposta preferenze",
+    "preferredStoresInfo": "Sconti nei tuoi negozi",
+    "allStoresInfo": "Tutti i negozi in sconto"
+  },
+  "item": {
+    "loading": "Caricamento...",
+    "unavailable": "Prodotto non disponibile"
+  },
+  "removal": {
+    "success": "Non segui più questo prodotto.",
+    "error": "Non siamo riusciti a rimuovere il prodotto. Riprova.",
+    "partial": "{count, plural, one {# prodotto non è stato rimosso. Riprova.} other {# prodotti non sono stati rimossi. Riprova.}}"
+  },
+  "createList": {
+    "label": "Crea lista dei prodotti scontati",
+    "short": "Crea lista",
+    "loading": "Creazione lista...",
+    "listTitle": "In offerta il {date}",
+    "productCount": "Prodotti per la nuova lista: {count}.",
+    "success": "La lista delle offerte è pronta!",
+    "createError": "Non siamo riusciti a creare la lista. Riprova.",
+    "addFailedRemoved": "Alcuni prodotti non sono stati aggiunti, quindi la lista è stata rimossa. Riprova.",
+    "addFailedKept": "Alcuni prodotti non sono stati aggiunti. La lista è rimasta, puoi completarla o eliminarla."
+  },
+  "validation": {
+    "productRequired": "Il prodotto è obbligatorio",
+    "watchTypeRequired": "Il tipo di avviso è obbligatorio",
+    "thresholdPositive": "Lo sconto minimo deve essere maggiore di 0"
+  },
+  "sectionNav": {
+    "label": "Sezioni dei prodotti seguiti",
+    "watchedShort": "Seguiti",
+    "suggestionsShort": "Suggerimenti"
+  }
+}

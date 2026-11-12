@@ -1,20 +1,11 @@
 import { locationNamesMap, storeNamesMap } from "@/constants/name-mappings";
 
-/**
- * Display name for a store chain, falling back to the raw code so a chain the
- * mapping does not know about still renders as something.
- */
+/** Falls back to the raw code so a chain the mapping does not know still renders as something. */
 export function getChainLabel(chainCode: string): string {
   return storeNamesMap[chainCode] || chainCode;
 }
 
-/**
- * Display name for a city, standardizing the messy values upstream sends.
- *
- * Store cities are nullable, so callers pass what they have and pick the
- * fallback that suits the spot (an empty string when sorting, a placeholder
- * when rendering).
- */
+/** Store cities are nullable, so callers pick the fallback that suits the spot. */
 export function getLocationLabel(
   city: string | null | undefined,
   fallback = "",
@@ -22,4 +13,20 @@ export function getLocationLabel(
   if (!city) return fallback;
 
   return locationNamesMap[city] || city;
+}
+
+interface IStoreAddress {
+  address: string | null;
+  zipcode: string | null;
+  cityLabel: string;
+}
+
+export function formatStoreAddress({
+  address,
+  zipcode,
+  cityLabel,
+}: IStoreAddress): string {
+  const place = [zipcode, cityLabel].filter(Boolean).join(" ");
+
+  return [address, place].filter(Boolean).join(", ");
 }
