@@ -4,19 +4,42 @@
 -- Read-only counts on 2026-11-12 found no row to change and none that would collide on dev or production, so this
 -- guards rows written between then and the release. A collision fails the migration instead of merging rows.
 
-CREATE FUNCTION pg_temp.canonical_barcode(code text) RETURNS text
-    LANGUAGE sql IMMUTABLE AS $$
-SELECT CASE
-           WHEN code !~ '^[0-9]{8,}$' OR ltrim(code, '0') = '' THEN code
-           WHEN length(ltrim(code, '0')) <= 8
-               AND left(lpad(ltrim(code, '0'), 8, '0'), 1) IN ('0', '2') THEN code
-           WHEN length(ltrim(code, '0')) BETWEEN 9 AND 13
-               AND (left(lpad(ltrim(code, '0'), 13, '0'), 2) IN ('02', '04')
-                   OR left(lpad(ltrim(code, '0'), 13, '0'), 1) = '2') THEN code
-           WHEN length(ltrim(code, '0')) = 14
-               AND (substr(code, 2, 2) IN ('02', '04') OR substr(code, 2, 1) = '2') THEN code
-           ELSE ltrim(code, '0')
-       END
+-- Step for step the same as CanonicalBarcode.of and isRestrictedCirculation, so a stored row matches a new lookup.
+CREATE FUNCTION pg_temp.canonical_barcode(barcode text) RETURNS text
+    LANGUAGE plpgsql IMMUTABLE AS $$
+DECLARE
+    code     text := btrim(barcode);
+    stripped text;
+    prefix   text;
+BEGIN
+    IF code !~ '^[0-9]{8,}$' THEN
+        RETURN code;
+    END IF;
+
+    stripped := ltrim(code, '0');
+    IF stripped = '' THEN
+        RETURN code;
+    END IF;
+
+    IF length(stripped) <= 8 THEN
+        IF left(lpad(stripped, 8, '0'), 1) IN ('0', '2') THEN
+            RETURN code;
+        END IF;
+        RETURN stripped;
+    END IF;
+
+    -- A GTIN-14, or anything longer, is judged by the two digits behind its first one, as in the Java.
+    IF length(stripped) <= 13 THEN
+        prefix := left(lpad(stripped, 13, '0'), 2);
+    ELSE
+        prefix := substr(stripped, 2, 2);
+    END IF;
+
+    IF prefix IN ('02', '04') OR left(prefix, 1) = '2' THEN
+        RETURN code;
+    END IF;
+    RETURN stripped;
+END
 $$;
 
 UPDATE app.product_image_set SET ean = pg_temp.canonical_barcode(ean)

@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import disscount.shared.CanonicalBarcode;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.junit.jupiter.api.Test;
@@ -133,6 +135,37 @@ class MigrationPathsTest {
             assertThat(strings(statement, "select ean from product_image_set")).containsExactlyInAnyOrderElementsOf(kept);
             assertThat(strings(statement, "select ean from product_image")).containsExactlyInAnyOrderElementsOf(kept);
             assertThat(strings(statement, "select product_api_id from watchlist_item")).containsExactly("54490970");
+        }
+    }
+
+    @Test
+    void theMigrationsBarcodeRuleMatchesTheJavaOne() throws Exception {
+        String sql = Files.readString(MIGRATIONS.resolve("V9__strip_leading_zeros_from_barcodes.sql"));
+        String function = sql.substring(sql.indexOf("CREATE FUNCTION"), sql.indexOf("$$;") + 3);
+
+        List<String> codes = new ArrayList<>(List.of("", "   ", "konzum:0012345678905", " 0012345678905 ", "00000000"));
+        for (int length = 1; length <= 18; length++) {
+            for (int first = 0; first <= 99; first++) {
+                String body = "%02d".formatted(first) + "1234567890123456".substring(0, Math.max(0, length - 2));
+                for (String zeros : List.of("", "0", "00", "000")) {
+                    codes.add(zeros + body.substring(0, Math.min(length, body.length())));
+                }
+            }
+        }
+
+        try (Connection connection = connect(createDatabase());
+                Statement statement = connection.createStatement();
+                PreparedStatement canonical = connection.prepareStatement("select pg_temp.canonical_barcode(?)")) {
+            statement.execute(function);
+
+            for (String code : codes) {
+                canonical.setString(1, code);
+                try (ResultSet row = canonical.executeQuery()) {
+                    row.next();
+                    assertThat(row.getString(1)).as("V9 against CanonicalBarcode for '%s'", code)
+                            .isEqualTo(CanonicalBarcode.of(code).strip());
+                }
+            }
         }
     }
 
