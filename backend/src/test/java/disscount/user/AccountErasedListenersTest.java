@@ -33,6 +33,7 @@ class AccountErasedListenersTest extends FullStackTest {
                 "disscount.preferences.favoritestore.FavoriteStoreService.onAccountErased(disscount.user.AccountErased)",
                 "disscount.productimage.ProductImageErasure.onAccountErased(disscount.user.AccountErased)",
                 "disscount.shoppinglist.ShoppingListService.onAccountErased(disscount.user.AccountErased)",
+                "disscount.user.avatar.AvatarService.onAccountErased(disscount.user.AccountErased)",
                 "disscount.contact.ContactMessageService.onAccountErased(disscount.user.AccountErased)");
     }
 }

@@ -1,0 +1,38 @@
+package disscount.user.avatar;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import disscount.shared.Timestamps;
+
+/** Written in the same transaction as the profile change it belongs to. */
+@Entity
+@Table(name = "avatar_cleanup")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+class AvatarCleanup {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(name = "key_or_prefix", nullable = false, length = 512)
+    private String keyOrPrefix;
+
+    @Column(name = "is_prefix", nullable = false)
+    private boolean prefix;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Timestamps.nowUtc();
+    }
+}

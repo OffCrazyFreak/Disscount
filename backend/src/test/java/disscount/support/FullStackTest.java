@@ -46,6 +46,8 @@ public abstract class FullStackTest {
     protected PhotoStore productImageStore;
     @TestBean(name = PhotoStoreConfig.PRODUCT_ORIGINALS, methodName = "disscount.support.FullStackTest#fakeProductOriginalStore")
     protected PhotoStore productOriginalStore;
+    @TestBean(name = PhotoStoreConfig.AVATARS, methodName = "disscount.support.FullStackTest#fakeAvatarStore")
+    protected PhotoStore avatarStore;
 
     static PhotoStore fakePhotoStore() {
         return new FakePhotoStore();
@@ -56,6 +58,10 @@ public abstract class FullStackTest {
     }
 
     static PhotoStore fakeProductOriginalStore() {
+        return new FakePhotoStore();
+    }
+
+    static PhotoStore fakeAvatarStore() {
         return new FakePhotoStore();
     }
 

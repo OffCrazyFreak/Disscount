@@ -1,5 +1,6 @@
 package disscount.user;
 
+import disscount.user.avatar.AvatarService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -21,7 +22,7 @@ class UserServiceNewProfileDefaultsTest {
     private final UserProfileCreator profileCreator = mock(UserProfileCreator.class);
     private final UserService userService = new UserService(userRepository, mock(AuthIdentityDao.class),
             profileCreator, mock(ApplicationEventPublisher.class),
-            mock(ErasureLedgerRepository.class), mock(AvatarSanitizer.class),
+            mock(ErasureLedgerRepository.class), mock(AvatarService.class),
             mock(AdminAuditLog.class));
 
     @Test

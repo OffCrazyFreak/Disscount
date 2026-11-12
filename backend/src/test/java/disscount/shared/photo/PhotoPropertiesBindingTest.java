@@ -28,7 +28,7 @@ class PhotoPropertiesBindingTest {
         runner.run(context -> {
             assertThat(context.getBean(PhotoProperties.class)).isEqualTo(new PhotoProperties("", "", ""));
             assertThat(context.getBeansOfType(PhotoStore.class).values())
-                    .hasSize(3)
+                    .hasSize(4)
                     .allSatisfy(store -> assertThat(store).isInstanceOf(DisabledPhotoStore.class));
         });
     }

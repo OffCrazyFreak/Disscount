@@ -1,5 +1,6 @@
 package disscount.user;
 
+import disscount.user.avatar.AvatarService;
 import disscount.config.UploadLimitConfig;
 import disscount.digitalcard.photo.CardPhotoWriter;
 import disscount.digitalcard.CardUserLock;
@@ -71,7 +72,7 @@ import static org.mockito.Mockito.verify;
 @Import({ActiveUsers.class, UserService.class, AdminAuditLog.class, AccountErasureService.class, DigitalCardService.class, DigitalCardPhotoService.class, DigitalCardMapper.class,
         StoreNameService.class, StoreNameUpsert.class, PhotoValidator.class, UploadLimitConfig.class,
         CardPhotoWriter.class, CardUserLock.class, PhotoCleanupService.class, FavoriteStoreService.class,
-        AvatarSanitizer.class, UserServiceDeleteAccountTest.StoreConfig.class})
+        UserServiceDeleteAccountTest.StoreConfig.class})
 class UserServiceDeleteAccountTest {
 
     @TestConfiguration
@@ -85,6 +86,7 @@ class UserServiceDeleteAccountTest {
     @MockitoBean AuthIdentityDao authIdentityDao;
     @MockitoBean UserProfileCreator profileCreator;
     @MockitoBean ProductImageErasure productImageErasure;
+    @MockitoBean AvatarService avatarService;
 
     @Autowired UserService userService;
     @Autowired AccountErasureService accountErasureService;

@@ -1,5 +1,6 @@
 package disscount.user;
 
+import disscount.user.avatar.AvatarService;
 import disscount.shared.Timestamps;
 import disscount.support.IncludingDeleted;
 import disscount.user.erasure.ErasureLedgerRepository;
@@ -30,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ErasedProfileReadsTest {
 
     @MockitoBean AuthIdentityDao authIdentityDao;
-    @MockitoBean AvatarSanitizer avatarSanitizer;
+    @MockitoBean AvatarService avatarService;
 
     @Autowired UserService userService;
     @Autowired UserRepository users;
