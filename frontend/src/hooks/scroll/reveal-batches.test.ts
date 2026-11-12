@@ -39,6 +39,13 @@ describe("getNextBatchState", () => {
     });
   });
 
+  it("counts the first batch already shown when the items arrived after the first render", () => {
+    expect(getNextBatchState({ key: "k", count: 0 }, "k", 5)).toEqual({
+      key: "k",
+      count: 2,
+    });
+  });
+
   it("counts from the first batch when the search key changed", () => {
     expect(getNextBatchState({ key: "old", count: 4 }, "new", 5)).toEqual({
       key: "new",
