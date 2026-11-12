@@ -1,5 +1,6 @@
 package disscount.productimage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -11,6 +12,7 @@ import disscount.productimage.ProductImageDtos.ListedEansDto;
 import disscount.productimage.ProductImageDtos.ProductImagesDto;
 import disscount.productimage.ProductImageDtos.ProductThumbnailsDto;
 import disscount.productimage.catalog.Barcodes;
+import disscount.shared.CanonicalBarcode;
 import disscount.shared.errors.BadRequestException;
 import disscount.shared.photo.PhotoStore;
 import disscount.shared.photo.PhotoStoreConfig;
@@ -32,8 +34,8 @@ class ProductImageQueryService {
     private final PhotoStore store;
     private final ProductImageViews views;
 
-    public ProductImagesDto forProduct(String ean) {
-        requireEan(ean);
+    public ProductImagesDto forProduct(String requestedEan) {
+        String ean = canonicalEan(requestedEan);
         if (!store.enabled()) return new ProductImagesDto(ean, List.of());
 
         UUID mainId = sets.findById(ean).map(ProductImageSet::getMainImageId).orElse(null);
@@ -49,9 +51,17 @@ class ProductImageQueryService {
         unique.removeIf(ean -> !Barcodes.isEanShape(ean));
         if (unique.isEmpty() || !store.enabled()) return new ProductThumbnailsDto(Map.of());
 
+        // Answered under the spelling each caller asked for, as the caller looks its rows up by it.
+        Map<String, List<String>> askedByCanonical = new HashMap<>();
+        for (String asked : unique) {
+            askedByCanonical.computeIfAbsent(CanonicalBarcode.of(asked), key -> new ArrayList<>()).add(asked);
+        }
+
         Map<String, String> result = new HashMap<>();
-        for (ProductImage image : images.findShownMainImages(unique, List.of(ImageStatus.VERIFIED, ImageStatus.PENDING))) {
-            result.put(image.getEan(), store.publicUrl(image.listKey()));
+        List<ImageStatus> shown = List.of(ImageStatus.VERIFIED, ImageStatus.PENDING);
+        for (ProductImage image : images.findShownMainImages(askedByCanonical.keySet(), shown)) {
+            String url = store.publicUrl(image.listKey());
+            askedByCanonical.getOrDefault(image.getEan(), List.of()).forEach(asked -> result.put(asked, url));
         }
         return new ProductThumbnailsDto(result);
     }
@@ -60,9 +70,11 @@ class ProductImageQueryService {
         return new ListedEansDto(sets.findListedEans());
     }
 
-    static void requireEan(String ean) {
+    /** The one spelling photos are stored under, so a code padded with zeros finds the same photos. */
+    static String canonicalEan(String ean) {
         if (!Barcodes.isEanShape(ean)) {
             throw new BadRequestException("error.productImage.invalidEan");
         }
+        return CanonicalBarcode.of(ean);
     }
 }

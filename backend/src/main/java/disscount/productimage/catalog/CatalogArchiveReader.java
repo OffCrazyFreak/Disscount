@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import disscount.shared.CanonicalBarcode;
+
 /** ZIP entry order is not guaranteed, so prices count per chain product id and join to barcodes at the end. */
 final class CatalogArchiveReader {
 
@@ -53,8 +55,11 @@ final class CatalogArchiveReader {
             List<String> f = CsvLine.split(line);
             String barcode = field(f, col, "barcode").trim();
             if (!Barcodes.isPublicGtin(barcode)) continue;
+
+            // Stored as every other write stores it, so an archive with padded codes cannot add a second product.
+            String ean = CanonicalBarcode.of(barcode);
             byId.put(field(f, col, "product_id"),
-                    new Product(barcode, field(f, col, "name").trim(), field(f, col, "brand").trim()));
+                    new Product(ean, field(f, col, "name").trim(), field(f, col, "brand").trim()));
         }
         return byId;
     }

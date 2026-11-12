@@ -25,7 +25,10 @@
       "SHOPPING_LISTS": "{max, plural, one {You can have up to # shopping list.} other {You can have up to # shopping lists.}}",
       "SHOPPING_LIST_ITEMS": "{max, plural, one {A list can hold up to # item.} other {A list can hold up to # items.}}",
       "WATCHLIST_ITEMS": "{max, plural, one {You can watch up to # product.} other {You can watch up to # products.}}",
-      "DIGITAL_CARDS": "{max, plural, one {You can have up to # card.} other {You can have up to # cards.}}"
+      "DIGITAL_CARDS": "{max, plural, one {You can have up to # card.} other {You can have up to # cards.}}",
+      "PRODUCT_PHOTOS": "{max, plural, one {You can add up to # product photo in total.} other {You can add up to # product photos in total.}}",
+      "PRODUCT_PHOTOS_PER_DAY": "{max, plural, one {You can add up to # product photo a day.} other {You can add up to # product photos a day.}}",
+      "PRODUCT_PHOTOS_PER_PRODUCT": "{max, plural, one {You can add up to # photo of one product.} other {You can add up to # photos of one product.}}"
     },
     "contactHint": "If you need more, write to us.",
     "contact": "Contact support",

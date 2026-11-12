@@ -16,6 +16,7 @@ import useProductShare from "@/hooks/use-product-share";
 import { productImageSearchUrl } from "@/utils/product-links";
 import { openExternal } from "@/utils/browser/open-external";
 import type { IOpenModalOptions } from "@/lib/modal/modal-navigation";
+import { isSameProduct } from "@/utils/product-id";
 
 interface IProductQuickActionsListProps {
   product: ProductResponse;
@@ -35,8 +36,8 @@ export default function ProductQuickActionsList({
   // Same reads as the row's buttons so they agree; a session guard stops 401s for signed-out visitors.
   const { data: currentUserWatchlist = [] } =
     watchlistService.useGetCurrentUserWatchlist({ enabled: !!user });
-  const isInWatchlist = currentUserWatchlist.some(
-    (watchlistItem) => watchlistItem.productApiId === product.ean,
+  const isInWatchlist = currentUserWatchlist.some((watchlistItem) =>
+    isSameProduct(watchlistItem.productApiId, product.ean),
   );
   const isOnList = useIsOnPreselectedShoppingList(product.ean);
 

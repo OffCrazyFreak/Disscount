@@ -6,6 +6,9 @@ export const userLimitSchema = z.enum([
   "SHOPPING_LIST_ITEMS",
   "WATCHLIST_ITEMS",
   "DIGITAL_CARDS",
+  "PRODUCT_PHOTOS",
+  "PRODUCT_PHOTOS_PER_DAY",
+  "PRODUCT_PHOTOS_PER_PRODUCT",
 ]);
 
 export const limitReachedProblemSchema = z.object({

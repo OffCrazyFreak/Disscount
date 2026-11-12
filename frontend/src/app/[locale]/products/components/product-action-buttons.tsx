@@ -19,6 +19,7 @@ import WatchlistActionButton from "@/app/[locale]/products/components/watchlist-
 import useProductModals from "@/hooks/use-product-modals";
 import useProductShare from "@/hooks/use-product-share";
 import { watchlistService } from "@/lib/api";
+import { isSameProduct } from "@/utils/product-id";
 
 interface IProductActionButtonsProps {
   product: ProductResponse;
@@ -38,8 +39,8 @@ export default function ProductActionButtons({
   const { openAddToList } = useProductModals(product);
   const share = useProductShare(product);
 
-  const isInWatchlist = currentUserWatchlist.some(
-    (watchlistItem) => watchlistItem.productApiId === product.ean,
+  const isInWatchlist = currentUserWatchlist.some((watchlistItem) =>
+    isSameProduct(watchlistItem.productApiId, product.ean),
   );
 
   // Speaks for whichever list the modal will preselect: a drafted choice if there is one, the newest list otherwise.
