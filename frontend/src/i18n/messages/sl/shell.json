@@ -102,5 +102,8 @@
   },
   "skipLink": {
     "label": "Preskoči na vsebino"
+  },
+  "scrollCue": {
+    "label": "Pomakni se navzdol"
   }
 }

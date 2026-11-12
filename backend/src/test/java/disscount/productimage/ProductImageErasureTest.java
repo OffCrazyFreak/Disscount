@@ -58,11 +58,8 @@ class ProductImageErasureTest {
         reports.deleteAll();
         images.deleteAll();
         sets.deleteAll();
-        originals.objects.clear();
-        originals.enabled = true;
-        originals.failDeletes = false;
-        publicStore.objects.clear();
-        publicStore.failDeletes = false;
+        originals.reset();
+        publicStore.reset();
         when(activeUsers.isActiveAdmin(adminId)).thenReturn(true);
     }
 

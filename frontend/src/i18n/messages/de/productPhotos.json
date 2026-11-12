@@ -125,9 +125,6 @@
     "noPhoto": "Kein Foto",
     "empty": "Hier gibt es nichts zu prüfen.",
     "reviewedNext": "Geprüft, weiter",
-    "previousPage": "Vorherige Seite",
-    "nextPage": "Nächste Seite",
-    "page": "Seite {page} von {pages}",
     "listLabel": "Produkte zum Prüfen",
     "keyboardHint": "Tasten: J und K zum Wechseln, R für geprüft und weiter."
   }

@@ -9,7 +9,6 @@ import disscount.user.AdminAuditLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -27,9 +26,6 @@ class ContactMessageService {
     private final ContactMessageRepository contactMessageRepository;
     private final ActiveUsers activeUsers;
     private final AdminAuditLog adminAudit;
-
-    // Bounds the admin list query; a full paginated UI is a possible follow-up.
-    private static final int MAX_ADMIN_MESSAGES = 500;
 
     @Transactional
     public Optional<ContactMessageDto> create(ContactMessageRequest request, UUID callerId) {
@@ -60,6 +56,7 @@ class ContactMessageService {
     }
 
     // Messages hold senders' emails and words, so every admin read and change lands in the admin audit.
+    // Every message in one answer, because a cap hid the oldest from the admin (#55); the inbox holds few.
     @Transactional
     public List<ContactMessageDto> list(boolean includeDeleted, UUID adminId) {
         // Its own action, so a read that shows deleted messages is never hidden behind an earlier plain one.
@@ -67,8 +64,9 @@ class ContactMessageService {
                 includeDeleted ? AdminAction.READ_CONTACT_LIST_WITH_DELETED : AdminAction.READ_CONTACT_LIST, null);
 
         List<ContactMessage> messages = includeDeleted
-                ? contactMessageRepository.findIncludingDeletedNewestFirst(MAX_ADMIN_MESSAGES)
-                : contactMessageRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, MAX_ADMIN_MESSAGES));
+                ? contactMessageRepository.findIncludingDeletedNewestFirst()
+                : contactMessageRepository.findAllByOrderByCreatedAtDescIdDesc();
+
         return messages.stream().map(ContactMessageDto::from).toList();
     }
 

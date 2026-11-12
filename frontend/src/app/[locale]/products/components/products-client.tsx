@@ -15,6 +15,7 @@ import ProductSearchBar from "@/components/custom/search/product-search-bar";
 import { useRecordProductSearch } from "@/components/custom/search/use-record-product-search";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import { Banner } from "@/components/custom/common/banner";
+import ScrollCue from "@/components/custom/fab/scroll-cue";
 
 interface IProductsClientProps {
   query: string;
@@ -125,6 +126,8 @@ export default function ProductsClient({ query }: IProductsClientProps) {
         visibleItems={visibleItems}
         viewMode={viewMode}
       />
+
+      <ScrollCue />
     </div>
   );
 }

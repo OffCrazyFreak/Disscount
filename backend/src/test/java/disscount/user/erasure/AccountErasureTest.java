@@ -8,9 +8,9 @@ import disscount.digitalcard.photo.PhotoCleanupRepository;
 import disscount.preferences.favoritestore.FavoriteStoreRepository;
 import disscount.preferences.pinnedstore.PinnedStoreRepository;
 import disscount.productimage.ImageSource;
+import disscount.productimage.ProductImage;
 import disscount.productimage.ProductImageRepository;
 import disscount.shared.photo.FakePhotoStore;
-import disscount.shared.photo.PhotoStoreConfig;
 import disscount.shared.photo.TestImages;
 import disscount.shoppinglist.ShoppingListRepository;
 import disscount.storename.StoreNameSuggestionRepository;
@@ -47,6 +47,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /** In the root package because the pieces it checks sit in packages a single feature's test cannot see. */
 class AccountErasureTest extends FullStackTest {
 
+    private static final String PRODUCT_EAN = "3850123456789";
+
     @Autowired DigitalCardRepository cards;
     @Autowired DigitalCardPhotoRepository cardPhotos;
     @Autowired PhotoCleanupRepository photoCleanup;
@@ -76,7 +78,7 @@ class AccountErasureTest extends FullStackTest {
         mvc.perform(multipart(HttpMethod.PUT, "/api/digital-cards/{id}/photos/{slot}", cardId, "icon")
                 .file(new MockMultipartFile("full", "icon.webp", "image/webp", TestImages.webp(32, 32)))
                 .with(as(user))).andExpect(status().isOk());
-        mvc.perform(multipart("/api/products/{ean}/images", "3850123456789")
+        mvc.perform(multipart("/api/products/{ean}/images", PRODUCT_EAN)
                 .file(new MockMultipartFile("photo", "p.jpg", "image/jpeg", TestImages.jpeg(400, 300)))
                 .with(as(user))).andExpect(status().isOk());
         mvc.perform(withJson(put("/api/favorite-stores/bulk"), "{\"stores\":[{\"storeKey\":\"konzum:1\"}]}").with(as(user)))
@@ -85,7 +87,7 @@ class AccountErasureTest extends FullStackTest {
                 .with(as(user))).andExpect(status().isOk());
         mvc.perform(withJson(post("/api/shopping-lists"), "{\"title\":\"Tjedna kupnja\",\"linkAccess\":\"EDIT\"}").with(as(user)))
                 .andExpect(status().isOk());
-        mvc.perform(withJson(post("/api/watchlist"), "{\"productApiId\":\"3850123456789\",\"watchType\":\"PERCENTAGE\",\"thresholdValue\":10}")
+        mvc.perform(withJson(post("/api/watchlist"), "{\"productApiId\":\"" + PRODUCT_EAN + "\",\"watchType\":\"PERCENTAGE\",\"thresholdValue\":10}")
                 .with(as(user))).andExpect(status().isOk());
 
         // Saved directly, as the per-address contact limit is shared by every test in this context.
@@ -141,13 +143,14 @@ class AccountErasureTest extends FullStackTest {
         // Product photos lose every link to the person, and a kept photo loses its private original.
         assertThat(productImages.findByContributorId(id)).isEmpty();
         assertThat(productImages.findByConfirmedById(id)).isEmpty();
-        assertThat(productImages.findAll())
+        // Only this product's photos, because other test classes leave their own photos in the shared database.
+        List<ProductImage> photos = productImages.findByEanIn(List.of(PRODUCT_EAN));
+        assertThat(photos)
                 .filteredOn(image -> image.getContributorId() == null && image.getSource() != ImageSource.OPEN_FOOD_FACTS)
                 .allMatch(image -> image.getOriginalKey() == null);
-        // Only this test's uploads: the store is shared by every test in the context, and others leave files in it.
-        assertThat(((FakePhotoStore) productOriginalStore).objects.keySet())
-                .filteredOn(key -> key.startsWith(PhotoStoreConfig.ORIGINALS_FOLDER + "/3850123456789/"))
-                .allMatch(key -> productImages.findAll().stream().anyMatch(image -> key.equals(image.getOriginalKey())));
+        // The stores start empty for each test, so every original left must still belong to a photo, of any product.
+        assertThat(((FakePhotoStore) productOriginalStore).objects.keySet()).allMatch(key ->
+                productImages.findAll().stream().anyMatch(image -> key.equals(image.getOriginalKey())));
         assertThat(storeNameUsages.findAll()).noneMatch(usage -> usage.getUserId().equals(id));
 
         // The list stays with the hidden profile, and its link no longer opens it for anyone.

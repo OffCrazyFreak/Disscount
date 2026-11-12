@@ -4,7 +4,7 @@ import {
   getNextBatchState,
   getVisibleBatchCount,
   splitIntoBatches,
-} from "@/app/[locale]/products/utils/product-batches";
+} from "@/hooks/scroll/reveal-batches";
 
 describe("splitIntoBatches", () => {
   it("cuts the items into batches of the given size, last one shorter", () => {
@@ -36,6 +36,13 @@ describe("getNextBatchState", () => {
     expect(getNextBatchState({ key: "k", count: 5 }, "k", 5)).toEqual({
       key: "k",
       count: 5,
+    });
+  });
+
+  it("counts the first batch already shown when the items arrived after the first render", () => {
+    expect(getNextBatchState({ key: "k", count: 0 }, "k", 5)).toEqual({
+      key: "k",
+      count: 2,
     });
   });
 

@@ -1,6 +1,5 @@
 package disscount.contact;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,12 +12,13 @@ import java.util.UUID;
 @Repository
 public interface ContactMessageRepository extends JpaRepository<ContactMessage, UUID> {
 
-    List<ContactMessage> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    // The id breaks ties between messages sent in the same instant, so the order never changes between loads.
+    List<ContactMessage> findAllByOrderByCreatedAtDescIdDesc();
 
     // Native from here on: the admin sees, reads and restores deleted messages, which @SQLRestriction hides from JPQL.
 
-    @Query(value = "SELECT * FROM app.contact_message ORDER BY created_at DESC LIMIT :limit", nativeQuery = true)
-    List<ContactMessage> findIncludingDeletedNewestFirst(int limit);
+    @Query(value = "SELECT * FROM app.contact_message ORDER BY created_at DESC, id DESC", nativeQuery = true)
+    List<ContactMessage> findIncludingDeletedNewestFirst();
 
     @Query(value = "SELECT * FROM app.contact_message WHERE id = :id", nativeQuery = true)
     Optional<ContactMessage> findIncludingDeletedById(UUID id);

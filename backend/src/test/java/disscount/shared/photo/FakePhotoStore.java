@@ -15,6 +15,16 @@ public class FakePhotoStore implements PhotoStore {
     public final Set<String> failingKeys = ConcurrentHashMap.newKeySet();
     public final Set<String> failingPutPrefixes = ConcurrentHashMap.newKeySet();
 
+    /** Back to an empty, working store, so no test sees files or switches another test left behind. */
+    public void reset() {
+        objects.clear();
+        enabled = true;
+        failDeletes = false;
+        failPuts = false;
+        failingKeys.clear();
+        failingPutPrefixes.clear();
+    }
+
     @Override
     public boolean enabled() {
         return enabled;

@@ -11,7 +11,8 @@ import {
 } from "@/lib/api/types";
 
 const BASE = "/api/admin/product-images";
-export const QUEUE_PAGE_SIZE = 50;
+// The largest page the backend sends (spring.data.web.pageable.max-page-size).
+const QUEUE_PAGE_SIZE = 100;
 
 export async function getPhotoQueue(
   filter: PhotoQueueFilter,

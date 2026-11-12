@@ -32,8 +32,8 @@ export function getNextBatchState(
   key: string,
   batchCount: number,
 ): IBatchState {
-  const current =
-    previous.key === key ? previous.count : initialBatchCount(batchCount);
+  // From what is on screen, so a list that arrived after the first render does not spend a scroll on its first batch.
+  const current = getVisibleBatchCount(previous, key, batchCount);
 
   return { key, count: Math.min(current + 1, batchCount) };
 }

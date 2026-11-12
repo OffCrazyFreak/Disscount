@@ -1,28 +1,44 @@
+import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 
+import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import { useOnNearScrollEnd } from "@/hooks/scroll/use-on-near-scroll-end";
 import PhotoTile from "@/components/custom/product-photos/photo-tile";
 import { cn } from "@/lib/utils";
 import type { AdminPhotoQueueItem } from "@/lib/api/types";
 
 interface IPhotoQueueListProps {
   items: AdminPhotoQueueItem[];
-  page: number;
-  pageSize: number;
   selectedEan?: string;
   onSelect: (ean: string) => void;
+  canLoadMore: boolean;
+  isLoadingMore: boolean;
+  onNearEnd: () => void;
 }
 
 export default function PhotoQueueList({
   items,
-  page,
-  pageSize,
   selectedEan,
   onSelect,
+  canLoadMore,
+  isLoadingMore,
+  onNearEnd,
 }: IPhotoQueueListProps) {
   const t = useTranslations("productPhotos");
+  const listRef = useRef<HTMLOListElement>(null);
+
+  useOnNearScrollEnd(listRef, onNearEnd, canLoadMore);
+
+  // J and R move the selection without a scroll, and the next page loads only when the list scrolls near its end.
+  useEffect(() => {
+    listRef.current
+      ?.querySelector("[aria-current='true']")
+      ?.scrollIntoView({ block: "nearest" });
+  }, [selectedEan]);
 
   return (
     <ol
+      ref={listRef}
       aria-label={t("queue.listLabel")}
       className="max-h-[70svh] space-y-1 overflow-y-auto pr-1"
     >
@@ -42,7 +58,7 @@ export default function PhotoQueueList({
               )}
             >
               <span className="w-10 shrink-0 text-right font-mono text-xs text-muted-foreground tabular-nums">
-                {t("queue.rank", { rank: page * pageSize + index + 1 })}
+                {t("queue.rank", { rank: index + 1 })}
               </span>
               <PhotoTile
                 src={item.previewUrl}
@@ -82,6 +98,12 @@ export default function PhotoQueueList({
           </li>
         );
       })}
+
+      {isLoadingMore && (
+        <li className="flex justify-center py-3">
+          <BlockLoadingSpinner size={20} />
+        </li>
+      )}
     </ol>
   );
 }

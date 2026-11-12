@@ -125,9 +125,6 @@
     "noPhoto": "No photo",
     "empty": "Nothing to review here.",
     "reviewedNext": "Reviewed, next",
-    "previousPage": "Previous page",
-    "nextPage": "Next page",
-    "page": "Page {page} of {pages}",
     "listLabel": "Products to review",
     "keyboardHint": "Keys: J and K to move, R to mark reviewed and go on."
   }

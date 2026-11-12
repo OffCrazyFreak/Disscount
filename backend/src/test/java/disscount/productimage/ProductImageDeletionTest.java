@@ -63,9 +63,8 @@ class ProductImageDeletionTest {
         reports.deleteAll();
         images.deleteAll();
         sets.deleteAll();
-        originals.objects.clear();
-        originals.enabled = true;
-        publicStore.objects.clear();
+        originals.reset();
+        publicStore.reset();
         when(activeUsers.isActiveAdmin(adminId)).thenReturn(true);
     }
 
