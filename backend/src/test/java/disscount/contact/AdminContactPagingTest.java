@@ -12,6 +12,7 @@ import tools.jackson.databind.JsonNode;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -67,7 +68,7 @@ class AdminContactPagingTest extends FullStackTest {
 
         assertThat(walked).doesNotHaveDuplicates().hasSize(sent.size() - 1).doesNotContain(deleted);
         assertThat(walked.subList(0, 1)).containsExactly(sent.get(0));
-        assertThat(walked.subList(1, 4)).containsExactlyInAnyOrderElementsOf(sent.subList(2, 5));
+        assertThat(walked.subList(1, 4)).containsExactlyElementsOf(byIdNewestFirst(sent.subList(2, 5)));
     }
 
     @Test
@@ -76,7 +77,7 @@ class AdminContactPagingTest extends FullStackTest {
 
         assertThat(walked).doesNotHaveDuplicates().hasSize(sent.size());
         assertThat(walked.subList(0, 2)).containsExactly(sent.get(0), deleted);
-        assertThat(walked.subList(2, 5)).containsExactlyInAnyOrderElementsOf(sent.subList(2, 5));
+        assertThat(walked.subList(2, 5)).containsExactlyElementsOf(byIdNewestFirst(sent.subList(2, 5)));
     }
 
     @Test
@@ -103,6 +104,11 @@ class AdminContactPagingTest extends FullStackTest {
                         .param("includeDeleted", "true")
                         .with(as(newUser("consumer"))))
                 .andExpect(status().isForbidden());
+    }
+
+    // Postgres compares uuids byte by byte, which is the order of their lowercase text.
+    private static List<UUID> byIdNewestFirst(List<UUID> ids) {
+        return ids.stream().sorted(Comparator.comparing(UUID::toString).reversed()).toList();
     }
 
     private UUID newMessageAt(LocalDateTime createdAt) {
