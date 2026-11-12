@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw/http";
 import { toast } from "sonner";
@@ -177,5 +177,27 @@ describe("AdminUsersTable photo counts", () => {
     const anaRow = (await screen.findByText("ana")).closest("tr")!;
     expect(within(anaRow).queryByText(/obrisan/)).toBeNull();
     expect(within(anaRow).getAllByText("-").length).toBeGreaterThan(0);
+  });
+});
+
+describe("AdminUsersTable reveal", () => {
+  it("shows 50 users, then the rest once a scroll nears the page end", async () => {
+    const users = Array.from({ length: 60 }, (_, i) => ({
+      ...storedUser,
+      id: `user-${i + 1}`,
+      username: `korisnik${i + 1}`,
+    }));
+    server.use(
+      servePhotoCounts(),
+      serveUsers(() => users),
+    );
+    renderWithProviders(<AdminUsersTable />);
+
+    expect(await screen.findByText("korisnik50")).toBeInTheDocument();
+    expect(screen.queryByText("korisnik51")).toBeNull();
+
+    fireEvent.scroll(window);
+
+    expect(await screen.findByText("korisnik60")).toBeInTheDocument();
   });
 });

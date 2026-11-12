@@ -18,11 +18,15 @@ import { adminService } from "@/lib/api";
 import { useContributorPhotoCounts } from "@/lib/api/product-images/admin-hooks";
 import { AccountType, UserDto } from "@/lib/api/schemas/auth-user";
 import { useUser } from "@/context/user-context";
+import { useRevealedItems } from "@/hooks/scroll/use-revealed-items";
+
+const NO_USERS: UserDto[] = [];
 
 export default function AdminUsersTable() {
   const t = useTranslations("dashboard");
   const { user: currentUser } = useUser();
   const { data: users, isLoading, isError } = adminService.useGetAllUsers();
+  const shownUsers = useRevealedItems(users ?? NO_USERS, "users");
   const updateAccountType = adminService.useUpdateUserAccountType();
   const deleteUser = adminService.useDeleteUser();
   const { data: photoCounts } = useContributorPhotoCounts();
@@ -102,7 +106,7 @@ export default function AdminUsersTable() {
           </TableHeader>
 
           <TableBody>
-            {users?.map((user) => (
+            {shownUsers.map((user) => (
               <AdminUserRow
                 key={user.id}
                 user={user}
