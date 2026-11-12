@@ -11,9 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.JsonNode;
 
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 import java.util.UUID;
 
 import static disscount.shared.photo.TestImages.contains;
@@ -28,6 +31,7 @@ class AvatarEndpointsTest extends FullStackTest {
 
     @Autowired AvatarCleanupRepository cleanupQueue;
     @Autowired AvatarCleanupService cleanup;
+    @Autowired PlatformTransactionManager transactions;
 
     private FakePhotoStore files;
     private User user;
@@ -81,6 +85,27 @@ class AvatarEndpointsTest extends FullStackTest {
     }
 
     @Test
+    void aProfileSaveThatReadTheUserBeforeAnUploadKeepsTheNewAvatar() {
+        new TransactionTemplate(transactions).executeWithoutResult(status -> {
+            User stale = users.findById(user.getId()).orElseThrow();
+
+            CompletableFuture.runAsync(() -> {
+                try {
+                    upload(user, TestImages.jpeg(16, 16)).andExpect(status().isOk());
+                } catch (Exception e) {
+                    throw new IllegalStateException(e);
+                }
+            }).join();
+
+            stale.setUsername("renamed-" + user.getId());
+            users.save(stale);
+        });
+
+        assertThat(storedKey()).isNotNull();
+        assertThat(files.objects).containsOnlyKeys(storedKey());
+    }
+
+    @Test
     void aFormatOtherThanJpegOrWebpIsRefusedAndNothingIsStored() throws Exception {
         upload(user, TestImages.png(64, 64)).andExpect(status().isBadRequest());
 
@@ -109,6 +134,17 @@ class AvatarEndpointsTest extends FullStackTest {
         for (int i = 0; i < 10; i++) upload(user, TestImages.jpeg(16, 16)).andExpect(status().isOk());
 
         upload(user, TestImages.jpeg(16, 16)).andExpect(status().isTooManyRequests());
+    }
+
+    @Test
+    void aFileWhoseProfileIsGoneIsDeletedAgain() throws Exception {
+        User neverSaved = User.builder().id(UUID.randomUUID()).build();
+
+        upload(neverSaved, TestImages.jpeg(16, 16)).andExpect(status().isUnauthorized());
+        cleanup.retryPending();
+
+        assertThat(files.objects).isEmpty();
+        assertThat(cleanupQueue.findAll()).isEmpty();
     }
 
     @Test

@@ -32,23 +32,25 @@ class DataUriAvatarMove {
     private final UserRepository users;
     private final AvatarWriter writer;
     private final PhotoValidator validator;
+    private final AvatarCleanupService cleanup;
     @Qualifier(PhotoStoreConfig.AVATARS)
     private final PhotoStore store;
 
-    /** One batch per call; returns how many avatars became files. */
+    /** One batch per call; 0 means nothing is left, or only rows that failed and wait for the next run. */
     int moveBatch() {
         if (!store.enabled()) return 0;
 
         List<UUID> ids = users.findIdsWithDataUriImage(PageRequest.of(0, BATCH));
-        int moved = 0;
+        int settled = 0;
         for (UUID id : ids) {
-            if (moveOne(id)) moved++;
+            if (settle(id)) settled++;
         }
-        if (!ids.isEmpty()) log.info("Moved {} of {} database avatars to files", moved, ids.size());
-        return moved;
+        if (!ids.isEmpty()) log.info("Settled {} of {} database avatars", settled, ids.size());
+        return settled;
     }
 
-    private boolean moveOne(UUID userId) {
+    /** True once the row holds no data URI any more: moved to a file, or dropped as unreadable. */
+    private boolean settle(UUID userId) {
         String dataUri = users.findById(userId).map(User::getImage).orElse(null);
         if (dataUri == null || !dataUri.startsWith("data:")) return false;
 
@@ -60,27 +62,28 @@ class DataUriAvatarMove {
             // It could not be shown safely, and leaving it would make every run try it again.
             log.warn("Dropped an unreadable database avatar of user {}", userId);
             writer.dropUnreadable(userId, dataUri);
-            return false;
+            return true;
         }
 
         String key = AvatarKeys.newKey(userId, photo.extension());
         try {
             store.put(key, photo.bytes(), photo.contentType());
             if (writer.attachMoved(userId, dataUri, key)) return true;
-            store.delete(key);
+            discard(key);
         } catch (RuntimeException e) {
             // A full disk or a lock timeout: the row keeps its data URI and the next run tries again.
             log.warn("Could not move the database avatar of user {}: {}", userId, e.getMessage());
-            deleteQuietly(key);
+            discard(key);
         }
         return false;
     }
 
-    private void deleteQuietly(String key) {
+    /** Queued, so a delete that fails is retried; the key is never referenced, so the queue deletes it. */
+    private void discard(String key) {
         try {
-            store.delete(key);
-        } catch (RuntimeException ignored) {
-            // The account's prefix delete at erasure still reaches it.
+            cleanup.enqueueKey(key);
+        } catch (RuntimeException e) {
+            log.warn("Could not queue a moved avatar file for deletion: {}", e.getMessage());
         }
     }
 

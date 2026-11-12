@@ -80,12 +80,13 @@ public class AvatarService {
         cleanup.enqueueErasure(AvatarKeys.userPrefix(erased.userId()));
     }
 
+    /** Queued rather than deleted here, so a delete that fails too is retried instead of forgotten. */
     private void discard(String key) {
         try {
-            store.delete(key);
+            cleanup.enqueueKey(key);
         } catch (RuntimeException e) {
-            // Left behind only until the account is erased, whose prefix delete takes it.
-            log.warn("Could not discard an avatar file after a failed write: {}", e.getMessage());
+            // The database is down as well; the account's prefix delete at erasure still reaches the file.
+            log.warn("Could not queue an avatar file after a failed write: {}", e.getMessage());
         }
     }
 

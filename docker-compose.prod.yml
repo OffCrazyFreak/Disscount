@@ -221,7 +221,7 @@ configs:
           add_header Cache-Control "public, max-age=31536000, immutable";
           add_header X-Content-Type-Options nosniff;
         }
-        # Every upload gets a new name, but an erased avatar must leave the Cloudflare edge within a day (#474).
+        # Every upload gets a new name, and an erased avatar must leave the Cloudflare edge within a day of its file being deleted (#474).
         location /avatars/ {
           add_header Cache-Control "public, max-age=86400";
           add_header X-Content-Type-Options nosniff;

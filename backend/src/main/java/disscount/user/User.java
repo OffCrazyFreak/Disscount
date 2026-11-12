@@ -6,13 +6,16 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
+// Only changed columns are written, so a profile PATCH racing an avatar upload cannot write the old avatar back.
 @Entity
+@DynamicUpdate
 @SQLRestriction("deleted_at is null")
 @Table(name = "app_user")
 @Getter
