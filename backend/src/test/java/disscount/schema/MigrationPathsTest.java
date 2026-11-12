@@ -101,6 +101,53 @@ class MigrationPathsTest {
         }
     }
 
+    @Test
+    void paddedBarcodesLoseTheirZerosAndInStoreCodesKeepThem() throws Exception {
+        String database = createDatabase();
+        flyway(database).target("8").load().migrate();
+
+        UUID user = UUID.randomUUID();
+
+        try (Connection connection = connect(database); Statement statement = connection.createStatement()) {
+            statement.execute("insert into app_user (id, account_type, created_at) values ('%s', 'CONSUMER', now())".formatted(user));
+            for (String ean : List.of("0012345678905", "0212345678901", "3856021300547")) {
+                statement.execute("""
+                        insert into product_image_set (ean, chain_count, needs_review, pinned, store_listings)
+                        values ('%s', 0, false, false, 0)
+                        """.formatted(ean));
+                statement.execute("""
+                        insert into product_image (id, ean, source, status, rotation, report_count, created_at)
+                        values ('%s', '%s', 'USER', 'PENDING', 0, 0, now())
+                        """.formatted(UUID.randomUUID(), ean));
+            }
+            statement.execute("""
+                    insert into watchlist_item (id, user_id, product_api_id, watch_type, threshold_value, created_at, updated_at)
+                    values ('%s', '%s', '0000054490970', 'PERCENTAGE', 5, now(), now())
+                    """.formatted(UUID.randomUUID(), user));
+        }
+
+        flyway(database).load().migrate();
+
+        try (Connection connection = connect(database); Statement statement = connection.createStatement()) {
+            List<String> kept = List.of("12345678905", "0212345678901", "3856021300547");
+            assertThat(strings(statement, "select ean from product_image_set")).containsExactlyInAnyOrderElementsOf(kept);
+            assertThat(strings(statement, "select ean from product_image")).containsExactlyInAnyOrderElementsOf(kept);
+            assertThat(strings(statement, "select product_api_id from watchlist_item")).containsExactly("54490970");
+        }
+    }
+
+    private static List<String> strings(Statement statement, String query) throws SQLException {
+        List<String> values = new ArrayList<>();
+
+        try (ResultSet rows = statement.executeQuery(query)) {
+            while (rows.next()) {
+                values.add(rows.getString(1));
+            }
+        }
+
+        return values;
+    }
+
     private static void insertWatch(Statement statement, UUID id, UUID user, String type, double threshold,
             String updatedOn, String deletedOn) throws SQLException {
         statement.execute("""
