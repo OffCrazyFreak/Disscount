@@ -8,7 +8,8 @@
 CREATE FUNCTION pg_temp.canonical_barcode(barcode text) RETURNS text
     LANGUAGE plpgsql IMMUTABLE AS $$
 DECLARE
-    code     text := btrim(barcode);
+    -- The whitespace Java's String.strip removes in ASCII: space, tab, line breaks and the separators 28 to 31.
+    code     text := btrim(barcode, E' \t\n\r\f' || chr(11) || chr(28) || chr(29) || chr(30) || chr(31));
     stripped text;
     prefix   text;
 BEGIN

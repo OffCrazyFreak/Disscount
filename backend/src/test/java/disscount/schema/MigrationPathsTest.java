@@ -143,7 +143,8 @@ class MigrationPathsTest {
         String sql = Files.readString(MIGRATIONS.resolve("V9__strip_leading_zeros_from_barcodes.sql"));
         String function = sql.substring(sql.indexOf("CREATE FUNCTION"), sql.indexOf("$$;") + 3);
 
-        List<String> codes = new ArrayList<>(List.of("", "   ", "konzum:0012345678905", " 0012345678905 ", "00000000"));
+        List<String> codes = new ArrayList<>(List.of("", "   ", "konzum:0012345678905", " 0012345678905 ",
+                "\t0012345678905\n", "\u000B0012345678905\r", "\u001F0012345678905", "00000000"));
         for (int length = 1; length <= 18; length++) {
             for (int first = 0; first <= 99; first++) {
                 String body = "%02d".formatted(first) + "1234567890123456".substring(0, Math.max(0, length - 2));
