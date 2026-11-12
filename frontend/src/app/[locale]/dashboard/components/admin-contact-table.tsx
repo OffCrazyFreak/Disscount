@@ -23,6 +23,7 @@ import {
 import AdminContactRow from "@/app/[locale]/dashboard/components/admin-contact-row";
 import AdminContactDetail from "@/app/[locale]/dashboard/components/admin-contact-detail";
 import { useContactInbox } from "@/app/[locale]/dashboard/hooks/use-contact-inbox";
+import { useLoadMoreNearPageEnd } from "@/app/[locale]/dashboard/hooks/use-load-more-near-page-end";
 import { contactService } from "@/lib/api";
 import { ContactMessageDto } from "@/lib/api/types";
 import { filterByFields } from "@/utils/generic";
@@ -46,8 +47,8 @@ export default function AdminContactTable() {
   const [showDeleted, setShowDeleted] = useState(false);
   const [detail, setDetail] = useState<ContactMessageDto | null>(null);
 
-  const { data, isLoading, isError } =
-    contactService.useGetContactMessages(showDeleted);
+  const query = contactService.useGetContactMessages(showDeleted);
+  const { data, isLoading, isError, hasNextPage, isFetchingNextPage } = query;
   // Only an inbox with nothing cached is missing; a failed refetch keeps its last answer.
   const isMissing = isError && data === undefined;
   const inbox = useContactInbox();
@@ -61,6 +62,8 @@ export default function AdminContactTable() {
       "message",
     ]);
   }, [data, view, search]);
+
+  useLoadMoreNearPageEnd(query, messages.length);
 
   return (
     <div className="space-y-4">
@@ -133,10 +136,16 @@ export default function AdminContactTable() {
               </TableBody>
             </Table>
 
-            {messages.length === 0 && (
+            {messages.length === 0 && !hasNextPage && (
               <p className="text-muted-foreground p-6 text-center text-sm">
                 {t("contact.empty")}
               </p>
+            )}
+
+            {isFetchingNextPage && (
+              <div className="flex justify-center py-6">
+                <BlockLoadingSpinner size={24} />
+              </div>
             )}
           </>
         )}
