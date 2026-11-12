@@ -8,11 +8,19 @@
 CREATE FUNCTION pg_temp.canonical_barcode(barcode text) RETURNS text
     LANGUAGE plpgsql IMMUTABLE AS $$
 DECLARE
-    -- The whitespace Java's String.strip removes in ASCII: space, tab, line breaks and the separators 28 to 31.
-    code     text := btrim(barcode, E' \t\n\r\f' || chr(11) || chr(28) || chr(29) || chr(30) || chr(31));
+    -- Exactly the characters Java's Character.isWhitespace accepts, which String.strip removes.
+    java_whitespace text := E' \t\n\r\f' || chr(11) || chr(28) || chr(29) || chr(30) || chr(31)
+        || chr(5760) || chr(8192) || chr(8193) || chr(8194) || chr(8195) || chr(8196) || chr(8197) || chr(8198)
+        || chr(8200) || chr(8201) || chr(8202) || chr(8232) || chr(8233) || chr(8287) || chr(12288);
+    code     text := btrim(barcode, java_whitespace);
     stripped text;
     prefix   text;
 BEGIN
+    -- CanonicalBarcode.of returns a blank code as it came.
+    IF code = '' THEN
+        RETURN barcode;
+    END IF;
+
     IF code !~ '^[0-9]{8,}$' THEN
         RETURN code;
     END IF;

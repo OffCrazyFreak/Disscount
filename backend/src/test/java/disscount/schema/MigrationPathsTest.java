@@ -144,7 +144,8 @@ class MigrationPathsTest {
         String function = sql.substring(sql.indexOf("CREATE FUNCTION"), sql.indexOf("$$;") + 3);
 
         List<String> codes = new ArrayList<>(List.of("", "   ", "konzum:0012345678905", " 0012345678905 ",
-                "\t0012345678905\n", "\u000B0012345678905\r", "\u001F0012345678905", "00000000"));
+                "\t0012345678905\n", "\u000B0012345678905\r", "\u001F0012345678905", "\u20030012345678905\u3000",
+                "\u00A00012345678905", "\t", "00000000"));
         for (int length = 1; length <= 18; length++) {
             for (int first = 0; first <= 99; first++) {
                 String body = "%02d".formatted(first) + "1234567890123456".substring(0, Math.max(0, length - 2));
@@ -164,7 +165,7 @@ class MigrationPathsTest {
                 try (ResultSet row = canonical.executeQuery()) {
                     row.next();
                     assertThat(row.getString(1)).as("V9 against CanonicalBarcode for '%s'", code)
-                            .isEqualTo(CanonicalBarcode.of(code).strip());
+                            .isEqualTo(CanonicalBarcode.of(code));
                 }
             }
         }
