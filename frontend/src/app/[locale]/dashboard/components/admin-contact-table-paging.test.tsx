@@ -1,9 +1,11 @@
 import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { QueryClient } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, onTestFinished, vi } from "vitest";
 
 import AdminContactTable from "@/app/[locale]/dashboard/components/admin-contact-table";
+import hr from "@/i18n/messages/hr";
 import type { ContactMessageDto } from "@/lib/api/types";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
@@ -96,5 +98,32 @@ describe("AdminContactTable paging", () => {
     expect(await screen.findByText("Druga")).toBeInTheDocument();
     expect(screen.getByText("Prva")).toBeInTheDocument();
     await waitFor(() => expect(requested).toStrictEqual([0, 1]));
+  });
+
+  it("offers a retry when the next page fails", async () => {
+    const requested = serveTwoPages();
+    let failNextPage = true;
+    server.use(
+      http.get("*/api/admin/contact", ({ request }) => {
+        const page = new URL(request.url).searchParams.get("page");
+        if (page !== "1" || !failNextPage) return undefined;
+
+        failNextPage = false;
+        return HttpResponse.json({ status: 500 }, { status: 500 });
+      }),
+    );
+    renderTable();
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      hr.dashboard.contact.loadMoreError,
+    );
+
+    await userEvent.click(
+      screen.getByRole("button", { name: hr.dashboard.contact.loadMoreRetry }),
+    );
+
+    expect(await screen.findByText("Druga")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(requested).toStrictEqual([0, 1]);
   });
 });

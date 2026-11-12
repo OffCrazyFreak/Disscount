@@ -51,6 +51,8 @@
     "viewAll": "Tutti",
     "viewUnread": "Non letti",
     "loadError": "Impossibile caricare i messaggi.",
+    "loadMoreError": "Impossibile caricare i messaggi meno recenti.",
+    "loadMoreRetry": "Riprova",
     "searchPlaceholder": "Cerca messaggi",
     "showDeleted": "Mostra eliminati",
     "colMessage": "Messaggio",

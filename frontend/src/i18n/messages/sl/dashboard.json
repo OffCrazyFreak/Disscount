@@ -51,6 +51,8 @@
     "viewAll": "Vsa",
     "viewUnread": "Neprebrana",
     "loadError": "Napaka pri nalaganju sporočil.",
+    "loadMoreError": "Starejših sporočil ni bilo mogoče naložiti.",
+    "loadMoreRetry": "Poskusi znova",
     "searchPlaceholder": "Išči sporočila",
     "showDeleted": "Pokaži izbrisana",
     "colMessage": "Sporočilo",

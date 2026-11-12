@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -48,7 +49,14 @@ export default function AdminContactTable() {
   const [detail, setDetail] = useState<ContactMessageDto | null>(null);
 
   const query = contactService.useGetContactMessages(showDeleted);
-  const { data, isLoading, isError, hasNextPage, isFetchingNextPage } = query;
+  const {
+    data,
+    isLoading,
+    isError,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+  } = query;
   // Only an inbox with nothing cached is missing; a failed refetch keeps its last answer.
   const isMissing = isError && data === undefined;
   const inbox = useContactInbox();
@@ -136,7 +144,7 @@ export default function AdminContactTable() {
               </TableBody>
             </Table>
 
-            {messages.length === 0 && !hasNextPage && (
+            {messages.length === 0 && !hasNextPage && !isFetchNextPageError && (
               <p className="text-muted-foreground p-6 text-center text-sm">
                 {t("contact.empty")}
               </p>
@@ -145,6 +153,24 @@ export default function AdminContactTable() {
             {isFetchingNextPage && (
               <div className="flex justify-center py-6">
                 <BlockLoadingSpinner size={24} />
+              </div>
+            )}
+
+            {isFetchNextPageError && !isFetchingNextPage && (
+              <div
+                role="alert"
+                className="flex flex-wrap items-center justify-center gap-3 p-6 text-sm"
+              >
+                <span className="text-destructive">
+                  {t("contact.loadMoreError")}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void query.fetchNextPage()}
+                >
+                  {t("contact.loadMoreRetry")}
+                </Button>
               </div>
             )}
           </>

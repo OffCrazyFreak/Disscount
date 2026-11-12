@@ -51,6 +51,8 @@
     "viewAll": "Sve",
     "viewUnread": "Nepročitane",
     "loadError": "Greška pri dohvaćanju poruka.",
+    "loadMoreError": "Starije poruke se nisu učitale.",
+    "loadMoreRetry": "Pokušaj ponovno",
     "searchPlaceholder": "Pretraži poruke",
     "showDeleted": "Prikaži obrisane",
     "colMessage": "Poruka",
