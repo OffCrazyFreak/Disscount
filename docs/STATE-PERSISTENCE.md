@@ -17,7 +17,7 @@ _Last audited end-to-end on 2026-07-22: every user-facing input and form account
 | localStorage holds | modal-form drafts (24h TTL) + device preferences (view mode, chart periods, camera, banners) |
 | Draft engine       | `useFormDraft` (auto-save changed values on a 500ms debounce, restore on reopen)             |
 | Offline data store | persisted React Query cache in IndexedDB (see [PWA.md](PWA.md))                              |
-| Never persisted    | passwords, the avatar base64 image, admin dashboard filters                                  |
+| Never persisted    | passwords, a picked avatar before it is saved, admin dashboard filters                       |
 
 **The one rule that explains most decisions:** state is placed by intent. Shareable or navigable state goes in the URL, personal per-device state goes in localStorage, and cached server data goes in IndexedDB.
 
@@ -161,7 +161,7 @@ Changing a key value strands every user's offline copy of that data. The only cl
 Not everything should be remembered. These are intentionally **not** persisted, and that is the correct behaviour:
 
 - **Auth forms** (login, signup, forgot-password, reset-password) and the **security / credentials** form. They carry passwords, so nothing is written to disk.
-- **The avatar image** in Settings. It is a base64 data URI, deliberately excluded from drafts so it can never blow the localStorage quota (`avatar-field.tsx`).
+- **The avatar image** in Settings. A picked image stays in memory until Save uploads it, deliberately outside drafts so it can never blow the localStorage quota (`avatar-field.tsx`). The saved profile in IndexedDB holds only its URL.
 - **Admin dashboard table filters** (contact inbox search/view/show-deleted, users table). Session-only `useState`. This is admin tooling with live-refetched data, so a reset on reload is fine.
 
 ---
@@ -181,7 +181,7 @@ Not everything should be remembered. These are intentionally **not** persisted, 
 | Contact modal                       | Yes           | localStorage draft        |
 | View mode / sort / camera / periods | Yes           | localStorage preferences  |
 | Auth + security forms               | No, by design | passwords, never stored   |
-| Avatar upload                       | No, by design | base64, quota-excluded    |
+| Avatar upload                       | No, by design | in memory until Save      |
 | Admin dashboard filters             | No, by design | session `useState`        |
 
 ---

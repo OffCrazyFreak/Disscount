@@ -53,13 +53,13 @@ flowchart TD
 
 ## 3. Profil
 
-| Field                 | Stored where                           | Rules                                                                                                                                |
-| --------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Avatar                | `app_user.image`, as a base64 data URL | Resized and stripped in the browser, checked again on the server; up to 400 000 characters. See [IMAGE-UPLOADS.md](IMAGE-UPLOADS.md) |
-| Username              | `app_user.username`, unique            | 2 to 40 characters on both sides. A taken name answers 409 `error.user.usernameTaken` with a field error                             |
-| "How did you find us" | `app_user.acquisition_channel`         | One `AcquisitionChannel` value; optional                                                                                             |
+| Field                 | Stored where                                                      | Rules                                                                                                                                               |
+| --------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Avatar                | A file on the public photo folder, named by `app_user.avatar_key` | Resized in the browser, checked and re-encoded on the server; 256 KB and 512 px at most. See [IMAGE-UPLOADS.md](IMAGE-UPLOADS.md#7-avatars-on-disk) |
+| Username              | `app_user.username`, unique                                       | 2 to 40 characters on both sides. A taken name answers 409 `error.user.usernameTaken` with a field error                                            |
+| "How did you find us" | `app_user.acquisition_channel`                                    | One `AcquisitionChannel` value; optional                                                                                                            |
 
-The avatar is user-owned after the profile is created: `ensureActiveProfile` never copies the sign-in provider's picture again, so a cleared avatar stays cleared. Sending `image: ""` clears it, and leaving `image` out keeps it.
+The avatar is user-owned after the profile is created: `ensureActiveProfile` never copies the sign-in provider's picture again, so a cleared avatar stays cleared. `PUT /api/users/me/avatar` uploads one, `DELETE /api/users/me/avatar` clears it, and both clear the provider picture too. `PATCH /api/users/me` no longer takes `image`.
 
 ---
 
@@ -93,11 +93,12 @@ Favourite stores (`/api/favorite-stores`) are a different thing, set on the map,
 
 `useSettingsSave` (`hooks/use-settings-save.ts`) turns one Save press into separate jobs, built in `settings-save-jobs.ts`:
 
-| Job      | Runs when                                               | Request                                            |
-| -------- | ------------------------------------------------------- | -------------------------------------------------- |
-| `user`   | Profil or Obavijesti changed, or the avatar was touched | `PATCH /api/users/me` with only the changed fields |
-| `stores` | Pinned stores changed                                   | `PUT /api/pinned-stores/bulk`                      |
-| `places` | Pinned places changed                                   | `PUT /api/pinned-places/bulk`                      |
+| Job      | Runs when                            | Request                                            |
+| -------- | ------------------------------------ | -------------------------------------------------- |
+| `user`   | A Profil or Obavijesti field changed | `PATCH /api/users/me` with only the changed fields |
+| `avatar` | The avatar was picked or removed     | `PUT` or `DELETE /api/users/me/avatar`             |
+| `stores` | Pinned stores changed                | `PUT /api/pinned-stores/bulk`                      |
+| `places` | Pinned places changed                | `PUT /api/pinned-places/bulk`                      |
 
 1. The modal closes at once (optimistic close). With nothing dirty, that is the whole save.
 2. Offline, a toast warns first. None of these mutations is on the offline mutation allowlist (`lib/offline/offline-mutation-keys.ts`), so they are not queued for replay; what the user sees after that was not checked in a browser (unverified).
@@ -156,7 +157,7 @@ sequenceDiagram
 | Data                                                | What happens                                                                                                                                                                                                                                 |
 | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | better-auth identity, sessions, linked accounts     | Deleted by better-auth after Spring commits                                                                                                                                                                                                  |
-| `app_user` username and avatar                      | Nulled; the row is soft deleted                                                                                                                                                                                                              |
+| `app_user` username and avatar                      | Nulled, avatar files queued for deletion; the row is soft deleted                                                                                                                                                                            |
 | Digital cards and their photos                      | Hard deleted, photos queued for deletion ([DIGITAL-CARDS.md](DIGITAL-CARDS.md))                                                                                                                                                              |
 | Favourite stores                                    | Deleted                                                                                                                                                                                                                                      |
 | Product photos (`ProductImageErasure`)              | Unconfirmed ones and ones an admin hid deleted with their files; confirmed ones kept without `contributor_id` or their private original; the user's confirmations and reports unlinked ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md))              |
