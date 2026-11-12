@@ -24,7 +24,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @MigratedPostgres
 class AdminContactListTest extends FullStackTest {
 
-    private static final int MORE_THAN_THE_OLD_CAP = 501;
+    // One of them is deleted, so the plain list too holds more than the old cap of 500.
+    private static final int SENT = 502;
 
     // Later than any message another test leaves behind, so these lead the list.
     private static final LocalDateTime FAR_FUTURE = LocalDateTime.of(2100, 1, 1, 12, 0);
@@ -41,7 +42,7 @@ class AdminContactListTest extends FullStackTest {
 
         // Pairs share an instant, so only the id keeps their order stable.
         List<Object[]> rows = new ArrayList<>();
-        for (int i = 0; i < MORE_THAN_THE_OLD_CAP; i++) {
+        for (int i = 0; i < SENT; i++) {
             UUID id = UUID.randomUUID();
             LocalDateTime sentAt = FAR_FUTURE.minusMinutes(i / 2);
             rows.add(new Object[] {id, sentAt, sentAt});
@@ -52,7 +53,7 @@ class AdminContactListTest extends FullStackTest {
                 VALUES (?, ?, ?, 'Pitanje', 'Poruka')
                 """, rows);
 
-        deleted = sent.get(MORE_THAN_THE_OLD_CAP - 1);
+        deleted = sent.get(SENT - 1);
         jdbc.update("UPDATE app.contact_message SET deleted_at = ? WHERE id = ?", FAR_FUTURE, deleted);
     }
 
@@ -64,7 +65,7 @@ class AdminContactListTest extends FullStackTest {
 
     @Test
     void everyKeptMessageComesBackNewestFirst() throws Exception {
-        List<UUID> kept = sent.subList(0, MORE_THAN_THE_OLD_CAP - 1);
+        List<UUID> kept = sent.subList(0, SENT - 1);
 
         assertThat(thisTestsMessages(false)).containsExactlyElementsOf(newestFirst(kept));
     }
