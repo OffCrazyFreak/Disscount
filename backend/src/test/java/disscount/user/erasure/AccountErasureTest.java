@@ -10,6 +10,7 @@ import disscount.preferences.pinnedstore.PinnedStoreRepository;
 import disscount.productimage.ImageSource;
 import disscount.productimage.ProductImageRepository;
 import disscount.shared.photo.FakePhotoStore;
+import disscount.shared.photo.PhotoStoreConfig;
 import disscount.shared.photo.TestImages;
 import disscount.shoppinglist.ShoppingListRepository;
 import disscount.storename.StoreNameSuggestionRepository;
@@ -143,8 +144,10 @@ class AccountErasureTest extends FullStackTest {
         assertThat(productImages.findAll())
                 .filteredOn(image -> image.getContributorId() == null && image.getSource() != ImageSource.OPEN_FOOD_FACTS)
                 .allMatch(image -> image.getOriginalKey() == null);
-        assertThat(((FakePhotoStore) productOriginalStore).objects.keySet()).allMatch(key ->
-                productImages.findAll().stream().anyMatch(image -> key.equals(image.getOriginalKey())));
+        // Only this test's uploads: the store is shared by every test in the context, and others leave files in it.
+        assertThat(((FakePhotoStore) productOriginalStore).objects.keySet())
+                .filteredOn(key -> key.startsWith(PhotoStoreConfig.ORIGINALS_FOLDER + "/3850123456789/"))
+                .allMatch(key -> productImages.findAll().stream().anyMatch(image -> key.equals(image.getOriginalKey())));
         assertThat(storeNameUsages.findAll()).noneMatch(usage -> usage.getUserId().equals(id));
 
         // The list stays with the hidden profile, and its link no longer opens it for anyone.
