@@ -86,9 +86,9 @@ class SoftDeletePostgresTest extends FullStackTest {
         mvc.perform(delete("/api/admin/contact/{id}", id).with(as(admin))).andExpect(status().isOk());
 
         mvc.perform(get("/api/admin/contact").with(as(admin)))
-                .andExpect(jsonPath("$.items[?(@.id == '%s')]", id).doesNotExist());
+                .andExpect(jsonPath("$[?(@.id == '%s')]", id).doesNotExist());
         mvc.perform(get("/api/admin/contact").param("includeDeleted", "true").with(as(admin)))
-                .andExpect(jsonPath("$.items[?(@.id == '%s')].deletedAt", id).isNotEmpty());
+                .andExpect(jsonPath("$[?(@.id == '%s')].deletedAt", id).isNotEmpty());
         mvc.perform(get("/api/admin/contact/{id}", id).with(as(admin))).andExpect(status().isOk());
         mvc.perform(patch("/api/admin/contact/{id}/read", id).with(as(admin)))
                 .andExpect(jsonPath("$.readAt").isNotEmpty());
@@ -96,7 +96,7 @@ class SoftDeletePostgresTest extends FullStackTest {
         mvc.perform(patch("/api/admin/contact/{id}/restore", id).with(as(admin)))
                 .andExpect(jsonPath("$.deletedAt").isEmpty());
         mvc.perform(get("/api/admin/contact").with(as(admin)))
-                .andExpect(jsonPath("$.items[?(@.id == '%s')]", id).exists());
+                .andExpect(jsonPath("$[?(@.id == '%s')]", id).exists());
     }
 
     @Test

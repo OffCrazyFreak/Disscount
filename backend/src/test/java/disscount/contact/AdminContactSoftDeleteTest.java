@@ -38,11 +38,11 @@ class AdminContactSoftDeleteTest extends FullStackTest {
         mvc.perform(delete("/api/admin/contact/{id}", deleted).with(as(admin))).andExpect(status().isOk());
 
         mvc.perform(get("/api/admin/contact").with(as(admin)))
-                .andExpect(jsonPath("$.items[?(@.id == '%s')]", kept).exists())
-                .andExpect(jsonPath("$.items[?(@.id == '%s')]", deleted).doesNotExist());
+                .andExpect(jsonPath("$[?(@.id == '%s')]", kept).exists())
+                .andExpect(jsonPath("$[?(@.id == '%s')]", deleted).doesNotExist());
         mvc.perform(get("/api/admin/contact").param("includeDeleted", "true").with(as(admin)))
-                .andExpect(jsonPath("$.items[?(@.id == '%s')]", kept).exists())
-                .andExpect(jsonPath("$.items[?(@.id == '%s')].deletedAt", deleted).isNotEmpty());
+                .andExpect(jsonPath("$[?(@.id == '%s')]", kept).exists())
+                .andExpect(jsonPath("$[?(@.id == '%s')].deletedAt", deleted).isNotEmpty());
     }
 
     @Test
@@ -62,6 +62,6 @@ class AdminContactSoftDeleteTest extends FullStackTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.deletedAt").isEmpty());
         mvc.perform(get("/api/admin/contact").with(as(admin)))
-                .andExpect(jsonPath("$.items[?(@.id == '%s')]", id).exists());
+                .andExpect(jsonPath("$[?(@.id == '%s')]", id).exists());
     }
 }

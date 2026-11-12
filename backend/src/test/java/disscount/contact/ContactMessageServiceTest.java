@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import disscount.shared.errors.NotFoundException;
@@ -61,7 +60,7 @@ class ContactMessageServiceTest {
         users.save(user);
 
         assertThatThrownBy(() -> service.create(request(), user.getId())).isInstanceOf(UnauthorizedException.class);
-        assertThat(service.list(true, PageRequest.of(0, 50), UUID.randomUUID()).items()).isEmpty();
+        assertThat(service.list(true, UUID.randomUUID())).isEmpty();
     }
 
     @Test
@@ -92,7 +91,7 @@ class ContactMessageServiceTest {
         ContactMessageRequest bot = request("https://spam.example");
 
         assertThat(service.create(bot, user.getId())).isEmpty();
-        assertThat(service.list(true, PageRequest.of(0, 50), UUID.randomUUID()).items()).isEmpty();
+        assertThat(service.list(true, UUID.randomUUID())).isEmpty();
     }
 
     @Test
@@ -100,7 +99,7 @@ class ContactMessageServiceTest {
         ContactMessageRequest bot = request("   ");
 
         assertThat(service.create(bot, user.getId())).isEmpty();
-        assertThat(service.list(true, PageRequest.of(0, 50), UUID.randomUUID()).items()).isEmpty();
+        assertThat(service.list(true, UUID.randomUUID())).isEmpty();
     }
 
     @Test

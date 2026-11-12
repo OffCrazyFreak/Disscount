@@ -567,20 +567,6 @@
       },
       "type" : "object"
     },
-    "PageDtoContactMessageDto" : {
-      "properties" : {
-        "items" : {
-          "items" : {
-            "$ref" : "#/components/schemas/ContactMessageDto"
-          },
-          "type" : "array"
-        },
-        "page" : {
-          "$ref" : "#/components/schemas/PageInfoDto"
-        }
-      },
-      "type" : "object"
-    },
     "PageInfoDto" : {
       "properties" : {
         "number" : {

@@ -1,8 +1,6 @@
 package disscount.contact;
 
 import disscount.shared.errors.NotFoundException;
-import disscount.shared.PageDto;
-import disscount.shared.Paging;
 import disscount.shared.Timestamps;
 import disscount.user.AccountErased;
 import disscount.user.ActiveUsers;
@@ -11,12 +9,11 @@ import disscount.user.AdminAuditLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -59,18 +56,18 @@ class ContactMessageService {
     }
 
     // Messages hold senders' emails and words, so every admin read and change lands in the admin audit.
+    // Every message in one answer, because a cap hid the oldest from the admin (#55); the inbox holds few.
     @Transactional
-    public PageDto<ContactMessageDto> list(boolean includeDeleted, Pageable requested, UUID adminId) {
+    public List<ContactMessageDto> list(boolean includeDeleted, UUID adminId) {
         // Its own action, so a read that shows deleted messages is never hidden behind an earlier plain one.
         adminAudit.recordRead(adminId,
                 includeDeleted ? AdminAction.READ_CONTACT_LIST_WITH_DELETED : AdminAction.READ_CONTACT_LIST, null);
 
-        Pageable request = Paging.withoutClientSort(requested);
-        Page<ContactMessage> messages = includeDeleted
-                ? contactMessageRepository.findIncludingDeletedNewestFirst(request)
-                : contactMessageRepository.findAllByOrderByCreatedAtDescIdDesc(request);
+        List<ContactMessage> messages = includeDeleted
+                ? contactMessageRepository.findIncludingDeletedNewestFirst()
+                : contactMessageRepository.findAllByOrderByCreatedAtDescIdDesc();
 
-        return PageDto.from(messages.map(ContactMessageDto::from));
+        return messages.stream().map(ContactMessageDto::from).toList();
     }
 
     @Transactional

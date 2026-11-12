@@ -3,9 +3,6 @@ package disscount.contact;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import disscount.shared.CurrentUser;
-import disscount.shared.PageDto;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -28,13 +25,12 @@ class AdminContactController {
 
     private final ContactMessageService contactMessageService;
 
-    @Operation(summary = "List contact messages newest first, one page at a time (admin only)")
+    @Operation(summary = "List contact messages (admin only)")
     @GetMapping
-    public ResponseEntity<PageDto<ContactMessageDto>> list(
+    public ResponseEntity<List<ContactMessageDto>> list(
             @CurrentUser UUID adminId,
-            @RequestParam(defaultValue = "false") boolean includeDeleted,
-            @ParameterObject @PageableDefault(size = 50) Pageable page) {
-        return ResponseEntity.ok(contactMessageService.list(includeDeleted, page, adminId));
+            @RequestParam(defaultValue = "false") boolean includeDeleted) {
+        return ResponseEntity.ok(contactMessageService.list(includeDeleted, adminId));
     }
 
     @Operation(summary = "Get a contact message by ID (admin only)")
