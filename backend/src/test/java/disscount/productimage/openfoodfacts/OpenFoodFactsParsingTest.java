@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 import tools.jackson.databind.ObjectMapper;
@@ -61,13 +62,27 @@ class OpenFoodFactsParsingTest {
         String tsv = "code\tproduct_name\timage_url\n"
                 + "0008076800195057\tSpaghetti\thttps://images.openfoodfacts.org/images/products/807/680/019/5057/front_en.3881.400.jpg\n"
                 + "5449000000996\tCola\thttps://images.openfoodfacts.org/images/products/544/900/000/0996/front_en.1129.400.jpg\n"
+                + "0012345678905\tFlakes\thttps://images.openfoodfacts.org/images/products/001/234/567/8905/front_hr.7.400.jpg\n"
                 + "3856021300547\tNo photo\t\n";
 
         Map<String, OffExportReader.Front> fronts = OffExportReader.read(gzip(tsv),
-                Map.of("8076800195057", "8076800195057", "3856021300547", "3856021300547"));
+                Set.of("8076800195057", "12345678905", "3856021300547"));
 
-        assertThat(fronts).containsOnlyKeys("8076800195057");
+        assertThat(fronts).containsOnlyKeys("8076800195057", "12345678905");
         assertThat(fronts.get("8076800195057")).isEqualTo(new OffExportReader.Front("front_en", "3881", "en"));
+    }
+
+    @Test
+    void anInStoreCodeMatchesOnlyItsOwnPadding() throws IOException {
+        String photo = "\thttps://images.openfoodfacts.org/images/products/000/002/012/3956/front_hr.12.400.jpg\n";
+        String tsv = "code\tproduct_name\timage_url\n"
+                + "0000020123956\tOther chain's product" + photo
+                + "20123956\tOur product" + photo;
+
+        // Stripping every zero made 0000020123956 the in-store code 20123956, another chain's product.
+        assertThat(OffExportReader.read(gzip(tsv), Set.of("20123956"))).containsOnlyKeys("20123956");
+        assertThat(OffExportReader.read(gzip(tsv.replace("20123956\tOur product" + photo, "")), Set.of("20123956")))
+                .isEmpty();
     }
 
     private static ByteArrayInputStream gzip(String text) throws IOException {

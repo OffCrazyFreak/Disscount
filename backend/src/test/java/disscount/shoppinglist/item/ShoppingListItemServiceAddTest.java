@@ -123,6 +123,17 @@ class ShoppingListItemServiceAddTest {
     }
 
     @Test
+    void aCodePaddedWithZerosIsTheSameProduct() {
+        add("0012345678905", "Mlijeko 1L", 1);
+        add("12345678905", "Mlijeko 1L", 2);
+
+        assertThat(activeItems()).singleElement().satisfies(item -> {
+            assertThat(item.getEan()).isEqualTo("12345678905");
+            assertThat(item.getAmount()).isEqualTo(3);
+        });
+    }
+
+    @Test
     void anUpdateWithoutAnEanKeepsTheLinkedProduct() {
         ShoppingListItemDto added = add("3850000000001", "Mlijeko", 1);
 

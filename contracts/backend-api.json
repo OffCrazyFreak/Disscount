@@ -10,7 +10,7 @@
     "LinkAccess" : [ "EDIT", "NONE", "SHOP", "VIEW" ],
     "ListAccess" : [ "EDIT", "NONE", "OWNER", "SHOP", "VIEW" ],
     "QueueFilter" : [ "PENDING", "REPORTED", "TODO" ],
-    "UserLimit" : [ "DIGITAL_CARDS", "SHOPPING_LISTS", "SHOPPING_LIST_ITEMS", "WATCHLIST_ITEMS" ],
+    "UserLimit" : [ "DIGITAL_CARDS", "PRODUCT_PHOTOS", "PRODUCT_PHOTOS_PER_DAY", "PRODUCT_PHOTOS_PER_PRODUCT", "SHOPPING_LISTS", "SHOPPING_LIST_ITEMS", "WATCHLIST_ITEMS" ],
     "Visibility" : [ "OWNER_ONLY", "WORLD_READABLE" ],
     "WatchType" : [ "ABSOLUTE", "PERCENTAGE" ]
   },

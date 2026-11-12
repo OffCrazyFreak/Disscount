@@ -3,14 +3,14 @@ package disscount.productimage.jobs;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import disscount.productimage.MainPicker;
 import disscount.productimage.ProductImageRepository;
 import disscount.productimage.ProductImageSetRepository;
-import disscount.productimage.catalog.Barcodes;
 import disscount.productimage.openfoodfacts.OffExportReader;
 import disscount.productimage.openfoodfacts.OffExportReader.Front;
 import disscount.productimage.openfoodfacts.OpenFoodFactsClient;
@@ -34,8 +34,7 @@ class OffSeedService {
     private final TransactionTemplate tx;
 
     public int seed() throws IOException, InterruptedException {
-        Map<String, String> wanted = new HashMap<>();
-        for (String ean : sets.findAllEans()) wanted.put(Barcodes.matchKey(ean), ean);
+        Set<String> wanted = new HashSet<>(sets.findAllEans());
 
         Map<String, Front> fronts;
         try (InputStream export = off.openProductsExport()) {

@@ -41,6 +41,12 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, UUID
 
     List<ProductImage> findByContributorId(UUID contributorId);
 
+    long countByContributorId(UUID contributorId);
+
+    long countByContributorIdAndCreatedAtGreaterThanEqual(UUID contributorId, LocalDateTime since);
+
+    long countByContributorIdAndEan(UUID contributorId, String ean);
+
     List<ProductImage> findByConfirmedById(UUID confirmedById);
 
     @Query("""

@@ -67,15 +67,15 @@ class ProductImageAdminService {
         return AdminQueuePageDto.from(PageDto.from(items), sets.countReviewed());
     }
 
-    public AdminProductDto product(String ean) {
-        ProductImageQueryService.requireEan(ean);
+    public AdminProductDto product(String requestedEan) {
+        String ean = ProductImageQueryService.canonicalEan(requestedEan);
         ProductImageSet set = sets.findById(ean).orElseGet(() -> ProductImageSet.builder().ean(ean).build());
         return views.adminView(set, images.findByEanOrderByCreatedAtAsc(ean));
     }
 
     @Transactional
-    public AdminProductDto refreshFromOpenFoodFacts(String ean) {
-        ProductImageQueryService.requireEan(ean);
+    public AdminProductDto refreshFromOpenFoodFacts(String requestedEan) {
+        String ean = ProductImageQueryService.canonicalEan(requestedEan);
         ProductImageSet set = loadOrCreate(ean);
 
         Optional<OffProductPhotos> photos = off.fetchPhotos(ean);
@@ -93,7 +93,8 @@ class ProductImageAdminService {
     }
 
     @Transactional
-    public AdminProductDto setMain(UUID adminId, String ean, UUID imageId) {
+    public AdminProductDto setMain(UUID adminId, String requestedEan, UUID imageId) {
+        String ean = ProductImageQueryService.canonicalEan(requestedEan);
         ProductImage image = imageOf(ean, imageId);
         approve(adminId, image);
 
@@ -158,8 +159,8 @@ class ProductImageAdminService {
     }
 
     @Transactional
-    public AdminProductDto reviewed(UUID adminId, String ean) {
-        ProductImageQueryService.requireEan(ean);
+    public AdminProductDto reviewed(UUID adminId, String requestedEan) {
+        String ean = ProductImageQueryService.canonicalEan(requestedEan);
         markReviewed(loadOrCreate(ean), adminId);
         return product(ean);
     }

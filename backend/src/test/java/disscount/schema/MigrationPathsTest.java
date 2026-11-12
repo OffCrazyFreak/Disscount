@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import disscount.shared.CanonicalBarcode;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.junit.jupiter.api.Test;
@@ -99,6 +101,86 @@ class MigrationPathsTest {
 
             insertWatch(statement, UUID.randomUUID(), user, "PERCENTAGE", 30, "2026-05-01", "2026-05-02");
         }
+    }
+
+    @Test
+    void paddedBarcodesLoseTheirZerosAndInStoreCodesKeepThem() throws Exception {
+        String database = createDatabase();
+        flyway(database).target("8").load().migrate();
+
+        UUID user = UUID.randomUUID();
+
+        try (Connection connection = connect(database); Statement statement = connection.createStatement()) {
+            statement.execute("insert into app_user (id, account_type, created_at) values ('%s', 'CONSUMER', now())".formatted(user));
+            for (String ean : List.of("0012345678905", "0212345678901", "3856021300547")) {
+                statement.execute("""
+                        insert into product_image_set (ean, chain_count, needs_review, pinned, store_listings)
+                        values ('%s', 0, false, false, 0)
+                        """.formatted(ean));
+                statement.execute("""
+                        insert into product_image (id, ean, source, status, rotation, report_count, created_at)
+                        values ('%s', '%s', 'USER', 'PENDING', 0, 0, now())
+                        """.formatted(UUID.randomUUID(), ean));
+            }
+            statement.execute("""
+                    insert into watchlist_item (id, user_id, product_api_id, watch_type, threshold_value, created_at, updated_at)
+                    values ('%s', '%s', '0000054490970', 'PERCENTAGE', 5, now(), now())
+                    """.formatted(UUID.randomUUID(), user));
+        }
+
+        flyway(database).load().migrate();
+
+        try (Connection connection = connect(database); Statement statement = connection.createStatement()) {
+            List<String> kept = List.of("12345678905", "0212345678901", "3856021300547");
+            assertThat(strings(statement, "select ean from product_image_set")).containsExactlyInAnyOrderElementsOf(kept);
+            assertThat(strings(statement, "select ean from product_image")).containsExactlyInAnyOrderElementsOf(kept);
+            assertThat(strings(statement, "select product_api_id from watchlist_item")).containsExactly("54490970");
+        }
+    }
+
+    @Test
+    void theMigrationsBarcodeRuleMatchesTheJavaOne() throws Exception {
+        String sql = Files.readString(MIGRATIONS.resolve("V9__strip_leading_zeros_from_barcodes.sql"));
+        String function = sql.substring(sql.indexOf("CREATE FUNCTION"), sql.indexOf("$$;") + 3);
+
+        List<String> codes = new ArrayList<>(List.of("", "   ", "konzum:0012345678905", " 0012345678905 ",
+                "\t0012345678905\n", "\u000B0012345678905\r", "\u001F0012345678905", "\u20030012345678905\u3000",
+                "\u00A00012345678905", "\t", "00000000"));
+        for (int length = 1; length <= 18; length++) {
+            for (int first = 0; first <= 99; first++) {
+                String body = "%02d".formatted(first) + "1234567890123456".substring(0, Math.max(0, length - 2));
+                for (String zeros : List.of("", "0", "00", "000")) {
+                    codes.add(zeros + body.substring(0, Math.min(length, body.length())));
+                }
+            }
+        }
+
+        try (Connection connection = connect(createDatabase());
+                Statement statement = connection.createStatement();
+                PreparedStatement canonical = connection.prepareStatement("select pg_temp.canonical_barcode(?)")) {
+            statement.execute(function);
+
+            for (String code : codes) {
+                canonical.setString(1, code);
+                try (ResultSet row = canonical.executeQuery()) {
+                    row.next();
+                    assertThat(row.getString(1)).as("V9 against CanonicalBarcode for '%s'", code)
+                            .isEqualTo(CanonicalBarcode.of(code));
+                }
+            }
+        }
+    }
+
+    private static List<String> strings(Statement statement, String query) throws SQLException {
+        List<String> values = new ArrayList<>();
+
+        try (ResultSet rows = statement.executeQuery(query)) {
+            while (rows.next()) {
+                values.add(rows.getString(1));
+            }
+        }
+
+        return values;
     }
 
     private static void insertWatch(Statement statement, UUID id, UUID user, String type, double threshold,
