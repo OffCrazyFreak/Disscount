@@ -235,7 +235,7 @@ The list rename works the same way on the list's own fields, and also writes the
 
 ### The limit dialog
 
-A create refused at a per-user limit ([BACKEND.md §7.1](BACKEND.md#71-per-user-limits)) opens one dialog, `components/custom/limit-reached/limit-reached-dialog.tsx`, for lists, items, watchlist entries and cards alike. It says the limit in one sentence and has a button that opens the contact form (`?modal=contact`). The query client's `MutationCache.onError` (`lib/api/query-client-defaults.ts`) opens it through a small module store (`lib/limits/limit-reached-store.ts`), so a create replayed from the offline queue after a reload opens it too. The call sites skip their own toast or reopened form for that error (`isLimitReached`), and the typed draft stays saved. A 409 is a permanent failure, so a queued create past the limit is dropped and the refetch removes its optimistic row.
+A create refused at a per-user limit ([BACKEND.md §7.1](BACKEND.md#71-per-user-limits)) opens one dialog, `components/custom/limit-reached/limit-reached-dialog.tsx`, for lists, items, watchlist entries, cards and product photos alike. It says the limit in one sentence and has a button that opens the contact form (`?modal=contact`). The query client's `MutationCache.onError` (`lib/api/query-client-defaults.ts`) opens it through a small module store (`lib/limits/limit-reached-store.ts`), so a create replayed from the offline queue after a reload opens it too. The call sites skip their own toast or reopened form for that error (`isLimitReached`), and the typed draft stays saved. A 409 is a permanent failure, so a queued create past the limit is dropped and the refetch removes its optimistic row.
 
 ---
 
