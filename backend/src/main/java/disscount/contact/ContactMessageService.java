@@ -1,6 +1,8 @@
 package disscount.contact;
 
 import disscount.shared.errors.NotFoundException;
+import disscount.shared.PageDto;
+import disscount.shared.Paging;
 import disscount.shared.Timestamps;
 import disscount.user.AccountErased;
 import disscount.user.ActiveUsers;
@@ -9,12 +11,12 @@ import disscount.user.AdminAuditLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -27,9 +29,6 @@ class ContactMessageService {
     private final ContactMessageRepository contactMessageRepository;
     private final ActiveUsers activeUsers;
     private final AdminAuditLog adminAudit;
-
-    // Bounds the admin list query; a full paginated UI is a possible follow-up.
-    private static final int MAX_ADMIN_MESSAGES = 500;
 
     @Transactional
     public Optional<ContactMessageDto> create(ContactMessageRequest request, UUID callerId) {
@@ -61,15 +60,17 @@ class ContactMessageService {
 
     // Messages hold senders' emails and words, so every admin read and change lands in the admin audit.
     @Transactional
-    public List<ContactMessageDto> list(boolean includeDeleted, UUID adminId) {
+    public PageDto<ContactMessageDto> list(boolean includeDeleted, Pageable requested, UUID adminId) {
         // Its own action, so a read that shows deleted messages is never hidden behind an earlier plain one.
         adminAudit.recordRead(adminId,
                 includeDeleted ? AdminAction.READ_CONTACT_LIST_WITH_DELETED : AdminAction.READ_CONTACT_LIST, null);
 
-        List<ContactMessage> messages = includeDeleted
-                ? contactMessageRepository.findIncludingDeletedNewestFirst(MAX_ADMIN_MESSAGES)
-                : contactMessageRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, MAX_ADMIN_MESSAGES));
-        return messages.stream().map(ContactMessageDto::from).toList();
+        Pageable request = Paging.withoutClientSort(requested);
+        Page<ContactMessage> messages = includeDeleted
+                ? contactMessageRepository.findIncludingDeletedNewestFirst(request)
+                : contactMessageRepository.findAllByOrderByCreatedAtDescIdDesc(request);
+
+        return PageDto.from(messages.map(ContactMessageDto::from));
     }
 
     @Transactional

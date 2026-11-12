@@ -47,7 +47,6 @@ class ContactMessageWireFormatTest extends FullStackTest {
         assertThat(read.get("readAt").asString()).matches(LOCAL_DATE_TIME);
 
         JsonNode all = body(mvc.perform(get("/api/admin/contact").with(as(admin))).andExpect(status().isOk()));
-        assertThat(all.isArray()).isTrue();
-        ApiContract.assertMatches("ContactMessageDto", all.get(0));
+        ApiContract.assertMatches("PageDtoContactMessageDto", all);
     }
 }
