@@ -4,7 +4,7 @@ import {
   getNextBatchState,
   getVisibleBatchCount,
   splitIntoBatches,
-} from "@/app/[locale]/products/utils/product-batches";
+} from "@/hooks/scroll/reveal-batches";
 
 describe("splitIntoBatches", () => {
   it("cuts the items into batches of the given size, last one shorter", () => {

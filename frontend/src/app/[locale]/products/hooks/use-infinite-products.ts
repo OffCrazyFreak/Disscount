@@ -10,8 +10,7 @@ import {
 import sortProductsByRelevance from "@/app/[locale]/products/utils/product-relevance";
 import { PRODUCT_SEARCH_LIMIT } from "@/constants/products";
 import useFilteredProductPrices from "@/app/[locale]/products/hooks/use-filtered-product-prices";
-import useRevealedBatches from "@/app/[locale]/products/hooks/use-revealed-batches";
-import { splitIntoBatches } from "@/app/[locale]/products/utils/product-batches";
+import { useRevealedItems } from "@/hooks/scroll/use-revealed-items";
 
 interface IUseInfiniteProductsOptions {
   /** Resolved chain+location filter (null = unfiltered, empty = no overlap) */
@@ -39,7 +38,6 @@ interface IUseInfiniteProductsResult {
 }
 
 const EMPTY_SELECTION: string[] = [];
-const BATCH_SIZE = 50;
 
 // An old "no results" would read as the answer to the new search, so it counts as loading.
 function isShowingPreviousEmptyResults(
@@ -113,11 +111,6 @@ export default function useInfiniteProducts(
     );
   }, [pricedItems, selectedBrands, selectedCategories]);
 
-  const batchedItems = useMemo(
-    () => splitIntoBatches(filteredItems, BATCH_SIZE),
-    [filteredItems],
-  );
-
   const batchKey = [
     q,
     allowedChains?.join(",") ?? "*",
@@ -126,7 +119,7 @@ export default function useInfiniteProducts(
     selectedLocations.join(","),
     selectedSourceCities.join(","),
   ].join("\0");
-  const batchesToShow = useRevealedBatches(batchKey, batchedItems.length);
+  const visibleItems = useRevealedItems(filteredItems, batchKey);
 
   const hasMatchesOutsideLocations = hasMatchOutsideLocations(allProducts, {
     selectedChains,
@@ -135,10 +128,6 @@ export default function useInfiniteProducts(
     selectedBrands,
     isPriceDataPartial: hasPartialError,
   });
-
-  const visibleItems = useMemo(() => {
-    return batchedItems.slice(0, batchesToShow).flatMap((batch) => batch);
-  }, [batchedItems, batchesToShow]);
 
   return {
     visibleItems,

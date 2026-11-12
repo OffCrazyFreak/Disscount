@@ -6,7 +6,7 @@ import { useOnNearPageEnd } from "@/hooks/scroll/use-on-near-page-end";
 import {
   getNextBatchState,
   getVisibleBatchCount,
-} from "@/app/[locale]/products/utils/product-batches";
+} from "@/hooks/scroll/reveal-batches";
 
 /** A background price refresh must not collapse batches already revealed for the same key. */
 export default function useRevealedBatches(
