@@ -1,6 +1,7 @@
 package disscount.productimage;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import disscount.config.UploadLimitConfig;
@@ -15,6 +16,7 @@ import disscount.shared.photo.PhotoStore;
 import disscount.shared.photo.PhotoStoreConfig;
 import disscount.shared.photo.PhotoValidator;
 import disscount.shared.errors.ServiceUnavailableException;
+import disscount.shared.errors.UserLimit;
 import disscount.shared.Timestamps;
 import disscount.shared.photo.ValidatedPhoto;
 import disscount.user.ActiveUsers;
@@ -52,7 +54,10 @@ class ProductImageWriteService {
         activeUsers.lockActive(userId);
 
         boolean admin = activeUsers.isActiveAdmin(userId);
-        if (!admin) limiter.check(userId);
+        if (!admin) {
+            limiter.check(userId);
+            requireRoomForPhoto(userId, ean);
+        }
 
         ValidatedPhoto photo = validator.validate(bytes(file));
         // The renderer reads JPEG and PNG only; the app always sends JPEG for product photos.
@@ -120,6 +125,19 @@ class ProductImageWriteService {
             set.setNeedsReview(true);
             sets.save(set);
         });
+    }
+
+    /**
+     * Only under the uploader's row lock, or two uploads at a cap both see room. Removed and hidden photos still
+     * count, so an admin taking spam down does not hand its uploader room for more.
+     */
+    private void requireRoomForPhoto(UUID userId, String ean) {
+        LocalDateTime startOfUtcDay = Timestamps.nowUtc().toLocalDate().atStartOfDay();
+
+        UserLimit.PRODUCT_PHOTOS.requireRoomFor(images.countByContributorId(userId), 1);
+        UserLimit.PRODUCT_PHOTOS_PER_DAY.requireRoomFor(
+                images.countByContributorIdAndCreatedAtGreaterThanEqual(userId, startOfUtcDay), 1);
+        UserLimit.PRODUCT_PHOTOS_PER_PRODUCT.requireRoomFor(images.countByContributorIdAndEan(userId, ean), 1);
     }
 
     private boolean mainIsShown(ProductImageSet set) {
