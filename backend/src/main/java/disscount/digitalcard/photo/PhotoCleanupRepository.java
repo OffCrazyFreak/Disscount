@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -15,8 +16,16 @@ import java.util.UUID;
 @Repository
 public interface PhotoCleanupRepository extends JpaRepository<PhotoCleanup, UUID> {
 
-    @Query("SELECT p FROM PhotoCleanup p ORDER BY p.createdAt ASC")
+    @Query("SELECT p FROM PhotoCleanup p ORDER BY p.createdAt, p.id")
     List<PhotoCleanup> findOldest(Pageable pageable);
+
+    /** The next page after the last row tried, so rows that keep failing never hide the ones behind them. */
+    @Query("""
+            SELECT p FROM PhotoCleanup p
+            WHERE p.createdAt > :createdAt OR (p.createdAt = :createdAt AND p.id > :id)
+            ORDER BY p.createdAt, p.id
+            """)
+    List<PhotoCleanup> findOldestAfter(LocalDateTime createdAt, UUID id, Pageable pageable);
 
     @Modifying(flushAutomatically = true)
     @Query("DELETE FROM PhotoCleanup p WHERE p.prefix = false AND p.keyOrPrefix IN :keys")

@@ -6,9 +6,6 @@ export const JSON_BODY_LIMIT = 64 * KIB;
 // Spring's spring.servlet.multipart.max-request-size: one photo plus its thumbnail.
 export const PHOTO_BODY_LIMIT = 1100 * KIB;
 
-// UserRequest.image allows a 400,000 character avatar data URL; the other profile fields are tiny.
-export const PROFILE_BODY_LIMIT = 400_000 + 8 * KIB;
-
 const LARGER_BODIES = [
   {
     method: "PUT",
@@ -20,7 +17,7 @@ const LARGER_BODIES = [
     path: /^products\/[^/]+\/images$/,
     limit: PHOTO_BODY_LIMIT,
   },
-  { method: "PATCH", path: /^users\/me$/, limit: PROFILE_BODY_LIMIT },
+  { method: "PUT", path: /^users\/me\/avatar$/, limit: PHOTO_BODY_LIMIT },
 ];
 
 export function bodyLimit(method: string, segments: string[]): number {

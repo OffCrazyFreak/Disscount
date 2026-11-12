@@ -47,11 +47,11 @@ Offline card photos sit in IndexedDB (`lib/offline/card-photo-outbox.ts`) as the
 
 The browser steps are a convenience; the server check is the real guard, because a client can skip them.
 
-| Upload        | Endpoint                                    | Server limit                                                                                        | What happens to the bytes                                                                                                                                      |
-| ------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Avatar        | `PATCH /api/users/me` (JSON field `image`)  | 400,000 characters of data URI (`UserRequest`), then `PhotoValidator`: WebP or JPEG, 2048 px a side | `AvatarSanitizer` decodes the data URI, runs `PhotoValidator`, and stores a new data URI labelled by the real format in Postgres                               |
-| Card photos   | `PUT /api/digital-cards/{id}/photos/{slot}` | Spring multipart `max-file-size=512KB`, `max-request-size=1100KB`, then `PhotoValidator`            | Sanitised bytes go to `cards/` on the server's disk                                                                                                            |
-| Product photo | `POST /api/products/{ean}/images`           | The same multipart limits and `PhotoValidator`, then JPEG only                                      | Sanitised original kept, then `ProductImageRenderer` writes 1080 and 400 px JPEGs on white to the public photo folder ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)) |
+| Upload        | Endpoint                                           | Server limit                                                                                                                 | What happens to the bytes                                                                                                                                      |
+| ------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Avatar        | `PUT /api/users/me/avatar` (multipart part `file`) | The multipart limits, then `PhotoValidator` with avatar caps: WebP or JPEG, 256 KB, 512 px a side; 10 uploads per 10 minutes | Sanitised bytes go to `avatars/<user id>/<random>.webp` on the public photo folder, served by nginx on the image hostname ([section 7](#7-avatars-on-disk))    |
+| Card photos   | `PUT /api/digital-cards/{id}/photos/{slot}`        | Spring multipart `max-file-size=512KB`, `max-request-size=1100KB`, then `PhotoValidator`                                     | Sanitised bytes go to `cards/` on the server's disk                                                                                                            |
+| Product photo | `POST /api/products/{ean}/images`                  | The same multipart limits and `PhotoValidator`, then JPEG only                                                               | Sanitised original kept, then `ProductImageRenderer` writes 1080 and 400 px JPEGs on white to the public photo folder ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)) |
 
 `PhotoValidator` (`backend/.../shared/photo/`) decides the format from the first bytes, never from the claimed type or file name. JPEG is decoded and re-encoded with ImageIO, which drops metadata; it starts at quality 0.85 and steps down to 0.50 until the result is no bigger than the upload, because a phone JPEG is often already below 0.85 and the first step alone made files bigger (27 to 37% on real dev photos, 45% on a noisy test image). When no step is small enough the smallest is kept, so a JPEG uploaded below quality 0.50 can still grow slightly. The 512 KB limit is checked again on the bytes that get stored. WebP is rewritten keeping only the pixel chunks (`VP8X`, `VP8 `, `VP8L`, `ALPH`), which drops EXIF, XMP and ICC. [DIGITAL-CARDS.md §5](DIGITAL-CARDS.md#5-photos) lists every rule.
 
@@ -60,9 +60,10 @@ The browser steps are a convenience; the server check is the real guard, because
 | File                                                                  | Role                                                   |
 | --------------------------------------------------------------------- | ------------------------------------------------------ |
 | `frontend/src/utils/browser/image.ts`                                 | Shared decode, resize, encode and size stepping        |
-| `frontend/src/components/custom/settings/components/avatar-field.tsx` | Avatar picker; turns the blob into a data URI          |
+| `frontend/src/components/custom/settings/components/avatar-field.tsx` | Avatar picker; keeps the blob and a preview of it      |
 | `backend/.../shared/photo/PhotoValidator.java`                        | Format sniffing, size and dimension checks, sanitising |
-| `backend/.../user/AvatarSanitizer.java`                               | Data URI in, sanitised data URI out                    |
+| `backend/.../user/avatar/AvatarService.java`                          | Avatar upload, caps, rate limit, erasure listener      |
+| `backend/.../user/avatar/DataUriAvatarMove.java`                      | Moves avatars stored as data URIs before #474 to files |
 
 ## 6. Gotchas
 
@@ -70,6 +71,19 @@ The browser steps are a convenience; the server check is the real guard, because
 - **A new upload path must go through `image.ts` and `PhotoValidator`.** Skipping either one lets GPS metadata or an unchecked format through.
 - **The avatar 15 MB check in `avatar-field.tsx` only guards decoding.** The stored size comes from the re-encode.
 
-## 7. Future work
+## 7. Avatars on disk
 
-- Moving avatars from Postgres base64 to the public photo store is decided and planned as its own PR; `AvatarSanitizer` already hands back clean bytes that could be stored there.
+Decided by the owner on 2026-11-04 in [#474](https://github.com/OffCrazyFreak/Disscount/issues/474): avatars are public files like product photos, never bytes in Postgres.
+
+- **Where:** the `avatarStore` bean in `PhotoStoreConfig`, the `avatars/` folder of `PUBLIC_PHOTO_DIR`, with URLs on `R2_PUBLIC_URL`. With either one blank the store is off and uploads answer 503 `error.avatar.unavailable`. No new env var.
+- **Names:** `avatars/<user id>/<32 hex characters>.<webp|jpg>`, 128 random bits from `SecureRandom` per upload, because a public file is protected only by its name being unguessable (OWASP File Upload cheat sheet). The user folder lets erasure delete everything at once.
+- **Profile columns:** `app_user.avatar_key` holds the file, and `app_user.image` keeps only the sign-in provider's picture URL. `UserDto.image` is the file's URL when there is one, otherwise `image`, so the frontend contract did not change.
+- **Cache:** nginx answers `/avatars/` with `Cache-Control: public, max-age=86400`. Cloudflare honours that header for `.webp` and `.jpg` (https://developers.cloudflare.com/cache/concepts/default-cache-behavior/), so an erased or replaced avatar can stay at the edge for up to a day after its file is deleted, plus the cleanup delay (seconds normally, longer while a delete keeps failing and is retried). A purge token was not added.
+- **Deleting files:** `app.avatar_cleanup` is an outbox written in the same transaction as the profile change. A replaced or removed avatar queues its key, an erasure queues the user's folder, and `AvatarJobs` retries every 15 minutes. A key a live profile points at is never deleted.
+- **Backups:** the sidecar's `photos` job copies the whole public volume, so avatars are in it and leave it within about 31 days of erasure, like other photos ([BACKUPS.md](BACKUPS.md)).
+- **Data move:** `DataUriAvatarMove` runs 5 minutes after start and then hourly, re-encodes every `image` that starts with `data:` (under the card photo caps, so nobody loses an avatar), turns an old PNG avatar into a JPEG first (production held one PNG on 2026-11-12), writes the file, sets `avatar_key` and clears `image`. Each run tries every row once in id order, so rows that keep failing do not hold back the rest. It is idempotent, does nothing while the store is off, and clears an avatar it cannot decode, with a log line. Old database backups keep the base64 until they rotate out.
+- **Sign-in pictures:** the Google picture URL is still copied into `image` at first login and shown until the first upload; removing an upload shows initials. Copying it to our disk is an open owner decision on #474.
+
+## 8. Future work
+
+- Decide whether the sign-in provider's picture is copied to our disk at first login (#474).

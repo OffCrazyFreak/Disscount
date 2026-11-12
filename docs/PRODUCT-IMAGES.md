@@ -358,4 +358,3 @@ A successful copy clears `render_attempts` and `render_retry_at`.
 ## 19. Future work
 
 - #463: remove the background from card and product photos with an AI model, so every product sits on the same clean white.
-- Moving avatars from Postgres base64 to the public photo store (decided, separate PR).

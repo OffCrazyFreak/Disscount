@@ -43,10 +43,17 @@ public class PhotoCleanupService {
         enqueue(prefix, true);
     }
 
-    /** Scheduled sweep for rows whose first attempt failed or never ran (crash, storage outage). */
+    /** Scheduled sweep for rows whose first attempt failed or never ran (crash, storage outage); tries each row once. */
     public void retryPending() {
         if (!photoStore.enabled()) return;
-        repository.findOldest(PageRequest.of(0, BATCH)).forEach(this::attempt);
+
+        List<PhotoCleanup> page = repository.findOldest(PageRequest.of(0, BATCH));
+        while (!page.isEmpty()) {
+            page.forEach(this::attempt);
+
+            PhotoCleanup last = page.getLast();
+            page = repository.findOldestAfter(last.getCreatedAt(), last.getId(), PageRequest.of(0, BATCH));
+        }
     }
 
     /** PhotoKeys gives every upload fresh keys, but a queued delete of a just stored key must never fire. */

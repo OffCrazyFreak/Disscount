@@ -11,29 +11,31 @@ import { dirtySections } from "@/components/custom/settings/settings-dirty";
 import {
   buildModeUserPatch,
   buildSaveJobs,
+  type IAvatarChange,
   type SaveMode,
 } from "@/components/custom/settings/settings-save-jobs";
 import {
   applySaveErrors,
   failedSaveTab,
+  rebaselineKeepingEdits,
   rebaselineSavedSections,
 } from "@/components/custom/settings/settings-save-recovery";
 import { useSettingsSaveRunners } from "@/components/custom/settings/hooks/use-settings-save-runners";
 
 interface IUseSettingsSaveProps {
   form: UseFormReturn<SettingsFormValues>;
-  avatarPreview: string | null;
-  avatarTouched: boolean;
-  onSaved: () => void;
+  avatar: IAvatarChange;
+  onSaved: (sent: IAvatarChange) => void;
   clearDraft: () => void;
+  flushDraft: (baseline: Partial<SettingsFormValues>) => void;
 }
 
 export function useSettingsSave({
   form,
-  avatarPreview,
-  avatarTouched,
+  avatar,
   onSaved,
   clearDraft,
+  flushDraft,
 }: IUseSettingsSaveProps) {
   const t = useTranslations("settings");
   const { runners, saving } = useSettingsSaveRunners();
@@ -42,7 +44,7 @@ export function useSettingsSave({
   async function save(mode: SaveMode): Promise<boolean> {
     const values = form.getValues();
     const defaults = (defaultValues ?? {}) as Partial<SettingsFormValues>;
-    const dirty = dirtySections(values, defaults, avatarTouched);
+    const dirty = dirtySections(values, defaults, avatar.touched);
 
     if (mode === "settings") closeModalUrl();
     if (mode === "settings" && dirty.size === 0) return true;
@@ -54,10 +56,8 @@ export function useSettingsSave({
     const jobs = buildSaveJobs(
       values,
       defaults,
-      buildModeUserPatch(mode, values, defaults, dirty, {
-        touched: avatarTouched,
-        preview: avatarPreview,
-      }),
+      buildModeUserPatch(mode, values, defaults),
+      avatar,
       runners,
     );
 
@@ -67,7 +67,14 @@ export function useSettingsSave({
     );
 
     if (failed.length > 0) {
-      rebaselineSavedSections(form, jobs, results, values, onSaved);
+      rebaselineSavedSections(
+        form,
+        jobs,
+        results,
+        values,
+        () => onSaved(avatar),
+        flushDraft,
+      );
       if (mode === "settings") {
         openModalUrl({
           name: "settings",
@@ -79,9 +86,13 @@ export function useSettingsSave({
       return false;
     }
 
-    clearDraft();
-    form.reset(values);
-    onSaved();
+    if (fieldsDiffer(form.getValues(), values)) {
+      rebaselineKeepingEdits(form, values, flushDraft);
+    } else {
+      clearDraft();
+      form.reset(values);
+    }
+    onSaved(avatar);
     // Onboarding always runs a job to stamp its outcome, so only a settings save can reach here with nothing written.
     if (mode === "onboarding") {
       toast.success(t("save.onboardingDone"));
@@ -102,4 +113,8 @@ export function useSettingsSave({
   }
 
   return { saveSettings, saveOnboarding, saving };
+}
+
+function fieldsDiffer(current: SettingsFormValues, saved: SettingsFormValues) {
+  return JSON.stringify(current) !== JSON.stringify(saved);
 }

@@ -995,11 +995,6 @@
         "feedbackContact" : {
           "type" : [ "boolean", "null" ]
         },
-        "image" : {
-          "maxLength" : 400000,
-          "minLength" : 0,
-          "type" : [ "string", "null" ]
-        },
         "newsletter" : {
           "type" : [ "boolean", "null" ]
         },

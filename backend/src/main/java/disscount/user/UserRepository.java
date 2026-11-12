@@ -1,6 +1,7 @@
 package disscount.user;
 
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -19,6 +20,12 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     List<User> findAllByOrderByCreatedAtAsc();
 
+    boolean existsByAvatarKey(String avatarKey);
+
+    /** Live profiles still holding an avatar from before #474, after a cursor so a run never revisits a failed row. */
+    @Query("SELECT u.id FROM User u WHERE u.image LIKE 'data:%' AND u.id > :after ORDER BY u.id")
+    List<UUID> findIdsWithDataUriImageAfter(UUID after, Pageable page);
+
     @Query("SELECT u.id FROM User u")
     List<UUID> findActiveIds();
 
@@ -28,8 +35,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     /** Native for the same reason as the ledger backfill; clears what deletions before deleteAccount kept. */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = """
-            UPDATE app.app_user SET username = NULL, image = NULL
-            WHERE deleted_at IS NOT NULL AND (username IS NOT NULL OR image IS NOT NULL)
+            UPDATE app.app_user SET username = NULL, image = NULL, avatar_key = NULL
+            WHERE deleted_at IS NOT NULL AND (username IS NOT NULL OR image IS NOT NULL OR avatar_key IS NOT NULL)
             """, nativeQuery = true)
     int clearNamesAndAvatarsOfDeletedProfiles();
 

@@ -12,24 +12,29 @@ public class PhotoValidator {
     public static final int MAX_SIDE = 2048;
 
     public ValidatedPhoto validate(byte[] data) {
+        return validate(data, MAX_BYTES, MAX_SIDE);
+    }
+
+    /** For a kind of photo that is stored smaller than a card photo, such as an avatar. */
+    public ValidatedPhoto validate(byte[] data, int maxBytes, int maxSide) {
         if (data == null || data.length == 0) {
             throw new BadRequestException("error.cardPhoto.empty");
         }
-        if (data.length > MAX_BYTES) {
-            throw new BadRequestException("error.cardPhoto.tooLarge", String.valueOf(MAX_BYTES / 1024));
+        if (data.length > maxBytes) {
+            throw new BadRequestException("error.cardPhoto.tooLarge", String.valueOf(maxBytes / 1024));
         }
 
         ValidatedPhoto photo;
         if (isJpeg(data)) {
-            photo = JpegSanitizer.sanitize(data, MAX_SIDE);
+            photo = JpegSanitizer.sanitize(data, maxSide);
         } else if (isRiff(data)) {
-            photo = WebpSanitizer.sanitize(data, MAX_SIDE);
+            photo = WebpSanitizer.sanitize(data, maxSide);
         } else {
             throw new BadRequestException("error.cardPhoto.unsupportedFormat");
         }
         // The limit is on what we store, so a re-encode that grew the file is held to it too.
-        if (photo.bytes().length > MAX_BYTES) {
-            throw new BadRequestException("error.cardPhoto.tooLarge", String.valueOf(MAX_BYTES / 1024));
+        if (photo.bytes().length > maxBytes) {
+            throw new BadRequestException("error.cardPhoto.tooLarge", String.valueOf(maxBytes / 1024));
         }
         return photo;
     }

@@ -6,13 +6,16 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
+// Only changed columns are written, so a profile PATCH racing an avatar upload cannot write the old avatar back.
 @Entity
+@DynamicUpdate
 @SQLRestriction("deleted_at is null")
 @Table(name = "app_user")
 @Getter
@@ -49,9 +52,13 @@ public class User {
     @Column(name = "acquisition_channel")
     private AcquisitionChannel acquisitionChannel;
 
-    // Base64 avatar; Google sign-ins use the session image instead, so this stays null unless uploaded.
+    // The sign-in provider's picture URL, copied at first login; null once the user uploads or removes an avatar.
     @Column(name = "image", columnDefinition = "TEXT")
     private String image;
+
+    // The uploaded avatar's file on the public photo volume; wins over image when both are set.
+    @Column(name = "avatar_key", length = 160, unique = true)
+    private String avatarKey;
 
     // Stamped when the onboarding wizard ends, however it ends; null = wizard auto-opens on load.
     @Column(name = "onboarding_completed_at")

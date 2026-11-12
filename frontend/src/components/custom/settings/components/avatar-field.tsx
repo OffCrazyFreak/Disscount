@@ -19,7 +19,7 @@ import { useSettingsUi } from "@/components/custom/settings/settings-context";
 // Only guards decoding: the re-encode below sets the stored size.
 const MAX_AVATAR_BYTES = 15 * 1024 * 1024;
 
-// Outside react-hook-form and drafts, because base64 images would blow the localStorage quota.
+// Outside react-hook-form and drafts, because an image would blow the localStorage quota.
 export default function AvatarField() {
   const t = useTranslations("settings");
   const { user } = useUser();
@@ -35,7 +35,8 @@ export default function AvatarField() {
     }
 
     try {
-      updateAvatar(await fileToBase64(await prepareAvatar(file)));
+      const upload = await prepareAvatar(file);
+      updateAvatar({ preview: await fileToBase64(upload), upload });
     } catch {
       toast.error(t("profile.avatar.loadFailed"));
     }

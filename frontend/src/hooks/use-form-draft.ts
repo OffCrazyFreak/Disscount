@@ -120,26 +120,31 @@ export function useFormDraft<T extends FieldValues>({
     }
   }, [enabled, restore, draftKey, form]);
 
-  const flushDraft = useCallback(() => {
-    // Writing now makes a queued save redundant, and a stale one would overwrite what follows.
-    clearTimeout(saveTimerRef.current);
-    // A switch moves the identity before unmount, so the last flush would save as the next account.
-    if (getCacheIdentity() !== ownerIdentityRef.current) return;
+  /** baseline: defaults just set by a reset, which the stored defaults only pick up after the next render. */
+  const flushDraft = useCallback(
+    (baseline?: Partial<T>) => {
+      // Writing now makes a queued save redundant, and a stale one would overwrite what follows.
+      clearTimeout(saveTimerRef.current);
+      // A switch moves the identity before unmount, so the last flush would save as the next account.
+      if (getCacheIdentity() !== ownerIdentityRef.current) return;
 
-    const values = form.getValues() as Record<string, unknown>;
-    const { exclude: excluded, defaultValues: defaults } = stateRef.current;
-    const payload: Record<string, unknown> = {};
+      const values = form.getValues() as Record<string, unknown>;
+      const { exclude: excluded } = stateRef.current;
+      const defaults = baseline ?? stateRef.current.defaultValues;
+      const payload: Record<string, unknown> = {};
 
-    for (const [field, value] of Object.entries(values)) {
-      if (excluded.includes(field as Path<T>)) continue;
-      const base = (defaults as Record<string, unknown> | undefined)?.[field];
-      if (JSON.stringify(value) === JSON.stringify(base)) continue;
-      payload[field] = value;
-    }
+      for (const [field, value] of Object.entries(values)) {
+        if (excluded.includes(field as Path<T>)) continue;
+        const base = (defaults as Record<string, unknown> | undefined)?.[field];
+        if (JSON.stringify(value) === JSON.stringify(base)) continue;
+        payload[field] = value;
+      }
 
-    if (Object.keys(payload).length === 0) removeFormDraft(draftKey);
-    else setFormDraft(draftKey, payload);
-  }, [draftKey, form]);
+      if (Object.keys(payload).length === 0) removeFormDraft(draftKey);
+      else setFormDraft(draftKey, payload);
+    },
+    [draftKey, form],
+  );
 
   useEffect(() => {
     if (!enabled) return;

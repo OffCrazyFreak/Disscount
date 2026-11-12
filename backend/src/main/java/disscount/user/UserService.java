@@ -9,6 +9,7 @@ import disscount.shared.errors.ConflictException;
 import disscount.shared.Timestamps;
 import disscount.user.erasure.ErasureLedgerEntry;
 import disscount.user.erasure.ErasureLedgerRepository;
+import disscount.user.avatar.AvatarService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -35,12 +36,12 @@ public class UserService {
     private final UserProfileCreator profileCreator;
     private final ApplicationEventPublisher events;
     private final ErasureLedgerRepository erasureLedger;
-    private final AvatarSanitizer avatarSanitizer;
+    private final AvatarService avatarService;
     private final AdminAuditLog adminAudit;
 
     public Optional<UserDto> findById(UUID id) {
         return userRepository.findById(id)
-                .map(UserDto::from);
+                .map(this::toDto);
     }
 
     /** A deleted account is never revived: the login outlived a failed deletion, so the browser can finish it. */
@@ -155,12 +156,6 @@ public class UserService {
             user.setAcquisitionChannel(request.acquisitionChannel());
         }
 
-        // null = leave unchanged, "" = clear the avatar, otherwise store the new base64 image
-        String image = request.image();
-        if (image != null) {
-            user.setImage(image.isEmpty() ? null : avatarSanitizer.sanitize(image));
-        }
-
         // Only "completed" stamps it and finished is never downgraded, or a slow skipped ping could relock the flow.
         String outcome = request.onboardingOutcome();
         boolean isDowngrade = outcome != null
@@ -176,7 +171,11 @@ public class UserService {
         }
 
         user = userRepository.save(user);
-        return UserDto.from(user);
+        return toDto(user);
+    }
+
+    private UserDto toDto(User user) {
+        return UserDto.from(user, avatarService.imageUrl(user));
     }
 
     /** null leaves it unchanged, true sets now only if off, preserving the first enable time, and false clears. */
@@ -204,6 +203,8 @@ public class UserService {
         userRepository.findByIdForUpdate(userId).ifPresent(user -> {
             user.setUsername(null);
             user.setImage(null);
+            // The file itself goes through the AccountErased listener, which queues the user's whole avatar folder.
+            user.setAvatarKey(null);
             user.setDeletedAt(Timestamps.nowUtc());
             // Flushed now because the listeners' bulk deletes clear the persistence context, dropping any unsaved change.
             userRepository.saveAndFlush(user);
@@ -229,7 +230,7 @@ public class UserService {
     private List<UserDto> findAllActive() {
         List<UserDto> dtos = userRepository.findAllByOrderByCreatedAtAsc()
                 .stream()
-                .map(UserDto::from)
+                .map(this::toDto)
                 .toList();
 
         if (dtos.isEmpty()) {
@@ -286,7 +287,7 @@ public class UserService {
         adminRoleChange(previousType, accountType).ifPresent(action ->
                 adminAudit.recordUserAction(adminUserId, userId, action));
 
-        return UserDto.from(user);
+        return toDto(user);
     }
 
     /** Only gaining or losing admin is audited; a change between the other types grants no admin power. */

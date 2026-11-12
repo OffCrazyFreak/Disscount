@@ -81,6 +81,7 @@ class PhotoCleanupServiceTest {
         store.objects.clear();
         store.enabled = true;
         store.failDeletes = false;
+        store.failingKeys.clear();
         owner = users.save(user());
         cardService.upsert(owner.getId(), cardId, request("Kartica"));
     }
@@ -244,5 +245,26 @@ class PhotoCleanupServiceTest {
         MockMultipartFile full = new MockMultipartFile("full", "p.webp", "image/webp", TestImages.webp(32, 32));
         MockMultipartFile thumb = new MockMultipartFile("thumb", "t.webp", "image/webp", TestImages.webp(16, 16));
         photoService.upload(owner.getId(), cardId, slot, full, "icon".equals(slot) ? null : thumb);
+    }
+
+    @Test
+    void rowsThatKeepFailingDoNotHideTheRowsBehindThemFromTheSweep() {
+        store.enabled = false;
+        for (int i = 0; i < 250; i++) {
+            String key = PhotoKeys.cardPrefix(owner.getId(), cardId) + "stuck-" + i + ".webp";
+            store.objects.put(key, new byte[]{1});
+            store.failingKeys.add(key);
+            cleanup.enqueueKey(key);
+        }
+        String behind = PhotoKeys.cardPrefix(owner.getId(), cardId) + "behind.webp";
+        store.objects.put(behind, new byte[]{1});
+        cleanup.enqueueKey(behind);
+        jdbc.update("UPDATE app.photo_cleanup SET created_at = created_at + INTERVAL '1' HOUR WHERE key_or_prefix = ?", behind);
+        store.enabled = true;
+
+        cleanup.retryPending();
+
+        assertThat(store.objects).doesNotContainKey(behind);
+        assertThat(queue.findAll()).hasSize(250);
     }
 }

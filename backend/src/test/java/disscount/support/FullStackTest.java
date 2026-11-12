@@ -47,6 +47,8 @@ public abstract class FullStackTest {
     protected PhotoStore productImageStore;
     @TestBean(name = PhotoStoreConfig.PRODUCT_ORIGINALS, methodName = "disscount.support.FullStackTest#fakeProductOriginalStore")
     protected PhotoStore productOriginalStore;
+    @TestBean(name = PhotoStoreConfig.AVATARS, methodName = "disscount.support.FullStackTest#fakeAvatarStore")
+    protected PhotoStore avatarStore;
 
     // One context serves every test class, so its stores would carry one class's files into the next.
     @BeforeEach
@@ -54,6 +56,7 @@ public abstract class FullStackTest {
         ((FakePhotoStore) photoStore).reset();
         ((FakePhotoStore) productImageStore).reset();
         ((FakePhotoStore) productOriginalStore).reset();
+        ((FakePhotoStore) avatarStore).reset();
     }
 
     static PhotoStore fakePhotoStore() {
@@ -65,6 +68,10 @@ public abstract class FullStackTest {
     }
 
     static PhotoStore fakeProductOriginalStore() {
+        return new FakePhotoStore();
+    }
+
+    static PhotoStore fakeAvatarStore() {
         return new FakePhotoStore();
     }
 

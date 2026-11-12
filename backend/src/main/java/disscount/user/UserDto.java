@@ -23,6 +23,7 @@ public record UserDto(
         @Schema(nullable = true) LocalDateTime feedbackContactEnabledAt,
 
         @Schema(nullable = true) AcquisitionChannel acquisitionChannel,
+        // A URL: the uploaded avatar on the image hostname, or the sign-in provider's picture.
         @Schema(nullable = true) String image,
         @Schema(nullable = true) LocalDateTime onboardingCompletedAt,
         @Schema(nullable = true) String onboardingOutcome,
@@ -36,7 +37,7 @@ public record UserDto(
         @Schema(nullable = true) Instant lastActiveAt) {
 
     /** No email: the current user reads the session, and the admin list adds it through {@link #withIdentity}. */
-    static UserDto from(User user) {
+    static UserDto from(User user, String image) {
         return UserDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
@@ -45,7 +46,7 @@ public record UserDto(
                 .newsletterEnabledAt(user.getNewsletterEnabledAt())
                 .feedbackContactEnabledAt(user.getFeedbackContactEnabledAt())
                 .acquisitionChannel(user.getAcquisitionChannel())
-                .image(user.getImage())
+                .image(image)
                 .onboardingCompletedAt(user.getOnboardingCompletedAt())
                 .onboardingOutcome(user.getOnboardingOutcome())
                 .accountType(user.getAccountType())

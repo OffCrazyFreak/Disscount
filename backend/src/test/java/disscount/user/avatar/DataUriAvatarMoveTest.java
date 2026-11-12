@@ -1,0 +1,138 @@
+package disscount.user.avatar;
+
+import disscount.shared.photo.FakePhotoStore;
+import disscount.shared.photo.TestImages;
+import disscount.support.FullStackTest;
+import disscount.user.User;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+
+import java.util.Base64;
+import java.util.List;
+import java.util.UUID;
+
+import static disscount.shared.photo.TestImages.contains;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class DataUriAvatarMoveTest extends FullStackTest {
+
+    @Autowired DataUriAvatarMove move;
+
+    private FakePhotoStore files;
+
+    @BeforeEach
+    void setUp() {
+        files = (FakePhotoStore) avatarStore;
+        files.objects.clear();
+        files.enabled = true;
+        files.failPuts = false;
+        files.failingPutPrefixes.clear();
+        users.deleteAll();
+    }
+
+    private User withImage(String image) {
+        UUID id = UUID.randomUUID();
+        return users.save(User.builder().id(id).username("u-" + id).image(image).build());
+    }
+
+    private static String dataUri(byte[] bytes) {
+        return "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(bytes);
+    }
+
+    private User reload(User user) {
+        return users.findById(user.getId()).orElseThrow();
+    }
+
+    @Test
+    void aDatabaseAvatarBecomesACleanedFileAndTheColumnIsCleared() {
+        User user = withImage(dataUri(TestImages.jpegWithApp1(TestImages.jpeg(256, 256), "secret-gps")));
+
+        assertThat(move.moveAll()).isEqualTo(1);
+
+        User moved = reload(user);
+        assertThat(moved.getImage()).isNull();
+        assertThat(moved.getAvatarKey()).startsWith(AvatarKeys.userPrefix(user.getId()));
+        assertThat(contains(files.objects.get(moved.getAvatarKey()), "secret-gps")).isFalse();
+    }
+
+    @Test
+    void runningAgainMovesNothingAndKeepsTheFile() {
+        withImage(dataUri(TestImages.jpeg(64, 64)));
+        move.moveAll();
+
+        assertThat(move.moveAll()).isZero();
+        assertThat(files.objects).hasSize(1);
+    }
+
+    @Test
+    void anOldPngAvatarBecomesAJpegFileInsteadOfBeingDropped() {
+        User safari = withImage("data:image/png;base64," + Base64.getEncoder().encodeToString(TestImages.png(256, 256)));
+
+        assertThat(move.moveAll()).isEqualTo(1);
+
+        User moved = reload(safari);
+        assertThat(moved.getImage()).isNull();
+        assertThat(moved.getAvatarKey()).endsWith(".jpg");
+        assertThat(files.objects.get(moved.getAvatarKey())).startsWith((byte) 0xFF, (byte) 0xD8);
+    }
+
+    @Test
+    void rowsThatKeepFailingDoNotStopTheRowsBehindThem() {
+        for (int i = 0; i < 60; i++) withImage(dataUri(TestImages.jpeg(16, 16)));
+        files.failPuts = true;
+
+        assertThat(move.moveAll()).isZero();
+
+        files.failPuts = false;
+        assertThat(move.moveAll()).isEqualTo(60);
+        assertThat(files.objects).hasSize(60);
+    }
+
+    @Test
+    void laterRowsMoveInTheSameRunWhileEarlierRowsKeepFailing() {
+        for (int i = 0; i < 60; i++) withImage(dataUri(TestImages.jpeg(16, 16)));
+        // The database's own order, which is the order the move walks in.
+        List<UUID> inOrder = users.findIdsWithDataUriImageAfter(new UUID(0, 0), PageRequest.of(0, 100));
+        List<UUID> failing = inOrder.subList(0, 55);
+        List<UUID> later = inOrder.subList(55, 60);
+        failing.forEach(id -> files.failingPutPrefixes.add(AvatarKeys.userPrefix(id)));
+
+        assertThat(move.moveAll()).isEqualTo(5);
+
+        assertThat(later).allSatisfy(id -> assertThat(users.findById(id).orElseThrow().getAvatarKey()).isNotNull());
+        assertThat(failing).allSatisfy(id -> assertThat(users.findById(id).orElseThrow().getImage()).startsWith("data:"));
+        assertThat(files.objects).hasSize(5);
+    }
+
+    @Test
+    void anUnreadableDatabaseAvatarIsDroppedSoItIsNotRetriedForever() {
+        User broken = withImage("data:image/webp;base64,not-base64!");
+
+        move.moveAll();
+
+        assertThat(reload(broken).getImage()).isNull();
+        assertThat(reload(broken).getAvatarKey()).isNull();
+        assertThat(files.objects).isEmpty();
+    }
+
+    @Test
+    void aProviderPictureUrlIsLeftAlone() {
+        User google = withImage("https://lh3.googleusercontent.com/a/picture");
+
+        assertThat(move.moveAll()).isZero();
+
+        assertThat(reload(google).getImage()).isEqualTo("https://lh3.googleusercontent.com/a/picture");
+    }
+
+    @Test
+    void nothingMovesWhileTheAvatarFolderIsMissing() {
+        User user = withImage(dataUri(TestImages.jpeg(64, 64)));
+        files.enabled = false;
+
+        assertThat(move.moveAll()).isZero();
+
+        assertThat(reload(user).getImage()).startsWith("data:");
+    }
+}
