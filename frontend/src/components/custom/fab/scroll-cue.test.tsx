@@ -63,7 +63,18 @@ describe("ScrollCue", () => {
 
     await userEvent.setup().click(cueButton()!);
 
-    expect(scrollWindowTo).toHaveBeenCalledWith(800 - 96);
+    // jsdom has no measured header, so the step is the screen minus the carried-over sliver.
+    expect(scrollWindowTo).toHaveBeenCalledWith(800 - 48);
+  });
+
+  it("leaves room for the header it scrolls under", async () => {
+    document.documentElement.style.setProperty("--header-bottom", "80px");
+    renderWithProviders(<ScrollCue />);
+
+    await userEvent.setup().click(cueButton()!);
+
+    expect(scrollWindowTo).toHaveBeenCalledWith(800 - 80 - 48);
+    document.documentElement.style.removeProperty("--header-bottom");
   });
 
   it("shows nothing to a signed-in user", () => {

@@ -8,8 +8,22 @@ import { useUser } from "@/context/user-context";
 import { cn } from "@/lib/utils";
 import { scrollWindowTo } from "@/utils/scroll";
 
-/** A sliver of the current screen stays in view, so the jump reads as a scroll, not a page swap. */
-const CARRY_OVER_PX = 96;
+/** A sliver of the current screen stays in view below the header, so the jump reads as a scroll, not a page swap. */
+const CARRY_OVER_PX = 48;
+
+function headerBottomPx(): number {
+  const header = getComputedStyle(document.documentElement).getPropertyValue(
+    "--header-bottom",
+  );
+  const rootFontPx = parseFloat(
+    getComputedStyle(document.documentElement).fontSize,
+  );
+
+  // The header writes its measured edge in px; the stylesheet fallback is in rem.
+  return header.trim().endsWith("rem")
+    ? parseFloat(header) * rootFontPx
+    : parseFloat(header) || 0;
+}
 
 function isAtTopWithMoreBelow(): boolean {
   const { scrollY, innerHeight } = window;
@@ -34,7 +48,9 @@ function subscribe(onChange: () => void): () => void {
 }
 
 function scrollOneScreen() {
-  scrollWindowTo(window.scrollY + window.innerHeight - CARRY_OVER_PX);
+  const step = window.innerHeight - headerBottomPx() - CARRY_OVER_PX;
+
+  scrollWindowTo(window.scrollY + step);
 }
 
 /** Tells signed-out visitors the page goes on below the fold (#170); WindowScrollFade is the other half. */
@@ -53,8 +69,14 @@ export default function ScrollCue() {
   if (isLoading || user) return null;
 
   return (
-    // Click-through, so the hidden button leaves no dead zone above the nav.
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--bottom-nav-total)+1.5rem)] z-[var(--z-fab)] flex justify-center">
+    // Click-through so the hidden button leaves no dead zone; gone while a sheet or the install banner is up.
+    <div
+      className={cn(
+        "pointer-events-none fixed inset-x-0 bottom-[calc(var(--bottom-nav-total)+1.5rem)] z-[var(--z-fab)] flex justify-center",
+        'in-[body:has([data-slot="drawer-viewport"][data-open])]:hidden',
+        'in-[body:has([data-slot="install-banner"])]:hidden',
+      )}
+    >
       <Button
         type="button"
         variant="outline"
@@ -65,9 +87,11 @@ export default function ScrollCue() {
         inert={!isVisible}
         className={cn(
           "pointer-events-auto size-[3rem] rounded-full border-primary bg-background/90 text-primary shadow-md [&_svg]:size-[1.5rem]!",
-          "animate-bounce [animation-iteration-count:3] motion-reduce:animate-none",
           "transition-opacity duration-300 motion-reduce:transition-none",
-          isVisible ? "opacity-100" : "opacity-0",
+          // The bounce starts only once it can be seen, or it plays out while the results load.
+          isVisible
+            ? "animate-bounce opacity-100 [animation-iteration-count:3] motion-reduce:animate-none"
+            : "opacity-0",
         )}
       >
         <ChevronsDown />
