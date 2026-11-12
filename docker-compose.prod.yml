@@ -127,10 +127,10 @@ services:
       - sh
       - -c
       - >-
-        mkdir -p /data/photos-private/cards /data/photos-private/product-originals /data/photos-public/products &&
-        chown 1001:999 /data/photos-private /data/photos-private/cards /data/photos-private/product-originals /data/photos-public /data/photos-public/products &&
+        mkdir -p /data/photos-private/cards /data/photos-private/product-originals /data/photos-public/products /data/photos-public/avatars &&
+        chown 1001:999 /data/photos-private /data/photos-private/cards /data/photos-private/product-originals /data/photos-public /data/photos-public/products /data/photos-public/avatars &&
         chmod 700 /data/photos-private /data/photos-private/cards /data/photos-private/product-originals &&
-        chmod 755 /data/photos-public /data/photos-public/products
+        chmod 755 /data/photos-public /data/photos-public/products /data/photos-public/avatars
 
   # Serves the public product photos on the image hostname (R2_PUBLIC_URL); read-only.
   images:
@@ -219,6 +219,11 @@ configs:
         # Keys carry a hash of their bytes, so a cached copy can never go stale.
         location /products/ {
           add_header Cache-Control "public, max-age=31536000, immutable";
+          add_header X-Content-Type-Options nosniff;
+        }
+        # Every upload gets a new name, but an erased avatar must leave the Cloudflare edge within a day (#474).
+        location /avatars/ {
+          add_header Cache-Control "public, max-age=86400";
           add_header X-Content-Type-Options nosniff;
         }
         location / { return 404; }
