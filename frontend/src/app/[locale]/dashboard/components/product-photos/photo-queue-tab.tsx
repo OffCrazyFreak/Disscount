@@ -29,7 +29,7 @@ export default function PhotoQueueTab() {
   }, [fetchNextPage]);
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,22rem)_1fr]">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,22rem)_1fr]">
       <div className="space-y-3">
         <PhotoQueueFilters
           filter={filter}
