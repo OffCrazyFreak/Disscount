@@ -17,6 +17,7 @@ import {
 import {
   applySaveErrors,
   failedSaveTab,
+  rebaselineKeepingEdits,
   rebaselineSavedSections,
 } from "@/components/custom/settings/settings-save-recovery";
 import { useSettingsSaveRunners } from "@/components/custom/settings/hooks/use-settings-save-runners";
@@ -26,6 +27,7 @@ interface IUseSettingsSaveProps {
   avatar: IAvatarChange;
   onSaved: (sent: IAvatarChange) => void;
   clearDraft: () => void;
+  flushDraft: (baseline: Partial<SettingsFormValues>) => void;
 }
 
 export function useSettingsSave({
@@ -33,6 +35,7 @@ export function useSettingsSave({
   avatar,
   onSaved,
   clearDraft,
+  flushDraft,
 }: IUseSettingsSaveProps) {
   const t = useTranslations("settings");
   const { runners, saving } = useSettingsSaveRunners();
@@ -64,8 +67,13 @@ export function useSettingsSave({
     );
 
     if (failed.length > 0) {
-      rebaselineSavedSections(form, jobs, results, values, () =>
-        onSaved(avatar),
+      rebaselineSavedSections(
+        form,
+        jobs,
+        results,
+        values,
+        () => onSaved(avatar),
+        flushDraft,
       );
       if (mode === "settings") {
         openModalUrl({
@@ -78,8 +86,12 @@ export function useSettingsSave({
       return false;
     }
 
-    clearDraft();
-    form.reset(values);
+    if (fieldsDiffer(form.getValues(), values)) {
+      rebaselineKeepingEdits(form, values, flushDraft);
+    } else {
+      clearDraft();
+      form.reset(values);
+    }
     onSaved(avatar);
     // Onboarding always runs a job to stamp its outcome, so only a settings save can reach here with nothing written.
     if (mode === "onboarding") {
@@ -101,4 +113,8 @@ export function useSettingsSave({
   }
 
   return { saveSettings, saveOnboarding, saving };
+}
+
+function fieldsDiffer(current: SettingsFormValues, saved: SettingsFormValues) {
+  return JSON.stringify(current) !== JSON.stringify(saved);
 }

@@ -42,7 +42,7 @@ export default function SettingsModalHost() {
     form.reset(defaults);
   }, [isReady, defaults, form]);
 
-  const { restored, clearDraft } = useFormDraft({
+  const { restored, clearDraft, flushDraft } = useFormDraft({
     draftKey: SETTINGS_DRAFT_KEY,
     form,
     enabled: isReady,
@@ -53,6 +53,7 @@ export default function SettingsModalHost() {
     avatar: avatar.change,
     onSaved: avatar.markSaved,
     clearDraft,
+    flushDraft,
   });
 
   function resetToDefaults() {
