@@ -10,6 +10,7 @@ import {
   subscribeToFormDrafts,
 } from "@/utils/browser/local-storage";
 import { useUser } from "@/context/user-context";
+import { isSameProduct } from "@/utils/product-id";
 
 /** The cached me query already has each list's items; signed-out visitors would only get 401. */
 export function useIsOnPreselectedShoppingList(
@@ -35,5 +36,5 @@ export function useIsOnPreselectedShoppingList(
   const preselected =
     sorted.find((list) => list.id === draftedListId) ?? sorted[0];
 
-  return !!preselected?.items?.some((item) => item.ean === ean);
+  return !!preselected?.items?.some((item) => isSameProduct(item.ean, ean));
 }

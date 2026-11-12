@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { shoppingListService } from "@/lib/api";
 import { sortShoppingListsByRecency } from "@/lib/api/shopping-lists/sort-lists";
 import type { AddToListFormData } from "@/app/[locale]/products/typings/add-to-list";
+import { isSameProduct } from "@/utils/product-id";
 
 export function useSelectedShoppingList(
   form: UseFormReturn<AddToListFormData>,
@@ -36,7 +37,7 @@ export function useSelectedShoppingList(
     shoppingListService.useGetShoppingListById(selectedListId);
 
   const duplicateItem = ean
-    ? selectedShoppingList?.items?.find((item) => item.ean === ean)
+    ? selectedShoppingList?.items?.find((item) => isSameProduct(item.ean, ean))
     : undefined;
   const isAutomaticSelectionRef = useRef(true);
 
