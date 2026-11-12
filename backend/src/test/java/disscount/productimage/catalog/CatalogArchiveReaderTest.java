@@ -38,12 +38,27 @@ class CatalogArchiveReaderTest {
     }
 
     @Test
+    void aCodePaddedDifferentlyByTwoChainsIsOneProduct() throws IOException {
+        byte[] zip = zip(
+                "konzum/products.csv", "product_id,barcode,name,brand\n1,0012345678905,PAHULJICE,\n",
+                "konzum/prices.csv", "store_id,product_id,price\nS1,1,1.00\n",
+                "spar/products.csv", "product_id,barcode,name,brand\nA,012345678905,Pahuljice,\n",
+                "spar/prices.csv", "store_id,product_id,price\nX,A,1.05\n");
+
+        Map<String, CatalogArchiveReader.Entry> catalog = CatalogArchiveReader.read(new ByteArrayInputStream(zip));
+
+        assertThat(catalog).containsOnlyKeys("12345678905");
+        assertThat(catalog.get("12345678905").chainCount()).isEqualTo(2);
+    }
+
+    @Test
     void barcodeRulesKeepRealGtinsOnly() {
         assertThat(Barcodes.isPublicGtin("3856021300547")).isTrue();
         assertThat(Barcodes.isPublicGtin("20123956")).isTrue();
         assertThat(Barcodes.isPublicGtin("3856021300548")).isFalse();
         assertThat(Barcodes.isPublicGtin("2012345678903")).isFalse();
         assertThat(Barcodes.isPublicGtin("12345")).isFalse();
+        assertThat(Barcodes.isEanShape("٠٠١٢٣٤٥٦٧٨٩٠٥")).isFalse();
         assertThat(Barcodes.matchKey("0012345678905")).isEqualTo("12345678905");
         assertThat(CsvLine.split("a,\"b, \"\"c\"\"\",d")).containsExactly("a", "b, \"c\"", "d");
     }

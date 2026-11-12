@@ -10,7 +10,8 @@ public final class Barcodes {
         int length = code.length();
         if (length != 8 && length != 12 && length != 13 && length != 14) return false;
         for (int i = 0; i < length; i++) {
-            if (!Character.isDigit(code.charAt(i))) return false;
+            char c = code.charAt(i);
+            if (c < '0' || c > '9') return false;
         }
         // GS1 prefixes 20 to 29 are restricted circulation: weighed goods and a shop's own labels.
         if (length == 13 && code.charAt(0) == '2') return false;
@@ -33,7 +34,9 @@ public final class Barcodes {
     public static boolean isEanShape(String ean) {
         if (ean == null || ean.length() < 8 || ean.length() > 14) return false;
         for (int i = 0; i < ean.length(); i++) {
-            if (!Character.isDigit(ean.charAt(i))) return false;
+            char c = ean.charAt(i);
+            // ASCII only: Character.isDigit also takes other scripts' digits, which would spell one code many ways.
+            if (c < '0' || c > '9') return false;
         }
         return true;
     }
