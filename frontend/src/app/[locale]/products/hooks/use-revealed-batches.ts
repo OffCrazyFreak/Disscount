@@ -1,18 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+
+import { useOnNearPageEnd } from "@/hooks/scroll/use-on-near-page-end";
 import {
   getNextBatchState,
   getVisibleBatchCount,
 } from "@/app/[locale]/products/utils/product-batches";
-
-function isNearPageEnd(): boolean {
-  const scrollY = window.scrollY || window.pageYOffset;
-  const viewport = window.innerHeight;
-  const fullHeight = document.documentElement.scrollHeight;
-
-  return scrollY + viewport >= fullHeight - 10000;
-}
 
 /** A background price refresh must not collapse batches already revealed for the same key. */
 export default function useRevealedBatches(
@@ -25,20 +19,13 @@ export default function useRevealedBatches(
   });
   const batchesToShow = getVisibleBatchCount(batchState, batchKey, batchCount);
 
-  useEffect(() => {
-    if (batchesToShow >= batchCount) return;
+  const revealNextBatch = useCallback(() => {
+    setBatchState((previous) =>
+      getNextBatchState(previous, batchKey, batchCount),
+    );
+  }, [batchKey, batchCount]);
 
-    const onScroll = () => {
-      if (!isNearPageEnd()) return;
-
-      setBatchState((previous) =>
-        getNextBatchState(previous, batchKey, batchCount),
-      );
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [batchKey, batchesToShow, batchCount]);
+  useOnNearPageEnd(revealNextBatch, batchesToShow < batchCount);
 
   return batchesToShow;
 }
