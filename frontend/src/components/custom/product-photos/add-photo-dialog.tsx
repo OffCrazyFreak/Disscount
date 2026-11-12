@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { useUploadProductImage } from "@/lib/api/product-images/hooks";
 import { problemMessage } from "@/lib/api/problem-details";
+import { isLimitReached } from "@/lib/limits/limit-reached";
 
 interface IAddPhotoDialogProps {
   ean: string;
@@ -59,8 +60,12 @@ export default function AddPhotoDialog({
         toast.success(t("upload.done"));
         handleOpenChange(false);
       },
-      onError: (error) =>
-        toast.error(problemMessage(error, t("upload.failed"))),
+      onError: (error) => {
+        // The limit dialog explains it, so a toast would say it twice.
+        if (isLimitReached(error)) return;
+
+        toast.error(problemMessage(error, t("upload.failed")));
+      },
     });
   }
 

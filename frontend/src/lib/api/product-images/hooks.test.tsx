@@ -1,11 +1,18 @@
-import { waitFor } from "@testing-library/react";
+import { QueryClient } from "@tanstack/react-query";
+import { act, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import {
   useProductImages,
   useProductThumbnail,
+  useUploadProductImage,
 } from "@/lib/api/product-images/hooks";
+import { createQueryClientConfig } from "@/lib/api/query-client-defaults";
+import {
+  dismissLimitReached,
+  getLimitReached,
+} from "@/lib/limits/limit-reached-store";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
 
@@ -51,5 +58,37 @@ describe("useProductImages", () => {
     );
 
     await waitFor(() => expect(result.current.isError).toBe(true));
+  });
+});
+
+describe("useUploadProductImage", () => {
+  afterEach(() => act(() => dismissLimitReached()));
+
+  it("opens the limit dialog when the backend refuses a photo over a limit", async () => {
+    server.use(
+      http.post("*/api/products/:ean/images", () =>
+        HttpResponse.json(
+          {
+            status: 409,
+            code: "error.limit.productPhotosPerDay",
+            limit: "PRODUCT_PHOTOS_PER_DAY",
+            max: 75,
+          },
+          { status: 409 },
+        ),
+      ),
+    );
+
+    const { result } = renderHookWithProviders(
+      () => useUploadProductImage("8076800195057"),
+      { queryClient: new QueryClient(createQueryClientConfig()) },
+    );
+    act(() => result.current.mutate(new Blob(["photo"])));
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(getLimitReached()).toMatchObject({
+      open: true,
+      problem: { limit: "PRODUCT_PHOTOS_PER_DAY", max: 75 },
+    });
   });
 });
