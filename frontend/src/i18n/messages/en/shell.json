@@ -102,5 +102,8 @@
   },
   "skipLink": {
     "label": "Skip to main content"
+  },
+  "scrollCue": {
+    "label": "Scroll down"
   }
 }

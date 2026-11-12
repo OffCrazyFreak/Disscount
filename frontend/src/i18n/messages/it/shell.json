@@ -102,5 +102,8 @@
   },
   "skipLink": {
     "label": "Vai al contenuto principale"
+  },
+  "scrollCue": {
+    "label": "Scorri verso il basso"
   }
 }

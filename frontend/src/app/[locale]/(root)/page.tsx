@@ -12,6 +12,7 @@ import PwaSection from "@/app/[locale]/(root)/components/sections/pwa-section";
 import PricingSection from "@/app/[locale]/(root)/components/sections/pricing-section";
 import FaqSection from "@/app/[locale]/(root)/components/sections/faq-section";
 import FinalCtaSection from "@/app/[locale]/(root)/components/sections/final-cta-section";
+import ScrollCue from "@/components/custom/fab/scroll-cue";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -40,6 +41,8 @@ export default function Home() {
       {/* TODO: Add the "Zajedno gradimo Disscount" contributor and opted-in supporter section here. */}
       <FaqSection />
       <FinalCtaSection />
+
+      <ScrollCue />
     </div>
   );
 }
