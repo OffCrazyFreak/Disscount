@@ -1,6 +1,8 @@
 import {
+  infiniteQueryOptions,
   keepPreviousData,
   queryOptions,
+  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
@@ -19,16 +21,41 @@ import {
   setPhotoStatus,
 } from "@/lib/api/product-images/admin-queries";
 import type {
+  AdminPhotoQueueItem,
+  AdminPhotoQueuePage,
   AdminProductPhotos,
   PhotoQueueFilter,
   ProductImageCrop,
 } from "@/lib/api/types";
 
-function photoQueueQueryOptions(filter: PhotoQueueFilter, page: number) {
-  return queryOptions({
-    queryKey: PRODUCT_IMAGE_KEYS.queue(filter, page),
-    queryFn: () => getPhotoQueue(filter, page),
+function nextQueuePage({ page }: AdminPhotoQueuePage): number | undefined {
+  const next = page.number + 1;
+  return next < page.totalPages ? next : undefined;
+}
+
+// A product reviewed while the next page loads moves the rest up one, so that page can repeat a product.
+function uniqueQueueItems(pages: AdminPhotoQueuePage[]): AdminPhotoQueueItem[] {
+  const byEan = new Map<string, AdminPhotoQueueItem>();
+
+  for (const item of pages.flatMap((page) => page.items)) {
+    if (!byEan.has(item.ean)) byEan.set(item.ean, item);
+  }
+
+  return [...byEan.values()];
+}
+
+function photoQueueQueryOptions(filter: PhotoQueueFilter) {
+  return infiniteQueryOptions({
+    queryKey: PRODUCT_IMAGE_KEYS.queue(filter),
+    queryFn: ({ pageParam }) => getPhotoQueue(filter, pageParam),
+    initialPageParam: 0,
+    getNextPageParam: nextQueuePage,
     placeholderData: keepPreviousData,
+    select: (data) => ({
+      items: uniqueQueueItems(data.pages),
+      totalItems: data.pages[0]?.page.totalItems ?? 0,
+      reviewedCount: data.pages[0]?.reviewedCount ?? 0,
+    }),
   });
 }
 
@@ -39,8 +66,8 @@ function adminProductPhotosQueryOptions(ean: string) {
   });
 }
 
-export function usePhotoQueue(filter: PhotoQueueFilter, page: number) {
-  return useQuery(photoQueueQueryOptions(filter, page));
+export function usePhotoQueue(filter: PhotoQueueFilter) {
+  return useInfiniteQuery(photoQueueQueryOptions(filter));
 }
 
 export function useAdminProductPhotos(ean: string, { enabled = true } = {}) {
