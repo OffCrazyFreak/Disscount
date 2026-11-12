@@ -71,6 +71,30 @@ describe("SkipLink", () => {
     expect(main?.scrollIntoView).toHaveBeenCalled();
   });
 
+  it("leaves a modified click to the browser", () => {
+    renderPage();
+    const link = screen.getByRole("link", { name: "Preskoči na sadržaj" });
+
+    let preventedBySkipLink: boolean | undefined;
+    function recordThenStopNavigation(event: Event) {
+      preventedBySkipLink = event.defaultPrevented;
+      // jsdom would otherwise follow the fragment after this test ends.
+      event.preventDefault();
+    }
+    document.addEventListener("click", recordThenStopNavigation);
+
+    link.dispatchEvent(
+      new MouseEvent("click", {
+        bubbles: true,
+        cancelable: true,
+        ctrlKey: true,
+      }),
+    );
+    document.removeEventListener("click", recordThenStopNavigation);
+
+    expect(preventedBySkipLink).toBe(false);
+  });
+
   it("keeps the URL hash that holds the open tab", async () => {
     window.history.replaceState(null, "", "/#stores");
     renderPage(<SectionTabs label="Odjeljci popisa" tabs={TABS} />);

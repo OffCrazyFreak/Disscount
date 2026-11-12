@@ -14,6 +14,10 @@ export default function SkipLinkAnchor({
 }: ISkipLinkAnchorProps) {
   // Tabs keep the open tab in the URL hash, so following the fragment would reset it (#637).
   function focusTarget(event: MouseEvent<HTMLAnchorElement>) {
+    // A modified click opens a new tab, which has no tab state to lose.
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+      return;
+
     const target = document.getElementById(targetId);
     if (!target) return;
 
