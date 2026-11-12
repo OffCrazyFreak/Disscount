@@ -60,6 +60,10 @@ class CatalogArchiveReaderTest {
         assertThat(Barcodes.isPublicGtin("123456784")).isTrue();
         assertThat(Barcodes.isPublicGtin("12345678906")).isFalse();
         assertThat(Barcodes.isPublicGtin("1234567")).isFalse();
+        // Padded GTIN-8 in-store codes, with valid check digits.
+        assertThat(Barcodes.isPublicGtin("020000004")).isFalse();
+        assertThat(Barcodes.isPublicGtin("000123457")).isFalse();
+        assertThat(Barcodes.isPublicGtin("002000008")).isFalse();
     }
 
     @Test

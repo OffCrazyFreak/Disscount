@@ -1,17 +1,22 @@
 package disscount.productimage.catalog;
 
+import disscount.shared.CanonicalBarcode;
+
 public final class Barcodes {
 
     private Barcodes() {}
 
     /**
      * A GTIN with a valid check digit, minus the in-store codes no public database can know. Lengths 9 to 11 are a
-     * GTIN-12 or GTIN-13 with its leading zeros stripped, the way cijene-api sends it. Zeros add nothing to the check
-     * digit, and padded to 13 digits such a code starts with 00, never an in-store prefix, so no padding is needed.
+     * GTIN with its leading zeros stripped, the way cijene-api sends it; zeros add nothing to the check digit.
      */
     public static boolean isPublicGtin(String code) {
         if (!isEanShape(code)) return false;
         int length = code.length();
+
+        // Judged on the padded form: 020000004 is the in-store GTIN-8 20000004 with zeros in front.
+        boolean stripped = length >= 9 && length <= 11;
+        if (stripped && CanonicalBarcode.isRestrictedCirculation(code)) return false;
 
         // GS1 prefixes 20 to 29 are restricted circulation: weighed goods and a shop's own labels.
         if (length == 13 && code.charAt(0) == '2') return false;
