@@ -33,7 +33,7 @@ function nextQueuePage({ page }: AdminPhotoQueuePage): number | undefined {
   return next < page.totalPages ? next : undefined;
 }
 
-// A product reviewed while the next page loads moves the rest up one, so that page can repeat a product.
+// A product that joins the queue while the next page loads pushes the rest down one, so that page can repeat one.
 function uniqueQueueItems(pages: AdminPhotoQueuePage[]): AdminPhotoQueueItem[] {
   const byEan = new Map<string, AdminPhotoQueueItem>();
 

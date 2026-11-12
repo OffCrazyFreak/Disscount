@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
@@ -28,6 +28,13 @@ export default function PhotoQueueList({
   const listRef = useRef<HTMLOListElement>(null);
 
   useOnNearScrollEnd(listRef, onNearEnd, canLoadMore);
+
+  // J and R move the selection without a scroll, and the next page loads only when the list scrolls near its end.
+  useEffect(() => {
+    listRef.current
+      ?.querySelector("[aria-current='true']")
+      ?.scrollIntoView({ block: "nearest" });
+  }, [selectedEan]);
 
   return (
     <ol

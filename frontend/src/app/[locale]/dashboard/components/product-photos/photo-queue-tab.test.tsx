@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw/http";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, onTestFinished, vi } from "vitest";
 
 import PhotoQueueTab from "@/app/[locale]/dashboard/components/product-photos/photo-queue-tab";
 import hr from "@/i18n/messages/hr";
@@ -99,6 +99,11 @@ function queueList() {
 }
 
 describe("PhotoQueueTab", () => {
+  // jsdom lacks the scrolling API the list calls to keep the selected row in view.
+  beforeEach(() => {
+    Element.prototype.scrollIntoView ??= () => {};
+  });
+
   it("loads the next page when the list is scrolled near its end", async () => {
     const queue = serveQueue(["1", "2", "3"]);
     renderTab();
@@ -129,5 +134,26 @@ describe("PhotoQueueTab", () => {
     expect(await screen.findByText("open 3")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Proizvod 2")).toBeNull());
     expect(screen.getByText("open 3")).toBeInTheDocument();
+  });
+
+  it("loads the next page when J moves the selection to the last loaded product", async () => {
+    // jsdom has no layout, so scrolling a row into view stands in for the list box scrolling with it.
+    const original = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function scrollList(this: Element) {
+      this.closest("ol")?.dispatchEvent(new Event("scroll"));
+    };
+    onTestFinished(() => {
+      Element.prototype.scrollIntoView = original;
+    });
+
+    const queue = serveQueue(["1", "2", "3"]);
+    renderTab();
+    await screen.findByText("open 1");
+
+    await userEvent.keyboard("j");
+
+    expect(await screen.findByText("open 2")).toBeInTheDocument();
+    expect(await screen.findByText("Proizvod 3")).toBeInTheDocument();
+    expect(queue.requested).toStrictEqual([0, 1]);
   });
 });
