@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -15,18 +15,12 @@ import {
 import { useSettingsDefaults } from "@/components/custom/settings/hooks/use-settings-defaults";
 import { useLastSettingsTarget } from "@/components/custom/settings/hooks/use-last-settings-target";
 import { useSettingsSave } from "@/components/custom/settings/hooks/use-settings-save";
+import { useAvatarDraft } from "@/components/custom/settings/hooks/use-avatar-draft";
 import SettingsUiProvider from "@/components/custom/settings/settings-context";
 import SettingsModal from "@/components/custom/settings/settings-modal";
 import OnboardingWizard from "@/components/custom/settings/onboarding/onboarding-wizard";
 import { useSecuritySettings } from "@/components/custom/settings/security/hooks/use-security-settings";
 import SecurityProvider from "@/components/custom/settings/security/security-context";
-
-interface IAvatarState {
-  initialized: boolean;
-  preview: string | null;
-  upload: Blob | null;
-  touched: boolean;
-}
 
 /** Always mounted so optimistic saves keep running and a failed section reopens with its state. */
 export default function SettingsModalHost() {
@@ -39,22 +33,7 @@ export default function SettingsModalHost() {
     defaultValues: defaults,
   });
 
-  const [avatar, setAvatar] = useState<IAvatarState>({
-    initialized: false,
-    preview: null,
-    upload: null,
-    touched: false,
-  });
-
-  // Adjust-during-render: seed the avatar from the loaded user exactly once.
-  if (isReady && !avatar.initialized) {
-    setAvatar({
-      initialized: true,
-      preview: user?.image ?? null,
-      upload: null,
-      touched: false,
-    });
-  }
+  const avatar = useAvatarDraft(isReady, user?.image ?? null);
 
   const initializedRef = useRef(false);
   useEffect(() => {
@@ -71,21 +50,15 @@ export default function SettingsModalHost() {
 
   const { saveSettings, saveOnboarding, saving } = useSettingsSave({
     form,
-    avatar: { touched: avatar.touched, upload: avatar.upload },
-    onSaved: () =>
-      setAvatar((state) => ({ ...state, upload: null, touched: false })),
+    avatar: avatar.change,
+    onSaved: avatar.markSaved,
     clearDraft,
   });
 
   function resetToDefaults() {
     clearDraft();
     form.reset(defaults);
-    setAvatar({
-      initialized: true,
-      preview: user?.image ?? null,
-      upload: null,
-      touched: false,
-    });
+    avatar.reset();
   }
 
   const open = target?.name === "settings";
@@ -104,13 +77,7 @@ export default function SettingsModalHost() {
           restored,
           avatarPreview: avatar.preview,
           avatarTouched: avatar.touched,
-          updateAvatar: (change) =>
-            setAvatar((state) => ({
-              ...state,
-              preview: change?.preview ?? null,
-              upload: change?.upload ?? null,
-              touched: true,
-            })),
+          updateAvatar: avatar.select,
           save: () => {
             void saveSettings();
           },
