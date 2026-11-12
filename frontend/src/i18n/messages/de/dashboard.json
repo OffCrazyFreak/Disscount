@@ -51,8 +51,6 @@
     "viewAll": "Alle",
     "viewUnread": "Ungelesen",
     "loadError": "Die Nachrichten konnten nicht geladen werden.",
-    "loadMoreError": "Ältere Nachrichten konnten nicht geladen werden.",
-    "loadMoreRetry": "Erneut versuchen",
     "searchPlaceholder": "Nachrichten suchen",
     "showDeleted": "Gelöschte anzeigen",
     "colMessage": "Nachricht",

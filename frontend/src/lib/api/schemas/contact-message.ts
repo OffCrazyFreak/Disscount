@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { pageSchema } from "@/lib/api/schemas/page";
-
 export const contactMessageRequestSchema = z.object({
   email: z.email("auth.validation.emailInvalid").or(z.literal("")).optional(),
   fullName: z.string().max(255, "common.validation.fullNameMax").optional(),
@@ -33,8 +31,5 @@ export const contactMessageDtoSchema = z.object({
   deletedAt: z.string().nullable(),
 });
 
-export const contactMessagePageSchema = pageSchema(contactMessageDtoSchema);
-
 export type ContactMessageRequest = z.infer<typeof contactMessageRequestSchema>;
 export type ContactMessageDto = z.infer<typeof contactMessageDtoSchema>;
-export type ContactMessagePage = z.infer<typeof contactMessagePageSchema>;

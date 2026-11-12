@@ -84,15 +84,7 @@ describe("admin tables over cached data", () => {
     const queryKey = CONTACT_QUERY_KEYS.list(false);
     const queryClient = cachedWithFailingRefetch(
       queryKey,
-      {
-        pages: [
-          {
-            items: [MESSAGE],
-            page: { number: 0, size: 50, totalItems: 1, totalPages: 1 },
-          },
-        ],
-        pageParams: [0],
-      },
+      [MESSAGE],
       "*/api/admin/contact",
     );
     renderWithProviders(<AdminContactTable />, { queryClient });

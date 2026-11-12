@@ -51,8 +51,6 @@
     "viewAll": "All",
     "viewUnread": "Unread",
     "loadError": "Couldn't load messages. Try again.",
-    "loadMoreError": "Couldn't load older messages.",
-    "loadMoreRetry": "Try again",
     "searchPlaceholder": "Search messages",
     "showDeleted": "Show deleted",
     "colMessage": "Message",

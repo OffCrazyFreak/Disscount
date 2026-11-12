@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -24,7 +23,7 @@ import {
 import AdminContactRow from "@/app/[locale]/dashboard/components/admin-contact-row";
 import AdminContactDetail from "@/app/[locale]/dashboard/components/admin-contact-detail";
 import { useContactInbox } from "@/app/[locale]/dashboard/hooks/use-contact-inbox";
-import { useLoadMoreNearPageEnd } from "@/app/[locale]/dashboard/hooks/use-load-more-near-page-end";
+import { useRevealedItems } from "@/hooks/scroll/use-revealed-items";
 import { contactService } from "@/lib/api";
 import { ContactMessageDto } from "@/lib/api/types";
 import { filterByFields } from "@/utils/generic";
@@ -48,15 +47,8 @@ export default function AdminContactTable() {
   const [showDeleted, setShowDeleted] = useState(false);
   const [detail, setDetail] = useState<ContactMessageDto | null>(null);
 
-  const query = contactService.useGetContactMessages(showDeleted);
-  const {
-    data,
-    isLoading,
-    isError,
-    hasNextPage,
-    isFetchingNextPage,
-    isFetchNextPageError,
-  } = query;
+  const { data, isLoading, isError } =
+    contactService.useGetContactMessages(showDeleted);
   // Only an inbox with nothing cached is missing; a failed refetch keeps its last answer.
   const isMissing = isError && data === undefined;
   const inbox = useContactInbox();
@@ -71,7 +63,10 @@ export default function AdminContactTable() {
     ]);
   }, [data, view, search]);
 
-  useLoadMoreNearPageEnd(query, messages.length);
+  const shownMessages = useRevealedItems(
+    messages,
+    [showDeleted, view, search].join("\0"),
+  );
 
   return (
     <div className="space-y-4">
@@ -131,7 +126,7 @@ export default function AdminContactTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {messages.map((message) => (
+                {shownMessages.map((message) => (
                   <AdminContactRow
                     key={message.id}
                     message={message}
@@ -144,34 +139,10 @@ export default function AdminContactTable() {
               </TableBody>
             </Table>
 
-            {messages.length === 0 && !hasNextPage && !isFetchNextPageError && (
+            {messages.length === 0 && (
               <p className="text-muted-foreground p-6 text-center text-sm">
                 {t("contact.empty")}
               </p>
-            )}
-
-            {isFetchingNextPage && (
-              <div className="flex justify-center py-6">
-                <BlockLoadingSpinner size={24} />
-              </div>
-            )}
-
-            {isFetchNextPageError && !isFetchingNextPage && (
-              <div
-                role="alert"
-                className="flex flex-wrap items-center justify-center gap-3 p-6 text-sm"
-              >
-                <span className="text-destructive">
-                  {t("contact.loadMoreError")}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => void query.fetchNextPage()}
-                >
-                  {t("contact.loadMoreRetry")}
-                </Button>
-              </div>
             )}
           </>
         )}

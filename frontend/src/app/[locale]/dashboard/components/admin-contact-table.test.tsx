@@ -28,19 +28,12 @@ const DELETED: ContactMessageDto = {
   deletedAt: "2026-11-02T10:00:00",
 };
 
-function onePage(items: ContactMessageDto[]) {
-  return {
-    items,
-    page: { number: 0, size: 50, totalItems: items.length, totalPages: 1 },
-  };
-}
-
 describe("AdminContactTable", () => {
   it("keeps the filters usable when a view fails to load", async () => {
     server.use(
       http.get("*/api/admin/contact", ({ request }) =>
         new URL(request.url).searchParams.get("includeDeleted") === "true"
-          ? HttpResponse.json(onePage([DELETED]))
+          ? HttpResponse.json([DELETED])
           : HttpResponse.json({ status: 500 }, { status: 500 }),
       ),
     );

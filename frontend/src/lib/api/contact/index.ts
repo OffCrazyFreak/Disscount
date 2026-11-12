@@ -1,7 +1,7 @@
 import {
-  infiniteQueryOptions,
-  useInfiniteQuery,
+  queryOptions,
   useMutation,
+  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import apiClient from "@/lib/api/api-base";
@@ -9,15 +9,11 @@ import { CONTACT_QUERY_KEYS } from "@/lib/api/contact/keys";
 import {
   ContactMessageRequest,
   ContactMessageDto,
-  ContactMessagePage,
   contactMessageRequestSchema,
   contactMessageDtoSchema,
-  contactMessagePageSchema,
 } from "@/lib/api/types";
 
 const ADMIN_BASE_PATH = "/api/admin/contact";
-
-const CONTACT_PAGE_SIZE = 50;
 
 async function createContactMessage(
   data: ContactMessageRequest,
@@ -35,29 +31,12 @@ async function createContactMessage(
 }
 
 async function getContactMessages(
-  includeDeleted: boolean,
-  page: number,
-): Promise<ContactMessagePage> {
-  const response = await apiClient.get<unknown>(ADMIN_BASE_PATH, {
-    params: { includeDeleted, page, size: CONTACT_PAGE_SIZE },
+  includeDeleted = false,
+): Promise<ContactMessageDto[]> {
+  const response = await apiClient.get<ContactMessageDto[]>(ADMIN_BASE_PATH, {
+    params: { includeDeleted },
   });
-  return contactMessagePageSchema.parse(response.data);
-}
-
-function nextPageNumber({ page }: ContactMessagePage): number | undefined {
-  const next = page.number + 1;
-  return next < page.totalPages ? next : undefined;
-}
-
-// A message sent while the admin scrolls pushes older ones down a page, so the next page can repeat one.
-function uniqueMessages(pages: ContactMessagePage[]): ContactMessageDto[] {
-  const byId = new Map<string, ContactMessageDto>();
-
-  for (const message of pages.flatMap((page) => page.items)) {
-    if (!byId.has(message.id)) byId.set(message.id, message);
-  }
-
-  return [...byId.values()];
+  return response.data.map((item) => contactMessageDtoSchema.parse(item));
 }
 
 async function patchContactAction(
@@ -86,17 +65,17 @@ function useCreateContactMessage() {
 }
 
 function contactMessagesQueryOptions(includeDeleted: boolean) {
-  return infiniteQueryOptions({
+  return queryOptions({
     queryKey: CONTACT_QUERY_KEYS.list(includeDeleted),
-    queryFn: ({ pageParam }) => getContactMessages(includeDeleted, pageParam),
-    initialPageParam: 0,
-    getNextPageParam: nextPageNumber,
-    select: (data) => uniqueMessages(data.pages),
+    queryFn: () => getContactMessages(includeDeleted),
   });
 }
 
-function useGetContactMessages(includeDeleted = false) {
-  return useInfiniteQuery(contactMessagesQueryOptions(includeDeleted));
+function useGetContactMessages(
+  includeDeleted = false,
+  { enabled = true } = {},
+) {
+  return useQuery({ ...contactMessagesQueryOptions(includeDeleted), enabled });
 }
 
 function useContactAction(action: (id: string) => Promise<ContactMessageDto>) {
