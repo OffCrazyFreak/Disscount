@@ -180,12 +180,11 @@ describe("query key factories", () => {
       "product-images",
       "queue",
     ]);
-    expect(PRODUCT_IMAGE_KEYS.queue("pending", 2)).toStrictEqual([
+    expect(PRODUCT_IMAGE_KEYS.queue("pending")).toStrictEqual([
       "admin",
       "product-images",
       "queue",
       "pending",
-      2,
     ]);
   });
 });

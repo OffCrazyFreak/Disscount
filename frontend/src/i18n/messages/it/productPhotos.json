@@ -125,9 +125,6 @@
     "noPhoto": "Senza foto",
     "empty": "Qui non c'è niente da controllare.",
     "reviewedNext": "Controllato, avanti",
-    "previousPage": "Pagina precedente",
-    "nextPage": "Pagina successiva",
-    "page": "Pagina {page} di {pages}",
     "listLabel": "Prodotti da controllare",
     "keyboardHint": "Tasti: J e K per spostarti, R per segnare come controllato e proseguire."
   }

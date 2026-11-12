@@ -11,6 +11,13 @@ public class FakePhotoStore implements PhotoStore {
     public volatile boolean enabled = true;
     public volatile boolean failDeletes = false;
 
+    /** Back to an empty, working store, so no test sees files or switches another test left behind. */
+    public void reset() {
+        objects.clear();
+        enabled = true;
+        failDeletes = false;
+    }
+
     @Override
     public boolean enabled() {
         return enabled;

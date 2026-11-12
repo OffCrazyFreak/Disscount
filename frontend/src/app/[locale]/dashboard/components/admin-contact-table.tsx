@@ -23,6 +23,7 @@ import {
 import AdminContactRow from "@/app/[locale]/dashboard/components/admin-contact-row";
 import AdminContactDetail from "@/app/[locale]/dashboard/components/admin-contact-detail";
 import { useContactInbox } from "@/app/[locale]/dashboard/hooks/use-contact-inbox";
+import { useRevealedItems } from "@/hooks/scroll/use-revealed-items";
 import { contactService } from "@/lib/api";
 import { ContactMessageDto } from "@/lib/api/types";
 import { filterByFields } from "@/utils/generic";
@@ -61,6 +62,11 @@ export default function AdminContactTable() {
       "message",
     ]);
   }, [data, view, search]);
+
+  const shownMessages = useRevealedItems(
+    messages,
+    [showDeleted, view, search].join("\0"),
+  );
 
   return (
     <div className="space-y-4">
@@ -120,7 +126,7 @@ export default function AdminContactTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {messages.map((message) => (
+                {shownMessages.map((message) => (
                   <AdminContactRow
                     key={message.id}
                     message={message}

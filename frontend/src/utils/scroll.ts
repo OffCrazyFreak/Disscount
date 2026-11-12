@@ -11,3 +11,12 @@ export function scrollWindowTo(top: number): void {
 export function scrollToTop(): void {
   scrollWindowTo(0);
 }
+
+/** A page this close to its end shows more before the reader reaches the bottom. */
+export function isNearPageEnd(): boolean {
+  const scrollY = window.scrollY || window.pageYOffset;
+  const viewport = window.innerHeight;
+  const fullHeight = document.documentElement.scrollHeight;
+
+  return scrollY + viewport >= fullHeight - 10000;
+}

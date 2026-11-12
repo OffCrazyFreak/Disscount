@@ -125,9 +125,6 @@
     "noPhoto": "Bez slike",
     "empty": "Ovdje nema ničega za pregled.",
     "reviewedNext": "Pregledano, sljedeći",
-    "previousPage": "Prethodna stranica",
-    "nextPage": "Sljedeća stranica",
-    "page": "Stranica {page} od {pages}",
     "listLabel": "Proizvodi za pregled",
     "keyboardHint": "Tipke: J i K za kretanje, R za pregledano i dalje."
   }
