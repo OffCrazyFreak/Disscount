@@ -74,7 +74,6 @@ class CatalogArchiveReaderTest {
         assertThat(Barcodes.isPublicGtin("2012345678903")).isFalse();
         assertThat(Barcodes.isPublicGtin("12345")).isFalse();
         assertThat(Barcodes.isEanShape("٠٠١٢٣٤٥٦٧٨٩٠٥")).isFalse();
-        assertThat(Barcodes.matchKey("0012345678905")).isEqualTo("12345678905");
         assertThat(CsvLine.split("a,\"b, \"\"c\"\"\",d")).containsExactly("a", "b, \"c\"", "d");
     }
 

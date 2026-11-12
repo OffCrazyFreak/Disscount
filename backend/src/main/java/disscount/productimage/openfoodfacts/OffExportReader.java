@@ -7,11 +7,12 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-import disscount.productimage.catalog.Barcodes;
+import disscount.shared.CanonicalBarcode;
 
 public final class OffExportReader {
 
@@ -22,8 +23,8 @@ public final class OffExportReader {
 
     private OffExportReader() {}
 
-    /** wantedByMatchKey maps a barcode without leading zeros to the EAN we store. */
-    public static Map<String, Front> read(InputStream gzipped, Map<String, String> wantedByMatchKey) throws IOException {
+    /** Open Food Facts pads codes its own way, so each is compared in the one spelling the catalogue stores. */
+    public static Map<String, Front> read(InputStream gzipped, Set<String> catalogEans) throws IOException {
         Map<String, Front> fronts = new HashMap<>();
         try (BufferedReader lines = new BufferedReader(
                 new InputStreamReader(new GZIPInputStream(gzipped, 1 << 16), StandardCharsets.UTF_8), 1 << 16)) {
@@ -40,13 +41,13 @@ public final class OffExportReader {
                 // Under 1% of rows are products we carry, so look at the code before splitting 200 columns.
                 if (code == 0) {
                     int tab = line.indexOf('\t');
-                    if (tab < 0 || !wantedByMatchKey.containsKey(Barcodes.matchKey(line.substring(0, tab).trim()))) continue;
+                    if (tab < 0 || !catalogEans.contains(CanonicalBarcode.of(line.substring(0, tab)))) continue;
                 }
                 String[] f = line.split("\t", -1);
                 if (f.length <= Math.max(code, image)) continue;
 
-                String ean = wantedByMatchKey.get(Barcodes.matchKey(f[code].trim()));
-                if (ean == null || f[image].isEmpty()) continue;
+                String ean = CanonicalBarcode.of(f[code]);
+                if (!catalogEans.contains(ean) || f[image].isEmpty()) continue;
 
                 Matcher m = FRONT.matcher(f[image]);
                 if (m.find()) fronts.putIfAbsent(ean, new Front(m.group(1), m.group(3), m.group(2)));

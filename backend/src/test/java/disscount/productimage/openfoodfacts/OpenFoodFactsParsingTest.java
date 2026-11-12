@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 import tools.jackson.databind.ObjectMapper;
@@ -63,11 +64,23 @@ class OpenFoodFactsParsingTest {
                 + "5449000000996\tCola\thttps://images.openfoodfacts.org/images/products/544/900/000/0996/front_en.1129.400.jpg\n"
                 + "3856021300547\tNo photo\t\n";
 
-        Map<String, OffExportReader.Front> fronts = OffExportReader.read(gzip(tsv),
-                Map.of("8076800195057", "8076800195057", "3856021300547", "3856021300547"));
+        Map<String, OffExportReader.Front> fronts = OffExportReader.read(gzip(tsv), Set.of("8076800195057", "3856021300547"));
 
         assertThat(fronts).containsOnlyKeys("8076800195057");
         assertThat(fronts.get("8076800195057")).isEqualTo(new OffExportReader.Front("front_en", "3881", "en"));
+    }
+
+    @Test
+    void anInStoreCodeMatchesOnlyItsOwnPadding() throws IOException {
+        String photo = "\thttps://images.openfoodfacts.org/images/products/000/002/012/3956/front_hr.12.400.jpg\n";
+        String tsv = "code\tproduct_name\timage_url\n"
+                + "0000020123956\tOther chain's product" + photo
+                + "20123956\tOur product" + photo;
+
+        // Stripping every zero made 0000020123956 the in-store code 20123956, another chain's product.
+        assertThat(OffExportReader.read(gzip(tsv), Set.of("20123956"))).containsOnlyKeys("20123956");
+        assertThat(OffExportReader.read(gzip(tsv.replace("20123956\tOur product" + photo, "")), Set.of("20123956")))
+                .isEmpty();
     }
 
     private static ByteArrayInputStream gzip(String text) throws IOException {
