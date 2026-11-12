@@ -8,6 +8,7 @@ import disscount.user.AccountType;
 import disscount.user.AuthIdentityDao;
 import disscount.user.User;
 import disscount.user.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -46,6 +47,14 @@ public abstract class FullStackTest {
     protected PhotoStore productImageStore;
     @TestBean(name = PhotoStoreConfig.PRODUCT_ORIGINALS, methodName = "disscount.support.FullStackTest#fakeProductOriginalStore")
     protected PhotoStore productOriginalStore;
+
+    // One context serves every test class, so its stores would carry one class's files into the next.
+    @BeforeEach
+    void emptyThePhotoStores() {
+        ((FakePhotoStore) photoStore).reset();
+        ((FakePhotoStore) productImageStore).reset();
+        ((FakePhotoStore) productOriginalStore).reset();
+    }
 
     static PhotoStore fakePhotoStore() {
         return new FakePhotoStore();
