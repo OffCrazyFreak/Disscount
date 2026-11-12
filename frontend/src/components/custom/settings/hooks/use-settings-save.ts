@@ -24,7 +24,7 @@ import { useSettingsSaveRunners } from "@/components/custom/settings/hooks/use-s
 interface IUseSettingsSaveProps {
   form: UseFormReturn<SettingsFormValues>;
   avatar: IAvatarChange;
-  onSaved: () => void;
+  onSaved: (sent: IAvatarChange) => void;
   clearDraft: () => void;
 }
 
@@ -64,7 +64,9 @@ export function useSettingsSave({
     );
 
     if (failed.length > 0) {
-      rebaselineSavedSections(form, jobs, results, values, onSaved);
+      rebaselineSavedSections(form, jobs, results, values, () =>
+        onSaved(avatar),
+      );
       if (mode === "settings") {
         openModalUrl({
           name: "settings",
@@ -78,7 +80,7 @@ export function useSettingsSave({
 
     clearDraft();
     form.reset(values);
-    onSaved();
+    onSaved(avatar);
     // Onboarding always runs a job to stamp its outcome, so only a settings save can reach here with nothing written.
     if (mode === "onboarding") {
       toast.success(t("save.onboardingDone"));

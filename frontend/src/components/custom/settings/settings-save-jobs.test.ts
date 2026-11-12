@@ -28,7 +28,7 @@ describe("buildSaveJobs", () => {
       values,
       values,
       null,
-      { touched: true, upload: avatar },
+      { touched: true, upload: avatar, version: 1 },
       runners,
     );
     await Promise.all(jobs.map((job) => job.run()));
@@ -45,7 +45,7 @@ describe("buildSaveJobs", () => {
       values,
       values,
       null,
-      { touched: true, upload: null },
+      { touched: true, upload: null, version: 1 },
       runners,
     );
     await Promise.all(jobs.map((job) => job.run()));
@@ -58,7 +58,7 @@ describe("buildSaveJobs", () => {
       values,
       values,
       null,
-      { touched: false, upload: null },
+      { touched: false, upload: null, version: 1 },
       fakeRunners(),
     );
 

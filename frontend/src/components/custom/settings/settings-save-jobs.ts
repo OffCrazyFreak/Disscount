@@ -19,6 +19,8 @@ export interface ISaveJob {
 export interface IAvatarChange {
   touched: boolean;
   upload: Blob | null;
+  // Counts picks, so a finished save can tell whether the user picked again while it ran.
+  version: number;
 }
 
 export interface ISaveJobRunners {

@@ -8,6 +8,7 @@ interface IAvatarState {
   preview: string | null;
   upload: Blob | null;
   touched: boolean;
+  version: number;
 }
 
 const UNSEEDED: IAvatarState = {
@@ -15,6 +16,7 @@ const UNSEEDED: IAvatarState = {
   preview: null,
   upload: null,
   touched: false,
+  version: 0,
 };
 
 /** The avatar picked in settings, held outside the form until Save uploads it. */
@@ -23,12 +25,13 @@ export function useAvatarDraft(isReady: boolean, savedImage: string | null) {
 
   // Adjust-during-render: seed the avatar from the loaded user exactly once.
   if (isReady && !avatar.initialized) {
-    setAvatar(seeded(savedImage));
+    setAvatar(seeded(savedImage, avatar.version));
   }
 
   const change: IAvatarChange = {
     touched: avatar.touched,
     upload: avatar.upload,
+    version: avatar.version,
   };
 
   function select(selection: IAvatarSelection | null) {
@@ -37,15 +40,21 @@ export function useAvatarDraft(isReady: boolean, savedImage: string | null) {
       preview: selection?.preview ?? null,
       upload: selection?.upload ?? null,
       touched: true,
+      version: state.version + 1,
     }));
   }
 
   function reset() {
-    setAvatar(seeded(savedImage));
+    setAvatar((state) => seeded(savedImage, state.version + 1));
   }
 
-  function markSaved() {
-    setAvatar((state) => ({ ...state, upload: null, touched: false }));
+  /** Clears only the pick that save sent; a later pick stays touched for the next Save. */
+  function markSaved(sent: IAvatarChange) {
+    setAvatar((state) =>
+      state.version === sent.version
+        ? { ...state, upload: null, touched: false }
+        : state,
+    );
   }
 
   return {
@@ -58,11 +67,12 @@ export function useAvatarDraft(isReady: boolean, savedImage: string | null) {
   };
 }
 
-function seeded(savedImage: string | null): IAvatarState {
+function seeded(savedImage: string | null, version: number): IAvatarState {
   return {
     initialized: true,
     preview: savedImage,
     upload: null,
     touched: false,
+    version,
   };
 }
