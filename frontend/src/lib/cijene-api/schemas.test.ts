@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { productResponseSchema } from "@/lib/cijene-api/schemas";
+import {
+  productResponseSchema,
+  productSearchResponseSchema,
+} from "@/lib/cijene-api/schemas";
 import { chain } from "@/test/price-fixtures";
 
 function product(chains: unknown[]) {
@@ -55,5 +58,28 @@ describe("productResponseSchema", () => {
     const once = productResponseSchema.parse(product([chain("lidl", "1.29")]));
 
     expect(productResponseSchema.parse(once)).toEqual(once);
+  });
+});
+
+it("preserves complete page evidence and scoped summaries", () => {
+  const response = productSearchResponseSchema.parse({
+    products: [],
+    source: "owned",
+    total: 12001,
+    generation: 7,
+    next_cursor: "opaque",
+    partial: true,
+    complete: true,
+    outside_location_total: 13000,
+    facets: { chain: { konzum: 2 }, city: {}, category: {}, brand: {} },
+  });
+  expect(response).toMatchObject({
+    total: 12001,
+    generation: 7,
+    next_cursor: "opaque",
+    partial: true,
+    complete: true,
+    outside_location_total: 13000,
+    facets: { chain: { konzum: 2 } },
   });
 });

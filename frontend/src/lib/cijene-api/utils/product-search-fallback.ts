@@ -16,8 +16,10 @@ const MIN_FUZZY_QUERY_LENGTH = 3;
 
 const searchResultCountSchema = z.object({ products: z.array(z.unknown()) });
 
-function fetchProducts(params: SearchProductsParams) {
-  return cijeneApiV1Client.get(`/products?${buildQueryString(params)}`);
+function fetchProducts(params: SearchProductsParams, signal?: AbortSignal) {
+  return cijeneApiV1Client.get(`/products?${buildQueryString(params)}`, {
+    signal,
+  });
 }
 
 function countProducts(data: unknown): number | null {
@@ -55,10 +57,11 @@ function mergeByEan(
 /** Fuzzy only tops up a nearly empty pass, so typos find something without hurting ranking. */
 export async function searchProductsWithFuzzyFallback(
   params: SearchProductsParams,
+  signal?: AbortSignal,
 ): Promise<{ data: unknown }> {
-  if (hasExplicitSearchMode(params)) return fetchProducts(params);
+  if (hasExplicitSearchMode(params)) return fetchProducts(params, signal);
 
-  const exact = await fetchProducts({ ...params, fuzzy: false });
+  const exact = await fetchProducts({ ...params, fuzzy: false }, signal);
   const exactCount = countProducts(exact.data);
   const effectiveLimit = params.limit ?? UPSTREAM_DEFAULT_SEARCH_LIMIT;
   const fallbackThreshold = Math.min(FUZZY_FALLBACK_THRESHOLD, effectiveLimit);
@@ -66,7 +69,7 @@ export async function searchProductsWithFuzzyFallback(
   if (exactCount === null || exactCount >= fallbackThreshold) return exact;
   if (!canFuzzyMatch(params.q)) return exact;
 
-  const fuzzy = await fetchProducts({ ...params, fuzzy: true }).catch(
+  const fuzzy = await fetchProducts({ ...params, fuzzy: true }, signal).catch(
     () => null,
   );
 

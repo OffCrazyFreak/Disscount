@@ -73,11 +73,13 @@ export async function getProductByEan(
 
 export async function getProductByName(
   params: SearchProductsParams,
+  signal?: AbortSignal,
 ): Promise<ProductSearchResponse> {
   const validatedParams = searchProductsParamsSchema.parse(params);
 
   const response = await cijeneRouteClient.get(
     `/api/cijene/products?${buildQueryString(validatedParams)}`,
+    { signal },
   );
   return productSearchResponseSchema.parse(response.data);
 }

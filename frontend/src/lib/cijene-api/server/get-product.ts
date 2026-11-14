@@ -1,6 +1,6 @@
 import "server-only";
 import { cache } from "react";
-import { cijeneApiV1Client } from "@/lib/cijene-api/client";
+import { cijeneApiV1Client, cijeneLatestClient } from "@/lib/cijene-api/client";
 import { CijeneApiError } from "@/lib/cijene-api/errors";
 import {
   productResponseSchema,
@@ -16,7 +16,7 @@ export type ServerProductResult =
 export const getServerProduct = cache(
   async (ean: string): Promise<ServerProductResult> => {
     try {
-      const response = await cijeneApiV1Client.get(
+      const response = await (cijeneLatestClient ?? cijeneApiV1Client).get(
         `/products/${encodeURIComponent(ean)}`,
       );
       return {

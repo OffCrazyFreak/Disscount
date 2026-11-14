@@ -1,7 +1,10 @@
 "use client";
 
+import useProductPages, {
+  productPageParams,
+} from "@/lib/cijene-api/use-product-pages";
 import { useMemo } from "react";
-import { useGetProductByName, useListChains } from "@/lib/cijene-api";
+import { useListChains } from "@/lib/cijene-api";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { getChainLabel } from "@/utils/labels";
 import { compareHr } from "@/utils/strings";
@@ -9,7 +12,6 @@ import {
   canonicalizeSelection,
   normalizeChainCode,
 } from "@/app/[locale]/products/utils/product-filters";
-import { PRODUCT_SEARCH_LIMIT } from "@/constants/products";
 import {
   computeProductFacets,
   type IFacetOption,
@@ -70,16 +72,26 @@ export default function useProductFacets(
   const { data: locations } = useAllLocations();
 
   // Same request as the results list, so both derive from one cache entry.
-  const { data: facetData } = useGetProductByName({
-    q: query,
-    limit: PRODUCT_SEARCH_LIMIT,
-  });
+  const { data: facetData } = useProductPages(
+    productPageParams(query, filters),
+  );
 
   return useMemo(() => {
     const chainUniverse = (chainsData?.chains ?? []).map(normalizeChainCode);
 
-    const facets =
-      query && facetData
+    const serverFacets =
+      facetData?.source === "owned" ? facetData.facets : undefined;
+    function options(values: Record<string, number>) {
+      return Object.entries(values).map(([value, count]) => ({ value, count }));
+    }
+    const facets = serverFacets
+      ? {
+          chains: options(serverFacets.chain),
+          locations: options(serverFacets.city),
+          categories: options(serverFacets.category),
+          brands: options(serverFacets.brand),
+        }
+      : query && facetData
         ? computeProductFacets(
             facetData.products,
             locations ?? [],

@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
-import { cijeneApiV1Client } from "@/lib/cijene-api/client";
+import { cijeneApiV1Client, cijeneLatestClient } from "@/lib/cijene-api/client";
 import {
   getProductParamsSchema,
   productResponseSchema,
@@ -29,7 +29,10 @@ export async function GET(
   const queryString = buildQueryString(filters);
 
   return withCijeneRoute(request, "product", productResponseSchema, () =>
-    cijeneApiV1Client.get(
+    (filters.date
+      ? cijeneApiV1Client
+      : (cijeneLatestClient ?? cijeneApiV1Client)
+    ).get(
       `/products/${encodeURIComponent(validEan)}${
         queryString && `?${queryString}`
       }`,

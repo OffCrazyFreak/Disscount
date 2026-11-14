@@ -1,3 +1,4 @@
+import "server-only";
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import { toCijeneApiError } from "@/lib/cijene-api/errors";
 import { serverEnv } from "@/lib/server-env";
@@ -23,14 +24,14 @@ interface ICijeneClientOptions {
   baseUrl: string;
   timeoutMs: number;
   /** Only the v1 API is token protected */
-  withAuth?: boolean;
+  token?: string;
 }
 
 function createCijeneClient({
   label,
   baseUrl,
   timeoutMs,
-  withAuth = false,
+  token,
 }: ICijeneClientOptions): AxiosInstance {
   const client = axios.create({
     baseURL: baseUrl,
@@ -42,8 +43,8 @@ function createCijeneClient({
   });
 
   client.interceptors.request.use((config) => {
-    if (withAuth && CIJENE_API_TOKEN && config.headers) {
-      config.headers.Authorization = `Bearer ${CIJENE_API_TOKEN}`;
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     if (process.env.NODE_ENV === "development") {
@@ -69,13 +70,14 @@ function createCijeneClient({
       return response;
     },
     (error: AxiosError) => {
+      if (axios.isCancel(error)) throw error;
+
       const apiError = toCijeneApiError(error);
 
       logger.error(
         `[${label}] ${apiError.status} ${error.config?.method?.toUpperCase()} ${
           error.config?.url
         }`,
-        apiError.message,
       );
 
       throw apiError;
@@ -89,7 +91,7 @@ export const cijeneApiV1Client = createCijeneClient({
   label: "v1",
   baseUrl: `${CIJENE_API_URL}/v1`,
   timeoutMs: 30000,
-  withAuth: true,
+  token: CIJENE_API_TOKEN,
 });
 
 export const cijeneApiV0Client = createCijeneClient({
@@ -123,3 +125,12 @@ function validateCijeneConfig(): void {
 if (process.env.NODE_ENV !== "test") {
   validateCijeneConfig();
 }
+
+export const cijeneLatestClient = serverEnv.CIJENE_LATEST_API_URL
+  ? createCijeneClient({
+      label: "latest",
+      baseUrl: `${serverEnv.CIJENE_LATEST_API_URL}/v1`,
+      timeoutMs: 30000,
+      token: serverEnv.CIJENE_LATEST_API_TOKEN,
+    })
+  : undefined;

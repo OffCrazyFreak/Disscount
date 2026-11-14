@@ -1,4 +1,4 @@
-import type { QueryClient } from "@tanstack/react-query";
+import type { InfiniteData, QueryClient } from "@tanstack/react-query";
 
 import type {
   ProductResponse,
@@ -12,6 +12,11 @@ function namesIn(
   queryKey: readonly unknown[],
   data: unknown,
 ): (string | null)[] {
+  if (queryKey[1] === "product-pages") {
+    return (data as InfiniteData<ProductSearchResponse>).pages.flatMap((page) =>
+      page.products.map(({ name }) => name),
+    );
+  }
   if (queryKey[1] === "products" && queryKey[2] === "search") {
     return (data as ProductSearchResponse).products.map(({ name }) => name);
   }

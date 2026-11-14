@@ -49,6 +49,17 @@ const chainProductResponseSchema = z.object({
 });
 
 export const productResponseSchema = z.object({
+  min_price: z.string().regex(PRICE_TEXT).optional(),
+  max_price: z.string().regex(PRICE_TEXT).optional(),
+  avg_price: z.string().regex(PRICE_TEXT).optional(),
+  unit_prices: z.record(z.string(), z.unknown()).optional(),
+  listing_status: z.string().optional(),
+  shop_count: z.number().int().optional(),
+  chain_count: z.number().int().optional(),
+  partial: z.boolean().optional(),
+  min_price_date: z.string().optional(),
+  max_price_date: z.string().optional(),
+
   ean: z.string(),
   brand: z.string().nullable(),
   name: z.string().nullable(),
@@ -68,6 +79,21 @@ export const productResponseSchema = z.object({
 
 export const productSearchResponseSchema = z.object({
   products: z.array(productResponseSchema),
+  source: z.enum(["owned", "public"]).optional(),
+  generation: z.number().int().nullable().optional(),
+  total: z.number().int().optional(),
+  next_cursor: z.string().nullable().optional(),
+  complete: z.boolean().optional(),
+  partial: z.boolean().optional(),
+  outside_location_total: z.number().int().optional(),
+  facets: z
+    .object({
+      chain: z.record(z.string(), z.number()),
+      city: z.record(z.string(), z.number()),
+      brand: z.record(z.string(), z.number()),
+      category: z.record(z.string(), z.number()),
+    })
+    .optional(),
 });
 
 export type ChainProductResponse = z.infer<typeof chainProductResponseSchema>;
@@ -141,11 +167,17 @@ export const getProductParamsSchema = z.object({
 });
 
 export const searchProductsParamsSchema = z.object({
-  q: z.string(),
+  q: z.string().max(256),
+  city: z.string().optional(),
+  brand: z.string().optional(),
+  category: z.string().optional(),
+  order: z.enum(["relevance", "price_asc", "price_desc"]).optional(),
+  page_size: z.number().int().min(1).max(10000).optional(),
+  cursor: z.string().optional(),
   date: z.iso.date().optional(),
   chains: z.string().optional(),
   fuzzy: z.boolean().optional(),
-  limit: z.number().min(1).max(100).optional(),
+  limit: z.number().int().min(1).max(10000).optional(),
 });
 
 export const searchStoresParamsSchema = z.object({

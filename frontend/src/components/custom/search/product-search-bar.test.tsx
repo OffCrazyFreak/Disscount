@@ -2,12 +2,13 @@ import { router, searchBarShell } from "@/test/search-bar-harness";
 import type { ReactNode } from "react";
 import { act, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { useSearchBarQuery } from "@/components/custom/search/use-search-bar-query";
 import ProductSearchBar from "@/components/custom/search/product-search-bar";
 import SearchBar from "@/components/custom/search/search-bar";
 import { productSearchDraft } from "@/components/custom/search/search-draft-store";
-import { renderWithProviders } from "@/test/render";
+import { renderWithProviders, renderHookWithProviders } from "@/test/render";
 
 function renderShell(children: ReactNode) {
   return renderWithProviders(searchBarShell(children));
@@ -54,6 +55,34 @@ describe("ProductSearchBar", () => {
       productSearchDraft.followRoute("");
       productSearchDraft.clear();
     });
+  });
+
+  it("requires three normalized characters for automatic product search", () => {
+    const syncQuery = vi.fn();
+    renderHookWithProviders(() =>
+      useSearchBarQuery({
+        routeQuery: "",
+        autoSearch: true,
+        disabled: false,
+        syncQuery,
+        draftStore: productSearchDraft,
+      }),
+    );
+    act(() => productSearchDraft.type("ča"));
+    expect(syncQuery).not.toHaveBeenCalled();
+    act(() => productSearchDraft.type("čaj"));
+    expect(syncQuery).toHaveBeenCalledExactlyOnceWith("čaj");
+  });
+
+  it("requires two normalized characters for explicit product search", async () => {
+    const user = userEvent.setup();
+    renderShell(<ProductBoxes />);
+    await user.type(field("Header"), "č");
+    await user.click(pageButton());
+    expect(router.push).not.toHaveBeenCalled();
+    await user.type(field("Header"), "a");
+    await user.click(pageButton());
+    expect(router.push).toHaveBeenCalledExactlyOnceWith("/products?q=%C4%8Da");
   });
 
   it("searches what was typed in the header from the page's button", async () => {

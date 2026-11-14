@@ -19,11 +19,19 @@ export async function GET(request: NextRequest) {
   const limit = searchParams.get("limit");
 
   const parsed = searchProductsParamsSchema.safeParse({
+    city: searchParams.get("city") || undefined,
+    brand: searchParams.get("brand") || undefined,
+    category: searchParams.get("category") || undefined,
+    order: searchParams.get("order") || undefined,
+    cursor: searchParams.get("cursor") || undefined,
+    page_size: searchParams.has("page_size")
+      ? Number(searchParams.get("page_size"))
+      : undefined,
     q: searchParams.get("q")?.trim(),
     date: searchParams.get("date") || undefined,
     chains: searchParams.get("chains") || undefined,
     fuzzy: parseBooleanParam(searchParams.get("fuzzy")),
-    limit: limit ? parseInt(limit) : undefined,
+    limit: limit ? Number(limit) : undefined,
   });
 
   if (!parsed.success) {
@@ -31,6 +39,6 @@ export async function GET(request: NextRequest) {
   }
 
   return withCijeneRoute(request, "products", productSearchResponseSchema, () =>
-    searchProducts(parsed.data),
+    searchProducts(parsed.data, request.signal),
   );
 }

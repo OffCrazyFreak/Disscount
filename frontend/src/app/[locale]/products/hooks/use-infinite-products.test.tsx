@@ -164,3 +164,48 @@ describe("useInfiniteProducts while the next search loads", () => {
     expect(result.current.isLoading).toBe(true);
   });
 });
+
+it("keeps owned order and summaries without location price fanout", async () => {
+  let priceCalls = 0;
+  const first = {
+    ...sugar,
+    ean: "first",
+    min_price: "2.00",
+    max_price: "3.00",
+  };
+  server.use(
+    http.get("*/api/cijene/products", () =>
+      HttpResponse.json({
+        products: [first, { ...first, ean: "second", name: "exact sugar" }],
+        source: "owned",
+        total: 222,
+        complete: true,
+        partial: true,
+        outside_location_total: 300,
+      }),
+    ),
+    http.get("*/api/cijene/location-prices", () => {
+      priceCalls++;
+      return HttpResponse.json({ prices: {}, partial: false });
+    }),
+  );
+  const { result } = renderHookWithProviders(() =>
+    useInfiniteProducts("sugar", {
+      ...inDakovo,
+      selectedBrands: ["unmatched locally"],
+    }),
+  );
+  await waitFor(() => expect(result.current.total).toBe(222));
+  expect(result.current.visibleItems.map((item) => item.product.ean)).toEqual([
+    "first",
+    "second",
+  ]);
+  expect(result.current.visibleItems[0].price).toEqual({
+    minPrice: 2,
+    maxPrice: 3,
+    scope: "locations",
+  });
+  expect(result.current.hasPartialPriceData).toBe(true);
+  expect(result.current.isTruncated).toBe(false);
+  expect(priceCalls).toBe(0);
+});

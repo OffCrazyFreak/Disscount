@@ -1,8 +1,11 @@
 "use client";
 
+import { normalizeForSearch } from "@/utils/strings";
+
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
+  productSearchDraft,
   createSearchDraftStore,
   useSearchDraftValue,
   type ISearchDraftStore,
@@ -56,6 +59,15 @@ export function useSearchBarQuery({
     // A route change just replaced the draft, so this stale value would overwrite the entry Back reached.
     if (queryValue !== (draft.getTyped() ?? routeQuery)) return;
     if (queryValue === routeQuery) return;
+
+    const visibleLength = normalizeForSearch(queryValue).replace(
+      /\s/gu,
+      "",
+    ).length;
+    if (draft === productSearchDraft && queryValue && visibleLength < 3) {
+      if (routeQuery) syncQuery("");
+      return;
+    }
 
     draft.navigatingTo(queryValue);
     syncQuery(queryValue);

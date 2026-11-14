@@ -1,5 +1,8 @@
 "use client";
 
+import { normalizeForSearch } from "@/utils/strings";
+import { productSearchDraft } from "@/components/custom/search/search-draft-store";
+
 import { useCallback, type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import SearchBarField, {
@@ -66,6 +69,13 @@ export default function SearchBar({
 
     const typed = data.query ?? "";
     const query = typed.trim();
+
+    if (
+      draftStore === productSearchDraft &&
+      query &&
+      normalizeForSearch(query).replace(/\s/gu, "").length < 2
+    )
+      return;
 
     dismissTouchKeyboard();
 

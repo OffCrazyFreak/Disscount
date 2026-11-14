@@ -67,7 +67,7 @@ function productSearchQueryOptions(searchParams: SearchProductsParams) {
 
   return queryOptions({
     queryKey: CIJENE_QUERY_KEYS.productSearch(searchParams),
-    queryFn: () => getProductByName(searchParams),
+    queryFn: ({ signal }) => getProductByName(searchParams, signal),
     enabled: hasQuery,
     // Old results stay on screen while the next search loads; none show while the search is cleared.
     placeholderData: hasQuery ? keepPreviousData : undefined,

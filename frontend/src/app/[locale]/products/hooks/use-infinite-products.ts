@@ -1,7 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
-import { useGetProductByName } from "@/lib/cijene-api";
+import type {
+  ProductSearchResponse,
+  ProductResponse,
+} from "@/lib/cijene-api/schemas";
+import useProductPages, {
+  productPageParams,
+} from "@/lib/cijene-api/use-product-pages";
+import { useOnNearPageEnd } from "@/hooks/scroll/use-on-near-page-end";
 import type { IProductListItem } from "@/app/[locale]/products/typings/product-list-price-types";
 import {
   hasMatchOutsideLocations,
@@ -47,6 +54,44 @@ function isShowingPreviousEmptyResults(
   return isPlaceholderData && itemCount === 0;
 }
 
+function scopedItems(
+  products: ProductResponse[],
+  locations: string[],
+  chains: string[],
+): IProductListItem[] {
+  const scope = locations.length
+    ? "locations"
+    : chains.length
+      ? "chains"
+      : "all";
+  return products.map((product) => ({
+    product,
+    price:
+      product.min_price !== undefined && product.max_price !== undefined
+        ? {
+            minPrice: Number(product.min_price),
+            maxPrice: Number(product.max_price),
+            scope,
+          }
+        : null,
+  }));
+}
+
+function ownedEvidence(
+  data: ProductSearchResponse,
+  itemCount: number,
+  hasLocation: boolean,
+) {
+  return {
+    total: data.total ?? itemCount,
+    isTruncated: false,
+    hasPartialPriceData: data.partial ?? false,
+    hasMatchesOutsideLocations: Boolean(
+      hasLocation && data.complete && data.outside_location_total,
+    ),
+  };
+}
+
 export default function useInfiniteProducts(
   q: string,
   options?: IUseInfiniteProductsOptions,
@@ -60,18 +105,31 @@ export default function useInfiniteProducts(
     selectedSourceCities = EMPTY_SELECTION,
   } = options ?? {};
 
-  // One unfiltered request, filtered client-side, so facet counts match results.
-  const { data, isLoading, isPlaceholderData, error } = useGetProductByName({
-    q,
-    limit: PRODUCT_SEARCH_LIMIT, // Raising this needs paging upstream: >100 is a 422.
-  });
+  const {
+    data,
+    isLoading,
+    isPlaceholderData,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useProductPages(
+    productPageParams(q, {
+      selectedChains,
+      selectedSourceCities,
+      selectedCategories,
+      selectedBrands,
+    }),
+  );
+
+  const owned = data?.source === "owned";
 
   const allProducts = useMemo(() => data?.products || [], [data?.products]);
 
   const isTruncated = allProducts.length >= PRODUCT_SEARCH_LIMIT;
 
   const chainProducts = useMemo(() => {
-    if (allowedChains === null) return allProducts;
+    if (owned || allowedChains === null) return allProducts;
 
     return allProducts.filter((product) =>
       productMatchesFilters(
@@ -81,12 +139,12 @@ export default function useInfiniteProducts(
         EMPTY_SELECTION,
       ),
     );
-  }, [allProducts, allowedChains]);
+  }, [allProducts, allowedChains, owned]);
 
   // The API returns hits in its own order, so the best match can land anywhere.
   const rankedProducts = useMemo(
-    () => sortProductsByRelevance(chainProducts, q),
-    [chainProducts, q],
+    () => (owned ? chainProducts : sortProductsByRelevance(chainProducts, q)),
+    [chainProducts, q, owned],
   );
 
   const {
@@ -95,13 +153,15 @@ export default function useInfiniteProducts(
     error: pricesError,
     hasPartialError,
   } = useFilteredProductPrices({
-    products: rankedProducts,
+    products: owned ? [] : rankedProducts,
     allowedChains,
     selectedLocations,
     selectedSourceCities,
   });
 
   const filteredItems = useMemo(() => {
+    if (owned)
+      return scopedItems(allProducts, selectedLocations, selectedChains);
     if (selectedCategories.length === 0 && selectedBrands.length === 0) {
       return pricedItems;
     }
@@ -109,7 +169,15 @@ export default function useInfiniteProducts(
     return pricedItems.filter(({ product }) =>
       productMatchesFilters(product, null, selectedCategories, selectedBrands),
     );
-  }, [pricedItems, selectedBrands, selectedCategories]);
+  }, [
+    pricedItems,
+    selectedBrands,
+    selectedCategories,
+    owned,
+    allProducts,
+    selectedLocations,
+    selectedChains,
+  ]);
 
   const batchKey = [
     q,
@@ -121,6 +189,18 @@ export default function useInfiniteProducts(
   ].join("\0");
   const visibleItems = useRevealedItems(filteredItems, batchKey);
 
+  useOnNearPageEnd(
+    () => {
+      void fetchNextPage();
+    },
+    Boolean(
+      owned &&
+      hasNextPage &&
+      !isFetchingNextPage &&
+      visibleItems.length === filteredItems.length,
+    ),
+  );
+
   const hasMatchesOutsideLocations = hasMatchOutsideLocations(allProducts, {
     selectedChains,
     selectedLocations,
@@ -129,7 +209,7 @@ export default function useInfiniteProducts(
     isPriceDataPartial: hasPartialError,
   });
 
-  return {
+  const result = {
     visibleItems,
     total: filteredItems.length,
     isTruncated,
@@ -142,4 +222,15 @@ export default function useInfiniteProducts(
     hasPartialPriceData: hasPartialError,
     hasMatchesOutsideLocations,
   };
+
+  return owned
+    ? {
+        ...result,
+        ...ownedEvidence(
+          data,
+          filteredItems.length,
+          selectedLocations.length > 0,
+        ),
+      }
+    : result;
 }
