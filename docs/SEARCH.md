@@ -65,7 +65,7 @@ Inside a tier, an earlier match position wins, but never by enough to reach the 
 
 Ranking is a **priority list, not one arithmetic score**. `chainComparators` runs comparators in order and takes the first non-zero verdict.
 
-Product search is the worked example (`app/[locale]/products/utils/product-relevance.ts`):
+Public-source product search is the worked example (`app/[locale]/products/utils/product-relevance.ts`):
 
 ```ts
 chainComparators(
@@ -103,7 +103,7 @@ Calling `localeCompare` with no locale collates them as plain `c`, `s`, `z`, whi
 | Watchlist                                              | `app/[locale]/(user)/watchlist/hooks/use-watchlist-data.ts`               | product name, brand                                                                                      |
 | Watchlist suggestions                                  | `app/[locale]/(user)/watchlist/hooks/use-watchlist-suggestions.ts`        | product name, brand                                                                                      |
 | Admin contact inbox                                    | `app/[locale]/dashboard/components/admin-contact-table.tsx`               | name, email, subject, message                                                                            |
-| Products text search                                   | `app/[locale]/products/hooks/use-infinite-products.ts`                    | server-side, then re-ranked locally                                                                      |
+| Products text search                                   | `app/[locale]/products/hooks/use-infinite-products.ts`                    | owned source keeps server order; public source re-ranks locally                                          |
 
 Every multiselect also offers "Odaberi sve" and "Ukloni sve" above its list (`components/custom/form/multi-select-bulk-actions.tsx`). With a search typed, "Odaberi sve" takes only the options this same matcher keeps, skipping disabled ones; "Ukloni sve" always clears everything.
 
@@ -194,3 +194,30 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 - **`components/ui/chart.tsx` sorts labels with a locale-less `localeCompare`**, so Croatian diacritics collate wrongly in chart tooltips. It is shadcn output, but editing that folder is fine where the primitive is the natural home for the change, and a comparator the whole app needs in Croatian qualifies. Swapping it for `compareHr` is a one-line fix nobody has taken.
 - **One surface has a search box that matches nothing.** `sidebar-filter-menu.tsx` lists several hundred options with no filter box at all, an obvious consumer for this system. The map search is wired up: it filters the store list and the map by chain, city and address through `filterByFields` (`use-visible-stores.ts`).
 - **Consider a library only if a surface really holds 10k+ rows client-side.** None does today. If one ever does, `MiniSearch` (7kB, zero dependencies, a `processTerm` hook that takes `normalizeForSearch` directly) is the closest fit; `uFuzzy` is faster and smaller but has a much smaller user base.
+
+## 11. Owned latest product pages
+
+Product search has two server-only sources. `CIJENE_LATEST_API_URL` and `CIJENE_LATEST_API_TOKEN` optionally select the owned latest service. `CIJENE_API_URL` and `CIJENE_API_TOKEN` continue to select public dated history and archives. Each Axios client receives its own token explicitly. Browser requests use the app routes and never receive upstream credentials. Request cancellation reaches the upstream request, and error logs omit upstream response messages and headers.
+
+When the latest URL is configured, `/api/cijene/products` forwards query, chains, source cities, categories, brands, order, page size and cursor before the service filters and slices results. Identity searches use the scoped identity route. The owned service supplies order, physical-shop price summaries, total, facets, completeness and outside-location evidence. Zod declares these additive fields so parsing retains them. No local reranking, post-page eligibility filtering or location-price fanout runs for owned search results. The existing product cards display the scoped minimum and maximum.
+
+`use-product-pages.ts` uses TanStack Query infinite queries, with the complete request scope in each cache key. Query changes discard cursors and cancel the previous request through AbortSignal. The existing scroll reveal boundary requests another server page after the loaded rows have been revealed. Products are deduplicated by identity without changing order. There is no assumed complete catalogue size. A rejected cursor restarts at the first active-generation page; old-generation rows are discarded from the displayed sequence.
+
+Facets use the same scoped query cache as the list, with counts from the service's complete relation. Each facet excludes its own selection upstream. Outside-location evidence is used only with a location selection and complete evaluation. `partial` describes incomplete source knowledge; `complete` describes evaluation of the accepted matching relation. Neither is a stock guarantee.
+
+Explicit product submission needs two normalized visible characters. Automatic product search needs three; shrinking below that clears the active route query. Empty browsing is separate. Existing search timing is preserved. Dated product chart requests always use the public client; a failed dated request cannot replace a successful latest response.
+
+Without the owned latest URL, search retains the public capped exact/fuzzy path, local filtering, ranking and location-price helper. Its result cap is reported as truncation evidence and never establishes a complete global total. The shared location-price helper remains available to other consumers.
+
+| Action                                                             | Automatic or manual                     |
+| ------------------------------------------------------------------ | --------------------------------------- |
+| Forward filters, fetch pages, map prices, restart rejected cursors | Automatic                               |
+| Configure the optional latest URL and token in the runtime         | Manual, separately authorized           |
+| Keep public history configuration available                        | Manual configuration requirement        |
+| Verify production capacity and end-to-end runtime behavior         | Deferred until deployment is authorized |
+
+The integration tests cover page order, scope forwarding, duplicate suppression, cursor restart, cancellation, retained schema evidence, source credentials and dated history routing. They do not establish national-scale capacity or verify a deployed environment. No new sort controls or layout changes are included.
+
+### Future improvements
+
+Measure national-scale latency and concurrency before enabling the owned source for production traffic. Expanded location onboarding, sort controls and watchlist or basket changes remain separate work.
