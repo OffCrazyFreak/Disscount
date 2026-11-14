@@ -221,3 +221,5 @@ The integration tests cover page order, scope forwarding, duplicate suppression,
 ### Future improvements
 
 Measure national-scale latency and concurrency before enabling the owned source for production traffic. Expanded location onboarding, sort controls and watchlist or basket changes remain separate work.
+
+Owned city facets use the existing city-label aliases supplied by the server proxy. The API counts distinct products across each alias group; selected labels expand back to their raw source cities. Unresolved selected places remain explicit scope values, never an omitted nationwide filter. Empty chain scopes and disabled short queries show no stale products. Public fallback keeps selected chain parameters while omitting unsupported ordering.
