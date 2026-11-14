@@ -1,4 +1,5 @@
 import "server-only";
+import { locationNamesMap } from "@/constants/name-mappings";
 import { CijeneApiError } from "@/lib/cijene-api/errors";
 import { cijeneLatestClient } from "@/lib/cijene-api/client";
 import { isWellFormedProductId as isIdentity } from "@/utils/product-id";
@@ -20,10 +21,7 @@ export async function searchProducts(
     return searchOwnedProducts(params, signal, cijeneLatestClient);
   }
 
-  const publicParams = {
-    ...params,
-    chains: params.order ? undefined : params.chains,
-  };
+  const publicParams = params;
 
   if (canBeBarcodeLookup(publicParams)) {
     const result = await getServerProduct(params.q);
@@ -53,7 +51,18 @@ async function searchOwnedProducts(
   const { q, ...scope } = params;
   const response = await client
     .get(isIdentity(q) ? `/products/${encodeURIComponent(q)}/` : "/products/", {
-      params: isIdentity(q) ? scope : params,
+      params: isIdentity(q)
+        ? scope
+        : {
+            ...params,
+            city_labels: JSON.stringify(
+              Object.fromEntries(
+                Object.entries(locationNamesMap).filter(
+                  ([source, label]) => source !== label,
+                ),
+              ),
+            ),
+          },
       signal,
     })
     .catch((error: unknown) => {

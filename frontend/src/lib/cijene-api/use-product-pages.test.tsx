@@ -131,3 +131,21 @@ it("aborts stale pages and disables a shrinking one-character query", async () =
   await waitFor(() => expect(aborted).toBe(true));
   expect(result.current.data).toBeUndefined();
 });
+
+it("clears an already loaded public page when the query becomes too short", async () => {
+  server.use(
+    http.get("*/api/cijene/products", () =>
+      HttpResponse.json({ products: [product("old")] }),
+    ),
+  );
+  let q = "milk";
+  const { result, rerender } = renderHookWithProviders(() =>
+    useProductPages({ q }),
+  );
+  await waitFor(() =>
+    expect(result.current.data?.products[0]?.ean).toBe("old"),
+  );
+  q = "m";
+  rerender();
+  await waitFor(() => expect(result.current.data).toBeUndefined());
+});

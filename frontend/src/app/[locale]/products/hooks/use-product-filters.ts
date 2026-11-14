@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { readListParam } from "@/utils/generic";
+import { getLocationLabel } from "@/utils/labels";
 import { normalizeForSearch } from "@/utils/strings";
 import {
   canonicalizeSelection,
@@ -67,7 +68,9 @@ export default function useProductFilters({
   const selectedLocations = useMemo(
     () =>
       canonicalizeSelection(
-        readListParam(searchParams, "location", { legacyCsv: true }),
+        readListParam(searchParams, "location", { legacyCsv: true }).map(
+          (value) => getLocationLabel(value.trim()),
+        ),
         locations.map((location) => location.name),
       ),
     [searchParams, locations],

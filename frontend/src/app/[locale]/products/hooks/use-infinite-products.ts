@@ -58,7 +58,9 @@ function scopedItems(
   products: ProductResponse[],
   locations: string[],
   chains: string[],
+  allowedChains: string[] | null,
 ): IProductListItem[] {
+  if (allowedChains?.length === 0) return [];
   const scope = locations.length
     ? "locations"
     : chains.length
@@ -81,7 +83,15 @@ function ownedEvidence(
   data: ProductSearchResponse,
   itemCount: number,
   hasLocation: boolean,
+  allowedChains: string[] | null,
 ) {
+  if (allowedChains?.length === 0)
+    return {
+      total: 0,
+      isTruncated: false,
+      hasPartialPriceData: data.partial ?? false,
+      hasMatchesOutsideLocations: false,
+    };
   return {
     total: data.total ?? itemCount,
     isTruncated: false,
@@ -117,6 +127,7 @@ export default function useInfiniteProducts(
     productPageParams(q, {
       selectedChains,
       selectedSourceCities,
+      selectedLocations,
       selectedCategories,
       selectedBrands,
     }),
@@ -161,7 +172,12 @@ export default function useInfiniteProducts(
 
   const filteredItems = useMemo(() => {
     if (owned)
-      return scopedItems(allProducts, selectedLocations, selectedChains);
+      return scopedItems(
+        allProducts,
+        selectedLocations,
+        selectedChains,
+        allowedChains,
+      );
     if (selectedCategories.length === 0 && selectedBrands.length === 0) {
       return pricedItems;
     }
@@ -177,6 +193,7 @@ export default function useInfiniteProducts(
     allProducts,
     selectedLocations,
     selectedChains,
+    allowedChains,
   ]);
 
   const batchKey = [
@@ -230,6 +247,7 @@ export default function useInfiniteProducts(
           data,
           filteredItems.length,
           selectedLocations.length > 0,
+          allowedChains,
         ),
       }
     : result;

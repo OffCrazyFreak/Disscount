@@ -209,3 +209,25 @@ it("keeps owned order and summaries without location price fanout", async () => 
   expect(result.current.isTruncated).toBe(false);
   expect(priceCalls).toBe(0);
 });
+
+it("keeps an empty chain scope empty for owned results", async () => {
+  server.use(
+    http.get("*/api/cijene/products", () =>
+      HttpResponse.json({
+        products: [sugar],
+        source: "owned",
+        total: 222,
+        outside_location_total: 300,
+        complete: true,
+        partial: true,
+      }),
+    ),
+  );
+  const { result } = renderHookWithProviders(() =>
+    useInfiniteProducts("sugar", { allowedChains: [] }),
+  );
+  await waitFor(() => expect(result.current.isLoading).toBe(false));
+  expect(result.current.visibleItems).toEqual([]);
+  expect(result.current.total).toBe(0);
+  expect(result.current.hasMatchesOutsideLocations).toBe(false);
+});

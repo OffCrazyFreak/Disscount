@@ -1,12 +1,16 @@
 import { beforeEach, expect, it, vi } from "vitest";
+import { locationNamesMap } from "@/constants/name-mappings";
 import { NextRequest } from "next/server";
 vi.mock("server-only", () => ({}));
 const clients = vi.hoisted(() => ({
+  enabled: true,
   latest: { get: vi.fn() },
   public: { get: vi.fn() },
 }));
 vi.mock("@/lib/cijene-api/client", () => ({
-  cijeneLatestClient: clients.latest,
+  get cijeneLatestClient() {
+    return clients.enabled ? clients.latest : undefined;
+  },
   cijeneApiV1Client: clients.public,
 }));
 const product = {
@@ -19,6 +23,7 @@ const product = {
 };
 beforeEach(() => {
   vi.clearAllMocks();
+  clients.enabled = true;
   clients.latest.get.mockResolvedValue({ data: product });
   clients.public.get.mockResolvedValue({ data: product });
 });
@@ -83,6 +88,13 @@ it("forwards every owned search filter and page boundary through the route", asy
   expect(clients.latest.get).toHaveBeenCalledWith("/products/", {
     params: {
       q: "milk",
+      city_labels: JSON.stringify(
+        Object.fromEntries(
+          Object.entries(locationNamesMap).filter(
+            ([source, label]) => source !== label,
+          ),
+        ),
+      ),
       chains: "chain",
       city: "Split",
       brand: "brand",
@@ -99,4 +111,20 @@ it("forwards every owned search filter and page boundary through the route", asy
     partial: true,
     generation: 8,
   });
+});
+
+it("retains the chain filter when public fallback cannot sort", async () => {
+  clients.enabled = false;
+  clients.public.get.mockResolvedValue({ data: { products: [] } });
+  const { searchProducts } =
+    await import("@/lib/cijene-api/server/search-products");
+  await searchProducts({ q: "milk", chains: "konzum", order: "relevance" });
+  expect(clients.public.get).toHaveBeenCalled();
+  for (const [path] of clients.public.get.mock.calls) {
+    expect(
+      new URL(path as string, "https://fixture.invalid").searchParams.get(
+        "chains",
+      ),
+    ).toBe("konzum");
+  }
 });

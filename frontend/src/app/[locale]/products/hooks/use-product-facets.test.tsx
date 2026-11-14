@@ -1,4 +1,6 @@
 import { expect, it, vi } from "vitest";
+import useProductFilters from "@/app/[locale]/products/hooks/use-product-filters";
+import { productPageParams } from "@/lib/cijene-api/use-product-pages";
 import useProductFacets from "@/app/[locale]/products/hooks/use-product-facets";
 import type { IUseProductFiltersResult } from "@/app/[locale]/products/hooks/use-product-filters";
 import { renderHookWithProviders } from "@/test/render";
@@ -6,8 +8,30 @@ import { renderHookWithProviders } from "@/test/render";
 vi.mock("@/lib/cijene-api", () => ({
   useListChains: () => ({ data: { chains: ["konzum"] } }),
 }));
+const selectionState = vi.hoisted(() => ({ location: "6C KRK" }));
+vi.mock("next/navigation", () => ({
+  useSearchParams: () =>
+    new URLSearchParams({ location: selectionState.location }),
+}));
 vi.mock("@/lib/cijene-api/hooks", () => ({
-  useAllLocations: () => ({ data: [] }),
+  useAllLocations: () => ({
+    data: [
+      {
+        name: "Krk",
+        sourceCities: ["6C KRK", "KRK"],
+        chains: ["konzum"],
+        storeCount: 2,
+      },
+    ],
+    isLoading: false,
+    error: null,
+  }),
+}));
+vi.mock("@/app/[locale]/products/hooks/use-filter-params", () => ({
+  default: () => ({ setFilter: vi.fn(), clearFilters: vi.fn() }),
+}));
+vi.mock("@/app/[locale]/products/hooks/use-seed-preferred-filters", () => ({
+  default: vi.fn(),
 }));
 const pages = vi.hoisted(() =>
   vi.fn(() => ({
@@ -54,4 +78,17 @@ it("uses complete server facet counts even when the loaded page is empty", () =>
     category: "food",
     order: "relevance",
   });
+});
+
+it("resolves a raw city alias to its existing label and complete API scope", () => {
+  selectionState.location = "6C KRK";
+  const { result } = renderHookWithProviders(() => useProductFilters());
+  expect(result.current.selectedLocations).toEqual(["Krk"]);
+  expect(result.current.selectedSourceCities).toEqual(["6C KRK", "KRK"]);
+  expect(productPageParams("milk", result.current).city).toBe("6C KRK,KRK");
+});
+it("retains an unresolved city filter instead of widening to nationwide", () => {
+  selectionState.location = "Unlisted city";
+  const { result } = renderHookWithProviders(() => useProductFilters());
+  expect(productPageParams("milk", result.current).city).toBe("Unlisted city");
 });
