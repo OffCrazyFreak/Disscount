@@ -1,15 +1,22 @@
 "use client";
 
-import { visibleSearchLength } from "@/utils/strings";
-
-import { useInfiniteQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  type InfiniteData,
+} from "@tanstack/react-query";
 import axios from "axios";
+
 import {
   PRODUCT_QUERY_MIN_LENGTH,
   PRODUCT_SEARCH_LIMIT,
 } from "@/constants/products";
 import { getProductByName } from "@/lib/cijene-api/queries";
-import type { SearchProductsParams } from "@/lib/cijene-api/schemas";
+import type {
+  ProductSearchResponse,
+  SearchProductsParams,
+} from "@/lib/cijene-api/schemas";
+import { visibleSearchLength } from "@/utils/strings";
 
 interface IProductPageScope {
   selectedChains?: string[];
@@ -18,6 +25,8 @@ interface IProductPageScope {
   selectedCategories?: string[];
   selectedBrands?: string[];
 }
+
+type IProductPage = ProductSearchResponse & { restarted?: true };
 
 export function productPageParams(
   q: string,
@@ -37,14 +46,34 @@ export function productPageParams(
   };
 }
 
+// Module level, so TanStack reruns it only when the pages change.
+function mergePages(
+  data: InfiniteData<IProductPage, string | undefined>,
+): ProductSearchResponse {
+  const restart = data.pages.findLastIndex((page) => page.restarted);
+  const currentPages = data.pages.slice(Math.max(0, restart));
+  const seen = new Set<string>();
+
+  const products = currentPages
+    .flatMap((page) => page.products)
+    .filter((product) => {
+      if (seen.has(product.ean)) return false;
+
+      seen.add(product.ean);
+      return true;
+    });
+
+  return { ...currentPages[0], products };
+}
+
 export default function useProductPages(params: SearchProductsParams) {
   const enabled =
-    params.q.length === 0 ||
     visibleSearchLength(params.q) >= PRODUCT_QUERY_MIN_LENGTH.submitted;
+
   const query = useInfiniteQuery({
     queryKey: ["cijene", "product-pages", params],
     initialPageParam: undefined as string | undefined,
-    queryFn: async ({ pageParam, signal }) => {
+    queryFn: async ({ pageParam, signal }): Promise<IProductPage> => {
       try {
         return await getProductByName({ ...params, cursor: pageParam }, signal);
       } catch (error) {
@@ -61,25 +90,11 @@ export default function useProductPages(params: SearchProductsParams) {
     },
     getNextPageParam: (page) => page.next_cursor ?? undefined,
     enabled,
-    placeholderData: (previous) =>
-      !enabled || previous?.pages[0]?.source === "owned" ? undefined : previous,
+    // A scope change keeps the old grid and facet counts on screen until the new scope answers.
+    placeholderData: enabled ? keepPreviousData : undefined,
+    select: mergePages,
     staleTime: 60 * 1000,
   });
 
-  const pages = enabled ? (query.data?.pages ?? []) : [];
-  const restart = pages.findLastIndex((page) => "restarted" in page);
-  const currentPages = pages.slice(Math.max(0, restart));
-  const seen = new Set<string>();
-  const products = currentPages
-    .flatMap((page) => page.products)
-    .filter((product) => {
-      if (seen.has(product.ean)) return false;
-      seen.add(product.ean);
-      return true;
-    });
-
-  return {
-    ...query,
-    data: pages.length ? { ...currentPages[0], products } : undefined,
-  };
+  return { ...query, data: enabled ? query.data : undefined };
 }

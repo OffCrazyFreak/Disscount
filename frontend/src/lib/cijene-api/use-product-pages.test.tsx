@@ -149,3 +149,83 @@ it("clears an already loaded public page when the query becomes too short", asyn
   rerender();
   await waitFor(() => expect(result.current.data).toBeUndefined());
 });
+
+it("does not search while the query is empty", async () => {
+  let requests = 0;
+  server.use(
+    http.get("*/api/cijene/products", () => {
+      requests += 1;
+      return HttpResponse.json({ products: [product("any")] });
+    }),
+  );
+
+  const { result } = renderHookWithProviders(() => useProductPages({ q: "" }));
+
+  await new Promise((resolve) => setTimeout(resolve, 40));
+  expect(requests).toBe(0);
+  expect(result.current.data).toBeUndefined();
+  expect(result.current.fetchStatus).toBe("idle");
+});
+
+it("keeps the previous scope's products and facets while a new scope loads", async () => {
+  let releaseSecond: () => void = () => {};
+  const secondHeld = new Promise<void>((resolve) => {
+    releaseSecond = resolve;
+  });
+  server.use(
+    http.get("*/api/cijene/products", async ({ request }) => {
+      const chains = new URL(request.url).searchParams.get("chains");
+      if (chains) await secondHeld;
+
+      return HttpResponse.json({
+        products: [product(chains ? "scoped" : "all")],
+        source: "owned",
+        facets: {
+          chain: chains ? { konzum: 1 } : { konzum: 4, spar: 2 },
+          city: {},
+          brand: {},
+          category: {},
+        },
+      });
+    }),
+  );
+  let chains: string | undefined;
+  const { result, rerender } = renderHookWithProviders(() =>
+    useProductPages({ q: "milk", chains }),
+  );
+  await waitFor(() =>
+    expect(result.current.data?.products[0]?.ean).toBe("all"),
+  );
+
+  chains = "konzum";
+  rerender();
+
+  await waitFor(() => expect(result.current.isFetching).toBe(true));
+  expect(result.current.isPlaceholderData).toBe(true);
+  expect(result.current.data?.products[0]?.ean).toBe("all");
+  expect(result.current.data?.facets?.chain).toEqual({ konzum: 4, spar: 2 });
+
+  releaseSecond();
+  await waitFor(() =>
+    expect(result.current.data?.products[0]?.ean).toBe("scoped"),
+  );
+  expect(result.current.isPlaceholderData).toBe(false);
+});
+
+it("returns the same merged data object between renders", async () => {
+  server.use(
+    http.get("*/api/cijene/products", () =>
+      HttpResponse.json({ products: [product("a")], source: "owned" }),
+    ),
+  );
+  const { result, rerender } = renderHookWithProviders(() =>
+    useProductPages({ q: "milk" }),
+  );
+  await waitFor(() => expect(result.current.data).toBeDefined());
+  const first = result.current.data;
+
+  rerender();
+
+  expect(result.current.data).toBe(first);
+  expect(result.current.data?.products).toBe(first?.products);
+});
