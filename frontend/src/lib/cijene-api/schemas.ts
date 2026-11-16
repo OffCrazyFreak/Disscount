@@ -48,17 +48,18 @@ const chainProductResponseSchema = z.object({
   price_date: z.iso.date(),
 });
 
+// The latest service sends null for a summary it cannot compute, so these accept it rather than failing the page.
 export const productResponseSchema = z.object({
-  min_price: z.string().regex(PRICE_TEXT).optional(),
-  max_price: z.string().regex(PRICE_TEXT).optional(),
-  avg_price: z.string().regex(PRICE_TEXT).optional(),
+  min_price: z.string().regex(PRICE_TEXT).nullish(),
+  max_price: z.string().regex(PRICE_TEXT).nullish(),
+  avg_price: z.string().regex(PRICE_TEXT).nullish(),
   unit_prices: z.record(z.string(), z.unknown()).optional(),
   listing_status: z.string().optional(),
-  shop_count: z.number().int().optional(),
-  chain_count: z.number().int().optional(),
+  shop_count: z.number().int().nullish(),
+  chain_count: z.number().int().nullish(),
   partial: z.boolean().optional(),
-  min_price_date: z.string().optional(),
-  max_price_date: z.string().optional(),
+  min_price_date: z.string().nullish(),
+  max_price_date: z.string().nullish(),
 
   ean: z.string(),
   brand: z.string().nullable(),
@@ -81,11 +82,11 @@ export const productSearchResponseSchema = z.object({
   products: z.array(productResponseSchema),
   source: z.enum(["owned", "public"]).optional(),
   generation: z.number().int().nullable().optional(),
-  total: z.number().int().optional(),
-  next_cursor: z.string().nullable().optional(),
+  total: z.number().int().nullish(),
+  next_cursor: z.string().nullish(),
   complete: z.boolean().optional(),
   partial: z.boolean().optional(),
-  outside_location_total: z.number().int().optional(),
+  outside_location_total: z.number().int().nullish(),
   facets: z
     .object({
       chain: z.record(z.string(), z.number()),

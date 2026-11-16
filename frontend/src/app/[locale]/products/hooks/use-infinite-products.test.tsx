@@ -231,3 +231,21 @@ it("keeps an empty chain scope empty for owned results", async () => {
   expect(result.current.total).toBe(0);
   expect(result.current.hasMatchesOutsideLocations).toBe(false);
 });
+
+it("shows no price, never zero, for an owned product without a summary", async () => {
+  server.use(
+    http.get("*/api/cijene/products", () =>
+      HttpResponse.json({
+        products: [{ ...sugar, min_price: null, max_price: null }],
+        source: "owned",
+        total: 1,
+      }),
+    ),
+  );
+  const { result } = renderHookWithProviders(() =>
+    useInfiniteProducts("sugar"),
+  );
+
+  await waitFor(() => expect(result.current.visibleItems).toHaveLength(1));
+  expect(result.current.visibleItems[0].price).toBeNull();
+});

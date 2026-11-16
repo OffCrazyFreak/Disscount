@@ -83,3 +83,32 @@ it("preserves complete page evidence and scoped summaries", () => {
     facets: { chain: { konzum: 2 } },
   });
 });
+
+it("accepts null for optional numeric and date fields from the latest service", () => {
+  const response = productSearchResponseSchema.parse({
+    products: [
+      {
+        ...product([]),
+        min_price: null,
+        max_price: null,
+        avg_price: null,
+        shop_count: null,
+        chain_count: null,
+        min_price_date: null,
+        max_price_date: null,
+      },
+    ],
+    source: "owned",
+    total: null,
+    generation: null,
+    next_cursor: null,
+    outside_location_total: null,
+  });
+
+  expect(response.products[0]).toMatchObject({
+    min_price: null,
+    shop_count: null,
+    min_price_date: null,
+  });
+  expect(response.total).toBeNull();
+});

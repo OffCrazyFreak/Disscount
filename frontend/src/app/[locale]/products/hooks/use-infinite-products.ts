@@ -69,7 +69,7 @@ function scopedItems(
   return products.map((product) => ({
     product,
     price:
-      product.min_price !== undefined && product.max_price !== undefined
+      product.min_price != null && product.max_price != null
         ? {
             minPrice: Number(product.min_price),
             maxPrice: Number(product.max_price),
