@@ -289,3 +289,85 @@ it("returns the same merged data object between renders", async () => {
   expect(result.current.data).toBe(first);
   expect(result.current.data?.products).toBe(first?.products);
 });
+
+describe("reusing a public answer for another scope", () => {
+  function publicPages(ean: string) {
+    return { pages: [{ products: [product(ean)] }], pageParams: [undefined] };
+  }
+
+  function seededClient(
+    entries: { params: Record<string, unknown>; ean: string; age: number }[],
+  ) {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    for (const { params, ean, age } of entries) {
+      queryClient.setQueryData(
+        ["cijene", "product-pages", { q: "milk", limit: 100, ...params }],
+        publicPages(ean),
+        { updatedAt: Date.now() - age },
+      );
+    }
+    return queryClient;
+  }
+
+  function countRequests() {
+    const counter = { requests: 0 };
+    server.use(
+      http.get("*/api/cijene/products", () => {
+        counter.requests += 1;
+        return HttpResponse.json({ products: [product("fetched")] });
+      }),
+    );
+    return counter;
+  }
+
+  it("takes the freshest matching answer without a request", async () => {
+    const counter = countRequests();
+    const queryClient = seededClient([
+      { params: { chains: "spar" }, ean: "older", age: 30_000 },
+      { params: { chains: "lidl" }, ean: "newer", age: 1_000 },
+    ]);
+    const { result } = renderHookWithProviders(
+      () => useProductPages({ q: "milk", limit: 100, chains: "konzum" }),
+      { queryClient },
+    );
+
+    expect(result.current.data?.products[0].ean).toBe("newer");
+    await new Promise((resolve) => setTimeout(resolve, 40));
+    expect(counter.requests).toBe(0);
+  });
+
+  it("fetches instead of seeding an answer older than the stale time", async () => {
+    const counter = countRequests();
+    const queryClient = seededClient([
+      { params: { chains: "spar" }, ean: "stale", age: 120_000 },
+    ]);
+    const { result } = renderHookWithProviders(
+      () => useProductPages({ q: "milk", limit: 100, chains: "konzum" }),
+      { queryClient },
+    );
+
+    await waitFor(() =>
+      expect(result.current.data?.products[0].ean).toBe("fetched"),
+    );
+    expect(counter.requests).toBe(1);
+  });
+
+  it("never reuses an answer for another date or search mode", async () => {
+    const counter = countRequests();
+    const queryClient = seededClient([
+      { params: { fuzzy: true }, ean: "fuzzy", age: 1_000 },
+      { params: { date: "2026-11-01" }, ean: "dated", age: 1_000 },
+    ]);
+    const { result } = renderHookWithProviders(
+      () => useProductPages({ q: "milk", limit: 100, chains: "konzum" }),
+      { queryClient },
+    );
+
+    await waitFor(() =>
+      expect(result.current.data?.products[0].ean).toBe("fetched"),
+    );
+    expect(counter.requests).toBe(1);
+  });
+});

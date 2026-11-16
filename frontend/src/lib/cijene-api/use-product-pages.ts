@@ -84,30 +84,47 @@ interface ICachedPages {
   updatedAt: number;
 }
 
-/** Public search ignores scope, so an answer for the same words already holds every scope's rows. */
+const PRODUCT_PAGES_STALE_TIME_MS = 60 * 1000;
+
+/** The public request carries only these, so an entry matching them answered the same upstream call. */
+function isSamePublicRequest(
+  cached: SearchProductsParams,
+  params: SearchProductsParams,
+) {
+  return (
+    cached.q === params.q &&
+    cached.limit === params.limit &&
+    cached.date === params.date &&
+    cached.fuzzy === params.fuzzy
+  );
+}
+
+/** Public search ignores scope, so a fresh answer for the same words already holds every scope's rows. */
 function cachedPublicPages(
   queryClient: QueryClient,
   params: SearchProductsParams,
 ): ICachedPages | undefined {
+  const freshSince = Date.now() - PRODUCT_PAGES_STALE_TIME_MS;
+  let freshest: ICachedPages | undefined;
+
   for (const query of queryClient
     .getQueryCache()
     .findAll({ queryKey: PRODUCT_PAGES_ROOT })) {
-    const cached = query.queryKey[2] as SearchProductsParams;
     const data = query.state.data as IProductPages | undefined;
     const firstPage = data?.pages[0];
+    const updatedAt = query.state.dataUpdatedAt;
 
-    if (
-      data &&
-      firstPage &&
-      firstPage.source !== "owned" &&
-      cached.q === params.q &&
-      cached.limit === params.limit
-    ) {
-      return { data, updatedAt: query.state.dataUpdatedAt };
+    if (!data || !firstPage || firstPage.source === "owned") continue;
+    if (updatedAt <= freshSince) continue;
+    if (!isSamePublicRequest(query.queryKey[2] as SearchProductsParams, params))
+      continue;
+
+    if (!freshest || updatedAt > freshest.updatedAt) {
+      freshest = { data, updatedAt };
     }
   }
 
-  return undefined;
+  return freshest;
 }
 
 export default function useProductPages(params: SearchProductsParams) {
@@ -130,7 +147,7 @@ export default function useProductPages(params: SearchProductsParams) {
     // A scope change keeps the old grid and facet counts on screen until the new scope answers.
     placeholderData: enabled ? keepPreviousData : undefined,
     select: mergePages,
-    staleTime: 60 * 1000,
+    staleTime: PRODUCT_PAGES_STALE_TIME_MS,
   });
 
   // New price data invalidates every loaded cursor, so the pages restart instead of mixing two imports.
