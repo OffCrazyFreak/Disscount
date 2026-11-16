@@ -37,3 +37,33 @@ it("isolates latest and public credentials without logging headers", async () =>
   expect(JSON.stringify(log.mock.calls)).not.toContain("owned-test-token");
   log.mockRestore();
 });
+
+it("warns once when the latest source has a URL but no token", async () => {
+  vi.stubEnv("CIJENE_LATEST_API_URL", "https://latest.example");
+  vi.stubEnv("CIJENE_LATEST_API_TOKEN", "");
+  vi.resetModules();
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+  await import("@/lib/cijene-api/client");
+  await import("@/lib/cijene-api/client");
+
+  const latestWarnings = warn.mock.calls.filter(([message]) =>
+    String(message).includes("CIJENE_LATEST_API_TOKEN"),
+  );
+  expect(latestWarnings).toHaveLength(1);
+  warn.mockRestore();
+});
+
+it("stays quiet about the latest token when the latest source is off", async () => {
+  vi.stubEnv("CIJENE_LATEST_API_URL", "");
+  vi.resetModules();
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+  const { cijeneLatestClient } = await import("@/lib/cijene-api/client");
+
+  expect(cijeneLatestClient).toBeUndefined();
+  expect(JSON.stringify(warn.mock.calls)).not.toContain(
+    "CIJENE_LATEST_API_TOKEN",
+  );
+  warn.mockRestore();
+});

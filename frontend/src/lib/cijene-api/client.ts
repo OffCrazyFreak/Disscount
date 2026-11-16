@@ -126,11 +126,23 @@ if (process.env.NODE_ENV !== "test") {
   validateCijeneConfig();
 }
 
-export const cijeneLatestClient = serverEnv.CIJENE_LATEST_API_URL
-  ? createCijeneClient({
-      label: "latest",
-      baseUrl: `${serverEnv.CIJENE_LATEST_API_URL}/v1`,
-      timeoutMs: 30000,
-      token: serverEnv.CIJENE_LATEST_API_TOKEN,
-    })
-  : undefined;
+function createLatestClient(): AxiosInstance | undefined {
+  const baseUrl = serverEnv.CIJENE_LATEST_API_URL;
+  if (!baseUrl) return undefined;
+
+  const token = serverEnv.CIJENE_LATEST_API_TOKEN;
+  if (!token) {
+    logger.warn(
+      "CIJENE_LATEST_API_URL is set without CIJENE_LATEST_API_TOKEN - latest search requests will be unauthenticated",
+    );
+  }
+
+  return createCijeneClient({
+    label: "latest",
+    baseUrl: `${baseUrl}/v1`,
+    timeoutMs: 30000,
+    token,
+  });
+}
+
+export const cijeneLatestClient = createLatestClient();
