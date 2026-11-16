@@ -1,6 +1,7 @@
 "use client";
 
-import { normalizeForSearch } from "@/utils/strings";
+import { PRODUCT_QUERY_MIN_LENGTH } from "@/constants/products";
+import { visibleSearchLength } from "@/utils/strings";
 import { productSearchDraft } from "@/components/custom/search/search-draft-store";
 
 import { useCallback, type KeyboardEvent } from "react";
@@ -73,7 +74,7 @@ export default function SearchBar({
     if (
       draftStore === productSearchDraft &&
       query &&
-      normalizeForSearch(query).replace(/\s/gu, "").length < 2
+      visibleSearchLength(query) < PRODUCT_QUERY_MIN_LENGTH.submitted
     )
       return;
 

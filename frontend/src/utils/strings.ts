@@ -39,6 +39,11 @@ export function normalizeForSearch(s: string) {
   );
 }
 
+/** Diacritics and spaces do not count, so "č" and "a b" are as short as they look. */
+export function visibleSearchLength(query: string) {
+  return normalizeForSearch(query).replace(/\s/gu, "").length;
+}
+
 type DateShape = "date" | "dateTime" | "dayMonth";
 
 const dateFormatters = new Map<string, Intl.DateTimeFormat>();

@@ -1,6 +1,7 @@
 "use client";
 
-import { normalizeForSearch } from "@/utils/strings";
+import { PRODUCT_QUERY_MIN_LENGTH } from "@/constants/products";
+import { visibleSearchLength } from "@/utils/strings";
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -60,11 +61,11 @@ export function useSearchBarQuery({
     if (queryValue !== (draft.getTyped() ?? routeQuery)) return;
     if (queryValue === routeQuery) return;
 
-    const visibleLength = normalizeForSearch(queryValue).replace(
-      /\s/gu,
-      "",
-    ).length;
-    if (draft === productSearchDraft && queryValue && visibleLength < 3) {
+    if (
+      draft === productSearchDraft &&
+      queryValue &&
+      visibleSearchLength(queryValue) < PRODUCT_QUERY_MIN_LENGTH.typed
+    ) {
       if (routeQuery) syncQuery("");
       return;
     }

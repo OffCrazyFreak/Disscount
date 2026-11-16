@@ -1,10 +1,13 @@
 "use client";
 
-import { normalizeForSearch } from "@/utils/strings";
+import { visibleSearchLength } from "@/utils/strings";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { PRODUCT_SEARCH_LIMIT } from "@/constants/products";
+import {
+  PRODUCT_QUERY_MIN_LENGTH,
+  PRODUCT_SEARCH_LIMIT,
+} from "@/constants/products";
 import { getProductByName } from "@/lib/cijene-api/queries";
 import type { SearchProductsParams } from "@/lib/cijene-api/schemas";
 
@@ -37,7 +40,7 @@ export function productPageParams(
 export default function useProductPages(params: SearchProductsParams) {
   const enabled =
     params.q.length === 0 ||
-    normalizeForSearch(params.q).replace(/\s/gu, "").length >= 2;
+    visibleSearchLength(params.q) >= PRODUCT_QUERY_MIN_LENGTH.submitted;
   const query = useInfiniteQuery({
     queryKey: ["cijene", "product-pages", params],
     initialPageParam: undefined as string | undefined,
