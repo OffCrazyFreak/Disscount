@@ -3,6 +3,7 @@ import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
 import {
+  SEARCH_TIMEOUT,
   SERVER_REPORTED_PROBLEMS,
   SESSION_CHANGED,
 } from "@/lib/backend-proxy/proxy-contract";
@@ -39,6 +40,15 @@ export function isSessionChanged(error: unknown): boolean {
 export function isReportedByProxy(error: unknown): boolean {
   const code = parseProblem(error)?.code;
   return SERVER_REPORTED_PROBLEMS.some((reported) => reported === code);
+}
+
+/** The latest search ran out of its time budget; asking again at once only adds load. */
+export function isSearchTimeout(error: unknown): boolean {
+  return (
+    isAxiosError(error) &&
+    error.response?.status === 503 &&
+    parseProblem(error)?.code === SEARCH_TIMEOUT
+  );
 }
 
 export function problemMessage(error: unknown, fallback: string): string {

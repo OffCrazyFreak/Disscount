@@ -5,9 +5,9 @@ import {
 } from "@/lib/backend-proxy/proxy-problem";
 import {
   CURSOR_EXPIRED,
-  CijeneApiError,
   SEARCH_TIMEOUT,
-} from "@/lib/cijene-api/errors";
+} from "@/lib/backend-proxy/proxy-contract";
+import { CijeneApiError } from "@/lib/cijene-api/errors";
 import { createApiResponse } from "@/lib/cijene-api/utils/response-utils";
 
 /** Everything but actionable upstream errors becomes a 502, so a broken proxy is not the caller's fault. */

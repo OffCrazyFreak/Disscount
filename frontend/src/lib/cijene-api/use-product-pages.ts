@@ -14,7 +14,7 @@ import {
   PRODUCT_SEARCH_LIMIT,
 } from "@/constants/products";
 import { parseProblem } from "@/lib/api/problem-details";
-import { CURSOR_EXPIRED } from "@/lib/cijene-api/errors";
+import { CURSOR_EXPIRED } from "@/lib/backend-proxy/proxy-contract";
 import { getProductByName } from "@/lib/cijene-api/queries";
 import type {
   ProductSearchResponse,

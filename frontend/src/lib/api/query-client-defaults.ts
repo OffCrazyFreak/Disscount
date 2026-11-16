@@ -11,7 +11,7 @@ import {
 import { isCancel } from "axios";
 import { ZodError } from "zod";
 
-import { isReportedByProxy } from "@/lib/api/problem-details";
+import { isReportedByProxy, isSearchTimeout } from "@/lib/api/problem-details";
 import { limitReachedOf } from "@/lib/limits/limit-reached";
 import { showLimitReached } from "@/lib/limits/limit-reached-store";
 import { httpStatus } from "@/lib/offline/failure-policy";
@@ -51,7 +51,11 @@ export function isOffline() {
 
 /** Network failures retry because React Query pauses offline; a parse failure would just repeat. */
 export function shouldRetryQuery(failureCount: number, error: unknown) {
-  if (failureCount >= MAX_QUERY_RETRIES || error instanceof ZodError) {
+  if (
+    failureCount >= MAX_QUERY_RETRIES ||
+    error instanceof ZodError ||
+    isSearchTimeout(error)
+  ) {
     return false;
   }
 
@@ -66,7 +70,7 @@ export function shouldRetryQuery(failureCount: number, error: unknown) {
 /** True for failures nobody caused on purpose: server errors, network faults while online, parse errors. */
 export function isUnexpectedFailure(error: unknown) {
   // Offline, every request fails, and fetch() rejects with a TypeError axios never sees.
-  if (isAborted(error) || isOffline()) return false;
+  if (isAborted(error) || isOffline() || isSearchTimeout(error)) return false;
   if (isNetworkFailure(error)) return true;
 
   const status = httpStatus(error);

@@ -45,6 +45,23 @@ describe("shouldRetryQuery", () => {
   });
 });
 
+describe("a latest search timeout", () => {
+  const timeout = () =>
+    httpError(503, {
+      status: 503,
+      code: "search_timeout",
+      title: "Unavailable",
+    });
+
+  it("is not retried, because the search already used its time budget", () => {
+    expect(shouldRetryQuery(0, timeout())).toBe(false);
+  });
+
+  it("is not reported as an unexpected failure", () => {
+    expect(isUnexpectedFailure(timeout())).toBe(false);
+  });
+});
+
 describe("isUnexpectedFailure", () => {
   it.each([500, 502, 503])("reports a %i", (status) => {
     expect(isUnexpectedFailure(httpError(status))).toBe(true);

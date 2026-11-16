@@ -8,6 +8,8 @@ import hrErrors from "@/i18n/messages/hr/errors.json";
 import itErrors from "@/i18n/messages/it/errors.json";
 import slErrors from "@/i18n/messages/sl/errors.json";
 import {
+  CURSOR_EXPIRED,
+  SEARCH_TIMEOUT,
   SESSION_CHANGED,
   type SERVER_REPORTED_PROBLEMS,
 } from "@/lib/backend-proxy/proxy-contract";
@@ -23,8 +25,8 @@ export type ProxyProblemCode =
   | "payload_too_large"
   | "request_timeout"
   | "sign_in_required"
-  | "cursor_expired"
-  | "search_timeout";
+  | typeof CURSOR_EXPIRED
+  | typeof SEARCH_TIMEOUT;
 
 type ProxyTitleKey = keyof typeof hrErrors.proxy;
 
@@ -56,8 +58,8 @@ const PROBLEMS: Record<
   // A 401 like Spring's own, so the client refetches the session and the offline queue keeps the write.
   sign_in_required: { status: 401, titleKey: "signInRequired" },
   // The price data changed under a paged search; the client restarts from page one.
-  cursor_expired: { status: 409, titleKey: "refreshPage" },
-  search_timeout: { status: 503, titleKey: "unavailable" },
+  [CURSOR_EXPIRED]: { status: 409, titleKey: "refreshPage" },
+  [SEARCH_TIMEOUT]: { status: 503, titleKey: "unavailable" },
 };
 
 /** The client sends <html lang> here, the same header Spring localises its own titles from. */

@@ -1,7 +1,5 @@
 import { AxiosError } from "axios";
 
-import type { ProxyProblemCode } from "@/lib/backend-proxy/proxy-problem";
-
 /** So callers can map an upstream failure onto a response without knowing that axios is underneath. */
 export class CijeneApiError extends Error {
   constructor(
@@ -13,10 +11,6 @@ export class CijeneApiError extends Error {
     this.name = "CijeneApiError";
   }
 }
-
-/** Upstream details the proxy forwards as its own problem codes, so the browser can tell them apart. */
-export const CURSOR_EXPIRED = "cursor_expired" satisfies ProxyProblemCode;
-export const SEARCH_TIMEOUT = "search_timeout" satisfies ProxyProblemCode;
 
 const STATUS_MESSAGES: Record<number, string> = {
   400: "Invalid request parameters",
