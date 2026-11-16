@@ -65,8 +65,21 @@ it("honors identity scope through the owned source without fuzzy fallback", asyn
   expect(url.searchParams.getAll("category")).toEqual(["food"]);
   expect(url.searchParams.getAll("brand")).toEqual(["brand"]);
   expect(url.searchParams.get("chains")).toBe("chain");
+  expect(url.searchParams.get("city_labels")).toBe(
+    JSON.stringify(
+      Object.fromEntries(
+        Object.entries(locationNamesMap).filter(
+          ([source, label]) => source !== label,
+        ),
+      ),
+    ),
+  );
   expect(call[1]).toEqual({ signal: controller.signal });
-  expect(response.data).toMatchObject({ products: [product], source: "owned" });
+  expect(response.data).toMatchObject({
+    products: [product],
+    source: "owned",
+    partial: false,
+  });
   expect(clients.public.get).not.toHaveBeenCalled();
 });
 
@@ -141,4 +154,14 @@ it("sends public search no scope, so the browser can count every chain", async (
       expect(params.has(scoped)).toBe(false);
     }
   }
+});
+
+it("reports partial prices on a barcode lookup only when the product says so", async () => {
+  clients.latest.get.mockResolvedValue({ data: { ...product, partial: true } });
+  const { searchProducts } =
+    await import("@/lib/cijene-api/server/search-products");
+
+  const response = await searchProducts({ q: product.ean });
+
+  expect(response.data).toMatchObject({ partial: true, total: 1 });
 });

@@ -74,9 +74,10 @@ async function lookupOwnedIdentity(
   client: AxiosInstance,
 ): Promise<{ data: unknown }> {
   const product: unknown = await client
-    .get(`/products/${encodeURIComponent(q)}/?${buildQueryString(scope)}`, {
-      signal,
-    })
+    .get(
+      `/products/${encodeURIComponent(q)}/?${buildQueryString({ ...scope, city_labels: CITY_LABELS })}`,
+      { signal },
+    )
     .then(
       (response) => response.data,
       (error: unknown) => {
@@ -94,7 +95,16 @@ async function lookupOwnedIdentity(
       source: "owned",
       total: product ? 1 : 0,
       complete: true,
-      partial: true,
+      partial: reportsPartialPrices(product),
     },
   };
+}
+
+function reportsPartialPrices(product: unknown): boolean {
+  return (
+    typeof product === "object" &&
+    product !== null &&
+    "partial" in product &&
+    product.partial === true
+  );
 }
