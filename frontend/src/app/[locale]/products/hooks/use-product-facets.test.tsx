@@ -73,9 +73,9 @@ it("uses complete server facet counts even when the loaded page is empty", () =>
     q: "milk",
     limit: 100,
     chains: "konzum",
-    city: "SPLIT",
-    brand: "brand",
-    category: "food",
+    city: ["SPLIT"],
+    brand: ["brand"],
+    category: ["food"],
     order: "relevance",
   });
 });
@@ -85,10 +85,15 @@ it("resolves a raw city alias to its existing label and complete API scope", () 
   const { result } = renderHookWithProviders(() => useProductFilters());
   expect(result.current.selectedLocations).toEqual(["Krk"]);
   expect(result.current.selectedSourceCities).toEqual(["6C KRK", "KRK"]);
-  expect(productPageParams("milk", result.current).city).toBe("6C KRK,KRK");
+  expect(productPageParams("milk", result.current).city).toEqual([
+    "6C KRK",
+    "KRK",
+  ]);
 });
 it("retains an unresolved city filter instead of widening to nationwide", () => {
   selectionState.location = "Unlisted city";
   const { result } = renderHookWithProviders(() => useProductFilters());
-  expect(productPageParams("milk", result.current).city).toBe("Unlisted city");
+  expect(productPageParams("milk", result.current).city).toEqual([
+    "Unlisted city",
+  ]);
 });

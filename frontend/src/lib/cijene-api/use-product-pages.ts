@@ -29,6 +29,10 @@ interface IProductPageScope {
   selectedBrands?: string[];
 }
 
+function nonEmpty(values: string[] | undefined) {
+  return values?.length ? values : undefined;
+}
+
 export function productPageParams(
   q: string,
   scope: IProductPageScope,
@@ -36,13 +40,12 @@ export function productPageParams(
   return {
     q,
     limit: PRODUCT_SEARCH_LIMIT,
+    // Chain codes never contain commas, so chains alone stays one joined value.
     chains: scope.selectedChains?.join(",") || undefined,
     city:
-      scope.selectedSourceCities?.join(",") ||
-      scope.selectedLocations?.join(",") ||
-      undefined,
-    category: scope.selectedCategories?.join(",") || undefined,
-    brand: scope.selectedBrands?.join(",") || undefined,
+      nonEmpty(scope.selectedSourceCities) ?? nonEmpty(scope.selectedLocations),
+    category: nonEmpty(scope.selectedCategories),
+    brand: nonEmpty(scope.selectedBrands),
     order: "relevance",
   };
 }

@@ -1,11 +1,12 @@
 import "server-only";
+import type { AxiosInstance } from "axios";
 import { locationNamesMap } from "@/constants/name-mappings";
 import { CijeneApiError } from "@/lib/cijene-api/errors";
 import { cijeneLatestClient } from "@/lib/cijene-api/client";
-import { isWellFormedProductId as isIdentity } from "@/utils/product-id";
 import type { SearchProductsParams } from "@/lib/cijene-api/schemas";
 import { getServerProduct } from "@/lib/cijene-api/server/get-product";
 import { searchProductsWithFuzzyFallback } from "@/lib/cijene-api/utils/product-search-fallback";
+import { buildQueryString } from "@/utils/generic";
 import { isWellFormedProductId } from "@/utils/product-id";
 
 function canBeBarcodeLookup({ q, fuzzy, date, chains }: SearchProductsParams) {
@@ -43,46 +44,58 @@ export async function searchProducts(
   );
 }
 
+// Upstream city spellings that our labels merge, so the service can count each label once.
+const CITY_LABELS = JSON.stringify(
+  Object.fromEntries(
+    Object.entries(locationNamesMap).filter(
+      ([source, label]) => source !== label,
+    ),
+  ),
+);
+
 async function searchOwnedProducts(
   params: SearchProductsParams,
   signal: AbortSignal | undefined,
-  client: import("axios").AxiosInstance,
+  client: AxiosInstance,
 ): Promise<{ data: unknown }> {
-  const { q, ...scope } = params;
-  const response = await client
-    .get(isIdentity(q) ? `/products/${encodeURIComponent(q)}/` : "/products/", {
-      params: isIdentity(q)
-        ? scope
-        : {
-            ...params,
-            city_labels: JSON.stringify(
-              Object.fromEntries(
-                Object.entries(locationNamesMap).filter(
-                  ([source, label]) => source !== label,
-                ),
-              ),
-            ),
-          },
+  if (isWellFormedProductId(params.q))
+    return lookupOwnedIdentity(params, signal, client);
+
+  const response = await client.get(
+    `/products/?${buildQueryString({ ...params, city_labels: CITY_LABELS })}`,
+    { signal },
+  );
+
+  return { data: { ...response.data, source: "owned" } };
+}
+
+async function lookupOwnedIdentity(
+  { q, ...scope }: SearchProductsParams,
+  signal: AbortSignal | undefined,
+  client: AxiosInstance,
+): Promise<{ data: unknown }> {
+  const product: unknown = await client
+    .get(`/products/${encodeURIComponent(q)}/?${buildQueryString(scope)}`, {
       signal,
     })
-    .catch((error: unknown) => {
-      if (
-        isIdentity(q) &&
-        error instanceof CijeneApiError &&
-        error.status === 404
-      )
-        return { data: null };
-      throw error;
-    });
-  return {
-    data: isIdentity(q)
-      ? {
-          products: response.data ? [response.data] : [],
-          source: "owned",
-          total: response.data ? 1 : 0,
-          complete: true,
-          partial: true,
+    .then(
+      (response) => response.data,
+      (error: unknown) => {
+        if (error instanceof CijeneApiError && error.status === 404) {
+          return null;
         }
-      : { ...response.data, source: "owned" },
+
+        throw error;
+      },
+    );
+
+  return {
+    data: {
+      products: product ? [product] : [],
+      source: "owned",
+      total: product ? 1 : 0,
+      complete: true,
+      partial: true,
+    },
   };
 }

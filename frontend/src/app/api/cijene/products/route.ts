@@ -6,6 +6,7 @@ import {
 } from "@/lib/cijene-api/schemas";
 import { searchProducts } from "@/lib/cijene-api/server/search-products";
 import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";
+import { readListParam } from "@/utils/generic";
 
 function parseBooleanParam(value: string | null): boolean | undefined {
   if (value === "true") return true;
@@ -14,14 +15,20 @@ function parseBooleanParam(value: string | null): boolean | undefined {
   return undefined;
 }
 
+function optionalList(searchParams: URLSearchParams, key: string) {
+  const values = readListParam(searchParams, key);
+
+  return values.length ? values : undefined;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const limit = searchParams.get("limit");
 
   const parsed = searchProductsParamsSchema.safeParse({
-    city: searchParams.get("city") || undefined,
-    brand: searchParams.get("brand") || undefined,
-    category: searchParams.get("category") || undefined,
+    city: optionalList(searchParams, "city"),
+    brand: optionalList(searchParams, "brand"),
+    category: optionalList(searchParams, "category"),
     order: searchParams.get("order") || undefined,
     cursor: searchParams.get("cursor") || undefined,
     page_size: searchParams.has("page_size")

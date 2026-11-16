@@ -44,9 +44,9 @@ describe("server product pages", () => {
       () =>
         useProductPages({
           q: "milk",
-          city: "Split",
-          brand: "brand",
-          category: "food",
+          city: ["Split", "Krk"],
+          brand: ["brand"],
+          category: ["Mlijeko, jogurti"],
           chains: "chain",
           order: "price_desc",
           page_size: 2,
@@ -70,10 +70,12 @@ describe("server product pages", () => {
       generation: 4,
     });
     expect(getCachedProductNames(queryClient)).toEqual(["b", "a", "c"]);
+    expect(requests[1].searchParams.getAll("city")).toEqual(["Split", "Krk"]);
+    expect(requests[1].searchParams.getAll("category")).toEqual([
+      "Mlijeko, jogurti",
+    ]);
     expect(Object.fromEntries(requests[1].searchParams)).toMatchObject({
-      city: "Split",
       brand: "brand",
-      category: "food",
       chains: "chain",
       order: "price_desc",
       page_size: "2",

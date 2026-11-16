@@ -11,15 +11,21 @@ export function readSearchParam(
   return (Array.isArray(value) ? value[0] : value) || "";
 }
 
+/** A list repeats its key once per value, so a value may itself contain commas. */
 export function buildQueryString(
-  params: Record<string, string | number | boolean | undefined>,
+  params: Record<string, string | number | boolean | string[] | undefined>,
 ): string {
   const queryParams = new URLSearchParams();
 
   Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined) {
-      queryParams.set(key, String(value));
+    if (value === undefined) return;
+
+    if (Array.isArray(value)) {
+      value.forEach((item) => queryParams.append(key, item));
+      return;
     }
+
+    queryParams.set(key, String(value));
   });
 
   return queryParams.toString();

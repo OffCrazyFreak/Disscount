@@ -168,9 +168,10 @@ export const getProductParamsSchema = z.object({
 
 export const searchProductsParamsSchema = z.object({
   q: z.string().max(256),
-  city: z.string().optional(),
-  brand: z.string().optional(),
-  category: z.string().optional(),
+  // Each value is literal, because category and brand names can contain commas.
+  city: z.array(z.string()).optional(),
+  brand: z.array(z.string()).optional(),
+  category: z.array(z.string()).optional(),
   order: z.enum(["relevance", "price_asc", "price_desc"]).optional(),
   page_size: z.number().int().min(1).max(10000).optional(),
   cursor: z.string().optional(),

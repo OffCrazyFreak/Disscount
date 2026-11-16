@@ -40,6 +40,10 @@ it("sends dated product charts only to public history", async () => {
   );
   expect(clients.latest.get).not.toHaveBeenCalled();
 });
+function requestedUrl(call: unknown[]) {
+  return new URL(call[0] as string, "https://fixture.invalid");
+}
+
 it("honors identity scope through the owned source without fuzzy fallback", async () => {
   const { searchProducts } =
     await import("@/lib/cijene-api/server/search-products");
@@ -47,22 +51,21 @@ it("honors identity scope through the owned source without fuzzy fallback", asyn
   const response = await searchProducts(
     {
       q: product.ean,
-      city: "Split",
-      category: "food",
-      brand: "brand",
+      city: ["Split"],
+      category: ["food"],
+      brand: ["brand"],
       chains: "chain",
     },
     controller.signal,
   );
-  expect(clients.latest.get).toHaveBeenCalledWith(`/products/${product.ean}/`, {
-    params: {
-      city: "Split",
-      category: "food",
-      brand: "brand",
-      chains: "chain",
-    },
-    signal: controller.signal,
-  });
+  const [call] = clients.latest.get.mock.calls;
+  const url = requestedUrl(call);
+  expect(url.pathname).toBe(`/products/${product.ean}/`);
+  expect(url.searchParams.getAll("city")).toEqual(["Split"]);
+  expect(url.searchParams.getAll("category")).toEqual(["food"]);
+  expect(url.searchParams.getAll("brand")).toEqual(["brand"]);
+  expect(url.searchParams.get("chains")).toBe("chain");
+  expect(call[1]).toEqual({ signal: controller.signal });
   expect(response.data).toMatchObject({ products: [product], source: "owned" });
   expect(clients.public.get).not.toHaveBeenCalled();
 });
@@ -81,30 +84,34 @@ it("forwards every owned search filter and page boundary through the route", asy
   });
   const { GET } = await import("@/app/api/cijene/products/route");
   const request = new NextRequest(
-    "http://localhost/api/cijene/products?q=milk&chains=chain&city=Split&brand=brand&category=food&order=price_asc&page_size=2&cursor=opaque",
+    "http://localhost/api/cijene/products?q=milk&chains=chain,spar&city=Split&city=6C+KRK&brand=brand&category=Mlijeko%2C+jogurti&category=food&order=price_asc&page_size=2&cursor=opaque",
   );
   const response = await GET(request);
   expect(response.status).toBe(200);
-  expect(clients.latest.get).toHaveBeenCalledWith("/products/", {
-    params: {
-      q: "milk",
-      city_labels: JSON.stringify(
-        Object.fromEntries(
-          Object.entries(locationNamesMap).filter(
-            ([source, label]) => source !== label,
-          ),
+  const [call] = clients.latest.get.mock.calls;
+  const url = requestedUrl(call);
+  expect(url.pathname).toBe("/products/");
+  expect(Object.fromEntries(url.searchParams)).toMatchObject({
+    q: "milk",
+    chains: "chain,spar",
+    brand: "brand",
+    order: "price_asc",
+    page_size: "2",
+    cursor: "opaque",
+    city_labels: JSON.stringify(
+      Object.fromEntries(
+        Object.entries(locationNamesMap).filter(
+          ([source, label]) => source !== label,
         ),
       ),
-      chains: "chain",
-      city: "Split",
-      brand: "brand",
-      category: "food",
-      order: "price_asc",
-      page_size: 2,
-      cursor: "opaque",
-    },
-    signal: request.signal,
+    ),
   });
+  expect(url.searchParams.getAll("city")).toEqual(["Split", "6C KRK"]);
+  expect(url.searchParams.getAll("category")).toEqual([
+    "Mlijeko, jogurti",
+    "food",
+  ]);
+  expect(call[1]).toEqual({ signal: request.signal });
   expect(await response.json()).toMatchObject({
     total: 0,
     complete: true,
