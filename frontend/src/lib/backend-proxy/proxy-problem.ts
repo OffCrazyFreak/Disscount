@@ -22,7 +22,9 @@ export type ProxyProblemCode =
   | "too_many_requests"
   | "payload_too_large"
   | "request_timeout"
-  | "sign_in_required";
+  | "sign_in_required"
+  | "cursor_expired"
+  | "search_timeout";
 
 type ProxyTitleKey = keyof typeof hrErrors.proxy;
 
@@ -53,6 +55,9 @@ const PROBLEMS: Record<
   request_timeout: { status: 408, titleKey: "refreshPage" },
   // A 401 like Spring's own, so the client refetches the session and the offline queue keeps the write.
   sign_in_required: { status: 401, titleKey: "signInRequired" },
+  // The price data changed under a paged search; the client restarts from page one.
+  cursor_expired: { status: 409, titleKey: "refreshPage" },
+  search_timeout: { status: 503, titleKey: "unavailable" },
 };
 
 /** The client sends <html lang> here, the same header Spring localises its own titles from. */

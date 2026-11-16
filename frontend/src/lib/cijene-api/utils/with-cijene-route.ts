@@ -3,7 +3,11 @@ import {
   proxyProblem,
   type ProxyProblemCode,
 } from "@/lib/backend-proxy/proxy-problem";
-import { CijeneApiError } from "@/lib/cijene-api/errors";
+import {
+  CURSOR_EXPIRED,
+  CijeneApiError,
+  SEARCH_TIMEOUT,
+} from "@/lib/cijene-api/errors";
 import { createApiResponse } from "@/lib/cijene-api/utils/response-utils";
 
 /** Everything but actionable upstream errors becomes a 502, so a broken proxy is not the caller's fault. */
@@ -28,12 +32,31 @@ export async function withCijeneRoute<TSchema extends z.ZodType>(
 
     return createApiResponse(parsed.data);
   } catch (error) {
-    if (error instanceof CijeneApiError && isCallerFault(error.status)) {
+    if (!(error instanceof CijeneApiError)) {
+      return proxyProblem("upstream_unavailable", request);
+    }
+
+    const forwarded = forwardedProblem(error);
+    if (forwarded) return proxyProblem(forwarded, request);
+
+    if (isCallerFault(error.status)) {
       return proxyProblem(callerFaultProblem(error.status), request);
     }
 
     return proxyProblem("upstream_unavailable", request);
   }
+}
+
+const upstreamDetailSchema = z.object({ detail: z.string() });
+
+/** Only these two details change what the browser does, so every other one stays generic. */
+function forwardedProblem(error: CijeneApiError): ProxyProblemCode | null {
+  const detail = upstreamDetailSchema.safeParse(error.response).data?.detail;
+
+  if (error.status === 409 && detail === CURSOR_EXPIRED) return CURSOR_EXPIRED;
+  if (error.status === 503 && detail === SEARCH_TIMEOUT) return SEARCH_TIMEOUT;
+
+  return null;
 }
 
 /** Our token authenticates v1, so 401 or 403 means misconfiguration; 408 is a retryable gateway failure. */

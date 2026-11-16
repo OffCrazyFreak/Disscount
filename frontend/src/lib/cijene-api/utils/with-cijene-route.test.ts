@@ -109,3 +109,56 @@ describe("withCijeneRoute", () => {
     expect(await response.json()).toEqual({ ean: "3850104012345" });
   });
 });
+
+describe("withCijeneRoute forwarded search problems", () => {
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  function failWith(status: number, detail: unknown) {
+    return withCijeneRoute(requestIn("en"), "products", schema, () =>
+      Promise.reject(new CijeneApiError(status, "Upstream", { detail })),
+    );
+  }
+
+  it("passes an expired cursor through as a 409 the browser can restart on", async () => {
+    const response = await failWith(409, "cursor_expired");
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({
+      status: 409,
+      code: "cursor_expired",
+    });
+  });
+
+  it("keeps any other conflict a plain bad request", async () => {
+    const response = await failWith(409, "something_else");
+
+    expect(response.status).toBe(400);
+    expect((await response.json()).code).toBe("bad_request");
+  });
+
+  it("keeps a malformed cursor a plain bad request", async () => {
+    const response = await failWith(400, "invalid cursor");
+
+    expect(response.status).toBe(400);
+    expect((await response.json()).code).toBe("bad_request");
+  });
+
+  it("passes a search timeout through as its own 503", async () => {
+    const response = await failWith(503, "search_timeout");
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toMatchObject({
+      status: 503,
+      code: "search_timeout",
+    });
+  });
+
+  it("keeps any other 503 the generic unavailable answer", async () => {
+    const response = await failWith(503, "maintenance");
+
+    expect(response.status).toBe(502);
+    expect((await response.json()).code).toBe("upstream_unavailable");
+  });
+});

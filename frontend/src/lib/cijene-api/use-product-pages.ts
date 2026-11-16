@@ -3,14 +3,17 @@
 import {
   keepPreviousData,
   useInfiniteQuery,
+  useQueryClient,
   type InfiniteData,
 } from "@tanstack/react-query";
-import axios from "axios";
+import { isAxiosError } from "axios";
 
 import {
   PRODUCT_QUERY_MIN_LENGTH,
   PRODUCT_SEARCH_LIMIT,
 } from "@/constants/products";
+import { parseProblem } from "@/lib/api/problem-details";
+import { CURSOR_EXPIRED } from "@/lib/cijene-api/errors";
 import { getProductByName } from "@/lib/cijene-api/queries";
 import type {
   ProductSearchResponse,
@@ -25,8 +28,6 @@ interface IProductPageScope {
   selectedCategories?: string[];
   selectedBrands?: string[];
 }
-
-type IProductPage = ProductSearchResponse & { restarted?: true };
 
 export function productPageParams(
   q: string,
@@ -48,13 +49,11 @@ export function productPageParams(
 
 // Module level, so TanStack reruns it only when the pages change.
 function mergePages(
-  data: InfiniteData<IProductPage, string | undefined>,
+  data: InfiniteData<ProductSearchResponse, string | undefined>,
 ): ProductSearchResponse {
-  const restart = data.pages.findLastIndex((page) => page.restarted);
-  const currentPages = data.pages.slice(Math.max(0, restart));
   const seen = new Set<string>();
 
-  const products = currentPages
+  const products = data.pages
     .flatMap((page) => page.products)
     .filter((product) => {
       if (seen.has(product.ean)) return false;
@@ -63,31 +62,28 @@ function mergePages(
       return true;
     });
 
-  return { ...currentPages[0], products };
+  return { ...data.pages[0], products };
+}
+
+function isCursorExpired(error: unknown): boolean {
+  return (
+    isAxiosError(error) &&
+    error.response?.status === 409 &&
+    parseProblem(error)?.code === CURSOR_EXPIRED
+  );
 }
 
 export default function useProductPages(params: SearchProductsParams) {
+  const queryClient = useQueryClient();
   const enabled =
     visibleSearchLength(params.q) >= PRODUCT_QUERY_MIN_LENGTH.submitted;
+  const queryKey = ["cijene", "product-pages", params];
 
   const query = useInfiniteQuery({
-    queryKey: ["cijene", "product-pages", params],
+    queryKey,
     initialPageParam: undefined as string | undefined,
-    queryFn: async ({ pageParam, signal }): Promise<IProductPage> => {
-      try {
-        return await getProductByName({ ...params, cursor: pageParam }, signal);
-      } catch (error) {
-        if (
-          pageParam &&
-          axios.isAxiosError(error) &&
-          error.response?.status === 400
-        ) {
-          const page = await getProductByName(params, signal);
-          return { ...page, restarted: true };
-        }
-        throw error;
-      }
-    },
+    queryFn: ({ pageParam, signal }) =>
+      getProductByName({ ...params, cursor: pageParam }, signal),
     getNextPageParam: (page) => page.next_cursor ?? undefined,
     enabled,
     // A scope change keeps the old grid and facet counts on screen until the new scope answers.
@@ -96,5 +92,20 @@ export default function useProductPages(params: SearchProductsParams) {
     staleTime: 60 * 1000,
   });
 
-  return { ...query, data: enabled ? query.data : undefined };
+  // New price data invalidates every loaded cursor, so the pages restart instead of mixing two imports.
+  async function fetchNextPage() {
+    const result = await query.fetchNextPage();
+
+    if (result.isFetchNextPageError && isCursorExpired(result.error)) {
+      await queryClient.resetQueries({ queryKey, exact: true });
+    }
+
+    return result;
+  }
+
+  return {
+    ...query,
+    data: enabled ? query.data : undefined,
+    fetchNextPage,
+  };
 }

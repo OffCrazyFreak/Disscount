@@ -81,19 +81,25 @@ describe("server product pages", () => {
     });
   });
 
-  it("restarts unavailable cursors without keeping old generation rows", async () => {
-    let restarted = false;
+  it("restarts from page one when new price data expires the cursor", async () => {
+    let imported = false;
+    const cursors: (string | null)[] = [];
     server.use(
       http.get("*/api/cijene/products", ({ request }) => {
-        if (new URL(request.url).searchParams.has("cursor")) {
-          restarted = true;
-          return HttpResponse.json({}, { status: 400 });
+        const cursor = new URL(request.url).searchParams.get("cursor");
+        cursors.push(cursor);
+        if (cursor) {
+          imported = true;
+          return HttpResponse.json(
+            { status: 409, code: "cursor_expired", title: "Refresh" },
+            { status: 409 },
+          );
         }
         return HttpResponse.json({
-          products: [product(restarted ? "new" : "old")],
-          next_cursor: restarted ? null : "expired",
+          products: [product(imported ? "new" : "old")],
+          next_cursor: imported ? null : "expired",
           source: "owned",
-          generation: restarted ? 2 : 1,
+          generation: imported ? 2 : 1,
         });
       }),
     );
@@ -106,7 +112,59 @@ describe("server product pages", () => {
     await act(async () => {
       await result.current.fetchNextPage();
     });
-    expect(result.current.data?.products.map((p) => p.ean)).toEqual(["new"]);
+    await waitFor(() =>
+      expect(result.current.data?.products.map((p) => p.ean)).toEqual(["new"]),
+    );
+    expect(result.current.data?.generation).toBe(2);
+    expect(result.current.error).toBeNull();
+    expect(cursors).toEqual([null, "expired", null]);
+  });
+
+  it("shows an error instead of restarting for a malformed cursor", async () => {
+    const cursors: (string | null)[] = [];
+    server.use(
+      http.get("*/api/cijene/products", ({ request }) => {
+        const cursor = new URL(request.url).searchParams.get("cursor");
+        cursors.push(cursor);
+        if (cursor) {
+          return HttpResponse.json(
+            { status: 400, code: "bad_request", title: "Bad" },
+            { status: 400 },
+          );
+        }
+        return HttpResponse.json({
+          products: [product("old")],
+          next_cursor: "broken",
+          source: "owned",
+        });
+      }),
+    );
+    const { result } = renderHookWithProviders(() =>
+      useProductPages({ q: "milk" }),
+    );
+    await waitFor(() => expect(result.current.data).toBeDefined());
+    await act(async () => {
+      await result.current.fetchNextPage();
+    });
+    expect(result.current.error).toBeTruthy();
+    expect(result.current.data?.products.map((p) => p.ean)).toEqual(["old"]);
+    expect(cursors).toEqual([null, "broken"]);
+  });
+
+  it("surfaces a search timeout as an error state", async () => {
+    server.use(
+      http.get("*/api/cijene/products", () =>
+        HttpResponse.json(
+          { status: 503, code: "search_timeout", title: "Unavailable" },
+          { status: 503 },
+        ),
+      ),
+    );
+    const { result } = renderHookWithProviders(() =>
+      useProductPages({ q: "milk" }),
+    );
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.data).toBeUndefined();
   });
 });
 
