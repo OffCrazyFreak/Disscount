@@ -28,6 +28,9 @@ export function shouldPersistQuery(queryKey: QueryKey): boolean {
     return false;
   }
 
+  // Pages hold cursors pinned to one price import and can grow without bound, so they never outlive the tab.
+  if (root === "cijene" && queryKey[1] === "product-pages") return false;
+
   if (root === "cijene" && queryKey[1] === "prices") {
     return queryKey[2] === "product";
   }

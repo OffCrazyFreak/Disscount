@@ -113,3 +113,26 @@ describe("persisted cache age", () => {
     );
   });
 });
+
+describe("persisted query selection", () => {
+  it("leaves paged product search out of the offline snapshot", () => {
+    const queryClient = new QueryClient();
+    const pagesKey = ["cijene", "product-pages", { q: "mlijeko" }];
+    const chainsKey = ["cijene", "chains"];
+    queryClient.setQueryData(pagesKey, { pages: [], pageParams: [] });
+    queryClient.setQueryData(chainsKey, { chains: [] });
+    const shouldDehydrate =
+      persistOptions.dehydrateOptions!.shouldDehydrateQuery!;
+
+    expect(
+      shouldDehydrate(
+        queryClient.getQueryCache().find({ queryKey: pagesKey })!,
+      ),
+    ).toBe(false);
+    expect(
+      shouldDehydrate(
+        queryClient.getQueryCache().find({ queryKey: chainsKey })!,
+      ),
+    ).toBe(true);
+  });
+});
