@@ -120,18 +120,25 @@ it("forwards every owned search filter and page boundary through the route", asy
   });
 });
 
-it("retains the chain filter when public fallback cannot sort", async () => {
+it("sends public search no scope, so the browser can count every chain", async () => {
   clients.enabled = false;
   clients.public.get.mockResolvedValue({ data: { products: [] } });
   const { searchProducts } =
     await import("@/lib/cijene-api/server/search-products");
-  await searchProducts({ q: "milk", chains: "konzum", order: "relevance" });
+  await searchProducts({
+    q: "milk",
+    chains: "konzum",
+    city: ["Split"],
+    category: ["food"],
+    brand: ["brand"],
+    order: "relevance",
+  });
   expect(clients.public.get).toHaveBeenCalled();
-  for (const [path] of clients.public.get.mock.calls) {
-    expect(
-      new URL(path as string, "https://fixture.invalid").searchParams.get(
-        "chains",
-      ),
-    ).toBe("konzum");
+  for (const call of clients.public.get.mock.calls) {
+    const params = requestedUrl(call).searchParams;
+    expect(params.get("q")).toBe("milk");
+    for (const scoped of ["chains", "city", "category", "brand", "order"]) {
+      expect(params.has(scoped)).toBe(false);
+    }
   }
 });

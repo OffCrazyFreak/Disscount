@@ -9,8 +9,8 @@ import { searchProductsWithFuzzyFallback } from "@/lib/cijene-api/utils/product-
 import { buildQueryString } from "@/utils/generic";
 import { isWellFormedProductId } from "@/utils/product-id";
 
-function canBeBarcodeLookup({ q, fuzzy, date, chains }: SearchProductsParams) {
-  return fuzzy === undefined && !date && !chains && isWellFormedProductId(q);
+function canBeBarcodeLookup({ q, fuzzy, date }: SearchProductsParams) {
+  return fuzzy === undefined && !date && isWellFormedProductId(q);
 }
 
 /** Upstream's search skips barcodes, so a typed one takes the scan lookup first. */
@@ -22,26 +22,25 @@ export async function searchProducts(
     return searchOwnedProducts(params, signal, cijeneLatestClient);
   }
 
-  const publicParams = params;
+  return searchPublicProducts(params, signal);
+}
 
-  if (canBeBarcodeLookup(publicParams)) {
-    const result = await getServerProduct(params.q);
+/** Public search caps at 100 rows, so scope is applied in the browser; a chain filter here would zero the other chains' facet counts. */
+async function searchPublicProducts(
+  { q, date, fuzzy, limit }: SearchProductsParams,
+  signal?: AbortSignal,
+): Promise<{ data: unknown }> {
+  const params = { q, date, fuzzy, limit: Math.min(limit ?? 100, 100) };
+
+  if (canBeBarcodeLookup(params)) {
+    const result = await getServerProduct(q);
 
     if (result.status === "found") {
       return { data: { products: [result.product] } };
     }
   }
 
-  return searchProductsWithFuzzyFallback(
-    {
-      q: params.q,
-      date: params.date,
-      chains: publicParams.chains,
-      fuzzy: params.fuzzy,
-      limit: Math.min(params.limit ?? 100, 100),
-    },
-    signal,
-  );
+  return searchProductsWithFuzzyFallback(params, signal);
 }
 
 // Upstream city spellings that our labels merge, so the service can count each label once.
