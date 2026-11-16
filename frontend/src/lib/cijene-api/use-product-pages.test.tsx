@@ -249,15 +249,15 @@ it("keeps the previous scope's products and facets while a new scope loads", asy
       });
     }),
   );
-  let chains: string | undefined;
+  let scope: { chains?: string } = {};
   const { result, rerender } = renderHookWithProviders(() =>
-    useProductPages({ q: "milk", chains }),
+    useProductPages({ q: "milk", ...scope }),
   );
   await waitFor(() =>
     expect(result.current.data?.products[0]?.ean).toBe("all"),
   );
 
-  chains = "konzum";
+  scope = { chains: "konzum" };
   rerender();
 
   await waitFor(() => expect(result.current.isFetching).toBe(true));

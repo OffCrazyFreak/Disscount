@@ -25,7 +25,7 @@ export async function searchProducts(
   return searchPublicProducts(params, signal);
 }
 
-/** Public search caps at 100 rows, so scope is applied in the browser; a chain filter here would zero the other chains' facet counts. */
+/** Public rows cap at 100, so the browser applies scope; a chain filter here would zero other chains' facets. */
 async function searchPublicProducts(
   { q, date, fuzzy, limit }: SearchProductsParams,
   signal?: AbortSignal,
