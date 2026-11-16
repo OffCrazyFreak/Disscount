@@ -58,8 +58,21 @@ function withInFlightWritesPaused(client: PersistedClient): PersistedClient {
   return { ...client, clientState: { ...client.clientState, mutations } };
 }
 
+/** An older build may have saved keys this one no longer persists, such as cursor-pinned search pages. */
+function withoutUnpersistedQueries(client: PersistedClient): PersistedClient {
+  const queries = client.clientState.queries.filter((query) =>
+    shouldPersistQuery(query.queryKey),
+  );
+
+  return { ...client, clientState: { ...client.clientState, queries } };
+}
+
 const offlinePersister: Persister = {
   ...throttledPersister,
+  restoreClient: async () => {
+    const client = await throttledPersister.restoreClient();
+    return client && withoutUnpersistedQueries(client);
+  },
   persistClient: (client) => {
     const resumable = withInFlightWritesPaused(client);
     snapshotGeneration.set(resumable, currentPurgeGeneration());

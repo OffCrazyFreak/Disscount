@@ -136,3 +136,31 @@ describe("persisted query selection", () => {
     ).toBe(true);
   });
 });
+
+it("drops search pages an older build saved when the cache is restored", async () => {
+  vi.useRealTimers();
+  identity = "alice";
+  const pagesKey = ["cijene", "product-pages", { q: "milk", chains: "konzum" }];
+  const chainsKey = ["cijene", "chains"];
+  db.set(
+    `${CACHE_KEY}:alice`,
+    JSON.stringify({
+      timestamp: Date.now(),
+      buster: persistOptions.buster,
+      clientState: {
+        mutations: [],
+        queries: [pagesKey, chainsKey].map((queryKey) => ({
+          queryKey,
+          queryHash: JSON.stringify(queryKey),
+          state: { data: { saved: true }, status: "success", dataUpdatedAt: 1 },
+        })),
+      },
+    }),
+  );
+  const queryClient = new QueryClient();
+
+  await persistQueryClientRestore({ queryClient, ...persistOptions });
+
+  expect(queryClient.getQueryData(pagesKey)).toBeUndefined();
+  expect(queryClient.getQueryData(chainsKey)).toEqual({ saved: true });
+});
