@@ -27,6 +27,35 @@ interface IProductsClientProps {
   query: string;
 }
 
+interface IResultsStateInput {
+  query: string;
+  locationsReady: boolean;
+  isLoading: boolean;
+  isRefreshing: boolean;
+  error: unknown;
+  hasPartialPriceData: boolean;
+}
+
+function resultsState({
+  query,
+  locationsReady,
+  isLoading,
+  isRefreshing,
+  error,
+  hasPartialPriceData,
+}: IResultsStateInput) {
+  // A location filter is set but the city -> chains mapping is still loading
+  const waitingForLocations = Boolean(query) && !locationsReady;
+  const isPending = isLoading || waitingForLocations;
+
+  return {
+    isPending,
+    isSettled: !isPending && !isRefreshing,
+    pageError: error,
+    showPartialPricesBanner: hasPartialPriceData && !isPending && !error,
+  };
+}
+
 export default function ProductsClient({
   query: routeQuery,
 }: IProductsClientProps) {
@@ -79,14 +108,16 @@ export default function ProductsClient({
     selectedSourceCities,
   });
 
-  // A location filter is set but the city -> chains mapping is still loading
-  const waitingForLocations = Boolean(query) && !locationsReady;
-  const isPending = isLoading || waitingForLocations;
-  const isSettled = !isPending && !isRefreshing;
-  const pageError = error || locationsError;
+  const { isPending, isSettled, pageError, showPartialPricesBanner } =
+    resultsState({
+      query,
+      locationsReady,
+      isLoading,
+      isRefreshing,
+      error: error || locationsError,
+      hasPartialPriceData,
+    });
   useRecordProductSearch(query, isSettled && !pageError && total > 0);
-  const showPartialPricesBanner =
-    hasPartialPriceData && !isPending && !pageError;
 
   return (
     <div className="space-y-4">
