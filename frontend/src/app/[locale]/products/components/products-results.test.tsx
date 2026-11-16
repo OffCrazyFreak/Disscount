@@ -180,13 +180,16 @@ describe("ProductsClient with a short query", () => {
   it("asks for three characters while fewer are typed", () => {
     const hint = "Upiši barem 3 znaka za bolje rezultate.";
     renderWithProviders(<ProductsClient query="" />);
-    expect(screen.queryByText(hint)).toBeNull();
+    const region = screen
+      .getAllByRole("status")
+      .find((element) => element.className.includes("empty:sr-only"));
+    expect(region).toBeEmptyDOMElement();
 
     act(() => productSearchDraft.type("ml"));
-    expect(screen.getByText(hint)).toHaveAttribute("role", "status");
+    expect(region).toHaveTextContent(hint);
 
     act(() => productSearchDraft.type("mli"));
-    expect(screen.queryByText(hint)).toBeNull();
+    expect(region).toBeEmptyDOMElement();
     act(() => productSearchDraft.clear());
   });
 

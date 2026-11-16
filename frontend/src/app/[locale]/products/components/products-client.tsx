@@ -128,11 +128,12 @@ export default function ProductsClient({
         />
       </Suspense>
 
-      {showShortQueryHint && (
-        <p role="status" className="text-sm text-muted-foreground">
-          {t("list.shortQueryHint", { count: PRODUCT_QUERY_MIN_LENGTH.typed })}
-        </p>
-      )}
+      {/* Always mounted, so screen readers announce the hint when its text fills in. */}
+      <p role="status" className="text-sm text-muted-foreground empty:sr-only">
+        {showShortQueryHint
+          ? t("list.shortQueryHint", { count: PRODUCT_QUERY_MIN_LENGTH.typed })
+          : null}
+      </p>
 
       <ProductFiltersBar filters={filters} query={query} />
 
