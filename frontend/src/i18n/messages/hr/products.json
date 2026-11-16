@@ -184,6 +184,7 @@
     "enterQueryText": "Filteri su spremni. Upiši pojam i vidjet ćeš rezultate.",
     "startTitle": "Pretraži proizvode",
     "startText": "Upiši što tražiš",
+    "shortQueryHint": "Upiši barem {count, plural, one {# znak} few {# znaka} other {# znakova}} za bolje rezultate.",
     "noResultsAddPlain": "Nismo našli proizvod s tim nazivom. Možeš ga ipak dodati na popis.",
     "addPlainItem": "Dodaj „{query}” na popis"
   },

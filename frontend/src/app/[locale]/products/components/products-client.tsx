@@ -16,13 +16,32 @@ import { useRecordProductSearch } from "@/components/custom/search/use-record-pr
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import { Banner } from "@/components/custom/common/banner";
 import ScrollCue from "@/components/custom/fab/scroll-cue";
+import {
+  productSearchDraft,
+  useSearchDraftValue,
+} from "@/components/custom/search/search-draft-store";
+import { PRODUCT_QUERY_MIN_LENGTH } from "@/constants/products";
+import { visibleSearchLength } from "@/utils/strings";
 
 interface IProductsClientProps {
   query: string;
 }
 
-export default function ProductsClient({ query }: IProductsClientProps) {
+export default function ProductsClient({
+  query: routeQuery,
+}: IProductsClientProps) {
   const t = useTranslations("products");
+
+  // A URL query too short to search shows the start screen, not a false "no results".
+  const query =
+    visibleSearchLength(routeQuery) >= PRODUCT_QUERY_MIN_LENGTH.submitted
+      ? routeQuery
+      : "";
+  const typedQuery = useSearchDraftValue(productSearchDraft, routeQuery);
+  const typedLength = visibleSearchLength(typedQuery);
+  const showShortQueryHint =
+    typedLength > 0 && typedLength < PRODUCT_QUERY_MIN_LENGTH.typed;
+
   const pathname = usePathname();
   // TODO(#61): take the setter once ViewSwitcher is unparked below; the mode is read-only until then.
   const [viewMode] = useViewMode(pathname);
@@ -77,6 +96,12 @@ export default function ProductsClient({ query }: IProductsClientProps) {
           allowScanning={true}
         />
       </Suspense>
+
+      {showShortQueryHint && (
+        <p role="status" className="text-sm text-muted-foreground">
+          {t("list.shortQueryHint", { count: PRODUCT_QUERY_MIN_LENGTH.typed })}
+        </p>
+      )}
 
       <ProductFiltersBar filters={filters} query={query} />
 

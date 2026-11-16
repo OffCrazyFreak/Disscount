@@ -184,6 +184,7 @@
     "enterQueryText": "Your filters are ready. Type a search term to see results.",
     "startTitle": "Search products",
     "startText": "Type what you're looking for",
+    "shortQueryHint": "Type at least {count, plural, one {# character} other {# characters}} for better results.",
     "noResultsAddPlain": "We found no product by that name. You can still add it to a list.",
     "addPlainItem": "Add “{query}” to a list"
   },

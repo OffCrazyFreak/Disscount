@@ -1,12 +1,56 @@
-import { screen } from "@testing-library/react";
+import { act, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
+import ProductsClient from "@/app/[locale]/products/components/products-client";
 import ProductsResults from "@/app/[locale]/products/components/products-results";
+import { productSearchDraft } from "@/components/custom/search/search-draft-store";
 import { renderWithProviders } from "@/test/render";
 
 const { openModalUrl } = vi.hoisted(() => ({ openModalUrl: vi.fn() }));
 vi.mock("@/lib/modal/modal-navigation", () => ({ openModalUrl }));
+
+const { infiniteProducts } = vi.hoisted(() => ({
+  infiniteProducts: vi.fn(() => ({
+    visibleItems: [],
+    total: 0,
+    isTruncated: false,
+    isLoading: false,
+    isRefreshing: false,
+    error: null,
+    hasPartialPriceData: false,
+    hasMatchesOutsideLocations: false,
+  })),
+}));
+vi.mock("@/app/[locale]/products/hooks/use-infinite-products", () => ({
+  default: infiniteProducts,
+}));
+vi.mock("@/app/[locale]/products/hooks/use-product-filters", () => ({
+  default: () => ({
+    selectedChains: [],
+    selectedCategories: [],
+    selectedBrands: [],
+    selectedLocations: [],
+    selectedSourceCities: [],
+    allowedChains: null,
+    locationsReady: true,
+    locationsError: null,
+    activeFilterCount: 0,
+    clearFilters: vi.fn(),
+    setFilter: vi.fn(),
+  }),
+}));
+vi.mock("@/app/[locale]/products/components/product-filters-bar", () => ({
+  default: () => null,
+}));
+vi.mock("@/components/custom/search/product-search-bar", () => ({
+  default: () => null,
+}));
+vi.mock("@/components/custom/search/use-record-product-search", () => ({
+  useRecordProductSearch: vi.fn(),
+}));
+vi.mock("@/components/custom/fab/scroll-cue", () => ({ default: () => null }));
+vi.mock("@/i18n/navigation", () => ({ usePathname: () => "/products" }));
 
 function renderEmptyResults(
   hasMatchesOutsideLocations: boolean,
@@ -129,5 +173,28 @@ describe("ProductsResults with no match at all", () => {
     expect(
       screen.queryByRole("button", { name: /na popis/ }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe("ProductsClient with a short query", () => {
+  it("asks for three characters while fewer are typed", () => {
+    const hint = "Upiši barem 3 znaka za bolje rezultate.";
+    renderWithProviders(<ProductsClient query="" />);
+    expect(screen.queryByText(hint)).toBeNull();
+
+    act(() => productSearchDraft.type("ml"));
+    expect(screen.getByText(hint)).toHaveAttribute("role", "status");
+
+    act(() => productSearchDraft.type("mli"));
+    expect(screen.queryByText(hint)).toBeNull();
+    act(() => productSearchDraft.clear());
+  });
+
+  it("shows the start screen instead of no results for a one-letter link", () => {
+    renderWithProviders(<ProductsClient query="m" />);
+
+    expect(infiniteProducts).toHaveBeenLastCalledWith("", expect.anything());
+    expect(screen.getByText("Pretraži proizvode")).toBeInTheDocument();
+    expect(screen.queryByText(/Dodaj/)).toBeNull();
   });
 });

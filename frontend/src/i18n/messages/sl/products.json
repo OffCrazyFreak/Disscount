@@ -184,6 +184,7 @@
     "enterQueryText": "Filtri so pripravljeni. Vpiši, kaj iščeš, in prikažemo rezultate.",
     "startTitle": "Išči izdelke",
     "startText": "Vpiši, kaj iščeš",
+    "shortQueryHint": "Vpiši vsaj {count, plural, one {# znak} two {# znaka} few {# znake} other {# znakov}} za boljše rezultate.",
     "noResultsAddPlain": "Nismo našli izdelka s tem imenom. Še vedno ga lahko dodaš na seznam.",
     "addPlainItem": "Dodaj »{query}« na seznam"
   },

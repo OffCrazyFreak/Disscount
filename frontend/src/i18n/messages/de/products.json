@@ -184,6 +184,7 @@
     "enterQueryText": "Die Filter sind bereit. Gib einen Suchbegriff ein, um Ergebnisse zu sehen.",
     "startTitle": "Produkte suchen",
     "startText": "Gib ein, was du suchst",
+    "shortQueryHint": "Gib mindestens {count, plural, one {# Zeichen} other {# Zeichen}} ein, um bessere Ergebnisse zu bekommen.",
     "noResultsAddPlain": "Wir haben kein Produkt mit diesem Namen gefunden. Du kannst es trotzdem zu einer Liste hinzufügen.",
     "addPlainItem": "„{query}“ zu einer Liste hinzufügen"
   },
