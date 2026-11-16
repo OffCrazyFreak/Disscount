@@ -5,6 +5,7 @@ import {
   formatDate,
   formatDateTime,
   formatDayMonth,
+  visibleSearchLength,
 } from "@/utils/strings";
 
 const MORNING = "2026-11-03T06:05:00Z";
@@ -64,5 +65,18 @@ describe("decoding entities", () => {
 
   it("leaves a reference past the last code point as it is", () => {
     expect(decodeEntities("a &#99999999; b")).toBe("a &#99999999; b");
+  });
+});
+
+describe("visible search length", () => {
+  it.each([
+    ["čaj", 3],
+    ["a b", 2],
+    ["🍎", 1],
+    ["🇭🇷", 1],
+    ["👩‍👩‍👧", 1],
+    ["e\u0301", 1],
+  ])("counts %s as %i", (query, length) => {
+    expect(visibleSearchLength(query)).toBe(length);
   });
 });

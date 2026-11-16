@@ -39,9 +39,13 @@ export function normalizeForSearch(s: string) {
   );
 }
 
-/** Diacritics and spaces do not count, so "č" and "a b" are as short as they look. */
+const graphemes = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+
+/** Counts what a reader sees: diacritics and spaces do not count, and an emoji or a flag is one character. */
 export function visibleSearchLength(query: string) {
-  return normalizeForSearch(query).replace(/\s/gu, "").length;
+  const visible = normalizeForSearch(query).replace(/\s/gu, "");
+
+  return [...graphemes.segment(visible)].length;
 }
 
 type DateShape = "date" | "dateTime" | "dayMonth";
