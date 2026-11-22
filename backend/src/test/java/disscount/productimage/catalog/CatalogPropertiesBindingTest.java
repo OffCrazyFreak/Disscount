@@ -19,6 +19,7 @@ class CatalogPropertiesBindingTest {
             .withBean(ObjectMapper.class, ObjectMapper::new)
             .withBean(ShoppingListRepository.class, () -> mock(ShoppingListRepository.class))
             .withBean(WatchlistItemRepository.class, () -> mock(WatchlistItemRepository.class))
+            .withBean(IndexNowClient.class, () -> mock(IndexNowClient.class))
             .withUserConfiguration(CatalogImportService.class);
 
     @Test

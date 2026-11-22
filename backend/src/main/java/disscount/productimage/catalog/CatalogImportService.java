@@ -42,14 +42,16 @@ public class CatalogImportService {
     private final String listUrl;
     private final ShoppingListRepository shoppingLists;
     private final WatchlistItemRepository watchlist;
+    private final IndexNowClient indexNow;
     private final HttpClient http = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
     CatalogImportService(JdbcTemplate jdbc, TransactionTemplate tx, ObjectMapper json, CatalogProperties properties,
-                         ShoppingListRepository shoppingLists, WatchlistItemRepository watchlist) {
+                         ShoppingListRepository shoppingLists, WatchlistItemRepository watchlist, IndexNowClient indexNow) {
         this.jdbc = jdbc;
+        this.indexNow = indexNow;
         this.shoppingLists = shoppingLists;
         this.watchlist = watchlist;
         this.tx = tx;
@@ -66,6 +68,9 @@ public class CatalogImportService {
         CatalogImportResult result = tx.execute(status -> store(catalog, latest.date()));
         log.info("Product catalogue imported from {}: {} EANs, {} newly listed, {} dropped out", latest.url(),
                 catalog.size(), result.newlyListed().size(), result.droppedOut().size());
+
+        // Gone pages are pinged too: IndexNow asks for 404s so the engines drop them sooner.
+        indexNow.submit(Stream.concat(result.newlyListed().stream(), result.droppedOut().stream()).toList());
         return result;
     }
 
