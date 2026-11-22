@@ -1,4 +1,4 @@
-import { ChartConfig } from "@/components/ui/chart";
+import type { ChartConfig } from "@/components/ui/chart";
 import { ChartDataPoint } from "@/typings/chart-data";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { ShoppingListItemDto } from "@/lib/api/types";
