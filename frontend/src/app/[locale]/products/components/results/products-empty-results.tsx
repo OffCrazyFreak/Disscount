@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { ListPlus, Search } from "lucide-react";
 import NoResults from "@/components/custom/common/no-results";
 import { Button } from "@/components/ui/button";
-import NoPriceInLocations from "@/app/[locale]/products/components/no-price-in-locations";
+import NoPriceInLocations from "@/app/[locale]/products/components/results/no-price-in-locations";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 
 interface IProductsEmptyResultsProps {

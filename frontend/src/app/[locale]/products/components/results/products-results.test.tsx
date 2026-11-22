@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
-import ProductsResults from "@/app/[locale]/products/components/products-results";
+import ProductsResults from "@/app/[locale]/products/components/results/products-results";
 import { renderWithProviders } from "@/test/render";
 
 const { openModalUrl } = vi.hoisted(() => ({ openModalUrl: vi.fn() }));
