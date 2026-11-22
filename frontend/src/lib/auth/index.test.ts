@@ -222,3 +222,48 @@ describe("signing key reads", () => {
     expect(findMany).toHaveBeenCalledTimes(2);
   });
 });
+
+// Runs the real plugin over a stubbed table, so a mismatch between our key adapter and the plugin shows up.
+describe("signing through the jwt plugin", () => {
+  it("signs with a key that the published key list contains", async () => {
+    const context = await auth.$context;
+    const rows: Record<string, unknown>[] = [];
+
+    // Creating a key empties the in-process cache the tests above filled with a fake key.
+    const store = (
+      auth.options.plugins.find((plugin) => plugin.id === "jwt")
+        ?.options as JwtOptions
+    ).adapter as Required<NonNullable<JwtOptions["adapter"]>>;
+
+    await store.createJwk(
+      { publicKey: "{}", privateKey: "{}", createdAt: new Date() },
+      {
+        path: "/token",
+        context: { adapter: { create: vi.fn().mockResolvedValue({}) } },
+      } as unknown as Parameters<typeof store.createJwk>[1],
+    );
+
+    vi.spyOn(context.adapter, "findMany").mockImplementation(async () =>
+      structuredClone(rows),
+    );
+    vi.spyOn(context.adapter, "create").mockImplementation(async ({ data }) => {
+      const row = { ...data, id: `key-${rows.length + 1}` };
+
+      rows.push(row);
+
+      return structuredClone(row);
+    });
+
+    const { token } = await auth.api.signJWT({
+      body: { payload: { sub: "user-1" } },
+    });
+    const { keys } = await auth.api.getJwks();
+
+    const header = JSON.parse(
+      Buffer.from(token.split(".")[0], "base64url").toString(),
+    ) as { kid: string };
+
+    expect(rows).toHaveLength(1);
+    expect(keys.map((published) => published.kid)).toContain(header.kid);
+  });
+});
