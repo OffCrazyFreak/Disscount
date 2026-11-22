@@ -237,8 +237,7 @@
       "signOutDevice": "{device} abmelden",
       "signedOut": "Gerät abgemeldet.",
       "signOutFailed": "Das Gerät konnte nicht abgemeldet werden. Versuche es erneut.",
-      "loadFailed": "Deine Anmeldungen konnten nicht geladen werden.",
-      "tokenNote": "Ein abgemeldetes Gerät behält den Zugriff auf deine Daten noch höchstens {minutes, plural, one {# Minute} other {# Minuten}}."
+      "loadFailed": "Deine Anmeldungen konnten nicht geladen werden."
     }
   }
 }

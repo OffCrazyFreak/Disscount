@@ -13,7 +13,7 @@ export function useWatchedProducts(
   isAuthenticated: boolean,
   pinnedStores: PinnedStoreDto[] | null | undefined,
 ) {
-  // Gated so a logged-out visit never hits /api/watchlist/me (and /api/auth/token).
+  // Gated so a logged-out visit never hits /api/watchlist/me.
   const {
     data: watchlistItems = [],
     isLoading: watchlistLoading,
