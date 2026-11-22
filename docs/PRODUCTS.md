@@ -154,7 +154,7 @@ The chains tab (`product-chains-section.tsx`) lists every chain carrying the pro
 
 - **Data.** `useProductDetail` (`[id]/hooks/use-product-detail.ts`) reads the product and `useGetPrices({ eans })`, groups the store prices by chain, and sorts the chains.
 - **Sort modes** (`utils/product-chain-sort.ts`): `stores` (default: pinned chains first, then the lowest average price), `price` (the chain with the single cheapest store first, ignoring preferences), and `distance` (the chain whose nearest store is closest, from the device location or a chosen town via `use-distance-sort.ts`, chains without a located store last).
-- **Store rows** show the city, the address with a link to the map, and one price: the special price when there is one, otherwise the regular price (`store-price-cell.tsx`). The chain header says which day its data is from, compared with today in Zagreb time (`isPriceDateToday` in `utils/product-price-utils.ts`, which the shopping list's store cards use too). `unit_price`, `best_price_30` and `anchor_price` are parsed but not shown yet. The "refreshed" label shows when the prices were last fetched (`LastSyncedLabel`).
+- **Store rows** show the city, the address with a link to the map, and one price: the special price when there is one, otherwise the regular price (`store-price-cell.tsx`). The chain header says which day its data is from, compared with the Zagreb date the server rendered the page on (`today`, read once in `page.tsx` and passed down to `store-item.tsx`), so the server HTML and hydration never disagree around midnight. The shopping list's store cards compare with the device clock through `isPriceDateToday` in `utils/product-price-utils.ts`. `unit_price`, `best_price_30` and `anchor_price` are parsed but not shown yet. The "refreshed" label shows when the prices were last fetched (`LastSyncedLabel`).
 - **City price ranges** for the product list come from our own `/api/cijene/location-prices` route (`lib/cijene-api/location-prices/`). Upstream takes one city per request, and every visitor shares one token with a daily request quota, so the route decides how to spend requests: it asks per city for up to three uncached cities (`MAX_CITY_REQUESTS`), and above that makes one country wide request and reduces it by city, remembering the cities nobody asked for yet too. Results sit in an in-memory cache per server process (one hour, 5,000 entries) that stores promises, so concurrent searches for the same city share one upstream request, and a failed request is evicted at once. If some cities fail the response is `partial: true`; if all fail the upstream status is kept.
 
 ---
@@ -174,11 +174,11 @@ The price history tab draws one line per chain over time with Recharts (`price-h
 
 The key is `["cijene", "product", "history", ean, date]`, which is persisted for offline use like the rest of the `cijene` root.
 
-**A failed refetch keeps the chart.** `usePriceHistory` reports `isError` only for a day with no cached answer. A failed background refetch flips a query to error while keeping its data, so counting it would swap a usable chart for "no data" on one dropped request; the shopping list chart follows the same rule.
+**A failed refetch keeps the chart.** `usePriceHistory` reports `isError` only for a day with no cached answer. A failed background refetch flips a query to error while keeping its data, so counting it would swap a usable chart for "no data" on one dropped request; the shopping list chart follows the same rule. The product page itself does the same: it shows "not found" only when it has no product at all, so a failed refetch keeps the cached product on screen (`product-detail-client.tsx`).
 
 **Periods** (`constants/price-history.ts`): 1W and 1M are on; 1Y and ALL are disabled (`DISABLED_PERIODS`) until upstream can return a range in one request (issues #62, longer periods, and #45, batched history). `getEnabledPeriod` coerces a saved disabled period back to 1W, so a stored preference cannot mount straight into 365 requests.
 
-**Preferences.** The chosen period and chains are saved per EAN in `localStorage` (`use-product-preferences.ts`, through `useSyncExternalStore`). The server cannot see `localStorage`, so it renders the defaults (1W; pinned chains if any carry the product, otherwise all), and saving happens in the change handler, never in an effect, so hydration cannot overwrite the saved state. At least one chain always stays selected.
+**Preferences.** The chosen period and chains are saved per EAN in `localStorage` (`use-product-preferences.ts`, through `useSyncExternalStore`). The server cannot see `localStorage`, so it renders the defaults (1W; pinned chains if any carry the product, otherwise all), and saving happens in the change handler, never in an effect, so hydration cannot overwrite the saved state. A pick whose save fails (private mode, full storage) is kept in memory for the rest of the visit, so the chart still follows it. At least one chain always stays selected.
 
 ---
 
@@ -311,7 +311,7 @@ Not covered: the proxy routes against real upstream responses, the fuzzy fallbac
 
 ## 19. Future improvements and TODOs
 
-- [ ] #433, follow-ups from the server render review: read "today" once instead of in render, let the chain panels toggle when the `localStorage` write fails, keep showing the cached product when a background refetch fails, an offline state for an expanded chain with no cached prices, and confirm the JSON-LD script warning is gone.
+- [ ] #433, follow-ups from the server render review: an offline state for an expanded chain with no cached prices (today it shows an empty table, because a paused query reports neither loading nor error). The other four items are settled.
 - [ ] #230, product page SEO: what is left after PRs #392 and #418, such as caching the server fetch and checking the rich result in Search Console.
 - [ ] `getServerProduct` uses the client's 30 second timeout, while prices and the photo have their own short ones; a slow upstream holds the HTML that long.
 - [ ] #62 and #45: periods longer than a month, once history can be fetched in one request instead of one per day.
