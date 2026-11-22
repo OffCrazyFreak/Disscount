@@ -61,7 +61,7 @@ ARG GIT_SHA
 ENV GIT_SHA=$GIT_SHA
 
 # The heap is a share of the container's mem_limit, so every compose file that runs this image sets one (docs/INFRASTRUCTURE.md, Memory limits).
-ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=60 -XX:+ExitOnOutOfMemoryError -XX:+UseSerialGC"
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=50 -XX:+ExitOnOutOfMemoryError -XX:+UseSerialGC"
 
 USER appuser
 EXPOSE 8080

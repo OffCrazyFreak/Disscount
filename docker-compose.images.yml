@@ -90,7 +90,7 @@ services:
 
   backend:
     <<: *hardened
-    pids_limit: 512
+    pids_limit: 384
     # No swap on top, so a leak ends in a quick restart instead of a crawl through the disk.
     mem_limit: ${BACKEND_MEM_LIMIT:-1536m}
     memswap_limit: ${BACKEND_MEM_LIMIT:-1536m}
@@ -151,6 +151,7 @@ services:
       - CHOWN
       - FOWNER
       - DAC_OVERRIDE
+    pids_limit: 32
     mem_limit: 64m
     image: alpine:3.22@sha256:49340b346798875b5592e5d420241f2f9cfba5f47e62ebb1446a1b34734e898f
     restart: "no"
@@ -175,7 +176,7 @@ services:
       - CHOWN
       - SETUID
       - SETGID
-    pids_limit: 128
+    pids_limit: 64
     mem_limit: 64m
     # The master owns its temp folders and pid file here.
     tmpfs:
@@ -203,7 +204,9 @@ services:
   frontend:
     <<: *hardened
     pids_limit: 256
-    mem_limit: 768m
+    # No swap on top, like the backend, so a leak ends in a quick restart (issue #729, dev frontend runs out of memory).
+    mem_limit: 1024m
+    memswap_limit: 1024m
     # Next.js caches optimized images and fetches in .next/cache and the rendered share images in route-cache.
     # A restart empties both, as every redeploy already did.
     tmpfs:
