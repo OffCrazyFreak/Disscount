@@ -68,7 +68,7 @@ export default function StoreCardHeader({
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex flex-col items-start gap-1 sm:flex-row sm:flex-wrap sm:items-center">
+          <div className="flex flex-col items-start gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2">
             <div className="flex flex-wrap items-center gap-1">
               <span id={`${id}-extremes`} className="contents">
                 {hasLowestPriceItem && (
