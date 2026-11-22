@@ -30,6 +30,7 @@ export interface IStoreOpening {
   now: Date;
   /** Null when no source has hours for the store. */
   hours: StoreHoursDto | null;
+  holidays: ReadonlySet<string>;
 }
 
 export function useStoreOpening(key: string): IStoreOpening | null {
@@ -41,5 +42,6 @@ export function useStoreOpening(key: string): IStoreOpening | null {
     status: openingOf(key, hours),
     now: hours.now,
     hours: hours.data.stores[key] ?? null,
+    holidays: hours.holidays,
   };
 }

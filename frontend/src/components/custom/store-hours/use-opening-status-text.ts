@@ -34,7 +34,7 @@ function dayOf(date: string, today: string): string {
 }
 
 // The owner's copy reads 7:00, not 07:00.
-function clockOf(time: string): string {
+export function clockOf(time: string): string {
   return time.replace(/^0(?=\d)/, "");
 }
 

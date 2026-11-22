@@ -4,6 +4,7 @@ import { MapPinOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import StoreHoursSource from "@/components/custom/store-hours/store-hours-source";
+import StoreWeekHours from "@/components/custom/store-hours/store-week-hours";
 import StoreActions from "@/app/[locale]/map/components/store-actions";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 
@@ -32,6 +33,8 @@ export default function StoreDetails({ row }: IStoreDetailsProps) {
         chain={store.chain}
         storeLabel={row.chainLabel}
       />
+
+      <StoreWeekHours storeKey={row.key} />
 
       <StoreActions store={store} />
     </div>

@@ -24,5 +24,23 @@
   },
   "check": "Provjeri",
   "checkLabel": "Provjeri radno vrijeme na stranici trgovine (otvara se u novoj kartici)",
-  "changed": "{store}: {status}"
+  "changed": "{store}: {status}",
+  "week": {
+    "title": "Radno vrijeme",
+    "days": {
+      "mon": "Ponedjeljak",
+      "tue": "Utorak",
+      "wed": "Srijeda",
+      "thu": "Četvrtak",
+      "fri": "Petak",
+      "sat": "Subota",
+      "sun": "Nedjelja"
+    },
+    "today": "danas",
+    "closed": "Zatvoreno",
+    "unconfirmed": "Nije potvrđeno",
+    "someSundays": "Samo neke nedjelje",
+    "holiday": "Praznik",
+    "exception": "Posebno radno vrijeme"
+  }
 }
