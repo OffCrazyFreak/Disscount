@@ -4,26 +4,36 @@ import type { ShoppingListItemDto } from "@/lib/api/types";
 import { formatQuantity } from "@/utils/strings";
 import { formatPrice } from "@/utils/price";
 import PriceSkeleton from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/price-skeleton";
+import PlainItemPriceInput from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/plain-item/plain-item-price-input";
+import type { IShoppingListItemUpdate } from "@/app/[locale]/(user)/shopping-lists/[id]/typings/shopping-list-item-types";
 
 interface IItemPriceDisplayProps {
   item: ShoppingListItemDto;
   averagePrice?: number;
   isPriceLoading: boolean;
+  onUpdate: (updatedItem: IShoppingListItemUpdate) => void;
+  canCheck: boolean;
 }
 
 export default function ItemPriceDisplay({
   item,
   averagePrice,
   isPriceLoading,
+  onUpdate,
+  canCheck,
 }: IItemPriceDisplayProps) {
   const t = useTranslations("shoppingListDetail");
   const locale = useLocale();
 
   if (!item.ean) {
     return (
-      <div className="flex-shrink-0 text-sm text-muted-foreground">
-        {t("items.noPrice")}
-      </div>
+      <PlainItemPriceInput
+        // Remounted when the saved price changes, so a price saved elsewhere replaces the typed text.
+        key={item.storePrice ?? "none"}
+        item={item}
+        onUpdate={onUpdate}
+        canCheck={canCheck}
+      />
     );
   }
 

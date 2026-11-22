@@ -65,7 +65,14 @@
     "increaseAmount": "Povećaj količinu za 1",
     "approxPrice": "~ {price}",
     "pricePerUnit": "{price}/{unit}",
-    "noPrice": "Bez cijene"
+    "noPrice": "Bez cijene",
+    "priceLabel": "Cijena po komadu za {name}",
+    "rename": "Preimenuj {name}",
+    "renameTitle": "Preimenuj stavku",
+    "renameField": "Naziv",
+    "renameSave": "Spremi",
+    "renameCancel": "Odustani",
+    "renameRequired": "Upiši naziv stavke."
   },
   "prices": {
     "failed": "Cijene nisu dostupne",

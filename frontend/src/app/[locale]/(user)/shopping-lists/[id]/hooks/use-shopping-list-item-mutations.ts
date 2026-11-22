@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { shoppingListService } from "@/lib/api";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
+import type { IShoppingListItemUpdate } from "@/app/[locale]/(user)/shopping-lists/[id]/typings/shopping-list-item-types";
 
 export function useShoppingListItemMutations(
   listId: string,
@@ -22,11 +23,7 @@ export function useShoppingListItemMutations(
 
   const handleUpdateItem = async (
     itemId: string,
-    updatedItem: {
-      isChecked: boolean;
-      amount: number;
-      chainCode: string | null;
-    },
+    updatedItem: IShoppingListItemUpdate,
   ) => {
     const shoppingList = queryClient.getQueryData<ShoppingList>(queryKey);
     const item = shoppingList?.items?.find((i) => i.id === itemId);
@@ -42,8 +39,8 @@ export function useShoppingListItemMutations(
       const storePrice =
         updatedItem.chainCode && storePrices[item.id]?.[updatedItem.chainCode];
       if (storePrice) data.storePrice = storePrice;
-    } else {
-      // data copies the cached item, so an earlier capture would survive the uncheck.
+    } else if (item.ean) {
+      // data copies the cached item, so a capture would survive the uncheck; a typed plain item price stays.
       data.avgPrice = null;
       data.storePrice = null;
     }
