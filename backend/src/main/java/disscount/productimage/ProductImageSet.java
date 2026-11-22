@@ -20,7 +20,8 @@ import lombok.Setter;
 @Table(name = "product_image_set",
         indexes = {
                 @Index(name = "idx_product_image_set_listings", columnList = "store_listings"),
-                @Index(name = "idx_product_image_set_last_seen", columnList = "last_seen_on")
+                @Index(name = "idx_product_image_set_last_seen", columnList = "last_seen_on"),
+                @Index(name = "idx_product_image_set_category", columnList = "category, last_seen_on")
         })
 @Getter
 @Setter
@@ -51,6 +52,17 @@ public class ProductImageSet {
     /** The date of the newest imported archive that priced this EAN; the sitemap lists products seen recently. */
     @Column(name = "last_seen_on")
     private LocalDate lastSeenOn;
+
+    /** Slugs from catalog/taxonomy.yaml, written by the catalogue import. */
+    @Column(length = 32)
+    private String department;
+
+    @Column(length = 40)
+    private String category;
+
+    @Builder.Default
+    @Column(name = "list_uses", nullable = false)
+    private int listUses = 0;
 
     @Column(name = "main_image_id")
     private UUID mainImageId;

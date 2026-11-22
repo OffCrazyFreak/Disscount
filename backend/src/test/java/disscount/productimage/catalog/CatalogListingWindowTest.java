@@ -38,7 +38,7 @@ class CatalogListingWindowTest extends FullStackTest {
     }
 
     static CatalogArchiveReader.Entry priced(String name, int listings) {
-        return new CatalogArchiveReader.Entry(name, null, listings, 1);
+        return new CatalogArchiveReader.Entry(name, null, listings, 1, null, null);
     }
 
     @Test

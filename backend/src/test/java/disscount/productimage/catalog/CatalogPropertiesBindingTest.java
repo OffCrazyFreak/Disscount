@@ -1,5 +1,7 @@
 package disscount.productimage.catalog;
 
+import disscount.shoppinglist.ShoppingListRepository;
+import disscount.watchlist.WatchlistItemRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,6 +17,8 @@ class CatalogPropertiesBindingTest {
             .withBean(JdbcTemplate.class, () -> mock(JdbcTemplate.class))
             .withBean(TransactionTemplate.class, () -> mock(TransactionTemplate.class))
             .withBean(ObjectMapper.class, ObjectMapper::new)
+            .withBean(ShoppingListRepository.class, () -> mock(ShoppingListRepository.class))
+            .withBean(WatchlistItemRepository.class, () -> mock(WatchlistItemRepository.class))
             .withUserConfiguration(CatalogImportService.class);
 
     @Test

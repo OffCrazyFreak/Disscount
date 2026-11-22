@@ -9,10 +9,16 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
+
+import disscount.shared.CanonicalBarcode;
+import disscount.shoppinglist.ShoppingListRepository;
+import disscount.watchlist.WatchlistItemRepository;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -34,13 +40,18 @@ public class CatalogImportService {
     private final TransactionTemplate tx;
     private final ObjectMapper json;
     private final String listUrl;
+    private final ShoppingListRepository shoppingLists;
+    private final WatchlistItemRepository watchlist;
     private final HttpClient http = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
-    CatalogImportService(JdbcTemplate jdbc, TransactionTemplate tx, ObjectMapper json, CatalogProperties properties) {
+    CatalogImportService(JdbcTemplate jdbc, TransactionTemplate tx, ObjectMapper json, CatalogProperties properties,
+                         ShoppingListRepository shoppingLists, WatchlistItemRepository watchlist) {
         this.jdbc = jdbc;
+        this.shoppingLists = shoppingLists;
+        this.watchlist = watchlist;
         this.tx = tx;
         this.json = json;
         this.listUrl = properties.listUrl();
@@ -69,22 +80,37 @@ public class CatalogImportService {
             // An unpriced catalogue row is not on sale, so it leaves the date of its last price alone.
             LocalDate seenOn = e.storeListings() > 0 ? archiveDate : null;
             if (existing.contains(ean)) {
-                updates.add(new Object[] {e.name(), e.brand(), e.storeListings(), e.chainCount(), seenOn, ean});
+                updates.add(new Object[] {e.name(), e.brand(), e.storeListings(), e.chainCount(), seenOn,
+                        e.department(), e.category(), ean});
             } else {
-                inserts.add(new Object[] {ean, e.name(), e.brand(), e.storeListings(), e.chainCount(), seenOn});
+                inserts.add(new Object[] {ean, e.name(), e.brand(), e.storeListings(), e.chainCount(), seenOn,
+                        e.department(), e.category()});
             }
         });
 
         // greatest() skips a null and keeps a later date, so an older archive cannot move a product back in time.
         batch("update app.product_image_set set name = ?, brand = ?, store_listings = ?, chain_count = ?, "
-                + "last_seen_on = greatest(last_seen_on, ?::date) where ean = ?", updates);
+                + "last_seen_on = greatest(last_seen_on, ?::date), department = ?, category = ? where ean = ?", updates);
         batch("insert into app.product_image_set "
-                + "(ean, name, brand, store_listings, chain_count, last_seen_on, pinned, needs_review) "
-                + "values (?, ?, ?, ?, ?, ?::date, false, false)", inserts);
+                + "(ean, name, brand, store_listings, chain_count, last_seen_on, department, category, pinned, needs_review) "
+                + "values (?, ?, ?, ?, ?, ?::date, ?, ?, false, false)", inserts);
+        refreshListUses();
 
         Set<String> listedAfter = listed();
         return new CatalogImportResult(catalog.size(), difference(listedAfter, listedBefore),
                 difference(listedBefore, listedAfter));
+    }
+
+    /** Both lists store the EAN a product page gave them, so a padded code is folded the way the catalogue stores it. */
+    private void refreshListUses() {
+        Map<String, Long> people = new HashMap<>();
+        Stream.concat(shoppingLists.countOwnersPerEan().stream(), watchlist.countUsersPerProduct().stream())
+                .forEach(use -> people.merge(CanonicalBarcode.of(use.ean()), use.people(), Long::sum));
+
+        jdbc.update("update app.product_image_set set list_uses = 0 where list_uses <> 0");
+        batch("update app.product_image_set set list_uses = ? where ean = ?", people.entrySet().stream()
+                .map(use -> new Object[] {use.getValue().intValue(), use.getKey()})
+                .toList());
     }
 
     private Set<String> listed() {

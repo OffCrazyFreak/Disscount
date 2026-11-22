@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import disscount.shared.ProductUseCount;
+
 @Repository
 public interface ShoppingListRepository extends JpaRepository<ShoppingList, UUID> {
 
@@ -20,6 +22,11 @@ public interface ShoppingListRepository extends JpaRepository<ShoppingList, UUID
 
     @Query("SELECT COUNT(sl) FROM ShoppingList sl WHERE sl.ownerId = :ownerId")
     long countActiveByOwnerId(UUID ownerId);
+
+    /** Per EAN the owners whose active lists hold it, so the catalogue can rank what people actually buy. */
+    @Query("SELECT new disscount.shared.ProductUseCount(i.ean, COUNT(DISTINCT sl.ownerId)) "
+            + "FROM ShoppingList sl JOIN sl.items i WHERE i.ean IS NOT NULL GROUP BY i.ean")
+    List<ProductUseCount> countOwnersPerEan();
 
     @Query("SELECT new disscount.shoppinglist.ListSharing(sl.ownerId, sl.linkAccess) FROM ShoppingList sl WHERE sl.id = :id")
     Optional<ListSharing> findSharingById(UUID id);
