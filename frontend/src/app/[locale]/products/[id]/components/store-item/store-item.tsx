@@ -17,7 +17,6 @@ import {
   StorePrice,
 } from "@/lib/cijene-api/schemas";
 import { formatDate } from "@/utils/strings";
-import { isPriceDateToday } from "@/utils/product-price-utils";
 import { useUser } from "@/context/user-context";
 import StorePriceSummary from "@/app/[locale]/products/[id]/components/store-item/store-price-summary";
 import StorePricesDetails, {
@@ -31,6 +30,8 @@ interface IStoreItemProps {
   storePrices: StorePrice[];
   pricesStatus: StorePricesStatus;
   product: ProductResponse;
+  /** The Zagreb date the page rendered on, so the server HTML and hydration show the same badge. */
+  today: string;
   isExpanded?: boolean;
   onToggle?: () => void;
   /** The nearest store carrying it, while sorting by distance from a location fix. */
@@ -45,6 +46,7 @@ const StoreItem = memo(
     storePrices,
     pricesStatus,
     product,
+    today,
     nearest,
   }: IStoreItemProps) => {
     const t = useTranslations("productDetail.storeItem");
@@ -56,7 +58,7 @@ const StoreItem = memo(
       accountUser?.pinnedStores?.some((s) => s.storeApiId === store.chain) ||
       false;
 
-    const isDataFromToday = isPriceDateToday(store.price_date);
+    const isDataFromToday = store.price_date === today;
     const describedBy = `${id}-warning ${id}-prices ${id}-action`;
 
     return (

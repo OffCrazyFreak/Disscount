@@ -11,10 +11,13 @@ import { useProductDetail } from "@/app/[locale]/products/[id]/hooks/use-product
 
 interface IProductDetailClientProps {
   ean: string;
+  /** The Zagreb calendar date the server rendered on. */
+  today: string;
 }
 
 export default function ProductDetailClient({
   ean,
+  today,
 }: IProductDetailClientProps) {
   const t = useTranslations("productDetail");
   const tSections = useTranslations("common.sectionNav");
@@ -59,7 +62,13 @@ export default function ProductDetailClient({
             label: tSections("stores"),
             shortLabel: tSections("storesShort"),
             count: detail.sortedChains.length,
-            content: <ProductChainsSection product={product} detail={detail} />,
+            content: (
+              <ProductChainsSection
+                product={product}
+                detail={detail}
+                today={today}
+              />
+            ),
           },
           {
             id: "price-history",

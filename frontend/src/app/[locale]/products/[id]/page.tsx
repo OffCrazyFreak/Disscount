@@ -16,6 +16,7 @@ import { formatPrice } from "@/utils/price";
 import { getMinPrice } from "@/utils/product-price-utils";
 import { productPageUrl } from "@/utils/product-links";
 import { decodeProductId } from "@/utils/product-id";
+import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/products/[id]">,
@@ -71,6 +72,8 @@ export default async function ProductDetailsPage(
   // The client keeps the raw segment it always had; only server lookups and URLs decode it.
   const { id: rawId } = await props.params;
   const ean = decodeProductId(rawId);
+  // Read once here, so the server HTML and the hydrating client agree on "today" even across midnight.
+  const today = zagrebClock(new Date()).date;
   const [result, prices] = await Promise.all([
     getServerProduct(ean),
     getServerProductPrices(ean),
@@ -80,7 +83,7 @@ export default async function ProductDetailsPage(
   if (result.status === "missing") notFound();
 
   if (result.status === "unavailable") {
-    return <ProductDetailClient ean={rawId} />;
+    return <ProductDetailClient ean={rawId} today={today} />;
   }
 
   const { product } = result;
@@ -96,7 +99,7 @@ export default async function ProductDetailsPage(
       />
 
       <HydrationBoundary state={productCacheState(rawId, product, prices)}>
-        <ProductDetailClient ean={rawId} />
+        <ProductDetailClient ean={rawId} today={today} />
       </HydrationBoundary>
     </>
   );

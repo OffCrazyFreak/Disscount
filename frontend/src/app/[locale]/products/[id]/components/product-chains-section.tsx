@@ -17,11 +17,13 @@ import type { ProductResponse } from "@/lib/cijene-api/schemas";
 interface IProductChainsSectionProps {
   product: ProductResponse;
   detail: ReturnType<typeof useProductDetail>;
+  today: string;
 }
 
 export default function ProductChainsSection({
   product,
   detail,
+  today,
 }: IProductChainsSectionProps) {
   const t = useTranslations("productDetail.chains");
   // Shared with the section bar, so the link and the heading always read the same.
@@ -91,6 +93,7 @@ export default function ProductChainsSection({
                 storePrices={detail.pricesByChain[chain.chain] || []}
                 pricesStatus={pricesStatus}
                 product={product}
+                today={today}
                 nearest={detail.shownNearestStores?.get(chain.chain)}
               />
             ))}

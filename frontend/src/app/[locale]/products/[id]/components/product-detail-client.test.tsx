@@ -20,7 +20,7 @@ describe("ProductDetailClient", () => {
   it("does not claim the product is missing while the cache restores", () => {
     renderWithProviders(
       <IsRestoringProvider value>
-        <ProductDetailClient ean="5449000000996" />
+        <ProductDetailClient ean="5449000000996" today="2026-11-04" />
       </IsRestoringProvider>,
     );
 
@@ -28,7 +28,9 @@ describe("ProductDetailClient", () => {
   });
 
   it("says the product is missing once restoring is done", () => {
-    renderWithProviders(<ProductDetailClient ean="5449000000996" />);
+    renderWithProviders(
+      <ProductDetailClient ean="5449000000996" today="2026-11-04" />,
+    );
 
     expect(screen.getByText(NOT_FOUND)).toBeInTheDocument();
   });

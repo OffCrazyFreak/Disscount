@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { vi } from "vitest";
+import { screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import StoreItem from "@/app/[locale]/products/[id]/components/store-item/store-item";
 import type {
@@ -7,6 +8,7 @@ import type {
   ProductResponse,
 } from "@/lib/cijene-api/schemas";
 import { describeChainCard } from "@/test/chain-card-contract";
+import { renderWithProviders } from "@/test/render";
 import type { INearestStore } from "@/utils/nearest-chain-distance";
 
 vi.mock("@/context/user-context", () => ({
@@ -34,7 +36,13 @@ const store: ChainProductResponse = {
 
 const product = { ean: "1", chains: [store] } as unknown as ProductResponse;
 
-function Card({ nearest }: { nearest?: INearestStore }) {
+function Card({
+  nearest,
+  today = store.price_date,
+}: {
+  nearest?: INearestStore;
+  today?: string;
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -43,6 +51,7 @@ function Card({ nearest }: { nearest?: INearestStore }) {
       storePrices={[]}
       pricesStatus="success"
       product={product}
+      today={today}
       isExpanded={isExpanded}
       onToggle={() => setIsExpanded((open) => !open)}
       nearest={nearest}
@@ -51,3 +60,27 @@ function Card({ nearest }: { nearest?: INearestStore }) {
 }
 
 describeChainCard("Product", (nearest) => <Card nearest={nearest} />);
+
+describe("StoreItem price date", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("judges the price date by the rendered day, not the device clock", () => {
+    // Past midnight in Zagreb, a day after the page rendered.
+    vi.useFakeTimers({
+      now: new Date("2026-11-05T00:30:00+01:00"),
+      toFake: ["Date"],
+    });
+
+    renderWithProviders(<Card today="2026-11-04" />);
+
+    expect(screen.queryByText(/Podaci od/)).not.toBeInTheDocument();
+  });
+
+  it("flags prices from an earlier day", () => {
+    renderWithProviders(<Card today="2026-11-05" />);
+
+    expect(screen.getByText(/Podaci od/)).toBeInTheDocument();
+  });
+});
