@@ -10,10 +10,17 @@ import { createStorageSubscription } from "@/utils/browser/storage/storage-subsc
 
 const { subscribe, notify } = createStorageSubscription();
 
-// A string snapshot compares by value, so an unchanged entry never re-renders.
-function readEntry(ean: string): string | null {
+// A pick whose save failed (private mode, full storage) still applies until the page reloads.
+const unsavedEntries = new Map<string, string>();
+
+function readStoredEntry(ean: string): string | null {
   const entry = getAppStorage().productsPreferences?.[ean];
   return entry ? JSON.stringify(entry) : null;
+}
+
+// A string snapshot compares by value, so an unchanged entry never re-renders.
+function readEntry(ean: string): string | null {
+  return unsavedEntries.get(ean) ?? readStoredEntry(ean);
 }
 
 // The server cannot see localStorage, so it renders the defaults every first visit gets.
@@ -36,7 +43,19 @@ export function updateProductPreferences(
   ean: string,
   changes: IProductChartPreferences,
 ) {
-  const current = getAppStorage().productsPreferences?.[ean] ?? {};
-  setPriceHistoryPreferences(ean, { ...current, ...changes });
+  const current = readEntry(ean);
+  const next = {
+    ...(current ? (JSON.parse(current) as IProductChartPreferences) : {}),
+    ...changes,
+  };
+
+  setPriceHistoryPreferences(ean, next);
+
+  if (readStoredEntry(ean) === JSON.stringify(next)) {
+    unsavedEntries.delete(ean);
+  } else {
+    unsavedEntries.set(ean, JSON.stringify(next));
+  }
+
   notify();
 }

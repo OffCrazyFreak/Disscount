@@ -47,6 +47,30 @@ describe("useProductPreferences", () => {
     container.remove();
   });
 
+  it("applies a pick even when the save fails", () => {
+    savePreferences({ period: "1M", chains: ["konzum"] });
+    render(<ChartProbe />);
+    const setItem = vi
+      .spyOn(Storage.prototype, "setItem")
+      .mockImplementation(() => {
+        throw new DOMException("Quota exceeded", "QuotaExceededError");
+      });
+
+    act(() => updateProductPreferences(EAN, { period: "1Y" }));
+    act(() => updateProductPreferences(EAN, { chains: ["lidl"] }));
+
+    expect(screen.getByText("1Y, lidl")).toBeInTheDocument();
+
+    setItem.mockRestore();
+    act(() => updateProductPreferences(EAN, { period: "1M" }));
+
+    expect(screen.getByText("1M, lidl")).toBeInTheDocument();
+    expect(
+      JSON.parse(localStorage.getItem("Disscount_app") ?? "{}")
+        .productsPreferences[EAN],
+    ).toEqual({ period: "1M", chains: ["lidl"] });
+  });
+
   it("keeps the other saved fields when one field changes", () => {
     savePreferences({ period: "1M", chains: ["konzum"] });
     render(<ChartProbe />);
