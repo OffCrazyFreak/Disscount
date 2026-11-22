@@ -127,9 +127,9 @@ export function MultiSelect({
   return (
     <MultiSelectContext value={context}>
       {presentation === "inline" ? (
-        // Only this branch boxes the trigger, and with no zeroed minimum it sizes to the badge row.
+        // Only this branch boxes the trigger; a centred column parent would let it grow to the whole badge row.
         <Collapsible
-          className="min-w-0"
+          className="min-w-0 max-w-full"
           open={open}
           onOpenChange={handleOpenChange}
         >
