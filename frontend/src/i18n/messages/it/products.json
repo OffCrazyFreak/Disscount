@@ -175,6 +175,7 @@
     "startTitle": "Cerca prodotti",
     "startText": "Scrivi cosa cerchi",
     "noResultsAddPlain": "Non abbiamo trovato nessun prodotto con questo nome. Puoi comunque aggiungerlo a una lista.",
+    "endOfResultsAddPlain": "Non vedi quello che cerchi? Aggiungilo a una lista con un nome a tua scelta.",
     "addPlainItem": "Aggiungi «{query}» a una lista"
   },
   "viewSwitcher": {

@@ -8,6 +8,11 @@ import { renderWithProviders } from "@/test/render";
 const { openModalUrl } = vi.hoisted(() => ({ openModalUrl: vi.fn() }));
 vi.mock("@/lib/modal/modal-navigation", () => ({ openModalUrl }));
 
+// The cards need real products; these tests are about what follows them.
+vi.mock("@/app/[locale]/products/components/results/products-grid", () => ({
+  default: () => <ul aria-label="results" />,
+}));
+
 function renderEmptyResults(
   hasMatchesOutsideLocations: boolean,
   { query = "šećer", activeFilterCount = 2 } = {},
@@ -57,9 +62,20 @@ describe("ProductsResults with no price in the selected places", () => {
 
     expect(showAllLocations).toHaveBeenCalledOnce();
     expect(clearFilters).not.toHaveBeenCalled();
-    expect(
-      screen.queryByRole("button", { name: /na popis/ }),
-    ).not.toBeInTheDocument();
+  });
+
+  it("also offers to add the search as a plain item", async () => {
+    const user = userEvent.setup();
+    renderEmptyResults(true);
+
+    await user.click(
+      screen.getByRole("button", { name: "Dodaj „šećer” na popis" }),
+    );
+
+    expect(openModalUrl).toHaveBeenCalledWith({
+      name: "add-plain-item",
+      itemName: "šećer",
+    });
   });
 
   it("keeps the generic filter message when nothing matches anywhere", () => {
@@ -123,8 +139,76 @@ describe("ProductsResults with no match at all", () => {
     });
   });
 
-  it("asks to clear filters first when filters hide the results", () => {
+  it("offers both clearing the filters and a plain item when filters hide the results", () => {
     renderEmptyResults(false, { activeFilterCount: 1 });
+
+    expect(
+      screen.getByRole("button", { name: "Očisti filtere" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Dodaj „šećer” na popis" }),
+    ).toBeInTheDocument();
+  });
+
+  it("offers no plain item for a blank search", () => {
+    renderEmptyResults(false, { query: "   ", activeFilterCount: 0 });
+
+    expect(
+      screen.queryByRole("button", { name: /na popis/ }),
+    ).not.toBeInTheDocument();
+  });
+});
+
+describe("ProductsResults at the end of the list", () => {
+  beforeAll(() => {
+    window.matchMedia ??= vi.fn().mockReturnValue({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    });
+  });
+
+  function renderList(total: number, visible: number) {
+    renderWithProviders(
+      <ProductsResults
+        query="mandarine"
+        isPending={false}
+        isRefreshing={false}
+        hasError={false}
+        total={total}
+        activeFilterCount={0}
+        clearFilters={vi.fn()}
+        selectedLocations={[]}
+        hasMatchesOutsideLocations={false}
+        showAllLocations={vi.fn()}
+        visibleItems={Array.from({ length: visible }, () => ({}) as never)}
+        viewMode="grid"
+      />,
+    );
+  }
+
+  it("offers a plain item once every result is shown", async () => {
+    const user = userEvent.setup();
+    renderList(3, 3);
+
+    expect(
+      screen.getByText(
+        "Ne vidiš što tražiš? Dodaj ga na popis pod svojim nazivom.",
+      ),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "Dodaj „mandarine” na popis" }),
+    );
+
+    expect(openModalUrl).toHaveBeenCalledWith({
+      name: "add-plain-item",
+      itemName: "mandarine",
+    });
+  });
+
+  it("waits for the last batch before offering a plain item", () => {
+    renderList(60, 50);
 
     expect(
       screen.queryByRole("button", { name: /na popis/ }),

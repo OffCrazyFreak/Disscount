@@ -1,11 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ListPlus, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import NoResults from "@/components/custom/common/no-results";
 import { Button } from "@/components/ui/button";
+import AddPlainItemButton from "@/app/[locale]/products/components/results/add-plain-item-button";
 import NoPriceInLocations from "@/app/[locale]/products/components/results/no-price-in-locations";
-import { openModalUrl } from "@/lib/modal/modal-navigation";
 
 interface IProductsEmptyResultsProps {
   query: string;
@@ -29,6 +29,7 @@ export default function ProductsEmptyResults({
   if (hasMatchesOutsideLocations) {
     return (
       <NoPriceInLocations
+        query={query}
         locations={selectedLocations}
         onShowAllLocations={showAllLocations}
       />
@@ -42,7 +43,9 @@ export default function ProductsEmptyResults({
           icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
           description={t("list.noResultsForFilters")}
         />
-        <div className="text-center">
+        <div className="flex flex-wrap justify-center gap-3">
+          <AddPlainItemButton query={query} />
+
           <Button type="button" variant="outline" onClick={clearFilters}>
             {t("list.clearFilters")}
           </Button>
@@ -57,17 +60,8 @@ export default function ProductsEmptyResults({
         icon={<Search className="size-12 text-gray-400 mx-auto mb-4" />}
         description={t("list.noResultsAddPlain")}
       />
-      <div className="text-center">
-        <Button
-          type="button"
-          effect="shineHover"
-          onClick={() =>
-            openModalUrl({ name: "add-plain-item", itemName: query.trim() })
-          }
-        >
-          <ListPlus aria-hidden="true" className="size-5" />
-          {t("list.addPlainItem", { query: query.trim() })}
-        </Button>
+      <div className="flex justify-center">
+        <AddPlainItemButton query={query} />
       </div>
     </div>
   );

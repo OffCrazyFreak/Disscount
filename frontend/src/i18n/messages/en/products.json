@@ -185,6 +185,7 @@
     "startTitle": "Search products",
     "startText": "Type what you're looking for",
     "noResultsAddPlain": "We found no product by that name. You can still add it to a list.",
+    "endOfResultsAddPlain": "Not seeing what you need? Add it to a list under a name you choose.",
     "addPlainItem": "Add “{query}” to a list"
   },
   "viewSwitcher": {

@@ -185,6 +185,7 @@
     "startTitle": "Pretraži proizvode",
     "startText": "Upiši što tražiš",
     "noResultsAddPlain": "Nismo našli proizvod s tim nazivom. Možeš ga ipak dodati na popis.",
+    "endOfResultsAddPlain": "Ne vidiš što tražiš? Dodaj ga na popis pod svojim nazivom.",
     "addPlainItem": "Dodaj „{query}” na popis"
   },
   "viewSwitcher": {
