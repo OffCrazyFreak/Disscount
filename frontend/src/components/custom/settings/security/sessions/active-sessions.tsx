@@ -14,7 +14,6 @@ import {
   useAccountSessions,
   useRevokeAccountSession,
 } from "@/lib/api/account-sessions/hooks";
-import { BACKEND_TOKEN_TTL_MINUTES } from "@/constants/auth";
 import { useSecurityActions } from "@/components/custom/settings/security/security-actions";
 import ActiveSessionRow from "@/components/custom/settings/security/sessions/active-session-row";
 
@@ -64,12 +63,6 @@ export default function ActiveSessions() {
           ))}
         </ul>
       )}
-
-      <p className="text-xs text-muted-foreground">
-        {t("security.sessions.tokenNote", {
-          minutes: BACKEND_TOKEN_TTL_MINUTES,
-        })}
-      </p>
 
       <SettingRow
         className="pt-2"

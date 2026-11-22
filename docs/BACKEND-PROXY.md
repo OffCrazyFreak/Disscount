@@ -133,18 +133,18 @@ The browser's query cache (`lib/api/query-client-defaults.ts`) reports every 5xx
 
 ## 7. Key files
 
-| Path (under `frontend/src/` unless noted)              | Role                                                                                                           |
-| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| `lib/backend-proxy/backend-path.ts`                    | `BACKEND_ROOTS` and the URL builder (the SSRF guard).                                                          |
-| `lib/backend-proxy/request-body.ts`                    | `bodyLimit` per route and `readBodyWithin`, which counts streamed bytes.                                       |
-| `app/api/v3/api-docs/`, `app/api/swagger-ui/`          | The open, GET-only API docs routes.                                                                            |
-| `lib/backend-proxy/request-guards.ts`                  | `isCsrfSafe`, `identityPin`, `decideIdentity`. Pure, so the jsdom test harness reuses them.                    |
-| `lib/backend-proxy/proxy-contract.ts`                  | The two header names and `session_changed`, shared by browser and server.                                      |
-| `lib/api/session-changed.ts`                           | Refetches the session on any 401, at most once per 30 seconds unless it is `session_changed`.                  |
-| `context/user-context.tsx`                             | `handleUserLogin` moves the pin before the profile load.                                                       |
-| `lib/auth/index.ts`                                    | jwt plugin: `disableSettingJwtHeader: true`, token life `BACKEND_TOKEN_TTL_MINUTES`.                           |
-| `test/backend-identity.ts`                             | `actingAs(request)` for jsdom tests: decides the account as the proxy would, from the pin and `serverSession`. |
-| `backend/src/main/java/disscount/shared/ClientIp.java` | Trusts the forwarded IP headers the proxy passes verbatim.                                                     |
+| Path (under `frontend/src/` unless noted)              | Role                                                                                                                                              |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lib/backend-proxy/backend-path.ts`                    | `BACKEND_ROOTS` and the URL builder (the SSRF guard).                                                                                             |
+| `lib/backend-proxy/request-body.ts`                    | `bodyLimit` per route and `readBodyWithin`, which counts streamed bytes.                                                                          |
+| `app/api/v3/api-docs/`, `app/api/swagger-ui/`          | The open, GET-only API docs routes.                                                                                                               |
+| `lib/backend-proxy/request-guards.ts`                  | `isCsrfSafe`, `identityPin`, `decideIdentity`. Pure, so the jsdom test harness reuses them.                                                       |
+| `lib/backend-proxy/proxy-contract.ts`                  | The two header names and `session_changed`, shared by browser and server.                                                                         |
+| `lib/api/session-changed.ts`                           | Refetches the session on any 401, at most once per 30 seconds unless it is `session_changed`.                                                     |
+| `context/user-context.tsx`                             | `handleUserLogin` moves the pin before the profile load.                                                                                          |
+| `lib/auth/index.ts`                                    | jwt plugin: `disableSettingJwtHeader: true`, token life `BACKEND_TOKEN_TTL_MINUTES`, `disabledPaths: ["/token"]`, signing keys cached in process. |
+| `test/backend-identity.ts`                             | `actingAs(request)` for jsdom tests: decides the account as the proxy would, from the pin and `serverSession`.                                    |
+| `backend/src/main/java/disscount/shared/ClientIp.java` | Trusts the forwarded IP headers the proxy passes verbatim.                                                                                        |
 
 ---
 
@@ -155,7 +155,7 @@ No environment variable of its own. The proxy reads `NEXT_PUBLIC_API_URL` throug
 | Setting               | Where                                              | Value                                                    |
 | --------------------- | -------------------------------------------------- | -------------------------------------------------------- |
 | Upstream timeout      | `UPSTREAM_TIMEOUT_MS` in `proxy-to-backend.ts`     | 30 seconds, the cap the rewrite had                      |
-| Backend token life    | `BACKEND_TOKEN_TTL_MINUTES` in `constants/auth.ts` | 10 minutes (P3 of #430 shortens it)                      |
+| Backend token life    | `BACKEND_TOKEN_TTL_MINUTES` in `constants/auth.ts` | 2 minutes                                                |
 | `set-auth-jwt` header | `disableSettingJwtHeader` in `lib/auth/index.ts`   | off, so session polls no longer hand the browser a token |
 
 Libraries (from `frontend/package.json`): `next` 16.4.5 (route handlers), `better-auth` 1.7.15 (`auth.api.getToken`, the jwt plugin), `axios` ^1.13.2 (the client), `@sentry/nextjs` ^11.10.0, `@serwist/next` ^9.5.11 (the service worker). No new dependency.
@@ -166,7 +166,7 @@ The service worker (`app/sw.ts`) needs no change: its `NetworkOnly` rule for eve
 
 ## 9. Measuring it
 
-Every proxied response carries `Server-Timing: auth;dur=X, body;dur=Y, upstream;dur=Z` (milliseconds), readable in the browser's network panel under Timing. `auth` is the session read and the signature; `body` is reading the request body; `upstream` is the Spring call until its headers arrive.
+Every proxied response carries `Server-Timing: auth;dur=X, body;dur=Y, upstream;dur=Z` (milliseconds), readable in the browser's network panel under Timing. `auth` is the session and user read and the signature (the signing keys come from an in-process cache, see [AUTH.md section 2](AUTH.md#2-how-a-backend-request-gets-authenticated)); `body` is reading the request body; `upstream` is the Spring call until its headers arrive.
 
 To compare with a public route, which also pays for the session read when a cookie is sent:
 
@@ -213,7 +213,6 @@ In jsdom tests, an MSW handler calls `actingAs(request)` to learn which account 
 
 ## 12. Future improvements & TODOs
 
-- P3 of #430: close `GET /api/auth/token` to browsers, shorten the backend token to 2 minutes and change the sessions note. Until then a script in the page can still mint a portable token through that endpoint.
 - P4 of #430: load the user profile as a React Query query, now that the pin guarantees a profile response belongs to the tab's account.
 - A short per-session token memo, only if the `auth` timing says it is needed (section 9).
 - Check the drizzle `pg` pool size against concurrent API calls, since each proxied call now holds a frontend pool connection for the session read.

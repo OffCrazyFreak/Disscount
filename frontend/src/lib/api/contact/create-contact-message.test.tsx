@@ -7,11 +7,6 @@ import contactService from "@/lib/api/contact";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
 
-// Signed out: the API client asks for a token first and sends the request without one.
-const signedOut = http.get("*/api/auth/token", () =>
-  HttpResponse.json(null, { status: 401 }),
-);
-
 const submission = {
   subject: "Pitanje",
   message: "Kada se osvježavaju cijene?",
@@ -34,7 +29,6 @@ const storedMessage = {
 describe("useCreateContactMessage", () => {
   it("treats a 204 with no body as success", async () => {
     server.use(
-      signedOut,
       http.post("*/api/contact", () => new HttpResponse(null, { status: 204 })),
     );
 
@@ -50,7 +44,6 @@ describe("useCreateContactMessage", () => {
 
   it("parses the stored message from a 200 body", async () => {
     server.use(
-      signedOut,
       http.post("*/api/contact", () => HttpResponse.json(storedMessage)),
     );
 
@@ -66,7 +59,6 @@ describe("useCreateContactMessage", () => {
 
   it("fails on a 200 body that does not match the schema", async () => {
     server.use(
-      signedOut,
       http.post("*/api/contact", () => HttpResponse.json({ id: "x" })),
     );
 
