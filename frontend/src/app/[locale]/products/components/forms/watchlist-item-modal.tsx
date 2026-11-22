@@ -135,8 +135,9 @@ export default function WatchlistItemModal({
       submitIcon={existingItemForType ? EyePen : Eye}
       submitLoading={isSaving}
       submitDisabled={
-        isCheckingWatchlist || !product || !isFormValid || !hasSavableChange
+        isCheckingWatchlist || !product || (isFormValid && !hasSavableChange)
       }
+      submitIncomplete={!isFormValid}
       cancelLabel={t("watchlistModal.cancel")}
       resetLabel={t("watchlistModal.reset")}
       // Compares both modes, including the one off screen, because reset puts both back.
@@ -171,6 +172,7 @@ export default function WatchlistItemModal({
             <Form {...form}>
               <form
                 id="watchlist-form"
+                noValidate
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-6"
               >

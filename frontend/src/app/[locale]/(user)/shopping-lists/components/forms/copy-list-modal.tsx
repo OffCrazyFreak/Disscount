@@ -46,7 +46,8 @@ export default function CopyListModal({ open, id }: ICopyListModalProps) {
       }
       submitIcon={Copy}
       submitLoading={isCopying}
-      submitDisabled={isLoading || !shoppingList || !isValid}
+      submitDisabled={isLoading || !shoppingList}
+      submitIncomplete={!isValid}
       cancelLabel={t("modal.cancel")}
     >
       {isLoading ? (
@@ -61,6 +62,7 @@ export default function CopyListModal({ open, id }: ICopyListModalProps) {
         <Form {...form}>
           <form
             id="copy-list-form"
+            noValidate
             onSubmit={form.handleSubmit((data) => void copyList(data))}
             className="space-y-4"
           >

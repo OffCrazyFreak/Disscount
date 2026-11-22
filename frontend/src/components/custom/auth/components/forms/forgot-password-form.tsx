@@ -33,7 +33,11 @@ export default function ForgotPasswordForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+      <form
+        noValidate
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="grid gap-4"
+      >
         <p className="text-sm text-muted-foreground">{t("forgot.intro")}</p>
 
         <EmailField control={form.control} name="email" />

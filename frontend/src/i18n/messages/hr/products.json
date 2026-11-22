@@ -227,6 +227,7 @@
     "title": "Dodaj stavku na popis",
     "description": "Stavka nema cijenu, ali ostaje na popisu da je ne zaboraviš.",
     "nameLabel": "Naziv",
+    "nameRequired": "Upiši naziv stavke.",
     "toast": {
       "added": "Stavka je dodana u \"{name}\"",
       "quantityIncreased": "Količina stavke je povećana u \"{name}\""

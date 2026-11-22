@@ -24,6 +24,14 @@ interface IDigitalCardModalProps {
   id?: string;
 }
 
+// An untouched edit has nothing to save, and isValid is stale after the prefill; invalid stays tappable.
+function isSubmitBlocked(
+  loadState: { notFound: boolean; loadError: boolean },
+  isUntouchedEdit: boolean,
+): boolean {
+  return loadState.notFound || loadState.loadError || isUntouchedEdit;
+}
+
 export default function DigitalCardModal({
   open,
   action,
@@ -91,9 +99,8 @@ export default function DigitalCardModal({
       submitLabel={t("save")}
       submitIcon={Save}
       submitLoading={isLoading}
-      submitDisabled={
-        !changed || !isValid || loadState.notFound || loadState.loadError
-      }
+      submitDisabled={isSubmitBlocked(loadState, isEdit && !changed)}
+      submitIncomplete={!isValid}
       cancelLabel={t("cancel")}
       resetLabel={t("reset")}
       resetDisabled={!changed && !restored}
@@ -107,6 +114,7 @@ export default function DigitalCardModal({
         <Form {...form}>
           <form
             id="digital-card-form"
+            noValidate
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-5"
           >

@@ -75,15 +75,17 @@ export function useFormDraft<T extends FieldValues>({
   const ownerIdentityRef = useRef<string | null>(null);
 
   // A subscription, because the compiler caches form reads and RHF never refreshes an unread flag.
-  const { defaultValues, isSubmitted, isSubmitting } = useFormState({
-    control: form.control,
-  });
+  const { defaultValues, isSubmitted, isSubmitting, isSubmitSuccessful } =
+    useFormState({
+      control: form.control,
+    });
   const stateRef = useRef({
     exclude,
     validateRestored,
     defaultValues,
     isSubmitted,
     isSubmitting,
+    isSubmitSuccessful,
   });
 
   useEffect(() => {
@@ -93,6 +95,7 @@ export function useFormDraft<T extends FieldValues>({
       defaultValues,
       isSubmitted,
       isSubmitting,
+      isSubmitSuccessful,
     };
   });
 
@@ -157,9 +160,10 @@ export function useFormDraft<T extends FieldValues>({
     return () => {
       clearTimeout(saveTimerRef.current);
       subscription.unsubscribe();
-      // A finished submit already cleared the draft, but a failed optimistic submit reopens from it.
+      // A finished submit already cleared the draft; a failed one, or a tap that only showed errors, still saves.
       const latest = stateRef.current;
-      if (!latest.isSubmitted || latest.isSubmitting) flushDraft();
+      const hasSaved = latest.isSubmitted && latest.isSubmitSuccessful;
+      if (!hasSaved || latest.isSubmitting) flushDraft();
     };
   }, [enabled, draftKey, form, flushDraft]);
 

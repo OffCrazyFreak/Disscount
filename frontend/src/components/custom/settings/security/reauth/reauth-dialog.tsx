@@ -82,6 +82,7 @@ export default function ReauthDialog({
       }
     >
       <form
+        noValidate
         id={FORM_ID}
         onSubmit={form.handleSubmit}
         // Enter never runs a destructive action; buttons keep Enter or the resend link breaks.

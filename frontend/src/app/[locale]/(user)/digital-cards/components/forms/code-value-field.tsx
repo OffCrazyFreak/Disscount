@@ -36,7 +36,7 @@ export default function CodeValueField() {
       control={form.control}
       name="codeValue"
       render={({ field }) => (
-        <FormItem>
+        <FormItem required>
           <FormLabel>{t("codeNumberLabel")}</FormLabel>
 
           <div className="flex gap-2">

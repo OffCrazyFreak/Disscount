@@ -22,7 +22,7 @@ export default function CardNameField() {
       control={form.control}
       name="cardName"
       render={({ field }) => (
-        <FormItem>
+        <FormItem required>
           <FormLabel>{t("cardNameLabel")}</FormLabel>
           <FormControl>
             <Input {...field} autoFocus autoComplete="off" maxLength={60} />

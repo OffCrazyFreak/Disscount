@@ -48,7 +48,7 @@ export function useAddToListForm(
 
   const form = useForm<AddToListFormData>({
     resolver: zodResolver(addToListFormSchema),
-    mode: "onChange",
+    mode: "onTouched",
     defaultValues: EMPTY_FORM_VALUES,
   });
 

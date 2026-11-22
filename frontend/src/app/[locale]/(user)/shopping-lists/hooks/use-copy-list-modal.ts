@@ -64,7 +64,7 @@ export function useCopyListModal(id: string) {
   // No draft: the default is server data the user did not ask to keep, and a draft would fight it.
   const form = useForm<ShoppingListRequest>({
     resolver: zodResolver(shoppingListRequestSchema),
-    mode: "onChange",
+    mode: "onTouched",
     defaultValues: { title: "" },
   });
 

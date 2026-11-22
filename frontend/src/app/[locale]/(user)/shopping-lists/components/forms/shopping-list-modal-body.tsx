@@ -43,6 +43,7 @@ export default function ShoppingListModalBody({
     <Form {...form}>
       <form
         id="shopping-list-form"
+        noValidate
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-4"
       >

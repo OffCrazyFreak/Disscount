@@ -94,6 +94,8 @@ describe("ContactModal", () => {
 
     await user.clear(email);
     await user.type(email, "nije-email");
+    // Errors show once the field is left, so a half typed address is not flagged mid word.
+    await user.tab();
     await waitFor(() => expect(email).toHaveAttribute("aria-invalid", "true"));
 
     userState.current = { user: { ...PROFILE }, isLoading: false };

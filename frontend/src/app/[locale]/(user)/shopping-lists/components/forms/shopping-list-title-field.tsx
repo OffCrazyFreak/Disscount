@@ -34,8 +34,10 @@ export default function ShoppingListTitleField({
         <FormItem>
           <FormLabel>{t("titleField.label")}</FormLabel>
           <FormControl>
+            {/* The only field, so no star; screen readers still hear it is required. */}
             <Input
               {...field}
+              aria-required="true"
               placeholder={t("titleField.placeholder")}
               autoFocus={autoFocus}
             />

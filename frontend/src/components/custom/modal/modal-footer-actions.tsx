@@ -14,6 +14,7 @@ export default function ModalFooterActions({
   onCancel,
   submitLabel,
   submitDisabled,
+  submitIncomplete,
   submitLoading,
   submitVariant = "primary",
   submitIcon = Save,
@@ -57,6 +58,7 @@ export default function ModalFooterActions({
             formId={formId}
             onSubmit={onSubmit}
             disabled={submitDisabled}
+            incomplete={submitIncomplete}
             loading={submitLoading}
             variant={submitVariant}
             icon={submitIcon}

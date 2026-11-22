@@ -45,6 +45,19 @@ describe("useFormDraft", () => {
     expect(getFormDraft(DRAFT_KEY)).toBeNull();
   });
 
+  it("still saves after a tap that only showed what is missing", async () => {
+    const { result, rerender } = renderDraftHook();
+
+    act(() => {
+      result.current.form.register("name", { required: true });
+    });
+    await act(() => result.current.form.handleSubmit(() => {})());
+    act(() => result.current.form.setValue("name", "Mlijeko"));
+    rerender({ enabled: false });
+
+    expect(getFormDraft(DRAFT_KEY)?.values).toEqual({ name: "Mlijeko" });
+  });
+
   it("keeps the draft when an optimistic submit closes the modal mid-request", async () => {
     const { result, rerender } = renderDraftHook();
     let finishRequest!: () => void;

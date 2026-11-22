@@ -227,6 +227,7 @@
     "title": "Add an item to a list",
     "description": "It has no price, but stays on the list so you don't forget it.",
     "nameLabel": "Name",
+    "nameRequired": "Type a name for the item.",
     "toast": {
       "added": "Item added to “{name}”",
       "quantityIncreased": "Item amount increased in “{name}”"

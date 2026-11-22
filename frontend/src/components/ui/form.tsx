@@ -54,10 +54,11 @@ const useFormField = () => {
     throw new Error("useFormField should be used within <FormField>");
   }
 
-  const { id } = itemContext;
+  const { id, required } = itemContext;
 
   return {
     id,
+    required,
     name: fieldContext.name,
     formItemId: `${id}-form-item`,
     formDescriptionId: `${id}-form-item-description`,
@@ -68,17 +69,23 @@ const useFormField = () => {
 
 type FormItemContextValue = {
   id: string;
+  required?: boolean;
 };
 
 const FormItemContext = React.createContext<FormItemContextValue>(
   {} as FormItemContextValue,
 );
 
-function FormItem({ className, ...props }: React.ComponentProps<"div">) {
+/** `required` marks the label and tells assistive tech; the schema still does the checking. */
+function FormItem({
+  className,
+  required,
+  ...props
+}: React.ComponentProps<"div"> & { required?: boolean }) {
   const id = React.useId();
 
   return (
-    <FormItemContext.Provider value={{ id }}>
+    <FormItemContext.Provider value={{ id, required }}>
       <div
         data-slot="form-item"
         className={cn("grid gap-2", className)}
@@ -90,9 +97,10 @@ function FormItem({ className, ...props }: React.ComponentProps<"div">) {
 
 function FormLabel({
   className,
+  children,
   ...props
 }: React.ComponentProps<typeof LabelPrimitive.Root>) {
-  const { error, formItemId } = useFormField();
+  const { error, formItemId, required } = useFormField();
 
   return (
     <Label
@@ -101,18 +109,27 @@ function FormLabel({
       className={cn("data-[error=true]:text-destructive", className)}
       htmlFor={formItemId}
       {...props}
-    />
+    >
+      {children}
+      {/* Hidden, because the control's aria-required already says it once. */}
+      {required && (
+        <span aria-hidden="true" className="-ml-1 text-destructive">
+          *
+        </span>
+      )}
+    </Label>
   );
 }
 
 function FormControl({ ...props }: React.ComponentProps<typeof Slot>) {
-  const { error, formItemId, formDescriptionId, formMessageId } =
+  const { error, formItemId, formDescriptionId, formMessageId, required } =
     useFormField();
 
   return (
     <Slot
       data-slot="form-control"
       id={formItemId}
+      aria-required={required || undefined}
       aria-describedby={
         !error
           ? `${formDescriptionId}`

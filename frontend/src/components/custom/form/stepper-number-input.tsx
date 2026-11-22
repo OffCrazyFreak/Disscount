@@ -1,5 +1,6 @@
 "use client";
 
+import type { ComponentProps } from "react";
 import { Minus, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -12,7 +13,19 @@ interface IStepPair {
   secondary: number;
 }
 
-interface IStepperNumberInputProps {
+/** The id, aria and blur props FormControl and react-hook-form hand the field go to the real input. */
+type FieldInputProps = Pick<
+  ComponentProps<"input">,
+  | "id"
+  | "ref"
+  | "name"
+  | "onBlur"
+  | "aria-describedby"
+  | "aria-invalid"
+  | "aria-required"
+>;
+
+interface IStepperNumberInputProps extends FieldInputProps {
   value: string;
   onChange: (value: string) => void;
   steps: IStepPair;
@@ -42,6 +55,7 @@ export function StepperNumberInput({
   placeholder,
   ariaLabel,
   className,
+  ...fieldProps
 }: IStepperNumberInputProps) {
   const t = useTranslations("common");
   const parsed = Number.parseFloat(value);
@@ -96,6 +110,7 @@ export function StepperNumberInput({
       {renderStep(steps.primary, -1)}
 
       <Input
+        {...fieldProps}
         type="number"
         inputMode="decimal"
         value={value}

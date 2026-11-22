@@ -227,6 +227,7 @@
     "title": "Dodaj postavko na seznam",
     "description": "Postavka nima cene, a ostane na seznamu, da je ne pozabiš.",
     "nameLabel": "Ime",
+    "nameRequired": "Vpiši ime izdelka.",
     "toast": {
       "added": "Postavka je dodana na seznam »{name}«",
       "quantityIncreased": "Količina postavke je povečana na seznamu »{name}«"

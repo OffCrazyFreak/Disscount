@@ -45,6 +45,7 @@ export default function CredentialsForm() {
       <Form {...form}>
         <form
           id={CREDENTIALS_FORM_ID}
+          noValidate
           onSubmit={form.handleSubmit(submit)}
           className="space-y-6"
         >
@@ -52,7 +53,7 @@ export default function CredentialsForm() {
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem>
+              <FormItem required={canEditEmail}>
                 <FormLabel>{t("security.credentials.email")}</FormLabel>
                 <FormControl>
                   <Input type="email" {...field} disabled={!canEditEmail} />
@@ -73,7 +74,7 @@ export default function CredentialsForm() {
             control={form.control}
             name="newPassword"
             render={({ field }) => (
-              <FormItem>
+              <FormItem required={!hasPassword}>
                 <FormLabel>
                   {hasPassword
                     ? t("security.credentials.newPassword")
@@ -101,7 +102,7 @@ export default function CredentialsForm() {
               control={form.control}
               name="currentPassword"
               render={({ field }) => (
-                <FormItem>
+                <FormItem required>
                   <div className="flex items-center justify-between gap-2">
                     <FormLabel>
                       {t("security.credentials.currentPassword")}

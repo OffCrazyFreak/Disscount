@@ -227,6 +227,7 @@
     "title": "Artikel zu einer Liste hinzufügen",
     "description": "Er hat keinen Preis, bleibt aber auf der Liste, damit du ihn nicht vergisst.",
     "nameLabel": "Name",
+    "nameRequired": "Gib einen Namen für den Artikel ein.",
     "toast": {
       "added": "Artikel zu „{name}“ hinzugefügt",
       "quantityIncreased": "Menge erhöht in „{name}“"

@@ -58,7 +58,7 @@ export default function WatchlistThresholdInput({
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem>
+        <FormItem required>
           <FormLabel>
             {watchType === WatchType.absolute
               ? t("threshold.labelAbsolute")
@@ -74,6 +74,9 @@ export default function WatchlistThresholdInput({
           ) : (
             <FormControl>
               <StepperNumberInput
+                ref={field.ref}
+                name={field.name}
+                onBlur={field.onBlur}
                 value={field.value}
                 onChange={field.onChange}
                 steps={steps}
