@@ -9,6 +9,8 @@ import {
 interface IShoppingListInfoSpendingRowProps {
   checkedCount: number;
   moneySpent: number;
+  /** Spent on catalogue items only, the part that has an average to compare with. */
+  catalogSpent: number;
   potentialCostForChecked: number;
   savedAmount: number;
   savedPercentage: number;
@@ -17,6 +19,7 @@ interface IShoppingListInfoSpendingRowProps {
 export default function ShoppingListInfoSpendingRow({
   checkedCount,
   moneySpent,
+  catalogSpent,
   potentialCostForChecked,
   savedAmount,
   savedPercentage,
@@ -31,7 +34,7 @@ export default function ShoppingListInfoSpendingRow({
       <td className="p-2 border-b sm:border-b-0 sm:border-r">
         <span className="font-bold">{t("info.spent")} </span>
         {hasChecked ? (
-          <span className={spentTone(moneySpent, potentialCostForChecked)}>
+          <span className={spentTone(catalogSpent, potentialCostForChecked)}>
             {formatPrice(moneySpent, locale)}
           </span>
         ) : (
