@@ -43,7 +43,9 @@ export default function ProductChainsSection({
     ? "pending"
     : detail.pricesError
       ? "error"
-      : "success";
+      : detail.pricesOffline
+        ? "offline"
+        : "success";
 
   return (
     <StoreHoursProvider hours={hours}>

@@ -23,7 +23,11 @@ export function useProductDetail(ean: string) {
     isLoading: pricesLoading,
     error: pricesError,
     dataUpdatedAt: pricesUpdatedAt,
+    fetchStatus: pricesFetchStatus,
   } = cijeneService.useGetPrices({ eans: ean });
+
+  // A paused query reports neither loading nor an error, which would read as a chain with no stores.
+  const pricesOffline = !pricesData && pricesFetchStatus === "paused";
 
   const pricesByChain = useMemo(() => {
     const grouped: Record<string, StorePrice[]> = {};
@@ -61,6 +65,7 @@ export function useProductDetail(ean: string) {
     pricesByChain,
     pricesLoading,
     pricesError,
+    pricesOffline,
     pricesUpdatedAt,
     sortedChains,
     sortBy: distance.chosen,

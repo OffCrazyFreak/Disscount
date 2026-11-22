@@ -18,6 +18,7 @@
   "chains": {
     "refreshed": "Cene posodobljene {time}",
     "loadError": "Cen ni bilo mogoče naložiti. Poskusi znova.",
+    "offline": "Cene niso shranjene za uporabo brez povezave",
     "empty": "Za ta izdelek ni cen.",
     "whereToBuy": "Kje kupiti"
   },
