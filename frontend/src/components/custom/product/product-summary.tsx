@@ -46,6 +46,7 @@ export default function ProductSummary({
       <MediaRow
         // Even padding, so the photo sits as far from the card's edges as from its top and bottom.
         className={cn("p-3 @md:p-4", className)}
+        mediaClassName="size-23 @md:size-20"
         media={
           ean !== undefined && (
             <ProductThumbnail

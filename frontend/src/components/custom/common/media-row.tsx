@@ -3,15 +3,15 @@ import { type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 interface IMediaRowProps {
-  /** Fills a square as tall as the row; leave it unset for a row without one. */
+  /** A square beside the text; leave it unset for a row without one. */
   media?: ReactNode;
-  /** Replaces the row-tall square's height, such as a fixed size. */
+  /** The square's size, which the caller fixes so long text grows the row and not the photo. */
   mediaClassName?: string;
   children: ReactNode;
   className?: string;
 }
 
-/** Only a grid sizes a square to its row, as flex never revisits the column; absolute ignores file size. */
+/** The caller fixes the square's size, so long text grows the row and never the photo; absolute ignores file size. */
 export default function MediaRow({
   media,
   mediaClassName,
@@ -29,7 +29,7 @@ export default function MediaRow({
       {media && (
         <div
           className={cn(
-            "relative aspect-square h-full [&>*]:absolute [&>*]:inset-0 [&>*]:size-full",
+            "relative aspect-square self-start [&>*]:absolute [&>*]:inset-0 [&>*]:size-full",
             mediaClassName,
           )}
         >
