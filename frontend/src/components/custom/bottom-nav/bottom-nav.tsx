@@ -33,6 +33,33 @@ export default function BottomNav() {
 
   const productPageEan = productEanFromPath(pathname);
 
+  // The chevron and the ring are drawn only, so their meaning goes into the name.
+  function accessibleNameOf(index: number): string | undefined {
+    const { entry, isActive, isLocked } = cells[index];
+    const label = t(entry.item.shortLabelKey ?? entry.item.labelKey);
+    const parts: string[] = [];
+
+    if (entry.item.badge && priceDropCount > 0) {
+      parts.push(
+        t("nav.watchlistPriceDrops", { label, count: priceDropCount }),
+      );
+    } else {
+      parts.push(label);
+    }
+
+    if (entry.item.id === "shopping-lists" && listProgress) {
+      parts.push(t("bottomNav.listProgress", { ...listProgress }));
+    }
+
+    if (isActive && !isLocked && canReturn) {
+      parts.push(t("bottomNav.returnHint"));
+    }
+
+    return parts.length > 1 || parts[0] !== label
+      ? parts.join(", ")
+      : undefined;
+  }
+
   function holdFor(index: number) {
     return resolveHoldTarget(cells[index].entry, {
       productEan: productPageEan,
@@ -95,12 +122,11 @@ export default function BottomNav() {
                   ? priceDropCount
                   : undefined
               }
-              badgeLabel={t("nav.watchlistPriceDrops", {
-                label: t(entry.item.shortLabelKey ?? entry.item.labelKey),
-                count: priceDropCount,
-              })}
+              accessibleName={accessibleNameOf(index)}
               listProgress={
-                entry.item.id === "shopping-lists" ? listProgress : undefined
+                entry.item.id === "shopping-lists" && listProgress
+                  ? listProgress.checked / listProgress.total
+                  : undefined
               }
               canReturn={canReturn}
               onKeyboardActivate={() => activate(index)}

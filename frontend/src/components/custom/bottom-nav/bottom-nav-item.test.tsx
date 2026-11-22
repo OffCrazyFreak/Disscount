@@ -5,7 +5,7 @@ import BottomNavItem from "@/components/custom/bottom-nav/bottom-nav-item";
 import { findNavItem } from "@/constants/navigation";
 import { renderWithProviders } from "@/test/render";
 
-function renderCell(badgeCount?: number) {
+function renderCell(badgeCount?: number, accessibleName?: string) {
   renderWithProviders(
     <BottomNavItem
       entry={{ item: findNavItem("watchlist") }}
@@ -13,7 +13,7 @@ function renderCell(badgeCount?: number) {
       isScrubbed={false}
       isLocked={false}
       badgeCount={badgeCount}
-      badgeLabel="Praćenje, 12 novih sniženja"
+      accessibleName={accessibleName}
       showsDisc={false}
       indicatorOpacity={{ from: 1, to: 1 }}
       hasHold={false}
@@ -24,7 +24,7 @@ function renderCell(badgeCount?: number) {
 
 describe("BottomNavItem", () => {
   it("puts the exact count in the name and caps the visual badge at 9+", () => {
-    renderCell(12);
+    renderCell(12, "Praćenje, 12 novih sniženja");
 
     expect(
       screen.getByRole("button", { name: "Praćenje, 12 novih sniženja" }),
@@ -37,6 +37,16 @@ describe("BottomNavItem", () => {
 
     expect(
       screen.getByRole("button", { name: "Praćenje" }),
+    ).toBeInTheDocument();
+  });
+
+  it("names the return chevron, which is drawn only", () => {
+    renderCell(undefined, "Praćenje, dodirni za povratak na prethodno mjesto");
+
+    expect(
+      screen.getByRole("button", {
+        name: "Praćenje, dodirni za povratak na prethodno mjesto",
+      }),
     ).toBeInTheDocument();
   });
 });

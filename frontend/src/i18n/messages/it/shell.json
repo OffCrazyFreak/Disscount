@@ -53,7 +53,9 @@
   "bottomNav": {
     "label": "Navigazione principale",
     "searchClose": "{label}, chiudi",
-    "searchOpen": "{label}, cerca"
+    "searchOpen": "{label}, cerca",
+    "returnHint": "tocca per tornare al punto precedente",
+    "listProgress": "{checked} su {total, plural, one {# articolo acquistato} other {# articoli acquistati}}"
   },
   "userMenu": {
     "trigger": "Menu account",
