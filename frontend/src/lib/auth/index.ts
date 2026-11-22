@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { jwt } from "better-auth/plugins";
+import { jwt, type Jwk } from "better-auth/plugins";
+import { getCurrentAdapter, type GenericEndpointContext } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import { APIError, createAuthMiddleware, isAPIError } from "better-auth/api";
 
@@ -77,6 +78,57 @@ const signAccountErasureToken: SignJwt = async (payload) => {
   const { token } = await auth.api.signJWT({ body: { payload } });
   return token;
 };
+
+const JWKS_PATH = "/jwks";
+const SIGNING_KEYS_CACHE_MS = 5 * 60 * 1000;
+
+// The proxy signs a token on every call; the session is still read each time, only the key list is reused.
+function cachedSigningKeys() {
+  let cached: { keys: Jwk[]; readAt: number } | null = null;
+  let keysCreated = 0;
+
+  // Same as the plugin's own adapter: inside a transaction, read and write through it.
+  async function adapterOf(ctx: GenericEndpointContext) {
+    return getCurrentAdapter(ctx.context.adapter);
+  }
+
+  async function readKeys(ctx: GenericEndpointContext) {
+    return (await adapterOf(ctx)).findMany<Jwk>({ model: "jwks" });
+  }
+
+  return {
+    async getJwks(ctx: GenericEndpointContext) {
+      // Spring reads /jwks, which must list a key another instance just created.
+      if (ctx.path === JWKS_PATH) return readKeys(ctx);
+
+      if (cached && Date.now() - cached.readAt < SIGNING_KEYS_CACHE_MS) {
+        return cached.keys;
+      }
+
+      const createdBeforeRead = keysCreated;
+      const keys = await readKeys(ctx);
+
+      // A key created while this read ran is missing from it.
+      if (createdBeforeRead === keysCreated) {
+        cached = keys.length > 0 ? { keys, readAt: Date.now() } : null;
+      }
+
+      return keys;
+    },
+
+    async createJwk(data: Omit<Jwk, "id">, ctx: GenericEndpointContext) {
+      const adapter = await adapterOf(ctx);
+      const key = await adapter.create<Omit<Jwk, "id">, Jwk>({
+        model: "jwks",
+        data,
+      });
+      keysCreated += 1;
+      cached = null;
+
+      return key;
+    },
+  };
+}
 
 export const auth = betterAuth({
   baseURL: BETTER_AUTH_URL,
@@ -336,6 +388,7 @@ export const auth = betterAuth({
       jwks: {
         keyPairConfig: { alg: "ES256" },
       },
+      adapter: cachedSigningKeys(),
       jwt: {
         // Spring never asks whether the session still exists, so a revoked one keeps working until exp.
         expirationTime: `${BACKEND_TOKEN_TTL_MINUTES}m`,

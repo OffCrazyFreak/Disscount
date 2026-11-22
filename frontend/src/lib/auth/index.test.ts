@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { JwtOptions } from "better-auth/plugins";
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/auth/erase-backend-account", () => ({
@@ -157,5 +158,67 @@ describe("browser token endpoint", () => {
     await expect(
       auth.api.getToken({ headers: new Headers() }),
     ).rejects.toMatchObject({ statusCode: 401 });
+  });
+});
+
+describe("signing key reads", () => {
+  type IJwtAdapter = NonNullable<JwtOptions["adapter"]>;
+  type IKeyContext = Parameters<NonNullable<IJwtAdapter["getJwks"]>>[0];
+
+  const jwtPlugin = auth.options.plugins.find((plugin) => plugin.id === "jwt");
+  const store = (jwtPlugin?.options as JwtOptions)
+    .adapter as Required<IJwtAdapter>;
+
+  const key = {
+    id: "key-1",
+    publicKey: "{}",
+    privateKey: "{}",
+    createdAt: new Date(),
+  };
+
+  function keyContext(path: string) {
+    const findMany = vi.fn().mockResolvedValue([key]);
+    const create = vi.fn().mockResolvedValue(key);
+    const ctx = {
+      path,
+      context: { adapter: { findMany, create } },
+    } as unknown as IKeyContext;
+
+    return { ctx, findMany, create };
+  }
+
+  // Creating a key empties the in-process cache, so each test starts cold.
+  beforeEach(async () => {
+    await store.createJwk(key, keyContext("/token").ctx);
+  });
+
+  it("reads the key list once across repeated token mints", async () => {
+    const { ctx, findMany } = keyContext("/token");
+
+    await store.getJwks(ctx);
+    await store.getJwks(ctx);
+
+    expect(findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it("reads the table again after a new key is created", async () => {
+    const { ctx, findMany } = keyContext("/token");
+
+    await store.getJwks(ctx);
+    await store.createJwk(key, ctx);
+    await store.getJwks(ctx);
+
+    expect(findMany).toHaveBeenCalledTimes(2);
+  });
+
+  it("always reads the table for the key list Spring fetches", async () => {
+    const { ctx: mint } = keyContext("/token");
+    const { ctx, findMany } = keyContext("/jwks");
+
+    await store.getJwks(mint);
+    await store.getJwks(ctx);
+    await store.getJwks(ctx);
+
+    expect(findMany).toHaveBeenCalledTimes(2);
   });
 });
