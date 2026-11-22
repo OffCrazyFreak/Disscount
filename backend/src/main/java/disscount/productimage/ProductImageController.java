@@ -47,7 +47,7 @@ class ProductImageController {
         return ResponseEntity.ok().cacheControl(CacheControl.noCache()).body(queries.thumbnails(list));
     }
 
-    @Operation(summary = "EANs with a store price in the latest catalogue import, for the sitemap")
+    @Operation(summary = "EANs priced in a catalogue archive of the last 14 days, for the sitemap")
     @GetMapping("/catalog/eans")
     public ResponseEntity<ListedEansDto> listedEans() {
         // The catalogue refreshes weekly, so an hour of caching costs nothing.

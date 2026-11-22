@@ -1,5 +1,6 @@
 package disscount.productimage;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -17,7 +18,10 @@ import lombok.Setter;
 /** One row per EAN: which photo is shown, how widely the product sells, and the admin's review state. */
 @Entity
 @Table(name = "product_image_set",
-        indexes = @Index(name = "idx_product_image_set_listings", columnList = "store_listings"))
+        indexes = {
+                @Index(name = "idx_product_image_set_listings", columnList = "store_listings"),
+                @Index(name = "idx_product_image_set_last_seen", columnList = "last_seen_on")
+        })
 @Getter
 @Setter
 @NoArgsConstructor
@@ -43,6 +47,10 @@ public class ProductImageSet {
     @Builder.Default
     @Column(name = "chain_count", nullable = false)
     private int chainCount = 0;
+
+    /** The date of the newest imported archive that priced this EAN; the sitemap lists products seen recently. */
+    @Column(name = "last_seen_on")
+    private LocalDate lastSeenOn;
 
     @Column(name = "main_image_id")
     private UUID mainImageId;

@@ -7,6 +7,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -45,35 +46,57 @@ public class CatalogImportService {
         this.listUrl = properties.listUrl();
     }
 
-    public int importLatest() throws IOException, InterruptedException {
-        String archiveUrl = latestArchiveUrl();
+    public CatalogImportResult importLatest() throws IOException, InterruptedException {
+        Archive latest = latestArchive();
         Map<String, CatalogArchiveReader.Entry> catalog;
-        try (InputStream archive = open(archiveUrl)) {
+        try (InputStream archive = open(latest.url())) {
             catalog = CatalogArchiveReader.read(archive);
         }
-        tx.executeWithoutResult(status -> store(catalog));
-        log.info("Product catalogue imported from {}: {} EANs", archiveUrl, catalog.size());
-        return catalog.size();
+        CatalogImportResult result = tx.execute(status -> store(catalog, latest.date()));
+        log.info("Product catalogue imported from {}: {} EANs, {} newly listed, {} dropped out", latest.url(),
+                catalog.size(), result.newlyListed().size(), result.droppedOut().size());
+        return result;
     }
 
-    void store(Map<String, CatalogArchiveReader.Entry> catalog) {
+    /** Updates the products in this archive only; the rest keep their last numbers until the listing window ends. */
+    CatalogImportResult store(Map<String, CatalogArchiveReader.Entry> catalog, LocalDate archiveDate) {
+        Set<String> listedBefore = listed();
         Set<String> existing = new HashSet<>(jdbc.queryForList("select ean from app.product_image_set", String.class));
-        // A product that left every chain drops to the bottom of the queue instead of keeping last week's rank.
-        jdbc.update("update app.product_image_set set store_listings = 0, chain_count = 0");
 
         List<Object[]> updates = new ArrayList<>();
         List<Object[]> inserts = new ArrayList<>();
         catalog.forEach((ean, e) -> {
+            // An unpriced catalogue row is not on sale, so it leaves the date of its last price alone.
+            LocalDate seenOn = e.storeListings() > 0 ? archiveDate : null;
             if (existing.contains(ean)) {
-                updates.add(new Object[] {e.name(), e.brand(), e.storeListings(), e.chainCount(), ean});
+                updates.add(new Object[] {e.name(), e.brand(), e.storeListings(), e.chainCount(), seenOn, ean});
             } else {
-                inserts.add(new Object[] {ean, e.name(), e.brand(), e.storeListings(), e.chainCount()});
+                inserts.add(new Object[] {ean, e.name(), e.brand(), e.storeListings(), e.chainCount(), seenOn});
             }
         });
 
-        batch("update app.product_image_set set name = ?, brand = ?, store_listings = ?, chain_count = ? where ean = ?", updates);
-        batch("insert into app.product_image_set (ean, name, brand, store_listings, chain_count, pinned, needs_review) "
-                + "values (?, ?, ?, ?, ?, false, false)", inserts);
+        // greatest() skips a null and keeps a later date, so an older archive cannot move a product back in time.
+        batch("update app.product_image_set set name = ?, brand = ?, store_listings = ?, chain_count = ?, "
+                + "last_seen_on = greatest(last_seen_on, ?::date) where ean = ?", updates);
+        batch("insert into app.product_image_set "
+                + "(ean, name, brand, store_listings, chain_count, last_seen_on, pinned, needs_review) "
+                + "values (?, ?, ?, ?, ?, ?::date, false, false)", inserts);
+
+        Set<String> listedAfter = listed();
+        return new CatalogImportResult(catalog.size(), difference(listedAfter, listedBefore),
+                difference(listedBefore, listedAfter));
+    }
+
+    private Set<String> listed() {
+        LocalDate newest = jdbc.queryForObject("select max(last_seen_on) from app.product_image_set", LocalDate.class);
+        if (newest == null) return Set.of();
+
+        return new HashSet<>(jdbc.queryForList("select ean from app.product_image_set where last_seen_on >= ?",
+                String.class, CatalogListing.listedSince(newest)));
+    }
+
+    private static List<String> difference(Set<String> from, Set<String> minus) {
+        return from.stream().filter(ean -> !minus.contains(ean)).sorted().toList();
     }
 
     private void batch(String sql, List<Object[]> rows) {
@@ -82,11 +105,14 @@ public class CatalogImportService {
         }
     }
 
-    private String latestArchiveUrl() throws IOException, InterruptedException {
+    private record Archive(String url, LocalDate date) {}
+
+    private Archive latestArchive() throws IOException, InterruptedException {
         try (InputStream body = open(listUrl)) {
             JsonNode archives = json.readTree(body).path("archives");
             if (!archives.isArray() || archives.isEmpty()) throw new IOException("No cijene archives listed");
-            return archives.get(0).path("url").asString();
+            JsonNode newest = archives.get(0);
+            return new Archive(newest.path("url").asString(), LocalDate.parse(newest.path("date").asString()));
         }
     }
 

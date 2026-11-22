@@ -1,5 +1,6 @@
 package disscount.productimage;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -13,9 +14,11 @@ public interface ProductImageSetRepository extends JpaRepository<ProductImageSet
     @Query("select s.ean from ProductImageSet s")
     List<String> findAllEans();
 
-    /** EANs with a store price in the latest catalogue import; chain_count also counts unpriced catalogue rows. */
-    @Query("select s.ean from ProductImageSet s where s.storeListings > 0 order by s.ean")
-    List<String> findListedEans();
+    @Query("select max(s.lastSeenOn) from ProductImageSet s")
+    LocalDate findNewestArchiveDate();
+
+    @Query("select s.ean from ProductImageSet s where s.lastSeenOn >= :since order by s.ean")
+    List<String> findListedEans(@Param("since") LocalDate since);
 
     @Query("""
             select s from ProductImageSet s
