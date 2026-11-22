@@ -139,3 +139,23 @@ describe("new password policy", () => {
     },
   );
 });
+
+// Only the backend proxy may hold a backend token; the browser never sees one.
+describe("browser token endpoint", () => {
+  it.each(["/api/auth/token", "/api/auth/token/"])(
+    "answers 404 on %s",
+    async (path) => {
+      const response = await auth.handler(
+        new Request(`http://localhost:3000${path}`),
+      );
+
+      expect(response.status).toBe(404);
+    },
+  );
+
+  it("still mints for server code that calls auth.api directly", async () => {
+    await expect(
+      auth.api.getToken({ headers: new Headers() }),
+    ).rejects.toMatchObject({ statusCode: 401 });
+  });
+});

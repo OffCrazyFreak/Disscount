@@ -326,6 +326,9 @@ export const auth = betterAuth({
     },
   },
 
+  // The backend proxy mints its token through auth.api, which skips the router, so no browser can fetch one.
+  disabledPaths: ["/token"],
+
   plugins: [
     jwt({
       // Only the backend proxy needs a token, and it asks for one; this would sign one into every session poll.
