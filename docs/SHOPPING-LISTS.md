@@ -53,7 +53,7 @@ Step by step:
 
 1. **Create.** A list is created from `/shopping-lists` ("Stvori popis za kupnju" opens `?modal=shopping-list/new`) or from the list picker inside the add to list modals, which first creates the list and then adds to it. The server generates the list id.
 2. **Add.** Items arrive through four doors: the product page's "Dodaj na popis za kupnju" (`?modal=add-to-list&ean=`), the quick add field at the top of a list, the plain item modal that product search offers when nothing matches, and the watchlist's "turn the discounted items into a list" button. All of them end at `POST /api/shopping-lists/{id}/items`, where the backend merges a duplicate into the row already there ([§5](#5-adding-items-and-merging-duplicates)).
-3. **Price.** The list page looks up every catalogue item's live prices by EAN. Plain items have no EAN and so no prices ([§8](#8-prices-on-the-list-page)).
+3. **Price.** The list page looks up every catalogue item's live prices by EAN. Plain items have no EAN and so no live prices, only one you type ([§8](#8-prices-on-the-list-page)).
 4. **Shop.** In the shop, the user picks a chain per item and ticks items off. A tick captures the prices of that moment onto the row ([§6](#6-ticking-items-off-and-captured-prices)), and it works offline ([§7](#7-optimistic-updates-and-the-offline-queue)).
 
 ---
@@ -180,7 +180,7 @@ An untick clears both, so a row unticked and ticked again at another shop never 
 
 **What a `SHOP` caller can change.** `applyItemUpdate` on the server always applies `isChecked`, `chainCode`, `avgPrice` and `storePrice`, and applies `ean`, `brand`, `name`, `quantity`, `unit` and `amount` only for `EDIT` or the owner. A fuller payload from a `SHOP` caller is ignored rather than refused. An update that omits the EAN never unlinks a product from its row. Every add, update and delete stamps `updated_by_user_id` and bumps the list's `updatedAt`.
 
-A plain item has no store select at all, since it has no prices to choose between.
+A plain item has no prices to choose between, so its row offers every chain the app knows (`ALL_CHAIN_CODES`), with no suggestion, and a field where you type its price per piece in place of "Bez cijene" (`items/plain-item/`, #720). The price is saved on leaving the field, read with a decimal comma or point, and stored as the item's `storePrice`; unticking keeps it, because nobody else can supply it again, while a catalogue item's prices are cleared on unticking and captured again on the next tick. Owners and `EDIT` members get a pencil beside the name that renames the item in a small dialog; `SHOP` members can set the store and price but not the name, the same split as `applyItemUpdate` above. Viewers see the price as text.
 
 ---
 
@@ -259,7 +259,8 @@ A ticked item is always `ready`, because it shows the prices saved with it. A pl
 
 - The total and "left to spend" are the sum of each item's live average times its amount. Their low and high ends are that average minus and plus 10 percent, an estimate, not the real cheapest and dearest chains.
 - "Spent" is the sum of the captured `storePrice` of ticked items; "saved" is their captured `avgPrice` minus their `storePrice`, shown as "Preplaćeno" (overpaid) when it is negative.
-- Plain items and unpriced products add nothing, and the table counts them (`countUnpricedItems`) so the total does not look complete when it is not.
+- A plain item with a typed price adds exactly that price, with no 10 percent spread, to the total and to "left to spend", and once ticked to "spent". It never counts towards "saved": it has no market average to beat, so "saved" and its colour compare only the catalogue items' spend (`catalogSpent`) with their averages. This was the owner's decision on #720.
+- Plain items with no price and unpriced products add nothing, and the table counts them (`countUnpricedItems`) so the total does not look complete when it is not.
 
 ---
 
@@ -267,7 +268,7 @@ A ticked item is always `ready`, because it shows the prices saved with it. A pl
 
 The Proizvodi tab (`[id]/components/items/shopping-list-item-views.tsx`) lists the items A to Z with Croatian collation (`compareHr`), or, with the "Po trgovinama" switch on, split into one card per chain. The switch is remembered per list in local storage (`shoppingListsPreferences[<id>].groupByStore`, `utils/browser/storage/shopping-lists.ts`). Grouping waits until the prices have loaded, because until then no item knows its cheapest chain.
 
-`groupItemsByStore` (`[id]/utils/group-items-by-store.ts`) puts each item under the chain its store select shows: its saved `chainCode`, else, for an unticked item, the suggested cheapest chain (`suggestedChain`, the same rule the select and the share text use), else a last group called "Ostalo". That last group holds every plain item and any item ticked with no saved chain, which its select shows with no store. Chains run A to Z by their display label, items A to Z within a chain. Each group gets a subtotal: a ticked item counts at its captured price, an unticked one at today's price at that chain. When some item has no known price there, the group is partial and its header reads "najmanje" ("at least") before the subtotal; a partial group with no known price at all shows no subtotal.
+`groupItemsByStore` (`[id]/utils/group-items-by-store.ts`) puts each item under the chain its store select shows: its saved `chainCode`, else, for an unticked item, the suggested cheapest chain (`suggestedChain`, the same rule the select and the share text use), else a last group called "Ostalo". That last group holds every plain item with no store picked and any item ticked with no saved chain, which its select shows with no store. Chains run A to Z by their display label, items A to Z within a chain. Each group gets a subtotal: a ticked item counts at its captured price, an unticked one at today's price at that chain, and a plain item at the price typed for it. When some item has no known price there, the group is partial and its header reads "najmanje" ("at least") before the subtotal; a partial group with no known price at all shows no subtotal.
 
 **"Na karti".** Each chain's group header (`store-group-header.tsx`) has a "Na karti" link to the stores map:
 
