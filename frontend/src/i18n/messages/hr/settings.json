@@ -237,8 +237,7 @@
       "signOutDevice": "Odjavi {device}",
       "signedOut": "Uređaj je odjavljen.",
       "signOutFailed": "Odjava uređaja nije uspjela. Pokušaj ponovno.",
-      "loadFailed": "Prijave nismo uspjeli učitati.",
-      "tokenNote": "Odjavljeni uređaj može još do {minutes, plural, one {# minute} few {# minute} other {# minuta}} vidjeti tvoje podatke."
+      "loadFailed": "Prijave nismo uspjeli učitati."
     }
   }
 }

@@ -9,5 +9,5 @@ export const REAUTH_CODE_TTL_MINUTES = 10;
 export const REAUTH_CODE_LENGTH = 6;
 export const REAUTH_CODE_RESEND_SECONDS = 60;
 
-// A signed-out device keeps the JWT until it expires, so the sessions list quotes this.
-export const BACKEND_TOKEN_TTL_MINUTES = 10;
+// The proxy mints one per call, so this only bounds a token that leaked from the server side.
+export const BACKEND_TOKEN_TTL_MINUTES = 2;

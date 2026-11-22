@@ -237,8 +237,7 @@
       "signOutDevice": "Odjavi {device}",
       "signedOut": "Naprava je odjavljena.",
       "signOutFailed": "Odjava naprave ni uspela. Poskusi znova.",
-      "loadFailed": "Prijav nismo uspeli naložiti.",
-      "tokenNote": "Odjavljena naprava obdrži dostop do tvojih podatkov še največ {minutes, plural, one {# minuto} two {# minuti} few {# minute} other {# minut}}."
+      "loadFailed": "Prijav nismo uspeli naložiti."
     }
   }
 }

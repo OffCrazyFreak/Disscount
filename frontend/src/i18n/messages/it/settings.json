@@ -237,8 +237,7 @@
       "signOutDevice": "Esci da {device}",
       "signedOut": "Dispositivo disconnesso.",
       "signOutFailed": "Non siamo riusciti a disconnettere il dispositivo. Riprova.",
-      "loadFailed": "Non siamo riusciti a caricare i tuoi accessi.",
-      "tokenNote": "Un dispositivo disconnesso mantiene l'accesso ai tuoi dati ancora per {minutes, plural, one {# minuto} other {# minuti}} al massimo."
+      "loadFailed": "Non siamo riusciti a caricare i tuoi accessi."
     }
   }
 }
