@@ -735,6 +735,13 @@ body:has([data-slot="drawer-viewport"][data-modal="true"][data-open]) {
   right: 3rem;
 }
 
+/* The phone map runs under the floating nav, and the credits must stay visible above it; the token is 0 on desktop. */
+/* A margin, because MapLibre's own sheet loads later and sets bottom: 0 at the same specificity. */
+.maplibregl-ctrl-bottom-left,
+.maplibregl-ctrl-bottom-right {
+  margin-bottom: var(--bottom-nav-total);
+}
+
 @media (width >= 48rem) {
   .maplibregl-ctrl-bottom-left {
     right: 10rem;

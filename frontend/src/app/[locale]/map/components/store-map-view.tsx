@@ -46,8 +46,8 @@ export interface IStoreMapViewProps {
   userLocation: IUserLocation | null;
   centerRequest: ICenterRequest | null;
   initialView: (ILatLon & { zoom: number }) | null;
-  /** Share of the map's height under the phone sheet, 0 on desktop. */
-  coveredShare: number;
+  /** Pixels at the map's bottom under the phone sheet or nav, 0 on desktop. */
+  coveredHeight: number;
   onViewChange: (area: IViewArea | null) => void;
   mapStyle: StyleSpecification;
   onContextLost: () => void;
@@ -62,7 +62,7 @@ export default function StoreMapView({
   userLocation,
   centerRequest,
   initialView,
-  coveredShare,
+  coveredHeight,
   onViewChange,
   mapStyle,
   onContextLost,
@@ -91,7 +91,7 @@ export default function StoreMapView({
   const { coveredBottom, reportView } = useViewReport({
     mapRef,
     mapReady,
-    coveredShare,
+    coveredHeight,
     onViewChange,
   });
 
