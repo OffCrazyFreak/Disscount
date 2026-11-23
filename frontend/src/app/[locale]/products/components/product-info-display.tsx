@@ -36,6 +36,8 @@ export default function ProductInfoDisplay({
 
   const category = getMostFrequentCategory(product);
   const displayName = product.name || t("productInfo.unknown");
+  // The standalone page is the product's own, so its name is the page heading; a modal sits under another page's.
+  const Heading = enableActionButtons ? "h1" : "h3";
 
   return (
     <div className="space-y-4">
@@ -62,9 +64,12 @@ export default function ProductInfoDisplay({
           )}
 
           <div className="text-pretty">
-            <h3 lang={product.name ? "hr" : undefined} className="font-bold">
+            <Heading
+              lang={product.name ? "hr" : undefined}
+              className="font-bold"
+            >
               {product.name || t("productInfo.unknown")}
-            </h3>
+            </Heading>
             {category && (
               <p lang="hr" className="text-sm text-gray-500">
                 {category}
