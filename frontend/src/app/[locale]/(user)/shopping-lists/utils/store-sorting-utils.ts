@@ -103,7 +103,7 @@ function getItemSavingPercentAtChain(
   const price = chainData.avg_price;
   const maxPrice = getChainAvgPriceRange(product)?.max ?? 0;
 
-  if (!maxPrice || isNaN(price)) return 0;
+  if (!maxPrice) return 0;
 
   return ((maxPrice - price) / maxPrice) * 100;
 }

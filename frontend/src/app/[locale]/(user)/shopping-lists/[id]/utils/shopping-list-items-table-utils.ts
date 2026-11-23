@@ -30,7 +30,7 @@ export function getChainItemPriceInfo(
 
   const isAvailable = Boolean(chainData);
 
-  const price = chainData ? chainData.avg_price : 0;
+  const price = chainData?.avg_price ?? 0;
   const quantity = item.amount || 1;
   const total = price * quantity;
 
