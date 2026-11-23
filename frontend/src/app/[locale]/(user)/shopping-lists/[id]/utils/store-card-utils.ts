@@ -41,9 +41,9 @@ export function getStoreCardMetrics({
 
   const isDataFromToday = isPriceDateToday(chain.price_date);
 
-  const storeMinPrice = parseFloat(chain.min_price);
-  const storeAvgPrice = parseFloat(chain.avg_price);
-  const storeMaxPrice = parseFloat(chain.max_price);
+  const storeMinPrice = chain.min_price;
+  const storeAvgPrice = chain.avg_price;
+  const storeMaxPrice = chain.max_price;
 
   const totalItemsInList = itemsToCompare(shoppingList.items).length;
   const hasAllItems = chain.itemCount === totalItemsInList;

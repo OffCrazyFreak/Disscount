@@ -4,15 +4,12 @@ import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { chain, product as priceProduct } from "@/test/price-fixtures";
 
 function product(overrides: Partial<ProductResponse>) {
-  return priceProduct(
-    [chain("konzum", "0.89", "1.19"), chain("spar", "0.30", "1.35")],
-    {
-      ean: "5449000000996",
-      brand: "Coca-Cola",
-      name: "Coca-Cola Limenka",
-      ...overrides,
-    },
-  );
+  return priceProduct([chain("konzum", 0.89, 1.19), chain("spar", 0.3, 1.35)], {
+    ean: "5449000000996",
+    brand: "Coca-Cola",
+    name: "Coca-Cola Limenka",
+    ...overrides,
+  });
 }
 
 const input = {

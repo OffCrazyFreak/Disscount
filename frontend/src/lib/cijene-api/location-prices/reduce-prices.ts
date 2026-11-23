@@ -1,5 +1,4 @@
 import type { PriceRange, StorePrice } from "@/lib/cijene-api/schemas";
-import { parsePrice } from "@/utils/product-price-utils";
 
 export type CityPrices = Map<string, PriceRange>;
 
@@ -16,9 +15,7 @@ export function reduceByCity(
     const city = row.store.city?.trim();
     if (!city || (onlyCities && !onlyCities.has(city))) continue;
 
-    const price =
-      parsePrice(row.special_price ?? "") ??
-      parsePrice(row.regular_price ?? "");
+    const price = row.special_price ?? row.regular_price;
     if (price === null) continue;
 
     const prices = byCity.get(city) ?? new Map<string, PriceRange>();

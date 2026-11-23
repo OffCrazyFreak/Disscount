@@ -22,9 +22,9 @@ const chain: ChainSummary = {
   category: null,
   unit: null,
   quantity: null,
-  min_price: "1.00",
-  max_price: "2.00",
-  avg_price: "1.50",
+  min_price: 1,
+  max_price: 2,
+  avg_price: 1.5,
   price_date: "2026-11-04",
   itemCount: 0,
 };

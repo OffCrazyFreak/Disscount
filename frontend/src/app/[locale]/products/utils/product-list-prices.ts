@@ -3,7 +3,6 @@ import type {
   IProductListPrice,
   ProductPriceScope,
 } from "@/app/[locale]/products/typings/product-list-price-types";
-import { parsePrice } from "@/utils/product-price-utils";
 import { normalizeChainCode } from "@/app/[locale]/products/utils/product-filters";
 
 function summarizePrices(
@@ -29,7 +28,7 @@ export function summarizeChainPrices(
       allowedChainKeys.has(normalizeChainCode(chain.chain)),
   );
   const prices = chains.flatMap((chain) =>
-    [parsePrice(chain.min_price), parsePrice(chain.max_price)].filter(
+    [chain.min_price, chain.max_price].filter(
       (price): price is number => price !== null,
     ),
   );

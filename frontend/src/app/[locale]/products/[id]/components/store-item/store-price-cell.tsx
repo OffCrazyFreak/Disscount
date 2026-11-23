@@ -8,10 +8,7 @@ import {
 import { formatPrice } from "@/utils/price";
 
 function getDisplayPrice(price: StorePrice): number | null {
-  if (price.special_price) return parseFloat(price.special_price);
-  if (price.regular_price) return parseFloat(price.regular_price);
-
-  return null;
+  return price.special_price ?? price.regular_price;
 }
 
 function priceClass(extreme: PriceExtreme, isLocationPreferred: boolean) {

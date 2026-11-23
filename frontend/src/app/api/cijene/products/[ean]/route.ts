@@ -3,7 +3,7 @@ import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
 import { cijeneApiV1Client } from "@/lib/cijene-api/client";
 import {
   getProductParamsSchema,
-  productResponseSchema,
+  upstreamProductResponseSchema,
 } from "@/lib/cijene-api/schemas";
 import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";
 import { buildQueryString } from "@/utils/generic";
@@ -28,11 +28,15 @@ export async function GET(
   const { ean: validEan, ...filters } = parsed.data;
   const queryString = buildQueryString(filters);
 
-  return withCijeneRoute(request, "product", productResponseSchema, () =>
-    cijeneApiV1Client.get(
-      `/products/${encodeURIComponent(validEan)}${
-        queryString && `?${queryString}`
-      }`,
-    ),
+  return withCijeneRoute(
+    request,
+    "product",
+    upstreamProductResponseSchema,
+    () =>
+      cijeneApiV1Client.get(
+        `/products/${encodeURIComponent(validEan)}${
+          queryString && `?${queryString}`
+        }`,
+      ),
   );
 }

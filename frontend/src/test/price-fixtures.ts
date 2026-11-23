@@ -6,7 +6,7 @@ import type {
 /** One chain's cijene-api prices for a product. `max` and `avg` default to `min`. */
 export function chain(
   chainCode: string,
-  min: string,
+  min: number,
   max = min,
   avg = min,
 ): ChainProductResponse {
@@ -37,5 +37,18 @@ export function product(
     unit: null,
     chains,
     ...overrides,
+  };
+}
+
+/** The same product as the cijene routes send it, with prices as text. */
+export function wireProduct(parsed: ProductResponse) {
+  return {
+    ...parsed,
+    chains: parsed.chains.map((entry) => ({
+      ...entry,
+      min_price: String(entry.min_price),
+      max_price: String(entry.max_price),
+      avg_price: String(entry.avg_price),
+    })),
   };
 }

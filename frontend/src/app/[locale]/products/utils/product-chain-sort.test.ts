@@ -6,15 +6,15 @@ import {
 } from "@/app/[locale]/products/utils/product-chain-sort";
 import { chain as priceChain } from "@/test/price-fixtures";
 
-function chain(name: string, minPrice: string, avgPrice: string) {
+function chain(name: string, minPrice: number, avgPrice: number) {
   return priceChain(name, minPrice, avgPrice, avgPrice);
 }
 
 const chains = [
-  chain("konzum", "1.00", "2.00"),
-  chain("lidl", "1.50", "1.50"),
-  chain("spar", "0.90", "2.50"),
-  chain("plodine", "1.20", "1.80"),
+  chain("konzum", 1, 2),
+  chain("lidl", 1.5, 1.5),
+  chain("spar", 0.9, 2.5),
+  chain("plodine", 1.2, 1.8),
 ];
 
 const distances = new Map([

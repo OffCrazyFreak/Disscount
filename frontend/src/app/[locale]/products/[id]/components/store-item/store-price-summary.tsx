@@ -36,9 +36,9 @@ export default function StorePriceSummary({
   const productMaxPrice = getMaxPrice(product);
 
   const stats = [
-    { key: "min", price: parseFloat(store.min_price) },
-    { key: "average", price: parseFloat(store.avg_price) },
-    { key: "max", price: parseFloat(store.max_price) },
+    { key: "min", price: store.min_price },
+    { key: "average", price: store.avg_price },
+    { key: "max", price: store.max_price },
   ] as const;
 
   return (

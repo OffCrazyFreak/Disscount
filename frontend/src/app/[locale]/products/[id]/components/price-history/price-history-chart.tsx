@@ -51,7 +51,7 @@ const PriceHistoryChart = memo(function PriceHistoryChart({
         const prices: number[] = [];
 
         dataPoint.product.chains.forEach((chainData) => {
-          const avgPrice = parseFloat(chainData.avg_price);
+          const avgPrice = chainData.avg_price;
           if (Number.isFinite(avgPrice)) {
             chartPoint[chainData.chain] = avgPrice;
 

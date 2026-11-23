@@ -6,7 +6,6 @@ import {
   getMaxPrice,
   getMinPrice,
   isPriceDateToday,
-  parsePrice,
 } from "@/utils/product-price-utils";
 import { chain, product } from "@/test/price-fixtures";
 
@@ -32,20 +31,11 @@ describe("isPriceDateToday", () => {
   });
 });
 
-describe("parsePrice", () => {
-  it("parses the API's decimal strings and rejects junk", () => {
-    expect(parsePrice("1.29")).toBe(1.29);
-    expect(parsePrice("")).toBeNull();
-    expect(parsePrice("n/a")).toBeNull();
-  });
-});
-
 describe("product price summary", () => {
-  it("skips chains whose price does not parse", () => {
+  it("summarizes every chain", () => {
     const item = product([
-      chain("konzum", "1.20", "1.50", "1.30"),
-      chain("lidl", "0.99", "1.10", "1.00"),
-      chain("spar", "", "", ""),
+      chain("konzum", 1.2, 1.5, 1.3),
+      chain("lidl", 0.99, 1.1, 1),
     ]);
 
     expect(getMinPrice(item)).toBe(0.99);
@@ -53,8 +43,8 @@ describe("product price summary", () => {
     expect(getAveragePrice(item)).toBeCloseTo(1.15);
   });
 
-  it("has no price when no chain has one", () => {
-    const item = product([chain("spar", "")]);
+  it("has no price without chains", () => {
+    const item = product([]);
 
     expect(getMinPrice(item)).toBeNull();
     expect(getAveragePrice(item)).toBeNull();
@@ -64,16 +54,16 @@ describe("product price summary", () => {
 describe("getCheapestChainByMinPrice", () => {
   it("keeps the first chain on a tie", () => {
     const cheapest = getCheapestChainByMinPrice([
-      chain("konzum", "1.20"),
-      chain("lidl", "0.99"),
-      chain("kaufland", "0.99"),
+      chain("konzum", 1.2),
+      chain("lidl", 0.99),
+      chain("kaufland", 0.99),
     ]);
 
     expect(cheapest?.chain.chain).toBe("lidl");
     expect(cheapest?.price).toBe(0.99);
   });
 
-  it("is null when nothing is priced", () => {
-    expect(getCheapestChainByMinPrice([chain("spar", "")])).toBeNull();
+  it("is null without chains", () => {
+    expect(getCheapestChainByMinPrice([])).toBeNull();
   });
 });

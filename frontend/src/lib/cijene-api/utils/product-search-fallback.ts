@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { cijeneApiV1Client } from "@/lib/cijene-api/client";
 import {
-  ProductResponse,
   SearchProductsParams,
-  productSearchResponseSchema,
+  UpstreamProductResponse,
+  upstreamProductSearchResponseSchema,
 } from "@/lib/cijene-api/schemas";
 import { UPSTREAM_DEFAULT_SEARCH_LIMIT } from "@/constants/products";
 import { buildQueryString } from "@/utils/generic";
@@ -35,10 +35,10 @@ function canFuzzyMatch(query: string): boolean {
 }
 
 function mergeByEan(
-  exact: ProductResponse[],
-  fuzzy: ProductResponse[],
+  exact: UpstreamProductResponse[],
+  fuzzy: UpstreamProductResponse[],
   limit: number,
-): ProductResponse[] {
+): UpstreamProductResponse[] {
   const seen = new Set(exact.map((product) => product.ean));
   const merged = [...exact];
 
@@ -70,8 +70,10 @@ export async function searchProductsWithFuzzyFallback(
     () => null,
   );
 
-  const exactParsed = productSearchResponseSchema.safeParse(exact.data);
-  const fuzzyParsed = productSearchResponseSchema.safeParse(fuzzy?.data);
+  const exactParsed = upstreamProductSearchResponseSchema.safeParse(exact.data);
+  const fuzzyParsed = upstreamProductSearchResponseSchema.safeParse(
+    fuzzy?.data,
+  );
 
   if (!exactParsed.success || !fuzzyParsed.success) return exact;
 

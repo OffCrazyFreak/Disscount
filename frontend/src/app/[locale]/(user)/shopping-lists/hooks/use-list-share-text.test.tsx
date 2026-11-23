@@ -43,7 +43,7 @@ function shareTextFor(items: ShoppingListItemDto[], cachedEans: string[]) {
   for (const ean of cachedEans) {
     queryClient.setQueryData(
       CIJENE_QUERY_KEYS.productByEan(ean),
-      product([chain("konzum", "2.00"), chain("spar", "1.50")], { ean }),
+      product([chain("konzum", 2), chain("spar", 1.5)], { ean }),
     );
   }
 

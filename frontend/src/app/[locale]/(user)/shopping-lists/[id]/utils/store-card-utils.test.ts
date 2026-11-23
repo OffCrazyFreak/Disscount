@@ -6,9 +6,9 @@ import type { ShoppingListDto } from "@/lib/api/types";
 
 const chain = {
   chain: "konzum",
-  min_price: "1.00",
-  avg_price: "2.00",
-  max_price: "3.00",
+  min_price: 1,
+  avg_price: 2,
+  max_price: 3,
   price_date: "2026-11-02",
   itemCount: 1,
 } as ChainSummary;

@@ -24,7 +24,7 @@ function countChainsAtExtreme(
 
     product.chains.forEach((chain) => {
       const extremeAtChain = getPriceExtreme(
-        parseFloat(chain.avg_price),
+        chain.avg_price,
         range.min,
         range.max,
       );

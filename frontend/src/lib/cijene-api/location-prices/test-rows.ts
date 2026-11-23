@@ -3,8 +3,8 @@ import type { StorePrice } from "@/lib/cijene-api/schemas";
 export function storePrice(
   ean: string,
   city: string | null,
-  regular: string | null,
-  special: string | null = null,
+  regular: number | null,
+  special: number | null = null,
 ): StorePrice {
   return {
     chain: "konzum",

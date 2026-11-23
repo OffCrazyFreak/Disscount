@@ -12,9 +12,9 @@ export type ProductChainSortMode = (typeof PRODUCT_CHAIN_SORT_MODES)[number];
 
 type PriceReader = (chain: ChainProductResponse) => number;
 
-const minPrice: PriceReader = (chain) => parseFloat(chain.min_price);
-const avgPrice: PriceReader = (chain) => parseFloat(chain.avg_price);
-const maxPrice: PriceReader = (chain) => parseFloat(chain.max_price);
+const minPrice: PriceReader = (chain) => chain.min_price;
+const avgPrice: PriceReader = (chain) => chain.avg_price;
+const maxPrice: PriceReader = (chain) => chain.max_price;
 
 /** "stores" follows preferences; "price" leads with the store worth a detour; "distance" the nearest. */
 export function compareProductChains(

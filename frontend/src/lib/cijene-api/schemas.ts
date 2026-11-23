@@ -34,7 +34,19 @@ export type ListStoresResponse = z.infer<typeof listStoresResponseSchema>;
 // Upstream serialises Python Decimals: dot-decimal text such as "1.29", rarely "1E+1".
 const PRICE_TEXT = /^\d+(\.\d+)?(E[+-]?\d+)?$/i;
 
-const chainProductResponseSchema = z.object({
+function isReadablePrice(text: string): boolean {
+  return PRICE_TEXT.test(text) && Number.isFinite(Number.parseFloat(text));
+}
+
+function toNullablePrice(text: string | null): number | null {
+  if (text === null) return null;
+
+  const price = Number.parseFloat(text);
+
+  return Number.isFinite(price) ? price : null;
+}
+
+const upstreamChainProductResponseSchema = z.object({
   chain: z.string(),
   code: z.string(),
   name: z.string(),
@@ -48,7 +60,8 @@ const chainProductResponseSchema = z.object({
   price_date: z.iso.date(),
 });
 
-export const productResponseSchema = z.object({
+/** Prices stay text, as on the wire, so the routes and the service worker cache keep upstream's shape. */
+export const upstreamProductResponseSchema = z.object({
   ean: z.string(),
   brand: z.string().nullable(),
   name: z.string().nullable(),
@@ -56,25 +69,48 @@ export const productResponseSchema = z.object({
   unit: z.string().nullable(),
   // An unreadable price is dropped, because it would be NaN in every total and sort; a shape change still fails loudly.
   chains: z
-    .array(chainProductResponseSchema)
+    .array(upstreamChainProductResponseSchema)
     .transform((chains) =>
       chains.filter((chain) =>
-        [chain.min_price, chain.max_price, chain.avg_price].every((price) =>
-          PRICE_TEXT.test(price),
+        [chain.min_price, chain.max_price, chain.avg_price].every(
+          isReadablePrice,
         ),
       ),
     ),
 });
 
+export const upstreamProductSearchResponseSchema = z.object({
+  products: z.array(upstreamProductResponseSchema),
+});
+
+export type UpstreamProductResponse = z.infer<
+  typeof upstreamProductResponseSchema
+>;
+
+// Runs after the chain filter above, so every price here is readable.
+export const productResponseSchema = upstreamProductResponseSchema.transform(
+  (product) => ({
+    ...product,
+    chains: product.chains.map((chain) => ({
+      ...chain,
+      min_price: Number.parseFloat(chain.min_price),
+      max_price: Number.parseFloat(chain.max_price),
+      avg_price: Number.parseFloat(chain.avg_price),
+    })),
+  }),
+);
+
 export const productSearchResponseSchema = z.object({
   products: z.array(productResponseSchema),
 });
 
-export type ChainProductResponse = z.infer<typeof chainProductResponseSchema>;
-export type ProductResponse = z.infer<typeof productResponseSchema>;
-export type ProductSearchResponse = z.infer<typeof productSearchResponseSchema>;
+export type ProductResponse = z.output<typeof productResponseSchema>;
+export type ChainProductResponse = ProductResponse["chains"][number];
+export type ProductSearchResponse = z.output<
+  typeof productSearchResponseSchema
+>;
 
-const storePriceSchema = z.object({
+const upstreamStorePriceSchema = z.object({
   chain: z.string(),
   ean: z.string(),
   price_date: z.iso.date(),
@@ -86,12 +122,26 @@ const storePriceSchema = z.object({
   store: storeSchema,
 });
 
+export const upstreamStorePricesResponseSchema = z.object({
+  store_prices: z.array(upstreamStorePriceSchema),
+});
+
+// An unreadable store price becomes null, so readers fall back to the regular price instead of showing NaN.
+const storePriceSchema = upstreamStorePriceSchema.transform((price) => ({
+  ...price,
+  regular_price: toNullablePrice(price.regular_price),
+  special_price: toNullablePrice(price.special_price),
+  unit_price: toNullablePrice(price.unit_price),
+  best_price_30: toNullablePrice(price.best_price_30),
+  anchor_price: toNullablePrice(price.anchor_price),
+}));
+
 export const storePricesResponseSchema = z.object({
   store_prices: z.array(storePriceSchema),
 });
 
-export type StorePrice = z.infer<typeof storePriceSchema>;
-export type StorePricesResponse = z.infer<typeof storePricesResponseSchema>;
+export type StorePrice = z.output<typeof storePriceSchema>;
+export type StorePricesResponse = z.output<typeof storePricesResponseSchema>;
 
 // Our /api/cijene/location-prices route, which reduces store prices per city
 const priceRangeSchema = z.object({ min: z.number(), max: z.number() });

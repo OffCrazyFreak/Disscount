@@ -15,7 +15,7 @@ import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
 import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
-import { chain, product } from "@/test/price-fixtures";
+import { chain, product, wireProduct } from "@/test/price-fixtures";
 
 vi.mock("@/context/user-context", () => ({
   useUser: () => ({ user: null }),
@@ -62,7 +62,7 @@ function appLikeQueryClient() {
 }
 
 function milk(ean: string) {
-  return product([chain("konzum", "1.00", "1.20", "1.10")], {
+  return product([chain("konzum", 1, 1.2, 1.1)], {
     ean,
     name: "Mlijeko",
   });
@@ -79,7 +79,7 @@ function answerProducts(requests: string[], brokenStatus = 502) {
       if (ean === "333") {
         return HttpResponse.json({ error: "x" }, { status: 404 });
       }
-      return HttpResponse.json(milk(ean));
+      return HttpResponse.json(wireProduct(milk(ean)));
     }),
   );
 }
@@ -155,7 +155,7 @@ describe("useShoppingListData price states", () => {
       http.get("*/api/cijene/products/:ean", async ({ params }) => {
         retried.push(String(params.ean));
         await new Promise<void>((resolve) => (answerRetry = resolve));
-        return HttpResponse.json(milk(String(params.ean)));
+        return HttpResponse.json(wireProduct(milk(String(params.ean))));
       }),
     );
 

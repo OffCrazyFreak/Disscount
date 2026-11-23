@@ -16,7 +16,7 @@ function pricedAt(chain: string, code: string) {
     chain,
     ean: "1",
     price_date: "2026-01-01",
-    regular_price: "1.00",
+    regular_price: 1,
     special_price: null,
     unit_price: null,
     best_price_30: null,

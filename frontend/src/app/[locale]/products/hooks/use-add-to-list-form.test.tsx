@@ -13,7 +13,7 @@ const SUGAR: ProductResponse = {
   name: "Šećer 1 kg",
   quantity: "1",
   unit: "kg",
-  chains: [chain("spar", "1.20"), chain("konzum", "1.40")],
+  chains: [chain("spar", 1.2), chain("konzum", 1.4)],
 };
 
 // Offline: the session check failed, so only the saved profile names the pinned stores.

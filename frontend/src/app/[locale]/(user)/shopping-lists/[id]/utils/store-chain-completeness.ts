@@ -16,11 +16,7 @@ export function computeAbsolutePrices(
   activeItems: ShoppingListItemDto[],
 ): { min: number; max: number } {
   const allPrices = chainsStockingEveryItem(allChains, activeItems).flatMap(
-    (chain) => [
-      parseFloat(chain.min_price),
-      parseFloat(chain.avg_price),
-      parseFloat(chain.max_price),
-    ],
+    (chain) => [chain.min_price, chain.avg_price, chain.max_price],
   );
 
   if (allPrices.length === 0) return { min: 0, max: 0 };

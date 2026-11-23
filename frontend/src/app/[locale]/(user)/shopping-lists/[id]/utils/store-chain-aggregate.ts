@@ -29,18 +29,18 @@ export function buildChainAggregates(
       if (!existing) {
         chainMap.set(chain.chain, {
           chain: chain.chain,
-          totalMin: parseFloat(chain.min_price) * quantity,
-          totalAvg: parseFloat(chain.avg_price) * quantity,
-          totalMax: parseFloat(chain.max_price) * quantity,
+          totalMin: chain.min_price * quantity,
+          totalAvg: chain.avg_price * quantity,
+          totalMax: chain.max_price * quantity,
           itemCount: 1,
           oldestPriceDate: chain.price_date,
         });
         return;
       }
 
-      existing.totalMin += parseFloat(chain.min_price) * quantity;
-      existing.totalAvg += parseFloat(chain.avg_price) * quantity;
-      existing.totalMax += parseFloat(chain.max_price) * quantity;
+      existing.totalMin += chain.min_price * quantity;
+      existing.totalAvg += chain.avg_price * quantity;
+      existing.totalMax += chain.max_price * quantity;
       existing.itemCount += 1;
       existing.oldestPriceDate =
         chain.price_date < existing.oldestPriceDate
@@ -57,9 +57,9 @@ export function buildChainAggregates(
     category: null,
     unit: null,
     quantity: null,
-    min_price: totals.totalMin.toFixed(2),
-    avg_price: totals.totalAvg.toFixed(2),
-    max_price: totals.totalMax.toFixed(2),
+    min_price: Number(totals.totalMin.toFixed(2)),
+    avg_price: Number(totals.totalAvg.toFixed(2)),
+    max_price: Number(totals.totalMax.toFixed(2)),
     price_date: totals.oldestPriceDate as `${number}-${number}-${number}`,
     itemCount: totals.itemCount,
   }));

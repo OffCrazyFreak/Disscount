@@ -29,7 +29,7 @@ export function buildChartData(
 
       const prices = (product?.chains ?? [])
         .filter((chain) => selectedChains.includes(chain.chain))
-        .map((chain) => parseFloat(chain.avg_price))
+        .map((chain) => chain.avg_price)
         .filter((price) => Number.isFinite(price));
 
       if (prices.length === 0) return;

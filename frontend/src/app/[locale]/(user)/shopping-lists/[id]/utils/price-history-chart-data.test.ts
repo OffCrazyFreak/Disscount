@@ -8,7 +8,7 @@ import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
 
 describe("buildChartData", () => {
   it("keeps raw dates in chronological order, which the chart formats per locale", () => {
-    const product = (avgPrice: string) => ({
+    const product = (avgPrice: number) => ({
       ean: "1",
       brand: null,
       name: "Mlijeko",
@@ -33,7 +33,7 @@ describe("buildChartData", () => {
 
     expect(
       buildChartData(
-        { "1": [product("1.30"), product("1.20")] },
+        { "1": [product(1.3), product(1.2)] },
         ["1"],
         ["2026-11-04", "2026-11-03"],
         ["konzum"],

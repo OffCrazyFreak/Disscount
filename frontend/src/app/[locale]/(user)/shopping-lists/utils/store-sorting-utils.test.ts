@@ -10,16 +10,16 @@ import { chain as priceChain } from "@/test/price-fixtures";
 
 type Chain = ChainProductResponse & { itemCount: number };
 
-function chain(name: string, itemCount: number, avgPrice: string): Chain {
+function chain(name: string, itemCount: number, avgPrice: number): Chain {
   return { ...priceChain(name, avgPrice), itemCount };
 }
 
 const chains = [
-  chain("spar", 3, "2.00"),
-  chain("lidl", 5, "3.00"),
-  chain("konzum", 5, "1.50"),
-  chain("dm", 2, "1.00"),
-  chain("Čakovec", 3, "2.00"),
+  chain("spar", 3, 2),
+  chain("lidl", 5, 3),
+  chain("konzum", 5, 1.5),
+  chain("dm", 2, 1),
+  chain("Čakovec", 3, 2),
 ];
 
 const cheapest = new Map([

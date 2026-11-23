@@ -8,16 +8,6 @@ const minPriceCache = new WeakMap<ProductResponse, number | null>();
 const maxPriceCache = new WeakMap<ProductResponse, number | null>();
 const avgPriceCache = new WeakMap<ProductResponse, number | null>();
 
-export function parsePrice(value: string): number | null {
-  const parsed = Number.parseFloat(value);
-
-  if (!Number.isFinite(parsed)) {
-    return null;
-  }
-
-  return parsed;
-}
-
 /** `price_date` is a Croatian calendar date, whatever zone the device runs in. */
 export function isPriceDateToday(priceDate: string): boolean {
   return priceDate === zagrebClock(new Date()).date;
@@ -29,7 +19,7 @@ export function getMinPrice(product: ProductResponse): number | null {
   }
 
   const prices = product.chains
-    .map((chain) => parsePrice(chain.min_price))
+    .map((chain) => chain.min_price)
     .filter((price): price is number => price !== null);
   const min = prices.length > 0 ? Math.min(...prices) : null;
 
@@ -43,7 +33,7 @@ export function getMaxPrice(product: ProductResponse): number | null {
   }
 
   const prices = product.chains
-    .map((chain) => parsePrice(chain.max_price))
+    .map((chain) => chain.max_price)
     .filter((price): price is number => price !== null);
   const max = prices.length > 0 ? Math.max(...prices) : null;
 
@@ -57,7 +47,7 @@ export function getAveragePrice(product: ProductResponse): number | null {
   }
 
   const prices = product.chains
-    .map((chain) => parsePrice(chain.avg_price))
+    .map((chain) => chain.avg_price)
     .filter((price): price is number => price !== null);
   const avg =
     prices.length > 0
@@ -72,7 +62,7 @@ export function getChainAvgPriceRange(
   product: ProductResponse | undefined,
 ): { min: number; max: number } | null {
   const prices = (product?.chains ?? [])
-    .map((chain) => parsePrice(chain.avg_price))
+    .map((chain) => chain.avg_price)
     .filter((price): price is number => price !== null);
 
   if (prices.length === 0) return null;
@@ -87,7 +77,7 @@ export function getCheapestChainByMinPrice(
     [];
 
   for (const chain of chains) {
-    const price = parsePrice(chain.min_price);
+    const price = chain.min_price;
 
     if (price !== null) {
       pricedChains.push({ chain, price });

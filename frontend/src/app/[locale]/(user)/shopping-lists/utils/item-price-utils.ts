@@ -9,7 +9,7 @@ export function getStorePricesFromProduct(
   const storePrices: Record<string, number> = {};
 
   for (const chain of productData.chains ?? []) {
-    storePrices[chain.chain] = parseFloat(chain.avg_price);
+    storePrices[chain.chain] = chain.avg_price;
   }
 
   return storePrices;
@@ -20,7 +20,7 @@ function pickCheapestChain(chains: ProductResponse["chains"]): string | null {
   let cheapestPrice = Infinity;
 
   for (const chainProduct of chains) {
-    const price = parseFloat(chainProduct.avg_price);
+    const price = chainProduct.avg_price;
 
     if (price < cheapestPrice) {
       cheapestPrice = price;

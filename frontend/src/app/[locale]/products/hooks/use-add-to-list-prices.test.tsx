@@ -11,7 +11,7 @@ import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
-import { chain } from "@/test/price-fixtures";
+import { chain, wireProduct } from "@/test/price-fixtures";
 
 const sugar: ProductResponse = {
   ean: "3850104004421",
@@ -19,7 +19,7 @@ const sugar: ProductResponse = {
   name: "Šećer 1 kg",
   quantity: "1",
   unit: "kg",
-  chains: [chain("konzum", "1.40"), chain("spar", "1.20")],
+  chains: [chain("konzum", 1.4), chain("spar", 1.2)],
 };
 
 function countProductRequests() {
@@ -28,7 +28,7 @@ function countProductRequests() {
   server.use(
     http.get(`*/api/cijene/products/${sugar.ean}`, () => {
       counter.requests += 1;
-      return HttpResponse.json(sugar);
+      return HttpResponse.json(wireProduct(sugar));
     }),
   );
 

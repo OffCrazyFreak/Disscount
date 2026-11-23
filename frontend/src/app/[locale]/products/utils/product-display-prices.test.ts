@@ -10,7 +10,7 @@ const product: ProductResponse = {
   name: null,
   quantity: "2",
   unit: "l",
-  chains: [chain("konzum", "1.00", "3.00")],
+  chains: [chain("konzum", 1, 3)],
 };
 
 describe("getDisplayPrices", () => {

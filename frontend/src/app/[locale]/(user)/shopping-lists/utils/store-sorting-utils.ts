@@ -25,7 +25,7 @@ export function isStoreOptimizeMode(
 type RankedChain = ChainProductResponse & { itemCount: number };
 
 function avgPrice(chain: RankedChain): number {
-  return parseFloat(chain.avg_price);
+  return chain.avg_price;
 }
 
 // A few hundred metres rarely decide a trip, so stores in one band compete on list coverage.
@@ -100,7 +100,7 @@ function getItemSavingPercentAtChain(
   const chainData = product?.chains?.find((c) => c.chain === chainCode);
   if (!chainData) return -Infinity;
 
-  const price = parseFloat(chainData.avg_price);
+  const price = chainData.avg_price;
   const maxPrice = getChainAvgPriceRange(product)?.max ?? 0;
 
   if (!maxPrice || isNaN(price)) return 0;
