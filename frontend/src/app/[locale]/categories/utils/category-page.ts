@@ -64,13 +64,13 @@ export const PAGE_WINDOW = { compact: 1, wide: 2 } as const;
 export function paginationPages(
   page: number,
   totalPages: number,
-  window: number = PAGE_WINDOW.wide,
+  pageWindow: number = PAGE_WINDOW.wide,
 ): (number | "gap")[] {
   const pages: (number | "gap")[] = [];
 
   for (let candidate = 1; candidate <= totalPages; candidate++) {
     const isEdge = candidate === 1 || candidate === totalPages;
-    const isNear = Math.abs(candidate - page) <= window;
+    const isNear = Math.abs(candidate - page) <= pageWindow;
 
     if (isEdge || isNear) {
       pages.push(candidate);

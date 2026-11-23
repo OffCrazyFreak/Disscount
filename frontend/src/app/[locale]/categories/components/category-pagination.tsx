@@ -33,7 +33,7 @@ export default async function CategoryPagination({
   );
 
   function pageNumbers(isCompact: boolean) {
-    const window = isCompact ? PAGE_WINDOW.compact : PAGE_WINDOW.wide;
+    const pageWindow = isCompact ? PAGE_WINDOW.compact : PAGE_WINDOW.wide;
 
     return (
       <ol
@@ -42,7 +42,7 @@ export default async function CategoryPagination({
           isCompact ? "flex sm:hidden" : "hidden sm:flex sm:flex-wrap",
         )}
       >
-        {paginationPages(page, totalPages, window).map((item, index) =>
+        {paginationPages(page, totalPages, pageWindow).map((item, index) =>
           item === "gap" ? (
             <li
               key={`gap-${index}`}

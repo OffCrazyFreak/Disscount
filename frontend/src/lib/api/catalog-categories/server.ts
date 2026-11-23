@@ -29,6 +29,8 @@ interface ICatalogFetchOptions {
   timeoutMs?: number;
   /** Next keys its fetch cache on headers but not on revalidate, so a second lifetime needs its own key. */
   cacheVariant?: string;
+  /** Overrides timeoutMs, so several requests can share one deadline. */
+  signal?: AbortSignal;
 }
 
 function catalogFetch(
@@ -37,11 +39,12 @@ function catalogFetch(
     revalidate = CATALOG_REVALIDATE_SECONDS,
     timeoutMs = CATALOG_TIMEOUT_MS,
     cacheVariant,
+    signal = AbortSignal.timeout(timeoutMs),
   }: ICatalogFetchOptions = {},
 ): Promise<Response> {
   return fetch(`${BACKEND_ORIGIN}${path}`, {
     next: { revalidate },
-    signal: AbortSignal.timeout(timeoutMs),
+    signal,
     ...(cacheVariant && { headers: { "X-Cache-Variant": cacheVariant } }),
   });
 }
@@ -56,12 +59,16 @@ async function catalogFetchUnlessEmpty<T>(
   read: (response: Response) => Promise<T>,
   isEmpty: (data: T) => boolean,
 ): Promise<T> {
-  const data = await read(await catalogFetch(path, options));
+  // One deadline for both requests, so a recheck never doubles the caller's time budget.
+  const signal = AbortSignal.timeout(options.timeoutMs ?? CATALOG_TIMEOUT_MS);
+
+  const data = await read(await catalogFetch(path, { ...options, signal }));
   if (!isEmpty(data)) return data;
 
   return read(
     await catalogFetch(path, {
       ...options,
+      signal,
       revalidate: EMPTY_CATALOG_REVALIDATE_SECONDS,
       cacheVariant: "empty-recheck",
     }),

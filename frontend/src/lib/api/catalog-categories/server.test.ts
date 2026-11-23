@@ -78,6 +78,9 @@ describe("getCategoryProducts", () => {
       { revalidate: 3600 },
       { revalidate: 120 },
     ]);
+    // One deadline covers both, so the recheck never doubles the caller's budget.
+    const [[, first], [, second]] = fetchSpy.mock.calls;
+    expect(second?.signal).toBe(first?.signal);
   });
 
   it("trusts a filled listing without asking again", async () => {
