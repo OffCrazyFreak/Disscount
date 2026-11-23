@@ -17,4 +17,4 @@ export {
   type PriceExtreme,
 } from "@/utils/price-comparison";
 
-export { getMostFrequentCategory } from "@/app/[locale]/products/utils/product-category-utils";
+export { getMostFrequentCategory } from "@/utils/product-category-utils";

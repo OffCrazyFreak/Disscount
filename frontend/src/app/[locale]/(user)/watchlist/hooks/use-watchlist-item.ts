@@ -8,7 +8,7 @@ import {
   isWatchThresholdReached,
   IWatchlistItemWithProduct,
 } from "@/app/[locale]/(user)/watchlist/utils/watchlist-utils";
-import { getMostFrequentCategory } from "@/app/[locale]/products/utils/product-utils";
+import { getMostFrequentCategory } from "@/utils/product-category-utils";
 import { toStoreLines } from "@/app/[locale]/(user)/watchlist/utils/discount-display-utils";
 import useWatchlistRemoval from "@/app/[locale]/(user)/watchlist/hooks/use-watchlist-removal";
 import { useUser } from "@/context/user-context";
