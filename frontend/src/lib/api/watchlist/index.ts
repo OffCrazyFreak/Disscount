@@ -4,12 +4,12 @@ import {
   useGetWatchlistItemsByProductApiId,
   useRemoveFromWatchlist,
 } from "@/lib/api/watchlist/hooks";
-import { removeFromWatchlist } from "@/lib/api/watchlist/queries";
-
-export {
+import {
   addToWatchlist,
   removeFromWatchlist,
 } from "@/lib/api/watchlist/queries";
+
+export { addToWatchlist, removeFromWatchlist };
 
 const watchlistService = {
   removeFromWatchlist,

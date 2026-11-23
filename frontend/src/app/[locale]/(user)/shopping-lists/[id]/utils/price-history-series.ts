@@ -33,7 +33,7 @@ export function getAvailableChains(
 
   Object.values(priceHistoriesByEan).forEach((products) => {
     products.forEach((product) => {
-      product?.chains?.forEach((chain) => chainSet.add(chain.chain));
+      product?.chains.forEach((chain) => chainSet.add(chain.chain));
     });
   });
 

@@ -97,7 +97,7 @@ function getItemSavingPercentAtChain(
   chainCode: string,
 ): number {
   const product = productsData.find((p) => p?.ean === item.ean);
-  const chainData = product?.chains?.find((c) => c.chain === chainCode);
+  const chainData = product?.chains.find((c) => c.chain === chainCode);
   if (!chainData) return -Infinity;
 
   const price = chainData.avg_price;

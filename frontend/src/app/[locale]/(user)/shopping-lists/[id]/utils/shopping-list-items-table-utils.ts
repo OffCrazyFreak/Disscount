@@ -24,7 +24,7 @@ export function getChainItemPriceInfo(
 ): IChainItemPriceInfo {
   const product = productsData.find((p) => p?.ean === item.ean);
 
-  const chainData = product?.chains?.find(
+  const chainData = product?.chains.find(
     (candidate) => candidate.chain === chain.chain,
   );
 
