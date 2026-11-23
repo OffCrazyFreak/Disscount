@@ -17,7 +17,7 @@ export function useElementSize(element: HTMLElement | null): IElementSize {
     const observer = new ResizeObserver(() =>
       setSize({ width: element.offsetWidth, height: element.offsetHeight }),
     );
-    observer.observe(element);
+    observer.observe(element, { box: "border-box" });
 
     return () => observer.disconnect();
   }, [element]);
