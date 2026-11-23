@@ -4,6 +4,7 @@ import { userService, preferencesService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 import type { UserDto } from "@/lib/api/types";
 import type { ISaveJobRunners } from "@/components/custom/settings/settings-save-jobs";
+import { getCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import { toPinnedPlaces } from "@/utils/geo/place-options";
 
 function withoutImage(user: UserDto): Partial<UserDto> {
@@ -26,25 +27,33 @@ export function useSettingsSaveRunners() {
     // Merged without pins or image: the stores and avatar jobs race this one and own those fields.
     saveUser: async (patch) =>
       mergeUser(withoutImage(await userMutation.mutateAsync(patch))),
-    uploadAvatar: async (avatar) =>
-      mergeUser({
-        image: (await uploadAvatarMutation.mutateAsync(avatar)).image,
-      }),
-    removeAvatar: async () =>
-      mergeUser({ image: (await removeAvatarMutation.mutateAsync()).image }),
-    saveStores: async (chainCodes) =>
-      updatePinnedStores(
-        await storesMutation.mutateAsync({
-          stores: chainCodes.map((code) => ({
-            storeApiId: code,
-            storeName: code,
-          })),
-        }),
-      ),
-    savePlaces: async (placeKeys) =>
-      updatePinnedPlaces(
-        await placesMutation.mutateAsync({ places: toPinnedPlaces(placeKeys) }),
-      ),
+    // The id lets mergeUser drop an answer that lands after another account took over.
+    uploadAvatar: async (avatar) => {
+      const { id, image } = await uploadAvatarMutation.mutateAsync(avatar);
+      mergeUser({ id, image });
+    },
+    removeAvatar: async () => {
+      const { id, image } = await removeAvatarMutation.mutateAsync();
+      mergeUser({ id, image });
+    },
+    // Captured before the request, because an empty answer names no account.
+    saveStores: async (chainCodes) => {
+      const savedFor = getCacheIdentity();
+      const stores = await storesMutation.mutateAsync({
+        stores: chainCodes.map((code) => ({
+          storeApiId: code,
+          storeName: code,
+        })),
+      });
+      updatePinnedStores(stores, savedFor);
+    },
+    savePlaces: async (placeKeys) => {
+      const savedFor = getCacheIdentity();
+      const places = await placesMutation.mutateAsync({
+        places: toPinnedPlaces(placeKeys),
+      });
+      updatePinnedPlaces(places, savedFor);
+    },
   };
 
   return {

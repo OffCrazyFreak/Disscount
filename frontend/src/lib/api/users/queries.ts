@@ -8,8 +8,10 @@ import {
 
 const USERS_BASE_PATH = "/api/users";
 
-export async function getCurrentUser(): Promise<UserDto> {
-  const response = await apiClient.get<unknown>(`${USERS_BASE_PATH}/me`);
+export async function getCurrentUser(signal?: AbortSignal): Promise<UserDto> {
+  const response = await apiClient.get<unknown>(`${USERS_BASE_PATH}/me`, {
+    signal,
+  });
   return userDtoSchema.parse(response.data);
 }
 

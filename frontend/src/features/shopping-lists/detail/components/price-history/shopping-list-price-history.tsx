@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -16,7 +17,16 @@ import {
   setShoppingListPriceHistoryPeriod,
 } from "@/utils/browser/local-storage";
 import { useShoppingListPriceHistory } from "@/features/shopping-lists/detail/hooks/use-shopping-list-price-history";
-import ShoppingListPriceHistoryChart from "@/features/shopping-lists/detail/components/price-history/shopping-list-price-history-chart";
+
+function loadShoppingListPriceHistoryChart() {
+  return import("@/features/shopping-lists/detail/components/price-history/shopping-list-price-history-chart");
+}
+
+// Lazy so recharts stays out of the first load; the placeholder has the chart's aspect-video size.
+const ShoppingListPriceHistoryChart = dynamic(
+  loadShoppingListPriceHistoryChart,
+  { ssr: false, loading: () => <div className="aspect-video" /> },
+);
 
 interface IShoppingListPriceHistoryProps {
   shoppingList: ShoppingListDto;
@@ -26,6 +36,12 @@ export default function ShoppingListPriceHistory({
   shoppingList,
 }: IShoppingListPriceHistoryProps) {
   const t = useTranslations("shoppingListDetail");
+
+  // Fetch the chart code while the history is still loading, not after it.
+  useEffect(() => {
+    // A failed preload is reported when the chart itself renders.
+    loadShoppingListPriceHistoryChart().catch(() => {});
+  }, []);
 
   const [period, setPeriod] = useState<PeriodOption>(() =>
     getEnabledPeriod(getShoppingListPriceHistoryPeriod(shoppingList.id)),

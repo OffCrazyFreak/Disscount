@@ -1,11 +1,10 @@
-import { Dispatch, RefObject, SetStateAction } from "react";
+import { RefObject } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Sentry from "@sentry/nextjs";
 
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { isProtectedRoute } from "@/constants/auth/protected-routes";
 import { signOutOrDefer } from "@/lib/auth/account/pending-sign-out";
-import type { UserDto } from "@/lib/api/types";
 import {
   getCacheIdentity,
   setCacheIdentity,
@@ -15,7 +14,7 @@ import { removeFormDraftsFor } from "@/utils/browser/storage/drafts";
 
 export function useLogout(
   cacheIdentityRef: RefObject<string | null>,
-  setUser: Dispatch<SetStateAction<UserDto | null>>,
+  forgetAccount: () => void,
 ) {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -27,7 +26,7 @@ export function useLogout(
     await signOutOrDefer();
 
     Sentry.setUser(null);
-    setUser(null);
+    forgetAccount();
     await purgeOfflineCache(queryClient, leavingIdentity);
     // Cleared with the data, or the device reads as unverified offline and shows empty pages.
     setCacheIdentity(null);
