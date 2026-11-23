@@ -4,8 +4,8 @@ import { withSharePreview } from "@/utils/share-metadata";
 import { headers } from "next/headers";
 import { getLocale, getTranslations } from "next-intl/server";
 
-import MapClient from "@/app/[locale]/map/components/shell/map-client";
-import { readIpLocation } from "@/app/[locale]/map/utils/location/ip-location";
+import MapClient from "@/features/map/components/map-client";
+import { readIpLocation } from "@/features/map/utils/view/ip-location";
 import { pageAlternates } from "@/i18n/alternates";
 
 // Reads the visitor's location headers on every request.

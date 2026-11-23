@@ -1,4 +1,4 @@
-import { isVisitableStore } from "@/app/[locale]/map/utils/visitable-store";
+import { isVisitableStore } from "@/features/map/utils/stores/visitable-store";
 import type { DirectoryStoreDto } from "@/lib/api/schemas";
 import type { ChainStats } from "@/lib/cijene-api/schemas";
 import { getLocationLabel } from "@/utils/labels";
