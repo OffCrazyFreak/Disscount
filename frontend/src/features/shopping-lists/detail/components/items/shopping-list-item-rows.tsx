@@ -2,7 +2,7 @@
 
 import type { RefObject } from "react";
 
-import ShoppingListItem from "@/features/shopping-lists/detail/components/items/shopping-list-item";
+import ShoppingListItem from "@/features/shopping-lists/detail/components/items/item/shopping-list-item";
 import type { IShoppingListItemUpdate } from "@/features/shopping-lists/detail/typings/shopping-list-item-types";
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import type { ItemPriceState } from "@/features/shopping-lists/detail/utils/item-price-state";

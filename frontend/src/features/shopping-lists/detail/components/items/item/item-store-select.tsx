@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import StoreChainSelect from "@/components/custom/store-chain/store-chain-select";
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import { getChainLabel } from "@/utils/format/labels";
-import UnavailableStoreSelect from "@/features/shopping-lists/detail/components/items/unavailable-store-select";
+import UnavailableStoreSelect from "@/features/shopping-lists/detail/components/items/item/unavailable-store-select";
 import {
   PRICE_STATUS_BANNER_ID,
   UNAVAILABLE_PRICE_KEYS,
