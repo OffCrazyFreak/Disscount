@@ -3,7 +3,7 @@
 import { ReactNode } from "react";
 import { type LucideIcon } from "lucide-react";
 
-import ModalFooterActions from "@/components/custom/modal/modal-footer-actions";
+import ModalFooterActions from "@/components/custom/modal/footer/modal-footer-actions";
 
 export interface IModalShellFooterProps {
   cancelLabel?: string;

@@ -3,9 +3,9 @@
 import { Save, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import ModalFooterResetButton from "@/components/custom/modal/modal-footer-reset-button";
-import ModalFooterSubmitButton from "@/components/custom/modal/modal-footer-submit-button";
-import type { IModalShellFooterProps } from "@/components/custom/modal/modal-shell-footer";
+import ModalFooterResetButton from "@/components/custom/modal/footer/modal-footer-reset-button";
+import ModalFooterSubmitButton from "@/components/custom/modal/footer/modal-footer-submit-button";
+import type { IModalShellFooterProps } from "@/components/custom/modal/footer/modal-shell-footer";
 
 type IModalFooterActionsProps = Omit<IModalShellFooterProps, "caption">;
 

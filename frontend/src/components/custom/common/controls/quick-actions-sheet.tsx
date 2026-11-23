@@ -2,8 +2,8 @@
 
 import type { ReactNode } from "react";
 
-import SheetShell from "@/components/custom/modal/sheet-shell";
-import SheetDivider from "@/components/custom/modal/sheet-divider";
+import SheetShell from "@/components/custom/modal/sheet/sheet-shell";
+import SheetDivider from "@/components/custom/modal/sheet/sheet-divider";
 
 interface IQuickActionsSheetProps {
   open: boolean;

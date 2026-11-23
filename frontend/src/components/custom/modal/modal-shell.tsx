@@ -7,7 +7,7 @@ import {
   ModalShellFooter,
   hasFooterContent,
   IModalShellFooterProps,
-} from "@/components/custom/modal/modal-shell-footer";
+} from "@/components/custom/modal/footer/modal-shell-footer";
 import { handleModalEnterSubmit } from "@/components/custom/modal/modal-enter-submit";
 import { useModalFocusRestore } from "@/components/custom/modal/use-modal-focus-restore";
 import ModalShellHeader, {

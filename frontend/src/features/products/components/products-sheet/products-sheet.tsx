@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import ProductSearchBar from "@/components/custom/search/product-search-bar";
 import SearchNavButton from "@/components/custom/search/search-nav-button";
 import ProductsSheetSubmit from "@/features/products/components/products-sheet/products-sheet-submit";
-import SheetShell from "@/components/custom/modal/sheet-shell";
+import SheetShell from "@/components/custom/modal/sheet/sheet-shell";
 import ProductSearchFilters from "@/features/products/components/product-search-filters";
 import { useProductsSheet } from "@/context/products-sheet-context";
 import { useIsMobile } from "@/hooks/use-mobile";

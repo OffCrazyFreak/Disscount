@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { Save } from "lucide-react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import ModalFooterSubmitButton from "@/components/custom/modal/modal-footer-submit-button";
+import ModalFooterSubmitButton from "@/components/custom/modal/footer/modal-footer-submit-button";
 import { renderWithProviders } from "@/test/render";
 
 function renderForm({ incomplete = false, disabled = false } = {}) {

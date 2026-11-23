@@ -3,7 +3,7 @@ import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import SheetShell from "@/components/custom/modal/sheet-shell";
+import SheetShell from "@/components/custom/modal/sheet/sheet-shell";
 import {
   Dialog,
   DialogContent,
