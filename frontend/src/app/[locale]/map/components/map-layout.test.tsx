@@ -27,10 +27,20 @@ vi.mock("@/i18n/navigation", () => ({
   usePathname: () => "/map",
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
 }));
-vi.mock("react-map-gl/maplibre", () => ({
-  Marker: ({ children }: { children: ReactNode }) => <>{children}</>,
-  useMap: () => ({ current: undefined }),
-}));
+// MapLibre appends its popups to the end of the map's container, after the controls.
+const mapDom = vi.hoisted(() => ({ container: null as HTMLElement | null }));
+vi.mock("react-map-gl/maplibre", async () => {
+  const { createPortal } = await import("react-dom");
+
+  return {
+    Popup: ({ children }: { children: ReactNode }) =>
+      mapDom.container &&
+      createPortal(
+        <div className="maplibregl-popup">{children}</div>,
+        mapDom.container,
+      ),
+  };
+});
 // The real panel needs the whole directory; these rows pick stores the way its list does.
 vi.mock("@/app/[locale]/map/components/map-panel", () => ({
   default: ({ model }: { model: IMapViewModel }) => (
@@ -94,7 +104,18 @@ function Harness({ isMapLive = true, initialKey = null }: IHarnessProps) {
           viewArea={null}
           renderMap={(overlay) =>
             // A map that failed or is still loading renders none of its children.
-            isMapLive ? <div>{overlay}</div> : <p>map unavailable</p>
+            isMapLive ? (
+              <div
+                ref={(element) => {
+                  mapDom.container = element;
+                }}
+              >
+                <button type="button">Zoom in</button>
+                {overlay}
+              </div>
+            ) : (
+              <p>map unavailable</p>
+            )
           }
           onCoverChange={vi.fn()}
         />
@@ -203,5 +224,28 @@ describe("MapLayout on desktop", () => {
     const popover = await findPopover();
 
     expect(popover).not.toHaveFocus();
+  });
+
+  it("lets Tab leave the store card in page order instead of looping inside it", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<Harness />);
+
+    await openSearch(user);
+    await user.click(screen.getByRole("button", { name: "Ilica 1" }));
+    const card = await findPopover();
+    await waitFor(() => expect(card).toHaveFocus());
+
+    // Through the card's own controls, then out of it.
+    for (
+      let step = 0;
+      step < 20 && card.contains(document.activeElement);
+      step++
+    ) {
+      await user.tab();
+    }
+
+    expect(
+      screen.getByRole("button", { name: "Trgovine blizu mene" }),
+    ).toHaveFocus();
   });
 });

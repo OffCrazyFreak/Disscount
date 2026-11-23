@@ -1,17 +1,12 @@
 "use client";
 
 import { RefObject, useEffect, useRef, useState } from "react";
-import { Marker, useMap } from "react-map-gl/maplibre";
+import { Popup } from "react-map-gl/maplibre";
 
-import {
-  Popover,
-  PopoverAnchor,
-  PopoverContent,
-} from "@/components/ui/popover";
 import MapStoreCard from "@/app/[locale]/map/components/map-store-card";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 
-// Longer than the camera's ease to a store picked from the list.
+// Long enough for the popup to join the map after the camera starts moving.
 const FOCUS_WAIT_MS = 2000;
 
 export interface IFocusRequest {
@@ -23,7 +18,7 @@ export interface IFocusRequest {
 interface IMapStorePopoverProps {
   /** A store with a pin; the layout keeps the others in the list. */
   row: IListedStore | null;
-  /** The store the user last picked, which takes focus once its popover shows. */
+  /** The store the user last picked, which takes focus once its card shows. */
   focusRequest: IFocusRequest | null;
   onClose: () => void;
   /** A map control, the same one the phone sheet hands focus to. */
@@ -42,111 +37,107 @@ function isFocusFree() {
   );
 }
 
-// The popover is hidden while its pin is out of view, so it keeps trying until the camera arrives.
-function focusWhenShown(content: HTMLElement) {
+function isShown(card: HTMLElement) {
+  return card.isConnected && getComputedStyle(card).visibility !== "hidden";
+}
+
+/** Tries each frame until the card is on the page and focused; stop() cancels, onDone() reports a settled request. */
+function focusWhenShown(card: HTMLElement, onDone: () => void) {
   const deadline = performance.now() + FOCUS_WAIT_MS;
   let frame = 0;
 
-  function stop() {
+  function detach() {
     cancelAnimationFrame(frame);
-    document.removeEventListener("pointerdown", stop, true);
-    document.removeEventListener("keydown", stop, true);
+    document.removeEventListener("pointerdown", settle, true);
+    document.removeEventListener("keydown", settle, true);
+  }
+
+  function settle() {
+    detach();
+    onDone();
   }
 
   function attempt() {
-    content.focus({ preventScroll: true });
+    if (isShown(card)) card.focus({ preventScroll: true });
 
     const isDone =
-      document.activeElement === content ||
+      document.activeElement === card ||
       performance.now() > deadline ||
-      !isFocusFree();
-    if (isDone) stop();
+      (isShown(card) && !isFocusFree());
+    if (isDone) settle();
     else frame = requestAnimationFrame(attempt);
   }
 
   // Any input means the user moved on, and focus is theirs.
-  document.addEventListener("pointerdown", stop, true);
-  document.addEventListener("keydown", stop, true);
+  document.addEventListener("pointerdown", settle, true);
+  document.addEventListener("keydown", settle, true);
   attempt();
 
-  return stop;
+  return detach;
 }
 
-function headerBottom() {
-  const value = getComputedStyle(document.documentElement).getPropertyValue(
-    "--header-bottom",
-  );
-  return Number.parseFloat(value) || 0;
-}
-
-/** The desktop's selected store, anchored to its pin: Escape or the X deselects it. */
+/** The desktop's selected store in MapLibre's own popup at its pin; it traps nothing, so Tab moves on in page order. */
 export default function MapStorePopover({
   row,
   focusRequest,
   onClose,
   returnFocusRef,
 }: IMapStorePopoverProps) {
-  const { current: map } = useMap();
-  const [content, setContent] = useState<HTMLDivElement | null>(null);
+  const [card, setCard] = useState<HTMLDivElement | null>(null);
   const handledRequest = useRef<number | null>(null);
 
   const rowKey = row?.key ?? null;
 
   // A deep link, or the search closing over a store already shown, keeps focus where it is.
   useEffect(() => {
-    if (!content || !focusRequest || focusRequest.key !== rowKey) return;
+    if (!card || !focusRequest || focusRequest.key !== rowKey) return;
     if (handledRequest.current === focusRequest.id) return;
 
-    handledRequest.current = focusRequest.id;
-    return focusWhenShown(content);
-  }, [content, focusRequest, rowKey]);
+    // Marked only once settled, so StrictMode's second run starts over instead of finding it done.
+    return focusWhenShown(card, () => {
+      handledRequest.current = focusRequest.id;
+    });
+  }, [card, focusRequest, rowKey]);
 
   if (!row || row.store.lat == null || row.store.lon == null) return null;
 
-  // Hands focus back only while the popover holds it, so a click elsewhere keeps its own focus.
+  // Hands focus back only while the card holds it, so a click elsewhere keeps its own focus.
   function close() {
-    if (content?.contains(document.activeElement)) {
+    if (card?.contains(document.activeElement)) {
       returnFocusRef.current?.focus();
     }
     onClose();
   }
 
   return (
-    <Popover open onOpenChange={(open) => !open && close()}>
-      <Marker longitude={row.store.lon} latitude={row.store.lat}>
-        <PopoverAnchor asChild>
-          <span className="block size-0" />
-        </PopoverAnchor>
-      </Marker>
-
-      <PopoverContent
-        ref={setContent}
-        // Inside the map, so Tab moves on to the map's controls and the header stays above it.
-        container={map?.getContainer()}
-        side="right"
-        sideOffset={28}
-        // The pin moves with every pan and zoom, which no resize or scroll event reports.
-        updatePositionStrategy="always"
-        collisionBoundary={map?.getContainer()}
-        collisionPadding={{
-          top: headerBottom() + 12,
-          right: 12,
-          bottom: 12,
-          left: 12,
-        }}
-        hideWhenDetached
+    <Popup
+      longitude={row.store.lon}
+      latitude={row.store.lat}
+      offset={28}
+      maxWidth="none"
+      closeButton={false}
+      // The map stays in use: panning or tapping elsewhere must not close it.
+      closeOnClick={false}
+      closeOnMove={false}
+      focusAfterOpen={false}
+      className="[&_.maplibregl-popup-content]:rounded-md [&_.maplibregl-popup-content]:border [&_.maplibregl-popup-content]:p-1 [&_.maplibregl-popup-content]:shadow-md"
+    >
+      <div
+        ref={setCard}
+        role="dialog"
         aria-label={row.chainLabel}
         tabIndex={-1}
-        // Focus goes to the popover itself, and only for a pick (see above), so a reader starts at the store's name.
-        onOpenAutoFocus={(event) => event.preventDefault()}
-        onCloseAutoFocus={(event) => event.preventDefault()}
-        // The map stays in use: panning or tapping another store must not close it.
-        onInteractOutside={(event) => event.preventDefault()}
+        onKeyDown={(event) => {
+          if (event.key !== "Escape") return;
+
+          event.stopPropagation();
+          close();
+        }}
         // The map container sets its own font, which the page's must win over.
-        className="flex max-h-(--radix-popover-content-available-height) w-[24rem] flex-col overflow-y-auto p-1 font-sans text-base leading-normal"
+        className="flex max-h-[min(30rem,calc(100svh-var(--header-bottom)-3rem))] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-y-auto font-sans text-base leading-normal text-popover-foreground outline-hidden"
       >
         <MapStoreCard row={row} onClose={close} />
-      </PopoverContent>
-    </Popover>
+      </div>
+    </Popup>
   );
 }
