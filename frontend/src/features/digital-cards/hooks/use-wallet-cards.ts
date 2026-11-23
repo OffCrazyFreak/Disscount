@@ -2,7 +2,7 @@ import { useIsRestoring } from "@tanstack/react-query";
 
 import { useUser } from "@/context/user-context";
 import { digitalCardService } from "@/lib/api";
-import { useIsNotSavedOffline } from "@/hooks/use-is-not-saved-offline";
+import { useIsNotSavedOffline } from "@/hooks/runtime/use-is-not-saved-offline";
 
 export function useWalletCards() {
   const {

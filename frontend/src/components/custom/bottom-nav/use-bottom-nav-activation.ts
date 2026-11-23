@@ -2,7 +2,7 @@
 
 import { useRouter } from "@/i18n/navigation";
 import { useProductsSheet } from "@/context/products-sheet-context";
-import useTabReentry from "@/hooks/use-tab-reentry";
+import useTabReentry from "@/hooks/state/use-tab-reentry";
 import type { IBottomNavCell } from "@/components/custom/bottom-nav/use-bottom-nav-cells";
 
 /** Whether a cell navigates or toggles the sheet is a property of the cell, never derived from the route it matches. */

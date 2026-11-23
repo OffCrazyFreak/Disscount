@@ -9,7 +9,7 @@ import type { LinkAccess } from "@/lib/api/types";
 import { shareOrCopy } from "@/utils/browser/share";
 import { useListShareText } from "@/features/shopping-lists/hooks/use-list-share-text";
 import { shareListUrl } from "@/features/shopping-lists/utils/shopping-list-links";
-import { useOnlineStatus } from "@/hooks/use-online-status";
+import { useOnlineStatus } from "@/hooks/runtime/use-online-status";
 
 /** Saves on change because there is nothing to confirm: the URL exists either way. */
 export function useShareListModal(id: string) {

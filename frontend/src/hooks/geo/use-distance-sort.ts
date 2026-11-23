@@ -12,11 +12,11 @@ import {
 import {
   useGeolocation,
   type GeolocationStatus,
-} from "@/hooks/use-geolocation";
+} from "@/hooks/geo/use-geolocation";
 import {
   useDistanceOrigin,
   type IDistanceOrigin,
-} from "@/hooks/use-distance-origin";
+} from "@/hooks/geo/use-distance-origin";
 
 export type DistanceSortState =
   | "idle"

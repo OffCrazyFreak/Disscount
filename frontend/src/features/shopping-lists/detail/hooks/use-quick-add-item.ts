@@ -9,7 +9,7 @@ import { useGetProductByName } from "@/lib/cijene-api";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import { listWriteFailed } from "@/lib/offline/list-write-failed";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
-import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useDebouncedValue } from "@/hooks/state/use-debounced-value";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 
 // Algolia's autocomplete guide puts the comfortable range at 200 to 300 ms.

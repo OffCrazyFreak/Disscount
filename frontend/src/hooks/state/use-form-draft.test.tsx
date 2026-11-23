@@ -2,7 +2,7 @@ import { act, renderHook } from "@testing-library/react";
 import { useForm } from "react-hook-form";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useFormDraft } from "@/hooks/use-form-draft";
+import { useFormDraft } from "@/hooks/state/use-form-draft";
 import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { getFormDraft, setFormDraft } from "@/utils/browser/local-storage";
 

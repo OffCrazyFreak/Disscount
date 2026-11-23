@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import CardFaceBack from "@/features/digital-cards/components/card-face-back";
 import CardFaceFront from "@/features/digital-cards/components/card-face-front";
 import PinToggleButton from "@/features/digital-cards/components/pin-toggle-button";
-import { useFinePointer } from "@/hooks/use-fine-pointer";
+import { useFinePointer } from "@/hooks/viewport/use-fine-pointer";
 import type { DigitalCardDto } from "@/lib/api/types";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { cn } from "@/lib/utils";

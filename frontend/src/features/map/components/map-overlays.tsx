@@ -8,7 +8,7 @@ import {
 } from "@/features/map/utils/chain-icon";
 import { useSelectedFrame } from "@/features/map/hooks/use-selected-frame";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
-import { GUESS_RADIUS_M } from "@/hooks/use-geolocation";
+import { GUESS_RADIUS_M } from "@/hooks/geo/use-geolocation";
 import { circlePolygon } from "@/features/map/utils/circle";
 import { ILatLon } from "@/utils/distance";
 

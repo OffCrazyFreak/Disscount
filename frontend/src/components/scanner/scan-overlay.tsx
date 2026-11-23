@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
+import { useReducedMotionSafe } from "@/hooks/viewport/use-reduced-motion-safe";
 
 // Replaces the library's own finder, which scanner.css hides.
 const CORNERS = [

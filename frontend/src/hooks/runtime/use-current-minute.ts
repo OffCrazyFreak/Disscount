@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import usePageVisible from "@/hooks/use-page-visible";
+import usePageVisible from "@/hooks/runtime/use-page-visible";
 
 function msToNextMinute(now: number) {
   return 60_000 - (now % 60_000);

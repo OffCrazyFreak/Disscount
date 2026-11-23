@@ -10,7 +10,7 @@ import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import SearchResultsStatus from "@/components/custom/live-status/search-results-status";
 import LoginRequired from "@/components/custom/common/login-required";
 import NotSavedOffline from "@/components/custom/common/not-saved-offline";
-import { useIsNotSavedOffline } from "@/hooks/use-is-not-saved-offline";
+import { useIsNotSavedOffline } from "@/hooks/runtime/use-is-not-saved-offline";
 import SectionTabs from "@/components/custom/common/section-tabs";
 import WatchlistHeader from "@/features/watchlist/components/watchlist-header";
 import WatchlistList from "@/features/watchlist/components/watchlist-list";

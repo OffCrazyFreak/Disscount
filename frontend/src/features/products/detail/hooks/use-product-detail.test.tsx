@@ -43,7 +43,7 @@ vi.mock("@/lib/cijene-api", () => ({
 }));
 
 // Geolocation is a boundary the suite cannot run; the stores order needs no origin.
-vi.mock("@/hooks/use-distance-sort", () => ({
+vi.mock("@/hooks/geo/use-distance-sort", () => ({
   useDistanceSort: () => ({ sortMode: "stores", distanceByChain: undefined }),
 }));
 

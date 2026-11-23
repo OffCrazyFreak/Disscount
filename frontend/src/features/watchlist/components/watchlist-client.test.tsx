@@ -28,7 +28,7 @@ vi.mock("@/features/watchlist/hooks/use-watchlist-data", () => ({
 vi.mock("@/i18n/navigation", () => ({ usePathname: () => "/watchlist" }));
 
 // The rule itself is covered with the page that owns it; here only whether it applies.
-vi.mock("@/hooks/use-is-not-saved-offline", () => ({
+vi.mock("@/hooks/runtime/use-is-not-saved-offline", () => ({
   useIsNotSavedOffline: (hasSavedData: boolean) => !hasSavedData,
 }));
 

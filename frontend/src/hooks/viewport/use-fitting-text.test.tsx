@@ -2,7 +2,7 @@ import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { useRef } from "react";
 
-import { useFittingText } from "@/hooks/use-fitting-text";
+import { useFittingText } from "@/hooks/viewport/use-fitting-text";
 import { stubTextFit, textWidth } from "@/test/stub-text-fit";
 
 const FULL = "Trgovina, grad ili adresa";

@@ -5,9 +5,9 @@ import { motion } from "motion/react";
 import { useFormatter } from "next-intl";
 import ResponsiveLabel from "@/components/custom/common/responsive-label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useHashTab } from "@/hooks/use-hash-tab";
-import { useIsStuck } from "@/hooks/use-is-stuck";
-import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
+import { useHashTab } from "@/hooks/state/use-hash-tab";
+import { useIsStuck } from "@/hooks/viewport/use-is-stuck";
+import { useReducedMotionSafe } from "@/hooks/viewport/use-reduced-motion-safe";
 import { cn } from "@/lib/utils";
 import type { ISectionTab } from "@/typings/section-tabs";
 

@@ -6,7 +6,7 @@ import WatchlistItemDiscountInfo from "@/features/watchlist/components/watchlist
 import WatchlistActionButton from "@/features/watchlist/components/watchlist-action-button";
 import WatchlistThresholdBadges from "@/features/watchlist/components/watchlist-threshold-badges";
 import ProductCard from "@/components/custom/product/product-card";
-import { usePrimeProductNavigation } from "@/hooks/use-product-navigation";
+import { usePrimeProductNavigation } from "@/hooks/state/use-product-navigation";
 
 interface IWatchlistItemProps {
   item: IWatchlistItemWithProduct;

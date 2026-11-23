@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   HEADER_BOTTOM_CHANGE_EVENT,
   useHeaderBottomVariable,
-} from "@/hooks/use-header-bottom-variable";
+} from "@/hooks/viewport/use-header-bottom-variable";
 
 let resize: () => void = () => {};
 

@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/popover";
 import { commandFilter } from "@/utils/search/command-filter";
 import type { IStoreTown } from "@/utils/store-towns";
-import { useTownLabel } from "@/hooks/use-town-label";
+import { useTownLabel } from "@/hooks/geo/use-town-label";
 
 interface ITownPickerProps {
   /** Shown as a small link beside a sort that already starts from a town. */

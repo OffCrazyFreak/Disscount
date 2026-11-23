@@ -1,6 +1,6 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { useUser } from "@/context/user-context";
-import usePageVisible from "@/hooks/use-page-visible";
+import usePageVisible from "@/hooks/runtime/use-page-visible";
 import { usePathname } from "@/i18n/navigation";
 import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import { useWatchedProducts } from "@/lib/watchlist/use-watched-products";

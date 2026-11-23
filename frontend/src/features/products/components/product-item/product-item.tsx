@@ -7,9 +7,9 @@ import { getMostFrequentCategory } from "@/features/products/utils/product-utils
 import ProductCard from "@/components/custom/product/product-card";
 import ProductUnitPriceDetails from "@/features/products/components/product-item/product-price";
 import ProductActionButtons from "@/features/products/components/product-action-buttons";
-import useCardLongPress from "@/hooks/use-card-long-press";
+import useCardLongPress from "@/hooks/gestures/use-card-long-press";
 import useProductModals from "@/features/products/hooks/use-product-modals";
-import { usePrimeProductNavigation } from "@/hooks/use-product-navigation";
+import { usePrimeProductNavigation } from "@/hooks/state/use-product-navigation";
 import type { IProductListPrice } from "@/features/products/typings/product-list-price-types";
 
 interface IProductItemProps {

@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useCurrentMinute } from "@/hooks/use-current-minute";
+import { useCurrentMinute } from "@/hooks/runtime/use-current-minute";
 
 function setVisibility(state: DocumentVisibilityState) {
   Object.defineProperty(document, "visibilityState", {

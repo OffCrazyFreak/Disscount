@@ -25,7 +25,7 @@ import WatchlistTypePicker from "@/features/products/components/forms/watchlist-
 import FormRootError from "@/components/custom/common/form-root-error";
 import WatchlistThresholdInput from "@/features/products/components/forms/watchlist-threshold-input";
 import { useWatchlistItemForm } from "@/features/products/hooks/use-watchlist-item-form";
-import { useFormDraft } from "@/hooks/use-form-draft";
+import { useFormDraft } from "@/hooks/state/use-form-draft";
 import type { WatchlistItemDto } from "@/lib/api/schemas/watchlist";
 
 interface IWatchlistItemModalProps {

@@ -4,7 +4,7 @@ import { ChevronsUp, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useScrolledPast } from "@/hooks/use-scrolled-past";
+import { useScrolledPast } from "@/hooks/viewport/use-scrolled-past";
 import { BACK_TO_TOP_THRESHOLD_PX, scrollToTop } from "@/utils/scroll";
 
 /** Full width and stacked, rather than sharing a row with the field */

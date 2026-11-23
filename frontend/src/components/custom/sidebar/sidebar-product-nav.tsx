@@ -7,7 +7,7 @@ import SidebarProductNavShell from "@/components/custom/sidebar/sidebar-product-
 import SidebarNavItem from "@/components/custom/sidebar/sidebar-nav-item";
 import SidebarFilterMenu from "@/components/custom/sidebar/sidebar-filter-menu";
 import SidebarFilterMenuSkeleton from "@/components/custom/sidebar/sidebar-filter-menu-skeleton";
-import { useSidebarFilterOptions } from "@/hooks/use-sidebar-filter-options";
+import { useSidebarFilterOptions } from "@/hooks/state/use-sidebar-filter-options";
 import {
   productNavItems,
   PLACEHOLDER_HREF,
@@ -16,7 +16,7 @@ import {
 } from "@/constants/navigation";
 import { useUser } from "@/context/user-context";
 import { readListParam } from "@/utils/generic";
-import { useClientSearchParams } from "@/hooks/use-client-search-params";
+import { useClientSearchParams } from "@/hooks/state/use-client-search-params";
 
 type OpenSection = "stores" | "locations" | null;
 

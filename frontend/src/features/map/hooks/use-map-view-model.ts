@@ -1,9 +1,9 @@
 "use client";
 
-import { useDistanceOrigin } from "@/hooks/use-distance-origin";
-import { useSearchNavigation } from "@/hooks/use-search-navigation";
+import { useDistanceOrigin } from "@/hooks/geo/use-distance-origin";
+import { useSearchNavigation } from "@/hooks/state/use-search-navigation";
 import { useStoreDirectory } from "@/lib/api/store-directory";
-import { useGeolocation } from "@/hooks/use-geolocation";
+import { useGeolocation } from "@/hooks/geo/use-geolocation";
 import { useMapDefaults } from "@/features/map/hooks/use-map-defaults";
 import { useMapHours } from "@/features/map/hooks/use-map-hours";
 import {

@@ -8,7 +8,7 @@ import { useListChains } from "@/lib/cijene-api";
 import { storeNameService } from "@/lib/api";
 import { getChainLabel } from "@/utils/labels";
 import { normalizeForSearch } from "@/utils/strings";
-import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useDebouncedValue } from "@/hooks/state/use-debounced-value";
 
 const SUGGESTION_DEBOUNCE_MS = 250;
 

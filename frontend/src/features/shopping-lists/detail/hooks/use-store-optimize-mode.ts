@@ -6,7 +6,7 @@ import {
   type StoreOptimizeMode,
 } from "@/features/shopping-lists/utils/shopping-list-utils";
 import { useUser } from "@/context/user-context";
-import { isFailure, useDistanceSort } from "@/hooks/use-distance-sort";
+import { isFailure, useDistanceSort } from "@/hooks/geo/use-distance-sort";
 import {
   getStoreOptimizeMode,
   setStoreOptimizeMode,

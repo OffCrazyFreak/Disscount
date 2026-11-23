@@ -4,8 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { ShoppingListDto, ShoppingListRequest } from "@/lib/api/types";
 import { shoppingListRequestSchema } from "@/lib/api/types";
-import { useFormDraft } from "@/hooks/use-form-draft";
-import { useModalError } from "@/hooks/use-modal-error";
+import { useFormDraft } from "@/hooks/state/use-form-draft";
+import { useModalError } from "@/hooks/state/use-modal-error";
 import { getFormDraft } from "@/utils/browser/local-storage";
 
 interface IUseShoppingListFormProps {

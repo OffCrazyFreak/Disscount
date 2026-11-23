@@ -6,7 +6,7 @@ import type {
   PointerEvent as ReactPointerEvent,
 } from "react";
 import { HOLD_CANCEL_PX } from "@/constants/gestures";
-import useLongPressTimer from "@/hooks/use-long-press-timer";
+import useLongPressTimer from "@/hooks/gestures/use-long-press-timer";
 
 interface IUseLongPressOptions {
   onLongPress: () => void;

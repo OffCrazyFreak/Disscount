@@ -4,8 +4,8 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/utils/date";
-import { useOnlineStatus } from "@/hooks/use-online-status";
-import { useMinuteTick } from "@/hooks/use-minute-tick";
+import { useOnlineStatus } from "@/hooks/runtime/use-online-status";
+import { useMinuteTick } from "@/hooks/runtime/use-minute-tick";
 
 interface ILastSyncedLabelProps {
   // React Query's `dataUpdatedAt` (epoch millis); 0 when there's no data yet.

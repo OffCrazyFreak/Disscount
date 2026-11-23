@@ -1,7 +1,7 @@
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useGeolocation } from "@/hooks/use-geolocation";
+import { useGeolocation } from "@/hooks/geo/use-geolocation";
 
 const ZAGREB = { lat: 45.81, lon: 15.98 };
 const ERROR_CODES = {

@@ -7,7 +7,7 @@ import type { CardPhotoChanges } from "@/features/digital-cards/components/forms
 import { cardRequestFromDto } from "@/features/digital-cards/utils/card-request-from-dto";
 import { EMPTY_CARD_VALUES } from "@/features/digital-cards/utils/digital-card-form-values";
 import { takePendingCard } from "@/features/digital-cards/utils/pending-card-stash";
-import { useFormDraft } from "@/hooks/use-form-draft";
+import { useFormDraft } from "@/hooks/state/use-form-draft";
 import { applyProblemToForm } from "@/lib/api/problem-details";
 import {
   digitalCardRequestSchema,

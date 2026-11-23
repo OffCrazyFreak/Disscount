@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useSyncExternalStore, type RefObject } from "react";
-import { HEADER_BOTTOM_CHANGE_EVENT } from "@/hooks/use-header-bottom-variable";
+import { HEADER_BOTTOM_CHANGE_EVENT } from "@/hooks/viewport/use-header-bottom-variable";
 
 function subscribe(onStoreChange: () => void): () => void {
   window.addEventListener("scroll", onStoreChange, { passive: true });

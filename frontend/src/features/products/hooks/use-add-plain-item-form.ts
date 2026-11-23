@@ -12,8 +12,8 @@ import { shoppingListService } from "@/lib/api";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
 import { stashModalError } from "@/lib/modal/modal-error-bus";
 import { isLimitReached } from "@/lib/limits/limit-reached";
-import { useModalError } from "@/hooks/use-modal-error";
-import { useFormDraft } from "@/hooks/use-form-draft";
+import { useModalError } from "@/hooks/state/use-modal-error";
+import { useFormDraft } from "@/hooks/state/use-form-draft";
 import {
   getFormDraft,
   removeFormDraft,

@@ -2,7 +2,7 @@
 
 import { useLocale } from "next-intl";
 
-import { useMinuteTick } from "@/hooks/use-minute-tick";
+import { useMinuteTick } from "@/hooks/runtime/use-minute-tick";
 import { formatRelativeTime, parseServerDate } from "@/utils/date";
 import { formatDateTime } from "@/utils/strings";
 

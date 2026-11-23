@@ -1,6 +1,6 @@
 "use client";
 
-import useLongPress from "@/hooks/use-long-press";
+import useLongPress from "@/hooks/gestures/use-long-press";
 
 function stopEvent(event: { stopPropagation: () => void }) {
   event.stopPropagation();

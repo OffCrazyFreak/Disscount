@@ -20,7 +20,7 @@ import MapStoreSource, {
   MAP_MAX_ZOOM,
 } from "@/features/map/components/map-store-source";
 import SameSpotPopup from "@/features/map/components/same-spot-popup";
-import { ICenterRequest } from "@/hooks/use-geolocation";
+import { ICenterRequest } from "@/hooks/geo/use-geolocation";
 import { useMapCamera } from "@/features/map/hooks/use-map-camera";
 import { useMapClicks } from "@/features/map/hooks/use-map-clicks";
 import { useMapLoad } from "@/features/map/hooks/use-map-load";

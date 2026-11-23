@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { watchlistService, WatchType } from "@/lib/api";
-import { useModalError } from "@/hooks/use-modal-error";
+import { useModalError } from "@/hooks/state/use-modal-error";
 import { stashModalError } from "@/lib/modal/modal-error-bus";
 import { isLimitReached } from "@/lib/limits/limit-reached";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";

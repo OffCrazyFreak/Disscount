@@ -1,4 +1,4 @@
-import type { IGpsPosition } from "@/hooks/use-geolocation";
+import type { IGpsPosition } from "@/hooks/geo/use-geolocation";
 import { ILatLon } from "@/utils/distance";
 
 // "Approximate" grants are 2 km or coarser, so a kilometre figure would claim more than it knows.

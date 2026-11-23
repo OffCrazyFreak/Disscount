@@ -5,7 +5,7 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import { SCAN_FORMATS_BY_PRESET } from "@/constants/scanner";
 import { IScannedCode, ScanPreset } from "@/typings/scanned-code";
 import ScanOverlay from "@/components/scanner/scan-overlay";
-import usePageVisible from "@/hooks/use-page-visible";
+import usePageVisible from "@/hooks/runtime/use-page-visible";
 import "@/components/scanner/scanner.css";
 
 // 750 slowed decoding; cards need four reads in 1.5 s, which 400 ms cannot fit; products need two.

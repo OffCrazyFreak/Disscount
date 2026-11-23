@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { useCameraScanner } from "@/context/scanner-context";
-import useProductNavigation from "@/hooks/use-product-navigation";
+import useProductNavigation from "@/hooks/state/use-product-navigation";
 import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-drop-count";
 import { productEanFromPath } from "@/utils/routes";
 import BottomNavCenterItem from "@/components/custom/bottom-nav/bottom-nav-center-item";

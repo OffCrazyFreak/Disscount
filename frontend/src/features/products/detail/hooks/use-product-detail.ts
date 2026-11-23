@@ -8,7 +8,7 @@ import {
   compareProductChains,
   type ProductChainSortMode,
 } from "@/features/products/utils/product-chain-sort";
-import { useDistanceSort } from "@/hooks/use-distance-sort";
+import { useDistanceSort } from "@/hooks/geo/use-distance-sort";
 
 // One array for every render, so the distance memo is not rebuilt each time.
 const NO_PRICES: StorePrice[] = [];

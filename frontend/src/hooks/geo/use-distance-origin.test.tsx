@@ -1,7 +1,7 @@
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { useDistanceOrigin } from "@/hooks/use-distance-origin";
+import { useDistanceOrigin } from "@/hooks/geo/use-distance-origin";
 import type { DirectoryStoreDto } from "@/lib/api/schemas";
 
 let user: { pinnedPlaces?: { placeApiId: string }[] } | null = null;

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "motion/react";
-import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
+import { useReducedMotionSafe } from "@/hooks/viewport/use-reduced-motion-safe";
 import { tagLineIds } from "@/app/[locale]/(root)/data/landing";
 
 const ROTATE_INTERVAL_MS = 4000;

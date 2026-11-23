@@ -2,8 +2,8 @@ import { act, render, screen } from "@testing-library/react";
 import { useRef } from "react";
 import { describe, expect, it } from "vitest";
 
-import { HEADER_BOTTOM_CHANGE_EVENT } from "@/hooks/use-header-bottom-variable";
-import { useIsStuck } from "@/hooks/use-is-stuck";
+import { HEADER_BOTTOM_CHANGE_EVENT } from "@/hooks/viewport/use-header-bottom-variable";
+import { useIsStuck } from "@/hooks/viewport/use-is-stuck";
 
 let containerTop = 200;
 

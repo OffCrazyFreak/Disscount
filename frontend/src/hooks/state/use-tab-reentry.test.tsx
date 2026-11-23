@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import useTabReentry from "@/hooks/use-tab-reentry";
+import useTabReentry from "@/hooks/state/use-tab-reentry";
 
 const scrollWindowTo = vi.hoisted(() => vi.fn());
 

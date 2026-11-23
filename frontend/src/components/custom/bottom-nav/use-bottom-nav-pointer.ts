@@ -6,7 +6,7 @@ import { HOLD_CANCEL_PX } from "@/constants/gestures";
 import indexFromPoint, {
   navCells,
 } from "@/components/custom/bottom-nav/bar-hit-test";
-import useLongPressTimer from "@/hooks/use-long-press-timer";
+import useLongPressTimer from "@/hooks/gestures/use-long-press-timer";
 import useSettlingNavPreview from "@/components/custom/bottom-nav/use-settling-nav-preview";
 
 /** The rounded pill's own corners, where a press is more likely a swipe home */

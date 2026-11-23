@@ -3,8 +3,8 @@ import { QueryClient } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw/http";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useDistanceOrigin } from "@/hooks/use-distance-origin";
-import { useDistanceSort } from "@/hooks/use-distance-sort";
+import { useDistanceOrigin } from "@/hooks/geo/use-distance-origin";
+import { useDistanceSort } from "@/hooks/geo/use-distance-sort";
 import type { StorePrice } from "@/lib/cijene-api/schemas";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";

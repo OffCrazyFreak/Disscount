@@ -6,9 +6,9 @@ import { motion } from "motion/react";
 import CartLogo from "@/components/icons/cart-logo";
 import CartChaser from "@/app/[locale]/(root)/components/doodles/cart-chaser";
 import { useCursorPose } from "@/app/[locale]/(root)/hooks/use-cursor-pose";
-import { useFinePointer } from "@/hooks/use-fine-pointer";
-import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
-import { useScrolledPast } from "@/hooks/use-scrolled-past";
+import { useFinePointer } from "@/hooks/viewport/use-fine-pointer";
+import { useReducedMotionSafe } from "@/hooks/viewport/use-reduced-motion-safe";
+import { useScrolledPast } from "@/hooks/viewport/use-scrolled-past";
 
 const CHASE_AFTER_SCROLL_PX = 10;
 const IDLE_SPIN_EVERY_S = 10;

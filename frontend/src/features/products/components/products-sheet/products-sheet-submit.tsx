@@ -6,7 +6,7 @@ import {
   productSearchDraft,
   useSearchDraftValue,
 } from "@/components/custom/search/search-draft-store";
-import { useSearchNavigation } from "@/hooks/use-search-navigation";
+import { useSearchNavigation } from "@/hooks/state/use-search-navigation";
 
 interface IProductsSheetSubmitProps {
   searchRoute: string;

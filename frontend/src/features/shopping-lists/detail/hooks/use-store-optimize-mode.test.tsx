@@ -2,7 +2,7 @@ import { act, cleanup, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useDistanceOrigin } from "@/hooks/use-distance-origin";
+import { useDistanceOrigin } from "@/hooks/geo/use-distance-origin";
 import { useStoreOptimizeMode } from "@/features/shopping-lists/detail/hooks/use-store-optimize-mode";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";

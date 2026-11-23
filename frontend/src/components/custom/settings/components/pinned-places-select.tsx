@@ -20,7 +20,7 @@ import {
 import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 import cijeneService from "@/lib/cijene-api";
-import { useTownLabel } from "@/hooks/use-town-label";
+import { useTownLabel } from "@/hooks/geo/use-town-label";
 import { listPlaceOptions } from "@/utils/place-options";
 
 export default function PinnedPlacesSelect() {

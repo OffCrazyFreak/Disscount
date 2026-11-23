@@ -4,9 +4,9 @@ import { useEffect, useRef } from "react";
 // The raw path, locale prefix included: it goes straight into history.replaceState.
 import { usePathname } from "next/navigation";
 
-import { useClientSearchParams } from "@/hooks/use-client-search-params";
+import { useClientSearchParams } from "@/hooks/state/use-client-search-params";
 import { useCameraScanner } from "@/context/scanner-context";
-import useProductNavigation from "@/hooks/use-product-navigation";
+import useProductNavigation from "@/hooks/state/use-product-navigation";
 import { IScannedCode } from "@/typings/scanned-code";
 
 // Dropped before the camera opens, so a refresh, back or shared link does not reopen it.

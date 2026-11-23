@@ -13,7 +13,7 @@ import ShoppingListsResults from "@/features/shopping-lists/components/shopping-
 import CreateShoppingListButton from "@/features/shopping-lists/components/create-shopping-list-button";
 import LoginRequired from "@/components/custom/common/login-required";
 import NotSavedOffline from "@/components/custom/common/not-saved-offline";
-import { useIsNotSavedOffline } from "@/hooks/use-is-not-saved-offline";
+import { useIsNotSavedOffline } from "@/hooks/runtime/use-is-not-saved-offline";
 import { filterByFields } from "@/utils/generic";
 import { shoppingListService } from "@/lib/api";
 import { useUser } from "@/context/user-context";

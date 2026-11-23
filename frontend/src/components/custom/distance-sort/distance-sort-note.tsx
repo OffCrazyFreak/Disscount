@@ -1,11 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { DistanceSortState } from "@/hooks/use-distance-sort";
-import type { IDistanceOrigin } from "@/hooks/use-distance-origin";
+import type { DistanceSortState } from "@/hooks/geo/use-distance-sort";
+import type { IDistanceOrigin } from "@/hooks/geo/use-distance-origin";
 import type { IStoreTown } from "@/utils/store-towns";
 import TownPicker from "@/components/custom/distance-sort/town-picker";
-import { useTownLabel } from "@/hooks/use-town-label";
+import { useTownLabel } from "@/hooks/geo/use-town-label";
 
 interface IDistanceSortNoteProps {
   id: string;
