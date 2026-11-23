@@ -1,9 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
 
-import MapLoadState from "@/app/[locale]/map/components/map-load-state";
 import MapLocateButton from "@/app/[locale]/map/components/map-locate-button";
 import MapPanel from "@/app/[locale]/map/components/map-panel";
 import MapSearchBar from "@/app/[locale]/map/components/map-search-bar";
@@ -26,7 +24,6 @@ export default function MapMobileLayout({
   map,
   onCoverChange,
 }: IMapMobileLayoutProps) {
-  const t = useTranslations("map.layout");
   const locateRef = useRef<HTMLButtonElement>(null);
   const navProbeRef = useRef<HTMLDivElement>(null);
   const navHeight = useNavClearance(navProbeRef);
@@ -54,26 +51,10 @@ export default function MapMobileLayout({
 
       {/* First in the DOM so the search comes before the map's controls in the tab order. */}
       <MapSearchBar isOpen={isSearchOpen} onOpenChange={setSearchOpen}>
-        <section
-          id="map-store-list"
-          aria-label={t("storeList")}
-          className="flex min-h-0 flex-1 flex-col"
-        >
-          {model.status === "success" ? (
-            <MapPanel
-              model={{ ...model, selectStore: selectFromList }}
-              viewArea={viewArea}
-              withSearch={false}
-            />
-          ) : (
-            <div className="flex min-h-0 flex-1 flex-col gap-3 p-3">
-              <MapLoadState
-                status={model.status}
-                onRetry={() => model.retry()}
-              />
-            </div>
-          )}
-        </section>
+        <MapPanel
+          model={{ ...model, selectStore: selectFromList }}
+          viewArea={viewArea}
+        />
       </MapSearchBar>
 
       <div className="absolute inset-0" inert={isSearchOpen}>
