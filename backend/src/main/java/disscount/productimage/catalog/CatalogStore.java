@@ -11,6 +11,7 @@ import java.util.Set;
 
 import disscount.shared.CanonicalBarcode;
 import disscount.shared.ProductUseSource;
+import disscount.shared.Timestamps;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,8 @@ import org.springframework.stereotype.Component;
 class CatalogStore {
 
     private static final int BATCH = 1_000;
+    // Kept as a row in the import run table, so the marker needs no table of its own.
+    static final String CHAIN_HISTORY = "chain-history";
 
     private final JdbcTemplate jdbc;
     private final List<ProductUseSource> useSources;
@@ -38,7 +41,7 @@ class CatalogStore {
 
         storeProducts(catalog, archiveDate);
         storeChainPrices(catalog, archiveDate);
-        recountChains();
+        recountChains(chainHistoryStart(archiveDate));
         refreshListUses();
 
         Set<String> listedAfter = listed();
@@ -140,17 +143,28 @@ class CatalogStore {
     }
 
     /**
-     * Products still in the window without chain rows were listed before chains were tracked; they keep their counts.
-     * Until the chain rows reach back over the whole window, they hold only the days since deploy, so they may raise a
-     * count but not lower it.
+     * The first archive date the chain table holds, stored once; the oldest chain row cannot tell, since the daily
+     * expiry deletes old rows and every live row is refreshed.
      */
-    private void recountChains() {
+    private LocalDate chainHistoryStart(LocalDate archiveDate) {
+        jdbc.update("""
+                insert into app.product_image_import_run as r (kind, finished_at, archive_date) values (?, ?, ?)
+                on conflict (kind) do update set archive_date = least(r.archive_date, excluded.archive_date)
+                """, CHAIN_HISTORY, Timestamps.nowUtc(), archiveDate);
+        return jdbc.queryForObject("select archive_date from app.product_image_import_run where kind = ?", LocalDate.class,
+                CHAIN_HISTORY);
+    }
+
+    /**
+     * Products still in the window without chain rows were listed before chains were tracked; they keep their counts.
+     * Until the chain history reaches back over the whole window, it holds only the days since deploy, so it may raise
+     * a count but not lower it.
+     */
+    private void recountChains(LocalDate historyStart) {
         LocalDate since = CatalogListing.listedSince(newestArchive());
         if (since == null) return;
 
-        LocalDate oldestChainRow = jdbc.queryForObject("select min(last_seen_on) from app.product_chain_listing",
-                LocalDate.class);
-        boolean coversWindow = oldestChainRow != null && !oldestChainRow.isAfter(since);
+        boolean coversWindow = !historyStart.isAfter(since);
 
         jdbc.update("delete from app.product_chain_listing where last_seen_on < ?", since);
         jdbc.update("""

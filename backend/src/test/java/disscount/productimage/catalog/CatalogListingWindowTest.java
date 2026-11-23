@@ -91,22 +91,23 @@ class CatalogListingWindowTest extends FullStackTest {
 
     @Test
     @Transactional
-    void untilTheChainRowsSpanTheWindowTheyRaiseCountsButNeverLowerThem() {
+    void untilFourteenArchivesAreTrackedChainCountsRiseButNeverFall() {
         jdbc.update("""
                 insert into app.product_image_set (ean, name, store_listings, chain_count, last_seen_on, pinned, needs_review)
                 values (?, 'STARI SIR', 40, 4, ?, false, false)
-                """, LEGACY, today.minusDays(1));
+                """, LEGACY, today.minusDays(14));
 
-        store.store(Map.of(LEGACY, priced("STARI SIR", Map.of("konzum", 5)), MILK, priced("MLIJEKO", Map.of("spar", 3))),
-                today);
+        for (int daysAgo = 13; daysAgo >= 1; daysAgo--) {
+            store.store(Map.of(LEGACY, priced("STARI SIR", Map.of("konzum", 5)), MILK, priced("MLIJEKO", Map.of("spar", 3))),
+                    today.minusDays(daysAgo));
+        }
 
-        // The four chains came from a full archive before deploy, so one chain seen since then does not lower them.
+        // The four chains came from a full archive before deploy, so the one chain seen since then does not lower them.
         assertThat(counts(LEGACY)).containsExactly(4, 40);
         assertThat(counts(MILK)).containsExactly(1, 3);
 
-        jdbc.update("insert into app.product_chain_listing (ean, chain, store_listings, last_seen_on) values (?, 'spar', 1, ?)",
-                UNPRICED, today.minusDays(13));
-        store.store(Map.of(LEGACY, priced("STARI SIR", Map.of("konzum", 5))), today);
+        store.store(Map.of(LEGACY, priced("STARI SIR", Map.of("konzum", 5)), MILK, priced("MLIJEKO", Map.of("spar", 3))),
+                today);
 
         assertThat(counts(LEGACY)).containsExactly(1, 5);
     }
