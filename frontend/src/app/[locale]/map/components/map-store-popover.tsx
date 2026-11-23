@@ -1,18 +1,14 @@
 "use client";
 
-import { RefObject, useId, useRef } from "react";
-import { X } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { RefObject, useRef } from "react";
 import { Marker, useMap } from "react-map-gl/maplibre";
 
-import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverAnchor,
   PopoverContent,
 } from "@/components/ui/popover";
-import StoreDetails from "@/app/[locale]/map/components/store-details";
-import StoreSummary from "@/app/[locale]/map/components/store-summary";
+import MapStoreCard from "@/app/[locale]/map/components/map-store-card";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 
 // About two seconds, longer than the camera's ease to a picked store.
@@ -32,8 +28,6 @@ export default function MapStorePopover({
   onClose,
   returnFocusRef,
 }: IMapStorePopoverProps) {
-  const t = useTranslations("shell");
-  const id = useId();
   const { current: map } = useMap();
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -87,22 +81,7 @@ export default function MapStorePopover({
         onInteractOutside={(event) => event.preventDefault()}
         className="flex max-h-(--radix-popover-content-available-height) w-[24rem] flex-col overflow-y-auto p-1"
       >
-        <div className="flex items-center gap-3 px-3 pt-2 pb-1">
-          <StoreSummary row={row} isOpen id={id} />
-
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            aria-label={t("modal.close")}
-            onClick={close}
-            className="shrink-0 self-start text-muted-foreground"
-          >
-            <X aria-hidden="true" />
-          </Button>
-        </div>
-
-        <StoreDetails row={row} />
+        <MapStoreCard row={row} onClose={close} />
       </PopoverContent>
     </Popover>
   );

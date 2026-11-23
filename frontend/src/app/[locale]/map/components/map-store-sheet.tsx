@@ -1,14 +1,9 @@
 "use client";
 
-import { RefObject, useEffect, useEffectEvent, useId, useState } from "react";
-import { X } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { RefObject, useEffect, useEffectEvent, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { DrawerClose } from "@/components/ui/drawer";
 import SheetShell from "@/components/custom/modal/sheet-shell";
-import StoreDetails from "@/app/[locale]/map/components/store-details";
-import StoreSummary from "@/app/[locale]/map/components/store-summary";
+import MapStoreCard from "@/app/[locale]/map/components/map-store-card";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 
 interface IMapStoreSheetProps {
@@ -27,7 +22,6 @@ export default function MapStoreSheet({
   onHeightChange,
   returnFocusRef,
 }: IMapStoreSheetProps) {
-  const id = useId();
   // State, because the portal mounts a render later, and measuring must start once the body exists.
   const [body, setBody] = useState<HTMLDivElement | null>(null);
 
@@ -48,7 +42,6 @@ export default function MapStoreSheet({
 
     return () => observer.disconnect();
   }, [body]);
-  const t = useTranslations("shell");
 
   return (
     <SheetShell
@@ -63,28 +56,9 @@ export default function MapStoreSheet({
       className="md:hidden"
     >
       {row && (
-        <>
-          <div ref={setBody} className="flex items-center gap-3 px-3 py-1">
-            <StoreSummary row={row} isOpen id={id} />
-
-            {/* In the store's row rather than the header band, which would spend a whole row on it. */}
-            <DrawerClose
-              render={
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  aria-label={t("modal.close")}
-                  className="shrink-0 text-muted-foreground"
-                />
-              }
-            >
-              <X aria-hidden="true" />
-            </DrawerClose>
-          </div>
-
-          <StoreDetails row={row} />
-        </>
+        <div ref={setBody}>
+          <MapStoreCard row={row} onClose={onClose} />
+        </div>
       )}
     </SheetShell>
   );
