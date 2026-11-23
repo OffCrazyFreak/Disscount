@@ -18,6 +18,8 @@ async function buildGraph() {
         "@type": "WebSite",
         "@id": `${baseUrl}/#website`,
         name: "Disscount",
+        // The domain as people type it; "Discount" stays out, since that is a different, common word.
+        alternateName: "disscount.me",
         url: `${baseUrl}/`,
         // One site entity for every language; the search below opens in the reader's.
         inLanguage: [...LOCALES],
