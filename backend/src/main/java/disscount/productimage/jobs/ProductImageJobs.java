@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component;
 class ProductImageJobs {
 
     private static final Logger log = LoggerFactory.getLogger(ProductImageJobs.class);
-    // The stored kind keeps its old name, so the existing row is reused and V11 can read its date.
+    // The stored kind keeps its old name, so the existing row is reused and V12 can read its date.
     static final String CATALOG_IMPORT = "weekly-import";
     static final String PHOTO_SEED = "photo-seed";
     // The Open Food Facts export is gigabytes, so the photo seed stays weekly.

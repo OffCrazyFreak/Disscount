@@ -125,7 +125,7 @@ Upstream has no category taxonomy. Its per-chain category text is free form, mis
 - **Categories** are tried top to bottom, first match wins, so narrow ones come first. Each has `include` name terms, `exclude` terms, an optional list of finer chain groups (Roto, Žabac) that mean only this category, and the department it belongs to.
 - **10 are indexable:** mlijeko, jaja, kruh, kava, ulje, sir, jogurt, pivo, deterdzent-za-rublje, pelene (owner decision 2026-11-23: "All 33, index 10"). The other 23 hub pages exist and link onward, but carry `noindex, follow` and stay out of the sitemap until their rules are reviewed.
 
-`ProductClassifier` places each product at import time from its names and chain categories across every chain that lists it, and `CatalogStore` stores `department`, `category` and the rule file's hash (`taxonomy_version`) on `product_image_set` (migration `V12`). An edited rule file changes the hash, so the next import replaces every stored place instead of only filling gaps.
+`ProductClassifier` places each product at import time from its names and chain categories across every chain that lists it, and `CatalogStore` stores `department`, `category` and the rule file's hash (`taxonomy_version`) on `product_image_set` (migration `V13`). An edited rule file changes the hash, so the next import replaces every stored place instead of only filling gaps.
 
 **Order.** A hub lists products by `chain_count + list_uses`, then by store listings. `list_uses` counts the people keeping the EAN on a shopping list or watchlist, refreshed at each import, so a hub leads with what people actually buy. The index `idx_product_image_set_category_rank` matches this order, so a page is an index range.
 
@@ -231,7 +231,7 @@ On any origin other than `https://disscount.me` (`isIndexableOrigin`), `next.con
 The upstream archive for one day holds only the chains that published that day (20 to 28 of 29), and the count swung between 253,000 and 358,000 EANs across 2026-11-20 to 2026-11-22. Reading only the newest archive made products drop out of the sitemap and come back. So:
 
 - **Daily.** `ProductImageJobs.importCatalogue` checks every hour (first check 10 minutes after startup) and imports an archive date once; `product_image_import_run.archive_date` (kind `weekly-import`, an old name kept so the existing row is reused) holds the last date imported. After downtime only the newest date is read.
-- **14 archive dates.** `product_image_set.last_seen_on` is the last archive that priced the EAN, and a product counts as listed while it falls within the 14 dates ending at the newest archive (`CatalogListing`, migration `V11`). The window counts back from the newest archive, not from today, so an upstream outage cannot empty the sitemap.
+- **14 archive dates.** `product_image_set.last_seen_on` is the last archive that priced the EAN, and a product counts as listed while it falls within the 14 dates ending at the newest archive (`CatalogListing`, migration `V12`). The window counts back from the newest archive, not from today, so an upstream outage cannot empty the sitemap.
 - **Per-chain window.** `product_chain_listing` keeps each chain's last price per EAN, so chain and store counts cover the whole window and do not jump with which chains published today.
 - **Failed-date backoff.** A date whose import failed is not downloaded again for 6 hours (`RETRY_FAILED_AFTER`); a newer date is tried at once.
 
