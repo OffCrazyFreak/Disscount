@@ -99,6 +99,7 @@ public class DigitalCardService {
         if (card.getChainCode() == null
                 && (created || previousChain != null || !sameStore(previousStore, card.getStoreName()))) {
             String storeName = card.getStoreName();
+            // A suggestion is a nicety; it must never fail the card save.
             AfterCommit.run(() -> storeNameService.record(userId, storeName));
         }
 
