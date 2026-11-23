@@ -20,9 +20,9 @@ const PLACEMENT = {
     surface: undefined,
     shadowBleed: 0,
   },
-  // Hidden on phones until hydration, since the server renders this one; it ends above the map controls.
+  // Hidden on phones until hydration (the server renders it); ends above the map controls unless the window is short.
   desktop: {
-    root: "absolute top-[calc(var(--header-bottom)+--spacing(3))] right-3 bottom-[9rem] flex w-[min(24rem,calc(100%-1.5rem))] flex-col max-md:hidden",
+    root: "absolute top-[calc(var(--header-bottom)+--spacing(3))] right-3 bottom-[9rem] [@media(height<40rem)]:bottom-3 flex w-[min(24rem,calc(100%-1.5rem))] flex-col max-md:hidden",
     panel: "relative min-h-0 flex-1",
     surface: "rounded-2xl border shadow-lg",
     // Room for the open panel's shadow, which the clip would otherwise cut.
