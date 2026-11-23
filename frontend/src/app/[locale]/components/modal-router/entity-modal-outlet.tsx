@@ -22,13 +22,12 @@ const CopyListModal = dynamic(
   { ssr: false },
 );
 const DigitalCardModal = dynamic(
-  () =>
-    import("@/app/[locale]/(user)/digital-cards/components/forms/digital-card-modal"),
+  () => import("@/features/digital-cards/components/forms/digital-card-modal"),
   { ssr: false },
 );
 const DigitalCardViewModal = dynamic(
   () =>
-    import("@/app/[locale]/(user)/digital-cards/components/view/digital-card-view-modal"),
+    import("@/features/digital-cards/components/view/digital-card-view-modal"),
   { ssr: false },
 );
 const AddToShoppingListModal = dynamic(

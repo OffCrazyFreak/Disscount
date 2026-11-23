@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
-import DigitalCardsClient from "@/app/[locale]/(user)/digital-cards/components/digital-cards-client";
+import DigitalCardsClient from "@/features/digital-cards/components/digital-cards-client";
 import { pageMetadata } from "@/i18n/alternates";
 
 export function generateMetadata(): Promise<Metadata> {
