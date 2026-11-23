@@ -1,5 +1,6 @@
-import { userService, preferencesService } from "@/lib/api";
+import preferencesService from "@/lib/api/preferences";
 import { UserDto } from "@/lib/api/types";
+import userService from "@/lib/api/users";
 
 export async function loadUserProfile(): Promise<UserDto> {
   const userData = await userService.getCurrentUser();
