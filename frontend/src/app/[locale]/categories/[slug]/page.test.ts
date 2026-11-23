@@ -44,6 +44,9 @@ function props(slug: string, page?: string) {
   } as PageProps<"/[locale]/categories/[slug]">;
 }
 
+// The layout resolves no share image in these tests.
+const parent = Promise.resolve({ openGraph: null, twitter: null }) as never;
+
 describe("category page", () => {
   beforeEach(() => {
     locale.current = "hr";
@@ -67,7 +70,7 @@ describe("category page", () => {
   });
 
   it("canonicalises a later page to itself and keeps an indexable hub indexable", async () => {
-    const metadata = await generateMetadata(props("mlijeko", "2"));
+    const metadata = await generateMetadata(props("mlijeko", "2"), parent);
 
     expect(metadata.alternates?.canonical).toBe(
       `${appUrl()}/categories/mlijeko?page=2`,
@@ -76,7 +79,7 @@ describe("category page", () => {
   });
 
   it("keeps a category outside the ten out of the index", async () => {
-    const metadata = await generateMetadata(props("vino"));
+    const metadata = await generateMetadata(props("vino"), parent);
 
     expect(metadata.robots).toMatchObject({ index: false });
   });
@@ -84,7 +87,7 @@ describe("category page", () => {
   it("keeps translated hubs out of the index", async () => {
     locale.current = "en";
 
-    const metadata = await generateMetadata(props("mlijeko"));
+    const metadata = await generateMetadata(props("mlijeko"), parent);
 
     expect(metadata.alternates?.canonical).toBe(
       `${appUrl()}/en/categories/mlijeko`,
@@ -172,7 +175,7 @@ describe("category page", () => {
       ],
     });
 
-    const metadata = await generateMetadata(props("mlijeko"));
+    const metadata = await generateMetadata(props("mlijeko"), parent);
 
     expect(metadata.robots).toMatchObject({ index: false });
   });

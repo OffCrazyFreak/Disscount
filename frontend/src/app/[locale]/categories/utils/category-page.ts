@@ -46,7 +46,7 @@ export function isHubIndexable(
 }
 
 /** Following stays on, so a hub kept out of the index still leads crawlers to its products. */
-export function hubRobots(indexable: boolean): Metadata {
+export function hubRobots(indexable: boolean): Pick<Metadata, "robots"> {
   if (indexable) return {};
 
   return {

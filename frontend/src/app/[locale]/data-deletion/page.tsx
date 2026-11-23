@@ -1,16 +1,26 @@
-import { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
+import { withSharePreview } from "@/utils/share-metadata";
 import { localizedUrl } from "@/i18n/alternates";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
 import LegalPage from "@/components/custom/legal/legal-page";
 import LegalSection from "@/components/custom/legal/legal-section";
 import { CONTACT_EMAIL } from "@/constants/contact";
 
-export const metadata: Metadata = {
-  // Croatian only until the rewrite, so every locale points at the one real page.
-  alternates: { canonical: localizedUrl("/data-deletion", DEFAULT_LOCALE) },
-  title: "Brisanje podataka",
-  description: "Kako obrisati svoj račun i podatke iz aplikacije Disscount.",
-};
+export async function generateMetadata(
+  _props: PageProps<"/[locale]/data-deletion">,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  return withSharePreview(
+    {
+      // Croatian only until the rewrite, so every locale points at the one real page.
+      alternates: { canonical: localizedUrl("/data-deletion", DEFAULT_LOCALE) },
+      title: "Brisanje podataka",
+      description:
+        "Kako obrisati svoj račun i podatke iz aplikacije Disscount.",
+    },
+    parent,
+  );
+}
 
 export default function DataDeletionPage() {
   return (

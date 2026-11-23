@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
+import { withSharePreview } from "@/utils/share-metadata";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -52,6 +53,7 @@ async function loadChain(props: ChainPageProps) {
 
 export async function generateMetadata(
   props: ChainPageProps,
+  parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const chain = await loadChain(props);
   if (!chain) return { robots: { index: false, follow: false } };
@@ -59,16 +61,19 @@ export async function generateMetadata(
   const locale = await getLocale();
   const t = await getTranslations("chains");
 
-  return {
-    title: t("meta.chainTitle", { chain: chain.name }),
-    description: t("meta.chainDescription", {
-      chain: chain.name,
-      stores: chain.storeCount,
-    }),
-    // No hreflang: only the Croatian hub can be indexed, as with the category hubs.
-    alternates: { canonical: localizedUrl(chainPath(chain.code), locale) },
-    ...hubRobots(isHubIndexable(locale) && chain.hasContent),
-  };
+  return withSharePreview(
+    {
+      title: t("meta.chainTitle", { chain: chain.name }),
+      description: t("meta.chainDescription", {
+        chain: chain.name,
+        stores: chain.storeCount,
+      }),
+      // No hreflang: only the Croatian hub can be indexed, as with the category hubs.
+      alternates: { canonical: localizedUrl(chainPath(chain.code), locale) },
+      ...hubRobots(isHubIndexable(locale) && chain.hasContent),
+    },
+    parent,
+  );
 }
 
 export default async function ChainPage(props: ChainPageProps) {

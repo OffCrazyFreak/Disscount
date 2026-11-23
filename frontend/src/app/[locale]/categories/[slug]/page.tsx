@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
+import { withSharePreview } from "@/utils/share-metadata";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -53,6 +54,7 @@ async function loadCategoryPage(props: CategoryPageProps) {
 
 export async function generateMetadata(
   props: CategoryPageProps,
+  parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const loaded = await loadCategoryPage(props);
   if (!loaded) return { robots: { index: false, follow: false } };
@@ -62,19 +64,22 @@ export async function generateMetadata(
   const t = await getTranslations("categories");
   const name = categoryName(t, category.slug);
 
-  return {
-    title:
-      page > 1
-        ? t("meta.categoryPageTitle", { name, page })
-        : t("meta.categoryTitle", { name }),
-    description: t("meta.categoryDescription", {
-      name,
-      count: category.productCount,
-    }),
-    // No hreflang: only the Croatian hub can be indexed, and Google ignores a set whose other members are noindex.
-    alternates: { canonical: categoryPageUrl(category.slug, locale, page) },
-    ...hubRobots(isHubIndexable(locale, category)),
-  };
+  return withSharePreview(
+    {
+      title:
+        page > 1
+          ? t("meta.categoryPageTitle", { name, page })
+          : t("meta.categoryTitle", { name }),
+      description: t("meta.categoryDescription", {
+        name,
+        count: category.productCount,
+      }),
+      // No hreflang: only the Croatian hub can be indexed, and Google ignores a set whose other members are noindex.
+      alternates: { canonical: categoryPageUrl(category.slug, locale, page) },
+      ...hubRobots(isHubIndexable(locale, category)),
+    },
+    parent,
+  );
 }
 
 export default async function CategoryPage(props: CategoryPageProps) {

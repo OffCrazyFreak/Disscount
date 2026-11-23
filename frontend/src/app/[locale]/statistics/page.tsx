@@ -1,19 +1,26 @@
 import CartLogo from "@/components/icons/cart-logo";
 import HealthStatus from "@/app/[locale]/statistics/components/health-status";
 import ChainList from "@/app/[locale]/statistics/components/stores-list";
-import { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
+import { withSharePreview } from "@/utils/share-metadata";
 import { getLocale, getTranslations } from "next-intl/server";
 import { pageAlternates } from "@/i18n/alternates";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata(
+  _props: PageProps<"/[locale]/statistics">,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
   const locale = await getLocale();
   const t = await getTranslations("statistics");
 
-  return {
-    title: t("meta.title"),
-    description: t("meta.description"),
-    alternates: pageAlternates("/statistics", locale),
-  };
+  return withSharePreview(
+    {
+      title: t("meta.title"),
+      description: t("meta.description"),
+      alternates: pageAlternates("/statistics", locale),
+    },
+    parent,
+  );
 }
 
 export default async function StatisticsPage() {

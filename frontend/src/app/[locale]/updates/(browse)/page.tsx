@@ -1,4 +1,5 @@
-import { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
+import { withSharePreview } from "@/utils/share-metadata";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { Search } from "lucide-react";
@@ -15,15 +16,21 @@ import { localizePost } from "@/app/[locale]/updates/localize-post";
 import { pageAlternates } from "@/i18n/alternates";
 import { filterByFields, readSearchParam } from "@/utils/generic";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata(
+  _props: PageProps<"/[locale]/updates">,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
   const locale = await getLocale();
   const t = await getTranslations("updates");
 
-  return {
-    title: t("meta.title"),
-    description: t("meta.description"),
-    alternates: pageAlternates("/updates", locale),
-  };
+  return withSharePreview(
+    {
+      title: t("meta.title"),
+      description: t("meta.description"),
+      alternates: pageAlternates("/updates", locale),
+    },
+    parent,
+  );
 }
 
 export default async function UpdatesPage(

@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
+import { withSharePreview } from "@/utils/share-metadata";
 import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -16,16 +17,22 @@ import { localizedUrl } from "@/i18n/alternates";
 import { getCatalogCategories } from "@/lib/api/catalog-categories/server";
 import { CATEGORIES_PATH, categoryPath } from "@/utils/category-links";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata(
+  _props: PageProps<"/[locale]/categories">,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
   const locale = await getLocale();
   const t = await getTranslations("categories");
 
-  return {
-    title: t("meta.indexTitle"),
-    description: t("meta.indexDescription"),
-    alternates: { canonical: localizedUrl(CATEGORIES_PATH, locale) },
-    ...hubRobots(isHubIndexable(locale)),
-  };
+  return withSharePreview(
+    {
+      title: t("meta.indexTitle"),
+      description: t("meta.indexDescription"),
+      alternates: { canonical: localizedUrl(CATEGORIES_PATH, locale) },
+      ...hubRobots(isHubIndexable(locale)),
+    },
+    parent,
+  );
 }
 
 export default async function CategoriesPage() {

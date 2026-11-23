@@ -35,6 +35,9 @@ function props(slug: string) {
   } as PageProps<"/[locale]/chains/[slug]">;
 }
 
+// The layout resolves no share image in these tests.
+const parent = Promise.resolve({ openGraph: null, twitter: null }) as never;
+
 describe("chain page", () => {
   beforeEach(() => {
     locale.current = "hr";
@@ -61,7 +64,7 @@ describe("chain page", () => {
   });
 
   it("canonicalises the Croatian hub to itself and keeps it indexable", async () => {
-    const metadata = await generateMetadata(props("konzum"));
+    const metadata = await generateMetadata(props("konzum"), parent);
 
     expect(metadata.alternates?.canonical).toBe(`${appUrl()}/chains/konzum`);
     expect(metadata.robots).toBeUndefined();
@@ -70,7 +73,7 @@ describe("chain page", () => {
   it("keeps translated hubs out of the index", async () => {
     locale.current = "en";
 
-    const metadata = await generateMetadata(props("konzum"));
+    const metadata = await generateMetadata(props("konzum"), parent);
 
     expect(metadata.alternates?.canonical).toBe(`${appUrl()}/en/chains/konzum`);
     expect(metadata.robots).toMatchObject({ index: false });
@@ -80,7 +83,7 @@ describe("chain page", () => {
     vi.mocked(getServerChainStats).mockResolvedValue(null);
 
     await expect(ChainPage(props("konzum"))).resolves.toBeTruthy();
-    expect((await generateMetadata(props("konzum"))).robots).toBe(
+    expect((await generateMetadata(props("konzum"), parent)).robots).toBe(
       undefined,
     );
   });
@@ -88,7 +91,7 @@ describe("chain page", () => {
   it("keeps a chain with no store and no prices out of the index", async () => {
     vi.mocked(getServerChainStats).mockResolvedValue([]);
 
-    const metadata = await generateMetadata(props("konzum"));
+    const metadata = await generateMetadata(props("konzum"), parent);
 
     expect(metadata.robots).toMatchObject({ index: false });
   });

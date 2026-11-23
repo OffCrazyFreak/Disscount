@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
+import { withSharePreview } from "@/utils/share-metadata";
 import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -21,16 +22,22 @@ import {
 import { getChainLabel } from "@/utils/labels";
 import { compareHr, formatDate } from "@/utils/strings";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata(
+  _props: PageProps<"/[locale]/chains">,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
   const locale = await getLocale();
   const t = await getTranslations("chains");
 
-  return {
-    title: t("meta.indexTitle"),
-    description: t("meta.indexDescription"),
-    alternates: { canonical: localizedUrl(CHAINS_PATH, locale) },
-    ...hubRobots(isHubIndexable(locale)),
-  };
+  return withSharePreview(
+    {
+      title: t("meta.indexTitle"),
+      description: t("meta.indexDescription"),
+      alternates: { canonical: localizedUrl(CHAINS_PATH, locale) },
+      ...hubRobots(isHubIndexable(locale)),
+    },
+    parent,
+  );
 }
 
 export default async function ChainsPage() {
