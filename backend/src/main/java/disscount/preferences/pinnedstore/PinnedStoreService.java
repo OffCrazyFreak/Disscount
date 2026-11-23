@@ -23,16 +23,16 @@ public class PinnedStoreService {
     public List<PinnedStoreDto> updatePinnedStores(UUID userId, BulkPinnedStoreRequest request) {
         activeUsers.lockActive(userId);
 
-        long distinctIds = request.stores().stream().map(PinnedStoreRequest::storeApiId).distinct().count();
+        List<PinnedStoreRequest> stores = request.stores();
 
-        if (distinctIds < request.stores().size()) {
+        long distinctIds = stores.stream().map(PinnedStoreRequest::storeApiId).distinct().count();
+
+        if (distinctIds < stores.size()) {
             throw new BadRequestException("error.pinnedStore.duplicate");
         }
 
         pinnedStoreRepository.deleteAllByUserId(userId);
         pinnedStoreRepository.flush();
-
-        List<PinnedStoreRequest> stores = request.stores();
 
         List<PinnedStore> saved = pinnedStoreRepository.saveAll(IntStream.range(0, stores.size())
                 .mapToObj(index -> PinnedStore.builder()

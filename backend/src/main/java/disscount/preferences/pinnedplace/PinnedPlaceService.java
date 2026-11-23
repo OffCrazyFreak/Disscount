@@ -23,16 +23,16 @@ public class PinnedPlaceService {
     public List<PinnedPlaceDto> updatePinnedPlaces(UUID userId, BulkPinnedPlaceRequest request) {
         activeUsers.lockActive(userId);
 
-        long distinctIds = request.places().stream().map(PinnedPlaceRequest::placeApiId).distinct().count();
+        List<PinnedPlaceRequest> places = request.places();
 
-        if (distinctIds < request.places().size()) {
+        long distinctIds = places.stream().map(PinnedPlaceRequest::placeApiId).distinct().count();
+
+        if (distinctIds < places.size()) {
             throw new BadRequestException("error.pinnedPlace.duplicate");
         }
 
         pinnedPlaceRepository.deleteAllByUserId(userId);
         pinnedPlaceRepository.flush();
-
-        List<PinnedPlaceRequest> places = request.places();
 
         List<PinnedPlace> saved = pinnedPlaceRepository.saveAll(IntStream.range(0, places.size())
                 .mapToObj(index -> PinnedPlace.builder()
