@@ -14,8 +14,13 @@ import { setWatchlistPriceSnapshot } from "@/utils/browser/storage/watchlist";
 // Public data is identical logged in or out, so it survives logout.
 const PUBLIC_QUERY_ROOT = "cijene";
 
-// Each leaks by its key set; serwist puts navigations in "others", as browsers omit a Content-Type.
-const SCOPED_CACHE_NAMES = ["shopping-list-pages", "cijene-api", "others"];
+// Each leaks by its key set, prefetch keys naming opened lists; navigations land in "others" (no Content-Type).
+const SCOPED_CACHE_NAMES = [
+  "shopping-list-pages",
+  "cijene-api",
+  "others",
+  "pages-rsc-prefetch",
+];
 
 function isUserSpecific(query: Query): boolean {
   return query.queryKey[0] !== PUBLIC_QUERY_ROOT;
