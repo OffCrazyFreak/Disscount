@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
-import { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
+import { withSharePreview } from "@/utils/seo/share-metadata";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -17,6 +18,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/updates/[id]">,
+  parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const { id } = await props.params;
   const post = getPostById(id);
@@ -24,11 +26,14 @@ export async function generateMetadata(
   const t = await getTranslations("updates");
   const localized = post ? localizePost(t, post) : undefined;
 
-  return {
-    title: localized ? localized.title : t("meta.title"),
-    description: localized?.excerpt ?? t("meta.detailFallbackDescription"),
-    alternates: pageAlternates(`/updates/${id}`, locale),
-  };
+  return withSharePreview(
+    {
+      title: localized ? localized.title : t("meta.title"),
+      description: localized?.excerpt ?? t("meta.detailFallbackDescription"),
+      alternates: pageAlternates(`/updates/${id}`, locale),
+    },
+    parent,
+  );
 }
 
 export default async function PostDetailPage(

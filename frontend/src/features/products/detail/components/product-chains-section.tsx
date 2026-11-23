@@ -6,6 +6,7 @@ import { MapPinned } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
+import PricesPublishedOn from "@/features/products/detail/components/prices-published-on";
 import StoreItem from "@/features/products/detail/components/store-item/store-item";
 import ProductChainSortSelect from "@/features/products/detail/components/product-chain-sort-select";
 import DistanceSortNote from "@/components/custom/distance-sort/distance-sort-note";
@@ -62,6 +63,8 @@ export default function ProductChainsSection({
           <p className="p-2 text-gray-600 text-center">{t("empty")}</p>
         ) : (
           <div className="space-y-4">
+            <PricesPublishedOn product={product} />
+
             <div className="flex flex-wrap items-center justify-between gap-2">
               <ProductChainSortSelect
                 value={detail.sortBy}

@@ -1,4 +1,6 @@
 import auth from "./auth.json";
+import categories from "./categories.json";
+import chains from "./chains.json";
 import common from "./common.json";
 import dashboard from "./dashboard.json";
 import digitalCards from "./digitalCards.json";
@@ -28,6 +30,8 @@ import watchlist from "./watchlist.json";
 
 const messages = {
   auth,
+  categories,
+  chains,
   common,
   dashboard,
   digitalCards,

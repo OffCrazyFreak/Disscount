@@ -1,0 +1,73 @@
+{
+  "meta": {
+    "indexTitle": "Kategorije proizvoda",
+    "indexDescription": "Pregledaj proizvode po kategorijama i usporedi njihove cijene u hrvatskim trgovačkim lancima.",
+    "categoryTitle": "{name}: usporedi cijene",
+    "categoryPageTitle": "{name}: usporedi cijene, stranica {page}",
+    "categoryDescription": "Usporedi cijene za {count, plural, one {# proizvod} few {# proizvoda} other {# proizvoda}} iz kategorije {name} u hrvatskim trgovačkim lancima."
+  },
+  "breadcrumbs": {
+    "label": "Putanja",
+    "home": "Početna",
+    "categories": "Kategorije"
+  },
+  "index": {
+    "heading": "Kategorije proizvoda",
+    "productCount": "{count, plural, one {# proizvod} few {# proizvoda} other {# proizvoda}}"
+  },
+  "intro": {
+    "count": "Pronašli smo {count, plural, one {# proizvod} few {# proizvoda} other {# proizvoda}} u ovoj kategoriji.",
+    "prices": "Proizvode s ove stranice možeš kupiti u {chains, plural, one {# trgovačkom lancu} few {# trgovačka lanca} other {# trgovačkih lanaca}}, a prosječno koštaju od {low} do {high}.",
+    "cheapest": "{chain} ima najnižu cijenu za {wins} od {priced, plural, one {# proizvoda} few {# proizvoda} other {# proizvoda}}."
+  },
+  "empty": "U ovoj kategoriji još nema proizvoda.",
+  "pagination": {
+    "label": "Stranice",
+    "previous": "Prethodna",
+    "next": "Sljedeća",
+    "pageLabel": "Stranica {page}"
+  },
+  "names": {
+    "hrana-za-ljubimce": "Hrana za kućne ljubimce",
+    "pelene": "Pelene",
+    "toaletni-papir": "Toaletni papir",
+    "pasta-za-zube": "Paste za zube",
+    "sampon": "Šamponi",
+    "deterdzent-za-sude": "Deterdženti za suđe",
+    "deterdzent-za-rublje": "Deterdženti za rublje",
+    "sladoled": "Sladoled",
+    "smrznuto": "Smrznuta hrana",
+    "jogurt": "Jogurti",
+    "mlijeko": "Mlijeko",
+    "maslac": "Maslac",
+    "sir": "Sir",
+    "jaja": "Jaja",
+    "kruh": "Kruh",
+    "brasno": "Brašno",
+    "tjestenina": "Tjestenina",
+    "riza": "Riža",
+    "ulje": "Ulje",
+    "secer": "Šećer",
+    "kava": "Kava",
+    "caj": "Čaj",
+    "voda": "Voda",
+    "sokovi": "Sokovi",
+    "pivo": "Pivo",
+    "vino": "Vino",
+    "cokolada": "Čokolada",
+    "keksi": "Keksi",
+    "grickalice": "Grickalice",
+    "pahuljice": "Pahuljice",
+    "kobasice": "Kobasice",
+    "meso": "Meso",
+    "konzerve": "Konzerve"
+  },
+  "departments": {
+    "hrana": "Hrana",
+    "pice": "Piće",
+    "kozmetika": "Kozmetika",
+    "toaletne-potrepstine": "Toaletne potrepštine",
+    "sredstva-za-ciscenje": "Sredstva za čišćenje",
+    "kucanstvo": "Kućanstvo"
+  }
+}

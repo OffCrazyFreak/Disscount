@@ -207,6 +207,48 @@ class MigrationPathsTest {
         }
     }
 
+    @Test
+    void productsPricedInTheLastImportStayListedAfterTheWindowArrives() throws Exception {
+        String withRun = createDatabase();
+        flyway(withRun).target("10").load().migrate();
+        try (Connection connection = connect(withRun); Statement statement = connection.createStatement()) {
+            insertCatalogueRow(statement, "3850102101017", 4);
+            insertCatalogueRow(statement, "3850102101024", 0);
+            statement.execute("insert into app.product_image_import_run (kind, finished_at) values ('weekly-import', '2026-11-18 03:00')");
+        }
+
+        flyway(withRun).load().migrate();
+
+        try (Connection connection = connect(withRun); Statement statement = connection.createStatement()) {
+            assertThat(strings(statement, "select ean || ' ' || coalesce(last_seen_on::text, '-') from app.product_image_set order by ean"))
+                    .containsExactly("3850102101017 2026-11-18", "3850102101024 -");
+        }
+    }
+
+    // A database that never recorded an import still has priced products, which must not vanish from the sitemap.
+    @Test
+    void withoutARecordedImportPricedProductsCountAsSeenToday() throws Exception {
+        String withoutRun = createDatabase();
+        flyway(withoutRun).target("10").load().migrate();
+        try (Connection connection = connect(withoutRun); Statement statement = connection.createStatement()) {
+            insertCatalogueRow(statement, "3850102101017", 4);
+        }
+
+        flyway(withoutRun).load().migrate();
+
+        try (Connection connection = connect(withoutRun); Statement statement = connection.createStatement()) {
+            assertThat(strings(statement, "select (last_seen_on = current_date)::text from app.product_image_set"))
+                    .containsExactly("true");
+        }
+    }
+
+    private static void insertCatalogueRow(Statement statement, String ean, int storeListings) throws SQLException {
+        statement.execute("""
+                insert into app.product_image_set (ean, chain_count, needs_review, pinned, store_listings)
+                values ('%s', 1, false, false, %d)
+                """.formatted(ean, storeListings));
+    }
+
     private record SavedList(String table, String key, String insert) {
 
         void insert(Statement statement, UUID user, String value) throws SQLException {

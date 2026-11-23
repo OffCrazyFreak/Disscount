@@ -63,8 +63,10 @@ export default function SameSpotPopup({
         side="top"
         sideOffset={28}
         aria-label={t("sameSpot", { count: rows.length })}
-        onEscapeKeyDown={() => {
+        onEscapeKeyDown={(event) => {
           closedByEscape.current = true;
+          // One Escape closes only this list, not the search panel it may sit beside.
+          event.stopPropagation();
         }}
         // No trigger to return to: Escape goes to the map, and a click elsewhere keeps its focus.
         onCloseAutoFocus={(event) => {

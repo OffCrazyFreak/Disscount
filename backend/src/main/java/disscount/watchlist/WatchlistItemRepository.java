@@ -9,11 +9,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import disscount.shared.ProductUseCount;
+
 @Repository
 public interface WatchlistItemRepository extends JpaRepository<WatchlistItem, UUID> {
 
     @Query("SELECT w FROM WatchlistItem w WHERE w.userId = :userId")
     List<WatchlistItem> findByUserId(@Param("userId") UUID userId);
+
+    /** Per watched product the users watching it, so the catalogue can rank what people follow. */
+    @Query("SELECT new disscount.shared.ProductUseCount(w.productApiId, COUNT(DISTINCT w.userId)) "
+            + "FROM WatchlistItem w GROUP BY w.productApiId")
+    List<ProductUseCount> countUsersPerProduct();
 
     @Query("SELECT COUNT(w) FROM WatchlistItem w WHERE w.userId = :userId")
     long countActiveByUserId(@Param("userId") UUID userId);

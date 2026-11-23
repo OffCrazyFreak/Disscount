@@ -1,5 +1,6 @@
 package disscount.productimage;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -451,11 +452,13 @@ class ProductImageServiceTest {
     }
 
     @Test
-    void listedEansSkipProductsNoStorePricesAnyMore() {
-        sets.save(ProductImageSet.builder().ean("5449000000996").chainCount(1).storeListings(1).build());
-        sets.save(ProductImageSet.builder().ean(EAN).chainCount(3).storeListings(40).build());
-        // Listed in a chain's products.csv but priced in no store.
+    void listedEansHoldProductsPricedInTheLastFourteenArchives() {
+        LocalDate newest = LocalDate.of(2026, 11, 20);
+        sets.save(ProductImageSet.builder().ean("5449000000996").chainCount(1).storeListings(1).lastSeenOn(newest).build());
+        sets.save(ProductImageSet.builder().ean(EAN).chainCount(3).storeListings(40).lastSeenOn(newest.minusDays(13)).build());
+        // Listed in a chain's products.csv but never priced in a store.
         sets.save(ProductImageSet.builder().ean("3856021300547").chainCount(1).storeListings(0).build());
+        sets.save(ProductImageSet.builder().ean("3856021300554").chainCount(1).storeListings(5).lastSeenOn(newest.minusDays(14)).build());
 
         assertThat(queries.listedEans().eans()).containsExactly("5449000000996", EAN);
     }

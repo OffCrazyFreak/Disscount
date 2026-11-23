@@ -9,6 +9,15 @@ export function isPriceDateToday(priceDate: string): boolean {
   return priceDate === zagrebClock(new Date()).date;
 }
 
+/** ISO dates sort as text, so the largest is the day a chain last published this product's prices. */
+export function getNewestPriceDate(product: ProductResponse): string | null {
+  return product.chains.reduce<string | null>(
+    (newest, chain) =>
+      newest === null || chain.price_date > newest ? chain.price_date : newest,
+    null,
+  );
+}
+
 export function getMinPrice(product: ProductResponse): number | null {
   if (product.chains.length === 0) return null;
 

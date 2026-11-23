@@ -1,4 +1,4 @@
-import { waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 
@@ -11,6 +11,15 @@ vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ back: vi.fn(), push: vi.fn() }),
 }));
 
+// The page's buttons and gallery need the signed-in user context; only the heading is under test here.
+vi.mock("@/features/products/components/info/product-action-buttons", () => ({
+  default: () => null,
+}));
+
+vi.mock("@/features/products/components/info/product-overview", () => ({
+  default: () => null,
+}));
+
 const PASTA = "8076800195057";
 const CHIPS = "3856021300547";
 const PASTA_URL = "https://images.test/pasta-thumb.jpg";
@@ -21,7 +30,34 @@ function photoBox(container: HTMLElement) {
   );
 }
 
+describe("ProductInfoDisplay on the product page", () => {
+  it("makes the product name the page heading", () => {
+    renderWithProviders(
+      <ProductInfoDisplay
+        product={product([], { ean: PASTA, name: "Barilla Spaghetti Nº5" })}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Barilla Spaghetti Nº5" }),
+    ).toBeInTheDocument();
+  });
+});
+
 describe("ProductInfoDisplay inside a modal", () => {
+  it("keeps the product name below the page heading", () => {
+    renderWithProviders(
+      <ProductInfoDisplay
+        product={product([], { ean: PASTA, name: "Barilla Spaghetti Nº5" })}
+        enableActionButtons={false}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 3, name: "Barilla Spaghetti Nº5" }),
+    ).toBeInTheDocument();
+  });
+
   it("keeps the photo box for a product without a photo, so the header never shifts", async () => {
     server.use(
       http.get("*/api/products/images/thumbnails", () =>

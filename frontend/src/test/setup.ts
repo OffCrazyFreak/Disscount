@@ -1,6 +1,12 @@
-import { afterAll, afterEach } from "vitest";
+import { afterAll, afterEach, vi } from "vitest";
 
 import { server } from "@/test/msw-server";
+
+// Next's data cache exists only inside a Next request, so tests run the cached function itself.
+vi.mock("next/cache", () => ({
+  unstable_cache: <A extends unknown[], R>(fn: (...args: A) => Promise<R>) =>
+    fn,
+}));
 
 const undeclared: string[] = [];
 

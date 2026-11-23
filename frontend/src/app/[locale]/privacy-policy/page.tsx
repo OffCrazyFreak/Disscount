@@ -1,4 +1,5 @@
-import { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
+import { withSharePreview } from "@/utils/seo/share-metadata";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { localizedUrl } from "@/i18n/alternates";
@@ -7,12 +8,22 @@ import LegalPage from "@/components/custom/legal/legal-page";
 import LegalSection from "@/components/custom/legal/legal-section";
 import { CONTACT_EMAIL } from "@/constants/site/contact";
 
-export const metadata: Metadata = {
-  // Croatian only until the rewrite, so every locale points at the one real page.
-  alternates: { canonical: localizedUrl("/privacy-policy", DEFAULT_LOCALE) },
-  title: "Pravila privatnosti",
-  description: "Kako Disscount prikuplja i koristi tvoje podatke.",
-};
+export async function generateMetadata(
+  _props: PageProps<"/[locale]/privacy-policy">,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  return withSharePreview(
+    {
+      // Croatian only until the rewrite, so every locale points at the one real page.
+      alternates: {
+        canonical: localizedUrl("/privacy-policy", DEFAULT_LOCALE),
+      },
+      title: "Pravila privatnosti",
+      description: "Kako Disscount prikuplja i koristi tvoje podatke.",
+    },
+    parent,
+  );
+}
 
 export default async function PrivacyPolicyPage() {
   // The rest of the page is Croatian in every locale, so this section matches it until the rewrite.

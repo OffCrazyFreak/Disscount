@@ -1,4 +1,5 @@
-import { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
+import { withSharePreview } from "@/utils/seo/share-metadata";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { Search } from "lucide-react";
@@ -15,8 +16,11 @@ import { localizePost } from "@/app/[locale]/updates/localize-post";
 import { pageMetadata } from "@/i18n/alternates";
 import { filterByFields, readSearchParam } from "@/utils/format/generic";
 
-export function generateMetadata(): Promise<Metadata> {
-  return pageMetadata("updates", "/updates");
+export async function generateMetadata(
+  _props: PageProps<"/[locale]/updates">,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  return withSharePreview(await pageMetadata("updates", "/updates"), parent);
 }
 
 export default async function UpdatesPage(

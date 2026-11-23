@@ -22,6 +22,10 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("notFound.meta.title"),
     description: t("notFound.meta.description"),
+    // The layout's self canonical would point at the missing URL or /_not-found.
+    alternates: null,
+    // Next adds noindex itself, so the layout's robots tag would make a second one.
+    robots: null,
   };
 }
 

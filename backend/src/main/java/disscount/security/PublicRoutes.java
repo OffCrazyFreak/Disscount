@@ -53,7 +53,10 @@ public final class PublicRoutes {
             new Route(HttpMethod.POST, "/api/contact"),
             new Route(HttpMethod.GET, "/api/products/*/images"),
             new Route(HttpMethod.GET, "/api/products/images/thumbnails"),
-            new Route(HttpMethod.GET, "/api/products/catalog/eans"));
+            new Route(HttpMethod.GET, "/api/products/catalog/eans"),
+            new Route(HttpMethod.GET, "/api/products/categories"),
+            new Route(HttpMethod.GET, "/api/products/categories/*/products"),
+            new Route(HttpMethod.GET, "/api/products/*/category"));
 
     /** A list is shared at its own URL, so these take an optional token and ShoppingListService decides access. */
     static final List<Route> SHARED_LIST = List.of(

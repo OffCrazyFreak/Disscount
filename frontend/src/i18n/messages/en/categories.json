@@ -1,0 +1,73 @@
+{
+  "meta": {
+    "indexTitle": "Product categories",
+    "indexDescription": "Browse products by category and compare their prices across Croatian supermarket chains.",
+    "categoryTitle": "{name}: compare prices",
+    "categoryPageTitle": "{name}: compare prices, page {page}",
+    "categoryDescription": "Compare prices for {count, plural, one {# product} other {# products}} in {name} across Croatian supermarket chains."
+  },
+  "breadcrumbs": {
+    "label": "Breadcrumb",
+    "home": "Home",
+    "categories": "Categories"
+  },
+  "index": {
+    "heading": "Product categories",
+    "productCount": "{count, plural, one {# product} other {# products}}"
+  },
+  "intro": {
+    "count": "We found {count, plural, one {# product} other {# products}} in this category.",
+    "prices": "You can buy the products on this page at {chains, plural, one {# chain} other {# chains}}, at average prices from {low} to {high}.",
+    "cheapest": "{chain} has the lowest price for {wins} of {priced, plural, one {# product} other {# products}}."
+  },
+  "empty": "There are no products in this category yet.",
+  "pagination": {
+    "label": "Pages",
+    "previous": "Previous",
+    "next": "Next",
+    "pageLabel": "Page {page}"
+  },
+  "names": {
+    "hrana-za-ljubimce": "Pet food",
+    "pelene": "Diapers",
+    "toaletni-papir": "Toilet paper",
+    "pasta-za-zube": "Toothpaste",
+    "sampon": "Shampoo",
+    "deterdzent-za-sude": "Dishwashing detergent",
+    "deterdzent-za-rublje": "Laundry detergent",
+    "sladoled": "Ice cream",
+    "smrznuto": "Frozen food",
+    "jogurt": "Yogurt",
+    "mlijeko": "Milk",
+    "maslac": "Butter",
+    "sir": "Cheese",
+    "jaja": "Eggs",
+    "kruh": "Bread",
+    "brasno": "Flour",
+    "tjestenina": "Pasta",
+    "riza": "Rice",
+    "ulje": "Oil",
+    "secer": "Sugar",
+    "kava": "Coffee",
+    "caj": "Tea",
+    "voda": "Water",
+    "sokovi": "Juices",
+    "pivo": "Beer",
+    "vino": "Wine",
+    "cokolada": "Chocolate",
+    "keksi": "Biscuits",
+    "grickalice": "Snacks",
+    "pahuljice": "Cereal",
+    "kobasice": "Sausages",
+    "meso": "Meat",
+    "konzerve": "Canned food"
+  },
+  "departments": {
+    "hrana": "Food",
+    "pice": "Drinks",
+    "kozmetika": "Cosmetics",
+    "toaletne-potrepstine": "Toiletries",
+    "sredstva-za-ciscenje": "Cleaning products",
+    "kucanstvo": "Household"
+  }
+}
