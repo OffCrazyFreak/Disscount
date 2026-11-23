@@ -6,10 +6,11 @@ import {
   useEffect,
   useCallback,
   useRef,
+  useState,
   useSyncExternalStore,
   ReactNode,
 } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Sentry from "@sentry/nextjs";
 
 import { authClient, useSession } from "@/lib/auth/client";
@@ -21,18 +22,12 @@ import {
 } from "@/lib/offline/cache-identity";
 import { sessionIdentity } from "@/lib/auth/pending-sign-out";
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
-import {
-  isProfileOfAnotherAccount,
-  mergeSessionUser,
-} from "@/context/merge-session-user";
-import {
-  isUnverifiedAccount,
-  syncCacheIdentity,
-} from "@/context/sync-cache-identity";
-import { useAccountUser } from "@/context/use-account-user";
+import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
+import { userProfileQueryOptions } from "@/lib/api/users/profile-query";
+import { useProfileUpdaters } from "@/lib/api/users/use-profile-updaters";
+import { deriveAccountState } from "@/context/derive-account-state";
+import { syncCacheIdentity } from "@/context/sync-cache-identity";
 import { useLogout } from "@/context/use-logout";
-import { useProfileLoader } from "@/context/use-profile-loader";
-import { useUserUpdaters } from "@/context/use-user-updaters";
 
 interface IUserContext {
   user: UserDto | null;
@@ -47,8 +42,7 @@ interface IUserContext {
   /** For showing the account and its preferences only, never for acting on it. */
   accountUser: UserDto | null;
   refreshUser: () => Promise<UserDto | undefined>;
-  setUser: (user: UserDto | null) => void;
-  /** Folds because convertToUserDto omits pinnedStores and pinnedPlaces, which setUser would drop. */
+  /** Folds because convertToUserDto omits pinnedStores and pinnedPlaces, which a plain replace would drop. */
   mergeUser: (patch: Partial<UserDto>) => void;
   logout: () => Promise<void>;
   updatePinnedStores: (stores: PinnedStoreDto[]) => void;
@@ -63,10 +57,10 @@ interface IUserProviderProps {
 }
 
 export function UserProvider({ children }: IUserProviderProps) {
-  const { user, setUser, isLoading, hasResolvedAuth, refreshUser, clearUser } =
-    useProfileLoader();
   // Seeded so a reload as the same account is no identity change, which would purge the restored cache.
   const cacheIdentityRef = useRef<string | null>(persistedCacheIdentity());
+  // The account the last resolved session names; undefined until the first one resolves.
+  const [sessionAccount, setSessionAccount] = useState<string | null>();
 
   const queryClient = useQueryClient();
   const {
@@ -75,10 +69,29 @@ export function UserProvider({ children }: IUserProviderProps) {
     error: sessionError,
   } = useSession();
 
+  const cacheIdentity = useSyncExternalStore(
+    subscribeToCacheIdentity,
+    getCacheIdentity,
+    () => ANONYMOUS_IDENTITY,
+  );
+  // Until the pin moves, a profile request would act as the previous account and be refused.
+  const accountId =
+    sessionAccount && sessionAccount === cacheIdentity ? sessionAccount : null;
+  const profileQuery = useQuery(userProfileQueryOptions(accountId));
+  const { refetch: refetchProfile } = profileQuery;
+
+  const reloadProfile = useCallback(async () => {
+    // A running load with no data yet would be reused, and it acts as the previous account.
+    await queryClient.cancelQueries({ queryKey: USER_QUERY_KEYS.me });
+    const result = await refetchProfile();
+    return result.isSuccess ? result.data : undefined;
+  }, [queryClient, refetchProfile]);
+
   useEffect(() => {
     if (sessionPending) return;
 
     const identity = sessionIdentity(session, sessionError);
+    const previousIdentity = cacheIdentityRef.current;
 
     syncCacheIdentity(queryClient, cacheIdentityRef, identity, sessionError);
     // A failed lookup leaves the account unknown, as it does for the cache purge.
@@ -87,11 +100,12 @@ export function UserProvider({ children }: IUserProviderProps) {
       Sentry.setUser(identity ? { id: identity } : null);
     }
 
-    // Both sides react to an auth result that only exists after the session resolves, so neither is derivable.
-    if (identity) {
-      refreshUser();
-    } else {
-      clearUser();
+    // sessionIdentity can end a pending sign-out, so the resolved account is a result of this effect, not of render.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSessionAccount(identity);
+    // The key stays the same across accounts, so a new account has to ask.
+    if (identity && cacheIdentityRef.current !== previousIdentity) {
+      void reloadProfile();
     }
     // Keyed on the id because better-auth returns a new session object on every poll.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -99,12 +113,17 @@ export function UserProvider({ children }: IUserProviderProps) {
     session?.user?.id,
     sessionPending,
     sessionError,
-    refreshUser,
-    clearUser,
+    reloadProfile,
     queryClient,
   ]);
 
-  const handleLogout = useLogout(cacheIdentityRef, setUser);
+  const forgetAccount = useCallback(() => setSessionAccount(null), []);
+  const handleLogout = useLogout(cacheIdentityRef, forgetAccount);
+
+  const refreshUser = useCallback(async () => {
+    const result = await refetchProfile();
+    return result.isSuccess ? result.data : undefined;
+  }, [refetchProfile]);
 
   const handleUserLogin = useCallback(async () => {
     // The proxy refuses a pin differing from the cookie, and useSession may lag, so the pin moves first.
@@ -115,41 +134,30 @@ export function UserProvider({ children }: IUserProviderProps) {
       data?.user?.id ?? null,
       error,
     );
-    await refreshUser();
-  }, [queryClient, refreshUser]);
+    await reloadProfile();
+  }, [queryClient, reloadProfile]);
 
   const { updatePinnedStores, updatePinnedPlaces, mergeUser } =
-    useUserUpdaters(setUser);
+    useProfileUpdaters();
 
-  const cacheIdentity = useSyncExternalStore(
-    subscribeToCacheIdentity,
-    getCacheIdentity,
-    () => ANONYMOUS_IDENTITY,
-  );
-  // Withheld, with the flags reading as loading and never as signed out.
-  const isSwitchingAccount = isProfileOfAnotherAccount(user, session?.user);
-  const mergedUser = isSwitchingAccount
-    ? null
-    : mergeSessionUser(user, session?.user);
-  const hasUnverifiedAccount = isUnverifiedAccount(
-    !!mergedUser,
+  const account = deriveAccountState({
+    session,
     sessionPending,
     sessionError,
+    sessionAccount,
     cacheIdentity,
-  );
-  const accountUser = useAccountUser(mergedUser, hasUnverifiedAccount);
+    accountId,
+    profile: profileQuery.data,
+    // Stays failed through a refetch, until one succeeds.
+    hasProfileFailed: profileQuery.isError,
+    profileFetchStatus: profileQuery.fetchStatus,
+  });
 
   const value: IUserContext = {
-    user: mergedUser,
-    isLoading: isLoading || sessionPending || isSwitchingAccount,
-    isInitializing: !hasResolvedAuth || isSwitchingAccount,
-    isAuthenticated: !!mergedUser || isSwitchingAccount,
-    hasUnverifiedAccount,
-    canShowAccountData:
-      !!mergedUser || hasUnverifiedAccount || isSwitchingAccount,
-    accountUser,
+    ...account,
+    // Background refetches of the same account leave it false, so screens do not flash a loading state on focus.
+    isLoading: account.isInitializing,
     refreshUser,
-    setUser,
     mergeUser,
     logout: handleLogout,
     updatePinnedStores,
