@@ -45,8 +45,9 @@ interface IUserContext {
   /** Folds because convertToUserDto omits pinnedStores and pinnedPlaces, which a plain replace would drop. */
   mergeUser: (patch: Partial<UserDto>) => void;
   logout: () => Promise<void>;
-  updatePinnedStores: (stores: PinnedStoreDto[]) => void;
-  updatePinnedPlaces: (places: PinnedPlaceDto[]) => void;
+  /** savedFor: the account the save was sent as, so a late answer for another account is dropped. */
+  updatePinnedStores: (stores: PinnedStoreDto[], savedFor?: string) => void;
+  updatePinnedPlaces: (places: PinnedPlaceDto[], savedFor?: string) => void;
   handleUserLogin: () => Promise<void>;
 }
 

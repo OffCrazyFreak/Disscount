@@ -52,3 +52,53 @@ describe("useProfileUpdaters", () => {
     );
   });
 });
+
+describe("useProfileUpdaters with the new account's profile loaded", () => {
+  const PROFILE_OF_B = {
+    ...storedUser,
+    id: "user-b",
+    onboardingOutcome: "completed",
+    pinnedStores: [],
+  } as UserDto;
+
+  function renderWithProfileOfB() {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(USER_QUERY_KEYS.me, PROFILE_OF_B);
+    const { result } = renderHookWithProviders(() => useProfileUpdaters(), {
+      queryClient,
+    });
+    return { queryClient, result };
+  }
+
+  it("drops pinned stores saved by the previous account", async () => {
+    const { queryClient, result } = renderWithProfileOfB();
+    const pinsOfA = [
+      { id: "pin-a", userId: "user-a", storeApiId: "konzum:1", storeName: "K" },
+    ];
+
+    await act(async () => result.current.updatePinnedStores(pinsOfA, "user-a"));
+
+    expect(queryClient.getQueryData(USER_QUERY_KEYS.me)).toEqual(PROFILE_OF_B);
+  });
+
+  it("drops pinned places saved by the previous account", async () => {
+    const { queryClient, result } = renderWithProfileOfB();
+
+    await act(async () => result.current.updatePinnedPlaces([], "user-a"));
+
+    expect(queryClient.getQueryData(USER_QUERY_KEYS.me)).toEqual(PROFILE_OF_B);
+  });
+
+  it("keeps a finished onboarding when an earlier skip answers late", async () => {
+    const { queryClient, result } = renderWithProfileOfB();
+
+    await act(async () =>
+      result.current.mergeUser({
+        id: "user-b",
+        onboardingOutcome: "skipped:2",
+      }),
+    );
+
+    expect(queryClient.getQueryData(USER_QUERY_KEYS.me)).toEqual(PROFILE_OF_B);
+  });
+});

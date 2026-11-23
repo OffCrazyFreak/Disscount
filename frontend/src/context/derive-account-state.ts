@@ -24,6 +24,16 @@ interface IAccountInputs {
   profileFetchStatus: FetchStatus;
 }
 
+/** Offline the profile request fails, so the saved copy keeps pinned stores, name and avatar; logout clears it. */
+function savedProfileOf(
+  hasUnverifiedAccount: boolean,
+  profile: UserDto | undefined,
+  cacheIdentity: string,
+): UserDto | null {
+  // The previous account's entry can outlive a switch until the purge's reset lands.
+  return hasUnverifiedAccount && profile?.id === cacheIdentity ? profile : null;
+}
+
 /** Which profile the tab may show, and whether one is still on its way. */
 function profileVisibility({
   session,
@@ -87,7 +97,7 @@ export function deriveAccountState(inputs: IAccountInputs) {
     isAuthenticated: !!user || isSwitchingAccount,
     hasUnverifiedAccount,
     canShowAccountData: !!user || hasUnverifiedAccount || isSwitchingAccount,
-    // Offline the profile request fails, so the saved copy keeps pinned stores, name and avatar; logout clears it.
-    accountUser: user ?? (hasUnverifiedAccount ? (profile ?? null) : null),
+    accountUser:
+      user ?? savedProfileOf(hasUnverifiedAccount, profile, cacheIdentity),
   };
 }
