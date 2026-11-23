@@ -2,7 +2,6 @@ import type { MetadataRoute } from "next";
 import { appUrl } from "@/lib/env";
 import { PROTECTED_ROUTE_PREFIXES } from "@/constants/protected-routes";
 import { DEFAULT_LOCALE, LOCALES } from "@/i18n/locales";
-import { productSitemapUrls } from "@/utils/product-sitemap";
 
 const baseUrl = appUrl();
 
@@ -36,7 +35,7 @@ export default function robots(): MetadataRoute.Robots {
         "/api/",
       ],
     },
-    // Next writes no sitemap index for generateSitemaps, so each product file is listed here.
-    sitemap: [`${baseUrl}/sitemap.xml`, ...productSitemapUrls()],
+    // The index names sitemap.xml and every product file, so they need no lines of their own.
+    sitemap: `${baseUrl}/sitemap-index.xml`,
   };
 }

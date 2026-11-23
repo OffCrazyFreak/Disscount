@@ -6,51 +6,35 @@ import { DEFAULT_LOCALE } from "@/i18n/locales";
 // Each entry is the Croatian URL plus its hreflang set, so each language is discoverable without listing it five times.
 function entry(
   href: string,
-  fields: Omit<MetadataRoute.Sitemap[number], "url" | "alternates">,
+  lastModified?: Date,
 ): MetadataRoute.Sitemap[number] {
   return {
     url: localizedUrl(href, DEFAULT_LOCALE),
     alternates: { languages: languageAlternates(href) },
-    ...fields,
+    ...(lastModified && { lastModified }),
   };
 }
 
 // The legal pages exist in Croatian only for now, so they get no hreflang set.
-function croatianOnly(
-  href: string,
-  fields: Omit<MetadataRoute.Sitemap[number], "url" | "alternates">,
-): MetadataRoute.Sitemap[number] {
-  return { url: localizedUrl(href, DEFAULT_LOCALE), ...fields };
+function croatianOnly(href: string): MetadataRoute.Sitemap[number] {
+  return { url: localizedUrl(href, DEFAULT_LOCALE) };
 }
 
+// Statistics stays out until its server HTML has more than a heading; Google ignores priority and change frequency.
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
-    entry("/", { changeFrequency: "weekly", priority: 1 }),
-    entry("/products", { changeFrequency: "daily", priority: 0.9 }),
-    entry("/updates", { changeFrequency: "weekly", priority: 0.6 }),
-    entry("/suggestions", { changeFrequency: "weekly", priority: 0.5 }),
-    entry("/map", { changeFrequency: "monthly", priority: 0.5 }),
-    entry("/statistics", { changeFrequency: "monthly", priority: 0.5 }),
-    croatianOnly("/privacy-policy", {
-      changeFrequency: "yearly",
-      priority: 0.2,
-    }),
-    croatianOnly("/terms-of-service", {
-      changeFrequency: "yearly",
-      priority: 0.2,
-    }),
-    croatianOnly("/data-deletion", {
-      changeFrequency: "yearly",
-      priority: 0.2,
-    }),
+    entry("/"),
+    entry("/products"),
+    entry("/updates"),
+    entry("/suggestions"),
+    entry("/map"),
+    croatianOnly("/privacy-policy"),
+    croatianOnly("/terms-of-service"),
+    croatianOnly("/data-deletion"),
   ];
 
   const postRoutes: MetadataRoute.Sitemap = templatePosts.map((post) =>
-    entry(`/updates/${post.id}`, {
-      lastModified: new Date(post.date),
-      changeFrequency: "yearly",
-      priority: 0.4,
-    }),
+    entry(`/updates/${post.id}`, new Date(post.date)),
   );
 
   return [...staticRoutes, ...postRoutes];
