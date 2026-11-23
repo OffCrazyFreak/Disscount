@@ -17,7 +17,7 @@ export function signedToken(sub: string) {
 }
 
 function cookieUser(headers: Headers) {
-  return /session=([\w-]+)/.exec(headers.get("cookie") ?? "")?.[1];
+  return /(?:^|;\s*)session=([\w-]+)/.exec(headers.get("cookie") ?? "")?.[1];
 }
 
 /** Stands in for better-auth's getSession and getToken: the test cookie names the account whose session it is. */
