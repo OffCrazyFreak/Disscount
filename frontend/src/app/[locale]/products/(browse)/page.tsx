@@ -21,19 +21,17 @@ export default async function ProductsPage(
 
   // ProductsClient's useSearchParams needs a Suspense boundary when prerendering.
   return (
-    <>
-      <Suspense
-        fallback={
-          <div className="space-y-4">
-            <SearchBarSkeleton />
-            <div className="flex items-center justify-center py-12">
-              <BlockLoadingSpinner />
-            </div>
+    <Suspense
+      fallback={
+        <div className="space-y-4">
+          <SearchBarSkeleton />
+          <div className="flex items-center justify-center py-12">
+            <BlockLoadingSpinner />
           </div>
-        }
-      >
-        <ProductsClient query={query} />
-      </Suspense>
-    </>
+        </div>
+      }
+    >
+      <ProductsClient query={query} />
+    </Suspense>
   );
 }
