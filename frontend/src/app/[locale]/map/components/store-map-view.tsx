@@ -86,7 +86,8 @@ export default function StoreMapView({
   const { handleMoveStart } = useMapCamera({
     mapRef,
     mapReady,
-    selectedPoint,
+    selected,
+    cover,
     centerRequest,
     initialView,
   });

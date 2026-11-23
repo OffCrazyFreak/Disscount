@@ -133,8 +133,8 @@ export default function MapStorePopover({
           event.stopPropagation();
           close();
         }}
-        // The map container sets its own font, which the page's must win over.
-        className="flex max-h-[min(30rem,calc(100svh-var(--header-bottom)-3rem))] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-y-auto font-sans text-base leading-normal text-popover-foreground outline-hidden"
+        // The page's font must win over the map container's; the height leaves room for the popup's tip and frame.
+        className="flex max-h-[min(30rem,calc(100svh-var(--header-bottom)-4.5rem))] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-y-auto font-sans text-base leading-normal text-popover-foreground outline-hidden"
       >
         <MapStoreCard row={row} onClose={close} />
       </div>

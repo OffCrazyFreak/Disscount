@@ -4,13 +4,19 @@ import { RefObject, useEffect, useEffectEvent, useRef, useState } from "react";
 import type { MapRef, ViewStateChangeEvent } from "react-map-gl/maplibre";
 
 import { ICenterRequest } from "@/hooks/use-geolocation";
+import { useKeepSelectionInView } from "@/app/[locale]/map/hooks/use-keep-selection-in-view";
+import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { circleBounds } from "@/app/[locale]/map/utils/circle";
+import { toSelectedPoint } from "@/app/[locale]/map/utils/map-view";
+import { IMapCover } from "@/app/[locale]/map/utils/view-area";
 import { ILatLon } from "@/utils/distance";
 
 interface IUseMapCameraOptions {
   mapRef: RefObject<MapRef | null>;
   mapReady: boolean;
-  selectedPoint: ILatLon | null;
+  selected: IListedStore | null;
+  /** What the header, sheet, nav or panel hides, which the picked store must clear. */
+  cover: IMapCover;
   centerRequest: ICenterRequest | null;
   initialView: (ILatLon & { zoom: number }) | null;
 }
@@ -18,7 +24,8 @@ interface IUseMapCameraOptions {
 export function useMapCamera({
   mapRef,
   mapReady,
-  selectedPoint,
+  selected,
+  cover,
   centerRequest,
   initialView,
 }: IUseMapCameraOptions) {
@@ -30,6 +37,7 @@ export function useMapCamera({
     window.location.hash.startsWith("#map="),
   );
 
+  const selectedPoint = toSelectedPoint(selected);
   const selectedLat = selectedPoint?.lat;
   const selectedLon = selectedPoint?.lon;
 
@@ -43,6 +51,8 @@ export function useMapCamera({
       zoom: Math.max(map.getZoom(), 15),
     });
   }, [mapRef, mapReady, selectedLat, selectedLon]);
+
+  useKeepSelectionInView({ mapRef, mapReady, selected, cover });
 
   const hasSelection = selectedLat != null;
 
