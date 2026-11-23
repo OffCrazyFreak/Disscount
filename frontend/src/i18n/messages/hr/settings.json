@@ -83,7 +83,7 @@
     }
   },
   "save": {
-    "offline": "Izvan si mreže. Spremit ćemo promjene čim se spojiš.",
+    "offline": "Izvan si mreže, pa promjene nisu spremljene. Spoji se i spremi ponovno.",
     "onboardingDone": "Sve je spremno!",
     "settingsSaved": "Postavke su spremljene!",
     "errors": {

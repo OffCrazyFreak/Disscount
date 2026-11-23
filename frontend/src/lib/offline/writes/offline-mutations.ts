@@ -70,6 +70,8 @@ export function registerOfflineMutationDefaults(
   ) {
     queryClient.setMutationDefaults<TData, Error, TVariables>(mutationKey, {
       mutationFn,
+      // Overrides the app's "always": these pause offline and are saved to disk to send later.
+      networkMode: "online",
       ...(scope ? { scope } : {}),
       // A card write replayed from disk keeps the bounded retry of one started live.
       ...(scope === DIGITAL_CARD_MUTATION_SCOPE ? CARD_WRITE_RETRY : {}),

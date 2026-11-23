@@ -15,6 +15,8 @@ import {
   isUnexpectedFailure,
   shouldRetryQuery,
 } from "@/lib/api/query-client-defaults";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/writes/offline-mutation-keys";
+import { registerOfflineMutationDefaults } from "@/lib/offline/writes/offline-mutations";
 import { httpError } from "@/test/backend/http-error";
 
 vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
@@ -248,5 +250,40 @@ describe("createQueryClientConfig", () => {
       client.getQueryCache().find({ queryKey: ["products", "ean"] })?.gcTime,
     ).toBe(7 * 24 * 60 * 60 * 1000);
     expect(vi.getTimerCount()).toBe(1);
+  });
+});
+
+describe("writes made offline", () => {
+  function offlineClient() {
+    onlineManager.setOnline(false);
+    const client = new QueryClient(createQueryClientConfig());
+    registerOfflineMutationDefaults(
+      client,
+      (key) => key,
+      (key) => key,
+    );
+    return client;
+  }
+
+  it("fail at once when they are off the offline allowlist", async () => {
+    const client = offlineClient();
+    const write = client.getMutationCache().build(client, {
+      mutationKey: ["settings", "save"],
+      mutationFn: () => Promise.reject(networkFailure()),
+    });
+
+    await expect(write.execute(undefined)).rejects.toThrow("Network Error");
+    expect(write.state.isPaused).toBe(false);
+  });
+
+  it("still wait for the network when they are on the allowlist", async () => {
+    const client = offlineClient();
+    const write = client.getMutationCache().build(client, {
+      mutationKey: OFFLINE_MUTATION_KEYS.watchlistRemove,
+    });
+
+    void write.execute("watchlist-item-id");
+
+    await vi.waitFor(() => expect(write.state.isPaused).toBe(true));
   });
 });
