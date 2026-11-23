@@ -17,6 +17,7 @@ Reference documentation for Disscount. Each file is a standalone deep-dive into 
 - [LANDING.md](LANDING.md) - landing page composition, server-vs-client rendering, SEO, fonts.
 - [BRAND.md](BRAND.md) - brand image system (logo, favicon, PWA icons, splash screens, social kit).
 - [PRODUCTS.md](PRODUCTS.md) - product data from the cijene API: the proxy, the server rendered product page, SEO, prices, price history, watchlist alerts, shopping list rows, offline.
+- [SEO.md](SEO.md) - crawling and indexing: real 404s, cached server lookups, product page markup, category and chain hubs, sitemaps, robots, metadata rules, IndexNow and the daily catalogue import.
 - [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md) - product photos: Open Food Facts and user sources, storage on the server's disk, rendering, delivery, the admin review queue, failure modes.
 - [DIGITAL-CARDS.md](DIGITAL-CARDS.md) - the card wallet: data model, API, photos, offline queueing, scanner hardening, barcode rendering, privacy.
 - [IMAGE-UPLOADS.md](IMAGE-UPLOADS.md) - how avatars, card photos and product photos are resized, stripped of metadata and checked on the server.

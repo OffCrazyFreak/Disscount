@@ -21,7 +21,7 @@ A reference for how product data reaches the app: where it comes from, how the p
 | Offline              | Products, prices and history you have seen stay readable; watchlist add and remove queue and replay                                     |
 | Tests                | `pnpm test` (frontend), `mvn -B verify` (backend)                                                                                       |
 
-**Daily workflow:** nothing to configure. The upstream token is set once per environment in Dokploy, and the weekly catalogue import that feeds the sitemap runs by itself.
+**Daily workflow:** nothing to configure. The upstream token is set once per environment in Dokploy, and the daily catalogue import that feeds the sitemap runs by itself.
 
 ---
 
@@ -32,7 +32,7 @@ Disscount does not own a product database. Croatian law requires chains to publi
 ```mermaid
 flowchart LR
     U[cijene API<br/>api.cijene.dev] -->|v1 with our bearer token| N[Next.js server<br/>/api/cijene/* and server components]
-    U -->|v0 /list daily archives| B[Spring backend<br/>weekly catalogue import]
+    U -->|v0 /list daily archives| B[Spring backend<br/>daily catalogue import]
     N -->|JSON, validated with zod| C[Browser<br/>React Query cache]
     B -->|/api/products/catalog/eans| S[Product sitemaps]
     B -->|photos, watchlist, list items| C
@@ -93,7 +93,7 @@ The matching, ranking and diacritic folding are covered in [SEARCH.md](SEARCH.md
 
 ```mermaid
 flowchart TD
-    R[Request /products/ean] --> L["[locale]/loading.tsx streams a spinner with status 200"]
+    R[Request /products/ean] --> L["No loading.tsx above the page,<br/>so nothing streams before the lookup"]
     R --> M[generateMetadata]
     R --> P[Page component]
     M --> GP["getServerProduct(ean)<br/>React cache(), shared with the page"]
@@ -140,11 +140,11 @@ Issue #230 (product page SEO) asked for real titles, server rendered data, sitem
 **Sitemaps.**
 
 - `app/products/sitemap.ts` uses `generateSitemaps` to write eight files, `/products/sitemap/0.xml` to `7.xml` (`utils/product-sitemap.ts`). Eight files leave room for 400,000 products under Google's 50,000 URLs per file.
-- Each EAN goes to the file chosen by a stable hash of the EAN, so it stays in the same file from one weekly import to the next.
-- The EANs come from the backend (`GET /api/products/catalog/eans`: every EAN some chain priced in the latest weekly catalogue import), fetched with `next: { revalidate: 3600 }` and a 15 second timeout. A failed fetch throws, so the sitemap answers 500, which crawlers retry, instead of an empty list.
+- Each EAN goes to the file chosen by a stable hash of the EAN, so it stays in the same file from one daily import to the next.
+- The EANs come from the backend (`GET /api/products/catalog/eans`: every EAN some chain priced in any of the last 14 daily archives, see [SEO.md §12](SEO.md#12-indexnow-and-the-catalogue-import)), fetched with `next: { revalidate: 3600 }` and a 15 second timeout. A failed fetch throws, so the sitemap answers 500, which crawlers retry, instead of an empty list.
 - The product sitemaps call `connection()`, so they render per request: the backend is not reachable while the Docker image builds.
 - Croatian URLs only, and no `lastmod`, because the catalogue has no honest per-product date and Google ignores one it cannot trust.
-- Next writes no sitemap index for `generateSitemaps`, so `app/robots.ts` lists `sitemap.xml` and every product file by name. The main `app/sitemap.ts` lists `/products` itself.
+- Next writes no sitemap index for `generateSitemaps`, so the hand-written `/sitemap-index.xml` lists `sitemap.xml`, the category sitemap and every product file, and `app/robots.ts` names only the index. The main `app/sitemap.ts` lists `/products` itself. The whole sitemap setup is in [SEO.md §9](SEO.md#9-sitemaps).
 
 ---
 
@@ -238,7 +238,7 @@ All copy is in the next-intl catalogs, in all five languages ([I18N.md](I18N.md)
 | `frontend/src/app/products/sitemap.ts`, `frontend/src/utils/product-sitemap.ts`, `frontend/src/app/robots.ts` | Product sitemaps and their listing                                    |
 | `frontend/src/utils/product-id.ts`, `product-links.ts`                                                        | Product id shape and decoding; the one place the product URL is built |
 | `frontend/src/constants/price-history.ts`                                                                     | Periods, the archive start date, disabled periods                     |
-| `backend/.../productimage/catalog/`                                                                           | The weekly catalogue import behind the sitemap's EAN list             |
+| `backend/.../productimage/catalog/`                                                                           | The daily catalogue import behind the sitemap's EAN list              |
 
 `backend/...` is `backend/src/main/java/disscount/`.
 
@@ -272,7 +272,7 @@ Versions are in `frontend/package.json` and `backend/pom.xml`. The ones whose ro
 | Thing                                         | Auto or manual       | How                                                                       |
 | --------------------------------------------- | -------------------- | ------------------------------------------------------------------------- |
 | Fresh prices every day                        | Auto                 | Upstream publishes; our caches expire within hours                        |
-| Weekly catalogue import (sitemap EANs)        | Auto                 | Backend job, see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#5-background-jobs) |
+| Daily catalogue import (sitemap EANs)         | Auto                 | Backend job, see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#5-background-jobs) |
 | Product sitemaps                              | Auto                 | Rendered per request from the backend's EAN list                          |
 | Watchlist alerts                              | Auto, in the browser | Computed whenever the app loads the watched products                      |
 | Replaying offline watchlist and list writes   | Auto                 | Paused mutations, see [PWA.md](PWA.md)                                    |
@@ -294,7 +294,7 @@ Not covered: the proxy routes against real upstream responses, the fuzzy fallbac
 | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **One shared upstream token with a daily quota**         | Every visitor's request spends it. Count requests, not bytes: that is why city prices switch to one country wide request above three cities, and why 1Y and ALL history are off                    |
 | **An outage is not a 404**                               | `getServerProduct` keeps `unavailable` apart from `missing`. Treating both as not found would serve real products as 404s during an upstream blip; the outage page answers 500 instead             |
-| **`loading.tsx` has already sent a 200**                 | The locale layout's `app/[locale]/loading.tsx` streams first, so by the time the page calls `notFound()`, the status is on the wire, so Next marks the page noindex instead of sending a 404       |
+| **A `loading.tsx` above the page sends a 200**           | A loading file streams first, so `notFound()` finds the status on the wire and can only add noindex. None sits above this page; `loading-boundaries.test.ts` guards it                             |
 | **Upstream strips leading zeros**                        | Use the EAN from the response for canonicals, sitemaps and photos; the backend stores product photos, watchlist entries and list items under the same stripped code (`CanonicalBarcode`)           |
 | **Not every product id is a barcode**                    | cijene keys products sold without one as `<chain>:<code>`, and in-store codes fail the GS1 check digit. `isWellFormedProductId` checks the shape only; JSON-LD emits `gtin` only for a public GTIN |
 | **Next decodes `[id]` differently in metadata and page** | Always go through `decodeProductId`, or the two make separate upstream calls and can build different canonicals                                                                                    |
@@ -311,7 +311,7 @@ Not covered: the proxy routes against real upstream responses, the fuzzy fallbac
 
 ## 19. Future improvements and TODOs
 
-- [ ] #230, product page SEO: what is left after PRs #392 and #418, such as caching the server fetch and checking the rich result in Search Console.
+- [ ] #230, product page SEO: checking the rich result in Search Console. The server lookups are cached since #530 ([SEO.md §4](SEO.md#4-cached-server-lookups)).
 - [ ] `getServerProduct` uses the client's 30 second timeout, while prices and the photo have their own short ones; a slow upstream holds the HTML that long.
 - [ ] #62 and #45: periods longer than a month, once history can be fetched in one request instead of one per day.
 - [ ] #278: show sale prices and flag sales that are not below the 30-day low. #63: base discount detection on price history.
