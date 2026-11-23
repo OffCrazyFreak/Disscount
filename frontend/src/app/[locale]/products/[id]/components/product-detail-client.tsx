@@ -11,15 +11,18 @@ import { useProductDetail } from "@/app/[locale]/products/[id]/hooks/use-product
 
 interface IProductDetailClientProps {
   ean: string;
+  /** The Zagreb calendar date the server rendered on. */
+  today: string;
 }
 
 export default function ProductDetailClient({
   ean,
+  today,
 }: IProductDetailClientProps) {
   const t = useTranslations("productDetail");
   const tSections = useTranslations("common.sectionNav");
   const detail = useProductDetail(ean);
-  const { product, productLoading, productError } = detail;
+  const { product, productLoading } = detail;
   // Restoring queries report idle and the server always restores; a seeded product renders at once.
   const isRestoring = useIsRestoring();
 
@@ -31,7 +34,8 @@ export default function ProductDetailClient({
     );
   }
 
-  if (productError || !product) {
+  // A failed background refetch keeps the cached product on screen.
+  if (!product) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
@@ -59,7 +63,13 @@ export default function ProductDetailClient({
             label: tSections("stores"),
             shortLabel: tSections("storesShort"),
             count: detail.sortedChains.length,
-            content: <ProductChainsSection product={product} detail={detail} />,
+            content: (
+              <ProductChainsSection
+                product={product}
+                detail={detail}
+                today={today}
+              />
+            ),
           },
           {
             id: "price-history",

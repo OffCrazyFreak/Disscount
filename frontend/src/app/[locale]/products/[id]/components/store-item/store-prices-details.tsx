@@ -3,7 +3,7 @@ import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinne
 import type { ProductResponse, StorePrice } from "@/lib/cijene-api/schemas";
 import StorePricesTable from "@/app/[locale]/products/[id]/components/store-item/store-prices-table";
 
-export type StorePricesStatus = "pending" | "error" | "success";
+export type StorePricesStatus = "pending" | "error" | "offline" | "success";
 
 interface IStorePricesDetailsProps {
   storePrices: StorePrice[];
@@ -28,6 +28,10 @@ export default function StorePricesDetails({
 
   if (status === "error") {
     return <p className="p-2 text-gray-600 text-center">{t("loadError")}</p>;
+  }
+
+  if (status === "offline") {
+    return <p className="p-2 text-gray-600 text-center">{t("offline")}</p>;
   }
 
   return <StorePricesTable storePrices={storePrices} product={product} />;

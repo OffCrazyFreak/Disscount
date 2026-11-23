@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useProductDetail } from "@/app/[locale]/products/[id]/hooks/use-product-detail";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
@@ -24,14 +24,20 @@ vi.mock("@/context/user-context", () => ({
   }),
 }));
 
+const prices = vi.hoisted(() => ({
+  data: { store_prices: [] } as { store_prices: never[] } | undefined,
+  fetchStatus: "idle" as "idle" | "fetching" | "paused",
+}));
+
 vi.mock("@/lib/cijene-api", () => ({
   default: {
     useGetProductByEan: () => ({ data: SUGAR, isLoading: false, error: null }),
     useGetPrices: () => ({
-      data: { store_prices: [] },
+      data: prices.data,
       isLoading: false,
       error: null,
       dataUpdatedAt: 0,
+      fetchStatus: prices.fetchStatus,
     }),
   },
 }));
@@ -42,6 +48,11 @@ vi.mock("@/hooks/use-distance-sort", () => ({
 }));
 
 describe("useProductDetail", () => {
+  beforeEach(() => {
+    prices.data = { store_prices: [] };
+    prices.fetchStatus = "idle";
+  });
+
   it("offline, leads with the saved profile's pinned chain", () => {
     const { result } = renderHookWithProviders(() =>
       useProductDetail(SUGAR.ean),
@@ -51,5 +62,26 @@ describe("useProductDetail", () => {
       "konzum",
       "spar",
     ]);
+  });
+
+  it("offline with no saved prices, says so instead of reporting no stores", () => {
+    prices.data = undefined;
+    prices.fetchStatus = "paused";
+
+    const { result } = renderHookWithProviders(() =>
+      useProductDetail(SUGAR.ean),
+    );
+
+    expect(result.current.pricesOffline).toBe(true);
+  });
+
+  it("offline with saved prices, keeps showing them", () => {
+    prices.fetchStatus = "paused";
+
+    const { result } = renderHookWithProviders(() =>
+      useProductDetail(SUGAR.ean),
+    );
+
+    expect(result.current.pricesOffline).toBe(false);
   });
 });
