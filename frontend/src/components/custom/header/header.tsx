@@ -14,7 +14,7 @@ export default function Header() {
   const isScrolled = useScrolledPast(50);
   const navRef = useRef<HTMLElement>(null);
   useHeaderBottomVariable(navRef);
-  // The phone map page never scrolls, so the header floats; CSS so the server render matches.
+  // The map page never scrolls and runs under the header, so the header floats; CSS so the server render matches.
   const isMap = usePathname() === "/map";
 
   return (
@@ -31,9 +31,9 @@ export default function Header() {
               isScrolled &&
                 "bg-background/70 max-w-5xl rounded-2xl border backdrop-blur-xs px-4",
               isMap &&
-                "max-md:bg-background/70 max-md:rounded-2xl max-md:border max-md:backdrop-blur-xs max-md:px-4",
+                "bg-background/70 rounded-2xl border backdrop-blur-xs px-4",
               // Animating a blur over the live WebGL map stutters mid-range phones.
-              isMap && "max-md:transition-[background-color,border-color]",
+              isMap && "transition-[background-color,border-color]",
               // Until the map fills the slot after hydration, an empty pill would flash.
               isMap && "max-md:has-[#header-slot:empty]:invisible",
               // The open search covers the screen, so the frame steps back.

@@ -169,7 +169,7 @@ export default async function RootLayout({
             </Suspense>
 
             {/* Here, not on <main>, because the footer after main is what the bar would cover. */}
-            <div className="min-h-svh md:has-[[data-page-width=full]]:h-svh md:has-[[data-page-width=full]]:min-h-[40rem] flex flex-col w-full pb-[calc(var(--bottom-nav-total)+0.5rem)] md:pb-0">
+            <div className="min-h-svh flex flex-col w-full pb-[calc(var(--bottom-nav-total)+0.5rem)] md:pb-0">
               <div className="absolute inset-0 z-[-15] bg-[url('/+_pattern.png')] bg-repeat opacity-100" />
               <div className="absolute inset-0 -z-10 [background:radial-gradient(100%_100%_at_50%_50%,transparent_0%,#ffffff_60%)]" />
               <div className="absolute inset-0 -z-10 size-full [background:linear-gradient(90deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.0)_30%,rgba(255,255,255,0.0)_70%,rgba(255,255,255,0.9)_100%)]" />
@@ -183,11 +183,10 @@ export default async function RootLayout({
               </aside>
 
               {/* Clip x only, because clipping both cut the last child's bottom border and shadow. */}
-              {/* One screen-tall wrapper so inner heights resolve; under 40rem it scrolls, so the map stays. */}
               <main
                 id={MAIN_CONTENT_ID}
                 tabIndex={-1}
-                className="scroll-mt-24 outline-none max-w-4xl has-[[data-page-width=full]]:max-w-none has-[[data-page-width=full]]:flex has-[[data-page-width=full]]:flex-1 has-[[data-page-width=full]]:min-h-0 has-[[data-page-width=full]]:flex-col mx-auto px-4 pt-4 mt-24 w-full overflow-x-clip"
+                className="scroll-mt-24 outline-none max-w-4xl mx-auto px-4 pt-4 mt-24 w-full overflow-x-clip"
               >
                 <Suspense fallback={null}>
                   <LocaleSuggestion />

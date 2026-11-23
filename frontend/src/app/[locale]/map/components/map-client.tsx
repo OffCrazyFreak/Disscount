@@ -2,10 +2,8 @@
 
 import { ReactNode, useState } from "react";
 
-import { useIsMobile } from "@/hooks/use-mobile";
 import StoreHoursProvider from "@/components/custom/store-hours/store-hours-context";
-import MapDesktopLayout from "@/app/[locale]/map/components/map-desktop-layout";
-import MapMobileLayout from "@/app/[locale]/map/components/map-mobile-layout";
+import MapLayout from "@/app/[locale]/map/components/map-layout";
 import StoreMapLoader from "@/app/[locale]/map/components/store-map-loader";
 import { useMapViewModel } from "@/app/[locale]/map/hooks/use-map-view-model";
 
@@ -23,14 +21,10 @@ interface IMapClientProps {
 
 export default function MapClient({ ipLocation }: IMapClientProps) {
   const model = useMapViewModel(ipLocation);
-  const isMobile = useIsMobile();
   const [viewArea, setViewArea] = useState<IViewArea | null>(null);
   const [cover, setCover] = useState<IMapCover>(NO_COVER);
 
-  function renderMap(
-    overlay?: ReactNode,
-    onSelect: (key: string) => void = model.selectStore,
-  ) {
+  function renderMap(overlay: ReactNode, onSelect: (key: string) => void) {
     return (
       <StoreMapLoader
         stores={model.mappable}
@@ -45,7 +39,7 @@ export default function MapClient({ ipLocation }: IMapClientProps) {
         }
         centerRequest={model.geolocation.centerRequest}
         initialView={model.initialView}
-        cover={isMobile ? cover : NO_COVER}
+        cover={cover}
         onViewChange={setViewArea}
       >
         {overlay}
@@ -55,20 +49,12 @@ export default function MapClient({ ipLocation }: IMapClientProps) {
 
   return (
     <StoreHoursProvider hours={model.hours}>
-      {isMobile ? (
-        <MapMobileLayout
-          model={model}
-          viewArea={viewArea}
-          map={renderMap()}
-          onCoverChange={setCover}
-        />
-      ) : (
-        <MapDesktopLayout
-          model={model}
-          viewArea={viewArea}
-          renderMap={renderMap}
-        />
-      )}
+      <MapLayout
+        model={model}
+        viewArea={viewArea}
+        renderMap={renderMap}
+        onCoverChange={setCover}
+      />
     </StoreHoursProvider>
   );
 }

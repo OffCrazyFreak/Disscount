@@ -1,0 +1,129 @@
+"use client";
+
+import { ReactNode, useRef, useState } from "react";
+
+import { useIsMobile } from "@/hooks/use-mobile";
+import MapLocateButton from "@/app/[locale]/map/components/map-locate-button";
+import MapPanel from "@/app/[locale]/map/components/map-panel";
+import MapPresence from "@/app/[locale]/map/components/map-presence";
+import MapSearchBar from "@/app/[locale]/map/components/map-search-bar";
+import MapStorePopover, {
+  IFocusRequest,
+} from "@/app/[locale]/map/components/map-store-popover";
+import MapStoreSheet from "@/app/[locale]/map/components/map-store-sheet";
+import { useMapCover } from "@/app/[locale]/map/hooks/use-map-cover";
+import { IMapViewModel } from "@/app/[locale]/map/hooks/use-map-view-model";
+import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
+import { IMapCover, IViewArea } from "@/app/[locale]/map/utils/view-area";
+
+interface IMapLayoutProps {
+  model: IMapViewModel;
+  viewArea: IViewArea | null;
+  /** The map, with an overlay rendered inside it and its pin picks sent to onSelect. */
+  renderMap: (overlay: ReactNode, onSelect: (key: string) => void) => ReactNode;
+  /** What the store sheet, the bottom nav or the search panel covers of the map. */
+  onCoverChange: (cover: IMapCover) => void;
+}
+
+function hasPin(row: IListedStore | null | undefined) {
+  return row?.store.lat != null && row.store.lon != null;
+}
+
+/** One full-screen map at every width; the picked store shows in a sheet on phones, at its pin on desktop. */
+export default function MapLayout({
+  model,
+  viewArea,
+  renderMap,
+  onCoverChange,
+}: IMapLayoutProps) {
+  const isMobile = useIsMobile();
+  const locateRef = useRef<HTMLButtonElement>(null);
+  const [isSearchOpen, setSearchOpen] = useState(false);
+  const [isMapLive, setMapLive] = useState(false);
+  const [focusRequest, setFocusRequest] = useState<IFocusRequest | null>(null);
+
+  // Desktop shows a store at its pin, so one without a pin, or without a live map to pin it on, stays in the list.
+  const canShowAtPin = isMapLive && hasPin(model.selected);
+  const keepsListOpen = !isMobile && model.selected != null && !canShowAtPin;
+  const isOpen = isSearchOpen || keepsListOpen;
+  const shownRow = isOpen ? null : model.selected;
+
+  function changeOpen(open: boolean) {
+    setSearchOpen(open);
+    if (!open && keepsListOpen) model.selectStore(null);
+  }
+
+  function selectStore(key: string | null) {
+    model.selectStore(key);
+    if (!key) return;
+
+    setFocusRequest((previous) => ({ key, id: (previous?.id ?? 0) + 1 }));
+
+    // Only the map's own pins can be missing from the list, and they all have one.
+    const row = model.listed.find((listed) => listed.key === key);
+    const willShowAtPin = isMapLive && (row ? hasPin(row) : true);
+    if (isMobile || willShowAtPin) setSearchOpen(false);
+  }
+
+  const { setNavProbe, setPanel, setSheetHeight } = useMapCover({
+    isMobile,
+    isSearchOpen: isOpen,
+    onCoverChange,
+  });
+
+  const overlay = (
+    <>
+      <MapPresence onChange={setMapLive} />
+
+      {!isMobile && (
+        <MapStorePopover
+          row={shownRow}
+          focusRequest={focusRequest}
+          onClose={() => model.selectStore(null)}
+          returnFocusRef={locateRef}
+        />
+      )}
+    </>
+  );
+
+  return (
+    <div className="fixed inset-0 z-[1] overflow-hidden">
+      <div
+        ref={setNavProbe}
+        aria-hidden="true"
+        className="pointer-events-none invisible absolute h-[var(--bottom-nav-total)] w-0"
+      />
+
+      {/* First in the DOM so the search comes before the map's controls in the tab order. */}
+      <MapSearchBar
+        // Remounted at the breakpoint, where its field moves between the header and the map.
+        key={isMobile ? "phone" : "desktop"}
+        isOpen={isOpen}
+        onOpenChange={changeOpen}
+        panelRef={setPanel}
+      >
+        <MapPanel model={{ ...model, selectStore }} viewArea={viewArea} />
+      </MapSearchBar>
+
+      {/* On phones the open search covers the whole map, so the map leaves the tab order. */}
+      <div className="absolute inset-0" inert={isMobile && isOpen}>
+        {renderMap(overlay, selectStore)}
+
+        <MapLocateButton
+          ref={locateRef}
+          status={model.geolocation.status}
+          onLocate={model.geolocation.locate}
+        />
+      </div>
+
+      {isMobile && (
+        <MapStoreSheet
+          row={shownRow}
+          onClose={() => model.selectStore(null)}
+          onHeightChange={setSheetHeight}
+          returnFocusRef={locateRef}
+        />
+      )}
+    </div>
+  );
+}

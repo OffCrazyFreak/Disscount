@@ -9,6 +9,8 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface IMapSearchLeadProps {
   isOpen: boolean;
+  /** Phones lead the closed bar with the menu; desktop has it in the page header. */
+  hasMenu: boolean;
   /** True when a key pressed it, so focus can go back to the field. */
   onBack: (byKeyboard: boolean) => void;
   transition: Transition;
@@ -16,6 +18,7 @@ interface IMapSearchLeadProps {
 
 export default function MapSearchLead({
   isOpen,
+  hasMenu,
   onBack,
   transition,
 }: IMapSearchLeadProps) {
@@ -43,15 +46,17 @@ export default function MapSearchLead({
           </Button>
         </motion.div>
       ) : (
-        <motion.div
-          key="menu"
-          initial={{ opacity: 0, x: "-100%" }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: "-100%" }}
-          transition={transition}
-        >
-          <SidebarTrigger className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" />
-        </motion.div>
+        hasMenu && (
+          <motion.div
+            key="menu"
+            initial={{ opacity: 0, x: "-100%" }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: "-100%" }}
+            transition={transition}
+          >
+            <SidebarTrigger className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" />
+          </motion.div>
+        )
       )}
     </AnimatePresence>
   );
