@@ -15,7 +15,7 @@ export default function SecurityTab() {
 
   return (
     <>
-      <StaggerChildren className="">
+      <StaggerChildren>
         <CredentialsForm />
         <LinkedAccounts />
         <ActiveSessions />

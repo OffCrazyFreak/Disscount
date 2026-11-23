@@ -1,11 +1,9 @@
 import { useLocale, useTranslations } from "next-intl";
 
-import {
-  formatCardDate,
-  formatCardMoney,
-} from "@/app/[locale]/(user)/digital-cards/utils/format-card-values";
+import { formatCardMoney } from "@/app/[locale]/(user)/digital-cards/utils/format-card-values";
 import { CARD_TYPE_LABEL_KEYS } from "@/constants/card-codes";
 import type { DigitalCardDto } from "@/lib/api/types";
+import { formatDate } from "@/utils/strings";
 
 interface ICardDetailRowsProps {
   card: DigitalCardDto;
@@ -31,17 +29,16 @@ export default function CardDetailRows({ card }: ICardDetailRowsProps) {
   ];
 
   if (card.note) rows.push([t("view.details.note"), card.note]);
+
+  // API dates arrive as YYYY-MM-DD, which parses as midnight UTC: the same day in Croatia.
   if (card.validFrom) {
     rows.push([
       t("view.details.validFrom"),
-      formatCardDate(card.validFrom, locale),
+      formatDate(card.validFrom, locale),
     ]);
   }
   if (card.expiresOn) {
-    rows.push([
-      t("view.details.validTo"),
-      formatCardDate(card.expiresOn, locale),
-    ]);
+    rows.push([t("view.details.validTo"), formatDate(card.expiresOn, locale)]);
   }
   if (card.balance !== null) {
     rows.push([

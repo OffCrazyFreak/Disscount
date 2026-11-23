@@ -90,7 +90,7 @@ export default function LinkedAccounts() {
       label={t("security.linked.label")}
       hint={t("security.linked.hint")}
     >
-      <div className="">
+      <div>
         {PROVIDERS.map(({ id, label, Icon }) => {
           const linked = accounts.find((a) => a.providerId === id);
           const comingSoon = id === "facebook" && FACEBOOK_COMING_SOON;
