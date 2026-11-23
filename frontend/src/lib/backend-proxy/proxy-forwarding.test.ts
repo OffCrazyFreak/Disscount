@@ -4,11 +4,14 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 const mocks = vi.hoisted(() => ({
+  getSession: vi.fn(),
   getToken: vi.fn(),
   captureException: vi.fn(),
 }));
 
-vi.mock("@/lib/auth", () => ({ auth: { api: { getToken: mocks.getToken } } }));
+vi.mock("@/lib/auth", () => ({
+  auth: { api: { getSession: mocks.getSession, getToken: mocks.getToken } },
+}));
 vi.mock("@sentry/nextjs", () => ({
   captureException: mocks.captureException,
 }));
@@ -17,7 +20,7 @@ const { BACKEND, backend, call, signTokensFromCookie } =
   await import("@/test/backend/proxy-call");
 const { server } = await import("@/test/msw-server");
 
-signTokensFromCookie(mocks.getToken);
+signTokensFromCookie(mocks);
 
 const VISITOR = "93.140.10.20";
 const CLOUDFLARE_EDGE = "172.70.1.2";

@@ -10,7 +10,7 @@ import slErrors from "@/i18n/messages/sl/errors.json";
 import {
   SESSION_CHANGED,
   type SERVER_REPORTED_PROBLEMS,
-} from "@/lib/backend-proxy/proxy-contract";
+} from "@/lib/backend-proxy/contract/proxy-contract";
 
 export type ProxyProblemCode =
   | "not_found"

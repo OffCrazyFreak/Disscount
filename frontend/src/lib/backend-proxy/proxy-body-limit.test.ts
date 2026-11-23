@@ -3,11 +3,14 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 const mocks = vi.hoisted(() => ({
+  getSession: vi.fn(),
   getToken: vi.fn(),
   captureException: vi.fn(),
 }));
 
-vi.mock("@/lib/auth", () => ({ auth: { api: { getToken: mocks.getToken } } }));
+vi.mock("@/lib/auth", () => ({
+  auth: { api: { getSession: mocks.getSession, getToken: mocks.getToken } },
+}));
 vi.mock("@sentry/nextjs", () => ({
   captureException: mocks.captureException,
 }));
@@ -15,9 +18,9 @@ vi.mock("@sentry/nextjs", () => ({
 const { backend, call, signTokensFromCookie } =
   await import("@/test/backend/proxy-call");
 const { JSON_BODY_LIMIT, PHOTO_BODY_LIMIT, bodyLimit, readBodyWithin } =
-  await import("@/lib/backend-proxy/request-body");
+  await import("@/lib/backend-proxy/request/request-body");
 
-signTokensFromCookie(mocks.getToken);
+signTokensFromCookie(mocks);
 
 const SIGNED_IN = { session: "user-a", pin: "user-a" };
 

@@ -16,10 +16,24 @@ export function signedToken(sub: string) {
   return `${encode({ alg: "ES256" })}.${encode({ sub })}.signature`;
 }
 
-/** Stands in for better-auth's getToken: the test cookie names the account whose session it is. */
-export function signTokensFromCookie(getToken: Mock) {
-  getToken.mockImplementation(async ({ headers }: { headers: Headers }) => {
-    const userId = /session=([\w-]+)/.exec(headers.get("cookie") ?? "")?.[1];
+function cookieUser(headers: Headers) {
+  return /(?:^|;\s*)session=([\w-]+)/.exec(headers.get("cookie") ?? "")?.[1];
+}
+
+/** Stands in for better-auth's getSession and getToken: the test cookie names the account whose session it is. */
+export function signTokensFromCookie(api: {
+  getSession: Mock;
+  getToken: Mock;
+}) {
+  api.getSession.mockImplementation(
+    async ({ headers }: { headers: Headers }) => {
+      const userId = cookieUser(headers);
+      return userId ? { user: { id: userId } } : null;
+    },
+  );
+
+  api.getToken.mockImplementation(async ({ headers }: { headers: Headers }) => {
+    const userId = cookieUser(headers);
     if (!userId) {
       throw new APIError("UNAUTHORIZED", { message: "Unauthorized" });
     }

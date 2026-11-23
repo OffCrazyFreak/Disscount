@@ -4,11 +4,14 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 const mocks = vi.hoisted(() => ({
+  getSession: vi.fn(),
   getToken: vi.fn(),
   captureException: vi.fn(),
 }));
 
-vi.mock("@/lib/auth", () => ({ auth: { api: { getToken: mocks.getToken } } }));
+vi.mock("@/lib/auth", () => ({
+  auth: { api: { getSession: mocks.getSession, getToken: mocks.getToken } },
+}));
 vi.mock("@sentry/nextjs", () => ({
   captureException: mocks.captureException,
 }));
@@ -18,10 +21,10 @@ const { BACKEND, call, signTokensFromCookie, signedToken } =
 const { server } = await import("@/test/msw-server");
 
 afterEach(() => {
-  signTokensFromCookie(mocks.getToken);
+  signTokensFromCookie(mocks);
   mocks.captureException.mockClear();
 });
-signTokensFromCookie(mocks.getToken);
+signTokensFromCookie(mocks);
 
 function sentryEvents() {
   return JSON.stringify(mocks.captureException.mock.calls);
@@ -60,7 +63,9 @@ describe("backend proxy failures", () => {
   });
 
   it("answers 503 when the session cannot be read, without calling Spring", async () => {
-    mocks.getToken.mockRejectedValueOnce(new Error("connection refused"));
+    mocks.getSession.mockRejectedValueOnce(
+      new Error("timeout exceeded when trying to connect"),
+    );
 
     const response = await call("/api/users/me", {
       pin: "user-a",

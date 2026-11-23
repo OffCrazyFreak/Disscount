@@ -1,4 +1,4 @@
-import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
+import { proxyProblem } from "@/lib/backend-proxy/contract/proxy-problem";
 import { getStoreDirectory } from "@/lib/store-locations/get-store-directory";
 import { createApiResponse } from "@/lib/cijene-api/utils/response-utils";
 

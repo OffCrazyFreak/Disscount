@@ -5,7 +5,7 @@ import { z } from "zod";
 import {
   SERVER_REPORTED_PROBLEMS,
   SESSION_CHANGED,
-} from "@/lib/backend-proxy/proxy-contract";
+} from "@/lib/backend-proxy/contract/proxy-contract";
 
 const problemDetailsSchema = z.object({
   type: z.string().optional(),
