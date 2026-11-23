@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { CollapsibleTrigger } from "@/components/ui/collapsible";
 import { PopoverTrigger } from "@/components/ui/popover";
-import { useMultiSelectContext } from "@/components/custom/form/multi-select-context";
+import { useMultiSelectContext } from "@/components/custom/form/multi-select/multi-select-context";
 import { cn } from "@/lib/utils";
 
 // Button's props are a union, so this cannot be an interface.

@@ -10,8 +10,8 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import ScrollFade from "@/components/custom/common/scroll-fade/scroll-fade";
-import MultiSelectBulkActions from "@/components/custom/form/multi-select-bulk-actions";
-import { useMultiSelectContext } from "@/components/custom/form/multi-select-context";
+import MultiSelectBulkActions from "@/components/custom/form/multi-select/multi-select-bulk-actions";
+import { useMultiSelectContext } from "@/components/custom/form/multi-select/multi-select-context";
 import { commandFilter } from "@/utils/search/command-filter";
 import { cn } from "@/lib/utils";
 

@@ -8,10 +8,10 @@ import { CollapsibleContent } from "@/components/ui/collapsible";
 import { PopoverContent } from "@/components/ui/popover";
 import MultiSelectPanel, {
   type MultiSelectSearch,
-} from "@/components/custom/form/multi-select-panel";
-import { useMultiSelectContext } from "@/components/custom/form/multi-select-context";
-import useMultiSelectEscape from "@/components/custom/form/use-multi-select-escape";
-import useMultiSelectOutsidePointer from "@/components/custom/form/use-multi-select-outside-pointer";
+} from "@/components/custom/form/multi-select/multi-select-panel";
+import { useMultiSelectContext } from "@/components/custom/form/multi-select/multi-select-context";
+import useMultiSelectEscape from "@/components/custom/form/multi-select/use-multi-select-escape";
+import useMultiSelectOutsidePointer from "@/components/custom/form/multi-select/use-multi-select-outside-pointer";
 
 interface IMultiSelectContentProps extends Omit<
   ComponentPropsWithoutRef<typeof Command>,

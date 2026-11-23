@@ -8,7 +8,7 @@ import {
 import { CheckIcon } from "lucide-react";
 
 import { CommandItem } from "@/components/ui/command";
-import { useMultiSelectContext } from "@/components/custom/form/multi-select-context";
+import { useMultiSelectContext } from "@/components/custom/form/multi-select/multi-select-context";
 import { cn } from "@/lib/utils";
 
 interface IMultiSelectItemProps extends Omit<

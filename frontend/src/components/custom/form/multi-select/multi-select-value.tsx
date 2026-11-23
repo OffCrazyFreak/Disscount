@@ -4,8 +4,8 @@ import type { ComponentPropsWithoutRef } from "react";
 import { XIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { useMultiSelectContext } from "@/components/custom/form/multi-select-context";
-import useBadgeOverflow from "@/components/custom/form/use-badge-overflow";
+import { useMultiSelectContext } from "@/components/custom/form/multi-select/multi-select-context";
+import useBadgeOverflow from "@/components/custom/form/multi-select/use-badge-overflow";
 import { cn } from "@/lib/utils";
 
 interface IMultiSelectValueProps extends Omit<

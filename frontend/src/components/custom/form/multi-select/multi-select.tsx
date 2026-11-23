@@ -9,13 +9,13 @@ import {
   MultiSelectContext,
   type IMultiSelectOption,
   type MultiSelectPresentation,
-} from "@/components/custom/form/multi-select-context";
+} from "@/components/custom/form/multi-select/multi-select-context";
 
 // One component per file, named back up here so this stays the single import path.
-export { default as MultiSelectTrigger } from "@/components/custom/form/multi-select-trigger";
-export { default as MultiSelectValue } from "@/components/custom/form/multi-select-value";
-export { default as MultiSelectContent } from "@/components/custom/form/multi-select-content";
-export { default as MultiSelectItem } from "@/components/custom/form/multi-select-item";
+export { default as MultiSelectTrigger } from "@/components/custom/form/multi-select/multi-select-trigger";
+export { default as MultiSelectValue } from "@/components/custom/form/multi-select/multi-select-value";
+export { default as MultiSelectContent } from "@/components/custom/form/multi-select/multi-select-content";
+export { default as MultiSelectItem } from "@/components/custom/form/multi-select/multi-select-item";
 export { CommandGroup as MultiSelectGroup } from "@/components/ui/command";
 
 interface IMultiSelectProps {

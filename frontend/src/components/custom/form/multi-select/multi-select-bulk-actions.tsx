@@ -4,7 +4,7 @@ import type { KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { useMultiSelectContext } from "@/components/custom/form/multi-select-context";
+import { useMultiSelectContext } from "@/components/custom/form/multi-select/multi-select-context";
 import { commandFilter } from "@/utils/search/command-filter";
 
 /** With a search typed, select all takes only the matches, as filter lists elsewhere do. */

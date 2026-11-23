@@ -10,7 +10,7 @@ import {
   MultiSelectItem,
   MultiSelectTrigger,
   MultiSelectValue,
-} from "@/components/custom/form/multi-select";
+} from "@/components/custom/form/multi-select/multi-select";
 import { renderWithProviders } from "@/test/render";
 
 beforeAll(() => {

@@ -1,7 +1,7 @@
 import { act, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import useBadgeOverflow from "@/components/custom/form/use-badge-overflow";
+import useBadgeOverflow from "@/components/custom/form/multi-select/use-badge-overflow";
 
 const VALUES = new Set(["Konzum", "Lidl", "Spar"]);
 const ITEMS = new Map([...VALUES].map((value) => [value, value]));
