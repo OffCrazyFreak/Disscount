@@ -9,7 +9,8 @@ import {
   useState,
   ReactNode,
 } from "react";
-import CameraScanner from "@/components/scanner/camera-scanner";
+import dynamic from "next/dynamic";
+import { prepareBeep } from "@/components/scanner/scan-beep";
 import { IScannedCode, ScanPreset } from "@/typings/scanned-code";
 
 interface IOpenScannerOptions {
@@ -25,6 +26,12 @@ interface ICameraScannerContext {
   closeScanner: () => void;
 }
 
+// Lazy so the scanner library only downloads once someone opens the scanner.
+const CameraScanner = dynamic(
+  () => import("@/components/scanner/camera-scanner"),
+  { ssr: false },
+);
+
 const CameraScannerContext = createContext<ICameraScannerContext | null>(null);
 
 interface ICameraScannerProviderProps {
@@ -35,6 +42,8 @@ export function CameraScannerProvider({
   children,
 }: ICameraScannerProviderProps) {
   const [isOpen, setIsOpen] = useState(false);
+  // Stays true after the first open, so the dialog can still animate closed.
+  const [hasOpened, setHasOpened] = useState(false);
   const [preset, setPreset] = useState<ScanPreset>("product");
   const [confirm, setConfirm] = useState(false);
   const [opener, setOpener] = useState<HTMLElement | null>(null);
@@ -43,11 +52,21 @@ export function CameraScannerProvider({
   );
 
   const openScanner = useCallback((options: IOpenScannerOptions) => {
+    // iOS only unlocks audio inside the tap, which is over before the lazy scanner loads.
+    prepareBeep();
+
     onScanRef.current = options.onScan;
     setPreset(options.preset ?? "product");
     setConfirm(options.confirm ?? false);
-    setOpener(options.opener ?? null);
+    // Read focus at the tap: the lazy dialog can mount after focus has moved on.
+    setOpener(
+      options.opener ??
+        (document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null),
+    );
     setIsOpen(true);
+    setHasOpened(true);
   }, []);
 
   const closeScanner = useCallback(() => {
@@ -73,14 +92,16 @@ export function CameraScannerProvider({
   return (
     <CameraScannerContext.Provider value={value}>
       {children}
-      <CameraScanner
-        isOpen={isOpen}
-        preset={preset}
-        confirm={confirm}
-        opener={opener}
-        onClose={closeScanner}
-        onScan={handleScan}
-      />
+      {hasOpened && (
+        <CameraScanner
+          isOpen={isOpen}
+          preset={preset}
+          confirm={confirm}
+          opener={opener}
+          onClose={closeScanner}
+          onScan={handleScan}
+        />
+      )}
     </CameraScannerContext.Provider>
   );
 }

@@ -236,7 +236,7 @@ Card numbers are long and a misread is worse than no read, so the shared scanner
 
 ## 8. Barcode rendering
 
-`utils/card-code/generate-code-svg.ts` draws the code with `@bwip-js/browser`.
+`utils/card-code/generate-code-svg.ts` draws the code with `@bwip-js/browser`. Every caller reaches it through a lazy chunk (the tile back in `card-face-back.tsx`, the card modals and the scanner's code preview), so the wallet's first load carries no barcode encoder; the service worker precaches that chunk with the rest of `.next/static`, so codes still draw offline.
 
 - It imports only the encoders it needs (EAN, UPC, Code 128, 39, 93, Codabar, ITF, QR, Aztec, Data Matrix, PDF417), not the whole library, to keep the bundle small.
 - It is synchronous and returns `{ ok: true, svg }` or `{ ok: false }`. On `ok: false` the view falls back to the number in large text.
