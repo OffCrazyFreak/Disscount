@@ -8,7 +8,7 @@ import java.util.Map;
 final class ProductClassifier {
 
     // Part of the stored taxonomy version: bump it when a change here would place a product differently.
-    static final int LOGIC_VERSION = 1;
+    static final int LOGIC_VERSION = 2;
 
     /** One chain's row for the product: its name and the chain's own category text, either may be blank. */
     record Listing(String name, String chainCategory) {}
@@ -31,8 +31,12 @@ final class ProductClassifier {
         String category = majority(votes.stream().filter(slug -> slug == null || outvotesItsExcludes(slug, votes, names)).toList(),
                 taxonomy.categories().stream().map(CatalogTaxonomy.Category::slug).toList());
 
-        if (filedUnder != null || category == null) return new Classification(filedUnder, category);
-        return new Classification(taxonomy.category(category).orElseThrow().department(), category);
+        if (category == null) return new Classification(filedUnder, null);
+
+        // A chain's own fine category is surer than the coarse groups, so the department follows it when they disagree.
+        CatalogTaxonomy.Category placed = taxonomy.category(category).orElseThrow();
+        String department = filedUnder != null && placed.allows(filedUnder) ? filedUnder : placed.department();
+        return new Classification(department, category);
     }
 
     /** Chains that name it "Pampers vlažne maramice" outweigh one that wrote only "PAMPERS 48". */

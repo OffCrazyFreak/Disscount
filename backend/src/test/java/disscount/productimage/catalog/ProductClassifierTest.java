@@ -44,6 +44,12 @@ class ProductClassifierTest {
     }
 
     @Test
+    void aChainsFineCategoryMovesTheDepartmentWhenTheCoarseGroupsDisagree() {
+        assertThat(sort("OZUJSKO 0,5L", "HRANA", "OZUJSKO 0,5L", "Hrana", "OZUJSKO 0,5L", "Pivo"))
+                .isEqualTo(new ProductClassifier.Classification("pice", "pivo"));
+    }
+
+    @Test
     void aProductNoChainFilesTakesItsCategorysDepartment() {
         assertThat(sort("MLIJEKO TRAJNO 2,8% 1L DUKAT", "")).isEqualTo(new ProductClassifier.Classification("hrana", "mlijeko"));
     }
