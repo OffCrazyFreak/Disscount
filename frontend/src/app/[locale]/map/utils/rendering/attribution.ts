@@ -4,8 +4,9 @@ import type { Map as MapLibreMap } from "maplibre-gl";
 const SHOW_FOR_MS = 5000;
 
 /** MapLibre itself only folds the credits on a drag, not on a zoom or with time. */
-export function foldAttributionLater(map: MapLibreMap) {
+export function foldAttributionLater(map: MapLibreMap, onFold?: () => void) {
   function fold() {
+    onFold?.();
     map
       .getContainer()
       .querySelector(".maplibregl-ctrl-attrib.maplibregl-compact")

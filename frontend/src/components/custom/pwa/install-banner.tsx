@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
+import { useIsInstallBannerHeld } from "@/components/custom/pwa/install-banner-hold";
 import InstallInstructionsSheet from "@/components/custom/pwa/install-instructions-sheet";
 import {
   installActionLabelKey,
@@ -26,6 +27,7 @@ export default function InstallBanner() {
   const [dismissed, setDismissed] = useState(true);
   const [instructionsOpen, setInstructionsOpen] = useState(false);
   const isMap = usePathname() === "/map";
+  const isHeld = useIsInstallBannerHeld();
 
   useEffect(() => {
     // On the client because it compares against Date.now(); starts dismissed so it cannot flash.
@@ -47,7 +49,7 @@ export default function InstallBanner() {
     setInstructionsOpen(true);
   }
 
-  if (dismissed || !canShowInstallUI) return null;
+  if (dismissed || !canShowInstallUI || isHeld) return null;
 
   return (
     <>

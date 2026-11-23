@@ -11,6 +11,7 @@ import { useHeaderSlot } from "@/app/[locale]/map/hooks/layout/use-header-slot";
 import { useMorphTransition } from "@/app/[locale]/map/hooks/layout/use-morph-transition";
 import { useSearchOpener } from "@/app/[locale]/map/hooks/layout/use-search-opener";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useInstallBannerHold } from "@/components/custom/pwa/install-banner-hold";
 
 const PLACEMENT = {
   // Fixed, so the open list escapes the layout's clip and runs under the bottom nav.
@@ -48,6 +49,9 @@ export default function MapSearchBar({
 }: IMapSearchBarProps) {
   const isMobile = useIsMobile();
   const placement = isMobile ? PLACEMENT.phone : PLACEMENT.desktop;
+
+  // The open phone search fills the screen, so the banner would only cover the list.
+  useInstallBannerHold("map-search", isMobile && isOpen);
   const opener = useSearchOpener({ isOpen, onOpenChange });
   const transition = useMorphTransition(isOpen);
   const header = useHeaderSlot();

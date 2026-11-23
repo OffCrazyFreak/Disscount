@@ -5,7 +5,7 @@ import { foldAttributionLater } from "@/app/[locale]/map/utils/rendering/attribu
 
 type IHandler = (event: { originalEvent?: Event }) => void;
 
-function setup() {
+function setup(onFold?: () => void) {
   const container = document.createElement("div");
   container.innerHTML =
     '<details class="maplibregl-ctrl-attrib maplibregl-compact maplibregl-compact-show"></details>';
@@ -19,7 +19,7 @@ function setup() {
     once: add,
   } as unknown as MapLibreMap;
 
-  foldAttributionLater(map);
+  foldAttributionLater(map, onFold);
 
   const credits = container.querySelector("details");
   return {
@@ -44,6 +44,19 @@ describe("foldAttributionLater", () => {
 
     vi.advanceTimersByTime(1);
     expect(isOpen()).toBe(false);
+  });
+
+  it("reports the fold, so the install banner may show once the credits are tucked away", () => {
+    vi.useFakeTimers();
+    const onFold = vi.fn();
+    const { fire } = setup(onFold);
+
+    fire("idle");
+    vi.advanceTimersByTime(4999);
+    expect(onFold).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(1);
+    expect(onFold).toHaveBeenCalled();
   });
 
   it("folds them at once when the user pans or zooms, not on our own moves", () => {
