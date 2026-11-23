@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import renderBrandOg from "@/app/og/render-og";
+import renderBrandOg from "@/lib/og/render-og";
 
 describe("renderBrandOg", () => {
   it("renders a 1200x630 PNG that clients may reuse for a day", async () => {

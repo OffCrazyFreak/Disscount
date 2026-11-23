@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { PRODUCT_CARD_CONTENT_TYPE } from "@/app/og/product-share-image";
+import { PRODUCT_CARD_CONTENT_TYPE } from "@/lib/og/product-share-image";
 import {
   BRAND,
   Cart,
@@ -7,7 +7,7 @@ import {
   OG_BACKGROUND,
   size,
   Sparkle,
-} from "@/app/og/render-og";
+} from "@/lib/og/render-og";
 
 const PHOTO_TIMEOUT_MS = 3_000;
 const TILE_SIDE = 490;

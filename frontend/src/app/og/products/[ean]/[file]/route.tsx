@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { BRAND_OG_IMAGE_ID } from "@/app/og/localized-og";
+import { BRAND_OG_IMAGE_ID } from "@/lib/og/localized-og";
 import {
   productShareImageFile,
   productShareImagePath,
-} from "@/app/og/product-share-image";
-import renderProductOg from "@/app/og/render-product-og";
+} from "@/lib/og/product-share-image";
+import renderProductOg from "@/lib/og/render-product-og";
 import { getVerifiedMainPhotoUrl } from "@/lib/api/product-images/server";
 import { appUrl } from "@/lib/env";
 import { isWellFormedProductId } from "@/utils/product-id";

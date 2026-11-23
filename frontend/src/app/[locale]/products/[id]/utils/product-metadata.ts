@@ -1,9 +1,9 @@
 import type { Metadata, ResolvedMetadata } from "next";
-import { size } from "@/app/og/render-og";
+import { size } from "@/lib/og/render-og";
 import {
   PRODUCT_CARD_CONTENT_TYPE,
   productShareImagePath,
-} from "@/app/og/product-share-image";
+} from "@/lib/og/product-share-image";
 import { X_HANDLE } from "@/constants/social";
 import {
   DEFAULT_LOCALE,

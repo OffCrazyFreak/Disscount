@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
-import renderBrandOg, { contentType, size } from "@/app/og/render-og";
+import renderBrandOg, { contentType, size } from "@/lib/og/render-og";
 import { isLocale, DEFAULT_LOCALE } from "@/i18n/locales";
 
 export const BRAND_OG_IMAGE_ID = "brand";

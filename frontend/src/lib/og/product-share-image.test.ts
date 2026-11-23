@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   productShareImageFile,
   productShareImagePath,
-} from "@/app/og/product-share-image";
+} from "@/lib/og/product-share-image";
 
 describe("product share image URL", () => {
   it("stays the same for the same photo", () => {

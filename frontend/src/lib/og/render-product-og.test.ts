@@ -2,7 +2,7 @@ import { http, HttpResponse } from "msw";
 import { randomBytes } from "node:crypto";
 import sharp from "sharp";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import renderProductOg from "@/app/og/render-product-og";
+import renderProductOg from "@/lib/og/render-product-og";
 import { server } from "@/test/msw-server";
 
 const PHOTO = "https://images.test/products/1/a.jpg";
@@ -93,7 +93,7 @@ describe("renderProductOg", () => {
       servePhoto(ONE_PIXEL_JPEG);
 
       const { default: renderWithoutSharp } =
-        await import("@/app/og/render-product-og");
+        await import("@/lib/og/render-product-og");
 
       await expect(renderWithoutSharp(PHOTO)).rejects.toThrow();
     });
