@@ -573,6 +573,60 @@ describe("ShoppingListItems plain item writes", () => {
     expect(writes).toEqual([]);
   });
 
+  it("sends a tick after the price saved before it, and keeps that price", async () => {
+    const user = userEvent.setup();
+    const plain = item("a", { ean: null });
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
+    queryClient.setQueryData(SHOPPING_LIST_QUERY_KEYS.byId("list-1"), {
+      id: "list-1",
+      items: [plain],
+    });
+
+    let releasePrice!: () => void;
+    const priceHeld = new Promise<void>((resolve) => (releasePrice = resolve));
+    const arrived: Array<Record<string, unknown>> = [];
+    // The server keeps the last write, so a refetch between the two reads what the first one saved.
+    let saved: Record<string, unknown> = plain;
+    server.use(
+      http.put("*/api/shopping-lists/list-1/items/a", async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        arrived.push(body);
+        if (arrived.length === 1) await priceHeld;
+        saved = { ...saved, ...body };
+
+        return HttpResponse.json(saved);
+      }),
+      http.get("*/api/shopping-lists/*", () =>
+        HttpResponse.json({ id: "list-1", items: [saved] }),
+      ),
+    );
+    renderWithProviders(listItems([plain], {}), { queryClient });
+
+    await user.type(
+      screen.getByRole("textbox", { name: "Cijena po komadu za a" }),
+      "2",
+    );
+    await user.click(screen.getByRole("checkbox"));
+
+    await waitFor(() => expect(arrived).toHaveLength(1));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
+    expect(arrived).toHaveLength(1);
+
+    releasePrice();
+
+    await waitFor(() =>
+      expect(arrived).toEqual([
+        expect.objectContaining({ storePrice: 2, isChecked: false }),
+        expect.objectContaining({ storePrice: 2, isChecked: true }),
+      ]),
+    );
+  });
+
   it("keeps a typed price when the item is unticked", async () => {
     const user = userEvent.setup();
     const writes = renderCachedPlainItem(
