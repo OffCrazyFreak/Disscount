@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { StoreHoursDto, TimeRangeDto } from "@/lib/api/schemas";
-import { openingStatusAt } from "@/lib/store-hours/opening-status";
+import { openingStatusAt } from "@/lib/store-hours/status/opening-status";
 
 const VERIFIED = "2026-11-02T06:00:00.000Z";
 const day: TimeRangeDto[] = [{ opens: "07:00", closes: "21:00" }];

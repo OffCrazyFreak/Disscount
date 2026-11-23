@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import StoreHoursProvider from "@/components/custom/store-hours/store-hours-context";
 import type { StoreHoursResponse } from "@/lib/api/schemas";
-import type { IStoreHoursNow } from "@/lib/store-hours/store-opening";
+import type { IStoreHoursNow } from "@/lib/store-hours/status/store-opening";
 import { renderWithProviders } from "@/test/render";
 import type { INearestStore } from "@/utils/geo/nearest-chain-distance";
 

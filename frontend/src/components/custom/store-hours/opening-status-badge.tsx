@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import DetailPopoverButton from "@/components/custom/common/controls/detail-popover-button";
 import { useOpeningStatusText } from "@/components/custom/store-hours/use-opening-status-text";
-import type { OpeningStatus } from "@/lib/store-hours/opening-status";
+import type { OpeningStatus } from "@/lib/store-hours/status/opening-status";
 
 interface IOpeningStatusBadgeProps {
   status: OpeningStatus;

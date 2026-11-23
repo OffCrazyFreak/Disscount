@@ -3,7 +3,7 @@
 import { useStoreHoursNow } from "@/components/custom/store-hours/use-store-hours-now";
 import type { DirectoryStoreDto } from "@/lib/api/schemas";
 import { useStoreHours } from "@/lib/api/store-hours";
-import { openingOf } from "@/lib/store-hours/store-opening";
+import { openingOf } from "@/lib/store-hours/status/store-opening";
 import {
   type OpenFilter,
   passesOpenFilter,

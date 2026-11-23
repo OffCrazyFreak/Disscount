@@ -1,5 +1,5 @@
 import type { StoreHoursDto, TimeRangeDto } from "@/lib/api/schemas";
-import { hoursOnDate } from "@/lib/store-hours/hours-on-date";
+import { hoursOnDate } from "@/lib/store-hours/status/hours-on-date";
 import {
   addDays,
   isoWeekday,

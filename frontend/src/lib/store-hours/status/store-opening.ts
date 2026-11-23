@@ -2,7 +2,7 @@ import type { StoreHoursResponse } from "@/lib/api/schemas";
 import {
   type OpeningStatus,
   openingStatusAt,
-} from "@/lib/store-hours/opening-status";
+} from "@/lib/store-hours/status/opening-status";
 
 /** The hours response, its holidays as a set, and the minute they are judged at. */
 export interface IStoreHoursNow {

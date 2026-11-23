@@ -5,7 +5,7 @@ import {
   openParamOf,
   passesOpenFilter,
 } from "@/features/map/utils/open-filter";
-import type { OpeningStatus } from "@/lib/store-hours/opening-status";
+import type { OpeningStatus } from "@/lib/store-hours/status/opening-status";
 
 const AS_OF = "2026-11-02T06:00:00.000Z";
 const open: OpeningStatus = { state: "open", closesAt: null, asOf: AS_OF };

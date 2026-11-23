@@ -1,4 +1,4 @@
-import type { OpeningStatus } from "@/lib/store-hours/opening-status";
+import type { OpeningStatus } from "@/lib/store-hours/status/opening-status";
 
 export type OpenFilter = "off" | "confirmed" | "with-unconfirmed";
 

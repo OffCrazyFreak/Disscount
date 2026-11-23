@@ -2,7 +2,7 @@
 
 import { useCurrentMinute } from "@/hooks/runtime/use-current-minute";
 import { useStoreHours } from "@/lib/api/store-hours";
-import type { IStoreHoursNow } from "@/lib/store-hours/store-opening";
+import type { IStoreHoursNow } from "@/lib/store-hours/status/store-opening";
 
 /** Disabled, it neither fetches nor reads what a visit to the map cached. */
 export function useStoreHoursNow({

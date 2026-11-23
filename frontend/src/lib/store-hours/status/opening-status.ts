@@ -1,5 +1,5 @@
 import type { StoreHoursDto } from "@/lib/api/schemas";
-import { hoursOnDate } from "@/lib/store-hours/hours-on-date";
+import { hoursOnDate } from "@/lib/store-hours/status/hours-on-date";
 import { addDays, zagrebClock } from "@/lib/store-hours/zagreb-clock";
 
 /** A wall-clock moment in Zagreb; a closing at "24:00" means the end of `date`. */
