@@ -1,8 +1,8 @@
 import { LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import StorePricePopover from "@/components/custom/price/store-price-popover";
-import StorePriceTooltip from "@/components/custom/price/store-price-tooltip";
+import StorePricePopover from "@/features/watchlist/components/store-price-popover";
+import StorePriceTooltip from "@/features/watchlist/components/store-price-tooltip";
 import { cn } from "@/lib/utils";
 import { priceDeltaColorClass } from "@/utils/price";
 import type { INotificationStore } from "@/context/notifications-types";

@@ -3,7 +3,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 
-import { useWatchlistSuggestions } from "@/app/[locale]/(user)/watchlist/hooks/use-watchlist-suggestions";
+import { useWatchlistSuggestions } from "@/features/watchlist/hooks/use-watchlist-suggestions";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";

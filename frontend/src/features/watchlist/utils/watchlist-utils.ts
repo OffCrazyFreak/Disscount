@@ -16,4 +16,4 @@ export {
   getMaxDiscountPercentage,
 } from "@/lib/watchlist/watchlist-threshold-utils";
 
-export { sortWatchlistItemsByDiscount } from "@/app/[locale]/(user)/watchlist/utils/watchlist-sort-utils";
+export { sortWatchlistItemsByDiscount } from "@/features/watchlist/utils/watchlist-sort-utils";

@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import LastSyncedLabel from "@/components/custom/offline/last-synced-label";
-import CreateDiscountedListButton from "@/app/[locale]/(user)/watchlist/components/create-discounted-list-button";
-import { IWatchlistItemWithProduct } from "@/app/[locale]/(user)/watchlist/utils/watchlist-utils";
+import CreateDiscountedListButton from "@/features/watchlist/components/create-discounted-list-button";
+import { IWatchlistItemWithProduct } from "@/features/watchlist/utils/watchlist-utils";
 
 interface IWatchlistHeaderProps {
   query: string;

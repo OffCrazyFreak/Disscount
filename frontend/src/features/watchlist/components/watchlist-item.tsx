@@ -1,10 +1,10 @@
 "use client";
 
-import { IWatchlistItemWithProduct } from "@/app/[locale]/(user)/watchlist/utils/watchlist-utils";
-import { useWatchlistItem } from "@/app/[locale]/(user)/watchlist/hooks/use-watchlist-item";
-import WatchlistItemDiscountInfo from "@/app/[locale]/(user)/watchlist/components/watchlist-item-discount-info";
-import WatchlistActionButton from "@/app/[locale]/(user)/watchlist/components/watchlist-action-button";
-import WatchlistThresholdBadges from "@/app/[locale]/(user)/watchlist/components/watchlist-threshold-badges";
+import { IWatchlistItemWithProduct } from "@/features/watchlist/utils/watchlist-utils";
+import { useWatchlistItem } from "@/features/watchlist/hooks/use-watchlist-item";
+import WatchlistItemDiscountInfo from "@/features/watchlist/components/watchlist-item-discount-info";
+import WatchlistActionButton from "@/features/watchlist/components/watchlist-action-button";
+import WatchlistThresholdBadges from "@/features/watchlist/components/watchlist-threshold-badges";
 import ProductCard from "@/components/custom/product/product-card";
 import { usePrimeProductNavigation } from "@/hooks/use-product-navigation";
 

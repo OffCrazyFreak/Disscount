@@ -12,10 +12,10 @@ import LoginRequired from "@/components/custom/common/login-required";
 import NotSavedOffline from "@/components/custom/common/not-saved-offline";
 import { useIsNotSavedOffline } from "@/hooks/use-is-not-saved-offline";
 import SectionTabs from "@/components/custom/common/section-tabs";
-import WatchlistHeader from "@/app/[locale]/(user)/watchlist/components/watchlist-header";
-import WatchlistList from "@/app/[locale]/(user)/watchlist/components/watchlist-list";
-import WatchlistSuggestions from "@/app/[locale]/(user)/watchlist/components/watchlist-suggestions";
-import { useWatchlistData } from "@/app/[locale]/(user)/watchlist/hooks/use-watchlist-data";
+import WatchlistHeader from "@/features/watchlist/components/watchlist-header";
+import WatchlistList from "@/features/watchlist/components/watchlist-list";
+import WatchlistSuggestions from "@/features/watchlist/components/watchlist-suggestions";
+import { useWatchlistData } from "@/features/watchlist/hooks/use-watchlist-data";
 
 interface IWatchlistClientProps {
   query: string;

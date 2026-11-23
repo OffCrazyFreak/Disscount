@@ -8,7 +8,7 @@ import {
   calculateDiscountInfo,
   getMaxDiscountPercentage,
   IWatchlistItemWithProduct,
-} from "@/app/[locale]/(user)/watchlist/utils/watchlist-utils";
+} from "@/features/watchlist/utils/watchlist-utils";
 import type { IWatchlistSearchItem } from "@/lib/watchlist/watchlist-types";
 
 interface IUseWatchlistSuggestionsParams {

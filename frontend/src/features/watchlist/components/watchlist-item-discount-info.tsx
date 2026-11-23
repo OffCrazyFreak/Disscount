@@ -4,9 +4,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
 import PriceStack from "@/components/custom/price/price-stack";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
-import WatchlistDiscountRow from "@/app/[locale]/(user)/watchlist/components/watchlist-discount-row";
-import { formatDifference } from "@/app/[locale]/(user)/watchlist/utils/discount-display-utils";
-import { IDiscountInfo } from "@/app/[locale]/(user)/watchlist/utils/watchlist-utils";
+import WatchlistDiscountRow from "@/features/watchlist/components/watchlist-discount-row";
+import { formatDifference } from "@/features/watchlist/utils/discount-display-utils";
+import { IDiscountInfo } from "@/features/watchlist/utils/watchlist-utils";
 import type { INotificationStore } from "@/context/notifications-types";
 
 interface IWatchlistItemDiscountInfoProps {

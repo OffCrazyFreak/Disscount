@@ -8,7 +8,7 @@ import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ResponsiveLabel from "@/components/custom/common/responsive-label";
 import { shoppingListService } from "@/lib/api";
-import { IWatchlistItemWithProduct } from "@/app/[locale]/(user)/watchlist/utils/watchlist-utils";
+import { IWatchlistItemWithProduct } from "@/features/watchlist/utils/watchlist-utils";
 import { formatDate } from "@/utils/strings";
 
 interface ICreateDiscountedListButtonProps {

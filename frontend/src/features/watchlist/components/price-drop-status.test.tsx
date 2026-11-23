@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import PriceDropStatus from "@/components/custom/watchlist/price-drop-status";
+import PriceDropStatus from "@/features/watchlist/components/price-drop-status";
 import { renderWithProviders } from "@/test/render";
 
 const drops = vi.hoisted(() => ({ count: 0, isSettled: false }));

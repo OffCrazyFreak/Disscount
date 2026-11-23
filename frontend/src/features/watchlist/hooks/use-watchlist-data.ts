@@ -5,12 +5,12 @@ import { filterByFields } from "@/utils/generic";
 import {
   calculateDiscountInfo,
   isAnyWatchThresholdReached,
-} from "@/app/[locale]/(user)/watchlist/utils/watchlist-utils";
+} from "@/features/watchlist/utils/watchlist-utils";
 import type {
   IWatchlistItemWithProduct,
   IWatchlistSearchItem,
 } from "@/lib/watchlist/watchlist-types";
-import { useWatchlistSuggestions } from "@/app/[locale]/(user)/watchlist/hooks/use-watchlist-suggestions";
+import { useWatchlistSuggestions } from "@/features/watchlist/hooks/use-watchlist-suggestions";
 
 export function useWatchlistData(query: string) {
   const {

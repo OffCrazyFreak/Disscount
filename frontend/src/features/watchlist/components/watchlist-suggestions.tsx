@@ -1,4 +1,4 @@
-import WatchlistItem from "@/app/[locale]/(user)/watchlist/components/watchlist-item";
+import WatchlistItem from "@/features/watchlist/components/watchlist-item";
 import { IWatchlistSearchItem } from "@/lib/watchlist/watchlist-types";
 
 interface IWatchlistSuggestionsProps {

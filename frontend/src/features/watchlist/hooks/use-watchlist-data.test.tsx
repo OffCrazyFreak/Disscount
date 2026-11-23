@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { useWatchlistData } from "@/app/[locale]/(user)/watchlist/hooks/use-watchlist-data";
+import { useWatchlistData } from "@/features/watchlist/hooks/use-watchlist-data";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 
 const PRODUCT: ProductResponse = {
@@ -33,15 +33,12 @@ vi.mock("@/lib/watchlist/use-watched-products", () => ({
   }),
 }));
 
-vi.mock(
-  "@/app/[locale]/(user)/watchlist/hooks/use-watchlist-suggestions",
-  () => ({
-    useWatchlistSuggestions: () => ({
-      shoppingListItemsLoading: false,
-      filteredSuggestionItems: [],
-    }),
+vi.mock("@/features/watchlist/hooks/use-watchlist-suggestions", () => ({
+  useWatchlistSuggestions: () => ({
+    shoppingListItemsLoading: false,
+    filteredSuggestionItems: [],
   }),
-);
+}));
 
 describe("useWatchlistData", () => {
   it("keeps cached prices when a background refetch fails", () => {

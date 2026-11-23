@@ -1,7 +1,7 @@
 import { screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import WatchlistClient from "@/app/[locale]/(user)/watchlist/components/watchlist-client";
+import WatchlistClient from "@/features/watchlist/components/watchlist-client";
 import { renderWithProviders } from "@/test/render";
 
 const data = vi.hoisted(() => ({
@@ -11,7 +11,7 @@ const data = vi.hoisted(() => ({
   filteredSuggestionItems: [] as { productApiId: string }[],
 }));
 
-vi.mock("@/app/[locale]/(user)/watchlist/hooks/use-watchlist-data", () => ({
+vi.mock("@/features/watchlist/hooks/use-watchlist-data", () => ({
   useWatchlistData: () => ({
     ...data,
     userLoading: false,
@@ -36,19 +36,18 @@ vi.mock("@/hooks/use-is-not-saved-offline", () => ({
 vi.mock("@/components/custom/search/search-bar", () => ({
   default: () => null,
 }));
-vi.mock("@/app/[locale]/(user)/watchlist/components/watchlist-header", () => ({
+vi.mock("@/features/watchlist/components/watchlist-header", () => ({
   default: () => null,
 }));
-vi.mock("@/app/[locale]/(user)/watchlist/components/watchlist-list", () => ({
+vi.mock("@/features/watchlist/components/watchlist-list", () => ({
   default: () => null,
 }));
 vi.mock("@/components/custom/common/login-required", () => ({
   default: () => <p>login required</p>,
 }));
-vi.mock(
-  "@/app/[locale]/(user)/watchlist/components/watchlist-suggestions",
-  () => ({ default: () => <p>suggestions</p> }),
-);
+vi.mock("@/features/watchlist/components/watchlist-suggestions", () => ({
+  default: () => <p>suggestions</p>,
+}));
 
 const NAV = { name: "Odjeljci praćenja" };
 
