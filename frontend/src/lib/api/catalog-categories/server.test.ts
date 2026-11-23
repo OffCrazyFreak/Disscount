@@ -52,6 +52,49 @@ describe("getCategoryProducts", () => {
 
     await expect(getCategoryProducts("mlijeko", 3)).rejects.toThrow("503");
   });
+
+  it("asks again under a two-minute cache when the hour-long one is empty", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    server.use(
+      http.get(PRODUCTS_URL, ({ request }) => {
+        const isRecheck = request.headers.get("X-Cache-Variant") !== null;
+
+        return HttpResponse.json({
+          items: isRecheck ? [{ ean: "1", name: "Mlijeko", brand: null }] : [],
+          page: {
+            number: 0,
+            size: 24,
+            totalItems: isRecheck ? 1 : 0,
+            totalPages: isRecheck ? 1 : 0,
+          },
+        });
+      }),
+    );
+
+    const page = await getCategoryProducts("mlijeko", 4);
+
+    expect(page?.items).toHaveLength(1);
+    expect(fetchSpy.mock.calls.map(([, init]) => init?.next)).toEqual([
+      { revalidate: 3600 },
+      { revalidate: 120 },
+    ]);
+  });
+
+  it("trusts a filled listing without asking again", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    server.use(
+      http.get(PRODUCTS_URL, () =>
+        HttpResponse.json({
+          items: [{ ean: "1", name: "Mlijeko", brand: null }],
+          page: { number: 0, size: 24, totalItems: 1, totalPages: 1 },
+        }),
+      ),
+    );
+
+    await getCategoryProducts("mlijeko", 5);
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("getCatalogCategories", () => {
@@ -64,6 +107,24 @@ describe("getCatalogCategories", () => {
     );
 
     await expect(getCatalogCategories()).rejects.toThrow("500");
+  });
+
+  it("asks again under a short cache while no category has products", async () => {
+    let asked = 0;
+    server.use(
+      http.get(`${BACKEND_ORIGIN}/api/products/categories`, () => {
+        asked++;
+
+        return HttpResponse.json({
+          departments: [],
+          categories: [],
+        });
+      }),
+    );
+
+    await getCatalogCategories(1_000);
+
+    expect(asked).toBe(2);
   });
 });
 

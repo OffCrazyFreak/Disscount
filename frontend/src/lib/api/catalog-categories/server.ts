@@ -24,33 +24,66 @@ export const OPTIONAL_LOOKUP_TIMEOUT_MS = 2_500;
 
 export const CATEGORY_PAGE_SIZE = 24;
 
+interface ICatalogFetchOptions {
+  revalidate?: number;
+  timeoutMs?: number;
+  /** Next keys its fetch cache on headers but not on revalidate, so a second lifetime needs its own key. */
+  cacheVariant?: string;
+}
+
 function catalogFetch(
   path: string,
   {
     revalidate = CATALOG_REVALIDATE_SECONDS,
     timeoutMs = CATALOG_TIMEOUT_MS,
-  } = {},
+    cacheVariant,
+  }: ICatalogFetchOptions = {},
 ): Promise<Response> {
   return fetch(`${BACKEND_ORIGIN}${path}`, {
     next: { revalidate },
     signal: AbortSignal.timeout(timeoutMs),
+    ...(cacheVariant && { headers: { "X-Cache-Variant": cacheVariant } }),
   });
+}
+
+// Empty means no import has filled the catalogue yet, which the next import fixes within minutes, not the hour.
+const EMPTY_CATALOG_REVALIDATE_SECONDS = 2 * 60;
+
+/** Asks again with a short cache when the cached answer is empty, so a hub never stays empty for the hour after the first import. */
+async function catalogFetchUnlessEmpty<T>(
+  path: string,
+  options: ICatalogFetchOptions,
+  read: (response: Response) => Promise<T>,
+  isEmpty: (data: T) => boolean,
+): Promise<T> {
+  const data = await read(await catalogFetch(path, options));
+  if (!isEmpty(data)) return data;
+
+  return read(
+    await catalogFetch(path, {
+      ...options,
+      revalidate: EMPTY_CATALOG_REVALIDATE_SECONDS,
+      cacheVariant: "empty-recheck",
+    }),
+  );
 }
 
 /** Throws on any failure, so the page answers 500, which crawlers retry, rather than an empty hub. */
 export const getCatalogCategories = cache(
-  async (timeoutMs = CATALOG_TIMEOUT_MS): Promise<CatalogCategories> => {
-    const response = await catalogFetch("/api/products/categories", {
-      revalidate: CATEGORY_COUNTS_REVALIDATE_SECONDS,
-      timeoutMs,
-    });
+  async (timeoutMs = CATALOG_TIMEOUT_MS): Promise<CatalogCategories> =>
+    catalogFetchUnlessEmpty(
+      "/api/products/categories",
+      { revalidate: CATEGORY_COUNTS_REVALIDATE_SECONDS, timeoutMs },
+      async (response) => {
+        if (!response.ok) {
+          throw new Error(`Catalogue categories answered ${response.status}`);
+        }
 
-    if (!response.ok) {
-      throw new Error(`Catalogue categories answered ${response.status}`);
-    }
-
-    return catalogCategoriesSchema.parse(await response.json());
-  },
+        return catalogCategoriesSchema.parse(await response.json());
+      },
+      ({ categories }) =>
+        categories.every((category) => category.productCount === 0),
+    ),
 );
 
 /** One-based page, as in the URL; null for a slug the backend does not know. */
@@ -64,17 +97,19 @@ export const getCategoryProducts = cache(
       page: String(page - 1),
       size: String(CATEGORY_PAGE_SIZE),
     });
-    const response = await catalogFetch(
+    return catalogFetchUnlessEmpty(
       `/api/products/categories/${encodeURIComponent(slug)}/products?${query}`,
       { timeoutMs },
+      async (response) => {
+        if (response.status === 404) return null;
+        if (!response.ok) {
+          throw new Error(`Category ${slug} answered ${response.status}`);
+        }
+
+        return categoryProductsPageSchema.parse(await response.json());
+      },
+      (listing) => listing?.page.totalItems === 0,
     );
-
-    if (response.status === 404) return null;
-    if (!response.ok) {
-      throw new Error(`Category ${slug} answered ${response.status}`);
-    }
-
-    return categoryProductsPageSchema.parse(await response.json());
   },
 );
 
