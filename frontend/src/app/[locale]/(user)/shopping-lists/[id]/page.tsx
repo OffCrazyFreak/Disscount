@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { pageMetadata } from "@/i18n/alternates";
-import ShoppingListDetailClient from "@/app/[locale]/(user)/shopping-lists/[id]/components/shopping-list-detail-client";
+import ShoppingListDetailClient from "@/features/shopping-lists/detail/components/shopping-list-detail-client";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/shopping-lists/[id]">,

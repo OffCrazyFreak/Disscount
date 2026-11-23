@@ -7,18 +7,16 @@ import type { ModalTarget } from "@/lib/modal/modal-registry";
 
 const ShoppingListModal = dynamic(
   () =>
-    import("@/app/[locale]/(user)/shopping-lists/components/forms/shopping-list-modal"),
+    import("@/features/shopping-lists/components/forms/shopping-list-modal"),
   { ssr: false },
 );
 const ShareListModal = dynamic(
-  () =>
-    import("@/app/[locale]/(user)/shopping-lists/components/forms/share-list-modal"),
+  () => import("@/features/shopping-lists/components/forms/share-list-modal"),
   { ssr: false },
 );
 
 const CopyListModal = dynamic(
-  () =>
-    import("@/app/[locale]/(user)/shopping-lists/components/forms/copy-list-modal"),
+  () => import("@/features/shopping-lists/components/forms/copy-list-modal"),
   { ssr: false },
 );
 const DigitalCardModal = dynamic(

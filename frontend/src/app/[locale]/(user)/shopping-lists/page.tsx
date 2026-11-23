@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import ShoppingListsClient from "@/app/[locale]/(user)/shopping-lists/components/shopping-lists-client";
+import ShoppingListsClient from "@/features/shopping-lists/components/shopping-lists-client";
 import { readSearchParam } from "@/utils/generic";
 import { pageMetadata } from "@/i18n/alternates";
 
