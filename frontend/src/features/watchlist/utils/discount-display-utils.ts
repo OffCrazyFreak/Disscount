@@ -1,7 +1,7 @@
 import { getChainLabel } from "@/utils/format/labels";
 import { formatPriceDelta } from "@/utils/price/price";
 import { IScopedDiscountedStore } from "@/lib/watchlist/watchlist-types";
-import type { INotificationStore } from "@/context/notifications-types";
+import type { INotificationStore } from "@/context/notifications/notifications-types";
 
 export function toStoreLines(
   stores: IScopedDiscountedStore[],

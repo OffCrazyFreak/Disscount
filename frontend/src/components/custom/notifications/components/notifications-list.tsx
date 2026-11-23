@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
-import type { IWatchlistNotification } from "@/context/notifications-types";
+import type { IWatchlistNotification } from "@/context/notifications/notifications-types";
 import NotificationItem from "@/components/custom/notifications/components/notification-item";
 import NotificationsEmptyState from "@/components/custom/notifications/components/notifications-empty-state";
 

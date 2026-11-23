@@ -2,7 +2,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { useAccountUser } from "@/context/use-account-user";
+import { useAccountUser } from "@/context/user-session/use-account-user";
 import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
 import type { UserDto } from "@/lib/api/types";
 import { setCacheIdentity } from "@/lib/offline/cache-identity";

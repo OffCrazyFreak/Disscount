@@ -1,7 +1,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/utils/price/price";
-import type { INotificationStore } from "@/context/notifications-types";
+import type { INotificationStore } from "@/context/notifications/notifications-types";
 
 interface IStorePriceListProps {
   stores: INotificationStore[];

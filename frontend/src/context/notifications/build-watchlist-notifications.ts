@@ -13,7 +13,7 @@ import { getChainLabel } from "@/utils/format/labels";
 import {
   INotificationsSummary,
   IWatchlistNotification,
-} from "@/context/notifications-types";
+} from "@/context/notifications/notifications-types";
 
 interface IBuildNotificationsResult {
   notifications: IWatchlistNotification[];

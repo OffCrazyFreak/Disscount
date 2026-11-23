@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/nextjs";
 import { ZodError } from "zod";
 
 import { UserDto } from "@/lib/api/types";
-import { loadUserProfile } from "@/context/load-user-profile";
+import { loadUserProfile } from "@/context/user-session/load-user-profile";
 import {
   erasedAccountId,
   finishErasedAccountDeletion,

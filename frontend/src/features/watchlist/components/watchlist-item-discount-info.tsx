@@ -7,7 +7,7 @@ import { openModalUrl } from "@/lib/modal/modal-navigation";
 import WatchlistDiscountRow from "@/features/watchlist/components/watchlist-discount-row";
 import { formatDifference } from "@/features/watchlist/utils/discount-display-utils";
 import { IDiscountInfo } from "@/features/watchlist/utils/watchlist-utils";
-import type { INotificationStore } from "@/context/notifications-types";
+import type { INotificationStore } from "@/context/notifications/notifications-types";
 
 interface IWatchlistItemDiscountInfoProps {
   discountInfo: IDiscountInfo | null;

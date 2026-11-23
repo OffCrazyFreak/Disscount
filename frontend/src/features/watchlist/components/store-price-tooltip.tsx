@@ -9,7 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import StorePriceList from "@/components/custom/price/store-price-list";
-import type { INotificationStore } from "@/context/notifications-types";
+import type { INotificationStore } from "@/context/notifications/notifications-types";
 
 interface IStorePriceTooltipProps {
   stores: INotificationStore[];

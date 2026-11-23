@@ -3,7 +3,7 @@
 import { useRouter } from "@/i18n/navigation";
 import { type MouseEvent, type ReactNode } from "react";
 import { useCameraScanner } from "@/context/scanner-context";
-import { useNotifications } from "@/context/notifications-context";
+import { useNotifications } from "@/context/notifications/notifications-context";
 import { useUser } from "@/context/user-context";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import type { IScannedCode } from "@/typings/scanned-code";

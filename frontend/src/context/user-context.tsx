@@ -24,15 +24,15 @@ import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
 import {
   isProfileOfAnotherAccount,
   mergeSessionUser,
-} from "@/context/merge-session-user";
+} from "@/context/user-session/merge-session-user";
 import {
   isUnverifiedAccount,
   syncCacheIdentity,
-} from "@/context/sync-cache-identity";
-import { useAccountUser } from "@/context/use-account-user";
-import { useLogout } from "@/context/use-logout";
-import { useProfileLoader } from "@/context/use-profile-loader";
-import { useUserUpdaters } from "@/context/use-user-updaters";
+} from "@/context/user-session/sync-cache-identity";
+import { useAccountUser } from "@/context/user-session/use-account-user";
+import { useLogout } from "@/context/user-session/use-logout";
+import { useProfileLoader } from "@/context/user-session/use-profile-loader";
+import { useUserUpdaters } from "@/context/user-session/use-user-updaters";
 
 interface IUserContext {
   user: UserDto | null;

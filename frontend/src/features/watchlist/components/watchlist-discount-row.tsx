@@ -5,7 +5,7 @@ import StorePricePopover from "@/features/watchlist/components/store-price-popov
 import StorePriceTooltip from "@/features/watchlist/components/store-price-tooltip";
 import { cn } from "@/lib/utils";
 import { priceDeltaColorClass } from "@/utils/price/price";
-import type { INotificationStore } from "@/context/notifications-types";
+import type { INotificationStore } from "@/context/notifications/notifications-types";
 
 interface IWatchlistDiscountRowProps {
   icon: LucideIcon;

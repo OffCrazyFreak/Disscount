@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 import { useUser } from "@/context/user-context";
 import { useWatchedProducts } from "@/lib/watchlist/use-watched-products";
-import { buildWatchlistNotifications } from "@/context/build-watchlist-notifications";
-import { INotificationsContext } from "@/context/notifications-types";
+import { buildWatchlistNotifications } from "@/context/notifications/build-watchlist-notifications";
+import { INotificationsContext } from "@/context/notifications/notifications-types";
 
 export function useWatchlistNotifications(): INotificationsContext {
   const { accountUser, isAuthenticated } = useUser();

@@ -2,7 +2,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { syncCacheIdentity } from "@/context/sync-cache-identity";
+import { syncCacheIdentity } from "@/context/user-session/sync-cache-identity";
 import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { peekFormDraft, setFormDraft } from "@/utils/browser/storage/drafts";
 

@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/popover";
 import PriceInfoButton from "@/components/custom/price/price-info-button";
 import StorePriceList from "@/components/custom/price/store-price-list";
-import type { INotificationStore } from "@/context/notifications-types";
+import type { INotificationStore } from "@/context/notifications/notifications-types";
 import { cn } from "@/lib/utils";
 
 interface IStorePricePopoverProps {
