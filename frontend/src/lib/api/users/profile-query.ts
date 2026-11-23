@@ -14,7 +14,15 @@ import { getCacheIdentity } from "@/lib/offline/cache-identity";
 import { httpStatus } from "@/lib/offline/failure-policy";
 import { isNetworkFailure } from "@/lib/offline/is-network-failure";
 
-async function loadUserProfile(signal: AbortSignal): Promise<UserDto> {
+function savedProfileOfThisAccount(client: QueryClient): UserDto | undefined {
+  const saved = client.getQueryData<UserDto>(USER_QUERY_KEYS.me);
+  return saved?.id === getCacheIdentity() ? saved : undefined;
+}
+
+async function loadUserProfile(
+  signal: AbortSignal,
+  client: QueryClient,
+): Promise<UserDto> {
   const userData = await userService.getCurrentUser(signal);
 
   if (!userData.pinnedStores || !userData.pinnedPlaces) {
@@ -27,6 +35,10 @@ async function loadUserProfile(signal: AbortSignal): Promise<UserDto> {
       userData.pinnedPlaces = places;
     } catch (prefError) {
       console.error("Failed to fetch preferences:", prefError);
+      // Older pins beat none: this answer replaces the saved profile, offline copy included.
+      const saved = savedProfileOfThisAccount(client);
+      userData.pinnedStores ??= saved?.pinnedStores;
+      userData.pinnedPlaces ??= saved?.pinnedPlaces;
     }
   }
 
@@ -48,18 +60,13 @@ function isPassingFailure(error: unknown) {
   );
 }
 
-function savedProfileOfThisAccount(client: QueryClient): UserDto | undefined {
-  const saved = client.getQueryData<UserDto>(USER_QUERY_KEYS.me);
-  return saved?.id === getCacheIdentity() ? saved : undefined;
-}
-
 /** @param accountId The account the session and the cache identity both name; the proxy reads the pin per request. */
 export function userProfileQueryOptions(accountId: string | null) {
   return queryOptions({
     queryKey: USER_QUERY_KEYS.me,
     queryFn: async ({ client, signal }): Promise<UserDto> => {
       try {
-        return await loadUserProfile(signal);
+        return await loadUserProfile(signal, client);
       } catch (error) {
         if (isCancel(error)) throw error;
 

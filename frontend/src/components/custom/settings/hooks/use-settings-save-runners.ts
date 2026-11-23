@@ -26,12 +26,15 @@ export function useSettingsSaveRunners() {
     // Merged without pins or image: the stores and avatar jobs race this one and own those fields.
     saveUser: async (patch) =>
       mergeUser(withoutImage(await userMutation.mutateAsync(patch))),
-    uploadAvatar: async (avatar) =>
-      mergeUser({
-        image: (await uploadAvatarMutation.mutateAsync(avatar)).image,
-      }),
-    removeAvatar: async () =>
-      mergeUser({ image: (await removeAvatarMutation.mutateAsync()).image }),
+    // The id lets mergeUser drop an answer that lands after another account took over.
+    uploadAvatar: async (avatar) => {
+      const { id, image } = await uploadAvatarMutation.mutateAsync(avatar);
+      mergeUser({ id, image });
+    },
+    removeAvatar: async () => {
+      const { id, image } = await removeAvatarMutation.mutateAsync();
+      mergeUser({ id, image });
+    },
     saveStores: async (chainCodes) =>
       updatePinnedStores(
         await storesMutation.mutateAsync({

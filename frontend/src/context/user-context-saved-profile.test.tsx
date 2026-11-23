@@ -170,6 +170,8 @@ describe("UserProvider pinned store edits", () => {
       { queryClient },
     );
     fireEvent.click(screen.getByRole("button", { name: "unpin all" }));
+    // Past the cancel the updater awaits, so a write after it would show.
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(queryClient.getQueryData(USER_QUERY_KEYS.me)).toEqual(PROFILE);
   });
