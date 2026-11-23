@@ -1,10 +1,7 @@
 import { ShoppingListItemDto } from "@/lib/api/types";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
-import {
-  getChainAvgPriceRange,
-  getPriceExtreme,
-  type PriceExtreme,
-} from "@/app/[locale]/products/utils/product-utils";
+import { getChainAvgPriceRange } from "@/app/[locale]/products/utils/product-utils";
+import { getPriceExtreme, type PriceExtreme } from "@/utils/price-comparison";
 
 function countChainsAtExtreme(
   productsData: ProductResponse[],

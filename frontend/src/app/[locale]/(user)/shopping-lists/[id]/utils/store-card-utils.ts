@@ -1,9 +1,6 @@
 import { ShoppingListDto } from "@/lib/api/types";
 import { PinnedStoreDto } from "@/lib/api/schemas/preferences";
-import {
-  getPriceExtreme,
-  PriceExtreme,
-} from "@/app/[locale]/products/utils/product-utils";
+import { getPriceExtreme, PriceExtreme } from "@/utils/price-comparison";
 import { ChainSummary } from "@/app/[locale]/(user)/shopping-lists/[id]/typings/store-chain-types";
 import { itemsToCompare } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
 import { isPriceDateToday } from "@/utils/product-price-utils";

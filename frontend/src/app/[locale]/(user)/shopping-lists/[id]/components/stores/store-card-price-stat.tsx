@@ -1,5 +1,5 @@
 import { useLocale, useTranslations } from "next-intl";
-import { PriceExtreme } from "@/app/[locale]/products/utils/product-utils";
+import { PriceExtreme } from "@/utils/price-comparison";
 import { formatPrice } from "@/utils/price";
 
 interface IStoreCardPriceStatProps {

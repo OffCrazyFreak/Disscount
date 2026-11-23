@@ -1,4 +1,4 @@
-import { PriceExtreme } from "@/app/[locale]/products/utils/price-comparison-types";
+export type PriceExtreme = "min" | "max" | null;
 
 // Uniform prices (min === max) return null so every view renders them neutrally.
 export function getPriceExtreme(
