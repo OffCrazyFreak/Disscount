@@ -1,7 +1,6 @@
 import { ChevronRight } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
-import { cn } from "@/lib/utils";
 
 interface IBreadcrumb {
   label: string;
@@ -17,24 +16,17 @@ interface IBreadcrumbsProps {
 export default function Breadcrumbs({ label, items }: IBreadcrumbsProps) {
   return (
     <nav aria-label={label}>
-      {/* One line: the current page's crumb gives way first, so a long product name ends in an ellipsis. */}
-      <ol className="flex items-center gap-1.5 text-sm text-muted-foreground">
+      {/* Each separator trails its crumb, so a wrapped line never starts with one; a too-long crumb ends in an ellipsis. */}
+      <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-muted-foreground">
         {items.map((item, index) => (
           <li
             key={index}
-            className={cn(
-              "flex items-center gap-1.5",
-              item.href ? "shrink-0" : "min-w-0",
-            )}
+            className="flex min-w-0 max-w-full items-center gap-1.5"
           >
-            {index > 0 && (
-              <ChevronRight aria-hidden="true" className="size-3.5 shrink-0" />
-            )}
-
             {item.href ? (
               <Link
                 href={item.href}
-                className="hover:text-foreground hover:underline"
+                className="truncate hover:text-foreground hover:underline"
               >
                 {item.label}
               </Link>
@@ -42,6 +34,10 @@ export default function Breadcrumbs({ label, items }: IBreadcrumbsProps) {
               <span aria-current="page" className="truncate text-foreground">
                 {item.label}
               </span>
+            )}
+
+            {index < items.length - 1 && (
+              <ChevronRight aria-hidden="true" className="size-3.5 shrink-0" />
             )}
           </li>
         ))}
