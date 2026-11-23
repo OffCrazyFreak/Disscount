@@ -12,6 +12,7 @@ import disscount.user.ActiveUsers;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -37,8 +38,12 @@ public class FavoriteStoreService {
         favoriteStoreRepository.deleteAllByUserId(userId);
         favoriteStoreRepository.flush();
 
-        List<FavoriteStore> saved = favoriteStoreRepository.saveAll(keys.stream()
-                .map(key -> FavoriteStore.builder().userId(userId).storeKey(key).build())
+        List<FavoriteStore> saved = favoriteStoreRepository.saveAll(IntStream.range(0, keys.size())
+                .mapToObj(index -> FavoriteStore.builder()
+                        .userId(userId)
+                        .storeKey(keys.get(index))
+                        .sortOrder(index)
+                        .build())
                 .toList());
 
         return saved.stream().map(FavoriteStoreDto::from).toList();
