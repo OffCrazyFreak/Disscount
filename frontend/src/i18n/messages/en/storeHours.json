@@ -24,5 +24,23 @@
   },
   "check": "Check",
   "checkLabel": "Check the hours on the store's page (opens in a new tab)",
-  "changed": "{store}: {status}"
+  "changed": "{store}: {status}",
+  "week": {
+    "title": "Opening hours",
+    "days": {
+      "mon": "Monday",
+      "tue": "Tuesday",
+      "wed": "Wednesday",
+      "thu": "Thursday",
+      "fri": "Friday",
+      "sat": "Saturday",
+      "sun": "Sunday"
+    },
+    "today": "today",
+    "closed": "Closed",
+    "unconfirmed": "Not confirmed",
+    "someSundays": "Only some Sundays",
+    "holiday": "Public holiday",
+    "exception": "Special hours"
+  }
 }

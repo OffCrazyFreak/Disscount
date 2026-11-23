@@ -35,7 +35,7 @@ export function useDigitalCardForm({
   const t = useTranslations("digitalCards.form");
   const form = useForm<DigitalCardRequest>({
     resolver: zodResolver(digitalCardRequestSchema),
-    mode: "onChange",
+    mode: "onTouched",
     defaultValues: EMPTY_CARD_VALUES,
   });
 

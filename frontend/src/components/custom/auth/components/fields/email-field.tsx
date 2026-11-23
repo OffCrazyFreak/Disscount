@@ -28,9 +28,11 @@ export default function EmailField<T extends FieldValues>({
       render={({ field }) => (
         <FormItem>
           <FormLabel>{t("email.label")}</FormLabel>
+          {/* Every auth field is required, so no star; screen readers still hear it. */}
           <FormControl>
             <Input
               {...field}
+              aria-required="true"
               type="email"
               placeholder={t("email.placeholder")}
               autoComplete="email"

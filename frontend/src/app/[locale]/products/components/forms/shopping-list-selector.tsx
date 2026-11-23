@@ -68,7 +68,7 @@ export default function ShoppingListSelector({
       control={formField.control}
       name="shoppingListId"
       render={({ field }) => (
-        <FormItem className="flex flex-col">
+        <FormItem required className="flex flex-col">
           <FormLabel>{t("listSelector.label")}</FormLabel>
 
           <Popover open={open} onOpenChange={handleOpenChange} modal={true}>

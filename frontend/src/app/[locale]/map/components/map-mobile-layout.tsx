@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import MapLoadState from "@/app/[locale]/map/components/map-load-state";
@@ -9,14 +9,15 @@ import MapPanel from "@/app/[locale]/map/components/map-panel";
 import MapSearchBar from "@/app/[locale]/map/components/map-search-bar";
 import MapStoreSheet from "@/app/[locale]/map/components/map-store-sheet";
 import { IMapViewModel } from "@/app/[locale]/map/hooks/use-map-view-model";
+import { useNavClearance } from "@/app/[locale]/map/hooks/use-nav-clearance";
 import { IViewArea } from "@/app/[locale]/map/utils/view-area";
 
 interface IMapMobileLayoutProps {
   model: IMapViewModel;
   viewArea: IViewArea | null;
   map: ReactNode;
-  /** Share of the map's height the store sheet covers. */
-  onCoverChange: (share: number) => void;
+  /** Pixels at the map's bottom the store sheet or the bottom nav covers. */
+  onCoverChange: (height: number) => void;
 }
 
 export default function MapMobileLayout({
@@ -26,8 +27,10 @@ export default function MapMobileLayout({
   onCoverChange,
 }: IMapMobileLayoutProps) {
   const t = useTranslations("map.layout");
-  const containerRef = useRef<HTMLDivElement>(null);
   const locateRef = useRef<HTMLButtonElement>(null);
+  const navProbeRef = useRef<HTMLDivElement>(null);
+  const navHeight = useNavClearance(navProbeRef);
+  const [sheetHeight, setSheetHeight] = useState(0);
   const [isSearchOpen, setSearchOpen] = useState(false);
   const sheetRow = isSearchOpen ? null : model.selected;
 
@@ -36,17 +39,19 @@ export default function MapMobileLayout({
     if (key) setSearchOpen(false);
   }
 
-  function reportSheetHeight(height: number) {
-    const mapHeight = containerRef.current?.clientHeight ?? 0;
-    onCoverChange(mapHeight > 0 ? Math.min(height / mapHeight, 1) : 0);
-  }
+  // The map runs under the nav, so pins fitted with the sheet closed must still clear it.
+  useEffect(() => {
+    onCoverChange(Math.max(sheetHeight, navHeight));
+  }, [sheetHeight, navHeight, onCoverChange]);
 
   return (
-    <div
-      ref={containerRef}
-      data-page-width="full"
-      className="fixed inset-x-0 top-0 bottom-[var(--bottom-nav-total)] z-[1] overflow-hidden"
-    >
+    <div data-page-width="full" className="fixed inset-0 z-[1] overflow-hidden">
+      <div
+        ref={navProbeRef}
+        aria-hidden="true"
+        className="pointer-events-none invisible absolute h-[var(--bottom-nav-total)] w-0"
+      />
+
       {/* First in the DOM so the search comes before the map's controls in the tab order. */}
       <MapSearchBar isOpen={isSearchOpen} onOpenChange={setSearchOpen}>
         <section
@@ -84,7 +89,7 @@ export default function MapMobileLayout({
       <MapStoreSheet
         row={sheetRow}
         onClose={() => model.selectStore(null)}
-        onHeightChange={reportSheetHeight}
+        onHeightChange={setSheetHeight}
         returnFocusRef={locateRef}
       />
     </div>

@@ -296,7 +296,10 @@ describe("AddPlainItemModal", () => {
     expect(
       await screen.findByText("Upiši naziv s najmanje 3 znaka"),
     ).toBeVisible();
-    expect(screen.getByRole("button", { name: "Dodaj" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Dodaj" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
 
     await user.click(trigger);
     // Reopening prefills the search with the new title, which hides the lists.
@@ -329,6 +332,9 @@ describe("AddPlainItemModal", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Upiši naziv s najmanje 3 znaka",
     );
-    expect(screen.getByRole("button", { name: "Dodaj" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Dodaj" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
   });
 });

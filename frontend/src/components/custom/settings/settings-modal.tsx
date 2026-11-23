@@ -80,7 +80,8 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
     formId: CREDENTIALS_FORM_ID,
     submitLabel: t("modal.save"),
     submitLoading: securitySubmitting,
-    submitDisabled: !securityDirty || !securityValid,
+    submitDisabled: !securityDirty,
+    submitIncomplete: !securityValid,
     resetLabel: t("modal.reset"),
     resetDisabled: !securityDirty,
     onReset: () => security.form.reset(),
@@ -145,6 +146,7 @@ export default function SettingsModal({ open, tab }: ISettingsModalProps) {
         </TabsList>
 
         <form
+          noValidate
           id="settings-form"
           onSubmit={form.handleSubmit(() => {
             void save();

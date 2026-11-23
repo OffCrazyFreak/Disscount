@@ -53,7 +53,9 @@
   "bottomNav": {
     "label": "Glavna navigacija",
     "searchClose": "{label}, zapri",
-    "searchOpen": "{label}, išči"
+    "searchOpen": "{label}, išči",
+    "returnHint": "dotakni se za vrnitev na prejšnje mesto",
+    "listProgress": "{checked} od {total, plural, one {# izdelka} two {# izdelkov} few {# izdelkov} other {# izdelkov}} kupljeno"
   },
   "userMenu": {
     "trigger": "Uporabniški meni",

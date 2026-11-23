@@ -44,10 +44,11 @@ export function groupItemsByStore({
       let isPartial = false;
 
       for (const item of groupItems) {
-        // A checked item keeps the price it was bought at, else today's.
-        const price =
-          (item.isChecked ? item.storePrice : null) ??
-          (chain ? storePrices[item.id]?.[chain] : undefined);
+        // A plain item has only the price typed for it; a checked one keeps the price it was bought at, else today's.
+        const price = !item.ean
+          ? item.storePrice
+          : ((item.isChecked ? item.storePrice : null) ??
+            (chain ? storePrices[item.id]?.[chain] : undefined));
 
         if (price == null) isPartial = true;
         else subtotal += price * (item.amount || 1);

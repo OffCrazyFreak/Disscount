@@ -10,6 +10,8 @@ export interface IModalShellFooterProps {
   onCancel?: () => void;
   submitLabel?: string;
   submitDisabled?: boolean;
+  /** Invalid fields; unlike submitDisabled the button stays tappable and reveals them. */
+  submitIncomplete?: boolean;
   submitLoading?: boolean;
   submitVariant?: "primary" | "destructive";
   submitIcon?: LucideIcon;

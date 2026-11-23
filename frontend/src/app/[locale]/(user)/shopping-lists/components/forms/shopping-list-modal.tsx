@@ -61,7 +61,9 @@ export default function ShoppingListModal({
       submitLabel={isEdit ? t("listModal.save") : t("listModal.create")}
       submitIcon={Save}
       submitLoading={isLoading}
-      submitDisabled={!isDirty || !isValid || notFound || loadError}
+      // An untouched rename has nothing to save; isValid alone is stale after the prefill.
+      submitDisabled={notFound || loadError || (isEdit && !isDirty)}
+      submitIncomplete={!isValid}
       cancelLabel={t("modal.cancel")}
       resetLabel={t("listModal.reset")}
       resetDisabled={!isDirty && !restored}

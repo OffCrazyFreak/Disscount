@@ -38,7 +38,6 @@ export default function AddToShoppingListForm({
     product,
     isLoadingLists,
     sortedShoppingLists,
-    customListTitle,
     selectedList,
     selectList,
     duplicateItem,
@@ -55,10 +54,6 @@ export default function AddToShoppingListForm({
     resetForm,
   } = useAddToListForm(open, ean, listId);
   const { isDirty, isValid, errors } = useFormState({ control: form.control });
-  const shoppingListId = useWatch({
-    control: form.control,
-    name: "shoppingListId",
-  });
   const amount = useWatch({ control: form.control, name: "amount" });
 
   return (
@@ -74,11 +69,8 @@ export default function AddToShoppingListForm({
       // The product is already on the chosen list, so submitting edits that entry rather than adding a second one.
       submitIcon={duplicateItem ? ListPen : ListPlus}
       submitLoading={isSubmitting}
-      submitDisabled={
-        !product ||
-        !isValid ||
-        (shoppingListId === "new" && !customListTitle.trim())
-      }
+      submitDisabled={!product}
+      submitIncomplete={!isValid}
       cancelLabel={t("addToList.cancel")}
       resetLabel={t("addToList.reset")}
       resetDisabled={!isDirty && !restored}
@@ -111,6 +103,7 @@ export default function AddToShoppingListForm({
             <Form {...form}>
               <form
                 id="add-to-list-form"
+                noValidate
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-4"
               >

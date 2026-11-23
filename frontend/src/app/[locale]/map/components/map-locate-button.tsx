@@ -51,7 +51,7 @@ export default function MapLocateButton({
         onLocate();
       }}
       className={cn(
-        "absolute right-2.5 bottom-32 z-[1] rounded-full bg-background shadow-md",
+        "absolute right-2.5 bottom-[calc(var(--bottom-nav-total)+6.4rem)] z-[1] rounded-full bg-background shadow-md",
         (status === "located" || status === "approximate") && "text-primary",
       )}
     >

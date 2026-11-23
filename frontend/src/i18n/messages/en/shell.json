@@ -53,7 +53,9 @@
   "bottomNav": {
     "label": "Main navigation",
     "searchClose": "{label}, close",
-    "searchOpen": "{label}, search"
+    "searchOpen": "{label}, search",
+    "returnHint": "tap to go back to where you were",
+    "listProgress": "{checked} of {total, plural, one {# item} other {# items}} bought"
   },
   "userMenu": {
     "trigger": "User menu",

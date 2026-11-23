@@ -58,7 +58,8 @@ export default function ContactModal({ open }: IContactModalProps) {
 
   const form = useForm<ContactMessageRequest>({
     resolver: zodResolver(contactMessageRequestSchema),
-    mode: "onChange",
+    // onTouched, so a field left empty says so on leaving it, not only after typing.
+    mode: "onTouched",
     defaultValues: EMPTY_VALUES,
   });
 
@@ -126,7 +127,7 @@ export default function ContactModal({ open }: IContactModalProps) {
       submitLabel={t("contact.modal.submit")}
       submitIcon={Send}
       submitLoading={createMessage.isPending}
-      submitDisabled={!form.formState.isValid}
+      submitIncomplete={!form.formState.isValid}
       cancelLabel={t("contact.modal.cancel")}
       resetLabel={t("contact.modal.reset")}
       resetDisabled={!form.formState.isDirty && !restored}
@@ -140,6 +141,7 @@ export default function ContactModal({ open }: IContactModalProps) {
       <Form {...form}>
         <form
           id="contact-form"
+          noValidate
           onSubmit={form.handleSubmit(handleSubmit)}
           className="mt-4 space-y-5"
         >

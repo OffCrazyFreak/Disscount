@@ -48,10 +48,11 @@ export default function MultiSelectValue({
       {...props}
       ref={containerRef}
       className={cn(
-        // min-w-0 undoes a flex item's automatic minimum, or the row never scrolls and badges spill.
-        "flex w-full min-w-0 gap-1.5 overflow-hidden",
+        // min-w-0 or the row never scrolls; the padding and negative margin give chip shadows room inside the clip.
+        "-m-1.5 flex w-full min-w-0 gap-1.5 overflow-hidden p-1.5",
         // About three and a half rows, so the cut-off shows it scrolls and the list stays on a phone.
-        open && "h-full max-h-26 flex-wrap overflow-y-auto overscroll-contain",
+        open &&
+          "h-full max-h-[calc(var(--spacing)*26+0.75rem)] flex-wrap overflow-y-auto overscroll-contain",
         className,
       )}
     >

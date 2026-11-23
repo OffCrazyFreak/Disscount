@@ -32,7 +32,11 @@ export default function AuthFormShell<T extends IEmailValues>({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+      <form
+        noValidate
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="grid gap-4"
+      >
         <FormRootError message={formState.errors.root?.message} />
 
         <EmailField control={form.control} name={email} />

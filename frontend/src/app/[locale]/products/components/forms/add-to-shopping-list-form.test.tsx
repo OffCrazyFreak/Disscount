@@ -89,14 +89,20 @@ describe("AddToShoppingListForm", () => {
     await chooseNewList("ab");
 
     expect(await screen.findByRole("alert")).toHaveTextContent(TOO_SHORT);
-    expect(screen.getByRole("button", { name: "Dodaj" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Dodaj" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
   });
 
   it("explains why a too long new list title blocks the add", async () => {
     await chooseNewList("a".repeat(101));
 
     expect(await screen.findByText(TOO_LONG)).toBeVisible();
-    expect(screen.getByRole("button", { name: "Dodaj" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Dodaj" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
   });
 
   it("drops the title message once an existing list is picked", async () => {
@@ -132,6 +138,9 @@ describe("AddToShoppingListForm", () => {
     });
 
     expect(await screen.findByRole("alert")).toHaveTextContent(TOO_SHORT);
-    expect(screen.getByRole("button", { name: "Dodaj" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Dodaj" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
   });
 });

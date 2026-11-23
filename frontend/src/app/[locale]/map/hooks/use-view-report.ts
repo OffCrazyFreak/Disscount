@@ -8,20 +8,20 @@ import { IViewArea, readVisibleArea } from "@/app/[locale]/map/utils/view-area";
 interface IUseViewReportOptions {
   mapRef: RefObject<MapRef | null>;
   mapReady: boolean;
-  /** Share of the map's height under the phone sheet, 0 on desktop. */
-  coveredShare: number;
+  /** Pixels at the map's bottom under the phone sheet or nav, 0 on desktop. */
+  coveredHeight: number;
   onViewChange: (area: IViewArea | null) => void;
 }
 
 export function useViewReport({
   mapRef,
   mapReady,
-  coveredShare,
+  coveredHeight,
   onViewChange,
 }: IUseViewReportOptions) {
   function coveredBottom() {
     const map = mapRef.current?.getMap();
-    return map ? map.getCanvas().clientHeight * coveredShare : 0;
+    return map ? Math.min(coveredHeight, map.getCanvas().clientHeight) : 0;
   }
 
   function reportView() {
@@ -34,7 +34,7 @@ export function useViewReport({
   // The sheet moving changes how much of the map is in sight.
   useEffect(() => {
     if (mapReady) reportChangedView();
-  }, [mapReady, coveredShare]);
+  }, [mapReady, coveredHeight]);
 
   return { coveredBottom, reportView };
 }

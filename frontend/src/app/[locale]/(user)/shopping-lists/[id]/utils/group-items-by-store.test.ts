@@ -93,4 +93,25 @@ describe("groupItemsByStore", () => {
 
     expect(group).toMatchObject({ subtotal: 1.5, isPartial: false });
   });
+
+  it("totals a plain item at the price typed for it", () => {
+    const [group] = groupItemsByStore({
+      items: [
+        item("1", "Staklenke", {
+          ean: null,
+          chainCode: "lidl",
+          amount: 2,
+          storePrice: 1.5,
+        }),
+      ],
+      cheapestStores: {},
+      storePrices: {},
+    });
+
+    expect(group).toMatchObject({
+      chain: "lidl",
+      subtotal: 3,
+      isPartial: false,
+    });
+  });
 });

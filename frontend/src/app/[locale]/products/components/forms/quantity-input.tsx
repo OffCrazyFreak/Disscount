@@ -24,10 +24,13 @@ export default function QuantityInput({ formField }: IQuantityInputProps) {
       control={formField.control}
       name="amount"
       render={({ field }) => (
-        <FormItem>
+        <FormItem required>
           <FormLabel>{t("quantity.label")}</FormLabel>
           <FormControl>
             <StepperNumberInput
+              ref={field.ref}
+              name={field.name}
+              onBlur={field.onBlur}
               value={field.value}
               onChange={field.onChange}
               steps={{ primary: 1, secondary: 5 }}

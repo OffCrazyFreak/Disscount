@@ -65,11 +65,8 @@ export default function ContactFormFields() {
         control={form.control}
         name="subject"
         render={({ field }) => (
-          <FormItem>
-            <FormLabel>
-              {t("contact.form.subject")}{" "}
-              <span className="text-destructive">*</span>
-            </FormLabel>
+          <FormItem required>
+            <FormLabel>{t("contact.form.subject")}</FormLabel>
             <FormControl>
               <Input
                 placeholder={t("contact.form.subjectPlaceholder")}
@@ -86,11 +83,8 @@ export default function ContactFormFields() {
         control={form.control}
         name="message"
         render={({ field }) => (
-          <FormItem>
-            <FormLabel>
-              {t("contact.form.message")}{" "}
-              <span className="text-destructive">*</span>
-            </FormLabel>
+          <FormItem required>
+            <FormLabel>{t("contact.form.message")}</FormLabel>
             <FormControl>
               <Textarea
                 rows={5}

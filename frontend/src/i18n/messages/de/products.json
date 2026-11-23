@@ -185,6 +185,7 @@
     "startTitle": "Produkte suchen",
     "startText": "Gib ein, was du suchst",
     "noResultsAddPlain": "Wir haben kein Produkt mit diesem Namen gefunden. Du kannst es trotzdem zu einer Liste hinzufügen.",
+    "endOfResultsAddPlain": "Nicht dabei, was du suchst? Füge es unter einem Namen deiner Wahl zu einer Liste hinzu.",
     "addPlainItem": "„{query}“ zu einer Liste hinzufügen"
   },
   "viewSwitcher": {
@@ -226,6 +227,7 @@
     "title": "Artikel zu einer Liste hinzufügen",
     "description": "Er hat keinen Preis, bleibt aber auf der Liste, damit du ihn nicht vergisst.",
     "nameLabel": "Name",
+    "nameRequired": "Gib einen Namen für den Artikel ein.",
     "toast": {
       "added": "Artikel zu „{name}“ hinzugefügt",
       "quantityIncreased": "Menge erhöht in „{name}“"

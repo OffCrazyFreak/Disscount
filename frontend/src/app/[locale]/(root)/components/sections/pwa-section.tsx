@@ -15,7 +15,7 @@ export default function PwaSection() {
   const t = useTranslations("landing");
 
   return (
-    <section className="overflow-x-clip">
+    <section>
       <ScrollReveal
         preset="rise"
         className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center"

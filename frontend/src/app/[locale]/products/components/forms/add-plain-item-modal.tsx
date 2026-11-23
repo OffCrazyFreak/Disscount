@@ -1,7 +1,8 @@
 "use client";
 
+import { type FormEvent, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useFormState, useWatch } from "react-hook-form";
+import { useFormState } from "react-hook-form";
 import { ListPlus } from "lucide-react";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
@@ -22,6 +23,7 @@ interface IAddPlainItemModalProps {
 
 const FORM_ID = "add-plain-item-form";
 const NAME_INPUT_ID = "add-plain-item-name";
+const NAME_ERROR_ID = "add-plain-item-name-error";
 
 export default function AddPlainItemModal({
   open,
@@ -40,14 +42,21 @@ export default function AddPlainItemModal({
     isSubmitting,
   } = useAddPlainItemForm(open, itemName);
   const { isValid, isDirty, errors } = useFormState({ control: form.control });
-  const shoppingListId = useWatch({
-    control: form.control,
-    name: "shoppingListId",
-  });
-  const customListTitle = useWatch({
-    control: form.control,
-    name: "customListTitle",
-  });
+  const [isNameTouched, setNameTouched] = useState(false);
+  const isNameMissing = !name.trim();
+  const showsNameError = isNameTouched && isNameMissing;
+
+  // The name lives outside the form library, so a submit checks it here and lets the library check the rest.
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    if (!isNameMissing) {
+      void form.handleSubmit(onSubmit)(event);
+      return;
+    }
+
+    event.preventDefault();
+    setNameTouched(true);
+    void form.trigger();
+  }
 
   return (
     <ModalShell
@@ -59,34 +68,54 @@ export default function AddPlainItemModal({
       submitLabel={t("addToList.submit")}
       submitIcon={ListPlus}
       submitLoading={isSubmitting}
-      submitDisabled={
-        !name.trim() ||
-        !isValid ||
-        (shoppingListId === "new" && !customListTitle.trim())
-      }
+      submitIncomplete={isNameMissing || !isValid}
       cancelLabel={t("addToList.cancel")}
       resetLabel={t("addToList.reset")}
       resetDisabled={!isDirty && !restored && !isNameEdited}
-      onReset={resetForm}
+      onReset={() => {
+        setNameTouched(false);
+        resetForm();
+      }}
     >
       <Form {...form}>
         <form
           id={FORM_ID}
-          onSubmit={form.handleSubmit(onSubmit)}
+          noValidate
+          onSubmit={handleSubmit}
           className="space-y-4"
         >
           <FormRootError message={errors.root?.message} />
 
           <div className="space-y-2">
-            <Label htmlFor={NAME_INPUT_ID}>{t("addPlainItem.nameLabel")}</Label>
+            <Label
+              htmlFor={NAME_INPUT_ID}
+              className={showsNameError ? "text-destructive" : undefined}
+            >
+              {t("addPlainItem.nameLabel")}
+              <span aria-hidden="true" className="-ml-1 text-destructive">
+                *
+              </span>
+            </Label>
             <Input
               id={NAME_INPUT_ID}
               value={name}
               onChange={(event) => setName(event.target.value)}
+              onBlur={() => setNameTouched(true)}
               maxLength={MAX_SHOPPING_LIST_ITEM_NAME_LENGTH}
               autoComplete="off"
-              required
+              aria-required="true"
+              aria-invalid={showsNameError}
+              aria-describedby={showsNameError ? NAME_ERROR_ID : undefined}
             />
+            {showsNameError && (
+              <p
+                id={NAME_ERROR_ID}
+                role="alert"
+                className="text-sm text-destructive"
+              >
+                {t("addPlainItem.nameRequired")}
+              </p>
+            )}
           </div>
 
           <ShoppingListSelector

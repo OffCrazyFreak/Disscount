@@ -23,7 +23,7 @@ export default function UnavailableItemBadge({
         {isMobile ? (
           <TriangleAlert className="size-4 shrink-0 text-amber-600 inline ml-2" />
         ) : (
-          <Badge variant="warningSoft">
+          <Badge variant="warningSoft" className="ml-2">
             <TriangleAlert className="size-4 shrink-0" />
             {t("stores.table.unavailable")}
           </Badge>

@@ -24,6 +24,8 @@ interface IStoreChainSelectProps {
   storePriceFromDb?: number;
   /** Id of an element saying why this is disabled, when it is. */
   describedById?: string;
+  /** Replaces the chains read from the prices, for an item no store prices. */
+  chainCodes?: string[];
   className?: string;
 }
 
@@ -53,6 +55,7 @@ export default function StoreChainSelect({
   isChecked = false,
   storePriceFromDb,
   describedById,
+  chainCodes: fixedChainCodes,
   className,
 }: IStoreChainSelectProps) {
   const t = useTranslations("products");
@@ -73,7 +76,8 @@ export default function StoreChainSelect({
     return computePriceDifference(storePrices[chainCode], averagePrice);
   };
 
-  const chainCodes = availableChainCodes(isChecked, value, storePrices);
+  const chainCodes =
+    fixedChainCodes ?? availableChainCodes(isChecked, value, storePrices);
 
   return (
     <Select value={value || ""} onValueChange={onChange} disabled={disabled}>

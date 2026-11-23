@@ -37,27 +37,29 @@ export default function StorePriceRow({
       </TableCell>
 
       <TableCell lang={price.store.address ? "hr" : undefined}>
-        <Link
-          href={`/map?store=${encodeURIComponent(toStoreKey(price.chain, price.store.code))}`}
-          className={cn(
-            buttonVariants({
-              variant: "ghost",
-              effect: "hoverUnderline",
-            }),
-            "h-auto justify-start gap-1.5 whitespace-normal px-0 py-1 text-left font-normal text-inherit hover:bg-transparent",
-          )}
-        >
-          {price.store.address || t("unknown")}
-          <SquareArrowOutUpRight
-            className="size-3.5 shrink-0"
-            aria-hidden="true"
-          />
-          <span className="sr-only">{t("showOnMap")}</span>
-        </Link>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <Link
+            href={`/map?store=${encodeURIComponent(toStoreKey(price.chain, price.store.code))}`}
+            className={cn(
+              buttonVariants({
+                variant: "ghost",
+                effect: "hoverUnderline",
+              }),
+              "h-auto justify-start gap-1.5 whitespace-normal px-0 py-1 text-left font-normal text-inherit hover:bg-transparent",
+            )}
+          >
+            {price.store.address || t("unknown")}
+            <SquareArrowOutUpRight
+              className="size-3.5 shrink-0"
+              aria-hidden="true"
+            />
+            <span className="sr-only">{t("showOnMap")}</span>
+          </Link>
 
-        <StoreOpeningBadge
-          storeKey={toStoreKey(price.chain, price.store.code)}
-        />
+          <StoreOpeningBadge
+            storeKey={toStoreKey(price.chain, price.store.code)}
+          />
+        </div>
       </TableCell>
 
       <TableCell className="text-center">

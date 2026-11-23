@@ -65,7 +65,14 @@
     "increaseAmount": "Increase quantity by 1",
     "approxPrice": "~ {price}",
     "pricePerUnit": "{price}/{unit}",
-    "noPrice": "No price"
+    "noPrice": "No price",
+    "priceLabel": "Price per piece for {name}",
+    "rename": "Rename {name}",
+    "renameTitle": "Rename item",
+    "renameField": "Name",
+    "renameSave": "Save",
+    "renameCancel": "Cancel",
+    "renameRequired": "Type a name for the item."
   },
   "prices": {
     "failed": "Prices unavailable",

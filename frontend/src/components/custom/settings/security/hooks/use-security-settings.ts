@@ -36,7 +36,7 @@ export function useSecuritySettings(active: boolean) {
 
   const form = useForm<CredentialsFormValues>({
     resolver: zodResolver(schema),
-    mode: "onChange",
+    mode: "onTouched",
     defaultValues: {
       email: currentEmail,
       newPassword: "",

@@ -24,5 +24,23 @@
   },
   "check": "Preveri",
   "checkLabel": "Preveri delovni čas na strani trgovine (odpre se v novem zavihku)",
-  "changed": "{store}: {status}"
+  "changed": "{store}: {status}",
+  "week": {
+    "title": "Delovni čas",
+    "days": {
+      "mon": "Ponedeljek",
+      "tue": "Torek",
+      "wed": "Sreda",
+      "thu": "Četrtek",
+      "fri": "Petek",
+      "sat": "Sobota",
+      "sun": "Nedelja"
+    },
+    "today": "danes",
+    "closed": "Zaprto",
+    "unconfirmed": "Ni potrjeno",
+    "someSundays": "Samo nekatere nedelje",
+    "holiday": "Praznik",
+    "exception": "Poseben delovni čas"
+  }
 }

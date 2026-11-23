@@ -248,14 +248,49 @@ describe("ShoppingListItems price states", () => {
     expect(screen.getByRole("status")).toBeEmptyDOMElement();
   });
 
-  it("shows a plain item as having no price, with no store select or skeleton", () => {
+  it("gives a plain item a price field, a store select and a rename button", () => {
     // A plain item has no lookup, so useShoppingListData gives it no price state.
     const { container } = renderItems([item("staklenke", { ean: null })], {});
 
-    expect(screen.getByText("Bez cijene")).toBeInTheDocument();
-    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("textbox", { name: "Cijena po komadu za staklenke" }),
+    ).toHaveAttribute("placeholder", "Bez cijene");
+    expect(screen.getByRole("combobox")).toBeEnabled();
+    expect(
+      screen.getByRole("button", { name: "Preimenuj staklenke" }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /staklenke/ })).toBeNull();
     expect(container.querySelector('[data-slot="skeleton"]')).toBeNull();
+  });
+
+  it("lets a shopper price a plain item but not rename it", () => {
+    renderWithProviders(
+      listItems([item("staklenke", { ean: null })], {}, undefined, {
+        myAccess: "SHOP",
+      }),
+    );
+
+    expect(
+      screen.getByRole("textbox", { name: "Cijena po komadu za staklenke" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Preimenuj staklenke" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows a viewer the plain item's price as text", () => {
+    renderWithProviders(
+      listItems(
+        [item("staklenke", { ean: null, storePrice: 2.5 })],
+        {},
+        undefined,
+        { myAccess: "VIEW" },
+      ),
+    );
+
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.getByText(/2,50/)).toBeInTheDocument();
+    expect(screen.getByRole("combobox")).toBeDisabled();
   });
 });
 
@@ -471,6 +506,153 @@ describe("ShoppingListItems default store", () => {
           storePrice: 1.5,
         }),
       ]),
+    );
+  });
+});
+
+describe("ShoppingListItems plain item writes", () => {
+  function renderCachedPlainItem(plain: ShoppingListItemDto) {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
+    queryClient.setQueryData(SHOPPING_LIST_QUERY_KEYS.byId("list-1"), {
+      id: "list-1",
+      items: [plain],
+    });
+
+    const writes: Array<Record<string, unknown>> = [];
+    server.use(
+      http.put("*/api/shopping-lists/list-1/items/a", async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        writes.push(body);
+
+        return HttpResponse.json({ ...plain, ...body });
+      }),
+      http.get("*/api/shopping-lists/*", () =>
+        HttpResponse.json({ id: "list-1", items: [plain] }),
+      ),
+    );
+
+    renderWithProviders(listItems([plain], {}), { queryClient });
+
+    return writes;
+  }
+
+  it("saves a typed price, read with a decimal comma, on leaving the field", async () => {
+    const user = userEvent.setup();
+    const writes = renderCachedPlainItem(item("a", { ean: null }));
+
+    await user.type(
+      screen.getByRole("textbox", { name: "Cijena po komadu za a" }),
+      "2,5",
+    );
+    await user.tab();
+
+    await waitFor(() =>
+      expect(writes).toEqual([expect.objectContaining({ storePrice: 2.5 })]),
+    );
+  });
+
+  it("keeps the saved price when the typed text is not a price", async () => {
+    const user = userEvent.setup();
+    const writes = renderCachedPlainItem(
+      item("a", { ean: null, storePrice: 3.5 }),
+    );
+    const field = screen.getByRole("textbox", {
+      name: "Cijena po komadu za a",
+    });
+
+    await user.clear(field);
+    await user.type(field, "abc");
+    await user.tab();
+
+    expect(field).toHaveValue("3,50");
+    expect(writes).toEqual([]);
+  });
+
+  it("sends a tick after the price saved before it, and keeps that price", async () => {
+    const user = userEvent.setup();
+    const plain = item("a", { ean: null });
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
+    queryClient.setQueryData(SHOPPING_LIST_QUERY_KEYS.byId("list-1"), {
+      id: "list-1",
+      items: [plain],
+    });
+
+    let releasePrice!: () => void;
+    const priceHeld = new Promise<void>((resolve) => (releasePrice = resolve));
+    const arrived: Array<Record<string, unknown>> = [];
+    // The server keeps the last write, so a refetch between the two reads what the first one saved.
+    let saved: Record<string, unknown> = plain;
+    server.use(
+      http.put("*/api/shopping-lists/list-1/items/a", async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        arrived.push(body);
+        if (arrived.length === 1) await priceHeld;
+        saved = { ...saved, ...body };
+
+        return HttpResponse.json(saved);
+      }),
+      http.get("*/api/shopping-lists/*", () =>
+        HttpResponse.json({ id: "list-1", items: [saved] }),
+      ),
+    );
+    renderWithProviders(listItems([plain], {}), { queryClient });
+
+    await user.type(
+      screen.getByRole("textbox", { name: "Cijena po komadu za a" }),
+      "2",
+    );
+    await user.click(screen.getByRole("checkbox"));
+
+    await waitFor(() => expect(arrived).toHaveLength(1));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
+    expect(arrived).toHaveLength(1);
+
+    releasePrice();
+
+    await waitFor(() =>
+      expect(arrived).toEqual([
+        expect.objectContaining({ storePrice: 2, isChecked: false }),
+        expect.objectContaining({ storePrice: 2, isChecked: true }),
+      ]),
+    );
+  });
+
+  it("keeps a typed price when the item is unticked", async () => {
+    const user = userEvent.setup();
+    const writes = renderCachedPlainItem(
+      item("a", { ean: null, isChecked: true, storePrice: 3 }),
+    );
+
+    await user.click(screen.getByRole("checkbox"));
+
+    await waitFor(() =>
+      expect(writes).toEqual([
+        expect.objectContaining({ isChecked: false, storePrice: 3 }),
+      ]),
+    );
+  });
+
+  it("renames a plain item through its dialog", async () => {
+    const user = userEvent.setup();
+    const writes = renderCachedPlainItem(item("a", { ean: null }));
+
+    await user.click(screen.getByRole("button", { name: "Preimenuj a" }));
+    const field = await screen.findByRole("textbox", { name: /Naziv/ });
+    await user.clear(field);
+    await user.type(field, "Staklenke{Enter}");
+
+    await waitFor(() =>
+      expect(writes).toEqual([expect.objectContaining({ name: "Staklenke" })]),
     );
   });
 });

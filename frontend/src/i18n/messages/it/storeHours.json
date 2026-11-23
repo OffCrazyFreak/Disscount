@@ -24,5 +24,23 @@
   },
   "check": "Verifica",
   "checkLabel": "Verifica gli orari sulla pagina del negozio (si apre in una nuova scheda)",
-  "changed": "{store}: {status}"
+  "changed": "{store}: {status}",
+  "week": {
+    "title": "Orari di apertura",
+    "days": {
+      "mon": "Lunedì",
+      "tue": "Martedì",
+      "wed": "Mercoledì",
+      "thu": "Giovedì",
+      "fri": "Venerdì",
+      "sat": "Sabato",
+      "sun": "Domenica"
+    },
+    "today": "oggi",
+    "closed": "Chiuso",
+    "unconfirmed": "Non confermato",
+    "someSundays": "Solo alcune domeniche",
+    "holiday": "Festivo",
+    "exception": "Orario speciale"
+  }
 }

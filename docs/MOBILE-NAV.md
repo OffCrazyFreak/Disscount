@@ -160,7 +160,9 @@ Note that **route match and activation are deliberately separate questions.** `i
 
 ### Re-tapping the active tab
 
-A documented convention: Expo's native tabs, Ionic, Instagram and Medium all scroll to top when you tap the tab you are on, and X adds a return trip. Ours does both, showing a small chevron on the active icon while a return position is held.
+A documented convention: Expo's native tabs, Ionic, Instagram and Medium all scroll to top when you tap the tab you are on. Ours also offers the trip back, showing a small chevron under the active icon while a return position is held: tap again at the top and the page jumps back to where you were. The chevron is drawn only, so the cell's accessible name carries it ("Popisi, dodirni za povratak na prethodno mjesto"); no visible hint was added, keeping the no-coachmark decision in [§8](#8-long-press-gestures).
+
+A tap while the bar's own smooth scroll is still running saves where that scroll was heading, because the page is mid-animation at an offset nobody was parked at. The scroll counts as finished on `scrollend`, or after 1.5 s in a browser without it. A tap after that saves the current spot, so scrolling down again and tapping returns you there, not to where you were the first time.
 
 It has to move the window by hand, because **Next does not scroll when you navigate to the URL you are already on**. The saved position clears whenever the pathname changes, since a position from one route means nothing on the next.
 
@@ -533,7 +535,7 @@ return { from: wasSearchActive ? 0 : 1, to: isSearchActive ? 0 : 1 };
 
 `{isActive && <BottomNavIndicator />}` replaces the element on every navigation, so a value kept inside it would be lost with it, and `initial` needs somewhere to start. One pair serves all five cells, because the target is only `0` while the search cell is the active one, and that is the only time it renders the disc. The update is deliberately in an effect rather than during render: the disc has to mount with the previous value, so React's "adjust state during render" pattern would defeat it.
 
-The completion ring is scoped to a list's own page on purpose: it tracks the list you are actually shopping, so you can glance at the bar in a store and see how far through you are without opening anything.
+The completion ring is scoped to a list's own page on purpose: it tracks the list you are actually shopping, so you can glance at the bar in a store and see how far through you are without opening anything. It is the fainter of the two rings on Popisi, ticked items over all items, and stays while you are on the list; the brighter one is the long-press ring, which fills only during a hold. The ring is drawn only, so the count goes into the cell's name ("Popisi, 5 od 17 stavki kupljeno").
 
 The badge counts watched products whose best price fell since you last opened `/watchlist` on this device. "Best price" is the cheapest chain inside your scope: your pinned stores' chains if you have any, otherwise every chain. It is computed in the browser from the product prices the app already fetches for the watchlist, so it adds no price requests and needs no endpoint (each surface does observe the watchlist query, so opening the mobile drawer refetches `/api/watchlist/me` when it is stale):
 

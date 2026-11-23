@@ -40,6 +40,7 @@ export default function ResetPasswordModal({ open }: IResetPasswordModalProps) {
         <Form {...form}>
           <form
             id="reset-password-form"
+            noValidate
             onSubmit={form.handleSubmit(onSubmit)}
             className="grid gap-4"
           >

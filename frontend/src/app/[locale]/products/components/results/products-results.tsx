@@ -3,9 +3,10 @@
 import { useTranslations } from "next-intl";
 import { Search, SlidersHorizontal } from "lucide-react";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import ProductsGrid from "@/app/[locale]/products/components/products-grid";
-import ProductsStatusMessage from "@/app/[locale]/products/components/products-status-message";
-import ProductsEmptyResults from "@/app/[locale]/products/components/products-empty-results";
+import ProductsGrid from "@/app/[locale]/products/components/results/products-grid";
+import ProductsListEnd from "@/app/[locale]/products/components/results/products-list-end";
+import ProductsStatusMessage from "@/app/[locale]/products/components/results/products-status-message";
+import ProductsEmptyResults from "@/app/[locale]/products/components/results/products-empty-results";
 import type { IProductListItem } from "@/app/[locale]/products/typings/product-list-price-types";
 import type { ViewMode } from "@/typings/view-mode";
 
@@ -78,6 +79,13 @@ export default function ProductsResults({
         className="transition-opacity motion-reduce:transition-none aria-busy:opacity-60"
       >
         <ProductsGrid items={visibleItems} viewMode={viewMode} />
+
+        <ProductsListEnd
+          query={query}
+          shownCount={visibleItems.length}
+          total={total}
+          isRefreshing={isRefreshing}
+        />
       </div>
     );
   }

@@ -26,7 +26,7 @@ export function useShoppingListForm({
 
   const form = useForm<ShoppingListRequest>({
     resolver: zodResolver(shoppingListRequestSchema),
-    mode: "onChange",
+    mode: "onTouched",
     // No linkAccess: PUT treats its absence as "leave it alone", so renaming cannot unshare the list.
     defaultValues: { title: "" },
   });

@@ -40,7 +40,7 @@ export function useWatchlistItemForm(
 
   const form = useForm<WatchlistFormData>({
     resolver: zodResolver(watchlistFormSchema),
-    mode: "onChange",
+    mode: "onTouched",
     defaultValues: {
       watchType: openingWatchType,
       percentageValue: "",

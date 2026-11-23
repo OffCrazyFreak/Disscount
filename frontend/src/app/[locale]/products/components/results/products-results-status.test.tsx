@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import ProductsResultsStatus from "@/app/[locale]/products/components/products-results-status";
+import ProductsResultsStatus from "@/app/[locale]/products/components/results/products-results-status";
 import { renderWithProviders } from "@/test/render";
 
 const SETTLED = {

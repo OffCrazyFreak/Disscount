@@ -54,7 +54,7 @@ export function useAddPlainItemForm(open: boolean, initialName: string) {
 
   const form = useForm<AddToListFormData>({
     resolver: zodResolver(addToListFormSchema),
-    mode: "onChange",
+    mode: "onTouched",
     defaultValues: EMPTY_FORM_VALUES,
   });
   // Read once on mount, as add to list does.

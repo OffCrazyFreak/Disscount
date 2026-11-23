@@ -45,6 +45,7 @@ export default function PasswordField<T extends FieldValues>({
           <FormControl>
             <PasswordInput
               {...field}
+              aria-required="true"
               placeholder="••••••••"
               autoComplete={autoComplete}
               className={cn(hasError && "border-red-700")}

@@ -130,7 +130,7 @@ export default function StoreField({ autoColor }: IStoreFieldProps) {
       control={form.control}
       name="storeName"
       render={({ field }) => (
-        <FormItem>
+        <FormItem required>
           <FormLabel>{t("storeLabel")}</FormLabel>
 
           <div ref={wrapperRef} className="relative">

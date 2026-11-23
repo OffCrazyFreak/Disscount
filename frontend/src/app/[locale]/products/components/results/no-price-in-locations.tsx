@@ -4,13 +4,16 @@ import { useFormatter, useTranslations } from "next-intl";
 import { MapPinOff } from "lucide-react";
 import NoResults from "@/components/custom/common/no-results";
 import { Button } from "@/components/ui/button";
+import AddPlainItemButton from "@/app/[locale]/products/components/results/add-plain-item-button";
 
 interface INoPriceInLocationsProps {
+  query: string;
   locations: string[];
   onShowAllLocations: () => void;
 }
 
 export default function NoPriceInLocations({
+  query,
   locations,
   onShowAllLocations,
 }: INoPriceInLocationsProps) {
@@ -33,10 +36,12 @@ export default function NoPriceInLocations({
         })}
       />
 
-      <div className="text-center">
+      <div className="flex flex-wrap justify-center gap-3">
         <Button type="button" variant="outline" onClick={onShowAllLocations}>
           {t("showAllLocations")}
         </Button>
+
+        <AddPlainItemButton query={query} variant="outline" />
       </div>
     </div>
   );

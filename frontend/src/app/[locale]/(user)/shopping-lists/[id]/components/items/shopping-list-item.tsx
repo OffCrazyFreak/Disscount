@@ -8,6 +8,8 @@ import ItemAmountControls from "@/app/[locale]/(user)/shopping-lists/[id]/compon
 import ItemPriceDisplay from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/item-price-display";
 import ItemCheckBox from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/item-check-box";
 import ItemName from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/item-name";
+import RenamePlainItemButton from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/plain-item/rename-plain-item-button";
+import PlainItemStoreSelect from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/plain-item/plain-item-store-select";
 import ItemPhoto from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/item-photo";
 import type { IShoppingListItemUpdate } from "@/app/[locale]/(user)/shopping-lists/[id]/typings/shopping-list-item-types";
 import ItemStoreSelect from "@/app/[locale]/(user)/shopping-lists/[id]/components/items/item-store-select";
@@ -66,6 +68,11 @@ export default function ShoppingListItem({
           />
           <ItemPhoto item={item} />
           <ItemName item={item} isFirst={isFirst} isLast={isLast} />
+          <RenamePlainItemButton
+            item={item}
+            canRename={canEditItems}
+            onUpdate={onUpdate}
+          />
 
           {canEditItems && (
             <RemoveItemButton
@@ -83,6 +90,8 @@ export default function ShoppingListItem({
                 item={item}
                 averagePrice={averagePrice}
                 isPriceLoading={priceState === "loading"}
+                onUpdate={onUpdate}
+                canCheck={canCheck}
               />
 
               <ItemAmountControls
@@ -92,8 +101,8 @@ export default function ShoppingListItem({
               />
             </div>
 
-            {/* A plain item has no prices, so there is no store to pick by price. */}
-            {item.ean && (
+            {/* A plain item has no prices, so its select offers every chain without suggesting one. */}
+            {item.ean ? (
               <div
                 {...{ [STORE_SELECT_ITEM_ATTRIBUTE]: item.id }}
                 className="contents"
@@ -109,6 +118,12 @@ export default function ShoppingListItem({
                   unavailableSelectRef={rememberFocusOnUnmount}
                 />
               </div>
+            ) : (
+              <PlainItemStoreSelect
+                item={item}
+                onUpdate={onUpdate}
+                canCheck={canCheck}
+              />
             )}
           </div>
 

@@ -56,6 +56,9 @@ class ShoppingListCopyService {
 
     private ShoppingListItem copyItem(
             ShoppingListItem source, ShoppingList target, UUID actorId, boolean includeProgress) {
+        // A plain item's store and price were typed for it, so they are part of the item, not shopping progress.
+        boolean keepsChoices = includeProgress || source.getEan() == null;
+
         return ShoppingListItem.builder()
                 .shoppingList(target)
                 .ean(source.getEan())
@@ -64,11 +67,11 @@ class ShoppingListCopyService {
                 .quantity(source.getQuantity())
                 .unit(source.getUnit())
                 .amount(source.getAmount())
-                // All four move together, because a tick without its price is a claim with no evidence.
+                // A catalogue item's four move together, because a tick without its price is a claim with no evidence.
                 .isChecked(includeProgress ? source.getIsChecked() : false)
-                .chainCode(includeProgress ? source.getChainCode() : null)
+                .chainCode(keepsChoices ? source.getChainCode() : null)
                 .avgPrice(includeProgress ? source.getAvgPrice() : null)
-                .storePrice(includeProgress ? source.getStorePrice() : null)
+                .storePrice(keepsChoices ? source.getStorePrice() : null)
                 .updatedByUserId(actorId)
                 .build();
     }

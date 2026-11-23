@@ -24,7 +24,7 @@ export default function MapClient({ ipLocation }: IMapClientProps) {
   const model = useMapViewModel(ipLocation);
   const isMobile = useIsMobile();
   const [viewArea, setViewArea] = useState<IViewArea | null>(null);
-  const [coveredShare, setCoveredShare] = useState(0);
+  const [coveredHeight, setCoveredHeight] = useState(0);
 
   const map = (
     <StoreMapLoader
@@ -40,7 +40,7 @@ export default function MapClient({ ipLocation }: IMapClientProps) {
       }
       centerRequest={model.geolocation.centerRequest}
       initialView={model.initialView}
-      coveredShare={isMobile ? coveredShare : 0}
+      coveredHeight={isMobile ? coveredHeight : 0}
       onViewChange={setViewArea}
     />
   );
@@ -52,7 +52,7 @@ export default function MapClient({ ipLocation }: IMapClientProps) {
           model={model}
           viewArea={viewArea}
           map={map}
-          onCoverChange={setCoveredShare}
+          onCoverChange={setCoveredHeight}
         />
       </StoreHoursProvider>
     );
@@ -63,7 +63,7 @@ export default function MapClient({ ipLocation }: IMapClientProps) {
     <StoreHoursProvider hours={model.hours}>
       <div
         data-page-width="full"
-        className="fixed inset-x-0 top-0 bottom-[var(--bottom-nav-total)] z-[1] md:static md:mx-auto md:min-h-0 md:w-full md:max-w-5xl md:flex-1"
+        className="fixed inset-0 z-[1] md:static md:mx-auto md:min-h-0 md:w-full md:max-w-5xl md:flex-1"
       >
         <div className="mx-auto hidden h-full max-w-7xl grid-cols-[24rem_1fr] gap-4 md:grid">
           <aside

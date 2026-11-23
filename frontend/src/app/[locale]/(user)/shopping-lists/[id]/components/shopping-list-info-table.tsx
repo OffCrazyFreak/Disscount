@@ -33,6 +33,7 @@ export default function ShoppingListInfoTable({
     avgToSpend,
     maxToSpend,
     moneySpent,
+    catalogSpent,
     checkedCount,
     totalCount,
     savedAmount,
@@ -100,6 +101,7 @@ export default function ShoppingListInfoTable({
           <ShoppingListInfoSpendingRow
             checkedCount={checkedCount}
             moneySpent={moneySpent}
+            catalogSpent={catalogSpent}
             potentialCostForChecked={potentialCostForChecked}
             savedAmount={savedAmount}
             savedPercentage={savedPercentage}

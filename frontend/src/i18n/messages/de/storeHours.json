@@ -24,5 +24,23 @@
   },
   "check": "Prüfen",
   "checkLabel": "Öffnungszeiten auf der Seite des Geschäfts prüfen (öffnet sich in einem neuen Tab)",
-  "changed": "{store}: {status}"
+  "changed": "{store}: {status}",
+  "week": {
+    "title": "Öffnungszeiten",
+    "days": {
+      "mon": "Montag",
+      "tue": "Dienstag",
+      "wed": "Mittwoch",
+      "thu": "Donnerstag",
+      "fri": "Freitag",
+      "sat": "Samstag",
+      "sun": "Sonntag"
+    },
+    "today": "heute",
+    "closed": "Geschlossen",
+    "unconfirmed": "Nicht bestätigt",
+    "someSundays": "Nur an manchen Sonntagen",
+    "holiday": "Feiertag",
+    "exception": "Sonderöffnungszeiten"
+  }
 }

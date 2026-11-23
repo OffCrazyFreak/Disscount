@@ -181,6 +181,8 @@ export function useUpdateShoppingListItem() {
     IItemRollback | undefined
   >({
     mutationKey: OFFLINE_MUTATION_KEYS.shoppingListItemUpdate,
+    // Each update replaces the whole item, so a slow price save landing after a tick would untick it.
+    scope: { id: "shoppingListItemUpdate" },
     mutationFn: ({ listId, itemId, data }) =>
       updateShoppingListItem(listId, itemId, data),
     // In onMutate for owned rollback; replays skip it, so the roots must stay in cached-query-keys.ts.
