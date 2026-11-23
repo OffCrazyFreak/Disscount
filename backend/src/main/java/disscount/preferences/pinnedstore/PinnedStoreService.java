@@ -9,6 +9,7 @@ import disscount.user.ActiveUsers;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -31,11 +32,14 @@ public class PinnedStoreService {
         pinnedStoreRepository.deleteAllByUserId(userId);
         pinnedStoreRepository.flush();
 
-        List<PinnedStore> saved = pinnedStoreRepository.saveAll(request.stores().stream()
-                .map(store -> PinnedStore.builder()
+        List<PinnedStoreRequest> stores = request.stores();
+
+        List<PinnedStore> saved = pinnedStoreRepository.saveAll(IntStream.range(0, stores.size())
+                .mapToObj(index -> PinnedStore.builder()
                         .userId(userId)
-                        .storeApiId(store.storeApiId())
-                        .storeName(store.storeName())
+                        .storeApiId(stores.get(index).storeApiId())
+                        .storeName(stores.get(index).storeName())
+                        .sortOrder(index)
                         .build())
                 .toList());
 

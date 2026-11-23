@@ -12,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface PinnedStoreRepository extends JpaRepository<PinnedStore, UUID> {
 
-    @Query("SELECT ps FROM PinnedStore ps WHERE ps.userId = :userId")
+    @Query("SELECT ps FROM PinnedStore ps WHERE ps.userId = :userId ORDER BY ps.sortOrder, ps.storeApiId")
     List<PinnedStore> findByUserId(@Param("userId") UUID userId);
 
     @Modifying

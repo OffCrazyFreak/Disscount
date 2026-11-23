@@ -12,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface FavoriteStoreRepository extends JpaRepository<FavoriteStore, UUID> {
 
-    @Query("SELECT fs FROM FavoriteStore fs WHERE fs.userId = :userId")
+    @Query("SELECT fs FROM FavoriteStore fs WHERE fs.userId = :userId ORDER BY fs.sortOrder, fs.storeKey")
     List<FavoriteStore> findByUserId(@Param("userId") UUID userId);
 
     @Modifying
