@@ -4,14 +4,9 @@ import { RefObject, useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 
 import { foldAttributionLater } from "@/app/[locale]/map/utils/rendering/attribution";
-import {
-  releaseInstallBannerHold,
-  useInstallBannerHold,
-} from "@/components/custom/pwa/install-banner-hold";
+import { CREDITS_BANNER_HOLD } from "@/app/[locale]/map/hooks/layout/use-credits-banner-hold";
+import { releaseInstallBannerHold } from "@/components/custom/pwa/install-banner-hold";
 import { registerChainIcons } from "@/app/[locale]/map/utils/rendering/register-chain-icons";
-
-// Lifted when the credits fold, since the licences need them in sight first.
-const CREDITS_HOLD = "map-credits";
 
 interface IUseMapLoadOptions {
   mapRef: RefObject<MapRef | null>;
@@ -27,8 +22,6 @@ export function useMapLoad({
   const [mapReady, setMapReady] = useState(false);
   const [iconsReady, setIconsReady] = useState(false);
 
-  useInstallBannerHold(CREDITS_HOLD, true);
-
   async function handleLoad() {
     const map = mapRef.current?.getMap();
     if (!map) return;
@@ -39,7 +32,9 @@ export function useMapLoad({
     // MapLibre bug #8690: a context lost early leaves a blank map, so offer a reload.
     map.getCanvas().addEventListener("webglcontextlost", onContextLost);
 
-    foldAttributionLater(map, () => releaseInstallBannerHold(CREDITS_HOLD));
+    foldAttributionLater(map, () =>
+      releaseInstallBannerHold(CREDITS_BANNER_HOLD),
+    );
 
     await registerChainIcons(map, chains);
     setIconsReady(true);
