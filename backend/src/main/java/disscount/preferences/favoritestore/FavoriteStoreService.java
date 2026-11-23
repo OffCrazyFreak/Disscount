@@ -55,11 +55,6 @@ public class FavoriteStoreService {
     @Order(30)
     @Transactional
     public void onAccountErased(AccountErased erased) {
-        deleteAllForUser(erased.userId());
-    }
-
-    @Transactional
-    public void deleteAllForUser(UUID userId) {
-        favoriteStoreRepository.deleteAllByUserId(userId);
+        favoriteStoreRepository.deleteAllByUserId(erased.userId());
     }
 }
