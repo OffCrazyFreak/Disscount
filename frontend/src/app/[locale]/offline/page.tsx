@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import OfflineRetryButton from "@/app/[locale]/offline/components/offline-retry-button";
+import ReloadWhenBackOnline from "@/app/[locale]/offline/components/reload-when-back-online";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("common");
@@ -39,6 +40,7 @@ export default function OfflinePage() {
 
         <CardContent className="mt-2 flex items-center justify-center text-center">
           <OfflineRetryButton />
+          <ReloadWhenBackOnline />
         </CardContent>
       </Card>
     </div>
