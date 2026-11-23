@@ -75,7 +75,7 @@ export default async function CategoriesPage() {
               <li key={category.slug}>
                 <Link
                   href={categoryPath(category.slug)}
-                  className="flex items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3 shadow-sm transition-shadow hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="flex h-full items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3 shadow-sm transition-shadow hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <span className="font-medium">
                     {categoryName(t, category.slug)}
