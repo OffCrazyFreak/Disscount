@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { HOLD_CANCEL_PX } from "@/constants/gestures";
 import indexFromPoint, {
@@ -40,105 +40,99 @@ export default function useBottomNavPointer({
     latest.current = { onActivate, holdFor, routeKey };
   });
 
-  const start = useCallback(
-    (event: ReactPointerEvent<HTMLUListElement>) => {
-      const nearEdge =
-        event.clientX < BAR_EDGE_EXCLUSION_PX ||
-        window.innerWidth - event.clientX < BAR_EDGE_EXCLUSION_PX;
+  function start(event: ReactPointerEvent<HTMLUListElement>) {
+    const nearEdge =
+      event.clientX < BAR_EDGE_EXCLUSION_PX ||
+      window.innerWidth - event.clientX < BAR_EDGE_EXCLUSION_PX;
 
-      // isPrimary ignores the button pressed, so a right-click would otherwise commit a gesture.
-      const isMainButton = event.pointerType !== "mouse" || event.button === 0;
+    // isPrimary ignores the button pressed, so a right-click would otherwise commit a gesture.
+    const isMainButton = event.pointerType !== "mouse" || event.button === 0;
 
-      if (!event.isPrimary || !isMainButton || nearEdge) return;
+    if (!event.isPrimary || !isMainButton || nearEdge) return;
 
-      const index = indexFromPoint(
-        event.currentTarget,
-        event.clientX,
-        event.clientY,
-      );
-      if (index === null) return;
+    const index = indexFromPoint(
+      event.currentTarget,
+      event.clientX,
+      event.clientY,
+    );
+    if (index === null) return;
 
-      // Capture first: a gone or synthetic pointer throws NotFoundError, and nothing undoes earlier state.
-      try {
-        event.currentTarget.setPointerCapture(event.pointerId);
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "NotFoundError")
-          return;
-        throw error;
-      }
+    // Capture first: a gone or synthetic pointer throws NotFoundError, and nothing undoes earlier state.
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "NotFoundError")
+        return;
+      throw error;
+    }
 
-      pointerId.current = event.pointerId;
-      pressedIndex.current = index;
-      origin.current = { x: event.clientX, y: event.clientY };
-      consumed.current = false;
-      setScrubIndex(index);
+    pointerId.current = event.pointerId;
+    pressedIndex.current = index;
+    origin.current = { x: event.clientX, y: event.clientY };
+    consumed.current = false;
+    setScrubIndex(index);
 
-      const action = latest.current.holdFor(index);
-      if (!action) return;
+    const action = latest.current.holdFor(index);
+    if (!action) return;
 
-      hold.start(navCells(event.currentTarget)[index] ?? null, () => {
-        consumed.current = true;
-        action();
-      });
-    },
-    [hold],
-  );
+    hold.start(navCells(event.currentTarget)[index] ?? null, () => {
+      consumed.current = true;
+      action();
+    });
+  }
 
-  const move = useCallback(
-    (event: ReactPointerEvent<HTMLUListElement>) => {
-      if (pressedIndex.current === null) return;
-      if (event.pointerId !== pointerId.current) return;
+  function move(event: ReactPointerEvent<HTMLUListElement>) {
+    if (pressedIndex.current === null) return;
+    if (event.pointerId !== pointerId.current) return;
 
-      const index = indexFromPoint(
-        event.currentTarget,
-        event.clientX,
-        event.clientY,
-      );
-      const dx = event.clientX - origin.current.x;
-      const dy = event.clientY - origin.current.y;
+    const index = indexFromPoint(
+      event.currentTarget,
+      event.clientX,
+      event.clientY,
+    );
+    const dx = event.clientX - origin.current.x;
+    const dy = event.clientY - origin.current.y;
 
-      setScrubIndex((current) => (current === index ? current : index));
+    setScrubIndex((current) => (current === index ? current : index));
 
-      if (index !== pressedIndex.current || Math.hypot(dx, dy) > HOLD_CANCEL_PX)
-        hold.cancel();
-    },
-    [hold],
-  );
+    if (index !== pressedIndex.current || Math.hypot(dx, dy) > HOLD_CANCEL_PX)
+      hold.cancel();
+  }
 
   /** Released explicitly, because a capture outliving its gesture retargets the next one to the list. */
-  const finish = useCallback(
-    (event: ReactPointerEvent<HTMLUListElement>, activates: boolean) => {
-      // A second finger is an unbound pointer, whose release would cancel the real gesture.
-      if (event.pointerId !== pointerId.current) return;
+  function finish(
+    event: ReactPointerEvent<HTMLUListElement>,
+    activates: boolean,
+  ) {
+    // A second finger is an unbound pointer, whose release would cancel the real gesture.
+    if (event.pointerId !== pointerId.current) return;
 
-      if (event.currentTarget.hasPointerCapture(event.pointerId))
-        event.currentTarget.releasePointerCapture(event.pointerId);
+    if (event.currentTarget.hasPointerCapture(event.pointerId))
+      event.currentTarget.releasePointerCapture(event.pointerId);
 
-      if (pressedIndex.current === null) return;
+    if (pressedIndex.current === null) return;
 
-      const index = activates
-        ? indexFromPoint(event.currentTarget, event.clientX, event.clientY)
-        : null;
+    const index = activates
+      ? indexFromPoint(event.currentTarget, event.clientX, event.clientY)
+      : null;
 
-      hold.cancel();
-      pressedIndex.current = null;
-      pointerId.current = null;
-      setScrubIndex(null);
+    hold.cancel();
+    pressedIndex.current = null;
+    pointerId.current = null;
+    setScrubIndex(null);
 
-      const didNavigate =
-        activates &&
-        !consumed.current &&
-        index !== null &&
-        latest.current.onActivate(index);
+    const didNavigate =
+      activates &&
+      !consumed.current &&
+      index !== null &&
+      latest.current.onActivate(index);
 
-      if (didNavigate && index !== null) {
-        markNavigated(index, latest.current.routeKey);
-      } else {
-        clear();
-      }
-    },
-    [hold, markNavigated, clear],
-  );
+    if (didNavigate && index !== null) {
+      markNavigated(index, latest.current.routeKey);
+    } else {
+      clear();
+    }
+  }
 
   return {
     /** The cell under a dragging thumb, so the disc can preview it */
