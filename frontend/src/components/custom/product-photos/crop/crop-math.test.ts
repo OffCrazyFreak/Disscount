@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   toPercent,
   toPixels,
-} from "@/components/custom/product-photos/crop-math";
+} from "@/components/custom/product-photos/crop/crop-math";
 
 describe("crop math", () => {
   it("sends a near-full frame as no crop at all", () => {

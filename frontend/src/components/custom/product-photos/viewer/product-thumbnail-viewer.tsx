@@ -8,7 +8,8 @@ import { useProductImages } from "@/lib/api/product-images/hooks";
 import { isAdmin } from "@/lib/api/schemas/auth-user";
 
 const ProductPhotoViewer = dynamic(
-  () => import("@/components/custom/product-photos/product-photo-viewer"),
+  () =>
+    import("@/components/custom/product-photos/viewer/product-photo-viewer"),
   { ssr: false },
 );
 

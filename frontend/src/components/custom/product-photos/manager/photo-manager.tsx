@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import AddPhotoDialog from "@/components/custom/product-photos/add-photo-dialog";
-import CandidateTile from "@/components/custom/product-photos/candidate-tile";
-import CropDialog from "@/components/custom/product-photos/crop-dialog";
+import AddPhotoDialog from "@/components/custom/product-photos/manager/add-photo-dialog";
+import CandidateTile from "@/components/custom/product-photos/manager/candidate-tile";
+import CropDialog from "@/components/custom/product-photos/crop/crop-dialog";
 import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
-import PhotoManagerHeader from "@/components/custom/product-photos/photo-manager-header";
+import PhotoManagerHeader from "@/components/custom/product-photos/manager/photo-manager-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   useAdminProductPhotos,

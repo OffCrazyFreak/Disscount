@@ -7,11 +7,11 @@ import ReactCrop, { type PercentCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { toast } from "sonner";
 
-import { useCropSource } from "@/components/custom/product-photos/use-crop-source";
+import { useCropSource } from "@/components/custom/product-photos/crop/use-crop-source";
 import {
   toPercent,
   toPixels,
-} from "@/components/custom/product-photos/crop-math";
+} from "@/components/custom/product-photos/crop/crop-math";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

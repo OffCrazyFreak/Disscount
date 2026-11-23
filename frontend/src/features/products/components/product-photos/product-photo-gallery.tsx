@@ -19,7 +19,8 @@ import { cn } from "@/lib/utils";
 
 // The viewer and its plugins only load once someone opens a photo.
 const ProductPhotoViewer = dynamic(
-  () => import("@/components/custom/product-photos/product-photo-viewer"),
+  () =>
+    import("@/components/custom/product-photos/viewer/product-photo-viewer"),
   { ssr: false },
 );
 

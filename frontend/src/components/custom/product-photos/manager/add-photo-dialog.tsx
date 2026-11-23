@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import PhotoTile from "@/components/custom/product-photos/photo-tile";
-import { usePreparedPhoto } from "@/components/custom/product-photos/use-prepared-photo";
+import { usePreparedPhoto } from "@/components/custom/product-photos/manager/use-prepared-photo";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

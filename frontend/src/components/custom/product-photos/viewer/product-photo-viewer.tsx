@@ -9,9 +9,9 @@ import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/counter.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 
-import ViewerActions from "@/components/custom/product-photos/viewer-actions";
-import ViewerFooter from "@/components/custom/product-photos/viewer-footer";
-import { useBackCloses } from "@/components/custom/product-photos/use-back-closes";
+import ViewerActions from "@/components/custom/product-photos/viewer/viewer-actions";
+import ViewerFooter from "@/components/custom/product-photos/viewer/viewer-footer";
+import { useBackCloses } from "@/components/custom/product-photos/viewer/use-back-closes";
 import type { ProductImage } from "@/lib/api/types";
 
 interface IProductPhotoViewerProps {

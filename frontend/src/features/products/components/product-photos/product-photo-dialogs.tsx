@@ -2,8 +2,8 @@
 
 import { useTranslations } from "next-intl";
 
-import AddPhotoDialog from "@/components/custom/product-photos/add-photo-dialog";
-import PhotoManager from "@/components/custom/product-photos/photo-manager";
+import AddPhotoDialog from "@/components/custom/product-photos/manager/add-photo-dialog";
+import PhotoManager from "@/components/custom/product-photos/manager/photo-manager";
 import {
   Dialog,
   DialogContent,

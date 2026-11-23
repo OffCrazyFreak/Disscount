@@ -4,8 +4,8 @@ import { useTranslations } from "next-intl";
 
 import CandidateActions, {
   type ICandidateHandlers,
-} from "@/components/custom/product-photos/candidate-actions";
-import CandidateStamps from "@/components/custom/product-photos/candidate-stamps";
+} from "@/components/custom/product-photos/manager/candidate-actions";
+import CandidateStamps from "@/components/custom/product-photos/manager/candidate-stamps";
 import PhotoTile from "@/components/custom/product-photos/photo-tile";
 import { cn } from "@/lib/utils";
 import type { AdminProductImage } from "@/lib/api/types";

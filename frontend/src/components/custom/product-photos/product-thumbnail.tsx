@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 
 import PhotoBand from "@/components/custom/product-photos/photo-band";
 import PhotoTile from "@/components/custom/product-photos/photo-tile";
-import ProductThumbnailViewer from "@/components/custom/product-photos/product-thumbnail-viewer";
+import ProductThumbnailViewer from "@/components/custom/product-photos/viewer/product-thumbnail-viewer";
 import { useOnlineStatus } from "@/hooks/runtime/use-online-status";
 import { useProductThumbnail } from "@/lib/api/product-images/hooks";
 import { cn } from "@/lib/utils";
