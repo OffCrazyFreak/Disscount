@@ -27,11 +27,7 @@ export function summarizeChainPrices(
       allowedChainKeys === null ||
       allowedChainKeys.has(normalizeChainCode(chain.chain)),
   );
-  const prices = chains.flatMap((chain) =>
-    [chain.min_price, chain.max_price].filter(
-      (price): price is number => price !== null,
-    ),
-  );
+  const prices = chains.flatMap((chain) => [chain.min_price, chain.max_price]);
 
   return summarizePrices(prices, allowedChainKeys === null ? "all" : "chains");
 }

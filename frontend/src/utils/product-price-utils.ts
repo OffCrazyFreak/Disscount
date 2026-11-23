@@ -4,66 +4,35 @@ import {
 } from "@/lib/cijene-api/schemas";
 import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 
-const minPriceCache = new WeakMap<ProductResponse, number | null>();
-const maxPriceCache = new WeakMap<ProductResponse, number | null>();
-const avgPriceCache = new WeakMap<ProductResponse, number | null>();
-
 /** `price_date` is a Croatian calendar date, whatever zone the device runs in. */
 export function isPriceDateToday(priceDate: string): boolean {
   return priceDate === zagrebClock(new Date()).date;
 }
 
 export function getMinPrice(product: ProductResponse): number | null {
-  if (minPriceCache.has(product)) {
-    return minPriceCache.get(product)!;
-  }
+  if (product.chains.length === 0) return null;
 
-  const prices = product.chains
-    .map((chain) => chain.min_price)
-    .filter((price): price is number => price !== null);
-  const min = prices.length > 0 ? Math.min(...prices) : null;
-
-  minPriceCache.set(product, min);
-  return min;
+  return Math.min(...product.chains.map((chain) => chain.min_price));
 }
 
 export function getMaxPrice(product: ProductResponse): number | null {
-  if (maxPriceCache.has(product)) {
-    return maxPriceCache.get(product)!;
-  }
+  if (product.chains.length === 0) return null;
 
-  const prices = product.chains
-    .map((chain) => chain.max_price)
-    .filter((price): price is number => price !== null);
-  const max = prices.length > 0 ? Math.max(...prices) : null;
-
-  maxPriceCache.set(product, max);
-  return max;
+  return Math.max(...product.chains.map((chain) => chain.max_price));
 }
 
 export function getAveragePrice(product: ProductResponse): number | null {
-  if (avgPriceCache.has(product)) {
-    return avgPriceCache.get(product)!;
-  }
+  if (product.chains.length === 0) return null;
 
-  const prices = product.chains
-    .map((chain) => chain.avg_price)
-    .filter((price): price is number => price !== null);
-  const avg =
-    prices.length > 0
-      ? prices.reduce((sum, price) => sum + price, 0) / prices.length
-      : null;
+  const total = product.chains.reduce((sum, chain) => sum + chain.avg_price, 0);
 
-  avgPriceCache.set(product, avg);
-  return avg;
+  return total / product.chains.length;
 }
 
 export function getChainAvgPriceRange(
   product: ProductResponse | undefined,
 ): { min: number; max: number } | null {
-  const prices = (product?.chains ?? [])
-    .map((chain) => chain.avg_price)
-    .filter((price): price is number => price !== null);
+  const prices = (product?.chains ?? []).map((chain) => chain.avg_price);
 
   if (prices.length === 0) return null;
 
@@ -73,22 +42,11 @@ export function getChainAvgPriceRange(
 export function getCheapestChainByMinPrice(
   chains: ChainProductResponse[],
 ): { chain: ChainProductResponse; price: number } | null {
-  const pricedChains: Array<{ chain: ChainProductResponse; price: number }> =
-    [];
+  if (chains.length === 0) return null;
 
-  for (const chain of chains) {
-    const price = chain.min_price;
-
-    if (price !== null) {
-      pricedChains.push({ chain, price });
-    }
-  }
-
-  if (pricedChains.length === 0) {
-    return null;
-  }
-
-  return pricedChains.reduce((lowest, current) =>
-    current.price < lowest.price ? current : lowest,
+  const cheapest = chains.reduce((lowest, current) =>
+    current.min_price < lowest.min_price ? current : lowest,
   );
+
+  return { chain: cheapest, price: cheapest.min_price };
 }
