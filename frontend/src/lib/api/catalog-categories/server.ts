@@ -53,13 +53,18 @@ export const getCatalogCategories = cache(
 
 /** One-based page, as in the URL; null for a slug the backend does not know. */
 export const getCategoryProducts = cache(
-  async (slug: string, page: number): Promise<CategoryProductsPage | null> => {
+  async (
+    slug: string,
+    page: number,
+    timeoutMs = CATALOG_TIMEOUT_MS,
+  ): Promise<CategoryProductsPage | null> => {
     const query = new URLSearchParams({
       page: String(page - 1),
       size: String(CATEGORY_PAGE_SIZE),
     });
     const response = await catalogFetch(
       `/api/products/categories/${encodeURIComponent(slug)}/products?${query}`,
+      { timeoutMs },
     );
 
     if (response.status === 404) return null;

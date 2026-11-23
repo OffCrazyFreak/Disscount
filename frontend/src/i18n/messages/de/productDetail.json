@@ -51,5 +51,8 @@
   },
   "sectionNav": {
     "label": "Produktabschnitte"
+  },
+  "similarProducts": {
+    "heading": "Ähnliche Produkte"
   }
 }

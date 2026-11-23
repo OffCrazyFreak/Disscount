@@ -7,7 +7,14 @@ import ProductJsonLd from "@/app/[locale]/products/[id]/components/product-json-
 import { productBreadcrumbSteps } from "@/app/[locale]/products/[id]/utils/product-breadcrumbs";
 import { categoryName } from "@/app/[locale]/categories/utils/category-names";
 import PageBreadcrumbs from "@/components/custom/common/page-breadcrumbs";
-import { getProductCategorySlug } from "@/lib/api/catalog-categories/server";
+import SimilarProducts from "@/app/[locale]/products/[id]/components/similar-products";
+import { similarProducts } from "@/app/[locale]/products/[id]/utils/similar-products";
+import {
+  OPTIONAL_LOOKUP_TIMEOUT_MS,
+  getCategoryProducts,
+  getProductCategorySlug,
+} from "@/lib/api/catalog-categories/server";
+import type { CategoryProduct } from "@/lib/api/types";
 import { productMetadata } from "@/app/[locale]/products/[id]/utils/product-metadata";
 import {
   getVerifiedMainPhotoUrl,
@@ -69,6 +76,27 @@ export async function generateMetadata(
   });
 }
 
+/** Names and brands only, from the backend: linking similar products must not spend upstream price quota. */
+async function categoryNeighbours(
+  categorySlug: string | null,
+): Promise<CategoryProduct[]> {
+  if (!categorySlug) return [];
+
+  try {
+    const page = await getCategoryProducts(
+      categorySlug,
+      1,
+      OPTIONAL_LOOKUP_TIMEOUT_MS,
+    );
+
+    return page?.items ?? [];
+  } catch (error) {
+    console.warn("[catalog] similar products lookup failed", error);
+
+    return [];
+  }
+}
+
 export default async function ProductDetailsPage(
   props: PageProps<"/[locale]/products/[id]">,
 ) {
@@ -90,15 +118,22 @@ export default async function ProductDetailsPage(
   const { product } = result;
   const locale = await getLocale();
   // Awaited rather than streamed, so crawlers without JavaScript find the product, its photo and its prices in <main>.
-  const [photos, prices, categorySlug, t, tShell] = await Promise.all([
+  const [photos, prices, photoUrl, categorySlug] = await Promise.all([
     getVerifiedProductImages(product.ean),
     getServerProductPrices(ean),
+    getVerifiedMainPhotoUrl(product.ean),
     getProductCategorySlug(product.ean),
+  ]);
+  const similar = similarProducts(
+    await categoryNeighbours(categorySlug),
+    product.ean,
+  );
+
+  const [t, tShell, tProduct] = await Promise.all([
     getTranslations("categories"),
     getTranslations("shell"),
+    getTranslations("productDetail"),
   ]);
-  const photoUrl = await getVerifiedMainPhotoUrl(product.ean);
-
   const breadcrumbSteps = productBreadcrumbSteps({
     ean: product.ean,
     productName: product.name || product.ean,
@@ -108,6 +143,7 @@ export default async function ProductDetailsPage(
       ? { slug: categorySlug, name: categoryName(t, categorySlug) }
       : null,
   });
+  const similarHeading = tProduct("similarProducts.heading");
 
   return (
     <div className="space-y-4">
@@ -133,6 +169,10 @@ export default async function ProductDetailsPage(
       >
         <ProductDetailClient ean={rawId} today={today} />
       </HydrationBoundary>
+
+      {similar.length > 0 && (
+        <SimilarProducts heading={similarHeading} products={similar} />
+      )}
     </div>
   );
 }

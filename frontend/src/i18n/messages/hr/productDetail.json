@@ -51,5 +51,8 @@
   },
   "sectionNav": {
     "label": "Odjeljci proizvoda"
+  },
+  "similarProducts": {
+    "heading": "Slični proizvodi"
   }
 }
