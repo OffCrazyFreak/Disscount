@@ -4,6 +4,7 @@ import {
   isHubIndexable,
   isPageInRange,
   pageGuard,
+  PAGE_WINDOW,
   paginationPages,
   parsePageParam,
 } from "@/app/[locale]/categories/utils/category-page";
@@ -90,6 +91,25 @@ describe("paginationPages", () => {
   it("joins the window to an edge with no gap between them", () => {
     expect(paginationPages(1, 18)).toEqual([1, 2, 3, "gap", 18]);
     expect(paginationPages(4, 18)).toEqual([1, 2, 3, 4, 5, 6, "gap", 18]);
+  });
+
+  it("keeps one page on each side in the compact row for phones", () => {
+    expect(paginationPages(10, 18, PAGE_WINDOW.compact)).toEqual([
+      1,
+      "gap",
+      9,
+      10,
+      11,
+      "gap",
+      18,
+    ]);
+    expect(paginationPages(2, 11, PAGE_WINDOW.compact)).toEqual([
+      1,
+      2,
+      3,
+      "gap",
+      11,
+    ]);
   });
 });
 

@@ -3,7 +3,11 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
-import { paginationPages } from "@/app/[locale]/categories/utils/category-page";
+import { cn } from "@/lib/utils";
+import {
+  PAGE_WINDOW,
+  paginationPages,
+} from "@/app/[locale]/categories/utils/category-page";
 import { categoryPath } from "@/utils/category-links";
 
 interface ICategoryPaginationProps {
@@ -22,26 +26,16 @@ export default async function CategoryPagination({
 
   if (totalPages <= 1) return null;
 
-  return (
-    <nav
-      aria-label={t("pagination.label")}
-      className="flex flex-wrap items-center justify-between gap-2"
-    >
-      {page > 1 ? (
-        <Link
-          href={categoryPath(slug, page - 1)}
-          rel="prev"
-          className={buttonVariants({ variant: "outline", size: "sm" })}
-        >
-          <ChevronLeft aria-hidden="true" />
-          {t("pagination.previous")}
-        </Link>
-      ) : (
-        <span />
-      )}
+  // On a phone the arrows lose their words, so the row of numbers fits beside them on one line.
+  const arrowClassName = cn(
+    buttonVariants({ variant: "outline", size: "sm" }),
+    "max-sm:size-9 max-sm:px-0",
+  );
 
-      <ol className="flex flex-wrap items-center justify-center gap-1">
-        {paginationPages(page, totalPages).map((item, index) =>
+  function pageNumbers(window: number, className: string) {
+    return (
+      <ol className={cn("items-center justify-center gap-1", className)}>
+        {paginationPages(page, totalPages, window).map((item, index) =>
           item === "gap" ? (
             <li
               key={`gap-${index}`}
@@ -67,14 +61,37 @@ export default async function CategoryPagination({
           ),
         )}
       </ol>
+    );
+  }
+
+  return (
+    <nav
+      aria-label={t("pagination.label")}
+      className="flex items-center justify-between gap-2"
+    >
+      {page > 1 ? (
+        <Link
+          href={categoryPath(slug, page - 1)}
+          rel="prev"
+          className={arrowClassName}
+        >
+          <ChevronLeft aria-hidden="true" />
+          <span className="max-sm:sr-only">{t("pagination.previous")}</span>
+        </Link>
+      ) : (
+        <span />
+      )}
+
+      {pageNumbers(PAGE_WINDOW.compact, "flex sm:hidden")}
+      {pageNumbers(PAGE_WINDOW.wide, "hidden sm:flex sm:flex-wrap")}
 
       {page < totalPages ? (
         <Link
           href={categoryPath(slug, page + 1)}
           rel="next"
-          className={buttonVariants({ variant: "outline", size: "sm" })}
+          className={arrowClassName}
         >
-          {t("pagination.next")}
+          <span className="max-sm:sr-only">{t("pagination.next")}</span>
           <ChevronRight aria-hidden="true" />
         </Link>
       ) : (

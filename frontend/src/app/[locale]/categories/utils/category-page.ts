@@ -57,18 +57,20 @@ export function hubRobots(indexable: boolean): Pick<Metadata, "robots"> {
   };
 }
 
-const PAGE_WINDOW = 2;
+/** Pages shown on each side of the current one; a phone fits only the compact row beside the arrows. */
+export const PAGE_WINDOW = { compact: 1, wide: 2 } as const;
 
 /** First, last and the pages near the current one, with a gap wherever numbers are skipped. */
 export function paginationPages(
   page: number,
   totalPages: number,
+  window: number = PAGE_WINDOW.wide,
 ): (number | "gap")[] {
   const pages: (number | "gap")[] = [];
 
   for (let candidate = 1; candidate <= totalPages; candidate++) {
     const isEdge = candidate === 1 || candidate === totalPages;
-    const isNear = Math.abs(candidate - page) <= PAGE_WINDOW;
+    const isNear = Math.abs(candidate - page) <= window;
 
     if (isEdge || isNear) {
       pages.push(candidate);
