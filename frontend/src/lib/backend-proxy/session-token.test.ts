@@ -43,13 +43,46 @@ describe("mintSessionToken", () => {
     expect(mocks.getToken).not.toHaveBeenCalled();
   });
 
+  it("returns null when getSession refuses the session as signed out", async () => {
+    mocks.getSession.mockRejectedValue(
+      new APIError("UNAUTHORIZED", { message: "Failed to get session" }),
+    );
+
+    await expect(mintSessionToken(headers)).resolves.toBeNull();
+    expect(mocks.getToken).not.toHaveBeenCalled();
+  });
+
   it("returns null when the session ends between the read and the signing", async () => {
-    mocks.getSession.mockResolvedValue({ user: { id: "user-a" } });
+    mocks.getSession
+      .mockResolvedValueOnce({ user: { id: "user-a" } })
+      .mockResolvedValueOnce(null);
     mocks.getToken.mockRejectedValue(
       new APIError("UNAUTHORIZED", { message: "Unauthorized" }),
     );
 
     await expect(mintSessionToken(headers)).resolves.toBeNull();
+  });
+
+  it("throws when getToken's own session read failed behind its 401", async () => {
+    mocks.getSession
+      .mockResolvedValueOnce({ user: { id: "user-a" } })
+      .mockRejectedValueOnce(
+        new Error("timeout exceeded when trying to connect"),
+      );
+    mocks.getToken.mockRejectedValue(
+      new APIError("UNAUTHORIZED", { message: "Unauthorized" }),
+    );
+
+    await expect(mintSessionToken(headers)).rejects.toThrow("timeout exceeded");
+  });
+
+  it("throws when getToken answers 401 for a session that still exists", async () => {
+    mocks.getSession.mockResolvedValue({ user: { id: "user-a" } });
+    mocks.getToken.mockRejectedValue(
+      new APIError("UNAUTHORIZED", { message: "Unauthorized" }),
+    );
+
+    await expect(mintSessionToken(headers)).rejects.toThrow("Unauthorized");
   });
 
   it("mints a token naming the session's user", async () => {
