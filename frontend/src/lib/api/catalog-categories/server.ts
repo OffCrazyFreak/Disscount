@@ -49,7 +49,7 @@ function catalogFetch(
 // Empty means no import has filled the catalogue yet, which the next import fixes within minutes, not the hour.
 const EMPTY_CATALOG_REVALIDATE_SECONDS = 2 * 60;
 
-/** Asks again with a short cache when the cached answer is empty, so a hub never stays empty for the hour after the first import. */
+/** Asks again under a short cache when the cached answer is empty, so hubs fill soon after the first import. */
 async function catalogFetchUnlessEmpty<T>(
   path: string,
   options: ICatalogFetchOptions,

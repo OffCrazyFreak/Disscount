@@ -43,7 +43,7 @@ function isShouted(name: string): boolean {
   return letters.length > 0 && capitals / letters.length >= SHOUTED_SHARE;
 }
 
-/** Sentence case for names sent in capitals, close to upstream's cleaned names on the product page; abbreviations go lower case too. */
+/** Sentence case for names sent in capitals, close to upstream's cleaned names; abbreviations go lower case too. */
 export function getCatalogNameLabel(name: string): string {
   if (!isShouted(name)) return name;
 

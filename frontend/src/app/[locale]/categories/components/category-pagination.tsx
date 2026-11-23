@@ -32,9 +32,16 @@ export default async function CategoryPagination({
     "max-sm:size-9 max-sm:px-0",
   );
 
-  function pageNumbers(window: number, className: string) {
+  function pageNumbers(isCompact: boolean) {
+    const window = isCompact ? PAGE_WINDOW.compact : PAGE_WINDOW.wide;
+
     return (
-      <ol className={cn("items-center justify-center gap-1", className)}>
+      <ol
+        className={cn(
+          "items-center justify-center gap-1",
+          isCompact ? "flex sm:hidden" : "hidden sm:flex sm:flex-wrap",
+        )}
+      >
         {paginationPages(page, totalPages, window).map((item, index) =>
           item === "gap" ? (
             <li
@@ -82,8 +89,8 @@ export default async function CategoryPagination({
         <span />
       )}
 
-      {pageNumbers(PAGE_WINDOW.compact, "flex sm:hidden")}
-      {pageNumbers(PAGE_WINDOW.wide, "hidden sm:flex sm:flex-wrap")}
+      {pageNumbers(true)}
+      {pageNumbers(false)}
 
       {page < totalPages ? (
         <Link
