@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react";
-import { screen, waitFor } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -29,7 +29,11 @@ vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
 }));
 // MapLibre appends its popups to the end of the map's container, after the controls.
-const mapDom = vi.hoisted(() => ({ container: null as HTMLElement | null }));
+const mapDom = vi.hoisted(() => ({
+  container: null as HTMLElement | null,
+  // A pin still out of view, which MapLibre hides its popup for.
+  startHidden: false,
+}));
 vi.mock("react-map-gl/maplibre", async () => {
   const { createPortal } = await import("react-dom");
 
@@ -37,7 +41,12 @@ vi.mock("react-map-gl/maplibre", async () => {
     Popup: ({ children }: { children: ReactNode }) =>
       mapDom.container &&
       createPortal(
-        <div className="maplibregl-popup">{children}</div>,
+        <div
+          className="maplibregl-popup"
+          style={{ visibility: mapDom.startHidden ? "hidden" : undefined }}
+        >
+          {children}
+        </div>,
         mapDom.container,
       ),
   };
@@ -190,6 +199,25 @@ describe("MapLayout on desktop", () => {
 
     expect(screen.getByRole("button", { name: "Ilica 1" })).toBeInTheDocument();
     expect(document.querySelector("[role=dialog]")).toBeNull();
+  });
+
+  it("leaves focus on a control the user reached before the card showed", async () => {
+    mapDom.startHidden = true;
+    const user = userEvent.setup();
+    renderWithProviders(<Harness />);
+
+    await openSearch(user);
+    await user.click(screen.getByRole("button", { name: "Ilica 1" }));
+    const popover = await findPopover();
+    const zoom = screen.getByRole("button", { name: "Zoom in" });
+    act(() => zoom.focus());
+
+    // The pin comes into view, and the card shows after the user reached a map control.
+    popover.closest<HTMLElement>(".maplibregl-popup")!.style.visibility = "";
+    await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+
+    expect(zoom).toHaveFocus();
+    mapDom.startHidden = false;
   });
 
   it("hands focus to the near-me button when Escape closes the popover", async () => {

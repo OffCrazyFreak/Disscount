@@ -29,7 +29,7 @@ interface IMapStorePopoverProps {
   returnFocusRef: RefObject<HTMLElement | null>;
 }
 
-// Free means nobody holds focus, or the search panel that just closed for this pick still does.
+// Free means nobody holds focus, or the panel that just closed or the map a pin was clicked on still does.
 function isFocusFree() {
   const active = document.activeElement;
 
@@ -37,7 +37,7 @@ function isFocusFree() {
     !active ||
     active === document.body ||
     !active.isConnected ||
-    active.closest("[data-map-search-panel]") != null
+    active.closest("[data-map-search-panel], .maplibregl-canvas") != null
   );
 }
 
@@ -62,14 +62,19 @@ function focusWhenShown(card: HTMLElement, onDone: () => void) {
   }
 
   function attempt() {
+    // Checked right before focusing, so a control the user reached meanwhile keeps its focus.
+    if (document.activeElement !== card && !isFocusFree()) {
+      settle();
+      return;
+    }
+
     if (isShown(card)) card.focus({ preventScroll: true });
 
-    const isDone =
-      document.activeElement === card ||
-      performance.now() > deadline ||
-      (isShown(card) && !isFocusFree());
-    if (isDone) settle();
-    else frame = requestAnimationFrame(attempt);
+    if (document.activeElement === card || performance.now() > deadline) {
+      settle();
+    } else {
+      frame = requestAnimationFrame(attempt);
+    }
   }
 
   // Any input means the user moved on, and focus is theirs.
