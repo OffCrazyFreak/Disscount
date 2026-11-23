@@ -44,7 +44,7 @@ function isPositivePrice(price: number): boolean {
 }
 
 function toNullablePrice(text: string | null): number | null {
-  if (text === null) return null;
+  if (text === null || !isReadablePrice(text)) return null;
 
   const price = Number.parseFloat(text);
 
