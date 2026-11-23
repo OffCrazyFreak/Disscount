@@ -6,12 +6,13 @@ import {
   type PriceExtreme,
 } from "@/app/[locale]/products/utils/product-utils";
 import { formatPrice } from "@/utils/price";
+import { parsePrice } from "@/utils/product-price-utils";
 
 function getDisplayPrice(price: StorePrice): number | null {
-  if (price.special_price) return parseFloat(price.special_price);
-  if (price.regular_price) return parseFloat(price.regular_price);
-
-  return null;
+  return (
+    parsePrice(price.special_price ?? "") ??
+    parsePrice(price.regular_price ?? "")
+  );
 }
 
 function priceClass(extreme: PriceExtreme, isLocationPreferred: boolean) {

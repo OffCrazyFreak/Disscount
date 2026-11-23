@@ -3,6 +3,7 @@ import { ChartDataPoint } from "@/typings/chart-data";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { ShoppingListItemDto } from "@/lib/api/types";
 import { isCatalogItem } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
+import { parsePrice } from "@/utils/product-price-utils";
 
 export function buildChartData(
   priceHistoriesByEan: Record<string, (ProductResponse | undefined)[]>,
@@ -29,8 +30,8 @@ export function buildChartData(
 
       const prices = (product?.chains ?? [])
         .filter((chain) => selectedChains.includes(chain.chain))
-        .map((chain) => parseFloat(chain.avg_price))
-        .filter((price) => Number.isFinite(price));
+        .map((chain) => parsePrice(chain.avg_price))
+        .filter((price): price is number => price !== null);
 
       if (prices.length === 0) return;
 

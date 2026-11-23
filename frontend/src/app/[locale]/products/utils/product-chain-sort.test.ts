@@ -74,4 +74,15 @@ describe("compareProductChains", () => {
       "konzum",
     ]);
   });
+
+  it("puts a chain with a zero price after the priced ones", () => {
+    const sorted = [
+      chain("roto", "0.00", "0.00"),
+      chain("lidl", "1.50", "1.50"),
+    ]
+      .sort((a, b) => compareProductChains(a, b, [], "price"))
+      .map((c) => c.chain);
+
+    expect(sorted).toEqual(["lidl", "roto"]);
+  });
 });

@@ -1,5 +1,6 @@
 import type { ChainProductResponse } from "@/lib/cijene-api/schemas";
 import { getChainLabel } from "@/utils/labels";
+import { parsePrice } from "@/utils/product-price-utils";
 import { compareHr } from "@/utils/strings";
 
 export const PRODUCT_CHAIN_SORT_MODES = [
@@ -12,9 +13,15 @@ export type ProductChainSortMode = (typeof PRODUCT_CHAIN_SORT_MODES)[number];
 
 type PriceReader = (chain: ChainProductResponse) => number;
 
-const minPrice: PriceReader = (chain) => parseFloat(chain.min_price);
-const avgPrice: PriceReader = (chain) => parseFloat(chain.avg_price);
-const maxPrice: PriceReader = (chain) => parseFloat(chain.max_price);
+// A chain without a price sorts after every priced one; the label breaks ties between unpriced ones.
+const UNPRICED = Number.MAX_VALUE;
+
+const minPrice: PriceReader = (chain) =>
+  parsePrice(chain.min_price) ?? UNPRICED;
+const avgPrice: PriceReader = (chain) =>
+  parsePrice(chain.avg_price) ?? UNPRICED;
+const maxPrice: PriceReader = (chain) =>
+  parsePrice(chain.max_price) ?? UNPRICED;
 
 /** "stores" follows preferences; "price" leads with the store worth a detour; "distance" the nearest. */
 export function compareProductChains(

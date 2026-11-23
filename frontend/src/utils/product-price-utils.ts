@@ -8,10 +8,11 @@ const minPriceCache = new WeakMap<ProductResponse, number | null>();
 const maxPriceCache = new WeakMap<ProductResponse, number | null>();
 const avgPriceCache = new WeakMap<ProductResponse, number | null>();
 
+/** Upstream sometimes publishes 0.00 for a chain, which is no price at all and an error in Google's offers. */
 export function parsePrice(value: string): number | null {
   const parsed = Number.parseFloat(value);
 
-  if (!Number.isFinite(parsed)) {
+  if (!Number.isFinite(parsed) || parsed <= 0) {
     return null;
   }
 

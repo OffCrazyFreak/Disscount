@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { ChartConfig, ChartTooltipContent } from "@/components/ui/chart";
 import { getChainLabel } from "@/utils/labels";
 import { formatPrice } from "@/utils/price";
+import { parsePrice } from "@/utils/product-price-utils";
 import { useUser } from "@/context/user-context";
 import { HistoryDataPoint } from "@/lib/cijene-api/history-data-point";
 import { ChartDataPoint } from "@/typings/chart-data";
@@ -51,8 +52,8 @@ const PriceHistoryChart = memo(function PriceHistoryChart({
         const prices: number[] = [];
 
         dataPoint.product.chains.forEach((chainData) => {
-          const avgPrice = parseFloat(chainData.avg_price);
-          if (Number.isFinite(avgPrice)) {
+          const avgPrice = parsePrice(chainData.avg_price);
+          if (avgPrice !== null) {
             chartPoint[chainData.chain] = avgPrice;
 
             if (chainsToDisplay.includes(chainData.chain)) {

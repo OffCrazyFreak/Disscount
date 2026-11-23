@@ -39,6 +39,11 @@ describe("parsePrice", () => {
     expect(parsePrice("")).toBeNull();
     expect(parsePrice("n/a")).toBeNull();
   });
+
+  it("reads a zero or negative price as no price", () => {
+    expect(parsePrice("0.00")).toBeNull();
+    expect(parsePrice("-1.00")).toBeNull();
+  });
 });
 
 describe("product price summary", () => {
@@ -52,6 +57,17 @@ describe("product price summary", () => {
     expect(getMinPrice(item)).toBe(0.99);
     expect(getMaxPrice(item)).toBe(1.5);
     expect(getAveragePrice(item)).toBeCloseTo(1.15);
+  });
+
+  it("skips a chain that publishes a zero price", () => {
+    const item = product([
+      chain("konzum", "1.20", "1.50", "1.30"),
+      chain("roto", "0.00"),
+    ]);
+
+    expect(getMinPrice(item)).toBe(1.2);
+    expect(getMaxPrice(item)).toBe(1.5);
+    expect(getAveragePrice(item)).toBe(1.3);
   });
 
   it("has no price when no chain has one", () => {
@@ -72,6 +88,15 @@ describe("getCheapestChainByMinPrice", () => {
 
     expect(cheapest?.chain.chain).toBe("lidl");
     expect(cheapest?.price).toBe(0.99);
+  });
+
+  it("passes over a chain whose lowest price is zero", () => {
+    const cheapest = getCheapestChainByMinPrice([
+      chain("roto", "0.00"),
+      chain("konzum", "1.20"),
+    ]);
+
+    expect(cheapest?.chain.chain).toBe("konzum");
   });
 
   it("is null when nothing is priced", () => {

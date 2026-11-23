@@ -7,6 +7,7 @@ import {
   getChainAvgPriceRange,
   getPriceExtreme,
 } from "@/app/[locale]/products/utils/product-utils";
+import { parsePrice } from "@/utils/product-price-utils";
 
 export interface IChainItemPriceInfo {
   isAvailable: boolean;
@@ -28,9 +29,10 @@ export function getChainItemPriceInfo(
     (candidate) => candidate.chain === chain.chain,
   );
 
-  const isAvailable = Boolean(chainData);
+  const chainPrice = chainData ? parsePrice(chainData.avg_price) : null;
+  const isAvailable = chainPrice !== null;
 
-  const price = chainData ? parseFloat(chainData.avg_price) : 0;
+  const price = chainPrice ?? 0;
   const quantity = item.amount || 1;
   const total = price * quantity;
 

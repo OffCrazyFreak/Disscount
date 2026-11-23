@@ -78,6 +78,19 @@ describe("productJsonLd", () => {
     ]);
   });
 
+  it("leaves a zero price out of the offers and the price range", () => {
+    const markup = productJsonLd({
+      product: priceProduct([chain("konzum", "0.89"), chain("roto", "0.00")]),
+      ...input,
+    });
+
+    expect(markup.offers).toMatchObject({
+      lowPrice: "0.89",
+      highPrice: "0.89",
+      offerCount: 1,
+    });
+  });
+
   it("counts only the offers it lists", () => {
     const markup = productJsonLd({
       product: priceProduct([chain("konzum", "0.89"), chain("spar", "")]),

@@ -5,6 +5,7 @@ import {
   getPriceExtreme,
   type PriceExtreme,
 } from "@/app/[locale]/products/utils/product-utils";
+import { parsePrice } from "@/utils/product-price-utils";
 
 function countChainsAtExtreme(
   productsData: ProductResponse[],
@@ -24,7 +25,7 @@ function countChainsAtExtreme(
 
     product.chains.forEach((chain) => {
       const extremeAtChain = getPriceExtreme(
-        parseFloat(chain.avg_price),
+        parsePrice(chain.avg_price),
         range.min,
         range.max,
       );

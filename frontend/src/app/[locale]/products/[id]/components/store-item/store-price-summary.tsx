@@ -10,6 +10,7 @@ import {
   type PriceExtreme,
 } from "@/app/[locale]/products/utils/product-utils";
 import { formatPrice } from "@/utils/price";
+import { parsePrice } from "@/utils/product-price-utils";
 
 const EXTREME_CLASS: Record<NonNullable<PriceExtreme>, string> = {
   max: "text-red-700 font-bold",
@@ -30,15 +31,16 @@ export default function StorePriceSummary({
   product,
 }: IStorePriceSummaryProps) {
   const t = useTranslations("productDetail.storeItem");
+  const tTable = useTranslations("productDetail.pricesTable");
   const locale = useLocale();
 
   const productMinPrice = getMinPrice(product);
   const productMaxPrice = getMaxPrice(product);
 
   const stats = [
-    { key: "min", price: parseFloat(store.min_price) },
-    { key: "average", price: parseFloat(store.avg_price) },
-    { key: "max", price: parseFloat(store.max_price) },
+    { key: "min", price: parsePrice(store.min_price) },
+    { key: "average", price: parsePrice(store.avg_price) },
+    { key: "max", price: parsePrice(store.max_price) },
   ] as const;
 
   return (
@@ -50,7 +52,12 @@ export default function StorePriceSummary({
             getPriceExtreme(price, productMinPrice, productMaxPrice),
           )}
         >
-          {t(key, { price: formatPrice(price, locale) })}
+          {t(key, {
+            price:
+              price === null
+                ? tTable("notAvailable")
+                : formatPrice(price, locale),
+          })}
         </span>
       ))}
     </div>

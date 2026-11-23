@@ -4,6 +4,7 @@ import {
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
 import { getChainAvgPriceRange } from "@/app/[locale]/products/utils/product-utils";
+import { parsePrice } from "@/utils/product-price-utils";
 import { compareHr } from "@/utils/strings";
 
 /** Kept as a const tuple so the type and localStorage validation share one source. */
@@ -90,7 +91,7 @@ export function compareStoreChains(
   return compareHr(a.chain, b.chain);
 }
 
-/** Returns -Infinity when the item is not sold at this chain, so unavailable items sort last. */
+/** Returns -Infinity when the chain has no price for the item, so unavailable items sort last. */
 function getItemSavingPercentAtChain(
   item: ShoppingListItemDto,
   productsData: ProductResponse[],
@@ -98,12 +99,12 @@ function getItemSavingPercentAtChain(
 ): number {
   const product = productsData.find((p) => p?.ean === item.ean);
   const chainData = product?.chains?.find((c) => c.chain === chainCode);
-  if (!chainData) return -Infinity;
+  const price = chainData ? parsePrice(chainData.avg_price) : null;
+  if (price === null) return -Infinity;
 
-  const price = parseFloat(chainData.avg_price);
   const maxPrice = getChainAvgPriceRange(product)?.max ?? 0;
 
-  if (!maxPrice || isNaN(price)) return 0;
+  if (!maxPrice) return 0;
 
   return ((maxPrice - price) / maxPrice) * 100;
 }
