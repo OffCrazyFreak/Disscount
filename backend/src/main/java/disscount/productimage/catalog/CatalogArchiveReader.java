@@ -7,10 +7,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -19,9 +17,17 @@ import disscount.shared.CanonicalBarcode;
 /** ZIP entry order is not guaranteed, so prices count per chain product id and join to barcodes at the end. */
 final class CatalogArchiveReader {
 
-    /** Department and category are null when no chain and no rule places the product. */
-    public record Entry(String name, String brand, int storeListings, int chainCount, String department,
-                        String category) {}
+    /**
+     * Store prices per chain, holding only the chains that price it; department and category are null when no chain
+     * and no rule places the product.
+     */
+    public record Entry(String name, String brand, Map<String, Integer> pricesByChain, String department,
+                        String category) {
+
+        public int storeListings() {
+            return pricesByChain.values().stream().mapToInt(Integer::intValue).sum();
+        }
+    }
 
     private record Product(String ean, String name, String brand, String category) {}
 
@@ -85,16 +91,16 @@ final class CatalogArchiveReader {
     private static Map<String, Entry> join(Map<String, Map<String, Product>> productsByChain,
                                            Map<String, Map<String, Integer>> listingsByChain,
                                            ProductClassifier classifier) {
-        Map<String, Integer> listings = new HashMap<>();
-        Map<String, Set<String>> chains = new HashMap<>();
+        Map<String, Map<String, Integer>> prices = new HashMap<>();
         Map<String, Product> firstSeen = new HashMap<>();
         Map<String, List<ProductClassifier.Listing>> rows = new HashMap<>();
 
         productsByChain.forEach((chain, products) -> {
             Map<String, Integer> counts = listingsByChain.getOrDefault(chain, Map.of());
             products.forEach((id, product) -> {
-                listings.merge(product.ean(), counts.getOrDefault(id, 0), Integer::sum);
-                chains.computeIfAbsent(product.ean(), e -> new HashSet<>()).add(chain);
+                int priced = counts.getOrDefault(id, 0);
+                Map<String, Integer> byChain = prices.computeIfAbsent(product.ean(), e -> new HashMap<>());
+                if (priced > 0) byChain.merge(chain, priced, Integer::sum);
                 firstSeen.putIfAbsent(product.ean(), product);
                 rows.computeIfAbsent(product.ean(), e -> new ArrayList<>())
                         .add(new ProductClassifier.Listing(product.name(), product.category()));
@@ -105,7 +111,7 @@ final class CatalogArchiveReader {
         firstSeen.forEach((ean, product) -> {
             ProductClassifier.Classification sorted = classifier.classify(rows.get(ean));
             result.put(ean, new Entry(truncate(product.name(), 200), truncate(product.brand(), 120),
-                    listings.get(ean), chains.get(ean).size(), sorted.department(), sorted.category()));
+                    Map.copyOf(prices.get(ean)), sorted.department(), sorted.category()));
         });
         return result;
     }

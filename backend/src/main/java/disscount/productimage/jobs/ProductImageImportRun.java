@@ -1,5 +1,6 @@
 package disscount.productimage.jobs;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -26,4 +27,8 @@ class ProductImageImportRun {
 
     @Column(name = "finished_at", nullable = false)
     private LocalDateTime finishedAt;
+
+    // The upstream date of the archive imported, so the hourly check imports each date once; null for the photo seed.
+    @Column(name = "archive_date")
+    private LocalDate archiveDate;
 }

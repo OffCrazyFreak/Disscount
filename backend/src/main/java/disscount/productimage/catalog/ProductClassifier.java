@@ -7,6 +7,9 @@ import java.util.Map;
 /** Sorts one EAN into a department and an everyday category from what each chain calls and files it under. */
 final class ProductClassifier {
 
+    // Part of the stored taxonomy version: bump it when a change here would place a product differently.
+    static final int LOGIC_VERSION = 1;
+
     /** One chain's row for the product: its name and the chain's own category text, either may be blank. */
     record Listing(String name, String chainCategory) {}
 

@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Product Categories", description = "Departments and everyday categories of the product catalogue")
 class CatalogCategoryController {
 
-    // The catalogue changes only when the weekly import runs, so an hour of caching costs nothing.
+    // The catalogue changes only when the daily import runs, so an hour of caching costs nothing.
     private static final CacheControl HOURLY = CacheControl.maxAge(Duration.ofHours(1)).cachePublic();
 
     private final CatalogCategoryService categories;

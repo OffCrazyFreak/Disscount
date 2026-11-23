@@ -6,26 +6,21 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.time.format.DateTimeParseException;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 import java.util.stream.Stream;
-
-import disscount.shared.CanonicalBarcode;
-import disscount.shoppinglist.ShoppingListRepository;
-import disscount.watchlist.WatchlistItemRepository;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -34,116 +29,99 @@ import org.springframework.transaction.support.TransactionTemplate;
 public class CatalogImportService {
 
     private static final Logger log = LoggerFactory.getLogger(CatalogImportService.class);
-    private static final int BATCH = 1_000;
+    static final Duration RETRY_FAILED_AFTER = Duration.ofHours(6);
 
-    private final JdbcTemplate jdbc;
+    private final CatalogStore store;
     private final TransactionTemplate tx;
     private final ObjectMapper json;
-    private final String listUrl;
-    private final ShoppingListRepository shoppingLists;
-    private final WatchlistItemRepository watchlist;
     private final IndexNowClient indexNow;
+    private final String listUrl;
+    private final Clock clock;
+    private volatile FailedArchive lastFailure;
     private final HttpClient http = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
-    CatalogImportService(JdbcTemplate jdbc, TransactionTemplate tx, ObjectMapper json, CatalogProperties properties,
-                         ShoppingListRepository shoppingLists, WatchlistItemRepository watchlist, IndexNowClient indexNow) {
-        this.jdbc = jdbc;
-        this.indexNow = indexNow;
-        this.shoppingLists = shoppingLists;
-        this.watchlist = watchlist;
+    @Autowired
+    CatalogImportService(CatalogStore store, TransactionTemplate tx, ObjectMapper json, IndexNowClient indexNow,
+                         CatalogProperties properties) {
+        this(store, tx, json, indexNow, properties, Clock.systemUTC());
+    }
+
+    CatalogImportService(CatalogStore store, TransactionTemplate tx, ObjectMapper json, IndexNowClient indexNow,
+                         CatalogProperties properties, Clock clock) {
+        this.store = store;
         this.tx = tx;
         this.json = json;
+        this.indexNow = indexNow;
         this.listUrl = properties.listUrl();
+        this.clock = clock;
     }
 
-    public CatalogImportResult importLatest() throws IOException, InterruptedException {
+    /** Empty while the newest archive upstream is the one imported last, or one that failed in the last 6 hours. */
+    public Optional<CatalogImportResult> importNewerThan(LocalDate lastImported) throws IOException, InterruptedException {
         Archive latest = latestArchive();
-        Map<String, CatalogArchiveReader.Entry> catalog;
-        try (InputStream archive = open(latest.url())) {
-            catalog = CatalogArchiveReader.read(archive);
+        // After downtime only the newest date is read; the skipped days only cost the chains that published on them alone.
+        if (lastImported != null && !latest.date().isAfter(lastImported)) return Optional.empty();
+        if (stillResting(latest.date())) return Optional.empty();
+
+        CatalogImportResult result;
+        try {
+            result = importArchive(latest);
+        } catch (IOException | RuntimeException e) {
+            lastFailure = new FailedArchive(latest.date(), clock.instant());
+            throw e;
         }
-        CatalogImportResult result = tx.execute(status -> store(catalog, latest.date()));
         log.info("Product catalogue imported from {}: {} EANs, {} newly listed, {} dropped out", latest.url(),
-                catalog.size(), result.newlyListed().size(), result.droppedOut().size());
+                result.products(), result.newlyListed().size(), result.droppedOut().size());
+        return Optional.of(result);
+    }
 
-        // Gone pages are pinged too: IndexNow asks for 404s so the engines drop them sooner.
+    /** Gone pages are pinged too: IndexNow asks for 404s, so the engines drop them sooner. Never throws. */
+    public void announce(CatalogImportResult result) {
         indexNow.submit(Stream.concat(result.newlyListed().stream(), result.droppedOut().stream()).toList());
-        return result;
-    }
-
-    /** Updates the products in this archive only; the rest keep their last numbers until the listing window ends. */
-    CatalogImportResult store(Map<String, CatalogArchiveReader.Entry> catalog, LocalDate archiveDate) {
-        Set<String> listedBefore = listed();
-        Set<String> existing = new HashSet<>(jdbc.queryForList("select ean from app.product_image_set", String.class));
-
-        List<Object[]> updates = new ArrayList<>();
-        List<Object[]> inserts = new ArrayList<>();
-        catalog.forEach((ean, e) -> {
-            // An unpriced catalogue row is not on sale, so it leaves the date of its last price alone.
-            LocalDate seenOn = e.storeListings() > 0 ? archiveDate : null;
-            if (existing.contains(ean)) {
-                updates.add(new Object[] {e.name(), e.brand(), e.storeListings(), e.chainCount(), seenOn,
-                        e.department(), e.category(), ean});
-            } else {
-                inserts.add(new Object[] {ean, e.name(), e.brand(), e.storeListings(), e.chainCount(), seenOn,
-                        e.department(), e.category()});
-            }
-        });
-
-        // greatest() skips a null and keeps a later date, so an older archive cannot move a product back in time.
-        batch("update app.product_image_set set name = ?, brand = ?, store_listings = ?, chain_count = ?, "
-                + "last_seen_on = greatest(last_seen_on, ?::date), department = ?, category = ? where ean = ?", updates);
-        batch("insert into app.product_image_set "
-                + "(ean, name, brand, store_listings, chain_count, last_seen_on, department, category, pinned, needs_review) "
-                + "values (?, ?, ?, ?, ?, ?::date, ?, ?, false, false)", inserts);
-        refreshListUses();
-
-        Set<String> listedAfter = listed();
-        return new CatalogImportResult(catalog.size(), difference(listedAfter, listedBefore),
-                difference(listedBefore, listedAfter));
-    }
-
-    /** Both lists store the EAN a product page gave them, so a padded code is folded the way the catalogue stores it. */
-    private void refreshListUses() {
-        Map<String, Long> people = new HashMap<>();
-        Stream.concat(shoppingLists.countOwnersPerEan().stream(), watchlist.countUsersPerProduct().stream())
-                .forEach(use -> people.merge(CanonicalBarcode.of(use.ean()), use.people(), Long::sum));
-
-        jdbc.update("update app.product_image_set set list_uses = 0 where list_uses <> 0");
-        batch("update app.product_image_set set list_uses = ? where ean = ?", people.entrySet().stream()
-                .map(use -> new Object[] {use.getValue().intValue(), use.getKey()})
-                .toList());
-    }
-
-    private Set<String> listed() {
-        LocalDate newest = jdbc.queryForObject("select max(last_seen_on) from app.product_image_set", LocalDate.class);
-        if (newest == null) return Set.of();
-
-        return new HashSet<>(jdbc.queryForList("select ean from app.product_image_set where last_seen_on >= ?",
-                String.class, CatalogListing.listedSince(newest)));
-    }
-
-    private static List<String> difference(Set<String> from, Set<String> minus) {
-        return from.stream().filter(ean -> !minus.contains(ean)).sorted().toList();
-    }
-
-    private void batch(String sql, List<Object[]> rows) {
-        for (int from = 0; from < rows.size(); from += BATCH) {
-            jdbc.batchUpdate(sql, rows.subList(from, Math.min(rows.size(), from + BATCH)));
-        }
     }
 
     private record Archive(String url, LocalDate date) {}
 
+    private record FailedArchive(LocalDate date, Instant at) {}
+
+    private CatalogImportResult importArchive(Archive latest) throws IOException, InterruptedException {
+        Map<String, CatalogArchiveReader.Entry> catalog;
+        try (InputStream archive = open(latest.url())) {
+            catalog = CatalogArchiveReader.read(archive);
+        }
+        return tx.execute(status -> store.store(catalog, latest.date()));
+    }
+
+    /** A broken archive would otherwise be downloaded again at every hourly check; a newer date is tried at once. */
+    private boolean stillResting(LocalDate newest) {
+        FailedArchive failure = lastFailure;
+        return failure != null && failure.date().equals(newest)
+                && clock.instant().isBefore(failure.at().plus(RETRY_FAILED_AFTER));
+    }
+
+    /** The newest archive with a usable date, which stamps every product it prices; a broken entry is skipped. */
     private Archive latestArchive() throws IOException, InterruptedException {
         try (InputStream body = open(listUrl)) {
             JsonNode archives = json.readTree(body).path("archives");
-            if (!archives.isArray() || archives.isEmpty()) throw new IOException("No cijene archives listed");
-            JsonNode newest = archives.get(0);
-            return new Archive(newest.path("url").asString(), LocalDate.parse(newest.path("date").asString()));
+            for (JsonNode archive : archives) {
+                String url = archive.path("url").asString("");
+                LocalDate date = dateOf(archive);
+                if (!url.isBlank() && date != null) return new Archive(url, date);
+
+                log.warn("Skipping cijene archive entry without a URL or a usable date: {}", archive);
+            }
+            throw new IOException("No usable cijene archive listed");
+        }
+    }
+
+    private static LocalDate dateOf(JsonNode archive) {
+        try {
+            return LocalDate.parse(archive.path("date").asString(""));
+        } catch (DateTimeParseException e) {
+            return null;
         }
     }
 

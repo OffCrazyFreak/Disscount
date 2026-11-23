@@ -48,10 +48,10 @@ class ProductImageJobsSwitchTest {
             assertThat(context.getBean(ProductImageJobProperties.class).enabled()).isTrue();
 
             ProductImageJobs jobs = context.getBean(ProductImageJobs.class);
-            jobs.weeklyImport();
+            jobs.importCatalogue();
             jobs.renderMainPhotos();
 
-            verify(catalog).importLatest();
+            verify(catalog).importNewerThan(null);
             verify(images).findUnrenderedMains(any(), any(), any());
         });
     }
@@ -62,7 +62,7 @@ class ProductImageJobsSwitchTest {
             assertThat(context.getBean(ProductImageJobProperties.class).enabled()).isFalse();
 
             ProductImageJobs jobs = context.getBean(ProductImageJobs.class);
-            jobs.weeklyImport();
+            jobs.importCatalogue();
             jobs.renderMainPhotos();
 
             verifyNoInteractions(catalog, seed, rendering, images, sets, runs);

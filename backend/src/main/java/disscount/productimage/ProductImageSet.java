@@ -14,14 +14,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 
 /** One row per EAN: which photo is shown, how widely the product sells, and the admin's review state. */
 @Entity
+// The catalogue import writes this row through SQL, so a photo or admin save must write only what it changed.
+@DynamicUpdate
 @Table(name = "product_image_set",
         indexes = {
                 @Index(name = "idx_product_image_set_listings", columnList = "store_listings"),
-                @Index(name = "idx_product_image_set_last_seen", columnList = "last_seen_on"),
-                @Index(name = "idx_product_image_set_category", columnList = "category, last_seen_on")
+                @Index(name = "idx_product_image_set_last_seen", columnList = "last_seen_on")
         })
 @Getter
 @Setter
@@ -59,6 +61,9 @@ public class ProductImageSet {
 
     @Column(length = 40)
     private String category;
+
+    @Column(name = "taxonomy_version", length = 16)
+    private String taxonomyVersion;
 
     @Builder.Default
     @Column(name = "list_uses", nullable = false)

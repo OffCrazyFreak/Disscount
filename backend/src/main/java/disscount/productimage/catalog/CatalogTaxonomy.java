@@ -3,8 +3,12 @@ package disscount.productimage.catalog;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HexFormat;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,13 +45,15 @@ final class CatalogTaxonomy {
 
     private static CatalogTaxonomy standard;
 
+    private final String version;
     private final List<Department> departments;
     private final List<Category> categories;
     private final Map<String, String> departmentByChainCategory = new HashMap<>();
     private final Map<String, Category> categoryByChainCategory = new HashMap<>();
     private final Map<String, Category> categoryBySlug = new HashMap<>();
 
-    private CatalogTaxonomy(List<Department> departments, List<Category> categories) {
+    private CatalogTaxonomy(String version, List<Department> departments, List<Category> categories) {
+        this.version = version;
         this.departments = List.copyOf(departments);
         this.categories = List.copyOf(categories);
 
@@ -80,8 +86,9 @@ final class CatalogTaxonomy {
         return standard;
     }
 
-    static CatalogTaxonomy parse(InputStream yaml) {
-        Map<String, Object> root = new Yaml(new SafeConstructor(new LoaderOptions())).load(yaml);
+    static CatalogTaxonomy parse(InputStream yaml) throws IOException {
+        byte[] content = yaml.readAllBytes();
+        Map<String, Object> root = new Yaml(new SafeConstructor(new LoaderOptions())).load(new String(content, StandardCharsets.UTF_8));
 
         List<Department> departments = new ArrayList<>();
         for (Map<String, Object> entry : maps(root.get("departments"))) {
@@ -97,7 +104,23 @@ final class CatalogTaxonomy {
             categories.add(new Category(text(entry, "slug"), department, allowed, folded(entry.get("chainCategories")),
                     terms(entry.get("include")), terms(entry.get("exclude"))));
         }
-        return new CatalogTaxonomy(departments, categories);
+        return new CatalogTaxonomy(versionOf(root), departments, categories);
+    }
+
+    /** Stored on each classified row, so changed rules or classifier logic reclassify every product the next archive holds. */
+    String version() {
+        return version;
+    }
+
+    // Hashes the parsed rules, so an edited comment or reflowed list in the file leaves every stored place alone.
+    private static String versionOf(Map<String, Object> rules) {
+        String classification = ProductClassifier.LOGIC_VERSION + "\n" + rules;
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256").digest(classification.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(digest).substring(0, 16);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     List<Department> departments() {

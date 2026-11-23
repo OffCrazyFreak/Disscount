@@ -117,4 +117,25 @@ class ProductClassifierTest {
         assertThatThrownBy(() -> CatalogTaxonomy.parse(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8))))
                 .hasMessageContaining("unknown department in mlijeko");
     }
+
+    @Test
+    void onlyARuleChangeGivesTheTaxonomyANewVersion() throws Exception {
+        String rules = """
+                departments:
+                  - slug: hrana
+                categories:
+                  - slug: mlijeko
+                    department: hrana
+                    include: [mlijeko]
+                """;
+        String commented = "# Mlijeko i mliječni napitci\n" + rules.replace("include: [mlijeko]", "include:\n      - mlijeko");
+        String widened = rules.replace("[mlijeko]", "[mlijeko, ^dukat]");
+
+        assertThat(taxonomy(commented).version()).isEqualTo(taxonomy(rules).version());
+        assertThat(taxonomy(widened).version()).isNotEqualTo(taxonomy(rules).version());
+    }
+
+    private static CatalogTaxonomy taxonomy(String yaml) throws Exception {
+        return CatalogTaxonomy.parse(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+    }
 }
