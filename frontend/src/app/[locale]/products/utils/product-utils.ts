@@ -2,7 +2,6 @@ export {
   getMinPrice,
   getMaxPrice,
   getAveragePrice,
-  getChainAvgPriceRange,
 } from "@/utils/product-price-utils";
 
 export {
