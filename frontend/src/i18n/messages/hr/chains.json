@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "indexTitle": "Trgovački lanci",
+    "indexDescription": "Trgovački lanci čije cijene uspoređujemo, s brojem trgovina na karti i datumom najnovijih cijena.",
+    "chainTitle": "{chain}: trgovine i cijene",
+    "chainDescription": "{stores, plural, =0 {{chain} zasad nema trgovina na karti. Usporedi cijene s drugim lancima.} one {{chain} na karti ima # trgovinu. Pogledaj gdje su i usporedi cijene s drugim lancima.} few {{chain} na karti ima # trgovine. Pogledaj gdje su i usporedi cijene s drugim lancima.} other {{chain} na karti ima # trgovina. Pogledaj gdje su i usporedi cijene s drugim lancima.}}"
+  },
+  "breadcrumbs": {
+    "label": "Putanja",
+    "home": "Početna",
+    "chains": "Trgovački lanci"
+  },
+  "index": {
+    "heading": "Trgovački lanci",
+    "storeCount": "{count, plural, one {# trgovina} few {# trgovine} other {# trgovina}}",
+    "priceDate": "cijene od {date}"
+  },
+  "intro": {
+    "stores": "Na karti imamo {stores, plural, one {# trgovinu} few {# trgovine} other {# trgovina}} lanca {chain} u {cities, plural, one {# mjestu} few {# mjesta} other {# mjesta}}.",
+    "topCities": "Najviše ih je u mjestima {cities}.",
+    "prices": "Najnovije cijene lanac je objavio {date}, ukupno {count, plural, one {# cijenu} few {# cijene} other {# cijena}} u svim trgovinama.",
+    "noStores": "Na karti još nemamo nijednu trgovinu lanca {chain}."
+  },
+  "cities": {
+    "heading": "Trgovine po mjestima",
+    "storeCount": "{count, plural, one {# trgovina} few {# trgovine} other {# trgovina}}"
+  },
+  "mapLink": "Pogledaj trgovine lanca {chain} na karti"
+}

@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "indexTitle": "Catene di supermercati",
+    "indexDescription": "Le catene di supermercati di cui confrontiamo i prezzi, con i loro negozi sulla mappa e la data dei prezzi più recenti.",
+    "chainTitle": "{chain}: negozi e prezzi",
+    "chainDescription": "{stores, plural, =0 {{chain} non ha ancora negozi sulla mappa. Confronta i prezzi con le altre catene.} one {{chain} ha # negozio sulla mappa. Guarda dove sono e confronta i prezzi con le altre catene.} other {{chain} ha # negozi sulla mappa. Guarda dove sono e confronta i prezzi con le altre catene.}}"
+  },
+  "breadcrumbs": {
+    "label": "Percorso",
+    "home": "Home",
+    "chains": "Catene di supermercati"
+  },
+  "index": {
+    "heading": "Catene di supermercati",
+    "storeCount": "{count, plural, one {# negozio} other {# negozi}}",
+    "priceDate": "prezzi del {date}"
+  },
+  "intro": {
+    "stores": "Sulla mappa ci sono {stores, plural, one {# negozio} other {# negozi}} di {chain} in {cities, plural, one {# località} other {# località}}.",
+    "topCities": "La maggior parte si trova a {cities}.",
+    "prices": "La catena ha pubblicato i prezzi più recenti il {date}: {count, plural, one {# prezzo} other {# prezzi}} in tutti i suoi negozi.",
+    "noStores": "Sulla mappa non c'è ancora nessun negozio di {chain}."
+  },
+  "cities": {
+    "heading": "Negozi per località",
+    "storeCount": "{count, plural, one {# negozio} other {# negozi}}"
+  },
+  "mapLink": "Guarda i negozi di {chain} sulla mappa"
+}

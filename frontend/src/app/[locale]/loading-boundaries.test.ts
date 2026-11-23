@@ -8,6 +8,7 @@ const LOCALE_DIR = __dirname;
 // Each of these calls notFound(), which only keeps its 404 when no loading file above it streamed a 200 first.
 const NOT_FOUND_PAGES = [
   "categories/[slug]",
+  "chains/[slug]",
   "products/[id]",
   "suggestions/[id]",
   "updates/[id]",

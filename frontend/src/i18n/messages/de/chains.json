@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "indexTitle": "Supermarktketten",
+    "indexDescription": "Die Supermarktketten, deren Preise wir vergleichen, mit ihren Märkten auf der Karte und dem Datum ihrer neuesten Preise.",
+    "chainTitle": "{chain}: Märkte und Preise",
+    "chainDescription": "{stores, plural, =0 {{chain} hat noch keine Märkte auf der Karte. Vergleiche die Preise mit anderen Ketten.} one {{chain} hat # Markt auf der Karte. Schau, wo sie sind, und vergleiche die Preise mit anderen Ketten.} other {{chain} hat # Märkte auf der Karte. Schau, wo sie sind, und vergleiche die Preise mit anderen Ketten.}}"
+  },
+  "breadcrumbs": {
+    "label": "Brotkrümelnavigation",
+    "home": "Startseite",
+    "chains": "Supermarktketten"
+  },
+  "index": {
+    "heading": "Supermarktketten",
+    "storeCount": "{count, plural, one {# Markt} other {# Märkte}}",
+    "priceDate": "Preise vom {date}"
+  },
+  "intro": {
+    "stores": "Auf der Karte sind {stores, plural, one {# Markt} other {# Märkte}} von {chain} in {cities, plural, one {# Ort} other {# Orten}}.",
+    "topCities": "Die meisten davon sind in {cities}.",
+    "prices": "Die Kette hat ihre neuesten Preise am {date} veröffentlicht, {count, plural, one {# Preis} other {# Preise}} in allen ihren Märkten.",
+    "noStores": "Auf der Karte gibt es noch keinen Markt von {chain}."
+  },
+  "cities": {
+    "heading": "Märkte nach Ort",
+    "storeCount": "{count, plural, one {# Markt} other {# Märkte}}"
+  },
+  "mapLink": "{chain}-Märkte auf der Karte ansehen"
+}
