@@ -4,8 +4,8 @@ import {
   toListedStore,
 } from "@/features/map/hooks/use-visible-stores";
 import { ILatLon } from "@/utils/geo/distance";
-import type { IIpLocation } from "@/features/map/utils/ip-location";
-import { IMapOrigin } from "@/features/map/utils/map-origin";
+import type { IIpLocation } from "@/features/map/utils/view/ip-location";
+import { IMapOrigin } from "@/features/map/utils/view/map-origin";
 import { toStoreKey } from "@/utils/geo/store-key";
 
 export function resolveInitialView(

@@ -8,7 +8,7 @@ import NearMeButton from "@/features/map/components/search/near-me-button";
 import RecentSearches from "@/features/map/components/search/recent-searches";
 import ViewSortedList from "@/features/map/components/store/view-sorted-list";
 import { IMapViewModel } from "@/features/map/hooks/use-map-view-model";
-import { IViewArea } from "@/features/map/utils/view-area";
+import { IViewArea } from "@/features/map/utils/view/view-area";
 
 interface IMapPanelProps {
   model: IMapViewModel;

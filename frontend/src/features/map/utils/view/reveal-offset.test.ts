@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { revealOffset } from "@/features/map/utils/reveal-offset";
+import { revealOffset } from "@/features/map/utils/view/reveal-offset";
 
 // The list shows content from 100 to 500.
 const view = { start: 100, end: 500 };

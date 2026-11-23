@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { circleBounds, circlePolygon } from "@/features/map/utils/circle";
+import { circleBounds, circlePolygon } from "@/features/map/utils/view/circle";
 import { distanceKm } from "@/utils/geo/distance";
 
 const RIJEKA = { lat: 45.33, lon: 14.44 };

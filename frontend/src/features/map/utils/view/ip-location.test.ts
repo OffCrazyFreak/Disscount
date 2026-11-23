@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-const { readIpLocation } = await import("@/features/map/utils/ip-location");
+const { readIpLocation } =
+  await import("@/features/map/utils/view/ip-location");
 
 describe("readIpLocation", () => {
   it("reads a Croatian guess, rounded to about a kilometre", () => {

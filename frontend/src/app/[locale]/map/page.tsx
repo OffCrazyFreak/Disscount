@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 
 import MapClient from "@/features/map/components/map-client";
-import { readIpLocation } from "@/features/map/utils/ip-location";
+import { readIpLocation } from "@/features/map/utils/view/ip-location";
 import { pageMetadata } from "@/i18n/alternates";
 
 // Reads the visitor's location headers on every request.

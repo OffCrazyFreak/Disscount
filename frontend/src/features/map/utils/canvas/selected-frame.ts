@@ -5,7 +5,7 @@ import {
   TOP_STACK_LAYER_ID,
   POINT_LAYER_ID,
   STORE_SOURCE_ID,
-} from "@/features/map/utils/store-layers";
+} from "@/features/map/utils/canvas/store-layers";
 
 export interface ISelectedFrame extends ILatLon {
   /** Framing a stack of several chains, which is wider than one tile. */

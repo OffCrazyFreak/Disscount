@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isGpuError } from "@/features/map/utils/webgl-support";
+import { isGpuError } from "@/features/map/utils/canvas/webgl-support";
 
 describe("isGpuError", () => {
   it("recognises MapLibre's WebGL2 error by name", () => {

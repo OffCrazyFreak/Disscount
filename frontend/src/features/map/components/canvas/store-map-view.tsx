@@ -27,14 +27,14 @@ import { useMapLoad } from "@/features/map/hooks/use-map-load";
 import { useViewReport } from "@/features/map/hooks/use-view-report";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
 import { ILatLon } from "@/utils/geo/distance";
-import { MAP_CUSTOM_ATTRIBUTION } from "@/features/map/utils/map-attribution";
+import { MAP_CUSTOM_ATTRIBUTION } from "@/features/map/utils/canvas/map-attribution";
 import {
   toInitialViewState,
   toSelectedPoint,
-} from "@/features/map/utils/map-view";
-import { toStoreCollection } from "@/features/map/utils/store-geojson";
-import { INTERACTIVE_LAYER_IDS } from "@/features/map/utils/store-layers";
-import { IViewArea } from "@/features/map/utils/view-area";
+} from "@/features/map/utils/view/map-view";
+import { toStoreCollection } from "@/features/map/utils/canvas/store-geojson";
+import { INTERACTIVE_LAYER_IDS } from "@/features/map/utils/canvas/store-layers";
+import { IViewArea } from "@/features/map/utils/view/view-area";
 import { storeNamesMap } from "@/constants/name-mappings";
 
 const ALL_CHAINS = Object.keys(storeNamesMap);

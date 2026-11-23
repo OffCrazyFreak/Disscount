@@ -8,13 +8,16 @@ const probe = vi.hoisted(() => ({ webgl2: true, mapError: null as unknown }));
 
 vi.mock("maplibre-gl", () => ({ setWorkerUrl: vi.fn() }));
 vi.mock("maplibre-gl/dist/maplibre-gl.css", () => ({}));
-vi.mock("@/features/map/utils/map-style", () => ({
+vi.mock("@/features/map/utils/canvas/map-style", () => ({
   loadMapStyle: async () => ({ version: 8, sources: {}, layers: [] }),
 }));
-vi.mock("@/features/map/utils/webgl-support", async (importOriginal) => ({
-  ...(await importOriginal<object>()),
-  canUseWebGL2: () => probe.webgl2,
-}));
+vi.mock(
+  "@/features/map/utils/canvas/webgl-support",
+  async (importOriginal) => ({
+    ...(await importOriginal<object>()),
+    canUseWebGL2: () => probe.webgl2,
+  }),
+);
 // Stands in for react-map-gl, which reports a constructor failure through onError instead of throwing.
 vi.mock("@/features/map/components/canvas/store-map-view", () => ({
   default: function FakeView({

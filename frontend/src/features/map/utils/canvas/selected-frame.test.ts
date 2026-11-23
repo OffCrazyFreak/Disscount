@@ -1,7 +1,7 @@
 import type { Map as MapLibreMap } from "maplibre-gl";
 import { describe, expect, it } from "vitest";
 
-import { findSelectedFrame } from "@/features/map/utils/selected-frame";
+import { findSelectedFrame } from "@/features/map/utils/canvas/selected-frame";
 
 const STORE = { lat: 45.81, lon: 15.97 };
 

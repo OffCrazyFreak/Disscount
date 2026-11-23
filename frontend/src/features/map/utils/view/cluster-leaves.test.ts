@@ -4,7 +4,7 @@ import {
   fitPadding,
   isSameSpot,
   leafBounds,
-} from "@/features/map/utils/cluster-leaves";
+} from "@/features/map/utils/view/cluster-leaves";
 
 describe("isSameSpot", () => {
   it("treats stores within a few metres as one spot", () => {

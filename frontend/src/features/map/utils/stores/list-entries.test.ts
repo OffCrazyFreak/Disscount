@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
-import { toListEntries } from "@/features/map/utils/list-entries";
+import { toListEntries } from "@/features/map/utils/stores/list-entries";
 
 const rows = ["a", "b", "c"].map((key) => ({ key }) as IListedStore);
 

@@ -8,7 +8,7 @@ import {
   handleMapFeatureClick,
   IMapFeatureRef,
   ISameSpot,
-} from "@/features/map/utils/map-feature-click";
+} from "@/features/map/utils/view/map-feature-click";
 
 interface IUseMapClicksOptions {
   mapRef: RefObject<MapRef | null>;

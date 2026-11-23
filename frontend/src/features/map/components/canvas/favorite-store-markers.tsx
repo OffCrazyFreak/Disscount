@@ -7,7 +7,7 @@ import { Marker, useMap } from "react-map-gl/maplibre";
 import { Badge } from "@/components/ui/badge";
 import { useFavoriteStores } from "@/features/map/hooks/use-favorite-stores";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
-import { STORE_SOURCE_ID } from "@/features/map/utils/store-layers";
+import { STORE_SOURCE_ID } from "@/features/map/utils/canvas/store-layers";
 
 interface IFavoriteStoreMarkersProps {
   stores: IListedStore[];

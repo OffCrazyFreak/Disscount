@@ -3,8 +3,8 @@
 import { RefObject, useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 
-import { foldAttributionLater } from "@/features/map/utils/attribution";
-import { registerChainIcons } from "@/features/map/utils/register-chain-icons";
+import { foldAttributionLater } from "@/features/map/utils/canvas/attribution";
+import { registerChainIcons } from "@/features/map/utils/canvas/register-chain-icons";
 
 interface IUseMapLoadOptions {
   mapRef: RefObject<MapRef | null>;

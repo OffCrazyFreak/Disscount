@@ -4,7 +4,7 @@ import {
   openFilterOf,
   openParamOf,
   passesOpenFilter,
-} from "@/features/map/utils/open-filter";
+} from "@/features/map/utils/stores/open-filter";
 import type { OpeningStatus } from "@/lib/store-hours/status/opening-status";
 
 const AS_OF = "2026-11-02T06:00:00.000Z";

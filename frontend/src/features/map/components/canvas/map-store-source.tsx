@@ -3,14 +3,14 @@
 import { Layer, Source } from "react-map-gl/maplibre";
 
 import ClusterCountBadges from "@/features/map/components/canvas/cluster-count-badges";
-import type { IMapFeatureRef } from "@/features/map/utils/map-feature-click";
-import { chainCountProperties } from "@/features/map/utils/cluster-stack";
-import { IStoreFeatureCollection } from "@/features/map/utils/store-geojson";
+import type { IMapFeatureRef } from "@/features/map/utils/view/map-feature-click";
+import { chainCountProperties } from "@/features/map/utils/canvas/cluster-stack";
+import { IStoreFeatureCollection } from "@/features/map/utils/canvas/store-geojson";
 import {
   pointLayer,
   stackLayers,
   STORE_SOURCE_ID,
-} from "@/features/map/utils/store-layers";
+} from "@/features/map/utils/canvas/store-layers";
 
 export const MAP_MAX_ZOOM = 20;
 

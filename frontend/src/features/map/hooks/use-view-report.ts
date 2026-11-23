@@ -3,7 +3,10 @@
 import { RefObject, useEffect, useEffectEvent } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 
-import { IViewArea, readVisibleArea } from "@/features/map/utils/view-area";
+import {
+  IViewArea,
+  readVisibleArea,
+} from "@/features/map/utils/view/view-area";
 
 interface IUseViewReportOptions {
   mapRef: RefObject<MapRef | null>;

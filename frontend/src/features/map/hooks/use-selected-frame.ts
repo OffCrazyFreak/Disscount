@@ -8,7 +8,7 @@ import {
   findSelectedFrame,
   ISelectedFrame,
   sameFrame,
-} from "@/features/map/utils/selected-frame";
+} from "@/features/map/utils/canvas/selected-frame";
 
 interface IUseSelectedFrameOptions {
   map: MapRef | undefined;

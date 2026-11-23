@@ -5,7 +5,7 @@ import {
   IViewArea,
   sameView,
   splitByView,
-} from "@/features/map/utils/view-area";
+} from "@/features/map/utils/view/view-area";
 
 function row(key: string, lat: number | null, lon: number | null) {
   return { key, store: { lat, lon } } as IListedStore;

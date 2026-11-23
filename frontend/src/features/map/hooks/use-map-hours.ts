@@ -7,7 +7,7 @@ import { openingOf } from "@/lib/store-hours/status/store-opening";
 import {
   type OpenFilter,
   passesOpenFilter,
-} from "@/features/map/utils/open-filter";
+} from "@/features/map/utils/stores/open-filter";
 import { toStoreKey } from "@/utils/geo/store-key";
 
 export function useMapHours(openFilter: OpenFilter) {

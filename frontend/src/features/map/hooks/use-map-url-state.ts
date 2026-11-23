@@ -6,7 +6,7 @@ import {
   type OpenFilter,
   openFilterOf,
   openParamOf,
-} from "@/features/map/utils/open-filter";
+} from "@/features/map/utils/stores/open-filter";
 
 export const ALL_CHAINS = "all" as const;
 

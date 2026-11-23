@@ -7,7 +7,7 @@ import {
   renderSelectedFrame,
   SELECTED_FRAME_ID,
   SELECTED_STACK_FRAME_ID,
-} from "@/features/map/utils/chain-icon";
+} from "@/features/map/utils/canvas/chain-icon";
 
 export async function registerChainIcons(map: MapLibreMap, chains: string[]) {
   const drawn = [

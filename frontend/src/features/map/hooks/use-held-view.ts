@@ -2,7 +2,7 @@
 
 import { FocusEvent, useState } from "react";
 
-import { IViewArea, sameView } from "@/features/map/utils/view-area";
+import { IViewArea, sameView } from "@/features/map/utils/view/view-area";
 
 /** With focus in the list a new view waits, so rows never jump under someone about to tap. */
 export function useHeldView(live: IViewArea | null) {

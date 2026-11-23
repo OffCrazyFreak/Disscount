@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveMapOrigin } from "@/features/map/utils/map-origin";
+import { resolveMapOrigin } from "@/features/map/utils/view/map-origin";
 
 const ZAGREB = { lat: 45.81, lon: 15.98 };
 const SPLIT = { lat: 43.5, lon: 16.45 };

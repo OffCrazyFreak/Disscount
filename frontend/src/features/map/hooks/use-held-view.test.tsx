@@ -3,7 +3,7 @@ import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { useHeldView } from "@/features/map/hooks/use-held-view";
-import { IViewArea } from "@/features/map/utils/view-area";
+import { IViewArea } from "@/features/map/utils/view/view-area";
 
 function box(west: number, south: number, east: number, north: number) {
   return {

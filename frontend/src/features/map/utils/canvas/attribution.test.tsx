@@ -1,7 +1,7 @@
 import type { Map as MapLibreMap } from "maplibre-gl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { foldAttributionLater } from "@/features/map/utils/attribution";
+import { foldAttributionLater } from "@/features/map/utils/canvas/attribution";
 
 type IHandler = (event: { originalEvent?: Event }) => void;
 

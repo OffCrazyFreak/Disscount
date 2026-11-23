@@ -6,7 +6,7 @@ import {
   fitPadding,
   isSameSpot,
   leafBounds,
-} from "@/features/map/utils/cluster-leaves";
+} from "@/features/map/utils/view/cluster-leaves";
 
 type ILeafFeature = Awaited<
   ReturnType<maplibregl.GeoJSONSource["getClusterLeaves"]>

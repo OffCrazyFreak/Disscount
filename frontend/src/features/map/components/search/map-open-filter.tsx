@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import type { OpenFilter } from "@/features/map/utils/open-filter";
+import type { OpenFilter } from "@/features/map/utils/stores/open-filter";
 
 interface IMapOpenFilterProps {
   filter: OpenFilter;

@@ -10,9 +10,9 @@ import {
   appleMapsDirectionsUrl,
   googleMapsDirectionsUrl,
   telHref,
-} from "@/features/map/utils/directions-links";
-import { openLocationReport } from "@/features/map/utils/report-location";
-import { formatCroatianPhone } from "@/features/map/utils/phone-format";
+} from "@/features/map/utils/stores/directions-links";
+import { openLocationReport } from "@/features/map/utils/stores/report-location";
+import { formatCroatianPhone } from "@/features/map/utils/stores/phone-format";
 
 interface IStoreActionsProps {
   store: DirectoryStoreDto;

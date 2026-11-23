@@ -10,7 +10,7 @@ import MapSearchBar from "@/features/map/components/search/map-search-bar";
 import MapStoreSheet from "@/features/map/components/store/map-store-sheet";
 import { IMapViewModel } from "@/features/map/hooks/use-map-view-model";
 import { useNavClearance } from "@/features/map/hooks/use-nav-clearance";
-import { IViewArea } from "@/features/map/utils/view-area";
+import { IViewArea } from "@/features/map/utils/view/view-area";
 
 interface IMapMobileLayoutProps {
   model: IMapViewModel;

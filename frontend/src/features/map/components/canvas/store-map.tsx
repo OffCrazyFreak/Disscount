@@ -10,8 +10,11 @@ import MapUnavailable from "@/features/map/components/canvas/map-unavailable";
 import StoreMapView, {
   IStoreMapViewProps,
 } from "@/features/map/components/canvas/store-map-view";
-import { loadMapStyle } from "@/features/map/utils/map-style";
-import { canUseWebGL2, isGpuError } from "@/features/map/utils/webgl-support";
+import { loadMapStyle } from "@/features/map/utils/canvas/map-style";
+import {
+  canUseWebGL2,
+  isGpuError,
+} from "@/features/map/utils/canvas/webgl-support";
 
 // The bundler only emits the worker file when it sees this URL; without it the map never loads a tile.
 maplibregl.setWorkerUrl(

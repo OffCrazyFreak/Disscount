@@ -11,8 +11,8 @@ import MapPanel from "@/features/map/components/map-panel";
 import StoreMapLoader from "@/features/map/components/canvas/store-map-loader";
 import { useMapViewModel } from "@/features/map/hooks/use-map-view-model";
 
-import type { IIpLocation } from "@/features/map/utils/ip-location";
-import { IViewArea } from "@/features/map/utils/view-area";
+import type { IIpLocation } from "@/features/map/utils/view/ip-location";
+import { IViewArea } from "@/features/map/utils/view/view-area";
 
 interface IMapClientProps {
   /** Cloudflare's guess from the IP, read on the server for this request. */

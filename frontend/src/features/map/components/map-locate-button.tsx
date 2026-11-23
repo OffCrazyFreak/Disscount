@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { GeolocationStatus } from "@/hooks/geo/use-geolocation";
-import { geolocationMessageKey } from "@/features/map/utils/geolocation-message";
+import { geolocationMessageKey } from "@/features/map/utils/stores/geolocation-message";
 import { cn } from "@/lib/utils";
 
 interface IMapLocateButtonProps {

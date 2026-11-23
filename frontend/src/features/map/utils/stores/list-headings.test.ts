@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { listHeadings } from "@/features/map/utils/list-headings";
+import { listHeadings } from "@/features/map/utils/stores/list-headings";
 
 const labels = {
   favorite: (n: number) => `fav ${n}`,

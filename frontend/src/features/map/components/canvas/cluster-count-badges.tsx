@@ -5,8 +5,8 @@ import type { GeoJSONFeature, Map as MapLibreMap } from "maplibre-gl";
 import { Marker, useMap } from "react-map-gl/maplibre";
 
 import { Badge } from "@/components/ui/badge";
-import type { IMapFeatureRef } from "@/features/map/utils/map-feature-click";
-import { STORE_SOURCE_ID } from "@/features/map/utils/store-layers";
+import type { IMapFeatureRef } from "@/features/map/utils/view/map-feature-click";
+import { STORE_SOURCE_ID } from "@/features/map/utils/canvas/store-layers";
 
 interface IClusterCount {
   id: number;

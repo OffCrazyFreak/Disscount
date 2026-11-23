@@ -1,8 +1,11 @@
 import type { ExpressionSpecification } from "maplibre-gl";
 import type { LayerProps } from "react-map-gl/maplibre";
 
-import { chainIconId } from "@/features/map/utils/chain-icon";
-import { hasChains, rankedChain } from "@/features/map/utils/cluster-stack";
+import { chainIconId } from "@/features/map/utils/canvas/chain-icon";
+import {
+  hasChains,
+  rankedChain,
+} from "@/features/map/utils/canvas/cluster-stack";
 
 export const STORE_SOURCE_ID = "stores";
 

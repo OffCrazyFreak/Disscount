@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatCroatianPhone } from "@/features/map/utils/phone-format";
+import { formatCroatianPhone } from "@/features/map/utils/stores/phone-format";
 
 describe("formatCroatianPhone", () => {
   it.each([

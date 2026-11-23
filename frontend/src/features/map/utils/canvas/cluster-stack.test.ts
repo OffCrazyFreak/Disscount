@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { rankedChain } from "@/features/map/utils/cluster-stack";
+import { rankedChain } from "@/features/map/utils/canvas/cluster-stack";
 
 describe("rankedChain", () => {
   it("binds no variables, which MapLibre would re-evaluate at every use", () => {

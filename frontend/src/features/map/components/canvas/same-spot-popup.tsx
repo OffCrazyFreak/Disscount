@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/popover";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
-import { ISameSpot } from "@/features/map/utils/map-feature-click";
+import { ISameSpot } from "@/features/map/utils/view/map-feature-click";
 
 interface ISameSpotPopupProps {
   spot: ISameSpot | null;

@@ -12,13 +12,13 @@ import {
 } from "@/features/map/hooks/use-map-url-state";
 import { useRecentSearches } from "@/features/map/hooks/use-recent-searches";
 import { useVisibleStores } from "@/features/map/hooks/use-visible-stores";
-import { resolveMapOrigin } from "@/features/map/utils/map-origin";
-import type { IIpLocation } from "@/features/map/utils/ip-location";
+import { resolveMapOrigin } from "@/features/map/utils/view/map-origin";
+import type { IIpLocation } from "@/features/map/utils/view/ip-location";
 import {
   findSelectedStore,
   resolveInitialView,
-} from "@/features/map/utils/map-view";
-import { isVisitableStore } from "@/features/map/utils/visitable-store";
+} from "@/features/map/utils/view/map-view";
+import { isVisitableStore } from "@/features/map/utils/stores/visitable-store";
 
 export function useMapViewModel(ipLocation: IIpLocation | null) {
   const directory = useStoreDirectory();

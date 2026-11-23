@@ -5,11 +5,11 @@ import { Layer, Source, useMap } from "react-map-gl/maplibre";
 import {
   SELECTED_FRAME_ID,
   SELECTED_STACK_FRAME_ID,
-} from "@/features/map/utils/chain-icon";
+} from "@/features/map/utils/canvas/chain-icon";
 import { useSelectedFrame } from "@/features/map/hooks/use-selected-frame";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
 import { GUESS_RADIUS_M } from "@/hooks/geo/use-geolocation";
-import { circlePolygon } from "@/features/map/utils/circle";
+import { circlePolygon } from "@/features/map/utils/view/circle";
 import { ILatLon } from "@/utils/geo/distance";
 
 export interface IUserLocation extends ILatLon {
