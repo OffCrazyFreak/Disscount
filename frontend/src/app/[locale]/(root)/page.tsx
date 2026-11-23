@@ -1,6 +1,5 @@
 import { Metadata } from "next";
-import { getLocale, getTranslations } from "next-intl/server";
-import { pageAlternates } from "@/i18n/alternates";
+import { pageMetadata } from "@/i18n/alternates";
 import LandingJsonLd from "@/app/[locale]/(root)/components/json-ld";
 import HeroSection from "@/app/[locale]/(root)/components/sections/hero-section";
 import StatsBand from "@/app/[locale]/(root)/components/sections/stats-band";
@@ -14,15 +13,8 @@ import FaqSection from "@/app/[locale]/(root)/components/sections/faq-section";
 import FinalCtaSection from "@/app/[locale]/(root)/components/sections/final-cta-section";
 import ScrollCue from "@/components/custom/fab/scroll-cue";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  const t = await getTranslations("landing");
-
-  return {
-    title: t("meta.title"),
-    description: t("meta.description"),
-    alternates: pageAlternates("/", locale),
-  };
+export function generateMetadata(): Promise<Metadata> {
+  return pageMetadata("landing", "/");
 }
 
 export default function Home() {

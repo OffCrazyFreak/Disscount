@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { Search } from "lucide-react";
 
@@ -12,18 +12,11 @@ import PostCard from "@/app/[locale]/updates/components/post-card";
 import NewPostButton from "@/app/[locale]/updates/components/new-post-button";
 import { templatePosts } from "@/app/[locale]/updates/posts";
 import { localizePost } from "@/app/[locale]/updates/localize-post";
-import { pageAlternates } from "@/i18n/alternates";
+import { pageMetadata } from "@/i18n/alternates";
 import { filterByFields, readSearchParam } from "@/utils/generic";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  const t = await getTranslations("updates");
-
-  return {
-    title: t("meta.title"),
-    description: t("meta.description"),
-    alternates: pageAlternates("/updates", locale),
-  };
+export function generateMetadata(): Promise<Metadata> {
+  return pageMetadata("updates", "/updates");
 }
 
 export default async function UpdatesPage(
