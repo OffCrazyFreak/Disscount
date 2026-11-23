@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
 import {
   AttributionControl,
@@ -53,6 +53,8 @@ export interface IStoreMapViewProps {
   onContextLost: () => void;
   /** Map errors, including WebGL2 refused after the probe passed. */
   onMapError: (event: MapErrorEvent) => void;
+  /** Overlays that need the map, such as a popover anchored to a pin. */
+  children?: ReactNode;
 }
 
 export default function StoreMapView({
@@ -67,6 +69,7 @@ export default function StoreMapView({
   mapStyle,
   onContextLost,
   onMapError,
+  ...mapContent
 }: IStoreMapViewProps) {
   const mapRef = useRef<MapRef>(null);
   const { mapReady, iconsReady, handleLoad } = useMapLoad({
@@ -148,6 +151,8 @@ export default function StoreMapView({
         onSelect={clicks.selectFromSpot}
         onClose={clicks.closeSpot}
       />
+
+      {mapContent.children}
     </Map>
   );
 }
