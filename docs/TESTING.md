@@ -49,7 +49,7 @@ The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Cr
 ## Shared helpers
 
 - **`render.tsx`**: `renderWithProviders(ui, { locale, queryClient })` and `renderHookWithProviders(hook, options)` wrap the real `NextIntlClientProvider`, with the real catalogs and the Zagreb time zone, and a fresh `QueryClient` with retries off. Croatian is the default. They also set `<html lang>`, which the API client sends as `Accept-Language`.
-- **`price-fixtures.ts`**: `chain(code, min, max, avg)` and `product(chains, overrides)` build the cijene-api price responses, so a change to their shape edits one file.
+- **`price-fixtures.ts`**: `chain(code, min, max, avg)` and `product(chains, overrides)` build parsed cijene-api products with numeric prices, so a change to their shape edits one file; `wireProduct(product)` turns one back into the text prices a route sends, for msw handlers.
 - **`http-error.ts`**: `httpError(status, data)` builds a failed Axios request.
 - **`msw-server.ts`**: the MSW server, with no handlers. Each test declares the endpoints it expects with `server.use(...)`. Any request nobody declared fails the test that made it, even when the code under test catches the network error, so a forgotten call cannot pass silently.
 - **`search-bar-harness.tsx`** and **`user-context-mocks.ts`**: the module mocks and state the search bar and `UserProvider` tests share. A `vi.mock` in an imported helper only applies from when the helper loads, so import these first in the test file. A test's own `vi.mock` of the same module loses to the helper's.
