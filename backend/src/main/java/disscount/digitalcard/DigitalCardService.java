@@ -15,8 +15,6 @@ import disscount.storename.StoreNameService;
 import disscount.user.AccountErased;
 import org.springframework.beans.factory.annotation.Qualifier;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,7 +37,6 @@ public class DigitalCardService {
 
     static final int MAX_USED_AGE_DAYS = 400;
 
-    private static final Logger log = LoggerFactory.getLogger(DigitalCardService.class);
     static final String NOT_FOUND = "error.card.notFound";
 
     private final DigitalCardRepository cardRepository;
@@ -102,7 +99,7 @@ public class DigitalCardService {
         if (card.getChainCode() == null
                 && (created || previousChain != null || !sameStore(previousStore, card.getStoreName()))) {
             String storeName = card.getStoreName();
-            AfterCommit.run(() -> recordStoreName(userId, storeName));
+            AfterCommit.run(() -> storeNameService.record(userId, storeName));
         }
 
         return toDto(card);
@@ -201,15 +198,6 @@ public class DigitalCardService {
         card.setBalance(r.balance() == null ? null : r.balance().setScale(2, RoundingMode.UNNECESSARY));
         // A unit without an amount means nothing, and null unit means points.
         card.setBalanceUnit(r.balance() == null ? null : r.balanceUnit());
-    }
-
-    private void recordStoreName(UUID userId, String storeName) {
-        try {
-            storeNameService.record(userId, storeName);
-        } catch (RuntimeException e) {
-            // A suggestion is a nicety; it must never fail the card save.
-            log.warn("Could not record store name suggestion: {}", e.getMessage());
-        }
     }
 
     private DigitalCard requireActive(UUID userId, UUID id) {
