@@ -113,3 +113,66 @@ describe("persisted cache age", () => {
     );
   });
 });
+
+describe("persisted prices", () => {
+  const product = {
+    queryKey: ["cijene", "product", "ean", '{"ean":"1"}'],
+    queryHash: '["cijene","product","ean","{\\"ean\\":\\"1\\"}"]',
+    state: { data: { ean: "1" }, status: "success", dataUpdatedAt: 1 },
+  };
+  const storeDirectory = {
+    queryKey: ["cijene", "store-directory"],
+    queryHash: '["cijene","store-directory"]',
+    state: { data: [], status: "success", dataUpdatedAt: 1 },
+  };
+  const queuedWrite = {
+    mutationKey: ["shoppingListItems", "update"],
+    state: {
+      status: "pending",
+      isPaused: true,
+      variables: { id: "item-1" },
+      data: undefined,
+      error: null,
+      failureCount: 0,
+      failureReason: null,
+      submittedAt: 1,
+      context: undefined,
+    },
+  };
+
+  async function restoreSnapshot(marker: Record<string, string>) {
+    vi.useRealTimers();
+    identity = "alice";
+    db.set(
+      `${CACHE_KEY}:alice`,
+      JSON.stringify({
+        timestamp: Date.now(),
+        buster: persistOptions.buster,
+        ...marker,
+        clientState: {
+          queries: [product, storeDirectory],
+          mutations: [queuedWrite],
+        },
+      }),
+    );
+    const queryClient = new QueryClient();
+
+    await persistQueryClientRestore({ queryClient, ...persistOptions });
+
+    return queryClient;
+  }
+
+  it("drops prices from a snapshot saved before prices were numbers, keeping queued writes", async () => {
+    const queryClient = await restoreSnapshot({});
+
+    expect(queryClient.getQueryData(product.queryKey)).toBeUndefined();
+    expect(queryClient.getQueryData(storeDirectory.queryKey)).toEqual([]);
+    expect(queryClient.getMutationCache().getAll()).toHaveLength(1);
+  });
+
+  it("keeps prices from a snapshot saved with numeric prices", async () => {
+    const queryClient = await restoreSnapshot({ priceShape: "numbers" });
+
+    expect(queryClient.getQueryData(product.queryKey)).toEqual({ ean: "1" });
+  });
+});

@@ -58,12 +58,45 @@ function withInFlightWritesPaused(client: PersistedClient): PersistedClient {
   return { ...client, clientState: { ...client.clientState, mutations } };
 }
 
+// Restore skips the schema, so a snapshot without this marker may still hold prices as text.
+const PRICE_SHAPE = "numbers";
+
+const PRICED_CIJENE_QUERIES = new Set(["product", "products", "prices"]);
+
+type MarkedClient = PersistedClient & { priceShape?: string };
+
+function isPricedCijeneQuery(queryKey: readonly unknown[]): boolean {
+  return (
+    queryKey[0] === "cijene" && PRICED_CIJENE_QUERIES.has(String(queryKey[1]))
+  );
+}
+
+/** Public prices refetch online, while queued writes would be lost for good, so only the prices go. */
+function withoutTextPrices(client: PersistedClient): PersistedClient {
+  if ((client as MarkedClient).priceShape === PRICE_SHAPE) return client;
+
+  const queries = client.clientState.queries.filter(
+    (query) => !isPricedCijeneQuery(query.queryKey),
+  );
+
+  return { ...client, clientState: { ...client.clientState, queries } };
+}
+
 const offlinePersister: Persister = {
   ...throttledPersister,
+
   persistClient: (client) => {
-    const resumable = withInFlightWritesPaused(client);
+    const resumable: MarkedClient = {
+      ...withInFlightWritesPaused(client),
+      priceShape: PRICE_SHAPE,
+    };
     snapshotGeneration.set(resumable, currentPurgeGeneration());
     return throttledPersister.persistClient(resumable);
+  },
+
+  restoreClient: async () => {
+    const client = await throttledPersister.restoreClient();
+    return client && withoutTextPrices(client);
   },
 };
 
