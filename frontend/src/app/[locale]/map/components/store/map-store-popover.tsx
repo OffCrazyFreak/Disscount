@@ -4,6 +4,10 @@ import { RefObject, useEffect, useRef, useState } from "react";
 import { Popup } from "react-map-gl/maplibre";
 
 import MapStoreCard from "@/app/[locale]/map/components/store/map-store-card";
+import {
+  CARD_ROOM,
+  POPUP_OFFSET,
+} from "@/app/[locale]/map/utils/geometry/fit-in-view";
 import { IListedStore } from "@/app/[locale]/map/hooks/state/use-visible-stores";
 
 // Long enough for the popup to join the map after the camera starts moving.
@@ -113,7 +117,7 @@ export default function MapStorePopover({
     <Popup
       longitude={row.store.lon}
       latitude={row.store.lat}
-      offset={28}
+      offset={POPUP_OFFSET}
       maxWidth="none"
       closeButton={false}
       // The map stays in use: panning or tapping elsewhere must not close it.
@@ -133,8 +137,12 @@ export default function MapStorePopover({
           event.stopPropagation();
           close();
         }}
-        // The page's font must win over the map container's; the height leaves room for the popup's tip and frame.
-        className="flex max-h-[min(30rem,calc(100svh-var(--header-bottom)-4.5rem))] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-y-auto font-sans text-base leading-normal text-popover-foreground outline-hidden"
+        // The height leaves the pin, the popup's frame and the margins room to fit beside it.
+        style={{
+          maxHeight: `min(30rem, calc(100svh - var(--header-bottom) - ${CARD_ROOM}px))`,
+        }}
+        // The page's font must win over the map container's.
+        className="flex w-[min(24rem,calc(100vw-2rem))] flex-col overflow-y-auto font-sans text-base leading-normal text-popover-foreground outline-hidden"
       >
         <MapStoreCard row={row} onClose={close} />
       </div>

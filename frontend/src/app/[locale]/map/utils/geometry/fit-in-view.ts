@@ -15,6 +15,16 @@ interface IPan {
 
 // Keeps the card and pin off the very edge of the header, panel, sheet or screen.
 const EDGE_MARGIN = 12;
+// Half a logo tile with its count badge, so the whole pin stays in sight.
+export const PIN_HALF_SIZE = 24;
+// How far below the pin MapLibre places the store popup.
+export const POPUP_OFFSET = 28;
+// The popup's tip and the content's padding and border, measured around the card at 1440 and 844 wide.
+export const POPUP_FRAME = 42;
+
+/** Pixels a window needs besides the card, so the pin, the popup and the margins fit with it. */
+export const CARD_ROOM =
+  PIN_HALF_SIZE + POPUP_OFFSET + POPUP_FRAME + 2 * EDGE_MARGIN;
 
 export function visibleBox(
   width: number,

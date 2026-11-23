@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  CARD_ROOM,
   IBox,
+  PIN_HALF_SIZE,
+  POPUP_FRAME,
+  POPUP_OFFSET,
   cameraPanToFit,
   visibleBox,
 } from "@/app/[locale]/map/utils/geometry/fit-in-view";
@@ -79,4 +83,31 @@ describe("cameraPanToFit", () => {
       y: -72,
     });
   });
+});
+
+describe("the card's height cap", () => {
+  it.each([
+    [844, 390],
+    [1440, 900],
+  ])(
+    "lets a card at its cap fit beside its pin in a %ix%i window",
+    (width, height) => {
+      const header = 79;
+      const area = visibleBox(width, height, {
+        top: header,
+        bottom: 0,
+        right: 0,
+      });
+      const cap = height - header - CARD_ROOM;
+      const anchor = height / 2;
+      const pin = box(400, anchor - PIN_HALF_SIZE, 448, anchor + PIN_HALF_SIZE);
+      const popupTop = anchor + POPUP_OFFSET;
+      const popup = box(232, popupTop, 616, popupTop + POPUP_FRAME + cap);
+
+      const pan = cameraPanToFit(pin, popup, area);
+
+      expect(pin.top - pan.y).toBeGreaterThanOrEqual(area.top);
+      expect(popup.bottom - pan.y).toBeLessThanOrEqual(area.bottom);
+    },
+  );
 });

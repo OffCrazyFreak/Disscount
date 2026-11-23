@@ -1,6 +1,6 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import type { MapRef } from "react-map-gl/maplibre";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useKeepSelectionInView } from "@/app/[locale]/map/hooks/camera/use-keep-selection-in-view";
 import { IListedStore } from "@/app/[locale]/map/hooks/state/use-visible-stores";
@@ -41,28 +41,58 @@ function fakeMap({ width = 375, height = 812, pinY = 406 } = {}) {
 }
 
 function addCard(container: HTMLElement, top: number, bottom: number) {
+  const card = { top, bottom };
   const popup = document.createElement("div");
   popup.className = "maplibregl-popup";
   popup.getBoundingClientRect = () =>
-    ({ left: 400, top, right: 784, bottom }) as DOMRect;
+    ({ left: 400, top: card.top, right: 784, bottom: card.bottom }) as DOMRect;
   container.appendChild(popup);
+
+  return card;
 }
+
+// Lets a test grow the card the way the hours badge loading does.
+function watchResizes() {
+  const callbacks: (() => void)[] = [];
+  vi.stubGlobal(
+    "ResizeObserver",
+    class {
+      constructor(callback: () => void) {
+        callbacks.push(callback);
+      }
+      observe() {}
+      disconnect() {}
+    },
+  );
+
+  return () => act(() => callbacks.forEach((callback) => callback()));
+}
+
+function wait(ms: number) {
+  return act(() => new Promise((resolve) => setTimeout(resolve, ms)));
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 function renderKeepInView(
   mapRef: { current: MapRef },
   cover: IMapCover,
   key = "konzum:0004",
 ) {
-  return renderHook(() =>
-    useKeepSelectionInView({
-      mapRef,
-      mapReady: true,
-      selected: {
-        key,
-        store: { lat: 45.8, lon: 15.9 },
-      } as IListedStore,
-      cover,
-    }),
+  return renderHook(
+    (props: { cover: IMapCover }) =>
+      useKeepSelectionInView({
+        mapRef,
+        mapReady: true,
+        selected: {
+          key,
+          store: { lat: 45.8, lon: 15.9 },
+        } as IListedStore,
+        cover: props.cover,
+      }),
+    { initialProps: { cover } },
   );
 }
 
@@ -111,5 +141,69 @@ describe("useKeepSelectionInView", () => {
 
     await new Promise((resolve) => setTimeout(resolve, 400));
     expect(map.panBy).not.toHaveBeenCalled();
+  });
+
+  it("does not pull the map back when the panel opens after the user moved away", async () => {
+    const { map, mapRef, userMoves } = fakeMap();
+
+    const { rerender } = renderKeepInView(mapRef, PHONE_COVER);
+    await waitFor(() => expect(map.panBy).toHaveBeenCalledTimes(1));
+
+    userMoves();
+    rerender({ cover: { ...PHONE_COVER, right: 384 } });
+    await wait(400);
+
+    expect(map.panBy).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not snap back at the end of a drag a cover change arrived during", async () => {
+    const { map, mapRef, state, userMoves } = fakeMap();
+    state.moving = true;
+
+    const { rerender } = renderKeepInView(mapRef, PHONE_COVER);
+    userMoves();
+    rerender({ cover: { ...PHONE_COVER, bottom: 300 } });
+    state.moving = false;
+    await wait(400);
+
+    expect(map.panBy).not.toHaveBeenCalled();
+  });
+
+  it("fits again when the card grows, as when its hours load", async () => {
+    const resize = watchResizes();
+    const { map, mapRef, container } = fakeMap({
+      width: 1440,
+      height: 900,
+      pinY: 450,
+    });
+    const card = addCard(container, 478, 800);
+
+    renderKeepInView(mapRef, { top: 79, bottom: 0, right: 0 });
+    await wait(100);
+    expect(map.panBy).not.toHaveBeenCalled();
+
+    card.bottom = 980;
+    resize();
+
+    await waitFor(() => expect(map.panBy).toHaveBeenCalledWith([0, 92]));
+  });
+
+  it("fits again when the window gets shorter", async () => {
+    const { map, mapRef, container } = fakeMap({
+      width: 1440,
+      height: 900,
+      pinY: 450,
+    });
+    const card = addCard(container, 478, 800);
+
+    renderKeepInView(mapRef, { top: 79, bottom: 0, right: 0 });
+    await wait(100);
+
+    card.bottom = 950;
+    act(() => {
+      window.dispatchEvent(new Event("resize"));
+    });
+
+    await waitFor(() => expect(map.panBy).toHaveBeenCalledWith([0, 62]));
   });
 });
