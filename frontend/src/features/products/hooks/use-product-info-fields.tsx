@@ -12,7 +12,7 @@ import {
 } from "@/features/products/utils/product-utils";
 import { formatQuantity } from "@/utils/format/strings";
 import { formatPrice } from "@/utils/price/price";
-import ProductInfoPriceValue from "@/features/products/components/product-info-price-value";
+import ProductInfoPriceValue from "@/features/products/components/info/product-info-price-value";
 
 export interface IProductInfoField {
   label: string;

@@ -1,8 +1,8 @@
 "use client";
 
-import ClearFiltersButton from "@/features/products/components/clear-filters-button";
-import ProductFiltersRow from "@/features/products/components/product-filters-row";
-import ProductFiltersTrigger from "@/features/products/components/product-filters-trigger";
+import ClearFiltersButton from "@/features/products/components/filters/clear-filters-button";
+import ProductFiltersRow from "@/features/products/components/filters/product-filters-row";
+import ProductFiltersTrigger from "@/features/products/components/filters/product-filters-trigger";
 import { useProductsSheet } from "@/context/products-sheet-context";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { IUseProductFiltersResult } from "@/features/products/hooks/use-product-filters";

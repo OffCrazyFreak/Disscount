@@ -6,7 +6,7 @@ import { TriangleAlert } from "lucide-react";
 import { useViewMode } from "@/features/products/hooks/use-view-mode";
 import useInfiniteProducts from "@/features/products/hooks/use-infinite-products";
 import useProductFilters from "@/features/products/hooks/use-product-filters";
-import ProductFiltersBar from "@/features/products/components/product-filters-bar";
+import ProductFiltersBar from "@/features/products/components/filters/product-filters-bar";
 import ProductsResults from "@/features/products/components/results/products-results";
 import ProductsResultsStatus from "@/features/products/components/results/products-results-status";
 import ProductsResultsTitle from "@/features/products/components/results/products-results-title";

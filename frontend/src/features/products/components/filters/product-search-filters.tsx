@@ -8,9 +8,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import ClearFiltersButton from "@/features/products/components/clear-filters-button";
-import ProductFacetSelects from "@/features/products/components/product-facet-selects";
-import ProductFiltersTrigger from "@/features/products/components/product-filters-trigger";
+import ClearFiltersButton from "@/features/products/components/filters/clear-filters-button";
+import ProductFacetSelects from "@/features/products/components/filters/product-facet-selects";
+import ProductFiltersTrigger from "@/features/products/components/filters/product-filters-trigger";
 import useProductFacets from "@/features/products/hooks/use-product-facets";
 import useProductFilters from "@/features/products/hooks/use-product-filters";
 import type { ProductFilterKey } from "@/features/products/hooks/use-filter-params";

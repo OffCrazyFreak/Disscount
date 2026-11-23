@@ -2,7 +2,7 @@
 
 import { useIsRestoring } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import ProductInfoDisplay from "@/features/products/components/product-info-display";
+import ProductInfoDisplay from "@/features/products/components/info/product-info-display";
 import PriceHistory from "@/features/products/detail/components/price-history/price-history-base";
 import ProductChainsSection from "@/features/products/detail/components/product-chains-section";
 import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";

@@ -15,7 +15,7 @@ import cijeneService from "@/lib/cijene-api";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import type { WatchTypeParam } from "@/lib/modal/modal-registry";
 import ProductModalBody from "@/features/products/components/forms/product-modal-body";
-import ProductInfoDisplay from "@/features/products/components/product-info-display";
+import ProductInfoDisplay from "@/features/products/components/info/product-info-display";
 import { Banner } from "@/components/custom/common/feedback/banner";
 import {
   getAveragePrice,

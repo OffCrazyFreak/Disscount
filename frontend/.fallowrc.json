@@ -87,7 +87,7 @@
     "added-suppression": "off"
   },
   "ignoreExportsUsedInFile": true,
-  "ignoreFindings": ["**/products/components/view-switcher.tsx"],
+  "ignoreFindings": ["**/products/components/filters/view-switcher.tsx"],
   "duplicates": {
     "ignore": ["src/app/globals.css", "src/i18n/messages/*/index.ts"]
   }

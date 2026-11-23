@@ -15,7 +15,7 @@ import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { cn } from "@/lib/utils";
 import { productImageSearchUrl } from "@/utils/links/product-links";
 import { openExternal } from "@/utils/browser/open-external";
-import WatchlistActionButton from "@/features/products/components/watchlist-action-button";
+import WatchlistActionButton from "@/features/products/components/info/watchlist-action-button";
 import useProductModals from "@/features/products/hooks/use-product-modals";
 import useProductShare from "@/features/products/hooks/use-product-share";
 import { watchlistService } from "@/lib/api";

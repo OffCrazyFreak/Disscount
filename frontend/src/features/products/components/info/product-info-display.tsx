@@ -4,9 +4,9 @@ import { useTranslations } from "next-intl";
 
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { getMostFrequentCategory } from "@/features/products/utils/product-utils";
-import ProductActionButtons from "@/features/products/components/product-action-buttons";
-import ProductInfoTable from "@/features/products/components/product-info-table";
-import ProductOverview from "@/features/products/components/product-overview";
+import ProductActionButtons from "@/features/products/components/info/product-action-buttons";
+import ProductInfoTable from "@/features/products/components/info/product-info-table";
+import ProductOverview from "@/features/products/components/info/product-overview";
 import ProductThumbnail from "@/components/custom/product-photos/product-thumbnail";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";

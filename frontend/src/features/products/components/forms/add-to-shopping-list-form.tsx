@@ -9,7 +9,7 @@ import ListPen from "@/components/custom/icons/list-pen";
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
 import ProductModalBody from "@/features/products/components/forms/product-modal-body";
-import ProductInfoDisplay from "@/features/products/components/product-info-display";
+import ProductInfoDisplay from "@/features/products/components/info/product-info-display";
 import RemoveIconButton from "@/components/custom/common/controls/remove-icon-button";
 import { Banner } from "@/components/custom/common/feedback/banner";
 import ShoppingListSelector from "@/features/products/components/forms/shopping-list-selector";

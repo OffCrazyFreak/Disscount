@@ -17,7 +17,7 @@ vi.mock("@/features/products/detail/hooks/use-product-detail", () => ({
   useProductDetail: () => detail,
 }));
 
-vi.mock("@/features/products/components/product-info-display", () => ({
+vi.mock("@/features/products/components/info/product-info-display", () => ({
   default: ({ product }: { product: ProductResponse }) => <p>{product.name}</p>,
 }));
 

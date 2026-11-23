@@ -6,7 +6,7 @@ import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { getMostFrequentCategory } from "@/features/products/utils/product-utils";
 import ProductCard from "@/components/custom/product/product-card";
 import ProductUnitPriceDetails from "@/features/products/components/product-item/product-price";
-import ProductActionButtons from "@/features/products/components/product-action-buttons";
+import ProductActionButtons from "@/features/products/components/info/product-action-buttons";
 import useCardLongPress from "@/hooks/gestures/use-card-long-press";
 import useProductModals from "@/features/products/hooks/use-product-modals";
 import { usePrimeProductNavigation } from "@/hooks/state/use-product-navigation";

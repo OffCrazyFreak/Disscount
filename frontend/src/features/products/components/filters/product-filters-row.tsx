@@ -1,7 +1,7 @@
 "use client";
 
-import ClearFiltersButton from "@/features/products/components/clear-filters-button";
-import ProductFacetSelects from "@/features/products/components/product-facet-selects";
+import ClearFiltersButton from "@/features/products/components/filters/clear-filters-button";
+import ProductFacetSelects from "@/features/products/components/filters/product-facet-selects";
 import useProductFacets from "@/features/products/hooks/use-product-facets";
 import type { IUseProductFiltersResult } from "@/features/products/hooks/use-product-filters";
 

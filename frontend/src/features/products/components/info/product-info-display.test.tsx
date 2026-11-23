@@ -2,7 +2,7 @@ import { waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 
-import ProductInfoDisplay from "@/features/products/components/product-info-display";
+import ProductInfoDisplay from "@/features/products/components/info/product-info-display";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 import { product } from "@/test/fixtures/price-fixtures";
