@@ -11,7 +11,10 @@ record IndexNowProperties(
         String key,
         String host,
         @DefaultValue("https://api.indexnow.org/indexnow") String endpoint,
-        @DefaultValue("1m") Duration retryAfter
+        // Used when a busy engine names no Retry-After of its own.
+        @DefaultValue("1m") Duration retryAfter,
+        // One run may not outlast this, so a slow engine cannot keep the import thread for hours.
+        @DefaultValue("15m") Duration maxRunTime
 ) {
 
     boolean enabled() {

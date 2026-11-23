@@ -24,7 +24,8 @@ class IndexNowClientTest {
 
     final ObjectMapper json = JsonMapper.builder().build();
     final List<JsonNode> received = new ArrayList<>();
-    final Deque<Integer> answers = new ArrayDeque<>();
+    final Deque<String[]> answers = new ArrayDeque<>();
+    final List<Duration> waits = new ArrayList<>();
     HttpServer server;
 
     @BeforeEach
@@ -32,7 +33,9 @@ class IndexNowClientTest {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/indexnow", exchange -> {
             received.add(json.readTree(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8)));
-            exchange.sendResponseHeaders(answers.isEmpty() ? 200 : answers.pop(), -1);
+            String[] answer = answers.isEmpty() ? new String[] {"200"} : answers.pop();
+            if (answer.length > 1) exchange.getResponseHeaders().add("Retry-After", answer[1]);
+            exchange.sendResponseHeaders(Integer.parseInt(answer[0]), -1);
             exchange.close();
         });
         server.start();
@@ -45,7 +48,8 @@ class IndexNowClientTest {
 
     IndexNowClient client(String key, String host) {
         String endpoint = "http://127.0.0.1:" + server.getAddress().getPort() + "/indexnow";
-        return new IndexNowClient(new IndexNowProperties(key, host, endpoint, Duration.ZERO), json);
+        return new IndexNowClient(new IndexNowProperties(key, host, endpoint, Duration.ofSeconds(60), Duration.ofMinutes(15)),
+                json, waits::add);
     }
 
     @Test
@@ -63,9 +67,7 @@ class IndexNowClientTest {
 
     @Test
     void splitsAtTenThousandUrlsPerPost() {
-        List<String> eans = IntStream.range(0, IndexNowClient.MAX_URLS + 1).mapToObj(i -> "38501" + i).toList();
-
-        client("a1b2c3d4e5", "disscount.me").submit(eans);
+        client("a1b2c3d4e5", "disscount.me").submit(twoBatches());
 
         assertThat(received).extracting(body -> body.path("urlList").size()).containsExactly(IndexNowClient.MAX_URLS, 1);
     }
@@ -79,24 +81,87 @@ class IndexNowClientTest {
     }
 
     @Test
-    void retriesOnceWhenTheEngineIsBusyOrDown() {
-        answers.addAll(List.of(429, 202));
-        client("a1b2c3d4e5", "disscount.me").submit(List.of("3850102101017"));
-        assertThat(received).hasSize(2);
+    void retriesOnceAfterTheWaitTheEngineAsksFor() {
+        answers.add(new String[] {"429", "7"});
 
-        received.clear();
-        answers.addAll(List.of(503, 503));
         client("a1b2c3d4e5", "disscount.me").submit(List.of("3850102101017"));
+
+        assertThat(received).hasSize(2);
+        assertThat(waits).containsExactly(Duration.ofSeconds(7));
+    }
+
+    @Test
+    void aDownEngineGetsTheConfiguredWaitAndOneRetry() {
+        answers.add(new String[] {"503"});
+
+        client("a1b2c3d4e5", "disscount.me").submit(List.of("3850102101017"));
+
+        assertThat(received).hasSize(2);
+        assertThat(waits).containsExactly(Duration.ofSeconds(60));
+    }
+
+    @Test
+    void aSecondRefusalStopsTheRun() {
+        answers.addAll(List.of(new String[] {"429", "1"}, new String[] {"429", "1"}));
+
+        client("a1b2c3d4e5", "disscount.me").submit(twoBatches());
+
         assertThat(received).hasSize(2);
     }
 
     @Test
-    void aRefusedKeyIsLoggedNotRetried() {
-        answers.add(403);
+    void aRefusedKeyStopsTheRunWithoutRetrying() {
+        answers.add(new String[] {"403"});
+
+        client("a1b2c3d4e5", "disscount.me").submit(twoBatches());
+
+        assertThat(received).hasSize(1);
+        assertThat(waits).isEmpty();
+    }
+
+    @Test
+    void aWaitLongerThanTheRunMayTakeStopsTheRun() {
+        answers.add(new String[] {"429", "3600"});
+
+        client("a1b2c3d4e5", "disscount.me").submit(twoBatches());
+
+        assertThat(received).hasSize(1);
+        assertThat(waits).isEmpty();
+    }
+
+    @Test
+    void aRejectedUrlListStopsTheRunWithoutRetrying() {
+        answers.add(new String[] {"422"});
+
+        client("a1b2c3d4e5", "disscount.me").submit(twoBatches());
+
+        assertThat(received).hasSize(1);
+        assertThat(waits).isEmpty();
+    }
+
+    @Test
+    void aRetryAfterDateFallsBackToTheConfiguredWait() {
+        answers.add(new String[] {"429", "Wed, 21 Oct 2026 07:28:00 GMT"});
 
         client("a1b2c3d4e5", "disscount.me").submit(List.of("3850102101017"));
 
+        assertThat(received).hasSize(2);
+        assertThat(waits).containsExactly(Duration.ofSeconds(60));
+    }
+
+    @Test
+    void aRetryAfterBeyondAnyClockStopsTheRunInsteadOfOverflowing() {
+        // The most seconds a long holds in nanoseconds; added to the clock, the old sum wrapped negative and slept.
+        answers.add(new String[] {"429", String.valueOf(Long.MAX_VALUE / 1_000_000_000)});
+
+        client("a1b2c3d4e5", "disscount.me").submit(twoBatches());
+
         assertThat(received).hasSize(1);
+        assertThat(waits).isEmpty();
+    }
+
+    private static List<String> twoBatches() {
+        return IntStream.range(0, IndexNowClient.MAX_URLS + 1).mapToObj(i -> "38501" + i).toList();
     }
 
     @Test

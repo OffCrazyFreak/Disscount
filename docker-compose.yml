@@ -95,6 +95,9 @@ services:
       PHOTO_DIR: ${PHOTO_DIR:-}
       PUBLIC_PHOTO_DIR: ${PUBLIC_PHOTO_DIR:-}
       R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
+      # Blank switches the IndexNow pings after catalogue imports off.
+      INDEXNOW_KEY: ${INDEXNOW_KEY:-}
+      INDEXNOW_HOST: ${INDEXNOW_HOST:-}
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health || exit 1"]
       interval: 10s

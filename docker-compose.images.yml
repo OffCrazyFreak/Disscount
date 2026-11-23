@@ -113,6 +113,9 @@ services:
       SENTRY_DEBUG: ${SENTRY_DEBUG:-false}
       # The image hostname that serves public product photos; blank switches them off.
       R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
+      # Blank switches the IndexNow pings after catalogue imports off.
+      INDEXNOW_KEY: ${INDEXNOW_KEY:-}
+      INDEXNOW_HOST: ${INDEXNOW_HOST:-}
       # Photo folders on the two photo volumes; blank switches those photos off (docs/PRODUCT-IMAGES.md).
       PHOTO_DIR: ${PHOTO_DIR:-}
       PUBLIC_PHOTO_DIR: ${PUBLIC_PHOTO_DIR:-}
