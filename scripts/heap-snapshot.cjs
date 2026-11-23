@@ -50,14 +50,17 @@ async function main() {
   await send("HeapProfiler.collectGarbage");
   await send("HeapProfiler.takeHeapSnapshot", { reportProgress: false });
 
-  // The inspector stays open after USR1 until something closes it.
-  await send("Runtime.evaluate", {
+  gzip.end();
+  await new Promise((resolve) => gzip.once("end", resolve));
+  await new Promise((resolve) => process.stdout.write("", resolve));
+
+  // The inspector stays open after USR1 until something closes it. Closing it drops this
+  // connection before any reply arrives, so the call is not awaited.
+  send("Runtime.evaluate", {
     expression: "process.getBuiltinModule('inspector').close()",
   });
 
-  gzip.end();
-  await new Promise((resolve) => gzip.on("end", resolve));
-  socket.close();
+  setTimeout(() => process.exit(0), 500);
 }
 
 main().catch((error) => {
