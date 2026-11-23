@@ -78,8 +78,8 @@ export function useWatchlistSuggestions({
     })),
   });
 
-  const suggestionItems = useMemo<IWatchlistItemWithProduct[]>(() => {
-    return suggestionProductApiIds.map((productApiId, index) => {
+  const suggestionItems: IWatchlistItemWithProduct[] =
+    suggestionProductApiIds.map((productApiId, index) => {
       const productQuery = suggestionProductQueries[index];
       const product = productQuery?.data;
       const queryError = productQuery?.error;
@@ -96,46 +96,31 @@ export function useWatchlistSuggestions({
         error: !product && queryError instanceof Error ? queryError : null,
       };
     });
-  }, [
-    suggestionProductApiIds,
-    suggestionProductQueries,
-    pinnedStoreChainCodes,
-  ]);
 
-  const filteredSuggestionItems = useMemo<IWatchlistSearchItem[]>(() => {
-    const searchableItems = suggestionItems.map((item) => ({
-      ...item,
-      productName: item.product?.name || "",
-      brand: item.product?.brand || "",
-    }));
+  const searchableItems = suggestionItems.map((item) => ({
+    ...item,
+    productName: item.product?.name || "",
+    brand: item.product?.brand || "",
+  }));
 
-    // Relevance leads so this ranks like every other search; other terms settle its frequent ties.
-    const ranked = rankByFields(searchableItems, query, [
-      "productName",
-      "brand",
-    ]);
+  // Relevance leads so this ranks like every other search; other terms settle its frequent ties.
+  const ranked = rankByFields(searchableItems, query, ["productName", "brand"]);
 
-    return ranked
-      .sort(
-        chainComparators<IRankedItem<IWatchlistSearchItem>>(
-          byDesc((rated) => rated.score),
-          byDesc(
-            (rated) =>
-              suggestionOccurrenceByProductApiId.get(rated.item.productApiId) ||
-              0,
-          ),
-          byDesc((rated) =>
-            getMaxDiscountPercentage(rated.item.discountInfo, hasPinnedStores),
-          ),
+  const filteredSuggestionItems: IWatchlistSearchItem[] = ranked
+    .sort(
+      chainComparators<IRankedItem<IWatchlistSearchItem>>(
+        byDesc((rated) => rated.score),
+        byDesc(
+          (rated) =>
+            suggestionOccurrenceByProductApiId.get(rated.item.productApiId) ||
+            0,
         ),
-      )
-      .map((rated) => rated.item);
-  }, [
-    suggestionItems,
-    query,
-    suggestionOccurrenceByProductApiId,
-    hasPinnedStores,
-  ]);
+        byDesc((rated) =>
+          getMaxDiscountPercentage(rated.item.discountInfo, hasPinnedStores),
+        ),
+      ),
+    )
+    .map((rated) => rated.item);
 
   return { shoppingListItemsLoading, filteredSuggestionItems };
 }

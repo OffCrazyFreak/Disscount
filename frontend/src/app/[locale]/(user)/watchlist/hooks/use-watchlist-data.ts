@@ -32,16 +32,14 @@ export function useWatchlistData(query: string) {
 
   const productsLoading = productQueries.some((query) => query.isLoading);
 
-  const pricesUpdatedAt = useMemo(() => {
-    const timestamps = productQueries
-      .map((query) => query.dataUpdatedAt)
-      .filter((timestamp) => timestamp > 0);
+  const timestamps = productQueries
+    .map((query) => query.dataUpdatedAt)
+    .filter((timestamp) => timestamp > 0);
 
-    return timestamps.length > 0 ? Math.max(...timestamps) : 0;
-  }, [productQueries]);
+  const pricesUpdatedAt = timestamps.length > 0 ? Math.max(...timestamps) : 0;
 
-  const enrichedItems = useMemo<IWatchlistItemWithProduct[]>(() => {
-    return groupedWatchlistItems.map((groupedItem, index) => {
+  const enrichedItems: IWatchlistItemWithProduct[] = groupedWatchlistItems.map(
+    (groupedItem, index) => {
       const productQuery = productQueries[index];
       const isProductLoading = Boolean(productQuery?.isLoading);
       const product = isProductLoading ? undefined : productQuery?.data;
@@ -58,28 +56,26 @@ export function useWatchlistData(query: string) {
         // A failed background refetch keeps the cached prices on screen.
         error: !product && queryError instanceof Error ? queryError : null,
       };
-    });
-  }, [groupedWatchlistItems, productQueries, pinnedStoreChainCodes]);
+    },
+  );
 
-  const filteredItems = useMemo<IWatchlistSearchItem[]>(() => {
-    const searchableItems = enrichedItems.map((item) => ({
-      ...item,
-      productName: item.product?.name || "",
-      brand: item.product?.brand || "",
-    }));
+  const searchableItems = enrichedItems.map((item) => ({
+    ...item,
+    productName: item.product?.name || "",
+    brand: item.product?.brand || "",
+  }));
 
-    return filterByFields(searchableItems, query, ["productName", "brand"]);
-  }, [enrichedItems, query]);
+  const filteredItems: IWatchlistSearchItem[] = filterByFields(
+    searchableItems,
+    query,
+    ["productName", "brand"],
+  );
 
-  const discountedItems = useMemo<IWatchlistItemWithProduct[]>(() => {
-    if (productsLoading) {
-      return [];
-    }
-
-    return enrichedItems.filter((item) =>
-      isAnyWatchThresholdReached(item, hasPinnedStores),
-    );
-  }, [enrichedItems, hasPinnedStores, productsLoading]);
+  const discountedItems: IWatchlistItemWithProduct[] = productsLoading
+    ? []
+    : enrichedItems.filter((item) =>
+        isAnyWatchThresholdReached(item, hasPinnedStores),
+      );
 
   const watchedProductApiIds = useMemo(() => {
     return new Set(groupedWatchlistItems.map((item) => item.productApiId));
