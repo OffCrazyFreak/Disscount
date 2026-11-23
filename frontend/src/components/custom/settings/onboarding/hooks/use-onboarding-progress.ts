@@ -25,7 +25,9 @@ export function useOnboardingProgress() {
     mutation
       .mutateAsync({ onboardingOutcome: outcome })
       // Merged against the latest value, so a slow write cannot roll back the completion save.
-      .then((dto) => mergeUser({ onboardingOutcome: dto.onboardingOutcome }))
+      .then((dto) =>
+        mergeUser({ id: dto.id, onboardingOutcome: dto.onboardingOutcome }),
+      )
       .catch(() => {});
   }
 
