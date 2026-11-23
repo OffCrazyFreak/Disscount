@@ -28,12 +28,12 @@ Errors carry a code (`cannotOpen`, `cannotProcess`, `cannotSave`, `tooLarge`) an
 
 ## 3. Per upload settings
 
-| Upload              | Helper                           | Size                                      | Format                        | Byte budget                                               |
-| ------------------- | -------------------------------- | ----------------------------------------- | ----------------------------- | --------------------------------------------------------- |
-| Avatar              | `utils/browser/avatar-image.ts`  | Centred 256 px square                     | WebP 0.8, JPEG 0.8 fallback   | None needed (about 15 to 30 KB)                           |
-| Card front and back | `utils/browser/card-image.ts`    | 1280 px long edge plus a 320 px thumbnail | WebP 0.75, JPEG 0.78 fallback | Under 480 KB, stepping down to 0.65, 0.55, then 1024 px   |
-| Card icon           | `utils/browser/card-image.ts`    | Centred 128 px square                     | WebP 0.75, JPEG 0.78 fallback | None needed                                               |
-| Product photo       | `utils/browser/product-photo.ts` | 2048 px long edge                         | JPEG 0.82 always              | Under 480 KB, stepping down to 0.7, then 1600 and 1280 px |
+| Upload              | Helper                                       | Size                                      | Format                        | Byte budget                                               |
+| ------------------- | -------------------------------------------- | ----------------------------------------- | ----------------------------- | --------------------------------------------------------- |
+| Avatar              | `utils/browser/avatar-image.ts`              | Centred 256 px square                     | WebP 0.8, JPEG 0.8 fallback   | None needed (about 15 to 30 KB)                           |
+| Card front and back | `features/digital-cards/utils/card-image.ts` | 1280 px long edge plus a 320 px thumbnail | WebP 0.75, JPEG 0.78 fallback | Under 480 KB, stepping down to 0.65, 0.55, then 1024 px   |
+| Card icon           | `features/digital-cards/utils/card-image.ts` | Centred 128 px square                     | WebP 0.75, JPEG 0.78 fallback | None needed                                               |
+| Product photo       | `utils/browser/product-photo.ts`             | 2048 px long edge                         | JPEG 0.82 always              | Under 480 KB, stepping down to 0.7, then 1600 and 1280 px |
 
 Why they differ:
 

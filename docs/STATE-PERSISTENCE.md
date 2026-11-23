@@ -209,14 +209,14 @@ Not everything should be remembered. These are intentionally **not** persisted, 
 
 ## 9. Key files
 
-| File                                                                       | Role                                                                   |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| `frontend/src/hooks/use-form-draft.ts`                                     | modal-form draft save/restore engine (24h TTL, diff-vs-defaults)       |
-| `frontend/src/utils/browser/storage/core.ts`                               | single-key `Disscount_app` localStorage read/merge/write               |
-| `frontend/src/app/[locale]/products/[id]/hooks/use-product-preferences.ts` | reads and merges one product's panel preferences, hydration safe       |
-| `frontend/src/utils/browser/storage/storage-subscription.ts`               | same-tab and cross-tab change notifications for `useSyncExternalStore` |
-| `frontend/src/lib/cijene-api/keys.ts`, `frontend/src/lib/api/*/keys.ts`    | query key factories; their values are the persisted cache's addresses  |
-| `frontend/src/lib/offline/query-key-values.test.ts`                        | pins every factory key to its persisted value                          |
+| File                                                                     | Role                                                                   |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| `frontend/src/hooks/use-form-draft.ts`                                   | modal-form draft save/restore engine (24h TTL, diff-vs-defaults)       |
+| `frontend/src/utils/browser/storage/core.ts`                             | single-key `Disscount_app` localStorage read/merge/write               |
+| `frontend/src/features/products/detail/hooks/use-product-preferences.ts` | reads and merges one product's panel preferences, hydration safe       |
+| `frontend/src/utils/browser/storage/storage-subscription.ts`             | same-tab and cross-tab change notifications for `useSyncExternalStore` |
+| `frontend/src/lib/cijene-api/keys.ts`, `frontend/src/lib/api/*/keys.ts`  | query key factories; their values are the persisted cache's addresses  |
+| `frontend/src/lib/offline/query-key-values.test.ts`                      | pins every factory key to its persisted value                          |
 
 ---
 

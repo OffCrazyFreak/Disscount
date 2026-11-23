@@ -28,3 +28,9 @@ Reference documentation for Disscount. Each file is a standalone deep-dive into 
 - [ADMIN.md](ADMIN.md) - the admin dashboard: who sees it, how `/api/admin/**` is checked, the users, contact and photo tabs.
 - [BACKEND-PROXY.md](BACKEND-PROXY.md) - the Next.js proxy that turns the session cookie into a per-request backend token.
 - [SUPPORT.md](SUPPORT.md) - Ko-fi support flow, GitHub funding links, and future recognition rules.
+
+## Frontend folders
+
+`frontend/src/app` holds only what routing needs: pages, layouts, route handlers, metadata images and a page's own glue, such as `products/[id]/utils/product-metadata.ts`. Each product area keeps its components, hooks and utils in `frontend/src/features/<area>/` (`map`, `digital-cards`, `watchlist`, `shopping-lists`, `products`), and a route's `[id]` folder is called `detail/` there. Code that more than one area uses stays in the shared folders (`components`, `constants`, `context`, `hooks`, `lib`, `utils` and the rest).
+
+`frontend/.fallowrc.json` enforces the direction, and `pnpm check` and CI fail on a wrong import: `app` may import features and shared code, a feature may import only shared code (never another feature or `app`), and shared code imports neither. Every folder under `src/features` becomes its own zone automatically, so a new area needs no config change.

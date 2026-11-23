@@ -57,7 +57,7 @@ flowchart TD
 | Bottom nav scan action (`components/custom/bottom-nav/bottom-nav.tsx`)                                       | product, no confirm | `useProductNavigation` to the product page                                                                                          |
 | Landing hero and the scanner feature card (`app/[locale]/(root)/components/sections/`)                       | product, no confirm | Product page                                                                                                                        |
 | PWA shortcut (`components/custom/pwa/scan-shortcut.tsx`)                                                     | product, no confirm | Product page. The `scan=1` flag is removed from the URL before the camera opens, so a refresh or back navigation does not reopen it |
-| Card form code field (`app/[locale]/(user)/digital-cards/components/forms/code-value-field.tsx`)             | `all`, confirm      | Fills the card's code and format                                                                                                    |
+| Card form code field (`features/digital-cards/components/forms/code-value-field.tsx`)                        | `all`, confirm      | Fills the card's code and format                                                                                                    |
 
 A scanned EAN is not checked against the product catalogue before navigating; an unknown EAN lands on the product page's not found state ([PRODUCTS.md](PRODUCTS.md#5-the-product-page)).
 

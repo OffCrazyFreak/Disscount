@@ -136,17 +136,17 @@ Worth knowing before changing any of this:
 
 ## 8. Key files
 
-| Area          | Path                                                                            |
-| ------------- | ------------------------------------------------------------------------------- |
-| Access rule   | `backend/.../shoppinglist/ShoppingListAccessService.java`                       |
-| Method guard  | `backend/.../shoppinglist/ShoppingListGuard.java`                               |
-| Redaction     | `backend/.../shoppinglist/ShoppingListMapper.java`                              |
-| Optional auth | `backend/.../security/OptionalBearerAuthenticationFilter.java`                  |
-| Route matcher | `backend/.../security/UuidScopedRequestMatcher.java`                            |
-| Optimism      | `frontend/src/lib/api/shopping-lists/optimistic-list.ts`                        |
-| Live polling  | `frontend/src/lib/api/shopping-lists/shared-list-polling.ts`                    |
-| Cache purge   | `frontend/src/lib/offline/purge.ts`                                             |
-| Client access | `frontend/src/app/[locale]/(user)/shopping-lists/utils/shopping-list-access.ts` |
+| Area          | Path                                                                 |
+| ------------- | -------------------------------------------------------------------- |
+| Access rule   | `backend/.../shoppinglist/ShoppingListAccessService.java`            |
+| Method guard  | `backend/.../shoppinglist/ShoppingListGuard.java`                    |
+| Redaction     | `backend/.../shoppinglist/ShoppingListMapper.java`                   |
+| Optional auth | `backend/.../security/OptionalBearerAuthenticationFilter.java`       |
+| Route matcher | `backend/.../security/UuidScopedRequestMatcher.java`                 |
+| Optimism      | `frontend/src/lib/api/shopping-lists/optimistic-list.ts`             |
+| Live polling  | `frontend/src/lib/api/shopping-lists/shared-list-polling.ts`         |
+| Cache purge   | `frontend/src/lib/offline/purge.ts`                                  |
+| Client access | `frontend/src/features/shopping-lists/utils/shopping-list-access.ts` |
 
 ## 9. Gotchas
 

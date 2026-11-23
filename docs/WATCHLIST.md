@@ -75,7 +75,7 @@ All four need a signed-in session; the browser reaches them through the backend 
 
 ## 4. Setting a rule
 
-The rule modal (`app/[locale]/products/components/forms/watchlist-item-modal.tsx`, with `watchlist-type-picker.tsx`, `watchlist-threshold-input.tsx` and the hook `use-watchlist-item-form.ts`) offers two kinds of rule:
+The rule modal (`features/products/components/forms/watchlist-item-modal.tsx`, with `watchlist-type-picker.tsx`, `watchlist-threshold-input.tsx` and the hook `use-watchlist-item-form.ts`) offers two kinds of rule:
 
 | Type         | Label idea               | Range enforced in the form | Default when not yet tracked                                       |
 | ------------ | ------------------------ | -------------------------- | ------------------------------------------------------------------ |
@@ -83,9 +83,9 @@ The rule modal (`app/[locale]/products/components/forms/watchlist-item-modal.tsx
 | `ABSOLUTE`   | "price drops by €"       | 0.1 to 999                 | 10 % of the average price, clamped to the range; 1 € with no price |
 
 - A product can carry one rule of each type, so "10 % off or 0.50 € off" is two rows.
-- The ranges and defaults live in `app/[locale]/products/utils/watchlist-thresholds.ts`. The backend checks that the value is positive (`@Positive` on `WatchlistItemRequest`) and that a `PERCENTAGE` rule is at most 100 (`@PercentageAtMostHundred`, reported on `thresholdValue`, #703 limits for long text and pins). An `ABSOLUTE` rule has no upper limit on the server, so a client other than ours could store 5000 €.
+- The ranges and defaults live in `features/products/utils/watchlist-thresholds.ts`. The backend checks that the value is positive (`@Positive` on `WatchlistItemRequest`) and that a `PERCENTAGE` rule is at most 100 (`@PercentageAtMostHundred`, reported on `thresholdValue`, #703 limits for long text and pins). An `ABSOLUTE` rule has no upper limit on the server, so a client other than ours could store 5000 €.
 - `parseThreshold` accepts the whole string or nothing, so "10abc" is invalid rather than read as 10.
-- The product page's watchlist toggle (`app/[locale]/products/components/watchlist-action-button.tsx`) opens the modal; the watchlist page's own button (`(user)/watchlist/components/watchlist-action-button.tsx`) edits or removes.
+- The product page's watchlist toggle (`features/products/components/watchlist-action-button.tsx`) opens the modal; the watchlist page's own button (`features/watchlist/components/watchlist-action-button.tsx`) edits or removes.
 
 ---
 
@@ -115,7 +115,7 @@ There are two signals, and they answer different questions.
 - The snapshot is merged against a fresh localStorage read and listens to `storage` events, so two tabs do not overwrite each other's visit.
 - It is not written until the user's pinned stores are known, because an unknown scope would read as "every chain" and rebase away drops not yet seen.
 - Signing out or switching accounts deletes the snapshot through `lib/offline/purge.ts`.
-- The header, sidebar and bottom nav show the count as a badge. `PriceDropStatus` (`components/custom/watchlist/price-drop-status.tsx`), mounted once in the locale layout, announces later changes in a polite status region; the first settled count after load or sign-in is silent.
+- The header, sidebar and bottom nav show the count as a badge. `PriceDropStatus` (`features/watchlist/components/price-drop-status.tsx`), mounted once in the locale layout, announces later changes in a polite status region; the first settled count after load or sign-in is silent.
 
 The hook's own comment calls it a stand-in until the server inbox (#222) can return an unseen count shared across devices.
 
@@ -159,8 +159,8 @@ The hook's own comment calls it a stand-in until the server inbox (#222) can ret
 
 | Path                                                                                      | Role                                                               |
 | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `frontend/src/app/[locale]/products/components/forms/watchlist-*.tsx`                     | The rule modal, type picker and threshold input                    |
-| `frontend/src/app/[locale]/products/utils/watchlist-thresholds.ts`                        | Ranges, defaults, threshold parsing                                |
+| `frontend/src/features/products/components/forms/watchlist-*.tsx`                         | The rule modal, type picker and threshold input                    |
+| `frontend/src/features/products/utils/watchlist-thresholds.ts`                            | Ranges, defaults, threshold parsing                                |
 | `frontend/src/context/use-watchlist-notifications.ts`, `build-watchlist-notifications.ts` | The bell's notification list and summary                           |
 | `frontend/src/utils/browser/storage/watchlist.ts`                                         | The localStorage snapshot store, cached for `useSyncExternalStore` |
 

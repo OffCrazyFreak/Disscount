@@ -145,7 +145,7 @@ Photos are optional and sit behind a `PhotoStore` interface (`put`, `get`, `dele
 
 ### What the browser does
 
-`utils/browser/card-image.ts` prepares every image before upload, using the shared steps in `utils/browser/image.ts` ([IMAGE-UPLOADS.md](IMAGE-UPLOADS.md) covers every upload in the app):
+`features/digital-cards/utils/card-image.ts` prepares every image before upload, using the shared steps in `utils/browser/image.ts` ([IMAGE-UPLOADS.md](IMAGE-UPLOADS.md) covers every upload in the app):
 
 - Decode with `createImageBitmap(file, { imageOrientation: "from-image" })` so phone photos are rotated correctly.
 - `front` and `back`: 1280 px on the long edge plus a 320 px thumbnail. `icon`: a centred 128 px square. Small images are never upscaled.
@@ -303,7 +303,7 @@ A loyalty card number is personal data, and a photo of a card more so.
 | `backend/.../config/UploadLimitConfig.java`                                                    | 20 card photo uploads per minute per user; the limiter sweeps its expired windows every 5 minutes |
 | `frontend/src/lib/offline/card-photo-store.ts`, `card-photo-outbox.ts`, `purge.ts`             | Photo blobs, upload outbox, logout purge                                                          |
 | `frontend/src/lib/offline/failure-policy.ts`, `card-retry.ts`, `slot-lock.ts`, `purge-gate.ts` | Keep or drop rules and card retries; per-slot photo ordering; purge ordering gate                 |
-| `frontend/src/utils/browser/card-image.ts`                                                     | Card photo sizes and qualities, on top of the shared `utils/browser/image.ts`                     |
+| `frontend/src/features/digital-cards/utils/card-image.ts`                                      | Card photo sizes and qualities, on top of the shared `utils/browser/image.ts`                     |
 | `frontend/src/components/reui/autocomplete.tsx`                                                | The store field's Autocomplete (reui, built on `@base-ui/react`)                                  |
 
 ---

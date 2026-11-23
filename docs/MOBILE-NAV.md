@@ -340,13 +340,13 @@ The threshold is 40px, far enough that a scroll, a wobble or a tap cannot trigge
 
 Current users, identical apart from their content and their modality:
 
-| Sheet                    | File                                                                            | Modal | Explicit dismissal beyond the handle      |
-| ------------------------ | ------------------------------------------------------------------------------- | ----- | ----------------------------------------- |
-| Search                   | `app/[locale]/products/components/products-sheet/products-sheet.tsx`            | no    | the bar's centre cell; also `md:hidden`   |
-| Product quick actions    | `components/custom/product/product-quick-actions.tsx`                           | yes   | an outside press, plus any action it runs |
-| PWA install instructions | `components/custom/pwa/install-instructions-sheet.tsx`                          | yes   | an outside press and `showCloseButton`    |
-| Shopping list actions    | `app/[locale]/(user)/shopping-lists/components/shopping-list-actions-sheet.tsx` | yes   | an outside press, plus any action it runs |
-| Map store                | `app/[locale]/map/components/map-store-sheet.tsx`                               | no    | the X beside the store; also `md:hidden`  |
+| Sheet                    | File                                                                 | Modal | Explicit dismissal beyond the handle      |
+| ------------------------ | -------------------------------------------------------------------- | ----- | ----------------------------------------- |
+| Search                   | `features/products/components/products-sheet/products-sheet.tsx`     | no    | the bar's centre cell; also `md:hidden`   |
+| Product quick actions    | `features/products/components/product-quick-actions.tsx`             | yes   | an outside press, plus any action it runs |
+| PWA install instructions | `components/custom/pwa/install-instructions-sheet.tsx`               | yes   | an outside press and `showCloseButton`    |
+| Shopping list actions    | `features/shopping-lists/components/shopping-list-actions-sheet.tsx` | yes   | an outside press, plus any action it runs |
+| Map store                | `features/map/components/map-store-sheet.tsx`                        | no    | the X beside the store; also `md:hidden`  |
 
 ### Why the surface is muted
 
@@ -543,7 +543,7 @@ The badge counts watched products whose best price fell since you last opened `/
 - Opening `/watchlist` resets the snapshot to today's prices, which clears the badge. Only a visible tab counts as a visit, so a background tab left on the page that refetches on reconnect does not clear drops nobody saw. Elsewhere, a product seen for the first time only gets its baseline, so it never counts on the day you add it. A product whose price failed to load keeps its old baseline, so it can still count after a visit. Unwatched products leave the snapshot, so re-watching one starts fresh.
 - The snapshot records the store scope (the sorted pinned chain codes) its prices were read in. Pinning or unpinning a store rebases it silently instead of reporting every product that is cheaper at another chain.
 - A tab writes the snapshot only when its own prices, watchlist, scope or route change, and merges against a fresh read when it does, so a visit in one tab survives and two tabs that disagree never overwrite each other in a loop. Other tabs pick the write up through the `storage` event. Nothing is written while the pinned stores failed to load, since that would read as "every chain" and rebase away unseen drops. The sign-out purge deletes the departing account's snapshot, because it lists every watched EAN, and a write only happens while the cache identity matches the account, so a profile that has not caught up with a switch cannot recreate it.
-- The visual badge stops at `9+` (`utils/badge-count.ts`) and is `aria-hidden`. The cell's accessible name carries the exact count instead (`Praćenje, 12 novih popusta`), and one polite `role="status"` region in the layout (`components/custom/watchlist/price-drop-status.tsx`) announces a change, since a changed `aria-label` is never read out. It stays quiet about the first count each account settles on (no fetch in flight, and no product still waiting for its first price), so a cold start or a sign-in does not talk over the page.
+- The visual badge stops at `9+` (`utils/badge-count.ts`) and is `aria-hidden`. The cell's accessible name carries the exact count instead (`Praćenje, 12 novih popusta`), and one polite `role="status"` region in the layout (`features/watchlist/components/price-drop-status.tsx`) announces a change, since a changed `aria-label` is never read out. It stays quiet about the first count each account settles on (no fetch in flight, and no product still waiting for its first price), so a cold start or a sign-in does not talk over the page.
 - The header bell still shows threshold alerts from `useNotifications()`. The two numbers answer different questions: "what is on sale for me now" and "what got cheaper since I last looked".
 - It is per device: a visit on the phone does not clear the laptop. The server-side inbox (#222) is meant to replace the hook's body with an unseen count shared across devices, and the app icon badge (#133) should read that same source.
 
@@ -681,28 +681,28 @@ The mobile FAB's jobs moved into the bar: the per-page create action became a lo
 
 ### Shared primitives
 
-| File                                      | Role                                                         |
-| ----------------------------------------- | ------------------------------------------------------------ |
-| `constants/gestures.ts`                   | Every gesture timing and threshold, in one place             |
-| `utils/long-press.ts`                     | Framework-free press timer with progress, drain and cancel   |
-| `hooks/use-long-press.ts`                 | Element-scoped Pointer Events wrapper, used by product cards |
-| `hooks/use-product-modals.ts`             | Opens the product modals, seeding the by-ean cache first     |
-| `components/custom/modal/sheet-shell.tsx` | The shared bottom sheet, owning layer, height and clearance  |
-| `context/products-sheet-context.tsx`      | Holds the sheet open, and whether it opens with filters      |
+| File                                            | Role                                                         |
+| ----------------------------------------------- | ------------------------------------------------------------ |
+| `constants/gestures.ts`                         | Every gesture timing and threshold, in one place             |
+| `utils/long-press.ts`                           | Framework-free press timer with progress, drain and cancel   |
+| `hooks/use-long-press.ts`                       | Element-scoped Pointer Events wrapper, used by product cards |
+| `features/products/hooks/use-product-modals.ts` | Opens the product modals, seeding the by-ean cache first     |
+| `components/custom/modal/sheet-shell.tsx`       | The shared bottom sheet, owning layer, height and clearance  |
+| `context/products-sheet-context.tsx`            | Holds the sheet open, and whether it opens with filters      |
 
 ### The products sheet's own parts
 
-| File                                                                        | Role                                                            |
-| --------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `components/custom/search/search-action-button.tsx`                         | The Pretraži button itself, shared with the inline bars         |
-| `app/[locale]/products/components/products-sheet/products-sheet-submit.tsx` | Wraps it with the URL comparison, so no hook runs in the layout |
+| File                                                                    | Role                                                            |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `components/custom/search/search-action-button.tsx`                     | The Pretraži button itself, shared with the inline bars         |
+| `features/products/components/products-sheet/products-sheet-submit.tsx` | Wraps it with the URL comparison, so no hook runs in the layout |
 
 ### The filters
 
-| File                                                           | Role                                                             |
-| -------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `app/[locale]/products/components/product-filters-bar.tsx`     | Picks the layout: inline above `md`, a button to the sheet below |
-| `app/[locale]/products/components/product-filters-trigger.tsx` | The Filteri button, shared by the page and the sheet             |
+| File                                                       | Role                                                             |
+| ---------------------------------------------------------- | ---------------------------------------------------------------- |
+| `features/products/components/product-filters-bar.tsx`     | Picks the layout: inline above `md`, a button to the sheet below |
+| `features/products/components/product-filters-trigger.tsx` | The Filteri button, shared by the page and the sheet             |
 
 ### Touched elsewhere
 
