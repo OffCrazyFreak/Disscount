@@ -23,6 +23,10 @@ function subjectOf(token: string): string | null {
 export async function mintSessionToken(
   headers: Headers,
 ): Promise<ISessionToken | null> {
+  // getToken turns a failed session read into a 401; getSession throws it, so an outage is not mistaken for a sign-out.
+  const session = await auth.api.getSession({ headers });
+  if (!session) return null;
+
   try {
     const { token } = await auth.api.getToken({ headers });
     const userId = subjectOf(token);
