@@ -127,7 +127,8 @@ export default function ProductsClient({ query }: IProductsClientProps) {
         viewMode={viewMode}
       />
 
-      <ScrollCue />
+      {/* Without a query the landing links already peek above the fold, and the cue would sit on them. */}
+      {query && <ScrollCue />}
     </div>
   );
 }
