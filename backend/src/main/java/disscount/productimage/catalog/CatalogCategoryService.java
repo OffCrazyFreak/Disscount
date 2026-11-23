@@ -42,7 +42,7 @@ class CatalogCategoryService {
                 .map(d -> new CatalogDepartmentDto(d.slug(), byDepartment.getOrDefault(d.slug(), 0L)))
                 .toList();
         List<CatalogCategoryDto> categories = taxonomy.categories().stream()
-                .map(c -> new CatalogCategoryDto(c.slug(), c.department(), byCategory.getOrDefault(c.slug(), 0L)))
+                .map(c -> new CatalogCategoryDto(c.slug(), c.department(), c.indexable(), byCategory.getOrDefault(c.slug(), 0L)))
                 .toList();
         return new CatalogCategoriesDto(departments, categories);
     }

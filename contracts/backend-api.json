@@ -261,6 +261,9 @@
         "department" : {
           "type" : "string"
         },
+        "indexable" : {
+          "type" : "boolean"
+        },
         "productCount" : {
           "format" : "int64",
           "type" : "integer"

@@ -26,8 +26,8 @@ final class CatalogTaxonomy {
 
     record Department(String slug, Set<String> chainCategories) {}
 
-    record Category(String slug, String department, Set<String> departments, Set<String> chainCategories,
-                    List<NameTerm> include, List<NameTerm> exclude) {
+    record Category(String slug, String department, boolean indexable, Set<String> departments,
+                    Set<String> chainCategories, List<NameTerm> include, List<NameTerm> exclude) {
 
         /** A product whose chains put it in another department is not this category, whatever its name says. */
         boolean allows(String productDepartment) {
@@ -101,7 +101,8 @@ final class CatalogTaxonomy {
             Set<String> allowed = new LinkedHashSet<>(List.of(department));
             allowed.addAll(strings(entry.get("alsoIn")));
 
-            categories.add(new Category(text(entry, "slug"), department, allowed, folded(entry.get("chainCategories")),
+            categories.add(new Category(text(entry, "slug"), department, Boolean.TRUE.equals(entry.get("indexable")), allowed,
+                    folded(entry.get("chainCategories")),
                     terms(entry.get("include")), terms(entry.get("exclude"))));
         }
         return new CatalogTaxonomy(versionOf(root), departments, categories);

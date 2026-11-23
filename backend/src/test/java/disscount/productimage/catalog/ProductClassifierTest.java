@@ -79,6 +79,23 @@ class ProductClassifierTest {
     }
 
     @Test
+    void brandFirstAndAbbreviatedStaplesAreFound() {
+        assertThat(sort("2L Z'BREGOV TR MLIJEKO 2,8%", "").category()).isEqualTo("mlijeko");
+        assertThat(sort("KLC.NMNP.Jaja podni uzgoj L raz. 10/1", "HRANA").category()).isEqualTo("jaja");
+        assertThat(sort("S.KRUH LOVACKI 410 G", "").category()).isEqualTo("kruh");
+        assertThat(sort("D. ZA RUB. ARIEL COLOR 20 PRANJA 1,3 kg", "").category()).isEqualTo("deterdzent-za-rublje");
+        assertThat(sort("Lor Kapsule za kavu Espresso Brazil 10/1", "").category()).isEqualTo("kava");
+    }
+
+    @Test
+    void wordsTheStaplesShareWithOtherThingsStayOut() {
+        assertThat(sort("KUTIJA ZA KRUH DRVENA 40*28*18 CM", "").category()).isNull();
+        assertThat(sort("Vafel s 32% svj. jaja", "").category()).isNotEqualTo("jaja");
+        assertThat(sort("*WEISSER BURGUNDER KABINETT IHRINGER 0.75L ZOI SUHO 2024", "").category()).isNotEqualTo("deterdzent-za-rublje");
+        assertThat(sort("POSUDA ZA KUHANJE KAVE 1 L", "").category()).isNull();
+    }
+
+    @Test
     void aFinerChainGroupPlacesAProductItsNameCannot() {
         assertThat(sort("PAN BAČVA 30,0", "PIVO")).isEqualTo(new ProductClassifier.Classification("pice", "pivo"));
     }

@@ -86,6 +86,8 @@ class CatalogCategoryApiTest extends FullStackTest {
         JsonNode milkCategory = categories.path("categories").valueStream()
                 .filter(c -> c.path("slug").asString().equals("mlijeko")).findFirst().orElseThrow();
         assertThat(milkCategory.path("department").asString()).isEqualTo("hrana");
+        assertThat(milkCategory.path("indexable").asBoolean()).isTrue();
+        assertThat(categories.path("categories").valueStream().filter(c -> c.path("indexable").asBoolean())).hasSize(10);
         assertThat(milkCategory.path("productCount").asLong()).isPositive();
     }
 

@@ -11,7 +11,8 @@ final class CatalogCategoryDtos {
     /** Product counts hold listed products only, the ones the sitemap carries. */
     public record CatalogDepartmentDto(String slug, long productCount) {}
 
-    public record CatalogCategoryDto(String slug, String department, long productCount) {}
+    /** Indexable comes from catalog/taxonomy.yaml: only those hub pages may be indexed by search engines. */
+    public record CatalogCategoryDto(String slug, String department, boolean indexable, long productCount) {}
 
     public record CatalogCategoriesDto(List<CatalogDepartmentDto> departments, List<CatalogCategoryDto> categories) {}
 
