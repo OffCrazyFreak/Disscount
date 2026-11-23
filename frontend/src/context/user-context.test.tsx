@@ -46,6 +46,16 @@ function recordProfileRequests() {
   return accounts;
 }
 
+function SignInProbe() {
+  const { user, isAuthenticated, handleUserLogin } = useUser();
+  return (
+    <>
+      <button onClick={() => handleUserLogin()}>sign in</button>
+      <p>{isAuthenticated ? `signed in as ${user?.id}` : "signed out"}</p>
+    </>
+  );
+}
+
 describe("UserProvider backend proxy pin", () => {
   it("moves the pin to the new account when sign-in reloads the profile before the session lands", async () => {
     session.userId = null;
@@ -61,6 +71,21 @@ describe("UserProvider backend proxy pin", () => {
     fireEvent.click(screen.getByRole("button", { name: "sign in" }));
 
     await waitFor(() => expect(accounts).toEqual(["user-b"]));
+  });
+
+  it("shows the new account as soon as sign-in loads its profile, before the session lands", async () => {
+    session.userId = null;
+    serverSession.userId = "user-b";
+    recordProfileRequests();
+
+    renderWithProviders(
+      <UserProvider>
+        <SignInProbe />
+      </UserProvider>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "sign in" }));
+
+    expect(await screen.findByText("signed in as user-b")).toBeInTheDocument();
   });
 
   it("keeps the pin on a load whose session lookup failed rather than signed out", async () => {

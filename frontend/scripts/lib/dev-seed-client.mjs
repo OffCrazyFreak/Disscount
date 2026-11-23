@@ -87,7 +87,7 @@ export async function createApi(baseUrl, cookie) {
   const session = await readJson(sessionResponse, "Session");
   if (!session?.user?.id) throw new Error("Session has no signed-in user.");
 
-  // The same CSRF header and identity pin the browser sends (src/lib/backend-proxy/proxy-contract.ts).
+  // The same CSRF header and identity pin the browser sends (src/lib/backend-proxy/contract/proxy-contract.ts).
   const proxyHeaders = {
     "x-disscount-client": "web",
     "x-disscount-user": session.user.id,

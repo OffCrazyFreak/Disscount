@@ -4,11 +4,14 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 const mocks = vi.hoisted(() => ({
+  getSession: vi.fn(),
   getToken: vi.fn(),
   captureException: vi.fn(),
 }));
 
-vi.mock("@/lib/auth", () => ({ auth: { api: { getToken: mocks.getToken } } }));
+vi.mock("@/lib/auth", () => ({
+  auth: { api: { getSession: mocks.getSession, getToken: mocks.getToken } },
+}));
 vi.mock("@sentry/nextjs", () => ({
   captureException: mocks.captureException,
 }));
@@ -58,6 +61,7 @@ describe("API docs proxy", () => {
 
     expect(received[0].headers.get("authorization")).toBeNull();
     expect(received[0].headers.get("cookie")).toBeNull();
+    expect(mocks.getSession).not.toHaveBeenCalled();
     expect(mocks.getToken).not.toHaveBeenCalled();
   });
 

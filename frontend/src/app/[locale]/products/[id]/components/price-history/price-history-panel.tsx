@@ -1,7 +1,18 @@
+import { useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import PriceHistoryChart from "@/app/[locale]/products/[id]/components/price-history/price-history-chart";
 import { HistoryDataPoint } from "@/lib/cijene-api/history-data-point";
+
+function loadPriceHistoryChart() {
+  return import("@/app/[locale]/products/[id]/components/price-history/price-history-chart");
+}
+
+// Lazy so recharts stays out of the first load; the placeholder has the chart's aspect-video size.
+const PriceHistoryChart = dynamic(loadPriceHistoryChart, {
+  ssr: false,
+  loading: () => <div className="aspect-video" />,
+});
 
 interface IPriceHistoryPanelProps {
   historyLoading: boolean;
@@ -19,6 +30,12 @@ export default function PriceHistoryPanel({
   selectedChains,
 }: IPriceHistoryPanelProps) {
   const t = useTranslations("productDetail.priceHistory");
+
+  // Fetch the chart code while the history is still loading, not after it.
+  useEffect(() => {
+    // A failed preload is reported when the chart itself renders.
+    loadPriceHistoryChart().catch(() => {});
+  }, []);
 
   if (historyLoading) {
     return (

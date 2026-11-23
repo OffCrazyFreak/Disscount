@@ -1,6 +1,12 @@
-import CardCode from "@/components/custom/card-code/card-code";
+import dynamic from "next/dynamic";
 import type { DigitalCardDto } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
+
+// Lazy so bwip-js stays out of the grid's first load; the service worker precaches the chunk for offline.
+const CardCode = dynamic(
+  () => import("@/components/custom/card-code/card-code"),
+  { ssr: false },
+);
 
 interface ICardFaceBackProps {
   card: DigitalCardDto;

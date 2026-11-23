@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 
 import { deleteErasedIdentity } from "@/lib/auth/delete-erased-identity";
-import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
+import { proxyProblem } from "@/lib/backend-proxy/contract/proxy-problem";
 import { proxyToBackend } from "@/lib/backend-proxy/proxy-to-backend";
 
 type IAdminUserRouteContext = RouteContext<"/api/admin/users/[userId]">;

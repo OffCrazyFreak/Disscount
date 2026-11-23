@@ -3,7 +3,7 @@ import axios, { AxiosInstance } from "axios";
 import { BACKEND_ORIGIN } from "@/lib/api/backend-origin";
 import { refetchSessionOnUnauthorized } from "@/lib/api/session-changed";
 import { pageLanguageHeaders } from "@/lib/api/page-language-headers";
-import { backendProxyHeaders } from "@/lib/backend-proxy/client-headers";
+import { backendProxyHeaders } from "@/lib/backend-proxy/contract/client-headers";
 
 // The browser calls the same-origin proxy route, which signs the backend token on the server.
 const API_BASE_URL = typeof window !== "undefined" ? "" : BACKEND_ORIGIN;
