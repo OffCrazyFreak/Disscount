@@ -27,13 +27,15 @@ export default function Header() {
           <div
             data-header-frame
             className={cn(
-              "mx-auto max-w-6xl transition-all duration-300 px-2",
+              "mx-auto max-w-6xl duration-300 px-2",
+              // Animating a blur over the live WebGL map stutters mid-range phones, so the map page fades colours only.
+              isMap
+                ? "transition-[background-color,border-color]"
+                : "transition-all",
               isScrolled &&
                 "bg-background/70 max-w-5xl rounded-2xl border backdrop-blur-xs px-4",
               isMap &&
                 "bg-background/70 rounded-2xl border backdrop-blur-xs px-4",
-              // Animating a blur over the live WebGL map stutters mid-range phones.
-              isMap && "transition-[background-color,border-color]",
               // Until the map fills the slot after hydration, an empty pill would flash.
               isMap && "max-md:has-[#header-slot:empty]:invisible",
               // The open search covers the screen, so the frame steps back.
