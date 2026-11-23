@@ -13,7 +13,7 @@ import {
   CODE_EXPIRED,
   CODE_RESEND_TOO_SOON,
   INVALID_CODE,
-} from "@/lib/auth/security-policy";
+} from "@/lib/auth/reauth/security-policy";
 
 const REAUTH_CODE_MAX_ATTEMPTS = 3;
 

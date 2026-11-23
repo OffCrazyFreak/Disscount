@@ -9,10 +9,12 @@ const sends = vi.hoisted(() => ({
   sendEmailChanged: vi.fn(async () => {}),
 }));
 vi.mock("@/lib/email", () => ({ emailService: sends }));
-vi.mock("@/lib/auth/callbacks", () => ({ logEmailFailure: () => () => {} }));
+vi.mock("@/lib/auth/email/callbacks", () => ({
+  logEmailFailure: () => () => {},
+}));
 
 const { notifyEmailChanged, notifyPasswordChanged } =
-  await import("@/lib/auth/security-notifications");
+  await import("@/lib/auth/email/security-notifications");
 
 function tokenWith(claims: Record<string, unknown>) {
   const encode = (value: object) =>

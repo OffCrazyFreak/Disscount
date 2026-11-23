@@ -10,7 +10,7 @@ import {
   REAUTH_REQUIRED,
   SENSITIVE_PATHS,
   isFreshSession,
-} from "@/lib/auth/security-policy";
+} from "@/lib/auth/reauth/security-policy";
 
 function reauthRequired() {
   return new APIError("FORBIDDEN", {

@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/lib/auth";
-import { parseAccountBody } from "@/lib/auth/parse-account-body";
-import { passwordSchema } from "@/lib/auth/password-policy";
-import { rejectUnacceptablePassword } from "@/lib/auth/password-rejection";
+import { parseAccountBody } from "@/lib/auth/account/parse-account-body";
+import { passwordSchema } from "@/lib/auth/password/password-policy";
+import { rejectUnacceptablePassword } from "@/lib/auth/password/password-rejection";
 import { DEFAULT_LOCALE, LOCALES } from "@/i18n/locales";
 import { localePath } from "@/i18n/locale-path";
 

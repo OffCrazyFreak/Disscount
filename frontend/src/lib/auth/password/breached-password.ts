@@ -10,7 +10,7 @@ import {
   PASSWORD_LENGTH_INVALID,
   PASSWORD_LENGTH_MESSAGE,
   passwordLengthError,
-} from "@/lib/auth/password-policy";
+} from "@/lib/auth/password/password-policy";
 
 export type BreachCheck = "breached" | "ok" | "unknown";
 

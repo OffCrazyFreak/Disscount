@@ -16,7 +16,7 @@ import { userLocale } from "@/lib/email/email-copy";
 import {
   claimResetEmail,
   claimSignUpNotice,
-} from "@/lib/auth/email-link-marker";
+} from "@/lib/auth/email/email-link-marker";
 
 const BETTER_AUTH_URL = serverEnv.BETTER_AUTH_URL;
 

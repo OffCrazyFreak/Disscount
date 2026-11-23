@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/backend-proxy/proxy-to-backend", () => ({
   proxyToBackend: mocks.proxyToBackend,
 }));
-vi.mock("@/lib/auth/delete-erased-identity", () => ({
+vi.mock("@/lib/auth/erasure/delete-erased-identity", () => ({
   deleteErasedIdentity: mocks.deleteErasedIdentity,
 }));
 vi.mock("@sentry/nextjs", () => ({ captureException: mocks.captureException }));

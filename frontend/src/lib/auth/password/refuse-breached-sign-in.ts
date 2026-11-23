@@ -8,15 +8,15 @@ import { appUrl } from "@/lib/env";
 import { emailService } from "@/lib/email";
 import { userLocale } from "@/lib/email/email-copy";
 import { localePath } from "@/i18n/locale-path";
-import { logEmailFailure } from "@/lib/auth/callbacks";
+import { logEmailFailure } from "@/lib/auth/email/callbacks";
 import {
   SIGN_IN_TIMEOUT_MS,
   checkBreached,
-} from "@/lib/auth/breached-password";
+} from "@/lib/auth/password/breached-password";
 import {
   PASSWORD_BREACHED,
   PASSWORD_BREACHED_MESSAGE,
-} from "@/lib/auth/password-policy";
+} from "@/lib/auth/password/password-policy";
 import { recordSecurityEvent } from "@/lib/security-events/record-security-event";
 
 // One container today, so an in-process set is enough to serialise the claim per user.

@@ -21,29 +21,29 @@ import {
   hasLinkedSocialAccount,
   logEmailFailure,
   claimUnverifiedAccountOnReset,
-} from "@/lib/auth/callbacks";
-import { notifyExistingAccount } from "@/lib/auth/existing-account-notice";
+} from "@/lib/auth/email/callbacks";
+import { notifyExistingAccount } from "@/lib/auth/email/existing-account-notice";
 import {
   BACKEND_TOKEN_TTL_MINUTES,
   FACEBOOK_COMING_SOON,
   RESET_TOKEN_TTL_SECONDS,
 } from "@/constants/auth/auth";
-import { assertPasswordAcceptable } from "@/lib/auth/breached-password";
-import { refuseBreachedSignIn } from "@/lib/auth/refuse-breached-sign-in";
-import { recordLastLogin } from "@/lib/auth/record-last-login";
+import { assertPasswordAcceptable } from "@/lib/auth/password/breached-password";
+import { refuseBreachedSignIn } from "@/lib/auth/password/refuse-breached-sign-in";
+import { recordLastLogin } from "@/lib/auth/account/record-last-login";
 import {
   eraseBackendAccount,
   type SignJwt,
-} from "@/lib/auth/erase-backend-account";
-import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password-policy";
+} from "@/lib/auth/erasure/erase-backend-account";
+import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password/password-policy";
 import { CLIENT_IP_HEADER, trustedCountry } from "@/lib/client-ip/client-ip";
-import { guardSensitiveAction } from "@/lib/auth/sensitive-action-guard";
+import { guardSensitiveAction } from "@/lib/auth/reauth/sensitive-action-guard";
 import { reauth } from "@/lib/auth/reauth/reauth-plugin";
 import {
   confirmedEmailChange,
   notifyEmailChanged,
   notifyPasswordChanged,
-} from "@/lib/auth/security-notifications";
+} from "@/lib/auth/email/security-notifications";
 import { recordSecurityEvent } from "@/lib/security-events/record-security-event";
 import {
   recordEndpointOutcome,

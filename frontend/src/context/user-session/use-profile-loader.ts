@@ -7,7 +7,7 @@ import { loadUserProfile } from "@/context/user-session/load-user-profile";
 import {
   erasedAccountId,
   finishErasedAccountDeletion,
-} from "@/lib/auth/finish-erased-account";
+} from "@/lib/auth/erasure/finish-erased-account";
 
 export function useProfileLoader() {
   const [user, setUser] = useState<UserDto | null>(null);

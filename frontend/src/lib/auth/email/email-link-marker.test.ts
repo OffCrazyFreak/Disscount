@@ -44,7 +44,7 @@ vi.mock("@/db", () => {
 });
 
 const { claimResetEmail, claimSignUpNotice, claimVerificationEmail } =
-  await import("@/lib/auth/email-link-marker");
+  await import("@/lib/auth/email/email-link-marker");
 
 function render(condition: unknown) {
   return new PgDialect().sqlToQuery(condition as SQL);

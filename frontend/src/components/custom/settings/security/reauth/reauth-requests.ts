@@ -5,7 +5,7 @@ import {
   INVALID_CODE,
   LAST_ADMIN_DELETE,
   REAUTH_REQUIRED,
-} from "@/lib/auth/security-policy";
+} from "@/lib/auth/reauth/security-policy";
 
 export type ReauthMethod = "password" | "code";
 

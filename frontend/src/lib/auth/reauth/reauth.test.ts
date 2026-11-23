@@ -25,7 +25,7 @@ vi.mock("@/lib/email", () => ({
 }));
 
 const { guardSensitiveAction } =
-  await import("@/lib/auth/sensitive-action-guard");
+  await import("@/lib/auth/reauth/sensitive-action-guard");
 const { reauth } = await import("@/lib/auth/reauth/reauth-plugin");
 
 type Row = Record<string, unknown>;

@@ -10,7 +10,8 @@ vi.mock("@/db", () => ({
   db: { update: () => ({ set: set.mockReturnValue({ where }) }) },
 }));
 
-const { recordLastLogin } = await import("@/lib/auth/record-last-login");
+const { recordLastLogin } =
+  await import("@/lib/auth/account/record-last-login");
 
 const session = {
   userId: "7d0c2f3e-1a2b-4c5d-8e9f-0a1b2c3d4e5f",

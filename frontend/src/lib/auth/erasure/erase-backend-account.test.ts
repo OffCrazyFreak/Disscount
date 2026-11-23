@@ -9,7 +9,7 @@ const { captureException } = vi.hoisted(() => ({
 vi.mock("@sentry/nextjs", () => ({ captureException }));
 
 const { eraseBackendAccount } =
-  await import("@/lib/auth/erase-backend-account");
+  await import("@/lib/auth/erasure/erase-backend-account");
 const { server } = await import("@/test/msw-server");
 
 const USER_ID = "3f2b8c1e-0000-4000-8000-000000000001";

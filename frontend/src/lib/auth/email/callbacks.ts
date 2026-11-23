@@ -9,7 +9,7 @@ import { emailService } from "@/lib/email";
 import {
   claimResetEmail,
   claimVerificationEmail,
-} from "@/lib/auth/email-link-marker";
+} from "@/lib/auth/email/email-link-marker";
 
 // One token mechanism, two wordings: "set" for OAuth-only accounts, "reset" otherwise.
 export async function dispatchResetPasswordEmail(

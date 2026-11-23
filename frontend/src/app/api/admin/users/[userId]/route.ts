@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 
-import { deleteErasedIdentity } from "@/lib/auth/delete-erased-identity";
+import { deleteErasedIdentity } from "@/lib/auth/erasure/delete-erased-identity";
 import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
 import { proxyToBackend } from "@/lib/backend-proxy/proxy-to-backend";
 

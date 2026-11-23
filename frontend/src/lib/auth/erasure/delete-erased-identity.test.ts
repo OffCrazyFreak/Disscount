@@ -24,7 +24,7 @@ vi.mock("@/db", () => {
 });
 
 const { deleteErasedIdentity } =
-  await import("@/lib/auth/delete-erased-identity");
+  await import("@/lib/auth/erasure/delete-erased-identity");
 
 const USER_ID = "7f1c2d3e-4b5a-4c6d-8e9f-0a1b2c3d4e5f";
 

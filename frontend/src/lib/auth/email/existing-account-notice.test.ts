@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => ({
   deleted: vi.fn(),
 }));
 
-vi.mock("@/lib/auth/email-link-marker", () => ({
+vi.mock("@/lib/auth/email/email-link-marker", () => ({
   claimSignUpNotice: mocks.claimSignUpNotice,
   claimResetEmail: mocks.claimResetEmail,
 }));
@@ -35,7 +35,7 @@ vi.mock("@/db", () => ({
 vi.stubEnv("BETTER_AUTH_URL", "https://disscount.me");
 
 const { notifyExistingAccount } =
-  await import("@/lib/auth/existing-account-notice");
+  await import("@/lib/auth/email/existing-account-notice");
 
 function owner(emailVerified: boolean) {
   const now = new Date();

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { passwordSchema } from "@/lib/auth/password-policy";
+import { passwordSchema } from "@/lib/auth/password/password-policy";
 
 /** The only outcome that satisfies the onboarding gate. */
 export const ONBOARDING_COMPLETED = "completed";

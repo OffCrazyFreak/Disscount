@@ -46,7 +46,7 @@ vi.mock("@/lib/email", () => ({
   },
 }));
 
-vi.mock("@/lib/auth/email-link-marker", () => ({
+vi.mock("@/lib/auth/email/email-link-marker", () => ({
   claimResetEmail: mocks.claimResetEmail,
   claimVerificationEmail: mocks.claimVerificationEmail,
 }));
@@ -55,7 +55,7 @@ const {
   dispatchResetPasswordEmail,
   dispatchVerificationEmail,
   claimUnverifiedAccountOnReset,
-} = await import("@/lib/auth/callbacks");
+} = await import("@/lib/auth/email/callbacks");
 
 const args = [
   "user-1",

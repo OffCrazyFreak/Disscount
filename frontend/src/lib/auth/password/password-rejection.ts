@@ -3,7 +3,7 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { APIError } from "better-auth/api";
 
-import { assertPasswordAcceptable } from "@/lib/auth/breached-password";
+import { assertPasswordAcceptable } from "@/lib/auth/password/breached-password";
 
 // For our own account routes, which answer with { error } rather than better-auth's shape.
 export async function rejectUnacceptablePassword(

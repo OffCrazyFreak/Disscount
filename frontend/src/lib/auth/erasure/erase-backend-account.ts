@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 import { APIError } from "better-auth/api";
 
 import { BACKEND_ORIGIN } from "@/lib/api/backend-origin";
-import { LAST_ADMIN_DELETE } from "@/lib/auth/security-policy";
+import { LAST_ADMIN_DELETE } from "@/lib/auth/reauth/security-policy";
 
 // Shared with backend SecurityConfig, which lets only this purpose call DELETE /api/users/me.
 const ACCOUNT_ERASURE_PURPOSE = "account-erasure";

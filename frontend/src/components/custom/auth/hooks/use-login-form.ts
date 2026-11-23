@@ -8,7 +8,7 @@ import { loginRequestSchema, LoginRequest } from "@/lib/api/schemas/auth-user";
 import { signIn } from "@/lib/auth/client";
 import { useUser } from "@/context/user-context";
 import { setLastLoginMethod } from "@/utils/browser/local-storage";
-import { PASSWORD_BREACHED } from "@/lib/auth/password-policy";
+import { PASSWORD_BREACHED } from "@/lib/auth/password/password-policy";
 
 export function useLoginForm(onSuccess?: () => void) {
   const t = useTranslations("auth");

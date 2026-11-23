@@ -7,8 +7,8 @@ import { appUrl } from "@/lib/env";
 import { emailService } from "@/lib/email";
 import { userLocale } from "@/lib/email/email-copy";
 import { localePath } from "@/i18n/locale-path";
-import { logEmailFailure } from "@/lib/auth/callbacks";
-import { readVerificationToken } from "@/lib/auth/verification-token";
+import { logEmailFailure } from "@/lib/auth/email/callbacks";
+import { readVerificationToken } from "@/lib/auth/email/verification-token";
 
 interface INotifiedUser {
   email: string;

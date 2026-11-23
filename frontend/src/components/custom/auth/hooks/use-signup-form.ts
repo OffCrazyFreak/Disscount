@@ -8,7 +8,7 @@ import {
   registerRequestSchema,
   RegisterRequest,
 } from "@/lib/api/schemas/auth-user";
-import { isPasswordPolicyCode } from "@/lib/auth/password-policy";
+import { isPasswordPolicyCode } from "@/lib/auth/password/password-policy";
 import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
 
 export function useSignupForm() {

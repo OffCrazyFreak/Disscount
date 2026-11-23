@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   moveResetTokenOutOfUrl,
   readStoredResetToken,
-} from "@/lib/auth/reset-token-storage";
+} from "@/lib/auth/account/reset-token-storage";
 
 function stubBrowser(url: string, storage: Storage = createStorage()) {
   const location = new URL(url);

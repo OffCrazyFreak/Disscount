@@ -6,7 +6,7 @@ import { db } from "@/db";
 import { verification } from "@/db/auth-schema";
 import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth/auth";
 import { inboxKey } from "@/lib/email/recipient-send-cap";
-import { readVerificationToken } from "@/lib/auth/verification-token";
+import { readVerificationToken } from "@/lib/auth/email/verification-token";
 
 type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 

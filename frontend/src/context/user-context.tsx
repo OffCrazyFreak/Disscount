@@ -19,7 +19,7 @@ import {
   persistedCacheIdentity,
   subscribeToCacheIdentity,
 } from "@/lib/offline/cache-identity";
-import { sessionIdentity } from "@/lib/auth/pending-sign-out";
+import { sessionIdentity } from "@/lib/auth/account/pending-sign-out";
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
 import {
   isProfileOfAnotherAccount,
