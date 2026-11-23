@@ -170,8 +170,17 @@ describe("persisted prices", () => {
     expect(queryClient.getMutationCache().getAll()).toHaveLength(1);
   });
 
-  it("keeps prices from a snapshot saved with numeric prices", async () => {
+  it("drops prices from a snapshot saved before zero prices were dropped", async () => {
     const queryClient = await restoreSnapshot({ priceShape: "numbers" });
+
+    expect(queryClient.getQueryData(product.queryKey)).toBeUndefined();
+    expect(queryClient.getMutationCache().getAll()).toHaveLength(1);
+  });
+
+  it("keeps prices from a snapshot saved with positive numeric prices", async () => {
+    const queryClient = await restoreSnapshot({
+      priceShape: "positive-numbers",
+    });
 
     expect(queryClient.getQueryData(product.queryKey)).toEqual({ ean: "1" });
   });
