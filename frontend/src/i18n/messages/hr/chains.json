@@ -23,7 +23,8 @@
   },
   "cities": {
     "heading": "Trgovine po mjestima",
-    "storeCount": "{count, plural, one {# trgovina} few {# trgovine} other {# trgovina}}"
+    "storeCount": "{count, plural, one {# trgovina} few {# trgovine} other {# trgovina}}",
+    "showMore": "{count, plural, one {Prikaži još # mjesto} few {Prikaži još # mjesta} other {Prikaži još # mjesta}}"
   },
   "mapLink": "Pogledaj trgovine lanca {chain} na karti"
 }

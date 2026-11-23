@@ -23,7 +23,8 @@
   },
   "cities": {
     "heading": "Negozi per località",
-    "storeCount": "{count, plural, one {# negozio} other {# negozi}}"
+    "storeCount": "{count, plural, one {# negozio} other {# negozi}}",
+    "showMore": "{count, plural, one {Mostra un'altra località} other {Mostra altre # località}}"
   },
   "mapLink": "Guarda i negozi di {chain} sulla mappa"
 }

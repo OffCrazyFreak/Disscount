@@ -23,7 +23,8 @@
   },
   "cities": {
     "heading": "Märkte nach Ort",
-    "storeCount": "{count, plural, one {# Markt} other {# Märkte}}"
+    "storeCount": "{count, plural, one {# Markt} other {# Märkte}}",
+    "showMore": "{count, plural, one {# weiteren Ort zeigen} other {# weitere Orte zeigen}}"
   },
   "mapLink": "{chain}-Märkte auf der Karte ansehen"
 }

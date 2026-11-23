@@ -23,7 +23,8 @@
   },
   "cities": {
     "heading": "Stores by place",
-    "storeCount": "{count, plural, one {# store} other {# stores}}"
+    "storeCount": "{count, plural, one {# store} other {# stores}}",
+    "showMore": "{count, plural, one {Show # more place} other {Show # more places}}"
   },
   "mapLink": "See {chain} stores on the map"
 }

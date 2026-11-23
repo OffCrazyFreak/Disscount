@@ -23,7 +23,8 @@
   },
   "cities": {
     "heading": "Trgovine po krajih",
-    "storeCount": "{count, plural, one {# trgovina} two {# trgovini} few {# trgovine} other {# trgovin}}"
+    "storeCount": "{count, plural, one {# trgovina} two {# trgovini} few {# trgovine} other {# trgovin}}",
+    "showMore": "{count, plural, one {Pokaži še # kraj} two {Pokaži še # kraja} few {Pokaži še # kraje} other {Pokaži še # krajev}}"
   },
   "mapLink": "Poglej trgovine verige {chain} na zemljevidu"
 }
