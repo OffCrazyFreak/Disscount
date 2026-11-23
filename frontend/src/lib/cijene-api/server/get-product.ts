@@ -2,6 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import { cijeneApiV1Client } from "@/lib/cijene-api/client";
+import { createExpiringKeySet } from "@/lib/expiring-key-set";
 import { CijeneApiError } from "@/lib/cijene-api/errors";
 import {
   productResponseSchema,
@@ -18,32 +19,7 @@ export type ServerProductResult =
   | { status: "unavailable" };
 
 // A miss may be a product upstream adds soon, so it is trusted for minutes rather than the hour a find is.
-const MISSING_PRODUCT_TTL_MS = 10 * 60 * 1000;
-
-// Crawlers can try endless made-up EANs, so the oldest misses are forgotten first.
-const MISSING_PRODUCT_LIMIT = 10_000;
-
-const missingProductUntil = new Map<string, number>();
-
-function isKnownMissing(ean: string): boolean {
-  const until = missingProductUntil.get(ean);
-
-  if (until === undefined) return false;
-  if (until > Date.now()) return true;
-
-  missingProductUntil.delete(ean);
-  return false;
-}
-
-function rememberMissing(ean: string) {
-  missingProductUntil.delete(ean);
-  missingProductUntil.set(ean, Date.now() + MISSING_PRODUCT_TTL_MS);
-
-  if (missingProductUntil.size > MISSING_PRODUCT_LIMIT) {
-    const oldest = missingProductUntil.keys().next().value;
-    if (oldest !== undefined) missingProductUntil.delete(oldest);
-  }
-}
+const missingProducts = createExpiringKeySet(10 * 60 * 1000, 10_000);
 
 // A 404, an outage or a bad shape throws, and a rejected lookup is never stored for the hour.
 const lookUpCachedProduct = unstable_cache(
@@ -64,7 +40,7 @@ const lookUpCachedProduct = unstable_cache(
 /** An outage is kept apart from a 404, so a blip never turns a real product into a not-found page. */
 export const getServerProduct = cache(
   async (ean: string): Promise<ServerProductResult> => {
-    if (isKnownMissing(ean)) return { status: "missing" };
+    if (missingProducts.has(ean)) return { status: "missing" };
 
     try {
       const { data, fetchedAt } = await lookUpCachedProduct(ean);
@@ -72,7 +48,7 @@ export const getServerProduct = cache(
       return { status: "found", product: data, fetchedAt };
     } catch (error) {
       if (error instanceof CijeneApiError && error.status === 404) {
-        rememberMissing(ean);
+        missingProducts.add(ean);
         return { status: "missing" };
       }
 

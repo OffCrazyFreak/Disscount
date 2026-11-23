@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 
 import { BACKEND_ORIGIN } from "@/lib/api/backend-origin";
+import { createExpiringKeySet } from "@/lib/expiring-key-set";
 import {
   catalogCategoriesSchema,
   categoryProductsPageSchema,
@@ -78,35 +79,12 @@ export const getCategoryProducts = cache(
 );
 
 // Crawlers ask for many products we never classified, so a 404 is remembered instead of asked again.
-const UNCLASSIFIED_TTL_MS = 10 * 60 * 1000;
-const UNCLASSIFIED_LIMIT = 10_000;
-
-const unclassifiedUntil = new Map<string, number>();
-
-function isKnownUnclassified(ean: string): boolean {
-  const until = unclassifiedUntil.get(ean);
-
-  if (until === undefined) return false;
-  if (until > Date.now()) return true;
-
-  unclassifiedUntil.delete(ean);
-  return false;
-}
-
-function rememberUnclassified(ean: string) {
-  unclassifiedUntil.delete(ean);
-  unclassifiedUntil.set(ean, Date.now() + UNCLASSIFIED_TTL_MS);
-
-  if (unclassifiedUntil.size > UNCLASSIFIED_LIMIT) {
-    const oldest = unclassifiedUntil.keys().next().value;
-    if (oldest !== undefined) unclassifiedUntil.delete(oldest);
-  }
-}
+const unclassifiedProducts = createExpiringKeySet(10 * 60 * 1000, 10_000);
 
 /** Null when no category placed the product or the backend failed: a breadcrumb never fails a product page. */
 export const getProductCategorySlug = cache(
   async (ean: string): Promise<string | null> => {
-    if (isKnownUnclassified(ean)) return null;
+    if (unclassifiedProducts.has(ean)) return null;
 
     try {
       const response = await catalogFetch(
@@ -115,7 +93,7 @@ export const getProductCategorySlug = cache(
       );
 
       if (response.status === 404) {
-        rememberUnclassified(ean);
+        unclassifiedProducts.add(ean);
         return null;
       }
 
