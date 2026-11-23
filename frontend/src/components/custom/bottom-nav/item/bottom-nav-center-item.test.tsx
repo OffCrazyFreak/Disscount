@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import BottomNavCenterItem from "@/components/custom/bottom-nav/bottom-nav-center-item";
+import BottomNavCenterItem from "@/components/custom/bottom-nav/item/bottom-nav-center-item";
 import { ProductsSheetProvider } from "@/context/products-sheet-context";
 import { renderWithProviders } from "@/test/render";
 

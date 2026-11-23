@@ -12,7 +12,7 @@ import {
   CELL_ITEM_CLASS,
   CELL_LABEL_CLASS,
 } from "@/components/custom/bottom-nav/bottom-nav-classes";
-import type { IndicatorOpacity } from "@/components/custom/bottom-nav/use-indicator-opacity";
+import type { IndicatorOpacity } from "@/components/custom/bottom-nav/hooks/use-indicator-opacity";
 
 /** Both glyphs share the circle's centre and swap by rotating through it */
 const ICON_CLASS =

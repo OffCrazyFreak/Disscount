@@ -6,14 +6,14 @@ import { useCameraScanner } from "@/context/scanner-context";
 import useProductNavigation from "@/hooks/state/use-product-navigation";
 import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-drop-count";
 import { productEanFromPath } from "@/utils/links/routes";
-import BottomNavCenterItem from "@/components/custom/bottom-nav/bottom-nav-center-item";
-import BottomNavItem from "@/components/custom/bottom-nav/bottom-nav-item";
+import BottomNavCenterItem from "@/components/custom/bottom-nav/item/bottom-nav-center-item";
+import BottomNavItem from "@/components/custom/bottom-nav/item/bottom-nav-item";
 import resolveHoldTarget from "@/components/custom/bottom-nav/resolve-hold-target";
-import useActiveListProgress from "@/components/custom/bottom-nav/use-active-list-progress";
-import useBottomNavActivation from "@/components/custom/bottom-nav/use-bottom-nav-activation";
-import useBottomNavCells from "@/components/custom/bottom-nav/use-bottom-nav-cells";
-import useBottomNavPointer from "@/components/custom/bottom-nav/use-bottom-nav-pointer";
-import useIndicatorOpacity from "@/components/custom/bottom-nav/use-indicator-opacity";
+import useActiveListProgress from "@/components/custom/bottom-nav/hooks/use-active-list-progress";
+import useBottomNavActivation from "@/components/custom/bottom-nav/hooks/use-bottom-nav-activation";
+import useBottomNavCells from "@/components/custom/bottom-nav/hooks/use-bottom-nav-cells";
+import useBottomNavPointer from "@/components/custom/bottom-nav/hooks/use-bottom-nav-pointer";
+import useIndicatorOpacity from "@/components/custom/bottom-nav/hooks/use-indicator-opacity";
 import { BOTTOM_NAV_SEARCH_INDEX } from "@/components/custom/bottom-nav/bottom-nav-items";
 
 /** Explicit rem because --spacing is 0.2rem; the colour is in globals.css as the scroll animates it. */

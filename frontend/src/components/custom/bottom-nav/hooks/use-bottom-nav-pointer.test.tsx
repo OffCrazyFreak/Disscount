@@ -2,7 +2,7 @@ import { act, renderHook } from "@testing-library/react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { describe, expect, it, vi } from "vitest";
 
-import useBottomNavPointer from "@/components/custom/bottom-nav/use-bottom-nav-pointer";
+import useBottomNavPointer from "@/components/custom/bottom-nav/hooks/use-bottom-nav-pointer";
 
 vi.mock("@/components/custom/bottom-nav/bar-hit-test", () => ({
   default: () => 0,

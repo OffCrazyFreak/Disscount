@@ -7,7 +7,7 @@ import indexFromPoint, {
   navCells,
 } from "@/components/custom/bottom-nav/bar-hit-test";
 import useLongPressTimer from "@/hooks/gestures/use-long-press-timer";
-import useSettlingNavPreview from "@/components/custom/bottom-nav/use-settling-nav-preview";
+import useSettlingNavPreview from "@/components/custom/bottom-nav/hooks/use-settling-nav-preview";
 
 /** The rounded pill's own corners, where a press is more likely a swipe home */
 const BAR_EDGE_EXCLUSION_PX = 16;

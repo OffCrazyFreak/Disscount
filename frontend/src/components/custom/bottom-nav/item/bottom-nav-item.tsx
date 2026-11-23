@@ -2,11 +2,11 @@
 
 import { cn } from "@/lib/utils";
 import { isKeyboardClick } from "@/utils/ui/events";
-import BottomNavItemGlyph from "@/components/custom/bottom-nav/bottom-nav-item-glyph";
-import BottomNavItemLabel from "@/components/custom/bottom-nav/bottom-nav-item-label";
+import BottomNavItemGlyph from "@/components/custom/bottom-nav/item/bottom-nav-item-glyph";
+import BottomNavItemLabel from "@/components/custom/bottom-nav/item/bottom-nav-item-label";
 import BottomNavItemRings, {
   type IBottomNavItemRingsProps,
-} from "@/components/custom/bottom-nav/bottom-nav-item-rings";
+} from "@/components/custom/bottom-nav/item/bottom-nav-item-rings";
 import {
   CELL_BUTTON_CLASS,
   CELL_ITEM_CLASS,
