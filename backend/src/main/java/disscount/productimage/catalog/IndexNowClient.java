@@ -8,6 +8,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.function.LongSupplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ class IndexNowClient {
 
     // The protocol's limit per POST.
     static final int MAX_URLS = 10_000;
+    static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(30);
 
     interface Sleeper {
         void sleep(Duration duration) throws InterruptedException;
@@ -35,17 +37,19 @@ class IndexNowClient {
     private final IndexNowProperties properties;
     private final ObjectMapper json;
     private final Sleeper sleeper;
+    private final LongSupplier nanoTime;
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
 
     @Autowired
     IndexNowClient(IndexNowProperties properties, ObjectMapper json) {
-        this(properties, json, Thread::sleep);
+        this(properties, json, Thread::sleep, System::nanoTime);
     }
 
-    IndexNowClient(IndexNowProperties properties, ObjectMapper json, Sleeper sleeper) {
+    IndexNowClient(IndexNowProperties properties, ObjectMapper json, Sleeper sleeper, LongSupplier nanoTime) {
         this.properties = properties;
         this.json = json;
         this.sleeper = sleeper;
+        this.nanoTime = nanoTime;
     }
 
     /** Never throws: a missed ping only means the engines find the change at their next sitemap read. */
@@ -54,7 +58,7 @@ class IndexNowClient {
 
         String base = "https://" + properties.host();
         List<String> urls = eans.stream().map(ean -> base + "/products/" + ean).toList();
-        long deadline = System.nanoTime() + properties.maxRunTime().toNanos();
+        long deadline = nanoTime.getAsLong() + properties.maxRunTime().toNanos();
         try {
             for (int from = 0; from < urls.size(); from += MAX_URLS) {
                 List<String> batch = urls.subList(from, Math.min(urls.size(), from + MAX_URLS));
@@ -70,7 +74,7 @@ class IndexNowClient {
         }
     }
 
-    /** False when the rest of the run is pointless: a refused key, a second refusal, or no time left to wait. */
+    /** False when the rest of the run is pointless: a refused key, a second refusal, or no time left in the run. */
     private boolean post(List<String> urls, long deadline) throws InterruptedException {
         String body = json.writeValueAsString(Map.of(
                 "host", properties.host(),
@@ -78,14 +82,20 @@ class IndexNowClient {
                 "keyLocation", "https://" + properties.host() + "/" + properties.key() + ".txt",
                 "urlList", urls));
 
-        Answer answer = send(body);
+        Duration left = remaining(deadline);
+        if (!left.isPositive()) return false;
+
+        Answer answer = send(body, left);
         if (retryable(answer.status())) {
             Duration wait = answer.retryAfter() == null ? properties.retryAfter() : answer.retryAfter();
             // Compared as durations, so a huge Retry-After cannot overflow the nanosecond sum.
-            if (wait.compareTo(Duration.ofNanos(deadline - System.nanoTime())) > 0) return false;
+            if (wait.compareTo(remaining(deadline)) >= 0) return false;
 
             sleeper.sleep(wait);
-            answer = send(body);
+            left = remaining(deadline);
+            if (!left.isPositive()) return false;
+
+            answer = send(body, left);
             if (retryable(answer.status())) return false;
         }
 
@@ -98,10 +108,16 @@ class IndexNowClient {
         return answer.status() != 403 && answer.status() != 422;
     }
 
-    private Answer send(String body) throws InterruptedException {
+    private Duration remaining(long deadline) {
+        return Duration.ofNanos(deadline - nanoTime.getAsLong());
+    }
+
+    /** Waits at most what is left of the run, so a slow engine cannot stretch it past its limit. */
+    private Answer send(String body, Duration left) throws InterruptedException {
+        Duration timeout = left.compareTo(REQUEST_TIMEOUT) < 0 ? left : REQUEST_TIMEOUT;
         HttpRequest request = HttpRequest.newBuilder(URI.create(properties.endpoint()))
                 .header("Content-Type", "application/json; charset=utf-8")
-                .timeout(Duration.ofSeconds(30))
+                .timeout(timeout)
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();
         try {

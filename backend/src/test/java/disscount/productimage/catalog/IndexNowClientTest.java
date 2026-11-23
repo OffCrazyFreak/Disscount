@@ -8,6 +8,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
 import com.sun.net.httpserver.HttpServer;
@@ -26,6 +27,9 @@ class IndexNowClientTest {
     final List<JsonNode> received = new ArrayList<>();
     final Deque<String[]> answers = new ArrayDeque<>();
     final List<Duration> waits = new ArrayList<>();
+    // A fake clock: each request costs requestTime, each wait its length, so run limits are tested without waiting.
+    final AtomicLong now = new AtomicLong();
+    Duration requestTime = Duration.ZERO;
     HttpServer server;
 
     @BeforeEach
@@ -33,7 +37,12 @@ class IndexNowClientTest {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/indexnow", exchange -> {
             received.add(json.readTree(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8)));
+            now.addAndGet(requestTime.toNanos());
             String[] answer = answers.isEmpty() ? new String[] {"200"} : answers.pop();
+            if (answer[0].equals("slow")) {
+                pause(Duration.ofSeconds(3));
+                answer = new String[] {"200"};
+            }
             if (answer.length > 1) exchange.getResponseHeaders().add("Retry-After", answer[1]);
             exchange.sendResponseHeaders(Integer.parseInt(answer[0]), -1);
             exchange.close();
@@ -47,9 +56,23 @@ class IndexNowClientTest {
     }
 
     IndexNowClient client(String key, String host) {
+        return new IndexNowClient(properties(key, host, Duration.ofMinutes(15)), json, wait -> {
+            waits.add(wait);
+            now.addAndGet(wait.toNanos());
+        }, now::get);
+    }
+
+    IndexNowProperties properties(String key, String host, Duration maxRunTime) {
         String endpoint = "http://127.0.0.1:" + server.getAddress().getPort() + "/indexnow";
-        return new IndexNowClient(new IndexNowProperties(key, host, endpoint, Duration.ofSeconds(60), Duration.ofMinutes(15)),
-                json, waits::add);
+        return new IndexNowProperties(key, host, endpoint, Duration.ofSeconds(60), maxRunTime);
+    }
+
+    private static void pause(Duration duration) {
+        try {
+            Thread.sleep(duration);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Test
@@ -156,6 +179,40 @@ class IndexNowClientTest {
 
         client("a1b2c3d4e5", "disscount.me").submit(twoBatches());
 
+        assertThat(received).hasSize(1);
+        assertThat(waits).isEmpty();
+    }
+
+    @Test
+    void noBatchStartsOnceTheRunIsOverItsLimit() {
+        requestTime = Duration.ofMinutes(16);
+
+        client("a1b2c3d4e5", "disscount.me").submit(twoBatches());
+
+        assertThat(received).hasSize(1);
+    }
+
+    @Test
+    void aRetryIsNotSentWhenItsWaitUsesUpTheRestOfTheRun() {
+        requestTime = Duration.ofMinutes(14).plusSeconds(30);
+        answers.add(new String[] {"429", "30"});
+
+        client("a1b2c3d4e5", "disscount.me").submit(List.of("3850102101017"));
+
+        assertThat(received).hasSize(1);
+        assertThat(waits).isEmpty();
+    }
+
+    @Test
+    void aSlowEngineIsCutOffWhenTheRunEnds() {
+        answers.add(new String[] {"slow"});
+        IndexNowClient client = new IndexNowClient(properties("a1b2c3d4e5", "disscount.me", Duration.ofSeconds(1)), json,
+                waits::add, System::nanoTime);
+
+        long started = System.nanoTime();
+        client.submit(twoBatches());
+
+        assertThat(Duration.ofNanos(System.nanoTime() - started)).isLessThan(Duration.ofMillis(2_500));
         assertThat(received).hasSize(1);
         assertThat(waits).isEmpty();
     }
