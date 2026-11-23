@@ -35,7 +35,7 @@ export default function robots(): MetadataRoute.Robots {
         "/api/",
       ],
     },
-    // The index names sitemap.xml and every product file, so they need no lines of their own.
+    // The index names sitemap.xml, the category file and every product file, so they need no lines of their own.
     sitemap: `${baseUrl}/sitemap-index.xml`,
   };
 }

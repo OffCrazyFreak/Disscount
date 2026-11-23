@@ -5,7 +5,7 @@ import { appUrl } from "@/lib/env";
 import { PRODUCT_SITEMAP_IDS } from "@/utils/product-sitemap";
 
 describe("GET /sitemap-index.xml", () => {
-  it("lists the page sitemap and every product file", async () => {
+  it("lists the page and category sitemaps and every product file", async () => {
     const response = GET();
     const body = await response.text();
     const locs = [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
@@ -18,6 +18,7 @@ describe("GET /sitemap-index.xml", () => {
     );
     expect(locs).toEqual([
       `${appUrl()}/sitemap.xml`,
+      `${appUrl()}/categories/sitemap.xml`,
       ...PRODUCT_SITEMAP_IDS.map(
         (id) => `${appUrl()}/products/sitemap/${id}.xml`,
       ),
