@@ -11,14 +11,21 @@ export function useProfileUpdaters() {
 
   const updateProfile = useCallback(
     async (update: (current: UserDto) => UserDto | undefined) => {
+      // A save answered after another account took over belongs to the previous account.
+      function applies(current: UserDto | undefined): current is UserDto {
+        return (
+          current?.id === getCacheIdentity() && update(current) !== undefined
+        );
+      }
+
+      // Checked first, so a save that does not apply never cancels the new account's load.
+      if (!applies(queryClient.getQueryData(USER_QUERY_KEYS.me))) return;
+
       // A refetch that started before the edit would answer with the profile from before it.
       await queryClient.cancelQueries({ queryKey: USER_QUERY_KEYS.me });
 
       queryClient.setQueryData<UserDto>(USER_QUERY_KEYS.me, (current) =>
-        // A save answered after another account took over belongs to the previous account.
-        current && current.id === getCacheIdentity()
-          ? update(current)
-          : undefined,
+        applies(current) ? update(current) : undefined,
       );
     },
     [queryClient],
