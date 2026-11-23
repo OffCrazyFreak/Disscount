@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 
 import ScrollFade from "@/components/custom/common/scroll-fade/scroll-fade";
 import StoreListItem from "@/features/map/components/store/store-list-item";
-import { useNavClearance } from "@/features/map/hooks/use-nav-clearance";
+import { useNavClearance } from "@/features/map/hooks/layout/use-nav-clearance";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
 import { toListEntries } from "@/features/map/utils/stores/list-entries";
 import { revealOffset } from "@/features/map/utils/view/reveal-offset";

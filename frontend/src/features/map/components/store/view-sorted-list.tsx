@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import StoreList from "@/features/map/components/store/store-list";
-import { useHeldView } from "@/features/map/hooks/use-held-view";
+import { useHeldView } from "@/features/map/hooks/canvas/use-held-view";
 import { useFavoriteStores } from "@/features/map/hooks/use-favorite-stores";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
 import { IViewArea, splitByView } from "@/features/map/utils/view/view-area";

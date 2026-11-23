@@ -8,8 +8,8 @@ import HeaderActions from "@/components/custom/header/components/header-actions"
 import MapSearch from "@/features/map/components/search/map-search";
 import MapSearchLead from "@/features/map/components/search/map-search-lead";
 import MapSearchSurface from "@/features/map/components/search/map-search-surface";
-import { useHeaderSlot } from "@/features/map/hooks/use-header-slot";
-import { useMorphTransition } from "@/features/map/hooks/use-morph-transition";
+import { useHeaderSlot } from "@/features/map/hooks/layout/use-header-slot";
+import { useMorphTransition } from "@/features/map/hooks/layout/use-morph-transition";
 import { HEADER_SLOT_OPEN_ATTR } from "@/components/custom/header/header-slot";
 
 interface IMapSearchBarProps {

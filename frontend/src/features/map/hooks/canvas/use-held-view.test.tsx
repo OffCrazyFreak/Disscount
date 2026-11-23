@@ -2,7 +2,7 @@ import type { FocusEvent } from "react";
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { useHeldView } from "@/features/map/hooks/use-held-view";
+import { useHeldView } from "@/features/map/hooks/canvas/use-held-view";
 import { IViewArea } from "@/features/map/utils/view/view-area";
 
 function box(west: number, south: number, east: number, north: number) {

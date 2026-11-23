@@ -2,7 +2,7 @@
 
 import { motion, Transition } from "motion/react";
 
-import type { IFrameBox } from "@/features/map/hooks/use-header-slot";
+import type { IFrameBox } from "@/features/map/hooks/layout/use-header-slot";
 
 const FULL_CLIP = "inset(0px 0px calc(0% - 0px) 0px round 0px)";
 

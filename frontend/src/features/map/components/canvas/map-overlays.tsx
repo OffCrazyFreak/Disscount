@@ -6,7 +6,7 @@ import {
   SELECTED_FRAME_ID,
   SELECTED_STACK_FRAME_ID,
 } from "@/features/map/utils/canvas/chain-icon";
-import { useSelectedFrame } from "@/features/map/hooks/use-selected-frame";
+import { useSelectedFrame } from "@/features/map/hooks/canvas/use-selected-frame";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
 import { GUESS_RADIUS_M } from "@/hooks/geo/use-geolocation";
 import { circlePolygon } from "@/features/map/utils/view/circle";

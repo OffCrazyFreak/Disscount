@@ -5,7 +5,7 @@ import {
   HEADER_SLOT_ID,
   HEADER_SLOT_OPEN_ATTR,
 } from "@/components/custom/header/header-slot";
-import { useHeaderSlot } from "@/features/map/hooks/use-header-slot";
+import { useHeaderSlot } from "@/features/map/hooks/layout/use-header-slot";
 
 const observer = { report: () => {} };
 
