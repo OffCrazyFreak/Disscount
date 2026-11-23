@@ -36,7 +36,20 @@ describe("productJsonLd", () => {
     });
   });
 
-  it("leaves out gtin, brand and offers it has no data for", () => {
+  it("dates the markup by the newest chain price date", () => {
+    const markup = productJsonLd({
+      product: priceProduct([
+        { ...chain("konzum", "0.89"), price_date: "2026-11-20" },
+        { ...chain("spar", "0.30"), price_date: "2026-11-22" },
+        { ...chain("lidl", "0.50"), price_date: "2026-11-21" },
+      ]),
+      ...input,
+    });
+
+    expect(markup.dateModified).toBe("2026-11-22");
+  });
+
+  it("leaves out gtin, brand, offers and dateModified it has no data for", () => {
     const markup = productJsonLd({
       product: product({ ean: "spar:385864", brand: "", chains: [] }),
       ...input,
@@ -45,6 +58,7 @@ describe("productJsonLd", () => {
     expect(markup).not.toHaveProperty("gtin");
     expect(markup).not.toHaveProperty("brand");
     expect(markup).not.toHaveProperty("offers");
+    expect(markup).not.toHaveProperty("dateModified");
   });
 
   it("carries the photo it is given", () => {

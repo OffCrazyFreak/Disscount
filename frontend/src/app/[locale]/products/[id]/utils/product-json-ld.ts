@@ -12,6 +12,15 @@ function isPublicGtin(ean: string): boolean {
   return gs1CheckDigit(ean.slice(0, -1)) === Number(ean.slice(-1));
 }
 
+/** ISO dates sort as text, so the largest is the day a chain last published this product's prices. */
+function newestPriceDate(product: ProductResponse): string | null {
+  return product.chains.reduce<string | null>(
+    (newest, chain) =>
+      newest === null || chain.price_date > newest ? chain.price_date : newest,
+    null,
+  );
+}
+
 interface IProductJsonLdInput {
   product: ProductResponse;
   url: string;
@@ -22,6 +31,7 @@ interface IProductJsonLdInput {
 export function productJsonLd({ product, url, image }: IProductJsonLdInput) {
   const lowPrice = getMinPrice(product);
   const highPrice = getMaxPrice(product);
+  const priceDate = newestPriceDate(product);
 
   return {
     "@context": "https://schema.org",
@@ -32,6 +42,8 @@ export function productJsonLd({ product, url, image }: IProductJsonLdInput) {
     ...(image && { image }),
     // cijene also keys products by "chain:code" and by in-store codes, neither a GTIN.
     ...(isPublicGtin(product.ean) && { gtin: product.ean }),
+    // Bing reads this as the page's freshness; Google ignores it on a Product.
+    ...(priceDate && { dateModified: priceDate }),
     ...(product.brand && {
       brand: { "@type": "Brand", name: product.brand },
     }),
