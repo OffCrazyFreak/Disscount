@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 
 export type ProductFilterKey = "chain" | "location" | "category" | "brand";
@@ -25,40 +24,33 @@ export default function useFilterParams(): IFilterParamsResult {
   const pathname = usePathname();
   const router = useRouter();
 
-  const replaceParams = useCallback(
-    (mutate: (params: URLSearchParams) => void) => {
-      const params = new URLSearchParams(searchParams.toString());
-      mutate(params);
+  function replaceParams(mutate: (params: URLSearchParams) => void) {
+    const params = new URLSearchParams(searchParams.toString());
+    mutate(params);
 
-      const queryString = params.toString();
-      router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
-        scroll: false,
-      });
-    },
-    [searchParams, pathname, router],
-  );
+    const queryString = params.toString();
+    router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
+      scroll: false,
+    });
+  }
 
-  const setFilters = useCallback(
-    (updates: Partial<Record<ProductFilterKey, string[]>>) => {
-      replaceParams((params) => {
-        for (const [key, values] of Object.entries(updates)) {
-          // One param per value: a category or brand may itself contain a comma.
-          params.delete(key);
-          values?.forEach((value) => params.append(key, value));
-        }
-      });
-    },
-    [replaceParams],
-  );
+  function setFilters(updates: Partial<Record<ProductFilterKey, string[]>>) {
+    replaceParams((params) => {
+      for (const [key, values] of Object.entries(updates)) {
+        // One param per value: a category or brand may itself contain a comma.
+        params.delete(key);
+        values?.forEach((value) => params.append(key, value));
+      }
+    });
+  }
 
-  const setFilter = useCallback(
-    (key: ProductFilterKey, values: string[]) => setFilters({ [key]: values }),
-    [setFilters],
-  );
+  function setFilter(key: ProductFilterKey, values: string[]) {
+    setFilters({ [key]: values });
+  }
 
-  const clearFilters = useCallback(() => {
+  function clearFilters() {
     replaceParams((params) => FILTER_KEYS.forEach((key) => params.delete(key)));
-  }, [replaceParams]);
+  }
 
   return { setFilter, setFilters, clearFilters };
 }

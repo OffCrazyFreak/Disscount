@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
+import { HistoryDataPoint } from "@/lib/cijene-api/history-data-point";
 import { useUser } from "@/context/user-context";
 import {
   updateProductPreferences,
@@ -16,6 +17,23 @@ import {
 interface IChartPrefs {
   period: PeriodOption;
   chains: string[];
+}
+
+function priceChangeAcross(priceHistoryData: HistoryDataPoint[]) {
+  if (priceHistoryData.length === 0) {
+    return null;
+  }
+
+  const currentAvgPrice = getAveragePrice(
+    priceHistoryData[priceHistoryData.length - 1].product,
+  );
+  const historicalAvgPrice = getAveragePrice(priceHistoryData[0].product);
+
+  if (currentAvgPrice == null || historicalAvgPrice == null) {
+    return null;
+  }
+
+  return calculatePriceChange(currentAvgPrice, historicalAvgPrice);
 }
 
 export function usePriceHistoryChart(product: ProductResponse) {
@@ -82,22 +100,7 @@ export function usePriceHistoryChart(product: ProductResponse) {
     if (chains.length > 0) savePreferences({ ...chartPrefs, chains });
   }
 
-  const priceChange = useMemo(() => {
-    if (priceHistoryData.length === 0) {
-      return null;
-    }
-
-    const currentAvgPrice = getAveragePrice(
-      priceHistoryData[priceHistoryData.length - 1].product,
-    );
-    const historicalAvgPrice = getAveragePrice(priceHistoryData[0].product);
-
-    if (currentAvgPrice == null || historicalAvgPrice == null) {
-      return null;
-    }
-
-    return calculatePriceChange(currentAvgPrice, historicalAvgPrice);
-  }, [priceHistoryData]);
+  const priceChange = priceChangeAcross(priceHistoryData);
 
   return {
     chartPrefs,

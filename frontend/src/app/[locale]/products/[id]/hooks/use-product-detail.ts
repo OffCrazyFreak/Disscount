@@ -45,18 +45,12 @@ export function useProductDetail(ean: string) {
   });
   const { sortMode, distanceByChain } = distance;
 
-  const pinnedStoreIds = useMemo(
-    () => accountUser?.pinnedStores?.map((store) => store.storeApiId) ?? [],
-    [accountUser?.pinnedStores],
-  );
+  const pinnedStoreIds =
+    accountUser?.pinnedStores?.map((store) => store.storeApiId) ?? [];
 
   // Copy first: product.chains is the cached array, and sort mutates.
-  const sortedChains = useMemo(
-    () =>
-      [...(product?.chains ?? [])].sort((a, b) =>
-        compareProductChains(a, b, pinnedStoreIds, sortMode, distanceByChain),
-      ),
-    [product?.chains, pinnedStoreIds, sortMode, distanceByChain],
+  const sortedChains = [...(product?.chains ?? [])].sort((a, b) =>
+    compareProductChains(a, b, pinnedStoreIds, sortMode, distanceByChain),
   );
 
   return {

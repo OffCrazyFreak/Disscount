@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useState } from "react";
+import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { MapPinned } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -34,9 +34,9 @@ export default function ProductChainsSection({
     enabled: expandedChain !== null || detail.shownNearestStores !== undefined,
   });
 
-  const toggleChain = useCallback((chainCode: string) => {
+  function toggleChain(chainCode: string) {
     setExpandedChain((previous) => (previous === chainCode ? null : chainCode));
-  }, []);
+  }
 
   // The chain rows need only the product, so they render before the store prices arrive.
   const pricesStatus = detail.pricesLoading
