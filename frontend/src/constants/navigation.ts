@@ -17,6 +17,7 @@ import {
   Package,
   House,
   LayoutGrid,
+  Building2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type shell from "@/i18n/messages/hr/shell.json";
@@ -159,6 +160,14 @@ const productNavTable = [
     href: "/categories",
     labelKey: "nav.categories",
     icon: LayoutGrid,
+
+    showInHeader: false,
+  },
+  {
+    id: "chains",
+    href: "/chains",
+    labelKey: "nav.chains",
+    icon: Building2,
 
     showInHeader: false,
   },
