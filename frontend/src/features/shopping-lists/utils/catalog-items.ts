@@ -1,4 +1,4 @@
-import type { ShoppingListItemDto } from "@/lib/api/schemas/shopping-list-item";
+import type { ShoppingListItemDto } from "@/lib/api/schemas/lists/shopping-list-item";
 
 /** A list item linked to a catalog product, so it has prices and a product page. */
 export type CatalogItem = ShoppingListItemDto & { ean: string };

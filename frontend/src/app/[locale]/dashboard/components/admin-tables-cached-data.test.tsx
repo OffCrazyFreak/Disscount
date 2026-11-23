@@ -8,7 +8,7 @@ import AdminUsersTable from "@/app/[locale]/dashboard/components/admin-users-tab
 import hr from "@/i18n/messages/hr";
 import { ADMIN_QUERY_KEYS } from "@/lib/api/admin/keys";
 import { CONTACT_QUERY_KEYS } from "@/lib/api/contact/keys";
-import type { UserDto } from "@/lib/api/schemas/auth-user";
+import type { UserDto } from "@/lib/api/schemas/user/auth-user";
 import type { ContactMessageDto } from "@/lib/api/types";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";

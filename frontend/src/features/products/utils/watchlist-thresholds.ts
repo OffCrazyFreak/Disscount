@@ -1,5 +1,5 @@
 import { WatchType } from "@/lib/api";
-import type { WatchlistItemDto } from "@/lib/api/schemas/watchlist";
+import type { WatchlistItemDto } from "@/lib/api/schemas/lists/watchlist";
 
 export function watchlistLimits(watchType: WatchType) {
   return watchType === WatchType.absolute

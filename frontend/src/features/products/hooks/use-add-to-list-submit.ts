@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { shoppingListService } from "@/lib/api";
-import type { ShoppingListDto } from "@/lib/api/schemas/shopping-list";
+import type { ShoppingListDto } from "@/lib/api/schemas/lists/shopping-list";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import type {
   AddToListFormData,

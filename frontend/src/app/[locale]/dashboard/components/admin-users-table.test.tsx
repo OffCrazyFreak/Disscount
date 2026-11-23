@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import AdminUsersTable from "@/app/[locale]/dashboard/components/admin-users-table";
-import type { AccountType, UserDto } from "@/lib/api/schemas/auth-user";
+import type { AccountType, UserDto } from "@/lib/api/schemas/user/auth-user";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 import { storedUser } from "@/test/fixtures/stored-user";

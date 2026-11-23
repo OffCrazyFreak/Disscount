@@ -1,4 +1,4 @@
-import { UserDto } from "@/lib/api/schemas/auth-user";
+import { UserDto } from "@/lib/api/schemas/user/auth-user";
 import { MILLISECONDS_PER_DAY } from "@/utils/format/date";
 
 export type ActivityWindowDays = "1" | "7" | "14" | "30" | "90";

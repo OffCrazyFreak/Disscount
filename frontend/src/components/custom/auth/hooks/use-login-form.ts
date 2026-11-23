@@ -4,7 +4,10 @@ import { useTranslations } from "next-intl";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import { loginRequestSchema, LoginRequest } from "@/lib/api/schemas/auth-user";
+import {
+  loginRequestSchema,
+  LoginRequest,
+} from "@/lib/api/schemas/user/auth-user";
 import { signIn } from "@/lib/auth/client";
 import { useUser } from "@/context/user-context";
 import { setLastLoginMethod } from "@/utils/browser/local-storage";

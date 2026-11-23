@@ -20,7 +20,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { acquisitionChannelSchema } from "@/lib/api/schemas/auth-user";
+import { acquisitionChannelSchema } from "@/lib/api/schemas/user/auth-user";
 import { StaggerChildren } from "@/components/custom/animation/stagger-children";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 import SettingsSection from "@/components/custom/settings/ui/settings-section";

@@ -2,7 +2,7 @@
 
 import { useListChainAggregates } from "@/features/shopping-lists/detail/hooks/use-list-chain-aggregates";
 import { ShoppingListDto } from "@/lib/api/types";
-import { PinnedStoreDto } from "@/lib/api/schemas/preferences";
+import { PinnedStoreDto } from "@/lib/api/schemas/user/preferences";
 import {
   compareStoreChains,
   type StoreOptimizeMode,

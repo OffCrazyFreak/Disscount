@@ -1,4 +1,4 @@
-import type { UserDto } from "@/lib/api/schemas/auth-user";
+import type { UserDto } from "@/lib/api/schemas/user/auth-user";
 
 // The shape UserDto serializes: Jackson sends every key, unset ones as null.
 export const storedUser = {

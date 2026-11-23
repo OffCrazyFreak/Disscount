@@ -14,7 +14,7 @@ import {
 import { StepperNumberInput } from "@/components/custom/form/stepper-number-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WatchType } from "@/lib/api";
-import type { WatchlistItemDto } from "@/lib/api/schemas/watchlist";
+import type { WatchlistItemDto } from "@/lib/api/schemas/lists/watchlist";
 import {
   thresholdField,
   WatchlistFormData,

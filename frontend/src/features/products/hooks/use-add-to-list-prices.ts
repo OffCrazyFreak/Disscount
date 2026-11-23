@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import type { UseFormReturn } from "react-hook-form";
 
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
-import type { PinnedStoreDto } from "@/lib/api/schemas/preferences";
+import type { PinnedStoreDto } from "@/lib/api/schemas/user/preferences";
 import type { AddToListFormData } from "@/features/products/typings/add-to-list";
 import { getAveragePrice } from "@/features/products/utils/product-utils";
 import {

@@ -7,7 +7,7 @@ import { useLocale, useTranslations } from "next-intl";
 import {
   registerRequestSchema,
   RegisterRequest,
-} from "@/lib/api/schemas/auth-user";
+} from "@/lib/api/schemas/user/auth-user";
 import { isPasswordPolicyCode } from "@/lib/auth/password/password-policy";
 import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
 

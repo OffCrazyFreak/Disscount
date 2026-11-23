@@ -5,7 +5,7 @@ import { and, desc, eq, gt } from "drizzle-orm";
 
 import { db } from "@/db";
 import { session } from "@/db/auth-schema";
-import type { AccountSessionDto } from "@/lib/api/schemas/account-session";
+import type { AccountSessionDto } from "@/lib/api/schemas/user/account-session";
 
 const DEVICE_TYPES = new Set(["mobile", "tablet", "desktop"]);
 

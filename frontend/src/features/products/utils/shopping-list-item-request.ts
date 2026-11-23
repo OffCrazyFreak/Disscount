@@ -1,5 +1,5 @@
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
-import type { ShoppingListItemRequest } from "@/lib/api/schemas/shopping-list-item";
+import type { ShoppingListItemRequest } from "@/lib/api/schemas/lists/shopping-list-item";
 import type {
   AddToListFormData,
   IProductPricing,

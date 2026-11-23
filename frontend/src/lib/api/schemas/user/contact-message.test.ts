@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { contactMessageDtoSchema } from "@/lib/api/schemas/contact-message";
+import { contactMessageDtoSchema } from "@/lib/api/schemas/user/contact-message";
 
 // The shape ContactMessageDto serializes for an anonymous message: Jackson sends every key, unset ones as null.
 const anonymousMessage = {

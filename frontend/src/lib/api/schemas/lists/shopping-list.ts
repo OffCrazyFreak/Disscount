@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { shoppingListItemDtoSchema } from "@/lib/api/schemas/shopping-list-item";
+import { shoppingListItemDtoSchema } from "@/lib/api/schemas/lists/shopping-list-item";
 
 // OWNER is only a resolved answer, never a level to pick, so it appears only in listAccessSchema.
 const linkAccessSchema = z.enum(["NONE", "VIEW", "SHOP", "EDIT"]);

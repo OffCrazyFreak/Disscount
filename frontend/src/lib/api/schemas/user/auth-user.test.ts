@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { userDtoSchema, userRequestSchema } from "@/lib/api/schemas/auth-user";
+import {
+  userDtoSchema,
+  userRequestSchema,
+} from "@/lib/api/schemas/user/auth-user";
 import { storedUser } from "@/test/fixtures/stored-user";
 
 describe("userDtoSchema", () => {

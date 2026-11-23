@@ -3,7 +3,7 @@
 import { onlineManager } from "@tanstack/react-query";
 
 import { userService } from "@/lib/api";
-import { ONBOARDING_COMPLETED } from "@/lib/api/schemas/auth-user";
+import { ONBOARDING_COMPLETED } from "@/lib/api/schemas/user/auth-user";
 import { useUser } from "@/context/user-context";
 
 /** Its own mutation, because useSettingsSave's isPending would disable the pressed button. */

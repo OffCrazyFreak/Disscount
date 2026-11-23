@@ -1,4 +1,4 @@
-import type { LimitReachedProblem } from "@/lib/api/schemas/user-limit";
+import type { LimitReachedProblem } from "@/lib/api/schemas/user/user-limit";
 
 interface ILimitReachedState {
   open: boolean;

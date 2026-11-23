@@ -2,7 +2,10 @@
 
 import { useTranslations } from "next-intl";
 import { Banner } from "@/components/custom/common/feedback/banner";
-import type { LinkAccess, ListAccess } from "@/lib/api/schemas/shopping-list";
+import type {
+  LinkAccess,
+  ListAccess,
+} from "@/lib/api/schemas/lists/shopping-list";
 import { LINK_ACCESS_ICONS } from "@/features/shopping-lists/utils/link-access-icons";
 import { SHARED_ACCESS_BANNER_ID } from "@/features/shopping-lists/utils/shopping-list-access";
 

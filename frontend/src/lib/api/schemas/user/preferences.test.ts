@@ -4,7 +4,7 @@ import { z } from "zod";
 import {
   bulkPinnedPlaceRequestSchema,
   bulkPinnedStoreRequestSchema,
-} from "@/lib/api/schemas/preferences";
+} from "@/lib/api/schemas/user/preferences";
 
 // No form reads these request schemas, so they keep zod's own message instead of copy.
 const defaultMessage = z.string().min(1).safeParse("").error?.issues[0].message;

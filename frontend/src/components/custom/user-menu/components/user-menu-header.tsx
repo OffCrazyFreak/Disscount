@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 import { DropdownMenuLabel } from "@/components/ui/dropdown-menu";
 import UserAvatar from "@/components/custom/common/display/user-avatar";
 import { Badge } from "@/components/ui/badge";
-import { ACCOUNT_TYPE_LABELS } from "@/lib/api/schemas/auth-user";
+import { ACCOUNT_TYPE_LABELS } from "@/lib/api/schemas/user/auth-user";
 import type { UserDto } from "@/lib/api/types";
 
 interface IUserMenuHeaderProps {

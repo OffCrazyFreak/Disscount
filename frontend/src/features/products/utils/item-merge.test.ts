@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { ShoppingListItemDto } from "@/lib/api/schemas/shopping-list-item";
+import type { ShoppingListItemDto } from "@/lib/api/schemas/lists/shopping-list-item";
 import { mergesIntoExisting } from "@/features/products/utils/item-merge";
 import { UNSET_ITEM_FIELDS } from "@/test/backend/unset-item-fields";
 

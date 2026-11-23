@@ -1,4 +1,4 @@
-import type { ShoppingListItemDto } from "@/lib/api/schemas/shopping-list-item";
+import type { ShoppingListItemDto } from "@/lib/api/schemas/lists/shopping-list-item";
 import { isSameProduct } from "@/utils/links/product-id";
 
 // Mirrors ShoppingListItemMatcher, so a toast can say whether an add bumped an existing row.

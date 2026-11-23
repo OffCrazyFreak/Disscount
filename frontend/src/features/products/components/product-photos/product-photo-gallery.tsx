@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@/context/user-context";
 import { useProductImages } from "@/lib/api/product-images/hooks";
-import { isAdmin } from "@/lib/api/schemas/auth-user";
+import { isAdmin } from "@/lib/api/schemas/user/auth-user";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { cn } from "@/lib/utils";
 

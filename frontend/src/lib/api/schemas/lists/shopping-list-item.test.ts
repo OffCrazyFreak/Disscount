@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { MAX_SHOPPING_LIST_ITEM_AMOUNT } from "@/constants/shopping-list";
-import { shoppingListDtoSchema } from "@/lib/api/schemas/shopping-list";
+import { shoppingListDtoSchema } from "@/lib/api/schemas/lists/shopping-list";
 import {
   shoppingListItemDtoSchema,
   shoppingListItemRequestSchema,
-} from "@/lib/api/schemas/shopping-list-item";
+} from "@/lib/api/schemas/lists/shopping-list-item";
 
 // The shape ShoppingListItemDto serializes: Jackson sends every key, unset ones as null.
 const storedItem = {

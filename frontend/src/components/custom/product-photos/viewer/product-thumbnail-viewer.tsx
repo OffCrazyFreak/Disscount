@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 
 import { useUser } from "@/context/user-context";
 import { useProductImages } from "@/lib/api/product-images/hooks";
-import { isAdmin } from "@/lib/api/schemas/auth-user";
+import { isAdmin } from "@/lib/api/schemas/user/auth-user";
 
 const ProductPhotoViewer = dynamic(
   () =>

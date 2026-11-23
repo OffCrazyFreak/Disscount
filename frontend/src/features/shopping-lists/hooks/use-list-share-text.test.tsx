@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useListShareText } from "@/features/shopping-lists/hooks/use-list-share-text";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
-import type { PinnedStoreDto } from "@/lib/api/schemas/preferences";
+import type { PinnedStoreDto } from "@/lib/api/schemas/user/preferences";
 import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
 import { renderHookWithProviders } from "@/test/render";
 import { UNSET_ITEM_FIELDS } from "@/test/backend/unset-item-fields";

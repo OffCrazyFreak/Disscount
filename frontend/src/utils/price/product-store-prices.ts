@@ -1,4 +1,4 @@
-import { PinnedStoreDto } from "@/lib/api/schemas/preferences";
+import { PinnedStoreDto } from "@/lib/api/schemas/user/preferences";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { isPinnedChain } from "@/utils/geo/pinned-stores";
 

@@ -1,5 +1,5 @@
 import { ShoppingListDto } from "@/lib/api/types";
-import { PinnedStoreDto } from "@/lib/api/schemas/preferences";
+import { PinnedStoreDto } from "@/lib/api/schemas/user/preferences";
 import { getPriceExtreme, PriceExtreme } from "@/utils/price/price-comparison";
 import { ChainSummary } from "@/features/shopping-lists/detail/typings/store-chain-types";
 import { itemsToCompare } from "@/features/shopping-lists/utils/catalog-items";

@@ -17,7 +17,7 @@ import {
   isNavItemLocked,
 } from "@/constants/navigation";
 import { useUser } from "@/context/user-context";
-import { canAccessDashboard } from "@/lib/api/schemas/auth-user";
+import { canAccessDashboard } from "@/lib/api/schemas/user/auth-user";
 import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-drop-count";
 import { isRouteActive } from "@/utils/links/routes";
 

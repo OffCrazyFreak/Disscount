@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { WatchType, watchlistItemDtoSchema } from "@/lib/api/schemas/watchlist";
+import {
+  WatchType,
+  watchlistItemDtoSchema,
+} from "@/lib/api/schemas/lists/watchlist";
 
 // The shape WatchlistWireFormatTest pins: Spring sends every key, unset times as null.
 const storedItem = {
