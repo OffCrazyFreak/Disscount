@@ -34,7 +34,6 @@ interface IShoppingListSelectorProps {
   sortedShoppingLists: ShoppingListDto[];
   selectedList: ShoppingListDto | undefined;
   onSelectList: (listId: string) => void;
-  disabled?: boolean;
 }
 
 export default function ShoppingListSelector({
@@ -43,7 +42,6 @@ export default function ShoppingListSelector({
   sortedShoppingLists,
   selectedList,
   onSelectList,
-  disabled = false,
 }: IShoppingListSelectorProps) {
   const t = useTranslations("products");
   const [open, setOpen] = useState(false);
@@ -78,7 +76,6 @@ export default function ShoppingListSelector({
                   open={open}
                   isLoadingLists={isLoadingLists}
                   hasShoppingLists={sortedShoppingLists.length > 0}
-                  disabled={disabled}
                   isNewList={field.value === "new"}
                   customListTitle={customListTitle}
                   selectedList={selectedList}

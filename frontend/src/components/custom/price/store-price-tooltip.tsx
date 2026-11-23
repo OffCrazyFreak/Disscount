@@ -13,14 +13,12 @@ import type { INotificationStore } from "@/context/notifications-types";
 
 interface IStorePriceTooltipProps {
   stores: INotificationStore[];
-  emptyLabel?: string;
   side?: "top" | "right" | "bottom" | "left";
   children: ReactElement;
 }
 
 export default function StorePriceTooltip({
   stores,
-  emptyLabel,
   side,
   children,
 }: IStorePriceTooltipProps) {
@@ -34,7 +32,7 @@ export default function StorePriceTooltip({
         {stores.length > 0 ? (
           <StorePriceList stores={stores} />
         ) : (
-          <p className="text-sm">{emptyLabel ?? t("storePrice.empty")}</p>
+          <p className="text-sm">{t("storePrice.empty")}</p>
         )}
       </TooltipContent>
     </Tooltip>

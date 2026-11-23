@@ -8,18 +8,14 @@ import { formatDateTime } from "@/utils/strings";
 
 interface IRelativeTimeProps {
   value?: string | null;
-  fallback?: string;
 }
 
-export default function RelativeTime({
-  value,
-  fallback = "-",
-}: IRelativeTimeProps) {
+export default function RelativeTime({ value }: IRelativeTimeProps) {
   const mounted = useMinuteTick();
   const locale = useLocale();
 
   const timestamp = value ? parseServerDate(value).getTime() : Number.NaN;
-  if (Number.isNaN(timestamp)) return <>{fallback}</>;
+  if (Number.isNaN(timestamp)) return <>-</>;
 
   const absolute = formatDateTime(value, locale);
 

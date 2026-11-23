@@ -6,12 +6,8 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 
-interface INotifyMeButtonProps {
-  label?: string;
-}
-
 /** Uses notification preferences instead of a waitlist; the modal router gates signed-out visitors. */
-export default function NotifyMeButton({ label }: INotifyMeButtonProps) {
+export default function NotifyMeButton() {
   const t = useTranslations("common.comingSoon");
 
   return (
@@ -22,7 +18,7 @@ export default function NotifyMeButton({ label }: INotifyMeButtonProps) {
       iconPlacement="left"
       onClick={() => openModalUrl({ name: "settings", tab: "obavijesti" })}
     >
-      {label ?? t("notifyMe")}
+      {t("notifyMe")}
     </Button>
   );
 }
