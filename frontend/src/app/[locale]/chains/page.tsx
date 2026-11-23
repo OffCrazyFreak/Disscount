@@ -74,7 +74,8 @@ export default async function ChainsPage() {
 
       <h1 className="text-3xl font-bold text-pretty">{t("index.heading")}</h1>
 
-      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Two columns, because at three the store count and price date no longer fit on one line. */}
+      <ul className="grid gap-3 sm:grid-cols-2">
         {chains.map((chain) => (
           <li key={chain.code}>
             <Link
