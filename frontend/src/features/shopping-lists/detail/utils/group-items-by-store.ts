@@ -1,7 +1,7 @@
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import { suggestedChain } from "@/components/custom/store-chain/suggested-chain";
-import { getChainLabel } from "@/utils/labels";
-import { compareHr } from "@/utils/strings";
+import { getChainLabel } from "@/utils/format/labels";
+import { compareHr } from "@/utils/format/strings";
 
 export interface IStoreGroup {
   /** Null for items with no chain shown: none saved and none suggested. */

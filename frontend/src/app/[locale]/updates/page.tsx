@@ -13,7 +13,7 @@ import NewPostButton from "@/app/[locale]/updates/components/new-post-button";
 import { templatePosts } from "@/app/[locale]/updates/posts";
 import { localizePost } from "@/app/[locale]/updates/localize-post";
 import { pageMetadata } from "@/i18n/alternates";
-import { filterByFields, readSearchParam } from "@/utils/generic";
+import { filterByFields, readSearchParam } from "@/utils/format/generic";
 
 export function generateMetadata(): Promise<Metadata> {
   return pageMetadata("updates", "/updates");

@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import HoldProgressRing from "@/components/custom/common/hold-progress-ring";
 import ProductSummary from "@/components/custom/product/product-summary";
 import { cn } from "@/lib/utils";
-import { productPath } from "@/utils/product-links";
+import { productPath } from "@/utils/links/product-links";
 
 interface IProductCardProps {
   ean: string;

@@ -16,7 +16,7 @@ vi.mock("@/context/user-context", () => ({
 
 const scrollWindowTo = vi.hoisted(() => vi.fn());
 
-vi.mock("@/utils/scroll", () => ({ scrollWindowTo }));
+vi.mock("@/utils/ui/scroll", () => ({ scrollWindowTo }));
 
 const LABEL = "Pomakni se niže";
 

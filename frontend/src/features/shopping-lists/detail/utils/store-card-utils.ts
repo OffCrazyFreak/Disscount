@@ -1,9 +1,9 @@
 import { ShoppingListDto } from "@/lib/api/types";
 import { PinnedStoreDto } from "@/lib/api/schemas/preferences";
-import { getPriceExtreme, PriceExtreme } from "@/utils/price-comparison";
+import { getPriceExtreme, PriceExtreme } from "@/utils/price/price-comparison";
 import { ChainSummary } from "@/features/shopping-lists/detail/typings/store-chain-types";
 import { itemsToCompare } from "@/features/shopping-lists/utils/catalog-items";
-import { isPriceDateToday } from "@/utils/product-price-utils";
+import { isPriceDateToday } from "@/utils/price/product-price-utils";
 
 interface IStoreCardMetricsParams {
   chain: ChainSummary;

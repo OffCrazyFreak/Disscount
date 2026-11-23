@@ -2,7 +2,7 @@
 
 import { usePathname } from "@/i18n/navigation";
 import { useUser } from "@/context/user-context";
-import { isRouteActive } from "@/utils/routes";
+import { isRouteActive } from "@/utils/links/routes";
 import { isNavItemLocked } from "@/constants/navigation";
 import {
   bottomNavItems,

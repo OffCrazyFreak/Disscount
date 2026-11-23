@@ -3,7 +3,7 @@ import {
   canonicalProductId,
   isSameProduct,
   isWellFormedProductId,
-} from "@/utils/product-id";
+} from "@/utils/links/product-id";
 
 describe("isWellFormedProductId", () => {
   it.each([

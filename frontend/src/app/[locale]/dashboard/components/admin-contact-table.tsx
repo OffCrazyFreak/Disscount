@@ -26,7 +26,7 @@ import { useContactInbox } from "@/app/[locale]/dashboard/hooks/use-contact-inbo
 import { useRevealedItems } from "@/hooks/scroll/use-revealed-items";
 import { contactService } from "@/lib/api";
 import { ContactMessageDto } from "@/lib/api/types";
-import { filterByFields } from "@/utils/generic";
+import { filterByFields } from "@/utils/format/generic";
 
 type InboxView = "all" | "unread";
 

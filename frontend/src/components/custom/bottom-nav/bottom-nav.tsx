@@ -5,7 +5,7 @@ import { usePathname } from "@/i18n/navigation";
 import { useCameraScanner } from "@/context/scanner-context";
 import useProductNavigation from "@/hooks/state/use-product-navigation";
 import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-drop-count";
-import { productEanFromPath } from "@/utils/routes";
+import { productEanFromPath } from "@/utils/links/routes";
 import BottomNavCenterItem from "@/components/custom/bottom-nav/bottom-nav-center-item";
 import BottomNavItem from "@/components/custom/bottom-nav/bottom-nav-item";
 import resolveHoldTarget from "@/components/custom/bottom-nav/resolve-hold-target";

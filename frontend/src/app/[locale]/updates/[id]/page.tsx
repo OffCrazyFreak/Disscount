@@ -6,7 +6,7 @@ import Image from "next/image";
 
 import { ArrowLeft, Calendar } from "lucide-react";
 
-import { formatDate } from "@/utils/strings";
+import { formatDate } from "@/utils/format/strings";
 import { getPostById, templatePosts } from "@/app/[locale]/updates/posts";
 import { localizePost } from "@/app/[locale]/updates/localize-post";
 import { pageAlternates } from "@/i18n/alternates";

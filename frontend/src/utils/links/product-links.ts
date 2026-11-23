@@ -2,7 +2,7 @@ import { appUrl } from "@/lib/env";
 import { localePath } from "@/i18n/locale-path";
 import type { AppLocale } from "@/i18n/locales";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
-import { formatQuantity } from "@/utils/strings";
+import { formatQuantity } from "@/utils/format/strings";
 
 /** The price API carries no imagery, so the web is the only source of a picture */
 export function productImageSearchUrl(product: ProductResponse): string {

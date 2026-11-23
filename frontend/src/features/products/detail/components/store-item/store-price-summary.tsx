@@ -9,7 +9,7 @@ import {
   getPriceExtreme,
   type PriceExtreme,
 } from "@/features/products/utils/product-utils";
-import { formatPrice } from "@/utils/price";
+import { formatPrice } from "@/utils/price/price";
 
 const EXTREME_CLASS: Record<NonNullable<PriceExtreme>, string> = {
   max: "text-red-700 font-bold",

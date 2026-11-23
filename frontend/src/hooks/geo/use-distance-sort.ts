@@ -8,7 +8,7 @@ import {
   type INearestStore,
   locatePricedStores,
   nearestStoreByChain,
-} from "@/utils/nearest-chain-distance";
+} from "@/utils/geo/nearest-chain-distance";
 import {
   useGeolocation,
   type GeolocationStatus,

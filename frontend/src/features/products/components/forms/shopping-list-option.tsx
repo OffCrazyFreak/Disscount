@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { formatDate } from "@/utils/strings";
+import { formatDate } from "@/utils/format/strings";
 import { ShoppingListDto } from "@/lib/api/types";
 
 interface IShoppingListOptionProps {

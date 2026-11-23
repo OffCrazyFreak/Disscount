@@ -1,7 +1,7 @@
 import * as cijeneService from "@/lib/cijene-api/index";
 import { ProductResponse, StoreResponse } from "@/lib/cijene-api/schemas";
 import { useMemo } from "react";
-import { getLocationLabel } from "@/utils/labels";
+import { getLocationLabel } from "@/utils/format/labels";
 import { IStoreLocation } from "@/typings/store-location";
 
 export function useAllLocations() {
@@ -66,7 +66,7 @@ export function useAllLocations() {
 
 import { useQueries } from "@tanstack/react-query";
 import { HistoryDataPoint } from "@/lib/cijene-api/history-data-point";
-import { buildDateWindow } from "@/utils/date";
+import { buildDateWindow } from "@/utils/format/date";
 import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 import { PRICE_ARCHIVE_START } from "@/constants/price-history";
 import { priceHistoryQueries } from "@/lib/cijene-api/price-history-queries";

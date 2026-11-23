@@ -11,7 +11,7 @@ import type { DigitalCardDto } from "@/lib/api/types";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { cn } from "@/lib/utils";
 import { cardTileStyle } from "@/features/digital-cards/utils/card-tile-style";
-import { textColorFor } from "@/utils/color-contrast";
+import { textColorFor } from "@/utils/ui/color-contrast";
 
 interface IDigitalCardTileProps {
   card: DigitalCardDto;

@@ -12,10 +12,10 @@ import { getVerifiedMainPhotoUrl } from "@/lib/api/product-images/server";
 import { productCacheState } from "@/app/[locale]/products/[id]/utils/product-cache-state";
 import { getServerProduct } from "@/lib/cijene-api/server/get-product";
 import { getServerProductPrices } from "@/lib/cijene-api/server/get-product-prices";
-import { formatPrice } from "@/utils/price";
-import { getMinPrice } from "@/utils/product-price-utils";
-import { productPageUrl } from "@/utils/product-links";
-import { decodeProductId } from "@/utils/product-id";
+import { formatPrice } from "@/utils/price/price";
+import { getMinPrice } from "@/utils/price/product-price-utils";
+import { productPageUrl } from "@/utils/links/product-links";
+import { decodeProductId } from "@/utils/links/product-id";
 import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 
 export async function generateMetadata(

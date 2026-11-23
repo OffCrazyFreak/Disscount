@@ -3,7 +3,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
 import type { ShoppingListItemDto } from "@/lib/api/types";
-import { formatPrice } from "@/utils/price";
+import { formatPrice } from "@/utils/price/price";
 import type { IShoppingListItemUpdate } from "@/features/shopping-lists/detail/typings/shopping-list-item-types";
 
 // The backend column is numeric(10,4).

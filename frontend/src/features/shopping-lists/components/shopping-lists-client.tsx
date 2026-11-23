@@ -14,7 +14,7 @@ import CreateShoppingListButton from "@/features/shopping-lists/components/creat
 import LoginRequired from "@/components/custom/common/login-required";
 import NotSavedOffline from "@/components/custom/common/not-saved-offline";
 import { useIsNotSavedOffline } from "@/hooks/runtime/use-is-not-saved-offline";
-import { filterByFields } from "@/utils/generic";
+import { filterByFields } from "@/utils/format/generic";
 import { shoppingListService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 import { openModalUrl } from "@/lib/modal/modal-navigation";

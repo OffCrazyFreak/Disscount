@@ -3,7 +3,7 @@ import { Link } from "@/i18n/navigation";
 
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import { storeNamesMap } from "@/constants/name-mappings";
-import { getChainLabel } from "@/utils/labels";
+import { getChainLabel } from "@/utils/format/labels";
 
 const chains = Object.keys(storeNamesMap);
 

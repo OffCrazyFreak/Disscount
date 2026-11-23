@@ -1,5 +1,5 @@
 import type { IStoreLocation } from "@/typings/store-location";
-import { normalizeForSearch } from "@/utils/strings";
+import { normalizeForSearch } from "@/utils/format/strings";
 import { normalizeChainCode } from "@/features/products/utils/product-filters";
 
 /** A city filters by the chains that have a store there; null means unfiltered and an empty array means no overlap. */

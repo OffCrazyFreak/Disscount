@@ -1,4 +1,4 @@
-import { ILatLon } from "@/utils/distance";
+import { ILatLon } from "@/utils/geo/distance";
 
 const METRES_PER_DEGREE = 111_320;
 

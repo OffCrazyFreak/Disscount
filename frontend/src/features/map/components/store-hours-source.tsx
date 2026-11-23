@@ -6,8 +6,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { useStoreOpening } from "@/components/custom/store-hours/store-hours-context";
 import { useOpeningStatusText } from "@/components/custom/store-hours/use-opening-status-text";
 import { HOURS_CHAINS } from "@/lib/store-hours/hours-chains";
-import { getChainLabel } from "@/utils/labels";
-import { formatDate } from "@/utils/strings";
+import { getChainLabel } from "@/utils/format/labels";
+import { formatDate } from "@/utils/format/strings";
 
 interface IStoreHoursSourceProps {
   storeKey: string;

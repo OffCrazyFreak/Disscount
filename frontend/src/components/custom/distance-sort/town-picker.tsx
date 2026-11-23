@@ -17,7 +17,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { commandFilter } from "@/utils/search/command-filter";
-import type { IStoreTown } from "@/utils/store-towns";
+import type { IStoreTown } from "@/utils/geo/store-towns";
 import { useTownLabel } from "@/hooks/geo/use-town-label";
 
 interface ITownPickerProps {

@@ -1,4 +1,4 @@
-import { compareHr } from "@/utils/strings";
+import { compareHr } from "@/utils/format/strings";
 import type {
   IFacetOption,
   IFacetQuery,

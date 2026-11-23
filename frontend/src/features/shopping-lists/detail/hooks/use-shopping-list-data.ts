@@ -6,8 +6,8 @@ import { useUser } from "@/context/user-context";
 import {
   findCheapestStoreFromProduct,
   getStorePricesFromProduct,
-} from "@/utils/product-store-prices";
-import { getAveragePrice } from "@/utils/product-price-utils";
+} from "@/utils/price/product-store-prices";
+import { getAveragePrice } from "@/utils/price/product-price-utils";
 import { catalogEans } from "@/features/shopping-lists/utils/catalog-items";
 import {
   isSettledLookupError,

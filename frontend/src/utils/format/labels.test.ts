@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatStoreAddress } from "@/utils/labels";
+import { formatStoreAddress } from "@/utils/format/labels";
 
 describe("formatStoreAddress", () => {
   it("writes the street, then the postcode and town", () => {

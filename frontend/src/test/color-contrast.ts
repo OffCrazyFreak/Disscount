@@ -1,4 +1,4 @@
-import type { Rgb } from "@/utils/color-contrast";
+import type { Rgb } from "@/utils/ui/color-contrast";
 
 export function oklchToRgb(
   lightness: number,

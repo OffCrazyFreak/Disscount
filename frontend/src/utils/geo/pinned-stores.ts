@@ -1,4 +1,4 @@
-import { normalizeForSearch } from "@/utils/strings";
+import { normalizeForSearch } from "@/utils/format/strings";
 
 /** A pinned name ("Konzum Vukovarska") and chain code ("konzum"): either may be longer, so match both ways. */
 /** Below this containment means nothing: a store "K plus" yields "k", inside konzum, kaufland and ktc. */

@@ -4,7 +4,7 @@ import { Calendar, ListChecks } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import type { ShoppingListDto } from "@/lib/api/types";
-import { formatDate } from "@/utils/strings";
+import { formatDate } from "@/utils/format/strings";
 import ShoppingListVisibilityIndicator from "@/features/shopping-lists/components/shopping-list-visibility-indicator";
 
 interface IShoppingListSummaryProps {

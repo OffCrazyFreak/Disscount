@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { isKeyboardClick } from "@/utils/events";
+import { isKeyboardClick } from "@/utils/ui/events";
 import BottomNavItemGlyph from "@/components/custom/bottom-nav/bottom-nav-item-glyph";
 import BottomNavItemLabel from "@/components/custom/bottom-nav/bottom-nav-item-label";
 import BottomNavItemRings, {

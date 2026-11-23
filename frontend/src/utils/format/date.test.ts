@@ -4,7 +4,7 @@ import {
   buildDateWindow,
   formatRelativeTime,
   parseServerDate,
-} from "@/utils/date";
+} from "@/utils/format/date";
 
 afterEach(() => {
   vi.useRealTimers();

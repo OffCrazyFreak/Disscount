@@ -1,5 +1,5 @@
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
-import { normalizeForSearch } from "@/utils/strings";
+import { normalizeForSearch } from "@/utils/format/strings";
 
 /** No diacritic stripping as in `normalizeForSearch`, which could collide two distinct codes. */
 export function normalizeChainCode(code: string): string {

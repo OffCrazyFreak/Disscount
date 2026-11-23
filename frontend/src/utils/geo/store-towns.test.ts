@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { listStoreTowns, townCenter } from "@/utils/store-towns";
+import { listStoreTowns, townCenter } from "@/utils/geo/store-towns";
 
 const STORES = [
   { city: "Split", zipcode: "21000", lat: 43.5, lon: 16.4 },

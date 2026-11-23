@@ -4,14 +4,14 @@ import { ChevronDown, ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import StretchedCollapsibleTrigger from "@/components/custom/common/stretched-collapsible-trigger";
 import { CardHeader } from "@/components/ui/card";
-import { getChainLabel } from "@/utils/labels";
+import { getChainLabel } from "@/utils/format/labels";
 import { cn } from "@/lib/utils";
 import { ChainSummary } from "@/features/shopping-lists/detail/typings/store-chain-types";
 import { IStoreCardMetrics } from "@/features/shopping-lists/detail/utils/store-card-utils";
 import StoreCardBadges from "@/features/shopping-lists/detail/components/stores/store-card-badges";
 import StoreCardPriceRow from "@/features/shopping-lists/detail/components/stores/store-card-price-row";
 import NearestStoreDistance from "@/components/custom/distance-sort/nearest-store-distance";
-import type { INearestStore } from "@/utils/nearest-chain-distance";
+import type { INearestStore } from "@/utils/geo/nearest-chain-distance";
 
 interface IStoreCardHeaderProps {
   chain: ChainSummary;

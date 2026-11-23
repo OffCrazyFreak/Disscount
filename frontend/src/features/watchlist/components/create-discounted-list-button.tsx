@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import ResponsiveLabel from "@/components/custom/common/responsive-label";
 import { shoppingListService } from "@/lib/api";
 import { IWatchlistItemWithProduct } from "@/features/watchlist/utils/watchlist-utils";
-import { formatDate } from "@/utils/strings";
+import { formatDate } from "@/utils/format/strings";
 
 interface ICreateDiscountedListButtonProps {
   discountedItems: IWatchlistItemWithProduct[];

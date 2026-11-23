@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { WatchType } from "@/lib/api";
 import { WatchlistItemDto } from "@/lib/api/types";
-import { formatPrice } from "@/utils/price";
+import { formatPrice } from "@/utils/price/price";
 
 interface IWatchlistThresholdBadgesProps {
   items: WatchlistItemDto[];

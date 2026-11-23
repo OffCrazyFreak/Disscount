@@ -3,8 +3,8 @@
 import { useLocale } from "next-intl";
 
 import { useMinuteTick } from "@/hooks/runtime/use-minute-tick";
-import { formatRelativeTime, parseServerDate } from "@/utils/date";
-import { formatDateTime } from "@/utils/strings";
+import { formatRelativeTime, parseServerDate } from "@/utils/format/date";
+import { formatDateTime } from "@/utils/format/strings";
 
 interface IRelativeTimeProps {
   value?: string | null;

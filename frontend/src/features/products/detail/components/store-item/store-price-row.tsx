@@ -4,9 +4,9 @@ import { Link } from "@/i18n/navigation";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { toStoreKey } from "@/utils/store-key";
+import { toStoreKey } from "@/utils/geo/store-key";
 import { StorePrice } from "@/lib/cijene-api/schemas";
-import { getLocationLabel } from "@/utils/labels";
+import { getLocationLabel } from "@/utils/format/labels";
 import StoreOpeningBadge from "@/components/custom/store-hours/store-opening-badge";
 import StorePriceCell from "@/features/products/detail/components/store-item/store-price-cell";
 

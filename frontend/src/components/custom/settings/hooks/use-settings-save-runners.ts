@@ -4,7 +4,7 @@ import { userService, preferencesService } from "@/lib/api";
 import { useUser } from "@/context/user-context";
 import type { UserDto } from "@/lib/api/types";
 import type { ISaveJobRunners } from "@/components/custom/settings/settings-save-jobs";
-import { toPinnedPlaces } from "@/utils/place-options";
+import { toPinnedPlaces } from "@/utils/geo/place-options";
 
 function withoutImage(user: UserDto): Partial<UserDto> {
   const profile: Partial<UserDto> = { ...user };

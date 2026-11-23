@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Calendar } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
-import { formatDate } from "@/utils/strings";
+import { formatDate } from "@/utils/format/strings";
 import type { LocalizedPost } from "@/app/[locale]/updates/localize-post";
 
 interface IPostCardProps {

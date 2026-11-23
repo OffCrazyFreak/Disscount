@@ -1,5 +1,5 @@
 import { ProductResponse } from "@/lib/cijene-api/schemas";
-import { buildDateWindow } from "@/utils/date";
+import { buildDateWindow } from "@/utils/format/date";
 import { PRICE_ARCHIVE_START } from "@/constants/price-history";
 
 export function getPriceHistoryDates(

@@ -3,8 +3,8 @@
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
-import { readListParam } from "@/utils/generic";
-import { normalizeForSearch } from "@/utils/strings";
+import { readListParam } from "@/utils/format/generic";
+import { normalizeForSearch } from "@/utils/format/strings";
 import {
   canonicalizeSelection,
   normalizeChainCode,

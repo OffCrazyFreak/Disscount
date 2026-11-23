@@ -2,7 +2,7 @@ export {
   getMinPrice,
   getMaxPrice,
   getAveragePrice,
-} from "@/utils/product-price-utils";
+} from "@/utils/price/product-price-utils";
 
 export {
   getPricePerUnit,
@@ -15,6 +15,6 @@ export {
   getPriceExtreme,
   calculatePriceChange,
   type PriceExtreme,
-} from "@/utils/price-comparison";
+} from "@/utils/price/price-comparison";
 
-export { getMostFrequentCategory } from "@/utils/product-category-utils";
+export { getMostFrequentCategory } from "@/utils/price/product-category-utils";

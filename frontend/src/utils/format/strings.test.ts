@@ -5,7 +5,7 @@ import {
   formatDate,
   formatDateTime,
   formatDayMonth,
-} from "@/utils/strings";
+} from "@/utils/format/strings";
 
 const MORNING = "2026-11-03T06:05:00Z";
 

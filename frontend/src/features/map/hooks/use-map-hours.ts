@@ -8,7 +8,7 @@ import {
   type OpenFilter,
   passesOpenFilter,
 } from "@/features/map/utils/open-filter";
-import { toStoreKey } from "@/utils/store-key";
+import { toStoreKey } from "@/utils/geo/store-key";
 
 export function useMapHours(openFilter: OpenFilter) {
   const hours = useStoreHoursNow();

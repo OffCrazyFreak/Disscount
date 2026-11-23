@@ -3,7 +3,7 @@
 import { ChevronsDown, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { isKeyboardClick } from "@/utils/events";
+import { isKeyboardClick } from "@/utils/ui/events";
 import { useProductsSheet } from "@/context/products-sheet-context";
 import BottomNavIndicator from "@/components/custom/bottom-nav/bottom-nav-indicator";
 import HoldProgressRing from "@/components/custom/common/hold-progress-ring";

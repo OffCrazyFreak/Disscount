@@ -3,8 +3,8 @@ import {
   ProductResponse,
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
-import { getChainAvgPriceRange } from "@/utils/product-price-utils";
-import { getPriceExtreme } from "@/utils/price-comparison";
+import { getChainAvgPriceRange } from "@/utils/price/product-price-utils";
+import { getPriceExtreme } from "@/utils/price/price-comparison";
 
 export interface IChainItemPriceInfo {
   isAvailable: boolean;

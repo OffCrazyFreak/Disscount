@@ -24,8 +24,8 @@ import { DEFAULT_CARD_COLOR } from "@/features/digital-cards/utils/card-palette"
 import { defaultColorForChain } from "@/features/digital-cards/utils/chain-default-colors";
 import { useListChains } from "@/lib/cijene-api";
 import type { DigitalCardRequest } from "@/lib/api/types";
-import { getChainLabel } from "@/utils/labels";
-import { normalizeForSearch } from "@/utils/strings";
+import { getChainLabel } from "@/utils/format/labels";
+import { normalizeForSearch } from "@/utils/format/strings";
 
 const ICON_BUTTON_CLASS =
   "end-1 flex size-9 items-center justify-center rounded-md";

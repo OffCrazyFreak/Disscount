@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { productEanFromPath, shoppingListIdFromPath } from "@/utils/routes";
+import {
+  productEanFromPath,
+  shoppingListIdFromPath,
+} from "@/utils/links/routes";
 
 describe("productEanFromPath", () => {
   it("reads the EAN from a product page, with or without a trailing slash", () => {

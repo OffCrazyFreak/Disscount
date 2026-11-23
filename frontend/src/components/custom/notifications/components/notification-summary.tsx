@@ -1,7 +1,7 @@
 import { HandCoins } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { INotificationsSummary } from "@/context/notifications-types";
-import { formatPrice } from "@/utils/price";
+import { formatPrice } from "@/utils/price/price";
 
 interface INotificationSummaryProps {
   summary: INotificationsSummary;

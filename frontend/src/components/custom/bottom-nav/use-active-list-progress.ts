@@ -2,7 +2,7 @@
 
 import { usePathname } from "@/i18n/navigation";
 import { useGetShoppingListById } from "@/lib/api/shopping-lists/hooks";
-import { shoppingListIdFromPath } from "@/utils/routes";
+import { shoppingListIdFromPath } from "@/utils/links/routes";
 
 export interface IListProgress {
   checked: number;

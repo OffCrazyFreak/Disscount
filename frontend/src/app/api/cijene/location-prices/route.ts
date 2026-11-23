@@ -9,7 +9,7 @@ import {
 import { createPriceCache } from "@/lib/cijene-api/location-prices/price-cache";
 import { loadLocationPrices } from "@/lib/cijene-api/location-prices/load-location-prices";
 import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";
-import { buildQueryString, readListParam } from "@/utils/generic";
+import { buildQueryString, readListParam } from "@/utils/format/generic";
 
 // Upstream publishes prices once a day, so an hour old is still current.
 const priceCache = createPriceCache({

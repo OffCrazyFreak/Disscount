@@ -1,6 +1,6 @@
-import { normalizeForSearch } from "@/utils/strings";
+import { normalizeForSearch } from "@/utils/format/strings";
 import { COUNTY_BY_GEONAMES_CODE, type County } from "@/constants/counties";
-import { readAreaCounties } from "@/utils/postcodes";
+import { readAreaCounties } from "@/utils/geo/postcodes";
 
 export interface IKeyedTown {
   key: string;

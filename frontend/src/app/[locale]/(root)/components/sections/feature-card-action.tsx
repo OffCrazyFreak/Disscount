@@ -7,7 +7,7 @@ import { useNotifications } from "@/context/notifications-context";
 import { useUser } from "@/context/user-context";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import type { IScannedCode } from "@/typings/scanned-code";
-import { productPath } from "@/utils/product-links";
+import { productPath } from "@/utils/links/product-links";
 
 interface IFeatureCardActionProps {
   action: "scanner" | "notifications";

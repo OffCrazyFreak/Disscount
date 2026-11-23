@@ -1,5 +1,5 @@
 import type { ShoppingListItemDto } from "@/lib/api/schemas/shopping-list-item";
-import { isSameProduct } from "@/utils/product-id";
+import { isSameProduct } from "@/utils/links/product-id";
 
 // Mirrors ShoppingListItemMatcher, so a toast can say whether an add bumped an existing row.
 export function nameKey(name: string | null | undefined): string {

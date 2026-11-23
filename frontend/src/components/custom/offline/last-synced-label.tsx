@@ -3,7 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
-import { formatRelativeTime } from "@/utils/date";
+import { formatRelativeTime } from "@/utils/format/date";
 import { useOnlineStatus } from "@/hooks/runtime/use-online-status";
 import { useMinuteTick } from "@/hooks/runtime/use-minute-tick";
 

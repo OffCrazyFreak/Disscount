@@ -2,7 +2,7 @@
 
 import { usePathname } from "@/i18n/navigation";
 import { useEffect, useRef, useState } from "react";
-import { scrollWindowTo } from "@/utils/scroll";
+import { scrollWindowTo } from "@/utils/ui/scroll";
 
 interface ISavedPosition {
   y: number;

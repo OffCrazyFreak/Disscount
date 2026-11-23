@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { shoppingListService } from "@/lib/api";
 import { sortShoppingListsByRecency } from "@/lib/api/shopping-lists/sort-lists";
 import type { AddToListFormData } from "@/features/products/typings/add-to-list";
-import { isSameProduct } from "@/utils/product-id";
+import { isSameProduct } from "@/utils/links/product-id";
 
 export function useSelectedShoppingList(
   form: UseFormReturn<AddToListFormData>,

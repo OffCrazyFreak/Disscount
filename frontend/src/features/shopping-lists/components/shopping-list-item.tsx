@@ -6,7 +6,7 @@ import type { ShoppingListDto } from "@/lib/api/types";
 import { Card } from "@/components/ui/card";
 import HoldProgressRing from "@/components/custom/common/hold-progress-ring";
 import StretchedLink from "@/components/custom/common/stretched-link";
-import { formatDate } from "@/utils/strings";
+import { formatDate } from "@/utils/format/strings";
 import { shoppingListPath } from "@/features/shopping-lists/utils/shopping-list-links";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import useCardLongPress from "@/hooks/gestures/use-card-long-press";

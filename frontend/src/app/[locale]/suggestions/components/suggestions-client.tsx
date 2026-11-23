@@ -12,7 +12,7 @@ import NoResults from "@/components/custom/common/no-results";
 import { AnimatedGroup } from "@/components/custom/animation/animated-group";
 import SuggestionCard from "@/app/[locale]/suggestions/components/suggestion-card";
 import { templateSuggestions } from "@/app/[locale]/suggestions/suggestions";
-import { filterByFields } from "@/utils/generic";
+import { filterByFields } from "@/utils/format/generic";
 
 interface ISuggestionsClientProps {
   query: string;

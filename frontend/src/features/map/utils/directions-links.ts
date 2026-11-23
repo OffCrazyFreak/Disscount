@@ -1,4 +1,4 @@
-import { ILatLon } from "@/utils/distance";
+import { ILatLon } from "@/utils/geo/distance";
 
 // Apple's unified /directions path needs iOS 18.4, so the older ?daddr= form is used, which every version understands.
 

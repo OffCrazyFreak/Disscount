@@ -1,7 +1,7 @@
 import type { KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 
-import { textColorFor } from "@/utils/color-contrast";
+import { textColorFor } from "@/utils/ui/color-contrast";
 import { cn } from "@/lib/utils";
 
 import {

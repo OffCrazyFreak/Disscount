@@ -3,7 +3,7 @@ import {
   HOLD_GATE_MS,
   HOLD_RING_MS,
 } from "@/constants/gestures";
-import { clamp } from "@/utils/generic";
+import { clamp } from "@/utils/format/generic";
 
 export interface ILongPressTimer {
   start: () => void;

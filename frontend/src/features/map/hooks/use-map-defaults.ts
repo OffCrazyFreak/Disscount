@@ -2,7 +2,7 @@
 
 import { useUser } from "@/context/user-context";
 import { DirectoryStoreDto } from "@/lib/api/schemas";
-import { isPinnedChain } from "@/utils/pinned-stores";
+import { isPinnedChain } from "@/utils/geo/pinned-stores";
 
 export function useMapDefaults(stores: DirectoryStoreDto[]) {
   const { accountUser } = useUser();

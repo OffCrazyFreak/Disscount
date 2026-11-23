@@ -10,7 +10,7 @@ import { getAveragePrice } from "@/features/products/utils/product-utils";
 import {
   getStorePricesFromProduct,
   findCheapestStoreFromProduct,
-} from "@/utils/product-store-prices";
+} from "@/utils/price/product-store-prices";
 
 export function useAddToListPrices(
   product: ProductResponse | null | undefined,

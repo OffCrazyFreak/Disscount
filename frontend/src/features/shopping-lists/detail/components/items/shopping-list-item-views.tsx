@@ -16,7 +16,7 @@ import {
   getShoppingListGroupByStore,
   setShoppingListGroupByStore,
 } from "@/utils/browser/local-storage";
-import { compareHr } from "@/utils/strings";
+import { compareHr } from "@/utils/format/strings";
 
 interface IShoppingListItemViewsProps {
   listId: string;

@@ -13,13 +13,13 @@ import {
 } from "@/components/ui/tooltip";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { cn } from "@/lib/utils";
-import { productImageSearchUrl } from "@/utils/product-links";
+import { productImageSearchUrl } from "@/utils/links/product-links";
 import { openExternal } from "@/utils/browser/open-external";
 import WatchlistActionButton from "@/features/products/components/watchlist-action-button";
 import useProductModals from "@/features/products/hooks/use-product-modals";
 import useProductShare from "@/features/products/hooks/use-product-share";
 import { watchlistService } from "@/lib/api";
-import { isSameProduct } from "@/utils/product-id";
+import { isSameProduct } from "@/utils/links/product-id";
 
 interface IProductActionButtonsProps {
   product: ProductResponse;

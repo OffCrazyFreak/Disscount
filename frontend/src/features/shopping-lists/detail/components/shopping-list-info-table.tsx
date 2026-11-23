@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { ShoppingListDto } from "@/lib/api/types";
-import { formatDate } from "@/utils/strings";
+import { formatDate } from "@/utils/format/strings";
 import {
   calculateShoppingListStats,
   countUnpricedItems,

@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { ILatLon } from "@/utils/distance";
-import { isNewFix } from "@/utils/position-fix";
+import { ILatLon } from "@/utils/geo/distance";
+import { isNewFix } from "@/utils/geo/position-fix";
 import { createPositionWatch } from "@/utils/browser/position-watch";
 
 export type GeolocationStatus =

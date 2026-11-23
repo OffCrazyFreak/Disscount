@@ -1,7 +1,7 @@
 import type { useTranslations } from "next-intl";
 import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
-import { getChainLabel } from "@/utils/labels";
-import { compareHr, formatDate } from "@/utils/strings";
+import { getChainLabel } from "@/utils/format/labels";
+import { compareHr, formatDate } from "@/utils/format/strings";
 
 type ShoppingListsTranslator = ReturnType<
   typeof useTranslations<"shoppingLists">

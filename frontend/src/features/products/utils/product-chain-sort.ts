@@ -1,6 +1,6 @@
 import type { ChainProductResponse } from "@/lib/cijene-api/schemas";
-import { getChainLabel } from "@/utils/labels";
-import { compareHr } from "@/utils/strings";
+import { getChainLabel } from "@/utils/format/labels";
+import { compareHr } from "@/utils/format/strings";
 
 export const PRODUCT_CHAIN_SORT_MODES = [
   "stores",

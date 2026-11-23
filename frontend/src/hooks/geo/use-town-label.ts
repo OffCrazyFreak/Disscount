@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { IStoreTown } from "@/utils/store-towns";
+import type { IStoreTown } from "@/utils/geo/store-towns";
 
 export function useTownLabel() {
   const t = useTranslations("common.towns");

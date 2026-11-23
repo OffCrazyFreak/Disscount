@@ -1,4 +1,4 @@
-import { parseServerDate } from "@/utils/date";
+import { parseServerDate } from "@/utils/format/date";
 import { formatLocale, TIME_ZONE } from "@/i18n/formatting";
 
 const ENTITIES: Record<string, string> = {

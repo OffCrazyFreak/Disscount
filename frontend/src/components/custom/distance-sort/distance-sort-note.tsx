@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import type { DistanceSortState } from "@/hooks/geo/use-distance-sort";
 import type { IDistanceOrigin } from "@/hooks/geo/use-distance-origin";
-import type { IStoreTown } from "@/utils/store-towns";
+import type { IStoreTown } from "@/utils/geo/store-towns";
 import TownPicker from "@/components/custom/distance-sort/town-picker";
 import { useTownLabel } from "@/hooks/geo/use-town-label";
 

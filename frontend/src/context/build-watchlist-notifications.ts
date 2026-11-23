@@ -9,7 +9,7 @@ import {
   isWatchThresholdReached,
 } from "@/lib/watchlist/watchlist-threshold-utils";
 import type { IGroupedWatchlistItems } from "@/lib/watchlist/watchlist-types";
-import { getChainLabel } from "@/utils/labels";
+import { getChainLabel } from "@/utils/format/labels";
 import {
   INotificationsSummary,
   IWatchlistNotification,

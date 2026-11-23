@@ -5,7 +5,7 @@ import {
   LIGHT_TEXT_COLOR,
   contrastRatio,
   textColorFor,
-} from "@/utils/color-contrast";
+} from "@/utils/ui/color-contrast";
 
 import { CARD_PALETTE } from "./card-palette";
 

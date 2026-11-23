@@ -5,7 +5,7 @@ import {
 } from "@/lib/cijene-api/schemas";
 import { getServerProductData } from "@/lib/cijene-api/server/get-product";
 import { searchProductsWithFuzzyFallback } from "@/lib/cijene-api/utils/product-search-fallback";
-import { isWellFormedProductId } from "@/utils/product-id";
+import { isWellFormedProductId } from "@/utils/links/product-id";
 
 function canBeBarcodeLookup({ q, fuzzy, date, chains }: SearchProductsParams) {
   return fuzzy === undefined && !date && !chains && isWellFormedProductId(q);

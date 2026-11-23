@@ -8,12 +8,12 @@ import {
   isWatchThresholdReached,
   IWatchlistItemWithProduct,
 } from "@/features/watchlist/utils/watchlist-utils";
-import { getMostFrequentCategory } from "@/utils/product-category-utils";
+import { getMostFrequentCategory } from "@/utils/price/product-category-utils";
 import { toStoreLines } from "@/features/watchlist/utils/discount-display-utils";
 import useWatchlistRemoval from "@/features/watchlist/hooks/use-watchlist-removal";
 import { useUser } from "@/context/user-context";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
-import { formatQuantity } from "@/utils/strings";
+import { formatQuantity } from "@/utils/format/strings";
 
 export function useWatchlistItem(item: IWatchlistItemWithProduct) {
   const { watchlistItems, productApiId, product, discountInfo, isLoading } =

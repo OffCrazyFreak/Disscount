@@ -4,7 +4,7 @@ import {
   streetsMatch,
   type IParsedAddress,
 } from "@/lib/store-locations/address-key";
-import { normalizeForSearch } from "@/utils/strings";
+import { normalizeForSearch } from "@/utils/format/strings";
 
 export interface IPlacedAddress extends IParsedAddress {
   /** The other end of a range like "75-77", which may be the one listed. */

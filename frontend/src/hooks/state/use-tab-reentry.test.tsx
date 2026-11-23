@@ -8,7 +8,7 @@ const scrollWindowTo = vi.hoisted(() => vi.fn());
 vi.mock("@/i18n/navigation", () => ({
   usePathname: () => "/shopping-lists/1",
 }));
-vi.mock("@/utils/scroll", () => ({ scrollWindowTo }));
+vi.mock("@/utils/ui/scroll", () => ({ scrollWindowTo }));
 
 function scrollTo(y: number) {
   Object.defineProperty(window, "scrollY", { value: y, configurable: true });

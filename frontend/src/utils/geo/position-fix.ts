@@ -1,4 +1,4 @@
-import { distanceKm, ILatLon } from "@/utils/distance";
+import { distanceKm, ILatLon } from "@/utils/geo/distance";
 
 interface IFix extends ILatLon {
   accuracy: number;

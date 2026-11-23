@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { contrastRatio, textColorFor } from "@/utils/color-contrast";
+import { contrastRatio, textColorFor } from "@/utils/ui/color-contrast";
 
 import { CHAIN_DEFAULT_COLORS } from "./chain-default-colors";
 import { CARD_PALETTE } from "./card-palette";

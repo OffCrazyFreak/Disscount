@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useUser } from "@/context/user-context";
 import { useWatchedProducts } from "@/lib/watchlist/use-watched-products";
-import { filterByFields } from "@/utils/generic";
+import { filterByFields } from "@/utils/format/generic";
 import {
   calculateDiscountInfo,
   isAnyWatchThresholdReached,

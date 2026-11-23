@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { connection } from "next/server";
 import { getListedEans } from "@/lib/api/product-images/server";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
-import { productPageUrl } from "@/utils/product-links";
+import { productPageUrl } from "@/utils/links/product-links";
 import { PRODUCT_SITEMAP_IDS, productSitemapId } from "@/utils/product-sitemap";
 
 export function generateSitemaps() {

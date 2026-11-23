@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import CopyButton from "@/components/custom/common/copy-button";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { formatDate } from "@/utils/strings";
+import { formatDate } from "@/utils/format/strings";
 import { ContactMessageDto } from "@/lib/api/types";
 
 const EMPTY_VALUE = "-";

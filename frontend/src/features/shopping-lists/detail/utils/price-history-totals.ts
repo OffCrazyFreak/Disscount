@@ -1,5 +1,5 @@
 import { ChartDataPoint } from "@/typings/chart-data";
-import { calculatePriceChange } from "@/utils/price-comparison";
+import { calculatePriceChange } from "@/utils/price/price-comparison";
 
 function finitePrice(point: ChartDataPoint, ean: string): number | null {
   const price = point[ean];

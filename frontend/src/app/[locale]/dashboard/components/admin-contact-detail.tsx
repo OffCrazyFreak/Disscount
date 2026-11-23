@@ -5,7 +5,7 @@ import { Mail } from "lucide-react";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Button } from "@/components/ui/button";
-import { formatDate } from "@/utils/strings";
+import { formatDate } from "@/utils/format/strings";
 import { ContactMessageDto } from "@/lib/api/types";
 
 interface IAdminContactDetailProps {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatBadgeCount } from "@/utils/badge-count";
+import { formatBadgeCount } from "@/utils/ui/badge-count";
 
 describe("formatBadgeCount", () => {
   it("shows the exact count up to nine and caps it above", () => {

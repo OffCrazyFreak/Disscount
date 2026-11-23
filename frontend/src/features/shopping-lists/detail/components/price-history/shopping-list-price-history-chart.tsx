@@ -4,7 +4,7 @@ import { Line } from "recharts";
 import { useLocale } from "next-intl";
 import { ChartConfig, ChartTooltipContent } from "@/components/ui/chart";
 import { ChartDataPoint } from "@/typings/chart-data";
-import { formatPrice } from "@/utils/price";
+import { formatPrice } from "@/utils/price/price";
 import PriceHistoryChartShell from "@/components/custom/price/price-history-chart-shell";
 
 interface IShoppingListPriceHistoryChartProps {

@@ -1,5 +1,5 @@
 import type { ShoppingListDto } from "@/lib/api/types";
-import { parseServerDate } from "@/utils/date";
+import { parseServerDate } from "@/utils/format/date";
 
 /** NaN from a bad timestamp would skip the tiebreaks below, as the spec coerces it to 0. */
 export function sortShoppingListsByRecency(

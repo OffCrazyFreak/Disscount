@@ -3,7 +3,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { formatCardMoney } from "@/features/digital-cards/utils/format-card-values";
 import { CARD_TYPE_LABEL_KEYS } from "@/constants/card-codes";
 import type { DigitalCardDto } from "@/lib/api/types";
-import { formatDate } from "@/utils/strings";
+import { formatDate } from "@/utils/format/strings";
 
 interface ICardDetailRowsProps {
   card: DigitalCardDto;

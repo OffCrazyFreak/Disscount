@@ -1,7 +1,7 @@
 import { ArrowBigDownDash, ArrowBigUpDash } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { formatPrice, priceDeltaColorClass } from "@/utils/price";
+import { formatPrice, priceDeltaColorClass } from "@/utils/price/price";
 
 interface IPriceChangeDisplayProps {
   priceChange: {

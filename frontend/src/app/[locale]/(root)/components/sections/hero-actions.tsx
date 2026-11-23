@@ -11,7 +11,7 @@ import { useCameraScanner } from "@/context/scanner-context";
 import { IScannedCode } from "@/typings/scanned-code";
 import ProductSearchBar from "@/components/custom/search/product-search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
-import { productPath } from "@/utils/product-links";
+import { productPath } from "@/utils/links/product-links";
 
 export default function HeroActions() {
   const t = useTranslations("landing");

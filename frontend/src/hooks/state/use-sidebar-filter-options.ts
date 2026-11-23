@@ -3,8 +3,8 @@
 import { useMemo } from "react";
 import cijeneService from "@/lib/cijene-api";
 import { useAllLocations } from "@/lib/cijene-api/hooks";
-import { getChainLabel } from "@/utils/labels";
-import { compareHr } from "@/utils/strings";
+import { getChainLabel } from "@/utils/format/labels";
+import { compareHr } from "@/utils/format/strings";
 import type { ISidebarFilterOption } from "@/components/custom/sidebar/sidebar-filter-menu";
 
 function byLabel(a: ISidebarFilterOption, b: ISidebarFilterOption): number {

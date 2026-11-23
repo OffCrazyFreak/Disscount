@@ -1,7 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import { createLongPressTimer, type ILongPressTimer } from "@/utils/long-press";
+import {
+  createLongPressTimer,
+  type ILongPressTimer,
+} from "@/utils/ui/long-press";
 
 /** Written to the captured element, not state, so nothing re-renders and a drain outlives its gesture. */
 export default function useLongPressTimer() {

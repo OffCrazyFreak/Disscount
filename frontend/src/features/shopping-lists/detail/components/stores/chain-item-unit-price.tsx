@@ -2,7 +2,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { formatPrice } from "@/utils/price";
+import { formatPrice } from "@/utils/price/price";
 import { priceTone } from "@/features/shopping-lists/detail/utils/price-tone";
 
 const UNIT_PRICE_TONES = {

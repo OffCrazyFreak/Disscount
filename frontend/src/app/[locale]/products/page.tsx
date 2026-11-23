@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import ProductsClient from "@/features/products/components/products-client";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import { readSearchParam } from "@/utils/generic";
+import { readSearchParam } from "@/utils/format/generic";
 import { pageMetadata } from "@/i18n/alternates";
 
 export function generateMetadata(): Promise<Metadata> {

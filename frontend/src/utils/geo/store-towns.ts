@@ -1,9 +1,9 @@
-import type { ILatLon } from "@/utils/distance";
-import { compareHr, normalizeForSearch } from "@/utils/strings";
-import { getLocationLabel } from "@/utils/labels";
+import type { ILatLon } from "@/utils/geo/distance";
+import { compareHr, normalizeForSearch } from "@/utils/format/strings";
+import { getLocationLabel } from "@/utils/format/labels";
 import type { County } from "@/constants/counties";
-import { readCounty } from "@/utils/postcodes";
-import { findTownByKey, townKey, type IKeyedTown } from "@/utils/town-keys";
+import { readCounty } from "@/utils/geo/postcodes";
+import { findTownByKey, townKey, type IKeyedTown } from "@/utils/geo/town-keys";
 
 interface ITownStore {
   city: string | null;

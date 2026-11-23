@@ -1,7 +1,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { TriangleAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { formatDate } from "@/utils/strings";
+import { formatDate } from "@/utils/format/strings";
 
 interface IStoreCardBadgesProps {
   hasAllItems: boolean;

@@ -18,7 +18,7 @@ import {
   setWatchlistPriceSnapshot,
   subscribeToWatchlistPriceSnapshots,
 } from "@/utils/browser/storage/watchlist";
-import { isRouteActive } from "@/utils/routes";
+import { isRouteActive } from "@/utils/links/routes";
 
 const WATCHLIST_HREF = "/watchlist";
 

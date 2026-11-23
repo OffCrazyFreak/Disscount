@@ -4,7 +4,7 @@ import {
   listPlaceOptions,
   readPlaceName,
   toPinnedPlaces,
-} from "@/utils/place-options";
+} from "@/utils/geo/place-options";
 
 const STORES = [
   { city: "Sveta Nedelja", zipcode: "10431" },

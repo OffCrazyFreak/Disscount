@@ -12,8 +12,8 @@ import { getChainItemPriceInfo } from "@/features/shopping-lists/detail/utils/sh
 import { priceTone } from "@/features/shopping-lists/detail/utils/price-tone";
 import UnavailableItemBadge from "@/features/shopping-lists/detail/components/stores/unavailable-item-badge";
 import ChainItemUnitPrice from "@/features/shopping-lists/detail/components/stores/chain-item-unit-price";
-import { productPath } from "@/utils/product-links";
-import { formatPrice } from "@/utils/price";
+import { productPath } from "@/utils/links/product-links";
+import { formatPrice } from "@/utils/price/price";
 
 const TOTAL_PRICE_TONES = {
   low: "font-medium text-green-600",

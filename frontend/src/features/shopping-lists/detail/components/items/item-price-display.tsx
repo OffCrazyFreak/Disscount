@@ -1,8 +1,8 @@
 import { useLocale, useTranslations } from "next-intl";
 import { Separator } from "@/components/ui/separator";
 import type { ShoppingListItemDto } from "@/lib/api/types";
-import { formatQuantity } from "@/utils/strings";
-import { formatPrice } from "@/utils/price";
+import { formatQuantity } from "@/utils/format/strings";
+import { formatPrice } from "@/utils/price/price";
 import PriceSkeleton from "@/features/shopping-lists/detail/components/items/price-skeleton";
 import PlainItemPriceInput from "@/features/shopping-lists/detail/components/items/plain-item/plain-item-price-input";
 import type { IShoppingListItemUpdate } from "@/features/shopping-lists/detail/typings/shopping-list-item-types";

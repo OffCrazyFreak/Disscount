@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/chart";
 import { ChartDataPoint } from "@/typings/chart-data";
 import { useTouchTooltipDismiss } from "@/hooks/gestures/use-touch-tooltip-dismiss";
-import { formatPrice } from "@/utils/price";
-import { formatDate, formatDayMonth } from "@/utils/strings";
+import { formatPrice } from "@/utils/price/price";
+import { formatDate, formatDayMonth } from "@/utils/format/strings";
 
 interface IPriceHistoryChartShellProps {
   chartData: ChartDataPoint[];

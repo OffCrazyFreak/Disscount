@@ -15,7 +15,7 @@ import {
   isNavItemLocked,
 } from "@/constants/navigation";
 import { useUser } from "@/context/user-context";
-import { readListParam } from "@/utils/generic";
+import { readListParam } from "@/utils/format/generic";
 import { useClientSearchParams } from "@/hooks/state/use-client-search-params";
 
 type OpenSection = "stores" | "locations" | null;

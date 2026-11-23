@@ -1,6 +1,6 @@
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { gs1CheckDigit } from "@/utils/barcode/check-digits";
-import { getMaxPrice, getMinPrice } from "@/utils/product-price-utils";
+import { getMaxPrice, getMinPrice } from "@/utils/price/product-price-utils";
 
 const GTIN_SHAPE = /^(?:\d{8}|\d{12,14})$/;
 

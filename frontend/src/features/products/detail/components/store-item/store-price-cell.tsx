@@ -5,7 +5,7 @@ import {
   getPriceExtreme,
   type PriceExtreme,
 } from "@/features/products/utils/product-utils";
-import { formatPrice } from "@/utils/price";
+import { formatPrice } from "@/utils/price/price";
 
 function getDisplayPrice(price: StorePrice): number | null {
   return price.special_price ?? price.regular_price;

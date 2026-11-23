@@ -1,7 +1,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import PriceStack from "@/components/custom/price/price-stack";
-import { formatQuantity } from "@/utils/strings";
-import { formatPrice } from "@/utils/price";
+import { formatQuantity } from "@/utils/format/strings";
+import { formatPrice } from "@/utils/price/price";
 import { getDisplayPrices } from "@/features/products/utils/product-display-prices";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import type { IProductListPrice } from "@/features/products/typings/product-list-price-types";

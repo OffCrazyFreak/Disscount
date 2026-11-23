@@ -9,21 +9,21 @@ import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import StretchedCollapsibleTrigger from "@/components/custom/common/stretched-collapsible-trigger";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getChainLabel } from "@/utils/labels";
+import { getChainLabel } from "@/utils/format/labels";
 import { cn } from "@/lib/utils";
 import {
   ChainProductResponse,
   ProductResponse,
   StorePrice,
 } from "@/lib/cijene-api/schemas";
-import { formatDate } from "@/utils/strings";
+import { formatDate } from "@/utils/format/strings";
 import { useUser } from "@/context/user-context";
 import StorePriceSummary from "@/features/products/detail/components/store-item/store-price-summary";
 import StorePricesDetails, {
   type StorePricesStatus,
 } from "@/features/products/detail/components/store-item/store-prices-details";
 import NearestStoreDistance from "@/components/custom/distance-sort/nearest-store-distance";
-import type { INearestStore } from "@/utils/nearest-chain-distance";
+import type { INearestStore } from "@/utils/geo/nearest-chain-distance";
 
 interface IStoreItemProps {
   store: ChainProductResponse;

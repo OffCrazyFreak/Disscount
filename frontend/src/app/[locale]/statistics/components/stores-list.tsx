@@ -7,7 +7,7 @@ import { TrendingUp } from "lucide-react";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import cijeneService from "@/lib/cijene-api";
 import StoreItem from "@/app/[locale]/statistics/components/store-item";
-import { compareHr } from "@/utils/strings";
+import { compareHr } from "@/utils/format/strings";
 
 export default function ChainList() {
   const t = useTranslations("statistics");

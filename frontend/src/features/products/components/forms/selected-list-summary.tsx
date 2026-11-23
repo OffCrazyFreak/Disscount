@@ -1,5 +1,5 @@
 import { useLocale, useTranslations } from "next-intl";
-import { formatDate } from "@/utils/strings";
+import { formatDate } from "@/utils/format/strings";
 import { ShoppingListDto } from "@/lib/api/types";
 
 interface ISelectedListSummaryProps {

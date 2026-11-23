@@ -10,8 +10,8 @@ import {
   getMaxPricePerUnit,
   getAveragePricePerUnit,
 } from "@/features/products/utils/product-utils";
-import { formatQuantity } from "@/utils/strings";
-import { formatPrice } from "@/utils/price";
+import { formatQuantity } from "@/utils/format/strings";
+import { formatPrice } from "@/utils/price/price";
 import ProductInfoPriceValue from "@/features/products/components/product-info-price-value";
 
 export interface IProductInfoField {

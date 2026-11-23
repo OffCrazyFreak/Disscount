@@ -4,7 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import type { ShoppingListDto } from "@/lib/api/types";
 import { useUser } from "@/context/user-context";
 import { suggestedChain } from "@/components/custom/store-chain/suggested-chain";
-import { findCheapestStoreFromProduct } from "@/utils/product-store-prices";
+import { findCheapestStoreFromProduct } from "@/utils/price/product-store-prices";
 import { formatShoppingListForSharing } from "@/features/shopping-lists/utils/shopping-list-utils";
 import { productLookupQuery } from "@/features/shopping-lists/detail/utils/product-lookup-query";
 

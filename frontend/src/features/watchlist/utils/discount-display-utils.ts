@@ -1,5 +1,5 @@
-import { getChainLabel } from "@/utils/labels";
-import { formatPriceDelta } from "@/utils/price";
+import { getChainLabel } from "@/utils/format/labels";
+import { formatPriceDelta } from "@/utils/price/price";
 import { IScopedDiscountedStore } from "@/lib/watchlist/watchlist-types";
 import type { INotificationStore } from "@/context/notifications-types";
 

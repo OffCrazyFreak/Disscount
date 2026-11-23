@@ -4,7 +4,7 @@ import type {
   IParsedHours,
 } from "@/lib/store-hours/sync/hours-source-types";
 import { addDays, isoWeekday, SUNDAY } from "@/lib/store-hours/zagreb-clock";
-import { normalizeForSearch } from "@/utils/strings";
+import { normalizeForSearch } from "@/utils/format/strings";
 
 export type Weekly = IParsedHours["weekly"];
 

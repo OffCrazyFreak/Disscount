@@ -7,7 +7,7 @@ import {
 import renderProductOg from "@/lib/og/render-product-og";
 import { getVerifiedMainPhotoUrl } from "@/lib/api/product-images/server";
 import { appUrl } from "@/lib/env";
-import { isWellFormedProductId } from "@/utils/product-id";
+import { isWellFormedProductId } from "@/utils/links/product-id";
 
 export const runtime = "nodejs";
 

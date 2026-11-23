@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { badgeVariants } from "@/components/ui/badge";
 import { oklchToRgb } from "@/test/color-contrast";
-import { rgbContrastRatio, type Rgb } from "@/utils/color-contrast";
+import { rgbContrastRatio, type Rgb } from "@/utils/ui/color-contrast";
 
 type Mode = "light" | "dark";
 type Colors = Map<string, Rgb>;

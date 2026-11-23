@@ -7,7 +7,7 @@ import StoreHoursProvider from "@/components/custom/store-hours/store-hours-cont
 import type { StoreHoursResponse } from "@/lib/api/schemas";
 import type { IStoreHoursNow } from "@/lib/store-hours/store-opening";
 import { renderWithProviders } from "@/test/render";
-import type { INearestStore } from "@/utils/nearest-chain-distance";
+import type { INearestStore } from "@/utils/geo/nearest-chain-distance";
 
 const week = [{ opens: "07:00", closes: "21:00" }];
 

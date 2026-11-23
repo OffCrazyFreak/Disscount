@@ -11,7 +11,7 @@ import {
   type AppLocale,
 } from "@/i18n/locales";
 import { isIndexableOrigin } from "@/utils/indexing";
-import { productPageUrl } from "@/utils/product-links";
+import { productPageUrl } from "@/utils/links/product-links";
 import { appUrl, clientEnv } from "@/lib/env";
 
 interface IProductMetadataInput {

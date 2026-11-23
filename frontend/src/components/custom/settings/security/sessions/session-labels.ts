@@ -1,7 +1,7 @@
 import { Monitor, Smartphone, Tablet, type LucideIcon } from "lucide-react";
 
 import { formatLocale } from "@/i18n/formatting";
-import { MILLISECONDS_PER_DAY } from "@/utils/date";
+import { MILLISECONDS_PER_DAY } from "@/utils/format/date";
 import type { AccountSessionDto } from "@/lib/api/schemas/account-session";
 
 // An unknown device shows as a monitor, the most common kind.

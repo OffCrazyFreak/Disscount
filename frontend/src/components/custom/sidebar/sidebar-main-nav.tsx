@@ -19,7 +19,7 @@ import {
 import { useUser } from "@/context/user-context";
 import { canAccessDashboard } from "@/lib/api/schemas/auth-user";
 import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-drop-count";
-import { isRouteActive } from "@/utils/routes";
+import { isRouteActive } from "@/utils/links/routes";
 
 export default function SidebarMainNav() {
   const t = useTranslations("shell");

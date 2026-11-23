@@ -13,10 +13,10 @@ import { useUser } from "@/context/user-context";
 import { useIsOnPreselectedShoppingList } from "@/features/products/hooks/use-preselected-list-membership";
 import useProductModals from "@/features/products/hooks/use-product-modals";
 import useProductShare from "@/features/products/hooks/use-product-share";
-import { productImageSearchUrl } from "@/utils/product-links";
+import { productImageSearchUrl } from "@/utils/links/product-links";
 import { openExternal } from "@/utils/browser/open-external";
 import type { IOpenModalOptions } from "@/lib/modal/modal-navigation";
-import { isSameProduct } from "@/utils/product-id";
+import { isSameProduct } from "@/utils/links/product-id";
 
 interface IProductQuickActionsListProps {
   product: ProductResponse;

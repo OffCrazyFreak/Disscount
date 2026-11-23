@@ -1,4 +1,4 @@
-import { normalizeForSearch } from "@/utils/strings";
+import { normalizeForSearch } from "@/utils/format/strings";
 
 /** `null` means no query, which every caller reads as "match everything". */
 export interface IPreparedQuery {

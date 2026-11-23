@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { isNearPageEnd } from "@/utils/scroll";
+import { isNearPageEnd } from "@/utils/ui/scroll";
 
 /** Calls onNearEnd on each scroll that comes near the page end while enabled. */
 export function useOnNearPageEnd(onNearEnd: () => void, enabled: boolean) {

@@ -3,8 +3,8 @@ import {
   ProductResponse,
   ChainProductResponse,
 } from "@/lib/cijene-api/schemas";
-import { getChainAvgPriceRange } from "@/utils/product-price-utils";
-import { compareHr } from "@/utils/strings";
+import { getChainAvgPriceRange } from "@/utils/price/product-price-utils";
+import { compareHr } from "@/utils/format/strings";
 
 /** Kept as a const tuple so the type and localStorage validation share one source. */
 export const STORE_OPTIMIZE_MODES = [

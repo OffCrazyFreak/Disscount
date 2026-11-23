@@ -4,7 +4,7 @@ import CardIcon from "@/features/digital-cards/components/card-icon";
 import { initialsOf } from "@/features/digital-cards/utils/card-initials";
 import type { DigitalCardDto } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
-import { formatDayMonth } from "@/utils/strings";
+import { formatDayMonth } from "@/utils/format/strings";
 
 interface ICardFaceFrontProps {
   card: DigitalCardDto;

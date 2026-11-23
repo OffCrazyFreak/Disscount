@@ -1,7 +1,7 @@
 import type { PercentCrop } from "react-image-crop";
 
 import type { ProductImageCrop } from "@/lib/api/types";
-import { clamp } from "@/utils/generic";
+import { clamp } from "@/utils/format/generic";
 
 // The server refuses anything smaller; a near-full frame is sent as no crop at all.
 const MIN_SIDE = 16;

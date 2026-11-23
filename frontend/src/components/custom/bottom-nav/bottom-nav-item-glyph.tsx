@@ -2,7 +2,7 @@ import { ChevronDown } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { formatBadgeCount } from "@/utils/badge-count";
+import { formatBadgeCount } from "@/utils/ui/badge-count";
 
 interface IBottomNavItemGlyphProps {
   icon: LucideIcon;

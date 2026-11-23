@@ -9,7 +9,7 @@ import type {
 } from "@/lib/cijene-api/schemas";
 import { describeChainCard } from "@/test/chain-card-contract";
 import { renderWithProviders } from "@/test/render";
-import type { INearestStore } from "@/utils/nearest-chain-distance";
+import type { INearestStore } from "@/utils/geo/nearest-chain-distance";
 
 vi.mock("@/context/user-context", () => ({
   useUser: () => ({ accountUser: null }),

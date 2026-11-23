@@ -8,7 +8,7 @@ import { usePriceHistory } from "@/lib/cijene-api/hooks";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
-import { buildDateWindow } from "@/utils/date";
+import { buildDateWindow } from "@/utils/format/date";
 
 const EAN = "3850104012345";
 

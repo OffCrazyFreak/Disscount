@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-import { LIGHT_TEXT_COLOR, DARK_TEXT_COLOR } from "@/utils/color-contrast";
+import { LIGHT_TEXT_COLOR, DARK_TEXT_COLOR } from "@/utils/ui/color-contrast";
 
 const ARCHIVED_GREY_FOR_LIGHT_INK = "#3d3d3d";
 const ARCHIVED_GREY_FOR_DARK_INK = "#e2e2e2";

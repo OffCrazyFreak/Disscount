@@ -14,8 +14,8 @@ import {
   getMaxPrice,
 } from "@/features/products/utils/product-utils";
 import { useUser } from "@/context/user-context";
-import { getLocationLabel } from "@/utils/labels";
-import { compareHr } from "@/utils/strings";
+import { getLocationLabel } from "@/utils/format/labels";
+import { compareHr } from "@/utils/format/strings";
 import StorePriceRow from "@/features/products/detail/components/store-item/store-price-row";
 
 interface IStorePricesTableProps {

@@ -1,6 +1,6 @@
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import type { IStoreLocation } from "@/typings/store-location";
-import { normalizeForSearch } from "@/utils/strings";
+import { normalizeForSearch } from "@/utils/format/strings";
 import {
   getProductBrands,
   getProductCategories,

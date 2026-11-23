@@ -1,6 +1,6 @@
 import { PinnedStoreDto } from "@/lib/api/schemas/preferences";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
-import { isPinnedChain } from "@/utils/pinned-stores";
+import { isPinnedChain } from "@/utils/geo/pinned-stores";
 
 export function getStorePricesFromProduct(
   productData: ProductResponse,

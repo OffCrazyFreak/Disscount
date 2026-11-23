@@ -21,7 +21,7 @@ import { useAllLocations } from "@/lib/cijene-api/hooks";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 import cijeneService from "@/lib/cijene-api";
 import { useTownLabel } from "@/hooks/geo/use-town-label";
-import { listPlaceOptions } from "@/utils/place-options";
+import { listPlaceOptions } from "@/utils/geo/place-options";
 
 export default function PinnedPlacesSelect() {
   const t = useTranslations("settings");

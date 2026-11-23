@@ -13,7 +13,7 @@ import {
 } from "@/lib/store-hours/sync/hours-repository";
 import { gateRun } from "@/lib/store-hours/sync/run-gate";
 import { storeKey } from "@/lib/store-locations/upstream-stores";
-import { distanceKm } from "@/utils/distance";
+import { distanceKm } from "@/utils/geo/distance";
 
 // The card's measurement: matched OSM shops sit a median 33 m from our pin.
 const MAX_DISTANCE_KM = 0.15;

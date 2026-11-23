@@ -6,10 +6,10 @@ import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import cijeneService from "@/lib/cijene-api";
-import { getChainLabel } from "@/utils/labels";
+import { getChainLabel } from "@/utils/format/labels";
 import { cn } from "@/lib/utils";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
-import { compareHr } from "@/utils/strings";
+import { compareHr } from "@/utils/format/strings";
 
 export default function PinnedStoresGrid() {
   const t = useTranslations("settings");

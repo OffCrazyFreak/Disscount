@@ -3,9 +3,9 @@
 import { useSyncExternalStore } from "react";
 import { useUser } from "@/context/user-context";
 import type { DirectoryStoreDto } from "@/lib/api/schemas";
-import type { ILatLon } from "@/utils/distance";
+import type { ILatLon } from "@/utils/geo/distance";
 import type { County } from "@/constants/counties";
-import { listStoreTowns, townCenter } from "@/utils/store-towns";
+import { listStoreTowns, townCenter } from "@/utils/geo/store-towns";
 
 export type DistanceOriginSource = "gps" | "picked" | "saved";
 

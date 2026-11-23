@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
-import { productPath } from "@/utils/product-links";
+import { productPath } from "@/utils/links/product-links";
 
 export function usePrimeProductNavigation() {
   const queryClient = useQueryClient();

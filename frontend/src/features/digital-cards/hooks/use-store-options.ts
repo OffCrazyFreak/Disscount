@@ -6,8 +6,8 @@ import type {
 } from "@/features/digital-cards/components/forms/store-field/store-option-types";
 import { useListChains } from "@/lib/cijene-api";
 import { storeNameService } from "@/lib/api";
-import { getChainLabel } from "@/utils/labels";
-import { normalizeForSearch } from "@/utils/strings";
+import { getChainLabel } from "@/utils/format/labels";
+import { normalizeForSearch } from "@/utils/format/strings";
 import { useDebouncedValue } from "@/hooks/state/use-debounced-value";
 
 const SUGGESTION_DEBOUNCE_MS = 250;

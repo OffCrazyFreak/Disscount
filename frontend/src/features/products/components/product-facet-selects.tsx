@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import FacetMultiSelect from "@/features/products/components/facet-multi-select";
-import { getChainLabel } from "@/utils/labels";
+import { getChainLabel } from "@/utils/format/labels";
 import { selectsEveryOption } from "@/features/products/utils/facets/selects-every-option";
 import type { IProductFacetSelects } from "@/features/products/hooks/use-product-facets";
 import type {

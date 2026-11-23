@@ -6,7 +6,7 @@ import {
   upstreamProductSearchResponseSchema,
 } from "@/lib/cijene-api/schemas";
 import { UPSTREAM_DEFAULT_SEARCH_LIMIT } from "@/constants/products";
-import { buildQueryString } from "@/utils/generic";
+import { buildQueryString } from "@/utils/format/generic";
 
 /** Fuzzy promotes short unrelated rows, so exact comes first: https://github.com/senko/cijene-api/issues/65 */
 const FUZZY_FALLBACK_THRESHOLD = 10;

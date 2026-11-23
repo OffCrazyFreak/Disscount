@@ -1,4 +1,4 @@
-import { clamp } from "@/utils/generic";
+import { clamp } from "@/utils/format/generic";
 
 /** |dx| works for both facings, because scaleX(-1) inverts the rendered rotation. */
 export function cursorTiltDeg(dx: number, dy: number, maxDeg: number): number {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatPrice, formatPriceDelta } from "@/utils/price";
+import { formatPrice, formatPriceDelta } from "@/utils/price/price";
 
 // Intl separates the amount and symbol with a no-break space; compare as plain spaces.
 function plain(text: string) {

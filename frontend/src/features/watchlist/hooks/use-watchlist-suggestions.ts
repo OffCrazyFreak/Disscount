@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { shoppingListService } from "@/lib/api";
 import { productByEanQueryOptions } from "@/lib/cijene-api";
-import { rankByFields, type IRankedItem } from "@/utils/generic";
+import { rankByFields, type IRankedItem } from "@/utils/format/generic";
 import { byDesc, chainComparators } from "@/utils/search/rank";
 import {
   calculateDiscountInfo,

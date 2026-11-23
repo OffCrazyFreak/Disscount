@@ -1,6 +1,6 @@
 import { useLocale, useTranslations } from "next-intl";
 
-import { formatPrice } from "@/utils/price";
+import { formatPrice } from "@/utils/price/price";
 import ShoppingListPriceRangeSkeleton from "@/features/shopping-lists/detail/components/shopping-list-price-range-skeleton";
 
 interface IShoppingListInfoPriceRangeProps {

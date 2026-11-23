@@ -7,8 +7,8 @@ import {
   MultiSelectTrigger,
   MultiSelectValue,
 } from "@/components/custom/form/multi-select";
-import { getChainLabel } from "@/utils/labels";
-import { compareHr } from "@/utils/strings";
+import { getChainLabel } from "@/utils/format/labels";
+import { compareHr } from "@/utils/format/strings";
 
 interface IStoreChainMultiSelectProps {
   chains: string[];

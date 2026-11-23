@@ -26,7 +26,7 @@ import { useMapClicks } from "@/features/map/hooks/use-map-clicks";
 import { useMapLoad } from "@/features/map/hooks/use-map-load";
 import { useViewReport } from "@/features/map/hooks/use-view-report";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
-import { ILatLon } from "@/utils/distance";
+import { ILatLon } from "@/utils/geo/distance";
 import { MAP_CUSTOM_ATTRIBUTION } from "@/features/map/utils/map-attribution";
 import {
   toInitialViewState,

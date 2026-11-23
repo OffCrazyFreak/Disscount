@@ -5,7 +5,7 @@ import {
 import {
   getAveragePrice,
   getCheapestChainByMinPrice,
-} from "@/utils/product-price-utils";
+} from "@/utils/price/product-price-utils";
 import {
   IDiscountInfo,
   IScopedDiscountedStore,

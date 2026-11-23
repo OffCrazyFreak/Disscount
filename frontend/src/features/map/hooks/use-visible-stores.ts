@@ -2,11 +2,11 @@
 
 import { DirectoryStoreDto } from "@/lib/api/schemas";
 import { ALL_CHAINS } from "@/features/map/hooks/use-map-url-state";
-import { distanceKm, ILatLon } from "@/utils/distance";
-import { toStoreKey } from "@/utils/store-key";
-import { filterByFields } from "@/utils/generic";
-import { getChainLabel, getLocationLabel } from "@/utils/labels";
-import { compareHr } from "@/utils/strings";
+import { distanceKm, ILatLon } from "@/utils/geo/distance";
+import { toStoreKey } from "@/utils/geo/store-key";
+import { filterByFields } from "@/utils/format/generic";
+import { getChainLabel, getLocationLabel } from "@/utils/format/labels";
+import { compareHr } from "@/utils/format/strings";
 
 export interface IListedStore {
   key: string;

@@ -20,8 +20,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getChainLabel, getLocationLabel } from "@/utils/labels";
-import { compareHr } from "@/utils/strings";
+import { getChainLabel, getLocationLabel } from "@/utils/format/labels";
+import { compareHr } from "@/utils/format/strings";
 import { cn } from "@/lib/utils";
 import cijeneService from "@/lib/cijene-api";
 import { ChainStats } from "@/lib/cijene-api/schemas";

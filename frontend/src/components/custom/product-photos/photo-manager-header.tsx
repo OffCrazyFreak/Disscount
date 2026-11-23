@@ -17,8 +17,8 @@ import {
 } from "@/lib/api/product-images/admin-hooks";
 import { problemMessage } from "@/lib/api/problem-details";
 import type { AdminProductPhotos } from "@/lib/api/types";
-import { parseServerDate } from "@/utils/date";
-import { productPath } from "@/utils/product-links";
+import { parseServerDate } from "@/utils/format/date";
+import { productPath } from "@/utils/links/product-links";
 
 interface IPhotoManagerHeaderProps {
   product: AdminProductPhotos;

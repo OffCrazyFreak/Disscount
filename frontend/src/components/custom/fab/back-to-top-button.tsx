@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useScrolledPast } from "@/hooks/viewport/use-scrolled-past";
-import { scrollToTop } from "@/utils/scroll";
+import { scrollToTop } from "@/utils/ui/scroll";
 
 /** Far enough down that the button answers a real problem rather than nagging */
 const THRESHOLD_PX = 600;
