@@ -397,7 +397,14 @@ docker run --rm --pid=container:<backend container> --user "$ug" --entrypoint jc
 
 The rule for a new limit: take the highest live set seen over a week, add the non-heap part (`anon` minus the heap in use) and the tmpfs sizes, and multiply by 1.25 to 1.5. For the backend that is not enough on its own, because Serial GC lets the heap grow to its ceiling (50% of the limit) between collections: the limit must also cover that ceiling plus peak non-heap and tmpfs, so check `limit >= 0.5 x limit + non-heap + tmpfs`, which means `limit >= (non-heap + tmpfs) / 0.5`, and that the 50% ceiling stays well above the live set. Take the larger result, with headroom. Also note `pids.peak` from the same cgroup folder for `pids_limit`.
 
-For the frontend, a Node heap snapshot needs no restart: send `USR1` from inside the container with `docker exec <frontend container> sh -c 'kill -USR1 1'`, which opens the inspector on the container's loopback only, then stream the snapshot out through `docker exec` (scripts and steps in the 2026-11-23 frontend memory leak research, issue #729). Take it only while the heap is small (under about 100 MB); a snapshot at 225 MB got the 1 GiB dev container OOM killed. Never send a signal with `docker kill --signal` on a server: Docker then marks the container as manually stopped, and its `unless-stopped` restart policy no longer brings it back after a crash or OOM kill ([moby #41302](https://github.com/moby/moby/issues/41302)). That is how the dev frontend stayed down after the 2026-11-23 OOM kill; a `docker start` or a redeploy clears the flag.
+For the frontend, a Node heap snapshot needs no restart. Send `USR1` from inside the container, which opens the inspector on the container's loopback only, then stream the snapshot to the host with [scripts/heap-snapshot.cjs](../scripts/heap-snapshot.cjs), which also closes the inspector afterwards (issue #729):
+
+```bash
+docker exec <frontend container> kill -USR1 1
+docker exec -i <frontend container> node - < scripts/heap-snapshot.cjs > frontend.heapsnapshot.gz
+```
+
+A snapshot stops Node's main thread while it runs, from seconds to over a minute as the heap grows, so requests stall or time out meanwhile: take it at a quiet hour, on dev unless production is the only place the problem shows. Take it only while the heap is small (under about 100 MB); a snapshot at 225 MB got the 1 GiB dev container OOM killed. Never send a signal with `docker kill --signal` on a server: Docker then marks the container as manually stopped, and its `unless-stopped` restart policy no longer brings it back after a crash or OOM kill ([moby #41302](https://github.com/moby/moby/issues/41302)). That is how the dev frontend stayed down after the 2026-11-23 OOM kill; a `docker start` or a redeploy clears the flag.
 
 Still to read: the backup container after its first production nights, and the production frontend's `anon` daily for 3 days after the cutover; resize from those numbers.
 
