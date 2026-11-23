@@ -72,7 +72,7 @@ export default async function ChainsPage() {
         locale={locale}
       />
 
-      <h1>{t("index.heading")}</h1>
+      <h1 className="text-3xl font-bold text-pretty">{t("index.heading")}</h1>
 
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {chains.map((chain) => (

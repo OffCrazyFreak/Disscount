@@ -62,7 +62,7 @@ export default async function CategoriesPage() {
         locale={locale}
       />
 
-      <h1>{t("index.heading")}</h1>
+      <h1 className="text-3xl font-bold text-pretty">{t("index.heading")}</h1>
 
       {groups.map(({ department, categories: inDepartment }) => (
         <section key={department.slug} className="space-y-3">

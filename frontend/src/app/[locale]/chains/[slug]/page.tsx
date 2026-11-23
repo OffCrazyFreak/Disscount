@@ -104,7 +104,9 @@ export default async function ChainPage(props: ChainPageProps) {
           <StoreChainLogo chain={chain.code} className="object-contain" />
         </div>
 
-        <h1 lang="hr">{chain.name}</h1>
+        <h1 lang="hr" className="text-3xl font-bold text-pretty">
+          {chain.name}
+        </h1>
       </div>
 
       <ChainIntro

@@ -117,7 +117,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
         ]}
       />
 
-      <h1>{name}</h1>
+      <h1 className="text-3xl font-bold text-pretty">{name}</h1>
 
       <CategoryIntro
         productCount={category.productCount}
