@@ -11,15 +11,15 @@ import {
 } from "react-map-gl/maplibre";
 import type { StyleSpecification } from "maplibre-gl";
 
-import FavoriteStoreMarkers from "@/features/map/components/favorite-store-markers";
+import FavoriteStoreMarkers from "@/features/map/components/canvas/favorite-store-markers";
 import MapOverlays, {
   IUserLocation,
-} from "@/features/map/components/map-overlays";
-import MapPanControls from "@/features/map/components/map-pan-controls";
+} from "@/features/map/components/canvas/map-overlays";
+import MapPanControls from "@/features/map/components/canvas/map-pan-controls";
 import MapStoreSource, {
   MAP_MAX_ZOOM,
-} from "@/features/map/components/map-store-source";
-import SameSpotPopup from "@/features/map/components/same-spot-popup";
+} from "@/features/map/components/canvas/map-store-source";
+import SameSpotPopup from "@/features/map/components/canvas/same-spot-popup";
 import { ICenterRequest } from "@/hooks/geo/use-geolocation";
 import { useMapCamera } from "@/features/map/hooks/use-map-camera";
 import { useMapClicks } from "@/features/map/hooks/use-map-clicks";

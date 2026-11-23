@@ -7,8 +7,8 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { DrawerClose } from "@/components/ui/drawer";
 import SheetShell from "@/components/custom/modal/sheet/sheet-shell";
-import StoreDetails from "@/features/map/components/store-details";
-import StoreSummary from "@/features/map/components/store-summary";
+import StoreDetails from "@/features/map/components/store/store-details";
+import StoreSummary from "@/features/map/components/store/store-summary";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
 
 interface IMapStoreSheetProps {

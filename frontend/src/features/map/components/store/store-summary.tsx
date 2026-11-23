@@ -4,8 +4,8 @@ import { MapPinOff } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
-import FavoriteStoreButton from "@/features/map/components/favorite-store-button";
-import ShareStoreButton from "@/features/map/components/share-store-button";
+import FavoriteStoreButton from "@/features/map/components/store/favorite-store-button";
+import ShareStoreButton from "@/features/map/components/store/share-store-button";
 import StoreOpeningBadge from "@/components/custom/store-hours/store-opening-badge";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
 import { formatDistance } from "@/utils/geo/distance";

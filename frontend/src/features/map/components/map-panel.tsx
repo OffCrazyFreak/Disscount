@@ -1,12 +1,12 @@
 "use client";
 
-import MapSearch from "@/features/map/components/map-search";
-import MapChainSelect from "@/features/map/components/map-chain-select";
-import MapOpenFilter from "@/features/map/components/map-open-filter";
-import ResultCountStatus from "@/features/map/components/result-count-status";
-import NearMeButton from "@/features/map/components/near-me-button";
-import RecentSearches from "@/features/map/components/recent-searches";
-import ViewSortedList from "@/features/map/components/view-sorted-list";
+import MapSearch from "@/features/map/components/search/map-search";
+import MapChainSelect from "@/features/map/components/search/map-chain-select";
+import MapOpenFilter from "@/features/map/components/search/map-open-filter";
+import ResultCountStatus from "@/features/map/components/search/result-count-status";
+import NearMeButton from "@/features/map/components/search/near-me-button";
+import RecentSearches from "@/features/map/components/search/recent-searches";
+import ViewSortedList from "@/features/map/components/store/view-sorted-list";
 import { IMapViewModel } from "@/features/map/hooks/use-map-view-model";
 import { IViewArea } from "@/features/map/utils/view-area";
 

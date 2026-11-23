@@ -12,7 +12,7 @@ vi.mock("@/components/custom/store-chain/store-chain-multi-select", () => ({
 }));
 
 const { default: MapChainSelect } =
-  await import("@/features/map/components/map-chain-select");
+  await import("@/features/map/components/search/map-chain-select");
 const { ALL_CHAINS } = await import("@/features/map/hooks/use-map-url-state");
 const { renderWithProviders } = await import("@/test/render");
 

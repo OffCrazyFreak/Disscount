@@ -6,10 +6,10 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 
-import MapUnavailable from "@/features/map/components/map-unavailable";
+import MapUnavailable from "@/features/map/components/canvas/map-unavailable";
 import StoreMapView, {
   IStoreMapViewProps,
-} from "@/features/map/components/store-map-view";
+} from "@/features/map/components/canvas/store-map-view";
 import { loadMapStyle } from "@/features/map/utils/map-style";
 import { canUseWebGL2, isGpuError } from "@/features/map/utils/webgl-support";
 

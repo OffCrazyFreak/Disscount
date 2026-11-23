@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import MapSearch from "@/features/map/components/map-search";
+import MapSearch from "@/features/map/components/search/map-search";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { CameraScannerProvider } from "@/context/scanner-context";
 import { renderWithProviders } from "@/test/render";

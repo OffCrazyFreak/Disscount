@@ -16,7 +16,7 @@ vi.mock("@/features/map/utils/webgl-support", async (importOriginal) => ({
   canUseWebGL2: () => probe.webgl2,
 }));
 // Stands in for react-map-gl, which reports a constructor failure through onError instead of throwing.
-vi.mock("@/features/map/components/store-map-view", () => ({
+vi.mock("@/features/map/components/canvas/store-map-view", () => ({
   default: function FakeView({
     onMapError,
   }: {
@@ -31,7 +31,7 @@ vi.mock("@/features/map/components/store-map-view", () => ({
 }));
 
 const { default: StoreMap } =
-  await import("@/features/map/components/store-map");
+  await import("@/features/map/components/canvas/store-map");
 
 const props = {
   stores: [],

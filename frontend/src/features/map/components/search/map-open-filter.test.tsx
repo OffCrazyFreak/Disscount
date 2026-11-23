@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import MapOpenFilter from "@/features/map/components/map-open-filter";
+import MapOpenFilter from "@/features/map/components/search/map-open-filter";
 import type { OpenFilter } from "@/features/map/utils/open-filter";
 import { renderWithProviders } from "@/test/render";
 

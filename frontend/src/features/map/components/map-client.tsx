@@ -5,10 +5,10 @@ import { useTranslations } from "next-intl";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import StoreHoursProvider from "@/components/custom/store-hours/store-hours-context";
-import MapLoadState from "@/features/map/components/map-load-state";
+import MapLoadState from "@/features/map/components/canvas/map-load-state";
 import MapMobileLayout from "@/features/map/components/map-mobile-layout";
 import MapPanel from "@/features/map/components/map-panel";
-import StoreMapLoader from "@/features/map/components/store-map-loader";
+import StoreMapLoader from "@/features/map/components/canvas/store-map-loader";
 import { useMapViewModel } from "@/features/map/hooks/use-map-view-model";
 
 import type { IIpLocation } from "@/features/map/utils/ip-location";

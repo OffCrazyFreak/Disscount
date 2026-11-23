@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import MapErrorBoundary from "@/features/map/components/map-error-boundary";
+import MapErrorBoundary from "@/features/map/components/canvas/map-error-boundary";
 
 const { reload } = vi.hoisted(() => ({ reload: vi.fn() }));
 

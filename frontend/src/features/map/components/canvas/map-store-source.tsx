@@ -2,7 +2,7 @@
 
 import { Layer, Source } from "react-map-gl/maplibre";
 
-import ClusterCountBadges from "@/features/map/components/cluster-count-badges";
+import ClusterCountBadges from "@/features/map/components/canvas/cluster-count-badges";
 import type { IMapFeatureRef } from "@/features/map/utils/map-feature-click";
 import { chainCountProperties } from "@/features/map/utils/cluster-stack";
 import { IStoreFeatureCollection } from "@/features/map/utils/store-geojson";

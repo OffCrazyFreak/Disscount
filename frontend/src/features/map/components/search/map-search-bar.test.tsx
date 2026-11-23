@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HEADER_SLOT_ID } from "@/components/custom/header/header-slot";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { CameraScannerProvider } from "@/context/scanner-context";
-import MapSearchBar from "@/features/map/components/map-search-bar";
+import MapSearchBar from "@/features/map/components/search/map-search-bar";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 

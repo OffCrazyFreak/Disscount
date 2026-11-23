@@ -8,10 +8,10 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import StoreDetails from "@/features/map/components/store-details";
+import StoreDetails from "@/features/map/components/store/store-details";
 import StoreSummary, {
   summaryLabelIds,
-} from "@/features/map/components/store-summary";
+} from "@/features/map/components/store/store-summary";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
 import { cn } from "@/lib/utils";
 

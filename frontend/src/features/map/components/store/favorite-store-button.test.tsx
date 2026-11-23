@@ -4,7 +4,7 @@ import { http, HttpResponse } from "msw/http";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import FavoriteStoreButton from "@/features/map/components/favorite-store-button";
+import FavoriteStoreButton from "@/features/map/components/store/favorite-store-button";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 

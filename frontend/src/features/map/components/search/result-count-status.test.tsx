@@ -1,7 +1,7 @@
 import { act, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import ResultCountStatus from "@/features/map/components/result-count-status";
+import ResultCountStatus from "@/features/map/components/search/result-count-status";
 import { renderWithProviders } from "@/test/render";
 
 describe("ResultCountStatus", () => {

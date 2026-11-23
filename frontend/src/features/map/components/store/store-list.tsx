@@ -5,7 +5,7 @@ import { defaultRangeExtractor, useVirtualizer } from "@tanstack/react-virtual";
 import { useTranslations } from "next-intl";
 
 import ScrollFade from "@/components/custom/common/scroll-fade/scroll-fade";
-import StoreListItem from "@/features/map/components/store-list-item";
+import StoreListItem from "@/features/map/components/store/store-list-item";
 import { useNavClearance } from "@/features/map/hooks/use-nav-clearance";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
 import { toListEntries } from "@/features/map/utils/list-entries";

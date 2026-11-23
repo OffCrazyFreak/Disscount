@@ -3,11 +3,11 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import MapLoadState from "@/features/map/components/map-load-state";
+import MapLoadState from "@/features/map/components/canvas/map-load-state";
 import MapLocateButton from "@/features/map/components/map-locate-button";
 import MapPanel from "@/features/map/components/map-panel";
-import MapSearchBar from "@/features/map/components/map-search-bar";
-import MapStoreSheet from "@/features/map/components/map-store-sheet";
+import MapSearchBar from "@/features/map/components/search/map-search-bar";
+import MapStoreSheet from "@/features/map/components/store/map-store-sheet";
 import { IMapViewModel } from "@/features/map/hooks/use-map-view-model";
 import { useNavClearance } from "@/features/map/hooks/use-nav-clearance";
 import { IViewArea } from "@/features/map/utils/view-area";

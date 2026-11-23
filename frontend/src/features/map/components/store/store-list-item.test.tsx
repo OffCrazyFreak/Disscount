@@ -3,7 +3,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import StoreListItem from "@/features/map/components/store-list-item";
+import StoreListItem from "@/features/map/components/store/store-list-item";
 import { toListedStore } from "@/features/map/hooks/use-visible-stores";
 import { DirectoryStoreDto } from "@/lib/api/schemas";
 import { renderWithProviders } from "@/test/render";
