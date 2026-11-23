@@ -29,7 +29,7 @@ function hasValidEscapes(segment: string): boolean {
   }
 }
 
-/** loading.tsx streams a 200 before the page can look a product up, so only a check here can send a real 404. */
+/** Ids that can never be a product get their 404 here, without spending an upstream call on them. */
 function malformedProductResponse(request: NextRequest): NextResponse | null {
   const match = PRODUCT_PATH.exec(request.nextUrl.pathname);
   if (!match) return null;

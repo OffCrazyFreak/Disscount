@@ -74,12 +74,9 @@ export default async function ProductDetailsPage(
   const ean = decodeProductId(rawId);
   // Read once here, so the server HTML and the hydrating client agree on "today" even across midnight.
   const today = zagrebClock(new Date()).date;
-  const [result, prices] = await Promise.all([
-    getServerProduct(ean),
-    getServerProductPrices(ean),
-  ]);
+  const result = await getServerProduct(ean);
 
-  // loading.tsx has already streamed a 200, so Next marks this noindex instead.
+  // No loading.tsx sits above this page, so nothing has streamed yet and the 404 status holds.
   if (result.status === "missing") notFound();
 
   if (result.status === "unavailable") {
@@ -89,6 +86,8 @@ export default async function ProductDetailsPage(
   const { product } = result;
   const locale = await getLocale();
   const photoUrl = await getVerifiedMainPhotoUrl(product.ean);
+  // Awaited rather than streamed, so crawlers without JavaScript find the product and its prices in <main>.
+  const prices = await getServerProductPrices(ean);
 
   return (
     <>
