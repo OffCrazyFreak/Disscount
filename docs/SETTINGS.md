@@ -205,9 +205,9 @@ No settings-specific environment variables. The auth variables the security tab 
 
 | Library                      | Version                 | Used for                                         |
 | ---------------------------- | ----------------------- | ------------------------------------------------ |
-| `react-hook-form`            | `^7.90.0` (lock 7.91.0) | The settings and credentials forms               |
+| `react-hook-form`            | `^7.90.0` (lock 7.92.0) | The settings and credentials forms               |
 | `zod`, `@hookform/resolvers` | `^4.1.13`, `^7.0.1`     | Form validation                                  |
-| `better-auth`                | `1.7.15` (exact pin)    | Credentials, linked accounts, sessions, deletion |
+| `better-auth`                | `1.7.27` (exact pin)    | Credentials, linked accounts, sessions, deletion |
 | `bowser`                     | `2.15.0`                | Device names in the sign-ins list                |
 | `@tanstack/react-query`      | `^5.90.12`              | Profile and preference queries and mutations     |
 
