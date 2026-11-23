@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { defaultShouldDehydrateQuery } from "@tanstack/react-query";
 import type {
@@ -95,8 +96,14 @@ const offlinePersister: Persister = {
   },
 
   restoreClient: async () => {
-    const client = await throttledPersister.restoreClient();
-    return client && withoutTextPrices(client);
+    try {
+      const client = await throttledPersister.restoreClient();
+      return client && withoutTextPrices(client);
+    } catch (error) {
+      // React Query then deletes the saved copy and hands onError no error, so this is the only place to see why.
+      Sentry.captureException(error, { tags: { offlineCache: "restore" } });
+      throw error;
+    }
   },
 };
 

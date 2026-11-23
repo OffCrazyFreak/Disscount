@@ -5,7 +5,9 @@ import {
   onlineManager,
   useQueryClient,
 } from "@tanstack/react-query";
+import * as Sentry from "@sentry/nextjs";
 import { http, HttpResponse } from "msw/http";
+import { toast } from "sonner";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import ReactQueryProviderWrapper from "@/app/providers/react-query-provider";
@@ -22,6 +24,9 @@ vi.mock("idb-keyval", () => ({
   set: async (key: string, value: unknown) => void disk.set(key, value),
   del: async (key: string) => void disk.delete(key),
 }));
+
+vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
+vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
 
 const LIST_ID = "5b0e6c1a-7d2f-4e8a-9c3b-1f4d6a8e2c70";
 const ITEM_ID = "0f3a9d52-6c1e-4b7a-8e2d-9a4c5b6d7e81";
@@ -129,5 +134,25 @@ describe("a start with the browser offline", () => {
 
     await waitFor(() => expect(sentTicks).toBe(1));
     expect(tick.state.isPaused).toBe(false);
+  });
+});
+
+describe("a saved cache that cannot be read", () => {
+  it("reports it, tells the user and starts with a clean cache", async () => {
+    disk.set(SNAPSHOT_KEY, "{ not json");
+
+    const client = startApp();
+
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith(
+        "Spremljeni podaci s ovog uređaja nisu se mogli učitati.",
+      ),
+    );
+    expect(Sentry.captureException).toHaveBeenCalledWith(
+      expect.any(SyntaxError),
+      expect.anything(),
+    );
+    expect(disk.has(SNAPSHOT_KEY)).toBe(false);
+    expect(client().getQueryCache().getAll()).toEqual([]);
   });
 });

@@ -5,6 +5,7 @@ import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 import { persistOptions } from "@/lib/offline/cache/persister";
 import { createQueryClientConfig } from "@/lib/api/query-client-defaults";
@@ -78,6 +79,11 @@ export default function ReactQueryProviderWrapper({
       client={queryClient}
       persistOptions={persistOptions}
       onSuccess={() => replayQueuedWrites(queryClient, t, tCards)}
+      onError={() => {
+        // A half-applied restore could show some saved data and not the rest, so start from nothing.
+        queryClient.clear();
+        toast.error(t("offline.restoreFailed"));
+      }}
     >
       {children}
 

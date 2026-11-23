@@ -17,7 +17,8 @@
   "offline": {
     "writeFailed": "Die Änderung wurde nicht gespeichert. Versuche es erneut.",
     "writeFailedLostAccess": "Die Änderung wurde nicht gespeichert. Vielleicht hast du keinen Zugriff mehr auf diese Liste.",
-    "retiredWriteDropped": "Eine Änderung aus einer älteren App-Version wurde nicht gespeichert. Öffne die Liste und prüfe sie."
+    "retiredWriteDropped": "Eine Änderung aus einer älteren App-Version wurde nicht gespeichert. Öffne die Liste und prüfe sie.",
+    "restoreFailed": "Die auf diesem Gerät gespeicherten Daten konnten nicht geladen werden."
   },
   "limitReached": {
     "title": "Kein Platz mehr",
