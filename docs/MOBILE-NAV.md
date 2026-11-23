@@ -346,7 +346,7 @@ Current users, identical apart from their content and their modality:
 | Product quick actions    | `components/custom/product/product-quick-actions.tsx`                           | yes   | an outside press, plus any action it runs |
 | PWA install instructions | `components/custom/pwa/install-instructions-sheet.tsx`                          | yes   | an outside press and `showCloseButton`    |
 | Shopping list actions    | `app/[locale]/(user)/shopping-lists/components/shopping-list-actions-sheet.tsx` | yes   | an outside press, plus any action it runs |
-| Map store                | `app/[locale]/map/components/map-store-sheet.tsx`                               | no    | the X beside the store; also `md:hidden`  |
+| Map store                | `app/[locale]/map/components/store/map-store-sheet.tsx`                         | no    | the X beside the store; also `md:hidden`  |
 
 ### Why the surface is muted
 
