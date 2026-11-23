@@ -11,7 +11,7 @@ function canBeBarcodeLookup({ q, fuzzy, date, chains }: SearchProductsParams) {
   return fuzzy === undefined && !date && !chains && isWellFormedProductId(q);
 }
 
-/** Upstream's search skips barcodes, so a typed one takes the scan lookup first; a malformed answer falls through to the name search. */
+/** Upstream's search skips barcodes, so a typed one takes the scan lookup first; a malformed answer falls through. */
 export async function searchProducts(
   params: SearchProductsParams,
 ): Promise<{ data: unknown }> {
