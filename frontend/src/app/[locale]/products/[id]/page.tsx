@@ -2,8 +2,8 @@ import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { HydrationBoundary } from "@tanstack/react-query";
 import { getLocale, getTranslations } from "next-intl/server";
-import ProductDetailClient from "@/app/[locale]/products/[id]/components/product-detail-client";
-import ProductJsonLd from "@/app/[locale]/products/[id]/components/product-json-ld";
+import ProductDetailClient from "@/features/products/detail/components/product-detail-client";
+import ProductJsonLd from "@/features/products/detail/components/product-json-ld";
 import {
   productMetadata,
   translatedProductRobots,

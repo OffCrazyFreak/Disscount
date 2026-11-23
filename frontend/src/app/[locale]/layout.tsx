@@ -5,7 +5,7 @@ import "@/app/globals.css";
 import AppSidebar from "@/components/custom/sidebar/app-sidebar";
 import BottomNav from "@/components/custom/bottom-nav/bottom-nav";
 import PriceDropStatus from "@/features/watchlist/components/price-drop-status";
-import ProductsSheet from "@/app/[locale]/products/components/products-sheet/products-sheet";
+import ProductsSheet from "@/features/products/components/products-sheet/products-sheet";
 import Header from "@/components/custom/header/header";
 import Footer from "@/components/custom/common/footer";
 import SkipLink, {

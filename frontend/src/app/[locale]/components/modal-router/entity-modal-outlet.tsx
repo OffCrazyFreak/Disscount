@@ -30,15 +30,15 @@ const DigitalCardViewModal = dynamic(
 );
 const AddToShoppingListModal = dynamic(
   () =>
-    import("@/app/[locale]/products/components/forms/add-to-shopping-list-form"),
+    import("@/features/products/components/forms/add-to-shopping-list-form"),
   { ssr: false },
 );
 const AddPlainItemModal = dynamic(
-  () => import("@/app/[locale]/products/components/forms/add-plain-item-modal"),
+  () => import("@/features/products/components/forms/add-plain-item-modal"),
   { ssr: false },
 );
 const WatchlistItemModal = dynamic(
-  () => import("@/app/[locale]/products/components/forms/watchlist-item-modal"),
+  () => import("@/features/products/components/forms/watchlist-item-modal"),
   { ssr: false },
 );
 
