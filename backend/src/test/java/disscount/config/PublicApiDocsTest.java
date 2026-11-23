@@ -30,6 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest(properties = {
         "spring.config.location=file:src/main/resources/",
+        // This test skips the test application.properties, so it needs its own opt-out from backend/.env.
+        "springdotenv.enabled=false",
         "SPRING_DATASOURCE_URL=jdbc:h2:mem:api-docs;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
         "SPRING_DATASOURCE_USERNAME=sa",
         "SPRING_DATASOURCE_PASSWORD=",
