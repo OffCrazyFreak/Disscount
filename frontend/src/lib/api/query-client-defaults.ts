@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/nextjs";
 import {
+  environmentManager,
   isCancelledError,
   MutationCache,
   onlineManager,
@@ -19,6 +20,11 @@ import { isNetworkFailure } from "@/lib/offline/is-network-failure";
 
 // An entry gc'd from memory also leaves the persisted snapshot at its next save.
 const UNWATCHED_QUERY_GC_TIME_MS = 7 * 24 * 60 * 60 * 1000;
+
+// A finite gcTime on the server sets a Node timer per query that pins the request in memory until it fires (#729).
+function unwatchedQueryGcTime() {
+  return environmentManager.isServer() ? Infinity : UNWATCHED_QUERY_GC_TIME_MS;
+}
 
 // One retry: a blip gets a second chance, a real failure surfaces fast.
 const MAX_QUERY_RETRIES = 1;
@@ -118,7 +124,7 @@ export function createQueryClientConfig(): QueryClientConfig {
     }),
     defaultOptions: {
       queries: {
-        gcTime: UNWATCHED_QUERY_GC_TIME_MS,
+        gcTime: unwatchedQueryGcTime(),
         staleTime: DEFAULT_STALE_TIME_MS,
         retry: shouldRetryQuery,
       },
