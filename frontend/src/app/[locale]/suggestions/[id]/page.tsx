@@ -1,4 +1,5 @@
-import { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
+import { withSharePreview } from "@/utils/seo/share-metadata";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
@@ -8,16 +9,20 @@ import { pageAlternates } from "@/i18n/alternates";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/suggestions/[id]">,
+  parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const { id } = await props.params;
   const locale = await getLocale();
   const t = await getTranslations("suggestions");
 
-  return {
-    title: t("meta.detailTitle"),
-    description: t("meta.detailDescription"),
-    alternates: pageAlternates(`/suggestions/${id}`, locale),
-  };
+  return withSharePreview(
+    {
+      title: t("meta.detailTitle"),
+      description: t("meta.detailDescription"),
+      alternates: pageAlternates(`/suggestions/${id}`, locale),
+    },
+    parent,
+  );
 }
 
 export default async function SuggestionDetailPage(

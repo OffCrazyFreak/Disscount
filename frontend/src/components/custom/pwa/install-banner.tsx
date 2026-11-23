@@ -6,7 +6,10 @@ import Image from "next/image";
 import { X, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { usePathname } from "@/i18n/navigation";
+import { cn } from "@/lib/utils";
 import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
+import { useIsInstallBannerHeld } from "@/components/custom/pwa/install-banner-hold";
 import InstallInstructionsSheet from "@/components/custom/pwa/install-instructions-sheet";
 import {
   installActionLabelKey,
@@ -23,6 +26,8 @@ export default function InstallBanner() {
     useInstallPrompt();
   const [dismissed, setDismissed] = useState(true);
   const [instructionsOpen, setInstructionsOpen] = useState(false);
+  const isMap = usePathname() === "/map";
+  const isHeld = useIsInstallBannerHeld();
 
   useEffect(() => {
     // On the client because it compares against Date.now(); starts dismissed so it cannot flash.
@@ -44,14 +49,19 @@ export default function InstallBanner() {
     setInstructionsOpen(true);
   }
 
-  if (dismissed || !canShowInstallUI) return null;
+  if (dismissed || !canShowInstallUI || isHeld) return null;
 
   return (
     <>
       {/* Above the bottom nav, which owns the bottom strip below md, and below the sheet it opens. */}
+      {/* On the map it sits above the credits and clear of the right side, where the controls and panel are. */}
       <div
         data-slot="install-banner"
-        className="fixed inset-x-0 bottom-[var(--bottom-nav-total)] z-[var(--z-install-banner)] p-4 md:bottom-0 md:inset-x-auto md:right-4 md:max-w-sm"
+        className={cn(
+          "fixed inset-x-0 bottom-[var(--bottom-nav-total)] z-[var(--z-install-banner)] p-4 md:bottom-0 md:inset-x-auto md:right-4 md:max-w-sm",
+          isMap &&
+            "bottom-[calc(var(--bottom-nav-total)+2rem)] right-[3.25rem] md:right-auto md:left-0 md:bottom-10",
+        )}
       >
         <div className="flex flex-col gap-3 rounded-xl border bg-card p-3 shadow-lg">
           <div className="flex items-center gap-3">

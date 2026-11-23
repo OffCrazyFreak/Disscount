@@ -27,4 +27,7 @@ public class FavoriteStore {
     @NotBlank(message = "{validation.storeKey.required}")
     @Column(name = "store_key", nullable = false)
     private String storeKey;
+
+    @Column(name = "sort_order", nullable = false)
+    private int sortOrder;
 }

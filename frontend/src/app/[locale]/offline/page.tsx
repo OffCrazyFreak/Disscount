@@ -17,6 +17,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("offline.meta.title"),
     description: t("offline.meta.description"),
+    // A fallback the service worker serves for any URL, so it has no address of its own.
+    alternates: null,
+    robots: { index: false, follow: false },
   };
 }
 

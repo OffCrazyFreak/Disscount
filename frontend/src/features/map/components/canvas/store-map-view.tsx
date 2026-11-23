@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
 import {
   AttributionControl,
@@ -34,7 +34,7 @@ import {
 } from "@/features/map/utils/view/map-view";
 import { toStoreCollection } from "@/features/map/utils/canvas/store-geojson";
 import { INTERACTIVE_LAYER_IDS } from "@/features/map/utils/canvas/store-layers";
-import { IViewArea } from "@/features/map/utils/view/view-area";
+import { IMapCover, IViewArea } from "@/features/map/utils/view/view-area";
 import { storeNamesMap } from "@/constants/name-mappings";
 
 const ALL_CHAINS = Object.keys(storeNamesMap);
@@ -46,13 +46,15 @@ export interface IStoreMapViewProps {
   userLocation: IUserLocation | null;
   centerRequest: ICenterRequest | null;
   initialView: (ILatLon & { zoom: number }) | null;
-  /** Pixels at the map's bottom under the phone sheet or nav, 0 on desktop. */
-  coveredHeight: number;
+  /** What the phone sheet or nav, or the desktop search panel, hides of the map. */
+  cover: IMapCover;
   onViewChange: (area: IViewArea | null) => void;
   mapStyle: StyleSpecification;
   onContextLost: () => void;
   /** Map errors, including WebGL2 refused after the probe passed. */
   onMapError: (event: MapErrorEvent) => void;
+  /** Overlays that need the map, such as a popover anchored to a pin. */
+  children?: ReactNode;
 }
 
 export default function StoreMapView({
@@ -62,11 +64,12 @@ export default function StoreMapView({
   userLocation,
   centerRequest,
   initialView,
-  coveredHeight,
+  cover,
   onViewChange,
   mapStyle,
   onContextLost,
   onMapError,
+  ...mapContent
 }: IStoreMapViewProps) {
   const mapRef = useRef<MapRef>(null);
   const { mapReady, iconsReady, handleLoad } = useMapLoad({
@@ -83,19 +86,20 @@ export default function StoreMapView({
   const { handleMoveStart } = useMapCamera({
     mapRef,
     mapReady,
-    selectedPoint,
+    selected,
+    cover,
     centerRequest,
     initialView,
   });
 
-  const { coveredBottom, reportView } = useViewReport({
+  const { visibleCover, reportView } = useViewReport({
     mapRef,
     mapReady,
-    coveredHeight,
+    cover,
     onViewChange,
   });
 
-  const clicks = useMapClicks({ mapRef, onSelect, coveredBottom });
+  const clicks = useMapClicks({ mapRef, onSelect, cover: visibleCover });
 
   return (
     <Map
@@ -148,6 +152,8 @@ export default function StoreMapView({
         onSelect={clicks.selectFromSpot}
         onClose={clicks.closeSpot}
       />
+
+      {mapContent.children}
     </Map>
   );
 }

@@ -62,6 +62,16 @@ const nextConfig: NextConfig = {
     environment: { enablePreserveExistingMemoizationGuarantees: true },
   },
 
+  async rewrites() {
+    return [
+      // IndexNow fetches its key from the site root, where [locale] would otherwise take the path.
+      {
+        source: "/:key([A-Za-z0-9-]{8,128})\\.txt",
+        destination: "/indexnow-key/:key",
+      },
+    ];
+  },
+
   async headers() {
     const csp = buildContentSecurityPolicy(
       process.env.NODE_ENV === "development",

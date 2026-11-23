@@ -1,7 +1,10 @@
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
 import { BACKEND_ORIGIN } from "@/lib/api/backend-origin";
-import { getVerifiedMainPhotoUrl } from "@/lib/api/product-images/server";
+import {
+  getVerifiedMainPhotoUrl,
+  getVerifiedProductImages,
+} from "@/lib/api/product-images/server";
 import { server } from "@/test/msw-server";
 
 vi.mock("server-only", () => ({}));
@@ -58,5 +61,24 @@ describe("getVerifiedMainPhotoUrl", () => {
     );
 
     await expect(getVerifiedMainPhotoUrl(EAN)).resolves.toBeNull();
+  });
+});
+
+describe("getVerifiedProductImages", () => {
+  it("returns the whole gallery when its main photo is confirmed", async () => {
+    serveImages([photo("main", "VERIFIED"), photo("other", "PENDING")]);
+
+    const result = await getVerifiedProductImages(EAN);
+
+    expect(result?.data.images.map((image) => image.id)).toEqual([
+      "main",
+      "other",
+    ]);
+  });
+
+  it("returns nothing when the main photo is unconfirmed", async () => {
+    serveImages([photo("main", "PENDING"), photo("other", "VERIFIED")]);
+
+    await expect(getVerifiedProductImages(EAN)).resolves.toBeNull();
   });
 });

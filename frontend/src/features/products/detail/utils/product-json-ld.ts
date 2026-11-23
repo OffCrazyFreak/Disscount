@@ -1,6 +1,11 @@
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { gs1CheckDigit } from "@/utils/barcode/check-digits";
-import { getMaxPrice, getMinPrice } from "@/utils/price/product-price-utils";
+import { getChainLabel } from "@/utils/format/labels";
+import {
+  getMaxPrice,
+  getMinPrice,
+  getNewestPriceDate,
+} from "@/utils/price/product-price-utils";
 
 const GTIN_SHAPE = /^(?:\d{8}|\d{12,14})$/;
 
@@ -10,6 +15,16 @@ function isPublicGtin(ean: string): boolean {
   if (ean.length === 13 && ean.startsWith("2")) return false;
 
   return gs1CheckDigit(ean.slice(0, -1)) === Number(ean.slice(-1));
+}
+
+/** Each chain's lowest price, the "Najniža" its row on the page shows. */
+function chainOffers(product: ProductResponse) {
+  return product.chains.map((chain) => ({
+    "@type": "Offer",
+    price: chain.min_price.toFixed(2),
+    priceCurrency: "EUR",
+    seller: { "@type": "Organization", name: getChainLabel(chain.chain) },
+  }));
 }
 
 interface IProductJsonLdInput {
@@ -22,6 +37,8 @@ interface IProductJsonLdInput {
 export function productJsonLd({ product, url, image }: IProductJsonLdInput) {
   const lowPrice = getMinPrice(product);
   const highPrice = getMaxPrice(product);
+  const priceDate = getNewestPriceDate(product);
+  const offers = chainOffers(product);
 
   return {
     "@context": "https://schema.org",
@@ -32,6 +49,8 @@ export function productJsonLd({ product, url, image }: IProductJsonLdInput) {
     ...(image && { image }),
     // cijene also keys products by "chain:code" and by in-store codes, neither a GTIN.
     ...(isPublicGtin(product.ean) && { gtin: product.ean }),
+    // Bing reads this as the page's freshness; Google ignores it on a Product.
+    ...(priceDate && { dateModified: priceDate }),
     ...(product.brand && {
       brand: { "@type": "Brand", name: product.brand },
     }),
@@ -41,7 +60,8 @@ export function productJsonLd({ product, url, image }: IProductJsonLdInput) {
         priceCurrency: "EUR",
         lowPrice: lowPrice.toFixed(2),
         highPrice: (highPrice ?? lowPrice).toFixed(2),
-        offerCount: product.chains.length,
+        offerCount: offers.length,
+        offers,
       },
     }),
   };

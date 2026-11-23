@@ -4,15 +4,17 @@ import { BACKEND_ORIGIN } from "@/lib/api/backend-origin";
 import {
   listedEansResponseSchema,
   productImagesResponseSchema,
+  type ProductImagesResponse,
 } from "@/lib/api/types";
+import type { FetchedLookup } from "@/lib/cijene-api/server/server-lookup-cache";
 
 // A slow backend must not hold back the product page just for its share image.
 const PHOTO_TIMEOUT_MS = 3_000;
 const LISTED_EANS_TIMEOUT_MS = 15_000;
 
 /** A user's unconfirmed upload must not represent the product outside our own gallery, where it carries a badge. */
-export const getVerifiedMainPhotoUrl = cache(
-  async (ean: string): Promise<string | null> => {
+export const getVerifiedProductImages = cache(
+  async (ean: string): Promise<FetchedLookup<ProductImagesResponse> | null> => {
     try {
       const response = await fetch(
         `${BACKEND_ORIGIN}/api/products/${encodeURIComponent(ean)}/images`,
@@ -20,16 +22,23 @@ export const getVerifiedMainPhotoUrl = cache(
       );
       if (!response.ok) return null;
 
-      const { images } = productImagesResponseSchema.parse(
-        await response.json(),
-      );
-      const mainPhoto = images[0];
-      return mainPhoto?.status === "VERIFIED" ? mainPhoto.fullUrl : null;
+      const data = productImagesResponseSchema.parse(await response.json());
+      return data.images[0]?.status === "VERIFIED"
+        ? { data, fetchedAt: Date.now() }
+        : null;
     } catch {
       return null;
     }
   },
 );
+
+export async function getVerifiedMainPhotoUrl(
+  ean: string,
+): Promise<string | null> {
+  const images = await getVerifiedProductImages(ean);
+
+  return images?.data.images[0]?.fullUrl ?? null;
+}
 
 export async function getListedEans(): Promise<string[]> {
   const response = await fetch(`${BACKEND_ORIGIN}/api/products/catalog/eans`, {

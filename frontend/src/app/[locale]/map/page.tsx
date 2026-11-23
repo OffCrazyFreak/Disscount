@@ -1,5 +1,6 @@
 import { Suspense } from "react";
-import { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
+import { withSharePreview } from "@/utils/seo/share-metadata";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 
@@ -10,8 +11,11 @@ import { pageMetadata } from "@/i18n/alternates";
 // Reads the visitor's location headers on every request.
 export const dynamic = "force-dynamic";
 
-export function generateMetadata(): Promise<Metadata> {
-  return pageMetadata("map", "/map");
+export async function generateMetadata(
+  _props: PageProps<"/[locale]/map">,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  return withSharePreview(await pageMetadata("map", "/map"), parent);
 }
 
 export default async function MapPage() {

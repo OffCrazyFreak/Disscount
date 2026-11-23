@@ -1,4 +1,10 @@
 {
+  "browseCategories": "Sfoglia i prodotti per categoria",
+  "landing": {
+    "intro": "Abbiamo suddiviso {products, plural, one {# prodotto} other {# prodotti}} in {categories, plural, one {# categoria} other {# categorie}}. Scegli una categoria o un prodotto popolare e confronta i prezzi delle catene.",
+    "categoriesHeading": "Categorie",
+    "popularHeading": "Prodotti popolari"
+  },
   "meta": {
     "title": "Prodotti",
     "description": "Cerca i prodotti e confronta i prezzi nei negozi di tutta la Croazia."

@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import type { Messages } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { appUrl } from "@/lib/env";
@@ -33,10 +32,7 @@ type MetaNamespace = {
     : never;
 }[keyof Messages];
 
-export async function pageMetadata(
-  namespace: MetaNamespace,
-  href: string,
-): Promise<Metadata> {
+export async function pageMetadata(namespace: MetaNamespace, href: string) {
   const locale = await getLocale();
   const t = await getTranslations(namespace);
 

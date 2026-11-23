@@ -57,7 +57,12 @@ export default function MapPanControls({ mapRef }: IMapPanControlsProps) {
           type="button"
           aria-label={t(labelKey)}
           title={t(labelKey)}
-          onClick={() => mapRef.current?.panBy([offset[0], offset[1]])}
+          // Passing the click marks the move as the user's, like a drag, so nothing pans the map back.
+          onClick={(event) =>
+            mapRef.current?.panBy([offset[0], offset[1]], undefined, {
+              originalEvent: event.nativeEvent,
+            })
+          }
           className={cn(
             area,
             "flex size-8 items-center justify-center rounded-md border bg-background shadow-sm hover:bg-accent focus-visible:outline-2 focus-visible:outline-primary",

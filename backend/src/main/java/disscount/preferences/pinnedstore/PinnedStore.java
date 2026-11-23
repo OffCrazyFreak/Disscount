@@ -30,4 +30,7 @@ class PinnedStore {
     @NotBlank(message = "{validation.storeName.required}")
     @Column(name = "store_name", nullable = false)
     private String storeName;
+
+    @Column(name = "sort_order", nullable = false)
+    private int sortOrder;
 }

@@ -20,6 +20,7 @@ export const serverEnvSchema = z.object({
   CIJENE_API_URL: httpUrl.default("https://api.cijene.dev"),
   CIJENE_API_TOKEN: z.string().optional(),
   GEOAPIFY_API_KEY: z.string().optional(),
+  INDEXNOW_KEY: z.string().optional(),
   GIT_SHA: z.string().optional(),
 });
 

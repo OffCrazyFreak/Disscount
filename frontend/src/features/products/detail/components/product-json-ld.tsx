@@ -1,4 +1,5 @@
 import { productJsonLd } from "@/features/products/detail/utils/product-json-ld";
+import JsonLdScript from "@/components/custom/common/shell/json-ld-script";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 
 interface IProductJsonLdProps {
@@ -12,16 +13,5 @@ export default function ProductJsonLd({
   url,
   image,
 }: IProductJsonLdProps) {
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{
-        // Product names come from upstream, so "<" is escaped to keep them inside the script.
-        __html: JSON.stringify(productJsonLd({ product, url, image })).replace(
-          /</g,
-          "\\u003c",
-        ),
-      }}
-    />
-  );
+  return <JsonLdScript data={productJsonLd({ product, url, image })} />;
 }

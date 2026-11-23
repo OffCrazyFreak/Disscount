@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import CartLogo from "@/components/icons/cart-logo";
 import FooterSupportIcons from "@/components/custom/common/shell/footer-support-icons";
 
@@ -15,7 +15,11 @@ import { GITHUB_REPO_URL, LINKEDIN_URL } from "@/constants/site/contact";
 
 export default function FooterSection() {
   const t = useTranslations("common");
+  const isMap = usePathname() === "/map";
   const currentYear = new Date().getUTCFullYear();
+
+  // The map fills the screen, so a footer there would sit under it with its links still in the tab order.
+  if (isMap) return null;
 
   return (
     <footer className="mt-auto">

@@ -15,8 +15,16 @@ const NO_PRICES: StorePrice[] = [];
 
 export function useProductDetail(ean: string) {
   const { accountUser } = useUser();
-  const { data: product, isLoading: productLoading } =
-    cijeneService.useGetProductByEan({ ean });
+  const {
+    data: product,
+    isLoading: productLoading,
+    status: productStatus,
+    fetchStatus: productFetchStatus,
+  } = cijeneService.useGetProductByEan({ ean });
+
+  // A paused retry after an error stays an error, so only a first load counts as offline.
+  const productOffline =
+    productStatus === "pending" && productFetchStatus === "paused";
 
   const {
     data: pricesData,
@@ -56,6 +64,7 @@ export function useProductDetail(ean: string) {
   return {
     product,
     productLoading,
+    productOffline,
     pricesByChain,
     pricesLoading,
     pricesError,

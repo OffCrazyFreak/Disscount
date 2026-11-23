@@ -90,6 +90,9 @@ services:
       SENTRY_DEBUG: ${SENTRY_DEBUG:-false}
       # The image hostname that serves public product photos; blank switches them off.
       R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
+      # Blank switches the IndexNow pings after catalogue imports off.
+      INDEXNOW_KEY: ${INDEXNOW_KEY:-}
+      INDEXNOW_HOST: ${INDEXNOW_HOST:-}
       # Photo folders on the two photo volumes; blank switches those photos off (docs/PRODUCT-IMAGES.md).
       PHOTO_DIR: ${PHOTO_DIR:-}
       PUBLIC_PHOTO_DIR: ${PUBLIC_PHOTO_DIR:-}
@@ -171,6 +174,7 @@ services:
       CIJENE_API_URL: ${CIJENE_API_URL}
       CIJENE_API_TOKEN: ${CIJENE_API_TOKEN}
       GEOAPIFY_API_KEY: ${GEOAPIFY_API_KEY:-}
+      INDEXNOW_KEY: ${INDEXNOW_KEY:-}
       # NEXT_PUBLIC_* also read server-side at runtime
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}

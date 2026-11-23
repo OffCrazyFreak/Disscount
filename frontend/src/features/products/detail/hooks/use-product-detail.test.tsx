@@ -24,6 +24,14 @@ vi.mock("@/context/user-context", () => ({
   }),
 }));
 
+type QueryStatus = "pending" | "error" | "success";
+type FetchStatus = "idle" | "fetching" | "paused";
+
+const productQuery = vi.hoisted(() => ({
+  status: "success" as QueryStatus,
+  fetchStatus: "idle" as FetchStatus,
+}));
+
 const prices = vi.hoisted(() => ({
   data: { store_prices: [] } as { store_prices: never[] } | undefined,
   fetchStatus: "idle" as "idle" | "fetching" | "paused",
@@ -31,7 +39,13 @@ const prices = vi.hoisted(() => ({
 
 vi.mock("@/lib/cijene-api", () => ({
   default: {
-    useGetProductByEan: () => ({ data: SUGAR, isLoading: false, error: null }),
+    useGetProductByEan: () => ({
+      data: productQuery.status === "success" ? SUGAR : undefined,
+      isLoading: false,
+      error: null,
+      status: productQuery.status,
+      fetchStatus: productQuery.fetchStatus,
+    }),
     useGetPrices: () => ({
       data: prices.data,
       isLoading: false,
@@ -49,6 +63,8 @@ vi.mock("@/hooks/geo/use-distance-sort", () => ({
 
 describe("useProductDetail", () => {
   beforeEach(() => {
+    productQuery.status = "success";
+    productQuery.fetchStatus = "idle";
     prices.data = { store_prices: [] };
     prices.fetchStatus = "idle";
   });
@@ -84,4 +100,23 @@ describe("useProductDetail", () => {
 
     expect(result.current.pricesOffline).toBe(false);
   });
+
+  it.each<[QueryStatus, FetchStatus, boolean]>([
+    ["pending", "paused", true],
+    ["pending", "fetching", false],
+    ["error", "paused", false],
+    ["success", "paused", false],
+  ])(
+    "with the product %s and its request %s, reports offline as %s",
+    (status, fetchStatus, offline) => {
+      productQuery.status = status;
+      productQuery.fetchStatus = fetchStatus;
+
+      const { result } = renderHookWithProviders(() =>
+        useProductDetail(SUGAR.ean),
+      );
+
+      expect(result.current.productOffline).toBe(offline);
+    },
+  );
 });

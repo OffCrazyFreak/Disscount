@@ -38,12 +38,17 @@ function isReadablePrice(text: string): boolean {
   return PRICE_TEXT.test(text) && Number.isFinite(Number.parseFloat(text));
 }
 
+// Upstream sometimes publishes 0.00; anything under a cent shows as 0,00 € and is an error in Google's offers.
+function isPositivePrice(price: number): boolean {
+  return Number.isFinite(price) && price >= 0.01;
+}
+
 function toNullablePrice(text: string | null): number | null {
   if (text === null) return null;
 
   const price = Number.parseFloat(text);
 
-  return Number.isFinite(price) ? price : null;
+  return isPositivePrice(price) ? price : null;
 }
 
 const upstreamChainProductResponseSchema = z.object({
@@ -71,10 +76,11 @@ export const upstreamProductResponseSchema = z.object({
   chains: z
     .array(upstreamChainProductResponseSchema)
     .transform((chains) =>
-      chains.filter((chain) =>
-        [chain.min_price, chain.max_price, chain.avg_price].every(
-          isReadablePrice,
-        ),
+      chains.filter(
+        (chain) =>
+          [chain.min_price, chain.max_price, chain.avg_price].every(
+            isReadablePrice,
+          ) && isPositivePrice(Number.parseFloat(chain.avg_price)),
       ),
     ),
 });
@@ -87,16 +93,26 @@ export type UpstreamProductResponse = z.infer<
   typeof upstreamProductResponseSchema
 >;
 
-// Runs after the chain filter above, so every price here is readable.
+// Runs after the chain filter above, so every price here is readable and the average is positive.
+function toChainPrice(text: string, average: number): number {
+  const price = Number.parseFloat(text);
+
+  return isPositivePrice(price) ? price : average;
+}
+
 export const productResponseSchema = upstreamProductResponseSchema.transform(
   (product) => ({
     ...product,
-    chains: product.chains.map((chain) => ({
-      ...chain,
-      min_price: Number.parseFloat(chain.min_price),
-      max_price: Number.parseFloat(chain.max_price),
-      avg_price: Number.parseFloat(chain.avg_price),
-    })),
+    chains: product.chains.map((chain) => {
+      const average = Number.parseFloat(chain.avg_price);
+
+      return {
+        ...chain,
+        min_price: toChainPrice(chain.min_price, average),
+        max_price: toChainPrice(chain.max_price, average),
+        avg_price: average,
+      };
+    }),
   }),
 );
 

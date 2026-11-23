@@ -107,16 +107,40 @@ describe("upstreamProductResponseSchema", () => {
 describe("productResponseSchema", () => {
   it("turns readable chain prices into numbers, a Decimal exponent included", () => {
     const parsed = productResponseSchema.parse(
+      product([wireChain("lidl", "1.29"), wireChain("spar", "1E+1")]),
+    );
+
+    expect(parsed.chains.map((entry) => entry.min_price)).toEqual([1.29, 10]);
+  });
+
+  it("drops a chain whose average is zero, because zero is no price", () => {
+    const parsed = productResponseSchema.parse(
+      product([wireChain("dm", "0.00"), wireChain("lidl", "0.99")]),
+    );
+
+    expect(parsed.chains.map((entry) => entry.chain)).toEqual(["lidl"]);
+  });
+
+  it("drops a chain whose average is under a cent, which would show as 0,00 €", () => {
+    const parsed = productResponseSchema.parse(
+      product([wireChain("dm", "0.004"), wireChain("lidl", "0.01")]),
+    );
+
+    expect(parsed.chains.map((entry) => entry.chain)).toEqual(["lidl"]);
+  });
+
+  it("falls back to the average for a zero lowest or highest price", () => {
+    const parsed = productResponseSchema.parse(
       product([
-        wireChain("lidl", "1.29"),
-        wireChain("spar", "1E+1"),
-        wireChain("dm", "0.00"),
+        { ...wireChain("roto", "1.30"), min_price: "0.00", max_price: "0" },
       ]),
     );
 
-    expect(parsed.chains.map((entry) => entry.min_price)).toEqual([
-      1.29, 10, 0,
-    ]);
+    expect(parsed.chains[0]).toMatchObject({
+      min_price: 1.3,
+      max_price: 1.3,
+      avg_price: 1.3,
+    });
   });
 
   it("drops an unreadable chain before converting the rest", () => {
@@ -136,7 +160,7 @@ describe("productResponseSchema", () => {
 });
 
 describe("storePricesResponseSchema", () => {
-  it("turns every store price into a number, keeping a zero", () => {
+  it("turns every store price into a number, and a zero into no price", () => {
     const parsed = storePricesResponseSchema.parse({
       store_prices: [
         wireStorePrice({
@@ -151,7 +175,7 @@ describe("storePricesResponseSchema", () => {
 
     expect(parsed.store_prices[0]).toMatchObject({
       regular_price: 1.29,
-      special_price: 0,
+      special_price: null,
       unit_price: 2.58,
       best_price_30: 1.19,
       anchor_price: 1.39,

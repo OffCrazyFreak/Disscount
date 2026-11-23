@@ -20,9 +20,10 @@ export default function ProductDetailClient({
   today,
 }: IProductDetailClientProps) {
   const t = useTranslations("productDetail");
+  const tCommon = useTranslations("common");
   const tSections = useTranslations("common.sectionNav");
   const detail = useProductDetail(ean);
-  const { product, productLoading } = detail;
+  const { product, productLoading, productOffline } = detail;
   // Restoring queries report idle and the server always restores; a seeded product renders at once.
   const isRestoring = useIsRestoring();
 
@@ -30,6 +31,18 @@ export default function ProductDetailClient({
     return (
       <div className="grid place-items-center">
         <BlockLoadingSpinner />
+      </div>
+    );
+  }
+
+  if (!product && productOffline) {
+    const notSaved = tCommon("offline.notSaved");
+
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <p role="status" className="max-w-md text-center text-gray-600">
+          {notSaved}
+        </p>
       </div>
     );
   }

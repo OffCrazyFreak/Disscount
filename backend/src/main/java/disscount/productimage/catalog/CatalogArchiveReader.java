@@ -5,11 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -18,9 +17,19 @@ import disscount.shared.CanonicalBarcode;
 /** ZIP entry order is not guaranteed, so prices count per chain product id and join to barcodes at the end. */
 final class CatalogArchiveReader {
 
-    public record Entry(String name, String brand, int storeListings, int chainCount) {}
+    /**
+     * Store prices per chain, holding only the chains that price it; department and category are null when no chain
+     * and no rule places the product.
+     */
+    public record Entry(String name, String brand, Map<String, Integer> pricesByChain, String department,
+                        String category) {
 
-    private record Product(String ean, String name, String brand) {}
+        public int storeListings() {
+            return pricesByChain.values().stream().mapToInt(Integer::intValue).sum();
+        }
+    }
+
+    private record Product(String ean, String name, String brand, String category) {}
 
     private CatalogArchiveReader() {}
 
@@ -44,7 +53,7 @@ final class CatalogArchiveReader {
                 }
             }
         }
-        return join(productsByChain, listingsByChain);
+        return join(productsByChain, listingsByChain, new ProductClassifier(CatalogTaxonomy.standard()));
     }
 
     private static Map<String, Product> readProducts(BufferedReader lines) throws IOException {
@@ -59,7 +68,8 @@ final class CatalogArchiveReader {
             // Stored as every other write stores it, so an archive with padded codes cannot add a second product.
             String ean = CanonicalBarcode.of(barcode);
             byId.put(field(f, col, "product_id"),
-                    new Product(ean, field(f, col, "name").trim(), field(f, col, "brand").trim()));
+                    new Product(ean, field(f, col, "name").trim(), field(f, col, "brand").trim(),
+                            field(f, col, "category").trim()));
         }
         return byId;
     }
@@ -79,24 +89,30 @@ final class CatalogArchiveReader {
     }
 
     private static Map<String, Entry> join(Map<String, Map<String, Product>> productsByChain,
-                                           Map<String, Map<String, Integer>> listingsByChain) {
-        Map<String, Integer> listings = new HashMap<>();
-        Map<String, Set<String>> chains = new HashMap<>();
+                                           Map<String, Map<String, Integer>> listingsByChain,
+                                           ProductClassifier classifier) {
+        Map<String, Map<String, Integer>> prices = new HashMap<>();
         Map<String, Product> firstSeen = new HashMap<>();
+        Map<String, List<ProductClassifier.Listing>> rows = new HashMap<>();
 
         productsByChain.forEach((chain, products) -> {
             Map<String, Integer> counts = listingsByChain.getOrDefault(chain, Map.of());
             products.forEach((id, product) -> {
-                listings.merge(product.ean(), counts.getOrDefault(id, 0), Integer::sum);
-                chains.computeIfAbsent(product.ean(), e -> new HashSet<>()).add(chain);
+                int priced = counts.getOrDefault(id, 0);
+                Map<String, Integer> byChain = prices.computeIfAbsent(product.ean(), e -> new HashMap<>());
+                if (priced > 0) byChain.merge(chain, priced, Integer::sum);
                 firstSeen.putIfAbsent(product.ean(), product);
+                rows.computeIfAbsent(product.ean(), e -> new ArrayList<>())
+                        .add(new ProductClassifier.Listing(product.name(), product.category()));
             });
         });
 
         Map<String, Entry> result = new HashMap<>();
-        firstSeen.forEach((ean, product) -> result.put(ean, new Entry(
-                truncate(product.name(), 200), truncate(product.brand(), 120),
-                listings.get(ean), chains.get(ean).size())));
+        firstSeen.forEach((ean, product) -> {
+            ProductClassifier.Classification sorted = classifier.classify(rows.get(ean));
+            result.put(ean, new Entry(truncate(product.name(), 200), truncate(product.brand(), 120),
+                    Map.copyOf(prices.get(ean)), sorted.department(), sorted.category()));
+        });
         return result;
     }
 

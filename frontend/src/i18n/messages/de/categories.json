@@ -1,0 +1,73 @@
+{
+  "meta": {
+    "indexTitle": "Produktkategorien",
+    "indexDescription": "Durchsuche Produkte nach Kategorie und vergleiche ihre Preise in kroatischen Supermarktketten.",
+    "categoryTitle": "{name}: Preise vergleichen",
+    "categoryPageTitle": "{name}: Preise vergleichen, Seite {page}",
+    "categoryDescription": "Vergleiche die Preise für {count, plural, one {# Produkt} other {# Produkte}} aus der Kategorie {name} in kroatischen Supermarktketten."
+  },
+  "breadcrumbs": {
+    "label": "Brotkrümelnavigation",
+    "home": "Startseite",
+    "categories": "Kategorien"
+  },
+  "index": {
+    "heading": "Produktkategorien",
+    "productCount": "{count, plural, one {# Produkt} other {# Produkte}}"
+  },
+  "intro": {
+    "count": "Wir haben {count, plural, one {# Produkt} other {# Produkte}} in dieser Kategorie gefunden.",
+    "prices": "Die Produkte auf dieser Seite bekommst du bei {chains, plural, one {# Handelskette} other {# Handelsketten}}, im Durchschnitt für {low} bis {high}.",
+    "cheapest": "{chain} hat bei {wins} von {priced, plural, one {# Produkt} other {# Produkten}} den niedrigsten Preis."
+  },
+  "empty": "In dieser Kategorie gibt es noch keine Produkte.",
+  "pagination": {
+    "label": "Seiten",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "pageLabel": "Seite {page}"
+  },
+  "names": {
+    "hrana-za-ljubimce": "Tiernahrung",
+    "pelene": "Windeln",
+    "toaletni-papir": "Toilettenpapier",
+    "pasta-za-zube": "Zahnpasta",
+    "sampon": "Shampoo",
+    "deterdzent-za-sude": "Spülmittel",
+    "deterdzent-za-rublje": "Waschmittel",
+    "sladoled": "Eiscreme",
+    "smrznuto": "Tiefkühlkost",
+    "jogurt": "Joghurt",
+    "mlijeko": "Milch",
+    "maslac": "Butter",
+    "sir": "Käse",
+    "jaja": "Eier",
+    "kruh": "Brot",
+    "brasno": "Mehl",
+    "tjestenina": "Nudeln",
+    "riza": "Reis",
+    "ulje": "Öl",
+    "secer": "Zucker",
+    "kava": "Kaffee",
+    "caj": "Tee",
+    "voda": "Wasser",
+    "sokovi": "Säfte",
+    "pivo": "Bier",
+    "vino": "Wein",
+    "cokolada": "Schokolade",
+    "keksi": "Kekse",
+    "grickalice": "Knabbereien",
+    "pahuljice": "Frühstücksflocken",
+    "kobasice": "Würste",
+    "meso": "Fleisch",
+    "konzerve": "Konserven"
+  },
+  "departments": {
+    "hrana": "Lebensmittel",
+    "pice": "Getränke",
+    "kozmetika": "Kosmetik",
+    "toaletne-potrepstine": "Hygieneartikel",
+    "sredstva-za-ciscenje": "Reinigungsmittel",
+    "kucanstvo": "Haushalt"
+  }
+}

@@ -95,7 +95,7 @@ Calling `localeCompare` with no locale collates them as plain `c`, `s`, `z`, whi
 | Pinned places (settings)                               | `components/custom/settings/components/pinned-places-select.tsx`                     | place label via `keywords` (name, plus the county for a shared name)                                     |
 | Store-chain picker (price history, map chain filter)   | `components/custom/store-chain/store-chain-multi-select.tsx`                         | chain label via `keywords`                                                                               |
 | Add to shopping list                                   | `features/products/components/forms/shopping-list-picker/shopping-list-selector.tsx` | list title via `keywords`                                                                                |
-| Updates / blog                                         | `app/[locale]/updates/page.tsx`                                                      | title, excerpt, content                                                                                  |
+| Updates / blog                                         | `app/[locale]/updates/(browse)/page.tsx`                                             | title, excerpt, content                                                                                  |
 | Suggestions                                            | `app/[locale]/suggestions/components/suggestions-client.tsx`                         | suggestion fields                                                                                        |
 | Digital cards                                          | `features/digital-cards/utils/display/card-sorting.ts` (`filterCards`)               | card name, store name, note (never the card number)                                                      |
 | Digital card store field                               | `features/digital-cards/hooks/use-store-options.ts`                                  | chain label and community names, folded with `normalizeForSearch` (the Autocomplete's own filter is off) |
@@ -156,7 +156,7 @@ Also note **email is not on the JPA `User` entity**; it lives in better-auth's o
 
 **`normalizeForSearch` is an identity key, not only a search helper.** Twelve files use its output to key maps for facet counting and dedupe. Changing what it returns would silently change facet counts, which is why the memoized wrapper returns exactly the same string.
 
-**Do not put a React library in the shared matcher.** `filterByFields` is imported by `app/[locale]/updates/page.tsx`, which is a server component. That is why `subsequenceScore` is hand-written instead of borrowing cmdk's `command-score`.
+**Do not put a React library in the shared matcher.** `filterByFields` is imported by `app/[locale]/updates/(browse)/page.tsx`, which is a server component. That is why `subsequenceScore` is hand-written instead of borrowing cmdk's `command-score`.
 
 **Watchlist suggestions add tie-breakers after relevance.** `use-watchlist-suggestions.ts` sorts by the match score first, then by how many shopping list rows carry the product, then by discount. Scores tie readily, so the tie-breakers still decide much of the order.
 

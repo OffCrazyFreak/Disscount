@@ -160,7 +160,7 @@ No environment variable of its own. The proxy reads `NEXT_PUBLIC_API_URL` throug
 | Pool size             | `max` in `db/index.ts`                                  | 10 connections, node-postgres's default written out                                                            |
 | Pool wait             | `connectionTimeoutMillis` in `db/index.ts`              | 5 seconds, then the session read fails and the proxy answers 503 `auth_unavailable` instead of waiting forever |
 
-Libraries (from `frontend/package.json`): `next` 16.4.5 (route handlers), `better-auth` 1.7.15 (`auth.api.getSession`, `auth.api.getToken`, the jwt plugin), `pg` 8.23.1 (the session pool), `axios` ^1.13.2 (the client), `@sentry/nextjs` ^11.10.0, `@serwist/next` ^9.5.11 (the service worker). No new dependency.
+Libraries (from `frontend/package.json`): `next` 16.4.5 (route handlers), `better-auth` 1.7.27 (`auth.api.getSession`, `auth.api.getToken`, the jwt plugin), `pg` 8.23.1 (the session pool), `axios` ^1.13.2 (the client), `@sentry/nextjs` ^11.10.0, `@serwist/next` ^9.5.11 (the service worker). No new dependency.
 
 The service worker (`app/sw.ts`) needs no change: its `NetworkOnly` rule for every same-origin `/api/` path sits above Serwist's default cache, and Serwist ignores `Cache-Control`, so that rule, not the proxy's `no-store`, is what keeps account data out of Cache Storage. Only `/api/cijene/*` is cached, and `cijene` is not a backend root.
 
