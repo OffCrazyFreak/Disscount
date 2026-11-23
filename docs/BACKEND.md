@@ -73,7 +73,6 @@ flowchart TD
 
 | Method                  | Use                                                                                                                                                                      |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `isActive(userId)`      | Is this account live                                                                                                                                                     |
 | `requireActive(userId)` | The caller's own account; answers `401 error.user.notFound` once it is gone, because a token outlives its account by minutes                                             |
 | `lockActive(userId)`    | The same under a row lock held until commit, so a write racing account deletion lands first or is refused. Digital cards use it as their per-user mutex (`CardUserLock`) |
 | `lockIfActive(userId)`  | The lock for work that should quietly do nothing once the account is gone                                                                                                |
