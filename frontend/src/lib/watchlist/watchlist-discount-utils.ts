@@ -41,11 +41,6 @@ export function getScopedDiscountedStores(
 
   for (const chain of scopedChains) {
     const currentPrice = chain.min_price;
-
-    if (currentPrice === null) {
-      continue;
-    }
-
     const comparison = calculatePriceComparison(avgPrice, currentPrice);
 
     if (!comparison.hasDiscount) {
