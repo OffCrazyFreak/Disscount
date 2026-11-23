@@ -32,7 +32,7 @@ flowchart LR
 | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | 1. Path guard   | The first segment must be a Spring root (`BACKEND_ROOTS` in `backend-path.ts`), and no segment may be empty, `.`, `..`, or contain `/` or `\` after decoding. The URL is rebuilt on the fixed `BACKEND_ORIGIN` and its origin checked again.                                                                                                                                                                                 | 404 `not_found`                                                        |
 | 2. CSRF         | `X-Disscount-Client: web` must be present; `Sec-Fetch-Site`, when sent, must be `same-origin`; for anything but GET and HEAD, `Origin`, when sent, must equal `appUrl()`.                                                                                                                                                                                                                                                    | 403 `csrf_rejected`                                                    |
-| 3. Token        | `auth.api.getToken({ headers })` reads the session and signs a JWT. A missing or expired session is not an error, just no token.                                                                                                                                                                                                                                                                                             | 503 `auth_unavailable` if the read itself fails                        |
+| 3. Token        | `mintSessionToken` (`session-token.ts`) reads the session with `auth.api.getSession({ headers })`, then `auth.api.getToken({ headers })` reads it again and signs a JWT. A missing or expired session is not an error, just no token.                                                                                                                                                                                        | 503 `auth_unavailable` if the read itself fails                        |
 | 4. Identity pin | `X-Disscount-User` is compared with the session's user id (see below).                                                                                                                                                                                                                                                                                                                                                       | 401 `session_changed`                                                  |
 | 4a. Body size   | The body is read into memory while its bytes are counted, so a chunked body without `Content-Length` is capped too (`request-body.ts`). 64 KB for JSON and 1100 KB for the three photo uploads (card photos, product photos and `PUT /api/users/me/avatar`). Those larger caps need a session, so a stranger never makes the proxy hold more than 64 KB. One 30 second deadline covers reading the body and the Spring call. | 413 `payload_too_large`, 401 `sign_in_required`, 408 `request_timeout` |
 | 5. Forward      | `fetch` to Spring with an allow-listed copy of the headers, the counted body, `redirect: "manual"`, `cache: "no-store"`, and an abort signal that fires when the browser goes away or when the 30 second deadline from step 4a runs out.                                                                                                                                                                                     | 502 `backend_unavailable`, 504 `backend_timeout`                       |
@@ -95,18 +95,18 @@ If `getToken` refreshes the session (at most once a day, better-auth's `updateAg
 
 All of the proxy's own answers are `application/problem+json` with `status`, `title` and `code` (`proxy-problem.ts`), the shape `lib/api/problem-details.ts` already parses. The `title` is translated from the `errors.proxy` keys in the language of the request's `Accept-Language` (Croatian when it names none of the five), the same header Spring localises its own titles from, so `problemMessage` and `applyProblemToForm` show it as is on every screen. The catalogs are imported statically so `proxyProblem` stays synchronous; `src/test/backend-identity.ts` throws it from MSW handlers.
 
-| Status | `code`                | When                                                                             | Sentry |
-| ------ | --------------------- | -------------------------------------------------------------------------------- | ------ |
-| 404    | `not_found`           | The path is not one of Spring's.                                                 | no     |
-| 403    | `csrf_rejected`       | Missing client header, cross-site `Sec-Fetch-Site`, foreign `Origin` on a write. | no     |
-| 413    | `payload_too_large`   | The body is over the route's cap, declared or counted.                           | no     |
-| 401    | `sign_in_required`    | A photo upload or profile change with no session; the body is never read.        | no     |
-| 408    | `request_timeout`     | The browser stalled while sending the body past the 30 second deadline.          | no     |
-| 401    | `session_changed`     | The cookie names another account than the pin.                                   | no     |
-| 503    | `auth_unavailable`    | Reading the session failed (database down).                                      | yes    |
-| 502    | `backend_unavailable` | Spring could not be reached.                                                     | yes    |
-| 504    | `backend_timeout`     | Spring took longer than 30 seconds.                                              | yes    |
-| 499    | none, empty body      | The browser went away; the Spring call is cancelled too.                         | no     |
+| Status | `code`                | When                                                                                     | Sentry |
+| ------ | --------------------- | ---------------------------------------------------------------------------------------- | ------ |
+| 404    | `not_found`           | The path is not one of Spring's.                                                         | no     |
+| 403    | `csrf_rejected`       | Missing client header, cross-site `Sec-Fetch-Site`, foreign `Origin` on a write.         | no     |
+| 413    | `payload_too_large`   | The body is over the route's cap, declared or counted.                                   | no     |
+| 401    | `sign_in_required`    | A photo upload or profile change with no session; the body is never read.                | no     |
+| 408    | `request_timeout`     | The browser stalled while sending the body past the 30 second deadline.                  | no     |
+| 401    | `session_changed`     | The cookie names another account than the pin.                                           | no     |
+| 503    | `auth_unavailable`    | Reading the session failed (database down, or no free pool connection within 5 seconds). | yes    |
+| 502    | `backend_unavailable` | Spring could not be reached.                                                             | yes    |
+| 504    | `backend_timeout`     | Spring took longer than 30 seconds.                                                      | yes    |
+| 499    | none, empty body      | The browser went away; the Spring call is cancelled too.                                 | no     |
 
 The price data routes under `/api/cijene/` build every error with the same helper (`upstream_unavailable`, `bad_request`, `too_many_requests`, `not_found`), with no Sentry event (see `docs/PRODUCTS.md` §3).
 
@@ -152,13 +152,15 @@ The browser's query cache (`lib/api/query-client-defaults.ts`) reports every 5xx
 
 No environment variable of its own. The proxy reads `NEXT_PUBLIC_API_URL` through `BACKEND_ORIGIN` (`lib/api/backend-origin.ts`), the same value the rewrite used, and `NEXT_PUBLIC_APP_URL` through `appUrl()` for the `Origin` check (localhost in development).
 
-| Setting               | Where                                              | Value                                                    |
-| --------------------- | -------------------------------------------------- | -------------------------------------------------------- |
-| Upstream timeout      | `UPSTREAM_TIMEOUT_MS` in `proxy-to-backend.ts`     | 30 seconds, the cap the rewrite had                      |
-| Backend token life    | `BACKEND_TOKEN_TTL_MINUTES` in `constants/auth.ts` | 2 minutes                                                |
-| `set-auth-jwt` header | `disableSettingJwtHeader` in `lib/auth/index.ts`   | off, so session polls no longer hand the browser a token |
+| Setting               | Where                                              | Value                                                                                                          |
+| --------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Upstream timeout      | `UPSTREAM_TIMEOUT_MS` in `proxy-to-backend.ts`     | 30 seconds, the cap the rewrite had                                                                            |
+| Backend token life    | `BACKEND_TOKEN_TTL_MINUTES` in `constants/auth.ts` | 2 minutes                                                                                                      |
+| `set-auth-jwt` header | `disableSettingJwtHeader` in `lib/auth/index.ts`   | off, so session polls no longer hand the browser a token                                                       |
+| Pool size             | `max` in `db/index.ts`                             | 10 connections, node-postgres's default written out                                                            |
+| Pool wait             | `connectionTimeoutMillis` in `db/index.ts`         | 5 seconds, then the session read fails and the proxy answers 503 `auth_unavailable` instead of waiting forever |
 
-Libraries (from `frontend/package.json`): `next` 16.4.5 (route handlers), `better-auth` 1.7.15 (`auth.api.getToken`, the jwt plugin), `axios` ^1.13.2 (the client), `@sentry/nextjs` ^11.10.0, `@serwist/next` ^9.5.11 (the service worker). No new dependency.
+Libraries (from `frontend/package.json`): `next` 16.4.5 (route handlers), `better-auth` 1.7.15 (`auth.api.getSession`, `auth.api.getToken`, the jwt plugin), `pg` 8.23.1 (the session pool), `axios` ^1.13.2 (the client), `@sentry/nextjs` ^11.10.0, `@serwist/next` ^9.5.11 (the service worker). No new dependency.
 
 The service worker (`app/sw.ts`) needs no change: its `NetworkOnly` rule for every same-origin `/api/` path sits above Serwist's default cache, and Serwist ignores `Cache-Control`, so that rule, not the proxy's `no-store`, is what keeps account data out of Cache Storage. Only `/api/cijene/*` is cached, and `cijene` is not a backend root.
 
@@ -185,17 +187,18 @@ The decision in #430 is to add a short per-session token memo only if `auth` exc
 
 ## 10. Testing
 
-| Test                                                                                                                                         | What it pins                                                                                                                        |
-| -------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `lib/backend-proxy/proxy-to-backend.test.ts`                                                                                                 | Path guard, CSRF per method, every identity row.                                                                                    |
-| `lib/backend-proxy/proxy-forwarding.test.ts`                                                                                                 | Header allow-lists both ways, client IP headers verbatim, multipart and binary bodies, 204, 304 and HEAD, problem bodies untouched. |
-| `lib/backend-proxy/proxy-failures.test.ts`                                                                                                   | 502, 503, 504, abort propagation, no token, cookie or list id in a Sentry event.                                                    |
-| `lib/backend-proxy/backend-path.test.ts`                                                                                                     | URL building, and that no `app/api/*` folder or `cijene` collides with a backend root.                                              |
-| `lib/backend-proxy/proxy-body-limit.test.ts`                                                                                                 | 413 on a declared length and on a chunked body without one, photo and avatar caps, and the body reaching Spring whole.              |
-| `lib/backend-proxy/proxy-docs.test.ts`                                                                                                       | The docs route works without the client header, sends no session or token, and refuses other paths.                                 |
-| `lib/backend-proxy/proxy-problem.test.ts`                                                                                                    | Problem titles follow `Accept-Language`, match a regional tag on its language, and fall back to Croatian.                           |
-| `lib/api/api-base.test.tsx`                                                                                                                  | The client sends both headers and no token, and refetches the session on a 401, once per burst.                                     |
-| `context/user-context-session-changes.test.tsx`, `lib/offline/offline-replay.test.tsx`, `lib/api/shopping-lists/shared-list-access.test.tsx` | The account switch, sign-out, revoke, deletion, offline replay and shared list behaviour from #437, through `actingAs`.             |
+| Test                                                                                                                                         | What it pins                                                                                                                                      |
+| -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lib/backend-proxy/proxy-to-backend.test.ts`                                                                                                 | Path guard, CSRF per method, every identity row.                                                                                                  |
+| `lib/backend-proxy/proxy-forwarding.test.ts`                                                                                                 | Header allow-lists both ways, client IP headers verbatim, multipart and binary bodies, 204, 304 and HEAD, problem bodies untouched.               |
+| `lib/backend-proxy/session-token.test.ts`                                                                                                    | A failed session read throws, no session signs nothing, a session ending before the signing gives no token, a session mints a token for its user. |
+| `lib/backend-proxy/proxy-failures.test.ts`                                                                                                   | 502, 503, 504, abort propagation, no token, cookie or list id in a Sentry event.                                                                  |
+| `lib/backend-proxy/backend-path.test.ts`                                                                                                     | URL building, and that no `app/api/*` folder or `cijene` collides with a backend root.                                                            |
+| `lib/backend-proxy/proxy-body-limit.test.ts`                                                                                                 | 413 on a declared length and on a chunked body without one, photo and avatar caps, and the body reaching Spring whole.                            |
+| `lib/backend-proxy/proxy-docs.test.ts`                                                                                                       | The docs route works without the client header, sends no session or token, and refuses other paths.                                               |
+| `lib/backend-proxy/proxy-problem.test.ts`                                                                                                    | Problem titles follow `Accept-Language`, match a regional tag on its language, and fall back to Croatian.                                         |
+| `lib/api/api-base.test.tsx`                                                                                                                  | The client sends both headers and no token, and refetches the session on a 401, once per burst.                                                   |
+| `context/user-context-session-changes.test.tsx`, `lib/offline/offline-replay.test.tsx`, `lib/api/shopping-lists/shared-list-access.test.tsx` | The account switch, sign-out, revoke, deletion, offline replay and shared list behaviour from #437, through `actingAs`.                           |
 
 In jsdom tests, an MSW handler calls `actingAs(request)` to learn which account Spring would act as. It runs the real `isCsrfSafe` and `decideIdentity` against `serverSession.userId` (the account the test's session cookie names) and throws the proxy's refusal as the response, so a refused call never reaches the handler body. `test/setup-dom.ts` resets `serverSession` and the cache identity after each test.
 
@@ -207,6 +210,7 @@ In jsdom tests, an MSW handler calls `actingAs(request)` to learn which account 
 - **A URL resolves dot segments before Next sees them.** `/api/users/%2E%2E/admin` arrives as `/api/admin`, which is a backend root, and Spring's own security then applies. The path guard catches what survives decoding (an encoded slash or backslash inside one segment). Tests pass decoded segments directly for that reason.
 - **`authClient.$store` is a proxy.** better-auth's client resolves `authClient.$store.notify` to the real function only when read through the full path, so `vi.spyOn(authClient.$store, "notify")` fails. Tests listen to `authClient.$store.atoms.$sessionSignal` instead.
 - **A new browser call that bypasses axios gets 403.** An `<img src="/api/...">` cannot send the client header; card photos and admin originals are fetched as blobs through `apiClient` for that reason.
+- **`getToken` hides a database failure.** better-auth's session middleware catches any error from the session read and answers 401, so `getToken` alone made an outage look like a sign-out (`session_changed` for a signed-in tab, an anonymous call otherwise). `auth.api.getSession` throws the error instead, so `mintSessionToken` calls it first. The cost is two session reads per signed-in call, accepted on 2026-11-23 over signing the token by hand.
 - **`session_changed` is not retried.** Retrying a write under the new pin would send account A's queued write as account B. The session refetch and purge are the recovery.
 
 ---
@@ -214,4 +218,4 @@ In jsdom tests, an MSW handler calls `actingAs(request)` to learn which account 
 ## 12. Future improvements & TODOs
 
 - A short per-session token memo, only if the `auth` timing says it is needed (section 9).
-- Check the drizzle `pg` pool size against concurrent API calls, since each proxied call now holds a frontend pool connection for the session read.
+- Check the drizzle `pg` pool size (10) against concurrent API calls, since each signed-in proxied call reads the session twice from that pool.
