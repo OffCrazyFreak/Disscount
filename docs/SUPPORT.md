@@ -64,12 +64,12 @@ The modal is public by design. `PUBLIC_MODAL_NAMES` prevents the authentication 
 
 ## 5. Key files
 
-| File                                   | Role                                                                            |
-| -------------------------------------- | ------------------------------------------------------------------------------- |
-| `frontend/src/constants/donation.ts`   | Holds the live Ko-fi URL and the GitHub Sponsors follow-up TODO.                |
-| `frontend/src/constants/navigation.ts` | Declares the `donate` support-navigation item and the landing recognition TODO. |
-| `.github/FUNDING.yml`                  | Configures the repository funding destination shown by GitHub.                  |
-| `README.md`                            | Gives repository visitors the public Ko-fi support link.                        |
+| File                                      | Role                                                                            |
+| ----------------------------------------- | ------------------------------------------------------------------------------- |
+| `frontend/src/constants/site/donation.ts` | Holds the live Ko-fi URL and the GitHub Sponsors follow-up TODO.                |
+| `frontend/src/constants/navigation.ts`    | Declares the `donate` support-navigation item and the landing recognition TODO. |
+| `.github/FUNDING.yml`                     | Configures the repository funding destination shown by GitHub.                  |
+| `README.md`                               | Gives repository visitors the public Ko-fi support link.                        |
 
 ## 6. Payment platform and fees
 

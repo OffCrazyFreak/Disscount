@@ -133,14 +133,14 @@ The image never leaves the device ([IMAGE-UPLOADS.md](IMAGE-UPLOADS.md) lists th
 
 ## 9. Key files
 
-| Path                                                                               | Role                                                        |
-| ---------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `frontend/src/components/scanner/scanner-content.tsx`                              | Step machine, focus, announcements, vibration               |
-| `frontend/src/components/scanner/camera-view.tsx`                                  | The library `Scanner`, constraints, torch and track cleanup |
-| `frontend/src/components/scanner/scan-consensus.ts`, `hooks/use-scan-consensus.ts` | Repeated-read consensus                                     |
-| `frontend/src/utils/browser/camera.ts`                                             | Back camera scoring, camera naming, error mapping           |
-| `frontend/src/utils/barcode/`                                                      | Check digits and normalization, shared with cards           |
-| `frontend/src/components/custom/pwa/scan-shortcut.tsx`                             | The `/?scan=1` PWA shortcut                                 |
+| Path                                                                                      | Role                                                        |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `frontend/src/components/scanner/scanner-content.tsx`                                     | Step machine, focus, announcements, vibration               |
+| `frontend/src/components/scanner/camera/camera-view.tsx`                                  | The library `Scanner`, constraints, torch and track cleanup |
+| `frontend/src/components/scanner/camera/scan-consensus.ts`, `hooks/use-scan-consensus.ts` | Repeated-read consensus                                     |
+| `frontend/src/utils/browser/camera.ts`                                                    | Back camera scoring, camera naming, error mapping           |
+| `frontend/src/utils/barcode/`                                                             | Check digits and normalization, shared with cards           |
+| `frontend/src/components/custom/pwa/scan-shortcut.tsx`                                    | The `/?scan=1` PWA shortcut                                 |
 
 `frontend/src/lib/store-locations/dgu/gml-scanner.ts` has "scanner" in its name but is an XML stream reader for the store map ([MAP.md](MAP.md)), unrelated to barcodes.
 

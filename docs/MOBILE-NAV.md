@@ -346,7 +346,7 @@ Current users, identical apart from their content and their modality:
 | Product quick actions    | `features/products/components/product-quick-actions.tsx`             | yes   | an outside press, plus any action it runs |
 | PWA install instructions | `components/custom/pwa/install-instructions-sheet.tsx`               | yes   | an outside press and `showCloseButton`    |
 | Shopping list actions    | `features/shopping-lists/components/shopping-list-actions-sheet.tsx` | yes   | an outside press, plus any action it runs |
-| Map store                | `features/map/components/map-store-sheet.tsx`                        | no    | the X beside the store; also `md:hidden`  |
+| Map store                | `features/map/components/store/map-store-sheet.tsx`                  | no    | the X beside the store; also `md:hidden`  |
 
 ### Why the surface is muted
 
@@ -445,7 +445,7 @@ if (productPageEan && entry.productPageTarget)
 return entry.longPressEnabled ? (entry.longPressTarget ?? null) : null;
 ```
 
-`productEanFromPath` (in `utils/routes.ts`) reads the EAN off `usePathname()` rather than `useParams`, because the bar is mounted in the root layout and never sees the route's own params. `Praćenje` has only a product-page target, so it has no gesture anywhere else; `Popisi` has both and swaps. `resolveHoldTarget` answers once, and the bar passes the result down as `hasHold`, so the ring and the behaviour cannot disagree about whether a hold does anything.
+`productEanFromPath` (in `utils/links/routes.ts`) reads the EAN off `usePathname()` rather than `useParams`, because the bar is mounted in the root layout and never sees the route's own params. `Praćenje` has only a product-page target, so it has no gesture anywhere else; `Popisi` has both and swaps. `resolveHoldTarget` answers once, and the bar passes the result down as `hasHold`, so the ring and the behaviour cannot disagree about whether a hold does anything.
 
 Neither modal needs its cache seeded, unlike `useProductModals`: the detail page has already fetched the product through the same `useGetProductByEan` key, so both open populated.
 
@@ -487,9 +487,9 @@ Typing a product name and scanning its barcode answer the same question, "what d
 ```mermaid
 flowchart TB
     gest["constants/gestures.ts<br/>every timing and threshold"] --> util
-    util["utils/long-press.ts<br/>framework-free timer"] --> hook["hooks/use-long-press.ts<br/>one element (product cards)"]
-    util --> cell["hooks/use-long-press-timer.ts<br/>timing plus the ring's progress"]
-    cell --> bar["bottom-nav/use-bottom-nav-pointer.ts<br/>the whole bar, plus scrubbing"]
+    util["utils/ui/long-press.ts<br/>framework-free timer"] --> hook["hooks/gestures/use-long-press.ts<br/>one element (product cards)"]
+    util --> cell["hooks/gestures/use-long-press-timer.ts<br/>timing plus the ring's progress"]
+    cell --> bar["bottom-nav/hooks/use-bottom-nav-pointer.ts<br/>the whole bar, plus scrubbing"]
     hit["bottom-nav/bar-hit-test.ts<br/>a point to a cell, or none"] --> bar
     res["bottom-nav/resolve-hold-target.ts<br/>what a hold does, or null"] --> bar
 ```
@@ -543,7 +543,7 @@ The badge counts watched products whose best price fell since you last opened `/
 - Opening `/watchlist` resets the snapshot to today's prices, which clears the badge. Only a visible tab counts as a visit, so a background tab left on the page that refetches on reconnect does not clear drops nobody saw. Elsewhere, a product seen for the first time only gets its baseline, so it never counts on the day you add it. A product whose price failed to load keeps its old baseline, so it can still count after a visit. Unwatched products leave the snapshot, so re-watching one starts fresh.
 - The snapshot records the store scope (the sorted pinned chain codes) its prices were read in. Pinning or unpinning a store rebases it silently instead of reporting every product that is cheaper at another chain.
 - A tab writes the snapshot only when its own prices, watchlist, scope or route change, and merges against a fresh read when it does, so a visit in one tab survives and two tabs that disagree never overwrite each other in a loop. Other tabs pick the write up through the `storage` event. Nothing is written while the pinned stores failed to load, since that would read as "every chain" and rebase away unseen drops. The sign-out purge deletes the departing account's snapshot, because it lists every watched EAN, and a write only happens while the cache identity matches the account, so a profile that has not caught up with a switch cannot recreate it.
-- The visual badge stops at `9+` (`utils/badge-count.ts`) and is `aria-hidden`. The cell's accessible name carries the exact count instead (`Praćenje, 12 novih popusta`), and one polite `role="status"` region in the layout (`features/watchlist/components/price-drop-status.tsx`) announces a change, since a changed `aria-label` is never read out. It stays quiet about the first count each account settles on (no fetch in flight, and no product still waiting for its first price), so a cold start or a sign-in does not talk over the page.
+- The visual badge stops at `9+` (`utils/ui/badge-count.ts`) and is `aria-hidden`. The cell's accessible name carries the exact count instead (`Praćenje, 12 novih popusta`), and one polite `role="status"` region in the layout (`features/watchlist/components/price-drop-status.tsx`) announces a change, since a changed `aria-label` is never read out. It stays quiet about the first count each account settles on (no fetch in flight, and no product still waiting for its first price), so a cold start or a sign-in does not talk over the page.
 - The header bell still shows threshold alerts from `useNotifications()`. The two numbers answer different questions: "what is on sale for me now" and "what got cheaper since I last looked".
 - It is per device: a visit on the phone does not clear the laptop. The server-side inbox (#222) is meant to replace the hook's body with an unseen count shared across devices, and the app icon badge (#133) should read that same source.
 
@@ -654,7 +654,7 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 The mobile FAB's jobs moved into the bar: the per-page create action became a long press plus the inline button, and back-to-top on `/products` became re-tapping the active tab.
 
 - The inline create buttons must stay visible below `sm`. They are the only tappable path, and a long press alone would fail WCAG 2.1.1.
-- Below `sm` those buttons use shorter wording through `ResponsiveLabel` (`components/custom/common/responsive-label.tsx`), which swaps two strings with CSS so the label never changes on hydration. The control's `aria-label` keeps the full wording.
+- Below `sm` those buttons use shorter wording through `ResponsiveLabel` (`components/custom/common/display/responsive-label.tsx`), which swaps two strings with CSS so the label never changes on hydration. The control's `aria-label` keeps the full wording.
 - `BackToTopButton` stays `hidden md:block`, or widths between 640px and 768px would show the bar and the button at once.
 - Anything anchored to the bottom offsets from `--bottom-nav-total`: the install banner and the toaster's `mobileOffset` do, or they land on the bar.
 
@@ -670,24 +670,24 @@ The mobile FAB's jobs moved into the bar: the per-page create action became a lo
 
 ### The bar
 
-| File                                                     | Role                                                           |
-| -------------------------------------------------------- | -------------------------------------------------------------- |
-| `lib/watchlist/use-watchlist-price-drop-count.ts`        | The Praćenje badge count, shared with the sidebar and header   |
-| `components/custom/common/hold-progress-ring.tsx`        | One ring, shared by long-press feedback and list completion    |
-| `components/custom/bottom-nav/bottom-nav-items.ts`       | The five-cell order and the long-press mapping                 |
-| `components/custom/bottom-nav/use-bottom-nav-pointer.ts` | One pointer stream for tap, scrub and long press               |
-| `hooks/use-long-press-timer.ts`                          | Hold timing, and the ring progress written to the pressed cell |
-| `components/custom/bottom-nav/resolve-hold-target.ts`    | What a hold does, or null if the cell has none                 |
+| File                                                           | Role                                                           |
+| -------------------------------------------------------------- | -------------------------------------------------------------- |
+| `lib/watchlist/use-watchlist-price-drop-count.ts`              | The Praćenje badge count, shared with the sidebar and header   |
+| `components/custom/common/controls/hold-progress-ring.tsx`     | One ring, shared by long-press feedback and list completion    |
+| `components/custom/bottom-nav/bottom-nav-items.ts`             | The five-cell order and the long-press mapping                 |
+| `components/custom/bottom-nav/hooks/use-bottom-nav-pointer.ts` | One pointer stream for tap, scrub and long press               |
+| `hooks/gestures/use-long-press-timer.ts`                       | Hold timing, and the ring progress written to the pressed cell |
+| `components/custom/bottom-nav/resolve-hold-target.ts`          | What a hold does, or null if the cell has none                 |
 
 ### Shared primitives
 
 | File                                            | Role                                                         |
 | ----------------------------------------------- | ------------------------------------------------------------ |
 | `constants/gestures.ts`                         | Every gesture timing and threshold, in one place             |
-| `utils/long-press.ts`                           | Framework-free press timer with progress, drain and cancel   |
-| `hooks/use-long-press.ts`                       | Element-scoped Pointer Events wrapper, used by product cards |
+| `utils/ui/long-press.ts`                        | Framework-free press timer with progress, drain and cancel   |
+| `hooks/gestures/use-long-press.ts`              | Element-scoped Pointer Events wrapper, used by product cards |
 | `features/products/hooks/use-product-modals.ts` | Opens the product modals, seeding the by-ean cache first     |
-| `components/custom/modal/sheet-shell.tsx`       | The shared bottom sheet, owning layer, height and clearance  |
+| `components/custom/modal/sheet/sheet-shell.tsx` | The shared bottom sheet, owning layer, height and clearance  |
 | `context/products-sheet-context.tsx`            | Holds the sheet open, and whether it opens with filters      |
 
 ### The products sheet's own parts
@@ -699,10 +699,10 @@ The mobile FAB's jobs moved into the bar: the per-page create action became a lo
 
 ### The filters
 
-| File                                                       | Role                                                             |
-| ---------------------------------------------------------- | ---------------------------------------------------------------- |
-| `features/products/components/product-filters-bar.tsx`     | Picks the layout: inline above `md`, a button to the sheet below |
-| `features/products/components/product-filters-trigger.tsx` | The Filteri button, shared by the page and the sheet             |
+| File                                                               | Role                                                             |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `features/products/components/filters/product-filters-bar.tsx`     | Picks the layout: inline above `md`, a button to the sheet below |
+| `features/products/components/filters/product-filters-trigger.tsx` | The Filteri button, shared by the page and the sheet             |
 
 ### Touched elsewhere
 

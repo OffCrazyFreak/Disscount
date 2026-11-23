@@ -41,7 +41,7 @@ The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Cr
 
 ## Where tests live
 
-- Next to the file they test, named `<file>.test.ts` or `<file>.test.tsx`: `src/utils/price.ts` and `src/utils/price.test.ts`. No `__tests__` folders.
+- Next to the file they test, named `<file>.test.ts` or `<file>.test.tsx`: `src/utils/price/price.ts` and `src/utils/price/price.test.ts`. No `__tests__` folders.
 - Import the code under test through `@/`, even from the same folder. Feature folders move (the i18n rollout moved every route under `[locale]`), and an alias import survives a move that a relative one may not.
 - A test file in `src/app/` never becomes a route, since only `page`, `layout`, `route` and the other special names do.
 - Shared helpers live in `src/test/`. Keep fixtures that one file needs inside that file.
@@ -62,11 +62,11 @@ The time zone is pinned to `Europe/Zagreb` in the config. Most readers are in Cr
 - **Use real translations.** Render with the catalogs instead of mocking `useTranslations`, the way next-intl's testing guide does. Assert on the Croatian text the user sees, or pass `locale` to check another language.
 - **Click with `userEvent.setup()`**, created before the action, and `await` every interaction.
 - **Wait for async results** with `findBy*` or `waitFor`. Never wrap `render` in `act` yourself. A toast that sonner dismisses is removed on a 200 ms timer, so wait for it to disappear before the test ends, or the timer fires against a torn-down jsdom.
-- **Mock the network with MSW,** not axios or the service module, so the real interceptors, headers and zod parsing run. The API client sends no token, so a test needs no session handler; to assert which account Spring would act as, call `actingAs(request)` from `test/backend-identity.ts` in the handler (it applies the backend proxy's identity rules against `serverSession`, see [BACKEND-PROXY.md](BACKEND-PROXY.md#10-testing)).
+- **Mock the network with MSW,** not axios or the service module, so the real interceptors, headers and zod parsing run. The API client sends no token, so a test needs no session handler; to assert which account Spring would act as, call `actingAs(request)` from `test/backend/backend-identity.ts` in the handler (it applies the backend proxy's identity rules against `serverSession`, see [BACKEND-PROXY.md](BACKEND-PROXY.md#10-testing)).
 - **Mock modules only at a boundary** you cannot run: the better-auth session hook, the router, a hook that writes cookies and navigates. `vi.mock` must sit at the top of the file, or of a helper the test imports first, and any variable its factory uses comes from `vi.hoisted`.
 - **Control time** with `vi.useFakeTimers({ now })` and switch back in `afterEach`. Testing Library's `waitFor` only detects Jest's fake timers and hangs under Vitest's, so flush with `act(() => vi.advanceTimersByTimeAsync(0))` instead (see `shopping-lists/hooks.test.tsx`). If user-event clicks under fake timers, pass `advanceTimers: vi.advanceTimersByTime` to `userEvent.setup`, or the click waits for a timer that never fires.
 - **Fake IndexedDB per module.** The offline tests replace `idb-keyval` with a `Map` (see `card-photo-outbox.test.ts`). That keeps unit tests fast and needs no extra dependency.
-- **Run axe on dialogs.** `expect(await axeDialog(document.body)).toHaveNoViolations()` with `axeDialog` from `test/axe-dialog.ts` catches an untitled dialog or an unnamed button in under 100 ms. It turns off colour contrast, which jsdom cannot paint, and the page landmark rule, so pass real children rather than a stub. See `modal-shell.test.tsx`.
+- **Run axe on dialogs.** `expect(await axeDialog(document.body)).toHaveNoViolations()` with `axeDialog` from `test/harness/axe-dialog.ts` catches an untitled dialog or an unnamed button in under 100 ms. It turns off colour contrast, which jsdom cannot paint, and the page landmark rule, so pass real children rather than a stub. See `modal-shell.test.tsx`.
 - jsdom has no `matchMedia`, `ResizeObserver`, `IntersectionObserver`, canvas or camera. `setup-dom.ts` gives every `dom` test a no-op `ResizeObserver` and a `matchMedia` that answers false. For a real answer, or anything else, stub with `vi.stubGlobal`; the config restores stubs after each test.
 
 The config sets `restoreMocks`, `unstubEnvs` and `unstubGlobals`, and Vitest 5 clears mock calls before every test by default, so tests do not need their own cleanup for spies, stubs or env vars.

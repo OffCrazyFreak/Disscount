@@ -104,8 +104,8 @@ The DTOs (`ShoppingListDto`, `ShoppingListItemDto`) are built in one place, `Sho
 
 On the frontend the contract lives in two zod files:
 
-- `lib/api/schemas/shopping-list.ts`: `shoppingListRequestSchema` (form rules: title trimmed, then 3 to 100 characters; the backend checks only the 100), `shoppingListDtoSchema` (the response), `shoppingListCopyRequestSchema`, and the `LinkAccess` and `ListAccess` enums.
-- `lib/api/schemas/shopping-list-item.ts`: `shoppingListItemRequestSchema` (name required, amount an integer from 1 to `MAX_SHOPPING_LIST_ITEM_AMOUNT`, defaulting to 1) and `shoppingListItemDtoSchema`.
+- `lib/api/schemas/lists/shopping-list.ts`: `shoppingListRequestSchema` (form rules: title trimmed, then 3 to 100 characters; the backend checks only the 100), `shoppingListDtoSchema` (the response), `shoppingListCopyRequestSchema`, and the `LinkAccess` and `ListAccess` enums.
+- `lib/api/schemas/lists/shopping-list-item.ts`: `shoppingListItemRequestSchema` (name required, amount an integer from 1 to `MAX_SHOPPING_LIST_ITEM_AMOUNT`, defaulting to 1) and `shoppingListItemDtoSchema`.
 
 Request and response schemas are separate objects on purpose. The request schemas carry form rules the backend does not enforce, so inheriting them into the response would make a row the server considers valid (saved before a limit existed) fail to parse. The response schemas require every key, because the backend always sends every key with null for "unset" (PR #462, require the response DTO keys Spring always sends).
 
@@ -167,7 +167,7 @@ Without a match, a new row is created with the request's values. Either way the 
 
 ## 6. Ticking items off and captured prices
 
-An item row (`detail/components/items/shopping-list-item.tsx`) has a checkbox, a store select, the amount controls and a remove button. Each control is enabled by the access the server resolved (`resolveShoppingListAccess` in `utils/shopping-list-access.ts`, which mirrors the backend's `ListAccess`): ticking and the store select need `SHOP`, the amount and remove need `EDIT`. A disabled control points at the access banner with `aria-describedby`.
+An item row (`detail/components/items/item/shopping-list-item.tsx`) has a checkbox, a store select, the amount controls and a remove button. Each control is enabled by the access the server resolved (`resolveShoppingListAccess` in `utils/shopping-list-access.ts`, which mirrors the backend's `ListAccess`): ticking and the store select need `SHOP`, the amount and remove need `EDIT`. A disabled control points at the access banner with `aria-describedby`.
 
 **A tick captures prices.** `useShoppingListItemMutations.handleUpdateItem` builds the request from the cached row plus the change, and when the item becomes ticked it adds:
 
@@ -190,7 +190,7 @@ A plain item has no prices to choose between, so its row offers every chain the 
 
 ### Reads
 
-The query roots `shoppingLists` and `shoppingListItems` (`lib/api/shopping-lists/keys.ts`) are on the persisted allowlist in `lib/offline/cached-query-keys.ts`, so a list loaded once opens offline, with a "last synced" label. The keys:
+The query roots `shoppingLists` and `shoppingListItems` (`lib/api/shopping-lists/keys.ts`) are on the persisted allowlist in `lib/offline/cache/cached-query-keys.ts`, so a list loaded once opens offline, with a "last synced" label. The keys:
 
 | Key                           | Holds                                                    |
 | ----------------------------- | -------------------------------------------------------- |
@@ -202,7 +202,7 @@ The query roots `shoppingLists` and `shoppingListItems` (`lib/api/shopping-lists
 
 ### Writes
 
-Every list write has a mutation key in `lib/offline/offline-mutation-keys.ts` and a replay function in `lib/offline/offline-mutations.ts` (`registerOfflineMutationDefaults`), because a reload loses the hook's inline `mutationFn`:
+Every list write has a mutation key in `lib/offline/writes/offline-mutation-keys.ts` and a replay function in `lib/offline/writes/offline-mutations.ts` (`registerOfflineMutationDefaults`), because a reload loses the hook's inline `mutationFn`:
 
 | Write               | Key                                    | Optimistic                                     | On failure                                                   |
 | ------------------- | -------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------ |
@@ -268,7 +268,7 @@ A ticked item is always `ready`, because it shows the prices saved with it. A pl
 
 The Proizvodi tab (`detail/components/items/shopping-list-item-views.tsx`) lists the items A to Z with Croatian collation (`compareHr`), or, with the "Po trgovinama" switch on, split into one card per chain. The switch is remembered per list in local storage (`shoppingListsPreferences[<id>].groupByStore`, `utils/browser/storage/shopping-lists.ts`). Grouping waits until the prices have loaded, because until then no item knows its cheapest chain.
 
-`groupItemsByStore` (`detail/utils/group-items-by-store.ts`) puts each item under the chain its store select shows: its saved `chainCode`, else, for an unticked item, the suggested cheapest chain (`suggestedChain`, the same rule the select and the share text use), else a last group called "Ostalo". That last group holds every plain item with no store picked and any item ticked with no saved chain, which its select shows with no store. Chains run A to Z by their display label, items A to Z within a chain. Each group gets a subtotal: a ticked item counts at its captured price, an unticked one at today's price at that chain, and a plain item at the price typed for it. When some item has no known price there, the group is partial and its header reads "najmanje" ("at least") before the subtotal; a partial group with no known price at all shows no subtotal.
+`groupItemsByStore` (`detail/utils/stores/group-items-by-store.ts`) puts each item under the chain its store select shows: its saved `chainCode`, else, for an unticked item, the suggested cheapest chain (`suggestedChain`, the same rule the select and the share text use), else a last group called "Ostalo". That last group holds every plain item with no store picked and any item ticked with no saved chain, which its select shows with no store. Chains run A to Z by their display label, items A to Z within a chain. Each group gets a subtotal: a ticked item counts at its captured price, an unticked one at today's price at that chain, and a plain item at the price typed for it. When some item has no known price there, the group is partial and its header reads "najmanje" ("at least") before the subtotal; a partial group with no known price at all shows no subtotal.
 
 **"Na karti".** Each chain's group header (`store-group-header.tsx`) has a "Na karti" link to the stores map:
 
@@ -304,7 +304,7 @@ The price range bar compares only chains that carry every item (`store-chain-com
 
 1. `getPriceHistoryDates` builds the list of days for the period, never before `PRICE_ARCHIVE_START` (2025-05-16), the first day the upstream archive has. The hook reads today's Zagreb date on every render and opts out of the React Compiler (`"use no memo"`), so a tab left open past midnight rebuilds the window for the new day on its next render, as `usePriceHistory` does ([PRODUCTS.md](PRODUCTS.md), price history).
 2. For every EAN and every day it runs one product lookup at that date, built by `priceHistoryQueries` (`lib/cijene-api/price-history-queries.ts`). The product page's chart uses the same builder, so the two share cache entries; the key and `staleTime` must stay identical.
-3. `buildChartData` (`detail/utils/price-history-chart-data.ts`) averages, per product and day, the average prices of the selected chains, rounded to cents. Results stay aligned with their dates by position, which is why missing days are kept as holes rather than filtered out. Each row keeps the raw `YYYY-MM-DD` date; the shared chart shell formats it for the axis and the tooltip ([PRODUCTS.md](PRODUCTS.md), price history).
+3. `buildChartData` (`detail/utils/price-history/price-history-chart-data.ts`) averages, per product and day, the average prices of the selected chains, rounded to cents. Results stay aligned with their dates by position, which is why missing days are kept as holes rather than filtered out. Each row keeps the raw `YYYY-MM-DD` date; the shared chart shell formats it for the axis and the tooltip ([PRODUCTS.md](PRODUCTS.md), price history).
 4. `calculateTotalPriceChange` compares the first and the last day, counting only products priced on both, so a product priced on one side only cannot show a price change no price made.
 
 The period and the selected chains are remembered per list in local storage (`priceHistoryPeriod`, `priceHistoryChains`). The first time, the chain selection is the user's pinned chains that appear in the data, else every chain; it waits until every lookup has settled, so a half loaded list cannot save a wrong default.
@@ -345,16 +345,16 @@ The whole `/shopping-lists` subtree is wrapped in `data-sentry-block` (`app/[loc
 
 Frontend paths are under `frontend/src/`. `shopping-lists/` means `features/shopping-lists/`, `detail/` means `features/shopping-lists/detail/` and `products/` means `features/products/`; the pages and the layout stay in `app/[locale]/(user)/shopping-lists/`. Backend paths are under `backend/src/main/java/disscount/`.
 
-| Path                                                               | Role                                                                              |
-| ------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
-| `shoppinglist/ShoppingListMapper.java`                             | The one place lists and items become DTOs, with the owner only redaction          |
-| `shoppinglist/item/ShoppingListItemMatcher.java`                   | The merge rule                                                                    |
-| `lib/api/shopping-lists/hooks.ts`                                  | React Query hooks; attaches the mutation keys and the optimism                    |
-| `lib/api/shopping-lists/optimistic-items.ts`, `optimistic-list.ts` | Single item and list field optimism with rollback                                 |
-| `lib/offline/offline-mutation-keys.ts`, `offline-mutations.ts`     | The offline write allowlist and its replay functions                              |
-| `constants/shopping-list.ts`                                       | `MAX_SHOPPING_LIST_ITEM_AMOUNT` (999), `MAX_SHOPPING_LIST_ITEM_NAME_LENGTH` (255) |
-| `products/utils/item-merge.ts`                                     | Frontend mirror of the merge rule, for the toast                                  |
-| `shopping-lists/utils/shopping-list-access.ts`                     | Client mirror of `ListAccess`                                                     |
+| Path                                                                  | Role                                                                              |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `shoppinglist/ShoppingListMapper.java`                                | The one place lists and items become DTOs, with the owner only redaction          |
+| `shoppinglist/item/ShoppingListItemMatcher.java`                      | The merge rule                                                                    |
+| `lib/api/shopping-lists/hooks.ts`                                     | React Query hooks; attaches the mutation keys and the optimism                    |
+| `lib/api/shopping-lists/optimistic-items.ts`, `optimistic-list.ts`    | Single item and list field optimism with rollback                                 |
+| `lib/offline/writes/offline-mutation-keys.ts`, `offline-mutations.ts` | The offline write allowlist and its replay functions                              |
+| `constants/shopping-list.ts`                                          | `MAX_SHOPPING_LIST_ITEM_AMOUNT` (999), `MAX_SHOPPING_LIST_ITEM_NAME_LENGTH` (255) |
+| `products/utils/item-merge.ts`                                        | Frontend mirror of the merge rule, for the toast                                  |
+| `shopping-lists/utils/shopping-list-access.ts`                        | Client mirror of `ListAccess`                                                     |
 
 ---
 

@@ -152,7 +152,7 @@ The persisted React Query cache (shopping lists, watchlist, viewed products, pro
 
 The snapshot stores every query under its key, so a key is part of the on-disk format. Each domain keeps its keys in one factory next to its service: `lib/cijene-api/keys.ts` (`CIJENE_QUERY_KEYS`, every key under the `cijene` root, including the store directory and the canonicalised store prices params) and a `keys.ts` in each `lib/api/<domain>/` folder (`SHOPPING_LIST_QUERY_KEYS`, `DIGITAL_CARD_QUERY_KEYS`, `WATCHLIST_QUERY_KEYS`, `PREFERENCE_QUERY_KEYS`, `FAVORITE_STORE_QUERY_KEYS`, `STORE_NAME_QUERY_KEYS`, `ACCOUNT_SESSION_QUERY_KEYS`, `ADMIN_QUERY_KEYS`, `CONTACT_QUERY_KEYS`, `PRODUCT_IMAGE_KEYS`). Hooks build their queries with TanStack's `queryOptions` from those keys, and invalidations, `setQueryData` seeds and the server side product page seeding (`product-cache-state.ts`) read the same factory, so no key is written as a literal at its call site. Two single-use keys outside `lib/` stay inline because nothing else reads, invalidates or persists them: `["linked-accounts"]` in the security settings and `["map-style"]` on the map.
 
-Changing a key value strands every user's offline copy of that data. The only clean way out is a `CACHE_BUSTER` bump in `persister.ts`, which also discards queued offline writes under every identity (a change of data shape under the same key can instead drop only the affected queries on restore, as the price shape marker in `persister.ts` does), so `lib/offline/query-key-values.test.ts` pins each factory to the literal it replaced. If a test there fails, the change altered a persisted address: revert it, or bump the buster deliberately and update the literal. The roots themselves must also match the allowlist in `cached-query-keys.ts`; renaming a root without renaming it there silently stops the data being written to disk.
+Changing a key value strands every user's offline copy of that data. The only clean way out is a `CACHE_BUSTER` bump in `persister.ts`, which also discards queued offline writes under every identity (a change of data shape under the same key can instead drop only the affected queries on restore, as the price shape marker in `persister.ts` does), so `lib/offline/cache/query-key-values.test.ts` pins each factory to the literal it replaced. If a test there fails, the change altered a persisted address: revert it, or bump the buster deliberately and update the literal. The roots themselves must also match the allowlist in `cached-query-keys.ts`; renaming a root without renaming it there silently stops the data being written to disk.
 
 ---
 
@@ -211,12 +211,12 @@ Not everything should be remembered. These are intentionally **not** persisted, 
 
 | File                                                                     | Role                                                                   |
 | ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| `frontend/src/hooks/use-form-draft.ts`                                   | modal-form draft save/restore engine (24h TTL, diff-vs-defaults)       |
+| `frontend/src/hooks/state/use-form-draft.ts`                             | modal-form draft save/restore engine (24h TTL, diff-vs-defaults)       |
 | `frontend/src/utils/browser/storage/core.ts`                             | single-key `Disscount_app` localStorage read/merge/write               |
 | `frontend/src/features/products/detail/hooks/use-product-preferences.ts` | reads and merges one product's panel preferences, hydration safe       |
 | `frontend/src/utils/browser/storage/storage-subscription.ts`             | same-tab and cross-tab change notifications for `useSyncExternalStore` |
 | `frontend/src/lib/cijene-api/keys.ts`, `frontend/src/lib/api/*/keys.ts`  | query key factories; their values are the persisted cache's addresses  |
-| `frontend/src/lib/offline/query-key-values.test.ts`                      | pins every factory key to its persisted value                          |
+| `frontend/src/lib/offline/cache/query-key-values.test.ts`                | pins every factory key to its persisted value                          |
 
 ---
 
@@ -271,7 +271,7 @@ The URL and localStorage layers use only browser-native APIs; there is no extra 
 
 - **`useSearchParams` needs a Suspense boundary, and the fallback is what gets prerendered.** Any component reading URL state through it must sit under `<Suspense>` (the root layout's modal router already provides one). Components that only open a modal should import `openModalUrl` directly instead of subscribing.
 
-  The cost is easy to miss: during a static prerender the boundary emits its **fallback**, not the component, so anything inside disappears from the served HTML. That is fine for a filter panel and wrong for navigation, which is how the sidebar's product links briefly stopped being crawlable. When a subtree only needs the query string for cosmetic state such as an active highlight, use `useClientSearchParams` (`frontend/src/hooks/use-client-search-params.ts`) instead: it reads the query string after mount, so the caller stays in the prerender, and it returns `null` until then. Keep `useSearchParams` wherever the URL genuinely drives what renders.
+  The cost is easy to miss: during a static prerender the boundary emits its **fallback**, not the component, so anything inside disappears from the served HTML. That is fine for a filter panel and wrong for navigation, which is how the sidebar's product links briefly stopped being crawlable. When a subtree only needs the query string for cosmetic state such as an active highlight, use `useClientSearchParams` (`frontend/src/hooks/state/use-client-search-params.ts`) instead: it reads the query string after mount, so the caller stays in the prerender, and it returns `null` until then. Keep `useSearchParams` wherever the URL genuinely drives what renders.
 
 - **localStorage preferences are per-device and are NOT purged on logout.** The IndexedDB data cache and the scoped service worker buckets are wiped when the identity changes. Preferences like view mode or the install-banner snooze are intentionally device-level and survive a logout. The exceptions are `watchlistPriceSnapshots`, which the purge deletes for the departing account because it lists every watched EAN, and the departing account's form drafts, which hold what it typed (its username among them).
 

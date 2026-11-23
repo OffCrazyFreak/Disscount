@@ -171,7 +171,7 @@ Swagger lists them all at `/api/swagger-ui/index.html`.
 
 | Path                                                                      | Role                                                                           |
 | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `frontend/src/lib/api/schemas/auth-user.ts`                               | `canAccessDashboard`, `isAdmin`                                                |
+| `frontend/src/lib/api/schemas/user/auth-user.ts`                          | `canAccessDashboard`, `isAdmin`                                                |
 | `backend/src/main/java/disscount/user/UserService.java`                   | `findAllActiveAsAdmin`, `updateAccountType` and its guard, `deleteUserAsAdmin` |
 | `backend/src/main/java/disscount/user/admin/AdminAuditEntry.java`         | One `admin_audit` row; `AdminAction` lists the actions                         |
 | `backend/src/main/java/disscount/user/AdminAuditLog.java`                 | Writes the rows in the action's transaction, deduplicates reads                |

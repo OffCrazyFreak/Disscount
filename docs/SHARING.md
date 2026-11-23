@@ -114,7 +114,7 @@ mechanism was a destructive purge. See `docs/PWA.md` §5b for `cache-identity.ts
 The `/shopping-lists/` service worker rule is `NetworkFirst`, not `NetworkOnly`, so an offline reload
 boots the app instead of the `/offline` fallback. That is only acceptable because the
 purge now deletes the `shopping-list-pages`, `cijene-api` and `others` buckets on a change of
-identity (`SCOPED_CACHE_NAMES` in `lib/offline/purge.ts`). Those names are matched by exact
+identity (`SCOPED_CACHE_NAMES` in `lib/offline/cache/purge.ts`). Those names are matched by exact
 equality, not by substring: a substring match on `pages` would also take out `pages-rsc` and
 `pages-rsc-prefetch`, every RSC payload in the app. `others` is on the list because that is
 where serwist actually files navigations, its `pages` rule keying off a Content-Type header
@@ -145,7 +145,7 @@ Worth knowing before changing any of this:
 | Route matcher | `backend/.../security/UuidScopedRequestMatcher.java`                 |
 | Optimism      | `frontend/src/lib/api/shopping-lists/optimistic-list.ts`             |
 | Live polling  | `frontend/src/lib/api/shopping-lists/shared-list-polling.ts`         |
-| Cache purge   | `frontend/src/lib/offline/purge.ts`                                  |
+| Cache purge   | `frontend/src/lib/offline/cache/purge.ts`                            |
 | Client access | `frontend/src/features/shopping-lists/utils/shopping-list-access.ts` |
 
 ## 9. Gotchas

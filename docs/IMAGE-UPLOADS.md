@@ -41,7 +41,7 @@ Why they differ:
 - Card photos keep 1280 px so the card number and barcode stay readable to a person. The wallet never scans the photo: the barcode on the card face is drawn from the stored number.
 - Product photo uploads are always JPEG because the server's renderer decodes only JPEG and PNG, and the admin crops from the original, so it keeps the most pixels. The public files it renders are WebP ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)).
 
-Offline card photos sit in IndexedDB (`lib/offline/card-photo-outbox.ts`) as the already prepared blobs, so the queue holds the small, clean copies, never the original file.
+Offline card photos sit in IndexedDB (`lib/offline/card-photos/card-photo-outbox.ts`) as the already prepared blobs, so the queue holds the small, clean copies, never the original file.
 
 ## 4. What the server does
 

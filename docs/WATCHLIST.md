@@ -67,7 +67,7 @@ The backend stores the rule and never a price. Entity `WatchlistItem` (`backend/
 | `GET /api/watchlist/product/{productApiId}` | The caller's live rules for one EAN (up to two, one per type)                                                                                                                                                 |
 | `DELETE /api/watchlist/{id}`                | Soft delete. A repeat delete answers 204: a native lookup bypasses `@SQLRestriction` and finds the already deleted row, whose `deleted_at` stays unchanged; another user's id answers 404 like an unknown one |
 
-All four need a signed-in session; the browser reaches them through the backend proxy ([BACKEND-PROXY.md](BACKEND-PROXY.md)). Every query in `WatchlistItemRepository` is scoped by `user.id`, and `WatchlistGuard` checks the item's owner before the delete runs ([BACKEND.md section 5.2](BACKEND.md#52-owner-scoped-methods-guard-beans)); `WatchlistItemOwnershipTest` pins both. The frontend parses every response through `watchlistItemDtoSchema` (`lib/api/schemas/watchlist.ts`), so a changed field fails loudly at the service boundary.
+All four need a signed-in session; the browser reaches them through the backend proxy ([BACKEND-PROXY.md](BACKEND-PROXY.md)). Every query in `WatchlistItemRepository` is scoped by `user.id`, and `WatchlistGuard` checks the item's owner before the delete runs ([BACKEND.md section 5.2](BACKEND.md#52-owner-scoped-methods-guard-beans)); `WatchlistItemOwnershipTest` pins both. The frontend parses every response through `watchlistItemDtoSchema` (`lib/api/schemas/lists/watchlist.ts`), so a changed field fails loudly at the service boundary.
 
 **Account deletion keeps the rows.** `UserService.deleteAccount` anonymises the profile and leaves watchlist rules in place, as the owner decided on 2026-11-11 (#202); `AccountErasureTest` asserts the rule survives. The full erasure flow is in [AUTH.md](AUTH.md#13-gotchas-and-lessons).
 
@@ -75,7 +75,7 @@ All four need a signed-in session; the browser reaches them through the backend 
 
 ## 4. Setting a rule
 
-The rule modal (`features/products/components/forms/watchlist-item-modal.tsx`, with `watchlist-type-picker.tsx`, `watchlist-threshold-input.tsx` and the hook `use-watchlist-item-form.ts`) offers two kinds of rule:
+The rule modal (`features/products/components/forms/watchlist/watchlist-item-modal.tsx`, with `watchlist-type-picker.tsx`, `watchlist-threshold-input.tsx` and the hook `use-watchlist-item-form.ts`) offers two kinds of rule:
 
 | Type         | Label idea               | Range enforced in the form | Default when not yet tracked                                       |
 | ------------ | ------------------------ | -------------------------- | ------------------------------------------------------------------ |
@@ -85,7 +85,7 @@ The rule modal (`features/products/components/forms/watchlist-item-modal.tsx`, w
 - A product can carry one rule of each type, so "10 % off or 0.50 € off" is two rows.
 - The ranges and defaults live in `features/products/utils/watchlist-thresholds.ts`. The backend checks that the value is positive (`@Positive` on `WatchlistItemRequest`) and that a `PERCENTAGE` rule is at most 100 (`@PercentageAtMostHundred`, reported on `thresholdValue`, #703 limits for long text and pins). An `ABSOLUTE` rule has no upper limit on the server, so a client other than ours could store 5000 €.
 - `parseThreshold` accepts the whole string or nothing, so "10abc" is invalid rather than read as 10.
-- The product page's watchlist toggle (`features/products/components/watchlist-action-button.tsx`) opens the modal; the watchlist page's own button (`features/watchlist/components/watchlist-action-button.tsx`) edits or removes.
+- The product page's watchlist toggle (`features/products/components/info/watchlist-action-button.tsx`) opens the modal; the watchlist page's own button (`features/watchlist/components/watchlist-action-button.tsx`) edits or removes.
 
 ---
 
@@ -105,7 +105,7 @@ So "discount" here means "cheaper than the average across chains", not a sale pr
 
 There are two signals, and they answer different questions.
 
-**Rule matches: the bell.** `useWatchlistNotifications` (`context/use-watchlist-notifications.ts`) calls `buildWatchlistNotifications` (`context/build-watchlist-notifications.ts`), which lists every product with a firing rule, the stores where it fires sorted by saving, and a summary (total saving and percent). The header bell (`components/custom/notifications/notifications-dropdown.tsx`) renders it. Every entry is marked new, because nothing stores read state. The landing page can open the bell through `requestOpenMenu` ([LANDING.md](LANDING.md)).
+**Rule matches: the bell.** `useWatchlistNotifications` (`context/notifications/use-watchlist-notifications.ts`) calls `buildWatchlistNotifications` (`context/notifications/build-watchlist-notifications.ts`), which lists every product with a firing rule, the stores where it fires sorted by saving, and a summary (total saving and percent). The header bell (`components/custom/notifications/notifications-dropdown.tsx`) renders it. Every entry is marked new, because nothing stores read state. The landing page can open the bell through `requestOpenMenu` ([LANDING.md](LANDING.md)).
 
 **Price drops since the last visit: the Praćenje badge.** `useWatchlistPriceDropCount` (`lib/watchlist/use-watchlist-price-drop-count.ts`) counts watched products whose best in-scope price is lower than when the user last opened `/watchlist` on this device. It does not look at the rules at all.
 
@@ -114,7 +114,7 @@ There are two signals, and they answer different questions.
 - A product seen for the first time gets a baseline without counting; a product whose price failed to load keeps its old one; an unwatched product is dropped.
 - The snapshot is merged against a fresh localStorage read and listens to `storage` events, so two tabs do not overwrite each other's visit.
 - It is not written until the user's pinned stores are known, because an unknown scope would read as "every chain" and rebase away drops not yet seen.
-- Signing out or switching accounts deletes the snapshot through `lib/offline/purge.ts`.
+- Signing out or switching accounts deletes the snapshot through `lib/offline/cache/purge.ts`.
 - The header, sidebar and bottom nav show the count as a badge. `PriceDropStatus` (`features/watchlist/components/price-drop-status.tsx`), mounted once in the locale layout, announces later changes in a polite status region; the first settled count after load or sign-in is silent.
 
 The hook's own comment calls it a stand-in until the server inbox (#222) can return an unseen count shared across devices.
@@ -136,8 +136,8 @@ The hook's own comment calls it a stand-in until the server inbox (#222) can ret
 
 ## 8. Offline and caching
 
-- The `watchlist` query root is persisted to IndexedDB (`lib/offline/cached-query-keys.ts`), so the list renders offline from the last fetch. Product prices come from the persisted `cijene` cache ([PRODUCTS.md](PRODUCTS.md#11-caching-and-offline)).
-- Adding and removing (`watchlistAdd`, `watchlistRemove` in `lib/offline/offline-mutation-keys.ts`) are on the offline mutation allowlist: they pause while offline and replay on reconnect ([PWA.md](PWA.md)).
+- The `watchlist` query root is persisted to IndexedDB (`lib/offline/cache/cached-query-keys.ts`), so the list renders offline from the last fetch. Product prices come from the persisted `cijene` cache ([PRODUCTS.md](PRODUCTS.md#11-caching-and-offline)).
+- Adding and removing (`watchlistAdd`, `watchlistRemove` in `lib/offline/writes/offline-mutation-keys.ts`) are on the offline mutation allowlist: they pause while offline and replay on reconnect ([PWA.md](PWA.md)).
 - Both mutations invalidate the whole `["watchlist"]` root on success, which refreshes `me` and every by-product query.
 
 ---
@@ -157,12 +157,12 @@ The hook's own comment calls it a stand-in until the server inbox (#222) can ret
 
 ## 10. Key files
 
-| Path                                                                                      | Role                                                               |
-| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `frontend/src/features/products/components/forms/watchlist-*.tsx`                         | The rule modal, type picker and threshold input                    |
-| `frontend/src/features/products/utils/watchlist-thresholds.ts`                            | Ranges, defaults, threshold parsing                                |
-| `frontend/src/context/use-watchlist-notifications.ts`, `build-watchlist-notifications.ts` | The bell's notification list and summary                           |
-| `frontend/src/utils/browser/storage/watchlist.ts`                                         | The localStorage snapshot store, cached for `useSyncExternalStore` |
+| Path                                                                                                    | Role                                                               |
+| ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `frontend/src/features/products/components/forms/watchlist-*.tsx`                                       | The rule modal, type picker and threshold input                    |
+| `frontend/src/features/products/utils/watchlist-thresholds.ts`                                          | Ranges, defaults, threshold parsing                                |
+| `frontend/src/context/notifications/use-watchlist-notifications.ts`, `build-watchlist-notifications.ts` | The bell's notification list and summary                           |
+| `frontend/src/utils/browser/storage/watchlist.ts`                                                       | The localStorage snapshot store, cached for `useSyncExternalStore` |
 
 ---
 
