@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { CameraScannerProvider } from "@/context/scanner-context";
 import MapLayout from "@/app/[locale]/map/components/map-layout";
+import MapUnavailable from "@/app/[locale]/map/components/map-unavailable";
 import { IMapViewModel } from "@/app/[locale]/map/hooks/use-map-view-model";
 import {
   IListedStore,
@@ -80,12 +81,13 @@ const unplaced = toListedStore(
 );
 
 interface IHarnessProps {
-  isMapLive?: boolean;
+  mapState?: "live" | "loading" | "unavailable";
   initialKey?: string | null;
 }
 
-function Harness({ isMapLive = true, initialKey = null }: IHarnessProps) {
+function Harness({ mapState = "live", initialKey = null }: IHarnessProps) {
   const [selectedKey, setSelectedKey] = useState(initialKey);
+  const [mapContainer, setMapContainer] = useState<HTMLDivElement | null>(null);
   const listed: IListedStore[] = [placed, unplaced];
 
   const model = {
@@ -102,21 +104,27 @@ function Harness({ isMapLive = true, initialKey = null }: IHarnessProps) {
         <MapLayout
           model={model}
           viewArea={null}
-          renderMap={(overlay) =>
-            // A map that failed or is still loading renders none of its children.
-            isMapLive ? (
+          renderMap={(overlay) => {
+            if (mapState === "unavailable") {
+              return <MapUnavailable message="map unavailable" />;
+            }
+
+            // A loading map renders none of its children yet.
+            if (mapState === "loading") return <div />;
+
+            return (
+              // Children mount once the container exists, as MapLibre's do.
               <div
                 ref={(element) => {
                   mapDom.container = element;
+                  setMapContainer(element);
                 }}
               >
                 <button type="button">Zoom in</button>
-                {overlay}
+                {mapContainer && overlay}
               </div>
-            ) : (
-              <p>map unavailable</p>
-            )
-          }
+            );
+          }}
           onCoverChange={vi.fn()}
         />
       </CameraScannerProvider>
@@ -173,9 +181,9 @@ describe("MapLayout on desktop", () => {
     expect(document.querySelector("[role=dialog]")).toBeNull();
   });
 
-  it("keeps the list open when there is no live map to pin a store on", async () => {
+  it("keeps the list open when the map failed, so the store stays readable", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<Harness isMapLive={false} />);
+    renderWithProviders(<Harness mapState="unavailable" />);
 
     await openSearch(user);
     await user.click(screen.getByRole("button", { name: "Ilica 1" }));
@@ -247,5 +255,13 @@ describe("MapLayout on desktop", () => {
     expect(
       screen.getByRole("button", { name: "Trgovine blizu mene" }),
     ).toHaveFocus();
+  });
+
+  it("keeps a shared link's list closed while the map is still loading", async () => {
+    renderWithProviders(<Harness mapState="loading" initialKey={placed.key} />);
+
+    await screen.findByRole("searchbox", { name: "Trgovina, grad ili adresa" });
+
+    expect(screen.queryByRole("button", { name: "Ilica 1" })).toBeNull();
   });
 });

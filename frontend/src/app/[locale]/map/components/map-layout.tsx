@@ -12,6 +12,10 @@ import MapStorePopover, {
 } from "@/app/[locale]/map/components/map-store-popover";
 import MapStoreSheet from "@/app/[locale]/map/components/map-store-sheet";
 import { useMapCover } from "@/app/[locale]/map/hooks/use-map-cover";
+import {
+  MapStatus,
+  MapStatusContext,
+} from "@/app/[locale]/map/hooks/use-map-status";
 import { IMapViewModel } from "@/app/[locale]/map/hooks/use-map-view-model";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { IMapCover, IViewArea } from "@/app/[locale]/map/utils/view-area";
@@ -39,11 +43,11 @@ export default function MapLayout({
   const isMobile = useIsMobile();
   const locateRef = useRef<HTMLButtonElement>(null);
   const [isSearchOpen, setSearchOpen] = useState(false);
-  const [isMapLive, setMapLive] = useState(false);
+  const [mapStatus, setMapStatus] = useState<MapStatus>("loading");
   const [focusRequest, setFocusRequest] = useState<IFocusRequest | null>(null);
 
-  // Desktop shows a store at its pin, so one without a pin, or without a live map to pin it on, stays in the list.
-  const canShowAtPin = isMapLive && hasPin(model.selected);
+  // Desktop shows a store at its pin, so one without a pin or a working map stays in the list; a loading map waits.
+  const canShowAtPin = mapStatus !== "unavailable" && hasPin(model.selected);
   const keepsListOpen = !isMobile && model.selected != null && !canShowAtPin;
   const isOpen = isSearchOpen || keepsListOpen;
   const shownRow = isOpen ? null : model.selected;
@@ -61,7 +65,8 @@ export default function MapLayout({
 
     // Only the map's own pins can be missing from the list, and they all have one.
     const row = model.listed.find((listed) => listed.key === key);
-    const willShowAtPin = isMapLive && (row ? hasPin(row) : true);
+    const willShowAtPin =
+      mapStatus !== "unavailable" && (row ? hasPin(row) : true);
     if (isMobile || willShowAtPin) setSearchOpen(false);
   }
 
@@ -73,7 +78,7 @@ export default function MapLayout({
 
   const overlay = (
     <>
-      <MapPresence onChange={setMapLive} />
+      <MapPresence />
 
       {!isMobile && (
         <MapStorePopover
@@ -107,7 +112,9 @@ export default function MapLayout({
 
       {/* On phones the open search covers the whole map, so the map leaves the tab order. */}
       <div className="absolute inset-0" inert={isMobile && isOpen}>
-        {renderMap(overlay, selectStore)}
+        <MapStatusContext value={setMapStatus}>
+          {renderMap(overlay, selectStore)}
+        </MapStatusContext>
 
         <MapLocateButton
           ref={locateRef}
