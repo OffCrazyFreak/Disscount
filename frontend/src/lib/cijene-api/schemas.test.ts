@@ -121,6 +121,14 @@ describe("productResponseSchema", () => {
     expect(parsed.chains.map((entry) => entry.chain)).toEqual(["lidl"]);
   });
 
+  it("drops a chain whose average is under a cent, which would show as 0,00 €", () => {
+    const parsed = productResponseSchema.parse(
+      product([wireChain("dm", "0.004"), wireChain("lidl", "0.01")]),
+    );
+
+    expect(parsed.chains.map((entry) => entry.chain)).toEqual(["lidl"]);
+  });
+
   it("falls back to the average for a zero lowest or highest price", () => {
     const parsed = productResponseSchema.parse(
       product([

@@ -38,9 +38,9 @@ function isReadablePrice(text: string): boolean {
   return PRICE_TEXT.test(text) && Number.isFinite(Number.parseFloat(text));
 }
 
-// Upstream sometimes publishes 0.00, which is no price at all and an error in Google's offers.
+// Upstream sometimes publishes 0.00; anything under a cent shows as 0,00 € and is an error in Google's offers.
 function isPositivePrice(price: number): boolean {
-  return Number.isFinite(price) && price > 0;
+  return Number.isFinite(price) && price >= 0.01;
 }
 
 function toNullablePrice(text: string | null): number | null {
