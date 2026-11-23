@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
+import { proxyProblem } from "@/lib/backend-proxy/contract/proxy-problem";
 import { cijeneApiV1Client } from "@/lib/cijene-api/client";
 import { listStoresResponseSchema } from "@/lib/cijene-api/schemas";
 import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";

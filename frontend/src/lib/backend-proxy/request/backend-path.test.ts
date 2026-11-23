@@ -7,7 +7,7 @@ import {
   BACKEND_ROOTS,
   backendUrl,
   docsUrl,
-} from "@/lib/backend-proxy/backend-path";
+} from "@/lib/backend-proxy/request/backend-path";
 
 const BACKEND = "http://backend:8080";
 
@@ -54,7 +54,9 @@ const DELIBERATE_SHADOWS = ["admin/users/[userId]/route.ts"];
 describe("Next routes under app/api", () => {
   it("never take a path the proxy forwards to Spring, except the deliberate ones", () => {
     // A Next route beats the catch-all, so a folder named like a backend root would silently steal its calls.
-    const apiFolder = fileURLToPath(new URL("../../app/api", import.meta.url));
+    const apiFolder = fileURLToPath(
+      new URL("../../../app/api", import.meta.url),
+    );
     const shadowingFiles = readdirSync(apiFolder)
       .filter((name) => BACKEND_ROOTS.has(name))
       .flatMap((root) =>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
+import { proxyProblem } from "@/lib/backend-proxy/contract/proxy-problem";
 
 function requestIn(acceptLanguage?: string) {
   return new Request("http://localhost:3000/api/me", {

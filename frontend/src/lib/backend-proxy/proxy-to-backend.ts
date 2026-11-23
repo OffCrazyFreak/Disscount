@@ -3,25 +3,25 @@ import "server-only";
 import * as Sentry from "@sentry/nextjs";
 
 import { BACKEND_ORIGIN } from "@/lib/api/backend-origin";
-import { backendUrl, docsUrl } from "@/lib/backend-proxy/backend-path";
+import { backendUrl, docsUrl } from "@/lib/backend-proxy/request/backend-path";
 import {
   downstreamResponseHeaders,
   upstreamRequestHeaders,
-} from "@/lib/backend-proxy/forwarded-headers";
-import type { SERVER_REPORTED_PROBLEMS } from "@/lib/backend-proxy/proxy-contract";
-import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
+} from "@/lib/backend-proxy/request/forwarded-headers";
+import type { SERVER_REPORTED_PROBLEMS } from "@/lib/backend-proxy/contract/proxy-contract";
+import { proxyProblem } from "@/lib/backend-proxy/contract/proxy-problem";
 import {
   decideIdentity,
   identityPin,
   isCsrfSafe,
-} from "@/lib/backend-proxy/request-guards";
+} from "@/lib/backend-proxy/request/request-guards";
 import {
   bodyLimit,
   JSON_BODY_LIMIT,
   readBodyWithin,
   TOO_LARGE,
-} from "@/lib/backend-proxy/request-body";
-import { mintSessionToken } from "@/lib/backend-proxy/session-token";
+} from "@/lib/backend-proxy/request/request-body";
+import { mintSessionToken } from "@/lib/backend-proxy/request/session-token";
 import { appUrl } from "@/lib/env";
 
 // Generous so a slow upload does not fail early; it covers reading the body and Spring's answer together.
