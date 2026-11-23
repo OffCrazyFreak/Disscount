@@ -43,11 +43,28 @@ function isShouted(name: string): boolean {
   return letters.length > 0 && capitals / letters.length >= SHOUTED_SHARE;
 }
 
-/** Sentence case for names sent in capitals, close to upstream's cleaned names; abbreviations go lower case too. */
+// Letters a shopper knows only in capitals; kept short, since a wrong entry would shout an ordinary word.
+const KEPT_ACRONYMS =
+  /(?<![\p{L}\d])(?:uht|bio|xxl|xl|pet|wc|bbq|led)(?!\p{L})/gu;
+
+// A lower-case l after a number reads as a 1, so "1l" stays "1L".
+const LITRES = /(?<=\d)l(?!\p{L})/gu;
+
+// The first real word, so a leading "2 x 200g" stays lower case and the name after it starts with a capital.
+const FIRST_WORD = /(?<![\p{L}\d])\p{L}(?=\p{L})/u;
+
+/** Sentence case for names sent in capitals, close to upstream's cleaned names. */
 export function getCatalogNameLabel(name: string): string {
   if (!isShouted(name)) return name;
 
-  const sentence = name.toLowerCase();
+  const sentence = name
+    .toLowerCase()
+    .replace(KEPT_ACRONYMS, (acronym) => acronym.toUpperCase())
+    .replace(LITRES, "L");
 
-  return sentence.charAt(0).toUpperCase() + sentence.slice(1);
+  if (!FIRST_WORD.test(sentence)) {
+    return sentence.charAt(0).toUpperCase() + sentence.slice(1);
+  }
+
+  return sentence.replace(FIRST_WORD, (letter) => letter.toUpperCase());
 }

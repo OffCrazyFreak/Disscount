@@ -18,18 +18,16 @@ export default function CategoryProductList({
     <ul className="space-y-4">
       {items.map((item) => {
         const product = pricedProducts.get(item.ean);
+        // A priced name can come in capitals too, and one list should read the same throughout.
+        const name = product?.name ?? item.name;
+        const brand = product?.brand ?? item.brand;
 
         return (
           <li key={item.ean}>
             <ProductCard
               ean={item.ean}
-              name={
-                product?.name ?? (item.name && getCatalogNameLabel(item.name))
-              }
-              brand={
-                product?.brand ??
-                (item.brand && getCatalogNameLabel(item.brand))
-              }
+              name={name && getCatalogNameLabel(name)}
+              brand={brand && getCatalogNameLabel(brand)}
               category={null}
               trailing={
                 product && <ProductUnitPriceDetails product={product} />
