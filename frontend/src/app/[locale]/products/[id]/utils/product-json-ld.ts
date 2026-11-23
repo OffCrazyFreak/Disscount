@@ -1,6 +1,11 @@
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { gs1CheckDigit } from "@/utils/barcode/check-digits";
-import { getMaxPrice, getMinPrice } from "@/utils/product-price-utils";
+import { getChainLabel } from "@/utils/labels";
+import {
+  getMaxPrice,
+  getMinPrice,
+  parsePrice,
+} from "@/utils/product-price-utils";
 
 const GTIN_SHAPE = /^(?:\d{8}|\d{12,14})$/;
 
@@ -21,6 +26,23 @@ function newestPriceDate(product: ProductResponse): string | null {
   );
 }
 
+/** Each chain's lowest price, the "Najniža" its row on the page shows. */
+function chainOffers(product: ProductResponse) {
+  return product.chains.flatMap((chain) => {
+    const price = parsePrice(chain.min_price);
+    if (price === null) return [];
+
+    return [
+      {
+        "@type": "Offer",
+        price: price.toFixed(2),
+        priceCurrency: "EUR",
+        seller: { "@type": "Organization", name: getChainLabel(chain.chain) },
+      },
+    ];
+  });
+}
+
 interface IProductJsonLdInput {
   product: ProductResponse;
   url: string;
@@ -32,6 +54,7 @@ export function productJsonLd({ product, url, image }: IProductJsonLdInput) {
   const lowPrice = getMinPrice(product);
   const highPrice = getMaxPrice(product);
   const priceDate = newestPriceDate(product);
+  const offers = chainOffers(product);
 
   return {
     "@context": "https://schema.org",
@@ -53,7 +76,9 @@ export function productJsonLd({ product, url, image }: IProductJsonLdInput) {
         priceCurrency: "EUR",
         lowPrice: lowPrice.toFixed(2),
         highPrice: (highPrice ?? lowPrice).toFixed(2),
-        offerCount: product.chains.length,
+        // Counts the offers listed, since a chain with an unreadable price is left out of them.
+        offerCount: offers.length,
+        offers,
       },
     }),
   };

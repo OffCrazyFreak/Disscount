@@ -36,6 +36,57 @@ describe("productJsonLd", () => {
     });
   });
 
+  it("describes one chain's price as one offer sold by that chain", () => {
+    const markup = productJsonLd({
+      product: priceProduct([chain("konzum", "0.89", "1.19", "0.99")]),
+      ...input,
+    });
+
+    expect(markup.offers?.offers).toEqual([
+      {
+        "@type": "Offer",
+        price: "0.89",
+        priceCurrency: "EUR",
+        seller: { "@type": "Organization", name: "Konzum" },
+      },
+    ]);
+  });
+
+  it("gives every chain its own offer at the lowest price its row shows", () => {
+    const markup = productJsonLd({ product: product({}), ...input });
+
+    expect(markup.offers?.offers).toEqual([
+      expect.objectContaining({
+        price: "0.89",
+        seller: { "@type": "Organization", name: "Konzum" },
+      }),
+      expect.objectContaining({
+        price: "0.30",
+        seller: { "@type": "Organization", name: "Spar" },
+      }),
+    ]);
+  });
+
+  it("leaves out a chain whose price cannot be read", () => {
+    const markup = productJsonLd({
+      product: priceProduct([chain("konzum", "0.89"), chain("spar", "")]),
+      ...input,
+    });
+
+    expect(markup.offers?.offers.map((offer) => offer.seller.name)).toEqual([
+      "Konzum",
+    ]);
+  });
+
+  it("counts only the offers it lists", () => {
+    const markup = productJsonLd({
+      product: priceProduct([chain("konzum", "0.89"), chain("spar", "")]),
+      ...input,
+    });
+
+    expect(markup.offers?.offerCount).toBe(1);
+  });
+
   it("dates the markup by the newest chain price date", () => {
     const markup = productJsonLd({
       product: priceProduct([
