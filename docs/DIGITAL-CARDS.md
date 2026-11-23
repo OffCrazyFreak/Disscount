@@ -295,16 +295,17 @@ A loyalty card number is personal data, and a photo of a card more so.
 
 ## 12. Key files
 
-| Path                                                                                                  | Role                                                                                              |
-| ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `backend/.../digitalcard/photo/CardPhotoWriter.java`, `digitalcard/CardUserLock.java`                 | The short row-write transaction; the per-user lock                                                |
-| `backend/.../digitalcard/photo/PhotoCleanupService.java`                                              | Queues file deletes in `photo_cleanup`, attempts them, retries                                    |
-| `backend/.../digitalcard/DigitalCardCleanupJob.java`                                                  | Daily 30-day hard delete; retries photo cleanup                                                   |
-| `backend/.../config/UploadLimitConfig.java`                                                           | 20 card photo uploads per minute per user; the limiter sweeps its expired windows every 5 minutes |
-| `frontend/src/lib/offline/card-photos/card-photo-store.ts`, `card-photo-outbox.ts`, `purge.ts`        | Photo blobs, upload outbox, logout purge                                                          |
-| `frontend/src/lib/offline/writes/failure-policy.ts`, `card-retry.ts`, `slot-lock.ts`, `purge-gate.ts` | Keep or drop rules and card retries; per-slot photo ordering; purge ordering gate                 |
-| `frontend/src/features/digital-cards/utils/card-image.ts`                                             | Card photo sizes and qualities, on top of the shared `utils/browser/image.ts`                     |
-| `frontend/src/components/reui/autocomplete.tsx`                                                       | The store field's Autocomplete (reui, built on `@base-ui/react`)                                  |
+| Path                                                                                               | Role                                                                                              |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `backend/.../digitalcard/photo/CardPhotoWriter.java`, `digitalcard/CardUserLock.java`              | The short row-write transaction; the per-user lock                                                |
+| `backend/.../digitalcard/photo/PhotoCleanupService.java`                                           | Queues file deletes in `photo_cleanup`, attempts them, retries                                    |
+| `backend/.../digitalcard/DigitalCardCleanupJob.java`                                               | Daily 30-day hard delete; retries photo cleanup                                                   |
+| `backend/.../config/UploadLimitConfig.java`                                                        | 20 card photo uploads per minute per user; the limiter sweeps its expired windows every 5 minutes |
+| `frontend/src/lib/offline/card-photos/card-photo-store.ts`, `card-photo-outbox.ts`, `slot-lock.ts` | Photo blobs, upload outbox, per-slot photo ordering                                               |
+| `frontend/src/lib/offline/writes/failure-policy.ts`, `card-retry.ts`                               | Keep or drop rules and card retries                                                               |
+| `frontend/src/lib/offline/cache/purge.ts`, `purge-gate.ts`                                         | Logout purge; purge ordering gate                                                                 |
+| `frontend/src/features/digital-cards/utils/card-image.ts`                                          | Card photo sizes and qualities, on top of the shared `utils/browser/image.ts`                     |
+| `frontend/src/components/reui/autocomplete.tsx`                                                    | The store field's Autocomplete (reui, built on `@base-ui/react`)                                  |
 
 ---
 

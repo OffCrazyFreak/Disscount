@@ -159,7 +159,7 @@ The hook's own comment calls it a stand-in until the server inbox (#222) can ret
 
 | Path                                                                                                    | Role                                                               |
 | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `frontend/src/features/products/components/forms/watchlist-*.tsx`                                       | The rule modal, type picker and threshold input                    |
+| `frontend/src/features/products/components/forms/watchlist/watchlist-*.tsx`                             | The rule modal, type picker and threshold input                    |
 | `frontend/src/features/products/utils/watchlist-thresholds.ts`                                          | Ranges, defaults, threshold parsing                                |
 | `frontend/src/context/notifications/use-watchlist-notifications.ts`, `build-watchlist-notifications.ts` | The bell's notification list and summary                           |
 | `frontend/src/utils/browser/storage/watchlist.ts`                                                       | The localStorage snapshot store, cached for `useSyncExternalStore` |
