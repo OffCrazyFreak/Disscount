@@ -28,6 +28,21 @@ vi.mock("@/lib/offline/card-photos/idb-transactions", () => ({
   ) => {
     if (matches(db.get(key))) db.delete(key);
   },
+  replaceIf: async (
+    key: string,
+    _store: unknown,
+    matches: (value: unknown) => boolean,
+    replacement: unknown,
+  ) => {
+    if (!matches(db.get(key))) return;
+    if (replacement === undefined) db.delete(key);
+    else db.set(key, replacement);
+  },
+  swap: async (key: string, _store: unknown, value: unknown) => {
+    const previous = db.get(key);
+    db.set(key, value);
+    return previous;
+  },
 }));
 // jsdom has no canvas, so the resize step is stubbed.
 vi.mock("@/features/digital-cards/utils/card-image", () => ({
@@ -131,6 +146,21 @@ describe("card photos picked with the card", () => {
     expect(db.has(FRONT_ENTRY)).toBe(false);
     expect(takePendingCard(DRAFT_KEY)?.photos).toEqual({ front });
     expect(order).toEqual([]);
+  });
+
+  it("give back a photo still waiting from an earlier save when the card is refused", async () => {
+    const earlier = { nonce: "earlier", identity: "user-a", op: "put" };
+    db.set(FRONT_ENTRY, earlier);
+    server.use(
+      http.put(`*/api/digital-cards/${CARD_ID}`, () =>
+        HttpResponse.json({ status: 400 }, { status: 400 }),
+      ),
+    );
+
+    const submit = renderSubmit();
+    await act(submit);
+
+    expect(db.get(FRONT_ENTRY)).toEqual(earlier);
   });
 
   it("follow the card once it is saved", async () => {

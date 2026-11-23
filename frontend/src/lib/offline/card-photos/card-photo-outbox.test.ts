@@ -25,6 +25,21 @@ vi.mock("@/lib/offline/card-photos/idb-transactions", () => ({
   ) => {
     if (matches(db.get(key))) db.delete(key);
   },
+  replaceIf: async (
+    key: string,
+    _store: unknown,
+    matches: (v: unknown) => boolean,
+    replacement: unknown,
+  ) => {
+    if (!matches(db.get(key))) return;
+    if (replacement === undefined) db.delete(key);
+    else db.set(key, replacement);
+  },
+  swap: async (key: string, _store: unknown, v: unknown) => {
+    const previous = db.get(key);
+    db.set(key, v);
+    return previous;
+  },
 }));
 vi.mock("@/lib/api/digital-cards/photo-queries", () => ({
   uploadCardPhoto: (...args: unknown[]) => upload(...args),
@@ -39,6 +54,7 @@ vi.mock("@/lib/offline/cache/cache-identity", () => ({
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
 
 const {
+  discardQueuedCardPhoto,
   enqueueCardPhoto,
   enqueueCardPhotoRemoval,
   replayCardPhotoOutbox,
@@ -77,14 +93,15 @@ describe("sendQueuedCardPhoto", () => {
       })
       .mockRejectedValueOnce(rejectWith(413));
 
-    const first = await enqueueCardPhoto("card", "front", photo("a"));
+    const first = (await enqueueCardPhoto("card", "front", photo("a")))?.nonce;
     const firstSend = sendQueuedCardPhoto(client, "card", "front");
     await started;
 
-    const removal = await enqueueCardPhotoRemoval("card", "front");
+    const removal = (await enqueueCardPhotoRemoval("card", "front"))?.nonce;
     const removalSend = sendQueuedCardPhoto(client, "card", "front");
 
-    const replacement = await enqueueCardPhoto("card", "front", photo("b"));
+    const replacement = (await enqueueCardPhoto("card", "front", photo("b")))
+      ?.nonce;
     const replacementSend = sendQueuedCardPhoto(client, "card", "front");
 
     finishFirst({ slot: "front", sha256: "a" });
@@ -116,7 +133,7 @@ describe("sendQueuedCardPhoto", () => {
   it("puts the sent photo in the cache when no newer choice is waiting", async () => {
     upload.mockResolvedValueOnce({ slot: "front", sha256: "a" });
 
-    const nonce = await enqueueCardPhoto("card", "front", photo("a"));
+    const nonce = (await enqueueCardPhoto("card", "front", photo("a")))?.nonce;
 
     expect(await sendQueuedCardPhoto(client, "card", "front")).toMatchObject({
       outcome: "sent",
@@ -149,6 +166,31 @@ describe("sendQueuedCardPhoto", () => {
 
     expect(result.outcome).toBe("kept");
     expect(db.size).toBe(1);
+  });
+});
+
+describe("discardQueuedCardPhoto", () => {
+  beforeEach(() => db.clear());
+
+  it("puts back the photo that a refused save had replaced", async () => {
+    const earlier = await enqueueCardPhoto("card", "front", photo("a"));
+    const later = await enqueueCardPhoto("card", "front", photo("b"));
+
+    await discardQueuedCardPhoto("card", "front", later!);
+
+    expect(db.get("user:card:front")).toMatchObject({
+      nonce: earlier?.nonce,
+      op: "put",
+    });
+  });
+
+  it("leaves a newer choice queued meanwhile alone", async () => {
+    const refused = await enqueueCardPhoto("card", "front", photo("a"));
+    const newer = await enqueueCardPhotoRemoval("card", "front");
+
+    await discardQueuedCardPhoto("card", "front", refused!);
+
+    expect(db.get("user:card:front")).toMatchObject({ nonce: newer?.nonce });
   });
 });
 

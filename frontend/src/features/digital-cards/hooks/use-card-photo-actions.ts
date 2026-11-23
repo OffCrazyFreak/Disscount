@@ -12,6 +12,7 @@ import {
   enqueueCardPhoto,
   enqueueCardPhotoRemoval,
   hasQueuedCardPhoto,
+  type IQueuedEntry,
   sendQueuedCardPhoto,
 } from "@/lib/offline/card-photos/card-photo-outbox";
 import { deleteSlotForCard } from "@/lib/offline/card-photos/card-photo-store";
@@ -23,10 +24,9 @@ import {
 } from "@/features/digital-cards/utils/card-image";
 import { ImageProcessingError } from "@/utils/browser/image";
 
-export interface IQueuedCardPhoto {
+export interface IQueuedCardPhoto extends IQueuedEntry {
   slot: CardPhotoSlot;
   op: "put" | "delete";
-  nonce: string;
 }
 
 type PhotoStatus = "uploading" | "queued" | "error";
@@ -82,9 +82,9 @@ export function useCardPhotoActions(cardId: string) {
       return undefined;
     }
 
-    let nonce: string | undefined;
+    let queued: IQueuedEntry | undefined;
     try {
-      nonce = await enqueueCardPhoto(
+      queued = await enqueueCardPhoto(
         cardId,
         slot,
         prepared.full,
@@ -97,7 +97,7 @@ export function useCardPhotoActions(cardId: string) {
     }
 
     mark(slot, "queued");
-    return nonce === undefined ? undefined : { slot, op: "put", nonce };
+    return queued && { ...queued, slot, op: "put" };
   }
 
   async function queueRemoval(
@@ -105,8 +105,8 @@ export function useCardPhotoActions(cardId: string) {
   ): Promise<IQueuedCardPhoto | undefined> {
     try {
       // Replaces a waiting upload for the slot, since the removal is the newer choice.
-      const nonce = await enqueueCardPhotoRemoval(cardId, slot);
-      return nonce === undefined ? undefined : { slot, op: "delete", nonce };
+      const queued = await enqueueCardPhotoRemoval(cardId, slot);
+      return queued && { ...queued, slot, op: "delete" };
     } catch {
       toast.error(t("removeFailed"));
       return undefined;
@@ -165,9 +165,12 @@ export function useCardPhotoActions(cardId: string) {
     return queued.op === "put" ? sendUpload(queued) : sendRemoval(queued);
   }
 
-  async function discard({ slot, nonce }: IQueuedCardPhoto): Promise<void> {
-    mark(slot, undefined);
-    await discardQueuedCardPhoto(cardId, slot, nonce).catch(() => undefined);
+  async function discard(queued: IQueuedCardPhoto): Promise<void> {
+    // A photo still waiting from an earlier save comes back with its entry, so the slot stays queued.
+    mark(queued.slot, queued.replaced?.op === "put" ? "queued" : undefined);
+    await discardQueuedCardPhoto(cardId, queued.slot, queued).catch(
+      () => undefined,
+    );
   }
 
   return { queueUpload, queueRemoval, send, discard, status };

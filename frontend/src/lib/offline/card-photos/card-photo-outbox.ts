@@ -1,5 +1,5 @@
 import type { QueryClient } from "@tanstack/react-query";
-import { createStore, del, delMany, get, keys, set } from "idb-keyval";
+import { createStore, del, delMany, get, keys } from "idb-keyval";
 import { toast } from "sonner";
 
 import type { CardPhotoSlot } from "@/constants/card-codes";
@@ -10,7 +10,11 @@ import {
 } from "@/lib/api/digital-cards/photo-queries";
 import { getCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import { failureAction, httpStatus } from "@/lib/offline/writes/failure-policy";
-import { deleteIf } from "@/lib/offline/card-photos/idb-transactions";
+import {
+  deleteIf,
+  replaceIf,
+  swap,
+} from "@/lib/offline/card-photos/idb-transactions";
 import {
   canWriteAfterPurges,
   currentPurgeGeneration,
@@ -60,6 +64,12 @@ function toBlob({ buf, type }: IBytes) {
   return new Blob([buf], { type });
 }
 
+/** What an enqueue wrote, plus the entry it replaced, so a refused save can put that one back. */
+export interface IQueuedEntry {
+  nonce: string;
+  replaced?: IOutboxEntry;
+}
+
 async function writeEntry(
   cardId: string,
   slot: CardPhotoSlot,
@@ -78,8 +88,12 @@ async function writeEntry(
 
   if (!(await canWriteAfterPurges(generation))) return undefined;
 
-  await set(entryKey(identity, cardId, slot), entry, outboxStore());
-  return entry.nonce;
+  const replaced = await swap<IOutboxEntry>(
+    entryKey(identity, cardId, slot),
+    outboxStore(),
+    entry,
+  );
+  return { nonce: entry.nonce, replaced } satisfies IQueuedEntry;
 }
 
 /** One entry per slot, so a newer photo replaces one still waiting to be sent. */
@@ -102,16 +116,17 @@ export function enqueueCardPhotoRemoval(cardId: string, slot: CardPhotoSlot) {
   return writeEntry(cardId, slot, async (base) => ({ ...base, op: "delete" }));
 }
 
-/** By nonce, so a newer choice queued for the slot meanwhile stays. */
+/** By nonce, so a newer choice queued for the slot meanwhile stays; the entry it replaced comes back. */
 export function discardQueuedCardPhoto(
   cardId: string,
   slot: CardPhotoSlot,
-  nonce: string,
+  { nonce, replaced }: IQueuedEntry,
 ) {
-  return deleteIf<IOutboxEntry>(
+  return replaceIf<IOutboxEntry>(
     entryKey(getCacheIdentity(), cardId, slot),
     outboxStore(),
     (entry) => entry?.nonce === nonce,
+    replaced,
   );
 }
 
