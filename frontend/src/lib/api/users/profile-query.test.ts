@@ -98,6 +98,37 @@ describe("userProfileQueryOptions with a saved profile", () => {
     });
   });
 
+  it("takes the pins that loaded and keeps the saved ones that failed", async () => {
+    const savedPlaces = [
+      {
+        id: "place-1",
+        userId: "user-a",
+        placeApiId: "zagreb",
+        placeName: "Zagreb",
+      },
+    ];
+    const freshStores = [
+      { id: "pin-2", userId: "user-a", storeApiId: "spar:1", storeName: "S" },
+    ];
+    const { pinnedStores: _s, pinnedPlaces: _p, ...bare } = SAVED;
+    answerProfile(() => HttpResponse.json(bare));
+    server.use(
+      http.get("*/api/pinned-stores/me", () => HttpResponse.json(freshStores)),
+      http.get("*/api/pinned-places/me", () =>
+        HttpResponse.json({}, { status: 503 }),
+      ),
+    );
+    const queryClient = clientWithSavedProfile({
+      ...SAVED,
+      pinnedPlaces: savedPlaces as UserDto["pinnedPlaces"],
+    });
+
+    await expect(refetchProfile(queryClient)).resolves.toMatchObject({
+      pinnedStores: freshStores,
+      pinnedPlaces: savedPlaces,
+    });
+  });
+
   it("fails when the server refuses the request", async () => {
     answerProfile(() => HttpResponse.json({}, { status: 401 }));
     const queryClient = clientWithSavedProfile(SAVED);

@@ -19,6 +19,16 @@ function savedProfileOfThisAccount(client: QueryClient): UserDto | undefined {
   return saved?.id === getCacheIdentity() ? saved : undefined;
 }
 
+function settledOr<T>(
+  result: PromiseSettledResult<T>,
+  fallback: T | undefined,
+) {
+  if (result.status === "fulfilled") return result.value;
+
+  console.error("Failed to fetch preferences:", result.reason);
+  return fallback;
+}
+
 async function loadUserProfile(
   signal: AbortSignal,
   client: QueryClient,
@@ -26,20 +36,14 @@ async function loadUserProfile(
   const userData = await userService.getCurrentUser(signal);
 
   if (!userData.pinnedStores || !userData.pinnedPlaces) {
-    try {
-      const [stores, places] = await Promise.all([
-        preferencesService.getPinnedStores(),
-        preferencesService.getPinnedPlaces(),
-      ]);
-      userData.pinnedStores = stores;
-      userData.pinnedPlaces = places;
-    } catch (prefError) {
-      console.error("Failed to fetch preferences:", prefError);
-      // Older pins beat none: this answer replaces the saved profile, offline copy included.
-      const saved = savedProfileOfThisAccount(client);
-      userData.pinnedStores ??= saved?.pinnedStores;
-      userData.pinnedPlaces ??= saved?.pinnedPlaces;
-    }
+    const [stores, places] = await Promise.allSettled([
+      preferencesService.getPinnedStores(),
+      preferencesService.getPinnedPlaces(),
+    ]);
+    // Older pins beat none: this answer replaces the saved profile, offline copy included.
+    const saved = savedProfileOfThisAccount(client);
+    userData.pinnedStores = settledOr(stores, saved?.pinnedStores);
+    userData.pinnedPlaces = settledOr(places, saved?.pinnedPlaces);
   }
 
   return userData;
