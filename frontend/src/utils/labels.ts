@@ -30,3 +30,24 @@ export function formatStoreAddress({
 
   return [address, place].filter(Boolean).join(", ");
 }
+
+// Past this share of capital letters a name was typed in caps lock, as most chain archives send them.
+const SHOUTED_SHARE = 0.7;
+
+function isShouted(name: string): boolean {
+  const letters = name.match(/\p{L}/gu) ?? [];
+  const capitals = letters.filter(
+    (letter) => letter !== letter.toLowerCase(),
+  ).length;
+
+  return letters.length > 0 && capitals / letters.length >= SHOUTED_SHARE;
+}
+
+/** Sentence case for names sent in capitals, close to upstream's cleaned names on the product page; abbreviations go lower case too. */
+export function getCatalogNameLabel(name: string): string {
+  if (!isShouted(name)) return name;
+
+  const sentence = name.toLowerCase();
+
+  return sentence.charAt(0).toUpperCase() + sentence.slice(1);
+}

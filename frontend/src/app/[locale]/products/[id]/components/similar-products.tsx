@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import type { CategoryProduct } from "@/lib/api/types";
+import { getCatalogNameLabel } from "@/utils/labels";
 import { productPath } from "@/utils/product-links";
 
 interface ISimilarProductsProps {
@@ -24,13 +25,14 @@ export default function SimilarProducts({
               href={productPath(product.ean)}
               className="flex h-full flex-col gap-0.5 rounded-xl border bg-card px-4 py-3 shadow-sm transition-shadow hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <span lang="hr" className="font-medium line-clamp-2">
-                {product.name}
+              {/* Never clamped: names that differ only past the cut would look identical. */}
+              <span lang="hr" className="font-medium">
+                {getCatalogNameLabel(product.name)}
               </span>
 
               {product.brand && (
                 <span lang="hr" className="text-sm text-muted-foreground">
-                  {product.brand}
+                  {getCatalogNameLabel(product.brand)}
                 </span>
               )}
             </Link>

@@ -25,7 +25,24 @@ describe("SimilarProducts", () => {
     );
     expect(html).toMatch(/<a href="\/products\/385002"/);
     expect(html).toContain(
-      '<span lang="hr" class="font-medium line-clamp-2">Dukat mlijeko 1 l</span>',
+      '<span lang="hr" class="font-medium">Dukat mlijeko 1 l</span>',
     );
+  });
+
+  it("shows archive names in capitals in sentence case and in full", () => {
+    const html = renderToStaticMarkup(
+      <SimilarProducts
+        heading="Slični proizvodi"
+        products={[
+          { ean: "1", name: "MLIJEKO ČOKOLADNO 0,5L DUKAT", brand: "DUKAT" },
+          { ean: "2", name: "MLIJEKO ČOKOLADNO 0,5L Z'BREGOV", brand: null },
+        ]}
+      />,
+    );
+
+    expect(html).toContain(">Mlijeko čokoladno 0,5l dukat</span>");
+    expect(html).toContain(">Mlijeko čokoladno 0,5l z&#x27;bregov</span>");
+    expect(html).toContain(">Dukat</span>");
+    expect(html).not.toContain("line-clamp");
   });
 });

@@ -2,6 +2,7 @@ import ProductCard from "@/components/custom/product/product-card";
 import ProductUnitPriceDetails from "@/app/[locale]/products/components/product-item/product-price";
 import type { CategoryProduct } from "@/lib/api/types";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
+import { getCatalogNameLabel } from "@/utils/labels";
 
 interface ICategoryProductListProps {
   items: CategoryProduct[];
@@ -22,8 +23,13 @@ export default function CategoryProductList({
           <li key={item.ean}>
             <ProductCard
               ean={item.ean}
-              name={product?.name ?? item.name}
-              brand={product?.brand ?? item.brand}
+              name={
+                product?.name ?? (item.name && getCatalogNameLabel(item.name))
+              }
+              brand={
+                product?.brand ??
+                (item.brand && getCatalogNameLabel(item.brand))
+              }
               category={null}
               trailing={
                 product && <ProductUnitPriceDetails product={product} />
