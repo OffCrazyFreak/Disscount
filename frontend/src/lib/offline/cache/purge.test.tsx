@@ -39,6 +39,7 @@ describe("purgeOfflineCache", () => {
     const deleted: string[] = [];
     vi.stubGlobal("caches", {
       keys: async () => [
+        "pages-rsc",
         "pages-rsc-prefetch",
         "shopping-list-pages",
         "serwist-precache-v2",
@@ -52,6 +53,7 @@ describe("purgeOfflineCache", () => {
     await purgeOfflineCache(new QueryClient(), "leaving");
 
     expect(deleted.sort()).toEqual([
+      "pages-rsc",
       "pages-rsc-prefetch",
       "shopping-list-pages",
     ]);
