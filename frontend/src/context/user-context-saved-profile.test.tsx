@@ -1,4 +1,4 @@
-import { tab } from "@/test/user-context-mocks";
+import { tab } from "@/test/fixtures/user-context-mocks";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import {
   defaultShouldDehydrateQuery,
@@ -10,11 +10,11 @@ import { describe, expect, it } from "vitest";
 import { UserProvider, useUser } from "@/context/user-context";
 import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
 import type { UserDto } from "@/lib/api/types";
-import { shouldPersistQuery } from "@/lib/offline/cached-query-keys";
-import { setCacheIdentity } from "@/lib/offline/cache-identity";
+import { shouldPersistQuery } from "@/lib/offline/cache/cached-query-keys";
+import { setCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { storedUser } from "@/test/stored-user";
+import { storedUser } from "@/test/fixtures/stored-user";
 
 const PINNED = [
   {

@@ -1,10 +1,10 @@
 import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { ONBOARDING_COMPLETED } from "@/lib/api/schemas/auth-user";
+import { ONBOARDING_COMPLETED } from "@/lib/api/schemas/user/auth-user";
 import { PinnedPlaceDto, PinnedStoreDto, UserDto } from "@/lib/api/types";
 import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
-import { getCacheIdentity } from "@/lib/offline/cache-identity";
+import { getCacheIdentity } from "@/lib/offline/cache/cache-identity";
 
 function isSkipOverCompletion(current: UserDto, patch: Partial<UserDto>) {
   return (

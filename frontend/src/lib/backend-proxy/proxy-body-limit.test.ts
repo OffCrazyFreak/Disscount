@@ -16,7 +16,7 @@ vi.mock("@sentry/nextjs", () => ({
 }));
 
 const { backend, call, signTokensFromCookie } =
-  await import("@/test/proxy-call");
+  await import("@/test/backend/proxy-call");
 const { JSON_BODY_LIMIT, PHOTO_BODY_LIMIT, bodyLimit, readBodyWithin } =
   await import("@/lib/backend-proxy/request/request-body");
 

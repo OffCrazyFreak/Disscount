@@ -1,6 +1,6 @@
 import { storeNamesMap } from "@/constants/name-mappings";
-import { getChainLabel } from "@/utils/labels";
-import { compareHr } from "@/utils/strings";
+import { getChainLabel } from "@/utils/format/labels";
+import { compareHr } from "@/utils/format/strings";
 
 /** Every chain we know, for an item with no prices to pick a store from. */
 export const ALL_CHAIN_CODES = Object.keys(storeNamesMap).sort((a, b) =>

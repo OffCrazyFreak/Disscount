@@ -1,89 +1,15 @@
 import {
-  queryOptions,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-import apiClient from "@/lib/api/api-base";
-import { WATCHLIST_QUERY_KEYS } from "@/lib/api/watchlist/keys";
-import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
+  useAddToWatchlist,
+  useGetCurrentUserWatchlist,
+  useGetWatchlistItemsByProductApiId,
+  useRemoveFromWatchlist,
+} from "@/lib/api/watchlist/hooks";
 import {
-  watchlistItemDtoSchema,
-  type WatchlistItemRequest,
-  type WatchlistItemDto,
-} from "@/lib/api/types";
+  addToWatchlist,
+  removeFromWatchlist,
+} from "@/lib/api/watchlist/queries";
 
-export async function addToWatchlist(
-  data: WatchlistItemRequest,
-): Promise<WatchlistItemDto> {
-  const response = await apiClient.post<unknown>("/api/watchlist", data);
-  return watchlistItemDtoSchema.parse(response.data);
-}
-
-async function getCurrentUserWatchlist(): Promise<WatchlistItemDto[]> {
-  const response = await apiClient.get<unknown[]>("/api/watchlist/me");
-  return response.data.map((item) => watchlistItemDtoSchema.parse(item));
-}
-
-async function getWatchlistItemsByProductApiId(
-  productApiId: string,
-): Promise<WatchlistItemDto[]> {
-  const response = await apiClient.get<unknown[]>(
-    `/api/watchlist/product/${productApiId}`,
-  );
-  return response.data.map((item) => watchlistItemDtoSchema.parse(item));
-}
-
-export async function removeFromWatchlist(id: string): Promise<void> {
-  await apiClient.delete(`/api/watchlist/${id}`);
-}
-
-function useAddToWatchlist() {
-  const queryClient = useQueryClient();
-
-  return useMutation<WatchlistItemDto, Error, WatchlistItemRequest>({
-    mutationKey: OFFLINE_MUTATION_KEYS.watchlistAdd,
-    mutationFn: addToWatchlist,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: WATCHLIST_QUERY_KEYS.all });
-    },
-  });
-}
-
-function currentUserWatchlistQueryOptions() {
-  return queryOptions({
-    queryKey: WATCHLIST_QUERY_KEYS.me,
-    queryFn: getCurrentUserWatchlist,
-  });
-}
-
-function watchlistItemsByProductQueryOptions(productApiId: string) {
-  return queryOptions({
-    queryKey: WATCHLIST_QUERY_KEYS.byProduct(productApiId),
-    queryFn: () => getWatchlistItemsByProductApiId(productApiId),
-    enabled: !!productApiId,
-  });
-}
-
-function useGetCurrentUserWatchlist({ enabled = true } = {}) {
-  return useQuery({ ...currentUserWatchlistQueryOptions(), enabled });
-}
-
-function useGetWatchlistItemsByProductApiId(productApiId: string) {
-  return useQuery(watchlistItemsByProductQueryOptions(productApiId));
-}
-
-function useRemoveFromWatchlist() {
-  const queryClient = useQueryClient();
-
-  return useMutation<void, Error, string>({
-    mutationKey: OFFLINE_MUTATION_KEYS.watchlistRemove,
-    mutationFn: removeFromWatchlist,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: WATCHLIST_QUERY_KEYS.all });
-    },
-  });
-}
+export { addToWatchlist, removeFromWatchlist };
 
 const watchlistService = {
   removeFromWatchlist,

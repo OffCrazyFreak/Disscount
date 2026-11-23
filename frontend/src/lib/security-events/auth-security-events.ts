@@ -3,7 +3,7 @@ import "server-only";
 import type { GenericEndpointContext } from "better-auth";
 import { isAPIError } from "better-auth/api";
 
-import { PASSWORD_BREACHED } from "@/lib/auth/password-policy";
+import { PASSWORD_BREACHED } from "@/lib/auth/password/password-policy";
 import { recordSecurityEvent } from "@/lib/security-events/record-security-event";
 import {
   signInProvider,

@@ -3,7 +3,7 @@ import { isAxiosError } from "axios";
 import {
   limitReachedProblemSchema,
   type LimitReachedProblem,
-} from "@/lib/api/schemas/user-limit";
+} from "@/lib/api/schemas/user/user-limit";
 
 /** The per-user cap the server refused a create with, or null for any other failure. */
 export function limitReachedOf(error: unknown): LimitReachedProblem | null {

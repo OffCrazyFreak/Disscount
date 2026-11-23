@@ -4,7 +4,7 @@ import {
   PASSWORD_BREACHED,
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
-} from "@/lib/auth/password-policy";
+} from "@/lib/auth/password/password-policy";
 
 const limits = { min: PASSWORD_MIN_LENGTH, max: PASSWORD_MAX_LENGTH };
 

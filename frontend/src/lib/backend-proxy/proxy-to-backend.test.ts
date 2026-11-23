@@ -17,7 +17,7 @@ vi.mock("@sentry/nextjs", () => ({
 
 const { proxyToBackend } = await import("@/lib/backend-proxy/proxy-to-backend");
 const { APP, backend, call, signedToken, signTokensFromCookie } =
-  await import("@/test/proxy-call");
+  await import("@/test/backend/proxy-call");
 
 signTokensFromCookie(mocks);
 

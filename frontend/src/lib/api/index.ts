@@ -7,7 +7,7 @@ import watchlistService from "@/lib/api/watchlist";
 import adminService from "@/lib/api/admin";
 import contactService from "@/lib/api/contact";
 
-export { WatchType } from "@/lib/api/schemas/watchlist";
+export { WatchType } from "@/lib/api/schemas/lists/watchlist";
 
 export {
   userService,

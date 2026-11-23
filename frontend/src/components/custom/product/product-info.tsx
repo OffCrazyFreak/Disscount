@@ -3,7 +3,7 @@
 import { memo } from "react";
 import { useTranslations } from "next-intl";
 
-import StretchedLink from "@/components/custom/common/stretched-link";
+import StretchedLink from "@/components/custom/common/controls/stretched-link";
 
 interface IProductInfoProps {
   name: string | null;

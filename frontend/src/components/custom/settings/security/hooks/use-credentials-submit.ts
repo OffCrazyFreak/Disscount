@@ -7,14 +7,14 @@ import { useTranslations } from "next-intl";
 import { authClient } from "@/lib/auth/client";
 import { useUser } from "@/context/user-context";
 import type { CredentialsFormValues } from "@/components/custom/settings/security/credentials-schema";
-import { isPasswordPolicyCode } from "@/lib/auth/password-policy";
+import { isPasswordPolicyCode } from "@/lib/auth/password/password-policy";
 import {
   changeEmailError,
   changePasswordError,
   currentPasswordError,
 } from "@/components/custom/settings/security/credentials-errors";
 import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
-import { REAUTH_REQUIRED } from "@/lib/auth/security-policy";
+import { REAUTH_REQUIRED } from "@/lib/auth/reauth/security-policy";
 import type { Reauth } from "@/components/custom/settings/security/hooks/use-reauth";
 import { prove } from "@/components/custom/settings/security/reauth/reauth-requests";
 

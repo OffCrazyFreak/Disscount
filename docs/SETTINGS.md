@@ -81,7 +81,7 @@ Nothing reads the push, email or newsletter values yet: no price alert is sent b
 ## 5. Preference: pinned stores, places and language
 
 - **Pinned stores** (`components/pinned-stores-grid.tsx`): the chains the user shops at. They are stored as chain codes (`storeApiId`) in `pinned_store` through `PUT /api/pinned-stores/bulk`, which replaces the whole set. Pinned stores scope the watchlist's discount maths ([WATCHLIST.md](WATCHLIST.md#5-when-a-rule-fires)), the product page's default chains ([PRODUCTS.md](PRODUCTS.md)) and the shopping list's store grouping ([SHOPPING-LISTS.md](SHOPPING-LISTS.md)).
-- **Pinned places** (`components/pinned-places-select.tsx`): towns the user cares about, stored in `pinned_place` through `PUT /api/pinned-places/bulk`. `placeApiId` is a `name|county` key so towns with the same name stay apart, and `placeName` is the part before the `|` (`utils/place-options.ts`).
+- **Pinned places** (`components/pinned-places-select.tsx`): towns the user cares about, stored in `pinned_place` through `PUT /api/pinned-places/bulk`. `placeApiId` is a `name|county` key so towns with the same name stay apart, and `placeName` is the part before the `|` (`utils/geo/place-options.ts`).
 - **Limits.** Each pinned store and place field is at most 255 characters, the size of its column; a longer value is a form error. At most 50 stores and 50 places can be pinned (owner decision of 2026-11-11 in #703, limits for long text and pins): `@Size(max = 50)` on both bulk requests, and the same limit in `settingsFormSchema`, which shows its message under the places field. The store grid has no message spot, as there are fewer chains than 50.
 - **Language** (`components/language-select.tsx`): shown in the modal only (`showLanguage`), not in onboarding. It applies at once, not on Save: `useChangeLocale` replaces the route under the new locale and saves the account language through better-auth's `updateUser({ locale })`, queued in `components/custom/locale/account-locale-save.ts` so saves land in order and never on an account that signed in after the save was queued. The account language picks the language of emails. Details in [I18N.md](I18N.md).
 
@@ -101,7 +101,7 @@ Favourite stores (`/api/favorite-stores`) are a different thing, set on the map,
 | `places` | Pinned places changed                | `PUT /api/pinned-places/bulk`                      |
 
 1. The modal closes at once (optimistic close). With nothing dirty, that is the whole save.
-2. Offline, a toast warns first. None of these mutations is on the offline mutation allowlist (`lib/offline/offline-mutation-keys.ts`), so they are not queued for replay; what the user sees after that was not checked in a browser (unverified).
+2. Offline, a toast warns first. None of these mutations is on the offline mutation allowlist (`lib/offline/writes/offline-mutation-keys.ts`), so they are not queued for replay; what the user sees after that was not checked in a browser (unverified).
 3. The jobs run in parallel with `Promise.allSettled`, so one failure does not undo the others.
 4. **All succeed:** the draft is cleared, the form takes the saved values as its new baseline, and a toast confirms.
 5. **Some fail:** `settings-save-recovery.ts` re-baselines only the sections that saved, reopens the modal on the first failed tab, and puts the server's problem response on the form (field errors where it has them, otherwise a per-job message).
@@ -194,7 +194,7 @@ The failure modes (Spring committed but the identity delete failed, the 410 `acc
 | `frontend/src/components/custom/settings/settings-save-jobs.ts`, `settings-save-recovery.ts`, `hooks/use-settings-save*.ts` | Building, running and recovering saves                                           |
 | `frontend/src/components/custom/settings/onboarding/`                                                                       | The onboarding wizard ([AUTH.md](AUTH.md#82-mandatory-onboarding-after-sign-in)) |
 | `frontend/src/lib/modal/modal-registry.ts`                                                                                  | The settings tab ids                                                             |
-| `frontend/src/lib/auth/erase-backend-account.ts`, `finish-erased-account.ts`                                                | Server side of deletion and its recovery                                         |
+| `frontend/src/lib/auth/erasure/erase-backend-account.ts`, `finish-erased-account.ts`                                        | Server side of deletion and its recovery                                         |
 
 ---
 

@@ -18,10 +18,6 @@ public class ActiveUsers {
     private final AuthIdentityDao authIdentities;
     private final ErasureLedgerRepository erasureLedger;
 
-    public boolean isActive(UUID userId) {
-        return users.existsById(userId);
-    }
-
     /** For the caller's own id: answers 401 once the account is gone, as the session outlived it. */
     public void requireActive(UUID userId) {
         users.requireActive(userId);

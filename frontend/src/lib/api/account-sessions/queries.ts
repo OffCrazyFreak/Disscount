@@ -4,7 +4,7 @@ import { httpStatusError } from "@/lib/api/http-status-error";
 import {
   accountSessionDtoSchema,
   type AccountSessionDto,
-} from "@/lib/api/schemas/account-session";
+} from "@/lib/api/schemas/user/account-session";
 
 // Next routes, not Spring: they read better-auth's session table by the cookie's user.
 const BASE_PATH = "/api/account/sessions";

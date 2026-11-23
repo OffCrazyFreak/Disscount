@@ -6,9 +6,12 @@ import {
   PASSWORD_LENGTH_INVALID,
   PASSWORD_LENGTH_MESSAGE,
   passwordSchema,
-} from "@/lib/auth/password-policy";
-import { rejectUnacceptablePassword } from "@/lib/auth/password-rejection";
-import { REAUTH_REQUIRED, isFreshSession } from "@/lib/auth/security-policy";
+} from "@/lib/auth/password/password-policy";
+import { rejectUnacceptablePassword } from "@/lib/auth/password/password-rejection";
+import {
+  REAUTH_REQUIRED,
+  isFreshSession,
+} from "@/lib/auth/reauth/security-policy";
 import { recordSecurityEvent } from "@/lib/security-events/record-security-event";
 
 export async function POST(request: Request) {

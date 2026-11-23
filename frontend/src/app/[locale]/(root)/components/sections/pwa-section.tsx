@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { CloudOff, RefreshCw } from "lucide-react";
 import { ScrollReveal } from "@/components/custom/animation/scroll-reveal";
-import TextGlow from "@/components/custom/common/text-glow";
+import TextGlow from "@/components/custom/common/display/text-glow";
 import InstallCard from "@/components/custom/pwa/install-card";
 import InstallPerk from "@/components/custom/pwa/install-perk";
 

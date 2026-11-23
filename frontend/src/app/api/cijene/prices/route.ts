@@ -3,11 +3,11 @@ import { proxyProblem } from "@/lib/backend-proxy/contract/proxy-problem";
 import { cijeneApiV1Client } from "@/lib/cijene-api/client";
 import {
   getPricesParamsSchema,
-  storePricesResponseSchema,
+  upstreamStorePricesResponseSchema,
 } from "@/lib/cijene-api/schemas";
 import { parseStoreFilterParams } from "@/lib/cijene-api/utils/request-params";
 import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";
-import { buildQueryString } from "@/utils/generic";
+import { buildQueryString } from "@/utils/format/generic";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -23,7 +23,10 @@ export async function GET(request: NextRequest) {
 
   const queryString = buildQueryString(parsed.data);
 
-  return withCijeneRoute(request, "prices", storePricesResponseSchema, () =>
-    cijeneApiV1Client.get(`/prices?${queryString}`),
+  return withCijeneRoute(
+    request,
+    "prices",
+    upstreamStorePricesResponseSchema,
+    () => cijeneApiV1Client.get(`/prices?${queryString}`),
   );
 }

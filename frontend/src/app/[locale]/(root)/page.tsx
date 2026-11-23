@@ -1,28 +1,20 @@
 import { Metadata } from "next";
-import { getLocale, getTranslations } from "next-intl/server";
-import { pageAlternates } from "@/i18n/alternates";
+import { pageMetadata } from "@/i18n/alternates";
 import LandingJsonLd from "@/app/[locale]/(root)/components/json-ld";
-import HeroSection from "@/app/[locale]/(root)/components/sections/hero-section";
+import HeroSection from "@/app/[locale]/(root)/components/sections/hero/hero-section";
 import StatsBand from "@/app/[locale]/(root)/components/sections/stats-band";
 import HowItWorksSection from "@/app/[locale]/(root)/components/sections/how-it-works-section";
-import FeaturesSection from "@/app/[locale]/(root)/components/sections/features-section";
+import FeaturesSection from "@/app/[locale]/(root)/components/sections/feature-cards/features-section";
 import PriceHistorySection from "@/app/[locale]/(root)/components/sections/price-history-section";
-import StoresSection from "@/app/[locale]/(root)/components/sections/stores-section";
+import StoresSection from "@/app/[locale]/(root)/components/sections/stores/stores-section";
 import PwaSection from "@/app/[locale]/(root)/components/sections/pwa-section";
-import PricingSection from "@/app/[locale]/(root)/components/sections/pricing-section";
+import PricingSection from "@/app/[locale]/(root)/components/sections/pricing/pricing-section";
 import FaqSection from "@/app/[locale]/(root)/components/sections/faq-section";
 import FinalCtaSection from "@/app/[locale]/(root)/components/sections/final-cta-section";
 import ScrollCue from "@/components/custom/fab/scroll-cue";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  const t = await getTranslations("landing");
-
-  return {
-    title: t("meta.title"),
-    description: t("meta.description"),
-    alternates: pageAlternates("/", locale),
-  };
+export function generateMetadata(): Promise<Metadata> {
+  return pageMetadata("landing", "/");
 }
 
 export default function Home() {

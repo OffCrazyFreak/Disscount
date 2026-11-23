@@ -6,7 +6,7 @@ import {
   storePricesResponseSchema,
   type StorePricesResponse,
 } from "@/lib/cijene-api/schemas";
-import { buildQueryString } from "@/utils/generic";
+import { buildQueryString } from "@/utils/format/generic";
 
 const SERVER_PRICES_TIMEOUT_MS = 5000;
 

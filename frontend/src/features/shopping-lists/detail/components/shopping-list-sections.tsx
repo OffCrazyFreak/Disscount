@@ -1,0 +1,71 @@
+"use client";
+
+import { type ComponentProps } from "react";
+import { useTranslations } from "next-intl";
+import SectionTabs from "@/components/custom/common/display/section-tabs";
+import ShoppingListItems from "@/features/shopping-lists/detail/components/items/shopping-list-items";
+import ShoppingListPriceHistory from "@/features/shopping-lists/detail/components/price-history/shopping-list-price-history";
+import ShoppingListStoreSummary from "@/features/shopping-lists/detail/components/stores/shopping-list-stores-list";
+import { useListChainAggregates } from "@/features/shopping-lists/detail/hooks/use-list-chain-aggregates";
+import type { ISectionTab } from "@/typings/section-tabs";
+
+type IShoppingListSectionsProps = ComponentProps<typeof ShoppingListItems>;
+
+export default function ShoppingListSections(
+  itemsProps: IShoppingListSectionsProps,
+) {
+  const t = useTranslations("shoppingListDetail.sectionNav");
+  const tSections = useTranslations("common.sectionNav");
+  const tItems = useTranslations("shoppingListDetail");
+  const { shoppingList, priceStates } = itemsProps;
+  const { allChains } = useListChainAggregates(shoppingList);
+  // An empty list has no stores to compare and no history to chart.
+  const hasItems = shoppingList.items.length > 0;
+
+  const total = shoppingList.items.length;
+  const checked = shoppingList.items.filter((item) => item.isChecked).length;
+
+  const tabs: ISectionTab[] = [
+    {
+      id: "products",
+      label: t("products"),
+      // Once something is checked the badge reads "2/5", and says so aloud.
+      count: checked > 0 ? checked : total,
+      total: checked > 0 ? total : undefined,
+      accessibleName:
+        checked > 0
+          ? tItems("items.titleWithChecked", {
+              label: t("products"),
+              checked,
+              total,
+            })
+          : undefined,
+      content: <ShoppingListItems {...itemsProps} />,
+    },
+  ];
+
+  if (hasItems) {
+    tabs.push(
+      {
+        id: "stores",
+        label: tSections("stores"),
+        shortLabel: tSections("storesShort"),
+        count: allChains.length,
+        content: (
+          <ShoppingListStoreSummary
+            shoppingList={shoppingList}
+            hasFailedPrices={Object.values(priceStates).includes("failed")}
+          />
+        ),
+      },
+      {
+        id: "price-history",
+        label: tSections("priceHistory"),
+        shortLabel: tSections("priceHistoryShort"),
+        content: <ShoppingListPriceHistory shoppingList={shoppingList} />,
+      },
+    );
+  }
+
+  return <SectionTabs label={t("label")} tabs={tabs} />;
+}

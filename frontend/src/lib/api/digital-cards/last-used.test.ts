@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { trackPurge } from "@/lib/offline/purge-gate";
+import { trackPurge } from "@/lib/offline/cache/purge-gate";
 
 const db = new Map<string, unknown>();
 let identity = "alice";
@@ -12,7 +12,7 @@ vi.mock("idb-keyval", () => ({
   getMany: async (list: string[]) => list.map((key) => db.get(key)),
   delMany: async (list: string[]) => list.forEach((key) => db.delete(key)),
 }));
-vi.mock("@/lib/offline/cache-identity", () => ({
+vi.mock("@/lib/offline/cache/cache-identity", () => ({
   getCacheIdentity: () => identity,
 }));
 // Offline, so a flush keeps the use queued and the tests can read it back.

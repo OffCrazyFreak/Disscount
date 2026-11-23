@@ -1,6 +1,6 @@
 "use client";
 
-import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useDebouncedValue } from "@/hooks/state/use-debounced-value";
 
 // Long enough that a screen reader hears a settled count, not one per keystroke.
 const SETTLE_DELAY_MS = 600;

@@ -6,7 +6,7 @@ import { ArrowLeft, Calendar, MessageSquare } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import UpvoteButton from "@/app/[locale]/suggestions/components/upvote-button";
-import { formatDate } from "@/utils/strings";
+import { formatDate } from "@/utils/format/strings";
 import { Suggestion } from "@/app/[locale]/suggestions/suggestions";
 
 interface ISuggestionDetailsClientProps {

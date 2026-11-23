@@ -4,23 +4,23 @@ import "@/app/globals.css";
 
 import AppSidebar from "@/components/custom/sidebar/app-sidebar";
 import BottomNav from "@/components/custom/bottom-nav/bottom-nav";
-import PriceDropStatus from "@/components/custom/watchlist/price-drop-status";
-import ProductsSheet from "@/app/[locale]/products/components/products-sheet/products-sheet";
+import PriceDropStatus from "@/features/watchlist/components/price-drop-status";
+import ProductsSheet from "@/features/products/components/products-sheet/products-sheet";
 import Header from "@/components/custom/header/header";
-import Footer from "@/components/custom/common/footer";
+import Footer from "@/components/custom/common/shell/footer";
 import SkipLink, {
   MAIN_CONTENT_ID,
-} from "@/components/custom/common/skip-link";
-import WindowScrollFade from "@/components/custom/common/window-scroll-fade";
+} from "@/components/custom/common/shell/skip-link";
+import WindowScrollFade from "@/components/custom/common/scroll-fade/window-scroll-fade";
 import BackToTopButton from "@/components/custom/fab/back-to-top-button";
-import OAuthErrorToast from "@/components/custom/common/oauth-error-toast";
+import OAuthErrorToast from "@/components/custom/common/shell/oauth-error-toast";
 import ModalRouter from "@/app/[locale]/components/modal-router/modal-router";
 import InstallBanner from "@/components/custom/pwa/install-banner";
 import OfflineIndicator from "@/components/custom/offline/offline-indicator";
 import Providers from "@/app/providers/providers";
 import LocaleSync from "@/components/custom/locale/locale-sync";
 import ZodLocale from "@/components/custom/locale/zod-locale";
-import TouchKeyboardDismissal from "@/components/custom/common/touch-keyboard-dismissal";
+import TouchKeyboardDismissal from "@/components/custom/common/shell/touch-keyboard-dismissal";
 import LocaleSuggestion from "@/components/custom/locale/locale-suggestion";
 import { ReactNode, Suspense } from "react";
 import { isIndexableOrigin } from "@/utils/indexing";
@@ -29,8 +29,8 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { LOCALES, OPEN_GRAPH_LOCALES } from "@/i18n/locales";
 import { baselineEllipsis, huninn, sairaStencil } from "@/app/fonts";
 import { appUrl, clientEnv } from "@/lib/env";
-import { iosStartupImages } from "@/constants/ios-startup-images";
-import { X_HANDLE } from "@/constants/social";
+import { iosStartupImages } from "@/constants/pwa/ios-startup-images";
+import { X_HANDLE } from "@/constants/site/social";
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));

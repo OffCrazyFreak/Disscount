@@ -10,7 +10,7 @@ import {
   ReactNode,
 } from "react";
 import dynamic from "next/dynamic";
-import { prepareBeep } from "@/components/scanner/scan-beep";
+import { prepareBeep } from "@/components/scanner/camera/scan-beep";
 import { IScannedCode, ScanPreset } from "@/typings/scanned-code";
 
 interface IOpenScannerOptions {

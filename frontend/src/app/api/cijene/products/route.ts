@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
 import { proxyProblem } from "@/lib/backend-proxy/contract/proxy-problem";
 import {
-  productSearchResponseSchema,
   searchProductsParamsSchema,
+  upstreamProductSearchResponseSchema,
 } from "@/lib/cijene-api/schemas";
 import { searchProducts } from "@/lib/cijene-api/server/search-products";
 import { withCijeneRoute } from "@/lib/cijene-api/utils/with-cijene-route";
@@ -30,7 +30,10 @@ export async function GET(request: NextRequest) {
     return proxyProblem("bad_request", request);
   }
 
-  return withCijeneRoute(request, "products", productSearchResponseSchema, () =>
-    searchProducts(parsed.data),
+  return withCijeneRoute(
+    request,
+    "products",
+    upstreamProductSearchResponseSchema,
+    () => searchProducts(parsed.data),
   );
 }

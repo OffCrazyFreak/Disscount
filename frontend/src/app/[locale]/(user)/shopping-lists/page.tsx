@@ -1,18 +1,10 @@
 import { Metadata } from "next";
-import { getLocale, getTranslations } from "next-intl/server";
-import ShoppingListsClient from "@/app/[locale]/(user)/shopping-lists/components/shopping-lists-client";
-import { readSearchParam } from "@/utils/generic";
-import { pageAlternates } from "@/i18n/alternates";
+import ShoppingListsClient from "@/features/shopping-lists/components/shopping-lists-client";
+import { readSearchParam } from "@/utils/format/generic";
+import { pageMetadata } from "@/i18n/alternates";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  const t = await getTranslations("shoppingLists");
-
-  return {
-    title: t("meta.title"),
-    description: t("meta.description"),
-    alternates: pageAlternates("/shopping-lists", locale),
-  };
+export function generateMetadata(): Promise<Metadata> {
+  return pageMetadata("shoppingLists", "/shopping-lists");
 }
 
 export default async function ShoppingListsPage(

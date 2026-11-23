@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import TextGlow from "@/components/custom/common/text-glow";
+import TextGlow from "@/components/custom/common/display/text-glow";
 
 interface ISectionHeadingProps {
   title: ReactNode;

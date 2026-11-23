@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { houseNumberMatches } from "@/lib/store-locations/geocoders/house-number";
-import { readPlacedAddress } from "@/lib/store-locations/sync/address-place";
+import { readPlacedAddress } from "@/lib/store-locations/sync/matching/address-place";
 
 export function geoapifyQuery(address: string, city: string | null) {
   const parsed = readPlacedAddress(address);

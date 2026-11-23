@@ -6,10 +6,10 @@ import { describe, expect, it, vi } from "vitest";
 
 import { UserProvider } from "@/context/user-context";
 import apiClient from "@/lib/api/api-base";
-import { actingAs, serverSession } from "@/test/backend-identity";
+import { actingAs, serverSession } from "@/test/backend/backend-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { storedUser } from "@/test/stored-user";
+import { storedUser } from "@/test/fixtures/stored-user";
 
 // Re-renders only readers, like better-auth's atom, so the landing session causes no re-render.
 const sessionStore = vi.hoisted(() => {
@@ -52,13 +52,13 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 
 // The real purge; its IndexedDB buckets have their own tests.
-vi.mock("@/lib/offline/persister", () => ({
+vi.mock("@/lib/offline/cache/persister", () => ({
   removePersistedCacheFor: vi.fn(async () => {}),
 }));
-vi.mock("@/lib/offline/card-photo-store", () => ({
+vi.mock("@/lib/offline/card-photos/card-photo-store", () => ({
   deleteForIdentity: vi.fn(async () => {}),
 }));
-vi.mock("@/lib/offline/card-photo-outbox", () => ({
+vi.mock("@/lib/offline/card-photos/card-photo-outbox", () => ({
   deleteOutboxForIdentity: vi.fn(async () => {}),
 }));
 vi.mock("@/lib/api/digital-cards/last-used", () => ({

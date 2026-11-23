@@ -1,4 +1,4 @@
-import { decodeEntities } from "@/utils/strings";
+import { decodeEntities } from "@/utils/format/strings";
 
 const KINDS: Record<string, number> = {
   ThoroughfareName: 1,

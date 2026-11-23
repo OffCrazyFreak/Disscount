@@ -11,7 +11,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-/** A missing amount counts as 1 and a missing isChecked as false; ShoppingListItemService applies both. */
 public record ShoppingListItemRequest(
         @Schema(nullable = true)
         @Size(max = 255, message = "{validation.ean.tooLong}")
@@ -34,7 +33,7 @@ public record ShoppingListItemRequest(
         String unit,
 
         @Min(value = 1, message = "{validation.amount.min}")
-        @Max(value = 999, message = "{validation.amount.max}")
+        @Max(value = ShoppingListItemRequest.MAX_AMOUNT, message = "{validation.amount.max}")
         @Schema(nullable = true)
         Integer amount,
 
@@ -57,4 +56,14 @@ public record ShoppingListItemRequest(
         @DecimalMax(value = "999999.9999", message = "{validation.price.tooLarge}")
         @Schema(nullable = true)
         BigDecimal storePrice) {
+
+    public static final int MAX_AMOUNT = 999;
+
+    public int amountOrOne() {
+        return amount != null ? amount : 1;
+    }
+
+    public boolean checkedOrFalse() {
+        return isChecked != null && isChecked;
+    }
 }

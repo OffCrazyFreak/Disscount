@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { signIn } from "@/lib/auth/client";
 import GoogleIcon from "@/components/icons/google-icon";
 import FacebookIcon from "@/components/icons/facebook-icon";
-import { FACEBOOK_COMING_SOON } from "@/constants/auth";
+import { FACEBOOK_COMING_SOON } from "@/constants/auth/auth";
 import { setLastLoginMethod } from "@/utils/browser/local-storage";
 import { AUTH_MODAL_NAMES } from "@/lib/modal/modal-registry";
 import { parseModalParam } from "@/lib/modal/modal-param-parser";

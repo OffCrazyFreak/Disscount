@@ -65,7 +65,7 @@ Inside a tier, an earlier match position wins, but never by enough to reach the 
 
 Ranking is a **priority list, not one arithmetic score**. `chainComparators` runs comparators in order and takes the first non-zero verdict.
 
-Product search is the worked example (`app/[locale]/products/utils/product-relevance.ts`):
+Product search is the worked example (`features/products/utils/product-relevance.ts`):
 
 ```ts
 chainComparators(
@@ -83,29 +83,29 @@ Text relevance first, then how widely stocked the product is, then the shorter n
 
 Matching folds `č`, `ć`, `š` and `ž`. **Sorting must not.** In Croatian these are their own letters with their own places in the alphabet.
 
-`compareHr` in `utils/strings.ts` is the single comparator: `localeCompare(b, "hr", { sensitivity: "base" })`. Use it for every user-facing sort.
+`compareHr` in `utils/format/strings.ts` is the single comparator: `localeCompare(b, "hr", { sensitivity: "base" })`. Use it for every user-facing sort.
 
 Calling `localeCompare` with no locale collates them as plain `c`, `s`, `z`, which is wrong and was doing so in shared shopping-list text until recently. Locale-less compares are still correct for UUIDs and ISO date strings, which is why a few remain.
 
 ## 7. Every surface that consumes it
 
-| Surface                                                | Where                                                                     | Fields searched                                                                                          |
-| ------------------------------------------------------ | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Products facets: Trgovine, Lokacije, Kategorije, Marka | `app/[locale]/products/components/facet-multi-select.tsx`                 | option label via `keywords`                                                                              |
-| Pinned places (settings)                               | `components/custom/settings/components/pinned-places-select.tsx`          | place label via `keywords` (name, plus the county for a shared name)                                     |
-| Store-chain picker (price history, map chain filter)   | `components/custom/store-chain/store-chain-multi-select.tsx`              | chain label via `keywords`                                                                               |
-| Add to shopping list                                   | `app/[locale]/products/components/forms/shopping-list-selector.tsx`       | list title via `keywords`                                                                                |
-| Updates / blog                                         | `app/[locale]/updates/page.tsx`                                           | title, excerpt, content                                                                                  |
-| Suggestions                                            | `app/[locale]/suggestions/components/suggestions-client.tsx`              | suggestion fields                                                                                        |
-| Digital cards                                          | `app/[locale]/(user)/digital-cards/utils/card-sorting.ts` (`filterCards`) | card name, store name, note (never the card number)                                                      |
-| Digital card store field                               | `app/[locale]/(user)/digital-cards/hooks/use-store-options.ts`            | chain label and community names, folded with `normalizeForSearch` (the Autocomplete's own filter is off) |
-| Shopping lists index                                   | `app/[locale]/(user)/shopping-lists/components/shopping-lists-client.tsx` | title                                                                                                    |
-| Watchlist                                              | `app/[locale]/(user)/watchlist/hooks/use-watchlist-data.ts`               | product name, brand                                                                                      |
-| Watchlist suggestions                                  | `app/[locale]/(user)/watchlist/hooks/use-watchlist-suggestions.ts`        | product name, brand                                                                                      |
-| Admin contact inbox                                    | `app/[locale]/dashboard/components/admin-contact-table.tsx`               | name, email, subject, message                                                                            |
-| Products text search                                   | `app/[locale]/products/hooks/use-infinite-products.ts`                    | server-side, then re-ranked locally                                                                      |
+| Surface                                                | Where                                                                                | Fields searched                                                                                          |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| Products facets: Trgovine, Lokacije, Kategorije, Marka | `features/products/components/filters/facet-multi-select.tsx`                        | option label via `keywords`                                                                              |
+| Pinned places (settings)                               | `components/custom/settings/components/pinned-places-select.tsx`                     | place label via `keywords` (name, plus the county for a shared name)                                     |
+| Store-chain picker (price history, map chain filter)   | `components/custom/store-chain/store-chain-multi-select.tsx`                         | chain label via `keywords`                                                                               |
+| Add to shopping list                                   | `features/products/components/forms/shopping-list-picker/shopping-list-selector.tsx` | list title via `keywords`                                                                                |
+| Updates / blog                                         | `app/[locale]/updates/page.tsx`                                                      | title, excerpt, content                                                                                  |
+| Suggestions                                            | `app/[locale]/suggestions/components/suggestions-client.tsx`                         | suggestion fields                                                                                        |
+| Digital cards                                          | `features/digital-cards/utils/display/card-sorting.ts` (`filterCards`)               | card name, store name, note (never the card number)                                                      |
+| Digital card store field                               | `features/digital-cards/hooks/use-store-options.ts`                                  | chain label and community names, folded with `normalizeForSearch` (the Autocomplete's own filter is off) |
+| Shopping lists index                                   | `features/shopping-lists/components/shopping-lists-client.tsx`                       | title                                                                                                    |
+| Watchlist                                              | `features/watchlist/hooks/use-watchlist-data.ts`                                     | product name, brand                                                                                      |
+| Watchlist suggestions                                  | `features/watchlist/hooks/use-watchlist-suggestions.ts`                              | product name, brand                                                                                      |
+| Admin contact inbox                                    | `app/[locale]/dashboard/components/admin-contact-table.tsx`                          | name, email, subject, message                                                                            |
+| Products text search                                   | `features/products/hooks/filters/use-infinite-products.ts`                           | server-side, then re-ranked locally                                                                      |
 
-Every multiselect also offers "Odaberi sve" and "Ukloni sve" above its list (`components/custom/form/multi-select-bulk-actions.tsx`). With a search typed, "Odaberi sve" takes only the options this same matcher keeps, skipping disabled ones; "Ukloni sve" always clears everything.
+Every multiselect also offers "Odaberi sve" and "Ukloni sve" above its list (`components/custom/form/multi-select/multi-select-bulk-actions.tsx`). With a search typed, "Odaberi sve" takes only the options this same matcher keeps, skipping disabled ones; "Ukloni sve" always clears everything.
 
 The seven `filterByFields` callers gained tokenized, ranked, abbreviation-tolerant search **without any call-site change**, because its signature did not move.
 
@@ -114,9 +114,9 @@ The seven `filterByFields` callers gained tokenized, ranked, abbreviation-tolera
 | Path                                                      | Role                                                                                        |
 | --------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | `utils/search/command-filter.ts`                          | `commandFilter`, the cmdk adapter                                                           |
-| `utils/strings.ts`                                        | `normalizeForSearch` (the fold) and `compareHr` (the sort)                                  |
-| `utils/generic.ts`                                        | `filterByFields`, now a thin wrapper over `scoreFields`                                     |
-| `app/[locale]/products/utils/product-filters.ts`          | `normalizeChainCode`, the code-only normalizer                                              |
+| `utils/format/strings.ts`                                 | `normalizeForSearch` (the fold) and `compareHr` (the sort)                                  |
+| `utils/format/generic.ts`                                 | `filterByFields`, now a thin wrapper over `scoreFields`                                     |
+| `features/products/utils/product-filters.ts`              | `normalizeChainCode`, the code-only normalizer                                              |
 | `components/custom/search/search-draft-store.ts`          | Typed text apart from the URL, shared by the product search boxes                           |
 | `components/custom/live-status/debounced-status.tsx`      | The screen reader only status every search count goes through, with its 600 ms settle delay |
 | `components/custom/live-status/search-results-status.tsx` | `SearchResultsStatus`, the count with the search word for the pages that filter as you type |

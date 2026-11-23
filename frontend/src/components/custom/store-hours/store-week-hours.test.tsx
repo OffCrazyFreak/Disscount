@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import StoreHoursProvider from "@/components/custom/store-hours/store-hours-context";
 import StoreWeekHours from "@/components/custom/store-hours/store-week-hours";
 import type { StoreHoursResponse } from "@/lib/api/schemas";
-import type { IStoreHoursNow } from "@/lib/store-hours/store-opening";
+import type { IStoreHoursNow } from "@/lib/store-hours/status/store-opening";
 import { renderWithProviders } from "@/test/render";
 
 const week = [{ opens: "07:00", closes: "21:00" }];

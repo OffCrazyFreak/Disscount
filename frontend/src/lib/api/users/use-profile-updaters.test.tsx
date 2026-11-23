@@ -5,9 +5,9 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { UserDto } from "@/lib/api/types";
 import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
 import { useProfileUpdaters } from "@/lib/api/users/use-profile-updaters";
-import { setCacheIdentity } from "@/lib/offline/cache-identity";
+import { setCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import { renderHookWithProviders } from "@/test/render";
-import { storedUser } from "@/test/stored-user";
+import { storedUser } from "@/test/fixtures/stored-user";
 
 const PROFILE_OF_A = { ...storedUser, id: "user-a" } as UserDto;
 

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { appUrl } from "@/lib/env";
-import { PROTECTED_ROUTE_PREFIXES } from "@/constants/protected-routes";
+import { PROTECTED_ROUTE_PREFIXES } from "@/constants/auth/protected-routes";
 import { DEFAULT_LOCALE, LOCALES } from "@/i18n/locales";
 import { productSitemapUrls } from "@/utils/product-sitemap";
 

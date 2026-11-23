@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-import type { IDevicePixelBox } from "@/hooks/use-device-pixel-width";
+import type { IDevicePixelBox } from "@/hooks/viewport/use-device-pixel-width";
 import { fitCodeSize, type ICodeSize } from "@/utils/card-code/fit-code-size";
 
 // A matrix code at full panel width is taller than the screen on a phone in landscape.

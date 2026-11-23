@@ -6,14 +6,14 @@ import { toast } from "sonner";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
+import ComingSoonBadge from "@/components/custom/common/feedback/coming-soon-badge";
 import SettingsSection from "@/components/custom/settings/ui/settings-section";
 import SettingRow from "@/components/custom/settings/ui/setting-row";
 import GoogleIcon from "@/components/icons/google-icon";
 import FacebookIcon from "@/components/icons/facebook-icon";
 import { authClient } from "@/lib/auth/client";
 import { localePath } from "@/i18n/locale-path";
-import { FACEBOOK_COMING_SOON } from "@/constants/auth";
+import { FACEBOOK_COMING_SOON } from "@/constants/auth/auth";
 import { useSecurity } from "@/components/custom/settings/security/security-context";
 import { countSignInMethods } from "@/components/custom/settings/security/sign-in-methods";
 import { needsProof } from "@/components/custom/settings/security/reauth/reauth-requests";
@@ -90,7 +90,7 @@ export default function LinkedAccounts() {
       label={t("security.linked.label")}
       hint={t("security.linked.hint")}
     >
-      <div className="">
+      <div>
         {PROVIDERS.map(({ id, label, Icon }) => {
           const linked = accounts.find((a) => a.providerId === id);
           const comingSoon = id === "facebook" && FACEBOOK_COMING_SOON;

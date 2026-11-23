@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { SidebarMenuBadge, SidebarMenuButton } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { PLACEHOLDER_HREF, type INavigationItem } from "@/constants/navigation";
-import { formatBadgeCount } from "@/utils/badge-count";
+import { formatBadgeCount } from "@/utils/ui/badge-count";
 import SidebarNavLink from "@/components/custom/sidebar/sidebar-nav-link";
 import { SIDEBAR_ICON_CLASS } from "@/components/custom/sidebar/sidebar-styles";
 

@@ -3,11 +3,11 @@
 import { createContext, type ReactNode, useContext } from "react";
 
 import type { StoreHoursDto } from "@/lib/api/schemas";
-import type { OpeningStatus } from "@/lib/store-hours/opening-status";
+import type { OpeningStatus } from "@/lib/store-hours/status/opening-status";
 import {
   type IStoreHoursNow,
   openingOf,
-} from "@/lib/store-hours/store-opening";
+} from "@/lib/store-hours/status/store-opening";
 
 const StoreHoursContext = createContext<IStoreHoursNow | null>(null);
 

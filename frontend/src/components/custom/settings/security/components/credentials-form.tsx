@@ -20,7 +20,7 @@ import ForgotPasswordLink from "@/components/custom/form/forgot-password-link";
 import PasswordRecovery from "@/components/custom/settings/security/components/password-recovery";
 import { useSecurity } from "@/components/custom/settings/security/security-context";
 import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
-import FormRootError from "@/components/custom/common/form-root-error";
+import FormRootError from "@/components/custom/common/feedback/form-root-error";
 import { useValidationMessage } from "@/i18n/use-validation-message";
 
 export const CREDENTIALS_FORM_ID = "credentials-form";

@@ -18,7 +18,8 @@ class BulkReplaceDuplicateTest extends FullStackTest {
     @ParameterizedTest
     @CsvSource({
             "/api/pinned-stores, stores, storeApiId, storeName",
-            "/api/pinned-places, places, placeApiId, placeName"})
+            "/api/pinned-places, places, placeApiId, placeName",
+            "/api/favorite-stores, stores, storeKey,"})
     void aDuplicateIsRefusedAndTheSavedListStays(String base, String field, String id, String name) throws Exception {
         User caller = newUser("caller");
 
@@ -40,7 +41,9 @@ class BulkReplaceDuplicateTest extends FullStackTest {
         StringBuilder entries = new StringBuilder();
         for (String value : ids) {
             if (!entries.isEmpty()) entries.append(',');
-            entries.append("{\"%s\":\"%s\",\"%s\":\"Mjesto %s\"}".formatted(id, value, name, value));
+            entries.append(name == null
+                    ? "{\"%s\":\"%s\"}".formatted(id, value)
+                    : "{\"%s\":\"%s\",\"%s\":\"Mjesto %s\"}".formatted(id, value, name, value));
         }
         return "{\"%s\":[%s]}".formatted(field, entries);
     }

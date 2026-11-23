@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-import LabeledSelect from "@/components/custom/common/labeled-select";
+import LabeledSelect from "@/components/custom/common/controls/labeled-select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UserDto } from "@/lib/api/schemas/auth-user";
+import { UserDto } from "@/lib/api/schemas/user/auth-user";
 import {
   ACTIVITY_WINDOW_VALUES,
   countActiveUsers,

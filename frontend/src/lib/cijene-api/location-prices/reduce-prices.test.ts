@@ -8,9 +8,9 @@ import { storePrice } from "@/lib/cijene-api/location-prices/test-rows";
 describe("reduceByCity", () => {
   it("keeps the lowest and highest price per EAN in each city", () => {
     const byCity = reduceByCity([
-      storePrice("1", "Zagreb", "2.00"),
-      storePrice("1", "Zagreb", "3.00", "1.50"),
-      storePrice("1", "Split", "4.00"),
+      storePrice("1", "Zagreb", 2),
+      storePrice("1", "Zagreb", 3, 1.5),
+      storePrice("1", "Split", 4),
     ]);
 
     expect(byCity.get("Zagreb")?.get("1")).toEqual({ min: 1.5, max: 2 });
@@ -20,8 +20,8 @@ describe("reduceByCity", () => {
   it("counts only exact city names, not upstream's substring matches", () => {
     const byCity = reduceByCity(
       [
-        storePrice("1", "Sesvete", "2.00"),
-        storePrice("1", "Sesvete - Kraljevec", "9.00"),
+        storePrice("1", "Sesvete", 2),
+        storePrice("1", "Sesvete - Kraljevec", 9),
       ],
       new Set(["Sesvete"]),
     );
@@ -38,7 +38,7 @@ describe("reduceByCity", () => {
 
   it("skips rows without a city or a readable price", () => {
     const byCity = reduceByCity([
-      storePrice("1", null, "2.00"),
+      storePrice("1", null, 2),
       storePrice("1", "Pula", null),
     ]);
 

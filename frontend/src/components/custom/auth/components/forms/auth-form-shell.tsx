@@ -10,7 +10,7 @@ import {
 
 import { Form } from "@/components/ui/form";
 import EmailField from "@/components/custom/auth/components/fields/email-field";
-import FormRootError from "@/components/custom/common/form-root-error";
+import FormRootError from "@/components/custom/common/feedback/form-root-error";
 
 interface IEmailValues {
   email: string;

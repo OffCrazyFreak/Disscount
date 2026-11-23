@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/lib/auth";
-import { revokeAccountSession } from "@/lib/auth/account-sessions";
+import { revokeAccountSession } from "@/lib/auth/account/account-sessions";
 import { recordSecurityEvent } from "@/lib/security-events/record-security-event";
 
 const sessionIdSchema = z.uuid();

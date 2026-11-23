@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { pwaShortcuts } from "@/constants/pwa-shortcuts";
+import { pwaShortcuts } from "@/constants/pwa/pwa-shortcuts";
 
 // Neither key is in Next's manifest type yet.
 type WebAppManifest = MetadataRoute.Manifest & {

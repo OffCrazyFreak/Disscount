@@ -1,4 +1,4 @@
-import { tab } from "@/test/user-context-mocks";
+import { tab } from "@/test/fixtures/user-context-mocks";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw/http";
@@ -10,12 +10,16 @@ import apiClient from "@/lib/api/api-base";
 import {
   getCacheIdentity,
   setCacheIdentity,
-} from "@/lib/offline/cache-identity";
-import { purgeOfflineCache } from "@/lib/offline/purge";
-import { ANONYMOUS, actingAs, serverSession } from "@/test/backend-identity";
+} from "@/lib/offline/cache/cache-identity";
+import { purgeOfflineCache } from "@/lib/offline/cache/purge";
+import {
+  ANONYMOUS,
+  actingAs,
+  serverSession,
+} from "@/test/backend/backend-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { storedUser } from "@/test/stored-user";
+import { storedUser } from "@/test/fixtures/stored-user";
 
 const cookie = serverSession;
 

@@ -16,7 +16,7 @@ vi.mock("@/lib/auth", () => ({
   },
 }));
 
-vi.mock("@/lib/auth/password-rejection", () => ({
+vi.mock("@/lib/auth/password/password-rejection", () => ({
   rejectUnacceptablePassword: async () => null,
 }));
 

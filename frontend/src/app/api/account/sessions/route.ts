@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
-import { listAccountSessions } from "@/lib/auth/account-sessions";
+import { listAccountSessions } from "@/lib/auth/account/account-sessions";
 
 // better-auth's /list-sessions returns every bearer token, so the list is built here instead.
 export async function GET() {

@@ -226,7 +226,8 @@ class DigitalCardControllerTest {
         String valid = "{\"id\":\"" + cardId + "\",\"usedAt\":\"2026-10-12T10:00:00Z\"}";
         String fiftyOne = "[" + String.join(",", java.util.Collections.nCopies(51, valid)) + "]";
 
-        for (String body : List.of("[]", "[null]", "[" + valid + ",null]", "[{\"id\":\"" + cardId + "\"}]", fiftyOne)) {
+        for (String body : List.of("[]", "[null]", "[" + valid + ",null]", "[{\"id\":\"" + cardId + "\"}]",
+                "[{\"usedAt\":\"2026-10-12T10:00:00Z\"}]", fiftyOne)) {
             mvc.perform(post("/api/digital-cards/used").with(auth())
                             .contentType(MediaType.APPLICATION_JSON).content(body))
                     .andExpect(status().isBadRequest());

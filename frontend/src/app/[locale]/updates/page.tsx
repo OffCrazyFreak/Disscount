@@ -1,29 +1,22 @@
 import { Metadata } from "next";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { Search } from "lucide-react";
 
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import SearchResultsStatus from "@/components/custom/live-status/search-results-status";
-import NoResults from "@/components/custom/common/no-results";
+import NoResults from "@/components/custom/common/feedback/no-results";
 import { AnimatedGroup } from "@/components/custom/animation/animated-group";
 import PostCard from "@/app/[locale]/updates/components/post-card";
 import NewPostButton from "@/app/[locale]/updates/components/new-post-button";
 import { templatePosts } from "@/app/[locale]/updates/posts";
 import { localizePost } from "@/app/[locale]/updates/localize-post";
-import { pageAlternates } from "@/i18n/alternates";
-import { filterByFields, readSearchParam } from "@/utils/generic";
+import { pageMetadata } from "@/i18n/alternates";
+import { filterByFields, readSearchParam } from "@/utils/format/generic";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  const t = await getTranslations("updates");
-
-  return {
-    title: t("meta.title"),
-    description: t("meta.description"),
-    alternates: pageAlternates("/updates", locale),
-  };
+export function generateMetadata(): Promise<Metadata> {
+  return pageMetadata("updates", "/updates");
 }
 
 export default async function UpdatesPage(

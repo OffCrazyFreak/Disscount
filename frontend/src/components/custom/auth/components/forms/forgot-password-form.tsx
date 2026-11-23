@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import EmailField from "@/components/custom/auth/components/fields/email-field";
-import InboxNotice from "@/components/custom/common/inbox-notice";
+import InboxNotice from "@/components/custom/common/feedback/inbox-notice";
 import { useForgotPasswordForm } from "@/components/custom/auth/hooks/use-forgot-password-form";
 
 interface IForgotPasswordFormProps {

@@ -19,15 +19,15 @@ import {
   getCacheIdentity,
   persistedCacheIdentity,
   subscribeToCacheIdentity,
-} from "@/lib/offline/cache-identity";
-import { sessionIdentity } from "@/lib/auth/pending-sign-out";
+} from "@/lib/offline/cache/cache-identity";
+import { sessionIdentity } from "@/lib/auth/account/pending-sign-out";
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
 import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
 import { userProfileQueryOptions } from "@/lib/api/users/profile-query";
 import { useProfileUpdaters } from "@/lib/api/users/use-profile-updaters";
-import { deriveAccountState } from "@/context/derive-account-state";
-import { syncCacheIdentity } from "@/context/sync-cache-identity";
-import { useLogout } from "@/context/use-logout";
+import { deriveAccountState } from "@/context/user-session/derive-account-state";
+import { syncCacheIdentity } from "@/context/user-session/sync-cache-identity";
+import { useLogout } from "@/context/user-session/use-logout";
 
 interface IUserContext {
   user: UserDto | null;

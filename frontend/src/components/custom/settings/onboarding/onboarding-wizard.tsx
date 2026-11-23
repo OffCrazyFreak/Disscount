@@ -8,7 +8,7 @@ import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Button } from "@/components/ui/button";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { useUser } from "@/context/user-context";
-import useSwipeHorizontal from "@/hooks/use-swipe-horizontal";
+import useSwipeHorizontal from "@/hooks/gestures/use-swipe-horizontal";
 import { ONBOARDING_STEPS } from "@/components/custom/settings/onboarding/onboarding-steps";
 import WizardProgressDots from "@/components/custom/settings/onboarding/components/wizard-progress-dots";
 import WizardStepPanel from "@/components/custom/settings/onboarding/components/wizard-step-panel";

@@ -5,7 +5,7 @@ import { localizedUrl } from "@/i18n/alternates";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
 import LegalPage from "@/components/custom/legal/legal-page";
 import LegalSection from "@/components/custom/legal/legal-section";
-import { CONTACT_EMAIL } from "@/constants/contact";
+import { CONTACT_EMAIL } from "@/constants/site/contact";
 
 export const metadata: Metadata = {
   // Croatian only until the rewrite, so every locale points at the one real page.

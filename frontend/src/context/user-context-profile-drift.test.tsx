@@ -1,4 +1,4 @@
-import { tab } from "@/test/user-context-mocks";
+import { tab } from "@/test/fixtures/user-context-mocks";
 import { screen, waitFor } from "@testing-library/react";
 import { QueryClient } from "@tanstack/react-query";
 import * as Sentry from "@sentry/nextjs";
@@ -8,10 +8,10 @@ import { ZodError } from "zod";
 
 import { UserProvider, useUser } from "@/context/user-context";
 import { createQueryClientConfig } from "@/lib/api/query-client-defaults";
-import { setCacheIdentity } from "@/lib/offline/cache-identity";
+import { setCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { storedUser } from "@/test/stored-user";
+import { storedUser } from "@/test/fixtures/stored-user";
 
 const { accountType: _omitted, ...driftedProfile } = storedUser;
 

@@ -8,18 +8,18 @@ A reference for how product data reaches the app: where it comes from, how the p
 
 ## 1. Quick reference
 
-| Thing                | Value                                                                                                                                   |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Routes               | `/products` (search and list), `/products/<ean>` (product page), both public                                                            |
-| Product modals       | `?modal=add-to-list&ean=`, `?modal=watchlist&ean=`, `?modal=product-actions&ean=` (built by `frontend/src/hooks/use-product-modals.ts`) |
-| Data source          | The upstream cijene API (https://github.com/senko/cijene-api), called only from our Next.js server                                      |
-| Our proxy            | `frontend/src/app/api/cijene/**`, one route handler per upstream resource                                                               |
-| Product id           | The EAN as cijene gives it (leading zeros stripped), or a `<chain>:<code>` id for products sold without a barcode                       |
-| Backend additions    | Product photos (see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)), watchlist items, shopping list items, the catalogue EAN list               |
-| Price data freshness | Upstream publishes once a day; we treat an hour old as current                                                                          |
-| Env vars             | `CIJENE_API_URL`, `CIJENE_API_TOKEN` (frontend, server only); `NEXT_PUBLIC_API_URL` for the backend                                     |
-| Offline              | Products, prices and history you have seen stay readable; watchlist add and remove queue and replay                                     |
-| Tests                | `pnpm test` (frontend), `mvn -B verify` (backend)                                                                                       |
+| Thing                | Value                                                                                                                                                     |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Routes               | `/products` (search and list), `/products/<ean>` (product page), both public                                                                              |
+| Product modals       | `?modal=add-to-list&ean=`, `?modal=watchlist&ean=`, `?modal=product-actions&ean=` (built by `frontend/src/features/products/hooks/use-product-modals.ts`) |
+| Data source          | The upstream cijene API (https://github.com/senko/cijene-api), called only from our Next.js server                                                        |
+| Our proxy            | `frontend/src/app/api/cijene/**`, one route handler per upstream resource                                                                                 |
+| Product id           | The EAN as cijene gives it (leading zeros stripped), or a `<chain>:<code>` id for products sold without a barcode                                         |
+| Backend additions    | Product photos (see [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md)), watchlist items, shopping list items, the catalogue EAN list                                 |
+| Price data freshness | Upstream publishes once a day; we treat an hour old as current                                                                                            |
+| Env vars             | `CIJENE_API_URL`, `CIJENE_API_TOKEN` (frontend, server only); `NEXT_PUBLIC_API_URL` for the backend                                                       |
+| Offline              | Products, prices and history you have seen stay readable; watchlist add and remove queue and replay                                                       |
+| Tests                | `pnpm test` (frontend), `mvn -B verify` (backend)                                                                                                         |
 
 **Daily workflow:** nothing to configure. The upstream token is set once per environment in Dokploy, and the weekly catalogue import that feeds the sitemap runs by itself.
 
@@ -46,7 +46,9 @@ What each side adds:
 | Spring backend | Never calls the price endpoints. It reads the upstream daily archive once a week for the photo catalogue (name, brand, and how many priced store listings carry each EAN), stores photos, watchlist items and shopping list items keyed by EAN, and serves the EAN list to the sitemap |
 | Browser        | Ranks and filters search results locally, computes discounts and watchlist alerts, and keeps what it has seen in IndexedDB                                                                                                                                                             |
 
-The product shape (`productResponseSchema` in `frontend/src/lib/cijene-api/schemas.ts`) is `{ ean, brand, name, quantity, unit, chains[] }`. Each chain entry carries `chain` (the chain id) and that chain's own `code` (its product code), `name`, `brand`, `category`, `unit`, `quantity`, `min_price`, `max_price`, `avg_price` (prices are decimal strings; the schema drops a chain entry whose price text is not a plain decimal, so no caller sees NaN, while an entry with the wrong shape still fails the product) and `price_date`. A store price (`storePriceSchema`) adds `regular_price`, `special_price`, `unit_price`, `best_price_30` (the lowest price in the last 30 days, which Croatian law requires on a sale), `anchor_price` and the store itself.
+The product shape (`productResponseSchema` in `frontend/src/lib/cijene-api/schemas.ts`) is `{ ean, brand, name, quantity, unit, chains[] }`. Each chain entry carries `chain` (the chain id) and that chain's own `code` (its product code), `name`, `brand`, `category`, `unit`, `quantity`, `min_price`, `max_price`, `avg_price` and `price_date`. A store price (`storePriceSchema`) adds `regular_price`, `special_price`, `unit_price`, `best_price_30` (the lowest price in the last 30 days, which Croatian law requires on a sale), `anchor_price` and the store itself. `quantity` stays text everywhere, because upstream and our backend both treat it as free text.
+
+Upstream sends every price as decimal text, so the schemas come in two layers. The upstream layer (`upstreamProductResponseSchema`, `upstreamProductSearchResponseSchema`, `upstreamStorePricesResponseSchema`) keeps prices as text and is what the `/api/cijene/*` routes validate, the fuzzy search merge reads and the service worker caches; it drops a chain entry whose price text is not a plain, finite decimal, while an entry with the wrong shape still fails the product. Parsing its own output again gives the same result, which the merge and the route rely on. The numeric layer (`productResponseSchema`, `productSearchResponseSchema`, `storePricesResponseSchema`) runs on top and turns every price into a number once; React Query, the server product page and the location price route use it, so no caller parses a price. An empty or unreadable store price becomes `null`, so readers fall back to the regular price instead of showing NaN. The numeric layer cannot parse its own output, so anything that hands a product on to a route sends the raw upstream data: the barcode branch of search uses `getServerProductData` in `server/get-product.ts`, not the parsed `getServerProduct`.
 
 ---
 
@@ -108,10 +110,10 @@ flowchart TD
 
 Step by step:
 
-1. **Decode the id.** Next hands the page its `[id]` still percent encoded but `generateMetadata` a decoded one, so both call `decodeProductId` (`utils/product-id.ts`) and share one cached lookup. The client keeps the raw segment, since that is the key it always queried with.
+1. **Decode the id.** Next hands the page its `[id]` still percent encoded but `generateMetadata` a decoded one, so both call `decodeProductId` (`utils/links/product-id.ts`) and share one cached lookup. The client keeps the raw segment, since that is the key it always queried with.
 2. **Fetch once.** `getServerProduct` (`lib/cijene-api/server/get-product.ts`) is wrapped in React `cache()`, so metadata and the page make one upstream call per request. It returns one of three states: `found`, `missing` (upstream 404) or `unavailable` (any other failure). Keeping an outage apart from a 404 means a short upstream blip never turns a real product into a not-found page.
 3. **Prices in parallel.** `getServerProductPrices` asks `/prices?eans=` with a 5 second timeout and returns `null` on any failure, because the browser can fetch the prices itself.
-4. **Seed the cache.** `productCacheState` (`[id]/utils/product-cache-state.ts`) puts the product under `CIJENE_QUERY_KEYS.productByEan(rawId)` and the prices under `productStorePrices({ eans: rawId })`, then dehydrates. `HydrationBoundary` hands both to the client, so the first render already has the product name, the chain list and the prices, with no second fetch.
+4. **Seed the cache.** `productCacheState` (`app/[locale]/products/[id]/utils/product-cache-state.ts`) puts the product under `CIJENE_QUERY_KEYS.productByEan(rawId)` and the prices under `productStorePrices({ eans: rawId })`, then dehydrates. `HydrationBoundary` hands both to the client, so the first render already has the product name, the chain list and the prices, with no second fetch.
 5. **Client.** `ProductDetailClient` renders the header (`ProductInfoDisplay`: back button, name, category, action buttons, photo gallery) and two tabs in `SectionTabs`: "Cijene po trgovinama" (chains) and "Povijest cijena" (price history). While React Query restores the persisted cache it reports idle, and the server render is always restoring, so the client shows the spinner only when there is no product in the cache yet.
 
 **Action buttons** (`product-action-buttons.tsx`): add to (or edit on) a shopping list, the watchlist toggle, share (`use-product-share.ts`), and "search images", which opens a Google image search for the name, brand and quantity (`productImageSearchUrl`). The photo gallery is described in [PRODUCT-IMAGES.md](PRODUCT-IMAGES.md).
@@ -122,7 +124,7 @@ Step by step:
 
 Issue #230 (product page SEO) asked for real titles, server rendered data, sitemap entries and Product JSON-LD. PR #392 added the metadata and sitemaps and PR #418 the server render; #230 stays open for what is left (see [§19](#19-future-improvements-and-todos)).
 
-**Metadata** (`[id]/utils/product-metadata.ts`):
+**Metadata** (`app/[locale]/products/[id]/utils/product-metadata.ts`):
 
 | Case                 | Title                                       | Robots                           | Other                                                                                                                                                                                                                                       |
 | -------------------- | ------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -135,7 +137,7 @@ Issue #230 (product page SEO) asked for real titles, server rendered data, sitem
 - The canonical uses the EAN as upstream returns it (leading zeros stripped), so every spelling of a barcode lands on one URL.
 - `openGraph` and `twitter` replace the layout's whole objects in Next, so the page passes the parent's resolved images through when there is no product photo.
 
-**JSON-LD** (`[id]/utils/product-json-ld.ts`, rendered by `product-json-ld.tsx`): a schema.org `Product` with `name`, `url`, `image` (the confirmed main photo, left out when there is none), `brand`, `gtin` only for a public GTIN (valid GS1 check digit, not an in-store code with prefix 2, mirroring the backend's `Barcodes.isPublicGtin`), and an `AggregateOffer` with `lowPrice`, `highPrice`, `priceCurrency: "EUR"` and `offerCount` (the number of chains). `AggregateOffer`, not `Offer`, because we compare prices and sell nothing, and Google reserves merchant listings for shops. The numbers are the page's own visible chain prices, as Google requires.
+**JSON-LD** (`features/products/detail/utils/product-json-ld.ts`, rendered by `product-json-ld.tsx`): a schema.org `Product` with `name`, `url`, `image` (the confirmed main photo, left out when there is none), `brand`, `gtin` only for a public GTIN (valid GS1 check digit, not an in-store code with prefix 2, mirroring the backend's `Barcodes.isPublicGtin`), and an `AggregateOffer` with `lowPrice`, `highPrice`, `priceCurrency: "EUR"` and `offerCount` (the number of chains). `AggregateOffer`, not `Offer`, because we compare prices and sell nothing, and Google reserves merchant listings for shops. The numbers are the page's own visible chain prices, as Google requires.
 
 **Sitemaps.**
 
@@ -152,9 +154,9 @@ Issue #230 (product page SEO) asked for real titles, server rendered data, sitem
 
 The chains tab (`product-chains-section.tsx`) lists every chain carrying the product. Each chain row needs only the product, so it renders before the store prices arrive; expanding a chain shows its stores (`store-item/`).
 
-- **Data.** `useProductDetail` (`[id]/hooks/use-product-detail.ts`) reads the product and `useGetPrices({ eans })`, groups the store prices by chain, and sorts the chains.
+- **Data.** `useProductDetail` (`features/products/detail/hooks/use-product-detail.ts`) reads the product and `useGetPrices({ eans })`, groups the store prices by chain, and sorts the chains.
 - **Sort modes** (`utils/product-chain-sort.ts`): `stores` (default: pinned chains first, then the lowest average price), `price` (the chain with the single cheapest store first, ignoring preferences), and `distance` (the chain whose nearest store is closest, from the device location or a chosen town via `use-distance-sort.ts`, chains without a located store last).
-- **Store rows** show the city, the address with a link to the map, and one price: the special price when there is one, otherwise the regular price (`store-price-cell.tsx`). The chain header says which day its data is from, compared with the Zagreb date the server rendered the page on (`today`, read once in `page.tsx` and passed down to `store-item.tsx`), so the server HTML and hydration never disagree around midnight. The shopping list's store cards compare with the device clock through `isPriceDateToday` in `utils/product-price-utils.ts`. `unit_price`, `best_price_30` and `anchor_price` are parsed but not shown yet. The "refreshed" label shows when the prices were last fetched (`LastSyncedLabel`). Offline with no saved prices the prices query is paused, which React Query reports as neither loading nor failed, so `useProductDetail` exposes `pricesOffline` and an expanded chain says the prices are not saved for offline use instead of showing an empty table (`store-prices-details.tsx`).
+- **Store rows** show the city, the address with a link to the map, and one price: the special price when there is one, otherwise the regular price (`store-price-cell.tsx`). The chain header says which day its data is from, compared with the Zagreb date the server rendered the page on (`today`, read once in `page.tsx` and passed down to `store-item.tsx`), so the server HTML and hydration never disagree around midnight. The shopping list's store cards compare with the device clock through `isPriceDateToday` in `utils/price/product-price-utils.ts`. `unit_price`, `best_price_30` and `anchor_price` are converted to numbers but not shown yet. The "refreshed" label shows when the prices were last fetched (`LastSyncedLabel`). Offline with no saved prices the prices query is paused, which React Query reports as neither loading nor failed, so `useProductDetail` exposes `pricesOffline` and an expanded chain says the prices are not saved for offline use instead of showing an empty table (`store-prices-details.tsx`).
 - **City price ranges** for the product list come from our own `/api/cijene/location-prices` route (`lib/cijene-api/location-prices/`). Upstream takes one city per request, and every visitor shares one token with a daily request quota, so the route decides how to spend requests: it asks per city for up to three uncached cities (`MAX_CITY_REQUESTS`), and above that makes one country wide request and reduces it by city, remembering the cities nobody asked for yet too. Results sit in an in-memory cache per server process (one hour, 5,000 entries) that stores promises, so concurrent searches for the same city share one upstream request, and a failed request is evicted at once. If some cities fail the response is `partial: true`; if all fail the upstream status is kept.
 
 ---
@@ -207,14 +209,14 @@ Three browser layers and one server layer keep product data fast and available. 
 | Layer                       | What it holds for products                                                                                                                                                                    | Where                                          |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | React Query, in memory      | Product by EAN, search, store prices: `staleTime` 6 hours. Chains 1 hour, stores 30 minutes, health 30 seconds. History as in [§8](#8-price-history)                                          | `lib/cijene-api/query-hooks.ts`                |
-| React Query, IndexedDB      | Everything under the `cijene` key root, except `prices` keys other than `product`, so the city price ranges are not stored. The watchlist is persisted too. Product photo queries are not     | `lib/offline/cached-query-keys.ts`             |
+| React Query, IndexedDB      | Everything under the `cijene` key root, except `prices` keys other than `product`, so the city price ranges are not stored. The watchlist is persisted too. Product photo queries are not     | `lib/offline/cache/cached-query-keys.ts`       |
 | Service worker (production) | `GET /api/cijene/*` is stale while revalidate in the `cijene-api` cache (200 entries, 7 days). Other `/api/` calls are network only. Product photos fall under Serwist's `defaultCache` rules | `app/sw.ts`                                    |
 | Next.js server              | The in-memory city price cache (1 hour); the sitemap's EAN list (`revalidate: 3600`)                                                                                                          | `location-prices/`, `product-images/server.ts` |
 
 What that means offline:
 
 - A product, its store prices and its history days that were seen before load from IndexedDB with no network. A product never seen has nothing to show offline.
-- Watchlist add and remove (`watchlistAdd`, `watchlistRemove`) and adding to a shopping list (`shoppingListItemAdd`) are on the offline mutation allowlist (`lib/offline/offline-mutation-keys.ts`): they pause and replay on reconnect.
+- Watchlist add and remove (`watchlistAdd`, `watchlistRemove`) and adding to a shopping list (`shoppingListItemAdd`) are on the offline mutation allowlist (`lib/offline/writes/offline-mutation-keys.ts`): they pause and replay on reconnect.
 - Photo uploads, reports and admin actions are not queued and fail offline.
 
 **Query keys are a contract.** `CIJENE_QUERY_KEYS` (`lib/cijene-api/keys.ts`) are stored as they are in every user's IndexedDB, so renaming one strands every offline copy. `canonicalizeStorePricesParams` sorts and dedupes the CSV parameters, so the same set of products and chains always lands on one entry, whatever order a caller used.
@@ -236,7 +238,7 @@ All copy is in the next-intl catalogs, in all five languages ([I18N.md](I18N.md)
 | `frontend/src/lib/cijene-api/utils/`                                                                          | `withCijeneRoute`, the fuzzy fallback, response helpers               |
 | `frontend/src/lib/cijene-api/location-prices/`                                                                | City price reduction and its in-memory cache                          |
 | `frontend/src/app/products/sitemap.ts`, `frontend/src/utils/product-sitemap.ts`, `frontend/src/app/robots.ts` | Product sitemaps and their listing                                    |
-| `frontend/src/utils/product-id.ts`, `product-links.ts`                                                        | Product id shape and decoding; the one place the product URL is built |
+| `frontend/src/utils/links/product-id.ts`, `product-links.ts`                                                  | Product id shape and decoding; the one place the product URL is built |
 | `frontend/src/constants/price-history.ts`                                                                     | Periods, the archive start date, disabled periods                     |
 | `backend/.../productimage/catalog/`                                                                           | The weekly catalogue import behind the sitemap's EAN list             |
 

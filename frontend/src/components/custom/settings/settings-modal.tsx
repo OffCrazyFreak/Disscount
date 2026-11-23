@@ -14,7 +14,7 @@ import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { closeModalUrl, swapModalUrl } from "@/lib/modal/modal-navigation";
 import type { SettingsTab } from "@/lib/modal/modal-registry";
-import useSwipeHorizontal from "@/hooks/use-swipe-horizontal";
+import useSwipeHorizontal from "@/hooks/gestures/use-swipe-horizontal";
 import { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 import { dirtySections } from "@/components/custom/settings/settings-dirty";
 import { useSettingsUi } from "@/components/custom/settings/settings-context";

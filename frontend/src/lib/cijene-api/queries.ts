@@ -25,7 +25,7 @@ import {
   getPricesParamsSchema,
 } from "@/lib/cijene-api/schemas";
 import cijeneRouteClient from "@/lib/cijene-api/route-client";
-import { buildQueryString } from "@/utils/generic";
+import { buildQueryString } from "@/utils/format/generic";
 
 export async function listChains(): Promise<ListChainsResponse> {
   const response = await cijeneRouteClient.get("/api/cijene/chains");

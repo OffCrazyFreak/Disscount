@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   acquisitionChannelSchema,
   usernameSchema,
-} from "@/lib/api/schemas/auth-user";
+} from "@/lib/api/schemas/user/auth-user";
 
 // Equal to the backend's @Size on the bulk pin requests; the messages state 50 themselves.
 const PINS_MAX = 50;

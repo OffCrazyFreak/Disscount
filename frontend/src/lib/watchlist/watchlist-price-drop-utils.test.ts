@@ -7,10 +7,10 @@ import {
   isSameSnapshot,
   nextPriceSnapshot,
 } from "@/lib/watchlist/watchlist-price-drop-utils";
-import { chain, product } from "@/test/price-fixtures";
+import { chain, product } from "@/test/fixtures/price-fixtures";
 
 describe("getScopedBestPriceCents", () => {
-  const milk = product([chain("konzum", "1.29"), chain("lidl", "0.99")]);
+  const milk = product([chain("konzum", 1.29), chain("lidl", 0.99)]);
 
   it("takes the cheapest chain overall without pinned stores", () => {
     expect(getScopedBestPriceCents(milk, [])).toBe(99);
@@ -25,7 +25,7 @@ describe("getScopedBestPriceCents", () => {
   });
 
   it("rounds to whole cents so float noise never reads as a drop", () => {
-    expect(getScopedBestPriceCents(product([chain("lidl", "0.29")]), [])).toBe(
+    expect(getScopedBestPriceCents(product([chain("lidl", 0.29)]), [])).toBe(
       29,
     );
   });

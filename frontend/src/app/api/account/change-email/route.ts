@@ -6,8 +6,8 @@ import { z } from "zod";
 import { APIError } from "better-auth/api";
 
 import { auth } from "@/lib/auth";
-import { parseAccountBody } from "@/lib/auth/parse-account-body";
-import { REAUTH_REQUIRED } from "@/lib/auth/security-policy";
+import { parseAccountBody } from "@/lib/auth/account/parse-account-body";
+import { REAUTH_REQUIRED } from "@/lib/auth/reauth/security-policy";
 import { db } from "@/db";
 import { account } from "@/db/auth-schema";
 import { DEFAULT_LOCALE, isLocale } from "@/i18n/locales";

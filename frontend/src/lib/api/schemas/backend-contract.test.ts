@@ -45,7 +45,7 @@ import {
   describeZodSchema,
   findDrift,
   readApiContract,
-} from "@/test/api-contract";
+} from "@/test/backend/api-contract";
 
 const contract = readApiContract();
 

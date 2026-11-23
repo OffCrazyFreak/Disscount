@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollReveal } from "@/components/custom/animation/scroll-reveal";
-import TextGlow from "@/components/custom/common/text-glow";
+import TextGlow from "@/components/custom/common/display/text-glow";
 import PriceLineDoodle from "@/app/[locale]/(root)/components/doodles/price-line-doodle";
 
 const checkIds = ["chart", "realDiscount", "average"] as const;

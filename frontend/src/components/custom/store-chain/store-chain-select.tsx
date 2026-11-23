@@ -6,8 +6,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { getChainLabel } from "@/utils/labels";
-import { formatPrice } from "@/utils/price";
+import { getChainLabel } from "@/utils/format/labels";
+import { formatPrice } from "@/utils/price/price";
 import { availableChainCodes } from "@/components/custom/store-chain/store-chain-codes";
 import { suggestedChain } from "@/components/custom/store-chain/suggested-chain";
 import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";

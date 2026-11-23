@@ -8,7 +8,7 @@ import {
   sensitiveSessionMiddleware,
 } from "better-auth/api";
 
-import { REAUTH_CODE_LENGTH } from "@/constants/auth";
+import { REAUTH_CODE_LENGTH } from "@/constants/auth/auth";
 import { emailService } from "@/lib/email";
 import { userLocale } from "@/lib/email/email-copy";
 import { RecipientCapReachedError } from "@/lib/email/recipient-send-cap";

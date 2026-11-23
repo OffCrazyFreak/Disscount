@@ -90,6 +90,24 @@ describe("GET /api/cijene/products", () => {
     });
   });
 
+  it("searches by name when the barcode lookup answers a malformed product", async () => {
+    server.use(
+      http.get(`*/v1/products/${BARCODE}`, () =>
+        HttpResponse.json({ ean: BARCODE }),
+      ),
+      http.get("*/v1/products", () =>
+        HttpResponse.json({ products: [product] }),
+      ),
+    );
+
+    const response = await search(BARCODE);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      products: [{ ean: BARCODE, name: "Bananko" }],
+    });
+  });
+
   // MSW fails any request a test did not declare, so a lookup here would fail the test.
   it("does not spend a barcode lookup on an ordinary search", async () => {
     server.use(

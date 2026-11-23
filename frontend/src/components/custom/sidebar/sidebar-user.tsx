@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronsUpDown } from "lucide-react";
-import UserAvatar from "@/components/custom/common/user-avatar";
+import UserAvatar from "@/components/custom/common/display/user-avatar";
 import {
   SidebarMenu,
   SidebarMenuButton,

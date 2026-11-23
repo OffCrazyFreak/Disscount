@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import AuthFormShell from "@/components/custom/auth/components/forms/auth-form-shell";
 import PasswordField from "@/components/custom/auth/components/fields/password-field";
-import InboxNotice from "@/components/custom/common/inbox-notice";
+import InboxNotice from "@/components/custom/common/feedback/inbox-notice";
 import { useSignupForm } from "@/components/custom/auth/hooks/use-signup-form";
 import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
 

@@ -4,7 +4,7 @@ import { ChangeEvent } from "react";
 import { Camera } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import UserAvatar from "@/components/custom/common/user-avatar";
+import UserAvatar from "@/components/custom/common/display/user-avatar";
 
 import {
   Tooltip,

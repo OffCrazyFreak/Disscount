@@ -11,7 +11,7 @@ import {
   MonitorDown,
 } from "lucide-react";
 
-import SheetShell from "@/components/custom/modal/sheet-shell";
+import SheetShell from "@/components/custom/modal/sheet/sheet-shell";
 import type { InstallPlatform } from "@/components/custom/pwa/use-install-prompt";
 import {
   installActionLabelKey,

@@ -5,7 +5,7 @@ import { ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth";
+import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth/auth";
 import { useBreachedPasswordResend } from "@/components/custom/auth/hooks/use-breached-password-resend";
 
 interface IBreachedPasswordNoticeProps {

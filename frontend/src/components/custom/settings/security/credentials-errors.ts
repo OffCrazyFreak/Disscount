@@ -1,5 +1,5 @@
 import type { CredentialsFormValues } from "@/components/custom/settings/security/credentials-schema";
-import { isPasswordPolicyCode } from "@/lib/auth/password-policy";
+import { isPasswordPolicyCode } from "@/lib/auth/password/password-policy";
 import type { IProofFailure } from "@/components/custom/settings/security/reauth/reauth-requests";
 
 const TOO_MANY_ATTEMPTS = "settings.security.submit.tooManyAttempts";

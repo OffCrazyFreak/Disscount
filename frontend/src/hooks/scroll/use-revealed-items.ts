@@ -12,10 +12,7 @@ export function useRevealedItems<T>(
   resetKey: string,
   batchSize = REVEAL_BATCH_SIZE,
 ): T[] {
-  const batches = useMemo(
-    () => splitIntoBatches(items, batchSize),
-    [items, batchSize],
-  );
+  const batches = splitIntoBatches(items, batchSize);
 
   const batchesToShow = useRevealedBatches(resetKey, batches.length);
 

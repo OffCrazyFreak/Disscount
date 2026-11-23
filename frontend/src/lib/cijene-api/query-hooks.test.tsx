@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { useGetProductByName } from "@/lib/cijene-api/query-hooks";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
-import { product } from "@/test/price-fixtures";
+import { product } from "@/test/fixtures/price-fixtures";
 
 const productsByQuery: Record<string, ReturnType<typeof product>[]> = {
   mlijeko: [product([], { ean: "3850108020090", name: "Mlijeko 2,8%" })],

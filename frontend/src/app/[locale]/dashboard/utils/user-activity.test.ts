@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { countActiveUsers } from "@/app/[locale]/dashboard/utils/user-activity";
-import { UserDto } from "@/lib/api/schemas/auth-user";
+import { UserDto } from "@/lib/api/schemas/user/auth-user";
 
 const NOW = new Date("2026-06-15T12:00:00Z");
 const HOUR = 60 * 60 * 1000;

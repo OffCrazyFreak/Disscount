@@ -64,4 +64,16 @@ class BulkListRequiredTest extends FullStackTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors.places").value("Možeš prikvačiti najviše 50 mjesta."));
     }
+
+    @Test
+    void anEleventhFavoriteIsAFieldErrorThatStatesTheLimit() throws Exception {
+        User caller = newUser("caller");
+        String stores = IntStream.range(0, 11)
+                .mapToObj(index -> "{\"storeKey\":\"trgovina-" + index + "\"}")
+                .collect(Collectors.joining(",", "{\"stores\":[", "]}"));
+
+        mvc.perform(put("/api/favorite-stores/bulk").with(as(caller)).contentType(MediaType.APPLICATION_JSON).content(stores))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.stores").value("Možeš spremiti najviše 10 omiljenih trgovina."));
+    }
 }

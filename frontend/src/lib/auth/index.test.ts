@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { JwtOptions } from "better-auth/plugins";
 
 vi.mock("server-only", () => ({}));
-vi.mock("@/lib/auth/erase-backend-account", () => ({
+vi.mock("@/lib/auth/erasure/erase-backend-account", () => ({
   eraseBackendAccount: vi.fn(),
 }));
 vi.mock("hibp", () => ({ pwnedPassword: vi.fn() }));
@@ -18,10 +18,10 @@ vi.stubEnv("FACEBOOK_CLIENT_SECRET", "facebook-secret");
 vi.stubEnv("RESEND_API_KEY", "re_test");
 vi.stubEnv("EMAIL_FROM", "test@example.com");
 
-const { FACEBOOK_COMING_SOON } = await import("@/constants/auth");
+const { FACEBOOK_COMING_SOON } = await import("@/constants/auth/auth");
 const { auth } = await import("@/lib/auth");
 const { eraseBackendAccount } =
-  await import("@/lib/auth/erase-backend-account");
+  await import("@/lib/auth/erasure/erase-backend-account");
 const { pwnedPassword } = await import("hibp");
 
 const expectedProviders = FACEBOOK_COMING_SOON

@@ -8,7 +8,7 @@ import { z } from "zod";
 import {
   isPasswordPolicyCode,
   passwordSchema,
-} from "@/lib/auth/password-policy";
+} from "@/lib/auth/password/password-policy";
 import { usePasswordPolicy } from "@/components/custom/auth/hooks/use-password-policy";
 import { authClient } from "@/lib/auth/client";
 import {
@@ -16,7 +16,7 @@ import {
   readStoredResetToken,
   removeResetTokenFromUrl,
   storeResetToken,
-} from "@/lib/auth/reset-token-storage";
+} from "@/lib/auth/account/reset-token-storage";
 import { swapModalUrl } from "@/lib/modal/modal-navigation";
 
 const resetPasswordSchema = z
