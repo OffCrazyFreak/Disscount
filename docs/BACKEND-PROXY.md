@@ -18,7 +18,7 @@ A rewrite cannot add a header, so moving the token to the server needed a real r
 ```mermaid
 flowchart LR
     Browser -->|"cookie + X-Disscount-Client + X-Disscount-User"| Proxy["Next.js<br/>app/api/[...path]"]
-    Proxy -->|"auth.api.getToken (session read + ES256 sign)"| BA["better-auth<br/>(same process)"]
+    Proxy -->|"auth.api.getSession, then auth.api.getToken (session read + ES256 sign)"| BA["better-auth<br/>(same process)"]
     Proxy -->|"Authorization: Bearer (fresh JWT)"| Spring["Spring Boot<br/>backend:8080"]
 ```
 
@@ -87,7 +87,7 @@ When Spring sets no `cache-control`, the proxy sets `private, no-store`, so neit
 
 Request bodies are buffered up to the size cap in step 4a, so Spring never sees a body larger than the proxy allows and an oversized one never opens a connection to it. The largest buffer is a photo upload's 1100 KB, the same limit Spring's multipart settings enforce. Response bodies stream. 204, 304 and HEAD answers carry no body, and the unread upstream body is cancelled so its pooled connection is freed.
 
-If `getToken` refreshes the session (at most once a day, better-auth's `updateAge`), the `nextCookies` plugin writes the new cookie and Next merges it onto the proxy's response, so the session keeps sliding.
+If the session read refreshes the session (at most once a day, better-auth's `updateAge`), the `nextCookies` plugin writes the new cookie and Next merges it onto the proxy's response, so the session keeps sliding.
 
 ---
 
@@ -210,7 +210,7 @@ In jsdom tests, an MSW handler calls `actingAs(request)` to learn which account 
 - **A URL resolves dot segments before Next sees them.** `/api/users/%2E%2E/admin` arrives as `/api/admin`, which is a backend root, and Spring's own security then applies. The path guard catches what survives decoding (an encoded slash or backslash inside one segment). Tests pass decoded segments directly for that reason.
 - **`authClient.$store` is a proxy.** better-auth's client resolves `authClient.$store.notify` to the real function only when read through the full path, so `vi.spyOn(authClient.$store, "notify")` fails. Tests listen to `authClient.$store.atoms.$sessionSignal` instead.
 - **A new browser call that bypasses axios gets 403.** An `<img src="/api/...">` cannot send the client header; card photos and admin originals are fetched as blobs through `apiClient` for that reason.
-- **`getToken` hides a database failure.** better-auth's session middleware catches any error from the session read and answers 401, so `getToken` alone made an outage look like a sign-out (`session_changed` for a signed-in tab, an anonymous call otherwise). `auth.api.getSession` throws the error instead, so `mintSessionToken` calls it first. The cost is two session reads per signed-in call, accepted on 2026-11-23 over signing the token by hand.
+- **`getToken` hides a database failure.** better-auth's session middleware catches any error from the session read and answers 401, so `getToken` alone made an outage look like a sign-out (`session_changed` for a signed-in tab, an anonymous call otherwise). `auth.api.getSession` throws the error instead, so `mintSessionToken` calls it first, and when `getToken` still answers 401 it reads the session once more to tell a sign-out from a failed second read. The cost is two session reads per signed-in call, accepted on 2026-11-23 over signing the token by hand.
 - **`session_changed` is not retried.** Retrying a write under the new pin would send account A's queued write as account B. The session refetch and purge are the recovery.
 
 ---
