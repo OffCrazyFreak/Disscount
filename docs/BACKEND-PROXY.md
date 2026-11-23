@@ -213,6 +213,5 @@ In jsdom tests, an MSW handler calls `actingAs(request)` to learn which account 
 
 ## 12. Future improvements & TODOs
 
-- P4 of #430: load the user profile as a React Query query, now that the pin guarantees a profile response belongs to the tab's account.
 - A short per-session token memo, only if the `auth` timing says it is needed (section 9).
 - Check the drizzle `pg` pool size against concurrent API calls, since each proxied call now holds a frontend pool connection for the session read.
