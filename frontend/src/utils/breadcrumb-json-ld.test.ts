@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { breadcrumbListJsonLd } from "@/utils/breadcrumb-json-ld";
+import { appUrl } from "@/lib/env";
+import {
+  breadcrumbListJsonLd,
+  breadcrumbStepsJsonLd,
+} from "@/utils/breadcrumb-json-ld";
 
 describe("breadcrumbListJsonLd", () => {
   it("numbers each crumb from 1 with its absolute URL", () => {
@@ -27,5 +31,22 @@ describe("breadcrumbListJsonLd", () => {
         },
       ],
     });
+  });
+});
+
+describe("breadcrumbStepsJsonLd", () => {
+  it("turns each step's path into an absolute URL in the page's language", () => {
+    const markup = breadcrumbStepsJsonLd(
+      [
+        { label: "Home", path: "/" },
+        { label: "Milk", path: "/categories/mlijeko" },
+      ],
+      "en",
+    );
+
+    expect(markup.itemListElement.map((item) => item.item)).toEqual([
+      `${appUrl()}/en`,
+      `${appUrl()}/en/categories/mlijeko`,
+    ]);
   });
 });

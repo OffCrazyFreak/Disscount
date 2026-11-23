@@ -27,6 +27,12 @@ export const categoryProductSchema = z.object({
 
 export const categoryProductsPageSchema = pageSchema(categoryProductSchema);
 
+export const productCategorySchema = z.object({
+  ean: z.string(),
+  department: z.string().nullable(),
+  category: z.string().nullable(),
+});
+
 export type CatalogCategories = z.infer<typeof catalogCategoriesSchema>;
 export type CategoryProduct = z.infer<typeof categoryProductSchema>;
 export type CategoryProductsPage = z.infer<typeof categoryProductsPageSchema>;

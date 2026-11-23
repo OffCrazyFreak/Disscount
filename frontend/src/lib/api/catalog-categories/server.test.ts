@@ -5,6 +5,7 @@ import { BACKEND_ORIGIN } from "@/lib/api/backend-origin";
 import {
   getCatalogCategories,
   getCategoryProducts,
+  getProductCategorySlug,
 } from "@/lib/api/catalog-categories/server";
 import { server } from "@/test/msw-server";
 
@@ -63,5 +64,53 @@ describe("getCatalogCategories", () => {
     );
 
     await expect(getCatalogCategories()).rejects.toThrow("500");
+  });
+});
+
+describe("getProductCategorySlug", () => {
+  const CATEGORY_URL = `${BACKEND_ORIGIN}/api/products/3850102123456/category`;
+
+  it("reads the category the backend placed the product in", async () => {
+    server.use(
+      http.get(CATEGORY_URL, () =>
+        HttpResponse.json({
+          ean: "3850102123456",
+          department: "mlijecni-proizvodi",
+          category: "mlijeko",
+        }),
+      ),
+    );
+
+    await expect(getProductCategorySlug("3850102123456")).resolves.toBe(
+      "mlijeko",
+    );
+  });
+
+  it("answers null on an outage, so the page only loses that breadcrumb", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    server.use(
+      http.get(CATEGORY_URL, () => new HttpResponse(null, { status: 503 })),
+    );
+
+    await expect(getProductCategorySlug("3850102123456")).resolves.toBeNull();
+  });
+
+  it("answers null quietly for a product no category holds, and asks only once", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    let asked = 0;
+    const url = `${BACKEND_ORIGIN}/api/products/3850102999999/category`;
+    server.use(
+      http.get(url, () => {
+        asked++;
+
+        return new HttpResponse(null, { status: 404 });
+      }),
+    );
+
+    await expect(getProductCategorySlug("3850102999999")).resolves.toBeNull();
+    await expect(getProductCategorySlug("3850102999999")).resolves.toBeNull();
+
+    expect(asked).toBe(1);
+    expect(warn).not.toHaveBeenCalled();
   });
 });

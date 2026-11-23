@@ -17,6 +17,7 @@ import {
   catalogDepartmentSchema,
   categoryProductSchema,
   categoryProductsPageSchema,
+  productCategorySchema,
   contactMessageDtoSchema,
   contactMessageRequestSchema,
   digitalCardDtoSchema,
@@ -77,6 +78,7 @@ const MIRRORED_DTOS: Record<string, z.ZodType> = {
   FavoriteStoreDto: favoriteStoreDtoSchema,
   ListedEansDto: listedEansResponseSchema,
   PageDtoCategoryProductDto: categoryProductsPageSchema,
+  ProductCategoryDto: productCategorySchema,
   PageInfoDto: pageInfoSchema,
   PinnedPlaceDto: pinnedPlaceDtoSchema,
   PinnedStoreDto: pinnedStoreDtoSchema,
@@ -107,8 +109,6 @@ const DTOS_WITHOUT_A_ZOD_SCHEMA = [
   "PinnedStoreRequest",
   "SetMainRequest",
   "UpdateAccountTypeRequest",
-  // The product page's category breadcrumb, which no frontend code reads yet.
-  "ProductCategoryDto",
 ];
 
 const NO_BACKEND_VALUES = "zod enum, backend states no values";

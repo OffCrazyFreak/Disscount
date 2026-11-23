@@ -15,9 +15,7 @@ import {
 } from "@/app/[locale]/categories/utils/category-page";
 import { categoryPriceFacts } from "@/app/[locale]/categories/utils/category-price-facts";
 import { livePricedProducts } from "@/app/[locale]/categories/utils/live-priced-products";
-import Breadcrumbs from "@/components/custom/common/breadcrumbs";
-import JsonLdScript from "@/components/custom/common/json-ld-script";
-import { localizedUrl } from "@/i18n/alternates";
+import PageBreadcrumbs from "@/components/custom/common/page-breadcrumbs";
 import {
   CATEGORY_PAGE_SIZE,
   getCatalogCategories,
@@ -25,7 +23,6 @@ import {
 } from "@/lib/api/catalog-categories/server";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { getServerProduct } from "@/lib/cijene-api/server/get-product";
-import { breadcrumbListJsonLd } from "@/utils/breadcrumb-json-ld";
 import {
   CATEGORIES_PATH,
   categoryPageUrl,
@@ -103,23 +100,17 @@ export default async function CategoryPage(props: CategoryPageProps) {
     throw new Error(`Prices for category ${category.slug} are unavailable`);
   }
 
-  const crumbs = [
-    { label: t("breadcrumbs.home"), href: "/" },
-    { label: t("breadcrumbs.categories"), href: CATEGORIES_PATH },
-    { label: name },
-  ];
-
   return (
     <div className="space-y-4">
-      <JsonLdScript
-        data={breadcrumbListJsonLd([
-          { name: crumbs[0].label, url: localizedUrl("/", locale) },
-          { name: crumbs[1].label, url: localizedUrl(CATEGORIES_PATH, locale) },
-          { name, url: localizedUrl(categoryPath(category.slug), locale) },
-        ])}
+      <PageBreadcrumbs
+        label={t("breadcrumbs.label")}
+        locale={locale}
+        steps={[
+          { label: t("breadcrumbs.home"), path: "/" },
+          { label: t("breadcrumbs.categories"), path: CATEGORIES_PATH },
+          { label: name, path: categoryPath(category.slug) },
+        ]}
       />
-
-      <Breadcrumbs label={t("breadcrumbs.label")} items={crumbs} />
 
       <h1>{name}</h1>
 

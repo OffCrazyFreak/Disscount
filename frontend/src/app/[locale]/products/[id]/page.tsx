@@ -4,6 +4,10 @@ import { HydrationBoundary } from "@tanstack/react-query";
 import { getLocale, getTranslations } from "next-intl/server";
 import ProductDetailClient from "@/app/[locale]/products/[id]/components/product-detail-client";
 import ProductJsonLd from "@/app/[locale]/products/[id]/components/product-json-ld";
+import { productBreadcrumbSteps } from "@/app/[locale]/products/[id]/utils/product-breadcrumbs";
+import { categoryName } from "@/app/[locale]/categories/utils/category-names";
+import PageBreadcrumbs from "@/components/custom/common/page-breadcrumbs";
+import { getProductCategorySlug } from "@/lib/api/catalog-categories/server";
 import { productMetadata } from "@/app/[locale]/products/[id]/utils/product-metadata";
 import {
   getVerifiedMainPhotoUrl,
@@ -86,14 +90,33 @@ export default async function ProductDetailsPage(
   const { product } = result;
   const locale = await getLocale();
   // Awaited rather than streamed, so crawlers without JavaScript find the product, its photo and its prices in <main>.
-  const [photos, prices] = await Promise.all([
+  const [photos, prices, categorySlug, t, tShell] = await Promise.all([
     getVerifiedProductImages(product.ean),
     getServerProductPrices(ean),
+    getProductCategorySlug(product.ean),
+    getTranslations("categories"),
+    getTranslations("shell"),
   ]);
   const photoUrl = await getVerifiedMainPhotoUrl(product.ean);
 
+  const breadcrumbSteps = productBreadcrumbSteps({
+    ean: product.ean,
+    productName: product.name || product.ean,
+    homeLabel: t("breadcrumbs.home"),
+    productsLabel: tShell("nav.products"),
+    category: categorySlug
+      ? { slug: categorySlug, name: categoryName(t, categorySlug) }
+      : null,
+  });
+
   return (
-    <>
+    <div className="space-y-4">
+      <PageBreadcrumbs
+        label={t("breadcrumbs.label")}
+        steps={breadcrumbSteps}
+        locale={locale}
+      />
+
       <ProductJsonLd
         product={product}
         url={productPageUrl(product.ean, locale)}
@@ -110,6 +133,6 @@ export default async function ProductDetailsPage(
       >
         <ProductDetailClient ean={rawId} today={today} />
       </HydrationBoundary>
-    </>
+    </div>
   );
 }

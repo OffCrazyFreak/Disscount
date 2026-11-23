@@ -10,7 +10,7 @@ import {
   hubRobots,
   isHubIndexable,
 } from "@/app/[locale]/categories/utils/category-page";
-import Breadcrumbs from "@/components/custom/common/breadcrumbs";
+import PageBreadcrumbs from "@/components/custom/common/page-breadcrumbs";
 import { Link } from "@/i18n/navigation";
 import { localizedUrl } from "@/i18n/alternates";
 import { getCatalogCategories } from "@/lib/api/catalog-categories/server";
@@ -31,6 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function CategoriesPage() {
   // The backend is not reachable while the Docker image builds, so this renders per request.
   await connection();
+  const locale = await getLocale();
   const t = await getTranslations("categories");
   const { departments, categories } = await getCatalogCategories();
 
@@ -45,12 +46,13 @@ export default async function CategoriesPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs
+      <PageBreadcrumbs
         label={t("breadcrumbs.label")}
-        items={[
-          { label: t("breadcrumbs.home"), href: "/" },
-          { label: t("breadcrumbs.categories") },
+        steps={[
+          { label: t("breadcrumbs.home"), path: "/" },
+          { label: t("breadcrumbs.categories"), path: CATEGORIES_PATH },
         ]}
+        locale={locale}
       />
 
       <h1>{t("index.heading")}</h1>
