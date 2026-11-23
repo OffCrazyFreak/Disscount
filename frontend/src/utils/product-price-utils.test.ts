@@ -5,6 +5,7 @@ import {
   getCheapestChainByMinPrice,
   getMaxPrice,
   getMinPrice,
+  getNewestPriceDate,
   isPriceDateToday,
   parsePrice,
 } from "@/utils/product-price-utils";
@@ -75,5 +76,20 @@ describe("getCheapestChainByMinPrice", () => {
 
   it("is null when nothing is priced", () => {
     expect(getCheapestChainByMinPrice([chain("spar", "")])).toBeNull();
+  });
+});
+
+describe("getNewestPriceDate", () => {
+  it("picks the latest day any chain published", () => {
+    const older = { ...chain("konzum", "1.00"), price_date: "2026-10-11" };
+    const newest = { ...chain("lidl", "1.10"), price_date: "2026-10-14" };
+
+    expect(
+      getNewestPriceDate(product([older, newest, chain("spar", "1")])),
+    ).toBe("2026-10-14");
+  });
+
+  it("has no date for a product no chain sells", () => {
+    expect(getNewestPriceDate(product())).toBeNull();
   });
 });

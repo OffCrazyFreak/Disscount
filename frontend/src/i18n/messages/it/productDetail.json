@@ -17,6 +17,7 @@
   },
   "chains": {
     "refreshed": "Prezzi aggiornati {time}",
+    "publishedOn": "Prezzi pubblicati il {date}",
     "loadError": "Impossibile caricare i prezzi. Riprova.",
     "offline": "Prezzi non salvati per l'uso offline",
     "empty": "Nessun prezzo disponibile per questo prodotto.",

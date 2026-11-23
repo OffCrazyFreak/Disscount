@@ -17,6 +17,7 @@
   },
   "chains": {
     "refreshed": "Prices refreshed {time}",
+    "publishedOn": "Prices published {date}",
     "loadError": "Couldn't load prices. Try again.",
     "offline": "Prices not saved for offline use",
     "empty": "No prices available for this product.",

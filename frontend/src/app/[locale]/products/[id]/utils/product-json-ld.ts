@@ -4,6 +4,7 @@ import { getChainLabel } from "@/utils/labels";
 import {
   getMaxPrice,
   getMinPrice,
+  getNewestPriceDate,
   parsePrice,
 } from "@/utils/product-price-utils";
 
@@ -15,15 +16,6 @@ function isPublicGtin(ean: string): boolean {
   if (ean.length === 13 && ean.startsWith("2")) return false;
 
   return gs1CheckDigit(ean.slice(0, -1)) === Number(ean.slice(-1));
-}
-
-/** ISO dates sort as text, so the largest is the day a chain last published this product's prices. */
-function newestPriceDate(product: ProductResponse): string | null {
-  return product.chains.reduce<string | null>(
-    (newest, chain) =>
-      newest === null || chain.price_date > newest ? chain.price_date : newest,
-    null,
-  );
 }
 
 /** Each chain's lowest price, the "Najniža" its row on the page shows. */
@@ -53,7 +45,7 @@ interface IProductJsonLdInput {
 export function productJsonLd({ product, url, image }: IProductJsonLdInput) {
   const lowPrice = getMinPrice(product);
   const highPrice = getMaxPrice(product);
-  const priceDate = newestPriceDate(product);
+  const priceDate = getNewestPriceDate(product);
   const offers = chainOffers(product);
 
   return {
