@@ -56,9 +56,7 @@ public class ShoppingListItemService {
         ShoppingListItem item;
         if (existingItem.isPresent()) {
             item = existingItem.get();
-            int requestedAmount = request.amount() != null ? request.amount() : 1;
-            // Cap the merged total at the same limit the request DTO enforces (@Max)
-            int newAmount = Math.min(item.getAmount() + requestedAmount, 999);
+            int newAmount = Math.min(item.getAmount() + request.amountOrOne(), ShoppingListItemRequest.MAX_AMOUNT);
             item.setAmount(newAmount);
 
             if (ean != null) {
@@ -85,8 +83,8 @@ public class ShoppingListItemService {
                     .name(name)
                     .quantity(request.quantity())
                     .unit(request.unit())
-                    .amount(request.amount() != null ? request.amount() : 1)
-                    .isChecked(request.isChecked() != null ? request.isChecked() : false)
+                    .amount(request.amountOrOne())
+                    .isChecked(request.checkedOrFalse())
                     .chainCode(request.chainCode())
                     .avgPrice(request.avgPrice())
                     .storePrice(request.storePrice())
@@ -151,7 +149,7 @@ public class ShoppingListItemService {
 
     /** Structural fields stay as stored, so a SHOP caller cannot rename or resize with a fuller payload. */
     private void applyItemUpdate(ShoppingListItem item, ShoppingListItemRequest request, ListAccess access) {
-        item.setIsChecked(request.isChecked() != null ? request.isChecked() : false);
+        item.setIsChecked(request.checkedOrFalse());
         item.setChainCode(request.chainCode());
         item.setAvgPrice(request.avgPrice());
         item.setStorePrice(request.storePrice());
@@ -167,7 +165,7 @@ public class ShoppingListItemService {
         item.setName(request.name().strip());
         item.setQuantity(request.quantity());
         item.setUnit(request.unit());
-        item.setAmount(request.amount() != null ? request.amount() : 1);
+        item.setAmount(request.amountOrOne());
     }
 
     /** Item activity reorders the owner's list index, which sorts by updatedAt. */
