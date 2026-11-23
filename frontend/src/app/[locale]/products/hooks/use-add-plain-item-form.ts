@@ -28,7 +28,7 @@ import { MAX_SHOPPING_LIST_ITEM_NAME_LENGTH } from "@/constants/shopping-list";
 import {
   mergesIntoExisting,
   nameKey,
-} from "@/app/[locale]/(user)/shopping-lists/utils/item-merge";
+} from "@/app/[locale]/products/utils/item-merge";
 
 const EMPTY_FORM_VALUES: AddToListFormData = {
   shoppingListId: "",

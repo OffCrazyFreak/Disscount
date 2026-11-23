@@ -13,7 +13,7 @@ import type {
 } from "@/app/[locale]/products/typings/add-to-list";
 import { buildShoppingListItemRequest } from "@/app/[locale]/products/utils/shopping-list-item-request";
 import { closeModalUrl, openModalUrl } from "@/lib/modal/modal-navigation";
-import { mergesIntoExisting } from "@/app/[locale]/(user)/shopping-lists/utils/item-merge";
+import { mergesIntoExisting } from "@/app/[locale]/products/utils/item-merge";
 import { stashModalError } from "@/lib/modal/modal-error-bus";
 import { isLimitReached } from "@/lib/limits/limit-reached";
 
