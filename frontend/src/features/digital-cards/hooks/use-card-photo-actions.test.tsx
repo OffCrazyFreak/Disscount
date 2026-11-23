@@ -43,7 +43,13 @@ async function uploadFront() {
   const { result } = renderHookWithProviders(() =>
     useCardPhotoActions(CARD_ID),
   );
-  await act(() => result.current.upload("front", new File(["x"], "p.jpg")));
+  await act(async () => {
+    const queued = await result.current.queueUpload(
+      "front",
+      new File(["x"], "p.jpg"),
+    );
+    if (queued) await result.current.send(queued);
+  });
   return result;
 }
 

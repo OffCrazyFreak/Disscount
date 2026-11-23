@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import type { CardPhotoChanges } from "@/features/digital-cards/components/forms/digital-card-form-types";
+import type { IQueuedCardPhoto } from "@/features/digital-cards/hooks/use-card-photo-actions";
 import { toCardRequest } from "@/features/digital-cards/utils/form/digital-card-form-values";
 import { stashPendingCard } from "@/features/digital-cards/utils/pending-card-stash";
 import { CARD_PHOTO_SLOTS, type CardPhotoSlot } from "@/constants/card-codes";
@@ -24,8 +25,15 @@ interface IUseDigitalCardFormSubmitProps {
   // The modal lingers briefly after closing, so a quick reopen would reuse a saved card's id.
   onSaved: () => void;
   photoActions: {
-    upload: (slot: CardPhotoSlot, file: File) => Promise<void>;
-    remove: (slot: CardPhotoSlot) => Promise<void>;
+    queueUpload: (
+      slot: CardPhotoSlot,
+      file: File,
+    ) => Promise<IQueuedCardPhoto | undefined>;
+    queueRemoval: (
+      slot: CardPhotoSlot,
+    ) => Promise<IQueuedCardPhoto | undefined>;
+    send: (queued: IQueuedCardPhoto) => Promise<void>;
+    discard: (queued: IQueuedCardPhoto) => Promise<void>;
   };
 }
 
@@ -58,13 +66,18 @@ export function useDigitalCardFormSubmit({
     });
     const removals = CARD_PHOTO_SLOTS.filter((slot) => photos[slot] === null);
 
-    let uploading: Promise<unknown> | undefined;
-    function startUploads() {
-      uploading ??= Promise.all([
-        ...uploads.map(({ slot, file }) => photoActions.upload(slot, file)),
-        ...removals.map((slot) => photoActions.remove(slot)),
-      ]);
-      return uploading;
+    // Queued before the save answers, so photos picked on a weak signal survive the app closing meanwhile.
+    const queueing = Promise.all([
+      ...uploads.map(({ slot, file }) => photoActions.queueUpload(slot, file)),
+      ...removals.map((slot) => photoActions.queueRemoval(slot)),
+    ]).then((queued) => queued.filter((entry) => entry !== undefined));
+
+    let sending: Promise<unknown> | undefined;
+    function sendQueuedPhotos() {
+      sending ??= queueing.then((queued) =>
+        Promise.all(queued.map((entry) => photoActions.send(entry))),
+      );
+      return sending;
     }
 
     try {
@@ -73,12 +86,16 @@ export function useDigitalCardFormSubmit({
         data: toCardRequest(data),
       });
 
-      // A paused save may outlive the tab, so offline uploads land in the outbox, which survives a reload.
-      if (offline) void startUploads();
+      // A paused save may outlive the tab; the outbox sends these after it, so here they only show as queued.
+      if (offline) void sendQueuedPhotos();
 
       await saving;
     } catch (error) {
       if (draft) setFormDraft(draftKey, draft.values, draft.savedAt);
+
+      // This submit's photos must not follow a card that was refused; the reopened form gets them back.
+      const queued = await queueing;
+      await Promise.all(queued.map((entry) => photoActions.discard(entry)));
 
       // The limit dialog explains it; the draft stays for when there is room again.
       if (isLimitReached(error)) return;
@@ -88,8 +105,7 @@ export function useDigitalCardFormSubmit({
         id: cardId,
         codeValue: data.codeValue,
         barcodeValue: data.barcodeValue ?? null,
-        // Offline, the photo changes already sit in the outbox; stashing them too would send twice.
-        photos: uploading ? undefined : photos,
+        photos,
       });
       openModalUrl(
         isEdit
@@ -102,8 +118,8 @@ export function useDigitalCardFormSubmit({
     toast.success(t("saved"));
     onSaved();
 
-    // The card exists server-side only now, so photos can follow; failures report and queue themselves.
-    await startUploads();
+    // The card exists server-side only now, so photos can follow; failures report and stay queued themselves.
+    await sendQueuedPhotos();
   }
 
   return { onSubmit, isLoading: saveMutation.isPending };

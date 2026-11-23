@@ -15,6 +15,7 @@ import {
   canWriteAfterPurges,
   currentPurgeGeneration,
 } from "@/lib/offline/cache/purge-gate";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/writes/offline-mutation-keys";
 import { isQueuedWriteExpired } from "@/lib/offline/writes/queued-write-expiry";
 import {
   photoSlotKey,
@@ -101,6 +102,19 @@ export function enqueueCardPhotoRemoval(cardId: string, slot: CardPhotoSlot) {
   return writeEntry(cardId, slot, async (base) => ({ ...base, op: "delete" }));
 }
 
+/** By nonce, so a newer choice queued for the slot meanwhile stays. */
+export function discardQueuedCardPhoto(
+  cardId: string,
+  slot: CardPhotoSlot,
+  nonce: string,
+) {
+  return deleteIf<IOutboxEntry>(
+    entryKey(getCacheIdentity(), cardId, slot),
+    outboxStore(),
+    (entry) => entry?.nonce === nonce,
+  );
+}
+
 /** True when an upload (not a removal) is waiting for the slot. */
 export async function hasQueuedCardPhoto(cardId: string, slot: CardPhotoSlot) {
   const entry = await get<IOutboxEntry>(
@@ -149,6 +163,46 @@ export type PhotoToastTranslator = (
   key: "offline.photoDeleteFailed" | "offline.photoSendFailed",
 ) => string;
 
+/** Its photos wait for the submit that queued them, or a replay now would answer 404 and drop them. */
+function hasPendingCardSave(queryClient: QueryClient, cardId: string) {
+  return queryClient
+    .getMutationCache()
+    .findAll({ mutationKey: OFFLINE_MUTATION_KEYS.digitalCardSave })
+    .some(
+      (mutation) =>
+        mutation.state.status === "pending" &&
+        (mutation.state.variables as { id?: string } | undefined)?.id ===
+          cardId,
+    );
+}
+
+async function readReplayable(
+  queryClient: QueryClient,
+  key: string,
+  identity: string,
+) {
+  const entry = await get<IOutboxEntry>(key, outboxStore());
+  if (!entry || entry.identity !== identity) return undefined;
+
+  return hasPendingCardSave(queryClient, entry.cardId) ? undefined : entry;
+}
+
+function announceDropped(
+  entry: IOutboxEntry,
+  error: unknown,
+  t: PhotoToastTranslator,
+) {
+  if (httpStatus(error) === 404) return;
+
+  toast.error(
+    t(
+      entry.op === "delete"
+        ? "offline.photoDeleteFailed"
+        : "offline.photoSendFailed",
+    ),
+  );
+}
+
 async function replayOnce(queryClient: QueryClient, t: PhotoToastTranslator) {
   const identity = getCacheIdentity();
   const prefix = `${identity}:`;
@@ -160,25 +214,16 @@ async function replayOnce(queryClient: QueryClient, t: PhotoToastTranslator) {
     // The account or listing may have changed, so re-read rather than send a dequeued entry.
     if (getCacheIdentity() !== identity) return;
 
-    const peeked = await get<IOutboxEntry>(key, outboxStore());
-    if (!peeked || peeked.identity !== identity) continue;
+    const entry = await readReplayable(queryClient, key, identity);
+    if (!entry) continue;
 
     const { outcome, error } = await sendQueuedCardPhoto(
       queryClient,
-      peeked.cardId,
-      peeked.slot,
+      entry.cardId,
+      entry.slot,
     );
     if (outcome === "kept") return;
-
-    if (outcome === "dropped" && httpStatus(error) !== 404) {
-      toast.error(
-        t(
-          peeked.op === "delete"
-            ? "offline.photoDeleteFailed"
-            : "offline.photoSendFailed",
-        ),
-      );
-    }
+    if (outcome === "dropped") announceDropped(entry, error, t);
   }
 }
 

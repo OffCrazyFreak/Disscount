@@ -1,7 +1,9 @@
+import { QueryClient } from "@tanstack/react-query";
 import { AxiosError, type AxiosResponse } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { trackPurge } from "@/lib/offline/cache/purge-gate";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/writes/offline-mutation-keys";
 
 const db = new Map<string, unknown>();
 const upload = vi.fn();
@@ -36,8 +38,12 @@ vi.mock("@/lib/offline/cache/cache-identity", () => ({
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
 
-const { enqueueCardPhoto, enqueueCardPhotoRemoval, sendQueuedCardPhoto } =
-  await import("@/lib/offline/card-photos/card-photo-outbox");
+const {
+  enqueueCardPhoto,
+  enqueueCardPhotoRemoval,
+  replayCardPhotoOutbox,
+  sendQueuedCardPhoto,
+} = await import("@/lib/offline/card-photos/card-photo-outbox");
 
 const client = {} as Parameters<typeof sendQueuedCardPhoto>[0];
 function photo(name: string) {
@@ -155,5 +161,30 @@ describe("enqueueCardPhoto", () => {
 
     expect(await queued).toBeUndefined();
     expect(db.size).toBe(0);
+  });
+});
+
+describe("replayCardPhotoOutbox", () => {
+  beforeEach(() => {
+    db.clear();
+    upload.mockReset();
+  });
+
+  it("leaves a photo for a card whose save is still on its way", async () => {
+    // The replay skips a browser without IndexedDB, and idb-keyval is mocked here.
+    vi.stubGlobal("indexedDB", {});
+    const queryClient = new QueryClient();
+    const saving = queryClient.getMutationCache().build(queryClient, {
+      mutationKey: OFFLINE_MUTATION_KEYS.digitalCardSave,
+      mutationFn: () => new Promise(() => undefined),
+    });
+    void saving.execute({ id: "card", data: {} });
+    await vi.waitFor(() => expect(saving.state.status).toBe("pending"));
+
+    await enqueueCardPhoto("card", "front", photo("a"));
+    await replayCardPhotoOutbox(queryClient, (key) => key);
+
+    expect(upload).not.toHaveBeenCalled();
+    expect(db.has("user:card:front")).toBe(true);
   });
 });
