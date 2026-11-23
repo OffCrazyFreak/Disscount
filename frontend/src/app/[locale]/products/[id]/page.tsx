@@ -4,10 +4,7 @@ import { HydrationBoundary } from "@tanstack/react-query";
 import { getLocale, getTranslations } from "next-intl/server";
 import ProductDetailClient from "@/app/[locale]/products/[id]/components/product-detail-client";
 import ProductJsonLd from "@/app/[locale]/products/[id]/components/product-json-ld";
-import {
-  productMetadata,
-  translatedProductRobots,
-} from "@/app/[locale]/products/[id]/utils/product-metadata";
+import { productMetadata } from "@/app/[locale]/products/[id]/utils/product-metadata";
 import {
   getVerifiedMainPhotoUrl,
   getVerifiedProductImages,
@@ -37,13 +34,12 @@ export async function generateMetadata(
     };
   }
 
-  // Upstream is down: keep the generic page metadata rather than mark a real product noindex.
+  // The page answers an outage with a 5xx, so this title only names the error page's tab.
   if (result.status === "unavailable") {
     return {
       title: t("meta.title"),
-      description: t("meta.description"),
-      alternates: { canonical: productPageUrl(id, locale) },
-      ...translatedProductRobots(locale),
+      // Next merges metadata shallowly, so leaving alternates out would keep the layout's self canonical.
+      alternates: { canonical: null },
     };
   }
 
@@ -82,8 +78,9 @@ export default async function ProductDetailsPage(
   // No loading.tsx sits above this page, so nothing has streamed yet and the 404 status holds.
   if (result.status === "missing") notFound();
 
+  // Crawlers read a 5xx as temporary and retry, while a 200 shell or a noindex could drop a real product.
   if (result.status === "unavailable") {
-    return <ProductDetailClient ean={rawId} today={today} />;
+    throw new Error(`Price API unavailable for product ${ean}`);
   }
 
   const { product } = result;

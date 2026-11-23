@@ -73,7 +73,7 @@ export function productMetadata({
 }
 
 /** Translations around Croatian product data read as thin duplicates, so only Croatian is indexed. */
-export function translatedProductRobots(locale: AppLocale): Metadata {
+function translatedProductRobots(locale: AppLocale): Metadata {
   if (locale === DEFAULT_LOCALE) return {};
 
   return {
