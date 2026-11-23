@@ -7,7 +7,7 @@ import MapPanel from "@/app/[locale]/map/components/map-panel";
 import MapSearchBar from "@/app/[locale]/map/components/map-search-bar";
 import MapStoreSheet from "@/app/[locale]/map/components/map-store-sheet";
 import { IMapViewModel } from "@/app/[locale]/map/hooks/use-map-view-model";
-import { useNavClearance } from "@/app/[locale]/map/hooks/use-nav-clearance";
+import { useOffsetHeight } from "@/app/[locale]/map/hooks/use-offset-height";
 import { IViewArea } from "@/app/[locale]/map/utils/view-area";
 
 interface IMapMobileLayoutProps {
@@ -26,7 +26,7 @@ export default function MapMobileLayout({
 }: IMapMobileLayoutProps) {
   const locateRef = useRef<HTMLButtonElement>(null);
   const navProbeRef = useRef<HTMLDivElement>(null);
-  const navHeight = useNavClearance(navProbeRef);
+  const navHeight = useOffsetHeight(navProbeRef);
   const [sheetHeight, setSheetHeight] = useState(0);
   const [isSearchOpen, setSearchOpen] = useState(false);
   const sheetRow = isSearchOpen ? null : model.selected;

@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
@@ -12,6 +12,7 @@ import MapSearch from "@/app/[locale]/map/components/map-search";
 import MapSearchSurface from "@/app/[locale]/map/components/map-search-surface";
 import MapStorePopover from "@/app/[locale]/map/components/map-store-popover";
 import { IMapViewModel } from "@/app/[locale]/map/hooks/use-map-view-model";
+import { useOffsetHeight } from "@/app/[locale]/map/hooks/use-offset-height";
 import { useMorphTransition } from "@/app/[locale]/map/hooks/use-morph-transition";
 import { useSearchOpener } from "@/app/[locale]/map/hooks/use-search-opener";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
@@ -36,7 +37,8 @@ export default function MapDesktopLayout({
   const t = useTranslations("map.layout");
   const locateRef = useRef<HTMLButtonElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
-  const [rowHeight, setRowHeight] = useState(0);
+  // The closed surface hugs the field's row, the box the open panel grows from.
+  const rowHeight = useOffsetHeight(rowRef);
   const [isSearchOpen, setSearchOpen] = useState(false);
 
   // A store without a pin has nowhere to show but its open row, so it keeps the search open.
@@ -59,17 +61,6 @@ export default function MapDesktopLayout({
 
   const opener = useSearchOpener({ isOpen, onOpenChange: changeOpen });
   const transition = useMorphTransition(isOpen);
-
-  // The closed surface hugs the field's row, the box the open panel grows from.
-  useEffect(() => {
-    const row = rowRef.current;
-    if (!row) return;
-
-    const observer = new ResizeObserver(() => setRowHeight(row.offsetHeight));
-    observer.observe(row);
-
-    return () => observer.disconnect();
-  }, []);
 
   const popover = (
     <MapStorePopover
