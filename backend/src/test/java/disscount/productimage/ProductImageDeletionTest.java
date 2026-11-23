@@ -6,7 +6,7 @@ import disscount.config.UploadLimitConfig;
 import disscount.productimage.ProductImageDtos.ContributorPhotoCountDto;
 import disscount.productimage.jobs.OffCandidateWriter;
 import disscount.productimage.openfoodfacts.OpenFoodFactsClient;
-import disscount.productimage.render.ProductImageRenderer;
+import disscount.shared.photo.PhotoBytes;
 import disscount.productimage.render.ProductImageRendering;
 import disscount.shared.errors.BadRequestException;
 import disscount.shared.photo.FakePhotoStore;
@@ -73,7 +73,7 @@ class ProductImageDeletionTest {
         writes.upload(ana, EAN, jpeg(400, 300));
         ProductImage photo = images.findByEanOrderByCreatedAtAsc(EAN).get(0);
         writes.report(marko, photo.getId());
-        String cleanedHash = ProductImageRenderer.sha256(originals.objects.values().iterator().next());
+        String cleanedHash = PhotoBytes.sha256(originals.objects.values().iterator().next());
 
         assertThat(admin.delete(adminId, photo.getId()).images()).isEmpty();
 

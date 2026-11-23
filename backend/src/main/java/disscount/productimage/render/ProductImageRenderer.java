@@ -8,9 +8,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HexFormat;
 import java.util.Iterator;
 
 import javax.imageio.IIOImage;
@@ -25,6 +22,7 @@ import com.luciad.imageio.webp.CompressionType;
 import com.luciad.imageio.webp.WebPWriteParam;
 
 import disscount.shared.errors.BadRequestException;
+import disscount.shared.photo.PhotoBytes;
 
 /** White is painted into the pixels because dark mode extensions recolour CSS backgrounds but not image pixels. */
 public final class ProductImageRenderer {
@@ -72,7 +70,7 @@ public final class ProductImageRenderer {
 
         byte[] fullBytes = encode(full, FULL_MAX_BYTES);
         return new Rendered(fullBytes, full.getWidth(), full.getHeight(), encode(small, SMALL_MAX_BYTES),
-                sha256(fullBytes), sourceWidth, sourceHeight);
+                PhotoBytes.sha256(fullBytes), sourceWidth, sourceHeight);
     }
 
     public static int normalizeRotation(int rotation) {
@@ -244,14 +242,6 @@ public final class ProductImageRenderer {
             throw new IllegalStateException("WebP encoding failed", e);
         } finally {
             writer.dispose();
-        }
-    }
-
-    public static String sha256(byte[] bytes) {
-        try {
-            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
         }
     }
 
