@@ -8,14 +8,14 @@ import MapSearchBar from "@/app/[locale]/map/components/map-search-bar";
 import MapStoreSheet from "@/app/[locale]/map/components/map-store-sheet";
 import { IMapViewModel } from "@/app/[locale]/map/hooks/use-map-view-model";
 import { useOffsetHeight } from "@/app/[locale]/map/hooks/use-offset-height";
-import { IViewArea } from "@/app/[locale]/map/utils/view-area";
+import { IMapCover, IViewArea } from "@/app/[locale]/map/utils/view-area";
 
 interface IMapMobileLayoutProps {
   model: IMapViewModel;
   viewArea: IViewArea | null;
   map: ReactNode;
-  /** Pixels at the map's bottom the store sheet or the bottom nav covers. */
-  onCoverChange: (height: number) => void;
+  /** What the store sheet or the bottom nav covers of the map. */
+  onCoverChange: (cover: IMapCover) => void;
 }
 
 export default function MapMobileLayout({
@@ -38,7 +38,7 @@ export default function MapMobileLayout({
 
   // The map runs under the nav, so pins fitted with the sheet closed must still clear it.
   useEffect(() => {
-    onCoverChange(Math.max(sheetHeight, navHeight));
+    onCoverChange({ bottom: Math.max(sheetHeight, navHeight), right: 0 });
   }, [sheetHeight, navHeight, onCoverChange]);
 
   return (

@@ -10,7 +10,11 @@ import StoreMapLoader from "@/app/[locale]/map/components/store-map-loader";
 import { useMapViewModel } from "@/app/[locale]/map/hooks/use-map-view-model";
 
 import type { IIpLocation } from "@/app/[locale]/map/utils/ip-location";
-import { IViewArea } from "@/app/[locale]/map/utils/view-area";
+import {
+  IMapCover,
+  IViewArea,
+  NO_COVER,
+} from "@/app/[locale]/map/utils/view-area";
 
 interface IMapClientProps {
   /** Cloudflare's guess from the IP, read on the server for this request. */
@@ -21,7 +25,7 @@ export default function MapClient({ ipLocation }: IMapClientProps) {
   const model = useMapViewModel(ipLocation);
   const isMobile = useIsMobile();
   const [viewArea, setViewArea] = useState<IViewArea | null>(null);
-  const [coveredHeight, setCoveredHeight] = useState(0);
+  const [cover, setCover] = useState<IMapCover>(NO_COVER);
 
   function renderMap(
     overlay?: ReactNode,
@@ -41,7 +45,7 @@ export default function MapClient({ ipLocation }: IMapClientProps) {
         }
         centerRequest={model.geolocation.centerRequest}
         initialView={model.initialView}
-        coveredHeight={isMobile ? coveredHeight : 0}
+        cover={isMobile ? cover : NO_COVER}
         onViewChange={setViewArea}
       >
         {overlay}
@@ -56,7 +60,7 @@ export default function MapClient({ ipLocation }: IMapClientProps) {
           model={model}
           viewArea={viewArea}
           map={renderMap()}
-          onCoverChange={setCoveredHeight}
+          onCoverChange={setCover}
         />
       ) : (
         <MapDesktopLayout

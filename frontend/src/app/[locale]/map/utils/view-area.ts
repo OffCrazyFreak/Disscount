@@ -15,13 +15,22 @@ export function sameView(a: IViewArea | null, b: IViewArea | null) {
   );
 }
 
-/** The part of the map not hidden under the phone sheet, or null if none is. */
+/** Map pixels hidden at the bottom (the phone sheet or nav) and at the right (the desktop search panel). */
+export interface IMapCover {
+  bottom: number;
+  right: number;
+}
+
+export const NO_COVER: IMapCover = { bottom: 0, right: 0 };
+
+/** The part of the map nothing covers, or null if none is left. */
 export function readVisibleArea(
   map: MapLibreMap,
-  coveredBottom: number,
+  cover: IMapCover,
 ): IViewArea | null {
-  const { clientWidth: width, clientHeight } = map.getCanvas();
-  const height = clientHeight - coveredBottom;
+  const { clientWidth, clientHeight } = map.getCanvas();
+  const width = clientWidth - cover.right;
+  const height = clientHeight - cover.bottom;
   if (width <= 0 || height <= 0) return null;
 
   // All four corners, because a north-aligned box on a rotated map counts hidden stores.

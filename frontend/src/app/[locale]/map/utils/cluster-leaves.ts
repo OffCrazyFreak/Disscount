@@ -1,4 +1,5 @@
 import type { LngLatBoundsLike } from "maplibre-gl";
+import type { IMapCover } from "@/app/[locale]/map/utils/view-area";
 
 export interface IClusterLeaf {
   key: string;
@@ -30,17 +31,17 @@ export function leafBounds(leaves: IClusterLeaf[]): LngLatBoundsLike {
 }
 
 /** MapLibre refuses to move when padding outgrows the canvas, so the margin shrinks to fit. */
-export function fitPadding(
-  width: number,
-  height: number,
-  coveredBottom: number,
-) {
-  const margin = Math.min(64, width / 4, (height - coveredBottom) / 4);
+export function fitPadding(width: number, height: number, cover: IMapCover) {
+  const margin = Math.min(
+    64,
+    (width - cover.right) / 4,
+    (height - cover.bottom) / 4,
+  );
 
   return {
     top: margin,
-    right: margin,
-    bottom: coveredBottom + margin,
+    right: cover.right + margin,
+    bottom: cover.bottom + margin,
     left: margin,
   };
 }

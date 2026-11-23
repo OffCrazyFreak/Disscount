@@ -40,7 +40,7 @@ const props = {
   userLocation: null,
   centerRequest: null,
   initialView: null,
-  coveredHeight: 0,
+  cover: { bottom: 0, right: 0 },
   onViewChange: vi.fn(),
 };
 

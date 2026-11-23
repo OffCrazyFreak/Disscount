@@ -34,7 +34,7 @@ import {
 } from "@/app/[locale]/map/utils/map-view";
 import { toStoreCollection } from "@/app/[locale]/map/utils/store-geojson";
 import { INTERACTIVE_LAYER_IDS } from "@/app/[locale]/map/utils/store-layers";
-import { IViewArea } from "@/app/[locale]/map/utils/view-area";
+import { IMapCover, IViewArea } from "@/app/[locale]/map/utils/view-area";
 import { storeNamesMap } from "@/constants/name-mappings";
 
 const ALL_CHAINS = Object.keys(storeNamesMap);
@@ -46,8 +46,8 @@ export interface IStoreMapViewProps {
   userLocation: IUserLocation | null;
   centerRequest: ICenterRequest | null;
   initialView: (ILatLon & { zoom: number }) | null;
-  /** Pixels at the map's bottom under the phone sheet or nav, 0 on desktop. */
-  coveredHeight: number;
+  /** What the phone sheet or nav, or the desktop search panel, hides of the map. */
+  cover: IMapCover;
   onViewChange: (area: IViewArea | null) => void;
   mapStyle: StyleSpecification;
   onContextLost: () => void;
@@ -64,7 +64,7 @@ export default function StoreMapView({
   userLocation,
   centerRequest,
   initialView,
-  coveredHeight,
+  cover,
   onViewChange,
   mapStyle,
   onContextLost,
@@ -91,14 +91,14 @@ export default function StoreMapView({
     initialView,
   });
 
-  const { coveredBottom, reportView } = useViewReport({
+  const { visibleCover, reportView } = useViewReport({
     mapRef,
     mapReady,
-    coveredHeight,
+    cover,
     onViewChange,
   });
 
-  const clicks = useMapClicks({ mapRef, onSelect, coveredBottom });
+  const clicks = useMapClicks({ mapRef, onSelect, cover: visibleCover });
 
   return (
     <Map

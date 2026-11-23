@@ -7,6 +7,7 @@ import {
   isSameSpot,
   leafBounds,
 } from "@/app/[locale]/map/utils/cluster-leaves";
+import type { IMapCover } from "@/app/[locale]/map/utils/view-area";
 
 type ILeafFeature = Awaited<
   ReturnType<maplibregl.GeoJSONSource["getClusterLeaves"]>
@@ -21,8 +22,8 @@ export interface ISameSpot {
 interface IMapClickActions {
   onSelect: (key: string) => void;
   onSameSpot: (spot: ISameSpot) => void;
-  /** Map pixels hidden under the phone sheet, kept clear when zooming in. */
-  coveredBottom: number;
+  /** Map pixels under the sheet, nav or search panel, kept clear when zooming in. */
+  cover: IMapCover;
 }
 
 function toLeaf(feature: ILeafFeature): IClusterLeaf | null {
@@ -53,7 +54,7 @@ export type IMapFeatureRef = Pick<
 export async function handleMapFeature(
   feature: IMapFeatureRef,
   mapRef: MapRef | null,
-  { onSelect, onSameSpot, coveredBottom }: IMapClickActions,
+  { onSelect, onSameSpot, cover }: IMapClickActions,
 ) {
   const properties = feature.properties ?? {};
 
@@ -86,7 +87,7 @@ export async function handleMapFeature(
   const { clientWidth, clientHeight } = map.getCanvas();
 
   map.fitBounds(leafBounds(leaves), {
-    padding: fitPadding(clientWidth, clientHeight, coveredBottom),
+    padding: fitPadding(clientWidth, clientHeight, cover),
     maxZoom: map.getMaxZoom(),
   });
 }

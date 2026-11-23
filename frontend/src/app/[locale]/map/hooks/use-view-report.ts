@@ -3,38 +3,47 @@
 import { RefObject, useEffect, useEffectEvent } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 
-import { IViewArea, readVisibleArea } from "@/app/[locale]/map/utils/view-area";
+import {
+  IMapCover,
+  IViewArea,
+  readVisibleArea,
+} from "@/app/[locale]/map/utils/view-area";
 
 interface IUseViewReportOptions {
   mapRef: RefObject<MapRef | null>;
   mapReady: boolean;
-  /** Pixels at the map's bottom under the phone sheet or nav, 0 on desktop. */
-  coveredHeight: number;
+  /** What the sheet, nav or search panel hides of the map. */
+  cover: IMapCover;
   onViewChange: (area: IViewArea | null) => void;
 }
 
 export function useViewReport({
   mapRef,
   mapReady,
-  coveredHeight,
+  cover,
   onViewChange,
 }: IUseViewReportOptions) {
-  function coveredBottom() {
-    const map = mapRef.current?.getMap();
-    return map ? Math.min(coveredHeight, map.getCanvas().clientHeight) : 0;
+  function visibleCover(): IMapCover {
+    const canvas = mapRef.current?.getMap().getCanvas();
+    if (!canvas) return { bottom: 0, right: 0 };
+
+    return {
+      bottom: Math.min(cover.bottom, canvas.clientHeight),
+      right: Math.min(cover.right, canvas.clientWidth),
+    };
   }
 
   function reportView() {
     const map = mapRef.current?.getMap();
-    if (map) onViewChange(readVisibleArea(map, coveredBottom()));
+    if (map) onViewChange(readVisibleArea(map, visibleCover()));
   }
 
   const reportChangedView = useEffectEvent(reportView);
 
-  // The sheet moving changes how much of the map is in sight.
+  // The sheet or the panel moving changes how much of the map is in sight.
   useEffect(() => {
     if (mapReady) reportChangedView();
-  }, [mapReady, coveredHeight]);
+  }, [mapReady, cover.bottom, cover.right]);
 
-  return { coveredBottom, reportView };
+  return { visibleCover, reportView };
 }
