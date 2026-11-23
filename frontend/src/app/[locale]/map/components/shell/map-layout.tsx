@@ -53,6 +53,7 @@ export default function MapLayout({
   const canShowAtPin = mapStatus !== "unavailable" && hasPin(model.selected);
   const keepsListOpen = !isMobile && model.selected != null && !canShowAtPin;
   const isOpen = isSearchOpen || keepsListOpen;
+  const isPhoneSearchOpen = isMobile && isOpen;
   const shownRow = isOpen ? null : model.selected;
 
   function changeOpen(open: boolean) {
@@ -97,7 +98,7 @@ export default function MapLayout({
   return (
     // The phone's open search lifts the whole layer, since its own z-index only counts inside this one.
     <div
-      className={`fixed inset-0 overflow-hidden ${isMobile && isOpen ? "z-[3]" : "z-[1]"}`}
+      className={`fixed inset-0 overflow-hidden ${isPhoneSearchOpen ? "z-[3]" : "z-[1]"}`}
     >
       <div
         ref={setNavProbe}
@@ -117,7 +118,7 @@ export default function MapLayout({
       </MapSearchBar>
 
       {/* On phones the open search covers the whole map, so the map leaves the tab order. */}
-      <div className="absolute inset-0" inert={isMobile && isOpen}>
+      <div className="absolute inset-0" inert={isPhoneSearchOpen}>
         <MapStatusContext value={setMapStatus}>
           {renderMap(overlay, selectStore)}
         </MapStatusContext>
