@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { matchLocatorStore } from "@/lib/store-locations/sync/match-locator-store";
+import { matchLocatorStore } from "@/lib/store-locations/sync/matching/match-locator-store";
 import type { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 
 function target(city: string): ISyncTarget {

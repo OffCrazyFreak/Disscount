@@ -5,7 +5,7 @@ import { z } from "zod";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { weekFromLabelled } from "@/lib/store-hours/sources/parse/hours-text";
 import { fetchText } from "@/lib/store-locations/http";
-import { readPlacedAddress } from "@/lib/store-locations/sync/address-place";
+import { readPlacedAddress } from "@/lib/store-locations/sync/matching/address-place";
 import type {
   ILocatorStore,
   IStoreLocator,

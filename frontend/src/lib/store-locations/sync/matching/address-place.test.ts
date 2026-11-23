@@ -4,7 +4,7 @@ import {
   placedAddressesAgree,
   readPlacedAddress,
   townsAgree,
-} from "@/lib/store-locations/sync/address-place";
+} from "@/lib/store-locations/sync/matching/address-place";
 
 describe("readPlacedAddress", () => {
   it("takes the village after a comma out of the street", () => {

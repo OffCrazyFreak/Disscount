@@ -1,7 +1,7 @@
 import {
   placesAgree,
   readPlacedAddress,
-} from "@/lib/store-locations/sync/address-place";
+} from "@/lib/store-locations/sync/matching/address-place";
 import { streetsMatch } from "@/lib/store-locations/address-key";
 
 interface IPointRecord {

@@ -7,7 +7,7 @@ import type { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 vi.mock("server-only", () => ({}));
 
 const { withChainAddresses } =
-  await import("@/lib/store-locations/sync/address-source-step");
+  await import("@/lib/store-locations/sync/steps/address-source-step");
 
 const PAGE_URL = "https://stridon.hr/hr/distribucija/maloprodaja-4";
 

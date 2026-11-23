@@ -9,8 +9,8 @@ import {
   placesAgree,
   readPlacedAddress,
   townContains,
-} from "@/lib/store-locations/sync/address-place";
-import { withoutSharedPoints } from "@/lib/store-locations/sync/shared-points";
+} from "@/lib/store-locations/sync/matching/address-place";
+import { withoutSharedPoints } from "@/lib/store-locations/sync/matching/shared-points";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 
 /** The town has to agree too, because the same street and number exist in many towns ("Zagrebačka 10"). */

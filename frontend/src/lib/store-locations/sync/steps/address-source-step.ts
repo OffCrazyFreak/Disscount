@@ -2,7 +2,7 @@ import "server-only";
 
 import { normalizeCity, streetsMatch } from "@/lib/store-locations/address-key";
 import { fetchStridonAddresses } from "@/lib/store-locations/sources/stridon-addresses";
-import { readPlacedAddress } from "@/lib/store-locations/sync/address-place";
+import { readPlacedAddress } from "@/lib/store-locations/sync/matching/address-place";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 import type { ILookupAddress } from "@/lib/store-locations/store-location-types";
 

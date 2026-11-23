@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { withoutSharedPoints } from "@/lib/store-locations/sync/shared-points";
+import { withoutSharedPoints } from "@/lib/store-locations/sync/matching/shared-points";
 
 describe("withoutSharedPoints", () => {
   it("drops records that share a point with another address", () => {

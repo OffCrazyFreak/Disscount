@@ -3,7 +3,7 @@ import "server-only";
 import type { StoreResponse } from "@/lib/cijene-api/schemas";
 import { saveResolvedLocation } from "@/lib/store-locations/location-repository";
 import { storeLocators } from "@/lib/store-locations/sources";
-import { matchLocatorStore } from "@/lib/store-locations/sync/match-locator-store";
+import { matchLocatorStore } from "@/lib/store-locations/sync/matching/match-locator-store";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 import type { ILocatorStore } from "@/lib/store-locations/store-location-types";
 

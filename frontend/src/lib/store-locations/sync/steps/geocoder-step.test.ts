@@ -13,7 +13,7 @@ vi.mock("@/lib/store-locations/location-repository", () => ({
 }));
 
 const { resolveWithGeocoder } =
-  await import("@/lib/store-locations/sync/geocoder-step");
+  await import("@/lib/store-locations/sync/steps/geocoder-step");
 
 const PIN = {
   lat: 45.7156,

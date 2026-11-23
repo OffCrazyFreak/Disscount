@@ -7,7 +7,7 @@ import type { ILocatorStore } from "@/lib/store-locations/store-location-types";
 vi.mock("server-only", () => ({}));
 
 const { createDguAnchor } =
-  await import("@/lib/store-locations/sync/dgu-anchor");
+  await import("@/lib/store-locations/sync/steps/dgu-anchor");
 
 const target: ISyncTarget = {
   chain: "ntl",

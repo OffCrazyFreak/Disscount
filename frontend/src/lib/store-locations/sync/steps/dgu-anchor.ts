@@ -2,8 +2,8 @@ import "server-only";
 
 import type { StoreResponse } from "@/lib/cijene-api/schemas";
 import { delay } from "@/lib/store-locations/http";
-import { numberedRecord } from "@/lib/store-locations/sync/match-locator-store";
-import { withoutSharedPoints } from "@/lib/store-locations/sync/shared-points";
+import { numberedRecord } from "@/lib/store-locations/sync/matching/match-locator-store";
+import { withoutSharedPoints } from "@/lib/store-locations/sync/matching/shared-points";
 import { ISyncTarget } from "@/lib/store-locations/sync/sync-target";
 import type {
   ILocatorStore,
