@@ -17,7 +17,8 @@
   "offline": {
     "writeFailed": "Spremembe ni bilo mogoče shraniti. Poskusi znova.",
     "writeFailedLostAccess": "Spremembe ni bilo mogoče shraniti. Morda nimaš več dostopa do tega seznama.",
-    "retiredWriteDropped": "Spremembe iz starejše različice aplikacije ni bilo mogoče shraniti. Odpri seznam in preveri."
+    "retiredWriteDropped": "Spremembe iz starejše različice aplikacije ni bilo mogoče shraniti. Odpri seznam in preveri.",
+    "restoreFailed": "Podatkov, shranjenih v tej napravi, ni bilo mogoče naložiti."
   },
   "limitReached": {
     "title": "Ni več prostora",

@@ -1,5 +1,5 @@
 import type { QueryClient } from "@tanstack/react-query";
-import { createStore, del, delMany, get, keys, set } from "idb-keyval";
+import { createStore, del, delMany, get, keys } from "idb-keyval";
 import { toast } from "sonner";
 
 import type { CardPhotoSlot } from "@/constants/card-codes";
@@ -10,11 +10,16 @@ import {
 } from "@/lib/api/digital-cards/photo-queries";
 import { getCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import { failureAction, httpStatus } from "@/lib/offline/writes/failure-policy";
-import { deleteIf } from "@/lib/offline/card-photos/idb-transactions";
+import {
+  deleteIf,
+  replaceIf,
+  swap,
+} from "@/lib/offline/card-photos/idb-transactions";
 import {
   canWriteAfterPurges,
   currentPurgeGeneration,
 } from "@/lib/offline/cache/purge-gate";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/writes/offline-mutation-keys";
 import { isQueuedWriteExpired } from "@/lib/offline/writes/queued-write-expiry";
 import {
   photoSlotKey,
@@ -59,6 +64,12 @@ function toBlob({ buf, type }: IBytes) {
   return new Blob([buf], { type });
 }
 
+/** What an enqueue wrote, plus the entry it replaced, so a refused save can put that one back. */
+export interface IQueuedEntry {
+  nonce: string;
+  replaced?: IOutboxEntry;
+}
+
 async function writeEntry(
   cardId: string,
   slot: CardPhotoSlot,
@@ -77,8 +88,12 @@ async function writeEntry(
 
   if (!(await canWriteAfterPurges(generation))) return undefined;
 
-  await set(entryKey(identity, cardId, slot), entry, outboxStore());
-  return entry.nonce;
+  const replaced = await swap<IOutboxEntry>(
+    entryKey(identity, cardId, slot),
+    outboxStore(),
+    entry,
+  );
+  return { nonce: entry.nonce, replaced } satisfies IQueuedEntry;
 }
 
 /** One entry per slot, so a newer photo replaces one still waiting to be sent. */
@@ -99,6 +114,20 @@ export function enqueueCardPhoto(
 /** Replaces a waiting upload for the slot too, since the removal is the newer intent. */
 export function enqueueCardPhotoRemoval(cardId: string, slot: CardPhotoSlot) {
   return writeEntry(cardId, slot, async (base) => ({ ...base, op: "delete" }));
+}
+
+/** By nonce, so a newer choice queued for the slot meanwhile stays; the entry it replaced comes back. */
+export function discardQueuedCardPhoto(
+  cardId: string,
+  slot: CardPhotoSlot,
+  { nonce, replaced }: IQueuedEntry,
+) {
+  return replaceIf<IOutboxEntry>(
+    entryKey(getCacheIdentity(), cardId, slot),
+    outboxStore(),
+    (entry) => entry?.nonce === nonce,
+    replaced,
+  );
 }
 
 /** True when an upload (not a removal) is waiting for the slot. */
@@ -149,6 +178,46 @@ export type PhotoToastTranslator = (
   key: "offline.photoDeleteFailed" | "offline.photoSendFailed",
 ) => string;
 
+/** Its photos wait for the submit that queued them, or a replay now would answer 404 and drop them. */
+function hasPendingCardSave(queryClient: QueryClient, cardId: string) {
+  return queryClient
+    .getMutationCache()
+    .findAll({ mutationKey: OFFLINE_MUTATION_KEYS.digitalCardSave })
+    .some(
+      (mutation) =>
+        mutation.state.status === "pending" &&
+        (mutation.state.variables as { id?: string } | undefined)?.id ===
+          cardId,
+    );
+}
+
+async function readReplayable(
+  queryClient: QueryClient,
+  key: string,
+  identity: string,
+) {
+  const entry = await get<IOutboxEntry>(key, outboxStore());
+  if (!entry || entry.identity !== identity) return undefined;
+
+  return hasPendingCardSave(queryClient, entry.cardId) ? undefined : entry;
+}
+
+function announceDropped(
+  entry: IOutboxEntry,
+  error: unknown,
+  t: PhotoToastTranslator,
+) {
+  if (httpStatus(error) === 404) return;
+
+  toast.error(
+    t(
+      entry.op === "delete"
+        ? "offline.photoDeleteFailed"
+        : "offline.photoSendFailed",
+    ),
+  );
+}
+
 async function replayOnce(queryClient: QueryClient, t: PhotoToastTranslator) {
   const identity = getCacheIdentity();
   const prefix = `${identity}:`;
@@ -160,25 +229,16 @@ async function replayOnce(queryClient: QueryClient, t: PhotoToastTranslator) {
     // The account or listing may have changed, so re-read rather than send a dequeued entry.
     if (getCacheIdentity() !== identity) return;
 
-    const peeked = await get<IOutboxEntry>(key, outboxStore());
-    if (!peeked || peeked.identity !== identity) continue;
+    const entry = await readReplayable(queryClient, key, identity);
+    if (!entry) continue;
 
     const { outcome, error } = await sendQueuedCardPhoto(
       queryClient,
-      peeked.cardId,
-      peeked.slot,
+      entry.cardId,
+      entry.slot,
     );
     if (outcome === "kept") return;
-
-    if (outcome === "dropped" && httpStatus(error) !== 404) {
-      toast.error(
-        t(
-          peeked.op === "delete"
-            ? "offline.photoDeleteFailed"
-            : "offline.photoSendFailed",
-        ),
-      );
-    }
+    if (outcome === "dropped") announceDropped(entry, error, t);
   }
 }
 

@@ -25,6 +25,11 @@ vi.mock("@/lib/offline/card-photos/idb-transactions", () => ({
   ) => {
     if (matches(db.get(key))) db.delete(key);
   },
+  swap: async (key: string, _store: unknown, value: unknown) => {
+    const previous = db.get(key);
+    db.set(key, value);
+    return previous;
+  },
 }));
 // jsdom has no canvas, so the resize step is stubbed.
 vi.mock("@/features/digital-cards/utils/card-image", () => ({
@@ -43,7 +48,13 @@ async function uploadFront() {
   const { result } = renderHookWithProviders(() =>
     useCardPhotoActions(CARD_ID),
   );
-  await act(() => result.current.upload("front", new File(["x"], "p.jpg")));
+  await act(async () => {
+    const queued = await result.current.queueUpload(
+      "front",
+      new File(["x"], "p.jpg"),
+    );
+    if (queued) await result.current.send(queued);
+  });
   return result;
 }
 

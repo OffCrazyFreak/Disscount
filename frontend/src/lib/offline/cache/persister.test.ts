@@ -11,13 +11,17 @@ vi.mock("idb-keyval", () => ({
   get: async (key: string) => db.get(key),
   set: async (key: string, value: unknown) => void db.set(key, value),
   del: async (key: string) => void db.delete(key),
+  keys: async () => [...db.keys()],
+  delMany: async (keys: string[]) => keys.forEach((key) => db.delete(key)),
 }));
 vi.mock("@/lib/offline/cache/cache-identity", () => ({
+  ANONYMOUS_IDENTITY: "anon",
   scopedCacheKey: (base: string, explicit?: string) =>
     `${base}:${explicit ?? identity}`,
 }));
 
-const { persistOptions } = await import("@/lib/offline/cache/persister");
+const { deleteOrphanedSnapshots, persistOptions, saveCacheNow } =
+  await import("@/lib/offline/cache/persister");
 
 const CACHE_KEY = "disscount-react-query-cache";
 
@@ -174,5 +178,46 @@ describe("persisted prices", () => {
     const queryClient = await restoreSnapshot({ priceShape: "numbers" });
 
     expect(queryClient.getQueryData(product.queryKey)).toEqual({ ean: "1" });
+  });
+});
+
+describe("snapshots left behind", () => {
+  it("keeps only the current account's and the anonymous snapshot", async () => {
+    identity = "alice";
+    db.clear();
+    for (const key of [
+      CACHE_KEY,
+      `${CACHE_KEY}:alice`,
+      `${CACHE_KEY}:anon`,
+      `${CACHE_KEY}:bob`,
+      "disscount-unrelated",
+    ]) {
+      db.set(key, "{}");
+    }
+
+    await deleteOrphanedSnapshots();
+
+    expect([...db.keys()].sort()).toEqual(
+      [`${CACHE_KEY}:alice`, `${CACHE_KEY}:anon`, "disscount-unrelated"].sort(),
+    );
+  });
+});
+
+describe("saving right away", () => {
+  it("writes the finished state at once, without waiting out the throttle", async () => {
+    vi.useRealTimers();
+    identity = "alice";
+    db.clear();
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(["shoppingLists", "me"], [{ id: "list" }]);
+
+    await saveCacheNow(queryClient);
+
+    const saved = JSON.parse(String(db.get(`${CACHE_KEY}:alice`)));
+    expect(saved.clientState.mutations).toEqual([]);
+    expect(saved.clientState.queries[0].queryKey).toEqual([
+      "shoppingLists",
+      "me",
+    ]);
   });
 });

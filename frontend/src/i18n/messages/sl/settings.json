@@ -83,7 +83,7 @@
     }
   },
   "save": {
-    "offline": "Brez povezave si. Spremembe bomo shranili, ko se znova povežeš.",
+    "offline": "Brez povezave si, zato sprememb nismo shranili. Poveži se in shrani znova.",
     "onboardingDone": "Vse je pripravljeno!",
     "settingsSaved": "Nastavitve so shranjene!",
     "errors": {

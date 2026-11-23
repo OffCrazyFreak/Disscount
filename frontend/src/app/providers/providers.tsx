@@ -30,7 +30,6 @@ export default function Providers({ children }: IProvidersProps) {
           typeof caches === "undefined"
         }
         cacheOnNavigation={false}
-        reloadOnOnline
         // Serwist defaults to a module worker, but sw.js is one bundled file and classic runs everywhere.
         options={{ type: "classic" }}
       >

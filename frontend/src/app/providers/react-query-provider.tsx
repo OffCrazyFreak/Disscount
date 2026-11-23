@@ -1,12 +1,16 @@
 "use client";
 
-import { QueryClient } from "@tanstack/react-query";
+import { onlineManager, QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
-import { persistOptions } from "@/lib/offline/cache/persister";
+import {
+  deleteOrphanedSnapshots,
+  persistOptions,
+} from "@/lib/offline/cache/persister";
 import { createQueryClientConfig } from "@/lib/api/query-client-defaults";
 import { DIGITAL_CARD_QUERY_KEYS } from "@/lib/api/digital-cards/keys";
 import { bindLastUsedQueryClient } from "@/lib/api/digital-cards/last-used";
@@ -43,6 +47,11 @@ export default function ReactQueryProviderWrapper({
   const tCards = useTranslations("digitalCards");
 
   const [queryClient] = useState(() => {
+    // onlineManager starts online, so restored writes would be sent and dropped; a false onLine is reliable.
+    if (typeof navigator !== "undefined" && navigator.onLine === false) {
+      onlineManager.setOnline(false);
+    }
+
     const client = new QueryClient(createQueryClientConfig());
     // Cards and the snapshot stay however long the app runs without visiting the wallet, restored ones too.
     client.setQueryDefaults(DIGITAL_CARD_QUERY_KEYS.all, { gcTime: Infinity });
@@ -56,6 +65,11 @@ export default function ReactQueryProviderWrapper({
   useEffect(() => {
     registerOfflineMutationDefaults(queryClient, t, tCards);
   }, [queryClient, t, tCards]);
+
+  useEffect(() => {
+    // Blocked storage just leaves the old keys where they are.
+    deleteOrphanedSnapshots().catch(() => undefined);
+  }, []);
 
   useEffect(() => {
     bindLastUsedQueryClient(queryClient);
@@ -73,6 +87,11 @@ export default function ReactQueryProviderWrapper({
       client={queryClient}
       persistOptions={persistOptions}
       onSuccess={() => replayQueuedWrites(queryClient, t, tCards)}
+      onError={() => {
+        // A half-applied restore could show some saved data and not the rest, so start from nothing.
+        queryClient.clear();
+        toast.error(t("offline.restoreFailed"));
+      }}
     >
       {children}
 

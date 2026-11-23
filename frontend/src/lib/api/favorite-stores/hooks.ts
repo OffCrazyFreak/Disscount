@@ -40,8 +40,6 @@ export function useSaveFavoriteStores() {
     mutationKey: SAVE_MUTATION_KEY,
     // Each save replaces the whole list, so they must reach the server in click order.
     scope: { id: "favoriteStores" },
-    // Not on the offline allowlist: fail and roll back instead of pausing.
-    networkMode: "always",
     mutationFn: (keys) =>
       updateFavoriteStores({
         stores: keys.map((storeKey) => ({ storeKey })),

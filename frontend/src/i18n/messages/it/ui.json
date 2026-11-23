@@ -17,7 +17,8 @@
   "offline": {
     "writeFailed": "Modifica non salvata. Riprova.",
     "writeFailedLostAccess": "Modifica non salvata. Forse non hai più accesso a questa lista.",
-    "retiredWriteDropped": "Una modifica da una versione precedente dell'app non è stata salvata. Apri la lista e controlla."
+    "retiredWriteDropped": "Una modifica da una versione precedente dell'app non è stata salvata. Apri la lista e controlla.",
+    "restoreFailed": "Non è stato possibile caricare i dati salvati su questo dispositivo."
   },
   "limitReached": {
     "title": "Non c'è più spazio",

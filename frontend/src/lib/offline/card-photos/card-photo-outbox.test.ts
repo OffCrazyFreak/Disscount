@@ -1,7 +1,9 @@
+import { QueryClient } from "@tanstack/react-query";
 import { AxiosError, type AxiosResponse } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { trackPurge } from "@/lib/offline/cache/purge-gate";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/writes/offline-mutation-keys";
 
 const db = new Map<string, unknown>();
 const upload = vi.fn();
@@ -23,6 +25,21 @@ vi.mock("@/lib/offline/card-photos/idb-transactions", () => ({
   ) => {
     if (matches(db.get(key))) db.delete(key);
   },
+  replaceIf: async (
+    key: string,
+    _store: unknown,
+    matches: (v: unknown) => boolean,
+    replacement: unknown,
+  ) => {
+    if (!matches(db.get(key))) return;
+    if (replacement === undefined) db.delete(key);
+    else db.set(key, replacement);
+  },
+  swap: async (key: string, _store: unknown, v: unknown) => {
+    const previous = db.get(key);
+    db.set(key, v);
+    return previous;
+  },
 }));
 vi.mock("@/lib/api/digital-cards/photo-queries", () => ({
   uploadCardPhoto: (...args: unknown[]) => upload(...args),
@@ -36,8 +53,13 @@ vi.mock("@/lib/offline/cache/cache-identity", () => ({
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
 
-const { enqueueCardPhoto, enqueueCardPhotoRemoval, sendQueuedCardPhoto } =
-  await import("@/lib/offline/card-photos/card-photo-outbox");
+const {
+  discardQueuedCardPhoto,
+  enqueueCardPhoto,
+  enqueueCardPhotoRemoval,
+  replayCardPhotoOutbox,
+  sendQueuedCardPhoto,
+} = await import("@/lib/offline/card-photos/card-photo-outbox");
 
 const client = {} as Parameters<typeof sendQueuedCardPhoto>[0];
 function photo(name: string) {
@@ -71,14 +93,15 @@ describe("sendQueuedCardPhoto", () => {
       })
       .mockRejectedValueOnce(rejectWith(413));
 
-    const first = await enqueueCardPhoto("card", "front", photo("a"));
+    const first = (await enqueueCardPhoto("card", "front", photo("a")))?.nonce;
     const firstSend = sendQueuedCardPhoto(client, "card", "front");
     await started;
 
-    const removal = await enqueueCardPhotoRemoval("card", "front");
+    const removal = (await enqueueCardPhotoRemoval("card", "front"))?.nonce;
     const removalSend = sendQueuedCardPhoto(client, "card", "front");
 
-    const replacement = await enqueueCardPhoto("card", "front", photo("b"));
+    const replacement = (await enqueueCardPhoto("card", "front", photo("b")))
+      ?.nonce;
     const replacementSend = sendQueuedCardPhoto(client, "card", "front");
 
     finishFirst({ slot: "front", sha256: "a" });
@@ -110,7 +133,7 @@ describe("sendQueuedCardPhoto", () => {
   it("puts the sent photo in the cache when no newer choice is waiting", async () => {
     upload.mockResolvedValueOnce({ slot: "front", sha256: "a" });
 
-    const nonce = await enqueueCardPhoto("card", "front", photo("a"));
+    const nonce = (await enqueueCardPhoto("card", "front", photo("a")))?.nonce;
 
     expect(await sendQueuedCardPhoto(client, "card", "front")).toMatchObject({
       outcome: "sent",
@@ -146,6 +169,31 @@ describe("sendQueuedCardPhoto", () => {
   });
 });
 
+describe("discardQueuedCardPhoto", () => {
+  beforeEach(() => db.clear());
+
+  it("puts back the photo that a refused save had replaced", async () => {
+    const earlier = await enqueueCardPhoto("card", "front", photo("a"));
+    const later = await enqueueCardPhoto("card", "front", photo("b"));
+
+    await discardQueuedCardPhoto("card", "front", later!);
+
+    expect(db.get("user:card:front")).toMatchObject({
+      nonce: earlier?.nonce,
+      op: "put",
+    });
+  });
+
+  it("leaves a newer choice queued meanwhile alone", async () => {
+    const refused = await enqueueCardPhoto("card", "front", photo("a"));
+    const newer = await enqueueCardPhotoRemoval("card", "front");
+
+    await discardQueuedCardPhoto("card", "front", refused!);
+
+    expect(db.get("user:card:front")).toMatchObject({ nonce: newer?.nonce });
+  });
+});
+
 describe("enqueueCardPhoto", () => {
   beforeEach(() => db.clear());
 
@@ -155,5 +203,30 @@ describe("enqueueCardPhoto", () => {
 
     expect(await queued).toBeUndefined();
     expect(db.size).toBe(0);
+  });
+});
+
+describe("replayCardPhotoOutbox", () => {
+  beforeEach(() => {
+    db.clear();
+    upload.mockReset();
+  });
+
+  it("leaves a photo for a card whose save is still on its way", async () => {
+    // The replay skips a browser without IndexedDB, and idb-keyval is mocked here.
+    vi.stubGlobal("indexedDB", {});
+    const queryClient = new QueryClient();
+    const saving = queryClient.getMutationCache().build(queryClient, {
+      mutationKey: OFFLINE_MUTATION_KEYS.digitalCardSave,
+      mutationFn: () => new Promise(() => undefined),
+    });
+    void saving.execute({ id: "card", data: {} });
+    await vi.waitFor(() => expect(saving.state.status).toBe("pending"));
+
+    await enqueueCardPhoto("card", "front", photo("a"));
+    await replayCardPhotoOutbox(queryClient, (key) => key);
+
+    expect(upload).not.toHaveBeenCalled();
+    expect(db.has("user:card:front")).toBe(true);
   });
 });

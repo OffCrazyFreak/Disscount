@@ -83,7 +83,7 @@
     }
   },
   "save": {
-    "offline": "You're offline. We'll save your changes as soon as you're back online.",
+    "offline": "You're offline, so your changes weren't saved. Connect and save again.",
     "onboardingDone": "You're all set!",
     "settingsSaved": "Settings saved!",
     "errors": {

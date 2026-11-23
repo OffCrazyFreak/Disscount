@@ -128,6 +128,8 @@ export function createQueryClientConfig(): QueryClientConfig {
         staleTime: DEFAULT_STALE_TIME_MS,
         retry: shouldRetryQuery,
       },
+      // Off the allowlist a paused write is never saved to disk and would vanish on reload, so it fails at once.
+      mutations: { networkMode: "always" },
     },
   };
 }

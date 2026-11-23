@@ -35,6 +35,30 @@ vi.mock("@/lib/api/digital-cards/last-used", () => ({
 }));
 
 describe("purgeOfflineCache", () => {
+  it("deletes the page caches whose addresses name what the person opened", async () => {
+    const deleted: string[] = [];
+    vi.stubGlobal("caches", {
+      keys: async () => [
+        "pages-rsc",
+        "pages-rsc-prefetch",
+        "shopping-list-pages",
+        "serwist-precache-v2",
+      ],
+      delete: async (name: string) => {
+        deleted.push(name);
+        return true;
+      },
+    });
+
+    await purgeOfflineCache(new QueryClient(), "leaving");
+
+    expect(deleted.sort()).toEqual([
+      "pages-rsc",
+      "pages-rsc-prefetch",
+      "shopping-list-pages",
+    ]);
+  });
+
   it("forgets what the departing person searched for and opened", async () => {
     productRecentSearches.add("trudnički test");
     const queryClient = new QueryClient();

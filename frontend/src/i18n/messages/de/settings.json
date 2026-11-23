@@ -83,7 +83,7 @@
     }
   },
   "save": {
-    "offline": "Du bist offline. Wir speichern die Änderungen, sobald du wieder online bist.",
+    "offline": "Du bist offline, deshalb wurden die Änderungen nicht gespeichert. Verbinde dich und speichere erneut.",
     "onboardingDone": "Alles bereit!",
     "settingsSaved": "Einstellungen gespeichert!",
     "errors": {

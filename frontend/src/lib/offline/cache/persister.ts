@@ -1,13 +1,21 @@
+import * as Sentry from "@sentry/nextjs";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
-import { defaultShouldDehydrateQuery } from "@tanstack/react-query";
+import {
+  defaultShouldDehydrateQuery,
+  dehydrate,
+  type QueryClient,
+} from "@tanstack/react-query";
 import type {
   PersistedClient,
   Persister,
   PersistQueryClientOptions,
 } from "@tanstack/react-query-persist-client";
-import { get, set, del } from "idb-keyval";
+import { get, set, del, delMany, keys } from "idb-keyval";
 
-import { scopedCacheKey } from "@/lib/offline/cache/cache-identity";
+import {
+  ANONYMOUS_IDENTITY,
+  scopedCacheKey,
+} from "@/lib/offline/cache/cache-identity";
 import { shouldPersistQuery } from "@/lib/offline/cache/cached-query-keys";
 import {
   canWriteAfterPurges,
@@ -82,27 +90,71 @@ function withoutTextPrices(client: PersistedClient): PersistedClient {
   return { ...client, clientState: { ...client.clientState, queries } };
 }
 
+function toSavedClient(client: PersistedClient): MarkedClient {
+  const resumable: MarkedClient = {
+    ...withInFlightWritesPaused(client),
+    priceShape: PRICE_SHAPE,
+  };
+  snapshotGeneration.set(resumable, currentPurgeGeneration());
+  return resumable;
+}
+
 const offlinePersister: Persister = {
   ...throttledPersister,
 
-  persistClient: (client) => {
-    const resumable: MarkedClient = {
-      ...withInFlightWritesPaused(client),
-      priceShape: PRICE_SHAPE,
-    };
-    snapshotGeneration.set(resumable, currentPurgeGeneration());
-    return throttledPersister.persistClient(resumable);
-  },
+  persistClient: (client) =>
+    throttledPersister.persistClient(toSavedClient(client)),
 
   restoreClient: async () => {
-    const client = await throttledPersister.restoreClient();
-    return client && withoutTextPrices(client);
+    try {
+      const client = await throttledPersister.restoreClient();
+      return client && withoutTextPrices(client);
+    } catch (error) {
+      // React Query then deletes the saved copy and hands onError no error, so this is the only place to see why.
+      Sentry.captureException(error, { tags: { offlineCache: "restore" } });
+      throw error;
+    }
   },
 };
 
 /** `offlinePersister.removeClient()` resolves its key late, deleting the arriving account's cache. */
 export function removePersistedCacheFor(identity: string): Promise<void> {
   return del(scopedCacheKey(IDB_CACHE_KEY, identity));
+}
+
+function isSnapshotKey(key: IDBValidKey): key is string {
+  return (
+    typeof key === "string" &&
+    (key === IDB_CACHE_KEY || key.startsWith(`${IDB_CACHE_KEY}:`))
+  );
+}
+
+/** The unscoped key predates per-account snapshots, and a key left by a failed purge holds another account's data. */
+export async function deleteOrphanedSnapshots(): Promise<void> {
+  const stored = await keys();
+
+  // Read after the await, so an account that signed in meanwhile keeps its snapshot.
+  const kept = new Set([
+    scopedCacheKey(IDB_CACHE_KEY),
+    scopedCacheKey(IDB_CACHE_KEY, ANONYMOUS_IDENTITY),
+  ]);
+  const orphaned = stored.filter((key) => isSnapshotKey(key) && !kept.has(key));
+
+  if (orphaned.length) await delMany(orphaned);
+}
+
+/** Skips the throttle, so a reload right after queued writes finish cannot restore and resend them. */
+export async function saveCacheNow(queryClient: QueryClient): Promise<void> {
+  const saved = toSavedClient({
+    buster: CACHE_BUSTER,
+    timestamp: Date.now(),
+    clientState: dehydrate(queryClient, persistOptions.dehydrateOptions),
+  });
+
+  await indexedDbStorage.setItem(
+    IDB_CACHE_KEY,
+    await serializeUnlessPurged(saved),
+  );
 }
 
 export const persistOptions: Omit<PersistQueryClientOptions, "queryClient"> = {

@@ -17,7 +17,8 @@
   "offline": {
     "writeFailed": "Promjena nije spremljena. Pokušaj ponovno.",
     "writeFailedLostAccess": "Promjena nije spremljena. Možda više nemaš pristup ovom popisu.",
-    "retiredWriteDropped": "Promjena iz starije verzije aplikacije nije spremljena. Otvori popis i provjeri."
+    "retiredWriteDropped": "Promjena iz starije verzije aplikacije nije spremljena. Otvori popis i provjeri.",
+    "restoreFailed": "Spremljeni podaci s ovog uređaja nisu se mogli učitati."
   },
   "limitReached": {
     "title": "Nema više mjesta",

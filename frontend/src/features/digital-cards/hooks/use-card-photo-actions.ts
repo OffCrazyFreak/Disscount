@@ -8,9 +8,11 @@ import { setCardPhotoInCache } from "@/lib/api/digital-cards/photo-cache";
 import { problemMessage } from "@/lib/api/problem-details";
 import { getCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import {
+  discardQueuedCardPhoto,
   enqueueCardPhoto,
   enqueueCardPhotoRemoval,
   hasQueuedCardPhoto,
+  type IQueuedEntry,
   sendQueuedCardPhoto,
 } from "@/lib/offline/card-photos/card-photo-outbox";
 import { deleteSlotForCard } from "@/lib/offline/card-photos/card-photo-store";
@@ -21,6 +23,11 @@ import {
   type IPreparedCardImage,
 } from "@/features/digital-cards/utils/card-image";
 import { ImageProcessingError } from "@/utils/browser/image";
+
+export interface IQueuedCardPhoto extends IQueuedEntry {
+  slot: CardPhotoSlot;
+  op: "put" | "delete";
+}
 
 type PhotoStatus = "uploading" | "queued" | "error";
 type StatusMap = Partial<Record<CardPhotoSlot, PhotoStatus>>;
@@ -56,7 +63,10 @@ export function useCardPhotoActions(cardId: string) {
     setStatus((old) => ({ ...old, [slot]: value }));
   }
 
-  async function upload(slot: CardPhotoSlot, file: File): Promise<void> {
+  async function queueUpload(
+    slot: CardPhotoSlot,
+    file: File,
+  ): Promise<IQueuedCardPhoto | undefined> {
     mark(slot, "uploading");
 
     let prepared: IPreparedCardImage;
@@ -69,12 +79,12 @@ export function useCardPhotoActions(cardId: string) {
           ? tImage(error.code)
           : t("processFailed"),
       );
-      return;
+      return undefined;
     }
 
-    let nonce: string | undefined;
+    let queued: IQueuedEntry | undefined;
     try {
-      nonce = await enqueueCardPhoto(
+      queued = await enqueueCardPhoto(
         cardId,
         slot,
         prepared.full,
@@ -83,13 +93,28 @@ export function useCardPhotoActions(cardId: string) {
     } catch {
       mark(slot, "error");
       toast.error(t("saveFailed"));
-      return;
+      return undefined;
     }
 
-    if (!navigator.onLine) {
-      mark(slot, "queued");
-      return;
+    mark(slot, "queued");
+    return queued && { ...queued, slot, op: "put" };
+  }
+
+  async function queueRemoval(
+    slot: CardPhotoSlot,
+  ): Promise<IQueuedCardPhoto | undefined> {
+    try {
+      // Replaces a waiting upload for the slot, since the removal is the newer choice.
+      const queued = await enqueueCardPhotoRemoval(cardId, slot);
+      return queued && { ...queued, slot, op: "delete" };
+    } catch {
+      toast.error(t("removeFailed"));
+      return undefined;
     }
+  }
+
+  async function sendUpload({ slot, nonce }: IQueuedCardPhoto): Promise<void> {
+    if (!navigator.onLine) return;
 
     // A 404 means the card's own save has not reached the server yet; the outbox replays after paused saves resume.
     const {
@@ -114,11 +139,8 @@ export function useCardPhotoActions(cardId: string) {
     }
   }
 
-  async function remove(slot: CardPhotoSlot): Promise<void> {
+  async function sendRemoval({ slot, nonce }: IQueuedCardPhoto): Promise<void> {
     try {
-      // Replaces a waiting upload for the slot, since the removal is the newer choice.
-      const nonce = await enqueueCardPhotoRemoval(cardId, slot);
-
       if (navigator.onLine) {
         const result = await sendQueuedCardPhoto(queryClient, cardId, slot);
 
@@ -138,5 +160,18 @@ export function useCardPhotoActions(cardId: string) {
     );
   }
 
-  return { upload, remove, status };
+  /** Offline it only shows the change; the outbox sends it after the card's paused save. */
+  function send(queued: IQueuedCardPhoto): Promise<void> {
+    return queued.op === "put" ? sendUpload(queued) : sendRemoval(queued);
+  }
+
+  async function discard(queued: IQueuedCardPhoto): Promise<void> {
+    // A photo still waiting from an earlier save comes back with its entry, so the slot stays queued.
+    mark(queued.slot, queued.replaced?.op === "put" ? "queued" : undefined);
+    await discardQueuedCardPhoto(cardId, queued.slot, queued).catch(
+      () => undefined,
+    );
+  }
+
+  return { queueUpload, queueRemoval, send, discard, status };
 }

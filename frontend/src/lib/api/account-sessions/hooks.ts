@@ -33,8 +33,6 @@ export function useRevokeAccountSession() {
 
   return useMutation({
     mutationFn: revokeAccountSession,
-    // Not on the offline allowlist: a sign-out must reach the server or visibly fail.
-    networkMode: "always",
     onSettled: () =>
       queryClient.invalidateQueries({
         queryKey: ACCOUNT_SESSION_QUERY_KEYS.all,
