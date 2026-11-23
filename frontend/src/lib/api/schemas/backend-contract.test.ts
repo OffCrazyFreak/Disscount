@@ -12,6 +12,11 @@ import {
   bulkPinnedPlaceRequestSchema,
   bulkPinnedStoreRequestSchema,
   cardPhotoDtoSchema,
+  catalogCategoriesSchema,
+  catalogCategorySchema,
+  catalogDepartmentSchema,
+  categoryProductSchema,
+  categoryProductsPageSchema,
   contactMessageDtoSchema,
   contactMessageRequestSchema,
   digitalCardDtoSchema,
@@ -59,6 +64,10 @@ const MIRRORED_DTOS: Record<string, z.ZodType> = {
   BulkPinnedPlaceRequest: bulkPinnedPlaceRequestSchema,
   BulkPinnedStoreRequest: bulkPinnedStoreRequestSchema,
   CardPhotoDto: cardPhotoDtoSchema,
+  CatalogCategoriesDto: catalogCategoriesSchema,
+  CatalogCategoryDto: catalogCategorySchema,
+  CatalogDepartmentDto: catalogDepartmentSchema,
+  CategoryProductDto: categoryProductSchema,
   ContactMessageDto: contactMessageDtoSchema,
   ContactMessageRequest: contactMessageRequestSchema,
   CropDto: productImageCropSchema,
@@ -67,6 +76,7 @@ const MIRRORED_DTOS: Record<string, z.ZodType> = {
   DigitalCardsConfigDto: digitalCardsConfigSchema,
   FavoriteStoreDto: favoriteStoreDtoSchema,
   ListedEansDto: listedEansResponseSchema,
+  PageDtoCategoryProductDto: categoryProductsPageSchema,
   PageInfoDto: pageInfoSchema,
   PinnedPlaceDto: pinnedPlaceDtoSchema,
   PinnedStoreDto: pinnedStoreDtoSchema,
@@ -97,6 +107,8 @@ const DTOS_WITHOUT_A_ZOD_SCHEMA = [
   "PinnedStoreRequest",
   "SetMainRequest",
   "UpdateAccountTypeRequest",
+  // The product page's category breadcrumb, which no frontend code reads yet.
+  "ProductCategoryDto",
 ];
 
 const NO_BACKEND_VALUES = "zod enum, backend states no values";

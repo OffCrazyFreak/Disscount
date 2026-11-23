@@ -13,3 +13,4 @@ export * from "@/lib/api/schemas/product-image";
 export * from "@/lib/api/schemas/account-session";
 export * from "@/lib/api/schemas/store-hours";
 export * from "@/lib/api/schemas/user-limit";
+export * from "@/lib/api/schemas/catalog-category";
