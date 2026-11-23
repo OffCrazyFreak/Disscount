@@ -3,6 +3,7 @@ import { faqIds } from "@/app/[locale]/(root)/data/faq";
 import { appUrl } from "@/lib/env";
 import { localePath } from "@/i18n/locale-path";
 import { LOCALES } from "@/i18n/locales";
+import JsonLdScript from "@/components/custom/common/json-ld-script";
 
 const baseUrl = appUrl();
 
@@ -76,12 +77,5 @@ async function buildGraph() {
 export default async function LandingJsonLd() {
   const graph = await buildGraph();
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{
-        __html: JSON.stringify(graph).replace(/</g, "\\u003c"),
-      }}
-    />
-  );
+  return <JsonLdScript data={graph} />;
 }
