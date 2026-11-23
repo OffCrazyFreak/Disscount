@@ -102,7 +102,7 @@ flowchart TD
     P --> PH["getVerifiedMainPhotoUrl(ean)<br/>backend, 3 s timeout"]
     GP -->|found| H[JSON-LD + HydrationBoundary + ProductDetailClient]
     GP -->|missing| NF[notFound: noindex not-found page]
-    GP -->|unavailable| CO[ProductDetailClient alone: the browser fetches]
+    GP -->|unavailable| ER[throws: error.tsx with a 500]
     GPR -->|null on failure| H
 ```
 
@@ -127,7 +127,7 @@ Issue #230 (product page SEO) asked for real titles, server rendered data, sitem
 | Case                 | Title                                       | Robots                           | Other                                                                                                                                                                                                                                       |
 | -------------------- | ------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Product found        | `productDetail.meta.productTitle`, absolute | Croatian indexed, others noindex | Description with the lowest price and the chain count; canonical; Open Graph and Twitter with a 1200x630 card of the confirmed main photo ([PRODUCT-IMAGES.md](PRODUCT-IMAGES.md#7-how-photos-reach-the-page)), or the layout's brand image |
-| Upstream unavailable | Generic `productDetail.meta.title`          | Same as found                    | Canonical kept, so an outage never marks a real product noindex                                                                                                                                                                             |
+| Upstream unavailable | Generic `productDetail.meta.title`          | None                             | The page throws, so `error.tsx` renders with a 500. Google treats a 5xx as temporary and retries, where a 200 shell or a noindex could drop a real product from the index                                                                   |
 | Product missing      | `productDetail.notFound.title`              | `noindex, nofollow`              | The page calls `notFound()`                                                                                                                                                                                                                 |
 
 - The title is `absolute`, because the layout template would otherwise prefix "Disscount - " to a product name.
@@ -135,7 +135,7 @@ Issue #230 (product page SEO) asked for real titles, server rendered data, sitem
 - The canonical uses the EAN as upstream returns it (leading zeros stripped), so every spelling of a barcode lands on one URL.
 - `openGraph` and `twitter` replace the layout's whole objects in Next, so the page passes the parent's resolved images through when there is no product photo.
 
-**JSON-LD** (`[id]/utils/product-json-ld.ts`, rendered by `product-json-ld.tsx`): a schema.org `Product` with `name`, `url`, `image` (the confirmed main photo, left out when there is none), `brand`, `gtin` only for a public GTIN (valid GS1 check digit, not an in-store code with prefix 2, mirroring the backend's `Barcodes.isPublicGtin`), and an `AggregateOffer` with `lowPrice`, `highPrice`, `priceCurrency: "EUR"` and `offerCount` (the number of chains). `AggregateOffer`, not `Offer`, because we compare prices and sell nothing, and Google reserves merchant listings for shops. The numbers are the page's own visible chain prices, as Google requires.
+**JSON-LD** (`[id]/utils/product-json-ld.ts`, rendered by `product-json-ld.tsx` through the shared `JsonLdScript`, which escapes `<`): a schema.org `Product` with `name`, `url`, `image` (the confirmed main photo, left out when there is none), `brand`, `gtin` only for a public GTIN (valid GS1 check digit, not an in-store code with prefix 2, mirroring the backend's `Barcodes.isPublicGtin`), `dateModified` (the newest `price_date` of any chain, which Bing reads as freshness and Google ignores), and an `AggregateOffer` with `lowPrice`, `highPrice`, `priceCurrency: "EUR"`, `offerCount` (the number of chains) and `offers`: one `Offer` per chain with its lowest price (the "Najniža" figure its row shows), `priceCurrency` and the chain as the `seller` `Organization`, with no availability or validity date because the page states neither. `AggregateOffer`, not `Offer`, because we compare prices and sell nothing, and Google reserves merchant listings for shops. The numbers are the page's own visible chain prices, as Google requires.
 
 **Sitemaps.**
 
@@ -293,7 +293,7 @@ Not covered: the proxy routes against real upstream responses, the fuzzy fallbac
 | Gotcha                                                   | What happens / fix                                                                                                                                                                                 |
 | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **One shared upstream token with a daily quota**         | Every visitor's request spends it. Count requests, not bytes: that is why city prices switch to one country wide request above three cities, and why 1Y and ALL history are off                    |
-| **An outage is not a 404**                               | `getServerProduct` keeps `unavailable` apart from `missing`. Treating both as not found would serve real products as noindex 404s during an upstream blip                                          |
+| **An outage is not a 404**                               | `getServerProduct` keeps `unavailable` apart from `missing`. Treating both as not found would serve real products as 404s during an upstream blip; the outage page answers 500 instead             |
 | **`loading.tsx` has already sent a 200**                 | The locale layout's `app/[locale]/loading.tsx` streams first, so by the time the page calls `notFound()`, the status is on the wire, so Next marks the page noindex instead of sending a 404       |
 | **Upstream strips leading zeros**                        | Use the EAN from the response for canonicals, sitemaps and photos; the backend stores product photos, watchlist entries and list items under the same stripped code (`CanonicalBarcode`)           |
 | **Not every product id is a barcode**                    | cijene keys products sold without one as `<chain>:<code>`, and in-store codes fail the GS1 check digit. `isWellFormedProductId` checks the shape only; JSON-LD emits `gtin` only for a public GTIN |
