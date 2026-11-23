@@ -6,7 +6,7 @@ import { useUser } from "@/context/user-context";
 import {
   findCheapestStoreFromProduct,
   getStorePricesFromProduct,
-} from "@/app/[locale]/(user)/shopping-lists/utils/shopping-list-utils";
+} from "@/utils/product-store-prices";
 import { getAveragePrice } from "@/utils/product-price-utils";
 import { catalogEans } from "@/app/[locale]/(user)/shopping-lists/utils/catalog-items";
 import {
