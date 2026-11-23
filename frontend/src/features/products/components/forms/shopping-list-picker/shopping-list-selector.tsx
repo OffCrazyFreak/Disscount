@@ -24,9 +24,9 @@ import { ShoppingListDto } from "@/lib/api/types";
 import { commandFilter } from "@/utils/search/command-filter";
 import { UseFormReturn, useWatch } from "react-hook-form";
 import { AddToListFormData } from "@/features/products/typings/add-to-list";
-import ShoppingListTrigger from "@/features/products/components/forms/shopping-list-trigger";
-import ShoppingListOption from "@/features/products/components/forms/shopping-list-option";
-import CreateListOption from "@/features/products/components/forms/create-list-option";
+import ShoppingListTrigger from "@/features/products/components/forms/shopping-list-picker/shopping-list-trigger";
+import ShoppingListOption from "@/features/products/components/forms/shopping-list-picker/shopping-list-option";
+import CreateListOption from "@/features/products/components/forms/shopping-list-picker/create-list-option";
 
 interface IShoppingListSelectorProps {
   formField: UseFormReturn<AddToListFormData>;

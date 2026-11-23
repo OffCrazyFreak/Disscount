@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { MAX_SHOPPING_LIST_ITEM_NAME_LENGTH } from "@/constants/shopping-list";
-import ShoppingListSelector from "@/features/products/components/forms/shopping-list-selector";
+import ShoppingListSelector from "@/features/products/components/forms/shopping-list-picker/shopping-list-selector";
 import QuantityInput from "@/features/products/components/forms/quantity-input";
 import { useAddPlainItemForm } from "@/features/products/hooks/use-add-plain-item-form";
 

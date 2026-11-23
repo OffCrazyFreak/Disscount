@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import ShoppingListTrigger from "@/features/products/components/forms/shopping-list-trigger";
+import ShoppingListTrigger from "@/features/products/components/forms/shopping-list-picker/shopping-list-trigger";
 import type { ShoppingListDto } from "@/lib/api/types";
 import { renderWithProviders } from "@/test/render";
 

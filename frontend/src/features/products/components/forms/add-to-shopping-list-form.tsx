@@ -12,7 +12,7 @@ import ProductModalBody from "@/features/products/components/forms/product-modal
 import ProductInfoDisplay from "@/features/products/components/info/product-info-display";
 import RemoveIconButton from "@/components/custom/common/controls/remove-icon-button";
 import { Banner } from "@/components/custom/common/feedback/banner";
-import ShoppingListSelector from "@/features/products/components/forms/shopping-list-selector";
+import ShoppingListSelector from "@/features/products/components/forms/shopping-list-picker/shopping-list-selector";
 import QuantityInput from "@/features/products/components/forms/quantity-input";
 import MarkAsCheckedCheckbox from "@/features/products/components/forms/mark-as-checked-checkbox";
 import StoreChainField from "@/features/products/components/forms/store-chain-field";

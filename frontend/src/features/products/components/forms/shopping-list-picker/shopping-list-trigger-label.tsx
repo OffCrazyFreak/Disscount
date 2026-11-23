@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
-import SelectedListSummary from "@/features/products/components/forms/selected-list-summary";
+import SelectedListSummary from "@/features/products/components/forms/shopping-list-picker/selected-list-summary";
 import { ShoppingListDto } from "@/lib/api/types";
 
 interface IShoppingListTriggerLabelProps {

@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { useForm } from "react-hook-form";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import ShoppingListSelector from "@/features/products/components/forms/shopping-list-selector";
+import ShoppingListSelector from "@/features/products/components/forms/shopping-list-picker/shopping-list-selector";
 import { Form } from "@/components/ui/form";
 import type { AddToListFormData } from "@/features/products/typings/add-to-list";
 import type { AppLocale } from "@/i18n/locales";

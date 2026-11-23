@@ -2,7 +2,7 @@ import { ComponentPropsWithoutRef, forwardRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import ShoppingListTriggerLabel from "@/features/products/components/forms/shopping-list-trigger-label";
+import ShoppingListTriggerLabel from "@/features/products/components/forms/shopping-list-picker/shopping-list-trigger-label";
 import { ShoppingListDto } from "@/lib/api/types";
 
 interface IShoppingListTriggerProps extends ComponentPropsWithoutRef<"button"> {

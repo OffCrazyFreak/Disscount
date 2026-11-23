@@ -38,7 +38,8 @@ const AddPlainItemModal = dynamic(
   { ssr: false },
 );
 const WatchlistItemModal = dynamic(
-  () => import("@/features/products/components/forms/watchlist-item-modal"),
+  () =>
+    import("@/features/products/components/forms/watchlist/watchlist-item-modal"),
   { ssr: false },
 );
 
