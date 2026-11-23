@@ -114,7 +114,7 @@ Sentry events carry only the tags `flow: backend-proxy`, `proxyFailure` and `pat
 
 The browser's query cache (`lib/api/query-client-defaults.ts`) reports every 5xx too, except the three codes marked "yes" above: `isReportedByProxy` skips them because the proxy already sent a better-tagged event for the same failure. The list lives once, as `SERVER_REPORTED_PROBLEMS` in `proxy-contract.ts`, and `reportFailure` accepts only those codes. A 502 from Spring itself or a Cijene `upstream_unavailable` still reports from the browser.
 
-`lib/offline/writes/failure-policy.ts` treats 401 and every 5xx as "keep", so a queued offline write survives every proxy failure.
+`lib/offline/writes/failure-policy.ts` treats 401 and every 5xx as "keep", so a queued offline write survives every proxy failure. The one exception is a 503 with the code `error.cardPhoto.unavailable`, which drops a queued card photo because photo storage is off on that deployment (see `DIGITAL-CARDS.md`).
 
 ---
 
