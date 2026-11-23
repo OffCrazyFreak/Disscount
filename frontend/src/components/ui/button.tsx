@@ -2,7 +2,7 @@ import * as React from "react";
 import { Slot, Slottable } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
 
 function preventActivation(event: React.MouseEvent<HTMLElement>) {
   event.preventDefault();

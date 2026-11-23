@@ -9,7 +9,7 @@ import {
   isRejecting,
   readyCodes,
   recordReads,
-} from "@/components/scanner/scan-consensus";
+} from "@/components/scanner/camera/scan-consensus";
 
 interface IUseScanConsensusOptions {
   preset: ScanPreset;

@@ -2,23 +2,16 @@ import CartLogo from "@/components/icons/cart-logo";
 import HealthStatus from "@/app/[locale]/statistics/components/health-status";
 import ChainList from "@/app/[locale]/statistics/components/stores-list";
 import type { Metadata, ResolvingMetadata } from "next";
-import { withSharePreview } from "@/utils/share-metadata";
-import { getLocale, getTranslations } from "next-intl/server";
-import { pageAlternates } from "@/i18n/alternates";
+import { withSharePreview } from "@/utils/seo/share-metadata";
+import { getTranslations } from "next-intl/server";
+import { pageMetadata } from "@/i18n/alternates";
 
 export async function generateMetadata(
   _props: PageProps<"/[locale]/statistics">,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const locale = await getLocale();
-  const t = await getTranslations("statistics");
-
   return withSharePreview(
-    {
-      title: t("meta.title"),
-      description: t("meta.description"),
-      alternates: pageAlternates("/statistics", locale),
-    },
+    await pageMetadata("statistics", "/statistics"),
     parent,
   );
 }

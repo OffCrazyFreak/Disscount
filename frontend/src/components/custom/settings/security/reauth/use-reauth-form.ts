@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 
-import { REAUTH_CODE_LENGTH } from "@/constants/auth";
+import { REAUTH_CODE_LENGTH } from "@/constants/auth/auth";
 import type { Reauth } from "@/components/custom/settings/security/hooks/use-reauth";
 import type { IProofFailure } from "@/components/custom/settings/security/reauth/reauth-requests";
 

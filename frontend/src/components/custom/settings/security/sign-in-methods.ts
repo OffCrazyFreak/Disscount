@@ -1,4 +1,4 @@
-import { FACEBOOK_COMING_SOON } from "@/constants/auth";
+import { FACEBOOK_COMING_SOON } from "@/constants/auth/auth";
 
 // The server refuses Facebook while it is coming soon, so it cannot count as a way back in.
 export function countSignInMethods(

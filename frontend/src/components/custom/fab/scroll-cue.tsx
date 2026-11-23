@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/user-context";
 import { cn } from "@/lib/utils";
-import { scrollWindowTo } from "@/utils/scroll";
+import { scrollWindowTo } from "@/utils/ui/scroll";
 
 /** A sliver of the current screen stays in view below the header, so the jump reads as a scroll, not a page swap. */
 const CARRY_OVER_PX = 48;

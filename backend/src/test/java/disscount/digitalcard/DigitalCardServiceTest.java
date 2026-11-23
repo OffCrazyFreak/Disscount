@@ -6,7 +6,6 @@ import disscount.digitalcard.photo.DigitalCardPhotoRepository;
 import disscount.digitalcard.photo.DigitalCardPhotoService;
 import disscount.digitalcard.photo.PhotoCleanupRepository;
 import disscount.digitalcard.photo.PhotoCleanupService;
-import disscount.shared.errors.BadRequestException;
 import disscount.shared.errors.LimitReachedException;
 import disscount.shared.photo.FakePhotoStore;
 import disscount.shared.errors.NotFoundException;
@@ -294,14 +293,6 @@ class DigitalCardServiceTest {
     }
 
     @Test
-    void usedBatchIsLimitedToFifty() {
-        List<CardUsedEntry> tooMany = IntStream.range(0, 51)
-                .mapToObj(i -> new CardUsedEntry(UUID.randomUUID(), Instant.now())).toList();
-
-        assertThatThrownBy(() -> service.recordUsed(owner.getId(), tooMany)).isInstanceOf(BadRequestException.class);
-    }
-
-    @Test
     void deletingACardRemovesItsPhotoRowsAndObjects() {
         UUID id = UUID.randomUUID();
         service.upsert(owner.getId(), id, request("Kartica"));
@@ -440,13 +431,9 @@ class DigitalCardServiceTest {
     }
 
     @Test
-    void usedBatchRejectsEmptyListNullElementsAndClampsOldTimestamps() {
+    void usedAtOlderThanTheWindowIsClamped() {
         UUID id = UUID.randomUUID();
         service.upsert(owner.getId(), id, request("Kartica"));
-
-        assertThatThrownBy(() -> service.recordUsed(owner.getId(), List.of())).isInstanceOf(BadRequestException.class);
-        assertThatThrownBy(() -> service.recordUsed(owner.getId(), java.util.Collections.singletonList(null)))
-                .isInstanceOf(BadRequestException.class);
 
         service.recordUsed(owner.getId(), List.of(new CardUsedEntry(id, Instant.now().minus(3 * 365L, ChronoUnit.DAYS))));
 

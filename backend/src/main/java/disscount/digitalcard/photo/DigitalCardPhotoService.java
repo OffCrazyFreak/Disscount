@@ -6,6 +6,7 @@ import disscount.digitalcard.DigitalCardRepository;
 import disscount.shared.errors.BadRequestException;
 import disscount.shared.FixedWindowLimiter;
 import disscount.shared.errors.NotFoundException;
+import disscount.shared.photo.PhotoBytes;
 import disscount.shared.photo.PhotoStore;
 import disscount.shared.photo.PhotoStoreConfig;
 import disscount.shared.photo.PhotoValidator;
@@ -23,11 +24,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HexFormat;
 import java.util.Set;
 import java.util.UUID;
 
@@ -75,13 +72,13 @@ public class DigitalCardPhotoService {
 
         // Cheap ownership check before any CPU is spent on someone else's id; the writer repeats it under the lock.
         requireCard(userId, cardId);
-        ValidatedPhoto fullPhoto = validator.validate(read(full));
-        ValidatedPhoto thumbPhoto = needsThumb ? validator.validate(read(thumb)) : null;
+        ValidatedPhoto fullPhoto = validator.validate(PhotoBytes.read(full));
+        ValidatedPhoto thumbPhoto = needsThumb ? validator.validate(PhotoBytes.read(thumb)) : null;
 
         // Both images feed the hash, so replacing only the thumbnail still changes the key, ETag and ?v=.
         String sha256 = thumbPhoto == null
-                ? sha256Hex(fullPhoto.bytes())
-                : sha256Hex((sha256Hex(fullPhoto.bytes()) + ":" + sha256Hex(thumbPhoto.bytes()))
+                ? PhotoBytes.sha256(fullPhoto.bytes())
+                : PhotoBytes.sha256((PhotoBytes.sha256(fullPhoto.bytes()) + ":" + PhotoBytes.sha256(thumbPhoto.bytes()))
                         .getBytes(StandardCharsets.US_ASCII));
         String uploadId = PhotoKeys.newUploadId();
         String fullKey = PhotoKeys.fullKey(userId, cardId, slot, sha256, uploadId, fullPhoto.extension());
@@ -164,22 +161,6 @@ public class DigitalCardPhotoService {
     private static void requireSlot(String slot) {
         if (!SLOTS.contains(slot)) {
             throw new BadRequestException("error.cardPhoto.unknownSlot");
-        }
-    }
-
-    private static byte[] read(MultipartFile file) {
-        try {
-            return file.getBytes();
-        } catch (IOException e) {
-            throw new BadRequestException("error.cardPhoto.unreadable");
-        }
-    }
-
-    private static String sha256Hex(byte[] bytes) {
-        try {
-            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
         }
     }
 }

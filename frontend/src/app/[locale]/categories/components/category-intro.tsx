@@ -1,8 +1,8 @@
 import { getLocale, getTranslations } from "next-intl/server";
 
 import type { ICategoryPriceFacts } from "@/app/[locale]/categories/utils/category-price-facts";
-import { getChainLabel } from "@/utils/labels";
-import { formatPrice } from "@/utils/price";
+import { getChainLabel } from "@/utils/format/labels";
+import { formatPrice } from "@/utils/price/price";
 
 interface ICategoryIntroProps {
   productCount: number;

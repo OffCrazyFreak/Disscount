@@ -1,8 +1,8 @@
 import ProductCard from "@/components/custom/product/product-card";
-import ProductUnitPriceDetails from "@/app/[locale]/products/components/product-item/product-price";
+import ProductUnitPriceDetails from "@/features/products/components/product-item/product-price";
 import type { CategoryProduct } from "@/lib/api/types";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
-import { getCatalogNameLabel } from "@/utils/labels";
+import { getCatalogNameLabel } from "@/utils/format/labels";
 
 interface ICategoryProductListProps {
   items: CategoryProduct[];

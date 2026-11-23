@@ -3,13 +3,13 @@
 import { RefObject, useEffect, useEffectEvent, useRef, useState } from "react";
 import type { MapRef, ViewStateChangeEvent } from "react-map-gl/maplibre";
 
-import { ICenterRequest } from "@/hooks/use-geolocation";
+import { ICenterRequest } from "@/hooks/geo/use-geolocation";
 import { useKeepSelectionInView } from "@/features/map/hooks/canvas/use-keep-selection-in-view";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
 import { circleBounds } from "@/features/map/utils/view/circle";
 import { toSelectedPoint } from "@/features/map/utils/view/map-view";
 import { IMapCover } from "@/features/map/utils/view/view-area";
-import { ILatLon } from "@/utils/distance";
+import { ILatLon } from "@/utils/geo/distance";
 
 interface IUseMapCameraOptions {
   mapRef: RefObject<MapRef | null>;

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { defaultRangeExtractor, useVirtualizer } from "@tanstack/react-virtual";
 import { useTranslations } from "next-intl";
 
-import ScrollFade from "@/components/custom/common/scroll-fade";
+import ScrollFade from "@/components/custom/common/scroll-fade/scroll-fade";
 import StoreListItem from "@/features/map/components/store/store-list-item";
 import { useElementSize } from "@/features/map/hooks/layout/use-element-size";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";

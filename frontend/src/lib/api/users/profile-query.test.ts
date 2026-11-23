@@ -6,9 +6,9 @@ import { ZodError } from "zod";
 import { userProfileQueryOptions } from "@/lib/api/users/profile-query";
 import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
 import type { UserDto } from "@/lib/api/types";
-import { setCacheIdentity } from "@/lib/offline/cache-identity";
+import { setCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import { server } from "@/test/msw-server";
-import { storedUser } from "@/test/stored-user";
+import { storedUser } from "@/test/fixtures/stored-user";
 
 const SAVED: UserDto = {
   ...storedUser,

@@ -1,4 +1,4 @@
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
 import { JSX } from "react";
 
 // Each segment re-exports this: a loading file on [locale] would stream a 200 before detail pages can call notFound().

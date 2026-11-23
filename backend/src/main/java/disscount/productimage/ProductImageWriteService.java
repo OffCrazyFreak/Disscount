@@ -1,17 +1,16 @@
 package disscount.productimage;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import disscount.config.UploadLimitConfig;
 import disscount.productimage.ProductImageDtos.ProductImagesDto;
-import disscount.productimage.render.ProductImageRenderer;
 import disscount.productimage.render.ProductImageRendering;
 import disscount.shared.AfterRollback;
 import disscount.shared.errors.BadRequestException;
 import disscount.shared.FixedWindowLimiter;
 import disscount.shared.errors.NotFoundException;
+import disscount.shared.photo.PhotoBytes;
 import disscount.shared.photo.PhotoStore;
 import disscount.shared.photo.PhotoStoreConfig;
 import disscount.shared.photo.PhotoValidator;
@@ -59,7 +58,7 @@ class ProductImageWriteService {
             requireRoomForPhoto(userId, ean);
         }
 
-        ValidatedPhoto photo = validator.validate(bytes(file));
+        ValidatedPhoto photo = validator.validate(PhotoBytes.read(file));
         // The renderer reads JPEG and PNG only; the app always sends JPEG for product photos.
         if (!"image/jpeg".equals(photo.contentType())) {
             throw new BadRequestException("error.productImage.jpegOnly");
@@ -83,7 +82,7 @@ class ProductImageWriteService {
                 .originalWidth(photo.width())
                 .originalHeight(photo.height())
                 .contributorId(userId)
-                .contentSha256(ProductImageRenderer.sha256(photo.bytes()))
+                .contentSha256(PhotoBytes.sha256(photo.bytes()))
                 .build());
         rendering.render(image);
 
@@ -150,14 +149,6 @@ class ProductImageWriteService {
     private void requireStorage() {
         if (!store.enabled() || !originals.enabled()) {
             throw new ServiceUnavailableException("error.productImage.unavailable");
-        }
-    }
-
-    private static byte[] bytes(MultipartFile file) {
-        try {
-            return file.getBytes();
-        } catch (IOException e) {
-            throw new BadRequestException("error.cardPhoto.unreadable");
         }
     }
 }

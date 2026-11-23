@@ -90,9 +90,9 @@ Store logos in the marquee are `<Link>`s to `/products?chain=<chain>`, matching 
 
 ## The cursor-aware hero cart
 
-The hero `CartLogo` behaves like a small pet on desktop: it watches the cursor, and once you scroll it jumps out of the hero and chases it. `HeroCart` (`sections/hero-cart.tsx`) is the client island that replaced the bare `CartLogo` in `hero-section.tsx`; because client components still SSR their HTML, the SVG stays in the initial payload and the section itself remains a Server Component.
+The hero `CartLogo` behaves like a small pet on desktop: it watches the cursor, and once you scroll it jumps out of the hero and chases it. `HeroCart` (`sections/hero/hero-cart.tsx`) is the client island that replaced the bare `CartLogo` in `hero-section.tsx`; because client components still SSR their HTML, the SVG stays in the initial payload and the section itself remains a Server Component.
 
-Everything is gated by `interactive = useFinePointer() && !useReducedMotionSafe()`. `useFinePointer` (shared, `hooks/use-fine-pointer.ts`) is a `useSyncExternalStore` matchMedia hook on `(hover: hover) and (pointer: fine)` with a `false` server snapshot, so touch devices, reduced-motion users, the server render, and the first client render all get the plain static cart with no hydration mismatch.
+Everything is gated by `interactive = useFinePointer() && !useReducedMotionSafe()`. `useFinePointer` (shared, `hooks/viewport/use-fine-pointer.ts`) is a `useSyncExternalStore` matchMedia hook on `(hover: hover) and (pointer: fine)` with a `false` server snapshot, so touch devices, reduced-motion users, the server render, and the first client render all get the plain static cart with no hydration mismatch.
 
 Three behaviours, in escalating order:
 
@@ -106,22 +106,22 @@ The pose hook writes raw pointer-derived values into `useMotionValue`s that feed
 
 The chaser activates once `useScrolledPast(10)` trips. `useCursorFollow` `.jump()`s its springs to the hero cart's current center (so it visibly escapes from the hero), then lazily trails the pointer with a soft spring, always aiming `STOP_DISTANCE_PX` (64px) short of the cursor along the approach direction so it never sits under it. It re-orients on both pointer moves and its own position changes, flipping only outside a 12px horizontal deadzone so it does not flap on near-vertical approaches. Visually it is a `pointer-events-none aria-hidden` fixed element at `z-30`, under the window scroll fade at `--z-scroll-fade` (40). Note it now ties with the back-to-top FAB at `--z-back-to-top` (30), and sits above the header at `--z-header` (20): the mobile bottom nav lowered both of those out of the 50s, and the whole ladder now lives as `--z-*` tokens in `globals.css` (see [MOBILE-NAV.md](MOBILE-NAV.md#layer-stack)). It is portaled to `document.body`, with a masked `backdrop-blur` disc plus a `TextGlow` behind the SVG so the green cart stays readable over the green stats band. Scrolling back to the top exits the chaser (`AnimatePresence`) and restores the hero cart.
 
-`cursorTiltDeg` (`app/[locale]/(root)/utils/cursor.ts`) holds the one non-obvious bit of math: with `scaleX(-1)` applied before `rotate(r)`, the rendered rotation is mirrored to `-r`, so tilt is computed as `atan2(dy, |dx|)`; the same value then aims the nose at the cursor under both facings. It clamps via the shared `clamp` in `utils/generic.ts`.
+`cursorTiltDeg` (`app/[locale]/(root)/utils/cursor.ts`) holds the one non-obvious bit of math: with `scaleX(-1)` applied before `rotate(r)`, the rendered rotation is mirrored to `-r`, so tilt is computed as `atan2(dy, |dx|)`; the same value then aims the nose at the cursor under both facings. It clamps via the shared `clamp` in `utils/format/generic.ts`.
 
 ## Shared visual primitives
 
 These generic, presentational components live in `components/custom/common/` and `components/custom/animation/`, and are reused across the landing (and elsewhere).
 
-| Component          | File                             | What it does                                                           | Server/client |
-| ------------------ | -------------------------------- | ---------------------------------------------------------------------- | ------------- |
-| `EdgeFade`         | `common/edge-fade.tsx`           | Gradient overlay that fades content against one edge                   | Server        |
-| `ScrollFade`       | `common/scroll-fade.tsx`         | Scroll-aware `EdgeFade` for an overflow container (sidebar, dropdowns) | Client        |
-| `WindowScrollFade` | `common/window-scroll-fade.tsx`  | Fixed bottom fade for the whole page; hides at the end of the document | Client        |
-| `TextGlow`         | `common/text-glow.tsx`           | Soft white radial glow behind a text block                             | Server        |
-| `ScrollReveal`     | `animation/scroll-reveal.tsx`    | Staggered scroll-in reveal (spring), reduced-motion safe               | Client        |
-| `StaggerChildren`  | `animation/stagger-children.tsx` | Staggered fade/rise of children on mount (hero)                        | Client        |
-| `DoodleCanvas`     | `doodles/doodle-canvas.tsx`      | `motion.svg` shell whose child paths draw on when scrolled into view   | Client        |
-| `SparkleField`     | `doodles/sparkle-field.tsx`      | Seeded scatter of twinkling sparkles                                   | Server        |
+| Component          | File                                        | What it does                                                           | Server/client |
+| ------------------ | ------------------------------------------- | ---------------------------------------------------------------------- | ------------- |
+| `EdgeFade`         | `common/scroll-fade/edge-fade.tsx`          | Gradient overlay that fades content against one edge                   | Server        |
+| `ScrollFade`       | `common/scroll-fade/scroll-fade.tsx`        | Scroll-aware `EdgeFade` for an overflow container (sidebar, dropdowns) | Client        |
+| `WindowScrollFade` | `common/scroll-fade/window-scroll-fade.tsx` | Fixed bottom fade for the whole page; hides at the end of the document | Client        |
+| `TextGlow`         | `common/display/text-glow.tsx`              | Soft white radial glow behind a text block                             | Server        |
+| `ScrollReveal`     | `animation/scroll-reveal.tsx`               | Staggered scroll-in reveal (spring), reduced-motion safe               | Client        |
+| `StaggerChildren`  | `animation/stagger-children.tsx`            | Staggered fade/rise of children on mount (hero)                        | Client        |
+| `DoodleCanvas`     | `doodles/doodle-canvas.tsx`                 | `motion.svg` shell whose child paths draw on when scrolled into view   | Client        |
+| `SparkleField`     | `doodles/sparkle-field.tsx`                 | Seeded scatter of twinkling sparkles                                   | Server        |
 
 Three doodles (`barcode-doodle`, `price-line-doodle`, `scale-doodle`) are hand-drawn SVGs built on `DoodleCanvas` with `drawVariants`, so their strokes draw themselves on scroll. `squiggle-underline` and `sparkle-doodle` are pure CSS-animated Server Components. `WindowScrollFade` is mounted once in `app/[locale]/layout.tsx`, so every page gets a bottom fade that self-hides when there is nothing more to scroll.
 
@@ -204,10 +204,10 @@ Every CSS animation is disabled under `@media (prefers-reduced-motion: reduce)`,
 
 | Path                                                                                    | Role                                                      |
 | --------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| `app/[locale]/(root)/components/sections/feature-card.tsx`                              | Server card; chooses `<Link>` / action / div              |
-| `app/[locale]/(root)/components/sections/feature-card-action.tsx`                       | Client action island (scanner / notifications)            |
-| `app/[locale]/(root)/components/sections/hero-cart.tsx`                                 | Client island: cursor-aware hero cart + mounts the chaser |
-| `app/[locale]/(root)/utils/cursor.ts`, `hooks/use-fine-pointer.ts`                      | Mirror-safe tilt math; desktop-pointer matchMedia hook    |
+| `app/[locale]/(root)/components/sections/feature-cards/feature-card.tsx`                | Server card; chooses `<Link>` / action / div              |
+| `app/[locale]/(root)/components/sections/feature-cards/feature-card-action.tsx`         | Client action island (scanner / notifications)            |
+| `app/[locale]/(root)/components/sections/hero/hero-cart.tsx`                            | Client island: cursor-aware hero cart + mounts the chaser |
+| `app/[locale]/(root)/utils/cursor.ts`, `hooks/viewport/use-fine-pointer.ts`             | Mirror-safe tilt math; desktop-pointer matchMedia hook    |
 | `components/custom/common/{edge-fade,scroll-fade,window-scroll-fade,text-glow}.tsx`     | Shared fade/glow primitives                               |
 | `components/custom/animation/{scroll-reveal,stagger-children}.tsx`                      | Scroll-in reveal and mount stagger wrappers               |
 | `context/{notifications-context,notifications-types,use-watchlist-notifications}.ts(x)` | Lifted notifications open state                           |

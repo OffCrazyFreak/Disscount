@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/user-context";
-import { isAdmin } from "@/lib/api/schemas/auth-user";
+import { isAdmin } from "@/lib/api/schemas/user/auth-user";
 
 export default function NewPostButton() {
   const t = useTranslations("updates");

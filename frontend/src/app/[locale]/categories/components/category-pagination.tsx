@@ -8,7 +8,7 @@ import {
   PAGE_WINDOW,
   paginationPages,
 } from "@/app/[locale]/categories/utils/category-page";
-import { categoryPath } from "@/utils/category-links";
+import { categoryPath } from "@/utils/links/category-links";
 
 interface ICategoryPaginationProps {
   slug: string;

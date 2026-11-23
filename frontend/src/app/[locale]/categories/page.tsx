@@ -1,5 +1,5 @@
 import type { Metadata, ResolvingMetadata } from "next";
-import { withSharePreview } from "@/utils/share-metadata";
+import { withSharePreview } from "@/utils/seo/share-metadata";
 import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -11,11 +11,11 @@ import {
   hubRobots,
   isHubIndexable,
 } from "@/app/[locale]/categories/utils/category-page";
-import PageBreadcrumbs from "@/components/custom/common/page-breadcrumbs";
+import PageBreadcrumbs from "@/components/custom/common/display/page-breadcrumbs";
 import { Link } from "@/i18n/navigation";
 import { localizedUrl } from "@/i18n/alternates";
 import { getCatalogCategories } from "@/lib/api/catalog-categories/server";
-import { CATEGORIES_PATH, categoryPath } from "@/utils/category-links";
+import { CATEGORIES_PATH, categoryPath } from "@/utils/links/category-links";
 
 export async function generateMetadata(
   _props: PageProps<"/[locale]/categories">,

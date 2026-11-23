@@ -1,0 +1,105 @@
+"use client";
+
+import { ChevronsDown, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
+import { isKeyboardClick } from "@/utils/ui/events";
+import { useProductsSheet } from "@/context/products-sheet-context";
+import BottomNavIndicator from "@/components/custom/bottom-nav/bottom-nav-indicator";
+import HoldProgressRing from "@/components/custom/common/controls/hold-progress-ring";
+import {
+  CELL_BUTTON_CLASS,
+  CELL_ITEM_CLASS,
+  CELL_LABEL_CLASS,
+} from "@/components/custom/bottom-nav/bottom-nav-classes";
+import type { IndicatorOpacity } from "@/components/custom/bottom-nav/hooks/use-indicator-opacity";
+
+/** Both glyphs share the circle's centre and swap by rotating through it */
+const ICON_CLASS =
+  "absolute size-[1.6rem] transition-all duration-200 motion-reduce:transition-none";
+
+interface IBottomNavCenterItemProps {
+  label: string;
+  /** On the catalogue route. Opening the sheet deliberately does not count */
+  isActive: boolean;
+  isScrubbed: boolean;
+  /** Holds the one active disc, which a thumb borrows while it scrubs */
+  showsDisc: boolean;
+  isSearchOpen: boolean;
+  indicatorOpacity: IndicatorOpacity;
+  onKeyboardActivate: () => void;
+}
+
+/** The glyph points the way the sheet leaves; a hold scans, as typing and scanning answer one question. */
+export default function BottomNavCenterItem({
+  label,
+  isActive,
+  isScrubbed,
+  showsDisc,
+  isSearchOpen,
+  indicatorOpacity,
+  onKeyboardActivate,
+}: IBottomNavCenterItemProps) {
+  const t = useTranslations("shell");
+  const { triggerRef } = useProductsSheet();
+
+  return (
+    <li className={CELL_ITEM_CLASS} data-nav-cell>
+      <button
+        ref={triggerRef}
+        type="button"
+        // The visible word stays in the name, so speech control can address the cell (WCAG 2.5.3).
+        aria-label={
+          isSearchOpen
+            ? t("bottomNav.searchClose", { label })
+            : t("bottomNav.searchOpen", { label })
+        }
+        aria-current={isActive ? "page" : undefined}
+        aria-expanded={isSearchOpen}
+        onClick={(event) => {
+          if (isKeyboardClick(event)) onKeyboardActivate();
+        }}
+        className={CELL_BUTTON_CLASS}
+      >
+        {showsDisc && <BottomNavIndicator opacity={indicatorOpacity} />}
+
+        <span
+          className={cn(
+            "bg-primary text-primary-foreground relative flex size-[2.8rem] -translate-y-[0.2rem] items-center justify-center rounded-full transition-transform duration-150 motion-reduce:transition-none",
+            isScrubbed && "scale-105",
+          )}
+        >
+          {/* On the face, because outside the raised circle it would cross the pill's edge. */}
+          <HoldProgressRing
+            progress="var(--press-progress, 0)"
+            className="stroke-primary-foreground absolute top-[0.2rem] left-[0.2rem] size-[2.4rem]"
+          />
+
+          <Search
+            className={cn(
+              ICON_CLASS,
+              isSearchOpen && "rotate-90 scale-50 opacity-0",
+            )}
+          />
+
+          <ChevronsDown
+            className={cn(
+              ICON_CLASS,
+              !isSearchOpen && "-rotate-90 scale-50 opacity-0",
+            )}
+          />
+        </span>
+
+        <span
+          className={cn(
+            CELL_LABEL_CLASS,
+            isActive ? "text-primary font-bold" : "text-muted-foreground",
+            isScrubbed && "text-primary",
+          )}
+        >
+          {label}
+        </span>
+      </button>
+    </li>
+  );
+}

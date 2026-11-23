@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ScanBarcode } from "lucide-react";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import ScanConfirm from "@/components/scanner/scan-confirm";
-import ScanManualEntry from "@/components/scanner/scan-manual-entry";
-import ScannerCamera from "@/components/scanner/scanner-camera";
-import { formatLabel } from "@/components/scanner/code-choice-list";
+import ScanConfirm from "@/components/scanner/result/scan-confirm";
+import ScanManualEntry from "@/components/scanner/manual/scan-manual-entry";
+import ScannerCamera from "@/components/scanner/camera/scanner-camera";
+import { formatLabel } from "@/components/scanner/result/code-choice-list";
 import type { IScannedCode, ScanPreset } from "@/typings/scanned-code";
 
 type ScannerStep = "camera" | "manual" | "confirm";

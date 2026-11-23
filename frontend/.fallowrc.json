@@ -14,6 +14,12 @@
         "patterns": ["src/app/**"]
       },
       {
+        "name": "features",
+        // The pattern keeps the zone defined when `fallow audit` reads a base commit that has no src/features yet; autoDiscover makes each folder its own zone.
+        "patterns": ["src/features/**"],
+        "autoDiscover": ["src/features"]
+      },
+      {
         "name": "shared",
         "patterns": [
           "src/components/**",
@@ -32,6 +38,10 @@
     "rules": [
       {
         "from": "app",
+        "allow": ["features", "shared"]
+      },
+      {
+        "from": "features",
         "allow": ["shared"]
       },
       {
@@ -77,7 +87,7 @@
     "added-suppression": "off"
   },
   "ignoreExportsUsedInFile": true,
-  "ignoreFindings": ["**/products/components/view-switcher.tsx"],
+  "ignoreFindings": ["**/products/components/filters/view-switcher.tsx"],
   "duplicates": {
     "ignore": ["src/app/globals.css", "src/i18n/messages/*/index.ts"]
   }

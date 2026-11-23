@@ -7,7 +7,7 @@ import {
 } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import SimilarProducts from "@/app/[locale]/products/[id]/components/similar-products";
+import SimilarProducts from "@/features/products/detail/components/similar-products";
 import ProductDetailsPage, {
   generateMetadata,
 } from "@/app/[locale]/products/[id]/page";
@@ -16,7 +16,7 @@ import {
   getProductCategorySlug,
 } from "@/lib/api/catalog-categories/server";
 import { getServerProduct } from "@/lib/cijene-api/server/get-product";
-import { product } from "@/test/price-fixtures";
+import { product } from "@/test/fixtures/price-fixtures";
 
 vi.mock("server-only", () => ({}));
 

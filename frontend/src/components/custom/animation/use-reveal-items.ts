@@ -3,7 +3,7 @@
 import { Children, ReactNode } from "react";
 import { motion } from "motion/react";
 
-import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
+import { useReducedMotionSafe } from "@/hooks/viewport/use-reduced-motion-safe";
 import {
   itemTagFor,
   type RevealContainerTag,

@@ -75,8 +75,8 @@ Not checked:
 - `backend/src/test/java/disscount/contract/ApiContractTest.java`: checks and refreshes it.
 - `backend/src/test/java/disscount/support/ApiContract.java`: reads it for the wire format tests.
 - `frontend/src/lib/api/schemas/backend-contract.test.ts`: the tables of mirrored schemas and enums.
-- `frontend/src/test/api-contract.ts`: the comparison, with its own tests in `api-contract.test.ts`.
-- `frontend/src/test/nullability-drift.ts`: the request and response nullability rules.
+- `frontend/src/test/backend/api-contract.ts`: the comparison, with its own tests in `api-contract.test.ts`.
+- `frontend/src/test/backend/nullability-drift.ts`: the request and response nullability rules.
 
 The JSON is read from disk rather than imported: the frontend image builds with only `frontend/` as its context, and `next build` type checks test files.
 

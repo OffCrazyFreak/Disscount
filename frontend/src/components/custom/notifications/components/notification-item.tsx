@@ -1,9 +1,9 @@
 import { Link } from "@/i18n/navigation";
 
-import type { IWatchlistNotification } from "@/context/notifications-types";
+import type { IWatchlistNotification } from "@/context/notifications/notifications-types";
 import StorePriceList from "@/components/custom/price/store-price-list";
-import { formatQuantity } from "@/utils/strings";
-import { productPath } from "@/utils/product-links";
+import { formatQuantity } from "@/utils/format/strings";
+import { productPath } from "@/utils/links/product-links";
 
 interface INotificationItemProps {
   notification: IWatchlistNotification;

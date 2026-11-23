@@ -7,9 +7,7 @@ import {
 import { storePrice } from "@/lib/cijene-api/location-prices/test-rows";
 
 const CITIES = ["Osijek", "Pula", "Rijeka", "Split", "Zagreb"];
-const ROWS = CITIES.map((city, index) =>
-  storePrice("1", city, `${index + 1}.00`),
-);
+const ROWS = CITIES.map((city, index) => storePrice("1", city, index + 1));
 
 function newCache() {
   return createPriceCache({ ttlMs: 60_000, maxEntries: 100 });

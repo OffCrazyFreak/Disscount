@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, type KeyboardEvent } from "react";
+import { type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import SearchBarField, {
   type ISearchBarFieldOptions,
@@ -11,7 +11,7 @@ import {
   isTouchPointer,
 } from "@/utils/browser/touch-keyboard";
 import { useSearchBarQuery } from "@/components/custom/search/use-search-bar-query";
-import { useSearchNavigation } from "@/hooks/use-search-navigation";
+import { useSearchNavigation } from "@/hooks/state/use-search-navigation";
 import { useSidebar } from "@/components/ui/sidebar";
 import type { ISearchDraftStore } from "@/components/custom/search/search-draft-store";
 import { IScannedCode } from "@/typings/scanned-code";
@@ -108,15 +108,12 @@ export default function SearchBar({
     if (!autoSearch && routeQuery) search("");
   }
 
-  const handleScan = useCallback(
-    (code: IScannedCode) => {
-      dismissTouchKeyboard();
-      setOpen(false);
-      openResult(code.rawValue);
-      onSubmitted?.(code.rawValue);
-    },
-    [openResult, setOpen, onSubmitted],
-  );
+  function handleScan(code: IScannedCode) {
+    dismissTouchKeyboard();
+    setOpen(false);
+    openResult(code.rawValue);
+    onSubmitted?.(code.rawValue);
+  }
 
   return (
     <div>

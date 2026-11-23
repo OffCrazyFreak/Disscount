@@ -3,9 +3,9 @@
 import { useRouter } from "@/i18n/navigation";
 import { useEffect, ReactNode } from "react";
 
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
 import { useUser } from "@/context/user-context";
-import { canAccessDashboard } from "@/lib/api/schemas/auth-user";
+import { canAccessDashboard } from "@/lib/api/schemas/user/auth-user";
 
 interface IDashboardGuardProps {
   children: ReactNode;

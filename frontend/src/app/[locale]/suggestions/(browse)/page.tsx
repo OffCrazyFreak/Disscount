@@ -1,24 +1,16 @@
 import type { Metadata, ResolvingMetadata } from "next";
-import { withSharePreview } from "@/utils/share-metadata";
-import { getLocale, getTranslations } from "next-intl/server";
+import { withSharePreview } from "@/utils/seo/share-metadata";
 
 import SuggestionsClient from "@/app/[locale]/suggestions/components/suggestions-client";
-import { pageAlternates } from "@/i18n/alternates";
-import { readSearchParam } from "@/utils/generic";
+import { pageMetadata } from "@/i18n/alternates";
+import { readSearchParam } from "@/utils/format/generic";
 
 export async function generateMetadata(
   _props: PageProps<"/[locale]/suggestions">,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const locale = await getLocale();
-  const t = await getTranslations("suggestions");
-
   return withSharePreview(
-    {
-      title: t("meta.title"),
-      description: t("meta.description"),
-      alternates: pageAlternates("/suggestions", locale),
-    },
+    await pageMetadata("suggestions", "/suggestions"),
     parent,
   );
 }

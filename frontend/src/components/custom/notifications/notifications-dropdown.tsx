@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import BellRingIcon from "@/components/icons/bell-ring-icon";
-import { useNotifications } from "@/context/notifications-context";
+import { useNotifications } from "@/context/notifications/notifications-context";
 import NotificationSummary from "@/components/custom/notifications/components/notification-summary";
 import NotificationsList from "@/components/custom/notifications/components/notifications-list";
 

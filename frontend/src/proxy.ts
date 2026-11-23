@@ -7,7 +7,10 @@ import {
   LOCALE_COOKIE,
   LOCALES,
 } from "@/i18n/locales";
-import { decodeProductId, isWellFormedProductId } from "@/utils/product-id";
+import {
+  decodeProductId,
+  isWellFormedProductId,
+} from "@/utils/links/product-id";
 
 const intlMiddleware = createMiddleware(routing);
 

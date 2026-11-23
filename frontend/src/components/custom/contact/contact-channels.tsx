@@ -5,8 +5,8 @@ import { Bug, ExternalLink, Lightbulb } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import CopyButton from "@/components/custom/common/copy-button";
-import { CONTACT_EMAIL, LINKEDIN_URL } from "@/constants/contact";
+import CopyButton from "@/components/custom/common/controls/copy-button";
+import { CONTACT_EMAIL, LINKEDIN_URL } from "@/constants/site/contact";
 
 export default function ContactChannels() {
   const t = useTranslations("common");

@@ -3,7 +3,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import type {
   ShoppingListDto,
   ShoppingListRequest,
-} from "@/lib/api/schemas/shopping-list";
+} from "@/lib/api/schemas/lists/shopping-list";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 
 /** Without this a save reads new, old, new, because `invalidateQueries` only starts a refetch. */

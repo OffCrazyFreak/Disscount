@@ -1,7 +1,7 @@
 import { usePathname } from "@/i18n/navigation";
 import { useUser } from "@/context/user-context";
 import { useTranslations } from "next-intl";
-import { canAccessDashboard } from "@/lib/api/schemas/auth-user";
+import { canAccessDashboard } from "@/lib/api/schemas/user/auth-user";
 import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-drop-count";
 import {
   userNavItems,

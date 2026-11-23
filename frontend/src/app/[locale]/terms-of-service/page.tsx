@@ -1,10 +1,10 @@
 import type { Metadata, ResolvingMetadata } from "next";
-import { withSharePreview } from "@/utils/share-metadata";
+import { withSharePreview } from "@/utils/seo/share-metadata";
 import { localizedUrl } from "@/i18n/alternates";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
 import LegalPage from "@/components/custom/legal/legal-page";
 import LegalSection from "@/components/custom/legal/legal-section";
-import { CONTACT_EMAIL } from "@/constants/contact";
+import { CONTACT_EMAIL } from "@/constants/site/contact";
 
 export async function generateMetadata(
   _props: PageProps<"/[locale]/terms-of-service">,

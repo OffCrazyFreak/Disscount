@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
-import disscount.productimage.render.ProductImageRenderer;
 import disscount.productimage.render.ProductImageRendering;
 import disscount.shared.AfterCommit;
 import disscount.shared.errors.BadRequestException;
+import disscount.shared.photo.PhotoBytes;
 import disscount.shared.photo.PhotoStore;
 import disscount.shared.photo.PhotoStoreConfig;
 import disscount.shared.errors.ServiceUnavailableException;
@@ -74,7 +74,7 @@ class ProductImageRemoval {
 
     /** The hash is of the cleaned copy, so metadata changes do not get a copy through. */
     void requireNotDeleted(byte[] cleaned) {
-        if (images.existsByContentSha256AndDeletedAtIsNotNull(ProductImageRenderer.sha256(cleaned))) {
+        if (images.existsByContentSha256AndDeletedAtIsNotNull(PhotoBytes.sha256(cleaned))) {
             throw new BadRequestException("error.productImage.deleted");
         }
     }
@@ -83,7 +83,7 @@ class ProductImageRemoval {
         if (originalKey == null) return null;
         return originals.get(originalKey).map(stored -> {
             try (StoredPhoto photo = stored; InputStream in = photo.stream()) {
-                return ProductImageRenderer.sha256(in.readAllBytes());
+                return PhotoBytes.sha256(in.readAllBytes());
             } catch (IOException e) {
                 // Deleting without the fingerprint would let the same file be uploaded again.
                 throw new IllegalStateException("Could not fingerprint the original before deleting it", e);

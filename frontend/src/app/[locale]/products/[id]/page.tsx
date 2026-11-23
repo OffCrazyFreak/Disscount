@@ -2,12 +2,12 @@ import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { HydrationBoundary } from "@tanstack/react-query";
 import { getLocale, getTranslations } from "next-intl/server";
-import ProductDetailClient from "@/app/[locale]/products/[id]/components/product-detail-client";
-import ProductJsonLd from "@/app/[locale]/products/[id]/components/product-json-ld";
+import ProductDetailClient from "@/features/products/detail/components/product-detail-client";
+import ProductJsonLd from "@/features/products/detail/components/product-json-ld";
 import { productBreadcrumbSteps } from "@/app/[locale]/products/[id]/utils/product-breadcrumbs";
 import { categoryName } from "@/app/[locale]/categories/utils/category-names";
-import PageBreadcrumbs from "@/components/custom/common/page-breadcrumbs";
-import SimilarProducts from "@/app/[locale]/products/[id]/components/similar-products";
+import PageBreadcrumbs from "@/components/custom/common/display/page-breadcrumbs";
+import SimilarProducts from "@/features/products/detail/components/similar-products";
 import { similarProducts } from "@/app/[locale]/products/[id]/utils/similar-products";
 import {
   OPTIONAL_LOOKUP_TIMEOUT_MS,
@@ -23,10 +23,10 @@ import {
 import { productCacheState } from "@/app/[locale]/products/[id]/utils/product-cache-state";
 import { getServerProduct } from "@/lib/cijene-api/server/get-product";
 import { getServerProductPrices } from "@/lib/cijene-api/server/get-product-prices";
-import { formatPrice } from "@/utils/price";
-import { getMinPrice } from "@/utils/product-price-utils";
-import { productPageUrl } from "@/utils/product-links";
-import { decodeProductId } from "@/utils/product-id";
+import { formatPrice } from "@/utils/price/price";
+import { getMinPrice } from "@/utils/price/product-price-utils";
+import { productPageUrl } from "@/utils/links/product-links";
+import { decodeProductId } from "@/utils/links/product-id";
 import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 
 export async function generateMetadata(

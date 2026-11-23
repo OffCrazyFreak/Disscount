@@ -10,7 +10,7 @@ import { loadMessages } from "@/i18n/load-messages";
 import {
   REAUTH_CODE_TTL_MINUTES,
   RESET_TOKEN_TTL_SECONDS,
-} from "@/constants/auth";
+} from "@/constants/auth/auth";
 import { localePath } from "@/i18n/locale-path";
 import { clientEnv } from "@/lib/env";
 

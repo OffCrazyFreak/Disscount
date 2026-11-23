@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import type { CodeType } from "@/constants/card-codes";
-import { useDevicePixelWidth } from "@/hooks/use-device-pixel-width";
+import { useDevicePixelWidth } from "@/hooks/viewport/use-device-pixel-width";
 import { generateCodeSvg } from "@/utils/card-code/generate-code-svg";
 import CardCodeFallback from "@/components/custom/card-code/card-code-fallback";
 import CardCodeImage from "@/components/custom/card-code/card-code-image";

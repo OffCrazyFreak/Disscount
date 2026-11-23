@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { AccountSessionDto } from "@/lib/api/schemas/account-session";
+import type { AccountSessionDto } from "@/lib/api/schemas/user/account-session";
 import {
   DEVICE_ICONS,
   countryName,

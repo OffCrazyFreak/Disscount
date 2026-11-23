@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { REAUTH_CODE_RESEND_SECONDS } from "@/constants/auth";
+import { REAUTH_CODE_RESEND_SECONDS } from "@/constants/auth/auth";
 import {
   prove,
   sendReauthCode,

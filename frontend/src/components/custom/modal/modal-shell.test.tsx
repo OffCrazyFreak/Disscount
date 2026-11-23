@@ -5,7 +5,7 @@ import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { axeDialog } from "@/test/axe-dialog";
+import { axeDialog } from "@/test/harness/axe-dialog";
 import { renderWithProviders } from "@/test/render";
 
 describe("modal accessibility", () => {

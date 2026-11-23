@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { isLimitReached, limitReachedOf } from "@/lib/limits/limit-reached";
-import { httpError } from "@/test/http-error";
+import { httpError } from "@/test/backend/http-error";
 
 describe("limitReachedOf", () => {
   it("reads the limit and its size from the refusal", () => {

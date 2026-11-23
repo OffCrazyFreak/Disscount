@@ -8,13 +8,13 @@ import {
 } from "@/lib/api/digital-cards/optimistic-cards";
 import { postCardsUsed } from "@/lib/api/digital-cards/queries";
 import type { DigitalCardDto } from "@/lib/api/types";
-import { getCacheIdentity } from "@/lib/offline/cache-identity";
-import { deleteIf } from "@/lib/offline/idb-transactions";
+import { getCacheIdentity } from "@/lib/offline/cache/cache-identity";
+import { deleteIf } from "@/lib/offline/card-photos/idb-transactions";
 import {
   canWriteAfterPurges,
   currentPurgeGeneration,
-} from "@/lib/offline/purge-gate";
-import { isQueuedWriteExpired } from "@/lib/offline/queued-write-expiry";
+} from "@/lib/offline/cache/purge-gate";
+import { isQueuedWriteExpired } from "@/lib/offline/writes/queued-write-expiry";
 
 /** A local queue, because opening a card must never wait on the network and a lost write only costs a sort position. */
 const FLUSH_INTERVAL_MS = 60_000;

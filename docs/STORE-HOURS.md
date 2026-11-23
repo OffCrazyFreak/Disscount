@@ -28,7 +28,7 @@ Each store has three layers, each with its source and when it was verified:
 | Store exceptions           | `store_hours.exceptions` | weekly, with the template | Kaufland's `2026-11-01 closed`                                                          |
 | Sunday and holiday overlay | `store_hours_overlay`    | Thursday to Saturday      | Konzum's `open_this_sunday` for one store; an empty `store_code` covers the whole chain |
 
-One store as the status function reads it (`StoreHoursResponse` in `frontend/src/lib/api/schemas/store-hours.ts`; [§4](#4-serving-the-hours) covers the compact form it travels in):
+One store as the status function reads it (`StoreHoursResponse` in `frontend/src/lib/api/schemas/stores/store-hours.ts`; [§4](#4-serving-the-hours) covers the compact form it travels in):
 
 - `weekly`: seven entries, Monday first as ISO 8601 counts. Each is a list of `{ opens, closes }` intervals (split shifts are two), an empty list for closed, or `null` when the source did not say.
 - `dated`: `{ date, ranges, verifiedAt }` for single days, already merged on the server: per date the latest observation wins, because the weekly refresh and the Thursday to Saturday poll often read the same date from the same feed; on a tie the store's exception beats the chain's word on that store, which beats a chain-wide one.
@@ -47,7 +47,7 @@ It maps one to one onto both standards, so data from either fits and could be pu
 
 ## 3. Deciding open or closed
 
-`hoursOnDate` (`lib/store-hours/hours-on-date.ts`) resolves one day, first match wins:
+`hoursOnDate` (`lib/store-hours/status/hours-on-date.ts`) resolves one day, first match wins:
 
 1. a dated entry for that date, if verified within 14 days;
 2. nothing more when the template is older than 14 days: the day is unknown;
@@ -55,7 +55,7 @@ It maps one to one onto both standards, so data from either fits and could be pu
 4. a Sunday: unknown, unless the store is exempt;
 5. the weekly template for that weekday (`null` stays unknown).
 
-`openingStatusAt` (`lib/store-hours/opening-status.ts`) lays yesterday to a week ahead out as minutes from today's midnight, so a late shift (`16:00` to `02:00`) reaches into today and `24:00` followed by `00:00` counts as one opening. Then:
+`openingStatusAt` (`lib/store-hours/status/opening-status.ts`) lays yesterday to a week ahead out as minutes from today's midnight, so a late shift (`16:00` to `02:00`) reaches into today and `24:00` followed by `00:00` counts as one opening. Then:
 
 ```mermaid
 flowchart TD
@@ -116,11 +116,11 @@ Edge compression already existed before this format: Cloudflare sends brotli or 
 The map, the product page and the shopping list read the hours through one `StoreHoursProvider` (`components/custom/store-hours/store-hours-context.tsx`): the page calls `useStoreHoursNow` once, which holds the React Query result (one request, cached an hour and persisted for offline use) and the current minute from `useCurrentMinute`. That clock ticks on each minute boundary while the tab is visible and catches up when it returns, and is null until mount, so the server never renders a badge from its own clock. Each row calls `useStoreOpening(key)`, which runs `openingStatusAt`; nothing else decides whether a store is open.
 
 - **Badge** (`opening-status-badge.tsx`): only "Otvoreno" (green), "Zatvoreno" (red) or "Radno vrijeme nije potvrđeno" (outline). Orange marks "soon" either way: "Otvoreno" when the store closes within the hour, "Zatvoreno" when it opens within the hour, the owner's choice.
-- **Detail** (`common/detail-popover-button.tsx`): the time ("Zatvara u 21:00", "Zatvara uskoro u 21:00", "Otvara sutra u 7:00") is not shown beside the badge but in a popover that opens on mouse hover, keyboard focus and tap. It is one controlled Radix popover rather than a tooltip, because Radix tooltips ignore taps and a touch laptop reports a fine pointer. The badge is a button named with the full state and time ("Otvoreno, zatvara uskoro u 21:00"), so screen readers get what the colour says. The chain cards reuse the same popover for their nearest store: their toggle is a button inside the chain name's heading, stretched over the header by a pseudo-element (`stretched-collapsible-trigger.tsx`), so the distance is its own button beside it, raised above the stretch, and never nests in the toggle.
-- **Map**: every list row and the phone sheet show the badge under the address, and it is part of the row's accessible name. The open row adds the source and its date ("Izvor: Kaufland (03.11.2026.)", through `formatDate`), the "Provjeri" link (a store no source covers links to its chain's finder), and a screen reader announcement when the open store's status changes. The "Otvoreno sada" switch keeps only confirmed open stores; a second switch also keeps unconfirmed ones. Until the hours load the filter keeps every store rather than emptying the list. If the request fails, or is paused offline with nothing cached, a line under the switch says the filter cannot work and offers a retry (`hooks/state/use-map-hours.ts`).
-- **Weekly list** (`store-week-hours.tsx`, rows from `lib/store-hours/week-hours.ts`): the open map row and the phone sheet list the next seven days, starting today, so every row has the holiday and dated data the badge uses (past days would not). Each day goes through `hoursOnDate`, so the list and the badge never disagree. Today is tinted and marked "danas" with `aria-current="date"`. A day no source gives reads "Nije potvrđeno"; an unknown Sunday at a store the trading law covers reads "Samo neke nedjelje", since it opens only on the 16 Sundays a year the chain picks; a holiday reads "Zatvoreno" with "Praznik"; a dated entry that differs from the weekly template is marked "Posebno radno vrijeme". The list hides when every day is unknown.
+- **Detail** (`common/controls/detail-popover-button.tsx`): the time ("Zatvara u 21:00", "Zatvara uskoro u 21:00", "Otvara sutra u 7:00") is not shown beside the badge but in a popover that opens on mouse hover, keyboard focus and tap. It is one controlled Radix popover rather than a tooltip, because Radix tooltips ignore taps and a touch laptop reports a fine pointer. The badge is a button named with the full state and time ("Otvoreno, zatvara uskoro u 21:00"), so screen readers get what the colour says. The chain cards reuse the same popover for their nearest store: their toggle is a button inside the chain name's heading, stretched over the header by a pseudo-element (`stretched-collapsible-trigger.tsx`), so the distance is its own button beside it, raised above the stretch, and never nests in the toggle.
+- **Map**: every list row and the phone sheet show the badge under the address, and it is part of the row's accessible name. The open row adds the source and its date ("Izvor: Kaufland (03.11.2026.)", through `formatDate`), the "Provjeri" link (a store no source covers links to its chain's finder), and a screen reader announcement when the open store's status changes. The "Otvoreno sada" switch keeps only confirmed open stores; a second switch also keeps unconfirmed ones. Until the hours load the filter keeps every store rather than emptying the list. If the request fails, or is paused offline with nothing cached, a line under the switch says the filter cannot work and offers a retry (`features/map/hooks/use-map-hours.ts`).
+- **Weekly list** (`store-week-hours.tsx`, rows from `lib/store-hours/status/week-hours.ts`): the open map row and the phone sheet list the next seven days, starting today, so every row has the holiday and dated data the badge uses (past days would not). Each day goes through `hoursOnDate`, so the list and the badge never disagree. Today is tinted and marked "danas" with `aria-current="date"`. A day no source gives reads "Nije potvrđeno"; an unknown Sunday at a store the trading law covers reads "Samo neke nedjelje", since it opens only on the 16 Sundays a year the chain picks; a holiday reads "Zatvoreno" with "Praznik"; a dated entry that differs from the weekly template is marked "Posebno radno vrijeme". The list hides when every day is unknown.
 - **Product page**: each row of a chain's per store price table shows that store's badge. The hours are fetched only once a table is open or a nearest store is named.
-- **Chain cards** (product page and shopping list): a chain has no hours of its own, so the card shows the distance to the chain's nearest store in lighter text beside the chain name, such as "Dukat (150 m)", and only while distances come from a location fix (`shownNearestStores` in `hooks/use-distance-sort.ts`). The distance is a button (`components/custom/distance-sort/nearest-store-distance.tsx`) whose popover shows that store's address and "Otvoreno" or "Zatvoreno", without times, the owner's choice; unconfirmed or not yet loaded hours leave the address alone. Its name reads "Najbliža trgovina, 150 m: Ilica 1, 10000 Zagreb, Otvoreno", with the address written as the map writes it (`formatStoreAddress` in `utils/labels.ts`): the postcode shows only when the store data has one, as in "Vlaska 44, Zagreb". A town or IP guess names no nearest store, so no distance.
+- **Chain cards** (product page and shopping list): a chain has no hours of its own, so the card shows the distance to the chain's nearest store in lighter text beside the chain name, such as "Dukat (150 m)", and only while distances come from a location fix (`shownNearestStores` in `hooks/geo/use-distance-sort.ts`). The distance is a button (`components/custom/distance-sort/nearest-store-distance.tsx`) whose popover shows that store's address and "Otvoreno" or "Zatvoreno", without times, the owner's choice; unconfirmed or not yet loaded hours leave the address alone. Its name reads "Najbliža trgovina, 150 m: Ilica 1, 10000 Zagreb, Otvoreno", with the address written as the map writes it (`formatStoreAddress` in `utils/format/labels.ts`): the postcode shows only when the store data has one, as in "Vlaska 44, Zagreb". A town or IP guess names no nearest store, so no distance.
 
 ## 5. Refreshing the hours
 
@@ -179,14 +179,14 @@ dm is not covered: upstream lists dm as a single chain-wide store, so there is n
 
 ## 8. Key files
 
-| Path (under `frontend/`)                         | Role                                                        |
-| ------------------------------------------------ | ----------------------------------------------------------- |
-| `src/lib/store-hours/hours-on-date.ts`           | One day's hours: dated entry, law, template                 |
-| `src/lib/store-hours/croatian-holidays.ts`       | Public holidays between two dates (server only)             |
-| `src/lib/store-hours/build-store-hours.ts`       | Rows to response: switches, layering, window, link fallback |
-| `src/lib/store-hours/store-opening.ts`           | One store's status from the response and the minute         |
-| `src/hooks/use-current-minute.ts`                | The minute clock behind every badge                         |
-| `src/app/[locale]/map/utils/list/open-filter.ts` | The "open now" filter and its `?open=` value                |
+| Path (under `frontend/`)                       | Role                                                        |
+| ---------------------------------------------- | ----------------------------------------------------------- |
+| `src/lib/store-hours/status/hours-on-date.ts`  | One day's hours: dated entry, law, template                 |
+| `src/lib/store-hours/croatian-holidays.ts`     | Public holidays between two dates (server only)             |
+| `src/lib/store-hours/build-store-hours.ts`     | Rows to response: switches, layering, window, link fallback |
+| `src/lib/store-hours/status/store-opening.ts`  | One store's status from the response and the minute         |
+| `src/hooks/runtime/use-current-minute.ts`      | The minute clock behind every badge                         |
+| `src/features/map/utils/stores/open-filter.ts` | The "open now" filter and its `?open=` value                |
 
 ## 9. Config and libraries
 

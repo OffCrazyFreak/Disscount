@@ -6,7 +6,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import UserAvatar from "@/components/custom/common/user-avatar";
+import UserAvatar from "@/components/custom/common/display/user-avatar";
 import { useUser } from "@/context/user-context";
 import UserMenuHeader from "@/components/custom/user-menu/components/user-menu-header";
 import UserMenuItems from "@/components/custom/user-menu/components/user-menu-items";

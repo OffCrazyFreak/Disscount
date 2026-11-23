@@ -199,6 +199,7 @@ const eslintConfig = defineConfig([
       "src/components/custom/legal/**",
       "src/app/global-error.tsx",
       "src/app/og/**",
+      "src/lib/og/**",
     ],
     rules: { "i18next/no-literal-string": "off" },
   },

@@ -6,9 +6,9 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { DirectoryStoreDto } from "@/lib/api/schemas";
-import { toStoreKey } from "@/utils/store-key";
+import { toStoreKey } from "@/utils/geo/store-key";
 import { shareOrCopy } from "@/utils/browser/share";
-import { getChainLabel, getLocationLabel } from "@/utils/labels";
+import { getChainLabel, getLocationLabel } from "@/utils/format/labels";
 
 interface IShareStoreButtonProps {
   store: DirectoryStoreDto;

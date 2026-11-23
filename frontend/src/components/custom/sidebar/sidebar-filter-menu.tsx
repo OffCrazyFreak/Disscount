@@ -16,7 +16,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import ScrollFade from "@/components/custom/common/scroll-fade";
+import ScrollFade from "@/components/custom/common/scroll-fade/scroll-fade";
 import { SIDEBAR_ICON_CLASS } from "@/components/custom/sidebar/sidebar-styles";
 import { cn } from "@/lib/utils";
 import type { INavigationItem } from "@/constants/navigation";

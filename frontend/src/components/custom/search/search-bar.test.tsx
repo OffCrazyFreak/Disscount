@@ -1,4 +1,4 @@
-import { router, searchBarShell } from "@/test/search-bar-harness";
+import { router, searchBarShell } from "@/test/harness/search-bar-harness";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";

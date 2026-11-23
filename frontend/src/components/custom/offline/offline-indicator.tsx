@@ -3,8 +3,8 @@
 import { WifiOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useIsMutating } from "@tanstack/react-query";
-import { useOnlineStatus } from "@/hooks/use-online-status";
-import { isOfflineMutationKey } from "@/lib/offline/offline-mutation-keys";
+import { useOnlineStatus } from "@/hooks/runtime/use-online-status";
+import { isOfflineMutationKey } from "@/lib/offline/writes/offline-mutation-keys";
 
 export default function OfflineIndicator() {
   const t = useTranslations("common");

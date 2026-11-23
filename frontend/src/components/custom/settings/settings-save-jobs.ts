@@ -1,7 +1,7 @@
 import {
   ONBOARDING_COMPLETED,
   type UserRequest,
-} from "@/lib/api/schemas/auth-user";
+} from "@/lib/api/schemas/user/auth-user";
 import {
   SECTION_FIELDS,
   SettingsFormValues,

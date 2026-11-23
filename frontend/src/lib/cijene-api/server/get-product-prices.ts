@@ -11,7 +11,7 @@ import {
   SERVER_LOOKUP_REVALIDATE_SECONDS,
   type FetchedLookup,
 } from "@/lib/cijene-api/server/server-lookup-cache";
-import { buildQueryString } from "@/utils/generic";
+import { buildQueryString } from "@/utils/format/generic";
 
 const SERVER_PRICES_TIMEOUT_MS = 5000;
 

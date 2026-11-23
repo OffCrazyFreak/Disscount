@@ -8,9 +8,9 @@ import {
 } from "@/features/map/utils/canvas/chain-icon";
 import { useSelectedFrame } from "@/features/map/hooks/canvas/use-selected-frame";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
-import { GUESS_RADIUS_M } from "@/hooks/use-geolocation";
+import { GUESS_RADIUS_M } from "@/hooks/geo/use-geolocation";
 import { circlePolygon } from "@/features/map/utils/view/circle";
-import { ILatLon } from "@/utils/distance";
+import { ILatLon } from "@/utils/geo/distance";
 
 export interface IUserLocation extends ILatLon {
   /** The IP guess, drawn as an area with no centre so it claims no street. */

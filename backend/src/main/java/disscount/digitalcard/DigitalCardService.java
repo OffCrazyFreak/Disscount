@@ -5,7 +5,6 @@ import disscount.digitalcard.photo.DigitalCardPhotoRepository;
 import disscount.digitalcard.photo.PhotoCleanupService;
 import disscount.digitalcard.photo.PhotoKeys;
 import disscount.shared.AfterCommit;
-import disscount.shared.errors.BadRequestException;
 import disscount.shared.errors.NotFoundException;
 import disscount.shared.photo.PhotoStore;
 import disscount.shared.photo.PhotoStoreConfig;
@@ -16,8 +15,6 @@ import disscount.storename.StoreNameService;
 import disscount.user.AccountErased;
 import org.springframework.beans.factory.annotation.Qualifier;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,10 +35,8 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class DigitalCardService {
 
-    static final int MAX_USED_ENTRIES = 50;
     static final int MAX_USED_AGE_DAYS = 400;
 
-    private static final Logger log = LoggerFactory.getLogger(DigitalCardService.class);
     static final String NOT_FOUND = "error.card.notFound";
 
     private final DigitalCardRepository cardRepository;
@@ -104,7 +99,8 @@ public class DigitalCardService {
         if (card.getChainCode() == null
                 && (created || previousChain != null || !sameStore(previousStore, card.getStoreName()))) {
             String storeName = card.getStoreName();
-            AfterCommit.run(() -> recordStoreName(userId, storeName));
+            // A suggestion is a nicety; it must never fail the card save.
+            AfterCommit.run(() -> storeNameService.record(userId, storeName));
         }
 
         return toDto(card);
@@ -146,16 +142,9 @@ public class DigitalCardService {
 
     @Transactional
     public void recordUsed(UUID userId, List<CardUsedEntry> entries) {
-        if (entries == null || entries.isEmpty() || entries.size() > MAX_USED_ENTRIES) {
-            throw new BadRequestException("error.card.usedBatchSize", String.valueOf(MAX_USED_ENTRIES));
-        }
-
         LocalDateTime now = Timestamps.nowUtc();
         LocalDateTime oldest = now.minusDays(MAX_USED_AGE_DAYS);
         for (CardUsedEntry entry : entries) {
-            if (entry == null || entry.id() == null || entry.usedAt() == null) {
-                throw new BadRequestException("error.card.usedEntryIncomplete");
-            }
             // Clamped both ways so a skewed device clock cannot pin a card to the top or bottom of every sort.
             LocalDateTime usedAt = toUtc(entry.usedAt());
             if (usedAt.isAfter(now)) usedAt = now;
@@ -210,15 +199,6 @@ public class DigitalCardService {
         card.setBalance(r.balance() == null ? null : r.balance().setScale(2, RoundingMode.UNNECESSARY));
         // A unit without an amount means nothing, and null unit means points.
         card.setBalanceUnit(r.balance() == null ? null : r.balanceUnit());
-    }
-
-    private void recordStoreName(UUID userId, String storeName) {
-        try {
-            storeNameService.record(userId, storeName);
-        } catch (RuntimeException e) {
-            // A suggestion is a nicety; it must never fail the card save.
-            log.warn("Could not record store name suggestion: {}", e.getMessage());
-        }
     }
 
     private DigitalCard requireActive(UUID userId, UUID id) {

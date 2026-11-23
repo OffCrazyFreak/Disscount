@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Store } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getChainLabel } from "@/utils/labels";
+import { getChainLabel } from "@/utils/format/labels";
 
 interface IStoreChainLogoProps {
   chain: string;

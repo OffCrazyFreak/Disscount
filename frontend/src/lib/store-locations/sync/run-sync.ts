@@ -11,11 +11,11 @@ import {
   recordGeoapifyMiss,
 } from "@/lib/store-locations/location-repository";
 import { fetchUpstreamStores } from "@/lib/store-locations/upstream-stores";
-import { withChainAddresses } from "@/lib/store-locations/sync/address-source-step";
-import { createDguAnchor } from "@/lib/store-locations/sync/dgu-anchor";
-import { resolveWithDgu } from "@/lib/store-locations/sync/dgu-step";
-import { resolveWithGeocoder } from "@/lib/store-locations/sync/geocoder-step";
-import { resolveWithLocators } from "@/lib/store-locations/sync/locator-step";
+import { withChainAddresses } from "@/lib/store-locations/sync/steps/address-source-step";
+import { createDguAnchor } from "@/lib/store-locations/sync/steps/dgu-anchor";
+import { resolveWithDgu } from "@/lib/store-locations/sync/steps/dgu-step";
+import { resolveWithGeocoder } from "@/lib/store-locations/sync/steps/geocoder-step";
+import { resolveWithLocators } from "@/lib/store-locations/sync/steps/locator-step";
 import {
   acquireSyncLease,
   releaseSyncLease,

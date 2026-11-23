@@ -25,14 +25,12 @@ class PinnedStoreController {
     public ResponseEntity<List<PinnedStoreDto>> updatePinnedStores(
             @CurrentUser UUID userId,
             @Valid @RequestBody BulkPinnedStoreRequest request) {
-        List<PinnedStoreDto> pinned = pinnedStoreService.updatePinnedStores(userId, request);
-        return ResponseEntity.ok(pinned);
+        return ResponseEntity.ok(pinnedStoreService.updatePinnedStores(userId, request));
     }
 
     @Operation(summary = "Get current user's pinned stores")
     @GetMapping("/me")
     public ResponseEntity<List<PinnedStoreDto>> getCurrentUserPinnedStores(@CurrentUser UUID userId) {
-        List<PinnedStoreDto> pinnedStores = pinnedStoreService.getUserPinnedStores(userId);
-        return ResponseEntity.ok(pinnedStores);
+        return ResponseEntity.ok(pinnedStoreService.getUserPinnedStores(userId));
     }
 }

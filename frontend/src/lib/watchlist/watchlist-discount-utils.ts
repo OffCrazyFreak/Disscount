@@ -5,8 +5,7 @@ import {
 import {
   getAveragePrice,
   getCheapestChainByMinPrice,
-  parsePrice,
-} from "@/utils/product-price-utils";
+} from "@/utils/price/product-price-utils";
 import {
   IDiscountInfo,
   IScopedDiscountedStore,
@@ -41,12 +40,7 @@ export function getScopedDiscountedStores(
   const discountedStores: IScopedDiscountedStore[] = [];
 
   for (const chain of scopedChains) {
-    const currentPrice = parsePrice(chain.min_price);
-
-    if (currentPrice === null) {
-      continue;
-    }
-
+    const currentPrice = chain.min_price;
     const comparison = calculatePriceComparison(avgPrice, currentPrice);
 
     if (!comparison.hasDiscount) {

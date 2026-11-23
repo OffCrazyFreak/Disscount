@@ -4,7 +4,7 @@ import { useRef, type RefObject } from "react";
 import type { UseFormRegisterReturn } from "react-hook-form";
 import { useTranslations } from "next-intl";
 
-import { useFittingText } from "@/hooks/use-fitting-text";
+import { useFittingText } from "@/hooks/viewport/use-fitting-text";
 
 interface IUseSearchInputPropsOptions {
   placeholder?: string;

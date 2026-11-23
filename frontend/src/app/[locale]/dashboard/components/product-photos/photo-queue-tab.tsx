@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import PhotoQueueFilters from "@/app/[locale]/dashboard/components/product-photos/photo-queue-filters";
 import PhotoQueueList from "@/app/[locale]/dashboard/components/product-photos/photo-queue-list";
 import { useQueueSelection } from "@/app/[locale]/dashboard/components/product-photos/use-queue-selection";
-import PhotoManager from "@/components/custom/product-photos/photo-manager";
+import PhotoManager from "@/components/custom/product-photos/manager/photo-manager";
 import { usePhotoQueue } from "@/lib/api/product-images/admin-hooks";
 import type { PhotoQueueFilter } from "@/lib/api/types";
 

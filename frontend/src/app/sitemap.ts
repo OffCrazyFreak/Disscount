@@ -13,7 +13,7 @@ import {
   CHAINS_PATH,
   MAPPED_CHAIN_CODES,
   chainPath,
-} from "@/utils/chain-links";
+} from "@/utils/links/chain-links";
 
 // Each entry is the Croatian URL plus its hreflang set, so each language is discoverable without listing it five times.
 function entry(

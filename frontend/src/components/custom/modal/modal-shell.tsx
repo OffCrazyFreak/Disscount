@@ -7,7 +7,7 @@ import {
   ModalShellFooter,
   hasFooterContent,
   IModalShellFooterProps,
-} from "@/components/custom/modal/modal-shell-footer";
+} from "@/components/custom/modal/footer/modal-shell-footer";
 import { handleModalEnterSubmit } from "@/components/custom/modal/modal-enter-submit";
 import { useModalFocusRestore } from "@/components/custom/modal/use-modal-focus-restore";
 import ModalShellHeader, {
@@ -15,7 +15,7 @@ import ModalShellHeader, {
   splitHeaderProps,
 } from "@/components/custom/modal/modal-shell-header";
 import { StaggerChildren } from "@/components/custom/animation/stagger-children";
-import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
+import ScrollFadeArea from "@/components/custom/common/scroll-fade/scroll-fade-area";
 import { cn } from "@/lib/utils";
 
 // TODO(responsive-drawer): a `presentation` prop rendering a Base UI Drawer below md.

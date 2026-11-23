@@ -1,5 +1,5 @@
 import type { Metadata, ResolvingMetadata } from "next";
-import { withSharePreview } from "@/utils/share-metadata";
+import { withSharePreview } from "@/utils/seo/share-metadata";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -14,7 +14,7 @@ import {
   hubRobots,
   isHubIndexable,
 } from "@/app/[locale]/categories/utils/category-page";
-import PageBreadcrumbs from "@/components/custom/common/page-breadcrumbs";
+import PageBreadcrumbs from "@/components/custom/common/display/page-breadcrumbs";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import { localizedUrl } from "@/i18n/alternates";
 import { Link } from "@/i18n/navigation";
@@ -25,8 +25,8 @@ import {
   chainMapPath,
   chainPath,
   isMappedChain,
-} from "@/utils/chain-links";
-import { getChainLabel } from "@/utils/labels";
+} from "@/utils/links/chain-links";
+import { getChainLabel } from "@/utils/format/labels";
 
 type ChainPageProps = PageProps<"/[locale]/chains/[slug]">;
 

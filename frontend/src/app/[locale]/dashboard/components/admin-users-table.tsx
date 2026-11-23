@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
 import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import {
   Table,
@@ -16,7 +16,7 @@ import {
 import AdminUserRow from "@/app/[locale]/dashboard/components/admin-user-row";
 import { adminService } from "@/lib/api";
 import { useContributorPhotoCounts } from "@/lib/api/product-images/admin-hooks";
-import { AccountType, UserDto } from "@/lib/api/schemas/auth-user";
+import { AccountType, UserDto } from "@/lib/api/schemas/user/auth-user";
 import { useUser } from "@/context/user-context";
 import { useRevealedItems } from "@/hooks/scroll/use-revealed-items";
 

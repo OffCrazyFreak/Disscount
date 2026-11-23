@@ -3,7 +3,7 @@ import { faqIds } from "@/app/[locale]/(root)/data/faq";
 import { appUrl } from "@/lib/env";
 import { localePath } from "@/i18n/locale-path";
 import { LOCALES } from "@/i18n/locales";
-import JsonLdScript from "@/components/custom/common/json-ld-script";
+import JsonLdScript from "@/components/custom/common/shell/json-ld-script";
 
 const baseUrl = appUrl();
 

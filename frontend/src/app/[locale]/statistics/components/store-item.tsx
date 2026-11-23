@@ -3,8 +3,8 @@
 import { memo } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, MapPin, Tag } from "lucide-react";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
+import ScrollFadeArea from "@/components/custom/common/scroll-fade/scroll-fade-area";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import {
   Collapsible,
@@ -20,8 +20,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getChainLabel, getLocationLabel } from "@/utils/labels";
-import { compareHr } from "@/utils/strings";
+import { getChainLabel, getLocationLabel } from "@/utils/format/labels";
+import { compareHr } from "@/utils/format/strings";
 import { cn } from "@/lib/utils";
 import cijeneService from "@/lib/cijene-api";
 import { ChainStats } from "@/lib/cijene-api/schemas";

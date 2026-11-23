@@ -1,4 +1,4 @@
-import { normalizeForSearch } from "@/utils/strings";
+import { normalizeForSearch } from "@/utils/format/strings";
 
 // Upstream gives Stanić a code and city, diskont.hr has no codes, so these pair by hand until upstream has streets.
 const CODE_BY_STORE_NAME: Record<string, string> = {

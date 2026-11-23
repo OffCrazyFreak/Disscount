@@ -20,13 +20,13 @@ import MapStoreSource, {
   MAP_MAX_ZOOM,
 } from "@/features/map/components/canvas/map-store-source";
 import SameSpotPopup from "@/features/map/components/canvas/same-spot-popup";
-import { ICenterRequest } from "@/hooks/use-geolocation";
+import { ICenterRequest } from "@/hooks/geo/use-geolocation";
 import { useMapCamera } from "@/features/map/hooks/canvas/use-map-camera";
 import { useMapClicks } from "@/features/map/hooks/canvas/use-map-clicks";
 import { useMapLoad } from "@/features/map/hooks/canvas/use-map-load";
 import { useViewReport } from "@/features/map/hooks/canvas/use-view-report";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
-import { ILatLon } from "@/utils/distance";
+import { ILatLon } from "@/utils/geo/distance";
 import { MAP_CUSTOM_ATTRIBUTION } from "@/features/map/utils/canvas/map-attribution";
 import {
   toInitialViewState,

@@ -1,36 +1,26 @@
 import type { Metadata, ResolvingMetadata } from "next";
-import { withSharePreview } from "@/utils/share-metadata";
-import { getLocale, getTranslations } from "next-intl/server";
+import { withSharePreview } from "@/utils/seo/share-metadata";
+import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { Search } from "lucide-react";
 
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import SearchResultsStatus from "@/components/custom/live-status/search-results-status";
-import NoResults from "@/components/custom/common/no-results";
+import NoResults from "@/components/custom/common/feedback/no-results";
 import { AnimatedGroup } from "@/components/custom/animation/animated-group";
 import PostCard from "@/app/[locale]/updates/components/post-card";
 import NewPostButton from "@/app/[locale]/updates/components/new-post-button";
 import { templatePosts } from "@/app/[locale]/updates/posts";
 import { localizePost } from "@/app/[locale]/updates/localize-post";
-import { pageAlternates } from "@/i18n/alternates";
-import { filterByFields, readSearchParam } from "@/utils/generic";
+import { pageMetadata } from "@/i18n/alternates";
+import { filterByFields, readSearchParam } from "@/utils/format/generic";
 
 export async function generateMetadata(
   _props: PageProps<"/[locale]/updates">,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const locale = await getLocale();
-  const t = await getTranslations("updates");
-
-  return withSharePreview(
-    {
-      title: t("meta.title"),
-      description: t("meta.description"),
-      alternates: pageAlternates("/updates", locale),
-    },
-    parent,
-  );
+  return withSharePreview(await pageMetadata("updates", "/updates"), parent);
 }
 
 export default async function UpdatesPage(

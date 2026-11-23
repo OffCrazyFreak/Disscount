@@ -8,8 +8,8 @@ import FavoriteStoreButton from "@/features/map/components/store/favorite-store-
 import ShareStoreButton from "@/features/map/components/store/share-store-button";
 import StoreOpeningBadge from "@/components/custom/store-hours/store-opening-badge";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
-import { formatDistance } from "@/utils/distance";
-import { formatStoreAddress } from "@/utils/labels";
+import { formatDistance } from "@/utils/geo/distance";
+import { formatStoreAddress } from "@/utils/format/labels";
 import { cn } from "@/lib/utils";
 
 interface IStoreSummaryProps {

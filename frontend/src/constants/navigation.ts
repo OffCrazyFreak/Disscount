@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type shell from "@/i18n/messages/hr/shell.json";
-import { isAdmin, type AccountType } from "@/lib/api/schemas/auth-user";
+import { isAdmin, type AccountType } from "@/lib/api/schemas/user/auth-user";
 
 /** Keys into the `shell` namespace, translated where the item is rendered. */
 export type NavKey = `nav.${keyof typeof shell.nav}`;

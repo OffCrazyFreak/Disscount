@@ -15,8 +15,8 @@ import { ZodError } from "zod";
 import { isReportedByProxy } from "@/lib/api/problem-details";
 import { limitReachedOf } from "@/lib/limits/limit-reached";
 import { showLimitReached } from "@/lib/limits/limit-reached-store";
-import { httpStatus } from "@/lib/offline/failure-policy";
-import { isNetworkFailure } from "@/lib/offline/is-network-failure";
+import { httpStatus } from "@/lib/offline/writes/failure-policy";
+import { isNetworkFailure } from "@/lib/offline/writes/is-network-failure";
 
 // An entry gc'd from memory also leaves the persisted snapshot at its next save.
 const UNWATCHED_QUERY_GC_TIME_MS = 7 * 24 * 60 * 60 * 1000;

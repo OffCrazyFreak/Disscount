@@ -171,7 +171,7 @@ Swagger lists them all at `/api/swagger-ui/index.html`.
 
 | Path                                                                      | Role                                                                           |
 | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `frontend/src/lib/api/schemas/auth-user.ts`                               | `canAccessDashboard`, `isAdmin`                                                |
+| `frontend/src/lib/api/schemas/user/auth-user.ts`                          | `canAccessDashboard`, `isAdmin`                                                |
 | `backend/src/main/java/disscount/user/UserService.java`                   | `findAllActiveAsAdmin`, `updateAccountType` and its guard, `deleteUserAsAdmin` |
 | `backend/src/main/java/disscount/user/admin/AdminAuditEntry.java`         | One `admin_audit` row; `AdminAction` lists the actions                         |
 | `backend/src/main/java/disscount/user/AdminAuditLog.java`                 | Writes the rows in the action's transaction, deduplicates reads                |
@@ -194,7 +194,7 @@ No admin-specific environment variables or feature flags. The page uses the shad
 | **An admin route outside `/api/admin/**` is open** | The rule matches that path only; anything else gets the catch-all that admits every signed-in token                                                                                                                                                                                                | Keep admin routes under `/api/admin/**`, and add each to `AdminGatingTest`, which fails until you do   |
 | **Recovering when no admin is left**               | `updateAccountType`, `deleteUserAsAdmin` and deleting your own account all refuse removing the last live admin with 409 (an admin targeting their own id through the admin delete gets 400 `error.user.cannotDeleteSelf` first); only the erasure replay after a backup restore can still erase it | Recovery is a manual SQL update ([AUTH.md](AUTH.md#71-admin-access))                                   |
 | **`GET /api/admin/users` returns everyone**        | No pagination, and WAU and MAU are counted over the full list in the browser, so paginating would break the stats                                                                                                                                                                                  | Move the counts to the server before paginating ([SEARCH.md](SEARCH.md#11-future-improvements--todos)) |
-| **A drifted user fails the whole list**            | `lib/api/admin/index.ts` parses every user with `userDtoSchema`, so one user missing a key the backend always sends shows the load error instead of a half-filled row                                                                                                                              | Change `UserDto` and `userDtoSchema` in the same PR                                                    |
+| **A drifted user fails the whole list**            | `lib/api/admin/queries.ts` parses every user with `userDtoSchema`, so one user missing a key the backend always sends shows the load error instead of a half-filled row                                                                                                                            | Change `UserDto` and `userDtoSchema` in the same PR                                                    |
 
 ---
 

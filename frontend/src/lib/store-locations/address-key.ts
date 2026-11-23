@@ -1,4 +1,4 @@
-import { normalizeForSearch } from "@/utils/strings";
+import { normalizeForSearch } from "@/utils/format/strings";
 
 export interface IParsedAddress {
   /** Distinctive street words, e.g. ["franje", "tudmana"]. */

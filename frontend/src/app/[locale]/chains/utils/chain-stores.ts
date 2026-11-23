@@ -1,8 +1,8 @@
 import { isVisitableStore } from "@/features/map/utils/stores/visitable-store";
 import type { DirectoryStoreDto } from "@/lib/api/schemas";
 import type { ChainStats } from "@/lib/cijene-api/schemas";
-import { getLocationLabel } from "@/utils/labels";
-import { compareHr } from "@/utils/strings";
+import { getLocationLabel } from "@/utils/format/labels";
+import { compareHr } from "@/utils/format/strings";
 
 export interface IChainCity {
   city: string;

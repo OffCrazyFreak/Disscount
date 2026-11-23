@@ -1,6 +1,6 @@
-import type { IBreadcrumbStep } from "@/utils/breadcrumb-json-ld";
-import { categoryPath } from "@/utils/category-links";
-import { productPath } from "@/utils/product-links";
+import type { IBreadcrumbStep } from "@/utils/seo/breadcrumb-json-ld";
+import { categoryPath } from "@/utils/links/category-links";
+import { productPath } from "@/utils/links/product-links";
 
 interface IProductBreadcrumbInput {
   ean: string;

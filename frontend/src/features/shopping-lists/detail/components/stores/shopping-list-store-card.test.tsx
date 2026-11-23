@@ -1,0 +1,45 @@
+import { vi } from "vitest";
+
+import ShoppingListStoreItem from "@/features/shopping-lists/detail/components/stores/shopping-list-store-card";
+import type { ChainSummary } from "@/features/shopping-lists/detail/typings/store-chain-types";
+import type { ShoppingListDto } from "@/lib/api/types";
+import { describeChainCard } from "@/test/harness/chain-card-contract";
+
+vi.mock("@/context/user-context", () => ({
+  useUser: () => ({ accountUser: null }),
+}));
+
+vi.mock(
+  "@/features/shopping-lists/detail/components/stores/shopping-list-items-table",
+  () => ({ default: () => <p>DETAILS</p> }),
+);
+
+const chain: ChainSummary = {
+  chain: "konzum",
+  code: "1",
+  name: "Mlijeko",
+  brand: null,
+  category: null,
+  unit: null,
+  quantity: null,
+  min_price: 1,
+  max_price: 2,
+  avg_price: 1.5,
+  price_date: "2026-11-04",
+  itemCount: 0,
+};
+
+const shoppingList = { items: [] } as unknown as ShoppingListDto;
+
+describeChainCard("Shopping list", (nearest) => (
+  <ShoppingListStoreItem
+    chain={chain}
+    shoppingList={shoppingList}
+    absoluteMinPrice={1}
+    absoluteMaxPrice={2}
+    productsData={[]}
+    hasLowestPriceItem={false}
+    hasHighestPriceItem={false}
+    nearest={nearest}
+  />
+));

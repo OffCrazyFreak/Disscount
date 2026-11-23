@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import PublicModalsOutlet from "@/app/[locale]/components/modal-router/public-modals-outlet";
-import { setCacheIdentity } from "@/lib/offline/cache-identity";
+import { setCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import { parseModalParam } from "@/lib/modal/modal-param-parser";
 import { renderWithProviders } from "@/test/render";
 

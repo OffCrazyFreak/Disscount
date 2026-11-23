@@ -5,8 +5,8 @@ import { type AxeResultsLike, toHaveNoViolations } from "vi-axe";
 import type {} from "vi-axe/extend-expect";
 import { afterEach, expect } from "vitest";
 
-import { setCacheIdentity } from "@/lib/offline/cache-identity";
-import { serverSession } from "@/test/backend-identity";
+import { setCacheIdentity } from "@/lib/offline/cache/cache-identity";
+import { serverSession } from "@/test/backend/backend-identity";
 
 // The matcher's message may be undefined, which Vitest's type does not allow.
 expect.extend({

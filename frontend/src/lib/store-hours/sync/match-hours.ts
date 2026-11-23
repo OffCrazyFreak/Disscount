@@ -1,6 +1,6 @@
 import type { StoreResponse } from "@/lib/cijene-api/schemas";
 import { cleanUpstreamAddress } from "@/lib/store-locations/address-key";
-import { matchLocatorStore } from "@/lib/store-locations/sync/match-locator-store";
+import { matchLocatorStore } from "@/lib/store-locations/sync/matching/match-locator-store";
 import type { IHoursRecord } from "@/lib/store-hours/sync/hours-source-types";
 
 type PlacedRecord = IHoursRecord & { lat: number; lon: number };

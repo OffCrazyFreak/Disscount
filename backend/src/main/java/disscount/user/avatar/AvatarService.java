@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import disscount.shared.FixedWindowLimiter;
 import disscount.shared.errors.BadRequestException;
 import disscount.shared.errors.ServiceUnavailableException;
+import disscount.shared.photo.PhotoBytes;
 import disscount.shared.photo.PhotoStore;
 import disscount.shared.photo.PhotoStoreConfig;
 import disscount.shared.photo.PhotoValidator;
@@ -21,7 +22,6 @@ import disscount.shared.photo.ValidatedPhoto;
 import disscount.user.AccountErased;
 import disscount.user.User;
 
-import java.io.IOException;
 import java.util.UUID;
 
 @Service
@@ -55,7 +55,8 @@ public class AvatarService {
         if (!store.enabled()) throw new ServiceUnavailableException("error.avatar.unavailable");
         rateLimiter.check(userId);
 
-        ValidatedPhoto photo = validator.validate(read(file), MAX_BYTES, MAX_SIDE);
+        if (file == null || file.isEmpty()) throw new BadRequestException("error.cardPhoto.empty");
+        ValidatedPhoto photo = validator.validate(PhotoBytes.read(file), MAX_BYTES, MAX_SIDE);
         String key = AvatarKeys.newKey(userId, photo.extension());
 
         store.put(key, photo.bytes(), photo.contentType());
@@ -87,15 +88,6 @@ public class AvatarService {
         } catch (RuntimeException e) {
             // The database is down as well; the account's prefix delete at erasure still reaches the file.
             log.warn("Could not queue an avatar file after a failed write: {}", e.getMessage());
-        }
-    }
-
-    private static byte[] read(MultipartFile file) {
-        if (file == null || file.isEmpty()) throw new BadRequestException("error.cardPhoto.empty");
-        try {
-            return file.getBytes();
-        } catch (IOException e) {
-            throw new BadRequestException("error.cardPhoto.unreadable");
         }
     }
 }

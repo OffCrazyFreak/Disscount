@@ -1,7 +1,7 @@
 import { DirectoryStoreDto } from "@/lib/api/schemas";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { getFormDraft, setFormDraft } from "@/utils/browser/local-storage";
-import { getChainLabel, getLocationLabel } from "@/utils/labels";
+import { getChainLabel, getLocationLabel } from "@/utils/format/labels";
 
 interface ILocationReportCopy {
   subject: string;

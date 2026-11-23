@@ -340,13 +340,13 @@ The threshold is 40px, far enough that a scroll, a wobble or a tap cannot trigge
 
 Current users, identical apart from their content and their modality:
 
-| Sheet                    | File                                                                            | Modal | Explicit dismissal beyond the handle      |
-| ------------------------ | ------------------------------------------------------------------------------- | ----- | ----------------------------------------- |
-| Search                   | `app/[locale]/products/components/products-sheet/products-sheet.tsx`            | no    | the bar's centre cell; also `md:hidden`   |
-| Product quick actions    | `components/custom/product/product-quick-actions.tsx`                           | yes   | an outside press, plus any action it runs |
-| PWA install instructions | `components/custom/pwa/install-instructions-sheet.tsx`                          | yes   | an outside press and `showCloseButton`    |
-| Shopping list actions    | `app/[locale]/(user)/shopping-lists/components/shopping-list-actions-sheet.tsx` | yes   | an outside press, plus any action it runs |
-| Map store                | `app/[locale]/map/components/store/map-store-sheet.tsx`                         | no    | the X beside the store; also `md:hidden`  |
+| Sheet                    | File                                                                 | Modal | Explicit dismissal beyond the handle      |
+| ------------------------ | -------------------------------------------------------------------- | ----- | ----------------------------------------- |
+| Search                   | `features/products/components/products-sheet/products-sheet.tsx`     | no    | the bar's centre cell; also `md:hidden`   |
+| Product quick actions    | `features/products/components/product-quick-actions.tsx`             | yes   | an outside press, plus any action it runs |
+| PWA install instructions | `components/custom/pwa/install-instructions-sheet.tsx`               | yes   | an outside press and `showCloseButton`    |
+| Shopping list actions    | `features/shopping-lists/components/shopping-list-actions-sheet.tsx` | yes   | an outside press, plus any action it runs |
+| Map store                | `features/map/components/store/map-store-sheet.tsx`                  | no    | the X beside the store; also `md:hidden`  |
 
 ### Why the surface is muted
 
@@ -445,7 +445,7 @@ if (productPageEan && entry.productPageTarget)
 return entry.longPressEnabled ? (entry.longPressTarget ?? null) : null;
 ```
 
-`productEanFromPath` (in `utils/routes.ts`) reads the EAN off `usePathname()` rather than `useParams`, because the bar is mounted in the root layout and never sees the route's own params. `Praćenje` has only a product-page target, so it has no gesture anywhere else; `Popisi` has both and swaps. `resolveHoldTarget` answers once, and the bar passes the result down as `hasHold`, so the ring and the behaviour cannot disagree about whether a hold does anything.
+`productEanFromPath` (in `utils/links/routes.ts`) reads the EAN off `usePathname()` rather than `useParams`, because the bar is mounted in the root layout and never sees the route's own params. `Praćenje` has only a product-page target, so it has no gesture anywhere else; `Popisi` has both and swaps. `resolveHoldTarget` answers once, and the bar passes the result down as `hasHold`, so the ring and the behaviour cannot disagree about whether a hold does anything.
 
 Neither modal needs its cache seeded, unlike `useProductModals`: the detail page has already fetched the product through the same `useGetProductByEan` key, so both open populated.
 
@@ -487,9 +487,9 @@ Typing a product name and scanning its barcode answer the same question, "what d
 ```mermaid
 flowchart TB
     gest["constants/gestures.ts<br/>every timing and threshold"] --> util
-    util["utils/long-press.ts<br/>framework-free timer"] --> hook["hooks/use-long-press.ts<br/>one element (product cards)"]
-    util --> cell["hooks/use-long-press-timer.ts<br/>timing plus the ring's progress"]
-    cell --> bar["bottom-nav/use-bottom-nav-pointer.ts<br/>the whole bar, plus scrubbing"]
+    util["utils/ui/long-press.ts<br/>framework-free timer"] --> hook["hooks/gestures/use-long-press.ts<br/>one element (product cards)"]
+    util --> cell["hooks/gestures/use-long-press-timer.ts<br/>timing plus the ring's progress"]
+    cell --> bar["bottom-nav/hooks/use-bottom-nav-pointer.ts<br/>the whole bar, plus scrubbing"]
     hit["bottom-nav/bar-hit-test.ts<br/>a point to a cell, or none"] --> bar
     res["bottom-nav/resolve-hold-target.ts<br/>what a hold does, or null"] --> bar
 ```
@@ -543,7 +543,7 @@ The badge counts watched products whose best price fell since you last opened `/
 - Opening `/watchlist` resets the snapshot to today's prices, which clears the badge. Only a visible tab counts as a visit, so a background tab left on the page that refetches on reconnect does not clear drops nobody saw. Elsewhere, a product seen for the first time only gets its baseline, so it never counts on the day you add it. A product whose price failed to load keeps its old baseline, so it can still count after a visit. Unwatched products leave the snapshot, so re-watching one starts fresh.
 - The snapshot records the store scope (the sorted pinned chain codes) its prices were read in. Pinning or unpinning a store rebases it silently instead of reporting every product that is cheaper at another chain.
 - A tab writes the snapshot only when its own prices, watchlist, scope or route change, and merges against a fresh read when it does, so a visit in one tab survives and two tabs that disagree never overwrite each other in a loop. Other tabs pick the write up through the `storage` event. Nothing is written while the pinned stores failed to load, since that would read as "every chain" and rebase away unseen drops. The sign-out purge deletes the departing account's snapshot, because it lists every watched EAN, and a write only happens while the cache identity matches the account, so a profile that has not caught up with a switch cannot recreate it.
-- The visual badge stops at `9+` (`utils/badge-count.ts`) and is `aria-hidden`. The cell's accessible name carries the exact count instead (`Praćenje, 12 novih popusta`), and one polite `role="status"` region in the layout (`components/custom/watchlist/price-drop-status.tsx`) announces a change, since a changed `aria-label` is never read out. It stays quiet about the first count each account settles on (no fetch in flight, and no product still waiting for its first price), so a cold start or a sign-in does not talk over the page.
+- The visual badge stops at `9+` (`utils/ui/badge-count.ts`) and is `aria-hidden`. The cell's accessible name carries the exact count instead (`Praćenje, 12 novih popusta`), and one polite `role="status"` region in the layout (`features/watchlist/components/price-drop-status.tsx`) announces a change, since a changed `aria-label` is never read out. It stays quiet about the first count each account settles on (no fetch in flight, and no product still waiting for its first price), so a cold start or a sign-in does not talk over the page.
 - The header bell still shows threshold alerts from `useNotifications()`. The two numbers answer different questions: "what is on sale for me now" and "what got cheaper since I last looked".
 - It is per device: a visit on the phone does not clear the laptop. The server-side inbox (#222) is meant to replace the hook's body with an unseen count shared across devices, and the app icon badge (#133) should read that same source.
 
@@ -654,7 +654,7 @@ Explicitly ruled out as gimmicks, with reasons, in case they come up again:
 The mobile FAB's jobs moved into the bar: the per-page create action became a long press plus the inline button, and back-to-top on `/products` became re-tapping the active tab.
 
 - The inline create buttons must stay visible below `sm`. They are the only tappable path, and a long press alone would fail WCAG 2.1.1.
-- Below `sm` those buttons use shorter wording through `ResponsiveLabel` (`components/custom/common/responsive-label.tsx`), which swaps two strings with CSS so the label never changes on hydration. The control's `aria-label` keeps the full wording.
+- Below `sm` those buttons use shorter wording through `ResponsiveLabel` (`components/custom/common/display/responsive-label.tsx`), which swaps two strings with CSS so the label never changes on hydration. The control's `aria-label` keeps the full wording.
 - `BackToTopButton` stays `hidden md:block`, or widths between 640px and 768px would show the bar and the button at once.
 - Anything anchored to the bottom offsets from `--bottom-nav-total`: the install banner and the toaster's `mobileOffset` do, or they land on the bar.
 
@@ -670,39 +670,39 @@ The mobile FAB's jobs moved into the bar: the per-page create action became a lo
 
 ### The bar
 
-| File                                                     | Role                                                           |
-| -------------------------------------------------------- | -------------------------------------------------------------- |
-| `lib/watchlist/use-watchlist-price-drop-count.ts`        | The Praćenje badge count, shared with the sidebar and header   |
-| `components/custom/common/hold-progress-ring.tsx`        | One ring, shared by long-press feedback and list completion    |
-| `components/custom/bottom-nav/bottom-nav-items.ts`       | The five-cell order and the long-press mapping                 |
-| `components/custom/bottom-nav/use-bottom-nav-pointer.ts` | One pointer stream for tap, scrub and long press               |
-| `hooks/use-long-press-timer.ts`                          | Hold timing, and the ring progress written to the pressed cell |
-| `components/custom/bottom-nav/resolve-hold-target.ts`    | What a hold does, or null if the cell has none                 |
+| File                                                           | Role                                                           |
+| -------------------------------------------------------------- | -------------------------------------------------------------- |
+| `lib/watchlist/use-watchlist-price-drop-count.ts`              | The Praćenje badge count, shared with the sidebar and header   |
+| `components/custom/common/controls/hold-progress-ring.tsx`     | One ring, shared by long-press feedback and list completion    |
+| `components/custom/bottom-nav/bottom-nav-items.ts`             | The five-cell order and the long-press mapping                 |
+| `components/custom/bottom-nav/hooks/use-bottom-nav-pointer.ts` | One pointer stream for tap, scrub and long press               |
+| `hooks/gestures/use-long-press-timer.ts`                       | Hold timing, and the ring progress written to the pressed cell |
+| `components/custom/bottom-nav/resolve-hold-target.ts`          | What a hold does, or null if the cell has none                 |
 
 ### Shared primitives
 
-| File                                      | Role                                                         |
-| ----------------------------------------- | ------------------------------------------------------------ |
-| `constants/gestures.ts`                   | Every gesture timing and threshold, in one place             |
-| `utils/long-press.ts`                     | Framework-free press timer with progress, drain and cancel   |
-| `hooks/use-long-press.ts`                 | Element-scoped Pointer Events wrapper, used by product cards |
-| `hooks/use-product-modals.ts`             | Opens the product modals, seeding the by-ean cache first     |
-| `components/custom/modal/sheet-shell.tsx` | The shared bottom sheet, owning layer, height and clearance  |
-| `context/products-sheet-context.tsx`      | Holds the sheet open, and whether it opens with filters      |
+| File                                            | Role                                                         |
+| ----------------------------------------------- | ------------------------------------------------------------ |
+| `constants/gestures.ts`                         | Every gesture timing and threshold, in one place             |
+| `utils/ui/long-press.ts`                        | Framework-free press timer with progress, drain and cancel   |
+| `hooks/gestures/use-long-press.ts`              | Element-scoped Pointer Events wrapper, used by product cards |
+| `features/products/hooks/use-product-modals.ts` | Opens the product modals, seeding the by-ean cache first     |
+| `components/custom/modal/sheet/sheet-shell.tsx` | The shared bottom sheet, owning layer, height and clearance  |
+| `context/products-sheet-context.tsx`            | Holds the sheet open, and whether it opens with filters      |
 
 ### The products sheet's own parts
 
-| File                                                                        | Role                                                            |
-| --------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `components/custom/search/search-action-button.tsx`                         | The Pretraži button itself, shared with the inline bars         |
-| `app/[locale]/products/components/products-sheet/products-sheet-submit.tsx` | Wraps it with the URL comparison, so no hook runs in the layout |
+| File                                                                    | Role                                                            |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `components/custom/search/search-action-button.tsx`                     | The Pretraži button itself, shared with the inline bars         |
+| `features/products/components/products-sheet/products-sheet-submit.tsx` | Wraps it with the URL comparison, so no hook runs in the layout |
 
 ### The filters
 
-| File                                                           | Role                                                             |
-| -------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `app/[locale]/products/components/product-filters-bar.tsx`     | Picks the layout: inline above `md`, a button to the sheet below |
-| `app/[locale]/products/components/product-filters-trigger.tsx` | The Filteri button, shared by the page and the sheet             |
+| File                                                               | Role                                                             |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `features/products/components/filters/product-filters-bar.tsx`     | Picks the layout: inline above `md`, a button to the sheet below |
+| `features/products/components/filters/product-filters-trigger.tsx` | The Filteri button, shared by the page and the sheet             |
 
 ### Touched elsewhere
 
@@ -861,7 +861,7 @@ Two smaller things made those holes worse under vaul: `touch-action: none` was s
 
 **A list anchored to a trigger cannot be rescued from the keyboard by collision handling.** The pinned-places select in the settings dialog slid under the keyboard because its trigger sits in a scroll container that shrinks to a couple of hundred pixels when the keyboard opens, while `CommandList` asks for a flat 300px. Radix was positioning it correctly the whole time; there was simply no room. `MultiSelect` now picks by viewport: a popover from `md` up, and below `md` the list expands **in flow** under the trigger, where the browser's own scroll-focused-input-into-view does the work and there is no anchor left to get wrong. The popover path separately gained a `collisionPadding`, which neither of those sets explicitly, and a cap on `--radix-popover-content-available-height`, which `ui/select.tsx` and `ui/dropdown-menu.tsx` already had and Popover alone never did.
 
-**A Radix menu on a touchscreen opens on `pointerdown`, so a finger that was only starting to scroll springs it open** ([radix-ui/primitives#1912](https://github.com/radix-ui/primitives/issues/1912)). The fix is to swallow touch presses on the trigger, `preventDefault` so Radix skips its own handler, and resolve on release, abandoning any press that travelled past `HOLD_CANCEL_PX`; mouse and keyboard keep Radix's behaviour. Only the pointer that began the press may resolve it, or a second finger can toggle the menu out from under the first. This lived in `use-tap-to-open.ts`, deleted along with its one consumer, the shopping list's dropdown. **Radix menus still mount on touch unguarded**, in three files: `header-actions.tsx` and `sidebar-user.tsx` each render `NotificationsDropdown` and `UserMenu` with no pointer gate (the sidebar's is inside a `md:hidden` block, so it is the explicitly mobile one), and `digital-cards/components/digital-card-item.tsx` mounts another. None of them ever used the hook, so the bug above is live on all three. The note is here so whoever fixes them starts from the answer rather than rediscovering it.
+**A Radix menu on a touchscreen opens on `pointerdown`, so a finger that was only starting to scroll springs it open** ([radix-ui/primitives#1912](https://github.com/radix-ui/primitives/issues/1912)). The fix is to swallow touch presses on the trigger, `preventDefault` so Radix skips its own handler, and resolve on release, abandoning any press that travelled past `HOLD_CANCEL_PX`; mouse and keyboard keep Radix's behaviour. Only the pointer that began the press may resolve it, or a second finger can toggle the menu out from under the first. This lived in `use-tap-to-open.ts`, deleted along with its one consumer, the shopping list's dropdown. **Radix menus still mount on touch unguarded**, in two files: `header-actions.tsx` and `sidebar-user.tsx` each render `NotificationsDropdown` and `UserMenu` with no pointer gate (the sidebar's is inside a `md:hidden` block, so it is the explicitly mobile one). Neither ever used the hook, so the bug above is live on both. The note is here so whoever fixes them starts from the answer rather than rediscovering it.
 
 **`ModalShell` gives the body the only flexible track, except when there is no body.** Header and footer are `shrink-0` so a long list or a large font size scrolls instead of squeezing the title and the buttons out of shape. A modal with no `children` (confirm, donation, auth-status) has no such track, and pinning both inside `overflow-hidden` clipped the buttons away with nothing to scroll, which is a reflow failure rather than a cosmetic one. There the header takes the flexible role instead. The cap is `dvh`, not `vh`, so a mobile URL bar does not push the footer off screen.
 

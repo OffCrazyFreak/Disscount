@@ -8,12 +8,12 @@ import {
   REAUTH_CODE_LENGTH,
   REAUTH_CODE_RESEND_SECONDS,
   REAUTH_CODE_TTL_MINUTES,
-} from "@/constants/auth";
+} from "@/constants/auth/auth";
 import {
   CODE_EXPIRED,
   CODE_RESEND_TOO_SOON,
   INVALID_CODE,
-} from "@/lib/auth/security-policy";
+} from "@/lib/auth/reauth/security-policy";
 
 const REAUTH_CODE_MAX_ATTEMPTS = 3;
 

@@ -5,7 +5,7 @@ import MapSearch from "@/features/map/components/search/map-search";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { CameraScannerProvider } from "@/context/scanner-context";
 import { renderWithProviders } from "@/test/render";
-import { stubTextFit, textWidth } from "@/test/stub-text-fit";
+import { stubTextFit, textWidth } from "@/test/harness/stub-text-fit";
 
 // Boundaries the suite cannot run: the App Router and the camera.
 vi.mock("@/components/scanner/camera-scanner", () => ({ default: () => null }));

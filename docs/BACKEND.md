@@ -73,7 +73,6 @@ flowchart TD
 
 | Method                  | Use                                                                                                                                                                      |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `isActive(userId)`      | Is this account live                                                                                                                                                     |
 | `requireActive(userId)` | The caller's own account; answers `401 error.user.notFound` once it is gone, because a token outlives its account by minutes                                             |
 | `lockActive(userId)`    | The same under a row lock held until commit, so a write racing account deletion lands first or is refused. Digital cards use it as their per-user mutex (`CardUserLock`) |
 | `lockIfActive(userId)`  | The lock for work that should quietly do nothing once the account is gone                                                                                                |
@@ -288,7 +287,7 @@ The required keys come from environment placeholders with no default. Spring lea
 - **JPQL never sees deleted rows**, including bulk updates and deletes. A cleanup written in JPQL silently skips them.
 - **`deleteAll()` in a test leaves hidden rows behind**, and their foreign keys then fail the next test's cleanup.
 - **The last admin cannot be removed through the app**: demoting the last admin, an admin deleting the last admin, and the last admin deleting their own account all answer 409. An admin targeting their own id through `DELETE /api/admin/users/{userId}` gets 400 `error.user.cannotDeleteSelf` first, whatever the admin count. Every role change and every erasure, a consumer's too, takes the admin row locks before it reads a role, which is what keeps a promotion racing an erasure from slipping past the check. The erasure replay is the exception, because a restored backup must forget every account it is told to. With no admin left, recovery is a manual `UPDATE app.app_user SET account_type = 'ADMIN'` on the server.
-- **The account deletion flow shows a generic failure for that 409.** `lib/auth/erase-backend-account.ts` turns any non-2xx into "Account erasure failed; nothing was deleted" and reports it to Sentry, so the last admin trying to delete their account sees a generic error and the account stays whole.
+- **The account deletion flow shows a generic failure for that 409.** `lib/auth/erasure/erase-backend-account.ts` turns any non-2xx into "Account erasure failed; nothing was deleted" and reports it to Sentry, so the last admin trying to delete their account sees a generic error and the account stays whole.
 
 ---
 

@@ -57,7 +57,7 @@ flowchart TD
 | Bottom nav scan action (`components/custom/bottom-nav/bottom-nav.tsx`)                                       | product, no confirm | `useProductNavigation` to the product page                                                                                          |
 | Landing hero and the scanner feature card (`app/[locale]/(root)/components/sections/`)                       | product, no confirm | Product page                                                                                                                        |
 | PWA shortcut (`components/custom/pwa/scan-shortcut.tsx`)                                                     | product, no confirm | Product page. The `scan=1` flag is removed from the URL before the camera opens, so a refresh or back navigation does not reopen it |
-| Card form code field (`app/[locale]/(user)/digital-cards/components/forms/code-value-field.tsx`)             | `all`, confirm      | Fills the card's code and format                                                                                                    |
+| Card form code field (`features/digital-cards/components/forms/code-value-field.tsx`)                        | `all`, confirm      | Fills the card's code and format                                                                                                    |
 
 A scanned EAN is not checked against the product catalogue before navigating; an unknown EAN lands on the product page's not found state ([PRODUCTS.md](PRODUCTS.md#5-the-product-page)).
 
@@ -133,14 +133,14 @@ The image never leaves the device ([IMAGE-UPLOADS.md](IMAGE-UPLOADS.md) lists th
 
 ## 9. Key files
 
-| Path                                                                               | Role                                                        |
-| ---------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `frontend/src/components/scanner/scanner-content.tsx`                              | Step machine, focus, announcements, vibration               |
-| `frontend/src/components/scanner/camera-view.tsx`                                  | The library `Scanner`, constraints, torch and track cleanup |
-| `frontend/src/components/scanner/scan-consensus.ts`, `hooks/use-scan-consensus.ts` | Repeated-read consensus                                     |
-| `frontend/src/utils/browser/camera.ts`                                             | Back camera scoring, camera naming, error mapping           |
-| `frontend/src/utils/barcode/`                                                      | Check digits and normalization, shared with cards           |
-| `frontend/src/components/custom/pwa/scan-shortcut.tsx`                             | The `/?scan=1` PWA shortcut                                 |
+| Path                                                                                      | Role                                                        |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `frontend/src/components/scanner/scanner-content.tsx`                                     | Step machine, focus, announcements, vibration               |
+| `frontend/src/components/scanner/camera/camera-view.tsx`                                  | The library `Scanner`, constraints, torch and track cleanup |
+| `frontend/src/components/scanner/camera/scan-consensus.ts`, `hooks/use-scan-consensus.ts` | Repeated-read consensus                                     |
+| `frontend/src/utils/browser/camera.ts`                                                    | Back camera scoring, camera naming, error mapping           |
+| `frontend/src/utils/barcode/`                                                             | Check digits and normalization, shared with cards           |
+| `frontend/src/components/custom/pwa/scan-shortcut.tsx`                                    | The `/?scan=1` PWA shortcut                                 |
 
 `frontend/src/lib/store-locations/dgu/gml-scanner.ts` has "scanner" in its name but is an XML stream reader for the store map ([MAP.md](MAP.md)), unrelated to barcodes.
 

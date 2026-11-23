@@ -2,7 +2,7 @@ import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import {
   getAveragePrice,
   getCheapestChainByMinPrice,
-} from "@/utils/product-price-utils";
+} from "@/utils/price/product-price-utils";
 
 export interface ICategoryPriceFacts {
   chainCount: number;

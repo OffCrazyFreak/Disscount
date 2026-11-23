@@ -24,7 +24,7 @@ import SidebarUser from "@/components/custom/sidebar/sidebar-user";
 import SidebarMainNav from "@/components/custom/sidebar/sidebar-main-nav";
 import SidebarProductNav from "@/components/custom/sidebar/sidebar-product-nav";
 import SidebarSupportNav from "@/components/custom/sidebar/sidebar-support-nav";
-import ScrollFade from "@/components/custom/common/scroll-fade";
+import ScrollFade from "@/components/custom/common/scroll-fade/scroll-fade";
 import ProductSearchBar from "@/components/custom/search/product-search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 

@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { productShareImageFile } from "@/app/og/product-share-image";
+import { productShareImageFile } from "@/lib/og/product-share-image";
 import { GET } from "@/app/og/products/[ean]/[file]/route";
-import renderProductOg from "@/app/og/render-product-og";
+import renderProductOg from "@/lib/og/render-product-og";
 import { getVerifiedMainPhotoUrl } from "@/lib/api/product-images/server";
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/api/product-images/server", () => ({
   getVerifiedMainPhotoUrl: vi.fn(),
 }));
-vi.mock("@/app/og/render-product-og", () => ({ default: vi.fn() }));
+vi.mock("@/lib/og/render-product-og", () => ({ default: vi.fn() }));
 
 const EAN = "3856016906549";
 const PHOTO = "https://images.test/products/3856016906549/abc.jpg";

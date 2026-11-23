@@ -1,4 +1,4 @@
-import { localizedOgMetadata, renderLocalizedOg } from "@/app/og/localized-og";
+import { localizedOgMetadata, renderLocalizedOg } from "@/lib/og/localized-og";
 
 export const runtime = "nodejs";
 

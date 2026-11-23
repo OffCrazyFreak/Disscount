@@ -1,5 +1,5 @@
-import type { IGpsPosition } from "@/hooks/use-geolocation";
-import { ILatLon } from "@/utils/distance";
+import type { IGpsPosition } from "@/hooks/geo/use-geolocation";
+import { ILatLon } from "@/utils/geo/distance";
 
 // "Approximate" grants are 2 km or coarser, so a kilometre figure would claim more than it knows.
 const PRECISE_WITHIN_M = 2_000;

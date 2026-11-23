@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-import InboxNotice from "@/components/custom/common/inbox-notice";
+import InboxNotice from "@/components/custom/common/feedback/inbox-notice";
 import { useSecurity } from "@/components/custom/settings/security/security-context";
 
 export default function PasswordRecovery() {

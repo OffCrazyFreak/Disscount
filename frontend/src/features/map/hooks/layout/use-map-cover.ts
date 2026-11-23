@@ -3,7 +3,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { useElementSize } from "@/features/map/hooks/layout/use-element-size";
-import { HEADER_BOTTOM_CHANGE_EVENT } from "@/hooks/use-header-bottom-variable";
+import { HEADER_BOTTOM_CHANGE_EVENT } from "@/hooks/viewport/use-header-bottom-variable";
 import { IMapCover } from "@/features/map/utils/view/view-area";
 
 interface IUseMapCoverOptions {

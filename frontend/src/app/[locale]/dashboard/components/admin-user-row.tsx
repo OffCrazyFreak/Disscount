@@ -13,12 +13,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TableCell, TableRow } from "@/components/ui/table";
-import RelativeTime from "@/components/custom/common/relative-time";
+import RelativeTime from "@/components/custom/common/display/relative-time";
 import {
   AccountType,
   ACCOUNT_TYPE_LABELS,
   UserDto,
-} from "@/lib/api/schemas/auth-user";
+} from "@/lib/api/schemas/user/auth-user";
 import type { ContributorPhotoCount } from "@/lib/api/types";
 
 const ACCOUNT_TYPES = Object.keys(ACCOUNT_TYPE_LABELS) as AccountType[];

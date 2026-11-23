@@ -1,5 +1,5 @@
 import type { Metadata, ResolvingMetadata } from "next";
-import { withSharePreview } from "@/utils/share-metadata";
+import { withSharePreview } from "@/utils/seo/share-metadata";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -16,7 +16,7 @@ import {
 } from "@/app/[locale]/categories/utils/category-page";
 import { categoryPriceFacts } from "@/app/[locale]/categories/utils/category-price-facts";
 import { livePricedProducts } from "@/app/[locale]/categories/utils/live-priced-products";
-import PageBreadcrumbs from "@/components/custom/common/page-breadcrumbs";
+import PageBreadcrumbs from "@/components/custom/common/display/page-breadcrumbs";
 import {
   CATEGORY_PAGE_SIZE,
   getCatalogCategories,
@@ -28,7 +28,7 @@ import {
   CATEGORIES_PATH,
   categoryPageUrl,
   categoryPath,
-} from "@/utils/category-links";
+} from "@/utils/links/category-links";
 
 type CategoryPageProps = PageProps<"/[locale]/categories/[slug]">;
 

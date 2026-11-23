@@ -1,17 +1,17 @@
 import type { Metadata, ResolvedMetadata } from "next";
-import { size } from "@/app/og/render-og";
+import { size } from "@/lib/og/render-og";
 import {
   PRODUCT_CARD_CONTENT_TYPE,
   productShareImagePath,
-} from "@/app/og/product-share-image";
-import { X_HANDLE } from "@/constants/social";
+} from "@/lib/og/product-share-image";
+import { X_HANDLE } from "@/constants/site/social";
 import {
   DEFAULT_LOCALE,
   OPEN_GRAPH_LOCALES,
   type AppLocale,
 } from "@/i18n/locales";
 import { isIndexableOrigin } from "@/utils/indexing";
-import { productPageUrl } from "@/utils/product-links";
+import { productPageUrl } from "@/utils/links/product-links";
 import { appUrl, clientEnv } from "@/lib/env";
 
 interface IProductMetadataInput {

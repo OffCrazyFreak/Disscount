@@ -2,7 +2,7 @@ import { AxiosError } from "axios";
 import { describe, expect, it } from "vitest";
 
 import { isDeadListLink } from "@/lib/api/shopping-lists/is-dead-list-link";
-import { httpError } from "@/test/http-error";
+import { httpError } from "@/test/backend/http-error";
 
 describe("isDeadListLink", () => {
   it("is dead once the server says the list is gone", () => {

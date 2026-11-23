@@ -1,9 +1,9 @@
 import "server-only";
 
-import { lidlHoursSource } from "@/lib/store-hours/sources/lidl-hours-source";
-import { studenacHoursSource } from "@/lib/store-hours/sources/studenac-hours-source";
-import { trgocentarHoursSource } from "@/lib/store-hours/sources/trgocentar-hours-source";
-import { trgovinaKrkHoursSource } from "@/lib/store-hours/sources/trgovina-krk-hours-source";
+import { lidlHoursSource } from "@/lib/store-hours/sources/fetchers/lidl-hours-source";
+import { studenacHoursSource } from "@/lib/store-hours/sources/fetchers/studenac-hours-source";
+import { trgocentarHoursSource } from "@/lib/store-hours/sources/fetchers/trgocentar-hours-source";
+import { trgovinaKrkHoursSource } from "@/lib/store-hours/sources/fetchers/trgovina-krk-hours-source";
 import type {
   IHoursRecord,
   IHoursSource,

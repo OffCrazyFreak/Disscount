@@ -1,5 +1,5 @@
 import { ChainProductResponse } from "@/lib/cijene-api/schemas";
-import { isPinnedChain } from "@/utils/pinned-stores";
+import { isPinnedChain } from "@/utils/geo/pinned-stores";
 
 export interface IPriceComparison {
   difference: number;

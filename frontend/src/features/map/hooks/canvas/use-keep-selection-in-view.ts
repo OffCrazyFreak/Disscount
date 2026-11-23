@@ -13,7 +13,7 @@ import {
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
 import { toSelectedPoint } from "@/features/map/utils/view/map-view";
 import { IMapCover } from "@/features/map/utils/view/view-area";
-import { ILatLon } from "@/utils/distance";
+import { ILatLon } from "@/utils/geo/distance";
 
 // The phone has no card to wait for, and the desktop popup shows within a frame or two of the camera stopping.
 const CARD_WAIT_MS = 300;

@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { isHubIndexable } from "@/app/[locale]/categories/utils/category-page";
 import { categoryName } from "@/app/[locale]/categories/utils/category-names";
-import SimilarProducts from "@/app/[locale]/products/[id]/components/similar-products";
+import SimilarProducts from "@/features/products/detail/components/similar-products";
 import { Link } from "@/i18n/navigation";
 import { DEFAULT_LOCALE } from "@/i18n/locales";
 import {
@@ -11,7 +11,7 @@ import {
   getCategoryProducts,
 } from "@/lib/api/catalog-categories/server";
 import type { CatalogCategories, CategoryProduct } from "@/lib/api/types";
-import { CATEGORIES_PATH, categoryPath } from "@/utils/category-links";
+import { CATEGORIES_PATH, categoryPath } from "@/utils/links/category-links";
 
 // Enough to give each hub a few links in without the list outgrowing the search above it.
 const POPULAR_PER_CATEGORY = 2;

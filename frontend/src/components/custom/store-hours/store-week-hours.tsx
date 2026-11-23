@@ -7,7 +7,10 @@ import { useStoreOpening } from "@/components/custom/store-hours/store-hours-con
 import { clockOf } from "@/components/custom/store-hours/use-opening-status-text";
 import type { TimeRangeDto } from "@/lib/api/schemas";
 import { cn } from "@/lib/utils";
-import { type IWeekDay, weekHoursOf } from "@/lib/store-hours/week-hours";
+import {
+  type IWeekDay,
+  weekHoursOf,
+} from "@/lib/store-hours/status/week-hours";
 
 const WEEKDAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 

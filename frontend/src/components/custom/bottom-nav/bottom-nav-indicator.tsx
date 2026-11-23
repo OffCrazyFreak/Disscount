@@ -3,7 +3,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { CELL_DISC_CLASS } from "@/components/custom/bottom-nav/bottom-nav-classes";
-import type { IndicatorOpacity } from "@/components/custom/bottom-nav/use-indicator-opacity";
+import type { IndicatorOpacity } from "@/components/custom/bottom-nav/hooks/use-indicator-opacity";
 
 interface IBottomNavIndicatorProps {
   /** Where the fade starts and ends, from useIndicatorOpacity */

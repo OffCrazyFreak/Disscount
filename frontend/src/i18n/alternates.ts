@@ -1,3 +1,5 @@
+import type { Messages } from "next-intl";
+import { getLocale, getTranslations } from "next-intl/server";
 import { appUrl } from "@/lib/env";
 import { getPathname } from "@/i18n/navigation";
 import { DEFAULT_LOCALE, LOCALES, type AppLocale } from "@/i18n/locales";
@@ -19,5 +21,24 @@ export function pageAlternates(href: string, locale: AppLocale) {
   return {
     canonical: localizedUrl(href, locale),
     languages: languageAlternates(href),
+  };
+}
+
+type MetaNamespace = {
+  [Namespace in keyof Messages]: Messages[Namespace] extends {
+    meta: { title: string; description: string };
+  }
+    ? Namespace
+    : never;
+}[keyof Messages];
+
+export async function pageMetadata(namespace: MetaNamespace, href: string) {
+  const locale = await getLocale();
+  const t = await getTranslations(namespace);
+
+  return {
+    title: t("meta.title"),
+    description: t("meta.description"),
+    alternates: pageAlternates(href, locale),
   };
 }

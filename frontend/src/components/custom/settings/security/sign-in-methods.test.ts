@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { FACEBOOK_COMING_SOON } from "@/constants/auth";
+import { FACEBOOK_COMING_SOON } from "@/constants/auth/auth";
 import { countSignInMethods } from "@/components/custom/settings/security/sign-in-methods";
 
 const google = { providerId: "google" };

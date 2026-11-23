@@ -10,7 +10,7 @@ vi.mock("idb-keyval", () => ({
   getMany: async (list: string[]) => list.map((key) => db.get(key)),
   delMany: async (list: string[]) => list.forEach((key) => db.delete(key)),
 }));
-vi.mock("@/lib/offline/idb-transactions", () => ({
+vi.mock("@/lib/offline/card-photos/idb-transactions", () => ({
   deleteIf: async (
     key: string,
     _store: unknown,
@@ -19,7 +19,7 @@ vi.mock("@/lib/offline/idb-transactions", () => ({
     if (matches(db.get(key))) db.delete(key);
   },
 }));
-vi.mock("@/lib/offline/cache-identity", () => ({
+vi.mock("@/lib/offline/cache/cache-identity", () => ({
   getCacheIdentity: () => "alice",
 }));
 vi.mock("@/lib/api/digital-cards/queries", () => ({

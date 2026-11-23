@@ -2,7 +2,7 @@
 
 import { RefObject, useEffect, useEffectEvent, useState } from "react";
 
-import SheetShell from "@/components/custom/modal/sheet-shell";
+import SheetShell from "@/components/custom/modal/sheet/sheet-shell";
 import MapStoreCard from "@/features/map/components/store/map-store-card";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";
 

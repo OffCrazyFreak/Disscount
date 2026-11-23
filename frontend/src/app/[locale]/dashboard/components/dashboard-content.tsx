@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUser } from "@/context/user-context";
-import { isAdmin } from "@/lib/api/schemas/auth-user";
+import { isAdmin } from "@/lib/api/schemas/user/auth-user";
 import AdminUsersStats from "@/app/[locale]/dashboard/components/admin-users-stats";
 import AdminUsersTable from "@/app/[locale]/dashboard/components/admin-users-table";
 import AdminContactTable from "@/app/[locale]/dashboard/components/admin-contact-table";

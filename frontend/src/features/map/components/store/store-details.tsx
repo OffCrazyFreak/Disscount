@@ -3,7 +3,7 @@
 import { MapPinOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import StoreHoursSource from "@/components/custom/store-hours/store-hours-source";
+import StoreHoursSource from "@/features/map/components/store/store-hours-source";
 import StoreWeekHours from "@/components/custom/store-hours/store-week-hours";
 import StoreActions from "@/features/map/components/store/store-actions";
 import { IListedStore } from "@/features/map/hooks/use-visible-stores";

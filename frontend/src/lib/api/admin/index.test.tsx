@@ -6,7 +6,7 @@ import { ZodError } from "zod";
 import adminService from "@/lib/api/admin";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
-import { storedUser } from "@/test/stored-user";
+import { storedUser } from "@/test/fixtures/stored-user";
 
 const { lastActiveAt: _omitted, ...driftedUser } = storedUser;
 

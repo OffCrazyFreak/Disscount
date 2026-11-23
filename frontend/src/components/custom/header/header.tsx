@@ -1,8 +1,8 @@
 "use client";
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
-import { useScrolledPast } from "@/hooks/use-scrolled-past";
-import { useHeaderBottomVariable } from "@/hooks/use-header-bottom-variable";
+import { useScrolledPast } from "@/hooks/viewport/use-scrolled-past";
+import { useHeaderBottomVariable } from "@/hooks/viewport/use-header-bottom-variable";
 import { usePathname } from "@/i18n/navigation";
 import HeaderBrand from "@/components/custom/header/components/header-brand";
 import HeaderNav from "@/components/custom/header/components/header-nav";

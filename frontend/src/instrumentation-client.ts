@@ -2,7 +2,7 @@
 import "@/lib/zod-jitless";
 import * as Sentry from "@sentry/nextjs";
 
-import { moveResetTokenOutOfUrl } from "@/lib/auth/reset-token-storage";
+import { moveResetTokenOutOfUrl } from "@/lib/auth/account/reset-token-storage";
 import { SENTRY_APPLICATION_KEY } from "@/lib/sentry/application-key";
 import { isServiceWorkerRegistrationNoise } from "@/lib/sentry/ignore-service-worker-noise";
 import {

@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { SettingsFormValues } from "@/components/custom/settings/settings-schema";
 import type { ISaveJobRunners } from "@/components/custom/settings/settings-save-jobs";
 import { useSettingsSave } from "@/components/custom/settings/hooks/use-settings-save";
-import { useFormDraft } from "@/hooks/use-form-draft";
+import { useFormDraft } from "@/hooks/state/use-form-draft";
 import { renderHookWithProviders } from "@/test/render";
 import { peekFormDraft } from "@/utils/browser/storage/drafts";
 

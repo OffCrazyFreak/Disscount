@@ -1,5 +1,5 @@
 import type { Metadata, ResolvingMetadata } from "next";
-import { withSharePreview } from "@/utils/share-metadata";
+import { withSharePreview } from "@/utils/seo/share-metadata";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 

@@ -1,0 +1,110 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import StoreChainMultiSelect from "@/components/custom/store-chain/store-chain-multi-select";
+import PriceHistoryPeriodSelect from "@/components/custom/price/price-history-period-select";
+import PriceChangeDisplay from "@/components/custom/price/price-change-display";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
+import { ShoppingListDto } from "@/lib/api/types";
+import { PeriodOption } from "@/typings/history-period-options";
+import { DISABLED_PERIODS, getEnabledPeriod } from "@/constants/price-history";
+import {
+  getShoppingListPriceHistoryPeriod,
+  setShoppingListPriceHistoryPeriod,
+} from "@/utils/browser/local-storage";
+import { useShoppingListPriceHistory } from "@/features/shopping-lists/detail/hooks/use-shopping-list-price-history";
+
+function loadShoppingListPriceHistoryChart() {
+  return import("@/features/shopping-lists/detail/components/price-history/shopping-list-price-history-chart");
+}
+
+// Lazy so recharts stays out of the first load; the placeholder has the chart's aspect-video size.
+const ShoppingListPriceHistoryChart = dynamic(
+  loadShoppingListPriceHistoryChart,
+  { ssr: false, loading: () => <div className="aspect-video" /> },
+);
+
+interface IShoppingListPriceHistoryProps {
+  shoppingList: ShoppingListDto;
+}
+
+export default function ShoppingListPriceHistory({
+  shoppingList,
+}: IShoppingListPriceHistoryProps) {
+  const t = useTranslations("shoppingListDetail");
+
+  // Fetch the chart code while the history is still loading, not after it.
+  useEffect(() => {
+    // A failed preload is reported when the chart itself renders.
+    loadShoppingListPriceHistoryChart().catch(() => {});
+  }, []);
+
+  const [period, setPeriod] = useState<PeriodOption>(() =>
+    getEnabledPeriod(getShoppingListPriceHistoryPeriod(shoppingList.id)),
+  );
+
+  const {
+    eans,
+    availableChains,
+    selectedChains,
+    handleChainsChange,
+    chartData,
+    chartConfig,
+    yAxisTicks,
+    isLoading,
+    hasError,
+    priceChange,
+  } = useShoppingListPriceHistory(shoppingList, period);
+
+  function handlePeriodChange(value: string) {
+    const newPeriod = value as PeriodOption;
+    setPeriod(newPeriod);
+    setShoppingListPriceHistoryPeriod(shoppingList.id, newPeriod);
+  }
+
+  return (
+    <Card className="shadow-sm hover:shadow-md transition-shadow">
+      <CardContent className="p-6">
+        <Tabs value={period} onValueChange={handlePeriodChange}>
+          <div className="flex flex-col items-stretch sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center justify-between w-full gap-2">
+              <PriceHistoryPeriodSelect disabledPeriods={DISABLED_PERIODS} />
+
+              <PriceChangeDisplay priceChange={priceChange} />
+            </div>
+
+            <StoreChainMultiSelect
+              chains={availableChains}
+              selectedChains={selectedChains}
+              onChainsChange={handleChainsChange}
+              className="w-full sm:w-sm"
+            />
+          </div>
+
+          <TabsContent value={period} className="mt-4">
+            {isLoading ? (
+              <div className="grid place-items-center">
+                <BlockLoadingSpinner />
+              </div>
+            ) : chartData.length === 0 || hasError ? (
+              <div className="text-center py-8">
+                <p className="text-gray-600">{t("priceHistory.noData")}</p>
+              </div>
+            ) : (
+              <ShoppingListPriceHistoryChart
+                chartData={chartData}
+                chartConfig={chartConfig}
+                eans={eans}
+                yAxisTicks={yAxisTicks}
+              />
+            )}
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
+  );
+}

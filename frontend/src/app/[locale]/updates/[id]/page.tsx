@@ -1,13 +1,13 @@
 import { Link } from "@/i18n/navigation";
 import type { Metadata, ResolvingMetadata } from "next";
-import { withSharePreview } from "@/utils/share-metadata";
+import { withSharePreview } from "@/utils/seo/share-metadata";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 
 import { ArrowLeft, Calendar } from "lucide-react";
 
-import { formatDate } from "@/utils/strings";
+import { formatDate } from "@/utils/format/strings";
 import { getPostById, templatePosts } from "@/app/[locale]/updates/posts";
 import { localizePost } from "@/app/[locale]/updates/localize-post";
 import { pageAlternates } from "@/i18n/alternates";

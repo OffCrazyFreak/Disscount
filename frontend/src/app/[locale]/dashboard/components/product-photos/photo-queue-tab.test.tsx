@@ -12,7 +12,7 @@ import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 
 // The real manager loads a whole product; this one names the open product and refreshes the queue on review.
-vi.mock("@/components/custom/product-photos/photo-manager", () => ({
+vi.mock("@/components/custom/product-photos/manager/photo-manager", () => ({
   default: function FakePhotoManager({
     ean,
     onReviewed,

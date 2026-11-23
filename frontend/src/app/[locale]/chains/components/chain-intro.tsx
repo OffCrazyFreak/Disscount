@@ -5,7 +5,7 @@ import {
   type IChainCity,
 } from "@/app/[locale]/chains/utils/chain-stores";
 import type { ChainStats } from "@/lib/cijene-api/schemas";
-import { formatDate } from "@/utils/strings";
+import { formatDate } from "@/utils/format/strings";
 
 interface IChainIntroProps {
   chainName: string;
