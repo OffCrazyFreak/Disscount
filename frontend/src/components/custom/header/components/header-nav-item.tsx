@@ -3,7 +3,7 @@ import { Link } from "@/i18n/navigation";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
+import ComingSoonBadge from "@/components/custom/common/feedback/coming-soon-badge";
 import { formatBadgeCount } from "@/utils/ui/badge-count";
 import { isRouteActive } from "@/utils/links/routes";
 import type { INavigationItem } from "@/constants/navigation";

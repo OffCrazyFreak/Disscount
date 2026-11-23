@@ -7,7 +7,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import StoreChainMultiSelect from "@/components/custom/store-chain/store-chain-multi-select";
 import PriceHistoryPeriodSelect from "@/components/custom/price/price-history-period-select";
 import PriceChangeDisplay from "@/components/custom/price/price-change-display";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
 import { ShoppingListDto } from "@/lib/api/types";
 import { PeriodOption } from "@/typings/history-period-options";
 import { DISABLED_PERIODS, getEnabledPeriod } from "@/constants/price-history";

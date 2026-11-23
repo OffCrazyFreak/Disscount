@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useTransform } from "motion/react";
 
 import CartLogo, { CART_ASPECT_RATIO } from "@/components/icons/cart-logo";
-import TextGlow from "@/components/custom/common/text-glow";
+import TextGlow from "@/components/custom/common/display/text-glow";
 import { useCursorFollow } from "@/app/[locale]/(root)/hooks/use-cursor-follow";
 
 // w-14 cart; height follows the SVG's viewBox aspect (see CART_ASPECT_RATIO).

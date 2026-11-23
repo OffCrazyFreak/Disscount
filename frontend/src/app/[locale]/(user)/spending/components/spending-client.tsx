@@ -3,9 +3,9 @@
 import { PiggyBank } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import ComingSoon from "@/components/custom/common/coming-soon";
-import LoginRequired from "@/components/custom/common/login-required";
-import NotifyMeButton from "@/components/custom/common/notify-me-button";
+import ComingSoon from "@/components/custom/common/feedback/coming-soon";
+import LoginRequired from "@/components/custom/common/feedback/login-required";
+import NotifyMeButton from "@/components/custom/common/controls/notify-me-button";
 import { useUser } from "@/context/user-context";
 
 export default function SpendingClient() {

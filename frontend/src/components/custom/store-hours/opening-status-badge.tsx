@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import DetailPopoverButton from "@/components/custom/common/detail-popover-button";
+import DetailPopoverButton from "@/components/custom/common/controls/detail-popover-button";
 import { useOpeningStatusText } from "@/components/custom/store-hours/use-opening-status-text";
 import type { OpeningStatus } from "@/lib/store-hours/opening-status";
 

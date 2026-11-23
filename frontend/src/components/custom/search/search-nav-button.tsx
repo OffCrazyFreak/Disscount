@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 import { Button } from "@/components/ui/button";
-import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
+import ComingSoonBadge from "@/components/custom/common/feedback/coming-soon-badge";
 import { cn } from "@/lib/utils";
 import type { INavigationItem } from "@/constants/navigation";
 

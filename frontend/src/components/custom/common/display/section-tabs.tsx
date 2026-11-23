@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { motion } from "motion/react";
 import { useFormatter } from "next-intl";
-import ResponsiveLabel from "@/components/custom/common/responsive-label";
+import ResponsiveLabel from "@/components/custom/common/display/responsive-label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useHashTab } from "@/hooks/state/use-hash-tab";
 import { useIsStuck } from "@/hooks/viewport/use-is-stuck";

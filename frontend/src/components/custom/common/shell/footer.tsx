@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 import CartLogo from "@/components/icons/cart-logo";
-import FooterSupportIcons from "@/components/custom/common/footer-support-icons";
+import FooterSupportIcons from "@/components/custom/common/shell/footer-support-icons";
 
 import LinkedInIcon from "@/components/icons/linkedin-icon";
 import GithubIcon from "@/components/icons/github-icon";

@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-import LabeledSelect from "@/components/custom/common/labeled-select";
+import LabeledSelect from "@/components/custom/common/controls/labeled-select";
 import {
   CARD_SORT_MODES,
   type CardSortMode,

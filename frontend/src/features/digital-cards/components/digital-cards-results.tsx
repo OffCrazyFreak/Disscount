@@ -6,9 +6,9 @@ import { Search } from "lucide-react";
 import DigitalCardsArchived from "@/features/digital-cards/components/digital-cards-archived";
 import DigitalCardsEmpty from "@/features/digital-cards/components/digital-cards-empty";
 import DigitalCardsGrid from "@/features/digital-cards/components/digital-cards-grid";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import NoResults from "@/components/custom/common/no-results";
-import SectionTabs from "@/components/custom/common/section-tabs";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
+import NoResults from "@/components/custom/common/feedback/no-results";
+import SectionTabs from "@/components/custom/common/display/section-tabs";
 import { Separator } from "@/components/ui/separator";
 import type { DigitalCardDto } from "@/lib/api/types";
 

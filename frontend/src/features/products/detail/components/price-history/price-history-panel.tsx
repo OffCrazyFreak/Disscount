@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
 import PriceHistoryChart from "@/features/products/detail/components/price-history/price-history-chart";
 import { HistoryDataPoint } from "@/lib/cijene-api/history-data-point";
 

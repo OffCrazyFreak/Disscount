@@ -2,7 +2,7 @@
 
 import { useIsRestoring } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
 import ShoppingListHeader from "@/features/shopping-lists/detail/components/shopping-list-header";
 import ShoppingListSections from "@/features/shopping-lists/detail/components/shopping-list-sections";
 import ShoppingListInfoTable from "@/features/shopping-lists/detail/components/shopping-list-info-table";

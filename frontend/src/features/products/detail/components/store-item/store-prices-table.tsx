@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
+import ScrollFadeArea from "@/components/custom/common/scroll-fade/scroll-fade-area";
 import { ProductResponse, StorePrice } from "@/lib/cijene-api/schemas";
 import {
   getMinPrice,

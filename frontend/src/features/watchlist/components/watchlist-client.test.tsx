@@ -42,7 +42,7 @@ vi.mock("@/features/watchlist/components/watchlist-header", () => ({
 vi.mock("@/features/watchlist/components/watchlist-list", () => ({
   default: () => null,
 }));
-vi.mock("@/components/custom/common/login-required", () => ({
+vi.mock("@/components/custom/common/feedback/login-required", () => ({
   default: () => <p>login required</p>,
 }));
 vi.mock("@/features/watchlist/components/watchlist-suggestions", () => ({

@@ -3,7 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 
-import QuickActionsSheet from "@/components/custom/common/quick-actions-sheet";
+import QuickActionsSheet from "@/components/custom/common/controls/quick-actions-sheet";
 import { shoppingListService } from "@/lib/api";
 import type { ShoppingListDto } from "@/lib/api/types";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";

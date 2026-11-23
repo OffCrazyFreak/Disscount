@@ -3,7 +3,7 @@
 import { Copy, LucideClipboardEdit, Share2, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import QuickActionItem from "@/components/custom/common/quick-action-item";
+import QuickActionItem from "@/components/custom/common/controls/quick-action-item";
 import Share2Pen from "@/components/custom/icons/share-2-pen";
 
 interface IShoppingListQuickActionsListProps {

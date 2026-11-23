@@ -9,7 +9,7 @@ import useFilteredProductPrices from "@/features/products/hooks/use-filtered-pro
 import useProductFilters from "@/features/products/hooks/use-product-filters";
 import ProductQuickActions from "@/features/products/components/product-quick-actions";
 import ProductSummary from "@/components/custom/product/product-summary";
-import { Banner } from "@/components/custom/common/banner";
+import { Banner } from "@/components/custom/common/feedback/banner";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 
 interface IProductActionsSheetProps {

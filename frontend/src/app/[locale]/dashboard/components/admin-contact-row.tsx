@@ -5,7 +5,7 @@ import { Mail, MailOpen, RotateCcw, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import CopyButton from "@/components/custom/common/copy-button";
+import CopyButton from "@/components/custom/common/controls/copy-button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { formatDate } from "@/utils/format/strings";
 import { ContactMessageDto } from "@/lib/api/types";

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type RefObject } from "react";
 import { cn } from "@/lib/utils";
-import EdgeFade from "@/components/custom/common/edge-fade";
+import EdgeFade from "@/components/custom/common/scroll-fade/edge-fade";
 
 interface IScrollFadeProps {
   /** Scroll container to watch; the fade hides once it is scrolled to that end */

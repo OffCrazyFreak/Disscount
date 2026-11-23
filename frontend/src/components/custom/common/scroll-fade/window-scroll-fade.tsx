@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import EdgeFade from "@/components/custom/common/edge-fade";
+import EdgeFade from "@/components/custom/common/scroll-fade/edge-fade";
 
 interface IWindowScrollFadeProps {
   /** Edge to fade against, defaulting to the bottom */

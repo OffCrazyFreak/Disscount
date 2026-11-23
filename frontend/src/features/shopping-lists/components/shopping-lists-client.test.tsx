@@ -46,7 +46,7 @@ vi.mock("@/i18n/navigation", () => ({
 vi.mock("@/components/custom/search/search-bar", () => ({
   default: () => null,
 }));
-vi.mock("@/components/custom/common/login-required", () => ({
+vi.mock("@/components/custom/common/feedback/login-required", () => ({
   default: () => <p>login required</p>,
 }));
 vi.mock(

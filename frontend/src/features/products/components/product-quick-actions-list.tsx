@@ -3,7 +3,7 @@
 import { Eye, Image as ImageIcon, ListPlus, Share2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import QuickActionItem from "@/components/custom/common/quick-action-item";
+import QuickActionItem from "@/components/custom/common/controls/quick-action-item";
 import { PRODUCT_ACTION_LABELS } from "@/features/products/constants/product-action-labels";
 import EyePen from "@/components/custom/icons/eye-pen";
 import ListPen from "@/components/custom/icons/list-pen";

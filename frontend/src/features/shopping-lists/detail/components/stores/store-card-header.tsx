@@ -2,7 +2,7 @@ import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
-import StretchedCollapsibleTrigger from "@/components/custom/common/stretched-collapsible-trigger";
+import StretchedCollapsibleTrigger from "@/components/custom/common/controls/stretched-collapsible-trigger";
 import { CardHeader } from "@/components/ui/card";
 import { getChainLabel } from "@/utils/format/labels";
 import { cn } from "@/lib/utils";

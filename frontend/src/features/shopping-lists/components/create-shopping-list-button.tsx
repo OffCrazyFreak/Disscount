@@ -3,7 +3,7 @@
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import ResponsiveLabel from "@/components/custom/common/responsive-label";
+import ResponsiveLabel from "@/components/custom/common/display/responsive-label";
 
 interface ICreateShoppingListButtonProps {
   onCreateClick: () => void;

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { CircleAlert, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Banner } from "@/components/custom/common/banner";
+import { Banner } from "@/components/custom/common/feedback/banner";
 import { useInstallPrompt } from "@/components/custom/pwa/use-install-prompt";
 import InstallInstructionsSheet from "@/components/custom/pwa/install-instructions-sheet";
 import {

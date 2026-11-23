@@ -3,8 +3,8 @@
 import { memo } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, MapPin, Tag } from "lucide-react";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
+import ScrollFadeArea from "@/components/custom/common/scroll-fade/scroll-fade-area";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import {
   Collapsible,

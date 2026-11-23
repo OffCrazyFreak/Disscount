@@ -1,4 +1,4 @@
-import StretchedLink from "@/components/custom/common/stretched-link";
+import StretchedLink from "@/components/custom/common/controls/stretched-link";
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 import { productPath } from "@/utils/links/product-links";

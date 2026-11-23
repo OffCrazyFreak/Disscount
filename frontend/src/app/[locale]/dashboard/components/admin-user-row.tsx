@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TableCell, TableRow } from "@/components/ui/table";
-import RelativeTime from "@/components/custom/common/relative-time";
+import RelativeTime from "@/components/custom/common/display/relative-time";
 import {
   AccountType,
   ACCOUNT_TYPE_LABELS,

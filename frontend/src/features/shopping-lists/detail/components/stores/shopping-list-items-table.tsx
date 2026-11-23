@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
+import ScrollFadeArea from "@/components/custom/common/scroll-fade/scroll-fade-area";
 import { ShoppingListDto } from "@/lib/api/types";
 import {
   ProductResponse,

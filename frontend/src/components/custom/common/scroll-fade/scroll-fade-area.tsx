@@ -2,7 +2,7 @@
 
 import { useRef, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import ScrollFade from "@/components/custom/common/scroll-fade";
+import ScrollFade from "@/components/custom/common/scroll-fade/scroll-fade";
 
 interface IScrollFadeAreaProps {
   /** Sizing and layout of the scrolling element, e.g. its max height */

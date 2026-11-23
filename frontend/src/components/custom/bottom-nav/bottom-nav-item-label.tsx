@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
-import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
+import ComingSoonBadge from "@/components/custom/common/feedback/coming-soon-badge";
 import { CELL_LABEL_CLASS } from "@/components/custom/bottom-nav/bottom-nav-classes";
 import type { INavigationItem } from "@/constants/navigation";
 

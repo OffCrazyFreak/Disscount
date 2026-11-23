@@ -3,10 +3,10 @@
 import { memo, useId } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ChevronDown, TriangleAlert } from "lucide-react";
-import MediaRow from "@/components/custom/common/media-row";
+import MediaRow from "@/components/custom/common/display/media-row";
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
-import StretchedCollapsibleTrigger from "@/components/custom/common/stretched-collapsible-trigger";
+import StretchedCollapsibleTrigger from "@/components/custom/common/controls/stretched-collapsible-trigger";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getChainLabel } from "@/utils/format/labels";

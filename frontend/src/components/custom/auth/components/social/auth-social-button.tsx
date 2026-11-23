@@ -3,7 +3,7 @@
 import type { ElementType } from "react";
 
 import { Button } from "@/components/ui/button";
-import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
+import ComingSoonBadge from "@/components/custom/common/feedback/coming-soon-badge";
 import LastLoginBadge from "@/components/custom/auth/components/last-login-badge";
 
 export type SocialProvider = "google" | "facebook";

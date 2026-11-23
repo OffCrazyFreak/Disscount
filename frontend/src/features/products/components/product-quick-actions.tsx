@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
-import QuickActionsSheet from "@/components/custom/common/quick-actions-sheet";
+import QuickActionsSheet from "@/components/custom/common/controls/quick-actions-sheet";
 import ProductQuickActionsList from "@/features/products/components/product-quick-actions-list";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 

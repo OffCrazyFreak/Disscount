@@ -3,7 +3,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
-import ScrollFade from "@/components/custom/common/scroll-fade";
+import ScrollFade from "@/components/custom/common/scroll-fade/scroll-fade";
 
 // DEVIATION from upstream shadcn: fadeClassName, since only this file can reach the viewport.
 function ScrollArea({

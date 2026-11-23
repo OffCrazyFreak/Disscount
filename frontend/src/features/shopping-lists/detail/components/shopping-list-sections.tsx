@@ -2,7 +2,7 @@
 
 import { type ComponentProps } from "react";
 import { useTranslations } from "next-intl";
-import SectionTabs from "@/components/custom/common/section-tabs";
+import SectionTabs from "@/components/custom/common/display/section-tabs";
 import ShoppingListItems from "@/features/shopping-lists/detail/components/items/shopping-list-items";
 import ShoppingListPriceHistory from "@/features/shopping-lists/detail/components/shopping-list-price-history";
 import ShoppingListStoreSummary from "@/features/shopping-lists/detail/components/stores/shopping-list-stores-list";

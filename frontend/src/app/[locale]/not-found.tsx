@@ -14,7 +14,7 @@ import type { Metadata } from "next";
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { supportNavItems } from "@/constants/navigation";
-import ComingSoonBadge from "@/components/custom/common/coming-soon-badge";
+import ComingSoonBadge from "@/components/custom/common/feedback/coming-soon-badge";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("common");

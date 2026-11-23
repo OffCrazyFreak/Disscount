@@ -3,8 +3,8 @@ import { Search } from "lucide-react";
 import type { ShoppingListDto } from "@/lib/api/types";
 import ShoppingListItem from "@/features/shopping-lists/components/shopping-list-item";
 import ShoppingListsEmptyState from "@/features/shopping-lists/components/shopping-lists-empty-state";
-import NoResults from "@/components/custom/common/no-results";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import NoResults from "@/components/custom/common/feedback/no-results";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
 
 interface IShoppingListsResultsProps {
   isLoading: boolean;

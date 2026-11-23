@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
 import { useOnNearScrollEnd } from "@/hooks/scroll/use-on-near-scroll-end";
 import PhotoTile from "@/components/custom/product-photos/photo-tile";
 import { cn } from "@/lib/utils";

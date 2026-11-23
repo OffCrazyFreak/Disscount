@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
 import cijeneService from "@/lib/cijene-api";
 
 export default function HealthStatus() {

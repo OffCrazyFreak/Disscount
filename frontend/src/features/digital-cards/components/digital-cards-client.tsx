@@ -15,8 +15,8 @@ import {
   filterCards,
   sortCards,
 } from "@/features/digital-cards/utils/card-sorting";
-import LoginRequired from "@/components/custom/common/login-required";
-import NotSavedOffline from "@/components/custom/common/not-saved-offline";
+import LoginRequired from "@/components/custom/common/feedback/login-required";
+import NotSavedOffline from "@/components/custom/common/feedback/not-saved-offline";
 import SearchResultsStatus from "@/components/custom/live-status/search-results-status";
 import SearchBar from "@/components/custom/search/search-bar";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";

@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { Component, type ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import ComponentStackBoundary from "@/components/custom/common/component-stack-boundary";
+import ComponentStackBoundary from "@/components/custom/common/shell/component-stack-boundary";
 
 vi.mock("@sentry/nextjs", () => ({
   captureException: vi.fn(),

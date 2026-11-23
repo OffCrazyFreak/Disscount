@@ -6,7 +6,7 @@ import { useFormState } from "react-hook-form";
 import { ListPlus } from "lucide-react";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
-import FormRootError from "@/components/custom/common/form-root-error";
+import FormRootError from "@/components/custom/common/feedback/form-root-error";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

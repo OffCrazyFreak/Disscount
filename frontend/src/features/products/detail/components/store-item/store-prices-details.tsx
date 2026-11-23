@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
 import type { ProductResponse, StorePrice } from "@/lib/cijene-api/schemas";
 import StorePricesTable from "@/features/products/detail/components/store-item/store-prices-table";
 

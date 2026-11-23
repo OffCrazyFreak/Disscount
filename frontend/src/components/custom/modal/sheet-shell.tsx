@@ -12,7 +12,7 @@ import SheetShellHeader, {
   type ISheetShellHeaderProps,
 } from "@/components/custom/modal/sheet-shell-header";
 import useSheetDragUp from "@/components/custom/modal/use-sheet-drag-up";
-import ScrollFadeArea from "@/components/custom/common/scroll-fade-area";
+import ScrollFadeArea from "@/components/custom/common/scroll-fade/scroll-fade-area";
 import { cn } from "@/lib/utils";
 
 // Darker than shadcn's bg-muted, which all but vanished on a light surface.

@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
 import { LOADING_LABELS } from "@/constants/loading-labels";
 import ShoppingListIconAction from "@/features/shopping-lists/detail/components/shopping-list-icon-action";
 

@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { TriangleAlert } from "lucide-react";
 
-import { Banner } from "@/components/custom/common/banner";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import { Banner } from "@/components/custom/common/feedback/banner";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
 import { Button } from "@/components/ui/button";
 import { useRetryFocusHandoff } from "@/features/shopping-lists/detail/hooks/use-retry-focus-handoff";
 import { PRICE_STATUS_BANNER_ID } from "@/features/shopping-lists/detail/utils/item-price-state";

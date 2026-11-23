@@ -9,20 +9,20 @@ import EyePen from "@/components/custom/icons/eye-pen";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
 import { Form } from "@/components/ui/form";
-import RemoveIconButton from "@/components/custom/common/remove-icon-button";
+import RemoveIconButton from "@/components/custom/common/controls/remove-icon-button";
 import { WatchType } from "@/lib/api";
 import cijeneService from "@/lib/cijene-api";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import type { WatchTypeParam } from "@/lib/modal/modal-registry";
 import ProductModalBody from "@/features/products/components/forms/product-modal-body";
 import ProductInfoDisplay from "@/features/products/components/product-info-display";
-import { Banner } from "@/components/custom/common/banner";
+import { Banner } from "@/components/custom/common/feedback/banner";
 import {
   getAveragePrice,
   getMinPrice,
 } from "@/features/products/utils/product-utils";
 import WatchlistTypePicker from "@/features/products/components/forms/watchlist-type-picker";
-import FormRootError from "@/components/custom/common/form-root-error";
+import FormRootError from "@/components/custom/common/feedback/form-root-error";
 import WatchlistThresholdInput from "@/features/products/components/forms/watchlist-threshold-input";
 import { useWatchlistItemForm } from "@/features/products/hooks/use-watchlist-item-form";
 import { useFormDraft } from "@/hooks/state/use-form-draft";

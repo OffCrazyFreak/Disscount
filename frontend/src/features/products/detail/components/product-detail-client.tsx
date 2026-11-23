@@ -5,8 +5,8 @@ import { useTranslations } from "next-intl";
 import ProductInfoDisplay from "@/features/products/components/product-info-display";
 import PriceHistory from "@/features/products/detail/components/price-history/price-history-base";
 import ProductChainsSection from "@/features/products/detail/components/product-chains-section";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
-import SectionTabs from "@/components/custom/common/section-tabs";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
+import SectionTabs from "@/components/custom/common/display/section-tabs";
 import { useProductDetail } from "@/features/products/detail/hooks/use-product-detail";
 
 interface IProductDetailClientProps {

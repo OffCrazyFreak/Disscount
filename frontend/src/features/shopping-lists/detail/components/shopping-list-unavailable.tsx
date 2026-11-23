@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { ArrowLeft, Lock, WifiOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import NoResults from "@/components/custom/common/no-results";
+import NoResults from "@/components/custom/common/feedback/no-results";
 import { isDeadListLink } from "@/lib/api/shopping-lists/is-dead-list-link";
 
 interface IShoppingListUnavailableProps {

@@ -12,7 +12,7 @@ import { ProductsSheetProvider } from "@/context/products-sheet-context";
 import RequestPersistentStorage from "@/components/custom/pwa/request-persistent-storage";
 import ScanShortcut from "@/components/custom/pwa/scan-shortcut";
 import AppUpdatePrompt from "@/components/custom/pwa/app-update-prompt";
-import ComponentStackBoundary from "@/components/custom/common/component-stack-boundary";
+import ComponentStackBoundary from "@/components/custom/common/shell/component-stack-boundary";
 
 interface IProvidersProps {
   children: ReactNode;

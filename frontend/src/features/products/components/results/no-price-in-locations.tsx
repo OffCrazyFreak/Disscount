@@ -2,7 +2,7 @@
 
 import { useFormatter, useTranslations } from "next-intl";
 import { MapPinOff } from "lucide-react";
-import NoResults from "@/components/custom/common/no-results";
+import NoResults from "@/components/custom/common/feedback/no-results";
 import { Button } from "@/components/ui/button";
 import AddPlainItemButton from "@/features/products/components/results/add-plain-item-button";
 

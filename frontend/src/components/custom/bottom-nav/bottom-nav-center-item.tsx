@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { isKeyboardClick } from "@/utils/ui/events";
 import { useProductsSheet } from "@/context/products-sheet-context";
 import BottomNavIndicator from "@/components/custom/bottom-nav/bottom-nav-indicator";
-import HoldProgressRing from "@/components/custom/common/hold-progress-ring";
+import HoldProgressRing from "@/components/custom/common/controls/hold-progress-ring";
 import {
   CELL_BUTTON_CLASS,
   CELL_ITEM_CLASS,

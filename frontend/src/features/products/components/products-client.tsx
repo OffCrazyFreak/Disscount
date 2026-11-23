@@ -14,7 +14,7 @@ import { Suspense } from "react";
 import ProductSearchBar from "@/components/custom/search/product-search-bar";
 import { useRecordProductSearch } from "@/components/custom/search/use-record-product-search";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
-import { Banner } from "@/components/custom/common/banner";
+import { Banner } from "@/components/custom/common/feedback/banner";
 import ScrollCue from "@/components/custom/fab/scroll-cue";
 
 interface IProductsClientProps {

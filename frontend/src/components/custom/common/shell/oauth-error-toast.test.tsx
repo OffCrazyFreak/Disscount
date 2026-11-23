@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import OAuthErrorToast from "@/components/custom/common/oauth-error-toast";
+import OAuthErrorToast from "@/components/custom/common/shell/oauth-error-toast";
 import hr from "@/i18n/messages/hr";
 import { renderWithProviders } from "@/test/render";
 

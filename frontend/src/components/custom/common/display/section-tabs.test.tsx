@@ -2,7 +2,7 @@ import { act, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import SectionTabs from "@/components/custom/common/section-tabs";
+import SectionTabs from "@/components/custom/common/display/section-tabs";
 import { renderWithProviders } from "@/test/render";
 import type { ISectionTab } from "@/typings/section-tabs";
 

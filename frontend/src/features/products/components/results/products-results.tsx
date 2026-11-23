@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Search, SlidersHorizontal } from "lucide-react";
-import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
+import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
 import ProductsGrid from "@/features/products/components/results/products-grid";
 import ProductsListEnd from "@/features/products/components/results/products-list-end";
 import ProductsStatusMessage from "@/features/products/components/results/products-status-message";

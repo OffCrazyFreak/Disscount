@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { useForm } from "react-hook-form";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import TouchKeyboardDismissal from "@/components/custom/common/touch-keyboard-dismissal";
+import TouchKeyboardDismissal from "@/components/custom/common/shell/touch-keyboard-dismissal";
 
 const route = vi.hoisted(() => ({
   pathname: "/",

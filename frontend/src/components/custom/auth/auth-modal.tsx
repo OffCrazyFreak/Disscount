@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { CircleAlert } from "lucide-react";
 
 import { ModalShell } from "@/components/custom/modal/modal-shell";
-import { Banner } from "@/components/custom/common/banner";
+import { Banner } from "@/components/custom/common/feedback/banner";
 import ForgotPasswordForm from "@/components/custom/auth/components/forms/forgot-password-form";
 import AuthModeSwitch from "@/components/custom/auth/components/auth-mode-switch";
 import AuthCredentialsPanel from "@/components/custom/auth/components/forms/auth-credentials-panel";

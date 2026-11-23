@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import BottomNavIndicator from "@/components/custom/bottom-nav/bottom-nav-indicator";
-import HoldProgressRing from "@/components/custom/common/hold-progress-ring";
+import HoldProgressRing from "@/components/custom/common/controls/hold-progress-ring";
 import { CELL_DISC_CLASS } from "@/components/custom/bottom-nav/bottom-nav-classes";
 import type { IndicatorOpacity } from "@/components/custom/bottom-nav/use-indicator-opacity";
 

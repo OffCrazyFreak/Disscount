@@ -9,7 +9,7 @@ import {
   CommandInput,
   CommandList,
 } from "@/components/ui/command";
-import ScrollFade from "@/components/custom/common/scroll-fade";
+import ScrollFade from "@/components/custom/common/scroll-fade/scroll-fade";
 import MultiSelectBulkActions from "@/components/custom/form/multi-select-bulk-actions";
 import { useMultiSelectContext } from "@/components/custom/form/multi-select-context";
 import { commandFilter } from "@/utils/search/command-filter";

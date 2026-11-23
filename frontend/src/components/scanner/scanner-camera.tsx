@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { TriangleAlert } from "lucide-react";
-import { Banner } from "@/components/custom/common/banner";
+import { Banner } from "@/components/custom/common/feedback/banner";
 import { Button } from "@/components/ui/button";
 import {
   clearPreferredCamera,

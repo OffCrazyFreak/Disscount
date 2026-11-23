@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-import MediaRow from "@/components/custom/common/media-row";
+import MediaRow from "@/components/custom/common/display/media-row";
 import ProductThumbnail from "@/components/custom/product-photos/product-thumbnail";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductInfo from "@/components/custom/product/product-info";

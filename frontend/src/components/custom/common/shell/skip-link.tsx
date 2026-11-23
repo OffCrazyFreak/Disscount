@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import SkipLinkAnchor from "@/components/custom/common/skip-link-anchor";
+import SkipLinkAnchor from "@/components/custom/common/shell/skip-link-anchor";
 
 export const MAIN_CONTENT_ID = "main-content";
 

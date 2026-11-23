@@ -2,10 +2,10 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import SectionTabs from "@/components/custom/common/section-tabs";
+import SectionTabs from "@/components/custom/common/display/section-tabs";
 import SkipLink, {
   MAIN_CONTENT_ID,
-} from "@/components/custom/common/skip-link";
+} from "@/components/custom/common/shell/skip-link";
 import { renderWithProviders } from "@/test/render";
 import type { ISectionTab } from "@/typings/section-tabs";
 

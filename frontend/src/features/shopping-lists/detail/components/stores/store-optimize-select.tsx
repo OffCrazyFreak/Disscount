@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import LabeledSelect from "@/components/custom/common/labeled-select";
+import LabeledSelect from "@/components/custom/common/controls/labeled-select";
 import type { ILabeledSelectOption } from "@/typings/labeled-select-option";
 import type { StoreOptimizeMode } from "@/features/shopping-lists/utils/shopping-list-utils";
 

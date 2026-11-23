@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import DetailPopoverButton from "@/components/custom/common/detail-popover-button";
+import DetailPopoverButton from "@/components/custom/common/controls/detail-popover-button";
 import { useStoreOpening } from "@/components/custom/store-hours/store-hours-context";
 import { useOpeningStatusText } from "@/components/custom/store-hours/use-opening-status-text";
 import { formatDistance } from "@/utils/geo/distance";

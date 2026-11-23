@@ -19,7 +19,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import ScrollFade from "@/components/custom/common/scroll-fade";
+import ScrollFade from "@/components/custom/common/scroll-fade/scroll-fade";
 import { ShoppingListDto } from "@/lib/api/types";
 import { commandFilter } from "@/utils/search/command-filter";
 import { UseFormReturn, useWatch } from "react-hook-form";

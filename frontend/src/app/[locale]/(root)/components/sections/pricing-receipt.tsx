@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import EdgeFade from "@/components/custom/common/edge-fade";
+import EdgeFade from "@/components/custom/common/scroll-fade/edge-fade";
 import ReceiptRow from "@/app/[locale]/(root)/components/sections/receipt-row";
 
 interface IPricingReceiptProps {
