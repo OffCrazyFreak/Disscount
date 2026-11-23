@@ -3,10 +3,6 @@ import { ProductResponse } from "@/lib/cijene-api/schemas";
 export function getMostFrequentCategory(
   product: ProductResponse,
 ): string | null {
-  if (!product.chains || product.chains.length === 0) {
-    return null;
-  }
-
   const categoryCount: Record<string, number> = {};
 
   for (const chain of product.chains) {

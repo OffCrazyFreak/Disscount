@@ -2,13 +2,12 @@ import { PinnedStoreDto } from "@/lib/api/schemas/preferences";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { isPinnedChain } from "@/utils/pinned-stores";
 
-// Guarded despite the type, because a throw from useShoppingListData kills the whole price calculation.
 export function getStorePricesFromProduct(
   productData: ProductResponse,
 ): Record<string, number> {
   const storePrices: Record<string, number> = {};
 
-  for (const chain of productData.chains ?? []) {
+  for (const chain of productData.chains) {
     storePrices[chain.chain] = chain.avg_price;
   }
 
@@ -35,10 +34,6 @@ export function findCheapestStoreFromProduct(
   productData: ProductResponse,
   pinnedStores: PinnedStoreDto[] | null | undefined,
 ): string | null {
-  if (!productData.chains || productData.chains.length === 0) {
-    return null;
-  }
-
   if (pinnedStores && pinnedStores.length > 0) {
     const pinnedNames = pinnedStores.map((store) => store.storeName);
     const pinnedChains = productData.chains.filter((chainProduct) =>

@@ -23,8 +23,7 @@ export function usePriceHistoryChart(product: ProductResponse) {
   // Read through the store, not lazily: the open section is in the server HTML, which has only defaults.
   const saved = useProductPreferences(product.ean);
 
-  const availableChains =
-    product.chains?.map((c) => (typeof c === "string" ? c : c.chain)) || [];
+  const availableChains = product.chains.map((chain) => chain.chain);
 
   const preferredStoreIds =
     accountUser?.pinnedStores?.map((s) => s.storeApiId) || [];

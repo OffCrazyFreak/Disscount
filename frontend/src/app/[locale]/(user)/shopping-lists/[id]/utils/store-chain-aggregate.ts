@@ -18,12 +18,12 @@ export function buildChainAggregates(
   const chainMap = new Map<string, IChainTotals>();
 
   productsData.forEach((product) => {
-    const shoppingItem = activeItems.find((item) => item.ean === product?.ean);
-    if (!product || !shoppingItem) return;
+    const shoppingItem = activeItems.find((item) => item.ean === product.ean);
+    if (!shoppingItem) return;
 
     const quantity = shoppingItem.amount || 1;
 
-    product.chains?.forEach((chain) => {
+    product.chains.forEach((chain) => {
       const existing = chainMap.get(chain.chain);
 
       if (!existing) {

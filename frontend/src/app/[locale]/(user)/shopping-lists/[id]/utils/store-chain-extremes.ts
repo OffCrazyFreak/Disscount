@@ -15,9 +15,9 @@ function countChainsAtExtreme(
 
   activeItems.forEach((item) => {
     const product = productsData.find(
-      (candidate) => candidate?.ean === item.ean,
+      (candidate) => candidate.ean === item.ean,
     );
-    if (!product?.chains?.length) return;
+    if (!product?.chains.length) return;
 
     const range = getChainAvgPriceRange(product);
     if (!range) return;
