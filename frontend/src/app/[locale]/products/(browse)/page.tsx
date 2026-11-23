@@ -6,8 +6,6 @@ import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
 import { readSearchParam } from "@/utils/generic";
 import { pageAlternates } from "@/i18n/alternates";
-import { Link } from "@/i18n/navigation";
-import { CATEGORIES_PATH } from "@/utils/category-links";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -24,7 +22,6 @@ export default async function ProductsPage(
   props: PageProps<"/[locale]/products">,
 ) {
   const query = readSearchParam(await props.searchParams);
-  const t = await getTranslations("products");
 
   // ProductsClient's useSearchParams needs a Suspense boundary when prerendering.
   return (
@@ -41,13 +38,6 @@ export default async function ProductsPage(
       >
         <ProductsClient query={query} />
       </Suspense>
-
-      {/* Server HTML, so crawlers reach the hubs even though the search renders in the browser. */}
-      <p className="mt-6 text-center text-sm">
-        <Link href={CATEGORIES_PATH} className="text-primary hover:underline">
-          {t("browseCategories")}
-        </Link>
-      </p>
     </>
   );
 }

@@ -1,5 +1,10 @@
 {
   "browseCategories": "Produkte nach Kategorie durchsuchen",
+  "landing": {
+    "intro": "Wir haben {products, plural, one {# Produkt} other {# Produkte}} in {categories, plural, one {# Kategorie} other {# Kategorien}} eingeordnet. Wähle eine Kategorie oder ein beliebtes Produkt und vergleiche die Preise der Handelsketten.",
+    "categoriesHeading": "Kategorien",
+    "popularHeading": "Beliebte Produkte"
+  },
   "meta": {
     "title": "Produkte",
     "description": "Suche Produkte und vergleiche Preise bei Händlern in ganz Kroatien."

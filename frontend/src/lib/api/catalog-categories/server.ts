@@ -38,9 +38,10 @@ function catalogFetch(
 
 /** Throws on any failure, so the page answers 500, which crawlers retry, rather than an empty hub. */
 export const getCatalogCategories = cache(
-  async (): Promise<CatalogCategories> => {
+  async (timeoutMs = CATALOG_TIMEOUT_MS): Promise<CatalogCategories> => {
     const response = await catalogFetch("/api/products/categories", {
       revalidate: CATEGORY_COUNTS_REVALIDATE_SECONDS,
+      timeoutMs,
     });
 
     if (!response.ok) {
