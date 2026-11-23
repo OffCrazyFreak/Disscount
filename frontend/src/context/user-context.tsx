@@ -18,7 +18,7 @@ import {
   getCacheIdentity,
   persistedCacheIdentity,
   subscribeToCacheIdentity,
-} from "@/lib/offline/cache-identity";
+} from "@/lib/offline/cache/cache-identity";
 import { sessionIdentity } from "@/lib/auth/account/pending-sign-out";
 import { UserDto, PinnedStoreDto, PinnedPlaceDto } from "@/lib/api/types";
 import {

@@ -1,7 +1,10 @@
 import { AxiosError } from "axios";
 import { describe, expect, it } from "vitest";
 
-import { cardRetryDelay, shouldRetryCardWrite } from "@/lib/offline/card-retry";
+import {
+  cardRetryDelay,
+  shouldRetryCardWrite,
+} from "@/lib/offline/writes/card-retry";
 import { httpError } from "@/test/backend/http-error";
 
 describe("shouldRetryCardWrite", () => {

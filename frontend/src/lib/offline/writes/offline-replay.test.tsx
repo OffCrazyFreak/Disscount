@@ -11,11 +11,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { toast } from "sonner";
 
-import { dropExpiredWrites } from "@/lib/offline/drop-expired-writes";
-import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
-import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
-import { persistOptions } from "@/lib/offline/persister";
-import { setCacheIdentity } from "@/lib/offline/cache-identity";
+import { dropExpiredWrites } from "@/lib/offline/writes/drop-expired-writes";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/writes/offline-mutation-keys";
+import { registerOfflineMutationDefaults } from "@/lib/offline/writes/offline-mutations";
+import { persistOptions } from "@/lib/offline/cache/persister";
+import { setCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import { actingAs, serverSession } from "@/test/backend/backend-identity";
 import { server } from "@/test/msw-server";
 

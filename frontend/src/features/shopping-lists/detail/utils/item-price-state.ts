@@ -1,6 +1,6 @@
 import type { QueryObserverResult } from "@tanstack/react-query";
 
-import { httpStatus } from "@/lib/offline/failure-policy";
+import { httpStatus } from "@/lib/offline/writes/failure-policy";
 
 export type ItemPriceState =
   "loading" | "ready" | "failed" | "offline" | "noPrices";

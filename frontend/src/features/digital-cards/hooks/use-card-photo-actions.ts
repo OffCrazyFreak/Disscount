@@ -6,16 +6,16 @@ import { toast } from "sonner";
 import { CARD_PHOTO_SLOTS, type CardPhotoSlot } from "@/constants/card-codes";
 import { setCardPhotoInCache } from "@/lib/api/digital-cards/photo-cache";
 import { problemMessage } from "@/lib/api/problem-details";
-import { getCacheIdentity } from "@/lib/offline/cache-identity";
+import { getCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import {
   enqueueCardPhoto,
   enqueueCardPhotoRemoval,
   hasQueuedCardPhoto,
   sendQueuedCardPhoto,
-} from "@/lib/offline/card-photo-outbox";
-import { deleteSlotForCard } from "@/lib/offline/card-photo-store";
-import { httpStatus } from "@/lib/offline/failure-policy";
-import { isNetworkFailure } from "@/lib/offline/is-network-failure";
+} from "@/lib/offline/card-photos/card-photo-outbox";
+import { deleteSlotForCard } from "@/lib/offline/card-photos/card-photo-store";
+import { httpStatus } from "@/lib/offline/writes/failure-policy";
+import { isNetworkFailure } from "@/lib/offline/writes/is-network-failure";
 import {
   prepareCardImage,
   type IPreparedCardImage,

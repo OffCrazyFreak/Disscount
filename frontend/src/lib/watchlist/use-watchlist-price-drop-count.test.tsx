@@ -4,7 +4,7 @@ import { http, HttpResponse } from "msw/http";
 import { describe, expect, it, vi } from "vitest";
 
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
-import { setCacheIdentity } from "@/lib/offline/cache-identity";
+import { setCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import { useWatchlistPriceDropCount } from "@/lib/watchlist/use-watchlist-price-drop-count";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";

@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { shoppingListService } from "@/lib/api";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
-import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/writes/offline-mutation-keys";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import type { IShoppingListItemUpdate } from "@/features/shopping-lists/detail/typings/shopping-list-item-types";
 

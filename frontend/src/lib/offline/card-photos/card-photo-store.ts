@@ -1,8 +1,8 @@
 import { createStore, delMany, get, keys, set } from "idb-keyval";
 
 import type { CardPhotoSize, CardPhotoSlot } from "@/constants/card-codes";
-import { updateIfPresent } from "@/lib/offline/idb-transactions";
-import { canWriteAfterPurges } from "@/lib/offline/purge-gate";
+import { updateIfPresent } from "@/lib/offline/card-photos/idb-transactions";
+import { canWriteAfterPurges } from "@/lib/offline/cache/purge-gate";
 
 interface IStoredPhoto {
   buf: ArrayBuffer;

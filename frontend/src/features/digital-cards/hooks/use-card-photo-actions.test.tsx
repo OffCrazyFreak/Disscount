@@ -17,7 +17,7 @@ vi.mock("idb-keyval", () => ({
   delMany: async (list: string[]) => list.forEach((key) => db.delete(key)),
   keys: async () => [...db.keys()],
 }));
-vi.mock("@/lib/offline/idb-transactions", () => ({
+vi.mock("@/lib/offline/card-photos/idb-transactions", () => ({
   deleteIf: async (
     key: string,
     _store: unknown,

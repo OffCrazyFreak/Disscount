@@ -8,7 +8,7 @@ import { UserProvider, useUser } from "@/context/user-context";
 import {
   getCacheIdentity,
   setCacheIdentity,
-} from "@/lib/offline/cache-identity";
+} from "@/lib/offline/cache/cache-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 import { storedUser } from "@/test/fixtures/stored-user";

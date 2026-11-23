@@ -3,17 +3,17 @@ import { waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { syncCacheIdentity } from "@/context/user-session/sync-cache-identity";
-import { setCacheIdentity } from "@/lib/offline/cache-identity";
+import { setCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import { peekFormDraft, setFormDraft } from "@/utils/browser/storage/drafts";
 
 // IndexedDB buckets have their own tests; this one covers the localStorage drafts.
-vi.mock("@/lib/offline/persister", () => ({
+vi.mock("@/lib/offline/cache/persister", () => ({
   removePersistedCacheFor: vi.fn(async () => {}),
 }));
-vi.mock("@/lib/offline/card-photo-store", () => ({
+vi.mock("@/lib/offline/card-photos/card-photo-store", () => ({
   deleteForIdentity: vi.fn(async () => {}),
 }));
-vi.mock("@/lib/offline/card-photo-outbox", () => ({
+vi.mock("@/lib/offline/card-photos/card-photo-outbox", () => ({
   deleteOutboxForIdentity: vi.fn(async () => {}),
 }));
 vi.mock("@/lib/api/digital-cards/last-used", () => ({

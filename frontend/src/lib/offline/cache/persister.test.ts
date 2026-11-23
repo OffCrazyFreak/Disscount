@@ -2,7 +2,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { persistQueryClientRestore } from "@tanstack/react-query-persist-client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { trackPurge } from "@/lib/offline/purge-gate";
+import { trackPurge } from "@/lib/offline/cache/purge-gate";
 
 const db = new Map<string, unknown>();
 let identity = "alice";
@@ -12,12 +12,12 @@ vi.mock("idb-keyval", () => ({
   set: async (key: string, value: unknown) => void db.set(key, value),
   del: async (key: string) => void db.delete(key),
 }));
-vi.mock("@/lib/offline/cache-identity", () => ({
+vi.mock("@/lib/offline/cache/cache-identity", () => ({
   scopedCacheKey: (base: string, explicit?: string) =>
     `${base}:${explicit ?? identity}`,
 }));
 
-const { persistOptions } = await import("@/lib/offline/persister");
+const { persistOptions } = await import("@/lib/offline/cache/persister");
 
 const CACHE_KEY = "disscount-react-query-cache";
 

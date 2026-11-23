@@ -1,14 +1,14 @@
 import type { MutationKey, QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import type { CardToastTranslator } from "@/lib/offline/card-write-failed";
-import type { OfflineToastTranslator } from "@/lib/offline/list-write-failed";
+import type { CardToastTranslator } from "@/lib/offline/writes/card-write-failed";
+import type { OfflineToastTranslator } from "@/lib/offline/writes/list-write-failed";
 import {
   DIGITAL_CARD_MUTATION_SCOPE,
   isOfflineMutationKey,
   OFFLINE_MUTATION_KEYS,
-} from "@/lib/offline/offline-mutation-keys";
-import { isQueuedWriteExpired } from "@/lib/offline/queued-write-expiry";
+} from "@/lib/offline/writes/offline-mutation-keys";
+import { isQueuedWriteExpired } from "@/lib/offline/writes/queued-write-expiry";
 
 /** No refetch, because data that old refetches as soon as it is shown online. */
 export function dropExpiredWrites(

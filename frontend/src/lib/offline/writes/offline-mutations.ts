@@ -32,18 +32,18 @@ import type {
 import {
   DIGITAL_CARD_MUTATION_SCOPE,
   OFFLINE_MUTATION_KEYS,
-} from "@/lib/offline/offline-mutation-keys";
-import { CARD_WRITE_RETRY } from "@/lib/offline/card-retry";
+} from "@/lib/offline/writes/offline-mutation-keys";
+import { CARD_WRITE_RETRY } from "@/lib/offline/writes/card-retry";
 import {
   cardDeleteFailed,
   cardWriteFailed,
   type CardToastTranslator,
-} from "@/lib/offline/card-write-failed";
+} from "@/lib/offline/writes/card-write-failed";
 import {
   deleteWriteFailed,
   listWriteFailed,
   type OfflineToastTranslator,
-} from "@/lib/offline/list-write-failed";
+} from "@/lib/offline/writes/list-write-failed";
 
 function listAndItemsKeys(listId: string): QueryKey[] {
   return [

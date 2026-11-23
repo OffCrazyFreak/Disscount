@@ -1,12 +1,12 @@
 import { RefObject } from "react";
 import { QueryClient } from "@tanstack/react-query";
 
-import { purgeOfflineCache } from "@/lib/offline/purge";
+import { purgeOfflineCache } from "@/lib/offline/cache/purge";
 import {
   ANONYMOUS_IDENTITY,
   setCacheIdentity,
   toCacheIdentity,
-} from "@/lib/offline/cache-identity";
+} from "@/lib/offline/cache/cache-identity";
 import { adoptGuestFormDrafts } from "@/utils/browser/storage/drafts";
 
 /** A failed lookup is not a sign-out, the rule the cache purge follows too. */

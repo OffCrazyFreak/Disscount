@@ -5,13 +5,13 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/writes/offline-mutation-keys";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import { sharedListRefetchInterval } from "@/lib/api/shopping-lists/shared-list-polling";
 import {
   deleteWriteFailed,
   listWriteFailed,
-} from "@/lib/offline/list-write-failed";
+} from "@/lib/offline/writes/list-write-failed";
 import {
   patchItemOptimistically,
   removeItemOptimistically,

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import ShoppingListUpdateStatus from "@/features/shopping-lists/detail/components/shopping-list-update-status";
 import type { ShoppingListDto } from "@/lib/api/types";
-import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/writes/offline-mutation-keys";
 import { renderWithProviders } from "@/test/render";
 
 const FIRST_FETCH = 1_000_000;

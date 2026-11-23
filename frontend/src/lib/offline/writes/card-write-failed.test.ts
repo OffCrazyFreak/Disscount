@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   cardDeleteFailed,
   cardWriteFailed,
-} from "@/lib/offline/card-write-failed";
+} from "@/lib/offline/writes/card-write-failed";
 import { httpError } from "@/test/backend/http-error";
 
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));

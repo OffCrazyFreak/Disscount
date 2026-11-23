@@ -4,7 +4,7 @@ import { http, HttpResponse } from "msw/http";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { UserProvider, useUser } from "@/context/user-context";
-import { setCacheIdentity } from "@/lib/offline/cache-identity";
+import { setCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 import { storedUser } from "@/test/fixtures/stored-user";

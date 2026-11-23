@@ -1,7 +1,10 @@
 import { toast } from "sonner";
 
 import { isSessionChanged, problemMessage } from "@/lib/api/problem-details";
-import { cardWriteMessage, httpStatus } from "@/lib/offline/failure-policy";
+import {
+  cardWriteMessage,
+  httpStatus,
+} from "@/lib/offline/writes/failure-policy";
 
 // So a caller can hand in a stable wrapper that always reads the current language.
 export type CardToastTranslator = (

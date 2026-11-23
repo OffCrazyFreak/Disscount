@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { photoKey, writePhoto } from "@/lib/offline/card-photo-store";
-import { currentPurgeGeneration, trackPurge } from "@/lib/offline/purge-gate";
+import {
+  photoKey,
+  writePhoto,
+} from "@/lib/offline/card-photos/card-photo-store";
+import {
+  currentPurgeGeneration,
+  trackPurge,
+} from "@/lib/offline/cache/purge-gate";
 
 const db = new Map<string, unknown>();
 

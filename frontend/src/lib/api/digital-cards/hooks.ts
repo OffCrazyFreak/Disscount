@@ -6,8 +6,8 @@ import {
   getMyDigitalCards,
 } from "@/lib/api/digital-cards/queries";
 import type { DigitalCardDto } from "@/lib/api/types";
-import { getCacheIdentity } from "@/lib/offline/cache-identity";
-import { pruneToCards } from "@/lib/offline/card-photo-store";
+import { getCacheIdentity } from "@/lib/offline/cache/cache-identity";
+import { pruneToCards } from "@/lib/offline/card-photos/card-photo-store";
 
 async function fetchCardsAndPrunePhotos(): Promise<DigitalCardDto[]> {
   const cards = await getMyDigitalCards();

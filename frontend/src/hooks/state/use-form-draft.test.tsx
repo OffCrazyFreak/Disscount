@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useFormDraft } from "@/hooks/state/use-form-draft";
-import { setCacheIdentity } from "@/lib/offline/cache-identity";
+import { setCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import { getFormDraft, setFormDraft } from "@/utils/browser/local-storage";
 
 const DRAFT_KEY = "test-draft";

@@ -1,6 +1,6 @@
 import { isSessionChanged } from "@/lib/api/problem-details";
-import { failureAction } from "@/lib/offline/failure-policy";
-import { isNetworkFailure } from "@/lib/offline/is-network-failure";
+import { failureAction } from "@/lib/offline/writes/failure-policy";
+import { isNetworkFailure } from "@/lib/offline/writes/is-network-failure";
 
 const MAX_DELAY_MS = 30_000;
 

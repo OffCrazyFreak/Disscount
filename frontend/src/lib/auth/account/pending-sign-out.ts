@@ -1,5 +1,5 @@
 import { authClient } from "@/lib/auth/client";
-import { persistedCacheIdentity } from "@/lib/offline/cache-identity";
+import { persistedCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import {
   getLastSession,
   getPendingSignOut,

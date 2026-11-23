@@ -7,13 +7,13 @@ import type {
 } from "@tanstack/react-query-persist-client";
 import { get, set, del } from "idb-keyval";
 
-import { scopedCacheKey } from "@/lib/offline/cache-identity";
-import { shouldPersistQuery } from "@/lib/offline/cached-query-keys";
+import { scopedCacheKey } from "@/lib/offline/cache/cache-identity";
+import { shouldPersistQuery } from "@/lib/offline/cache/cached-query-keys";
 import {
   canWriteAfterPurges,
   currentPurgeGeneration,
-} from "@/lib/offline/purge-gate";
-import { shouldPersistMutation } from "@/lib/offline/offline-mutation-keys";
+} from "@/lib/offline/cache/purge-gate";
+import { shouldPersistMutation } from "@/lib/offline/writes/offline-mutation-keys";
 
 const IDB_CACHE_KEY = "disscount-react-query-cache";
 

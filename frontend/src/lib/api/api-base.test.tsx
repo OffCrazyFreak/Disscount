@@ -4,7 +4,7 @@ import { describe, expect, it, onTestFinished, vi } from "vitest";
 import apiClient from "@/lib/api/api-base";
 import { authClient } from "@/lib/auth/client";
 import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
-import { setCacheIdentity } from "@/lib/offline/cache-identity";
+import { setCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import { server } from "@/test/msw-server";
 
 // Named .tsx only for the jsdom project: the client sends the proxy headers only with a document.

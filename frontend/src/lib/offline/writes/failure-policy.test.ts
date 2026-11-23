@@ -1,7 +1,10 @@
 import { AxiosError } from "axios";
 import { describe, expect, it } from "vitest";
 
-import { cardWriteMessage, failureAction } from "@/lib/offline/failure-policy";
+import {
+  cardWriteMessage,
+  failureAction,
+} from "@/lib/offline/writes/failure-policy";
 import { httpError } from "@/test/backend/http-error";
 
 describe("failureAction", () => {

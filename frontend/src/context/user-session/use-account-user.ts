@@ -3,11 +3,11 @@ import { skipToken, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
 import { UserDto } from "@/lib/api/types";
-import { getCacheIdentity } from "@/lib/offline/cache-identity";
+import { getCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import {
   canWriteAfterPurges,
   currentPurgeGeneration,
-} from "@/lib/offline/purge-gate";
+} from "@/lib/offline/cache/purge-gate";
 
 /** Offline the profile request fails, so this copy keeps pinned stores, name and avatar; logout clears it. */
 export function useAccountUser(

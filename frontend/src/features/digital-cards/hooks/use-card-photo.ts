@@ -3,13 +3,13 @@ import { useEffect, useState } from "react";
 import type { CardPhotoSize } from "@/constants/card-codes";
 import { fetchCardPhotoBlob } from "@/lib/api/digital-cards/photo-queries";
 import type { CardPhotoDto } from "@/lib/api/types";
-import { getCacheIdentity } from "@/lib/offline/cache-identity";
+import { getCacheIdentity } from "@/lib/offline/cache/cache-identity";
 import {
   photoKey,
   readPhoto,
   writePhoto,
-} from "@/lib/offline/card-photo-store";
-import { currentPurgeGeneration } from "@/lib/offline/purge-gate";
+} from "@/lib/offline/card-photos/card-photo-store";
+import { currentPurgeGeneration } from "@/lib/offline/cache/purge-gate";
 
 // Many tiles can ask for the same blob in one render pass; they share one request.
 const inflight = new Map<string, Promise<Blob>>();

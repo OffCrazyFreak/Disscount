@@ -1,7 +1,7 @@
 import { isAxiosError } from "axios";
 
 import { parseProblem } from "@/lib/api/problem-details";
-import { isNetworkFailure } from "@/lib/offline/is-network-failure";
+import { isNetworkFailure } from "@/lib/offline/writes/is-network-failure";
 
 /** Resending can never succeed for these, so the queued entry is dropped. */
 const PERMANENT_STATUSES = new Set([400, 404, 409, 413, 422]);

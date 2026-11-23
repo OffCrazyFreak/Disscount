@@ -1,7 +1,7 @@
 import {
   ANONYMOUS_IDENTITY,
   getCacheIdentity,
-} from "@/lib/offline/cache-identity";
+} from "@/lib/offline/cache/cache-identity";
 import { getAppStorage, setAppStorage } from "@/utils/browser/storage/core";
 import type { IFormDraft } from "@/typings/local-storage";
 

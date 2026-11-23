@@ -36,7 +36,7 @@ vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
 }));
 
-vi.mock("@/lib/offline/purge", () => ({ purgeOfflineCache: vi.fn() }));
+vi.mock("@/lib/offline/cache/purge", () => ({ purgeOfflineCache: vi.fn() }));
 
 vi.mock("@sentry/nextjs", () => ({
   setUser: vi.fn(),

@@ -6,18 +6,18 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
-import { persistOptions } from "@/lib/offline/persister";
+import { persistOptions } from "@/lib/offline/cache/persister";
 import { createQueryClientConfig } from "@/lib/api/query-client-defaults";
 import { DIGITAL_CARD_QUERY_KEYS } from "@/lib/api/digital-cards/keys";
 import { bindLastUsedQueryClient } from "@/lib/api/digital-cards/last-used";
 import {
   replayCardPhotoOutbox,
   type PhotoToastTranslator,
-} from "@/lib/offline/card-photo-outbox";
-import type { CardToastTranslator } from "@/lib/offline/card-write-failed";
-import { dropExpiredWrites } from "@/lib/offline/drop-expired-writes";
-import type { OfflineToastTranslator } from "@/lib/offline/list-write-failed";
-import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
+} from "@/lib/offline/card-photos/card-photo-outbox";
+import type { CardToastTranslator } from "@/lib/offline/writes/card-write-failed";
+import { dropExpiredWrites } from "@/lib/offline/writes/drop-expired-writes";
+import type { OfflineToastTranslator } from "@/lib/offline/writes/list-write-failed";
+import { registerOfflineMutationDefaults } from "@/lib/offline/writes/offline-mutations";
 import { clientEnv } from "@/lib/env";
 
 // Photos go after paused card saves, or an upload for a card the server has not seen answers 404 and is dropped.

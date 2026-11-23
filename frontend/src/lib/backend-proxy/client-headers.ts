@@ -3,7 +3,7 @@ import {
   CLIENT_HEADER_VALUE,
   USER_HEADER,
 } from "@/lib/backend-proxy/proxy-contract";
-import { getCacheIdentity } from "@/lib/offline/cache-identity";
+import { getCacheIdentity } from "@/lib/offline/cache/cache-identity";
 
 export function backendProxyHeaders(): Record<string, string> {
   return {

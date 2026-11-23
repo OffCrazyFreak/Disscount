@@ -11,7 +11,7 @@ import {
   getWatchlistItemsByProductApiId,
   removeFromWatchlist,
 } from "@/lib/api/watchlist/queries";
-import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/writes/offline-mutation-keys";
 import type { WatchlistItemRequest, WatchlistItemDto } from "@/lib/api/types";
 
 export function useAddToWatchlist() {

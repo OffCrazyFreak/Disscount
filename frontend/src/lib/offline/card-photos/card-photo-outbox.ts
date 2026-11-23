@@ -8,15 +8,18 @@ import {
   deleteCardPhoto,
   uploadCardPhoto,
 } from "@/lib/api/digital-cards/photo-queries";
-import { getCacheIdentity } from "@/lib/offline/cache-identity";
-import { failureAction, httpStatus } from "@/lib/offline/failure-policy";
-import { deleteIf } from "@/lib/offline/idb-transactions";
+import { getCacheIdentity } from "@/lib/offline/cache/cache-identity";
+import { failureAction, httpStatus } from "@/lib/offline/writes/failure-policy";
+import { deleteIf } from "@/lib/offline/card-photos/idb-transactions";
 import {
   canWriteAfterPurges,
   currentPurgeGeneration,
-} from "@/lib/offline/purge-gate";
-import { isQueuedWriteExpired } from "@/lib/offline/queued-write-expiry";
-import { photoSlotKey, runExclusive } from "@/lib/offline/slot-lock";
+} from "@/lib/offline/cache/purge-gate";
+import { isQueuedWriteExpired } from "@/lib/offline/writes/queued-write-expiry";
+import {
+  photoSlotKey,
+  runExclusive,
+} from "@/lib/offline/card-photos/slot-lock";
 
 interface IBytes {
   buf: ArrayBuffer;

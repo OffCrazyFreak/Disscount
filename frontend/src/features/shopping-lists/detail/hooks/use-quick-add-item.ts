@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { shoppingListService } from "@/lib/api";
 import { useGetProductByName } from "@/lib/cijene-api";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
-import { listWriteFailed } from "@/lib/offline/list-write-failed";
+import { listWriteFailed } from "@/lib/offline/writes/list-write-failed";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import { useDebouncedValue } from "@/hooks/state/use-debounced-value";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";

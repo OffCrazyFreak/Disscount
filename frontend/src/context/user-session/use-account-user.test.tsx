@@ -5,8 +5,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { useAccountUser } from "@/context/user-session/use-account-user";
 import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
 import type { UserDto } from "@/lib/api/types";
-import { setCacheIdentity } from "@/lib/offline/cache-identity";
-import { trackPurge } from "@/lib/offline/purge-gate";
+import { setCacheIdentity } from "@/lib/offline/cache/cache-identity";
+import { trackPurge } from "@/lib/offline/cache/purge-gate";
 import { renderHookWithProviders } from "@/test/render";
 
 const PROFILE = {

@@ -1,7 +1,7 @@
 import { AxiosError, type AxiosResponse } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { trackPurge } from "@/lib/offline/purge-gate";
+import { trackPurge } from "@/lib/offline/cache/purge-gate";
 
 const db = new Map<string, unknown>();
 const upload = vi.fn();
@@ -15,7 +15,7 @@ vi.mock("idb-keyval", () => ({
   delMany: async (list: string[]) => list.forEach((key) => db.delete(key)),
   keys: async () => [...db.keys()],
 }));
-vi.mock("@/lib/offline/idb-transactions", () => ({
+vi.mock("@/lib/offline/card-photos/idb-transactions", () => ({
   deleteIf: async (
     key: string,
     _store: unknown,
@@ -31,13 +31,13 @@ vi.mock("@/lib/api/digital-cards/photo-queries", () => ({
 vi.mock("@/lib/api/digital-cards/photo-cache", () => ({
   setCardPhotoInCache: (...args: unknown[]) => setCache(...args),
 }));
-vi.mock("@/lib/offline/cache-identity", () => ({
+vi.mock("@/lib/offline/cache/cache-identity", () => ({
   getCacheIdentity: () => "user",
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
 
 const { enqueueCardPhoto, enqueueCardPhotoRemoval, sendQueuedCardPhoto } =
-  await import("@/lib/offline/card-photo-outbox");
+  await import("@/lib/offline/card-photos/card-photo-outbox");
 
 const client = {} as Parameters<typeof sendQueuedCardPhoto>[0];
 function photo(name: string) {

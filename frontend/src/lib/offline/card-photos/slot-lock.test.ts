@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { runExclusive } from "@/lib/offline/slot-lock";
+import { runExclusive } from "@/lib/offline/card-photos/slot-lock";
 
 describe("runExclusive", () => {
   it("runs tasks on the same key in order even when the first is slower", async () => {

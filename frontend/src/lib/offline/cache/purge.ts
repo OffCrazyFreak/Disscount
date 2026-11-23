@@ -1,12 +1,12 @@
 import type { Query, QueryClient } from "@tanstack/react-query";
 
 import { deleteUsedQueueForIdentity } from "@/lib/api/digital-cards/last-used";
-import { ANONYMOUS_IDENTITY } from "@/lib/offline/cache-identity";
+import { ANONYMOUS_IDENTITY } from "@/lib/offline/cache/cache-identity";
 import { forgetSubmittedProductSearch } from "@/components/custom/search/use-record-product-search";
-import { trackPurge } from "@/lib/offline/purge-gate";
-import { deleteForIdentity } from "@/lib/offline/card-photo-store";
-import { deleteOutboxForIdentity } from "@/lib/offline/card-photo-outbox";
-import { removePersistedCacheFor } from "@/lib/offline/persister";
+import { trackPurge } from "@/lib/offline/cache/purge-gate";
+import { deleteForIdentity } from "@/lib/offline/card-photos/card-photo-store";
+import { deleteOutboxForIdentity } from "@/lib/offline/card-photos/card-photo-outbox";
+import { removePersistedCacheFor } from "@/lib/offline/cache/persister";
 import { removeFormDraftsFor } from "@/utils/browser/storage/drafts";
 import { productRecentSearches } from "@/utils/browser/storage/recent-searches";
 import { setWatchlistPriceSnapshot } from "@/utils/browser/storage/watchlist";

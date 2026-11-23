@@ -17,18 +17,18 @@ import {
   setDigitalCardPinned,
 } from "@/lib/api/digital-cards/queries";
 import type { DigitalCardDto, DigitalCardRequest } from "@/lib/api/types";
-import { getCacheIdentity } from "@/lib/offline/cache-identity";
-import { deleteForCard } from "@/lib/offline/card-photo-store";
-import { CARD_WRITE_RETRY } from "@/lib/offline/card-retry";
+import { getCacheIdentity } from "@/lib/offline/cache/cache-identity";
+import { deleteForCard } from "@/lib/offline/card-photos/card-photo-store";
+import { CARD_WRITE_RETRY } from "@/lib/offline/writes/card-retry";
 import {
   cardDeleteFailed,
   cardWriteFailed,
-} from "@/lib/offline/card-write-failed";
+} from "@/lib/offline/writes/card-write-failed";
 import {
   DIGITAL_CARD_MUTATION_SCOPE,
   OFFLINE_MUTATION_KEYS,
-} from "@/lib/offline/offline-mutation-keys";
-import { requestPersistentStorage } from "@/lib/offline/request-persistent-storage";
+} from "@/lib/offline/writes/offline-mutation-keys";
+import { requestPersistentStorage } from "@/lib/offline/cache/request-persistent-storage";
 
 function useInvalidateCards() {
   const queryClient = useQueryClient();

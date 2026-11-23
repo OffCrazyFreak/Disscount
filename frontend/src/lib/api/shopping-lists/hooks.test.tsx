@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useGetShoppingListById } from "@/lib/api/shopping-lists/hooks";
 import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import type { ShoppingListDto } from "@/lib/api/types";
-import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/writes/offline-mutation-keys";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
 

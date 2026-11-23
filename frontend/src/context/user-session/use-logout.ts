@@ -9,8 +9,8 @@ import type { UserDto } from "@/lib/api/types";
 import {
   getCacheIdentity,
   setCacheIdentity,
-} from "@/lib/offline/cache-identity";
-import { purgeOfflineCache } from "@/lib/offline/purge";
+} from "@/lib/offline/cache/cache-identity";
+import { purgeOfflineCache } from "@/lib/offline/cache/purge";
 import { removeFormDraftsFor } from "@/utils/browser/storage/drafts";
 
 export function useLogout(

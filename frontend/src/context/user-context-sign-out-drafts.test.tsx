@@ -10,8 +10,8 @@ import { useFormDraft } from "@/hooks/state/use-form-draft";
 import {
   getCacheIdentity,
   setCacheIdentity,
-} from "@/lib/offline/cache-identity";
-import { purgeOfflineCache } from "@/lib/offline/purge";
+} from "@/lib/offline/cache/cache-identity";
+import { purgeOfflineCache } from "@/lib/offline/cache/purge";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 import { storedUser } from "@/test/fixtures/stored-user";

@@ -6,12 +6,12 @@ import {
   markProductSearchSubmitted,
   useRecordProductSearch,
 } from "@/components/custom/search/use-record-product-search";
-import { purgeOfflineCache } from "@/lib/offline/purge";
+import { purgeOfflineCache } from "@/lib/offline/cache/purge";
 import {
   ANONYMOUS_IDENTITY,
   setCacheIdentity,
-} from "@/lib/offline/cache-identity";
-import { removePersistedCacheFor } from "@/lib/offline/persister";
+} from "@/lib/offline/cache/cache-identity";
+import { removePersistedCacheFor } from "@/lib/offline/cache/persister";
 import { renderWithProviders } from "@/test/render";
 import { peekFormDraft, setFormDraft } from "@/utils/browser/storage/drafts";
 import { productRecentSearches } from "@/utils/browser/storage/recent-searches";
@@ -21,13 +21,13 @@ import {
 } from "@/utils/browser/storage/watchlist";
 
 // IndexedDB buckets have their own tests; this one covers the localStorage baseline.
-vi.mock("@/lib/offline/persister", () => ({
+vi.mock("@/lib/offline/cache/persister", () => ({
   removePersistedCacheFor: vi.fn(async () => {}),
 }));
-vi.mock("@/lib/offline/card-photo-store", () => ({
+vi.mock("@/lib/offline/card-photos/card-photo-store", () => ({
   deleteForIdentity: vi.fn(async () => {}),
 }));
-vi.mock("@/lib/offline/card-photo-outbox", () => ({
+vi.mock("@/lib/offline/card-photos/card-photo-outbox", () => ({
   deleteOutboxForIdentity: vi.fn(async () => {}),
 }));
 vi.mock("@/lib/api/digital-cards/last-used", () => ({
