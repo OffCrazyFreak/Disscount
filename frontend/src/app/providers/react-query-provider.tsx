@@ -1,6 +1,6 @@
 "use client";
 
-import { QueryClient } from "@tanstack/react-query";
+import { onlineManager, QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect, useState, type ReactNode } from "react";
@@ -43,6 +43,11 @@ export default function ReactQueryProviderWrapper({
   const tCards = useTranslations("digitalCards");
 
   const [queryClient] = useState(() => {
+    // onlineManager starts online, so restored writes would be sent and dropped; a false onLine is reliable.
+    if (typeof navigator !== "undefined" && navigator.onLine === false) {
+      onlineManager.setOnline(false);
+    }
+
     const client = new QueryClient(createQueryClientConfig());
     // Cards and the snapshot stay however long the app runs without visiting the wallet, restored ones too.
     client.setQueryDefaults(DIGITAL_CARD_QUERY_KEYS.all, { gcTime: Infinity });
