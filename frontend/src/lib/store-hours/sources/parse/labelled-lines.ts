@@ -1,4 +1,4 @@
-import { plainText } from "@/lib/store-hours/sources/hours-text";
+import { plainText } from "@/lib/store-hours/sources/parse/hours-text";
 
 /** A line counts only when its value starts with a time or closed word, so "Adresa: …" and "Telefon: …" are skipped. */
 export function labelledLines(html: string): [string, string][] {

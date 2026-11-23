@@ -2,7 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
-import { parseStanicHours } from "@/lib/store-hours/sources/stanic-hours";
+import { parseStanicHours } from "@/lib/store-hours/sources/chains/stanic-hours";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchJson } from "@/lib/store-locations/http";
 import { stanicCodeReader } from "@/lib/store-locations/sources/stanic-store-codes";

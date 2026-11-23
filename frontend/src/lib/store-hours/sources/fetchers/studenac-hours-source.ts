@@ -3,7 +3,7 @@ import "server-only";
 import {
   parseStudenacList,
   parseStudenacPage,
-} from "@/lib/store-hours/sources/studenac-hours";
+} from "@/lib/store-hours/sources/chains/studenac-hours";
 import type {
   IHoursRecord,
   IHoursSource,

@@ -3,7 +3,7 @@ import {
   dayIndex,
   parseDayText,
   plainText,
-} from "@/lib/store-hours/sources/hours-text";
+} from "@/lib/store-hours/sources/parse/hours-text";
 import { addDays } from "@/lib/store-hours/zagreb-clock";
 
 /** This table is the week's real schedule, so each row is a dated entry as well as the template. */

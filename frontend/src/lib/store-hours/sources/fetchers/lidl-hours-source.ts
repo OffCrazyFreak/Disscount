@@ -10,7 +10,7 @@ import {
   dayIndex,
   parseClockRange,
   settleSundays,
-} from "@/lib/store-hours/sources/hours-text";
+} from "@/lib/store-hours/sources/parse/hours-text";
 import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { delay, fetchText } from "@/lib/store-locations/http";

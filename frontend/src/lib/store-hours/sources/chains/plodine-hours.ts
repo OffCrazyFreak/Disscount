@@ -3,7 +3,7 @@ import {
   comingSunday,
   plainText,
   weekFromLabelled,
-} from "@/lib/store-hours/sources/hours-text";
+} from "@/lib/store-hours/sources/parse/hours-text";
 import { SUNDAY } from "@/lib/store-hours/zagreb-clock";
 
 /** Its Sunday row and `data-open-on-sunday` describe the coming Sunday, so that row becomes a dated entry. */

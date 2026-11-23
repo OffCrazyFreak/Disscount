@@ -1,5 +1,8 @@
 import type { IParsedHours } from "@/lib/store-hours/sync/hours-source-types";
-import { fold, weekFromLabelled } from "@/lib/store-hours/sources/hours-text";
+import {
+  fold,
+  weekFromLabelled,
+} from "@/lib/store-hours/sources/parse/hours-text";
 
 const CLOSED_WEEK = Array.from({ length: 7 }, () => []);
 

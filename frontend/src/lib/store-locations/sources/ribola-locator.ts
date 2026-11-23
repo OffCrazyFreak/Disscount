@@ -2,7 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
-import { parseRibolaHours } from "@/lib/store-hours/sources/ribola-hours";
+import { parseRibolaHours } from "@/lib/store-hours/sources/chains/ribola-hours";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { delay, fetchJson, fetchText } from "@/lib/store-locations/http";
 import type {

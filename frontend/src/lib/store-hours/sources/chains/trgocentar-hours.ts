@@ -6,8 +6,8 @@ import {
   parseDayText,
   plainText,
   weekFromLabelled,
-} from "@/lib/store-hours/sources/hours-text";
-import { labelledLines } from "@/lib/store-hours/sources/labelled-lines";
+} from "@/lib/store-hours/sources/parse/hours-text";
+import { labelledLines } from "@/lib/store-hours/sources/parse/labelled-lines";
 
 export function parseTrgocentarWeek(address: string): IParsedHours | undefined {
   const hours = address.split(/RADNO VRIJEME/i)[1];

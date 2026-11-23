@@ -7,8 +7,8 @@ import {
   comingSunday,
   parseDayText,
   weekFromLabelled,
-} from "@/lib/store-hours/sources/hours-text";
-import { labelledLines } from "@/lib/store-hours/sources/labelled-lines";
+} from "@/lib/store-hours/sources/parse/hours-text";
+import { labelledLines } from "@/lib/store-hours/sources/parse/labelled-lines";
 import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchJson } from "@/lib/store-locations/http";

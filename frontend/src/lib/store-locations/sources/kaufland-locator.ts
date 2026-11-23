@@ -2,7 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
-import { parseKauflandHours } from "@/lib/store-hours/sources/kaufland-hours";
+import { parseKauflandHours } from "@/lib/store-hours/sources/chains/kaufland-hours";
 import { fetchPlacedRows } from "@/lib/store-locations/sources/fetch-placed-rows";
 import type { IStoreLocator } from "@/lib/store-locations/store-location-types";
 

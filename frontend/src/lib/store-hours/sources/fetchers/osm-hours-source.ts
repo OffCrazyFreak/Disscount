@@ -3,8 +3,8 @@ import "server-only";
 import { z } from "zod";
 
 import { storeNamesMap } from "@/constants/name-mappings";
-import { fold } from "@/lib/store-hours/sources/hours-text";
-import { parseOsmOpeningHours } from "@/lib/store-hours/sources/osm-opening-hours";
+import { fold } from "@/lib/store-hours/sources/parse/hours-text";
+import { parseOsmOpeningHours } from "@/lib/store-hours/sources/parse/osm-opening-hours";
 import type { IParsedHours } from "@/lib/store-hours/sync/hours-source-types";
 import { delay, fetchJson } from "@/lib/store-locations/http";
 

@@ -6,7 +6,7 @@ import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import {
   parseTommyHours,
   tommyHoursSchema,
-} from "@/lib/store-hours/sources/tommy-hours";
+} from "@/lib/store-hours/sources/chains/tommy-hours";
 import { fetchText } from "@/lib/store-locations/http";
 import type {
   ILocatorStore,

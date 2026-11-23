@@ -1,6 +1,6 @@
 import "server-only";
 
-import { parseTrgocentarSundays } from "@/lib/store-hours/sources/trgocentar-hours";
+import { parseTrgocentarSundays } from "@/lib/store-hours/sources/chains/trgocentar-hours";
 import type { IHoursSource } from "@/lib/store-hours/sync/hours-source-types";
 import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 import {

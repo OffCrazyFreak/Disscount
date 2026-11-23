@@ -6,8 +6,8 @@ import {
   parseDayText,
   settleSundays,
   weekFromLabelled,
-} from "@/lib/store-hours/sources/hours-text";
-import { labelledLines } from "@/lib/store-hours/sources/labelled-lines";
+} from "@/lib/store-hours/sources/parse/hours-text";
+import { labelledLines } from "@/lib/store-hours/sources/parse/labelled-lines";
 
 describe("hours text", () => {
   it("reads the clock ranges chains print", () => {

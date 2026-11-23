@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseOsmOpeningHours } from "@/lib/store-hours/sources/osm-opening-hours";
+import { parseOsmOpeningHours } from "@/lib/store-hours/sources/parse/osm-opening-hours";
 
 const day = [{ opens: "07:00", closes: "21:00" }];
 

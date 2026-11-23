@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { parseKauflandHours } from "@/lib/store-hours/sources/kaufland-hours";
-import { parseKtcHours } from "@/lib/store-hours/sources/ktc-hours";
-import { parseRibolaHours } from "@/lib/store-hours/sources/ribola-hours";
-import { parseRotoHours } from "@/lib/store-hours/sources/roto-hours";
-import { parseStanicHours } from "@/lib/store-hours/sources/stanic-hours";
-import { parseEurospinHours } from "@/lib/store-hours/sources/eurospin-hours";
-import { parseTommyHours } from "@/lib/store-hours/sources/tommy-hours";
+import { parseKauflandHours } from "@/lib/store-hours/sources/chains/kaufland-hours";
+import { parseKtcHours } from "@/lib/store-hours/sources/chains/ktc-hours";
+import { parseRibolaHours } from "@/lib/store-hours/sources/chains/ribola-hours";
+import { parseRotoHours } from "@/lib/store-hours/sources/chains/roto-hours";
+import { parseStanicHours } from "@/lib/store-hours/sources/chains/stanic-hours";
+import { parseEurospinHours } from "@/lib/store-hours/sources/chains/eurospin-hours";
+import { parseTommyHours } from "@/lib/store-hours/sources/chains/tommy-hours";
 
 const day = (opens: string, closes: string) => [{ opens, closes }];
 

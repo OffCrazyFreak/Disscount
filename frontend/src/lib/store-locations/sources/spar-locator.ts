@@ -5,7 +5,7 @@ import { z } from "zod";
 import {
   parseSparHours,
   sparHoursFields,
-} from "@/lib/store-hours/sources/spar-hours";
+} from "@/lib/store-hours/sources/chains/spar-hours";
 import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 import { fetchPlacedRows } from "@/lib/store-locations/sources/fetch-placed-rows";
 import type { IStoreLocator } from "@/lib/store-locations/store-location-types";

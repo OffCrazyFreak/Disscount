@@ -5,7 +5,7 @@ import {
   emptyWeek,
   parseDayText,
   settleSundays,
-} from "@/lib/store-hours/sources/hours-text";
+} from "@/lib/store-hours/sources/parse/hours-text";
 import { SUNDAY } from "@/lib/store-hours/zagreb-clock";
 
 export const rotoHoursFields = {

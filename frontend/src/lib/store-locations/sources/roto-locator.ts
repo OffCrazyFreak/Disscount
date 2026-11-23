@@ -5,7 +5,7 @@ import { z } from "zod";
 import {
   parseRotoHours,
   rotoHoursFields,
-} from "@/lib/store-hours/sources/roto-hours";
+} from "@/lib/store-hours/sources/chains/roto-hours";
 import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchJson } from "@/lib/store-locations/http";

@@ -4,7 +4,7 @@ import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import {
   parsePlodineHours,
   plodinePageUrl,
-} from "@/lib/store-hours/sources/plodine-hours";
+} from "@/lib/store-hours/sources/chains/plodine-hours";
 import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 import { fetchText } from "@/lib/store-locations/http";
 import type {

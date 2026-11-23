@@ -2,7 +2,10 @@ import { z } from "zod";
 
 import type { TimeRangeDto } from "@/lib/api/schemas";
 import type { IParsedHours } from "@/lib/store-hours/sync/hours-source-types";
-import { emptyWeek, parseDayText } from "@/lib/store-hours/sources/hours-text";
+import {
+  emptyWeek,
+  parseDayText,
+} from "@/lib/store-hours/sources/parse/hours-text";
 
 const KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 

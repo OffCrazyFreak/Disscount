@@ -5,7 +5,10 @@ import type {
   IDatedRanges,
   IParsedHours,
 } from "@/lib/store-hours/sync/hours-source-types";
-import { dayIndex, emptyWeek } from "@/lib/store-hours/sources/hours-text";
+import {
+  dayIndex,
+  emptyWeek,
+} from "@/lib/store-hours/sources/parse/hours-text";
 import { addDays } from "@/lib/store-hours/zagreb-clock";
 
 // A Java Calendar dump: only the fields we read. Months count from 0.

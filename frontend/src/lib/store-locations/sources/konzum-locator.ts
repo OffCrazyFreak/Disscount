@@ -3,7 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
-import { parseKonzumHours } from "@/lib/store-hours/sources/konzum-hours";
+import { parseKonzumHours } from "@/lib/store-hours/sources/chains/konzum-hours";
 import { zagrebClock } from "@/lib/store-hours/zagreb-clock";
 import { fetchJson } from "@/lib/store-locations/http";
 import type {

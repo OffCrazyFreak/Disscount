@@ -2,7 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
-import { parseKtcHours } from "@/lib/store-hours/sources/ktc-hours";
+import { parseKtcHours } from "@/lib/store-hours/sources/chains/ktc-hours";
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
 import { fetchText } from "@/lib/store-locations/http";
 import type {

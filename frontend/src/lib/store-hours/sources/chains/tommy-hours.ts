@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import type { IParsedHours } from "@/lib/store-hours/sync/hours-source-types";
-import { parseClockRange } from "@/lib/store-hours/sources/hours-text";
+import { parseClockRange } from "@/lib/store-hours/sources/parse/hours-text";
 
 const schedule = z.object({ start: z.string(), end: z.string() });
 

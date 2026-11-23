@@ -1,8 +1,8 @@
 import "server-only";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
-import { weekFromLabelled } from "@/lib/store-hours/sources/hours-text";
-import { labelledLines } from "@/lib/store-hours/sources/labelled-lines";
+import { weekFromLabelled } from "@/lib/store-hours/sources/parse/hours-text";
+import { labelledLines } from "@/lib/store-hours/sources/parse/labelled-lines";
 import { fetchText } from "@/lib/store-locations/http";
 import type {
   ILocatorStore,

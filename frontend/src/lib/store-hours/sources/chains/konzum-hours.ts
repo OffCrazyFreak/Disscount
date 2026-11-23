@@ -5,7 +5,10 @@ import type {
   IDatedRanges,
   IParsedHours,
 } from "@/lib/store-hours/sync/hours-source-types";
-import { dayIndex, emptyWeek } from "@/lib/store-hours/sources/hours-text";
+import {
+  dayIndex,
+  emptyWeek,
+} from "@/lib/store-hours/sources/parse/hours-text";
 import { addDays, isoWeekday } from "@/lib/store-hours/zagreb-clock";
 
 const daySchema = z.object({

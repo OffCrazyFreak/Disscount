@@ -1,24 +1,24 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { parseKonzumHours } from "@/lib/store-hours/sources/konzum-hours";
+import { parseKonzumHours } from "@/lib/store-hours/sources/chains/konzum-hours";
 import {
   parsePlodineHours,
   plodinePageUrl,
-} from "@/lib/store-hours/sources/plodine-hours";
-import { parseSparHours } from "@/lib/store-hours/sources/spar-hours";
+} from "@/lib/store-hours/sources/chains/plodine-hours";
+import { parseSparHours } from "@/lib/store-hours/sources/chains/spar-hours";
 import {
   parseStudenacList,
   parseStudenacPage,
-} from "@/lib/store-hours/sources/studenac-hours";
+} from "@/lib/store-hours/sources/chains/studenac-hours";
 import {
   parseTrgocentarSundays,
   parseTrgocentarWeek,
-} from "@/lib/store-hours/sources/trgocentar-hours";
+} from "@/lib/store-hours/sources/chains/trgocentar-hours";
 
 vi.mock("server-only", () => ({}));
 
 const { parseLidlStore } =
-  await import("@/lib/store-hours/sources/lidl-hours-source");
+  await import("@/lib/store-hours/sources/fetchers/lidl-hours-source");
 
 const day = (opens: string, closes: string) => [{ opens, closes }];
 const TODAY = "2026-11-04";

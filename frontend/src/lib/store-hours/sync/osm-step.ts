@@ -4,7 +4,7 @@ import type { DirectoryStoreDto } from "@/lib/api/schemas";
 import {
   fetchOsmShops,
   type IOsmShop,
-} from "@/lib/store-hours/sources/osm-hours-source";
+} from "@/lib/store-hours/sources/fetchers/osm-hours-source";
 import { isHoursSourceEnabled } from "@/lib/store-hours/hours-chains";
 import {
   readAcceptedCount,

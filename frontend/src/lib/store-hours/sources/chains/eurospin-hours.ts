@@ -1,6 +1,6 @@
 import type { IParsedHours } from "@/lib/store-hours/sync/hours-source-types";
-import { weekFromLabelled } from "@/lib/store-hours/sources/hours-text";
-import { labelledLines } from "@/lib/store-hours/sources/labelled-lines";
+import { weekFromLabelled } from "@/lib/store-hours/sources/parse/hours-text";
+import { labelledLines } from "@/lib/store-hours/sources/parse/labelled-lines";
 
 export function parseEurospinHours(content: string): IParsedHours | undefined {
   const table = /timetables_container'?"?>([\s\S]*?)<\/div>/.exec(content)?.[1];

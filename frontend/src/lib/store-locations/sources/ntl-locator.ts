@@ -3,7 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
-import { weekFromLabelled } from "@/lib/store-hours/sources/hours-text";
+import { weekFromLabelled } from "@/lib/store-hours/sources/parse/hours-text";
 import { fetchText } from "@/lib/store-locations/http";
 import { readPlacedAddress } from "@/lib/store-locations/sync/address-place";
 import type {

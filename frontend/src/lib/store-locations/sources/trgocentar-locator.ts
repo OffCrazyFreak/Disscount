@@ -3,7 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
-import { parseTrgocentarWeek } from "@/lib/store-hours/sources/trgocentar-hours";
+import { parseTrgocentarWeek } from "@/lib/store-hours/sources/chains/trgocentar-hours";
 import { fetchText } from "@/lib/store-locations/http";
 import { decodeEntities } from "@/utils/format/strings";
 import type {

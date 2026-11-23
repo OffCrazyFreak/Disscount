@@ -5,7 +5,7 @@ import {
   emptyWeek,
   fold,
   plainText,
-} from "@/lib/store-hours/sources/hours-text";
+} from "@/lib/store-hours/sources/parse/hours-text";
 
 /** Several `<time>` pairs mean a split shift. */
 export function parseStanicHours(table: string): IParsedHours | undefined {

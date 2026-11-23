@@ -3,7 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { sanitizeCoordinates } from "@/lib/store-locations/croatia-bounds";
-import { parseEurospinHours } from "@/lib/store-hours/sources/eurospin-hours";
+import { parseEurospinHours } from "@/lib/store-hours/sources/chains/eurospin-hours";
 import { fetchText } from "@/lib/store-locations/http";
 import type {
   ILocatorStore,

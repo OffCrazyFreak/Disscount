@@ -3,7 +3,7 @@ import {
   dayIndex,
   emptyWeek,
   parseClockRange,
-} from "@/lib/store-hours/sources/hours-text";
+} from "@/lib/store-hours/sources/parse/hours-text";
 
 function rangesOf(opens: string, closes: string) {
   const range = parseClockRange(`${opens}-${closes}`);
