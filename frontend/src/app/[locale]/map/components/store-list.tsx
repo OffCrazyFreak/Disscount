@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { defaultRangeExtractor, useVirtualizer } from "@tanstack/react-virtual";
 import { useTranslations } from "next-intl";
 
 import ScrollFade from "@/components/custom/common/scroll-fade";
 import StoreListItem from "@/app/[locale]/map/components/store-list-item";
-import { useOffsetHeight } from "@/app/[locale]/map/hooks/use-offset-height";
+import { useElementSize } from "@/app/[locale]/map/hooks/use-element-size";
 import { IListedStore } from "@/app/[locale]/map/hooks/use-visible-stores";
 import { toListEntries } from "@/app/[locale]/map/utils/list-entries";
 import { revealOffset } from "@/app/[locale]/map/utils/reveal-offset";
@@ -41,9 +41,9 @@ export default function StoreList({
 
   const t = useTranslations("map.layout");
   const scrollRef = useRef<HTMLDivElement>(null);
-  const probeRef = useRef<HTMLDivElement>(null);
+  const [probe, setProbe] = useState<HTMLDivElement | null>(null);
   // A virtualizer clamps scrolling to sizes it knows, so CSS padding would leave the last rows under the nav.
-  const navClearance = useOffsetHeight(probeRef);
+  const navClearance = useElementSize(probe).height;
 
   const entries = toListEntries(rows, headings);
   const selectedIndex = entries.findIndex(
@@ -171,7 +171,7 @@ export default function StoreList({
   return (
     <div className="relative isolate flex min-h-0 flex-1 flex-col">
       <div
-        ref={probeRef}
+        ref={setProbe}
         aria-hidden="true"
         className="pointer-events-none invisible absolute h-[var(--bottom-nav-total)] w-0"
       />

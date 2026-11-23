@@ -7,7 +7,7 @@ import MapPanel from "@/app/[locale]/map/components/map-panel";
 import MapSearchBar from "@/app/[locale]/map/components/map-search-bar";
 import MapStoreSheet from "@/app/[locale]/map/components/map-store-sheet";
 import { IMapViewModel } from "@/app/[locale]/map/hooks/use-map-view-model";
-import { useOffsetHeight } from "@/app/[locale]/map/hooks/use-offset-height";
+import { useElementSize } from "@/app/[locale]/map/hooks/use-element-size";
 import { IMapCover, IViewArea } from "@/app/[locale]/map/utils/view-area";
 
 interface IMapMobileLayoutProps {
@@ -25,8 +25,8 @@ export default function MapMobileLayout({
   onCoverChange,
 }: IMapMobileLayoutProps) {
   const locateRef = useRef<HTMLButtonElement>(null);
-  const navProbeRef = useRef<HTMLDivElement>(null);
-  const navHeight = useOffsetHeight(navProbeRef);
+  const [navProbe, setNavProbe] = useState<HTMLDivElement | null>(null);
+  const navHeight = useElementSize(navProbe).height;
   const [sheetHeight, setSheetHeight] = useState(0);
   const [isSearchOpen, setSearchOpen] = useState(false);
   const sheetRow = isSearchOpen ? null : model.selected;
@@ -44,7 +44,7 @@ export default function MapMobileLayout({
   return (
     <div data-page-width="full" className="fixed inset-0 z-[1] overflow-hidden">
       <div
-        ref={navProbeRef}
+        ref={setNavProbe}
         aria-hidden="true"
         className="pointer-events-none invisible absolute h-[var(--bottom-nav-total)] w-0"
       />
