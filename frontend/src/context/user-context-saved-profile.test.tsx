@@ -196,3 +196,64 @@ describe("UserProvider pinned store edits", () => {
     });
   });
 });
+
+describe("UserProvider pinned store edits during a refetch", () => {
+  it("keeps the edit when a refetch started before it answers afterwards", async () => {
+    setCacheIdentity("user-a");
+    tab.userId = "user-a";
+    const held: Array<() => void> = [];
+    server.use(
+      http.get(
+        "*/api/users/me",
+        () =>
+          new Promise<Response>((resolve) =>
+            held.push(() => resolve(HttpResponse.json(PROFILE))),
+          ),
+      ),
+    );
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(USER_QUERY_KEYS.me, PROFILE, { updatedAt: 0 });
+
+    renderWithProviders(
+      <UserProvider>
+        <PinnedProbe />
+        <PinButton />
+      </UserProvider>,
+      { queryClient },
+    );
+    await waitFor(() => expect(held.length).toBe(1));
+    fireEvent.click(screen.getByRole("button", { name: "unpin all" }));
+    await waitFor(() =>
+      expect(queryClient.getQueryData(USER_QUERY_KEYS.me)).toMatchObject({
+        pinnedStores: [],
+      }),
+    );
+
+    held[0]();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(queryClient.getQueryData(USER_QUERY_KEYS.me)).toMatchObject({
+      pinnedStores: [],
+    });
+  });
+
+  it("does not mark the saved profile fresh when the edit does not apply", async () => {
+    setCacheIdentity("user-b");
+    tab.error = new Error("offline");
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(USER_QUERY_KEYS.me, PROFILE, { updatedAt: 0 });
+
+    renderWithProviders(
+      <UserProvider>
+        <PinButton />
+      </UserProvider>,
+      { queryClient },
+    );
+    fireEvent.click(screen.getByRole("button", { name: "unpin all" }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(queryClient.getQueryState(USER_QUERY_KEYS.me)?.dataUpdatedAt).toBe(
+      0,
+    );
+  });
+});

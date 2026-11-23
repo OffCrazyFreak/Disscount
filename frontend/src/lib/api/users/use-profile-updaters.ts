@@ -5,17 +5,20 @@ import { PinnedPlaceDto, PinnedStoreDto, UserDto } from "@/lib/api/types";
 import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
 import { getCacheIdentity } from "@/lib/offline/cache-identity";
 
-/** Writes into the profile query, which is also the profile the offline snapshot keeps. */
+/** Writes into the profile query, which the offline snapshot keeps; an updater returning undefined changes nothing. */
 export function useProfileUpdaters() {
   const queryClient = useQueryClient();
 
   const updateProfile = useCallback(
-    (update: (current: UserDto) => UserDto) => {
+    async (update: (current: UserDto) => UserDto | undefined) => {
+      // A refetch that started before the edit would answer with the profile from before it.
+      await queryClient.cancelQueries({ queryKey: USER_QUERY_KEYS.me });
+
       queryClient.setQueryData<UserDto>(USER_QUERY_KEYS.me, (current) =>
         // A save answered after another account took over belongs to the previous account.
         current && current.id === getCacheIdentity()
           ? update(current)
-          : current,
+          : undefined,
       );
     },
     [queryClient],
@@ -23,21 +26,21 @@ export function useProfileUpdaters() {
 
   const updatePinnedStores = useCallback(
     (stores: PinnedStoreDto[]) =>
-      updateProfile((current) => ({ ...current, pinnedStores: stores })),
+      void updateProfile((current) => ({ ...current, pinnedStores: stores })),
     [updateProfile],
   );
 
   const updatePinnedPlaces = useCallback(
     (places: PinnedPlaceDto[]) =>
-      updateProfile((current) => ({ ...current, pinnedPlaces: places })),
+      void updateProfile((current) => ({ ...current, pinnedPlaces: places })),
     [updateProfile],
   );
 
   const mergeUser = useCallback(
     (patch: Partial<UserDto>) =>
-      updateProfile((current) =>
+      void updateProfile((current) =>
         patch.id && patch.id !== current.id
-          ? current
+          ? undefined
           : { ...current, ...patch },
       ),
     [updateProfile],

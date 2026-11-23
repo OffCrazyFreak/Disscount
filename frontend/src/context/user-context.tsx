@@ -134,6 +134,8 @@ export function UserProvider({ children }: IUserProviderProps) {
       data?.user?.id ?? null,
       error,
     );
+    // The profile shows at once, as it did before the session effect catches up.
+    if (!error) setSessionAccount(data?.user?.id ?? null);
     await reloadProfile();
   }, [queryClient, reloadProfile]);
 

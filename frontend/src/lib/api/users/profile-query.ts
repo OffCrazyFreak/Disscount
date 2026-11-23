@@ -1,6 +1,8 @@
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
+import { isCancel } from "axios";
 
 import preferencesService from "@/lib/api/preferences";
+import { isSessionChanged } from "@/lib/api/problem-details";
 import { UserDto } from "@/lib/api/types";
 import userService from "@/lib/api/users";
 import { USER_QUERY_KEYS } from "@/lib/api/users/keys";
@@ -31,12 +33,19 @@ async function loadUserProfile(signal: AbortSignal): Promise<UserDto> {
   return userData;
 }
 
+// The request timed out or was throttled; the app's retry policy treats both as passing too.
+const PASSING_CLIENT_STATUSES = new Set([408, 429]);
+
 /** The server may answer next time; a refusal or a parse failure would just repeat. */
 function isPassingFailure(error: unknown) {
-  if (isNetworkFailure(error)) return true;
+  // Another tab moved the cookie; the session refetch this triggers decides the account, not this refetch.
+  if (isNetworkFailure(error) || isSessionChanged(error)) return true;
 
   const status = httpStatus(error);
-  return status !== undefined && status >= 500;
+  return (
+    status !== undefined &&
+    (status >= 500 || PASSING_CLIENT_STATUSES.has(status))
+  );
 }
 
 function savedProfileOfThisAccount(client: QueryClient): UserDto | undefined {
@@ -52,6 +61,8 @@ export function userProfileQueryOptions(accountId: string | null) {
       try {
         return await loadUserProfile(signal);
       } catch (error) {
+        if (isCancel(error)) throw error;
+
         // A failed entry leaves the snapshot, so an outage would cost the offline copy (TanStack discussion 8696).
         const saved = isPassingFailure(error)
           ? savedProfileOfThisAccount(client)

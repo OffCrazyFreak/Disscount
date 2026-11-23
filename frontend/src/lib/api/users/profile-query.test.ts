@@ -59,6 +59,22 @@ describe("userProfileQueryOptions with a saved profile", () => {
     await expect(refetchProfile(queryClient)).resolves.toEqual(SAVED);
   });
 
+  it("keeps the saved profile when another tab moved the session to another account", async () => {
+    answerProfile(() =>
+      HttpResponse.json({ code: "session_changed" }, { status: 401 }),
+    );
+    const queryClient = clientWithSavedProfile(SAVED);
+
+    await expect(refetchProfile(queryClient)).resolves.toEqual(SAVED);
+  });
+
+  it("keeps the saved profile while the server throttles", async () => {
+    answerProfile(() => HttpResponse.json({}, { status: 429 }));
+    const queryClient = clientWithSavedProfile(SAVED);
+
+    await expect(refetchProfile(queryClient)).resolves.toEqual(SAVED);
+  });
+
   it("fails when the server refuses the request", async () => {
     answerProfile(() => HttpResponse.json({}, { status: 401 }));
     const queryClient = clientWithSavedProfile(SAVED);
