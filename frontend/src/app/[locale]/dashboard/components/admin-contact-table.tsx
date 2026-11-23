@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import BlockLoadingSpinner from "@/components/custom/common/block-loading-spinner";
@@ -53,15 +53,13 @@ export default function AdminContactTable() {
   const isMissing = isError && data === undefined;
   const inbox = useContactInbox();
 
-  const messages = useMemo(() => {
-    const byView = (data ?? []).filter((m) => matchesView(m, view));
-    return filterByFields(byView, search, [
-      "fullName",
-      "email",
-      "subject",
-      "message",
-    ]);
-  }, [data, view, search]);
+  const byView = (data ?? []).filter((m) => matchesView(m, view));
+  const messages = filterByFields(byView, search, [
+    "fullName",
+    "email",
+    "subject",
+    "message",
+  ]);
 
   const shownMessages = useRevealedItems(
     messages,
