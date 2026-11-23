@@ -20,7 +20,7 @@ vi.mock("@/lib/offline/cache/cache-identity", () => ({
     `${base}:${explicit ?? identity}`,
 }));
 
-const { deleteOrphanedSnapshots, persistOptions } =
+const { deleteOrphanedSnapshots, persistOptions, saveCacheNow } =
   await import("@/lib/offline/cache/persister");
 
 const CACHE_KEY = "disscount-react-query-cache";
@@ -200,5 +200,24 @@ describe("snapshots left behind", () => {
     expect([...db.keys()].sort()).toEqual(
       [`${CACHE_KEY}:alice`, `${CACHE_KEY}:anon`, "disscount-unrelated"].sort(),
     );
+  });
+});
+
+describe("saving right away", () => {
+  it("writes the finished state at once, without waiting out the throttle", async () => {
+    vi.useRealTimers();
+    identity = "alice";
+    db.clear();
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(["shoppingLists", "me"], [{ id: "list" }]);
+
+    await saveCacheNow(queryClient);
+
+    const saved = JSON.parse(String(db.get(`${CACHE_KEY}:alice`)));
+    expect(saved.clientState.mutations).toEqual([]);
+    expect(saved.clientState.queries[0].queryKey).toEqual([
+      "shoppingLists",
+      "me",
+    ]);
   });
 });

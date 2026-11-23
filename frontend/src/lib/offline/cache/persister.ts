@@ -1,6 +1,10 @@
 import * as Sentry from "@sentry/nextjs";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
-import { defaultShouldDehydrateQuery } from "@tanstack/react-query";
+import {
+  defaultShouldDehydrateQuery,
+  dehydrate,
+  type QueryClient,
+} from "@tanstack/react-query";
 import type {
   PersistedClient,
   Persister,
@@ -86,17 +90,20 @@ function withoutTextPrices(client: PersistedClient): PersistedClient {
   return { ...client, clientState: { ...client.clientState, queries } };
 }
 
+function toSavedClient(client: PersistedClient): MarkedClient {
+  const resumable: MarkedClient = {
+    ...withInFlightWritesPaused(client),
+    priceShape: PRICE_SHAPE,
+  };
+  snapshotGeneration.set(resumable, currentPurgeGeneration());
+  return resumable;
+}
+
 const offlinePersister: Persister = {
   ...throttledPersister,
 
-  persistClient: (client) => {
-    const resumable: MarkedClient = {
-      ...withInFlightWritesPaused(client),
-      priceShape: PRICE_SHAPE,
-    };
-    snapshotGeneration.set(resumable, currentPurgeGeneration());
-    return throttledPersister.persistClient(resumable);
-  },
+  persistClient: (client) =>
+    throttledPersister.persistClient(toSavedClient(client)),
 
   restoreClient: async () => {
     try {
@@ -124,15 +131,30 @@ function isSnapshotKey(key: IDBValidKey): key is string {
 
 /** The unscoped key predates per-account snapshots, and a key left by a failed purge holds another account's data. */
 export async function deleteOrphanedSnapshots(): Promise<void> {
+  const stored = await keys();
+
+  // Read after the await, so an account that signed in meanwhile keeps its snapshot.
   const kept = new Set([
     scopedCacheKey(IDB_CACHE_KEY),
     scopedCacheKey(IDB_CACHE_KEY, ANONYMOUS_IDENTITY),
   ]);
-  const orphaned = (await keys()).filter(
-    (key) => isSnapshotKey(key) && !kept.has(key),
-  );
+  const orphaned = stored.filter((key) => isSnapshotKey(key) && !kept.has(key));
 
   if (orphaned.length) await delMany(orphaned);
+}
+
+/** Skips the throttle, so a reload right after queued writes finish cannot restore and resend them. */
+export async function saveCacheNow(queryClient: QueryClient): Promise<void> {
+  const saved = toSavedClient({
+    buster: CACHE_BUSTER,
+    timestamp: Date.now(),
+    clientState: dehydrate(queryClient, persistOptions.dehydrateOptions),
+  });
+
+  await indexedDbStorage.setItem(
+    IDB_CACHE_KEY,
+    await serializeUnlessPurged(saved),
+  );
 }
 
 export const persistOptions: Omit<PersistQueryClientOptions, "queryClient"> = {
