@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "@/i18n/navigation";
-import { useCallback, type MouseEvent, type ReactNode } from "react";
+import { type MouseEvent, type ReactNode } from "react";
 import { useCameraScanner } from "@/context/scanner-context";
 import { useNotifications } from "@/context/notifications-context";
 import { useUser } from "@/context/user-context";
@@ -26,13 +26,10 @@ export default function FeatureCardAction({
   const { isAuthenticated, isInitializing } = useUser();
   const router = useRouter();
 
-  const handleScan = useCallback(
-    (code: IScannedCode) => {
-      const value = code.rawValue.trim();
-      if (value) router.push(productPath(value));
-    },
-    [router],
-  );
+  function handleScan(code: IScannedCode) {
+    const value = code.rawValue.trim();
+    if (value) router.push(productPath(value));
+  }
 
   // Guests have no notifications dropdown mounted, so send them to login first
   function openNotifications() {

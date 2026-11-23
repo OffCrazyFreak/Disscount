@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { useCallback, Suspense } from "react";
+import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { ScanBarcode } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -18,15 +18,12 @@ export default function HeroActions() {
   const { openScanner } = useCameraScanner();
   const router = useRouter();
 
-  const handleScan = useCallback(
-    (code: IScannedCode) => {
-      const value = code.rawValue.trim();
-      if (!value) return;
+  function handleScan(code: IScannedCode) {
+    const value = code.rawValue.trim();
+    if (!value) return;
 
-      router.push(productPath(value));
-    },
-    [router],
-  );
+    router.push(productPath(value));
+  }
 
   return (
     <>
