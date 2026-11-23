@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "@/i18n/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { scrollWindowTo } from "@/utils/scroll";
 
 interface ISavedPosition {
@@ -29,7 +29,7 @@ export default function useTabReentry() {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setSaved(null), [pathname]);
 
-  const animateTo = useCallback((top: number) => {
+  function animateTo(top: number) {
     const id = ++flightId.current;
     flightTarget.current = top;
 
@@ -42,9 +42,9 @@ export default function useTabReentry() {
     window.addEventListener("scrollend", settle, { once: true });
     window.setTimeout(settle, SCROLL_END_FALLBACK_MS);
     scrollWindowTo(top);
-  }, []);
+  }
 
-  const reenter = useCallback(() => {
+  function reenter() {
     if (window.scrollY > 0) {
       // A tap mid-scroll lands where the user never parked, so it saves where that scroll was going.
       const target = flightTarget.current;
@@ -67,7 +67,7 @@ export default function useTabReentry() {
 
     animateTo(saved.y);
     setSaved(null);
-  }, [saved, animateTo]);
+  }
 
   return { reenter, canReturn: saved !== null };
 }

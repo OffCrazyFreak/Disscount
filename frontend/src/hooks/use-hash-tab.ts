@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 
 // replaceState fires no hashchange, so a tab switch announces itself.
 const HASH_TAB_CHANGE_EVENT = "disscount:hash-tab-change";
@@ -29,14 +29,14 @@ export function useHashTab(ids: string[]) {
   const hash = useSyncExternalStore(subscribe, readHash, () => "");
   const activeId = ids.includes(hash) ? hash : ids[0];
 
-  const selectTab = useCallback((id: string) => {
+  function selectTab(id: string) {
     // Replaced, not pushed: Back should leave the page, not step through its tabs.
     const url = new URL(window.location.href);
     url.hash = id;
     // Never pass history.state, or Next skips its sync and drops the hash; see lib/modal/modal-navigation.ts.
     window.history.replaceState({}, "", url);
     window.dispatchEvent(new Event(HASH_TAB_CHANGE_EVENT));
-  }, []);
+  }
 
   return { activeId, selectTab };
 }
