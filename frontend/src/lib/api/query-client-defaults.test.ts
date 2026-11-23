@@ -1,6 +1,8 @@
 import * as Sentry from "@sentry/nextjs";
 import {
   CancelledError,
+  environmentManager,
+  isServer,
   MutationObserver,
   onlineManager,
   QueryClient,
@@ -23,6 +25,8 @@ const parseFailure = () => z.object({ id: z.number() }).safeParse({}).error;
 
 afterEach(() => {
   onlineManager.setOnline(true);
+  environmentManager.setIsServer(() => isServer);
+  vi.useRealTimers();
   vi.clearAllMocks();
 });
 
@@ -218,5 +222,30 @@ describe("createQueryClientConfig", () => {
       tags: { queryKeyRoot: "unknown", httpStatus: "none" },
       fingerprint: undefined,
     });
+  });
+
+  it("sets no gc timer during server rendering, so a finished request can be freed", () => {
+    vi.useFakeTimers();
+    const client = new QueryClient(createQueryClientConfig());
+
+    client.setQueryData(["products", "ean"], { name: "Mlijeko" });
+
+    expect(
+      client.getQueryCache().find({ queryKey: ["products", "ean"] })?.gcTime,
+    ).toBe(Infinity);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("keeps an unwatched query for 7 days in the browser, which bounds the offline snapshot", () => {
+    environmentManager.setIsServer(() => false);
+    vi.useFakeTimers();
+    const client = new QueryClient(createQueryClientConfig());
+
+    client.setQueryData(["products", "ean"], { name: "Mlijeko" });
+
+    expect(
+      client.getQueryCache().find({ queryKey: ["products", "ean"] })?.gcTime,
+    ).toBe(7 * 24 * 60 * 60 * 1000);
+    expect(vi.getTimerCount()).toBe(1);
   });
 });
