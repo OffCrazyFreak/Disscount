@@ -97,7 +97,13 @@ export default async function ProductDetailsPage(
         image={photoUrl}
       />
 
-      <HydrationBoundary state={productCacheState(rawId, product, prices)}>
+      <HydrationBoundary
+        state={productCacheState(
+          rawId,
+          { data: product, fetchedAt: result.fetchedAt },
+          prices,
+        )}
+      >
         <ProductDetailClient ean={rawId} today={today} />
       </HydrationBoundary>
     </>
