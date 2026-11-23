@@ -40,8 +40,8 @@ describe("SimilarProducts", () => {
       />,
     );
 
-    expect(html).toContain(">Mlijeko čokoladno 0,5l dukat</span>");
-    expect(html).toContain(">Mlijeko čokoladno 0,5l z&#x27;bregov</span>");
+    expect(html).toContain(">Mlijeko čokoladno 0,5L dukat</span>");
+    expect(html).toContain(">Mlijeko čokoladno 0,5L z&#x27;bregov</span>");
     expect(html).toContain(">Dukat</span>");
     expect(html).not.toContain("line-clamp");
   });
