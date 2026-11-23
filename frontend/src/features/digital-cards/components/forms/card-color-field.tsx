@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useFormContext } from "react-hook-form";
 
 import CardColorPicker from "@/features/digital-cards/components/forms/color-picker/card-color-picker";
-import { findPaletteColor } from "@/features/digital-cards/utils/card-palette";
+import { findPaletteColor } from "@/features/digital-cards/utils/palette/card-palette";
 import { FormField, FormItem, FormMessage } from "@/components/ui/form";
 import type { DigitalCardRequest } from "@/lib/api/types";
 

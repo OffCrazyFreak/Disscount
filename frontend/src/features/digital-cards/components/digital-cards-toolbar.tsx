@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 
 import DigitalCardsSortSelect from "@/features/digital-cards/components/digital-cards-sort-select";
-import type { CardSortMode } from "@/features/digital-cards/utils/card-sorting";
+import type { CardSortMode } from "@/features/digital-cards/utils/display/card-sorting";
 import ResponsiveLabel from "@/components/custom/common/display/responsive-label";
 import { Button } from "@/components/ui/button";
 import { openModalUrl } from "@/lib/modal/modal-navigation";

@@ -20,8 +20,8 @@ import {
 import StoreSuggestions from "@/features/digital-cards/components/forms/store-field/store-suggestions";
 import { useEscapeGuard } from "@/features/digital-cards/components/forms/store-field/use-escape-guard";
 import { useStoreOptions } from "@/features/digital-cards/hooks/use-store-options";
-import { DEFAULT_CARD_COLOR } from "@/features/digital-cards/utils/card-palette";
-import { defaultColorForChain } from "@/features/digital-cards/utils/chain-default-colors";
+import { DEFAULT_CARD_COLOR } from "@/features/digital-cards/utils/palette/card-palette";
+import { defaultColorForChain } from "@/features/digital-cards/utils/palette/chain-default-colors";
 import { useListChains } from "@/lib/cijene-api";
 import type { DigitalCardRequest } from "@/lib/api/types";
 import { getChainLabel } from "@/utils/format/labels";

@@ -4,7 +4,7 @@ import { CreditCard } from "lucide-react";
 
 import StoreChainLogo from "@/components/custom/store-chain/store-chain-logo";
 import { useCardPhoto } from "@/features/digital-cards/hooks/use-card-photo";
-import { initialsOf } from "@/features/digital-cards/utils/card-initials";
+import { initialsOf } from "@/features/digital-cards/utils/display/card-initials";
 import type { DigitalCardDto } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 

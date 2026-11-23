@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { initialsOf } from "@/features/digital-cards/utils/card-initials";
+import { initialsOf } from "@/features/digital-cards/utils/display/card-initials";
 
 describe("initialsOf", () => {
   it.each([

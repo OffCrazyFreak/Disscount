@@ -1,7 +1,7 @@
 import { ExternalLink, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { getChainWalletNote } from "@/features/digital-cards/utils/chain-wallet-notes";
+import { getChainWalletNote } from "@/features/digital-cards/utils/display/chain-wallet-notes";
 
 interface IChainNoteProps {
   chainCode: string | null;

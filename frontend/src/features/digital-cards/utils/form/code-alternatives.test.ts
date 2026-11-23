@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { codeTypeAlternatives } from "@/features/digital-cards/utils/code-alternatives";
+import { codeTypeAlternatives } from "@/features/digital-cards/utils/form/code-alternatives";
 
 describe("codeTypeAlternatives", () => {
   it("offers EAN-13 first for a 13 digit value with a valid check digit", () => {

@@ -1,6 +1,6 @@
 import type { KeyboardEvent } from "react";
 
-import { nextCellIndex } from "../../../utils/hex-grid";
+import { nextCellIndex } from "../../../utils/palette/hex-grid";
 import ColorHexCell from "./color-hex-cell";
 import { PICKER_CELLS, PICKER_HEIGHT, PICKER_WIDTH } from "./picker-cells";
 

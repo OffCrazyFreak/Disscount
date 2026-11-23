@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import type { CardPhotoChanges } from "@/features/digital-cards/components/forms/digital-card-form-types";
-import { toCardRequest } from "@/features/digital-cards/utils/digital-card-form-values";
+import { toCardRequest } from "@/features/digital-cards/utils/form/digital-card-form-values";
 import { stashPendingCard } from "@/features/digital-cards/utils/pending-card-stash";
 import { CARD_PHOTO_SLOTS, type CardPhotoSlot } from "@/constants/card-codes";
 import { digitalCardService } from "@/lib/api";

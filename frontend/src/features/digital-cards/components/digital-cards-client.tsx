@@ -14,7 +14,7 @@ import { useWalletCards } from "@/features/digital-cards/hooks/use-wallet-cards"
 import {
   filterCards,
   sortCards,
-} from "@/features/digital-cards/utils/card-sorting";
+} from "@/features/digital-cards/utils/display/card-sorting";
 import LoginRequired from "@/components/custom/common/feedback/login-required";
 import NotSavedOffline from "@/components/custom/common/feedback/not-saved-offline";
 import SearchResultsStatus from "@/components/custom/live-status/search-results-status";

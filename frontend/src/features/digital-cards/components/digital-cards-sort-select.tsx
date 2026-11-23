@@ -6,7 +6,7 @@ import LabeledSelect from "@/components/custom/common/controls/labeled-select";
 import {
   CARD_SORT_MODES,
   type CardSortMode,
-} from "@/features/digital-cards/utils/card-sorting";
+} from "@/features/digital-cards/utils/display/card-sorting";
 
 interface IDigitalCardsSortSelectProps {
   value: CardSortMode;

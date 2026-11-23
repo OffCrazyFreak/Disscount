@@ -4,7 +4,7 @@ import type { DigitalCardDto } from "@/lib/api/types";
 import {
   filterCards,
   sortCards,
-} from "@/features/digital-cards/utils/card-sorting";
+} from "@/features/digital-cards/utils/display/card-sorting";
 
 function card(id: string, overrides: Partial<DigitalCardDto> = {}) {
   return {

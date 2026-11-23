@@ -1,7 +1,7 @@
 import { useLocale, useTranslations } from "next-intl";
 
 import CardIcon from "@/features/digital-cards/components/card-icon";
-import { initialsOf } from "@/features/digital-cards/utils/card-initials";
+import { initialsOf } from "@/features/digital-cards/utils/display/card-initials";
 import type { DigitalCardDto } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 import { formatDayMonth } from "@/utils/format/strings";

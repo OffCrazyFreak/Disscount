@@ -6,7 +6,7 @@ import {
   DEFAULT_CARD_SORT,
   isCardSortMode,
   type CardSortMode,
-} from "@/features/digital-cards/utils/card-sorting";
+} from "@/features/digital-cards/utils/display/card-sorting";
 
 const STORAGE_KEY = "Disscount_digital_cards_sort";
 const listeners = new Set<() => void>();

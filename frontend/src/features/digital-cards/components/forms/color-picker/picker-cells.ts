@@ -1,5 +1,5 @@
-import { CARD_PALETTE } from "../../../utils/card-palette";
-import { HEX_ROW_HEIGHT, hexCell } from "../../../utils/hex-grid";
+import { CARD_PALETTE } from "../../../utils/palette/card-palette";
+import { HEX_ROW_HEIGHT, hexCell } from "../../../utils/palette/hex-grid";
 
 // Dark enough to vanish on a near-black modal, so dark mode draws an outline on them.
 const DARK_CELLS = new Set([

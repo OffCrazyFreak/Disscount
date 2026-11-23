@@ -3,7 +3,7 @@ import type { DigitalCardDto } from "@/lib/api/types";
 import { parseServerDate } from "@/utils/format/date";
 import { rankByFields } from "@/utils/format/generic";
 import { compareHr } from "@/utils/format/strings";
-import { CARD_PALETTE } from "@/features/digital-cards/utils/card-palette";
+import { CARD_PALETTE } from "@/features/digital-cards/utils/palette/card-palette";
 
 export const CARD_SORT_MODES = [
   "recent-use",

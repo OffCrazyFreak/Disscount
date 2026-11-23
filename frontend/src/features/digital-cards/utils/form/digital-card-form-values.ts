@@ -1,4 +1,4 @@
-import { DEFAULT_CARD_COLOR } from "@/features/digital-cards/utils/card-palette";
+import { DEFAULT_CARD_COLOR } from "@/features/digital-cards/utils/palette/card-palette";
 import type { DigitalCardRequest } from "@/lib/api/types";
 
 export const EMPTY_CARD_VALUES: DigitalCardRequest = {
