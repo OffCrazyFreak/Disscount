@@ -1,9 +1,9 @@
-import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
+import { proxyProblem } from "@/lib/backend-proxy/contract/proxy-problem";
 import {
   decideIdentity,
   identityPin,
   isCsrfSafe,
-} from "@/lib/backend-proxy/request-guards";
+} from "@/lib/backend-proxy/request/request-guards";
 
 export const ANONYMOUS = "anonymous";
 

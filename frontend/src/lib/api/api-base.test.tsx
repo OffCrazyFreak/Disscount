@@ -3,7 +3,7 @@ import { describe, expect, it, onTestFinished, vi } from "vitest";
 
 import apiClient from "@/lib/api/api-base";
 import { authClient } from "@/lib/auth/client";
-import { proxyProblem } from "@/lib/backend-proxy/proxy-problem";
+import { proxyProblem } from "@/lib/backend-proxy/contract/proxy-problem";
 import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { server } from "@/test/msw-server";
 

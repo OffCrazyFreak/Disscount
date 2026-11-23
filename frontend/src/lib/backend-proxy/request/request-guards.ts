@@ -2,7 +2,7 @@ import {
   CLIENT_HEADER,
   CLIENT_HEADER_VALUE,
   USER_HEADER,
-} from "@/lib/backend-proxy/proxy-contract";
+} from "@/lib/backend-proxy/contract/proxy-contract";
 import { ANONYMOUS_IDENTITY } from "@/lib/offline/cache-identity";
 
 const SAFE_METHODS = new Set(["GET", "HEAD"]);

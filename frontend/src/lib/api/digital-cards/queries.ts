@@ -1,6 +1,6 @@
 import apiClient from "@/lib/api/api-base";
 import { httpStatusError } from "@/lib/api/http-status-error";
-import { backendProxyHeaders } from "@/lib/backend-proxy/client-headers";
+import { backendProxyHeaders } from "@/lib/backend-proxy/contract/client-headers";
 import {
   digitalCardDtoSchema,
   digitalCardRequestSchema,

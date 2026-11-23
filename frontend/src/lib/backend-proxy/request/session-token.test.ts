@@ -12,7 +12,8 @@ vi.mock("@/lib/auth", () => ({
   auth: { api: { getSession: mocks.getSession, getToken: mocks.getToken } },
 }));
 
-const { mintSessionToken } = await import("@/lib/backend-proxy/session-token");
+const { mintSessionToken } =
+  await import("@/lib/backend-proxy/request/session-token");
 
 const headers = new Headers({ cookie: "session=user-a" });
 const claims = Buffer.from(JSON.stringify({ sub: "user-a" })).toString(

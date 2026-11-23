@@ -2,7 +2,7 @@ import { z } from "zod";
 import {
   proxyProblem,
   type ProxyProblemCode,
-} from "@/lib/backend-proxy/proxy-problem";
+} from "@/lib/backend-proxy/contract/proxy-problem";
 import { CijeneApiError } from "@/lib/cijene-api/errors";
 import { createApiResponse } from "@/lib/cijene-api/utils/response-utils";
 
