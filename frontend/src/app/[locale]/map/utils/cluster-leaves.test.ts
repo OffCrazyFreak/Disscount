@@ -43,7 +43,7 @@ describe("leafBounds", () => {
 
 describe("fitPadding", () => {
   it("keeps a 64 px margin where there is room", () => {
-    expect(fitPadding(800, 600, { bottom: 0, right: 0 })).toEqual({
+    expect(fitPadding(800, 600, { top: 0, bottom: 0, right: 0 })).toEqual({
       top: 64,
       right: 64,
       bottom: 64,
@@ -53,16 +53,23 @@ describe("fitPadding", () => {
 
   it("fits inside a short map with the sheet up", () => {
     // A phone in landscape: 230 px of map, 126 px of it under the sheet.
-    const padding = fitPadding(700, 230, { bottom: 126, right: 0 });
+    const padding = fitPadding(700, 230, { top: 0, bottom: 126, right: 0 });
 
     expect(padding.top + padding.bottom).toBeLessThan(230);
     expect(padding.bottom).toBeGreaterThan(126);
   });
 
   it("keeps the stores clear of the desktop search panel on the right", () => {
-    const padding = fitPadding(1400, 700, { bottom: 0, right: 400 });
+    const padding = fitPadding(1400, 700, { top: 0, bottom: 0, right: 400 });
 
     expect(padding.right).toBe(464);
     expect(padding.left).toBe(64);
+  });
+
+  it("keeps the stores clear of the header floating over the map", () => {
+    const padding = fitPadding(1400, 900, { top: 80, bottom: 0, right: 0 });
+
+    expect(padding.top).toBe(144);
+    expect(padding.bottom).toBe(64);
   });
 });

@@ -15,13 +15,14 @@ export function sameView(a: IViewArea | null, b: IViewArea | null) {
   );
 }
 
-/** Map pixels hidden at the bottom (the phone sheet or nav) and at the right (the desktop search panel). */
+/** Map pixels hidden by the header on top, the phone sheet or nav at the bottom, the desktop panel at the right. */
 export interface IMapCover {
+  top: number;
   bottom: number;
   right: number;
 }
 
-export const NO_COVER: IMapCover = { bottom: 0, right: 0 };
+export const NO_COVER: IMapCover = { top: 0, bottom: 0, right: 0 };
 
 /** The part of the map nothing covers, or null if none is left. */
 export function readVisibleArea(
@@ -30,15 +31,16 @@ export function readVisibleArea(
 ): IViewArea | null {
   const { clientWidth, clientHeight } = map.getCanvas();
   const width = clientWidth - cover.right;
-  const height = clientHeight - cover.bottom;
-  if (width <= 0 || height <= 0) return null;
+  const top = cover.top;
+  const bottom = clientHeight - cover.bottom;
+  if (width <= 0 || bottom - top <= 0) return null;
 
   // All four corners, because a north-aligned box on a rotated map counts hidden stores.
   const corners = [
-    map.unproject([0, 0]),
-    map.unproject([width, 0]),
-    map.unproject([width, height]),
-    map.unproject([0, height]),
+    map.unproject([0, top]),
+    map.unproject([width, top]),
+    map.unproject([width, bottom]),
+    map.unproject([0, bottom]),
   ];
 
   return { corners: corners.map(({ lng, lat }) => [lng, lat]) };

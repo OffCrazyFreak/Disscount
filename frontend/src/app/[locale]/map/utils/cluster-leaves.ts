@@ -35,11 +35,11 @@ export function fitPadding(width: number, height: number, cover: IMapCover) {
   const margin = Math.min(
     64,
     (width - cover.right) / 4,
-    (height - cover.bottom) / 4,
+    (height - cover.top - cover.bottom) / 4,
   );
 
   return {
-    top: margin,
+    top: cover.top + margin,
     right: cover.right + margin,
     bottom: cover.bottom + margin,
     left: margin,

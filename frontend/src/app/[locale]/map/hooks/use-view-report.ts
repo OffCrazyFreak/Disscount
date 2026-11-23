@@ -25,9 +25,10 @@ export function useViewReport({
 }: IUseViewReportOptions) {
   function visibleCover(): IMapCover {
     const canvas = mapRef.current?.getMap().getCanvas();
-    if (!canvas) return { bottom: 0, right: 0 };
+    if (!canvas) return { top: 0, bottom: 0, right: 0 };
 
     return {
+      top: Math.min(cover.top, canvas.clientHeight),
       bottom: Math.min(cover.bottom, canvas.clientHeight),
       right: Math.min(cover.right, canvas.clientWidth),
     };
@@ -40,10 +41,10 @@ export function useViewReport({
 
   const reportChangedView = useEffectEvent(reportView);
 
-  // The sheet or the panel moving changes how much of the map is in sight.
+  // The header, the sheet or the panel moving changes how much of the map is in sight.
   useEffect(() => {
     if (mapReady) reportChangedView();
-  }, [mapReady, cover.bottom, cover.right]);
+  }, [mapReady, cover.top, cover.bottom, cover.right]);
 
   return { visibleCover, reportView };
 }
