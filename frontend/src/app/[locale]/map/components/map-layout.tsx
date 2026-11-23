@@ -92,7 +92,10 @@ export default function MapLayout({
   );
 
   return (
-    <div className="fixed inset-0 z-[1] overflow-hidden">
+    // The phone's open search lifts the whole layer, since its own z-index only counts inside this one.
+    <div
+      className={`fixed inset-0 overflow-hidden ${isMobile && isOpen ? "z-[3]" : "z-[1]"}`}
+    >
       <div
         ref={setNavProbe}
         aria-hidden="true"
