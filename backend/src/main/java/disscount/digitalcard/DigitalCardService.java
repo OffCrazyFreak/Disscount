@@ -5,7 +5,6 @@ import disscount.digitalcard.photo.DigitalCardPhotoRepository;
 import disscount.digitalcard.photo.PhotoCleanupService;
 import disscount.digitalcard.photo.PhotoKeys;
 import disscount.shared.AfterCommit;
-import disscount.shared.errors.BadRequestException;
 import disscount.shared.errors.NotFoundException;
 import disscount.shared.photo.PhotoStore;
 import disscount.shared.photo.PhotoStoreConfig;
@@ -38,7 +37,6 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class DigitalCardService {
 
-    static final int MAX_USED_ENTRIES = 50;
     static final int MAX_USED_AGE_DAYS = 400;
 
     private static final Logger log = LoggerFactory.getLogger(DigitalCardService.class);
@@ -146,16 +144,9 @@ public class DigitalCardService {
 
     @Transactional
     public void recordUsed(UUID userId, List<CardUsedEntry> entries) {
-        if (entries == null || entries.isEmpty() || entries.size() > MAX_USED_ENTRIES) {
-            throw new BadRequestException("error.card.usedBatchSize", String.valueOf(MAX_USED_ENTRIES));
-        }
-
         LocalDateTime now = Timestamps.nowUtc();
         LocalDateTime oldest = now.minusDays(MAX_USED_AGE_DAYS);
         for (CardUsedEntry entry : entries) {
-            if (entry == null || entry.id() == null || entry.usedAt() == null) {
-                throw new BadRequestException("error.card.usedEntryIncomplete");
-            }
             // Clamped both ways so a skewed device clock cannot pin a card to the top or bottom of every sort.
             LocalDateTime usedAt = toUtc(entry.usedAt());
             if (usedAt.isAfter(now)) usedAt = now;
