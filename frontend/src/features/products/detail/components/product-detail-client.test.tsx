@@ -10,6 +10,7 @@ const detail = vi.hoisted(() => ({
   product: undefined as ProductResponse | undefined,
   productLoading: false,
   productError: null as Error | null,
+  productOffline: false,
   sortedChains: [],
 }));
 
@@ -39,6 +40,7 @@ describe("ProductDetailClient", () => {
     detail.product = undefined;
     detail.productLoading = false;
     detail.productError = null;
+    detail.productOffline = false;
   });
 
   it("does not claim the product is missing while the cache restores", () => {
@@ -72,6 +74,19 @@ describe("ProductDetailClient", () => {
     );
 
     expect(screen.getByText("Coca-Cola")).toBeInTheDocument();
+    expect(screen.queryByText(NOT_FOUND)).not.toBeInTheDocument();
+  });
+
+  it("says the product is not saved when offline on a first visit", () => {
+    detail.productOffline = true;
+
+    renderWithProviders(
+      <ProductDetailClient ean="5449000000996" today={TODAY} />,
+    );
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Ova stranica još nije spremljena za korištenje bez interneta.",
+    );
     expect(screen.queryByText(NOT_FOUND)).not.toBeInTheDocument();
   });
 });

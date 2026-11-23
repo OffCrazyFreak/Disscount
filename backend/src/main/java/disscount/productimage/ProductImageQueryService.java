@@ -1,5 +1,6 @@
 package disscount.productimage;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -12,6 +13,7 @@ import disscount.productimage.ProductImageDtos.ListedEansDto;
 import disscount.productimage.ProductImageDtos.ProductImagesDto;
 import disscount.productimage.ProductImageDtos.ProductThumbnailsDto;
 import disscount.productimage.catalog.Barcodes;
+import disscount.productimage.catalog.CatalogListing;
 import disscount.shared.CanonicalBarcode;
 import disscount.shared.errors.BadRequestException;
 import disscount.shared.photo.PhotoStore;
@@ -67,7 +69,8 @@ class ProductImageQueryService {
     }
 
     public ListedEansDto listedEans() {
-        return new ListedEansDto(sets.findListedEans());
+        LocalDate since = CatalogListing.listedSince(sets.findNewestArchiveDate());
+        return new ListedEansDto(since == null ? List.of() : sets.findListedEans(since));
     }
 
     /** The one spelling photos are stored under, so a code padded with zeros finds the same photos. */

@@ -5,9 +5,11 @@ import {
   getCheapestChainByMinPrice,
   getMaxPrice,
   getMinPrice,
+  getNewestPriceDate,
   isPriceDateToday,
 } from "@/utils/price/product-price-utils";
-import { chain, product } from "@/test/fixtures/price-fixtures";
+import { productResponseSchema } from "@/lib/cijene-api/schemas";
+import { chain, product, wireProduct } from "@/test/fixtures/price-fixtures";
 
 describe("isPriceDateToday", () => {
   afterEach(() => {
@@ -43,6 +45,16 @@ describe("product price summary", () => {
     expect(getAveragePrice(item)).toBeCloseTo(1.15);
   });
 
+  it("skips a chain that publishes a zero price", () => {
+    const item = productResponseSchema.parse(
+      wireProduct(product([chain("konzum", 1.2, 1.5, 1.3), chain("roto", 0)])),
+    );
+
+    expect(getMinPrice(item)).toBe(1.2);
+    expect(getMaxPrice(item)).toBe(1.5);
+    expect(getAveragePrice(item)).toBe(1.3);
+  });
+
   it("has no price without chains", () => {
     const item = product([]);
 
@@ -65,5 +77,20 @@ describe("getCheapestChainByMinPrice", () => {
 
   it("is null without chains", () => {
     expect(getCheapestChainByMinPrice([])).toBeNull();
+  });
+});
+
+describe("getNewestPriceDate", () => {
+  it("picks the latest day any chain published", () => {
+    const older = { ...chain("konzum", 1), price_date: "2026-10-11" };
+    const newest = { ...chain("lidl", 1.1), price_date: "2026-10-14" };
+
+    expect(getNewestPriceDate(product([older, newest, chain("spar", 1)]))).toBe(
+      "2026-10-14",
+    );
+  });
+
+  it("has no date for a product no chain sells", () => {
+    expect(getNewestPriceDate(product())).toBeNull();
   });
 });

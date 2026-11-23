@@ -1,5 +1,6 @@
 package disscount.productimage;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -13,11 +14,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 
 /** One row per EAN: which photo is shown, how widely the product sells, and the admin's review state. */
 @Entity
+// The catalogue import writes this row through SQL, so a photo or admin save must write only what it changed.
+@DynamicUpdate
 @Table(name = "product_image_set",
-        indexes = @Index(name = "idx_product_image_set_listings", columnList = "store_listings"))
+        indexes = {
+                @Index(name = "idx_product_image_set_listings", columnList = "store_listings"),
+                @Index(name = "idx_product_image_set_last_seen", columnList = "last_seen_on")
+        })
 @Getter
 @Setter
 @NoArgsConstructor
@@ -43,6 +50,24 @@ public class ProductImageSet {
     @Builder.Default
     @Column(name = "chain_count", nullable = false)
     private int chainCount = 0;
+
+    /** The date of the newest imported archive that priced this EAN; the sitemap lists products seen recently. */
+    @Column(name = "last_seen_on")
+    private LocalDate lastSeenOn;
+
+    /** Slugs from catalog/taxonomy.yaml, written by the catalogue import. */
+    @Column(length = 32)
+    private String department;
+
+    @Column(length = 40)
+    private String category;
+
+    @Column(name = "taxonomy_version", length = 16)
+    private String taxonomyVersion;
+
+    @Builder.Default
+    @Column(name = "list_uses", nullable = false)
+    private int listUses = 0;
 
     @Column(name = "main_image_id")
     private UUID mainImageId;

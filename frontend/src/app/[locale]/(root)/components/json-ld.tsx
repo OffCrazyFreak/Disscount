@@ -3,6 +3,7 @@ import { faqIds } from "@/app/[locale]/(root)/data/faq";
 import { appUrl } from "@/lib/env";
 import { localePath } from "@/i18n/locale-path";
 import { LOCALES } from "@/i18n/locales";
+import JsonLdScript from "@/components/custom/common/shell/json-ld-script";
 
 const baseUrl = appUrl();
 
@@ -17,6 +18,8 @@ async function buildGraph() {
         "@type": "WebSite",
         "@id": `${baseUrl}/#website`,
         name: "Disscount",
+        // The domain as people type it; "Discount" stays out, since that is a different, common word.
+        alternateName: "disscount.me",
         url: `${baseUrl}/`,
         // One site entity for every language; the search below opens in the reader's.
         inLanguage: [...LOCALES],
@@ -76,12 +79,5 @@ async function buildGraph() {
 export default async function LandingJsonLd() {
   const graph = await buildGraph();
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{
-        __html: JSON.stringify(graph).replace(/</g, "\\u003c"),
-      }}
-    />
-  );
+  return <JsonLdScript data={graph} />;
 }

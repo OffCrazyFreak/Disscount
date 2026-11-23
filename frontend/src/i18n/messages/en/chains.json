@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "indexTitle": "Supermarket chains",
+    "indexDescription": "The supermarket chains whose prices we compare, with their stores on the map and the date of their newest prices.",
+    "chainTitle": "{chain}: stores and prices",
+    "chainDescription": "{stores, plural, =0 {{chain} has no stores on the map yet. Compare its prices with other chains.} one {{chain} has # store on the map. See where they are and compare prices with other chains.} other {{chain} has # stores on the map. See where they are and compare prices with other chains.}}"
+  },
+  "breadcrumbs": {
+    "label": "Breadcrumb",
+    "home": "Home",
+    "chains": "Supermarket chains"
+  },
+  "index": {
+    "heading": "Supermarket chains",
+    "storeCount": "{count, plural, one {# store} other {# stores}}",
+    "priceDate": "prices from {date}"
+  },
+  "intro": {
+    "stores": "The map has {stores, plural, one {# {chain} store} other {# {chain} stores}} in {cities, plural, one {# place} other {# places}}.",
+    "topCities": "Most of them are in {cities}.",
+    "prices": "The chain published its newest prices on {date}, {count, plural, one {# price} other {# prices}} across all its stores.",
+    "noStores": "The map has no {chain} store yet."
+  },
+  "cities": {
+    "heading": "Stores by place",
+    "storeCount": "{count, plural, one {# store} other {# stores}}",
+    "showMore": "{count, plural, one {Show # more place} other {Show # more places}}"
+  },
+  "mapLink": "See {chain} stores on the map"
+}

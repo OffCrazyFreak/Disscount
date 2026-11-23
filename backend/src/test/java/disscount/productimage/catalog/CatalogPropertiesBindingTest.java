@@ -2,7 +2,6 @@ package disscount.productimage.catalog;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.ObjectMapper;
 
@@ -12,9 +11,10 @@ import static org.mockito.Mockito.mock;
 class CatalogPropertiesBindingTest {
 
     private final ApplicationContextRunner runner = new ApplicationContextRunner()
-            .withBean(JdbcTemplate.class, () -> mock(JdbcTemplate.class))
+            .withBean(CatalogStore.class, () -> mock(CatalogStore.class))
             .withBean(TransactionTemplate.class, () -> mock(TransactionTemplate.class))
             .withBean(ObjectMapper.class, ObjectMapper::new)
+            .withBean(IndexNowClient.class, () -> mock(IndexNowClient.class))
             .withUserConfiguration(CatalogImportService.class);
 
     @Test

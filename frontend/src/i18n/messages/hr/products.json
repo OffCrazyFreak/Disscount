@@ -1,4 +1,10 @@
 {
+  "browseCategories": "Pregledaj proizvode po kategorijama",
+  "landing": {
+    "intro": "Razvrstali smo {products, plural, one {# proizvod} few {# proizvoda} other {# proizvoda}} u {categories, plural, one {# kategoriju} few {# kategorije} other {# kategorija}}. Odaberi kategoriju ili popularan proizvod i usporedi cijene po trgovačkim lancima.",
+    "categoriesHeading": "Kategorije",
+    "popularHeading": "Popularni proizvodi"
+  },
   "meta": {
     "title": "Proizvodi",
     "description": "Pretraži proizvode i usporedi cijene u trgovinama diljem Hrvatske."

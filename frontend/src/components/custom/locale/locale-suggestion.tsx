@@ -11,6 +11,8 @@ import { readLocaleCookie } from "@/i18n/locale-cookie";
 import { SHOW_IN_LOCALE } from "@/components/custom/locale/show-in-locale";
 import { isLocale, type AppLocale } from "@/i18n/locales";
 import { useSession } from "@/lib/auth/client";
+import { usePathname } from "@/i18n/navigation";
+import { cn } from "@/lib/utils";
 
 const DISMISSED_KEY = "disscount-locale-suggestion-dismissed";
 
@@ -21,6 +23,8 @@ export default function LocaleSuggestion() {
   const { data: session } = useSession();
   const { changeLocale, isPending } = useChangeLocale();
   const [preferred, setPreferred] = useState<AppLocale | null>(null);
+
+  const isMap = usePathname() === "/map";
 
   const accountLocale = session?.user?.locale;
 
@@ -42,10 +46,27 @@ export default function LocaleSuggestion() {
 
   // Stays mounted so the offer is announced; its own row, because floating covers a page's first control.
   return (
-    <div role="status" className="relative z-[var(--z-locale-suggestion)]">
+    // On the map this row floats over the map and its search, so only the pill may take the pointer.
+    <div
+      role="status"
+      className={cn(
+        "relative z-[var(--z-locale-suggestion)]",
+        isMap && "pointer-events-none",
+      )}
+    >
       {preferred && (
-        <div className="mb-4 flex justify-center">
-          <div className="flex max-w-full items-center gap-2 rounded-full border bg-card py-1 pr-1 pl-3 shadow-sm">
+        <div
+          className={cn(
+            "mb-4 flex justify-center",
+            isMap && "md:justify-start",
+          )}
+        >
+          <div
+            className={cn(
+              "flex max-w-full items-center gap-2 rounded-full border bg-card py-1 pr-1 pl-3 shadow-sm",
+              isMap && "pointer-events-auto md:max-w-[calc(100%-25rem)]",
+            )}
+          >
             <Languages
               aria-hidden="true"
               className="size-4 shrink-0 text-muted-foreground"

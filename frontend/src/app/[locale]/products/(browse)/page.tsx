@@ -1,4 +1,5 @@
-import { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
+import { withSharePreview } from "@/utils/seo/share-metadata";
 import { Suspense } from "react";
 import ProductsClient from "@/features/products/components/products-client";
 import SearchBarSkeleton from "@/components/custom/search/search-bar-skeleton";
@@ -6,8 +7,11 @@ import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loadi
 import { readSearchParam } from "@/utils/format/generic";
 import { pageMetadata } from "@/i18n/alternates";
 
-export function generateMetadata(): Promise<Metadata> {
-  return pageMetadata("products", "/products");
+export async function generateMetadata(
+  _props: PageProps<"/[locale]/products">,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  return withSharePreview(await pageMetadata("products", "/products"), parent);
 }
 
 export default async function ProductsPage(

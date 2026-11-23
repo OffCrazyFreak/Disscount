@@ -1,4 +1,8 @@
+"use client";
+
 import { MapPinOff } from "lucide-react";
+
+import { useReportMapStatus } from "@/features/map/hooks/layout/use-map-status";
 
 interface IMapUnavailableProps {
   message: string;
@@ -9,6 +13,8 @@ export default function MapUnavailable({
   message,
   action,
 }: IMapUnavailableProps) {
+  useReportMapStatus("unavailable");
+
   return (
     <div
       role="status"

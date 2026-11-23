@@ -66,8 +66,8 @@ function withInFlightWritesPaused(client: PersistedClient): PersistedClient {
   return { ...client, clientState: { ...client.clientState, mutations } };
 }
 
-// Restore skips the schema, so a snapshot without this marker may still hold prices as text.
-const PRICE_SHAPE = "numbers";
+// Restore skips the schema, so a snapshot without this marker may still hold text or zero prices.
+const PRICE_SHAPE = "positive-numbers";
 
 const PRICED_CIJENE_QUERIES = new Set(["product", "products", "prices"]);
 

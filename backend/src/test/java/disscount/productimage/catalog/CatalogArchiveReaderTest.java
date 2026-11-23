@@ -33,7 +33,7 @@ class CatalogArchiveReaderTest {
         assertThat(catalog).containsOnlyKeys("3856021300547");
         CatalogArchiveReader.Entry chips = catalog.get("3856021300547");
         assertThat(chips.storeListings()).isEqualTo(3);
-        assertThat(chips.chainCount()).isEqualTo(2);
+        assertThat(chips.pricesByChain()).containsOnly(Map.entry("konzum", 2), Map.entry("spar", 1));
         assertThat(chips.name()).isIn("ČIPI ČIPS 200g, FRANCK", "Čipi čips 200 g");
     }
 
@@ -48,7 +48,7 @@ class CatalogArchiveReaderTest {
         Map<String, CatalogArchiveReader.Entry> catalog = CatalogArchiveReader.read(new ByteArrayInputStream(zip));
 
         assertThat(catalog).containsOnlyKeys("12345678905");
-        assertThat(catalog.get("12345678905").chainCount()).isEqualTo(2);
+        assertThat(catalog.get("12345678905").pricesByChain()).containsOnlyKeys("konzum", "spar");
     }
 
     @Test

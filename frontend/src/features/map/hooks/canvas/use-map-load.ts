@@ -4,6 +4,8 @@ import { RefObject, useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 
 import { foldAttributionLater } from "@/features/map/utils/canvas/attribution";
+import { CREDITS_BANNER_HOLD } from "@/features/map/hooks/layout/use-credits-banner-hold";
+import { releaseInstallBannerHold } from "@/components/custom/pwa/install-banner-hold";
 import { registerChainIcons } from "@/features/map/utils/canvas/register-chain-icons";
 
 interface IUseMapLoadOptions {
@@ -30,7 +32,9 @@ export function useMapLoad({
     // MapLibre bug #8690: a context lost early leaves a blank map, so offer a reload.
     map.getCanvas().addEventListener("webglcontextlost", onContextLost);
 
-    foldAttributionLater(map);
+    foldAttributionLater(map, () =>
+      releaseInstallBannerHold(CREDITS_BANNER_HOLD),
+    );
 
     await registerChainIcons(map, chains);
     setIconsReady(true);

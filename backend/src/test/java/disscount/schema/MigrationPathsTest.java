@@ -139,6 +139,42 @@ class MigrationPathsTest {
     }
 
     @Test
+    void savedListsAreNumberedPerUserInTheOrderTheyWereStored() throws Exception {
+        String database = createDatabase();
+        flyway(database).target("10").load().migrate();
+
+        UUID picker = UUID.randomUUID();
+        UUID other = UUID.randomUUID();
+
+        try (Connection connection = connect(database); Statement statement = connection.createStatement()) {
+            for (UUID user : List.of(picker, other)) {
+                statement.execute("insert into app_user (id, account_type, created_at) values ('%s', 'CONSUMER', now())".formatted(user));
+            }
+
+            for (SavedList list : SAVED_LISTS) {
+                for (String key : List.of("zagreb", "split", "osijek")) {
+                    list.insert(statement, picker, key);
+                }
+                list.insert(statement, other, "rijeka");
+            }
+        }
+
+        flyway(database).load().migrate();
+
+        try (Connection connection = connect(database); Statement statement = connection.createStatement()) {
+            for (SavedList list : SAVED_LISTS) {
+                assertThat(strings(statement, list.numbered(picker))).as(list.table())
+                        .containsExactly("zagreb=0", "split=1", "osijek=2");
+                assertThat(strings(statement, list.numbered(other))).as(list.table()).containsExactly("rijeka=0");
+
+                list.insert(statement, other, "pula");
+                assertThat(strings(statement, list.numbered(other))).as("%s insert by an older image", list.table())
+                        .containsExactly("pula=0", "rijeka=0");
+            }
+        }
+    }
+
+    @Test
     void theMigrationsBarcodeRuleMatchesTheJavaOne() throws Exception {
         String sql = Files.readString(MIGRATIONS.resolve("V9__strip_leading_zeros_from_barcodes.sql"));
         String function = sql.substring(sql.indexOf("CREATE FUNCTION"), sql.indexOf("$$;") + 3);
@@ -170,6 +206,69 @@ class MigrationPathsTest {
             }
         }
     }
+
+    @Test
+    void productsPricedInTheLastImportStayListedAfterTheWindowArrives() throws Exception {
+        String withRun = createDatabase();
+        flyway(withRun).target("10").load().migrate();
+        try (Connection connection = connect(withRun); Statement statement = connection.createStatement()) {
+            insertCatalogueRow(statement, "3850102101017", 4);
+            insertCatalogueRow(statement, "3850102101024", 0);
+            statement.execute("insert into app.product_image_import_run (kind, finished_at) values ('weekly-import', '2026-11-18 03:00')");
+        }
+
+        flyway(withRun).load().migrate();
+
+        try (Connection connection = connect(withRun); Statement statement = connection.createStatement()) {
+            assertThat(strings(statement, "select ean || ' ' || coalesce(last_seen_on::text, '-') from app.product_image_set order by ean"))
+                    .containsExactly("3850102101017 2026-11-18", "3850102101024 -");
+        }
+    }
+
+    // A database that never recorded an import still has priced products, which must not vanish from the sitemap.
+    @Test
+    void withoutARecordedImportPricedProductsCountAsSeenToday() throws Exception {
+        String withoutRun = createDatabase();
+        flyway(withoutRun).target("10").load().migrate();
+        try (Connection connection = connect(withoutRun); Statement statement = connection.createStatement()) {
+            insertCatalogueRow(statement, "3850102101017", 4);
+        }
+
+        flyway(withoutRun).load().migrate();
+
+        try (Connection connection = connect(withoutRun); Statement statement = connection.createStatement()) {
+            assertThat(strings(statement, "select (last_seen_on = current_date)::text from app.product_image_set"))
+                    .containsExactly("true");
+        }
+    }
+
+    private static void insertCatalogueRow(Statement statement, String ean, int storeListings) throws SQLException {
+        statement.execute("""
+                insert into app.product_image_set (ean, chain_count, needs_review, pinned, store_listings)
+                values ('%s', 1, false, false, %d)
+                """.formatted(ean, storeListings));
+    }
+
+    private record SavedList(String table, String key, String insert) {
+
+        void insert(Statement statement, UUID user, String value) throws SQLException {
+            statement.execute(insert.formatted(UUID.randomUUID(), user, value));
+        }
+
+        String numbered(UUID user) {
+            return "select %s || '=' || sort_order from %s where user_id = '%s' order by sort_order, %s"
+                    .formatted(key, table, user, key);
+        }
+    }
+
+    // The inserts name no sort_order, the way a save before V11 and an older image during a deploy write.
+    private static final List<SavedList> SAVED_LISTS = List.of(
+            new SavedList("pinned_place", "place_api_id",
+                    "insert into pinned_place (id, user_id, place_api_id, place_name) values ('%s', '%s', '%s', 'Mjesto')"),
+            new SavedList("pinned_store", "store_api_id",
+                    "insert into pinned_store (id, user_id, store_api_id, store_name) values ('%s', '%s', '%s', 'Trgovina')"),
+            new SavedList("favorite_store", "store_key",
+                    "insert into favorite_store (id, user_id, store_key) values ('%s', '%s', '%s')"));
 
     private static List<String> strings(Statement statement, String query) throws SQLException {
         List<String> values = new ArrayList<>();

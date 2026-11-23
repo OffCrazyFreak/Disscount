@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "indexTitle": "Trgovske verige",
+    "indexDescription": "Trgovske verige, katerih cene primerjamo, z njihovimi trgovinami na zemljevidu in datumom najnovejših cen.",
+    "chainTitle": "{chain}: trgovine in cene",
+    "chainDescription": "{stores, plural, =0 {{chain} na zemljevidu še nima trgovin. Primerjaj cene z drugimi verigami.} one {{chain} ima na zemljevidu # trgovino. Poglej, kje so, in primerjaj cene z drugimi verigami.} two {{chain} ima na zemljevidu # trgovini. Poglej, kje so, in primerjaj cene z drugimi verigami.} few {{chain} ima na zemljevidu # trgovine. Poglej, kje so, in primerjaj cene z drugimi verigami.} other {{chain} ima na zemljevidu # trgovin. Poglej, kje so, in primerjaj cene z drugimi verigami.}}"
+  },
+  "breadcrumbs": {
+    "label": "Pot",
+    "home": "Domov",
+    "chains": "Trgovske verige"
+  },
+  "index": {
+    "heading": "Trgovske verige",
+    "storeCount": "{count, plural, one {# trgovina} two {# trgovini} few {# trgovine} other {# trgovin}}",
+    "priceDate": "cene z dne {date}"
+  },
+  "intro": {
+    "stores": "Na zemljevidu imamo {stores, plural, one {# trgovino} two {# trgovini} few {# trgovine} other {# trgovin}} verige {chain} v {cities, plural, one {# kraju} two {# krajih} few {# krajih} other {# krajih}}.",
+    "topCities": "Največ jih je v krajih {cities}.",
+    "prices": "Veriga je najnovejše cene objavila {date}, skupaj {count, plural, one {# ceno} two {# ceni} few {# cene} other {# cen}} v vseh trgovinah.",
+    "noStores": "Na zemljevidu še nimamo nobene trgovine verige {chain}."
+  },
+  "cities": {
+    "heading": "Trgovine po krajih",
+    "storeCount": "{count, plural, one {# trgovina} two {# trgovini} few {# trgovine} other {# trgovin}}",
+    "showMore": "{count, plural, one {Pokaži še # kraj} two {Pokaži še # kraja} few {Pokaži še # kraje} other {Pokaži še # krajev}}"
+  },
+  "mapLink": "Poglej trgovine verige {chain} na zemljevidu"
+}

@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 
 import MapErrorBoundary from "@/features/map/components/canvas/map-error-boundary";
 import MapUnavailable from "@/features/map/components/canvas/map-unavailable";
+import { useCreditsBannerHold } from "@/features/map/hooks/layout/use-credits-banner-hold";
 
 // MapLibre touches window on import and weighs about 430 KB gzip, so it loads only on this page.
 const StoreMap = dynamic(
@@ -25,6 +26,8 @@ type IStoreMapLoaderProps = ComponentProps<typeof StoreMap>;
 
 export default function StoreMapLoader(props: IStoreMapLoaderProps) {
   const t = useTranslations("map.unavailable");
+
+  useCreditsBannerHold();
 
   return (
     <MapErrorBoundary fallback={<MapUnavailable message={t("browser")} />}>

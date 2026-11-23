@@ -2,8 +2,10 @@ package disscount.productimage.jobs;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import disscount.productimage.HiddenReason;
@@ -12,6 +14,7 @@ import disscount.productimage.MainPicker;
 import disscount.productimage.ProductImage;
 import disscount.productimage.ProductImageRepository;
 import disscount.productimage.ProductImageSetRepository;
+import disscount.productimage.catalog.CatalogImportResult;
 import disscount.productimage.catalog.CatalogImportService;
 import disscount.productimage.openfoodfacts.OffImageGoneException;
 import disscount.productimage.openfoodfacts.OffImageUnavailableException;
@@ -35,9 +38,11 @@ import org.springframework.stereotype.Component;
 class ProductImageJobs {
 
     private static final Logger log = LoggerFactory.getLogger(ProductImageJobs.class);
-    static final String WEEKLY_IMPORT = "weekly-import";
+    // The stored kind keeps its old name, so the existing row is reused and V12 can read its date.
+    static final String CATALOG_IMPORT = "weekly-import";
     static final String PHOTO_SEED = "photo-seed";
-    static final Duration IMPORT_EVERY = Duration.ofDays(7);
+    // The Open Food Facts export is gigabytes, so the photo seed stays weekly.
+    static final Duration SEED_EVERY = Duration.ofDays(7);
     static final int RENDER_BATCH = 10;
     static final Duration RENDER_RETRY_AFTER = Duration.ofHours(1);
     static final Duration RENDER_PAUSE = Duration.ofMinutes(15);
@@ -69,17 +74,22 @@ class ProductImageJobs {
         this.runs = runs;
     }
 
-    /** Weekly, with the last run stored so restarts do not repeat it; it feeds the sitemap, so needs no photo store. */
-    @Scheduled(fixedDelay = 6 * 3_600_000L, initialDelay = 10 * 60_000L)
-    public void weeklyImport() {
+    /**
+     * Hourly, because the upstream publishes each day's archive at no fixed hour; the stored archive date keeps it to one
+     * import per date. It feeds the sitemap, so needs no photo store.
+     */
+    @Scheduled(fixedDelay = 3_600_000L, initialDelay = 10 * 60_000L)
+    public void importCatalogue() {
         if (!enabled || !importing.compareAndSet(false, true)) return;
         try {
-            boolean imported = false;
             try {
-                if (isDue(WEEKLY_IMPORT)) {
-                    catalog.importLatest();
-                    runs.save(new ProductImageImportRun(WEEKLY_IMPORT, Timestamps.nowUtc()));
-                    imported = true;
+                LocalDate lastImported = runs.findById(CATALOG_IMPORT).map(ProductImageImportRun::getArchiveDate).orElse(null);
+                Optional<CatalogImportResult> imported = catalog.importNewerThan(lastImported);
+                if (imported.isPresent()) {
+                    CatalogImportResult result = imported.get();
+                    runs.save(new ProductImageImportRun(CATALOG_IMPORT, Timestamps.nowUtc(), result.archiveDate()));
+                    // After the run is recorded, so a slow engine never holds the import; a restart here only loses pings.
+                    catalog.announce(result);
                 }
             } catch (IOException | RuntimeException e) {
                 // A failed import leaves the previous catalogue in place, so the seed below can still use it.
@@ -88,9 +98,9 @@ class ProductImageJobs {
             // An interrupt during the download can surface as an IOException, so it is checked again here.
             if (Thread.currentThread().isInterrupted()) return;
             // Tracked apart, so turning the photo store on mid-week seeds at the next check, not up to a week later.
-            if (store.enabled() && (imported || isDue(PHOTO_SEED))) {
+            if (store.enabled() && isDue(PHOTO_SEED, SEED_EVERY)) {
                 seed.seed();
-                runs.save(new ProductImageImportRun(PHOTO_SEED, Timestamps.nowUtc()));
+                runs.save(new ProductImageImportRun(PHOTO_SEED, Timestamps.nowUtc(), null));
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -101,9 +111,9 @@ class ProductImageJobs {
         }
     }
 
-    private boolean isDue(String kind) {
+    private boolean isDue(String kind, Duration every) {
         LocalDateTime last = runs.findById(kind).map(ProductImageImportRun::getFinishedAt).orElse(null);
-        return last == null || !last.isAfter(Timestamps.nowUtc().minus(IMPORT_EVERY));
+        return last == null || !last.isAfter(Timestamps.nowUtc().minus(every));
     }
 
     /** Copies main photos into our photo store one at a time, as Open Food Facts asks of image downloads. */

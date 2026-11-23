@@ -9,17 +9,18 @@ import {
   IMapFeatureRef,
   ISameSpot,
 } from "@/features/map/utils/view/map-feature-click";
+import type { IMapCover } from "@/features/map/utils/view/view-area";
 
 interface IUseMapClicksOptions {
   mapRef: RefObject<MapRef | null>;
   onSelect: (key: string) => void;
-  coveredBottom: () => number;
+  cover: () => IMapCover;
 }
 
 export function useMapClicks({
   mapRef,
   onSelect,
-  coveredBottom,
+  cover,
 }: IUseMapClicksOptions) {
   const [sameSpot, setSameSpot] = useState<ISameSpot | null>(null);
 
@@ -27,7 +28,7 @@ export function useMapClicks({
     return {
       onSelect,
       onSameSpot: setSameSpot,
-      coveredBottom: coveredBottom(),
+      cover: cover(),
     };
   }
 

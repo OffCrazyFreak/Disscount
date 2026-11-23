@@ -1,4 +1,10 @@
 {
+  "browseCategories": "Browse products by category",
+  "landing": {
+    "intro": "We sorted {products, plural, one {# product} other {# products}} into {categories, plural, one {# category} other {# categories}}. Pick a category or a popular product and compare its prices across supermarket chains.",
+    "categoriesHeading": "Categories",
+    "popularHeading": "Popular products"
+  },
   "meta": {
     "title": "Products",
     "description": "Search products and compare prices across stores all over Croatia."

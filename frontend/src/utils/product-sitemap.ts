@@ -3,7 +3,7 @@ import { appUrl } from "@/lib/env";
 /** Fixed so robots.txt names every file without the backend; eight files hold 400,000 under Google's limit. */
 export const PRODUCT_SITEMAP_IDS = [0, 1, 2, 3, 4, 5, 6, 7];
 
-/** Hashing keeps each EAN in the same file from one weekly import to the next. */
+/** Hashing keeps each EAN in the same file from one daily import to the next. */
 export function productSitemapId(ean: string): number {
   let hash = 0;
 

@@ -43,9 +43,15 @@ globalThis.ResizeObserver ??= class {
   disconnect() {}
 };
 
-window.matchMedia ??= () =>
+// Width queries follow the stubbed innerWidth at a 16 px rem, as a browser at its default font size answers them.
+function matchesWidth(query: string) {
+  const below = /\(width < ([\d.]+)rem\)/.exec(query);
+  return below ? window.innerWidth < Number(below[1]) * 16 : false;
+}
+
+window.matchMedia ??= (query: string) =>
   ({
-    matches: false,
+    matches: matchesWidth(query),
     addEventListener: () => {},
     removeEventListener: () => {},
   }) as unknown as MediaQueryList;
