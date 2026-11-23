@@ -46,9 +46,15 @@ export default function LocaleSuggestion() {
 
   // Stays mounted so the offer is announced; its own row, because floating covers a page's first control.
   return (
-    <div role="status" className="relative z-[var(--z-locale-suggestion)]">
+    // On the map this row floats over the map and its search, so only the pill may take the pointer.
+    <div
+      role="status"
+      className={cn(
+        "relative z-[var(--z-locale-suggestion)]",
+        isMap && "pointer-events-none",
+      )}
+    >
       {preferred && (
-        // The map's search floats top right from md up, so there the offer keeps to the left of it.
         <div
           className={cn(
             "mb-4 flex justify-center",
@@ -58,7 +64,7 @@ export default function LocaleSuggestion() {
           <div
             className={cn(
               "flex max-w-full items-center gap-2 rounded-full border bg-card py-1 pr-1 pl-3 shadow-sm",
-              isMap && "md:max-w-[calc(100%-25rem)]",
+              isMap && "pointer-events-auto md:max-w-[calc(100%-25rem)]",
             )}
           >
             <Languages
