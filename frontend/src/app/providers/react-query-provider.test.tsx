@@ -23,6 +23,8 @@ vi.mock("idb-keyval", () => ({
   get: async (key: string) => disk.get(key),
   set: async (key: string, value: unknown) => void disk.set(key, value),
   del: async (key: string) => void disk.delete(key),
+  keys: async () => [...disk.keys()],
+  delMany: async (keys: string[]) => keys.forEach((key) => disk.delete(key)),
 }));
 
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));

@@ -7,7 +7,10 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { persistOptions } from "@/lib/offline/cache/persister";
+import {
+  deleteOrphanedSnapshots,
+  persistOptions,
+} from "@/lib/offline/cache/persister";
 import { createQueryClientConfig } from "@/lib/api/query-client-defaults";
 import { DIGITAL_CARD_QUERY_KEYS } from "@/lib/api/digital-cards/keys";
 import { bindLastUsedQueryClient } from "@/lib/api/digital-cards/last-used";
@@ -62,6 +65,11 @@ export default function ReactQueryProviderWrapper({
   useEffect(() => {
     registerOfflineMutationDefaults(queryClient, t, tCards);
   }, [queryClient, t, tCards]);
+
+  useEffect(() => {
+    // Blocked storage just leaves the old keys where they are.
+    deleteOrphanedSnapshots().catch(() => undefined);
+  }, []);
 
   useEffect(() => {
     bindLastUsedQueryClient(queryClient);

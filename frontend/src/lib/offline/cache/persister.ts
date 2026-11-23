@@ -6,9 +6,12 @@ import type {
   Persister,
   PersistQueryClientOptions,
 } from "@tanstack/react-query-persist-client";
-import { get, set, del } from "idb-keyval";
+import { get, set, del, delMany, keys } from "idb-keyval";
 
-import { scopedCacheKey } from "@/lib/offline/cache/cache-identity";
+import {
+  ANONYMOUS_IDENTITY,
+  scopedCacheKey,
+} from "@/lib/offline/cache/cache-identity";
 import { shouldPersistQuery } from "@/lib/offline/cache/cached-query-keys";
 import {
   canWriteAfterPurges,
@@ -110,6 +113,26 @@ const offlinePersister: Persister = {
 /** `offlinePersister.removeClient()` resolves its key late, deleting the arriving account's cache. */
 export function removePersistedCacheFor(identity: string): Promise<void> {
   return del(scopedCacheKey(IDB_CACHE_KEY, identity));
+}
+
+function isSnapshotKey(key: IDBValidKey): key is string {
+  return (
+    typeof key === "string" &&
+    (key === IDB_CACHE_KEY || key.startsWith(`${IDB_CACHE_KEY}:`))
+  );
+}
+
+/** The unscoped key predates per-account snapshots, and a key left by a failed purge holds another account's data. */
+export async function deleteOrphanedSnapshots(): Promise<void> {
+  const kept = new Set([
+    scopedCacheKey(IDB_CACHE_KEY),
+    scopedCacheKey(IDB_CACHE_KEY, ANONYMOUS_IDENTITY),
+  ]);
+  const orphaned = (await keys()).filter(
+    (key) => isSnapshotKey(key) && !kept.has(key),
+  );
+
+  if (orphaned.length) await delMany(orphaned);
 }
 
 export const persistOptions: Omit<PersistQueryClientOptions, "queryClient"> = {
