@@ -4,7 +4,7 @@ import { ZodError } from "zod";
 
 import userService from "@/lib/api/users";
 import { server } from "@/test/msw-server";
-import { storedUser } from "@/test/stored-user";
+import { storedUser } from "@/test/fixtures/stored-user";
 
 const { accountType: _omitted, ...driftedUser } = storedUser;
 

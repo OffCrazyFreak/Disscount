@@ -2,7 +2,7 @@ import { AxiosError } from "axios";
 import { describe, expect, it } from "vitest";
 
 import { cardRetryDelay, shouldRetryCardWrite } from "@/lib/offline/card-retry";
-import { httpError } from "@/test/http-error";
+import { httpError } from "@/test/backend/http-error";
 
 describe("shouldRetryCardWrite", () => {
   it("retries transient statuses", () => {

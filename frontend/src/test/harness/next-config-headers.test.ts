@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import nextConfig from "../../next.config";
+import nextConfig from "../../../next.config";
 
 interface IHeaderRule {
   source: string;

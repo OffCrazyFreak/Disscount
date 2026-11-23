@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { userDtoSchema, userRequestSchema } from "@/lib/api/schemas/auth-user";
-import { storedUser } from "@/test/stored-user";
+import { storedUser } from "@/test/fixtures/stored-user";
 
 describe("userDtoSchema", () => {
   it("accepts a username shorter than the form allows, which the column stores", () => {

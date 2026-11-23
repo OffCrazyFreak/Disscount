@@ -1,4 +1,4 @@
-import type { IJsonSchema } from "@/test/api-contract";
+import type { IJsonSchema } from "@/test/backend/api-contract";
 
 export type WireDirection = "request" | "response";
 

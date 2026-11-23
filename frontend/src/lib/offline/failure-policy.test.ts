@@ -2,7 +2,7 @@ import { AxiosError } from "axios";
 import { describe, expect, it } from "vitest";
 
 import { cardWriteMessage, failureAction } from "@/lib/offline/failure-policy";
-import { httpError } from "@/test/http-error";
+import { httpError } from "@/test/backend/http-error";
 
 describe("failureAction", () => {
   it("keeps the entry on network failures", () => {

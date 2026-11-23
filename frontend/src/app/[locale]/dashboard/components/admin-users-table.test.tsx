@@ -8,7 +8,7 @@ import AdminUsersTable from "@/app/[locale]/dashboard/components/admin-users-tab
 import type { AccountType, UserDto } from "@/lib/api/schemas/auth-user";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { storedUser } from "@/test/stored-user";
+import { storedUser } from "@/test/fixtures/stored-user";
 
 // The session is a boundary the suite cannot run: signed in as another admin.
 vi.mock("@/context/user-context", () => ({

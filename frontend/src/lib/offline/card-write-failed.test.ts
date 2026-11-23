@@ -5,7 +5,7 @@ import {
   cardDeleteFailed,
   cardWriteFailed,
 } from "@/lib/offline/card-write-failed";
-import { httpError } from "@/test/http-error";
+import { httpError } from "@/test/backend/http-error";
 
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
 

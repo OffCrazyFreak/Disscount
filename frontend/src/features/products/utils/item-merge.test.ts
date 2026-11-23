@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { ShoppingListItemDto } from "@/lib/api/schemas/shopping-list-item";
 import { mergesIntoExisting } from "@/features/products/utils/item-merge";
-import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
+import { UNSET_ITEM_FIELDS } from "@/test/backend/unset-item-fields";
 
 function item(ean: string | null, name: string): ShoppingListItemDto {
   return {

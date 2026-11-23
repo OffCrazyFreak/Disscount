@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import StoreGroupHeader from "@/features/shopping-lists/detail/components/items/store-group-header";
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import { renderWithProviders } from "@/test/render";
-import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
+import { UNSET_ITEM_FIELDS } from "@/test/backend/unset-item-fields";
 
 vi.mock("@/context/user-context", () => ({
   useUser: () => ({ isAuthenticated: false }),

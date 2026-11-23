@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import ShoppingListQuickAdd from "@/features/shopping-lists/detail/components/items/shopping-list-quick-add";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
+import { UNSET_ITEM_FIELDS } from "@/test/backend/unset-item-fields";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 
 const { openModalUrl } = vi.hoisted(() => ({ openModalUrl: vi.fn() }));

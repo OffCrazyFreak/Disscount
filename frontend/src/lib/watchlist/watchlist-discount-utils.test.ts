@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { calculateDiscountInfo } from "@/lib/watchlist/watchlist-discount-utils";
-import { chain as priceChain, product } from "@/test/price-fixtures";
+import { chain as priceChain, product } from "@/test/fixtures/price-fixtures";
 
 function chain(name: string, min: number, avg: number) {
   return priceChain(name, min, min, avg);

@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import ProductInfoDisplay from "@/features/products/components/product-info-display";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { product } from "@/test/price-fixtures";
+import { product } from "@/test/fixtures/price-fixtures";
 
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ back: vi.fn(), push: vi.fn() }),

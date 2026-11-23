@@ -1,4 +1,4 @@
-import { tab } from "@/test/user-context-mocks";
+import { tab } from "@/test/fixtures/user-context-mocks";
 import { screen, waitFor } from "@testing-library/react";
 import { QueryClient } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw/http";
@@ -11,7 +11,7 @@ import { shouldPersistQuery } from "@/lib/offline/cached-query-keys";
 import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { storedUser } from "@/test/stored-user";
+import { storedUser } from "@/test/fixtures/stored-user";
 
 const PINNED = [
   {

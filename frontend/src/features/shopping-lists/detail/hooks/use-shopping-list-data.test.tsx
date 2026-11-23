@@ -14,8 +14,8 @@ import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
-import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
-import { chain, product, wireProduct } from "@/test/price-fixtures";
+import { UNSET_ITEM_FIELDS } from "@/test/backend/unset-item-fields";
+import { chain, product, wireProduct } from "@/test/fixtures/price-fixtures";
 
 vi.mock("@/context/user-context", () => ({
   useUser: () => ({ user: null }),

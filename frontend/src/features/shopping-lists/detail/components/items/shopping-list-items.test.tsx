@@ -12,7 +12,7 @@ import { SHOPPING_LIST_QUERY_KEYS } from "@/lib/api/shopping-lists/keys";
 import type { ShoppingListDto, ShoppingListItemDto } from "@/lib/api/types";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
+import { UNSET_ITEM_FIELDS } from "@/test/backend/unset-item-fields";
 
 vi.mock("@/i18n/navigation", () => ({
   Link: ({ href, ...props }: ComponentProps<"a"> & { href: string }) => (

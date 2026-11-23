@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { badgeVariants } from "@/components/ui/badge";
-import { oklchToRgb } from "@/test/color-contrast";
+import { oklchToRgb } from "@/test/harness/color-contrast";
 import { rgbContrastRatio, type Rgb } from "@/utils/ui/color-contrast";
 
 type Mode = "light" | "dark";

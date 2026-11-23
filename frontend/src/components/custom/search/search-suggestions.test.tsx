@@ -1,4 +1,4 @@
-import { router, searchBarShell } from "@/test/search-bar-harness";
+import { router, searchBarShell } from "@/test/harness/search-bar-harness";
 import { act, renderHook, screen, within } from "@testing-library/react";
 import { QueryClient } from "@tanstack/react-query";
 import userEvent from "@testing-library/user-event";

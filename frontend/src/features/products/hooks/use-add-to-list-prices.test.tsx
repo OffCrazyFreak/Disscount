@@ -11,7 +11,7 @@ import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
-import { chain, wireProduct } from "@/test/price-fixtures";
+import { chain, wireProduct } from "@/test/fixtures/price-fixtures";
 
 const sugar: ProductResponse = {
   ean: "3850104004421",

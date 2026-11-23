@@ -14,7 +14,7 @@ import {
   isUnexpectedFailure,
   shouldRetryQuery,
 } from "@/lib/api/query-client-defaults";
-import { httpError } from "@/test/http-error";
+import { httpError } from "@/test/backend/http-error";
 
 vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
 

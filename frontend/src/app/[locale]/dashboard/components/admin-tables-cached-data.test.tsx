@@ -12,7 +12,7 @@ import type { UserDto } from "@/lib/api/schemas/auth-user";
 import type { ContactMessageDto } from "@/lib/api/types";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { storedUser } from "@/test/stored-user";
+import { storedUser } from "@/test/fixtures/stored-user";
 
 vi.mock("@/context/user-context", () => ({
   useUser: () => ({ user: { id: "admin-1" } }),

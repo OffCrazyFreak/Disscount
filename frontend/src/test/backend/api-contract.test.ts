@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
-import { describeZodSchema, findDrift } from "@/test/api-contract";
+import { describeZodSchema, findDrift } from "@/test/backend/api-contract";
 
 const contract = {
   enums: {},

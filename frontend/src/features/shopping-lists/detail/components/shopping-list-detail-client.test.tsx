@@ -5,8 +5,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import ShoppingListDetailClient from "@/features/shopping-lists/detail/components/shopping-list-detail-client";
 import type { ShoppingListDto } from "@/lib/api/types";
 import { renderWithProviders } from "@/test/render";
-import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
-import { httpError } from "@/test/http-error";
+import { UNSET_ITEM_FIELDS } from "@/test/backend/unset-item-fields";
+import { httpError } from "@/test/backend/http-error";
 
 const account = vi.hoisted(() => ({ canShowAccountData: false }));
 

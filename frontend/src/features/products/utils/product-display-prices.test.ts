@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { getDisplayPrices } from "@/features/products/utils/product-display-prices";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
-import { chain } from "@/test/price-fixtures";
+import { chain } from "@/test/fixtures/price-fixtures";
 
 const product: ProductResponse = {
   ean: "1",

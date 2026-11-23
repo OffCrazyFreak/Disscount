@@ -1,4 +1,4 @@
-import { tab } from "@/test/user-context-mocks";
+import { tab } from "@/test/fixtures/user-context-mocks";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw/http";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -7,7 +7,7 @@ import { UserProvider, useUser } from "@/context/user-context";
 import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { storedUser } from "@/test/stored-user";
+import { storedUser } from "@/test/fixtures/stored-user";
 
 function profile(id: string) {
   return {

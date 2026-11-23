@@ -16,7 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { axeDialog } from "@/test/axe-dialog";
+import { axeDialog } from "@/test/harness/axe-dialog";
 import { renderWithProviders } from "@/test/render";
 
 interface IHarnessProps {

@@ -9,7 +9,7 @@ import type { ShoppingListDto } from "@/lib/api/types";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
-import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
+import { UNSET_ITEM_FIELDS } from "@/test/backend/unset-item-fields";
 
 vi.mock("@/context/user-context", () => ({
   useUser: () => ({ user: null }),

@@ -4,7 +4,7 @@ import {
   compareProductChains,
   type ProductChainSortMode,
 } from "@/features/products/utils/product-chain-sort";
-import { chain as priceChain } from "@/test/price-fixtures";
+import { chain as priceChain } from "@/test/fixtures/price-fixtures";
 
 function chain(name: string, minPrice: number, avgPrice: number) {
   return priceChain(name, minPrice, avgPrice, avgPrice);

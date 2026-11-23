@@ -7,7 +7,7 @@ import {
   getMinPrice,
   isPriceDateToday,
 } from "@/utils/price/product-price-utils";
-import { chain, product } from "@/test/price-fixtures";
+import { chain, product } from "@/test/fixtures/price-fixtures";
 
 describe("isPriceDateToday", () => {
   afterEach(() => {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { productJsonLd } from "@/features/products/detail/utils/product-json-ld";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
-import { chain, product as priceProduct } from "@/test/price-fixtures";
+import { chain, product as priceProduct } from "@/test/fixtures/price-fixtures";
 
 function product(overrides: Partial<ProductResponse>) {
   return priceProduct([chain("konzum", 0.89, 1.19), chain("spar", 0.3, 1.35)], {

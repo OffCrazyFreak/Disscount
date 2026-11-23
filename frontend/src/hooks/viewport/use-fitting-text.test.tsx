@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { useRef } from "react";
 
 import { useFittingText } from "@/hooks/viewport/use-fitting-text";
-import { stubTextFit, textWidth } from "@/test/stub-text-fit";
+import { stubTextFit, textWidth } from "@/test/harness/stub-text-fit";
 
 const FULL = "Trgovina, grad ili adresa";
 const SHORT = "Trgovina";

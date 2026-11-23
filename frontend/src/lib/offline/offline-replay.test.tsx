@@ -16,7 +16,7 @@ import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/offline-mutation-keys";
 import { registerOfflineMutationDefaults } from "@/lib/offline/offline-mutations";
 import { persistOptions } from "@/lib/offline/persister";
 import { setCacheIdentity } from "@/lib/offline/cache-identity";
-import { actingAs, serverSession } from "@/test/backend-identity";
+import { actingAs, serverSession } from "@/test/backend/backend-identity";
 import { server } from "@/test/msw-server";
 
 // Named .tsx only for the jsdom project: the API client sends the proxy headers only with a document.

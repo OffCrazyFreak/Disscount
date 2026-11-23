@@ -6,7 +6,7 @@ import {
   compareStoreChains,
   type StoreOptimizeMode,
 } from "@/features/shopping-lists/utils/store-sorting-utils";
-import { chain as priceChain } from "@/test/price-fixtures";
+import { chain as priceChain } from "@/test/fixtures/price-fixtures";
 
 type Chain = ChainProductResponse & { itemCount: number };
 

@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { useGetShoppingListById } from "@/lib/api/shopping-lists/hooks";
 import type { ShoppingListDto } from "@/lib/api/types";
 import { setCacheIdentity } from "@/lib/offline/cache-identity";
-import { ANONYMOUS, actingAs } from "@/test/backend-identity";
+import { ANONYMOUS, actingAs } from "@/test/backend/backend-identity";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
 

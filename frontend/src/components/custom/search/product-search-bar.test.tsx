@@ -1,4 +1,4 @@
-import { router, searchBarShell } from "@/test/search-bar-harness";
+import { router, searchBarShell } from "@/test/harness/search-bar-harness";
 import type { ReactNode } from "react";
 import { act, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";

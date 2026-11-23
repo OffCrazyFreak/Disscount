@@ -1,4 +1,4 @@
-import { tab as session } from "@/test/user-context-mocks";
+import { tab as session } from "@/test/fixtures/user-context-mocks";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw/http";
@@ -8,10 +8,10 @@ import { describe, expect, it, vi } from "vitest";
 import { UserProvider, useUser } from "@/context/user-context";
 import apiClient from "@/lib/api/api-base";
 import { setCacheIdentity } from "@/lib/offline/cache-identity";
-import { actingAs, serverSession } from "@/test/backend-identity";
+import { actingAs, serverSession } from "@/test/backend/backend-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { storedUser } from "@/test/stored-user";
+import { storedUser } from "@/test/fixtures/stored-user";
 
 function SignInButton() {
   const { handleUserLogin } = useUser();

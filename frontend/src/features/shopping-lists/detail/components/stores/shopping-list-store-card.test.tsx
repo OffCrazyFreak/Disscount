@@ -3,7 +3,7 @@ import { vi } from "vitest";
 import ShoppingListStoreItem from "@/features/shopping-lists/detail/components/stores/shopping-list-store-card";
 import type { ChainSummary } from "@/features/shopping-lists/detail/typings/store-chain-types";
 import type { ShoppingListDto } from "@/lib/api/types";
-import { describeChainCard } from "@/test/chain-card-contract";
+import { describeChainCard } from "@/test/harness/chain-card-contract";
 
 vi.mock("@/context/user-context", () => ({
   useUser: () => ({ accountUser: null }),

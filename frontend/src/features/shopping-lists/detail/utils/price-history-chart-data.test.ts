@@ -4,7 +4,7 @@ import {
   buildChartConfig,
   buildChartData,
 } from "@/features/shopping-lists/detail/utils/price-history-chart-data";
-import { UNSET_ITEM_FIELDS } from "@/test/unset-item-fields";
+import { UNSET_ITEM_FIELDS } from "@/test/backend/unset-item-fields";
 
 describe("buildChartData", () => {
   it("keeps raw dates in chronological order, which the chart formats per locale", () => {

@@ -7,7 +7,7 @@ import type {
   ChainProductResponse,
   ProductResponse,
 } from "@/lib/cijene-api/schemas";
-import { describeChainCard } from "@/test/chain-card-contract";
+import { describeChainCard } from "@/test/harness/chain-card-contract";
 import { renderWithProviders } from "@/test/render";
 import type { INearestStore } from "@/utils/geo/nearest-chain-distance";
 

@@ -8,7 +8,7 @@ import {
   NULLABILITY,
   nullabilityDrift,
   type WireDirection,
-} from "@/test/nullability-drift";
+} from "@/test/backend/nullability-drift";
 
 export interface IJsonSchema {
   $ref?: string;
@@ -29,7 +29,10 @@ export interface IApiContract {
 
 /** Read at runtime: the frontend image builds without the repository root, so an import would break its type check. */
 export function readApiContract(): IApiContract {
-  const file = new URL("../../../contracts/backend-api.json", import.meta.url);
+  const file = new URL(
+    "../../../../contracts/backend-api.json",
+    import.meta.url,
+  );
 
   return JSON.parse(readFileSync(fileURLToPath(file), "utf8")) as IApiContract;
 }

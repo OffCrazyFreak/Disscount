@@ -5,7 +5,7 @@ import { useAddToListForm } from "@/features/products/hooks/use-add-to-list-form
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { renderHookWithProviders } from "@/test/render";
-import { chain } from "@/test/price-fixtures";
+import { chain } from "@/test/fixtures/price-fixtures";
 
 const SUGAR: ProductResponse = {
   ean: "3850104004421",

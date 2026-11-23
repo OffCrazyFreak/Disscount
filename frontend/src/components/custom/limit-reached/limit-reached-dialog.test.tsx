@@ -8,7 +8,7 @@ import {
   showLimitReached,
 } from "@/lib/limits/limit-reached-store";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
-import { axeDialog } from "@/test/axe-dialog";
+import { axeDialog } from "@/test/harness/axe-dialog";
 import { renderWithProviders } from "@/test/render";
 
 vi.mock("@/lib/modal/modal-navigation", () => ({ openModalUrl: vi.fn() }));

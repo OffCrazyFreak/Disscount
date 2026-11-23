@@ -6,10 +6,10 @@ import { describe, expect, it, vi } from "vitest";
 
 import { UserProvider } from "@/context/user-context";
 import apiClient from "@/lib/api/api-base";
-import { actingAs, serverSession } from "@/test/backend-identity";
+import { actingAs, serverSession } from "@/test/backend/backend-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { storedUser } from "@/test/stored-user";
+import { storedUser } from "@/test/fixtures/stored-user";
 
 // Re-renders only readers, like better-auth's atom, so the landing session causes no re-render.
 const sessionStore = vi.hoisted(() => {

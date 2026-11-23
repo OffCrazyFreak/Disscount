@@ -7,7 +7,7 @@ import {
   isSameSnapshot,
   nextPriceSnapshot,
 } from "@/lib/watchlist/watchlist-price-drop-utils";
-import { chain, product } from "@/test/price-fixtures";
+import { chain, product } from "@/test/fixtures/price-fixtures";
 
 describe("getScopedBestPriceCents", () => {
   const milk = product([chain("konzum", 1.29), chain("lidl", 0.99)]);

@@ -15,7 +15,7 @@ vi.mock("@sentry/nextjs", () => ({
 
 const { proxyDocsToBackend } =
   await import("@/lib/backend-proxy/proxy-to-backend");
-const { APP, BACKEND } = await import("@/test/proxy-call");
+const { APP, BACKEND } = await import("@/test/backend/proxy-call");
 const { server } = await import("@/test/msw-server");
 
 function openInBrowser(path: string, headers: Record<string, string> = {}) {

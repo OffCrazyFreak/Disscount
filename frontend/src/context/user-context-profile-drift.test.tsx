@@ -1,4 +1,4 @@
-import { tab } from "@/test/user-context-mocks";
+import { tab } from "@/test/fixtures/user-context-mocks";
 import { screen, waitFor } from "@testing-library/react";
 import * as Sentry from "@sentry/nextjs";
 import { http, HttpResponse } from "msw/http";
@@ -9,7 +9,7 @@ import { UserProvider, useUser } from "@/context/user-context";
 import { setCacheIdentity } from "@/lib/offline/cache-identity";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
-import { storedUser } from "@/test/stored-user";
+import { storedUser } from "@/test/fixtures/stored-user";
 
 const { accountType: _omitted, ...driftedProfile } = storedUser;
 
