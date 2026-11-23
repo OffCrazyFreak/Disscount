@@ -2,7 +2,6 @@ import * as Sentry from "@sentry/nextjs";
 import {
   CancelledError,
   environmentManager,
-  isServer,
   MutationObserver,
   onlineManager,
   QueryClient,
@@ -20,12 +19,14 @@ import { httpError } from "@/test/http-error";
 
 vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
 
+const isServerByDefault = environmentManager.isServer();
+
 const networkFailure = () => new AxiosError("Network Error", "ERR_NETWORK");
 const parseFailure = () => z.object({ id: z.number() }).safeParse({}).error;
 
 afterEach(() => {
   onlineManager.setOnline(true);
-  environmentManager.setIsServer(() => isServer);
+  environmentManager.setIsServer(() => isServerByDefault);
   vi.useRealTimers();
   vi.clearAllMocks();
 });
