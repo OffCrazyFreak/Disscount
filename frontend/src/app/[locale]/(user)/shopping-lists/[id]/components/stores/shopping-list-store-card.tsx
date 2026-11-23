@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useCallback } from "react";
+import { memo, useState } from "react";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Card, CardContent } from "@/components/ui/card";
 import { ShoppingListDto } from "@/lib/api/types";
@@ -37,11 +37,11 @@ function ShoppingListStoreItemComponent({
   const { accountUser } = useUser();
   const [expandedStore, setExpandedStore] = useState<string | null>(null);
 
-  const toggleStoreExpansion = useCallback((chainCode: string) => {
+  function toggleStoreExpansion(chainCode: string) {
     setExpandedStore((prev: string | null) =>
       prev === chainCode ? null : chainCode,
     );
-  }, []);
+  }
 
   const metrics = getStoreCardMetrics({
     chain,

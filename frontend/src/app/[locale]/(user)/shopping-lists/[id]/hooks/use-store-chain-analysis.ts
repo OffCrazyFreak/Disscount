@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { useListChainAggregates } from "@/app/[locale]/(user)/shopping-lists/[id]/hooks/use-list-chain-aggregates";
 import { ShoppingListDto } from "@/lib/api/types";
 import { PinnedStoreDto } from "@/lib/api/schemas/preferences";
@@ -30,47 +29,32 @@ export function useStoreChainAnalysis({
   const { activeItems, productsData, productsLoading, allChains } =
     useListChainAggregates(shoppingList);
 
-  const cheapestCountByChain = useMemo(
-    () => countCheapestByChain(productsData, activeItems),
-    [productsData, activeItems],
+  const cheapestCountByChain = countCheapestByChain(productsData, activeItems);
+
+  const storesWithLowestPriceItems = new Set<string>(
+    cheapestCountByChain.keys(),
   );
 
-  const storesWithLowestPriceItems = useMemo<Set<string>>(
-    () => new Set(cheapestCountByChain.keys()),
-    [cheapestCountByChain],
+  const storesWithHighestPriceItems = findHighestPriceStores(
+    productsData,
+    activeItems,
   );
 
-  const storesWithHighestPriceItems = useMemo(
-    () => findHighestPriceStores(productsData, activeItems),
-    [productsData, activeItems],
-  );
+  const absolutePrices = computeAbsolutePrices(allChains, activeItems);
 
-  const absolutePrices = useMemo(
-    () => computeAbsolutePrices(allChains, activeItems),
-    [allChains, activeItems],
-  );
+  const pinnedStoreIds = pinnedStores?.map((store) => store.storeApiId) || [];
 
   // Sort a copy, since Array.sort mutates and allChains is memoized.
-  const sortedChains = useMemo(() => {
-    const pinnedStoreIds = pinnedStores?.map((store) => store.storeApiId) || [];
-
-    return [...allChains].sort((a, b) =>
-      compareStoreChains(
-        a,
-        b,
-        pinnedStoreIds,
-        optimizeBy,
-        cheapestCountByChain,
-        distanceByChain,
-      ),
-    );
-  }, [
-    allChains,
-    optimizeBy,
-    pinnedStores,
-    cheapestCountByChain,
-    distanceByChain,
-  ]);
+  const sortedChains = [...allChains].sort((a, b) =>
+    compareStoreChains(
+      a,
+      b,
+      pinnedStoreIds,
+      optimizeBy,
+      cheapestCountByChain,
+      distanceByChain,
+    ),
+  );
 
   return {
     allChains,

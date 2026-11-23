@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ShoppingListDto } from "@/lib/api/types";
 import { formatDate } from "@/utils/strings";
@@ -39,10 +38,7 @@ export default function ShoppingListInfoTable({
     savedAmount,
     savedPercentage,
     potentialCostForChecked,
-  } = useMemo(
-    () => calculateShoppingListStats(shoppingList.items, averagePrices),
-    [shoppingList.items, averagePrices],
-  );
+  } = calculateShoppingListStats(shoppingList.items, averagePrices);
 
   const unpricedCount = countUnpricedItems(shoppingList.items, averagePrices);
 

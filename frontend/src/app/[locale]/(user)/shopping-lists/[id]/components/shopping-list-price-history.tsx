@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -44,14 +44,11 @@ export default function ShoppingListPriceHistory({
     priceChange,
   } = useShoppingListPriceHistory(shoppingList, period);
 
-  const handlePeriodChange = useCallback(
-    (value: string) => {
-      const newPeriod = value as PeriodOption;
-      setPeriod(newPeriod);
-      setShoppingListPriceHistoryPeriod(shoppingList.id, newPeriod);
-    },
-    [shoppingList.id],
-  );
+  function handlePeriodChange(value: string) {
+    const newPeriod = value as PeriodOption;
+    setPeriod(newPeriod);
+    setShoppingListPriceHistoryPeriod(shoppingList.id, newPeriod);
+  }
 
   return (
     <Card className="shadow-sm hover:shadow-md transition-shadow">
