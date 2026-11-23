@@ -4,7 +4,7 @@ import type { ItemPriceState } from "@/features/shopping-lists/detail/utils/item
 import {
   focusItemName,
   focusStoreSelect,
-} from "@/features/shopping-lists/detail/utils/store-select-focus";
+} from "@/features/shopping-lists/detail/utils/stores/store-select-focus";
 
 /** The list-wide ref outlives the row, so the live select can take back focus from the unmounted trigger. */
 export function useStoreSelectFocusHandoff(

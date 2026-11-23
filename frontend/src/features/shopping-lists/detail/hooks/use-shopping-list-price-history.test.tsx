@@ -4,7 +4,7 @@ import { http, HttpResponse } from "msw/http";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useShoppingListPriceHistory } from "@/features/shopping-lists/detail/hooks/use-shopping-list-price-history";
-import { getPriceHistoryDates } from "@/features/shopping-lists/detail/utils/price-history-series";
+import { getPriceHistoryDates } from "@/features/shopping-lists/detail/utils/price-history/price-history-series";
 import type { ShoppingListDto } from "@/lib/api/types";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import { server } from "@/test/msw-server";

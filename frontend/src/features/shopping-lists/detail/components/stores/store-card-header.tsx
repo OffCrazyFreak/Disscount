@@ -7,7 +7,7 @@ import { CardHeader } from "@/components/ui/card";
 import { getChainLabel } from "@/utils/format/labels";
 import { cn } from "@/lib/utils";
 import { ChainSummary } from "@/features/shopping-lists/detail/typings/store-chain-types";
-import { IStoreCardMetrics } from "@/features/shopping-lists/detail/utils/store-card-utils";
+import { IStoreCardMetrics } from "@/features/shopping-lists/detail/utils/stores/store-card-utils";
 import StoreCardBadges from "@/features/shopping-lists/detail/components/stores/store-card-badges";
 import StoreCardPriceRow from "@/features/shopping-lists/detail/components/stores/store-card-price-row";
 import NearestStoreDistance from "@/components/custom/distance-sort/nearest-store-distance";

@@ -12,13 +12,13 @@ import {
   getPriceHistoryDates,
   groupPriceHistoriesByEan,
   getAvailableChains,
-} from "@/features/shopping-lists/detail/utils/price-history-series";
+} from "@/features/shopping-lists/detail/utils/price-history/price-history-series";
 import {
   buildChartData,
   buildChartConfig,
-} from "@/features/shopping-lists/detail/utils/price-history-chart-data";
-import { calculateYAxisTicks } from "@/features/shopping-lists/detail/utils/price-history-axis";
-import { calculateTotalPriceChange } from "@/features/shopping-lists/detail/utils/price-history-totals";
+} from "@/features/shopping-lists/detail/utils/price-history/price-history-chart-data";
+import { calculateYAxisTicks } from "@/features/shopping-lists/detail/utils/price-history/price-history-axis";
+import { calculateTotalPriceChange } from "@/features/shopping-lists/detail/utils/price-history/price-history-totals";
 
 export function useShoppingListPriceHistory(
   shoppingList: ShoppingListDto,

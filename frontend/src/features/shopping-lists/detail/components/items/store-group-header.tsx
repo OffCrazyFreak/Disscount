@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/user-context";
 import { Link } from "@/i18n/navigation";
 import { useFavoriteStoresQuery } from "@/lib/api/favorite-stores/hooks";
-import type { IStoreGroup } from "@/features/shopping-lists/detail/utils/group-items-by-store";
+import type { IStoreGroup } from "@/features/shopping-lists/detail/utils/stores/group-items-by-store";
 import { getChainLabel } from "@/utils/format/labels";
 import { formatPrice } from "@/utils/price/price";
 

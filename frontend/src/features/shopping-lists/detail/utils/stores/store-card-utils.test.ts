@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getStoreCardMetrics } from "@/features/shopping-lists/detail/utils/store-card-utils";
+import { getStoreCardMetrics } from "@/features/shopping-lists/detail/utils/stores/store-card-utils";
 import type { ChainSummary } from "@/features/shopping-lists/detail/typings/store-chain-types";
 import type { ShoppingListDto } from "@/lib/api/types";
 

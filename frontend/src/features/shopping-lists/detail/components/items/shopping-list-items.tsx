@@ -4,7 +4,7 @@ import { useRef } from "react";
 import ShoppingListItemViews from "@/features/shopping-lists/detail/components/items/shopping-list-item-views";
 import ShoppingListPriceStatus from "@/features/shopping-lists/detail/components/items/shopping-list-price-status";
 import type { ItemPriceState } from "@/features/shopping-lists/detail/utils/item-price-state";
-import { focusStoreSelect } from "@/features/shopping-lists/detail/utils/store-select-focus";
+import { focusStoreSelect } from "@/features/shopping-lists/detail/utils/stores/store-select-focus";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { useShoppingListItemMutations } from "@/features/shopping-lists/detail/hooks/use-shopping-list-item-mutations";
 import { resolveShoppingListAccess } from "@/features/shopping-lists/utils/shopping-list-access";

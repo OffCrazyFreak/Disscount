@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildChartConfig,
   buildChartData,
-} from "@/features/shopping-lists/detail/utils/price-history-chart-data";
+} from "@/features/shopping-lists/detail/utils/price-history/price-history-chart-data";
 import { UNSET_ITEM_FIELDS } from "@/test/backend/unset-item-fields";
 
 describe("buildChartData", () => {

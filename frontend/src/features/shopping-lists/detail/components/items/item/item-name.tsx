@@ -2,7 +2,7 @@ import StretchedLink from "@/components/custom/common/controls/stretched-link";
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 import { productPath } from "@/utils/links/product-links";
-import { ITEM_NAME_ATTRIBUTE } from "@/features/shopping-lists/detail/utils/store-select-focus";
+import { ITEM_NAME_ATTRIBUTE } from "@/features/shopping-lists/detail/utils/stores/store-select-focus";
 
 interface IItemNameProps {
   item: ShoppingListItemDto;

@@ -8,7 +8,7 @@ import { useUser } from "@/context/user-context";
 import ShoppingListItemsTable from "@/features/shopping-lists/detail/components/stores/shopping-list-items-table";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 import { ChainSummary } from "@/features/shopping-lists/detail/typings/store-chain-types";
-import { getStoreCardMetrics } from "@/features/shopping-lists/detail/utils/store-card-utils";
+import { getStoreCardMetrics } from "@/features/shopping-lists/detail/utils/stores/store-card-utils";
 import type { INearestStore } from "@/utils/geo/nearest-chain-distance";
 import StoreCardHeader from "@/features/shopping-lists/detail/components/stores/store-card-header";
 

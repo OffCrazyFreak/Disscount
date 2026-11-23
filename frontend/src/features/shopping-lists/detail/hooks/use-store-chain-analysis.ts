@@ -7,11 +7,11 @@ import {
   compareStoreChains,
   type StoreOptimizeMode,
 } from "@/features/shopping-lists/utils/shopping-list-utils";
-import { computeAbsolutePrices } from "@/features/shopping-lists/detail/utils/store-chain-completeness";
+import { computeAbsolutePrices } from "@/features/shopping-lists/detail/utils/stores/store-chain-completeness";
 import {
   countCheapestByChain,
   findHighestPriceStores,
-} from "@/features/shopping-lists/detail/utils/store-chain-extremes";
+} from "@/features/shopping-lists/detail/utils/stores/store-chain-extremes";
 
 interface IUseStoreChainAnalysisParams {
   shoppingList: ShoppingListDto;

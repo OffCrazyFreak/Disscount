@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { ShoppingListItemDto } from "@/lib/api/types";
-import { groupItemsByStore } from "@/features/shopping-lists/detail/utils/group-items-by-store";
+import { groupItemsByStore } from "@/features/shopping-lists/detail/utils/stores/group-items-by-store";
 import { UNSET_ITEM_FIELDS } from "@/test/backend/unset-item-fields";
 
 function item(

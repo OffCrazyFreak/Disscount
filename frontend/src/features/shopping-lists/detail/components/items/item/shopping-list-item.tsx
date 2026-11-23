@@ -15,7 +15,7 @@ import type { IShoppingListItemUpdate } from "@/features/shopping-lists/detail/t
 import ItemStoreSelect from "@/features/shopping-lists/detail/components/items/item/item-store-select";
 import type { ItemPriceState } from "@/features/shopping-lists/detail/utils/item-price-state";
 import { useStoreSelectFocusHandoff } from "@/features/shopping-lists/detail/hooks/use-store-select-focus-handoff";
-import { STORE_SELECT_ITEM_ATTRIBUTE } from "@/features/shopping-lists/detail/utils/store-select-focus";
+import { STORE_SELECT_ITEM_ATTRIBUTE } from "@/features/shopping-lists/detail/utils/stores/store-select-focus";
 
 interface IShoppingListItemProps {
   item: ShoppingListItemDto;

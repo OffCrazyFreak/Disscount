@@ -7,7 +7,7 @@ import {
   itemsToCompare,
 } from "@/features/shopping-lists/utils/catalog-items";
 import { productLookupQuery } from "@/features/shopping-lists/detail/utils/product-lookup-query";
-import { buildChainAggregates } from "@/features/shopping-lists/detail/utils/store-chain-aggregate";
+import { buildChainAggregates } from "@/features/shopping-lists/detail/utils/stores/store-chain-aggregate";
 import { ShoppingListDto } from "@/lib/api/types";
 import { ProductResponse } from "@/lib/cijene-api/schemas";
 

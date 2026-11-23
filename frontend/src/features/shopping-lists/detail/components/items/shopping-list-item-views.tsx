@@ -10,7 +10,7 @@ import ShoppingListItemRows, {
   type IShoppingListItemRowsProps,
 } from "@/features/shopping-lists/detail/components/items/shopping-list-item-rows";
 import StoreGroupHeader from "@/features/shopping-lists/detail/components/items/store-group-header";
-import { groupItemsByStore } from "@/features/shopping-lists/detail/utils/group-items-by-store";
+import { groupItemsByStore } from "@/features/shopping-lists/detail/utils/stores/group-items-by-store";
 import type { ShoppingListItemDto } from "@/lib/api/types";
 import {
   getShoppingListGroupByStore,
