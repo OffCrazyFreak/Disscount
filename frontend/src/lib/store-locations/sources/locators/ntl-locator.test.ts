@@ -6,7 +6,7 @@ import { server } from "@/test/msw-server";
 vi.mock("server-only", () => ({}));
 
 const { ntlLocator } =
-  await import("@/lib/store-locations/sources/ntl-locator");
+  await import("@/lib/store-locations/sources/locators/ntl-locator");
 
 function page(locations: unknown[]) {
   return `<script>var locations = ${JSON.stringify(locations)};</script>`;

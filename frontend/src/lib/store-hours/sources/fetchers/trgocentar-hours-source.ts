@@ -8,7 +8,7 @@ import {
   parseAddress,
 } from "@/lib/store-locations/address-key";
 import { delay, fetchText } from "@/lib/store-locations/http";
-import { trgocentarLocator } from "@/lib/store-locations/sources/trgocentar-locator";
+import { trgocentarLocator } from "@/lib/store-locations/sources/locators/trgocentar-locator";
 
 const SUNDAYS_URL = "https://trgocentar.com/radne-nedjelje/";
 
