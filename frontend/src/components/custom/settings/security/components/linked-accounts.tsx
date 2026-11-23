@@ -13,7 +13,7 @@ import GoogleIcon from "@/components/icons/google-icon";
 import FacebookIcon from "@/components/icons/facebook-icon";
 import { authClient } from "@/lib/auth/client";
 import { localePath } from "@/i18n/locale-path";
-import { FACEBOOK_COMING_SOON } from "@/constants/auth";
+import { FACEBOOK_COMING_SOON } from "@/constants/auth/auth";
 import { useSecurity } from "@/components/custom/settings/security/security-context";
 import { countSignInMethods } from "@/components/custom/settings/security/sign-in-methods";
 import { needsProof } from "@/components/custom/settings/security/reauth/reauth-requests";

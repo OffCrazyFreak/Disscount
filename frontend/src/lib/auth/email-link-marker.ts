@@ -4,7 +4,7 @@ import { and, eq, gt, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import { verification } from "@/db/auth-schema";
-import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth";
+import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth/auth";
 import { inboxKey } from "@/lib/email/recipient-send-cap";
 import { readVerificationToken } from "@/lib/auth/verification-token";
 

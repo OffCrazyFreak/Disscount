@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { REAUTH_CODE_RESEND_SECONDS } from "@/constants/auth";
+import { REAUTH_CODE_RESEND_SECONDS } from "@/constants/auth/auth";
 
 /** Whole seconds until another code may be sent; ticks while the dialog is mounted. */
 export function useResendCountdown(resendAt: number) {

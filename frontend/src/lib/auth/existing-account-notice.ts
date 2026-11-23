@@ -6,7 +6,7 @@ import type { User } from "better-auth";
 
 import { db } from "@/db";
 import { verification } from "@/db/auth-schema";
-import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth";
+import { RESET_TOKEN_TTL_SECONDS } from "@/constants/auth/auth";
 import type { AppLocale } from "@/i18n/locales";
 import { localePath } from "@/i18n/locale-path";
 import { appUrl } from "@/lib/env";

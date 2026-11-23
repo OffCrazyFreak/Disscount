@@ -2,9 +2,9 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { pwaShortcuts, shortcutNavIds } from "@/constants/pwa-shortcuts";
+import { pwaShortcuts, shortcutNavIds } from "@/constants/pwa/pwa-shortcuts";
 
-const PUBLIC_DIR = path.resolve(__dirname, "../../public");
+const PUBLIC_DIR = path.resolve(__dirname, "../../../public");
 
 describe("pwaShortcuts", () => {
   // Covers the gated ones too, so releasing a feature can never ship a broken icon.

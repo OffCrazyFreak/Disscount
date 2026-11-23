@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isProtectedRoute } from "@/constants/protected-routes";
+import { isProtectedRoute } from "@/constants/auth/protected-routes";
 
 describe("isProtectedRoute", () => {
   it("covers each protected section and its detail pages", () => {

@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { ModalShell } from "@/components/custom/modal/modal-shell";
-import { KO_FI_URL } from "@/constants/donation";
+import { KO_FI_URL } from "@/constants/site/donation";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
 
 interface IDonationModalProps {

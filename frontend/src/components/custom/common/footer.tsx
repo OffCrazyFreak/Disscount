@@ -11,7 +11,7 @@ import GithubIcon from "@/components/icons/github-icon";
 import CopyrightIcon from "@/components/icons/copyright-icon";
 import { Separator } from "@/components/ui/separator";
 import LanguageSwitcher from "@/components/custom/locale/language-switcher";
-import { GITHUB_REPO_URL, LINKEDIN_URL } from "@/constants/contact";
+import { GITHUB_REPO_URL, LINKEDIN_URL } from "@/constants/site/contact";
 
 export default function FooterSection() {
   const t = useTranslations("common");

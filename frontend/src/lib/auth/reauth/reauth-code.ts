@@ -8,7 +8,7 @@ import {
   REAUTH_CODE_LENGTH,
   REAUTH_CODE_RESEND_SECONDS,
   REAUTH_CODE_TTL_MINUTES,
-} from "@/constants/auth";
+} from "@/constants/auth/auth";
 import {
   CODE_EXPIRED,
   CODE_RESEND_TOO_SOON,

@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { REAUTH_CODE_LENGTH } from "@/constants/auth";
+import { REAUTH_CODE_LENGTH } from "@/constants/auth/auth";
 import type { CodeDelivery } from "@/components/custom/settings/security/reauth/reauth-requests";
 import { useResendCountdown } from "@/components/custom/settings/security/reauth/use-resend-countdown";
 

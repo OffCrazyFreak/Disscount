@@ -4,7 +4,7 @@ import {
   PRODUCT_CARD_CONTENT_TYPE,
   productShareImagePath,
 } from "@/lib/og/product-share-image";
-import { X_HANDLE } from "@/constants/social";
+import { X_HANDLE } from "@/constants/site/social";
 import {
   DEFAULT_LOCALE,
   OPEN_GRAPH_LOCALES,

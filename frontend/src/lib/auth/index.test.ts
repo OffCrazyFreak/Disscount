@@ -18,7 +18,7 @@ vi.stubEnv("FACEBOOK_CLIENT_SECRET", "facebook-secret");
 vi.stubEnv("RESEND_API_KEY", "re_test");
 vi.stubEnv("EMAIL_FROM", "test@example.com");
 
-const { FACEBOOK_COMING_SOON } = await import("@/constants/auth");
+const { FACEBOOK_COMING_SOON } = await import("@/constants/auth/auth");
 const { auth } = await import("@/lib/auth");
 const { eraseBackendAccount } =
   await import("@/lib/auth/erase-backend-account");

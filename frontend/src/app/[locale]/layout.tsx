@@ -29,8 +29,8 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { LOCALES, OPEN_GRAPH_LOCALES } from "@/i18n/locales";
 import { baselineEllipsis, huninn, sairaStencil } from "@/app/fonts";
 import { appUrl, clientEnv } from "@/lib/env";
-import { iosStartupImages } from "@/constants/ios-startup-images";
-import { X_HANDLE } from "@/constants/social";
+import { iosStartupImages } from "@/constants/pwa/ios-startup-images";
+import { X_HANDLE } from "@/constants/site/social";
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));

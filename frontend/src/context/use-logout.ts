@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import * as Sentry from "@sentry/nextjs";
 
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { isProtectedRoute } from "@/constants/protected-routes";
+import { isProtectedRoute } from "@/constants/auth/protected-routes";
 import { signOutOrDefer } from "@/lib/auth/pending-sign-out";
 import type { UserDto } from "@/lib/api/types";
 import {
