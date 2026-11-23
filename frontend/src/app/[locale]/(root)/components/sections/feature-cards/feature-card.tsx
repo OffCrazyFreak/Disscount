@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 import ComingSoonBadge from "@/components/custom/common/feedback/coming-soon-badge";
-import FeatureCardAction from "@/app/[locale]/(root)/components/sections/feature-card-action";
+import FeatureCardAction from "@/app/[locale]/(root)/components/sections/feature-cards/feature-card-action";
 import { cn } from "@/lib/utils";
 import type { IFeatureItem } from "@/app/[locale]/(root)/data/features";
 

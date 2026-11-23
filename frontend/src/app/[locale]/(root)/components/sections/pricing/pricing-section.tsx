@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import ComingSoonBadge from "@/components/custom/common/feedback/coming-soon-badge";
 import SectionHeading from "@/app/[locale]/(root)/components/sections/section-heading";
-import PricingReceipt from "@/app/[locale]/(root)/components/sections/pricing-receipt";
+import PricingReceipt from "@/app/[locale]/(root)/components/sections/pricing/pricing-receipt";
 import { ScrollReveal } from "@/components/custom/animation/scroll-reveal";
 import {
   freePlanRowIds,

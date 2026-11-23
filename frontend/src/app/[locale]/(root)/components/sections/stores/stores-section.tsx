@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import SectionHeading from "@/app/[locale]/(root)/components/sections/section-heading";
-import StoresMarquee from "@/app/[locale]/(root)/components/sections/stores-marquee";
+import StoresMarquee from "@/app/[locale]/(root)/components/sections/stores/stores-marquee";
 
 export default function StoresSection() {
   const t = useTranslations("landing");

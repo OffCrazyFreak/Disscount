@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
-import HeroActions from "@/app/[locale]/(root)/components/sections/hero-actions";
-import HeroCart from "@/app/[locale]/(root)/components/sections/hero-cart";
-import HeroTagline from "@/app/[locale]/(root)/components/sections/hero-tagline";
+import HeroActions from "@/app/[locale]/(root)/components/sections/hero/hero-actions";
+import HeroCart from "@/app/[locale]/(root)/components/sections/hero/hero-cart";
+import HeroTagline from "@/app/[locale]/(root)/components/sections/hero/hero-tagline";
 import SquiggleUnderline from "@/app/[locale]/(root)/components/doodles/squiggle-underline";
 import SparkleField from "@/app/[locale]/(root)/components/doodles/sparkle-field";
 import { StaggerChildren } from "@/components/custom/animation/stagger-children";

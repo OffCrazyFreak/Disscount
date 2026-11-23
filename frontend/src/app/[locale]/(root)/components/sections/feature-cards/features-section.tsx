@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import { ScrollReveal } from "@/components/custom/animation/scroll-reveal";
 import SectionHeading from "@/app/[locale]/(root)/components/sections/section-heading";
-import FeatureCard from "@/app/[locale]/(root)/components/sections/feature-card";
+import FeatureCard from "@/app/[locale]/(root)/components/sections/feature-cards/feature-card";
 import { featureItems } from "@/app/[locale]/(root)/data/features";
 
 export default function FeaturesSection() {

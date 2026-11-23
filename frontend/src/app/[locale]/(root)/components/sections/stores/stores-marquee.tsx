@@ -1,4 +1,4 @@
-import LogoRow from "@/app/[locale]/(root)/components/sections/logo-row";
+import LogoRow from "@/app/[locale]/(root)/components/sections/stores/logo-row";
 
 export default function StoresMarquee() {
   return (
