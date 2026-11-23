@@ -1,4 +1,4 @@
-import type { IFacetSelect } from "@/features/products/hooks/use-product-facets";
+import type { IFacetSelect } from "@/features/products/hooks/filters/use-product-facets";
 
 /** Options with no results are disabled and "select all" skips them, so they do not count. */
 export function selectsEveryOption(

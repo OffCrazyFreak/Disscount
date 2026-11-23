@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 
-import { useAddToListForm } from "@/features/products/hooks/use-add-to-list-form";
+import { useAddToListForm } from "@/features/products/hooks/add-to-list/use-add-to-list-form";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";
 import type { ProductResponse } from "@/lib/cijene-api/schemas";
 import { renderHookWithProviders } from "@/test/render";

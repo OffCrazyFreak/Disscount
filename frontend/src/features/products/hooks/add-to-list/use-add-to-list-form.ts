@@ -10,9 +10,9 @@ import {
   addToListFormSchema,
 } from "@/features/products/typings/add-to-list";
 import { useUser } from "@/context/user-context";
-import { useAddToListPrices } from "@/features/products/hooks/use-add-to-list-prices";
-import { useSelectedShoppingList } from "@/features/products/hooks/use-selected-shopping-list";
-import { useAddToListSubmit } from "@/features/products/hooks/use-add-to-list-submit";
+import { useAddToListPrices } from "@/features/products/hooks/add-to-list/use-add-to-list-prices";
+import { useSelectedShoppingList } from "@/features/products/hooks/add-to-list/use-selected-shopping-list";
+import { useAddToListSubmit } from "@/features/products/hooks/add-to-list/use-add-to-list-submit";
 import { useModalError } from "@/hooks/state/use-modal-error";
 import { useFormDraft } from "@/hooks/state/use-form-draft";
 import { getFormDraft } from "@/utils/browser/local-storage";

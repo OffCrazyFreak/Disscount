@@ -2,8 +2,8 @@
 
 import ClearFiltersButton from "@/features/products/components/filters/clear-filters-button";
 import ProductFacetSelects from "@/features/products/components/filters/product-facet-selects";
-import useProductFacets from "@/features/products/hooks/use-product-facets";
-import type { IUseProductFiltersResult } from "@/features/products/hooks/use-product-filters";
+import useProductFacets from "@/features/products/hooks/filters/use-product-facets";
+import type { IUseProductFiltersResult } from "@/features/products/hooks/filters/use-product-filters";
 
 interface IProductFiltersRowProps {
   filters: IUseProductFiltersResult;

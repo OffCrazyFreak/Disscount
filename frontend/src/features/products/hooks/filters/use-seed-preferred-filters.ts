@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useUser } from "@/context/user-context";
-import { FILTER_KEYS } from "@/features/products/hooks/use-filter-params";
+import { FILTER_KEYS } from "@/features/products/hooks/filters/use-filter-params";
 
 /** A URL with any filter is deliberate, so it is left alone; seeds once, so a cleared filter sticks. */
 export default function useSeedPreferredFilters(enabled = true): void {

@@ -5,7 +5,7 @@ import ProductFiltersRow from "@/features/products/components/filters/product-fi
 import ProductFiltersTrigger from "@/features/products/components/filters/product-filters-trigger";
 import { useProductsSheet } from "@/context/products-sheet-context";
 import { useIsMobile } from "@/hooks/use-mobile";
-import type { IUseProductFiltersResult } from "@/features/products/hooks/use-product-filters";
+import type { IUseProductFiltersResult } from "@/features/products/hooks/filters/use-product-filters";
 
 interface IProductFiltersBarProps {
   filters: IUseProductFiltersResult;

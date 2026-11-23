@@ -3,7 +3,7 @@ import { delay } from "msw";
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, it } from "vitest";
 
-import useInfiniteProducts from "@/features/products/hooks/use-infinite-products";
+import useInfiniteProducts from "@/features/products/hooks/filters/use-infinite-products";
 import { server } from "@/test/msw-server";
 import { renderHookWithProviders } from "@/test/render";
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { selectsEveryOption } from "@/features/products/utils/facets/selects-every-option";
-import type { IFacetSelect } from "@/features/products/hooks/use-product-facets";
+import type { IFacetSelect } from "@/features/products/hooks/filters/use-product-facets";
 
 function facet(counts?: Record<string, number>): IFacetSelect {
   return {

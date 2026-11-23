@@ -4,11 +4,11 @@ import { useTranslations } from "next-intl";
 import FacetMultiSelect from "@/features/products/components/filters/facet-multi-select";
 import { getChainLabel } from "@/utils/format/labels";
 import { selectsEveryOption } from "@/features/products/utils/facets/selects-every-option";
-import type { IProductFacetSelects } from "@/features/products/hooks/use-product-facets";
+import type { IProductFacetSelects } from "@/features/products/hooks/filters/use-product-facets";
 import type {
   IUseProductFiltersResult,
   ProductFilterKey,
-} from "@/features/products/hooks/use-product-filters";
+} from "@/features/products/hooks/filters/use-product-filters";
 
 interface IFacetConfig {
   key: keyof IProductFacetSelects;

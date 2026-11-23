@@ -14,7 +14,7 @@ import { closeModalUrl } from "@/lib/modal/modal-navigation";
 import { MAX_SHOPPING_LIST_ITEM_NAME_LENGTH } from "@/constants/shopping-list";
 import ShoppingListSelector from "@/features/products/components/forms/shopping-list-picker/shopping-list-selector";
 import QuantityInput from "@/features/products/components/forms/quantity-input";
-import { useAddPlainItemForm } from "@/features/products/hooks/use-add-plain-item-form";
+import { useAddPlainItemForm } from "@/features/products/hooks/add-to-list/use-add-plain-item-form";
 
 interface IAddPlainItemModalProps {
   open: boolean;

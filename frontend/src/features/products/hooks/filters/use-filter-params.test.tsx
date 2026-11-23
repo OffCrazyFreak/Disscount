@@ -16,7 +16,7 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 
 const { default: useFilterParams } =
-  await import("@/features/products/hooks/use-filter-params");
+  await import("@/features/products/hooks/filters/use-filter-params");
 
 describe("useFilterParams", () => {
   it("keeps the same setters across renders", () => {

@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import RemoveIconButton from "@/components/custom/common/controls/remove-icon-button";
-import type { IUseProductFiltersResult } from "@/features/products/hooks/use-product-filters";
+import type { IUseProductFiltersResult } from "@/features/products/hooks/filters/use-product-filters";
 import { cn } from "@/lib/utils";
 
 interface IClearFiltersButtonProps {

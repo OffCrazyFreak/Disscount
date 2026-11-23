@@ -9,7 +9,7 @@ import {
 } from "@/features/products/utils/product-filters";
 import sortProductsByRelevance from "@/features/products/utils/product-relevance";
 import { PRODUCT_SEARCH_LIMIT } from "@/constants/products";
-import useFilteredProductPrices from "@/features/products/hooks/use-filtered-product-prices";
+import useFilteredProductPrices from "@/features/products/hooks/filters/use-filtered-product-prices";
 import { useRevealedItems } from "@/hooks/scroll/use-revealed-items";
 
 interface IUseInfiniteProductsOptions {

@@ -12,10 +12,10 @@ import {
 import { resolveAllowedChains } from "@/features/products/utils/allowed-chains";
 import useFilterParams, {
   type IFilterParamsResult,
-} from "@/features/products/hooks/use-filter-params";
-import useSeedPreferredFilters from "@/features/products/hooks/use-seed-preferred-filters";
+} from "@/features/products/hooks/filters/use-filter-params";
+import useSeedPreferredFilters from "@/features/products/hooks/filters/use-seed-preferred-filters";
 
-export type { ProductFilterKey } from "@/features/products/hooks/use-filter-params";
+export type { ProductFilterKey } from "@/features/products/hooks/filters/use-filter-params";
 
 export interface IUseProductFiltersResult extends IFilterParamsResult {
   selectedChains: string[];

@@ -4,7 +4,7 @@ import { http, HttpResponse } from "msw/http";
 import { useForm, useWatch } from "react-hook-form";
 import { describe, expect, it } from "vitest";
 
-import { useAddToListPrices } from "@/features/products/hooks/use-add-to-list-prices";
+import { useAddToListPrices } from "@/features/products/hooks/add-to-list/use-add-to-list-prices";
 import type { AddToListFormData } from "@/features/products/typings/add-to-list";
 import cijeneService from "@/lib/cijene-api";
 import { CIJENE_QUERY_KEYS } from "@/lib/cijene-api/keys";

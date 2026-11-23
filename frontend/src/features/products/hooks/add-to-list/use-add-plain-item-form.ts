@@ -23,7 +23,7 @@ import {
   type AddToListFormData,
   addToListFormSchema,
 } from "@/features/products/typings/add-to-list";
-import { useSelectedShoppingList } from "@/features/products/hooks/use-selected-shopping-list";
+import { useSelectedShoppingList } from "@/features/products/hooks/add-to-list/use-selected-shopping-list";
 import { MAX_SHOPPING_LIST_ITEM_NAME_LENGTH } from "@/constants/shopping-list";
 import {
   mergesIntoExisting,

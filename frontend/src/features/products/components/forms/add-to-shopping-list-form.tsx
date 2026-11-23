@@ -17,7 +17,7 @@ import QuantityInput from "@/features/products/components/forms/quantity-input";
 import MarkAsCheckedCheckbox from "@/features/products/components/forms/mark-as-checked-checkbox";
 import StoreChainField from "@/features/products/components/forms/store-chain-field";
 import { closeModalUrl } from "@/lib/modal/modal-navigation";
-import { useAddToListForm } from "@/features/products/hooks/use-add-to-list-form";
+import { useAddToListForm } from "@/features/products/hooks/add-to-list/use-add-to-list-form";
 
 interface IAddToShoppingListFormProps {
   open: boolean;
