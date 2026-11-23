@@ -8,7 +8,10 @@ import {
   productMetadata,
   translatedProductRobots,
 } from "@/app/[locale]/products/[id]/utils/product-metadata";
-import { getVerifiedMainPhotoUrl } from "@/lib/api/product-images/server";
+import {
+  getVerifiedMainPhotoUrl,
+  getVerifiedProductImages,
+} from "@/lib/api/product-images/server";
 import { productCacheState } from "@/app/[locale]/products/[id]/utils/product-cache-state";
 import { getServerProduct } from "@/lib/cijene-api/server/get-product";
 import { getServerProductPrices } from "@/lib/cijene-api/server/get-product-prices";
@@ -85,9 +88,12 @@ export default async function ProductDetailsPage(
 
   const { product } = result;
   const locale = await getLocale();
+  // Awaited rather than streamed, so crawlers without JavaScript find the product, its photo and its prices in <main>.
+  const [photos, prices] = await Promise.all([
+    getVerifiedProductImages(product.ean),
+    getServerProductPrices(ean),
+  ]);
   const photoUrl = await getVerifiedMainPhotoUrl(product.ean);
-  // Awaited rather than streamed, so crawlers without JavaScript find the product and its prices in <main>.
-  const prices = await getServerProductPrices(ean);
 
   return (
     <>
@@ -102,6 +108,7 @@ export default async function ProductDetailsPage(
           rawId,
           { data: product, fetchedAt: result.fetchedAt },
           prices,
+          photos,
         )}
       >
         <ProductDetailClient ean={rawId} today={today} />

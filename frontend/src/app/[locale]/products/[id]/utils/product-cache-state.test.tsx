@@ -4,6 +4,8 @@ import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
 
 import { productCacheState } from "@/app/[locale]/products/[id]/utils/product-cache-state";
+import { useProductImages } from "@/lib/api/product-images/hooks";
+import type { ProductImagesResponse } from "@/lib/api/types";
 import cijeneService from "@/lib/cijene-api";
 import type {
   ProductResponse,
@@ -42,6 +44,21 @@ const product: ProductResponse = {
 // Empty is enough: the test checks the key lines up, not the rows.
 const prices: StorePricesResponse = { store_prices: [] };
 
+const photos: ProductImagesResponse = {
+  ean: EAN,
+  images: [
+    {
+      id: "main",
+      status: "VERIFIED",
+      source: "USER",
+      fullUrl: "https://images.test/main.webp",
+      fullWidth: 1600,
+      fullHeight: 1200,
+      smallUrl: "https://images.test/main-small.webp",
+    },
+  ],
+};
+
 // Past the six hour staleTime both queries keep in the browser.
 const PAST_CLIENT_STALE_TIME_MS = 7 * 60 * 60 * 1000;
 
@@ -73,6 +90,24 @@ describe("productCacheState", () => {
     expect(result.current.product.isFetching).toBe(false);
     expect(result.current.prices.data).toEqual(prices);
     expect(result.current.prices.isFetching).toBe(false);
+  });
+
+  it("seeds the gallery's photos, so the server HTML already shows the main photo", () => {
+    const queryClient = hydratedClient(
+      productCacheState(
+        EAN,
+        fetchedNow(product),
+        fetchedNow(prices),
+        fetchedNow(photos),
+      ),
+    );
+
+    const { result } = renderHookWithProviders(() => useProductImages(EAN), {
+      queryClient,
+    });
+
+    expect(result.current.data).toEqual(photos);
+    expect(result.current.isFetching).toBe(false);
   });
 
   it("leaves the prices to the browser when the server could not load them", () => {
