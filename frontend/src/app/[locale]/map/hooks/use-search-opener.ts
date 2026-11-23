@@ -42,6 +42,8 @@ export function useSearchOpener({
 
   function handleKeyDown(event: KeyboardEvent) {
     if (event.key !== "Escape" || !isOpen) return;
+    // A dropdown inside the panel, such as the chain filter, already closed itself on this Escape.
+    if (event.defaultPrevented) return;
 
     // The store sheet listens for Escape too, and must stay open.
     event.stopPropagation();

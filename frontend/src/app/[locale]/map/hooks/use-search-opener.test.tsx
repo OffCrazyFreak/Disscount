@@ -20,6 +20,15 @@ function Harness() {
         </button>
       )}
 
+      {isOpen && (
+        <input
+          aria-label="dropdown"
+          onKeyDown={(event) => {
+            if (event.key === "Escape") event.preventDefault();
+          }}
+        />
+      )}
+
       <div {...fieldProps}>
         <input ref={inputRef} aria-label="field" />
         <button type="button">clear</button>
@@ -70,5 +79,16 @@ describe("useSearchOpener", () => {
 
     expect(screen.getByText("closed")).toBeInTheDocument();
     expect(screen.getByLabelText("field")).not.toHaveFocus();
+  });
+
+  it("leaves Escape to a dropdown inside the panel that handled it", async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+
+    await user.click(screen.getByLabelText("field"));
+    await user.click(screen.getByLabelText("dropdown"));
+    await user.keyboard("{Escape}");
+
+    expect(screen.getByText("open")).toBeInTheDocument();
   });
 });
