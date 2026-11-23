@@ -126,10 +126,8 @@ export async function generateMetadata(): Promise<Metadata> {
       "discounts",
       "discount",
     ],
-    robots: {
-      index: indexable,
-      follow: indexable,
-    },
+    // Only the off switch, because Next adds its own noindex to error and 404 pages.
+    ...(indexable ? {} : { robots: { index: false, follow: false } }),
   };
 }
 
