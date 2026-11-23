@@ -9,6 +9,7 @@ import disscount.user.ActiveUsers;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -22,20 +23,23 @@ public class PinnedPlaceService {
     public List<PinnedPlaceDto> updatePinnedPlaces(UUID userId, BulkPinnedPlaceRequest request) {
         activeUsers.lockActive(userId);
 
-        long distinctIds = request.places().stream().map(PinnedPlaceRequest::placeApiId).distinct().count();
+        List<PinnedPlaceRequest> places = request.places();
 
-        if (distinctIds < request.places().size()) {
+        long distinctIds = places.stream().map(PinnedPlaceRequest::placeApiId).distinct().count();
+
+        if (distinctIds < places.size()) {
             throw new BadRequestException("error.pinnedPlace.duplicate");
         }
 
         pinnedPlaceRepository.deleteAllByUserId(userId);
         pinnedPlaceRepository.flush();
 
-        List<PinnedPlace> saved = pinnedPlaceRepository.saveAll(request.places().stream()
-                .map(place -> PinnedPlace.builder()
+        List<PinnedPlace> saved = pinnedPlaceRepository.saveAll(IntStream.range(0, places.size())
+                .mapToObj(index -> PinnedPlace.builder()
                         .userId(userId)
-                        .placeApiId(place.placeApiId())
-                        .placeName(place.placeName())
+                        .placeApiId(places.get(index).placeApiId())
+                        .placeName(places.get(index).placeName())
+                        .sortOrder(index)
                         .build())
                 .toList());
 
