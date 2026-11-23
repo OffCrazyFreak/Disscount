@@ -5,8 +5,8 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import CodeChoiceList, {
   formatLabel,
-} from "@/components/scanner/code-choice-list";
-import CodePreview from "@/components/scanner/code-preview";
+} from "@/components/scanner/result/code-choice-list";
+import CodePreview from "@/components/scanner/result/code-preview";
 import type { IScannedCode } from "@/typings/scanned-code";
 
 interface IScanConfirmProps {

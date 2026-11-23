@@ -16,10 +16,10 @@ import {
   type ScannerErrorKey,
 } from "@/utils/browser/camera";
 import type { IScannedCode, ScanPreset } from "@/typings/scanned-code";
-import CameraView from "@/components/scanner/camera-view";
-import CameraSelect from "@/components/scanner/camera-select";
-import ScanImageButton from "@/components/scanner/scan-image";
-import { playBeep, prepareBeep } from "@/components/scanner/scan-beep";
+import CameraView from "@/components/scanner/camera/camera-view";
+import CameraSelect from "@/components/scanner/camera/camera-select";
+import ScanImageButton from "@/components/scanner/camera/scan-image";
+import { playBeep, prepareBeep } from "@/components/scanner/camera/scan-beep";
 import useCameraDevices from "@/components/scanner/hooks/use-camera-devices";
 import useScanConsensus from "@/components/scanner/hooks/use-scan-consensus";
 

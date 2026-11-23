@@ -14,7 +14,7 @@ import {
 import { CODE_TYPES, isCodeType, type CodeType } from "@/constants/card-codes";
 import { normalizeScannedCode } from "@/utils/barcode/normalize-code";
 import type { IScannedCode } from "@/typings/scanned-code";
-import { getManualEntryError } from "@/components/scanner/manual-entry-error";
+import { getManualEntryError } from "@/components/scanner/manual/manual-entry-error";
 
 interface IScanManualEntryProps {
   onSubmit: (code: IScannedCode) => void;

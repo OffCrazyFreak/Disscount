@@ -6,7 +6,7 @@ import {
   readyCodes,
   recordReads,
   requiredReads,
-} from "@/components/scanner/scan-consensus";
+} from "@/components/scanner/camera/scan-consensus";
 import type { IScannedCode } from "@/typings/scanned-code";
 
 const EAN: IScannedCode = { rawValue: "4006381333931", format: "ean_13" };
