@@ -52,12 +52,12 @@ export default function InstallBanner() {
   return (
     <>
       {/* Above the bottom nav, which owns the bottom strip below md, and below the sheet it opens. */}
-      {/* Centred on the map, because its zoom and locate controls hold the bottom right corner. */}
+      {/* Bottom left on the map, above the credits, because the controls and the search panel hold the right side. */}
       <div
         data-slot="install-banner"
         className={cn(
           "fixed inset-x-0 bottom-[var(--bottom-nav-total)] z-[var(--z-install-banner)] p-4 md:bottom-0 md:inset-x-auto md:right-4 md:max-w-sm",
-          isMap && "md:inset-x-0 md:mx-auto",
+          isMap && "md:right-auto md:left-0 md:bottom-10",
         )}
       >
         <div className="flex flex-col gap-3 rounded-xl border bg-card p-3 shadow-lg">
