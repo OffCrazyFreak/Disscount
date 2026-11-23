@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -10,6 +10,7 @@ import MapSearchLead from "@/app/[locale]/map/components/map-search-lead";
 import MapSearchSurface from "@/app/[locale]/map/components/map-search-surface";
 import { useHeaderSlot } from "@/app/[locale]/map/hooks/use-header-slot";
 import { useMorphTransition } from "@/app/[locale]/map/hooks/use-morph-transition";
+import { useSearchOpener } from "@/app/[locale]/map/hooks/use-search-opener";
 import { HEADER_SLOT_OPEN_ATTR } from "@/components/custom/header/header-slot";
 
 interface IMapSearchBarProps {
@@ -25,37 +26,15 @@ export default function MapSearchBar({
   onOpenChange,
   children,
 }: IMapSearchBarProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const opener = useSearchOpener({ isOpen, onOpenChange });
   const transition = useMorphTransition(isOpen);
   const { slot, frame } = useHeaderSlot();
-
-  // Keyboard close returns focus to the field; on touch that would raise the keyboard, so it blurs.
-  const keepFocus = useRef(false);
-
-  useEffect(() => {
-    if (isOpen) return;
-
-    if (keepFocus.current) inputRef.current?.focus({ preventScroll: true });
-    else inputRef.current?.blur();
-    keepFocus.current = false;
-  }, [isOpen]);
-
-  function close(byKeyboard: boolean) {
-    keepFocus.current = byKeyboard;
-    onOpenChange(false);
-  }
 
   return (
     // Fixed, so the open list escapes the layout's clip and runs under the bottom nav.
     <div
       className="pointer-events-none fixed inset-0 z-[3]"
-      onKeyDown={(event) => {
-        if (event.key !== "Escape" || !isOpen) return;
-
-        // The store sheet listens for Escape too, and must stay open.
-        event.stopPropagation();
-        close(true);
-      }}
+      onKeyDown={opener.handleKeyDown}
     >
       <MapSearchSurface isOpen={isOpen} frame={frame} transition={transition} />
 
@@ -67,36 +46,13 @@ export default function MapSearchBar({
           >
             <MapSearchLead
               isOpen={isOpen}
-              onBack={(byKeyboard) => close(byKeyboard)}
+              onBack={opener.close}
               transition={transition}
             />
 
             {/* One field because iOS raises the keyboard only for an input focused within the tap. */}
-            <div
-              className="min-w-0 flex-1"
-              onPointerDown={(event) => {
-                // The clear button empties the search without leaving the map.
-                if (
-                  event.target instanceof Element &&
-                  event.target.closest("button")
-                ) {
-                  return;
-                }
-                onOpenChange(true);
-              }}
-              onFocus={(event) => {
-                // Focus handed back on close, or on or from the clear button, stays put.
-                if (keepFocus.current) return;
-                if (event.currentTarget.contains(event.relatedTarget)) return;
-                if (
-                  event.target instanceof Element &&
-                  event.target.closest("button")
-                )
-                  return;
-                onOpenChange(true);
-              }}
-            >
-              <MapSearch inputRef={inputRef} />
+            <div className="min-w-0 flex-1" {...opener.fieldProps}>
+              <MapSearch inputRef={opener.inputRef} />
             </div>
 
             {/* Its width shrinks rather than it unmounting, so the field widens with it instead of jumping. */}
