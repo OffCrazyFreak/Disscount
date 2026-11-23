@@ -16,6 +16,7 @@ import {
   Mail,
   Package,
   House,
+  LayoutGrid,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type shell from "@/i18n/messages/hr/shell.json";
@@ -152,6 +153,14 @@ const productNavTable = [
         showInHeader: false,
       },
     ],
+  },
+  {
+    id: "categories",
+    href: "/categories",
+    labelKey: "nav.categories",
+    icon: LayoutGrid,
+
+    showInHeader: false,
   },
   {
     id: "statistics",
