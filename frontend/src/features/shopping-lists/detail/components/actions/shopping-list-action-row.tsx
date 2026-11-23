@@ -1,9 +1,9 @@
 import { useTranslations } from "next-intl";
 import { LucideClipboardEdit, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
-import ShoppingListIconAction from "@/features/shopping-lists/detail/components/shopping-list-icon-action";
-import ShoppingListShareAction from "@/features/shopping-lists/detail/components/shopping-list-share-action";
-import ShoppingListDeleteAction from "@/features/shopping-lists/detail/components/shopping-list-delete-action";
+import ShoppingListIconAction from "@/features/shopping-lists/detail/components/actions/shopping-list-icon-action";
+import ShoppingListShareAction from "@/features/shopping-lists/detail/components/actions/shopping-list-share-action";
+import ShoppingListDeleteAction from "@/features/shopping-lists/detail/components/actions/shopping-list-delete-action";
 import type { IShoppingListActionGroupProps } from "@/features/shopping-lists/detail/hooks/use-shopping-list-actions";
 
 interface IShoppingListActionRowProps extends IShoppingListActionGroupProps {

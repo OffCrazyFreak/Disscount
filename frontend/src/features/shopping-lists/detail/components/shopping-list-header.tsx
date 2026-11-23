@@ -4,7 +4,7 @@ import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
-import ShoppingListActionButtons from "@/features/shopping-lists/detail/components/shopping-list-action-buttons";
+import ShoppingListActionButtons from "@/features/shopping-lists/detail/components/actions/shopping-list-action-buttons";
 import ShoppingListVisibilityIndicator from "@/features/shopping-lists/components/shopping-list-visibility-indicator";
 import { resolveShoppingListAccess } from "@/features/shopping-lists/utils/shopping-list-access";
 import {

@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import type { ShoppingListDto as ShoppingList } from "@/lib/api/types";
 import { ConfirmDialog } from "@/components/custom/modal/confirm-dialog";
 import { useShoppingListActions } from "@/features/shopping-lists/detail/hooks/use-shopping-list-actions";
-import ShoppingListActionRow from "@/features/shopping-lists/detail/components/shopping-list-action-row";
+import ShoppingListActionRow from "@/features/shopping-lists/detail/components/actions/shopping-list-action-row";
 
 interface IShoppingListActionButtonsProps {
   shoppingList: ShoppingList;

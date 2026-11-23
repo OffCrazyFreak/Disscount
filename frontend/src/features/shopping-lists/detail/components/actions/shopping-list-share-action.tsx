@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import { Share2 } from "lucide-react";
 
 import Share2Pen from "@/components/custom/icons/share-2-pen";
-import ShoppingListIconAction from "@/features/shopping-lists/detail/components/shopping-list-icon-action";
+import ShoppingListIconAction from "@/features/shopping-lists/detail/components/actions/shopping-list-icon-action";
 
 interface IShoppingListShareActionProps {
   isShared: boolean;

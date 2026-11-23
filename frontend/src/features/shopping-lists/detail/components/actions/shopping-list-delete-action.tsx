@@ -3,7 +3,7 @@ import { Trash2 } from "lucide-react";
 
 import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
 import { LOADING_LABELS } from "@/constants/loading-labels";
-import ShoppingListIconAction from "@/features/shopping-lists/detail/components/shopping-list-icon-action";
+import ShoppingListIconAction from "@/features/shopping-lists/detail/components/actions/shopping-list-icon-action";
 
 interface IShoppingListDeleteActionProps {
   isDeleting: boolean;

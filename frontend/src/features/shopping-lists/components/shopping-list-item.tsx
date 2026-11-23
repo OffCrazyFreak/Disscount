@@ -10,7 +10,7 @@ import { formatDate } from "@/utils/format/strings";
 import { shoppingListPath } from "@/features/shopping-lists/utils/shopping-list-links";
 import { openModalUrl } from "@/lib/modal/modal-navigation";
 import useCardLongPress from "@/hooks/gestures/use-card-long-press";
-import ShoppingListActionButtons from "@/features/shopping-lists/detail/components/shopping-list-action-buttons";
+import ShoppingListActionButtons from "@/features/shopping-lists/detail/components/actions/shopping-list-action-buttons";
 import ShoppingListVisibilityIndicator from "@/features/shopping-lists/components/shopping-list-visibility-indicator";
 
 interface IShoppingListListItemProps {

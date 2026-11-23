@@ -59,7 +59,7 @@ vi.mock(
   () => ({ default: () => null }),
 );
 vi.mock(
-  "@/features/shopping-lists/detail/components/shopping-list-info-table",
+  "@/features/shopping-lists/detail/components/info/shopping-list-info-table",
   () => ({ default: () => null }),
 );
 vi.mock(
@@ -67,7 +67,7 @@ vi.mock(
   () => ({ default: () => null }),
 );
 vi.mock(
-  "@/features/shopping-lists/detail/components/shopping-list-price-history",
+  "@/features/shopping-lists/detail/components/price-history/shopping-list-price-history",
   () => ({ default: () => null }),
 );
 vi.mock(

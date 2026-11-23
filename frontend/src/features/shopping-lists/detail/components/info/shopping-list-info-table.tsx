@@ -7,8 +7,8 @@ import {
   calculateShoppingListStats,
   countUnpricedItems,
 } from "@/features/shopping-lists/utils/shopping-list-utils";
-import ShoppingListInfoPriceRange from "@/features/shopping-lists/detail/components/shopping-list-info-price-range";
-import ShoppingListInfoSpendingRow from "@/features/shopping-lists/detail/components/shopping-list-info-spending-row";
+import ShoppingListInfoPriceRange from "@/features/shopping-lists/detail/components/info/shopping-list-info-price-range";
+import ShoppingListInfoSpendingRow from "@/features/shopping-lists/detail/components/info/shopping-list-info-spending-row";
 
 interface IShoppingListInfoTableProps {
   shoppingList: ShoppingListDto;

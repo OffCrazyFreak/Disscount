@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import BlockLoadingSpinner from "@/components/custom/common/feedback/block-loading-spinner";
 import ShoppingListHeader from "@/features/shopping-lists/detail/components/shopping-list-header";
 import ShoppingListSections from "@/features/shopping-lists/detail/components/shopping-list-sections";
-import ShoppingListInfoTable from "@/features/shopping-lists/detail/components/shopping-list-info-table";
+import ShoppingListInfoTable from "@/features/shopping-lists/detail/components/info/shopping-list-info-table";
 import ShoppingListAccessBanner from "@/features/shopping-lists/detail/components/shopping-list-access-banner";
 import ShoppingListUnavailable from "@/features/shopping-lists/detail/components/shopping-list-unavailable";
 import ShoppingListUpdateStatus from "@/features/shopping-lists/detail/components/shopping-list-update-status";

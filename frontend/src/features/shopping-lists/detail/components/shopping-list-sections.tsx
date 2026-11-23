@@ -4,7 +4,7 @@ import { type ComponentProps } from "react";
 import { useTranslations } from "next-intl";
 import SectionTabs from "@/components/custom/common/display/section-tabs";
 import ShoppingListItems from "@/features/shopping-lists/detail/components/items/shopping-list-items";
-import ShoppingListPriceHistory from "@/features/shopping-lists/detail/components/shopping-list-price-history";
+import ShoppingListPriceHistory from "@/features/shopping-lists/detail/components/price-history/shopping-list-price-history";
 import ShoppingListStoreSummary from "@/features/shopping-lists/detail/components/stores/shopping-list-stores-list";
 import { useListChainAggregates } from "@/features/shopping-lists/detail/hooks/use-list-chain-aggregates";
 import type { ISectionTab } from "@/typings/section-tabs";
