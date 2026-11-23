@@ -372,15 +372,16 @@ The whole ladder lives in `globals.css` as `--z-*` tokens, in descending order, 
 | 45  | `--z-bottom-nav`         | bottom nav                                                  |
 | 44  | `--z-bottom-sheet`       | bottom sheets                                               |
 | 43  | `--z-bottom-sheet-scrim` | a modal sheet's scrim                                       |
+| 42  | `--z-fab`                | back-to-top FAB                                             |
 | 41  | `--z-install-banner`     | PWA install banner                                          |
 | 40  | `--z-scroll-fade`        | window scroll fade                                          |
 | 39  | `--z-bottom-nav-covered` | what `--z-bottom-nav` becomes while a modal sheet is open   |
-| 30  | `--z-fab`                | back-to-top FAB                                             |
+| 30  | `--z-doodle`             | landing page cart chaser                                    |
 | 20  | `--z-header`             | header                                                      |
 
 `--z-overlay` is consumed only by a nested sheet: dialogs and the desktop sidebar still carry shadcn's own `z-50` and `z-10`.
 
-Two moves made room for the bar: the FAB dropped from `z-50` (it is desktop-only and belongs under every layer) and the PWA banner from `z-50` to the install-banner token, since it opens the install sheet and must not float over it.
+Two moves made room for the bar: the FAB dropped from `z-50` to `--z-fab` (42), above the scroll fade it sits inside and the install banner but below the bar and its sheets, and the PWA banner from `z-50` to the install-banner token, since it opens the install sheet and must not float over it.
 
 The **mobile sidebar** stays out of `SheetShell` and keeps `z-50`. It is a `swipeDirection={side}` drawer covering the full height, and unlike the sheets it really is modal, so its scrim should cover the bar rather than leave it poking through.
 
