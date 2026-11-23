@@ -16,7 +16,7 @@ interface IBreadcrumbsProps {
 export default function Breadcrumbs({ label, items }: IBreadcrumbsProps) {
   return (
     <nav aria-label={label}>
-      {/* Each separator trails its crumb, so a wrapped line never starts with one; a too-long crumb ends in an ellipsis. */}
+      {/* A separator trails its crumb, so no wrapped line starts with one; a long crumb ends in an ellipsis. */}
       <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-muted-foreground">
         {items.map((item, index) => (
           <li
